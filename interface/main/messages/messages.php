@@ -27,11 +27,7 @@
  * @link http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
@@ -95,16 +91,16 @@ $task= isset($_REQUEST['task']) ? $_REQUEST['task'] : "";
 if (acl_check('admin', 'super'    )) {
 if ($show_all=='yes') {
     $showall = "yes";
-    $lnkvar="'messages.php?show_all=no&$activity_string_html' name='Just Mine' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('Just Mine'), ENT_NOQUOTES).")";
+    $lnkvar="\"messages.php?show_all=no&$activity_string_html\" name='Just Mine' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('Just Mine'), ENT_NOQUOTES).")";
 }
 else {
     $showall = "no";
-    $lnkvar="'messages.php?show_all=yes&$activity_string_html' name='See All' onclick=\"top.restoreSession()\"> (".htmlspecialchars( xl('See All'), ENT_NOQUOTES).")";
+    $lnkvar="\"messages.php?show_all=yes&$activity_string_html\" name='See All' onclick=\"top.restoreSession()\">(".htmlspecialchars( xl('See All'), ENT_NOQUOTES).")";
 }
 }
 ?>
 <br>
-<table><tr><td><span class="title"> <?php echo htmlspecialchars( xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href= "<?php echo $lnkvar; ?>" > </a></td></tr></table>
+<table><tr><td><span class="title"> <?php echo htmlspecialchars(xl('Messages'), ENT_NOQUOTES); ?></span> <a class='more' href=<?php echo $lnkvar; ?></a></td></tr></table>
 <?php
 //show the activity links
 if (empty($task) || $task=="add" || $task=="delete") { ?>
@@ -275,9 +271,11 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
   if ($urow['fname']) echo ", " . htmlspecialchars( $urow['fname'], ENT_NOQUOTES);
   echo "</option>\n";
  }
-  echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
-  echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
-  echo "</option>\n";
+ if($GLOBALS['portal_offsite_enable']){
+      echo "<option value='" . htmlspecialchars( '-patient-', ENT_QUOTES) . "'";
+      echo ">" . htmlspecialchars( '-Patient-', ENT_NOQUOTES);
+      echo "</option>\n";
+ }
 ?>
    </select>
   </td>

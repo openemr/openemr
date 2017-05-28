@@ -28,14 +28,10 @@ session_start();
 if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite_two'] ) ){
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    $fake_register_globals=false;
-    $sanitize_all_escapes=true;
     require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
 } else{
     session_destroy();
     $ignoreAuth = false;
-    $sanitize_all_escapes = true;
-    $fake_register_globals = false;
     require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
     if( ! isset( $_SESSION['authUserID'] ) ){
         $landingpage = "index.php";

@@ -25,9 +25,6 @@
  * @link http://www.open-emr.org
 */
 
- $fake_register_globals=false;
- $sanitize_all_escapes=true;
-
  include_once("../../globals.php");
  include_once("$srcdir/patient.inc");
  require_once(dirname(__FILE__)."/../../../library/appointments.inc.php");

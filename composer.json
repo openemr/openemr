@@ -11,6 +11,7 @@
     },
     "require": {
 
+        "mpdf/mpdf": "6.1.3",
         "adldap2/adldap2": "7.0.4",
         "smarty/smarty": "2.6.29",
         "adodb/adodb-php": "5.20.9",
@@ -23,12 +24,16 @@
         "dompdf/dompdf": "0.7.0",
         "doctrine/common": "2.5.0",
         "doctrine/couchdb": "1.0-beta2",
-        "doctrine/orm": "2.5.5"
+        "doctrine/orm": "2.5.5",
+        "twig/twig": "1.33.*",
+        "symfony/http-foundation": "2.8.20",
+        "vlucas/phpdotenv": "2.4"
 
     },
     "require-dev": {
 
-        "phing/phing": "2.14.0"
+        "phing/phing": "2.14.0",
+        "phpunit/phpunit": "5.7"
 
     },
     "autoload": {
@@ -52,9 +57,11 @@
             "common\\database\\": "common/database",
             "common\\logging\\": "common/logging",
             "common\\http\\": "common/http",
+            "common\\utils\\": "common/utils",
             "entities\\": "entities",
             "services\\": "services",
-            "repositories\\": "repositories"
+            "repositories\\": "repositories",
+            "OpenEMR\\Encounter\\Services\\": "interface/patient_file/encounter/Services"
         }
     },
     "config": {

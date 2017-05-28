@@ -18,8 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 
@@ -52,7 +52,7 @@ if (isset($_POST['mode'])) {
 <html>
 <head>
 
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 </head>
 <body class="body_top">

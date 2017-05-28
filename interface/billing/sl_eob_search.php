@@ -24,19 +24,19 @@
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
-require_once("../globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/invoice_summary.inc.php");
-require_once("$srcdir/appointments.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/parse_era.inc.php");
-require_once("$srcdir/sl_eob.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/../controllers/C_Document.class.php");
-require_once("$srcdir/documents.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/acl.inc");
+require_once ("../globals.php");
+require_once ("$srcdir/patient.inc");
+require_once ("$srcdir/invoice_summary.inc.php");
+require_once ("$srcdir/appointments.inc.php");
+require_once ($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once ("$srcdir/parse_era.inc.php");
+require_once ("$srcdir/sl_eob.inc.php");
+require_once ("$srcdir/api.inc");
+require_once ("$srcdir/forms.inc");
+require_once ("$srcdir/../controllers/C_Document.class.php");
+require_once ("$srcdir/documents.php");
+require_once ("$srcdir/options.inc.php");
+require_once ("$srcdir/acl.inc");
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -45,64 +45,88 @@ $where = '';
 $eraname = '';
 $eracount = 0;
 /* Load dependencies only if we need them */
-if ( !empty($GLOBALS['portal_onsite_two_enable'])){
-	/*  Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-	require_once("../../patients/lib/portal_mail.inc");
-	require_once("../../patients/lib/appsql.class.php");
-	
-	function is_auth_portal( $pid = 0){
-		if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array($pid) )) {
-			if($pData['allow_patient_portal'] != "YES")
-				return false;
-				else return true;
-		}
-		else return false;
-	}
-	function notify_portal($thispid, array $invoices, $template, $invid){
-		$builddir = $GLOBALS['OE_SITE_DIR'] .  '/onsite_portal_documents/templates/' . $thispid;
-		if( ! is_dir($builddir) )
-			mkdir($builddir, 0755, true);
-		if( fixup_invoice($template, $builddir.'/invoice'.$invid.'.tpl') != true ) return false; 
-		if( SavePatientAudit( $thispid, $invoices ) != true ) return false; // this is all the invoice data for new invoicing feature to come
-		$note =  xl('You have an invoice due for payment. You may view and pay in your Patient Documents.');
-		if(sendMail( $_SESSION['authUserID'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUserID'], $_SESSION['authUser'], $thispid, $invoices[0]['patient'] ) != 1)
-			return false;;
-		//addPnote($thispid, $note,1,1, xlt('Bill/Collect'), '-patient-');
-		return true;
-	}
-	function fixup_invoice($template, $ifile){
-		$data = file_get_contents($template);
-		if($data == "") return false;
-		if( !file_put_contents($ifile, $data) ) return false;
-		return true;
-	}
-	function SavePatientAudit( $pid, $invs ){
-		$appsql = new ApplicationTable();
-		try{
-			$audit = Array ();
-			$audit['patient_id'] = $pid;
-			$audit['activity'] = "invoice";
-			$audit['require_audit'] = "0";
-			$audit['pending_action'] = "payment";
-			$audit['action_taken'] = "";
-			$audit['status'] = "waiting transaction";
-			$audit['narrative'] = "Request patient online payment.";
-			$audit['table_action'] = '';
-			$audit['table_args'] =  json_encode($invs);
-			$audit['action_user'] = $pid;
-			$audit['action_taken_time'] = "";
-			$audit['checksum'] = "";
-			$edata = $appsql->getPortalAudit( $pid, 'payment', 'invoice', "waiting transaction", 0 );
-			//$audit['date'] = $edata['date'];
-			if( $edata['id'] > 0 ) $appsql->portalAudit( 'update', $edata['id'], $audit );
-			else{
-				$appsql->portalAudit( 'insert', '', $audit );
-			}
-		} catch( Exception $ex ){
-			return $ex;
-		}
-		return true;
-	}
+if (! empty($GLOBALS['portal_onsite_two_enable'])) {
+    /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
+    require_once ("../../portal/lib/portal_mail.inc");
+    require_once ("../../portal/lib/appsql.class.php");
+
+    function is_auth_portal($pid = 0)
+    {
+        if ($pData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid` = ?", array(
+            $pid
+        ))) {
+            if ($pData['allow_patient_portal'] != "YES") {
+                return false;
+            } else {
+                $_SESSION['portalUser'] = strtolower($pData['fname']) . $pData['id'];
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    function notify_portal($thispid, array $invoices, $template, $invid)
+    {
+        $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
+        if (! is_dir($builddir))
+            mkdir($builddir, 0755, true);
+        if (fixup_invoice($template, $builddir . '/invoice' . $invid . '.tpl') != true) {
+            return false;
+        }
+        if (SavePatientAudit($thispid, $invoices) != true) {
+            return false;
+        } // this is all the invoice data for portal auditing
+        $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
+        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']) == 1) { // remind admin this was sent
+            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient']); // notify patient
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    function fixup_invoice($template, $ifile)
+    {
+        $data = file_get_contents($template);
+        if ($data == "") {
+            return false;
+        }
+        if (! file_put_contents($ifile, $data)) {
+            return false;
+        }
+        return true;
+    }
+
+    function SavePatientAudit($pid, $invs)
+    {
+        $appsql = new ApplicationTable();
+        try {
+            $audit = Array();
+            $audit['patient_id'] = $pid;
+            $audit['activity'] = "invoice";
+            $audit['require_audit'] = "0";
+            $audit['pending_action'] = "payment";
+            $audit['action_taken'] = "";
+            $audit['status'] = "waiting transaction";
+            $audit['narrative'] = "Request patient online payment.";
+            $audit['table_action'] = '';
+            $audit['table_args'] = json_encode($invs);
+            $audit['action_user'] = $pid;
+            $audit['action_taken_time'] = "";
+            $audit['checksum'] = "";
+            $edata = $appsql->getPortalAudit($pid, 'payment', 'invoice', "waiting transaction", 0);
+            if ($edata['id'] > 0) {
+                $appsql->portalAudit('update', $edata['id'], $audit);
+            }
+            else {
+                $appsql->portalAudit('insert', '', $audit);
+            }
+        } catch (Exception $ex) {
+            return $ex;
+        }
+        return true;
+    }
 }
 // This is called back by parse_era() if we are processing X12 835's.
 function era_callback(&$out) {
@@ -124,6 +148,55 @@ function bucks($amount) {
   if ($amount) echo oeFormatMoney($amount);
 }
 
+function validEmail($email){
+    if(preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $email)) {
+    return true;
+    }
+    return false;
+}
+
+function emailLogin($patient_id,$message){
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
+    if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
+        return false;
+    }
+    if (!(validEmail($patientData['email']))) {
+        return false;
+    }
+    if (!(validEmail($GLOBALS['patient_reminder_sender_email']))) {
+        return false;
+    }
+
+    if ($_SESSION['pc_facility']) {
+       $sql = "select * from facility where id=?";
+       $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+    } else {
+       $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+       $facility = sqlQuery($sql);
+    }
+
+    $mail = new MyMailer();
+    $pt_name=$patientData['fname'].' '.$patientData['lname'];
+    $pt_email=$patientData['email'];
+    $email_subject=($facility['name'] . ' ' . xl('Patient Statement Bill'));
+    $email_sender=$GLOBALS['patient_reminder_sender_email'];
+    $mail->AddReplyTo($email_sender, $email_sender);
+    $mail->SetFrom($email_sender, $email_sender);
+    $mail->AddAddress($pt_email, $pt_name);
+    $mail->Subject = $email_subject;
+    $mail->MsgHTML("<html><body><div class='wrapper'>".$message."</div></body></html>");
+    $mail->IsHTML(true);
+    $mail->AltBody = $message;
+
+    if ($mail->Send()) {
+        return true;
+    } else {
+        $email_status = $mail->ErrorInfo;
+        error_log("EMAIL ERROR: ".$email_status,0);
+        return false;
+    }
+}
+
 // Upload a file to the client's browser
 //
 function upload_file_to_client($file_to_send) {
@@ -142,10 +215,32 @@ function upload_file_to_client($file_to_send) {
   // sleep one second to ensure there's no follow-on.
   sleep(1);
 }
-function upload_file_to_client_pdf($file_to_send) {
+
+function upload_file_to_client_email($ppid, $file_to_send) {
+  $message = "";
+  global $STMT_TEMP_FILE_PDF;
+  $file = fopen($file_to_send, "r");//this file contains the text to be converted to pdf.
+  while(!feof($file))
+   {
+    $OneLine=fgets($file);//one line is read
+
+         $message = $message.$OneLine.'<br>';
+
+        $countline++;
+   }
+   emailLogin($ppid, $message);
+}
+
+function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID = null, $flagCFN = false) { //modified for statement title name
   //Function reads a HTML file and converts to pdf.
 
-  global $STMT_TEMP_FILE_PDF;
+   $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
+	if ($flagCFN) {
+		$STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+	} else {
+		global $STMT_TEMP_FILE_PDF;
+	}
+
   global $srcdir;
 
   if ($GLOBALS['statement_appearance'] == '1') {
@@ -227,29 +322,45 @@ function upload_file_to_client_pdf($file_to_send) {
 $today = date("Y-m-d");
   // Print or download statements if requested.
   //
-if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
+ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || $_POST['form_pdf']) || $_POST['form_portalnotify'] && $_POST['form_cb']) {
+
   $fhprint = fopen($STMT_TEMP_FILE, 'w');
+
   $sqlBindArray = array();
   $where = "";
   foreach ($_POST['form_cb'] as $key => $value) {
     $where .= " OR f.id = ?";
     array_push($sqlBindArray, $key);
   }
-  $where = substr($where, 4);
+  if(!empty($where)) {
+    $where = substr($where, 4);
+    $where = '( ' . $where . ' ) AND';
+  }
+
   // need to only use summary invoice for multi visits
+  $inv_pid = array();
+  $inv_count = -1;
   foreach ($_POST['form_invpids'] as $key => $v) {
-  	$inv_pid[$key] = key($v);
+  	if($_POST['form_cb'][$key]){
+  		array_push($inv_pid,key($v));
+  	}
   }
   $res = sqlStatement("SELECT " .
     "f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.last_level_closed, f.last_level_billed, f.billing_note as enc_billing_note, " .
     "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code, p.billing_note as pat_billing_note " .
     "FROM form_encounter AS f, patient_data AS p " .
-    "WHERE ( $where ) AND " .
+    "WHERE $where " .
     "p.pid = f.pid " .
     "ORDER BY p.lname, p.fname, f.pid, f.date, f.encounter", $sqlBindArray);
 
   $stmt = array();
   $stmt_count = 0;
+
+  $flagT = true;
+  $aPatientFirstName = '';
+  $aPatientID = null;
+  $multiplePatients = false;
+  $usePatientNamePdf = false;
 
     // This loops once for each invoice/encounter.
     //
@@ -258,6 +369,21 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     $duedate = $svcdate; // TBD?
     $duncount = $row['stmt_count'];
     $enc_note = $row['enc_billing_note'];
+
+    if ($flagT) {
+      $flagT = false;
+      $aPatientFirstName = $row['fname'];
+      $aPatientID = $row['pid'];
+      $usePatientNamePdf = true;
+    }
+    elseif (!$multiplePatients) {
+      if ($aPatientID != $row['pid']) {
+        $multiplePatients = true;
+        $aPatientFirstName = '';
+        $aPatientID = null;
+        $usePatientNamePdf = false;
+      }
+    }
 
     // If this is a new patient then print the pending statement
     // and start a new one.  This is an associative array:
@@ -349,7 +475,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     	$inv_count += 1;
     	$pvoice[] = $stmt;
     	// we don't want to send the portal multiple invoices, thus this. Last invoice for pid is summary.
-    	if($inv_pid[$inv_count] != $inv_pid[$inv_count+1]){ 
+    	if($inv_pid[$inv_count] != $inv_pid[$inv_count+1]){
     		fwrite($fhprint, make_statement($stmt));
     		if( !notify_portal($stmt['pid'], $pvoice, $STMT_TEMP_FILE, $stmt['pid'] . "-" . $stmt['encounter'])){
     			$alertmsg = xlt('Notification FAILED');
@@ -373,7 +499,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_pdf']) || $
     if ($_POST['form_download']) {
       upload_file_to_client($STMT_TEMP_FILE);
     } elseif ($_POST['form_pdf']) {
-      upload_file_to_client_pdf($STMT_TEMP_FILE);
+      upload_file_to_client_pdf($STMT_TEMP_FILE, $aPatientFirstName, $aPatientID, $usePatientNamePdf);
+    } elseif ($_POST['form_email']) {
+                upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_POST['form_portalnotify']) {
     	if($alertmsg == "")
     		$alertmsg = xl('Sending Invoice to Patient Portal Completed');
@@ -720,6 +848,10 @@ if ($eracount && $num_invoices != $eracount) {
  <td class="dehead" align="left">
    <?php xl('Sel','e'); ?>
  </td>
+  <td class="dehead" align="center">
+   <?php xl('Email','e'); ?>
+  </td>
+
  <?php } ?>
 </tr>
 
@@ -808,11 +940,22 @@ while ($row = sqlFetchArray($t_res)) {
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
      <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
-     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){ 
+     <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){
      	echo(' PPt');	echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />"); $is_portal = true;
      	}?>
    </td>
    <?php } ?>
+  <td class="detail" align="left">
+   <?php
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']) );
+    if ( $patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
+        echo xlt("YES");
+    } else {
+        echo xlt("NO");
+    }
+   ?>
+  </td>
+
  </tr>
  <?php
     } // end while
@@ -833,6 +976,7 @@ while ($row = sqlFetchArray($t_res)) {
     <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
   <?php } ?>
   <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements','e'); ?>' /> &nbsp;
+  <input type='submit' name='form_email' value='<?php xl('Email Selected Statements','e'); ?>' /> &nbsp;
 <?php if ($is_portal ){?>
   <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal','e'); ?>' /> &nbsp;
   <?php } }?>

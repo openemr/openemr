@@ -4,13 +4,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../../globals.php");
 require_once("$srcdir/pnotes.inc");
@@ -244,6 +238,7 @@ $urlparms = "docid=$docid&orderid=$orderid";
   echo "</option>\n";
  }
 ?>
+   <option value=''><?php echo htmlspecialchars( xl('Mark Note as Completed'), ENT_NOQUOTES); ?></option>
    </select>
   </td>
  </tr>

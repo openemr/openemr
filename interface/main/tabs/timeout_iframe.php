@@ -23,8 +23,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 // Tell auth.inc that this is the daemon script; this is so that
 // inactivity timeouts will still work, and to avoid logging an

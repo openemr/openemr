@@ -26,13 +26,8 @@ function formFooter ()
 	<?php
 }
 
-// This function will escape the $values when using the new security method (ie. $sanitize_all_escapes is TRUE).
-//   Otherwise, this function expects the $values to already be escaped(original and legacy behavior).
 function formSubmit ($tableName, $values, $id, $authorized = "0")
 {
-        // Bring in $sanitize_all_escapes variable, which will decide
-        // the variable escaping method.
-        global $sanitize_all_escapes;
 		global $attendant_type;
 
 	$sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
@@ -56,14 +51,7 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 			}
 		}
 		else {
-                        if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
-                                // using new security method, so escape the key and values here
-                                $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
-                        }
-                        else {
-                                // original method (rely on code to escape values before using this function)
-			        $sql .= " $key = '$value',";
-                        }
+            $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
 		}
 	$sql = substr($sql, 0, -1);
 	return sqlInsert($sql);
@@ -72,20 +60,10 @@ function formSubmit ($tableName, $values, $id, $authorized = "0")
 
 function formUpdate ($tableName, $values, $id, $authorized = "0")
 {
-        // Bring in $sanitize_all_escapes variable, which will decide
-        // the variable escaping method.
-        global $sanitize_all_escapes;
-
 	$sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
 	foreach ($values as $key => $value)
-                if (isset($sanitize_all_escapes) && $sanitize_all_escapes) {
-                        // using new security method, so escape the key and values here
-                        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
-                }
-                else {
-                        // original method (rely on code to escape values before using this function)
-		        $sql .= " $key = '$value',";
-                }
+        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
+
 	$sql = substr($sql, 0, -1);
 	$sql .= " where id='".add_escape_custom($id)."'";
 

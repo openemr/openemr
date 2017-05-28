@@ -27,8 +27,8 @@
  *
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 
 require_once("../globals.php");

@@ -19,8 +19,8 @@
  * @author  Visolve <services@visolve.com>
  * @link    http://www.open-emr.org
  */
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../interface/globals.php");
 require_once("../pid.inc");

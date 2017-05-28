@@ -22,12 +22,7 @@
  */
 
 
- //SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 require_once("../interface/globals.php");
 require_once("../ccr/uuid.php");
 require_once("../library/patient.inc");
@@ -35,6 +30,8 @@ require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
 require_once "$srcdir/report_database.inc";
 require_once "qrda_functions.php";
+
+$facilityService = new \services\FacilityService();
 
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
@@ -377,7 +374,7 @@ $xml->element('softwareName', 'CYPRESS');
 $xml->close_customTag();
 
 //Facility Address
-$facilResRow = sqlQuery("SELECT name, street,city,state,postal_code, country_code, phone from facility WHERE id = ?", array($facility_id));
+$facilResRow = $facilityService->getById($facility_id);
 $xml->add_authReprestOrginisation($facilResRow);
 //$xml->add_facilAddress($facilResRow);
 $xml->close_assignAuthor();

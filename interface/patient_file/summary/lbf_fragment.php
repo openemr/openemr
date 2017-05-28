@@ -18,12 +18,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.  *
  ********************************************************************************/
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes = true;
-
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals = false;
-
 require_once("../../globals.php");
 
 $lbf_form_id = $_GET['formname'];

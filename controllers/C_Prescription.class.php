@@ -622,7 +622,11 @@ class C_Prescription extends Controller {
 
 		$this->multiprint_footer($pdf);
 
-		$pdf->ezStream();
+			$pFirstName = $p->patient->fname; //modified by epsdky for prescription title change to include patient name and ID
+			$pFName = convert_safe_file_dir_name($pFirstName);
+			$modedFileName = "Rx_{$pFName}_{$p->patient->id}.pdf";
+
+		$pdf->ezStream(array('Content-Disposition' => $modedFileName));
 		return;
 	}
 

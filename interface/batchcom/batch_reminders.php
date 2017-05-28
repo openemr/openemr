@@ -5,11 +5,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");

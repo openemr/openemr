@@ -503,7 +503,7 @@ class FormROS extends ORDataObject {
 		}
 	}
 	function get_biopsy(){
-		return $this->breast_discharge;
+		return $this->biopsy;
 	}
 	function set_biopsy($data){
 		if(!empty($data)){

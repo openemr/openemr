@@ -32,7 +32,7 @@
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
 
- $msgs = getPortalPatientNotes($pid);
+ $msgs = getPortalPatientNotes($_SESSION['portal_username']);
  $msgcnt = count($msgs);
  $newcnt = 0;
  foreach ( $msgs as $i ) {

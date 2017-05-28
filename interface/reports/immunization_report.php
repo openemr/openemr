@@ -252,12 +252,12 @@ if ($_POST['form_get_hl7']==='true') {
 
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Immunization Registry','e'); ?></title>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+
 <script language="JavaScript">
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
 
@@ -276,8 +276,6 @@ if ($_POST['form_get_hl7']==='true') {
 
 </script>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style type="text/css">
 /* specifically include & exclude from printing */
 @media print {
@@ -326,7 +324,7 @@ onsubmit='return top.restoreSession()'>
     <div style='float:left'>
       <table class='text'>
         <tr>
-          <td class='label_custom'>
+          <td class='control-label'>
             <?php xl('Codes','e'); ?>:
           </td>
           <td>
@@ -337,7 +335,7 @@ onsubmit='return top.restoreSession()'>
    " left join code_types ct on codes.code_type = ct.ct_id ".
    " where ct.ct_key='CVX' ORDER BY name";
  $cres = sqlStatement($query1);
- echo "   <select multiple='multiple' size='3' name='form_code[]'>\n";
+ echo "   <select multiple='multiple' size='3' name='form_code[]' class='form-control'>\n";
  //echo "    <option value=''>-- " . xl('All Codes') . " --\n";
  while ($crow = sqlFetchArray($cres)) {
   $codeid = $crow['id'];
@@ -348,21 +346,21 @@ onsubmit='return top.restoreSession()'>
  echo "   </select>\n";
 ?>
           </td>
-          <td class='label_custom'>
+          <td class='control-label'>
             <?php xl('From','e'); ?>:
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
-            class='datepicker'
+            class='datepicker form-control'
             size='10' value='<?php echo $form_from_date ?>'
             title='yyyy-mm-dd'>
           </td>
-          <td class='label_custom'>
+          <td class='control-label'>
             <?php xl('To','e'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
-            class='datepicker'
+            class='datepicker form-control'
             size='10' value='<?php echo $form_to_date ?>'
             title='yyyy-mm-dd'>
           </td>
@@ -374,33 +372,29 @@ onsubmit='return top.restoreSession()'>
     <table style='border-left:1px solid; width:100%; height:100%' >
       <tr>
         <td>
-          <div style='margin-left:15px'>
-            <a href='#' class='css_button'
-            onclick='
-            $("#form_refresh").attr("value","true");
-            $("#form_get_hl7").attr("value","false");
-            $("#theform").submit();
-            '>
-            <span>
-              <?php xl('Refresh','e'); ?>
-            </spain>
-            </a>
-            <?php if ($_POST['form_refresh']) { ?>
-              <a href='#' class='css_button' id='printbutton'>
-                <span>
-                  <?php xl('Print','e'); ?>
-                </span>
+          <div class="text-center">
+            <div class="btn-group" role="group">
+              <a href='#' class='btn btn-default btn-save'
+                onclick='
+                $("#form_refresh").attr("value","true");
+                $("#form_get_hl7").attr("value","false");
+                $("#theform").submit();
+                '>
+              <?php echo xlt('Refresh'); ?>
               </a>
-              <a href='#' class='css_button' onclick=
-              "if(confirm('<?php xl('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?','e'); ?>')) {
-                     $('#form_get_hl7').attr('value','true');
-                     $('#theform').submit();
-              }">
-                <span>
-                  <?php xl('Get HL7','e'); ?>
-                </span>
-              </a>
-            <?php } ?>
+              <?php if ($_POST['form_refresh']) { ?>
+                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                  <?php echo xlt('Print'); ?>
+                </a>
+                <a href='#' class='btn btn-default btn-transmit' onclick=
+                  "if(confirm('<?php echo xls('This step will generate a file which you have to save for future use. The file cannot be generated again. Do you want to proceed?'); ?>')) {
+                    $('#form_get_hl7').attr('value','true');
+                    $('#theform').submit();
+                    }">
+                  <?php echo xlt('Get HL7'); ?>
+                </a>
+              <?php } ?>
+            </div>
           </div>
         </td>
       </tr>

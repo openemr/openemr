@@ -53,14 +53,16 @@
  */
 
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/billing.inc");
 require_once("../../custom/code_types.inc.php");
+
+$facilityService = new \services\FacilityService();
 
 $currdecimals = $GLOBALS['currency_decimals'];
 
@@ -108,11 +110,10 @@ function receiptPaymentLine($paydate, $amount, $description='') {
 // or for the encounter specified as a GET parameter.
 //
 function generate_receipt($patient_id, $encounter=0) {
-  global $sl_err, $sl_cash_acc, $css_header, $details;
+  global $sl_err, $sl_cash_acc, $css_header, $details, $facilityService;
 
   // Get details for what we guess is the primary facility.
-  $frow = sqlQuery("SELECT * FROM facility " .
-    "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+  $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 
   $patdata = getPatientData($patient_id, 'fname,mname,lname,pubpid,street,city,state,postal_code,providerID');
 

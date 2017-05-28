@@ -5,7 +5,7 @@
  * This program displays the main search and select screen for claims generation
  *
  * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2014 Brady Miller <brady.g.miller@gmail.com>
+ * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,8 +24,8 @@
  * @link http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 require_once("../../library/acl.inc");
@@ -108,6 +108,8 @@ $oauthorized = $my_authorized;
 <head>
 <?php if (function_exists('html_header_show')) html_header_show(); ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <style>
 .subbtn { margin-top:3px; margin-bottom:3px; margin-left:2px; margin-right:2px }
 </style>
@@ -345,9 +347,9 @@ function MarkAsCleared(Type)
 <!-- ================================================== -->
 <!-- =============Included for Insurance ajax criteria==== -->
 <!-- ================================================== -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
-<script type="text/javascript" src="../../library/js/common.js"></script>
+<script type="text/javascript" src="../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <style>
 #ajax_div_insurance {
     position: absolute;
@@ -374,12 +376,9 @@ document.onclick=TakeActionOnHide;
 
 <form name='the_form' method='post' action='billing_report.php' onsubmit='return top.restoreSession()' style="display:inline">
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script language='JavaScript'>
  var mypcc = '1';
 </script>
@@ -1188,6 +1187,14 @@ $(document).ready(function() {
             var w = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300,left = 312,top = 234');
             this.target = 'Popup_Window';
         }
+    });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
 </script>

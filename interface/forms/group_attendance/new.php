@@ -22,8 +22,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../globals.php");
 require_once("functions.php");
@@ -44,14 +44,17 @@ else {//In case didn't click 'edit' but an attendance form already exists (can't
 
 
 if($form_id){//If editing a form or the form already exists (inwhich case will automatically go into edit mode for existing form)
-    $participants_sql = "SELECT tgp.*, tgpa.*, p.fname, p.lname FROM therapy_groups_participant_attendance as tgpa JOIN patient_data as p ON tgpa.pid = p.id JOIN therapy_groups_participants tgp ON tgp.pid = tgpa.pid WHERE tgpa.form_id = ? AND tgp.group_patient_status = 10;";
+    $participants_sql =  "SELECT tgpa.*, p.fname, p.lname " .
+                         "FROM therapy_groups_participant_attendance as tgpa " .
+                         "JOIN patient_data as p ON tgpa.pid = p.id " .
+                         "WHERE tgpa.form_id = ?;";
     $result = sqlStatement($participants_sql, array($form_id));
     while($p = sqlFetchArray($result)){
         $participants[] = $p;
     }
 }
 else{//new form
-    $participants = getParticipants($therapy_group);
+    $participants = getParticipants($therapy_group, true);
 }
 
 ?>
@@ -81,7 +84,7 @@ else{//new form
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
-                <span class="input_label"><?php echo xlt("Patient Name");?></span>
+                <span class="input_label"><?php echo xlt("Participant's name");?></span>
                 <input name="new_id" class="button-css new_patient_id" type="hidden" value="">
                 <input name="new_patient" class="button-css new_patient" type="text" value=""  readonly>
                 <div class="error_wrap">

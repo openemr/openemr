@@ -6,13 +6,12 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
- $sanitize_all_escapes  = true;
- $fake_register_globals = false;
-
  require_once("../globals.php");
  require_once("$srcdir/acl.inc");
  require_once("drugs.inc.php");
  require_once("$srcdir/options.inc.php");
+
+ $facilityService = new \services\FacilityService();
 
  function send_email($subject, $body) {
   $recipient = $GLOBALS['practice_return_email_path'];
@@ -120,8 +119,7 @@
  // Generate the bottle label for the sale identified by $sale_id.
 
  // Get details for what we guess is the primary facility.
- $frow = sqlQuery("SELECT * FROM facility " .
-  "ORDER BY billing_location DESC, accepts_assignment DESC, id LIMIT 1");
+ $frow = $facilityService->getPrimaryBusinessEntity(array("useLegacyImplementation" => true));
 
  // Get everything else.
  $row = sqlQuery("SELECT " .

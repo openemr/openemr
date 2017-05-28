@@ -8,13 +8,8 @@
 
  // This program exports report to PQRI 2009 XML format.
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 
 require_once("../interface/globals.php");

@@ -4,8 +4,8 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
@@ -167,9 +167,6 @@ if ($bigdata != false)
 
 foreach ( $inDir as $fname )
 {
-        // added 8-2009 by BM - do not show the metric vitals form as option since deprecated
-	//  also added a toggle in globals.php in case user wants the option to add this deprecated form
-        if (($fname == "vitalsM") && ($GLOBALS['disable_deprecated_metrics_form'])) continue;
 
 	if (stristr($fname, ".tar.gz") || stristr($fname, ".tar") || stristr($fname, ".zip") || stristr($fname, ".gz"))
 		$phpState = "PHP compressed";

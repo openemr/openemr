@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * QRDA Download 
+ * QRDA Download
  *
  * Copyright (C) 2015 Ensoftek, Inc
  *
@@ -23,20 +23,14 @@
 
 	// This program exports(Download) to QRDA Category III XML.
 
-	//SANITIZE ALL ESCAPES
-	$sanitize_all_escapes=true;
-	
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-
 	require_once("../interface/globals.php");
-	
+
 	$qrda_fname = $_GET['qrda_fname'];
         check_file_dir_name($qrda_fname);
 	if($qrda_fname != ""){
 		$qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
 		$xmlurl = $qrda_file_path.$qrda_fname;
-		
+
 		header("Pragma: public"); // required
 		header("Expires: 0");
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");

@@ -20,13 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../globals.php");
 ?>
@@ -34,17 +28,15 @@ require_once("../globals.php");
 <html>
 
 <head>
-<?php html_header_show();
+<?php
 $logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
 if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST['lognext'];
 else $logtop = 0;
 ?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
 
 <style type="text/css">
 
@@ -82,33 +74,23 @@ else $logtop = 0;
 <input type='hidden' name='lognext' id='lognext' value=''>
 
 <div id="report_parameters">
-<table>
- <tr>
-  <td width='470px'>
-	<div style='float:left'>
-
-	<table class='text'>
-             <div style='margin-left:15px'>
-               <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-               <span>
-               <?php echo xlt('Refresh'); ?>
-               </span>
-               </a>
-               <a id='prev_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
-               <span>
-               <?php echo xlt('Older'); ?>
-               </span>
-               </a>
-               <a id='next_button' href='#' class='css_button' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
-               <span>
-               <?php echo xlt('Newer'); ?>
-               </span>
-               </a>
-             </div>
-        </table>
-  </td>
- </tr>
-</table>
+    <table>
+        <tr>
+            <td width='470px'>
+                <div class="btn-group pull-left" role="group">
+                    <a id='refresh_button' href='#' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
+                        <?php echo xlt('Refresh'); ?>
+                    </a>
+                    <a id='prev_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(-100); $("#theform").submit()'>
+                        <?php echo xlt('Older'); ?>
+                    </a>
+                    <a id='next_button' href='#' class='btn btn-default btn-transmit' onclick='top.restoreSession(); $("#lognext").val(100); $("#theform").submit()'>
+                        <?php echo xlt('Newer'); ?>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>  <!-- end of search parameters -->
 
 <br>

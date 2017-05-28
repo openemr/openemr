@@ -592,10 +592,6 @@ function pnVarCleanFromInput()
             continue;
         }
 
-        // Clean var
-        if (check_magic_quotes()) {
-            pnStripslashes($ourvar);
-        }
         if (!pnSecAuthAction(0, '::', '::', ACCESS_ADMIN)) {
             $ourvar = preg_replace($search, $replace, $ourvar);
         }

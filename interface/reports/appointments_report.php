@@ -26,8 +26,8 @@
  */
 
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -112,18 +112,11 @@ function fetch_reminders($pid, $appt_date) {
 <html>
 
 <head>
-<?php html_header_show();?>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Appointments Report'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script type="text/javascript">
 
@@ -209,10 +202,10 @@ function fetch_reminders($pid, $appt_date) {
 
 		<table class='text'>
 			<tr>
-				<td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
+				<td class='control-label'><?php echo xlt('Facility'); ?>:</td>
 				<td><?php dropdown_facility($facility , 'form_facility'); ?>
 				</td>
-				<td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
+				<td class='control-label'><?php echo xlt('Provider'); ?>:</td>
 				<td><?php
 
 				// Build a drop-down list of providers.
@@ -223,7 +216,7 @@ function fetch_reminders($pid, $appt_date) {
 
 				$ures = sqlStatement($query);
 
-				echo "   <select name='form_provider'>\n";
+				echo "   <select name='form_provider' class='form-control'>\n";
 				echo "    <option value=''>-- " . xlt('All') . " --\n";
 
 				while ($urow = sqlFetchArray($ures)) {
@@ -238,26 +231,26 @@ function fetch_reminders($pid, $appt_date) {
 				</td>
 			</tr>
 			<tr>
-				<td class='label_custom'><?php echo xlt('From'); ?>:</td>
+				<td class='control-label'><?php echo xlt('From'); ?>:</td>
 				<td><input type='text' name='form_from_date' id="form_from_date"
-				    class='datepicker'
+				    class='datepicker form-control'
 					size='10' value='<?php echo attr($from_date) ?>'
 					title='yyyy-mm-dd'>
 				</td>
-				<td class='label_custom'><?php echo xlt('To'); ?>:</td>
+				<td class='control-label'><?php echo xlt('To'); ?>:</td>
 				<td><input type='text' name='form_to_date' id="form_to_date"
-				    class='datepicker'
+				    class='datepicker form-control'
 					size='10' value='<?php echo attr($to_date) ?>'
 					title='yyyy-mm-dd'>
 				</td>
 			</tr>
 
 			<tr>
-				<td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+				<td class='control-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
 				<td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
 				<td><?php echo xlt('Category') #category drop down creation ?>:</td>
 				<td>
-                                    <select id="form_apptcat" name="form_apptcat">
+                                    <select id="form_apptcat" name="form_apptcat" class="form-control">
                                         <?php
                                             $categories=fetchAppointmentCategories();
                                             echo "<option value='ALL'>".xlt("All")."</option>";
@@ -276,20 +269,39 @@ function fetch_reminders($pid, $appt_date) {
 			</tr>
 			<tr>
 			    <td></td>
-				<td><label><input type='checkbox' name='form_show_available'
-					<?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
-				</label></td>
+				<td>
+    				<div class="checkbox">
+				        <label><input type='checkbox' name='form_show_available'
+					    <?php  if ( $show_available_times ) echo ' checked'; ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
+				        </label>
+				    </div>
+				</td>
 			    <td></td>
-                <td><label><input type="checkbox" name="incl_reminders" id="incl_reminders"
-                    <?php echo ($incl_reminders ? ' checked':''); # This will include the reminder for the patients on the report ?>>
-                    <?php echo xlt('Show Reminders'); ?></label></td>
+                <td>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="incl_reminders" id="incl_reminders"
+                        <?php echo ($incl_reminders ? ' checked':''); # This will include the reminder for the patients on the report ?>>
+                        <?php echo xlt('Show Reminders'); ?>
+                        </label>
+                    </div>
+                </td>
 
 			<tr>
 			    <td></td>
                 <?php # these two selects will show entries that do not have a facility or a provider ?>
-				<td><label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if($chk_with_out_provider) echo "checked";?>>&nbsp;<?php echo xlt('Without Provider'); ?></label></td>
+				<td>
+				    <div class="checkbox">
+				        <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if($chk_with_out_provider) echo "checked";?>><?php echo xlt('Without Provider'); ?>
+				        </label>
+				    </div>
+				</td>
 			    <td></td>
-				<td><label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php echo xlt('Without Facility'); ?></label></td>
+				<td>
+				    <div class="checkbox">
+				        <label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if($chk_with_out_facility) echo "checked";?>>&nbsp;<?php echo xlt('Without Facility'); ?>
+				        </label>
+				    </div>
+				</td>
 			</tr>
 
 		</table>
@@ -301,17 +313,24 @@ function fetch_reminders($pid, $appt_date) {
 		<table style='border-left: 1px solid; width: 100%; height: 100%'>
 			<tr>
 				<td>
-				<div style='margin-left: 15px'>
-                                <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-				<span> <?php echo xlt('Submit'); ?> </span> </a>
-                                <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-        <a href='#' class='css_button' id='printbutton'>
-                                    <span> <?php echo xlt('Print'); ?> </span> </a>
-                                <a href='#' class='css_button' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'>
-                                    <span> <?php echo xlt('Superbills'); ?> </span> </a>
-                               <a href='#' class='css_button' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'>
-                                    <span> <?php echo xlt('Address Labels'); ?> </span> </a>
-                                <?php } ?></div>
+				    <div class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                <?php echo xlt('Submit'); ?>
+                            </a>
+                            <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                    <?php echo xlt('Print'); ?>
+                                </a>
+                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/printed_fee_sheet.php?fill=2","_blank")' onsubmit='return top.restoreSession()'>
+                                    <?php echo xlt('Superbills'); ?>
+                                </a>
+                                <a href='#' class='btn btn-default btn-transmit' onclick='window.open("../patient_file/addr_appt_label.php","_blank")' onsubmit='return top.restoreSession()'>
+                                    <?php echo xlt('Address Labels'); ?>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    </div>
 				</td>
 			</tr>
                         <tr>&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?></tr>

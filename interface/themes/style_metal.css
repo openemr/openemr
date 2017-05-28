@@ -1,3 +1,5 @@
+@import "core.css";
+
 body {
     margin: 0px 0px 0px 2px;
     /* set the base font and size for all DOM children */
@@ -170,6 +172,22 @@ a:hover {
     font-weight: bold;
     text-decoration: none;
     color: #000000;
+}
+
+.sidebar {
+    background: #8CACBB;
+    font-size: 95%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.sidebar .submenu {
+    padding-left:15px;
+    font-size:90%;
+}
+
+.sidebar ul.mainmenu {
+    padding-bottom: 55px;
 }
 
 /*=============================================================
@@ -1335,4 +1353,12 @@ table.dataTable#therapy_groups_list tbody td{
 #file_type_whitelist .top-list{
     margin: 20px 20px 2px 20px;
 
+}
+
+.btn-default {
+    color: #444444 !important;
+}
+
+.btn-link {
+    color: #444444 !important;
 }

@@ -20,8 +20,8 @@
 
 // AJAX handler for logging a printing action.
 
-$fake_register_globals = false;
-$sanitize_all_escapes  = true;
+
+
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/log.inc");

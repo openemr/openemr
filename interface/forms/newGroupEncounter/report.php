@@ -22,8 +22,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once(dirname(__file__)."/../../globals.php");
 require_once("$srcdir/group.inc");
@@ -33,13 +33,15 @@ function newGroupEncounter_report( $group_id, $encounter, $cols, $id) {
 	print "<table><tr><td>\n";
 	while($result = sqlFetchArray($res)) {
 		print "<span class=bold>" . xlt('Facility') . ": </span><span class=text>" . text($result["facility"]) . "</span><br>\n";
-		print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result["reason"])) . "</span><br>\n";
-        $counselors ='';
-        foreach (explode(',',$result["counselors"]) as $userId){
-            $counselors .= getUserNameById($userId) . ', ';
+        if(acl_check('sensitivities', $result['sensitivity'])) {
+            print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result["reason"])) . "</span><br>\n";
+            $counselors ='';
+            foreach (explode(',',$result["counselors"]) as $userId){
+                $counselors .= getUserNameById($userId) . ', ';
+            }
+            $counselors = rtrim($counselors, ", ");
+            print "<span class=bold>" . xlt('Counselors') . ": </span><span class=text>" . nl2br(text($counselors)) . "</span><br>\n";
         }
-        $counselors = rtrim($counselors, ", ");
-		print "<span class=bold>" . xlt('Counselors') . ": </span><span class=text>" . nl2br(text($counselors)) . "</span><br>\n";
 	}
 	print "</td></tr></table>\n";
 }

@@ -1,12 +1,12 @@
-<?php 
-/** 
- *  php/taskman_functions.php 
- * 
+<?php
+/**
+ *  php/taskman_functions.php
+ *
  * Function which extend taskman.php, current a email-to-fax gateway
- *   
- * 
- * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com> 
- * 
+ *
+ *
+ * Copyright (C) 2016 Raymond Magauran <magauran@MedFetch.com>
+ *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Affero General Public License as
  *  published by the Free Software Foundation, either version 3 of the
@@ -19,12 +19,13 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * @package OpenEMR 
- * @author Ray Magauran <magauran@MedFetch.com> 
- * @link http://www.open-emr.org 
+ *
+ * @package OpenEMR
+ * @author Ray Magauran <magauran@MedFetch.com>
+ * @link http://www.open-emr.org
  */
 
+$facilityService = new \services\FacilityService();
 
 /**
  *	This function creates a task as a record in the form_taskman DB_table.
@@ -41,14 +42,14 @@ function make_task($ajax_req) {
 	$query 		= "SELECT * FROM users WHERE id=?";
   	$to_data 	=  sqlQuery($query,array($to_id));
 	$filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf";
-		
+
 	$query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
     $doc = sqlQuery($query,array($encounter,$pid,'%'.$filename.'%' ));
-                                    
+
 
 	$sql = "SELECT * from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
 	$task = sqlQuery($sql,array($from_id,$to_id,$patient_id,$enc));
-	
+
 	if (!$doc['ID'] && $task['ID'] && ($task['REQ_DATE'] < (time() - 60))) {
 		// The task was requested more than a minute ago (prevents multi-clicks from "re-generating" the PDF),
 		// but the document was deleted (to redo it)...
@@ -67,7 +68,7 @@ function make_task($ajax_req) {
 			$send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
 								target='_blank' title='".xla('View the Summary Report sent to Fax Server.')."'>
 								<i class='fa fa-file-pdf-o fa-fw'></i></a>
-								<i class='fa fa-repeat fa-fw' 
+								<i class='fa fa-repeat fa-fw'
 									onclick=\"top.restoreSession(); create_task('".attr($pat_data['ref_providerID'])."','Fax-resend','ref'); return false;\">
 									</i>
 							";
@@ -86,7 +87,7 @@ function make_task($ajax_req) {
 			$send['comments'] = xlt('Currently working on making this document')."...\n";
 		}
 	} else if (!$task['ID']) {
-		$sql = "INSERT into form_taskman 
+		$sql = "INSERT into form_taskman
 				(REQ_DATE, FROM_ID,  TO_ID,  PATIENT_ID,  DOC_TYPE,  DOC_ID,  ENC_ID) VALUES
 				(NOW(), '$from_id', '$to_id','$patient_id','$doc_type','$doc_id','$enc')";
 		sqlQuery($sql);
@@ -100,7 +101,7 @@ function make_task($ajax_req) {
  */
 function process_tasks($task) {
 	global $send;
-	/**	
+	/**
  	 *	First see if the doc_ID exists
  	 * 	if not we need to create this
  	 */
@@ -110,7 +111,7 @@ function process_tasks($task) {
 		deliver_document($task);
 	}
 	update_taskman($task,'completed', '1');
-	
+
 	if ($task['DOC_TYPE'] == "Fax") {
 		//now return any objects you need to Eye Form
 		$send['DOC_link'] = "<a href='".$webroot."/openemr/controller.php?document&view&patient_id=".$task['PATIENT_ID']."&doc_id=".$task['DOC_ID']."'
@@ -121,7 +122,7 @@ function process_tasks($task) {
 	}
 	return $send;
 }
- 
+
  /**
  *  This function updates the taskman record in the form_taskman table.
  */
@@ -148,7 +149,7 @@ function update_taskman($task,$action,$value) {
 
 /**
  *  This function delivers a document to the intended recipient.
- *  Will need to test for Hylafax.  
+ *  Will need to test for Hylafax.
  *  Will need code for Direct messaging.
  *  Will need expansion to other methods of delivery.
  *  Works for email-to-fax.
@@ -157,12 +158,13 @@ function update_taskman($task,$action,$value) {
  *		Thus faxing is not HIPPA compliant, and if that affects you, don't deliver this way.
  */
 function deliver_document($task) {
+  global $facilityService;
+
 	//use PHPMAILER
  	$query 			= "SELECT * FROM users WHERE id=?";
   	$to_data 		=  sqlQuery($query,array($task['TO_ID']));
   	$from_data 		=  sqlQuery($query,array($task['FROM_ID']));
-  	$sql 			= "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-    $facility_data 	=  sqlQuery($sql);
+    $facility_data 	=  $facilityService->getPrimaryBillingLocation();
   	$query 			= "SELECT * FROM patient_data where pid=?";
 	$patientData 	=  sqlQuery($query,array($task['PATIENT_ID']));
 
@@ -173,7 +175,7 @@ function deliver_document($task) {
 
   	$to_name  	= $to_data['fname']." ".$to_data['lname'];
 	$pt_name	= $patientData['fname'].' '.$patientData['lname'];
-    
+
     $encounter = $task['ENC_ID'];
 
 	$mail = new MyMailer();
@@ -205,7 +207,7 @@ function deliver_document($task) {
 
 
 /**
- *  This function will display the form_taskman table as requested, by date or by status?  
+ *  This function will display the form_taskman table as requested, by date or by status?
  *  Currently it is not used.
  */
 function show_task($ajax_req) {
@@ -221,6 +223,7 @@ function show_task($ajax_req) {
 function make_document($task) {
 	global $providerNAME;
 	global $encounter;
+  global $facilityService;
 
 	/**
      * We want to store the current PDF version of this task.
@@ -228,8 +231,7 @@ function make_document($task) {
 	$query 			= "SELECT * FROM users WHERE id=?";
   	$to_data 		=  sqlQuery($query,array($task['TO_ID']));
   	$from_data 		=  sqlQuery($query,array($task['FROM_ID']));
-  	$sql 			= "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-    $facility_data 	=  sqlQuery($sql);
+    $facility_data  =  $facilityService->getPrimaryBillingLocation();
   	$query 			= "SELECT * FROM patient_data where pid=?";
 	$patientData 	=  sqlQuery($query,array($task['PATIENT_ID']));
 
@@ -242,13 +244,13 @@ function make_document($task) {
   	if ($to_data['suffix']) $to_name .=", ".$to_data['suffix'];
 	$pt_name	= $patientData['fname'].' '.$patientData['lname'];
     $encounter = $task['ENC_ID'];
-    $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.* 
-            from form_eye_mag ,forms,form_encounter 
-            where 
-            form_encounter.encounter =? and 
-            form_encounter.encounter = forms.encounter and 
+    $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
+            from form_eye_mag ,forms,form_encounter
+            where
+            form_encounter.encounter =? and
+            form_encounter.encounter = forms.encounter and
             form_eye_mag.id=forms.form_id and
-            forms.deleted != '1' and 
+            forms.deleted != '1' and
             form_eye_mag.pid=? ";
     $encounter_data =sqlQuery($query,array($encounter,$task['PATIENT_ID']));
 	@extract($encounter_data);
@@ -265,7 +267,7 @@ function make_document($task) {
 
 	//so far we make A "Report", one per encounter, and "Faxes", as many as we need per encounter.
     //So delete any prior report if that is what we are doing. and replace it.
-    //If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to 
+    //If it is a fax, can we check to see if the report is already here, and if it is add it, or do we have to
     // always remake it?  For now, REMAKE IT...
 
 	if ($task['DOC_TYPE'] =='Fax') {
@@ -274,7 +276,7 @@ function make_document($task) {
 		$query = "select id from categories where name =?";
     	$ID = sqlQuery($query,array($category_name));
     	$category_id = $ID['id'];
-    	
+
     	$filename = "Fax_".$encounter."_".$to_data['lname'].".pdf";
 		while (file_exists($filepath.'/'.$filename)) {
     		$count++;
@@ -285,7 +287,7 @@ function make_document($task) {
 		$query = "select id from categories where name =?";
     	$ID = sqlQuery($query,array($category_name));
     	$category_id = $ID['id'];
-		
+
 		$filename = "Report_".$encounter.".pdf";
 		foreach (glob($filepath.'/'.$filename) as $file) {
     	  	unlink($file); //maybe shorten to just unlink($filepath.'/'.$filename); - well this does test to see if it is there
@@ -296,7 +298,7 @@ function make_document($task) {
 	    $sql = "DELETE from documents where documents.url like ?";
 	    sqlQuery($sql,array("%".$filename));
 	}
-	
+
     $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
                          $GLOBALS['pdf_size'],
                          $GLOBALS['pdf_language'],
@@ -308,8 +310,8 @@ function make_document($task) {
 
    ob_start();
  	?><html>
-	<head> 
-		<TITLE><?php echo xlt('Taskman: Documents in openEMR'); ?></TITLE> 
+	<head>
+		<TITLE><?php echo xlt('Taskman: Documents in openEMR'); ?></TITLE>
 		<style>
 			.wrapper {
 				margin:20px;
@@ -328,7 +330,7 @@ function make_document($task) {
     	<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
 	</head>
 	<body>
-	<?php 
+	<?php
 		if ($task['DOC_TYPE'] == 'Fax') {
     		?>
 		<div class='wrapper'>
@@ -346,7 +348,7 @@ function make_document($task) {
 						<td class='col1'><?php echo xlt('From'); ?>:</td>
 						<td class='col2'>
 							<?php echo text($from_name); ?><br />
-							
+
 						</td>
 					</tr>
 					<tr>
@@ -368,7 +370,7 @@ function make_document($task) {
 				 	</tr>
 				 	<tr>
 				 		<td class='col1'>
-				 			<?php echo xlt('Fax'); ?>: 
+				 			<?php echo xlt('Fax'); ?>:
 				 		</td>
 				 		<td class='col2'><?php echo text($from_data['fax']); ?><br />
 				 		</td>
@@ -395,7 +397,7 @@ function make_document($task) {
 				 	</tr>
 				 	<tr>
 				 		<td class='col1'>
-				 			<?php echo xlt('Fax'); ?>: 
+				 			<?php echo xlt('Fax'); ?>:
 				 		</td>
 				 		<td class='col2'>
 				 			<?php echo text($to_data['fax']); ?>
@@ -404,7 +406,7 @@ function make_document($task) {
 				 	<tr><td colspan="2"><br /><hr /></td></tr>
 				 	<tr>
 				 		<td class='col1'>
-				 			<?php echo xlt('Comments'); ?>: 
+				 			<?php echo xlt('Comments'); ?>:
 				 		</td>
 						<td class='col2'><?php echo xlt('Report of visit'); ?>: <?php echo text($pt_name); ?> on <?php echo $visit_date; ?>
 						</td>
@@ -425,7 +427,7 @@ function make_document($task) {
     <?php
     global $web_root, $webserver_root;
     $content = ob_get_clean();
-	
+
 	// Fix a nasty html2pdf bug - it ignores document root!
     $i = 0;
     $wrlen = strlen($web_root);
@@ -439,7 +441,7 @@ function make_document($task) {
         $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
       }
     }
-   
+
     $pdf->writeHTML($content, false);
     $temp_filename = '/tmp/'.$filename;
     $content_pdf = $pdf->Output($temp_filename, 'F');

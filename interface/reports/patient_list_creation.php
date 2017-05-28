@@ -21,13 +21,6 @@
  * @link    http://www.open-emr.org
  */
 
-	//SANITIZE ALL ESCAPES
-	$sanitize_all_escapes=true;
-	//
-
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-
 	require_once("../globals.php");
 	require_once("$srcdir/patient.inc");
 	require_once("$srcdir/options.inc.php");
@@ -70,17 +63,14 @@
 ?>
 <html>
 	<head>
-		<?php html_header_show();?>
+
 		<title>
 			<?php echo xlt('Patient List Creation'); ?>
 		</title>
-		<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-		<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.min.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.patched.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
+        <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+        <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+
 		<script language="JavaScript">
 		var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 		var global_date_format = '%Y-%m-%d';
@@ -100,10 +90,7 @@
 		}
 
 		</script>
-		<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.css" type="text/css" />
-		<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 		<style type="text/css">
 			/* specifically include & exclude from printing */
 			@media print {
@@ -234,19 +221,19 @@
 				<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 				<table>
 					  <tr>
-					<td width='900px'>
+					<td width='640px'>
                                             <div class="cancel-float" style='float:left'>
 						<table class='text'>
 							<tr>
-								<td class='label_custom' ><?php echo xlt('From'); ?>: </td>
-								<td><input type='text' class='datetimepicker' name='date_from' id="date_from" size='18' value='<?php echo attr($sql_date_from); ?>' title='<?php echo attr($title_tooltip) ?>'>
+								<td class='control-label' ><?php echo xlt('From'); ?>: </td>
+								<td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr($sql_date_from); ?>' title='<?php echo attr($title_tooltip) ?>'>
 								</td>
-								<td class='label_custom'><?php echo xlt('To{{range}}'); ?>: </td>
-								<td><input type='text' class='datetimepicker' name='date_to' id="date_to" size='18' value='<?php echo attr($sql_date_to); ?>' title='<?php echo  attr($title_tooltip) ?>'>
+								<td class='control-label'><?php echo xlt('To{{range}}'); ?>: </td>
+								<td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr($sql_date_to); ?>' title='<?php echo  attr($title_tooltip) ?>'>
 								</td>
-								<td class='label_custom'><?php echo xlt('Option'); ?>: </td>
-								<td class='label_custom'>
-									<select name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
+								<td class='control-label'><?php echo xlt('Option'); ?>: </td>
+								<td class='control-label'>
+									<select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
 										<?php foreach($search_options as $skey => $svalue){ ?>
 										<option <?php if($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
 										<?php } ?>
@@ -256,7 +243,7 @@
 
 								<td >
 									<span id="com_pref" style="display:none">
-									<select name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
+									<select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
 										<option> <?php echo xlt('All'); ?></option>
 										<option value="allow_sms" <?php if($communication == "allow_sms"){ echo "selected";}?>><?php echo xlt('Allow SMS'); ?></option>
 										<option value="allow_voice" <?php if($communication == "allow_voice"){ echo "selected";}?>><?php echo xlt('Allow Voice Message'); ?></option>
@@ -268,13 +255,30 @@
 
 							</tr>
 							<tr>
-								<td class='label_custom'><?php echo xlt('Patient ID'); ?>:</td>
-								<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
-								<td class='label_custom'><?php echo xlt('Age Range'); ?>:</td>
-								<td><?php echo xlt('From'); ?>
-								<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' /> <?php echo xlt('To{{range}}'); ?>
-								<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' /></td>
-								<td class='label_custom'><?php echo xlt('Gender'); ?>:</td>
+								<td class='control-label'><?php echo xlt('Patient ID'); ?>:</td>
+								<td><input name='patient_id' class="numeric_only form-control" type='text' id="patient_id" title='<?php echo xla('Optional numeric patient ID'); ?>' value='<?php echo attr($patient_id); ?>' size='10' maxlength='20' /></td>
+								<td class='control-label'><?php echo xlt('Age Range'); ?>:</td>
+
+								<td>
+								<table>
+								<tr>
+								<td class='control-label'>
+								<?php echo xlt('From'); ?>:
+								</td>
+								<td>
+								<input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' />
+								</td>
+								<td class='control-label'>
+								<?php echo xlt('To{{range}}'); ?>:
+								</td>
+								<td>
+								<input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' />
+								</td>
+								</tr>
+								</table>
+								</td>
+
+								<td class='control-label'><?php echo xlt('Gender'); ?>:</td>
 								<td colspan="2"><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
 							</tr>
 
@@ -283,18 +287,20 @@
 						</div></td>
 						<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
 							<tr>
-								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
-											<?php echo xlt('Submit'); ?>
-											</span> </a>
+								<td>
+									<div class="text-center">
+										<div class="btn-group" role="group">
+											<a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
+												<?php echo xlt('Submit'); ?>
+											</a>
+											<?php if(isset($_POST['form_refresh'])){?>
+												<a href='#' class='btn btn-default btn-print' onclick="printForm()">
+													<?php echo xlt('Print'); ?>
+												</a>
+											<?php }?>
+										</div>
 									</div>
 								</td>
-								<?php if(isset($_POST['form_refresh'])){?>
-								<td width="130px"><div style='margin-left:15px'> <a href='#' class='css_button' onclick="printForm()"> <span>
-											<?php echo xlt('Print'); ?>
-											</span> </a>
-									</div>
-								</td>
-								<?php }?>
 								<td>
 									<div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div>
 								</td>

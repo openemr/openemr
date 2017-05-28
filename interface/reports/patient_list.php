@@ -26,7 +26,7 @@
 
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
-  require_once("$srcdir/options.inc.php");
+ require_once("$srcdir/options.inc.php");
 
 // Prepare a string for CSV export.
 function qescape($str) {
@@ -54,16 +54,11 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Patient List','e'); ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require($GLOBALS['srcdir'] . '/templates/standard_header_template.php'); ?>
-
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -175,25 +170,21 @@ $(document).ready(function() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
-					<a href='#' class='css_button' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Export to CSV','e'); ?>
-					</span>
-					</a>
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' id='printbutton' class='css_button'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
+        <div class="text-center">
+				  <div class="btn-group" role="group">
+	  				<a href='#' class='btn btn-default btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+	  				  <?php echo xlt('Submit'); ?>
+	  				</a>
+	  				<a href='#' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+	  					<?php echo xlt('Export to CSV'); ?>
+	  				</a>
+	  				<?php if ($_POST['form_refresh']) { ?>
+	  				  <a href='#' id='printbutton' class='btn btn-default btn-print'>
+	  						<?php xl('Print','e'); ?>
+  					  </a>
+  					<?php } ?>
+  			  </div>
+        </div>
 			</td>
 		</tr>
 	</table>

@@ -107,8 +107,8 @@ class TherapyGroupsController extends BaseController{
         $data['statuses'] = self::prepareStatusesList();
 
         $_POST['group_start_date'] = DateToYYYYMMDD($_POST['group_start_date']);
+        $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
-        //print_r($_POST);die;
         if(isset($_POST['save'])){
 
             $isEdit = empty( $_POST['group_id']) ? false : true;
@@ -126,13 +126,13 @@ class TherapyGroupsController extends BaseController{
             }
 
             $filters = array(
-                'group_name' => FILTER_SANITIZE_STRING,
+                'group_name' => FILTER_DEFAULT,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
                 'group_type' => FILTER_VALIDATE_INT,
                 'group_participation' => FILTER_VALIDATE_INT,
                 'group_status' => FILTER_VALIDATE_INT,
-                'group_notes' => FILTER_SANITIZE_STRING,
-                'group_guest_counselors' => FILTER_SANITIZE_STRING,
+                'group_notes' => FILTER_DEFAULT,
+                'group_guest_counselors' => FILTER_DEFAULT,
                 'counselors' => array('filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY)
             );

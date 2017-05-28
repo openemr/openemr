@@ -20,8 +20,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 // Set the GET auth parameter to logout.
 //  This parameter is then captured in the auth.inc script (which is included in globals.php script) and does the following:

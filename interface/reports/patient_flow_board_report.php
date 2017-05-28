@@ -25,8 +25,8 @@
  * @link http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -76,18 +76,11 @@ if ($form_patient == '' ) $form_pid = '';
 <html>
 
 <head>
-<?php html_header_show();?>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Patient Flow Board Report'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script type="text/javascript">
 
@@ -180,10 +173,10 @@ if ($form_patient == '' ) $form_pid = '';
 
         <table class='text'>
             <tr>
-                <td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
+                <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
                 <td><?php dropdown_facility($facility, 'form_facility'); ?>
                 </td>
-                <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
+                <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
 
                 # Build a drop-down list of providers.
@@ -194,7 +187,7 @@ if ($form_patient == '' ) $form_pid = '';
 
                 $ures = sqlStatement($query);
 
-                echo "   <select name='form_provider'>\n";
+                echo "   <select name='form_provider' class='form-control'>\n";
                 echo "    <option value=''>-- " . xlt('All') . " --\n";
 
                 while ($urow = sqlFetchArray($ures)) {
@@ -211,26 +204,26 @@ if ($form_patient == '' ) $form_pid = '';
             </tr>
 
             <tr>
-                <td class='label_custom'><?php echo xlt('From'); ?>:</td>
+                <td class='control-label'><?php echo xlt('From'); ?>:</td>
                 <td><input type='text' name='form_from_date' id="form_from_date"
-                    class='datepicker'
+                    class='datepicker form-control'
                     size='10' value='<?php echo attr($from_date) ?>'
                     title='yyyy-mm-dd'>
                 </td>
-                <td class='label_custom'><?php echo xlt('To'); ?>:</td>
+                <td class='control-label'><?php echo xlt('To'); ?>:</td>
                 <td><input type='text' name='form_to_date' id="form_to_date"
-                    class='datepicker'
+                    class='datepicker form-control'
                     size='10' value='<?php echo attr($to_date) ?>'
                     title='yyyy-mm-dd'>
                 </td>
             </tr>
 
             <tr>
-                <td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
+                <td class='control-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
                 <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
-                                    <select id="form_apptcat" name="form_apptcat">
+                                    <select id="form_apptcat" name="form_apptcat" class="form-control">
                                         <?php
                                             $categories=fetchAppointmentCategories();
                                             echo "<option value='ALL'>".xlt("All")."</option>";
@@ -252,11 +245,15 @@ if ($form_patient == '' ) $form_pid = '';
 			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
 			</td>
 			<td>
-			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+			<input type='text' size='20' name='form_patient' class='form-control' style='cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
 			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
 			</td>
 
-                <td colspan="2"><label><input type="checkbox" name="show_details" id="show_details" <?php if($chk_show_details) echo "checked";?>>&nbsp;<?php echo xlt('Show Details'); ?></label></td>
+                <td colspan="2">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="show_details" id="show_details" <?php if($chk_show_details) echo "checked";?>>&nbsp;<?php echo xlt('Show Details'); ?></label>
+                    </div>
+                </td>
             </tr>
             <tr>
 
@@ -266,8 +263,16 @@ if ($form_patient == '' ) $form_pid = '';
             <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed
                   # if both are selected then only completed drug screens will be displayed. ?>
-            <td colspan="2"><label><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if($chk_show_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></label></td>
-            <td colspan="2"><label><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if($chk_show_completed_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></label></td>
+            <td colspan="2">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if($chk_show_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></label>
+                </div>
+            </td>
+            <td colspan="2">
+                <div class="checkbox">
+                    <label><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if($chk_show_completed_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></label>
+                </div>
+            </td>
             </tr>
             <?php } ?>
 
@@ -280,17 +285,21 @@ if ($form_patient == '' ) $form_pid = '';
         <table style='border-left: 1px solid; width: 100%; height: 100%'>
             <tr>
                 <td>
-                <div style='margin-left: 15px'>
-                                <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                <span> <?php echo xlt('Submit'); ?> </span> </a>
-                                <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-                <a href='#' class='css_button' id='printbutton'>
-                                    <span> <?php echo xlt('Print'); ?> </span> </a>
-                                <?php } ?>
-                </div>
-                    </td>
+                    <div class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                                <?php echo xlt('Submit'); ?>
+                            </a>
+                            <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                                <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                    <?php echo xlt('Print'); ?>
+                                </a>
+                            <?php } ?>
+                        </div>
+                    </div>
+                </td>
             </tr>
-                        <tr>&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?></tr>
+            <tr>&nbsp;&nbsp;<?php echo xlt('Most column headers can be clicked to change sort order') ?></tr>
         </table>
         </td>
     </tr>

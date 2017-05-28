@@ -42,7 +42,7 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
  */
 function make_statement($stmt) {
   if ($GLOBALS['statement_appearance'] == "1") {
-    if(is_auth_portal($stmt['pid']) && $_POST['form_portalnotify'])
+    if($_POST['form_portalnotify'] && is_auth_portal($stmt['pid']))
     	return osp_create_HTML_statement($stmt);
     else
   		return create_HTML_statement($stmt);

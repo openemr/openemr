@@ -19,8 +19,8 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../../globals.php");
 require_once("fee_sheet_options_queries.php");

@@ -18,8 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 $ignoreAuth=true;
 require_once("../globals.php");
 require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_exception.php");

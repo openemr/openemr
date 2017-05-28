@@ -1,7 +1,7 @@
 <?php
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");

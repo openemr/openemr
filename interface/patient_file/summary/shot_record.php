@@ -1,23 +1,15 @@
 <?php
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
 include_once("$srcdir/immunization_helper.php");
 
+$facilityService = new \services\FacilityService();
+
 //collect facility data
-$res = sqlQuery("select concat(f.name,'\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code) as facility_address ".
-                " from facility f, users u ".
-                " where u.facility = f.name ".
-                " and u.id = ?", array($_SESSION['authId'])
-                );
+$res = $facilityService->getFacilityForUserFormatted($_SESSION['authId']);
 
 //collect patient data
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".

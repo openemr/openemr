@@ -6,9 +6,6 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-// for security
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
 
 require("../../globals.php");
 

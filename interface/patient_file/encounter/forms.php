@@ -16,10 +16,15 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("forms_review_header.php");
 
+$is_group = ($attendant_type == 'gid') ? true : false;
 if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+if($is_group && !acl_check("groups","glog",false, array('view','write'))){
+    echo xlt("access not allowed");
+    exit();
+}
 
 ?>
 <html>
@@ -620,6 +625,8 @@ if ( $esign->isButtonViewable() ) {
             echo '<tr title="' . xl('Edit form') . '" '.
                   'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
         }
+
+        $acl_groups = acl_check("groups","glog",false, 'write') ? true : false;
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
@@ -632,10 +639,11 @@ if ( $esign->isButtonViewable() ) {
         echo "<div class='form_header_controls'>";
 
         // If the form is locked, it is no longer editable
-        if ( $esign->isLocked() ) {
-            echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."'><span>".xlt('Locked')."</span></a>";
-        } else {
-          if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
+        if ($esign->isLocked()) {
+                 echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
+          } else {
+          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $is_group == 0)
+              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $is_group AND acl_check("groups","glog",false, 'write')))) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -645,7 +653,7 @@ if ( $esign->isButtonViewable() ) {
           }
         }
 
-        if ( $esign->isButtonViewable() ) {
+        if ( ($esign->isButtonViewable() AND $is_group == 0) OR ($esign->isButtonViewable() AND $is_group AND acl_check("groups","glog",false, 'write'))) {
           if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
           }

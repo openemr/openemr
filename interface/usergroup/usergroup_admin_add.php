@@ -4,6 +4,8 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 
+$facilityService = new \services\FacilityService();
+
 $alertmsg = '';
 
 ?>
@@ -202,10 +204,10 @@ foreach ($result2 as $iter) {
 <td><span class="text"><?php xl('Last Name','e'); ?>: </span></td><td><input type=entry name='lname' id='lname' style="width:120px;"><span class="mandatory">&nbsp;*</span></td>
 <td><span class="text"><?php xl('Default Facility','e'); ?>: </span></td><td><select style="width:120px;" name=facility_id>
 <?php
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
+$fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-  for ($iter = 0;$frow = sqlFetchArray($fres);$iter++)
-    $result[$iter] = $frow;
+  for ($iter = 0; $iter < sizeof($fres);$iter++)
+    $result[$iter] = $fres[$iter];
   foreach($result as $iter) {
 ?>
 <option value="<?php echo $iter{'id'};?>"><?php echo $iter{'name'};?></option>

@@ -36,8 +36,8 @@
  * @link http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 $table_name   = "form_eye_mag";
 $form_name    = "eye_mag";

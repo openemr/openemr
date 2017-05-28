@@ -11,6 +11,8 @@ require_once("../../library/patient.inc");
 require_once("../../library/acl.inc");
 require_once("../../custom/code_types.inc.php");
 
+$facilityService = new \services\FacilityService();
+
 function thisLineItem($row, $codetype, $code) {
   global $code_types;
 
@@ -104,11 +106,10 @@ else { // not export
 <?php
   // Build a drop-down list of facilities.
   //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
+  $fres = $facilityService->getAll();
   echo "   <select name='form_facility'>\n";
   echo "    <option value=''>-- All Facilities --\n";
-  while ($frow = sqlFetchArray($fres)) {
+  foreach($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
     if ($facid == $form_facility) echo " selected";

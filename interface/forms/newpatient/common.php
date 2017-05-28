@@ -22,6 +22,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/lists.inc");
 
+$facilityService = new \services\FacilityService();
+
 if($GLOBALS['enable_group_therapy']){
     require_once("$srcdir/group.inc");
 }
@@ -68,7 +70,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.pack.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/overlib_mini.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
@@ -232,12 +233,9 @@ if ($viewmode) {
   $drow = sqlFetchArray($dres);
   $def_facility = $drow['facility_id'];
 }
-$fres = sqlStatement("select * from facility where service_location != 0 order by name");
-if ($fres) {
-  $fresult = array();
-  for ($iter = 0; $frow = sqlFetchArray($fres); $iter++)
-    $fresult[$iter] = $frow;
-  foreach($fresult as $iter) {
+$facilities = $facilityService->getAllServiceLocations();
+if ($facilities) {
+  foreach($facilities as $iter) {
 ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
 <?php

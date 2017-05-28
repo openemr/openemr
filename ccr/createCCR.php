@@ -21,13 +21,7 @@
  */
 
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 // check if using the patient portal
 //(if so, then use the portal authorization)

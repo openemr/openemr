@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="lib/sidebar.js"></script>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="lib/sidebar.css"/>
+  </head>
+
+<body>
+    <!-- Fixed navbar -->
+  <div class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle toggle-left hidden-lg" data-toggle="sidebar" data-target=".sidebar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Project name</a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Begin page content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-7 col-sm-3 col-md-2 sidebar sidebar-left sidebar-animate sidebar-show-lg">
+        <ul class="nav navbar-stacked">
+          <li class="active"><a href="#">Home</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="main">
+        <div class="page-header">
+          <h1>Sticky footer with fixed navbar</h1>
+        </div>
+        <p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the <code>.container</code>.</p>
+        <p>Back to <a href="../sticky-footer">the default sticky footer</a> minus the navbar.</p>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -23,7 +23,7 @@
  // Upgrade Howto
  // When upgrading to a new version of OpenEMR, run the acl_upgrade.php
  // script to update the phpGACL access controls.  This is required to
- // ensure the database includes all the required Access Control 
+ // ensure the database includes all the required Access Control
  // Objects(ACO).
  //
 
@@ -47,24 +47,29 @@
      // xl('Accounting')
  $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
      // xl('Administration')
- $gacl->add_object_section('Encounters'    , 'encounters'   , 10, 0, 'ACO');
+ $gacl->add_object_section('Encounters'    , 'encounters'    , 10, 0, 'ACO');
      // xl('Encounters')
- $gacl->add_object_section('Lists'         , 'lists'        , 10, 0, 'ACO');
+ $gacl->add_object_section('Lists'         , 'lists'         , 10, 0, 'ACO');
      // xl('Lists')
- $gacl->add_object_section('Patients'      , 'patients'     , 10, 0, 'ACO');
+ $gacl->add_object_section('Patients'      , 'patients'      , 10, 0, 'ACO');
      // xl('Patients')
- $gacl->add_object_section('Squads'        , 'squads'       , 10, 0, 'ACO');
+ $gacl->add_object_section('Squads'         , 'squads'         , 10, 0, 'ACO');
      // xl('Squads')
- $gacl->add_object_section('Sensitivities' , 'sensitivities', 10, 0, 'ACO');
+ $gacl->add_object_section('Sensitivities'  , 'sensitivities'  , 10, 0, 'ACO');
      // xl('Sensitivities')
- $gacl->add_object_section('Placeholder'   , 'placeholder'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Placeholder'    , 'placeholder'    , 10, 0, 'ACO');
      // xl('Placeholder')
- $gacl->add_object_section('Nation Notes'   , 'nationnotes'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Nation Notes'   , 'nationnotes'    , 10, 0, 'ACO');
      // xl('Nation Notes')
- $gacl->add_object_section('Patient Portal','patientportal'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Patient Portal' , 'patientportal'  , 10, 0, 'ACO');
      // xl('Patient Portal')
-  $gacl->add_object_section('Menus','menus'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Menus','menus'  ,  10, 0, 'ACO');
      // xl('Menus')
+ $gacl->add_object_section('Groups','groups',  10, 0, 'ACO');
+     // xl('Groups')
+
+
+
  // Create Accounting ACOs.
  //
  $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
@@ -102,6 +107,8 @@
      // xl('Pharmacy Dispensary')
  $gacl->add_object('admin', 'ACL Administration'              , 'acl'      , 10, 0, 'ACO');
      // xl('ACL Administration')
+ $gacl->add_object('admin', 'Multipledb'                      ,'multipledb', 10, 0, 'ACO');
+ // xl('Multipledb')
 
  // Create ACOs for encounters.
  //
@@ -174,6 +181,18 @@
  $gacl->add_object('patients', 'Lab Results (write,addonly optional)','lab', 10, 0, 'ACO');
      // xl('Lab Results (write,addonly optional)')
 
+
+ $gacl->add_object('groups', 'View/Add/Update groups','gadd', 10, 0, 'ACO');
+ // xl('View/Add/Update groups')
+ $gacl->add_object('groups', 'View/Create/Update groups appointment in calendar','gcalendar', 10, 0, 'ACO');
+// xl('View/Create/Update groups appointment in calendar')
+ $gacl->add_object('groups', 'Group encounter log','glog', 10, 0, 'ACO');
+// xl('Group encounter log')
+ $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
+// xl('Group detailed log of appointment in patient record')
+ $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
+ // xl('Send message from the permanent group therapist to the personal therapist')
+
  // Create ACOs for sensitivities.
  //
  $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
@@ -236,14 +255,15 @@ $breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'A
  $gacl->add_acl(
   array(
    'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
+   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb'),
    'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
    'lists'=>array('default','state','country','language','ethrace'),
    'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
    'sensitivities'=>array('normal', 'high'),
    'nationnotes'=>array('nn_configure'),
    'patientportal'=>array('portal'),
-   'menus'=>array('modle')
+   'menus'=>array('modle'),
+   'groups'=>array('gadd','gcalendar','glog','gdlog','gm')
   ),
   NULL, array($admin), NULL, NULL,
   1, 1, 'write', 'Administrators can do anything'

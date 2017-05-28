@@ -22,9 +22,6 @@
 
 set_time_limit(0);
 
-// Disable magic quotes and fake register globals.
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
 require_once('../../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");

@@ -8,6 +8,7 @@
  * of the License, or (at your option) any later version.
  */
 
+$facilityService = new \services\FacilityService();
 
 // These are for sports team use:
 $PLAYER_FITNESSES = array(
@@ -105,42 +106,47 @@ function getInsuranceProviders() {
     return $returnval;
 }
 
-function getInsuranceProvidersExtra() {
+function getInsuranceProvidersExtra()
+{
     $returnval = array();
-// add a global and if for where to allow inactive inscompanies
+    // add a global and if for where to allow inactive inscompanies
 
-        $sql = "select insurance_companies.name, insurance_companies.id, " .
-          "addresses.zip, addresses.line1, addresses.state " .
-          "from insurance_companies, addresses " .
-          "where addresses.foreign_id = insurance_companies.id " .
-		  "and insurance_companies.inactive != 1 "  .
-          "order by insurance_companies.name, addresses.zip";
+    $sql = "SELECT insurance_companies.name, insurance_companies.id, addresses.line1, addresses.line2, addresses.city,
+            addresses.state, addresses.zip
+            FROM insurance_companies, addresses
+            WHERE addresses.foreign_id = insurance_companies.id
+            AND insurance_companies.inactive != 1
+            ORDER BY insurance_companies.name, addresses.zip";
 
-        $rez = sqlStatement($sql);
+    $rez = sqlStatement($sql);
 
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
-    switch ($GLOBALS['insurance_information']) {
-        case $GLOBALS['insurance_information'] = '0':
-            $returnval[$row['id']] = $row['name'];
-        break;
-        case $GLOBALS['insurance_information'] = '1':
-            $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '2':
-           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['zip'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '3':
-           $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '4':
-	       $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . "," . $row['state'] .
-           "," . $row['zip'] . ")";
-        break;
-        case $GLOBALS['insurance_information'] = '5':
-            preg_match("/\d+/", $row['line1'], $matches);
-            $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
-              "," . $matches[0] . ")";
-        break;
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+        switch ($GLOBALS['insurance_information']) {
+            case $GLOBALS['insurance_information'] = '0':
+                $returnval[$row['id']] = $row['name'];
+                break;
+            case $GLOBALS['insurance_information'] = '1':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '2':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '3':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '4':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] .
+                    ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '5':
+                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
+                    ", " . $row['state'] . ", " . $row['zip'] . ")";
+                break;
+            case $GLOBALS['insurance_information'] = '6':
+                preg_match("/\d+/", $row['line1'], $matches);
+                $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
+                    "," . $matches[0] . ")";
+                break;
         }
     }
 
@@ -168,25 +174,21 @@ function getProviders() {
 // may find additional uses.
 //
 function getFacility($facid=0) {
+  global $facilityService;
 
-  //create a sql binding array
-  $sqlBindArray = array();
+  $facility = null;
 
   if ($facid > 0) {
-    $query = "SELECT * FROM facility WHERE id = ?";
-    array_push($sqlBindArray,$facid);
+    $facility = $facilityService->getById($facid);
   }
   else if ($facid == 0) {
-    $query = "SELECT * FROM facility ORDER BY " .
-      "billing_location DESC, service_location, id LIMIT 1";
+    $facility = $facilityService->getPrimaryBillingLocation();
   }
   else {
-    $query = "SELECT facility.* FROM users, facility WHERE " .
-      "users.id = ? AND " .
-      "facility.id = users.facility_id";
-    array_push($sqlBindArray,$_SESSION['authUserID']);
+    $facility = $facilityService->getFacilityForUser($_SESSION['authUserID']);
   }
-  return sqlQuery($query,$sqlBindArray);
+
+  return $facility;
 }
 
 // Generate a report title including report name and facility name, address
@@ -231,17 +233,15 @@ returns all facilities or just the id for the first one
 @return array | int for 'first' case
 */
 function getFacilities($first = '') {
-    $r = sqlStatement("SELECT * FROM facility ORDER BY id");
-    $ret = array();
-    while ( $row = sqlFetchArray($r) ) {
-       $ret[] = $row;
-}
+    global $facilityService;
 
-        if ( $first == 'first') {
-            return $ret[0]['id'];
-        } else {
-            return $ret;
-        }
+    $fres = $facilityService->getAll();
+
+    if ($first == 'first') {
+        return $fres[0]['id'];
+    } else {
+        return $fres;
+    }
 }
 
 /**
@@ -254,17 +254,15 @@ returns all service_location facilities or just the id for the first one
 @return array | int for 'first' case
 */
 function getServiceFacilities($first = '') {
-    $r = sqlStatement("SELECT * FROM facility WHERE service_location != 0 ORDER BY id");
-    $ret = array();
-    while ( $row = sqlFetchArray($r) ) {
-       $ret[] = $row;
-}
+    global $facilityService;
 
-        if ( $first == 'first') {
-            return $ret[0]['id'];
-        } else {
-            return $ret;
-        }
+    $fres = $facilityService->getAllServiceLocations();
+
+    if ($first == 'first') {
+        return $fres[0]['id'];
+    } else {
+        return $fres;
+    }
 }
 
 //(CHEMED) facility filter
@@ -954,7 +952,7 @@ function fixDate($date, $default="0000-00-00") {
 
 function pdValueOrNull($key, $value) {
   if (($key == 'DOB' || $key == 'regdate' || $key == 'contrastart' ||
-    substr($key, 0, 8) == 'userdate') &&
+    substr($key, 0, 8) == 'userdate' || $key == 'deceased_date') &&
     (empty($value) || $value == '0000-00-00'))
   {
     return "NULL";

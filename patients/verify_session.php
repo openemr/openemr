@@ -13,12 +13,6 @@
 
     // All of the common intialization steps for the get_* patient portal functions are now in this single include.
 
-    //SANITIZE ALL ESCAPES
-    $sanitize_all_escapes=true;
-
-    //STOP FAKE REGISTER GLOBALS
-    $fake_register_globals=false;
-
     //continue session
     session_start();
 

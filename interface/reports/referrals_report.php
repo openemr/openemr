@@ -24,9 +24,6 @@
  * @link    http://www.open-emr.org
  */
 
- $fake_register_globals=false;
- $sanitize_all_escapes=true;
-
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once "$srcdir/options.inc.php";
@@ -39,14 +36,12 @@
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('Referrals'); ?></title>
 
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+
 <script language="JavaScript">
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -77,8 +72,6 @@
 
 </script>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -120,7 +113,7 @@
 <?php echo text(date("d F Y", strtotime($form_from_date))) ." &nbsp; to &nbsp; ". text(date("d F Y", strtotime($form_to_date))); ?>
 </div>
 
-<form name='theform' id='theform' method='post' action='referrals_report.php'>
+<form name='theform' id='theform' method='post' action='referrals_report.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -131,26 +124,26 @@
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php echo xlt('Facility'); ?>:
 			</td>
 			<td>
 			<?php dropdown_facility(($form_facility), 'form_facility', true); ?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('From'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-         class='datepicker'
+         class='datepicker form-control'
 				 title='<?php echo xla('yyyy-mm-dd') ?>'>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php echo xlt('To'); ?>:
 			</td>
 			<td>
 			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-         class='datepicker'
+         class='datepicker form-control'
 				 title='<?php echo xla('yyyy-mm-dd') ?>'>
 			</td>
 		</tr>
@@ -163,20 +156,17 @@
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					 <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
 						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
-
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
+					 </a>
+					 <?php if ($_POST['form_refresh']) { ?>
+					   <a href='#' class='btn btn-default btn-print' id='printbutton'>
+					     <?php echo xlt('Print'); ?>
+					   </a>
+					 <?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

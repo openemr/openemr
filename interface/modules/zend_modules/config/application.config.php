@@ -11,7 +11,7 @@ return array(
         '6' => 'Immunization',
         '7' => 'Syndromicsurveillance',
         '8'=> 'Patientvalidation',
-        ),
+    ),
     'module_listener_options' =>  array(
         'config_glob_paths' =>  array(
             '0' => 'config/autoload/{,*.}{global,local}.php',

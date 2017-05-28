@@ -4918,7 +4918,7 @@ DROP TABLE IF EXISTS `onsite_mail`;
 CREATE TABLE `onsite_mail` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `date` datetime DEFAULT NULL,
-  `owner` bigint(20) DEFAULT NULL,
+  `owner` varchar(128) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
   `groupname` varchar(255) DEFAULT NULL,
   `activity` tinyint(4) DEFAULT NULL,
@@ -5193,7 +5193,7 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_language` varchar(30) default NULL,
   `pc_apptstatus` varchar(15) NOT NULL default '-',
   `pc_prefcatid` int(11) NOT NULL default '0',
-  `pc_facility` smallint(6) NOT NULL default '0' COMMENT 'facility id for this event',
+  `pc_facility` int(11) NOT NULL default '0' COMMENT 'facility id for this event',
   `pc_sendalertsms` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',

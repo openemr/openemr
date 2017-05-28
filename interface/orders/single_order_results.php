@@ -19,8 +19,8 @@
 * @author    Rod Roark <rod@sunsetsystems.com>
 */
 
-$sanitize_all_escapes = true;
-$fake_register_globals = false;
+
+
 
 require_once(dirname(__FILE__) . '/../globals.php');
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");

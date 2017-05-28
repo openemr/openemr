@@ -14,9 +14,11 @@ class C_Document extends Controller {
 	var $tree;
 	var $_config;
         var $manual_set_owner=false; // allows manual setting of a document owner/service
+	var $facilityService;
 
 	function __construct($template_mod = "general") {
 		parent::__construct();
+		$this->facilityService = new \services\FacilityService();
 		$this->documents = array();
 		$this->template_mod = $template_mod;
 		$this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -326,6 +328,13 @@ class C_Document extends Controller {
 			$encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
 		}
 		$this->assign("ENC_LIST", $encOptions);
+
+        //clear encounter tag
+        if ($d->get_encounter_id() != 0) {
+            $this->assign('clear_encounter_tag',$this->_link('clear_encounter_tag')."document_id=" . $d->get_id());
+        } else {
+            $this->assign('clear_encounter_tag','javascript:void(0)');
+        }
 
 		//Populate the dropdown with category list
 		$visit_category_list = "<option value='0'>-- " . xlt('Select One') . " --</option>";
@@ -1215,7 +1224,7 @@ function tag_action_process($patient_id="", $document_id) {
 			$facility = $facilityRow['facility'];
 			$facility_id = $facilityRow['facility_id'];
 			// Get the primary Business Entity facility to set as billing facility, if null take user's facility as billing facility
-			$billingFacility = sqlQuery("SELECT id FROM facility WHERE primary_business_entity = 1");
+			$billingFacility = $this->facilityService->getPrimaryBusinessEntity();
 			$billingFacilityID = ( $billingFacility['id'] ) ? $billingFacility['id'] : $facility_id;
 
 			$conn = $GLOBALS['adodb']['db'];
@@ -1347,7 +1356,14 @@ function _check_relocation($url, $new_pid = null, $new_name = null) {
 	return $url;
 }
 
-
+//clear encounter tag function
+function clear_encounter_tag_action($patient_id="",$document_id)
+{
+    if (is_numeric($document_id)) {
+        sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?",array($patient_id,$document_id));
+    }
+    return $this->view_action($patient_id, $document_id);
+}
 
 }
 ?>

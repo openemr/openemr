@@ -21,8 +21,8 @@
 */
 
 // Some initial api-inputs
-$sanitize_all_escapes  = true;
-$fake_register_globals = false;
+
+
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");

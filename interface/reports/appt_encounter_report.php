@@ -46,6 +46,8 @@ require_once("$srcdir/patient.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/billing.inc");
 
+$facilityService = new \services\FacilityService();
+
  $errmsg  = "";
  $alertmsg = ''; // not used yet but maybe later
  $grand_total_charges    = 0;
@@ -159,9 +161,9 @@ function postError($msg) {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 
@@ -191,10 +193,6 @@ function postError($msg) {
 </style>
 <title><?php  xl('Appointments and Encounters','e'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
 <script LANGUAGE="JavaScript">
 
 $(document).ready(function() {
@@ -223,7 +221,7 @@ $(document).ready(function() {
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
 </div>
 
-<form method='post' id='theform' action='appt_encounter_report.php'>
+<form method='post' id='theform' action='appt_encounter_report.php' onsubmit='return top.restoreSession()'>
 
 <div id="report_parameters">
 
@@ -234,18 +232,17 @@ $(document).ready(function() {
 
 	<table class='text'>
 		<tr>
-			<td class='label_custom'>
+			<td class='control-label'>
 				<?php xl('Facility','e'); ?>:
 			</td>
 			<td>
 				<?php
 				 // Build a drop-down list of facilities.
 				 //
-				 $query = "SELECT id, name FROM facility ORDER BY name";
-				 $fres = sqlStatement($query);
-				 echo "   <select name='form_facility'>\n";
-				 echo "    <option value=''>-- " . xl('All Facilities', 'e') . " --\n";
-				 while ($frow = sqlFetchArray($fres)) {
+         $fres = $facilityService->getAll();
+				 echo "   <select name='form_facility' class='form-control'>\n";
+				 echo "    <option value=''>-- " . xl('All Facilities') . " --\n";
+         foreach ($fres as $frow) {
 				  $facid = $frow['id'];
 				  echo "    <option value='$facid'";
 				  if ($facid == $form_facility) echo " selected";
@@ -257,26 +254,26 @@ $(document).ready(function() {
 				 echo "   </select>\n";
 				?>
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('DOS','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
-				title='Date of appointments mm/dd/yyyy' >
+			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>' >
 			</td>
-			<td class='label_custom'>
+			<td class='control-label'>
 			   <?php xl('To','e'); ?>:
 			</td>
 			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
-				title='Optional end date mm/dd/yyyy' >
+			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>' >
 			</td>
 		</tr>
 		<tr>
 			<td>&nbsp;</td>
 			<td>
-			   <input type='checkbox' name='form_details'
-				value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+        <div class="checkbox">
+			    <label><input type='checkbox' name='form_details'
+				  value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?></label>
+        </div>
 			</td>
 		</tr>
 	</table>
@@ -288,20 +285,17 @@ $(document).ready(function() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+					<a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+						<?php echo xlt('Submit'); ?>
 					</a>
-
 					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
+					  <a href='#' class='btn btn-default btn-print' id='printbutton'>
+							<?php echo xlt('Print'); ?>
+					  </a>
 					<?php } ?>
+          </div>
 				</div>
 			</td>
 		</tr>

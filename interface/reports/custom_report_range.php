@@ -19,14 +19,16 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once(dirname(__file__)."/../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/report.inc");
+
+$facilityService = new \services\FacilityService();
 
 $startdate = $enddate = "";
 if(empty($_POST['start']) || empty($_POST['end'])) {
@@ -265,12 +267,7 @@ if ($form_patient == '' ) $form_pid = '';
 
 <?php
 if( !(empty($_POST['start']) || empty($_POST['end']))) {
-    $sql = "select * from facility where billing_location = 1";
-    $db = $GLOBALS['adodb']['db'];
-    $results = $db->Execute($sql);
-    $facility = array();
-    if (!$results->EOF) {
-        $facility = $results->fields;
+    $facility = $facilityService->getPrimaryBillingLocation();
 ?>
 <p>
 <h2><?php text($facility['name'])?></h2>
@@ -279,7 +276,6 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
 <?php
-    }
 		$sqlBindArray = array();
 		$res_query = 	"select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .

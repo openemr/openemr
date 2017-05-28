@@ -26,8 +26,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../globals.php");
 require_once("$srcdir/forms.inc");
@@ -35,6 +35,8 @@ require_once("$srcdir/sql.inc");
 require_once("$srcdir/encounter.inc");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/formdata.inc.php");
+
+$facilityService = new \services\FacilityService();
 
 $group_id = $_SESSION['therapy_group'];
 $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
@@ -52,7 +54,7 @@ $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'
 $counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ',$_POST['counselors']) : $provider_id;
 
 
-$facilityresult = sqlQuery("select name FROM facility WHERE id = ?", array($facility_id));
+$facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
 if ($mode == 'new')

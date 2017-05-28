@@ -20,13 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-//SANITIZE ALL ESCAPES
-$sanitize_all_escapes=true;
-//
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
 require_once("../globals.php");
 require_once("../../library/patient.inc");
@@ -37,18 +31,11 @@ require_once "$srcdir/clinical_rules.php";
 <html>
 
 <head>
-<?php html_header_show();?>
-
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <title><?php echo xlt('Alerts Log'); ?></title>
 
-<script type="text/javascript" src="../../library/overlib_mini.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<?php $include_standard_style_js = array("datetimepicker"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <script LANGUAGE="JavaScript">
 
@@ -113,23 +100,23 @@ $(document).ready(function() {
 	<table class='text'>
 
                    <tr>
-                      <td class='label_custom'>
+                      <td class='control-label'>
                          <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr($_POST['form_begin_date']); ?>'
-                            class='datepicker'
+                            class='datepicker form-control'
                             title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                       </td>
                    </tr>
 
                 <tr>
-                        <td class='label_custom'>
+                        <td class='control-label'>
                               <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr($_POST['form_end_date']); ?>'
-                                class='datepicker'
+                                class='datepicker form-control'
                                 title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
@@ -141,12 +128,12 @@ $(document).ready(function() {
 	<table style='border-left:1px solid; width:100%; height:100%' >
 		<tr>
 			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo xlt('Search'); ?>
-					</span>
-					</a>
+				<div class="text-center">
+          <div class="btn-group" role="group">
+            <a id='search_button' href='#' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
+						  <?php echo xlt('Search'); ?>
+            </a>
+          </div>
 				</div>
 			</td>
 		</tr>

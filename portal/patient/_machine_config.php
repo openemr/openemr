@@ -27,8 +27,6 @@
 		session_destroy();
 		GlobalConfig::$PORTAL = false;
 		$ignoreAuth = false;
-		$sanitize_all_escapes = true;
-		$fake_register_globals = false;
 		require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
 		if ( ! isset($_SESSION['authUserID']) ){
 			$landingpage = "index.php";
@@ -60,7 +58,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
 /**
  * the root url of the application with trailing slash, for example http://localhost/patient/
  */
-GlobalConfig::$ROOT_URL = RequestUtil::GetServerRootUrl() . $GLOBALS['web_root'] . '/portal/patient/';
+  GlobalConfig::$ROOT_URL = RequestUtil::GetServerRootUrl() . preg_replace('/^\//', '', $GLOBALS['web_root']) . '/portal/patient/';
 
 /**
  * timezone

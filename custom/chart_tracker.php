@@ -24,8 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../interface/globals.php");
 require_once("$srcdir/acl.inc");
@@ -81,15 +81,13 @@ echo "<span class='title'>" . xlt('Chart Tracker') . "</span>\n";
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-  $query = "INSERT INTO chart_tracker ( " .
-    "ct_pid, ct_when, ct_userid, ct_location " .
-    ") VALUES ( " .
-    "?, " .
-    "?, " .
-    "?, " .
-    "? " .
-    ")";
-  sqlInsert($query, array($form_curpid,date('Y-m-d H:i:s'),$form_newuser,$form_newloc) );
+  $tracker = new \entities\ChartTracker();
+  $tracker->setPid($form_curpid);
+  $tracker->setWhen(new \DateTime(date('Y-m-d H:i:s')));
+  $tracker->setUserId($form_newuser);
+  $tracker->setLocation($form_newloc);
+  $chartTrackerService = new \services\ChartTrackerService();
+  $chartTrackerService->trackPatientLocation($tracker);
   echo "<font color='green'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</font><br />";
 }
 
@@ -114,12 +112,13 @@ if ($form_newid) {
 
 <?php
 if (!empty($row)) {
+  $userService = new \services\UserService();
   $ct_userid   = $row['ct_userid'];
   $ct_location = $row['ct_location'];
   $current_location = xlt('Unassigned');
   if ($ct_userid) {
-    $urow = sqlQuery("SELECT fname, mname, lname FROM users WHERE id = ?", array($ct_userid) );
-    $current_location = text( $urow['lname'] . ", " . $urow['fname'] . " " . $urow['mname'] . " " . $row['ct_when'] );
+    $user = $userService->getUser($ct_userid);
+    $current_location = text( $user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when'] );
   }
   else if ($ct_location) {
     $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);
@@ -164,13 +163,15 @@ if (!empty($row)) {
   echo "  <td class='bold'>" . xlt('Or Out To') . ":</td>\n";
   echo "  <td class='text'><select name='form_newuser' onchange='userSelect()'>\n";
   echo "   <option value=''></option>";
-  $ures = sqlStatement("SELECT id, fname, mname, lname FROM users " .
-    "WHERE username != '' AND active = 1 ORDER BY lname, fname, mname");
-  while ($urow = sqlFetchArray($ures)) {
-    echo "    <option value='" . attr($urow['id']) . "'";
-    echo ">" . text($urow['lname']) . ', ' . text($urow['fname']) . ' ' . text($urow['mname']) .
-      "</option>\n";
+
+  $users = $userService->getActiveUsers();
+
+  foreach($users as $activeUser) {
+    echo "    <option value='" . attr($activeUser->getId()) . "'";
+    echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
+        "</option>\n";
   }
+
   echo "  </select></td>\n";
   echo " </tr>\n";
 

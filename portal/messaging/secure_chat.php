@@ -27,8 +27,6 @@ namespace SMA_Common;
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    $sanitize_all_escapes = true;
-    $fake_register_globals = false;
     require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
@@ -36,8 +34,6 @@ if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) 
 else {
     session_destroy();
     $ignoreAuth = false;
-    $sanitize_all_escapes = true;
-    $fake_register_globals = false;
     require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
     if ( ! isset($_SESSION['authUserID']) ){
         $landingpage = "index.php";
@@ -901,6 +897,8 @@ input,button,.alert,.modal-content {
     margin-top:5px;
     margin-right:0;
     padding-right:5px;
+    max-height: 530px;
+    overflow: auto;
 }
 .rtsidebar{
     background-color: lightgrey;
@@ -988,7 +986,7 @@ background:#fff;
                 </div>
             </div>
         </div>
-        <div class="col-md-2 sidebar">
+        <div class="col-md-2 rtsidebar">
                 <h4><span class="label label-info"><?php echo xlt('Online'); ?> : {{ online.total || '0' }}</span></h4>
                 <label ng-repeat="ol in onlines | unique : 'username'">
                     <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}

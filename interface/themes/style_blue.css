@@ -1,3 +1,5 @@
+@import "core.css";
+
 /* This file is only used as a style sheet for */
 /*   lone scripts such as setup.php */
 A:{visited: #000000;}
@@ -191,23 +193,23 @@ font-weight: bold;
 }
 #documents_list {
     width: 25%;
-    height: 90%; 
-    overflow: auto; 
+    height: 90%;
+    overflow: auto;
     border: 2px inset;
     float: left;
 }
 #documents_actions {
     padding-top: 10px;
     width: 70%;
-    height: 90%; 
+    height: 90%;
     float: right;
     overflow: auto;
 }
 #documents_actions iframe {
     display: inline;
-    border:none; 
-    width:100%; 
-    height:600px; 
+    border:none;
+    width:100%;
+    height:600px;
     overflow: auto;
 }
 #documents_actions form {
@@ -539,7 +541,14 @@ table.dataTable#therapy_groups_list tbody td{
 #file_type_whitelist #add-manually-input{
 	width: 190px;
 }
-#file_type_whitelist .top-list{
+#file_type_whitelist .top-list {
 	margin: 20px 20px 2px 20px;
+}
 
+.btn-default {
+	color: #444444 !important;
+}
+
+.btn-link {
+	color: #444444 !important;
 }

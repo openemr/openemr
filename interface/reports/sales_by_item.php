@@ -24,8 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-$sanitize_all_escapes=true;
-$fake_register_globals=false;
+
+
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -269,10 +269,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
 
 <style type="text/css">
 
@@ -308,10 +307,6 @@ table.mymaintable td {
 }
 
 </style>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/report_helper.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
 <script language="JavaScript">
 
@@ -350,31 +345,31 @@ $(document).ready(function() {
     <div style='float:left'>
     <table class='text'>
         <tr>
-            <td class='label_custom'>
+            <td class='control-label'>
                 <?php echo xlt('Facility'); ?>:
             </td>
             <td>
             <?php dropdown_facility($form_facility, 'form_facility', true); ?>
             </td>
-            <td class='label_custom'>
+            <td class='control-label'>
                 <?php echo xlt('From'); ?>:
             </td>
             <td>
-                <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
                 title='yyyy-mm-dd'>
             </td>
-            <td class='label_custom'>
+            <td class='control-label'>
                 <?php echo xlt('To'); ?>:
             </td>
             <td>
-                <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
                 title='yyyy-mm-dd'>
             </td>
         </tr>
     </table>
     <table class='text'>
         <tr>
-          <td class='label_custom'>
+          <td class='control-label'>
             <?php echo xlt('Provider'); ?>:
           </td>
           <td>
@@ -384,7 +379,7 @@ $(document).ready(function() {
                     $query = "select id, lname, fname from users where " .
                         "authorized = 1 order by lname, fname";
                     $res = sqlStatement($query);
-                    echo "   &nbsp;<select name='form_provider'>\n";
+                    echo "   &nbsp;<select name='form_provider' class='form-control'>\n";
                     echo "    <option value=''>-- " . xlt('All Providers') . " --\n";
                     while ($row = sqlFetchArray($res)) {
                         $provid = $row['id'];
@@ -400,8 +395,10 @@ $(document).ready(function() {
             &nbsp;
           </td>
           <td>
+            <div class='checkbox'>
                <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
                <?php echo xlt('Details'); ?></label>
+            </div>
           </td>
         </tr>
     </table>
@@ -412,25 +409,20 @@ $(document).ready(function() {
     <table style='border-left:1px solid; width:100%; height:100%' >
          <tr>
             <td>
-                <div style='margin-left:15px'>
-                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value",""); $("#theform").submit();'>
-                    <span>
-                       <?php echo xlt('Submit'); ?>
-                    </span>
-                    </a>
-
-                    <?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
-                    <a href='#' class='css_button' id='printbutton'>
-                    <span>
-                        <?php echo xlt('Print'); ?>
-                    </span>
-                    </a>
-                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value",""); $("#form_csvexport").attr("value","true"); $("#theform").submit();'>
-                    <span>
-                        <?php echo xlt('CSV Export'); ?>
-                    </span>
-                    </a>
-                    <?php } ?>
+                <div class="text-center">
+                    <div class="btn-group" role="group">
+                        <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#form_csvexport").attr("value",""); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                        </a>
+                        <?php if ($_POST['form_refresh'] || $_POST['form_csvexport']) { ?>
+                            <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <?php echo xlt('Print'); ?>
+                            </a>
+                            <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_refresh").attr("value",""); $("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+                                <?php echo xlt('CSV Export'); ?>
+                            </a>
+                        <?php } ?>
+                    </div>
                 </div>
              </td>
         </tr>

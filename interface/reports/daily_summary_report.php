@@ -27,13 +27,14 @@
  *
  */
 
-$fake_register_globals = false;
-$sanitize_all_escapes = true;
+
+
 
 require_once("../globals.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 
+$facilityService = new \services\FacilityService();
 
 $selectedFromDate = isset($_POST['form_from_date']) ? $_POST['form_from_date'] : date('Y-m-d'); // From date filter
 $selectedToDate = isset($_POST['form_to_date']) ? $_POST['form_to_date'] : date('Y-m-d');   // To date filter
@@ -46,13 +47,10 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
 
 <html>
     <head>
-        <?php html_header_show(); ?>
-        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-        <script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+        <?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
+        <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+
         <script type="text/javascript">
 
 
@@ -106,43 +104,45 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                             <div style='float: left'>
                                 <table class='text'>
                                     <tr>
-                                        <td class='label_custom'><?php echo xlt('Facility'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
                                         <td><?php dropdown_facility($selectedFacility, 'form_facility', false); ?></td>
-                                        <td class='label_custom'><?php echo xlt('From'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('From'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_from_date' id="form_from_date"
-                                                   class='datepicker'
+                                                   class='datepicker form-control'
                                                    size='10' value='<?php echo attr($from_date) ?>'
                                                    title='yyyy-mm-dd'>
                                         </td>
-                                        <td class='label_custom'><?php echo xlt('To'); ?>:</td>
+                                        <td class='control-label'><?php echo xlt('To'); ?>:</td>
                                         <td>
                                             <input type='text' name='form_to_date' id="form_to_date"
-                                                   class='datepicker'
+                                                   class='datepicker form-control'
                                                    size='10' value='<?php echo attr($to_date) ?>'
                                                    title='yyyy-mm-dd'>
                                         </td>
+                                        <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
+                                        <td>
+                                            <?php
+                                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
+                                            'empty_title' => '-- All Providers --'), $selectedProvider);
+                                            ?>
+                                        </td>
                                 </table>
                             </div>
-                        </td>
-                        <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
-                        <td>
-                            <?php
-                            generate_form_field(array('data_type' => 10, 'field_id' => 'provider',
-                                'empty_title' => '-- All Providers --'), $selectedProvider);
-                            ?>
                         </td>
                         <td align='left' valign='middle' height="100%">
                             <table style='border-left: 1px solid; width: 100%; height: 100%'>
                                 <tr>
                                     <td>
-                                        <div style='margin-left: 15px'>
-                                            <a href='#' class='css_button' onclick='return submitForm();'>
-                                                <span> <?php echo xlt('Submit'); ?> </span>
-                                            </a>
-                                            <a href='' class="css_button" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
-                                               <span><?php echo xlt('Reset'); ?></span>
-                                            </a>
+                                        <div class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a href='#' class='btn btn-default btn-save' onclick='return submitForm();'>
+                                                    <?php echo xlt('Submit'); ?>
+                                                </a>
+                                                <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
+                                                   <?php echo xlt('Reset'); ?>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -171,8 +171,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
         $whereTotalVisitConditions = $whereTotalPaymentConditions = $wherePaidConditions = $whereNewPatientConditions = '1 = 1 ';
 
         // fetch all facility from the table
-        $facilityReacords = sqlStatement("SELECT `id`,`name` from facility");
-        while ($facilityList = sqlFetchArray($facilityReacords)) {
+        $facilityRecords = $facilityService->getAll();
+        foreach ($facilityRecords as $facilityList) {
             if (1 === $facilitySet && $facilityList['id'] == $selectedFacility) {
                 $facilities[$facilityList['id']] = $facilityList['name'];
             }

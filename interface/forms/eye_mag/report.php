@@ -42,8 +42,8 @@
  *   * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
+
 
 require_once("../../globals.php");
 require_once(dirname(__FILE__) ."/../../../library/acl.inc");
@@ -54,6 +54,8 @@ require_once(dirname(__FILE__) ."/../../../library/patient.inc");
 
 $form_name = "eye_mag";
 $form_folder = "eye_mag";
+
+$facilityService = new \services\FacilityService();
 
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
@@ -192,6 +194,7 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
   global $formres;
   global $dateres;
   global $printable;
+  global $facilityService;
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
   $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
@@ -236,12 +239,12 @@ function narrative($pid, $encounter, $cols, $form_id,$choice='full') {
    if (($cols =='Fax')||($cols=='Report')) echo report_header($pid,'PDF');
     if ($PDF_OUTPUT) {
       $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+      $facility = null;
       if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+        $facility = $facilityService->getById($_SESSION['pc_facility']);
       } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+        $facility = $facilityService->getPrimaryBillingLocation();
       }
-      $facility = sqlQuery($sql);
     }
 
     if ($choice !== 'TEXT') { ?>

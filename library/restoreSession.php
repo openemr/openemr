@@ -17,7 +17,7 @@ function restoreSession() {
 <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
    alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
 <?php } ?>
-   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=/';
+   document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/');?>';
   }
  }
 <?php } ?>

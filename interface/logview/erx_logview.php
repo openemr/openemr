@@ -23,10 +23,6 @@
  * @link       http://www.open-emr.org
  */
 
-$sanitize_all_escapes = true;		// SANITIZE ALL ESCAPES
-
-$fake_register_globals = false;		// STOP FAKE REGISTER GLOBALS
-
 require_once(__DIR__.'/../globals.php');
 require_once($srcdir.'/log.inc');
 

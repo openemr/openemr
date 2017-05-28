@@ -45,13 +45,13 @@ class ParticipantsController extends BaseController{
 
                 $patient['pid'] = $_POST['pid'][$k];
                 $patient['group_patient_status'] = $_POST['group_patient_status'][$k];
-                $patient['group_patient_start'] = $_POST['group_patient_start'][$k];
-                $patient['group_patient_end'] = $_POST['group_patient_end'][$k];
+                $patient['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start'][$k]);
+                $patient['group_patient_end'] = DateToYYYYMMDD($_POST['group_patient_end'][$k]);
                 $patient['group_patient_comment'] = $_POST['group_patient_comment'][$k];
 
                 $filters = array(
                     'group_patient_status' => FILTER_VALIDATE_INT,
-                    'group_patient_start' => FILTER_SANITIZE_STRING,
+                    'group_patient_start' => FILTER_DEFAULT,
                     'group_patient_end' => FILTER_SANITIZE_SPECIAL_CHARS,
                     'group_patient_comment' => FILTER_SANITIZE_SPECIAL_CHARS,
                 );
@@ -70,6 +70,12 @@ class ParticipantsController extends BaseController{
         $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);
         $data['readonly'] = 'disabled';
         $data['participants'] = $this->groupParticipantsModel->getParticipants($groupId);
+        foreach ($data['participants'] as $key => $row) {
+            $statuses[$key]  = $row['group_patient_status'];
+            $names[$key] = $row['lname'] . ' ' . $row['fname'];
+        }
+        array_multisort($statuses, SORT_ASC, $names, SORT_ASC, $data['participants']);
+
         $data['statuses'] = TherapyGroupsController::prepareParticipantStatusesList();
         $data['groupId'] = $groupId;
         $groupData = $this->groupModel->getGroup($groupId);
@@ -89,6 +95,8 @@ class ParticipantsController extends BaseController{
 
         if(isset($_POST['save_new'])){
 
+            $_POST['group_patient_start'] = DateToYYYYMMDD($_POST['group_patient_start']);
+
             $alreadyRegistered = $this->groupParticipantsModel->isAlreadyRegistered($_POST['pid'], $groupId);
             if($alreadyRegistered){
                 $this->index($groupId, array('participant_data' => $_POST, 'addStatus' => 'failed','message' => xlt('The patient already registered to the group')));
@@ -99,7 +107,7 @@ class ParticipantsController extends BaseController{
             $filters = array(
                 'group_id' => FILTER_VALIDATE_INT,
                 'pid' => FILTER_VALIDATE_INT,
-                'group_patient_start' => FILTER_SANITIZE_STRING,
+                'group_patient_start' => FILTER_DEFAULT,
                 'group_patient_comment' => FILTER_SANITIZE_SPECIAL_CHARS,
             );
 
