@@ -37,7 +37,6 @@ body
     flex-direction: column;
     margin: 0px;
     background-color: #f4f4f4;
-    font-size: 12px;
 }
 #mainBox
 {
@@ -121,7 +120,6 @@ body
 }
 
 .tabSpan .fa {
-    font-size: 80%;
     color: #888888;
 }
 
@@ -291,7 +289,6 @@ div.closeDlgIframe:before {
 
 .patientEncounterList .review
 {
-    font-size: x-small;
     padding: 2px;
     border: 1px solid black;
     background-color: lightgray;
@@ -352,7 +349,7 @@ div.closeDlgIframe:before {
     background:#fff;
     display: none;
     position: absolute;
-    top: 40px;
+    top: 50px;
     z-index:1000;
     min-width: 175px;
     box-shadow: 0px 5px 5px #adadad;
@@ -391,7 +388,6 @@ div.menuLabel:hover {
 
 /** Sub menu **/
 .menuEntries li .menuLabel {
-    font-size: 90%;
     display: block;
     padding: 10px 20px;
 }
@@ -459,9 +455,9 @@ div.menuLabel:hover {
 }
 
 .closeButton {
-        display:inline-block;
-        float:right;
-        position:relative;
-        top:6px;
-        right:5px;
+    display:inline-block;
+    float:right;
+    position:relative;
+    top:6px;
+    right:5px;
 }
