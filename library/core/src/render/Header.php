@@ -64,7 +64,9 @@ class Header
 
         $scripts = [];
         $links = [];
-        $toParse = [];
+
+        // First things first, load the theme
+        $links[] = self::loadTheme();
 
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
@@ -89,6 +91,11 @@ class Header
         $linksStr = implode("", $links);
         $scriptsStr = implode("", $scripts);
         return "\n{$linksStr}\n{$scriptsStr}\n";
+    }
+
+    static private function loadTheme()
+    {
+        return self::createElement($GLOBALS['css_header'], 'link');
     }
 
     static private function replaceBasePathVariables($basePath)
@@ -119,14 +126,15 @@ class Header
         $link = "<link rel=\"stylesheet\" href=\"%path%\" type=\"text/css\">\n";
 
         $template = ($type == 'script') ? $script : $link;
+        $v = $GLOBALS['v_js_includes'];
+        $path = $path . "?v={$v}";
         return str_replace("%path%", $path, $template);
 
     }
 
     static private function createFullPath($base, $path)
     {
-        $v = $GLOBALS['v_js_includes'];
-        return $base . $path . "?v={$v}";
+        return $base . $path;
     }
 
     static private function readConfigFile($file)

@@ -4,7 +4,7 @@
 # won't work (Need to build in proper error handling @TODO RD 2017-05-16
 #
 # Example usage:
-# assets: Top-level key name
+# assets: Top-level key name (Required)
 #     asset-short-name: Short name
 #         basePath: %assets_static_relative%/full/path/to/deepest/common/file
 #         script: null filename or null
