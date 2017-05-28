@@ -120,6 +120,7 @@ body
 }
 
 .tabSpan .fa {
+    font-size: 80%;
     color: #888888;
 }
 
@@ -349,7 +350,7 @@ div.closeDlgIframe:before {
     background:#fff;
     display: none;
     position: absolute;
-    top: 50px;
+    top: 40px;
     z-index:1000;
     min-width: 175px;
     box-shadow: 0px 5px 5px #adadad;
@@ -388,6 +389,7 @@ div.menuLabel:hover {
 
 /** Sub menu **/
 .menuEntries li .menuLabel {
+    font-size: 90%;
     display: block;
     padding: 10px 20px;
 }
