@@ -18,9 +18,9 @@
 <head>
     <title><?php echo xl("History"); ?></title>
     <?php
+    $include_standard_style_js = ['common.js'];
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
 
 <script type="text/javascript">
 $(document).ready(function(){

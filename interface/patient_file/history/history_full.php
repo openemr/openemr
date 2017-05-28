@@ -43,11 +43,10 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 <html>
 <head>
     <?php
-    $include_standard_style_js = ['datetimepicker',];
+    $include_standard_style_js = ['datetimepicker','common.js'];
     require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
     ?>
 <title><?php xl("History & Lifestyle", 'e');?></title>
-<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 
 <script LANGUAGE="JavaScript">
@@ -245,10 +244,10 @@ div.tab {
                     <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
                 </div>
                 <div class="btn-group">
-                    <a href="history.php" class="btn btn-link" onclick="top.restoreSession()">
-                        <i class="fa fa-chevron-left"></i>&nbsp;&nbsp;<?php echo htmlspecialchars(xl('Back To View'),ENT_NOQUOTES); ?>
+                    <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
+                    <a href="history.php" class="btn btn-link btn-cancel" onclick="top.restoreSession()">
+                        <?php echo xlt('Cancel'); ?>
                     </a>
-                    <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e');?></button>
                 </div>
 
                 <br/>
