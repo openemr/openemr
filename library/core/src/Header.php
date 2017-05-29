@@ -16,7 +16,7 @@ use Symfony\Component\Yaml\Exception\ParseException;
  * Helper class to generate some `<script>` and `<link>` elements based on a
  * configuration file. This file would be a good place to include other helpers
  * for creating a `<head>` element, but for now it sufficently handles the
- * `includeAsset()`
+ * `setupHeader()`
  *
  * @package OpenEMR
  * @subpackage Core
