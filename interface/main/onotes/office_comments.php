@@ -31,7 +31,7 @@ $oNoteService = new \services\ONoteService();
 
 <?php
 use OpenEMR\Core\Header;
-Header::setupHeader([]);
+Header::setupHeader();
 ?>
 
 </head>
