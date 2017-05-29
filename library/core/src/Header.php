@@ -36,6 +36,8 @@ class Header
      */
     static public function setupHeader($assets = [])
     {
+        html_header_show();
+        echo self::loadTheme();
         echo self::includeAsset($assets);
     }
 
@@ -78,9 +80,6 @@ class Header
         $scripts = [];
         $links = [];
 
-        // First things first, load the theme
-        $links[] = self::loadTheme();
-
         foreach ($map as $k => $opts) {
             $autoload = (isset($opts['autoload'])) ? $opts['autoload'] : false;
             $rtl = (isset($opts['rtl'])) ? $opts['rtl'] : false;
@@ -95,7 +94,7 @@ class Header
                     $links[] = $l;
                 }
 
-                if ($rtl) {
+                if ($rtl && $GLOBALS['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl);
                     foreach ($tmpRtl['scripts'] as $s) {
                         $scripts[] = $s;
@@ -123,17 +122,19 @@ class Header
     {
         $script = (isset($opts['script'])) ? $opts['script'] : false;
         $link = (isset($opts['link'])) ? $opts['link'] : false;
-        $basePath = self::replaceBasePathVariables($opts['basePath']);
+        $basePath = self::parsePlaceholders($opts['basePath']);
 
         $scripts = [];
         $links = [];
 
         if ($script) {
+            $script = self::parsePlaceholders($script);
             $path = self::createFullPath($basePath, $script);
             $scripts[] = self::createElement($path, 'script');
         }
 
         if ($link) {
+            $link = self::parsePlaceholders($link);
             $path = self::createFullPath($basePath, $link);
             $links[] = self::createElement($path, 'link');
         }
@@ -147,24 +148,27 @@ class Header
     }
 
     /**
-     * String replacement in the basePath key, allowing use of $GLOBAL in config
+     * Parse a string for $GLOBAL key placeholders %key-name%.
      *
+     * Perform a regex match all in the given subject for anything warpped in
+     * percent signs `%some-key%` and if that string exists in the $GLOBALS
+     * array, will replace the occurence with the value of that key.
      *
-     * @param string $basePath Base path containing placeholders (%key-name%)
-     * @return string The new base path with properly replaced keys
+     * @param string $subject String containing placeholders (%key-name%)
+     * @return string The new string with properly replaced keys
      */
-    static private function replaceBasePathVariables($basePath)
+    static public function parsePlaceholders($subject)
     {
         $re = '/%(.*)%/';
-        $basePathMatches = [];
-        preg_match_all($re, $basePath, $basePathMatches, PREG_SET_ORDER, 0);
+        $matches = [];
+        preg_match_all($re, $subject, $matches, PREG_SET_ORDER, 0);
 
-        foreach ($basePathMatches as $match) {
+        foreach ($matches as $match) {
             if (array_key_exists($match[1], $GLOBALS)) {
-                $basePath = str_replace($match[0], $GLOBALS["{$match[1]}"], $basePath);
+                $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
             }
         }
-        return $basePath;
+        return $subject;
     }
 
     /**

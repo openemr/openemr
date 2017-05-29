@@ -1369,7 +1369,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'ORDataObject' => __DIR__ . '/../..' . '/library/classes/ORDataObject.class.php',
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
         'OpenEMR\\Core\\BaseRenderer' => __DIR__ . '/../..' . '/library/core/src/render/BaseRenderer.php',
-        'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/render/Header.php',
+        'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
