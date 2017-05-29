@@ -75,8 +75,7 @@ class Header
         }
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile("{$GLOBALS['webroot']}/config/config.yaml");
-
+        $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
         $scripts = [];
         $links = [];
 
