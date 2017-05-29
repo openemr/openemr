@@ -6,6 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
+use OpenEMR\Core\Header;
 include_once("../globals.php");
 include_once($GLOBALS['srcdir'] . "/patient.inc");
 
@@ -304,9 +305,7 @@ while ($srow = sqlFetchArray($sres)) {
 <html>
 <head>
 <title><?php echo xlt('Letter Generator'); ?></title>
-
-<?php $include_standard_style_js = array("datetimepicker","topdialog.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'topdialog']); ?>
 
 <script language="JavaScript">
 <?php echo $ulist; ?>
