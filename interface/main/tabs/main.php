@@ -1,5 +1,6 @@
 <?php
-Use Esign\Api;
+use Esign\Api;
+use OpenEMR\Core\Header;
 /**
  * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
@@ -105,8 +106,8 @@ function isEncounterLocked( encounterId ) {
 var webroot_url="<?php echo $web_root; ?>";
 </script>
 
-<?php $include_standard_style_js = array("knockout","tabs-theme"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(["knockout","tabs-theme"]); ?>
+
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 

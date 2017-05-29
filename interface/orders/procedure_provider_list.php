@@ -21,7 +21,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -37,9 +37,7 @@ $res = sqlStatement($query);
 <html>
 
 <head>
-<?php
-require "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-?>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Procedure Providers'); ?></title>
 
 <?php if ($popup) { ?>

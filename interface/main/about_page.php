@@ -36,8 +36,10 @@ require_once("../globals.php");
 <html>
 <head>
 
-    <?php $include_standard_style_js = array("jquery-ui","jquery-ui-darkness"); ?>
-    <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+    <?php
+    use OpenEMR\Core\Header;
+    Header::setupHeader(["jquery-ui","jquery-ui-darkness"]);
+    ?>
     <title><?php echo xl("About");?> OpenEMR</title>
     <style>
         .donations-needed {

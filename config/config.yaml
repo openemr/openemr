@@ -53,11 +53,11 @@ assets:
     jquery-ui-sunny:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
         link: jquery-ui.min.css
-    datetimepicker:
+    datetime-picker:
         basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
         script: jquery.datetimepicker.full.min.js
         link: jquery.datetimepicker.min.css
-    report_helper:
+    report-helper:
         basePath: %webroot%/library/js/
         script: report_helper.js
     common:

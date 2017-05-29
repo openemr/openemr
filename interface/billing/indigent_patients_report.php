@@ -69,8 +69,10 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 </style>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php
+use OpenEMR\Core\Header;
+Header::setupHeader('datetime-picker');
+?>
 
 <title><?php xl('Indigent Patients Report','e')?></title>
 

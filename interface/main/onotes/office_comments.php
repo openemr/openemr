@@ -29,7 +29,10 @@ $oNoteService = new \services\ONoteService();
 <html>
 <head>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php
+use OpenEMR\Core\Header;
+Header::setupHeader([]);
+?>
 
 </head>
 <body class="body_top">
