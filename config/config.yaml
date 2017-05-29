@@ -23,24 +23,13 @@ assets:
         rtl:
             basePath: %assets_static_relative%/bootstrap-rtl-3-3-4/dist
             link: css/bootstrap-rtl.css
-    fontawesome:
-        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
-        link: font-awesome.min.css
-        autoload: true
-    textformat:
-        basePath: %webroot%/library/
-        script: textformat.js
-        autoload: true
-    dialog:
-        basePath: %webroot%/library/
-        script: dialog.js
-        autoload: true
-    topdialog:
-        basePath: %webroot%/library/
-        script: topdialog.js
-    opener:
-        basePath: %webroot%/interface/main/tabs/js/
-        script: include_opener.js
+    bootstrap-sidebar:
+        basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist
+        script: js/sidebar.js
+        link: css/sidebar.css
+    tabs-theme:
+        basePath: %webroot%/interface/themes/
+        link: %theme_tabs_layout%
     knockout:
         basePath: %assets_static_relative%/knockout-3-4-0/dist/
         script: knockout.js
@@ -53,6 +42,10 @@ assets:
     jquery-ui-sunny:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
         link: jquery-ui.min.css
+    fontawesome:
+        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
+        link: font-awesome.min.css
+        autoload: true
     datetime-picker:
         basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
         script: jquery.datetimepicker.full.min.js
@@ -60,13 +53,20 @@ assets:
     report-helper:
         basePath: %webroot%/library/js/
         script: report_helper.js
+    opener:
+        basePath: %webroot%/interface/main/tabs/js/
+        script: include_opener.js
+    topdialog:
+        basePath: %webroot%/library/
+        script: topdialog.js
     common:
         basePath: %webroot%/library/js
         script: common.js
-    tabs-theme:
-        basePath: %webroot%/interface/themes/
-        link: %theme_tabs_layout%
-    bootstrap-sidebar:
-        basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist
-        script: js/sidebar.js
-        link: css/sidebar.css
+    textformat:
+        basePath: %webroot%/library/
+        script: textformat.js
+        autoload: true
+    dialog:
+        basePath: %webroot%/library/
+        script: dialog.js
+        autoload: true
