@@ -27,12 +27,42 @@ class Header
 {
 
     /**
-     * Setup various header requirements.
+     * Setup various <head> elements.
      *
-     * Helper to do more than one thing to a header, currently only includes assets
+     * See root_dir/config/config.yaml for available assets
      *
-     * @var array|string $assets Asset(s) to include
-     * @return void
+     * Example usage in a PHP view script:
+     * ```php
+     * // Top of script with require_once statements
+     * use OpenEMR\Core\Header;
+     *
+     * // Inside of <head>
+     * // If no special assets are needed:
+     * Header::setupHeader();
+     *
+     * // If 1 special asset is needed:
+     * Header::setupHeader('key-of-asset');
+     *
+     * // If 2 or more assets are needed:
+     * Header::setupHeader(['array', 'of', 'keys']);
+     * ```
+     *
+     * Inside of a twig template (Parameters same as before):
+     * ```html
+     * {{ includeAsset() }}
+     * ```
+     *
+     * Inside of a smarty template, use | (pipe) delimited string of key names
+     * ```php
+     * {headerTemplate}
+     * ```
+     *
+     * The above example will render `<script>` tags and `<link>` tag which
+     * bring in the requested assets from config.yaml
+     *
+     * @param array|string $assets Asset(s) to include
+     * @throws ParseException If unable to parse the config file
+     * @return string
      */
     static public function setupHeader($assets = [])
     {
@@ -48,26 +78,13 @@ class Header
      * $assets keys are in the config file, and from the config file generate
      * the HTML for a `<script>` or `<link>` tag.
      *
-     * See root_dir/config/config.yaml
-     *
-     * Example:
-     * ```php
-     * // From a view file, inside of <head>
-     * use OpenEMR\Core\Header;
-     * Header::includeAsset([
-     *     'datetimepicker',
-     *     'jquery-ui',
-     * ];
-     * ```
-     *
-     * The above example will render 2 `<script>` tags and 1 `<link>` tag which
-     * bring in the datetimepicker and jquery-ui versions defined in config.yaml
+     * This is a private function, use Header::setupHeader() instead
      *
      * @param array|string $assets Asset(s) to include
      * @throws ParseException If unable to parse the config file
      * @return string
      */
-    static public function includeAsset($assets = [])
+    static private function includeAsset($assets = [])
     {
 
         if (is_string($assets)) {
