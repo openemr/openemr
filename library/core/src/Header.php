@@ -143,7 +143,8 @@ class Header
 
     static private function loadTheme()
     {
-        return self::createElement($GLOBALS['css_header'], 'link');
+        $link = '<link rel="stylesheet" href="%css_header%" type="text/css">';
+        return self::parsePlaceholders($link);
     }
 
     /**
