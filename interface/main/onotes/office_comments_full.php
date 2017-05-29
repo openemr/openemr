@@ -20,7 +20,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 include_once("../../globals.php");
 
 $oNoteService = new \services\ONoteService();
@@ -52,10 +52,7 @@ if (isset($_POST['mode'])) {
 <html>
 <head>
 
-<?php
-use OpenEMR\Core\Header;
-Header::setupHeader();
-?>
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 

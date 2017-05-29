@@ -25,7 +25,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -77,10 +77,7 @@ require_once($GLOBALS['fileroot'].'/custom/code_types.inc.php');
 <html>
 <head>
 
-<?php
-use OpenEMR\Core\Header;
-Header::setupHeader(['datetime-picker', 'report-helper']);
-?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <style type="text/css">
 /* specifically include & exclude from printing */

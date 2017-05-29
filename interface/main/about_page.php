@@ -30,16 +30,13 @@
 
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 ?>
 <html>
 <head>
 
-    <?php
-    use OpenEMR\Core\Header;
-    Header::setupHeader(["jquery-ui","jquery-ui-darkness"]);
-    ?>
+    <?php Header::setupHeader(["jquery-ui","jquery-ui-darkness"]); ?>
     <title><?php echo xl("About");?> OpenEMR</title>
     <style>
         .donations-needed {

@@ -22,6 +22,7 @@
 * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
 */
 
+use OpenEMR\Core\Header;
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
@@ -213,10 +214,7 @@ $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
 <html>
 <head>
 
-<?php
-use OpenEMR\Core\Header;
-Header::setupHeader('datetime-picker');
-?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <script type="text/javascript">
 
