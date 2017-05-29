@@ -13,7 +13,7 @@
  * of the License, or (at your option) any later version.
  */
 
-use OpenEMR\Core\Header
+use OpenEMR\Core\Header;
 
 /**
  * Smarty {headerTemplate} function plugin.
