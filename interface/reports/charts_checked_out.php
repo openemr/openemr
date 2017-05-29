@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 
 // This reports checkins and checkouts for a specified patient's chart.
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 ?>
@@ -16,7 +16,7 @@ require_once("$srcdir/patient.inc");
 
 <title><?php xl('Charts Checked Out','e'); ?></title>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
 

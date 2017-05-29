@@ -30,7 +30,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -65,8 +65,7 @@ $grand_total_amt_balance  = 0;
 <html>
 <head>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <style type="text/css">
 /* specifically include & exclude from printing */

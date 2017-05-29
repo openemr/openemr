@@ -9,7 +9,7 @@
 // This reports checkins and checkouts for a specified patient's chart.
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -20,7 +20,7 @@ $form_patient_id = trim($_POST['form_patient_id']);
 <head>
 <title><?php echo xlt('Chart Location Activity'); ?></title>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
 

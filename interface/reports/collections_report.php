@@ -29,7 +29,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once("../../library/invoice_summary.inc.php");
@@ -267,8 +267,7 @@ else {
 <html>
 <head>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <title><?php echo xlt('Collections Report')?></title>
 <style type="text/css">
