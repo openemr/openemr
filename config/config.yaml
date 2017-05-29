@@ -35,16 +35,38 @@ assets:
         basePath: %webroot%/library/
         script: dialog.js
         autoload: true
+    topdialog:
+        basePath: %webroot%/library/
+        script: topdialog.js
+    opener:
+        basePath: %webroot%/interface/main/tabs/js/
+        script: include_opener.js
+    knockout:
+        basePath: %assets_static_relative%/knockout-3-4-0/dist/
+        script: knockout.js
+    jquery-ui:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/
+        script: jquery-ui.min.js
     jquery-ui-darkness:
         basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
+        link: jquery-ui.min.css
+    jquery-ui-sunny:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
         link: jquery-ui.min.css
     datetimepicker:
         basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
         script: jquery.datetimepicker.full.min.js
         link: jquery.datetimepicker.min.css
-    jquery-ui:
-        basePath: %assets_static_relative%/jquery-ui-1-12-1/
-        script: jquery-ui.min.js
     report_helper:
         basePath: %webroot%/library/js/
         script: report_helper.js
+    common:
+        basePath: %webroot%/library/js
+        script: common.js
+    tabs-theme:
+        basePath: %webroot%/interface/themes/
+        link: %theme_tabs_layout%
+    bootstrap-sidebar:
+        basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist
+        script: js/sidebar.js
+        link: css/sidebar.css
