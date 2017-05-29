@@ -8,15 +8,15 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         'e40631d46120a9c38ea139981f8dab26' => __DIR__ . '/..' . '/ircmaxell/password-compat/lib/password.php',
-        '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
+        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         'edc6464955a37aa4d5fbf39d40fb6ee7' => __DIR__ . '/..' . '/symfony/polyfill-php55/bootstrap.php',
         '3e2471375464aac821502deb0ac64275' => __DIR__ . '/..' . '/symfony/polyfill-php54/bootstrap.php',
-        'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
+        '72579e7bd17821bb1321b87411366eae' => __DIR__ . '/..' . '/illuminate/support/helpers.php',
         'd5fa61a7f6cbc1df09dd4df84549a2dc' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cpdf.php',
         '2d15964294879de66053d54f6bde65d7' => __DIR__ . '/..' . '/rospdf/pdf-php/src/Cezpdf.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+        'bf9f5270ae66ac6fa0290b4bf47867b7' => __DIR__ . '/..' . '/adodb/adodb-php/adodb.inc.php',
         'ce966aaf9a7a6ac4e4663ee998e4282d' => __DIR__ . '/../..' . '/library/htmlspecialchars.inc.php',
         'e503b8ca58d1a18c65b5632ecd5a76b4' => __DIR__ . '/../..' . '/library/formdata.inc.php',
         '90ddd4120fc0e77b06a383f880188d79' => __DIR__ . '/../..' . '/library/sanitize.inc.php',
@@ -72,7 +72,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'O' => 
         array (
             'OpenEMR\\Encounter\\Services\\' => 27,
-            'OpenEMR\\Core\\' => 13,
         ),
         'I' => 
         array (
@@ -169,10 +168,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OpenEMR\\Encounter\\Services\\' => 
         array (
             0 => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services',
-        ),
-        'OpenEMR\\Core\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/library/core/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -1368,8 +1363,6 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OFX' => __DIR__ . '/../..' . '/library/classes/OFX.class.php',
         'ORDataObject' => __DIR__ . '/../..' . '/library/classes/ORDataObject.class.php',
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
-        'OpenEMR\\Core\\BaseRenderer' => __DIR__ . '/../..' . '/library/core/src/render/BaseRenderer.php',
-        'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
