@@ -14,6 +14,7 @@
  *
  *
  * The $include_standard_style_js supports:
+ *                                         tabs-theme
  *                                         bootstrap-sidebar
  *                                         jquery-ui (brings in just the js script)
  *                                         jquery-ui-darkness (brings in the darkness style)
@@ -51,6 +52,9 @@
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
 <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+<?php } ?>
+<?php if (!empty($include_standard_style_js) && in_array("tabs-theme",$include_standard_style_js)) { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'] ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $GLOBALS['v_js_includes']; ?>"/>
 <?php } ?>
 <?php if (!empty($include_standard_style_js) && in_array("bootstrap-sidebar",$include_standard_style_js)) { ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-sidebar-0-2-2/dist/css/sidebar.css">

@@ -105,10 +105,8 @@ function isEncounterLocked( encounterId ) {
 var webroot_url="<?php echo $web_root; ?>";
 </script>
 
-<?php $include_standard_style_js = array("knockout"); ?>
+<?php $include_standard_style_js = array("knockout","tabs-theme"); ?>
 <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
-
-<link rel="stylesheet" type="text/css" href="<?php echo $webroot; ?>/interface/themes/<?php echo $GLOBALS['theme_tabs_layout']; ?>?v=<?php echo $v_js_includes; ?>"/>
 
 <link rel="shortcut icon" href="<?php echo $GLOBALS['images_static_relative']; ?>/favicon.ico" />
 
