@@ -111,7 +111,7 @@ class Header
                     $links[] = $l;
                 }
 
-                if ($rtl && $GLOBALS['language_direction'] == 'rtl') {
+                if ($rtl && $_SESSION['language_direction'] == 'rtl') {
                     $tmpRtl = self::buildAsset($rtl);
                     foreach ($tmpRtl['scripts'] as $s) {
                         $scripts[] = $s;
