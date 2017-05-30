@@ -21,7 +21,7 @@
  */
 
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 ?>
 
@@ -34,7 +34,7 @@ if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST[
 else $logtop = 0;
 ?>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
 

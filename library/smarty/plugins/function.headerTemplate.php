@@ -13,9 +13,10 @@
  * of the License, or (at your option) any later version.
  */
 
+use OpenEMR\Core\Header;
 
 /**
- * Smarty {headerTemplate} function plugin
+ * Smarty {headerTemplate} function plugin.
  *
  * Type:     function<br>
  * Name:     headerTemplate<br>
@@ -24,12 +25,12 @@
  * @param array
  * @param Smarty
  */
-
-
 function smarty_function_headerTemplate($params, &$smarty)
 {
+    $assets = [];
     if (!empty($params['assets'])) {
-        $include_standard_style_js = explode('|',$params['assets']);
+        $assets = explode('|', $params['assets']);
     }
-    require "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
+
+    return Header::setupHeader($assets);
 }

@@ -27,7 +27,7 @@
  */
 
 
-
+use OpenEMR\Core\Header;
 	require_once("../globals.php");
 	require_once("$srcdir/patient.inc");
 	require_once("$srcdir/options.inc.php");
@@ -75,8 +75,7 @@
 <?php echo htmlspecialchars(xl('Clinical Reports'),ENT_NOQUOTES); ?>
 </title>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <script language="JavaScript">
 

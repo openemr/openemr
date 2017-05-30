@@ -61,7 +61,7 @@ $hidden_loop 	= '';		# (collects all <input type='hidden'> entries )
 $date_global 	= array();	# (collects items datetime for global rows)
 $value_global 	= array(); 	# (collects items' values [global array])
 $date_local 	= array(); 	# (collects items' datetime for local row)
-$value_local 	= array(); 	# (collects item's values [local array])	
+$value_local 	= array(); 	# (collects item's values [local array])
 $save_item_flag = 0;		# flag to get item_names
 $localplot 		= 0;		# flag if local plot-button is shown
 $localplot_c	= array();  # dummy counter for localplot
@@ -75,9 +75,9 @@ $track_count	= 0;		# counts tracks and generates div-ids
 echo "<html><head>";
 // Javascript support and Javascript-functions
 //******* **********************************
-?> 
+?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="style.css" type="text/css"> 
+<link rel="stylesheet" href="style.css" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/json/json2.js"></script>
 <script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/swfobject.js"></script>
@@ -94,7 +94,7 @@ function getCheckedBoxes(chkboxName) {
         checkedValue.push(checkboxes[i].value);
      }
   }
-  return checkedValue; 
+  return checkedValue;
 }
 //---------------------------------------------------------------
 
@@ -117,34 +117,34 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 	top.restoreSession();
 	return $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
 		     type: 'POST',
-		     data: { dates:  thedates, 
-				     values: thevalues, 
-				     items:  theitems, 
-				     track:  thetrack, 
+		     data: { dates:  thedates,
+				     values: thevalues,
+				     items:  theitems,
+				     track:  thetrack,
 				     thecheckboxes: checkedBoxes
 				   },
-			 dataType: "json",  
+			 dataType: "json",
 			 success: function(returnData){
 				 // ofc will look after a variable named "ofc"
 				 // inside of the flashvar
 				 // However, we need to set both
-				 // data and flashvars.ofc 
+				 // data and flashvars.ofc
 				 data=returnData;
 				 flashvars.ofc = returnData;
 				 // call ofc with proper falshchart
-					swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf', 
-					"graph"+trackCount, "650", "200", "9.0.0","",flashvars);  
+					swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf',
+					"graph"+trackCount, "650", "200", "9.0.0","",flashvars);
 			},
 			error: function (XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest.responseText);
 				//alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
 			}
-	
-	}); // end ajax query	
+
+	}); // end ajax query
 }
 //------------------------------------------------------
 </script>
-<?php 
+<?php
 
 //#########################################################
 // Here starts webpage-output
@@ -225,18 +225,18 @@ while($myrow = sqlFetchArray($query)){
 	$the_track = $myrow["id"];
 	$the_encounter = $myrow["encounter"];
 	$track_count++;
-	
+
 	// reset local arrays;
 	$date_local 	= array(); 	# (collects items' datetime for local row)
 	$value_local 	= array(); 	# (collects item's values [local array])
 	$localplot_c 	= array(); // counter to decide if graph-button is shown
 	$shownameflag 	= 0; // show table-head	?
-	$localplot	  	= 0; // show graph-button?	
-	$col 			= 0; // how many Items per row	
+	$localplot	  	= 0; // show graph-button?
+	$col 			= 0; // how many Items per row
 	$row_lc 		= 0; // local row counter
 	//--- end reset local arrays
 
-	
+
 	// get every single tracks
 	echo "<div id='graph" . attr($track_count) . "'> </div><br>"; // here goes the graph
 	echo "<small>[" . xlt('Data from') . " ";
@@ -251,7 +251,7 @@ while($myrow = sqlFetchArray($query)){
 	while($myrow2 = sqlFetchArray($query2)){
 		$thistime = $myrow2['track_timestamp'];
 		$shownameflag++;
-		
+
 		// get data of this specific track
 		$spell3  = "SELECT form_track_anything_results.itemid, form_track_anything_results.result, form_track_anything_type.name AS the_name ";
 		$spell3 .= "FROM form_track_anything_results ";
@@ -260,13 +260,13 @@ while($myrow = sqlFetchArray($query)){
 		$spell3 .= "ORDER BY form_track_anything_results.track_timestamp " . escape_sort_order($ASC_DESC) . ", ";
 		$spell3 .= " form_track_anything_type.position ASC, the_name ASC ";
 		$query3  = sqlStatement($spell3, array($the_track, $thistime));
-		
+
 		// print local <table>-heads
 		// ----------------------------
 		if ($shownameflag==1){
 			echo "<tr><th class='time'>" . xlt('Time') . "</th>";
 			while($myrow3 = sqlFetchArray($query3)){
-				echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>";	//  
+				echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>";	//
 
 				if($save_item_flag == 0) {
 					$items_n[$items_c] = $myrow3['the_name']; // save item names
@@ -289,8 +289,8 @@ while($myrow = sqlFetchArray($query)){
 		while($myrow3 = sqlFetchArray($query3)){
 			echo "<td class='item'>&nbsp;" . text($myrow3['result']) . "&nbsp;</td>";
 			if (is_numeric($myrow3['result'])) {
-					$value_global[$col_i][$row_gl] = $myrow3['result']; // save value into global array 
-					$value_local[$col_i][$row_lc]  = $myrow3['result']; // save value into local array 
+					$value_global[$col_i][$row_gl] = $myrow3['result']; // save value into global array
+					$value_local[$col_i][$row_lc]  = $myrow3['result']; // save value into local array
 			}
 			$col_i++;
 		}
@@ -304,7 +304,7 @@ while($myrow = sqlFetchArray($query)){
 	// and show checkbox if so...
 	//----------------------------------------------------
 	echo "<tr>";
-	echo "<td class='check'>" . xlt('Check items to graph') . " </td>"; // 
+	echo "<td class='check'>" . xlt('Check items to graph') . " </td>"; //
 	for ($col_i = 0; $col_i < $col; $col_i++){
 		echo "<td class='check'>";
 		for ($row_b=0; $row_b <$row_lc; $row_b++) {
@@ -313,7 +313,7 @@ while($myrow = sqlFetchArray($query)){
 				$globalplot_c[$col_i]++;
 			}
 		}
-		
+
 		// show graph-checkbox only if we have more than 1 valid data
 		if ($localplot_c[$col_i] > 1 || $globalplot_c[$col_i] > 1){
 			echo "<input type='checkbox' name='check_col" . attr($track_count) . "' value='" . attr($col_i) . "'>";
@@ -330,7 +330,7 @@ while($myrow = sqlFetchArray($query)){
 	echo "</tr></table>";
 	echo "<table>";
 	echo "<tr>";
-	echo "<td class='check'>" . xlt('With checked items plot') . ":</td>"; // 
+	echo "<td class='check'>" . xlt('With checked items plot') . ":</td>"; //
 	echo "<td class='check'>";
 	if ($localplot > 0){
 		echo "<input type='button' class='graph_button'  onclick='get_my_graph" . attr($track_count) . "(\"local\")' name='' value='" . xla('encounter data') . "'>";
@@ -350,7 +350,7 @@ while($myrow = sqlFetchArray($query)){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?>
-<script type="text/javascript">	
+<script type="text/javascript">
 function get_my_graph<?php echo attr($track_count); ?>(where){
 	top.restoreSession();
 	if(where=="local"){
@@ -376,7 +376,7 @@ function get_my_graph<?php echo attr($track_count); ?>(where){
 } // end while get all trackdata
 
 
-//######################################################### 
+//#########################################################
 // This is the End
 echo "<p>" . xlt('End of report') . ".</p>";
 

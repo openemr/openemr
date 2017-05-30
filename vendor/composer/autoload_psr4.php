@@ -25,6 +25,7 @@ return array(
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
+    'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
     'Illuminate\\Support\\' => array($vendorDir . '/illuminate/support'),
     'Illuminate\\Contracts\\' => array($vendorDir . '/illuminate/contracts'),
     'Dotenv\\' => array($vendorDir . '/vlucas/phpdotenv/src'),

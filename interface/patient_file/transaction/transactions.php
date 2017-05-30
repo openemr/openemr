@@ -1,7 +1,7 @@
 <?php
 
 
-
+use OpenEMR\Core\Header;
 include_once("../../globals.php");
 include_once("$srcdir/transactions.inc");
 require_once("$srcdir/options.inc.php");
@@ -9,10 +9,7 @@ require_once("$srcdir/options.inc.php");
 <html>
 <head>
     <title><?php echo xlt('Patient Transactions');?></title>
-    <?php
-    $include_standard_style_js = array("common.js");
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
+    <?php Header::setupHeader('common'); ?>
 
 <script type="text/javascript">
     // Called by the deleteme.php window on a successful delete.
