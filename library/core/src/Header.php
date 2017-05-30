@@ -54,6 +54,7 @@ class Header
      *
      * Inside of a smarty template, use | (pipe) delimited string of key names
      * ```php
+     * {headerTemplate}
      * {headerTemplate assets='key-of-asset'}  (1 optional assets)
      * {headerTemplate assets='array|of|keys'}  (multiple optional assets. ie. via | delimiter)
      * ```
