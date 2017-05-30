@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Timeline'|translate }}</title>
+    {{ setupHeader(['bootstrap-sidebar']) }}
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.list-group').on('click', 'a', function(e) {
+                e.preventDefault();
+                var href = $(this).attr('href');
+                $(".detail").load(href);
+            });
+        });
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#timeline-navbar" aria-expanded="false">
+                <span class="sr-only">{{ 'Toggle navigation'|translate }}</span>
+                <i class="bars"></i>
+            </button>
+            <a class="navbar-brand" href="#">{{ patientName }}</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="timeline-navbar">
+            <ul class="nav navbar-nav">
+                <li><a href="demographics.php" class="icon icon-back">{{ 'Back to Patient'|translate }}</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="page-header">
+                <h1><i class="fa fa-history fa-lg"></i>&nbsp;{{ 'Clinical Timeline'|translate }}</h1>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="list-group">
+                {% for form in forms %}
+                <a href="timeline.php?action=detail&form_id={{ form.form_id|e('html_attr') }}" class="list-group-item {% if form.deleted %}text-muted{% endif %}">
+                    <span class="monospaced small">{{ form.date|date("Y-m-d") }}</span>
+                    {{ form.form_name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-xs-8 detail">
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

@@ -4,6 +4,7 @@
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 use OpenEMR\Checker;
+use OpenEMR\Core\Header;
 use Dotenv\Dotenv;
 
 $response = Checker::checkPhpVersion();
@@ -201,6 +202,7 @@ define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfont
 //  library/translation.inc.php - Includes translation functions
 require_once $GLOBALS['vendor_dir'] ."/autoload.php";
 
+
 /**
  * @var Dotenv Allow a `.env` file to be read in and applied as $_SERVER variables.
  *
@@ -222,7 +224,7 @@ $twigOptions = [
     'debug' => false,
 ];
 
-$twigLoader = new Twig_Loader_Filesystem();
+$twigLoader = new Twig_Loader_Filesystem([$GLOBALS['template_dir']]);
 $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
 
 if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
@@ -233,6 +235,9 @@ $twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
 $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
+}));
+$twigEnv->addFunction(new Twig_SimpleFunction('setupHeader', function ($assets = []) {
+    return Header::setupHeader($assets);
 }));
 
 /** Twig_Loader */

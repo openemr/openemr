@@ -24,6 +24,7 @@ return array(
     'Symfony\\Component\\Debug\\' => array($vendorDir . '/symfony/debug'),
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'OpenEMR\\Patient\\' => array($baseDir . '/modules/patient/src'),
     'OpenEMR\\Encounter\\Services\\' => array($baseDir . '/interface/patient_file/encounter/Services'),
     'OpenEMR\\Core\\' => array($baseDir . '/library/core/src'),
     'Illuminate\\Support\\' => array($vendorDir . '/illuminate/support'),
