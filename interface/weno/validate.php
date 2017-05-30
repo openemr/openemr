@@ -19,8 +19,6 @@
  * @link    http://www.open-emr.org
  **/
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;	
 include_once('../globals.php');
 include_once('transmitDataClass.php');
 
@@ -29,8 +27,6 @@ $uid = $_SESSION['authUserID'];
 
 $validation = new transmitData();
 
-
-
 $patient = $validation->validatePatient($pid);
 $pharmacy = $validation->patientPharmacyInfo($pid);
 
@@ -38,47 +34,36 @@ if(empty($GLOBALS['weno_account_id'])){
 	print xlt("Weno Account ID information missing")."<br>";
 	exit;
 }
-
-
-
 if(empty($GLOBALS['weno_provider_id'])){
 	print xlt("Weno Account Clinic ID information missing")."<br>";
 	exit;
 }
-
 if(empty($patient['DOB'])){
 	print xlt("Patient DOB missing"). "<br>";
 	exit;
 }
-
 if(empty($patient['street'])){
 	print xlt("Patient street missing"). "<br>";
 	exit;
 }
-
 if(empty($patient['postal_code'])){
 	print xlt("Patient Zip Code missing"). "<br>";
 	exit;
 }
-
 if(empty($patient['city'])){
 	print xlt("Patient city missing"). "<br>";
 	exit;
 }
-
 if(empty($patient['state'])){
 	print xlt("Patient state missing"). "<br>";
 	exit;
 }
-
 if(empty($patient['sex'])){
 	print xlt("Patient sex missing"). "<br>";
 	exit;
 }
-
 if(empty($pharmacy['name'])){
 	print xlt("Pharmacy not assigned to the patient"). "<br>";
 	exit;
 }
-
 header('Location: confirm.php');

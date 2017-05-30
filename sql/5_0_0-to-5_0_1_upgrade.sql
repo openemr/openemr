@@ -143,13 +143,13 @@ ALTER TABLE `prescriptions` ADD `ntx` INT(2) NULL DEFAULT NULL;
 
 -- 3. prescriptions 
 --
-#IfMissingColumn prescriptions ntx 
+#IfMissingColumn prescriptions rtx 
 ALTER TABLE `prescriptions` ADD `rtx` INT(2) NULL DEFAULT NULL;
 #Endif
 
 -- 4. prescriptions 
 --
-#IfMissingColumn prescriptions ntx 
+#IfMissingColumn prescriptions txDate 
 ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
 #Endif
 
@@ -161,7 +161,7 @@ ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL;
 
 -- 6. pharmacies 
 --
-#IfMissingColumn pharmacies ncpdp
+#IfMissingColumn pharmacies npi
 ALTER TABLE `pharmacies` ADD `npi` INT(12) NULL;  
 #Endif
 

@@ -30,7 +30,7 @@ $state = filter_input(INPUT_POST, "form_state"); //stores the variable sent in t
 
 $ref = $_SERVER["HTTP_REFERER"];     //stores the url the post came from to redirect back to 
 echo $ref."?status=finished";
-exit;
+
 $sql = "SELECT MAX(id) FROM pharmacies";  // Find last record in the table
 $getMaxId = sqlQuery($sql);    //load to variable
 

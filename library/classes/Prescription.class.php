@@ -257,9 +257,7 @@ class Prescription extends ORDataObject {
     }
 
     function set_id($id) {
-        //if (!empty($id) && is_numeric($id)) { $this->id = $id; }
-		$phid = explode("-", $id);
-		$id = $phid[0];
+        if (!empty($id) && is_numeric($id)) { $this->id = $id; }
         $this->id = $id;		
     }
     function get_id() {
@@ -499,8 +497,7 @@ class Prescription extends ORDataObject {
        if($GLOBALS['weno_rx_enable']){
         $sql = "SELECT NDC FROM erx_drug_paid WHERE drug_label_name LIKE ? ";
         $val = array('%'.$drug.'%');
-        $getNDC = sqlStatement($sql, $val);
-		$ndc = sqlFetchArray($getNDC);
+        $ndc = sqlQuery($sql, $val);
 		$drug_id = $ndc['NDC'];
 		    //Save this drug id
 		$this->drug_id = $drug_id;
