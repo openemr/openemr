@@ -9,6 +9,8 @@
             $('.list-group').on('click', 'a', function(e) {
                 e.preventDefault();
                 var href = $(this).attr('href');
+                $('.list-group a').removeClass('active');
+                $(this).addClass('active');
                 $(".detail").load(href);
             });
         });
@@ -47,11 +49,16 @@
     <div class="row">
         <div class="col-xs-4">
             <div class="list-group">
-                {% for form in forms %}
-                <a href="timeline.php?action=detail&form_id={{ form.form_id|e('html_attr') }}" class="list-group-item {% if form.deleted %}text-muted{% endif %}">
-                    <span class="monospaced small">{{ form.date|date("Y-m-d") }}</span>
-                    {{ form.form_name }}
-                </a>
+                {% for year, f in forms %}
+                    <li href="#" class="list-group-item">
+                        <h4 class="list-group-item-heading">{{ year }}</h4>
+                    </li>
+                    {% for form in f %}
+                    <a href="timeline.php?action=detail&form_id={{ form.form_id|e('html_attr') }}"
+                       class="list-group-item {% if form.deleted %}text-muted{% endif %}">
+                        {{ form.form_name }}
+                    </a>
+                    {% endfor %}
                 {% endfor %}
             </div>
         </div>

@@ -14,6 +14,7 @@ require_once "{$srcdir}/patient.inc";
 require_once "{$srcdir}/forms.inc";
 require_once "{$srcdir}/acl.inc";
 use OpenEMR\Patient\Timeline;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 
 if (!acl_check('patients', 'med')) {
@@ -28,8 +29,18 @@ if ($action == 'list') {
     $timeline = new Timeline($pid);
     $forms = $timeline->forms();
 
+    $tmpForms = [];
+    foreach ($forms as $form) {
+        $date = DateTime::createFromFormat('Y-m-d h:i:s', $form['date']);
+        $tmpYear = $date->format('Y');
+        if (!array_key_exists($tmpYear, $tmpForms)) {
+            $tmpForms["{$tmpYear}"] = [];
+        }
+        $tmpForms["{$tmpYear}"][] = $form;
+    }
+
     $viewArgs = [
-        'forms' => $forms,
+        'forms' => $tmpForms,
         'patientName' => getPatientName($pid),
     ];
 

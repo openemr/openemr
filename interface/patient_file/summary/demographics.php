@@ -600,6 +600,10 @@ if ($GLOBALS['patient_id_category_name']) {
 <table cellspacing='0' cellpadding='0' border='0' class="subnav">
   <tr>
       <td class="small" colspan='4'>
+          <a href="timeline.php?action=list" onclick="top.restoreSession()">
+              <?php echo xlt('Timeline'); ?>
+          </a>
+          |
           <a href="../history/history.php" onclick='top.restoreSession()'>
           <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
           |
@@ -623,9 +627,6 @@ if ($GLOBALS['patient_id_category_name']) {
           <a href="../../reports/external_data.php" onclick='top.restoreSession()'>
           <?php echo xlt('External Data'); ?></a>
           |
-          <a href="timeline.php?action=list" onclick="top.restoreSession()">
-              <?php echo xlt('Timeline'); ?>
-          </a>
 
 <!-- DISPLAYING HOOKS STARTS HERE -->
 <?php
