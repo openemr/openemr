@@ -132,19 +132,19 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `ac
 -- 1. users
 --
 #IfMissingColumn users weno_prov_id
-ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) NULL DEFAULT NULL;
+ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
 #Endif
 
 -- 2. prescriptions 
 --
 #IfMissingColumn prescriptions ntx 
-ALTER TABLE `prescriptions` ADD `ntx` INT(2) NULL DEFAULT NULL;
+ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
 #Endif
 
 -- 3. prescriptions 
 --
 #IfMissingColumn prescriptions rtx 
-ALTER TABLE `prescriptions` ADD `rtx` INT(2) NULL DEFAULT NULL;
+ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
 #Endif
 
 -- 4. prescriptions 
