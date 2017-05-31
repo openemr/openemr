@@ -13,8 +13,9 @@ require_once "../../globals.php";
 require_once "{$srcdir}/patient.inc";
 require_once "{$srcdir}/forms.inc";
 require_once "{$srcdir}/acl.inc";
+require_once "{$srcdir}/formatting.inc.php";
+
 use OpenEMR\Patient\Timeline;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 
 if (!acl_check('patients', 'med')) {
@@ -29,6 +30,7 @@ if ($action == 'list') {
     $timeline = new Timeline($pid);
     $forms = $timeline->forms();
 
+    // Convert forms into a multidimensional array distributed by years
     $tmpForms = [];
     foreach ($forms as $form) {
         $date = DateTime::createFromFormat('Y-m-d h:i:s', $form['date']);
@@ -36,6 +38,8 @@ if ($action == 'list') {
         if (!array_key_exists($tmpYear, $tmpForms)) {
             $tmpForms["{$tmpYear}"] = [];
         }
+        // this isn't formatting the date
+        $form['date'] = oeFormatShortDate($form['date']);
         $tmpForms["{$tmpYear}"][] = $form;
     }
 
@@ -53,10 +57,10 @@ if ($action == 'detail') {
     if (substr($formdir,0,3) == 'LBF') {
         include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
 
-        call_user_func("lbf_report", $attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
+        call_user_func("lbf_report", $pid, $encounter, 2, $form['form_id'], $formdir, true);
     } else {
         include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-        call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
+        call_user_func($formdir . "_report", $pid, $encounter, 2, $form['form_id']);
     }
 }
 

@@ -56,15 +56,13 @@
                     {% for form in f %}
                     <a href="timeline.php?action=detail&form_id={{ form.form_id|e('html_attr') }}"
                        class="list-group-item {% if form.deleted %}text-muted{% endif %}">
-                        {{ form.form_name }}
+                        {{ form.form_name }} <span class="pull-right">{{ form.date }}</span>
                     </a>
                     {% endfor %}
                 {% endfor %}
             </div>
         </div>
-        <div class="col-xs-8 detail">
-
-        </div>
+        <div class="col-xs-8 detail"></div>
     </div>
 </div>
 

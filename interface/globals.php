@@ -237,7 +237,7 @@ $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
 }));
 $twigEnv->addFunction(new Twig_SimpleFunction('setupHeader', function ($assets = []) {
-    return Header::setupHeader($assets);
+    Header::setupHeader($assets);
 }));
 
 /** Twig_Loader */
