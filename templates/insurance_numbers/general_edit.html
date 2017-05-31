@@ -36,7 +36,7 @@
 {/foreach}
 
 <tr> <td style="border-style:none;" colspan="5">
-    <a href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()}&showform=true"
+    <a href="{$CURRENT_ACTION}action=edit&id=&provider_id={$provider->get_id()|escape:'html'}&showform=true"
         class="btn btn-default btn-add" onclick="top.restoreSession()">
         <span>{xl t='Add New'|escape:'html'}
     </a>

@@ -23,7 +23,7 @@
 	<tr>
 		<td><input type="checkbox" name="files[{$file.document_id}][active]" value="1" {if is_numeric($file.patient_id)}checked{/if}></td>
 
-		<td><a href="{$file.web_path}" onclick="top.restoreSession()">{$file.filename}</a><input type="hidden" name="files[{$file.document_id|escape:'html'}][name]" value="{$file.filename|escape:'html'}"></td>
+		<td><a href="{$file.web_path}" onclick="top.restoreSession()">{$file.filename|escape:'html'}</a><input type="hidden" name="files[{$file.document_id|escape:'html'}][name]" value="{$file.filename|escape:'html'}"></td>
 
 		<td>{$file.mtime|escape:'html'}</td>
 
