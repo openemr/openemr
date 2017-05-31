@@ -78,18 +78,6 @@ if ($_GET["mode"] == "update") {
           $tqvar = formData('fname','G');
           sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
   }
-  //(CHEMED) Calendar UI preference
-  if ($_GET["cal_ui"]) {
-          $tqvar = formData('cal_ui','G');
-          sqlStatement("update users set cal_ui = '$tqvar' where id = {$_GET["id"]}");
-
-          // added by bgm to set this session variable if the current user has edited
-	  //   their own settings
-	  if ($_SESSION['authId'] == $_GET["id"]) {
-	    $_SESSION['cal_ui'] = $tqvar;
-	  }
-  }
-  //END (CHEMED) Calendar UI preference
 
   if (isset($_GET['default_warehouse'])) {
     sqlStatement("UPDATE users SET default_warehouse = '" .
@@ -461,22 +449,10 @@ foreach($result as $iter2) {
 <td><span class="text"><?php xl('Job Description','e'); ?>: </span></td><td><input type="text" name="job" style="width:150px;"  value="<?php echo $iter["specialty"]?>"></td>
 </tr>
 
-<!-- (CHEMED) Calendar UI preference -->
 <tr>
 <td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
 <td><input type="text" name="taxonomy" style="width:150px;"  value="<?php echo $iter["taxonomy"]?>"></td>
-<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui" style="width:150px;" >
-<?php
- foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
- {
-  echo " <option value='$key'";
-  if ($key == $iter['cal_ui']) echo " selected";
-  echo ">$value</option>\n";
- }
-?>
-</select></td>
-</tr>
-<!-- END (CHEMED) Calendar UI preference -->
+<td>&nbsp;</td><td>&nbsp;</td></tr>
 
 <tr>
 <td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>
