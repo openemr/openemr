@@ -16,15 +16,14 @@ PV1|1|I|2000^2053^01||||004777^FISHER^BEN^J.|||SUR||||ADM|A0|</td></tr>-->
 <tr height="25">
 	<td colspan="2" ><textarea rows="10" wrap="virtual" cols="70" name="hl7data"></textarea><br /><br />
 	</td></tr>
-	<tr class="text"><td colspan="2">
-	<div class="btn-group">
-	    <a href="javascript:document.forms[0].reset();" class="btn btn-default btn-delete" onclick="top.restoreSession()">
-	        {xl t='Clear HL7 Data'|escape:'html'}
-	    </a>
-	    <a href="javascript:document.forms[0].submit();" class="btn btn-default btn-transmit" onclick="top.restoreSession()">
-	        {xl t='Parse HL7'|escape:'html'}
-	    </a>
-	</div>
+	<tr class="text">
+        <td colspan="2">
+            <div class="btn-group">
+                <a href="javascript:document.forms[0].submit();" class="btn btn-default">
+                    <i class="fa fa-play"></i>&nbsp;&nbsp;{xl t='Parse HL7'}</a>
+                <a href="javascript:document.forms[0].reset();" class="btn btn-link">
+                    <i class="fa fa-times"></i>&nbsp;&nbsp;{xl t='Clear HL7 Data'}</a>
+            </div>
 	</td>
 
 {if $hl7_message_err}
