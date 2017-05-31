@@ -71,3 +71,7 @@ button[href*="deleter"]:before {
 .btn-back::before {
     content: '\f053\00a0\00a0';
 }
+
+.btn-update::before {
+    content: '\f021\00a0\00a0';
+}
