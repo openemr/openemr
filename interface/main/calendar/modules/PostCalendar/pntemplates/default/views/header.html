@@ -4,7 +4,6 @@
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['css_header'][-/php-]" type="text/css">
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['assets_static_relative'][-/php-]/font-awesome-4-6-3/css/font-awesome.min.css">
 
-[-if $cal_ui eq 3-]
 <!-- this style sheet is used for the ajax_* style calendars -->
 <link rel="stylesheet" href="[-php-]echo $GLOBALS['webroot'].'/interface/themes/ajax_calendar.css';[-/php-]" type="text/css">
 <!--[if IE]>
@@ -28,7 +27,6 @@ function create_event_time_anchor($displayString)
     return "<a class='event_time' onclick='event_time_click(this)' title='" .$title."'>".$displayString."</a>";
 }
 [-/php-]
-[-/if-]
 
 </head>
 [-php-]

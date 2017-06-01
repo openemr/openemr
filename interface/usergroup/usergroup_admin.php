@@ -122,19 +122,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
               sqlStatement("update users set fname='$tqvar' where id= ? ", array($_POST["id"]));
       }
 
-      //(CHEMED) Calendar UI preference
-      if ($_POST["cal_ui"]) {
-              $tqvar = formData('cal_ui','P');
-              sqlStatement("update users set cal_ui = '$tqvar' where id = ? ", array($_POST["id"]));
-
-              // added by bgm to set this session variable if the current user has edited
-          //   their own settings
-          if ($_SESSION['authId'] == $_POST["id"]) {
-            $_SESSION['cal_ui'] = $tqvar;
-          }
-      }
-      //END (CHEMED) Calendar UI preference
-
       if (isset($_POST['default_warehouse'])) {
         sqlStatement("UPDATE users SET default_warehouse = '" .
           formData('default_warehouse','P') .
@@ -249,7 +236,6 @@ if (isset($_POST["mode"])) {
             "', facility_id = '"   . trim(formData('facility_id'  )) .
             "', specialty = '"     . trim(formData('specialty'    )) .
             "', see_auth = '"      . trim(formData('see_auth'     )) .
-            "', cal_ui = '"        . trim(formData('cal_ui'       )) .
             "', default_warehouse = '" . trim(formData('default_warehouse')) .
             "', irnpool = '"       . trim(formData('irnpool'      )) .
             "', calendar = '"      . $calvar                         .
