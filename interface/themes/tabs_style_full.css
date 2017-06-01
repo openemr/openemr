@@ -104,6 +104,7 @@ body
 
 .tabSpan
 {
+    font-size: 90%;
     margin: 0px;
     padding: 8px 8px;
     border-top: 3pt solid #1976d2;
@@ -120,7 +121,6 @@ body
 }
 
 .tabSpan .fa {
-    font-size: 80%;
     color: #888888;
 }
 
@@ -373,6 +373,7 @@ div.closeDlgIframe:before {
  * --Robert Down */
 .menuLabel
 {
+    font-size: 95%;
     color: #333;
     padding: 15px 10px;
     font-weight: 600;
