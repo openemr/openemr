@@ -107,8 +107,8 @@ class TherapyGroupsController extends BaseController{
         $data['statuses'] = self::prepareStatusesList();
 
         $_POST['group_start_date'] = DateToYYYYMMDD($_POST['group_start_date']);
+        $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
-        //print_r($_POST);die;
         if(isset($_POST['save'])){
 
             $isEdit = empty( $_POST['group_id']) ? false : true;

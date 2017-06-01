@@ -1,27 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    {php}html_header_show();{/php}
 
-    <link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
-    <link rel="stylesheet" type="text/css"
-          href="{php} echo $GLOBALS['assets_static_relative']{/php}/bootstrap-3-3-4/dist/css/bootstrap.css">
-    {if $direction == 'right'}
-    <link rel="stylesheet" type="text/css"
-          href="{php} echo $GLOBALS['assets_static_relative']{/php}/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css">
-    {/if}
-    <link rel="stylesheet" type="text/css"
-          href="{php} echo $GLOBALS['assets_static_relative']{/php}/bootstrap-sidebar-0-2-2/dist/css/sidebar.css">
-    <link rel="stylesheet" type="text/css"
-          href="{php} echo $GLOBALS['assets_static_relative']{/php}/font-awesome-4-6-3/css/font-awesome.css">
-    <script type="text/javascript"
-            src="{php}echo $GLOBALS['assets_static_relative']{/php}/jquery-min-3-1-1/index.js"></script>
-    <script type="text/javascript"
-            src="{php}echo $GLOBALS['assets_static_relative']{/php}/bootstrap-3-3-4/dist/js/bootstrap.js"></script>
-    <script type="text/javascript"
-            src="{php}echo $GLOBALS['assets_static_relative']{/php}/bootstrap-sidebar-0-2-2/dist/js/sidebar.js"></script>
-    <script type="text/javascript" src="{php}echo $GLOBALS['rootdir'] . '/../library/js/common.js';{/php}"></script>
-    <title>{php}echo xlt('Practice Settings'){/php}</title>
+    <title>{xl t='Practice Settings'|escape:'html'}</title>
+
+    {headerTemplate assets='bootstrap-sidebar|common'}
+
 </head>
 <body class="body_top" style="padding-top: 35px;">
 
@@ -29,10 +13,10 @@
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle visible-xs" data-toggle="sidebar" data-target=".sidebar">
-                <span class="sr-only">{php} echo xlt('Toggle navigation'){/php}</span>
+                <span class="sr-only">{xl t='Toggle navigation'|escape:'html'}</span>
                 <i class="fa fa-bars fa-inverted"></i>
             </button>
-            <a class="navbar-brand" href="#">{php}echo xlt('Practice Settings'){/php}</a>
+            <a class="navbar-brand" href="#">{xl t='Practice Settings'|escape:'html'}</a>
         </div>
 
         <div class="collapse navbar-collapse" id="practice-setting-nav">
@@ -48,12 +32,12 @@
     <div class="row">
         <div class="col-xs-12 col-sm-2 sidebar sidebar-{$direction} sidebar-sm-show">
             <ul class="nav navbar-stacked">
-                <li><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'}</a></li>
-                <li><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'}</a></li>
-                <li><a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'}</a></li>
-                <li><a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'}</a></li>
-                <li><a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'}</a></li>
-                <li><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'}</a></li>
+                <li><a href="{$TOP_ACTION}pharmacy&action=list">{xl t='Pharmacies'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}insurance_company&action=list">{xl t='Insurance Companies'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}insurance_numbers&action=list">{xl t='Insurance Numbers'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}x12_partner&action=list">{xl t='X12 Partners'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}document&action=queue">{xl t='Documents'|escape:'html'}</a></li>
+                <li><a href="{$TOP_ACTION}hl7&action=default">{xl t='HL7 Viewer'|escape:'html'}</a></li>
             </ul>
         </div>
         <div class="col-xs-12 col-sm-10 col-sm-offset-2">

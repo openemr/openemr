@@ -13,7 +13,7 @@
 // the current patient is switched to the new one.
 
 
-$fake_register_globals = false;
+
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/forms.inc");

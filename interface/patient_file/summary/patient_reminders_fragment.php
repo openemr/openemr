@@ -10,9 +10,7 @@
 // This simply shows the Clinical Reminder Widget
 //
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 require_once( dirname(__FILE__) . "/../../globals.php");
 require_once("$srcdir/reminders.php");

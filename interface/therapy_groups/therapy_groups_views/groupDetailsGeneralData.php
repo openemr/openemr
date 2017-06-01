@@ -125,7 +125,7 @@
                                                 <span class="bold"><?php echo xlt('Starting date'); ?>:</span>
                                             </div>
                                             <div class="col-md-offset1 col-md-6 col-sm-6">
-                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr($groupData['group_start_date']);?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_start_date" class="full-width datepicker"  value="<?php echo attr(oeFormatShortDate($groupData['group_start_date']));?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -135,7 +135,7 @@
                                                 <span class="bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr($groupData['group_end_date']) ;?>" <?php echo $readonly; ?>>
+                                                <input type="text" name="group_end_date" class="full-width datepicker"  value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?>>
                                             </div>
                                         </div>
                                     </div>
@@ -207,7 +207,7 @@
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });

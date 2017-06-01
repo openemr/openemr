@@ -28,6 +28,7 @@
  *
  */
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/billing.inc");
@@ -130,11 +131,10 @@ $res = sqlStatement($query);
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php echo xlt('Encounters Report'); ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <style type="text/css">
 

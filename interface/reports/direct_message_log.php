@@ -20,23 +20,21 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 ?>
 
 <html>
 
 <head>
-<?php html_header_show();
+<?php
 $logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
 if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST['lognext'];
 else $logtop = 0;
 ?>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <title><?php echo xlt('Direct Message Log'); ?></title>
 

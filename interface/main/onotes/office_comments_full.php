@@ -18,9 +18,9 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
 
 
+use OpenEMR\Core\Header;
 include_once("../../globals.php");
 
 $oNoteService = new \services\ONoteService();
@@ -52,8 +52,7 @@ if (isset($_POST['mode'])) {
 <html>
 <head>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
-
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
 

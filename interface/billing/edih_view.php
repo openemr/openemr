@@ -23,7 +23,7 @@
  * @subpackage ediHistory
  */
 
-$fake_register_globals = false;
+
 require_once(dirname(__FILE__) . '/../globals.php');
 //
 if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));

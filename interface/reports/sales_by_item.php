@@ -25,8 +25,8 @@
  */
 
 
-$fake_register_globals=false;
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -269,10 +269,8 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 ?>
 <html>
 <head>
-<?php html_header_show();?>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
 <style type="text/css">
 

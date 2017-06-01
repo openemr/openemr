@@ -8,6 +8,8 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE General Public License 3
  */
 
+@import "themeBuilder.php";
+
 @font-face {
     font-family: "FontAwesome";
     src: url("../../public/assets/font-awesome-4-6-3/fonts/fontawesome-webfont.ttf") format("truetype");
@@ -64,4 +66,12 @@ button[href*="deleter"]:before {
 
 .btn-print::before {
     content: '\f02f\00a0\00a0';
+}
+
+.btn-back::before {
+    content: '\f053\00a0\00a0';
+}
+
+.btn-update::before {
+    content: '\f021\00a0\00a0';
 }

@@ -22,8 +22,6 @@
  * @link    http://www.open-emr.org
  */
 
-  $fake_register_globals=false;
-
     require_once("../../globals.php");
     require_once("$srcdir/dated_reminder_functions.php");
 

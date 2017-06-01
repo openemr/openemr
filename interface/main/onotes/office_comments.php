@@ -18,6 +18,7 @@
  * @link    http://www.open-emr.org
  */
 
+use OpenEMR\Core\Header;
 include_once("../../globals.php");
 
 //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
@@ -29,7 +30,7 @@ $oNoteService = new \services\ONoteService();
 <html>
 <head>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">

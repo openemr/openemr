@@ -1254,30 +1254,64 @@ if (!empty($reg)) {
 	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
 	 <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
       	<?php
-		$module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
+		$module_query = sqlStatement("select mod_id, mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
 		if (sqlNumRows($module_query)) {
 		  while ($modulerow = sqlFetchArray($module_query)) {
-				$acl_section = strtolower($modulerow['mod_directory']);
-				$disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
-				$modulePath = "";
-				$added 		= "";
-		  		if($modulerow['type'] == 0) {
-		  			$modulePath = $GLOBALS['customModDir'];
-		  			$added		= "";
-		  		}
-		  		else{
-					$added		= "index";
-		  			$modulePath = $GLOBALS['zendModDir'];
-		  		}
 
-		 		$relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
-                                $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
-			?>
-		      <?php genMiscLink2('RTop',$acl_section,'0',xlt($mod_nick_name),$relative_link);?>
-			  <?php }
-		} ?>
+		          $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id",array($modulerow['mod_id']));
+
+                  $modulePath = "";
+                  $added 		= "";
+                  if($modulerow['type'] == 0) {
+                      $modulePath = $GLOBALS['customModDir'];
+                      $added		= "";
+                  }
+                  else{
+                      $added		= "index";
+                      $modulePath = $GLOBALS['zendModDir'];
+                  }
+
+                  if (sqlNumRows($module_hooks) == 0) {
+                      // module without hooks in module section
+                      $acl_section = strtolower($modulerow['mod_directory']);
+                      $disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
+
+                      $relative_link ="modules/".$modulePath."/".$modulerow['mod_relative_link'].$added;
+                      $mod_nick_name = $modulerow['mod_nick_name'] ? $modulerow['mod_nick_name'] : $modulerow['mod_name'];
+                       genMiscLink2('RTop',$acl_section,'0',xlt($mod_nick_name),$relative_link);
+                  } else {
+                        // module with hooks in module section
+                      $jid = 0;
+                      $modid = '';
+                      while ($hookrow = sqlFetchArray($module_hooks)) {
+                        $disallowed[$hookrow['obj_name']] = !$disallowed['adm'] || zh_acl_check($_SESSION['authUserID'],$hookrow['obj_name']) ?  "" : "1";
+
+                        $relative_link ="modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
+                        $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
+
+                        if($jid==0 || ($modid!=$hookrow['mod_id'])){
+                        if($modid!='')
+                            echo "</ul>";
+                        ?>
+                        <li><a class="collapsed_lv2"><span><?php echo xlt($hookrow['mod_ui_name']); ?></span></a>
+                            <ul>
+                                <?php
+                                }
+                                $jid++;
+                                $modid = $hookrow['mod_id'];
+                                genMiscLink('RTop',$hookrow['obj_name'],'0',xlt($mod_nick_name),$relative_link);
+                                }
+                            echo "</ul>";
+                      }
+                  }
+                  ?>
+          <?php
+        } ?>
     </ul>
-  </li>
+   </li>
+
   <?php } ?>
 
 <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('admin', 'drugs')) { ?>

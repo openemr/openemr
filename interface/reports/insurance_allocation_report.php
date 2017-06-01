@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-
+use OpenEMR\Core\Header;
  include_once("../globals.php");
  include_once("../../library/patient.inc");
  include_once("../../library/acl.inc");
@@ -52,12 +52,10 @@ else {
 ?>
 <html>
 <head>
-<?php html_header_show();?>
+
 <title><?php xl('Patient Insurance Distribution','e'); ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
-
+<?php Header::setupHeader('datetime-picker'); ?>
 <script language="JavaScript">
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 

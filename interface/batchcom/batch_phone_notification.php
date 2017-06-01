@@ -23,8 +23,7 @@ $ignoreAuth=1;
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
 chdir($current_dir);
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
+
 
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");

@@ -7,9 +7,9 @@
 // of the License, or (at your option) any later version.
 
 // This reports checkins and checkouts for a specified patient's chart.
-$fake_register_globals=false;
 
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -18,10 +18,9 @@ $form_patient_id = trim($_POST['form_patient_id']);
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
 <title><?php echo xlt('Chart Location Activity'); ?></title>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
 
@@ -158,14 +157,7 @@ if (!empty($ptrow)) {
 <?php
 $row = array();
 if (!empty($ptrow)) {
-  $query = "SELECT ct.ct_when, ct.ct_userid, ct.ct_location, " .
-    "u.username, u.fname, u.mname, u.lname " .
-    "FROM chart_tracker AS ct " .
-    "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-    "WHERE ct.ct_pid = ? " .
-    "ORDER BY ct.ct_when DESC";
-  $res = sqlStatement($query,array($curr_pid));
-
+  $res = \services\PatientService::getChartTrackerInformationActivity($curr_pid);
   while ($row = sqlFetchArray($res)) {
 ?>
  <tr>

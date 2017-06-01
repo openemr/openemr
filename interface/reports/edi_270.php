@@ -26,11 +26,7 @@
  * @link http://www.open-emr.org
  */
 
-
-	//STOP FAKE REGISTER GLOBALS
-	$fake_register_globals=false;
-	//
-
+use OpenEMR\Core\Header;
 	require_once("../globals.php");
 	require_once("$srcdir/forms.inc");
 	require_once("$srcdir/billing.inc");
@@ -159,12 +155,9 @@
 
 	<head>
 
-		<?php html_header_show();?>
-
 		<title><?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
 
-		<?php $include_standard_style_js = array("datetimepicker"); ?>
-		<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+		<?php Header::setupHeader('datetime-picker'); ?>
 
 		<style type="text/css">
 

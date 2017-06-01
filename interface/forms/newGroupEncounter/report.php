@@ -22,7 +22,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals=false;
+
 
 
 include_once(dirname(__file__)."/../../globals.php");

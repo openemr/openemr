@@ -25,7 +25,7 @@
 set_time_limit(0);
 
 
-$fake_register_globals = false;
+
 
 require_once("../globals.php");
 require_once("$srcdir/acl.inc");

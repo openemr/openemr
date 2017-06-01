@@ -25,7 +25,7 @@
  */
 
 
-$fake_register_globals=false;
+use OpenEMR\Core\Header;
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/patient.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -280,9 +280,7 @@ if ($_REQUEST['form_csvexport']) {
 <html>
 <head>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
-
+<?php Header::setupHeader('datetime-picker'); ?>
 <script type="text/javascript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 var pt_name;
@@ -307,7 +305,6 @@ function sel_patient() {
 }
 </script>
 
-<?php html_header_show();?>
 <style type="text/css">
 
 /* specifically include & exclude from printing */

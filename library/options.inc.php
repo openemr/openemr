@@ -329,6 +329,7 @@ function generate_form_field($frow, $currvalue) {
     // if max_length is set to zero, then do not set a maxlength
     if ($maxlength) $string_maxlength = "maxlength='".attr($maxlength)."'";
     echo "<input type='text'" .
+      " class='form-control'" .
       " name='form_$field_id_esc'" .
       " id='form_$field_id_esc'" .
       " size='$fldlength'" .
@@ -359,6 +360,7 @@ function generate_form_field($frow, $currvalue) {
     $textRows = htmlspecialchars( $frow['fld_rows'], ENT_QUOTES);
     echo "<textarea" .
       " name='form_$field_id_esc'" .
+      " class='form-control'" .
       " id='form_$field_id_esc'" .
       " title='$description'" .
       " cols='$textCols'" .
@@ -380,7 +382,7 @@ function generate_form_field($frow, $currvalue) {
       $onchange_string = "onchange=\"if (typeof(updateAgeString) == 'function') updateAgeString('$field_id','$age_asof_date', $age_format)\"";
     }
 
-    echo "<input type='text' size='10' class='datepicker' name='form_$field_id_esc' id='form_$field_id_esc'" .
+    echo "<input type='text' size='10' class='datepicker form-control' name='form_$field_id_esc' id='form_$field_id_esc'" .
       " value='" . substr($currescaped, 0, 10) . "'";
     if (!$agestr) echo " title='$description'";
     echo " $onchange_string $lbfonchange $disabled />";
@@ -426,7 +428,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
       "ORDER BY lname, fname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
     echo " $lbfonchange $disabled>";
     echo "<option value=''>" . xlt('Unassigned') . "</option>";
     $got_selected = false;
@@ -452,7 +454,7 @@ function generate_form_field($frow, $currvalue) {
 
   // pharmacy list
   else if ($data_type == 12) {
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
     echo " $lbfonchange $disabled>";
     echo "<option value='0'></option>";
     $pres = get_pharmacies();
@@ -482,7 +484,7 @@ function generate_form_field($frow, $currvalue) {
 
   // squads
   else if ($data_type == 13) {
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
     echo " $lbfonchange $disabled>";
     echo "<option value=''>&nbsp;</option>";
     $squads = acl_get_squads();
@@ -526,7 +528,7 @@ function generate_form_field($frow, $currvalue) {
       "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
       "AND $tmp " .
       "ORDER BY organization, lname, fname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
     echo " $lbfonchange $disabled>";
     echo "<option value=''>" . htmlspecialchars( xl('Unassigned'), ENT_NOQUOTES) . "</option>";
     while ($urow = sqlFetchArray($ures)) {
@@ -591,6 +593,7 @@ function generate_form_field($frow, $currvalue) {
       if (!$disabled) {
         echo " onclick='sel_related(this,\"$codetype\")'";
       }
+        echo "class='form-control'";
       echo " readonly $disabled />";
     }
     else {
@@ -604,13 +607,14 @@ function generate_form_field($frow, $currvalue) {
       if (!$disabled) {
         echo " onclick='sel_related(this,\"$codetype\")'";
       }
-      echo " $lbfonchange readonly $disabled />";
+        echo "class='form-control'";
+        echo " $lbfonchange readonly $disabled />";
     }
   }
 
   // insurance company list
   else if ($data_type == 16) {
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
     echo "<option value='0'></option>";
     $insprovs = getInsuranceProviders();
     $got_selected = false;
@@ -636,7 +640,7 @@ function generate_form_field($frow, $currvalue) {
 
   // issue types
   else if ($data_type == 17) {
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'>";
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
     echo "<option value='0'></option>";
     $got_selected = false;
     foreach ($ISSUE_TYPES as $key => $value) {
@@ -663,7 +667,7 @@ function generate_form_field($frow, $currvalue) {
   else if ($data_type == 18) {
     $cres = sqlStatement("SELECT pc_catid, pc_catname " .
       "FROM openemr_postcalendar_categories ORDER BY pc_catname");
-    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description'" .
+    echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'" .
       " $lbfonchange $disabled>";
     echo "<option value=''>" . xlt($empty_title) . "</option>";
     $got_selected = false;
@@ -706,7 +710,7 @@ function generate_form_field($frow, $currvalue) {
       }
       echo "<td width='$tdpct%'>";
       echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
-        "id='form_{$field_id_esc}[$option_id_esc]' value='1' $lbfonchange";
+        "id='form_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
       if (in_array($option_id, $avalue)) echo " checked";
 
       // Added 5-09 by BM - Translate label if applicable
@@ -754,6 +758,7 @@ function generate_form_field($frow, $currvalue) {
         " name='form_{$field_id_esc}[$option_id_esc]'" .
         " id='form_{$field_id_esc}[$option_id_esc]'" .
         " size='$fldlength'" .
+        " class='form-control'" .
         " $string_maxlength" .
         " value='$optionValue'";
       echo " $lbfonchange $disabled /></td></tr>";
@@ -860,7 +865,7 @@ function generate_form_field($frow, $currvalue) {
 
       $option_id = htmlspecialchars( $option_id, ENT_QUOTES);
       echo "<td><input type='checkbox' name='check_{$field_id_esc}[$option_id_esc]'" .
-        " id='check_{$field_id_esc}[$option_id_esc]' value='1' $lbfonchange";
+        " id='check_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
       if ($restype) echo " checked";
       echo " $disabled />&nbsp;</td>";
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
@@ -869,6 +874,7 @@ function generate_form_field($frow, $currvalue) {
         " name='form_{$field_id_esc}[$option_id_esc]'" .
         " id='form_{$field_id_esc}[$option_id_esc]'" .
         " size='$fldlength'" .
+        " class='form-control' " .
         " $string_maxlength" .
         " value='$resnote' $disabled /></td>";
       echo "</tr>";
@@ -912,7 +918,7 @@ function generate_form_field($frow, $currvalue) {
         echo "<tr>";
       }
       echo "<td width='$tdpct%'>";
-      echo "<input type='radio' name='form_{$field_id_esc}' id='form_{$field_id_esc}[$option_id_esc]'" .
+      echo "<input type='radio' name='form_{$field_id_esc}' class='form-control' id='form_{$field_id_esc}[$option_id_esc]'" .
         " value='$option_id_esc' $lbfonchange";
       if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
           (strlen($currvalue)  > 0 && $option_id == $currvalue))
@@ -999,6 +1005,7 @@ function generate_form_field($frow, $currvalue) {
       " name='form_text_$field_id_esc'" .
       " id='form_text_$field_id_esc'" .
       " size='$fldlength'" .
+      " class='form-control'" .
       " $string_maxlength" .
       " value='$resnote' $disabled />&nbsp;</td></tr>";
     echo "<td>";
@@ -1014,6 +1021,7 @@ function generate_form_field($frow, $currvalue) {
     echo "<td class='text' ><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[current]'" .
+      " class='form-control'" .
       " value='current" . $field_id_esc . "' $lbfonchange";
     if ($restype == "current" . $field_id) echo " checked";
     if ($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
@@ -1022,6 +1030,7 @@ function generate_form_field($frow, $currvalue) {
     echo "<td class='text'><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
       " id='radio_{$field_id_esc}[quit]'" .
+      " class='form-control'" .
       " value='quit".$field_id_esc."' $lbfonchange";
     if ($restype == "quit" . $field_id) echo " checked";
     if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
@@ -1035,6 +1044,7 @@ function generate_form_field($frow, $currvalue) {
     // never
     echo "<td class='text'><input type='radio'" .
       " name='radio_{$field_id_esc}'" .
+      " class='form-control'" .
       " id='radio_{$field_id_esc}[never]'" .
       " value='never" . $field_id_esc . "' $lbfonchange";
     if ($restype == "never" . $field_id) echo " checked";
@@ -1042,6 +1052,7 @@ function generate_form_field($frow, $currvalue) {
     echo " />" . xlt('Never') . "&nbsp;</td>";
     // Not Applicable
     echo "<td class='text'><input type='radio'" .
+      " class='form-control' " .
       " name='radio_{$field_id}'" .
       " id='radio_{$field_id}[not_applicable]'" .
       " value='not_applicable" . $field_id . "' $lbfonchange";
@@ -1068,7 +1079,7 @@ function generate_form_field($frow, $currvalue) {
     $arr = explode("|*|*|*|",$currvalue);
     echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc,ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
     echo "<div id='form_{$field_id}_div' class='text-area'>".htmlspecialchars($arr[0],ENT_QUOTES)."</div>";
-    echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
+    echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
     echo "</a>";
   }
 
@@ -1202,6 +1213,7 @@ function generate_print_field($frow, $currvalue) {
     $fldlength = htmlspecialchars( $fld_length, ENT_QUOTES);
     $maxlength = htmlspecialchars( $frow['fld_rows'], ENT_QUOTES);
     echo "<textarea" .
+      " class='form-control' " .
       " cols='$fldlength'" .
       " rows='$maxlength'>" .
       $currescaped . "</textarea>";
@@ -1422,6 +1434,7 @@ function generate_print_field($frow, $currvalue) {
       $fldlength = htmlspecialchars( $fldlength, ENT_QUOTES);
       $inputValue = htmlspecialchars( $avalue[$option_id], ENT_QUOTES);
       echo "<td><input type='text'" .
+        " class='form-control' " .
         " size='$fldlength'" .
         " value='$inputValue'" .
         " class='under'" .
@@ -1465,7 +1478,7 @@ function generate_print_field($frow, $currvalue) {
       echo "<td><input type='text'" .
         " size='$fldlength'" .
         " value='$resnote'" .
-        " class='under' /></td>" .
+        " class='under form-control' /></td>" .
         "</tr>";
     }
     echo "</table>";
@@ -1511,6 +1524,7 @@ function generate_print_field($frow, $currvalue) {
       $resnote = htmlspecialchars( $resnote, ENT_QUOTES);
       echo "<td><input type='text'" .
         " size='$fldlength'" .
+        " class='form-control' " .
         " value='$resnote'" .
         " class='under'" .
         " /></td>" .
@@ -1602,34 +1616,34 @@ function generate_print_field($frow, $currvalue) {
     {
     echo "<tr><td><input type='text'" .
       " size='$fldlength'" .
-      " class='under'" .
+      " class='under form-control'" .
       " value='$resnote' /></td></tr>";
     $fldlength = 30;
     $smoking_status_title = generate_display_field(array('data_type'=>'1','list_id'=>$list_id),$reslist);
     echo "<td><input type='text'" .
       " size='$fldlength'" .
-      " class='under'" .
+      " class='under form-control'" .
       " value='$smoking_status_title' /></td>";
     echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars( xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
     }
-    echo "<td><input type='radio'";
+    echo "<td><input type='radio' class='form-control'";
     if ($restype == "current".$field_id) echo " checked";
     echo "/>".htmlspecialchars( xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
 
-    echo "<td><input type='radio'";
+    echo "<td><input type='radio' class='form-control'";
     if ($restype == "current".$field_id) echo " checked";
     echo "/>".htmlspecialchars( xl('Quit'), ENT_NOQUOTES)."&nbsp;</td>";
 
     echo "<td><input type='text' size='6'" .
       " value='$resdate'" .
-      " class='under'" .
+      " class='under form-control'" .
       " /></td>";
 
-    echo "<td><input type='radio'";
+    echo "<td><input type='radio' class='form-control'";
     if ($restype == "current".$field_id) echo " checked";
     echo " />".htmlspecialchars( xl('Never'), ENT_NOQUOTES)."</td>";
 
-    echo "<td><input type='radio'";
+    echo "<td><input type='radio' class='form-control'";
     if ($restype == "not_applicable".$field_id) echo " checked";
     echo " />".htmlspecialchars( xl('N/A'), ENT_NOQUOTES)."&nbsp;</td>";
     echo "</tr>";
@@ -1644,7 +1658,7 @@ function generate_print_field($frow, $currvalue) {
   else if($data_type == 34){
     echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc,ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
     echo "<div id='form_{$field_id}_div' class='text-area'></div>";
-    echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' stye='display:none'></textarea></div>";
+    echo "<div style='display:none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display:none'></textarea></div>";
     echo "</a>";
   }
 
@@ -3066,7 +3080,7 @@ function billing_facility($name,$select){
   global $facilityService;
 
   $fres = $facilityService->getAllBillingLocations();
-		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
+		echo "   <select id='".htmlspecialchars($name, ENT_QUOTES)."' class='form-control' name='".htmlspecialchars($name, ENT_QUOTES)."'>";
       foreach ($fres as $facrow) {
 				$selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
 				 echo "<option value=".htmlspecialchars($facrow['id'],ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";

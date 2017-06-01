@@ -5,7 +5,7 @@
  * 
  * The MIT License (MIT)
  *
- * Copyright (c) 2015 - 2016 Paragon Initiative Enterprises
+ * Copyright (c) 2015 - 2017 Paragon Initiative Enterprises
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,11 +57,15 @@ if (!is_callable('random_bytes')) {
         }
 
         /**
+         * @var string
+         */
+        $buf = '';
+
+        /**
          * \Sodium\randombytes_buf() doesn't allow more than 2147483647 bytes to be
          * generated in one invocation.
          */
         if ($bytes > 2147483647) {
-            $buf = '';
             for ($i = 0; $i < $bytes; $i += 1073741824) {
                 $n = ($bytes - $i) > 1073741824
                     ? 1073741824
@@ -69,10 +73,10 @@ if (!is_callable('random_bytes')) {
                 $buf .= Sodium::randombytes_buf($n);
             }
         } else {
-            $buf = Sodium::randombytes_buf($bytes);
+            $buf .= Sodium::randombytes_buf($bytes);
         }
 
-        if ($buf !== false) {
+        if (is_string($buf)) {
             if (RandomCompat_strlen($buf) === $bytes) {
                 return $buf;
             }

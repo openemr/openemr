@@ -248,20 +248,10 @@ if ($fres) {
 	</td>
 </tr>
 
-<!-- (CHEMED) Calendar UI preference -->
 <tr>
 <td><span class="text"><?php xl('Taxonomy','e'); ?>: </span></td>
 <td><input type="entry" name="taxonomy" style="width:120px;" value="207Q00000X"></td>
-<td><span class="text"><?php xl('Calendar UI','e'); ?>: </span></td><td><select name="cal_ui" style="width:120px;">
-<?php
- foreach (array(3 => xl('Outlook'), 1 => xl('Original'), 2 => xl('Fancy')) as $key => $value)
- {
-  echo " <option value='$key'>$value</option>\n";
- }
-?>
-</select></td>
-</tr>
-<!-- END (CHEMED) Calendar UI preference -->
+<td>&nbsp;</td><td>&nbsp;</td></tr>
 
 <tr>
 <td><span class="text"><?php xl('State License Number','e'); ?>: </span></td>

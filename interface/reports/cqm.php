@@ -19,10 +19,8 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -85,7 +83,6 @@ else {
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <?php if ($type_report == "standard") { ?>
   <title><?php echo xlt('Standard Measures'); ?></title>
@@ -114,8 +111,7 @@ else {
   <title><?php echo xlt('Automated Measure Calculations (AMC) - 2014 Stage II'); ?></title>
 <?php } ?>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <script LANGUAGE="JavaScript">
 

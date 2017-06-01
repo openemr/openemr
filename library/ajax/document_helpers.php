@@ -20,7 +20,7 @@
  * @link    http://www.open-emr.org
  */
 
-$fake_register_globals = false;
+
 require_once (dirname(__FILE__) . "/../../interface/globals.php");
 
 $term = isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : '';

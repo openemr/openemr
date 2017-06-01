@@ -1,0 +1,72 @@
+---
+# Use %KEY-NAME% in this file and it will be replaced with the value of
+# $GLOBALS['KEY-NAME'] if it exists. If the key name does not exist, this script
+# won't work (Need to build in proper error handling @TODO RD 2017-05-16
+#
+# Example usage:
+# assets: Top-level key name (Required)
+#     asset-short-name: Short name
+#         basePath: %assets_static_relative%/full/path/to/deepest/common/file
+#         script: null filename or null
+#         link: jquery-ui.min.css filename or null
+#         autoload: true (defaults to false)
+assets:
+    jquery:
+        basePath: %assets_static_relative%/jquery-min-3-1-1/
+        script: index.js
+        autoload: true
+    bootstrap:
+        basePath: %assets_static_relative%/bootstrap-3-3-4/dist/
+        script: js/bootstrap.min.js
+        link: css/bootstrap.min.css
+        autoload: true
+        rtl:
+            basePath: %assets_static_relative%/bootstrap-rtl-3-3-4/dist/
+            link: css/bootstrap-rtl.css
+    bootstrap-sidebar:
+        basePath: %assets_static_relative%/bootstrap-sidebar-0-2-2/dist/
+        script: js/sidebar.js
+        link: css/sidebar.css
+    tabs-theme:
+        basePath: %webroot%/interface/themes/
+        link: %theme_tabs_layout%
+    knockout:
+        basePath: %assets_static_relative%/knockout-3-4-0/dist/
+        script: knockout.js
+    jquery-ui:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/
+        script: jquery-ui.min.js
+    jquery-ui-darkness:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/ui-darkness/
+        link: jquery-ui.min.css
+    jquery-ui-sunny:
+        basePath: %assets_static_relative%/jquery-ui-1-12-1/themes/sunny/
+        link: jquery-ui.min.css
+    fontawesome:
+        basePath: %assets_static_relative%/font-awesome-4-6-3/css/
+        link: font-awesome.min.css
+        autoload: true
+    datetime-picker:
+        basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
+        script: jquery.datetimepicker.full.min.js
+        link: jquery.datetimepicker.min.css
+    report-helper:
+        basePath: %webroot%/library/js/
+        script: report_helper.js
+    opener:
+        basePath: %webroot%/interface/main/tabs/js/
+        script: include_opener.js
+    topdialog:
+        basePath: %webroot%/library/
+        script: topdialog.js
+    common:
+        basePath: %webroot%/library/js/
+        script: common.js
+    textformat:
+        basePath: %webroot%/library/
+        script: textformat.js
+        autoload: true
+    dialog:
+        basePath: %webroot%/library/
+        script: dialog.js
+        autoload: true

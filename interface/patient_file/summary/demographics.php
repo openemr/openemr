@@ -19,9 +19,7 @@
  * @link    http://www.open-emr.org
  */
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
@@ -613,7 +611,7 @@ if ($GLOBALS['patient_id_category_name']) {
           <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
           <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
           |
-          <a href="../transaction/transactions.php" class='iframe large_modal' onclick='top.restoreSession()'>
+          <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
           <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
           |
           <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
@@ -1306,7 +1304,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     // Show Clinical Reminders for any user that has rules that are permitted.
     $clin_rem_check = resolve_rules_sql('','0',TRUE,'',$_SESSION['authUser']);
     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
-        acl_check('patients', 'reminder'))
+        acl_check('patients', 'alert'))
     {
         // clinical summary expand collapse widget
         $widgetTitle = xl("Clinical Reminders");
@@ -1316,7 +1314,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "";
         $linkMethod = "html";
         $bodyClass = "summary_item small";
-        $widgetAuth = acl_check('patients', 'reminder', '', 'write');
+        $widgetAuth = acl_check('patients', 'alert', '', 'write');
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         echo "<br/>";

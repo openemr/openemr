@@ -7,10 +7,6 @@
 // of the License, or (at your option) any later version.
 
 
-        //STOP FAKE REGISTER GLOBALS
-        $fake_register_globals=false;
-        //
-
 	//	START - INCLUDE STATEMENTS
 	include_once(dirname(__file__)."/../globals.php");
 	include_once("$srcdir/forms.inc");

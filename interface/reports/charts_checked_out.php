@@ -7,16 +7,16 @@
 // of the License, or (at your option) any later version.
 
 // This reports checkins and checkouts for a specified patient's chart.
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
+
 <title><?php xl('Charts Checked Out','e'); ?></title>
 
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(); ?>
 
 <style type="text/css">
 
@@ -72,18 +72,7 @@ $query = "SELECT ct.ct_when, " .
 sqlStatement("DROP TEMPORARY TABLE IF EXISTS cttemp");
 sqlStatement("CREATE TEMPORARY TABLE cttemp SELECT " .
   "ct_pid, MAX(ct_when) AS ct_when FROM chart_tracker GROUP BY ct_pid");
-$query = "SELECT ct.ct_when, " .
-  "u.username, u.fname AS ufname, u.mname AS umname, u.lname AS ulname, " .
-  "p.pubpid, p.fname, p.mname, p.lname " .
-  "FROM chart_tracker AS ct " .
-  "JOIN cttemp ON cttemp.ct_pid = ct.ct_pid AND cttemp.ct_when = ct.ct_when " .
-  "LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid " .
-  "LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid " .
-  "WHERE ct.ct_userid != 0 " .
-  "ORDER BY p.pubpid";
-
-$res = sqlStatement($query);
-
+$res = \services\PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
 

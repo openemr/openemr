@@ -48,9 +48,6 @@
             // keep the current session language token
     }
 
-    //STOP FAKE REGISTER GLOBALS
-    $fake_register_globals=false;
-
     //Settings that will override globals.php
     $ignoreAuth = 1;
     //

@@ -26,9 +26,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
  require_once("../../globals.php");
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on

@@ -1,4 +1,12 @@
 <?php
+/**
+ * Software version identification.
+ *
+ * @link http://open-emr.org/wiki
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author Robert Down <robertdown@live.com>
+ */
+
 // Software version identification.
 // This is used for display purposes, and also the major/minor/patch
 // numbers are stored in the database and used to determine which sql
@@ -17,7 +25,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 222;
+$v_database = 223;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -35,8 +43,11 @@ $v_offsite_portal='1.47';
 // end with "?v=$v_js_includes".  Search the code for examples of doing this.
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
-$v_js_includes = 29;
-
+if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
+    $v_js_includes = random_int(10000,99999);
+} else {
+    // Change this number when bumping
+    $v_js_includes = 34;
+}
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;
-?>

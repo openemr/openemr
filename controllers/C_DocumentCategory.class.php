@@ -16,6 +16,7 @@ class C_DocumentCategory extends Controller {
 		$this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&document_category&");
 		$this->link = $GLOBALS['webroot']."/controller.php?" . "document_category&";
 		$this->assign("STYLE", $GLOBALS['style']);
+		$this->assign("V_JS_INCLUDES", $GLOBALS['v_js_includes']);
 
 		$t = new CategoryTree(1);
 		//print_r($t->tree);

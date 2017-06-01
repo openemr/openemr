@@ -24,7 +24,7 @@
  * @link    http://www.open-emr.org
  */
 
-
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
@@ -41,7 +41,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
+
 <style type="text/css">
 
 /* specifically include & exclude from printing */
@@ -69,8 +69,7 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 </style>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <title><?php xl('Indigent Patients Report','e')?></title>
 

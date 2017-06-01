@@ -23,8 +23,6 @@
  * @link       http://www.open-emr.org
  */
 
-$fake_register_globals = false;		//STOP FAKE REGISTER GLOBALS
-
 require_once(__DIR__.'/globals.php');
 require_once($GLOBALS['fileroot'].'/interface/eRxGlobals.php');
 require_once($GLOBALS['fileroot'].'/interface/eRxStore.php');

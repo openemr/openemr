@@ -26,9 +26,9 @@
  */
 
 
-$fake_register_globals=false;
 
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("../../library/patient.inc");
 require_once "$srcdir/options.inc.php";
@@ -112,12 +112,10 @@ function fetch_reminders($pid, $appt_date) {
 <html>
 
 <head>
-<?php html_header_show();?>
 
 <title><?php echo xlt('Appointments Report'); ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker","report_helper.js"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader(["datetime-picker","report-helper"]); ?>
 
 <script type="text/javascript">
 

@@ -29,7 +29,31 @@ use Doctrine\DBAL\Driver\PDOConnection;
 class Connection extends PDOConnection implements \Doctrine\DBAL\Driver\Connection
 {
     /**
+     * {@inheritdoc}
+     */
+    public function __construct($dsn, $user = null, $password = null, array $options = null)
+    {
+        parent::__construct($dsn, $user, $password, $options);
+        $this->setAttribute(\PDO::ATTR_STATEMENT_CLASS, array(Statement::class, array()));
+    }
+
+    /**
      * @override
+     */
+    public function lastInsertId($name = null)
+    {
+        if (null === $name) {
+            return parent::lastInsertId($name);
+        }
+
+        $stmt = $this->prepare('SELECT CONVERT(VARCHAR(MAX), current_value) FROM sys.sequences WHERE name = ?');
+        $stmt->execute(array($name));
+
+        return $stmt->fetchColumn();
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function quote($value, $type=\PDO::PARAM_STR)
     {

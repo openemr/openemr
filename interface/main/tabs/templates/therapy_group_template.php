@@ -1,35 +1,26 @@
 <?php
 /**
- * Copyright (C) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * Copyright (C) 2016 Brady Miller <brady.g.miller@gmail.com>
- * Copyright (C) 2017 Amiel Elboim <amielel@matrix.co.il>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * Therapy group data template.
  *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Robert Down <robertdown@live.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
  */
 ?>
 
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span style="float:left;" class="fa-stack"><a data-bind="click: viewTgFinder" href="#">
-                <i class="fa fa-list fa-stack-1x" aria-hidden="true"></i>
-                <strong><i style="margin: 10px 0 0 10px;" class="fa fa-search fa-stack-x" aria-hidden="true"></i></strong>
+            <span style="float:left;"><a data-bind="click: viewTgFinder" href="#" class="btn btn-default btn-sm">
+                <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
                 <?php echo xlt("Group"); ?>:
@@ -43,8 +34,8 @@
                     <?php echo xlt("None");?>
                 <!-- /ko -->
                 <!-- ko if: therapy_group -->
-                    <a class="css_button_small" href="#" class="clear" data-bind="click:clearTherapyGroup" title="<?php echo xlt("Clear") ?>">
-                        <i style="font-size:150%;" class="fa fa-times"></i>
+                    <a class="btn btn-xs btn-link" href="#" data-bind="click:clearTherapyGroup" title="<?php echo xla("Clear") ?>">
+                        <i class="fa fa-times"></i>
                     </a>
                 <!-- /ko -->
             </div>
@@ -52,8 +43,8 @@
         <span class="patientDataColumn">
         <!-- ko if: therapy_group -->
         <!-- ko with: therapy_group -->
-            <a class="css_button_small" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xlt("New Encounter");?>">
-                <i style="font-size:150%;" class="fa fa-plus"></i>
+            <a class="btn btn-xs btn-link" data-bind="click: clickNewGroupEncounter" href="#" title="<?php echo xla("New Encounter");?>">
+                <i class="fa fa-plus"></i>
             </a>
             <div class="patientCurrentEncounter">
                 <span><?php echo xlt("Open Encounter"); ?>:</span>
@@ -68,36 +59,31 @@
                 <!-- /ko -->
             </div>
             <!-- ko if: encounterArray().length > 0 -->
-                <div class="patientInfo">
-                    <span class="patientDataColumn patientEncountersColumn">
-                        <span class="patientEncounterList" >
-                            <div data-bind="click: clickEncounterList">
-                            <!-- ko if: encounterArray().length == 1 -->
-                                <?php echo xlt("View Past Encounter");?>
-                            <!-- /ko -->
-                            <!-- ko if: encounterArray().length > 1 -->
-                                <?php echo xlt("View Past Encounters");?>
-                            <!-- /ko -->
-                                (<span data-bind="text:encounterArray().length"></span>)
-                            </div>
-                            <table class="encounters">
-                                <tbody>
-                                <!-- ko  foreach:encounterArray -->
-                                    <tr >
-                                        <td data-bind="click: chooseEncounterEvent">
-                                            <span data-bind="text:date"></span>
-                                            <span data-bind="text:category"></span>
-                                        </td>
-                                        <td class="review" data-bind="click: reviewEncounterEvent">
-                                            <?php echo xlt("Review"); ?>
-                                        </td>
-                                    </tr>
-                                <!-- /ko -->
-                                </tbody>
-                            </table>
-                        </span>
-                    </span>
-                </div>
+            <br>
+            <div class="btn-group dropdown">
+                <button class="btn btn-default btn-sm dropdown-toggle"
+                        type="button" id="pastEncounters"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="true">
+                    <?php echo xlt("View Past Encounters"); ?>&nbsp;
+                    (<span data-bind="text:encounterArray().length"></span>)
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="pastEncounters">
+                    <!-- ko foreach:encounterArray -->
+                    <li style="display: inline-flex;">
+                        <a href="#" data-bind="click:chooseEncounterEvent">
+                            <span data-bind="text:date"></span>
+                            <span data-bind="text:category"></span>
+                        </a>
+                        <a href="#" data-bind="click:reviewEncounterEvent">
+                            <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review");?>
+                        </a>
+                    </li>
+                    <!-- /ko -->
+                </ul>
+            </div>
             <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->
@@ -106,7 +92,7 @@
         <!-- ko with: user -->
         <!-- ko if:messages() -->
             <span class="messagesColumn">
-                <a style="font-size:150%;" class="css_button_small" href="#" data-bind="click: viewMessages" title="<?php echo xlt("View Messages");?>">
+                <a class="btn btn-default" href="#" data-bind="click: viewMessages" title="<?php echo xla("View Messages");?>">
                     <i class="fa fa-envelope"></i>&nbsp;<span style="display:inline" data-bind="text: messages()"></span>
                 </a>
             </span>

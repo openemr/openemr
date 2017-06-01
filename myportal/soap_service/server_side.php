@@ -26,9 +26,7 @@
 //
 // +------------------------------------------------------------------------------+
 
-//STOP FAKE REGISTER GLOBALS
-$fake_register_globals=false;
-//
+
 
 global $ISSUE_TYPES;
 $ignoreAuth=true;

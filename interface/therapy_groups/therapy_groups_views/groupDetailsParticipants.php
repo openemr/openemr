@@ -80,7 +80,7 @@
                                                         <span class="bold"><?php echo xlt('Date of registration'); ?>:</span>
                                                     </div>
                                                     <div class="col-md-8">
-                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_start']): date('Y-m-d');?>">
+                                                        <input type="text" id="group_patient_start" name="group_patient_start" class="full-width datepicker"  value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])): oeFormatShortDate(date('Y-m-d'));?>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -152,9 +152,9 @@
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
-                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr($participant['group_patient_start']);?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr($participant['group_patient_end']) ;?>" <?php echo $readonly; ?>></td>
-                                                    <td><input type="text" name="group_patient_comment[]" class="full-width" class="datepicker"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
+                                                    <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
+                                                    <td><input type="text" name="group_patient_comment[]" class="full-width"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                                     <?php if($readonly == ''): ?>
                                                         <td class="delete_btn">
                                                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) .'&deleteParticipant=1&pid=' . attr($participant['pid']); ?>"><span>X</span></a>
@@ -182,7 +182,7 @@
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
@@ -192,7 +192,8 @@
                 { "width": "35%", "targets": 5 }
             ],
             "pageLength":6,
-            "order": [[ 0, "asc" ],[ 2, "desc" ]],
+            //order by status doesn't work with js therefore sorting done by php.
+            "order": false,
             "searching": false,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),

@@ -24,7 +24,7 @@
  */
 
 
-$fake_register_globals = false;
+
 
 require_once("../../interface/globals.php");
 
