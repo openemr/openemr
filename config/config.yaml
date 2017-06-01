@@ -46,6 +46,9 @@ assets:
         basePath: %assets_static_relative%/font-awesome-4-6-3/css/
         link: font-awesome.min.css
         autoload: true
+    ckeditor:
+        basePath: %assets_static_relative%/ckeditor-4-7-0/
+        script: ckeditor.js
     datetime-picker:
         basePath: %assets_static_relative%/jquery-datetimepicker-2-5-4/build/
         script: jquery.datetimepicker.full.min.js
