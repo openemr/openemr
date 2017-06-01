@@ -79,3 +79,7 @@ button[href*="deleter"]:before {
 .btn-update::before {
     content: '\f021\00a0\00a0';
 }
+
+.btn-view::before {
+    content: '\f06e\00a0\00a0';
+}

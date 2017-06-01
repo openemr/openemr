@@ -53,6 +53,15 @@ class UserService {
     }
 
     /**
+     * @return array All users (active + inactive)
+     */
+    public function getAllUsers()
+    {
+        //return $this->repository->getAllUsers();
+        return ["HELLO"];
+    }
+
+    /**
      * @return Fully hydrated user object.
      */
     public function getCurrentlyLoggedInUser() {

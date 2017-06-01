@@ -20,9 +20,11 @@
  * @link    http://www.open-emr.org
  */
 
-require_once("../globals.php");
-require_once("../../library/acl.inc");
-require_once("$srcdir/auth.inc");
+require_once "../globals.php";
+require_once "../../library/acl.inc";
+require_once "$srcdir/auth.inc";
+use Symfony\Component\HttpFoundation\Request;
+use services\UserService;
 
 $alertmsg = '';
 $bg_msg = '';
@@ -342,154 +344,18 @@ if (isset($_GET["mode"])) {
 
 $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 
-?>
-<html>
-<head>
-<title><?php xl('User / Group', 'e');?></title>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
-<?php if ($_SESSION['language_direction'] == 'rtl'): ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
-<?php endif; ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery.easydrag.handler.beta2.js"></script>
-<script type="text/javascript">
+/** START OF IMPROVED CONTROLLER / MODEL */
 
-$(document).ready(function(){
+$request = Request::createFromGlobals();
 
-    // fancy box
-    enable_modals();
+$users = function($active = 1) {
+    $sql = "SELECT * FROM users WHERE username IS NOT NULL AND active = $active";
+    $res = sqlStatement($sql);
+    $return = [];
+    while ($row = sqlFetchArray($res)) {
+        $return[] = $row;
+    }
+    return $return;
+};
 
-    tabbify();
 
-    // special size for
-	$(".iframe_medium").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 450,
-		'frameWidth' : 660
-	});
-
-	$(function(){
-		// add drag and drop functionality to fancybox
-		$("#fancy_outer").easydrag();
-	});
-});
-
-function authorized_clicked() {
- var f = document.forms[0];
- f.calendar.disabled = !f.authorized.checked;
- f.calendar.checked  =  f.authorized.checked;
-}
-
-</script>
-
-</head>
-<body class="body_top">
-
-<div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="page-title">
-                <h1><?php xl('User / Groups', 'e');?></h1>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="btn-group">
-                <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User','e'); ?></a>
-                <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information','e'); ?></a>
-            </div>
-            <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
-                <div class="checkbox">
-                    <label for="form_inactive">
-                        <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>>
-                        <?php xl('Include inactive users','e'); ?>
-                    </label>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <?php
-            if ($set_active_msg == 1) {
-                echo "<div class='alert alert-danger'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br>";
-            }
-            if ($show_message == 1) {
-                echo "<div class='alert alert-danger'>".xl('The following Emergency Login User is activated:')." "."<b>".$_GET['fname']."</b>"."</div><br>";
-                echo "<div class='alert alert-danger'>".xl('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
-            }
-
-            ?>
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th><?php xl('Username','e'); ?></th>
-                    <th><?php xl('Real Name','e'); ?></th>
-                    <th><?php xl('Additional Info','e'); ?></th>
-                    <th><?php xl('Authorized','e'); ?>?</th>
-                </tr>
-                <tbody>
-                    <?php
-                    $query = "SELECT * FROM users WHERE username != '' ";
-                    if (!$form_inactive) $query .= "AND active = '1' ";
-                    $query .= "ORDER BY username";
-                    $res = sqlStatement($query);
-                    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                        $result4[$iter] = $row;
-                    foreach ($result4 as $iter) {
-                        if ($iter{"authorized"}) {
-                            $iter{"authorized"} = xl('yes');
-                        } else {
-                            $iter{"authorized"} = "";
-                        }
-                        print "<tr>
-                            <td><b><a href='user_admin.php?id=" . $iter{"id"} .
-                            "' class='iframe_medium' onclick='top.restoreSession()'>" . $iter{"username"} . "</a></b>" ."&nbsp;</td>
-                            <td>" . attr($iter{"fname"}) . ' ' . attr($iter{"lname"}) ."&nbsp;</td>
-                            <td>" . attr($iter{"info"}) . "&nbsp;</td>
-                            <td align='left'><span>" .$iter{"authorized"} . "&nbsp;</td>";
-                        print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
-                            "' class='link_submit'>[Delete]</a>--></td>";
-                        print "</tr>\n";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <?php
-            if (empty($GLOBALS['disable_non_default_groups'])) {
-                $res = sqlStatement("select * from groups order by name");
-                for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                    $result5[$iter] = $row;
-
-                foreach ($result5 as $iter) {
-                    $grouplist{$iter{"name"}} .= $iter{"user"} .
-                        "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
-                }
-
-                foreach ($grouplist as $groupname => $list) {
-                    print "<span class='bold'>" . $groupname . "</span><br>\n<span>" .
-                        substr($list,0,strlen($list)-2) . "</span><br>\n";
-                }
-            }
-            ?>
-        </div>
-    </div>
-</div>
-<script language="JavaScript">
-<?php
-  if ($alertmsg = trim($alertmsg)) {
-    echo "alert('$alertmsg');\n";
-  }
-?>
-</script>
-</body>
-</html>
