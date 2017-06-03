@@ -289,7 +289,7 @@ if($value_select){
 				var thetitle = JSON.stringify(<?php echo json_encode($the_item); ?>);
 				var checkboxfake = JSON.stringify(<?php echo json_encode(array(0)); ?>);
 
-				$.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+				$.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
 						type: 'POST',
 						data: { dates:  thedates,
 								values: thevalues,

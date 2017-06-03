@@ -64,7 +64,7 @@ if ($is_lbf) {
 function show_graph(table_graph, name_graph, title_graph)
 {
     top.restoreSession();
-    $.ajax({ url: '../../../library/openflashchart/graphs.php',
+    $.ajax({ url: '../../../library/ajax/graphs.php',
     type: 'POST',
         data: ({
             table: table_graph,

@@ -101,7 +101,7 @@ function getCheckedBoxes(chkboxName) {
 //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
 	top.restoreSession();
-	return $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+	return $.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
 		     type: 'POST',
 		     data: { dates:  thedates,
 				     values: thevalues,

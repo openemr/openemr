@@ -60,7 +60,7 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
         var thedates = JSON.stringify(ofc_date);
         var thevalues = JSON.stringify(ofc_value);
 
-        $.ajax({ url: '../../../library/openflashchart/graph_track_anything.php',
+        $.ajax({ url: '../../../library/ajax/graph_track_anything.php',
                      type: 'POST',
                      data: { dates:  thedates,
                                      values: thevalues,
