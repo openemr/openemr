@@ -20,7 +20,7 @@
  */
 
 
-
+use OpenEMR\Core\Header;
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("history.inc.php");
@@ -42,10 +42,7 @@ if ( !acl_check('patients','med','',array('write','addonly') ))
 ?>
 <html>
 <head>
-    <?php
-    $include_standard_style_js = ['datetimepicker','common.js'];
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
+    <?php Header::setupHeader(['datetime-picker', 'common']); ?>
 <title><?php xl("History & Lifestyle", 'e');?></title>
 <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
 

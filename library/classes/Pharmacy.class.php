@@ -24,7 +24,7 @@ class Pharmacy extends ORDataObject{
 	var $address;
 	var $transmit_method;
 	var $email;
-	var $transmit_method_array = array("","Print", "Email" ,"Fax");
+	var $transmit_method_array; //set in constructor
 
 	/**
 	 * Constructor sets all Prescription attributes to their default value
@@ -34,6 +34,7 @@ class Pharmacy extends ORDataObject{
 		$this->name = "";
 		$this->email = "";
 		$this->transmit_method = 1;
+		$this->transmit_method_array = array(xl("None Selected"), xl("Print"), xl("Email"), xl("Fax"));
 		$this->_table = "pharmacies";
 		$phone  = new PhoneNumber();
 		$phone->set_type(TYPE_WORK);

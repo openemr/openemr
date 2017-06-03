@@ -43,6 +43,8 @@
         <delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/docs" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpexcel/Examples" verbose="true"/>
+        <delete dir="${dir.vendor}/phpoffice/phpexcel/unitTests" verbose="true"/>
         <delete dir="${dir.vendor}/psr/log/Psr/Log/Test" verbose="true"/>
         <delete dir="${dir.vendor}/rospdf/pdf-php/examples" verbose="true"/>
         <delete dir="${dir.vendor}/smarty/smarty/demo" verbose="true"/>
@@ -51,6 +53,7 @@
         <delete dir="${dir.vendor}/symfony/debug/Resources/ext/tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/debug/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/symfony/http-foundation/Tests" verbose="true"/>
+        <delete dir="${dir.vendor}/symfony/yaml/Tests" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/doc" verbose="true"/>
         <delete dir="${dir.vendor}/twig/twig/test" verbose="true"/>
         <delete dir="${dir.vendor}/zendframework/zendxml/tests" verbose="true"/>

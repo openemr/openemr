@@ -98,7 +98,7 @@ function validate_user_password($username,&$password,$provider)
         }
     }
     $getUserSQL="select id, authorized, see_auth".
-                        ", cal_ui, active ".
+                        ", active ".
                         " from users where BINARY username = ?";
     $userInfo = privQuery($getUserSQL,array($username));
 
@@ -119,7 +119,6 @@ function validate_user_password($username,&$password,$provider)
             $_SESSION['authUserID'] = $userInfo['id'];
             $_SESSION['authProvider'] = $provider;
             $_SESSION['authId'] = $userInfo{'id'};
-            $_SESSION['cal_ui'] = $userInfo['cal_ui'];
             $_SESSION['userauthorized'] = $userInfo['authorized'];
             // Some users may be able to authorize without being providers:
             if ($userInfo['see_auth'] > '2') $_SESSION['userauthorized'] = '1';

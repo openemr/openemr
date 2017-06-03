@@ -102,7 +102,7 @@ framesrc += '&framewidth='+x+'"   name="Calendar" scrolling="auto" frameborder="
 
 <!-- (CHEMED) -->
 <script type='text/javascript' language='JavaScript'>
-    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0"  <?php if ($_SESSION['cal_ui'] == 2) {echo 'onResize="window.location.href = window.location.href;"'; }?> >');
+    document.write('<frameset rows="*" cols="*" name="Main" frameborder="NO" border="0" framespacing="0" >');
     document.write(framesrc);
     document.write('</frameset>');
     document.close();

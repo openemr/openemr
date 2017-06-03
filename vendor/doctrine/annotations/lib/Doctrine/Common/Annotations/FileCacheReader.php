@@ -112,7 +112,7 @@ class FileCacheReader implements Reader
         }
 
         if ($this->debug
-            && (false !== $filename = $class->getFilename())
+            && (false !== $filename = $class->getFileName())
             && filemtime($path) < filemtime($filename)) {
             @unlink($path);
 
@@ -213,6 +213,8 @@ class FileCacheReader implements Reader
         if (false === $tempfile) {
             throw new \RuntimeException(sprintf('Unable to create tempfile in directory: %s', $this->dir));
         }
+
+        @chmod($tempfile, 0666 & (~$this->umask));
 
         $written = file_put_contents($tempfile, '<?php return unserialize('.var_export(serialize($data), true).');');
 

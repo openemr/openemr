@@ -27,7 +27,7 @@
 
 
 
-
+use OpenEMR\Core\Header;
 $ignoreAuth=true;
 require_once("../globals.php");
 ?>
@@ -36,8 +36,7 @@ require_once("../globals.php");
     <title><?php echo text($openemr_name) . " " . xlt('Login'); ?></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <?php $include_standard_style_js = array("jquery-ui","jquery-ui-darkness"); ?>
-    <?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+    <?php Header::setupHeader(['jquery-ui', 'jquery-ui-darkness']); ?>
 
     <link rel="stylesheet" href="../themes/login.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 

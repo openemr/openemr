@@ -21,6 +21,7 @@
  * @link    http://www.open-emr.org
  */
 
+use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/acl.inc");
@@ -89,8 +90,7 @@ else { // not export
 
 <title><?php xl('Pending Orders','e') ?></title>
 
-<?php $include_standard_style_js = array("datetimepicker"); ?>
-<?php require "{$GLOBALS['srcdir']}/templates/standard_header_template.php"; ?>
+<?php Header::setupHeader('datetime-picker'); ?>
 
 <script language="JavaScript">
 

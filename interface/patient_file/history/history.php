@@ -5,7 +5,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+use OpenEMR\Core\Header;
  require_once("../../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("history.inc.php");
@@ -17,10 +17,7 @@
 <html>
 <head>
     <title><?php echo xl("History"); ?></title>
-    <?php
-    $include_standard_style_js = ['common.js'];
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
+    <?php Header::setupHeader('common'); ?>
 
 <script type="text/javascript">
 $(document).ready(function(){

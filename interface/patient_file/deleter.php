@@ -24,7 +24,7 @@
  * @link    http://www.open-emr.org
  */
 
-
+use OpenEMR\Core\Header;
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/log.inc');
 require_once($GLOBALS['srcdir'].'/acl.inc');
@@ -172,10 +172,7 @@ function delete_document($document) {
 ?>
 <html>
 <head>
-    <?php
-    $include_standard_style_js = array("include_opener.js");
-    require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-    ?>
+    <?php Header::setupHeader('opener'); ?>
 <title><?php echo xlt('Delete Patient, Encounter, Form, Issue, Document, Payment, Billing or Transaction'); ?></title>
 
 <script language="javascript">
