@@ -25,17 +25,18 @@ $returnurl = 'encounter_top.php';
 <div class="container">
 <?php
 include_once("$srcdir/api.inc");
-$obj = formFetch("form_dictation", $_GET["id"]);
+$id = filter_input(INPUT_GET, 'id');
+$obj = formFetch("form_dictation", $id);
 ?>
    <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
      <div class="page-header">
       <h1><?php echo xlt('Speech Dictation Review/Edit'); ?></h1>
      </div>
      <div class="form-group">
-       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" cols=80 rows=24 wrap="virtual" name="dictation" ><?php echo text($obj{"dictation"});?></textarea>
+       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" cols=80 rows=24 wrap="virtual" name="dictation" ><?php echo html_entity_decode(text($obj{"dictation"}));?></textarea>
      </div>
      <div class="form-group">
-       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></span><br><textarea class="form-control ckeditor"cols=80 rows=8 wrap="virtual" name="additional_notes" ><?php echo text($obj{"additional_notes"});?></textarea>
+       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></span><br><textarea class="form-control ckeditor"cols=80 rows=8 wrap="virtual" name="additional_notes" ><?php echo html_entity_decode(text($obj{"additional_notes"}));?></textarea>
      </div>
 
        <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Update'); ?></button>
