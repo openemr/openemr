@@ -36,17 +36,6 @@ function ta_report_getCheckedBoxes(chkboxName) {
 }
 //---------------------------------------------------------------
 
-// set up flashvars for ofc
-var flashvars = {};
-var data;
-
-// -------------------------
-// this is automatically called by swfobject.embedSWF()
-//------------------------------------------------------
-function open_flash_chart_data(){
-        return JSON.stringify(data);
-}
-//------------------------------------------------------
 
 // plot the current graph
 // this function is located here, as now all data-arrays are ready

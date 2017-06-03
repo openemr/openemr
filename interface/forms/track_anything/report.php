@@ -30,7 +30,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	$ofc_date = array();
 	$ofc_value = array();
 	$row = 0; // how many rows
-	$col = 0; // how many Items per row	
+	$col = 0; // how many Items per row
 	$dummy = array(); // counter to decide if graph-button is shown
 	$formid = $id;
 	$shownameflag = 0;
@@ -52,7 +52,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	$spell0 .= "WHERE track_anything_id = ? ";
 	$spell0 .= "ORDER BY track_timestamp DESC ";
 	$query = sqlStatement($spell0, array($formid));
-	
+
 	// get all data of this specific track
 	while($myrow = sqlFetchArray($query)){
 		$thistime = $myrow['track_timestamp'];
@@ -63,7 +63,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 		$spell .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
 		$spell .= "ORDER BY form_track_anything_type.position ASC, the_name ASC ";
 		$query2  = sqlStatement($spell, array($formid, $thistime));
-		
+
 		// is this the <tbale>-head?
 		if ($shownameflag==1){
 			echo "<tr><th class='time'>" . xlt('Time') . "</th>";
@@ -74,10 +74,10 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 			}
 			echo "</tr>";
 		}
-		
+
 		// post data entries per row
 		echo "<tr><td class='time'>" . text($thistime) . "</td>";
-		$ofc_date[$row] = $thistime; // save for openflashchart-form			
+		$ofc_date[$row] = $thistime; // save for openflashchart-form
 		$col_i = 0; // how many columns
 		$query2  = sqlStatement($spell, array($formid, $thistime));
 		while($myrow2 = sqlFetchArray($query2)){
@@ -90,15 +90,15 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 		echo "</tr>";
 		$row++;
 	}
-	
+
 
 
 	// hide all interactive link stuff if inside a patient report
-	// (to keep Patient Report clean...)	
+	// (to keep Patient Report clean...)
 	// Thus we use "<div class='navigateLink'>"; see custom_report.php
 	//--------------------------------------------------------------
 	// Graph-Button row
-	//-------------------------------		
+	//-------------------------------
 		echo "<tr>";
 		echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
 		for ($col_i = 0; $col_i < $col; $col_i++){
@@ -116,7 +116,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 			echo "</div></td>";
 		}
 		echo "</tr>";
-	
+
 	// end Graph-Button-Row---------
 
 		if($showbutton>0){
