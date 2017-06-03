@@ -17,6 +17,7 @@ a:hover {
 }
 
 .menu {
+  font-style: italic;
   color: #0000cc;
   text-decoration: none;
   text-align: left;
@@ -36,12 +37,14 @@ a:hover {
 }
 
 .menu_selected {
+  font-style: italic;
   color: #000000;
   text-decoration: none;
   text-align: left;
 }
 
 .logout {
+  font-style: italic;
   color: #000000;
   text-decoration: none;
   text-align: right;
@@ -50,17 +53,21 @@ a:hover {
 .text {
   text-decoration: none;
   color: #000000;
+  font-size: 1em;
 }
 
 .required {
   text-decoration: none;
   color: #880000;
   font-weight: bold;
+  font-size: 1em;
 }
 
 .bold {
   text-decoration: none;
+  color: #000000;
   font-weight: bold;
+  font-size: 1em;
 }
 
 .alert {
@@ -71,29 +78,34 @@ a:hover {
 .small {
   text-decoration: none;
   color: #000000;
-  font-size: 80%;
+  font-size: 0.8em;
 }
 
 .link {
   text-decoration: none;
   color: #0000cc;
+  font-size: 0.7em;
 }
 
 .more {
   text-decoration: none;
+  font-size: 0.7em;
 }
 
 .back {
   text-decoration: none;
+  font-size: 0.7em;
 }
 
 .link_selected {
   text-decoration: none;
   color: #0000FF;
+  font-size: 0.7em;
 }
 .link_selected:visited {
   text-decoration: none;
   color: #0000FF;
+  font-size: 0.7em;
 }
 
 .link_submit {
@@ -107,8 +119,17 @@ a:hover {
   color: #ff5555;
 }
 
+.items {
+  font-size: 0.7em;
+}
+
+.title {
+  font-size: 1.5em;
+}
+
 /* see .titlebar below */
 .title_bar {
+  font-size: 1.13em;
   font-weight: bold;
   text-decoration: none;
   color: #000000;
@@ -207,6 +228,7 @@ a:hover {
   color: #0000cc;
 }
 #addressbook_list tr.search {
+  font-size: 0.9em;
   font-weight: bold;
 }
 #addressbook_list tr.head {
@@ -216,7 +238,7 @@ a:hover {
 #addressbook_list tr.detail {
 }
 #addressbook_list .inputtext {
-  font-family: monospace;
+  font-size: 0.9em;
   font-weight: normal;
   border-style: solid;
   border-width: 1px;
@@ -224,6 +246,7 @@ a:hover {
   background-color: transparent;
 }
 #addressbook_list .button {
+  font-size: 0.8em;
   font-weight: bold;
 }
 
@@ -302,15 +325,18 @@ a:hover {
 #DEM .groupname {
   font-weight: bold;
   color: #080;
+  font-size: 0.8em;
   padding-right: 5px;
   vertical-align: top;
 }
 #DEM .label_custom {
   font-weight: bold;
+  font-size: 0.8em;
   vertical-align: top;
   text-align: right;
 }
 #DEM .data {
+  font-size: 0.8em;
   vertical-align: top;
   text-align: left;
   padding-right: 6px;
@@ -320,15 +346,18 @@ a:hover {
 #HIS .groupname {
   font-weight: bold;
   color: #080;
+  font-size: 0.9em;
   padding-right: 1px;
   vertical-align: top;
   height: 2em;
 }
 #HIS .label_custom {
   font-weight: bold;
+  font-size: 0.9em;
   vertical-align: top;
 }
 #HIS .data {
+  font-size: 0.9em;
   vertical-align: top;
   text-align: left;
   padding-right: 10px;
@@ -411,6 +440,7 @@ a:hover {
   color: #0000ff;
 }
 #patient_stats_summary .title {
+  font-size: 1.1em;
 }
 
 #patient_stats_issues {
@@ -469,6 +499,7 @@ a:hover {
   background-color: #ffffaa;
   visibility: hidden;
   z-index: 1000;
+  font-size: 0.9em;
 }
 #patient_pastenc .highlight {
   background-color: #fff;
@@ -526,6 +557,7 @@ a:hover {
   padding: 5px;
 }
 #report_custom h1 {
+  font-size: 1.2em;
   margin: 0px 0px 5px 0px;
   padding: 0px;
 }
@@ -578,6 +610,7 @@ a:hover {
   margin-top: 10px;
 }
 #report_custom .encounter h1 {
+  font-size: 1.4em;
   margin: 0px;
   padding: 0px;
 }
@@ -895,15 +928,18 @@ div.notab-right {
 .showborder td {
   border-bottom: 1px dashed #000000;
   text-align: left;
+  font-size: 0.9em;
 }
 
 .showborder_head th {
   border-bottom: 1px solid #000000;
   text-align: left;
+  font-size: 0.9em;
 }
 
 .shownoborder td {
   text-align: left;
+  font-size: 0.9em;
 }
 
 .showborder_long {
@@ -913,12 +949,14 @@ div.notab-right {
 .showborder_long tr td {
   border-bottom: 1px dashed #000000;
   text-align: left;
+  font-size: 0.9em;
 }
 
 /**
 * Drug lookup
 **/
 .drug_lookup {
+  font-size: 0.8em;
   border: 2px outset #666666;
   background-color: #eae6ff;
   padding: 5px;
@@ -989,7 +1027,7 @@ div.notab-right {
   background-color: none;
   color: #000;
   display: block;
-  font-size: 1.2em;
+  font-size: 1.13em;
   padding: 8px 0px 8px 0px;
   width: 100%;
 }
@@ -1096,7 +1134,7 @@ div.notab-right {
 }
 
 .example_menu {
-  font-size: 70%;
+  font-size: 0.7em;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -1202,6 +1240,7 @@ body.admin-layout input[type="button"] {
   display:block;
   white-space: nowrap;
   font-weight: normal;
+  font-size: 0.8em;
 }
 .error-border{
   border: 1px solid red !important;
@@ -1278,6 +1317,7 @@ body.admin-layout input[type="button"] {
 table.dataTable#therapy_groups_list tbody td{
   padding-left: 20px;
   padding-right: 20px;
+  font-size: 1.05em;
 }
 
 .therapy_group #therapy_groups_list_container{
@@ -1301,6 +1341,7 @@ table.dataTable#therapy_groups_list tbody td{
 
 .therapy_group .delete_btn button, .therapy_group .delete_btn span{
   background-color: #ef3935;
+  font-size: 1.05em;
   padding: 2px 10px;
 }
 
@@ -1310,6 +1351,7 @@ table.dataTable#therapy_groups_list tbody td{
 }
 
 .therapy_group #therapy_groups_list_container .failed_message{
+  font-size: 1.05em;
 }
 #updateParticipants{
   position: relative;
@@ -1330,11 +1372,13 @@ table.dataTable#therapy_groups_list tbody td{
 }
 .groups-error-msg{
   color: #ff542d;
+  font-size: 1.3em;
   padding: 8px;
   text-align: center;
 }
 
 .therapy_group .event_details{
+  font-size: 1em;
 }
 
 #add_participant{
@@ -1437,7 +1481,7 @@ table.dataTable#therapy_groups_list tbody td{
 
 .sidebar .submenu {
   padding-left:15px;
-  font-size: 0.90em;
+  font-size:0.9em;
 }
 
 .sidebar ul.mainmenu {
