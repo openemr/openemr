@@ -15,6 +15,10 @@
             f.calendar.disabled = !f.authorized.checked;
             f.calendar.checked  =  f.authorized.checked;
         }
+
+        {% if alertmsg %}
+        alert({{ alertmsg }});
+        {% endif %}
     </script>
 </head>
 <body class="body_top">
@@ -44,76 +48,48 @@
     </div>
     <div class="row">
         <div class="col-xs-12">
-            <?php
-            if ($set_active_msg == 1) {
-                echo "<div class='alert alert-danger'>".xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.')."</div><br>";
-        }
-        if ($show_message == 1) {
-        echo "<div class='alert alert-danger'>".xl('The following Emergency Login User is activated:')." "."<b>".$_GET['fname']."</b>"."</div><br>";
-        echo "<div class='alert alert-danger'>".xl('Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured:')." \$GLOBALS['Emergency_Login_email'], \$GLOBALS['Emergency_Login_email_id']</div>";
-        }
+            {% if activeMsg = true %}
+            <div class="alert alert-danger">
+                {{ 'Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation'|translate }}.
+            </div>
+            {% endif %}
+            {% if showMessage = true %}
+            <div class="alert alert-danger">{{ "The following Emergency Login User is activated:"|translate }} {{ fname }}</div>
+            <div class="alert alert-danger">{{ "Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured"|translate }}: {{ global.emergency_login_email }}, {{ global.emergency_login_email_id }}</div>
+            {% endif %}
 
-        ?>
-        <table class="table table-striped">
+            <table class="table table-striped">
             <thead>
-            <tr>
-                <th>{{ 'Username'|translate }}</th>
-                <th>{{ 'Real Name'|translate }}</th>
-                <th>{{ 'Additional Info'|translate }}</th>
-                <th>{{ 'Authorized'|translate }}</th>
-            </tr>
+                <tr>
+                    <th>{{ 'Username'|translate }}</th>
+                    <th>{{ 'Real Name'|translate }}</th>
+                    <th>{{ 'Additional Info'|translate }}</th>
+                    <th>{{ 'Authorized'|translate }}</th>
+                </tr>
             <tbody>
-            <?php
-                    $query = "SELECT * FROM users WHERE username != '' ";
-                    if (!$form_inactive) $query .= "AND active = '1' ";
-                    $query .= "ORDER BY username";
-                    $res = sqlStatement($query);
-                    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                        $result4[$iter] = $row;
-                    foreach ($result4 as $iter) {
-                        if ($iter{"authorized"}) {
-                            $iter{"authorized"} = xl('yes');
-                        } else {
-                            $iter{"authorized"} = "";
-                        }
-                        print "<tr>
-            <td><b><a href='user_admin.php?id=" . $iter{"id"} .
-                            "' class='iframe_medium' onclick='top.restoreSession()'>" . $iter{"username"} . "</a></b>" ."&nbsp;</td>
-            <td>" . attr($iter{"fname"}) . ' ' . attr($iter{"lname"}) ."&nbsp;</td>
-            <td>" . attr($iter{"info"}) . "&nbsp;</td>
-            <td align='left'><span>" .$iter{"authorized"} . "&nbsp;</td>";
-            print "<td><!--<a href='usergroup_admin.php?mode=delete&id=" . $iter{"id"} .
-                            "' class='link_submit'>[Delete]</a>--></td>";
-            print "</tr>\n";
-            }
-            ?>
+                {% for user in users %}
+                <tr>
+                    <td><a href="user_admin.php?id={{ user.id|e('url') }}" class="iframe_medium" onclick="top.restoreSession()">{{ user.username }}</a></td>
+                    <td>{{ user.fullName }}</td>
+                    <td>{{ user.info }}</td>
+                    <td>{{ user.authorized }}</td>
+                </tr>
+                {% endfor %}
             </tbody>
-        </table>
-        <?php
-            if (empty($GLOBALS['disable_non_default_groups'])) {
-                $res = sqlStatement("select * from groups order by name");
-                for ($iter = 0;$row = sqlFetchArray($res);$iter++)
-                    $result5[$iter] = $row;
-
-                foreach ($result5 as $iter) {
-                    $grouplist{$iter{"name"}} .= $iter{"user"} .
-                        "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>), ";
-        }
-
-        foreach ($grouplist as $groupname => $list) {
-        print "<span class='bold'>" . $groupname . "</span><br>\n<span>" .
-                        substr($list,0,strlen($list)-2) . "</span><br>\n";
-        }
-        }
-        ?>
+            </table>
+            {% if global.disable_non_default_groups == false %}
+            {# Display groups here
+            <a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
+                        $iter{"id"} . "' onclick='top.restoreSession()'>Remove</a>)
+                        foreach ($grouplist as $groupname => $list) {
+            print "<span class='bold'>" . $groupname . "</span><br>\n<span>" .
+                            substr($list,0,strlen($list)-2) . "</span><br>\n";
+            }
+            }
+            #}
+            {% endif %}
+        </div>
     </div>
 </div>
-</div>
-<script type="text/javascript">
-    {% if alertmsg %}
-    alert({{ alertmsg }});
-    {% endif %}
-</script>
 </body>
 </html>

@@ -30,7 +30,7 @@ $alertmsg = '';
 $bg_msg = '';
 $set_active_msg=0;
 $show_message=0;
-
+$access_group = [];
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
@@ -349,8 +349,8 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 $request = Request::createFromGlobals();
 
 $users = function($active = 1) {
-    $sql = "SELECT * FROM users WHERE username IS NOT NULL AND active = $active";
-    $res = sqlStatement($sql);
+    $sql = "SELECT * FROM users WHERE username IS NOT NULL AND active = ?";
+    $res = sqlStatement($sql, [$active]);
     $return = [];
     while ($row = sqlFetchArray($res)) {
         $return[] = $row;
@@ -358,4 +358,8 @@ $users = function($active = 1) {
     return $return;
 };
 
+$viewVars = [
+    "users" => $users,
+];
 
+echo $GLOBALS['twig']->render('admin/usergroup/list.html.twig', $viewVars);

@@ -222,7 +222,7 @@ $twigOptions = [
     'debug' => false,
 ];
 
-$twigLoader = new Twig_Loader_Filesystem();
+$twigLoader = new Twig_Loader_Filesystem([$GLOBALS['template_dir']]);
 $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
 
 if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
