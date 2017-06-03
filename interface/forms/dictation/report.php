@@ -40,7 +40,7 @@ function dictation_report( $pid, $encounter, $cols, $id) {
       }
       $key=ucwords(str_replace("_"," ",$key));
       print "<td><span class='bold'>" . xlt($key) . ": </span><span class='text'>" .
-        nl2br($value) . "</span></td>";
+        html_entity_decode($value) . "</span></td>";
       $count++;
       if ($count == $cols) {
         $count = 0;
