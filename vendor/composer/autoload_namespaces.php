@@ -9,6 +9,7 @@ return array(
     'ZendXml\\' => array($vendorDir . '/zendframework/zendxml/library'),
     'Twig_' => array($vendorDir . '/twig/twig/lib'),
     'Svg\\' => array($vendorDir . '/phenx/php-svg-lib/src'),
+    'PHPExcel' => array($vendorDir . '/phpoffice/phpexcel/Classes'),
     'FontLib\\' => array($vendorDir . '/phenx/php-font-lib/src'),
     'Doctrine\\ORM\\' => array($vendorDir . '/doctrine/orm/lib'),
     'Doctrine\\DBAL\\' => array($vendorDir . '/doctrine/dbal/lib'),
