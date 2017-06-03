@@ -48,12 +48,12 @@
     </div>
     <div class="row">
         <div class="col-xs-12">
-            {% if activeMsg = true %}
+            {% if activeMsg == true %}
             <div class="alert alert-danger">
                 {{ 'Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation'|translate }}.
             </div>
             {% endif %}
-            {% if showMessage = true %}
+            {% if showMessage == true %}
             <div class="alert alert-danger">{{ "The following Emergency Login User is activated:"|translate }} {{ fname }}</div>
             <div class="alert alert-danger">{{ "Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured"|translate }}: {{ global.emergency_login_email }}, {{ global.emergency_login_email_id }}</div>
             {% endif %}
@@ -71,8 +71,8 @@
                 <tr>
                     <td><a href="user_admin.php?id={{ user.id|e('url') }}" class="iframe_medium" onclick="top.restoreSession()">{{ user.username }}</a></td>
                     <td>{{ user.fullName }}</td>
-                    <td>{{ user.info }}</td>
-                    <td>{{ user.authorized }}</td>
+                    <td>{{ user.info|translate }}</td>
+                    <td>{{ user.authorized|translate }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

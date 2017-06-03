@@ -353,13 +353,15 @@ $users = function($active = 1) {
     $res = sqlStatement($sql, [$active]);
     $return = [];
     while ($row = sqlFetchArray($res)) {
+        $row['fullName'] = sprintf("%s, %s", $row['lname'], $row['fname']);
+        $row['authorized'] = ($row['authorized'] == 1) ? "Yes" : "No";
         $return[] = $row;
     }
     return $return;
 };
 
 $viewVars = [
-    "users" => $users,
+    "users" => $users(),
 ];
 
 echo $GLOBALS['twig']->render('admin/usergroup/list.html.twig', $viewVars);

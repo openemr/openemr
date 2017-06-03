@@ -5,6 +5,7 @@ require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 use OpenEMR\Checker;
 use Dotenv\Dotenv;
+use OpenEMR\Core\Header;
 
 $response = Checker::checkPhpVersion();
 if ($response !== true) {
@@ -233,6 +234,9 @@ $twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
 $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
 $twigEnv->addFilter(new Twig_SimpleFilter('translate', function ($string) {
     return xl($string);
+}));
+$twigEnv->addFunction(new Twig_SimpleFunction('setupHeader', function ($asset = null) {
+    Header::setupHeader($asset);
 }));
 
 /** Twig_Loader */
