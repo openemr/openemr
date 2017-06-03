@@ -32,7 +32,7 @@ function ta_report_getCheckedBoxes(chkboxName) {
         checkedValue.push(checkboxes[i].value);
      }
   }
-  return checkedValue; 
+  return checkedValue;
 }
 //---------------------------------------------------------------
 
@@ -59,31 +59,33 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
         var thetrack = JSON.stringify(the_track_name + " [Track " + formid + "]");
         var thedates = JSON.stringify(ofc_date);
         var thevalues = JSON.stringify(ofc_value);
-        
+
         $.ajax({ url: '../../../library/openflashchart/graph_track_anything.php',
                      type: 'POST',
-                     data: { dates:  thedates, 
-                                     values: thevalues, 
-                                     items:  theitems, 
-                                     track:  thetrack, 
+                     data: { dates:  thedates,
+                                     values: thevalues,
+                                     items:  theitems,
+                                     track:  thetrack,
                                      thecheckboxes: checkedBoxes
                                    },
-                         dataType: "json",  
+                         dataType: "json",
                          success: function(returnData){
-                                 // ofc will look after a variable named "ofc"
-                                 // inside of the flashvars
-                                 // However, we need to set both
-                                 // data and flashvars.ofc 
-                                 data=returnData;
-                                 flashvars.ofc = returnData;
-                                 // call ofc with proper falshchart
-                                        swfobject.embedSWF('../../../library/openflashchart/open-flash-chart.swf', 
-                                        "graph" + formid, "650", "200", "9.0.0","",flashvars);  
+                             g2 = new Dygraph(
+                                 document.getElementById("graph" + formid),
+                                 returnData.data_final,
+                                 {
+                                     title: returnData.title,
+                                     delimiter: '\t',
+                                     xRangePad: 20,
+                                     yRangePad: 20,
+                                     xlabel: 'Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'
+                                 }
+                             );
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                                 alert(XMLHttpRequest.responseText);
                                 //alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
                         }
-        
-        }); // end ajax query   
+
+        }); // end ajax query
 }

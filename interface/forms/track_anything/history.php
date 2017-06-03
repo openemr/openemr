@@ -79,8 +79,6 @@ echo "<html><head>";
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="style.css" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/swfobject.js"></script>
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------
 // Pass the checkbox name to the function
@@ -99,18 +97,6 @@ function getCheckedBoxes(chkboxName) {
 //---------------------------------------------------------------
 
 
-// this is automatically called by swfobject.embedSWF()
-//------------------------------------------------------
-function open_flash_chart_data(){
-	return JSON.stringify(data);
-}
-//------------------------------------------------------
-
-
-// set up flashvars for ofc
-var flashvars = {};
-var data;
-
 // plot the current graph
 //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
@@ -125,15 +111,17 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 				   },
 			 dataType: "json",
 			 success: function(returnData){
-				 // ofc will look after a variable named "ofc"
-				 // inside of the flashvar
-				 // However, we need to set both
-				 // data and flashvars.ofc
-				 data=returnData;
-				 flashvars.ofc = returnData;
-				 // call ofc with proper falshchart
-					swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf',
-					"graph"+trackCount, "650", "200", "9.0.0","",flashvars);
+                 g2 = new Dygraph(
+                     document.getElementById("graph" + trackCount),
+                     returnData.data_final,
+                     {
+                         title: returnData.title,
+                         delimiter: '\t',
+                         xRangePad: 20,
+                         yRangePad: 20,
+                         xlabel: "<?php echo xla('Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'); ?>"
+                     }
+                 );
 			},
 			error: function (XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest.responseText);
