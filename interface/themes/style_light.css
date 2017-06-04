@@ -53,21 +53,21 @@ a:hover {
 .text {
   text-decoration: none;
   color: #000000;
-  font-size: 1em;
+  font-size: 0.9em;
 }
 
 .required {
   text-decoration: none;
   color: #880000;
   font-weight: bold;
-  font-size: 1em;
+  font-size: 0.9em;
 }
 
 .bold {
   text-decoration: none;
   color: #000000;
   font-weight: bold;
-  font-size: 1em;
+  font-size: 0.9em;
 }
 
 .alert {
@@ -79,6 +79,10 @@ a:hover {
   text-decoration: none;
   color: #000000;
   font-size: 0.8em;
+}
+
+.small span.text, span.required, span.bold {
+  font-size: 1em;
 }
 
 .link {
@@ -647,7 +651,7 @@ tr.odd, td.even {
   text-decoration: none;
   padding: 5px 12px 5px;
   border: none;
-  font-size: 0.8em;
+  font-size: 0.7em;
 }
 .css_button_small span {
   display: block;
