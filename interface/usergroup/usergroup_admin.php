@@ -24,7 +24,6 @@ require_once "../globals.php";
 require_once "../../library/acl.inc";
 require_once "$srcdir/auth.inc";
 use Symfony\Component\HttpFoundation\Request;
-use services\UserService;
 
 $alertmsg = '';
 $bg_msg = '';
@@ -349,19 +348,26 @@ $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 $request = Request::createFromGlobals();
 
 $users = function($active = 1) {
-    $sql = "SELECT * FROM users WHERE username IS NOT NULL AND active = ?";
-    $res = sqlStatement($sql, [$active]);
+    $sql = "SELECT * FROM users WHERE username IS NOT NULL %s";
+    if ($active == 1) {
+        $sql = sprintf($sql, "AND active = 1");
+    } else if ($active == 0) {
+        $sql = sprintf($sql, "");
+    }
+    $res = sqlStatement($sql);
     $return = [];
     while ($row = sqlFetchArray($res)) {
         $row['fullName'] = sprintf("%s, %s", $row['lname'], $row['fname']);
-        $row['authorized'] = ($row['authorized'] == 1) ? "Yes" : "No";
+        $row['authorized'] = ($row['authorized'] == 1) ? xlt("Yes") : xlt("No");
         $return[] = $row;
     }
     return $return;
 };
 
 $viewVars = [
-    "users" => $users(),
+    "title" => xlt("User / Group"),
+    "users" => ($request->get("inactive")) ? $users(0) : $users(),
+    "form_inactive" => $request->get("inactive"),
 ];
 
 echo $GLOBALS['twig']->render('admin/usergroup/list.html.twig', $viewVars);

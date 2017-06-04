@@ -1,51 +1,70 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ 'User / Group'|translate }}</title>
-    {{ setupHeader('common') }}
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $("#modal-add-facility").on('show.bs.modal', function(e) {
-                e.preventDefault();
-            })
+{#
+Twig template to list users.
+
+@TODO Figure out how to docblock twig templates
+
+@TODO The usergroup_admin_php script has not yet been converted to twig/bootstrap
+(full) and because of that we're doing a dynamic load of that content into a
+bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017-06-03
+
+@package OpenEMR
+@subpackage Usergroup
+@author Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2017 Robert Down
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "global/snippet/navbar.html.twig" %}
+
+{% block header %}
+{{ setupHeader('common') }}
+<script type="text/javascript">
+    $(document).ready(function(){
+        /**
+         * Use the data-content element to load remote content into a modal.
+         */
+        $(".modal").on("show.bs.modal", function(e) {
+            var modal = $(this);
+            var triggeringElement = $(e.relatedTarget);
+            var content = triggeringElement.data("content");
+            var body = modal.find(".modal-body");
+            body.load(content);
         });
 
-        function authorized_clicked() {
-            var f = document.forms[0];
-            f.calendar.disabled = !f.authorized.checked;
-            f.calendar.checked  =  f.authorized.checked;
-        }
+        $("#inactive").on("change", function(e) {
+            top.restoreSession();
+            $(this).parents("form").submit();
+        });
+    });
 
-        {% if alertmsg %}
-        alert({{ alertmsg }});
-        {% endif %}
-    </script>
-</head>
-<body class="body_top">
+    function authorized_clicked() {
+        var f = document.forms[0];
+        f.calendar.disabled = !f.authorized.checked;
+        f.calendar.checked  =  f.authorized.checked;
+    }
+
+    {% if alertmsg %}
+    alert({{ alertmsg }});
+    {% endif %}
+</script>
+{% endblock header %}
+
+{% block nav_menu %}
+<ul class="nav navbar-nav">
+    <li><a href="#" data-content="usergroup_admin_add.php" data-toggle="modal" data-target="#modal-add-facility" class="btn-add ico">{{ 'Add User'|translate }}</a></li>
+    <li><a href="#" data-content="facility_user.php" class="ico btn-view">{{ 'View Facility Specific User Information'|translate }}</a></li>
+</ul>
+<form action="usergroup_admin.php" class="navbar-form navbar-left">
+<div class="form-group">
+    <input type="checkbox" class="form-control" id="inactive" name="inactive" value="1" {% if form_inactive %}checked{% endif %}>
+    <label for="inactive">
+        {{ "Include inactive Users"|translate }}
+    </label>
+</div>
+</form>
+{% endblock nav_menu %}
+
+{% block content %}
 <div class="container">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="page-title">
-                <h1>{{ 'User / Group'|translate }}</h1>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="btn-group">
-                <a href="usergroup_admin_add.php" data-toggle="modal" data-target="#modal-add-facility" class="btn btn-default btn-add">{{ 'Add User'|translate }}</a>
-                <a href="facility_user.php" class="btn btn-default btn-view">{{ 'View Facility Specific User Information'|translate }}</a>
-            </div>
-            <form name='userlist' method='post' class="form-inline pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
-                <div class="checkbox">
-                    <label for="form_inactive">
-                        <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' {% if form_inactive %}checked{% endif %}>
-                        {{ 'Include inactive users'|translate }}
-                    </label>
-                </div>
-            </form>
-        </div>
-    </div>
     <div class="row">
         <div class="col-xs-12">
             {% if activeMsg == true %}
@@ -69,10 +88,10 @@
             <tbody>
                 {% for user in users %}
                 <tr>
-                    <td><a href="user_admin.php?id={{ user.id|e('url') }}" class="iframe_medium" onclick="top.restoreSession()">{{ user.username }}</a></td>
+                    <td><a href="user_admin.php?id={{ user.id|e('url') }}">{{ user.username }}</a></td>
                     <td>{{ user.fullName }}</td>
-                    <td>{{ user.info|translate }}</td>
-                    <td>{{ user.authorized|translate }}</td>
+                    <td>{{ user.info }}</td>
+                    <td>{{ user.authorized }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -91,5 +110,16 @@
         </div>
     </div>
 </div>
-</body>
-</html>
+
+<div class="modal" tabindex="-1" role="dialog" id="modal-add-facility">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{ "Add New User"|translate }}</h4>
+            </div>
+            <div class="modal-body"></div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock content %}

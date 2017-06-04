@@ -27,7 +27,8 @@ button[href*="deleter"]:before {
     display: inline-block;
 }
 
-.btn::before {
+.btn::before,
+.ico::before {
     font-family: "FontAwesome";
     display: inline;
 }

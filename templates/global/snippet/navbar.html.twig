@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title|e('html_attr') }}</title>
+    {% block header %}{% endblock %}
+    <style type="text/css">
+        body {
+            padding-top:50px;
+        }
+    </style>
+</head>
+<body class="body_top">
+
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
+                <span class="sr-only">{{ "Toggle Navigation"|translate }}</span>
+                <i class="fa fa-bars"></i>
+            </button>
+            <a class="navbar-brand" href="#">{{ title }}</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-navbar-collapse">
+            {% block nav_menu %}{% endblock %}
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

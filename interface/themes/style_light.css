@@ -211,7 +211,11 @@ a:hover {
 
 /* $GLOBALS['logoBarHeight'] */
 .navbar {
-  height: 22px;
+  height: 50px;
+}
+
+.navbar-default, .navbar-collapse {
+  background-color: #ffffff !important;
 }
 
 /* $GLOBALS['navBarHeight'] */
@@ -670,6 +674,9 @@ tr.odd, td.even {
   text-decoration: none;
   padding: 5px 12px 5px;
   border: none;
+}
+button > .fa {
+  color: #999999 !important;
 }
 .css_button span, input[type="button"] span, button span {
   display: inline;

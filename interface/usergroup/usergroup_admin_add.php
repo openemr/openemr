@@ -14,7 +14,6 @@ $alertmsg = '';
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-3-3-4/dist/css/bootstrap.css" type="text/css">
-<?php OpenEMR\Intl\RightToLeft::handle(); ?>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
@@ -142,16 +141,6 @@ function authorized_clicked() {
 </style>
 </head>
 <body class="body_top">
-<table><tr><td>
-<span class="title"><?php xl('Add User','e'); ?></span>&nbsp;</td>
-<td>
-    <div class="btn-group">
-        <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick="return submitform()"><?php xl('Save','e');?></a>
-        <a class="btn btn-link btn-cancel" id='cancel' href='#'><?php xl('Cancel','e');?></a>
-    </div>
-</td></tr></table>
-<br><br>
-
 <table border=0>
 
 <tr><td valign=top>
@@ -410,19 +399,17 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
   }
 }
 ?>
-
+<div class="btn-group pull-right">
+    <a class="btn btn-default btn-save" name='form_save' id='form_save' href='#' onclick="return submitform()"><?php xl('Save','e');?></a>
+    <a class="btn btn-link btn-cancel"  data-dismiss="modal" href='#'><?php xl('Cancel','e');?></a>
+</div>
+<div class="clearfix"></div>
 <script language="JavaScript">
 <?php
   if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
   }
 ?>
-$(document).ready(function(){
-    $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
-
-});
 </script>
 <table>
 

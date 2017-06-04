@@ -57,8 +57,7 @@ class UserService {
      */
     public function getAllUsers()
     {
-        //return $this->repository->getAllUsers();
-        return ["HELLO"];
+        return $this->repository->getAllUsers();
     }
 
     /**
