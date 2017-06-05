@@ -39,7 +39,7 @@ class FacilityService
     public function getPrimaryBusinessEntity($options = null)
     {
         if (!empty($options) && !empty($options["useLegacyImplementation"])) {
-            return getPrimaryBusinessEntityLegacy();
+            return $this->getPrimaryBusinessEntityLegacy();
         }
 
         $args = array(
