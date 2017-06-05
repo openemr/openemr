@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ title|e('html_attr') }}</title>
+    <title>{{ title }}</title>
     {% block header %}{% endblock %}
     <style type="text/css">
         body {
@@ -12,14 +12,14 @@
 <body class="body_top">
 
 <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
+    <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar-collapse" aria-expanded="false">
                 <span class="sr-only">{{ "Toggle Navigation"|translate }}</span>
                 <i class="fa fa-bars"></i>
             </button>
-            <a class="navbar-brand" href="#">{{ title }}</a>
+            {#<a class="navbar-brand" href="#">{{ title }}</a>#}
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->

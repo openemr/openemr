@@ -30,6 +30,17 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
             body.load(content);
         });
 
+        /**
+         * Capture every click of a link and fire restoreSession unless
+         * data-session="false" is set on the element
+         */
+        $("a").on("click", function(e) {
+            if ($(this).data('session') === false) {
+                return;
+            }
+            top.restoreSession();
+        });
+
         $("#inactive").on("change", function(e) {
             top.restoreSession();
             $(this).parents("form").submit();
@@ -43,24 +54,27 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
     }
 
     {% if alertmsg %}
-    alert({{ alertmsg }});
+    alert({{ alertmsg|e('js') }});
     {% endif %}
 </script>
 {% endblock header %}
 
 {% block nav_menu %}
 <ul class="nav navbar-nav">
-    <li><a href="#" data-content="usergroup_admin_add.php" data-toggle="modal" data-target="#modal-add-facility" class="btn-add ico">{{ 'Add User'|translate }}</a></li>
-    <li><a href="#" data-content="facility_user.php" class="ico btn-view">{{ 'View Facility Specific User Information'|translate }}</a></li>
+    <li>
+        <a href="#" data-content="usergroup_admin_add.php" data-toggle="modal" data-target="#modal-add-facility" class="text-center">
+            <i class="fa fa-plus fa-lg" style="display:block"></i>
+            {{ 'Add User'|translate }}
+        </a>
+    </li>
+    <li>
+        <a href="#" data-content="facility_user.php" class="text-center">
+            <i class="fa fa-eye fa-lg" style="display:block"></i>
+            {{ 'Facility Specific'|translate }}
+        </a>
+    </li>
 </ul>
-<form action="usergroup_admin.php" class="navbar-form navbar-left">
-<div class="form-group">
-    <input type="checkbox" class="form-control" id="inactive" name="inactive" value="1" {% if form_inactive %}checked{% endif %}>
-    <label for="inactive">
-        {{ "Include inactive Users"|translate }}
-    </label>
-</div>
-</form>
+
 {% endblock nav_menu %}
 
 {% block content %}
@@ -76,6 +90,15 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
             <div class="alert alert-danger">{{ "The following Emergency Login User is activated:"|translate }} {{ fname }}</div>
             <div class="alert alert-danger">{{ "Emergency Login activation email will be circulated only if following settings in the interface/globals.php file are configured"|translate }}: {{ global.emergency_login_email }}, {{ global.emergency_login_email_id }}</div>
             {% endif %}
+
+            <form action="usergroup_admin.php">
+                <div class="checkbox pull-right">
+                    <label class="navbar-link" for="inactive">
+                        <input type="checkbox" id="inactive" name="inactive" value="1" {% if form_inactive %}checked{% endif %}>
+                        {{ "Include inactive Users"|translate }}
+                    </label>
+                </div>
+            </form>
 
             <table class="table table-striped">
             <thead>
@@ -115,10 +138,14 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
                 <h4 class="modal-title">{{ "Add New User"|translate }}</h4>
             </div>
-            <div class="modal-body"></div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <i class="fa fa-spin fa-circle-o-notch fa-4x"></i>
+                </div>
+            </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->

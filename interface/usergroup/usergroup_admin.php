@@ -358,7 +358,7 @@ $users = function($active = 1) {
     $return = [];
     while ($row = sqlFetchArray($res)) {
         $row['fullName'] = sprintf("%s, %s", $row['lname'], $row['fname']);
-        $row['authorized'] = ($row['authorized'] == 1) ? xlt("Yes") : xlt("No");
+        $row['authorized'] = ($row['authorized'] == 1) ? xl("Yes") : xl("No");
         $return[] = $row;
     }
     return $return;

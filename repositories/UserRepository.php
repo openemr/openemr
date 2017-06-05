@@ -9,7 +9,6 @@
  * @copyright Copyright (c) 2017 Matthew Vita
  *
  * @author Victor Kofia <victor.kofia@gmail.com>
- * @copyright Copyright (c) 2017 Victor Kofia
  *
  * @author Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2017 Robert Down
