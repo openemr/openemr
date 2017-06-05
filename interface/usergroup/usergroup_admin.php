@@ -365,7 +365,7 @@ $users = function($active = 1) {
 };
 
 $viewVars = [
-    "title" => xlt("User / Group"),
+    "title" => xl("User / Group"),
     "users" => ($request->get("inactive")) ? $users(0) : $users(),
     "form_inactive" => $request->get("inactive"),
 ];
