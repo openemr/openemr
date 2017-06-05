@@ -106,10 +106,10 @@ function submitProps() {
   <td>
    <select name='form_columns'>
 <?php
+  echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
   for ($cols = 2; $cols <= 10; ++$cols) {
-    echo "<option value=";
-    echo (($cols == 4) ? "'' selected" : "'$cols'");
-    echo ">$cols</option>\n";
+  	if ($cols == 4) continue;
+    echo "<option value='$cols'>$cols</option>\n";
   }
 ?>
    </select>
