@@ -62,7 +62,7 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
 {% block nav_menu %}
 <ul class="nav navbar-nav">
     <li>
-        <a href="#" data-content="usergroup_admin_add.php" data-toggle="modal" data-target="#modal-add-facility" class="text-center">
+        <a href="usergroup_admin_add.php" class="text-center">
             <i class="fa fa-plus fa-lg" style="display:block"></i>
             {{ 'Add User'|translate }}
         </a>
@@ -135,7 +135,7 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
 </div>
 
 <div class="modal" tabindex="-1" role="dialog" id="modal-add-facility">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>

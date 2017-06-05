@@ -77,8 +77,22 @@ function optionalAge($frow, $date, &$asof) {
   return $prefix . oeFormatAge($date, $asof, $format);
 }
 
-// Function to generate a drop-list.
-//
+/**
+ * Generate a select list.
+ *
+ * @param string $tag_name Name
+ * @param string $list_id ID of list to populate select with
+ * @param string $currvalue Current value
+ * @param string $title Title
+ * @param string $empty_name
+ * @param string $class Class attribute
+ * @param string $onchange
+ * @param string $tag_id
+ * @param null $custom_attributes
+ * @param bool $multiple
+ * @param string $backup_list
+ * @return string
+ */
 function generate_select_list($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '',
 		$onchange = '', $tag_id = '', $custom_attributes = null, $multiple = false, $backup_list = '') {
         $s = '';
