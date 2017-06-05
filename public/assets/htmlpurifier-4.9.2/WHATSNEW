@@ -1,0 +1,12 @@
+HTML Purifier 4.9.x is a maintenance release, collecting a year
+of accumulated bug fixes plus a few new features.  New features
+include support for min/max-width/height CSS, and rgba/hsl/hsla
+in color specifications.  Major bugfixes include improvements
+in the Serializer cache to avoid chmod'ing directories, better
+entity decoding (we won't accidentally encode entities that occur
+in URLs) and rel="noopener" on links with target attributes,
+to prevent them from overwriting the original frame.
+
+4.9.0 was skipped due to a packaging problem; 4.9.2 fixes two
+major regressions in PHP 5.3 support and entity decoding; no
+other functional changes were applied.

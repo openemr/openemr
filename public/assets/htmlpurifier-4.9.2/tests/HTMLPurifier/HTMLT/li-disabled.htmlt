@@ -1,0 +1,7 @@
+ERROR: Cannot allow ul/ol without allowing li
+--INI--
+HTML.AllowedElements = ul
+--HTML--
+<ul><li>foo</li></ul>
+--EXPECT--
+--# vim: et sw=4 sts=4

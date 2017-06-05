@@ -1,0 +1,7 @@
+--INI--
+HTML.Doctype = HTML 4.01 Strict
+--HTML--
+<b>Vetgedrukt</b> <i>Schuingedrukt</i> <span>Hou</span><iframe></iframe><script></script> jij ook zo van vakjesdenken?
+--EXPECT--
+<b>Vetgedrukt</b> <i>Schuingedrukt</i> <span>Hou</span> jij ook zo van vakjesdenken?
+--# vim: et sw=4 sts=4

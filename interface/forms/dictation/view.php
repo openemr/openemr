@@ -16,6 +16,7 @@ $returnurl = 'encounter_top.php';
 ?>
 <html>
 <head>
+<title>Review</title>
    <?php Header::setupHeader(); ?>
    <script type="text/javascript" src="<?php echo $webroot."/library/custom_template/ckeditor/ckeditor.js" ?>"</script>
    <script src="<?php echo $webroot."/library/custom_template/ckeditor/_samples/sample.js" ?>" type="text/javascript"></script>
@@ -25,10 +26,10 @@ $returnurl = 'encounter_top.php';
 <div class="container">
 <?php
 include_once("$srcdir/api.inc");
-$id = filter_input(INPUT_GET, 'id');
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $obj = formFetch("form_dictation", $id);
 ?>
-   <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($_GET["id"]);?>" name="my_form">
+   <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($id);?>" name="my_form">
      <div class="page-header">
       <h1><?php echo xlt('Speech Dictation Review/Edit'); ?></h1>
      </div>

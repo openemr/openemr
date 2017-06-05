@@ -1,0 +1,13 @@
+language: php
+php:
+    - '5.3'
+    - '5.4'
+    - '5.5'
+    - '5.6'
+    - '7.0'
+    - '7.1'
+before_script:
+    - git clone --depth=50 https://github.com/ezyang/simpletest.git
+    - cp test-settings.travis.php test-settings.php
+script:
+    - php tests/index.php

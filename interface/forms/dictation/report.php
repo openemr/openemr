@@ -12,7 +12,11 @@
 
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
+require_once("../../../public/assets/htmlpurifier-4.9.2/library/HTMLPurifier.auto.php");
 
+$config = HTMLPurifier_Config::createDefault();
+$purifier = new HTMLPurifier($config);
+$clean_html = $purifier->purify($dirty_html);
 /**
  *  Retrieve data from the dictation table
  * 
@@ -39,8 +43,11 @@ function dictation_report( $pid, $encounter, $cols, $id) {
         $value = "yes";
       }
       $key=ucwords(str_replace("_"," ",$key));
+      $config = HTMLPurifier_Config::createDefault();
+      $purifier = new HTMLPurifier($config);
+      $clean_html = $purifier->purify($value);
       print "<td><span class='bold'>" . xlt($key) . ": </span><span class='text'>" .
-        html_entity_decode($value, ENT_QUOTES | ENT_HTML5) . "</span></td>";
+             $clean_html . "</span></td>";
       $count++;
       if ($count == $cols) {
         $count = 0;
@@ -50,5 +57,3 @@ function dictation_report( $pid, $encounter, $cols, $id) {
   }
   print "</tr></table>";
 }
-
-
