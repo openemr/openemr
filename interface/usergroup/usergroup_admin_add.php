@@ -16,11 +16,9 @@ $alertmsg = '';
 <?php if ($_SESSION['language_direction'] == 'rtl'): ?>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.css" type="text/css">
 <?php endif; ?>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-9-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 
 <script src="checkpwd_validation.js" type="text/javascript"></script>
 
@@ -126,7 +124,6 @@ function submitform() {
    <?php } // End erx_enable only include block?>
 
     document.forms[0].submit();
-    parent.$.fn.fancybox.close();
 
 }
 function authorized_clicked() {
