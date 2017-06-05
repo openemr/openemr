@@ -15,7 +15,7 @@ namespace OpenEMR;
  * @copyright Copyright (c) 2017 Matthew Vita
  */
 class Checker {
-    private static $minimumPhpVersion = "5.4.0";
+    private static $minimumPhpVersion = "5.6.0";
 
     private static function xlDelegate($value) {
         if (function_exists("xl")) {
