@@ -15,6 +15,7 @@ require_once('../globals.php');
 require_once('transmitDataClass.php');
 require_once("adminClass.php");
 require_once("$srcdir/options.inc.php");
+
 use OpenEMR\Core\Header;
 
 $tables   = new adminProperties();
