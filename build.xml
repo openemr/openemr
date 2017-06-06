@@ -39,6 +39,9 @@
         <delete dir="${dir.vendor}/doctrine/orm/docs" verbose="true"/>
         <delete dir="${dir.vendor}/dompdf/dompdf/wwww" verbose="true"/>
         <delete dir="${dir.vendor}/dompdf/dompdf/tests" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/test" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/maintenance" verbose="true"/>
+        <delete dir="${dir.vendor}/ezyang/htmlpurifier/plugins" verbose="true"/>
         <delete dir="${dir.vendor}/illuminate/support/Testing" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/examples" verbose="true"/>
         <delete dir="${dir.vendor}/phpmailer/phpmailer/test" verbose="true"/>
