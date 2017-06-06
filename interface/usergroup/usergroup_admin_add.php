@@ -262,7 +262,7 @@ if ($fres) {
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php xl('Weno Provider ID','e'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;"  value="<?php echo $iter["weno_prov_id"]?>"></td>
+<td><span class="text"><?php xlt('Weno Provider ID','e'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;"  value="<?php echo $iter["weno_prov_id"]?>"></td>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

@@ -1,29 +1,19 @@
-
-
 <?php
-/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+/**
+ * weno rx confirm
  *
  * @package OpenEMR
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @link    http://www.open-emr.org
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
  
-$fake_register_globals=false;
-$sanitize_all_escapes=true;	
+
 include_once('../globals.php');
 include_once('transmitDataClass.php');
 include_once('$srcdir/patient.inc');
+use OpenEMR\Core\Header;
 
 $date = date("Y-m-d");
 $pid = $GLOBALS['pid'];
@@ -41,9 +31,7 @@ $mailOrder = $tData->mailOrderPharmacy();
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-ui-1-10-4/themes/dot-luv/jquery-ui.min.css" type="text/css" />
+<?php Header::setupHeader(['jquery-ui', 'jquery-ui-sunny']); ?>
 
 <script type="text/javascript" charset="utf-8">
 function validate(){

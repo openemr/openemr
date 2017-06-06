@@ -1202,7 +1202,56 @@ CREATE  TABLE `erx_ttl_touch` (
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process' ;
 
 -- --------------------------------------------------------
+--
+-- Table structure for table `erx_drug_paid`
+--
+DROP TABLE IF EXISTS `erx_drug_paid`;
+CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
+  `drugid` int(11) NOT NULL AUTO_INCREMENT,
+  `drug_label_name` varchar(45) NOT NULL,
+  `ahfs_descr` varchar(45) NOT NULL,
+  `ndc` bigint(12) NOT NULL,
+  `price_per_unit` decimal(5,2) NOT NULL,
+  `avg_price` decimal(6,2) NOT NULL,
+  `avg_price_paid` int(6) NOT NULL,
+  `avg_savings` decimal(6,2) NOT NULL,
+  `avg_percent` decimal(6,2) NOT NULL,
+   PRIMARY KEY (`drugid`)
+   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=26121;
 
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_rx_log`
+--
+DROP TABLE IF EXISTS `erx_rx_log`;
+CREATE TABLE IF NOT EXISTS `erx_rx_log` (
+ `id` int(20) NOT NULL AUTO_INCREMENT,
+ `prescription_id` int(6) NOT NULL,
+ `date` varchar(25) NOT NULL,
+ `time` varchar(15) NOT NULL,
+ `code` int(6) NOT NULL,
+ `status` text NOT NULL,
+ `message_id` varchar(100) DEFAULT NULL,
+ `read` int(1) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=133;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_narcotics`
+--
+DROP TABLE IF EXISTS `erx_narcotics`;
+CREATE TABLE IF NOT EXISTS `erx_narcotics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drug` varchar(255) NOT NULL,
+  `dea_number` varchar(5) NOT NULL,
+  `csa_sch` varchar(2) NOT NULL,
+  `narc` varchar(2) NOT NULL,
+  `other_names` varchar(255) NOT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=570;
+
+-- --------------------------------------------------------
 --
 -- Table structure for table `standardized_tables_track`
 --
