@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ "Add New User"|translate }}</title>
+    {{ setupHeader('common') }}
+    <script src="checkpwd_validation.js" type="text/javascript"></script>
+
+    <!-- validation library -->
+    <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
+
+    <script type="text/javascript">
+        /*
+         * validation on the form with new client side validation (using validate.js).
+         * this enable to add new rules for this form in the pageValidation list.
+         * */
+        var collectvalidation = {{ collectThis|e('js') }};
+
+        function trimAll(sString) {
+            while (sString.substring(0,1) === ' ') {
+                sString = sString.substring(1, sString.length);
+            }
+
+            while (sString.substring(sString.length-1, sString.length) === ' ') {
+                sString = sString.substring(0,sString.length-1);
+            }
+            return sString;
+        }
+
+        function submitform() {
+
+            var valid = submitme(1, undefined, 'new_user', collectvalidation);
+            if (!valid) {
+                return;
+            }
+
+            top.restoreSession();
+
+            //Checking if secure password is enabled or disabled.
+            //If it is enabled and entered password is a weak password, alert the user to enter strong password.
+            if(document.new_user.secure_pwd.value === 1){
+                var password = trim(document.new_user.stiltskin.value);
+                if(password !== "") {
+                    var pwdresult = passwordvalidate(password);
+                    if(pwdresult === 0){
+                        alert("");
+                        return false;
+                    }
+                }
+            } //secure_pwd if ends here
+
+            {% if global.erx_enable %}
+
+            alertMsg='';
+            f=document.forms[0];
+            for(i=0;i<f.length;i++){
+                if(f[i].type==='text' && f[i].value)
+                {
+                    if(f[i].name === 'rumple')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,35);
+                        alertMsg += checkUsername(f[i].name,f[i].value);
+                    }
+                    else if(f[i].name === 'fname' || f[i].name === 'mname' || f[i].name === 'lname')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,35);
+                        alertMsg += checkUsername(f[i].name,f[i].value);
+                    }
+                    else if(f[i].name === 'federaltaxid')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,10);
+                        alertMsg += checkFederalEin(f[i].name,f[i].value);
+                    }
+                    else if(f[i].name === 'state_license_number')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,10);
+                        alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
+                    }
+                    else if(f[i].name === 'npi')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,35);
+                        alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+                    }
+                    else if(f[i].name === 'federaldrugid')
+                    {
+                        alertMsg += checkLength(f[i].name,f[i].value,30);
+                        alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+                    }
+                }
+            }
+            if(alertMsg) {
+                alert(alertMsg);
+                return false;
+            }
+
+            {% endif %}
+
+            document.forms[0].submit();
+
+        }
+
+        function authorized_clicked() {
+            var f = document.forms[0];
+            f.calendar.disabled = !f.authorized.checked;
+            f.calendar.checked  =  f.authorized.checked;
+        }
+
+    </script>
+</head>
+<body>
+<div class="container" style="padding-top: 35px;">
+    <div class="row">
+        <div class="col-xs-12 col-md-10 col-md-offset-1">
+            <form action="usergroup_admin.php" name="new_user" id="new_user" class="form-horizontal"
+                  method="post" target="_parent" onsubmit="return top.restoreSession()">
+                <fieldset>
+                    <legend>{{ "Basic Information"|translate }}</legend>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="fname" class="col-xs-6 control-label">{{ "First Name"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" name='fname' id='fname' class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mname" class="col-xs-6 control-label">{{ "Middle Name"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" name='mname' id='mname' class="form-control" placeholder="">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lname" class="col-xs-6 control-label">{{  "Last Name"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" name='lname' id='lname' class="form-control" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="rumple" class="control-label col-xs-6">{{ "Username"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="text" name="rumple" class="form-control" id="rumple">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="siltskin" class="control-label col-xs-6">{{ "Password"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="password" class="form-control" name="stiltskin" id="siltskin">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="adminPass" class="control-label col-xs-6">{{ "Admin Password"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type='password' class="form-control" name="adminPass" autocomplete='off' id="adminPass">
+                                    <span class="help-block"><em>Your</em> password</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{{ "Provider Information"|translate }}</legend>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <div class="col-xs-3 col-xs-offset-3">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type='checkbox' name='authorized' value='1' onclick='authorized_clicked()'>
+                                            {{ "Provider"|translate }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xs-6">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type='checkbox' name='calendar' disabled>
+                                            {{ "Calendar"|translate }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="physician_type"
+                                       class="col-xs-6 control-label">{{ "Provider Type"|translate }}</label>
+                                <div class="col-xs-6">
+                                    {{ physician_select_box|raw }}
+                                </div>
+                            </div>
+                            {% if global.inhouse_pharmacy %}
+                                <div class="form-group">
+                                    <label for="warehouse"
+                                           class="control-label col-xs-6">{{ "Default Warehouse"|translate }}</label>
+                                    <div class="col-xs-6">
+                                        {{ default_warehouse_select_box }}
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="irnpool" class="control-label col-xs-6">{{ "Invoice Refno Pool"|translate }}</label>
+                                    <div class='col-xs-6'>
+                                        {{ irnpool_select_box }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="taxonomy"
+                                       class="col-xs-6 control-label">{{ "Taxonomy"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" name="taxonomy" id="taxonomy" class="form-control" value="207Q00000X">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="state_license_number" class="col-xs-6 control-label">{{ "State license number"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="state_license_number" name="state_license_number" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="federaltaxid" class="control-label col-xs-6">{{ "Federal Tax ID"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type=entry id="federaltaxid" name='federaltaxid' class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="federdrugid" class="control-label col-xs-6">{{ "Federal Drug ID"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type=entry name='federaldrugid' id="federdrugid" class="form-control">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="upin" class="control-label col-xs-6">{{ "UPIN"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" class="form-control" name="upin" id="upin">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="npi" class="control-label col-xs-6">{{ "NPI"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" id="npi" name="npi" class="form-control">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>{{ "Role Information"|translate }}</legend>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="facility_id" class="control-label col-xs-6">{{ "Default Facility"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <select name="facility_id" id="facility_id" class="form-control">
+                                        {% for f in facilities %}
+                                            <option value="{{ f.id }}">{{ f.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% if global.disable_non_default_groups == false %}
+                            <div class="form-group">
+                                <label for="groupname" class="col-xs-6 control-label">
+                                    {{ "Groupname"|translate }}
+                                    <a href="#" data-toggle="modal" data-target="#modal-new-group" class="btn btn-default btn-sm"><i class="fa fa-plus"></i><span class="sr-only">{{ "Add New"|translate }}</span></a>
+                                </label>
+                                <div class="col-xs-6">
+                                    <select name="groupname" id="groupname" class="form-control">
+                                        {% for g in groups %}
+                                            <option value="{{ g.name }}">{{ g.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="form-group">
+                                <label for="authorization" class="col-xs-6 control-label">{{ "See Authorizations"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <select name="see_auth" id="authorization" class="form-control">
+                                        {% for id, display in authorization %}
+                                            <option value="{{ id }}">{{ display }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="specialty" class="col-xs-6 control-label">{{ "Job Description"|translate }}</label>
+                                <div class="col-xs-6">
+                                    <input type="entry" id="specialty" name="specialty" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label for="newcrop" class="col-xs-6 control-label">{{ "NewCrop eRX Role"|translate }}</label>
+                                <div class="col-xs-6">
+                                    {{ newcrop_erx_role_select_box|raw }}
+                                </div>
+                            </div>
+                            {# add acl_check('admin', 'acl') to condition#}
+                            {% if phpgacl_location  %}
+                            <div class="form-group">
+                                <label class='col-xs-6 control-label' for="access_group">{{ "Access Control"|translate }}:</label>
+                                <div class="col-xs-6">
+                                    <select name="access_group[]" class="form-control" multiple id="access_group">
+                                        {% for a in aclList %}
+                                        <option value="{{ a.value }}">{{ a.display }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-xs-6 control-label" for="info">{{ "Additional Info"|translate }}: </label>
+                                <div class="col-xs-6">
+                                    <textarea name=info class="form-control" id="info" rows=4 wrap=auto></textarea>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="btn-group pull-right">
+                    <button type="submit" class="btn btn-default btn-save" name='form_save' id='form_save' onclick="return submitform()">{{ "Save"|translate }}</button>
+                    <a class="btn btn-link btn-cancel"  href='usergroup_admin.php'>{{ "Cancel"|translate }}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-new-group">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name='new_group' method='post' action="usergroup_admin.php" onsubmit='return top.restoreSession()'>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-timex"></i></button>
+                    <h4 class="modal-title">{{ "New Group"|translate }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">{{ "Groupname"|translate }}</label>
+                        <input type=entry name=groupname size=10 class="form-control">
+                    </div>
+                    <input type=hidden name=mode value=new_group>
+                    <div class="form-group">
+
+                    </div>
+                    <label class="control-label">{{ "Initial User"|translate }}</label>
+                    <select name=rumple class="form-control">
+                        {% for u in users %}
+                            <option value="{{ u.username }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-save">{{ "Save"|translate }}</button>
+                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal">{{ "Cancel"|translate }}</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-add-to-group">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form name='new_group' method='post' action="usergroup_admin.php" onsubmit='return top.restoreSession()'>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-timex"></i></button>
+                    <h4 class="modal-title">{{ "New Group"|translate }}</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">{{ "Groupname"|translate }}</label>
+                        <input type=entry name=groupname size=10 class="form-control">
+                    </div>
+                    <input type=hidden name=mode value=new_group>
+                    <div class="form-group">
+
+                    </div>
+                    <label class="control-label">{{ "Initial User"|translate }}</label>
+                    <select name=rumple class="form-control">
+                        {% for u in users %}
+                            <option value="{{ u.username }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btn-save">{{ "Save"|translate }}</button>
+                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal">{{ "Cancel"|translate }}</button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form name='new_user' id="new_user" method='post'  target="_parent" action="usergroup_admin.php"
+                      onsubmit='return top.restoreSession()'>
+                    <input type='hidden' name='mode' value='new_user'>
+                    <input type='hidden' name='secure_pwd' value="{{ global.secure_password }}">
+                    {% if global.use_active_directory %}
+                        <input type="hidden" value="124" name="stiltskin">
+                    {% endif %}
+                    <input type="hidden" name="newauthPass">
+                </form>
+                <form name='new_group' method='post' action="usergroup_admin.php"
+                      onsubmit='return top.restoreSession()'>
+                    <input type=hidden name=mode value=new_group>
+                    <span class="bold">{{ "Add User To Group"|translate }}</span>
+                    <span class="text">{{ "User"|translate }}</span>
+                    <select name=rumple>
+                        {% for u in users %}
+                            <option value="{{ u.username }}">{{ u.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="text">{{ "Groupname"|translate }}: </span>
+                    <select name=groupname>
+                        {% for g in groups %}
+                            <option value="{{ g.name }}">{{ g.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" value={{ "Add User To Group"|translate }}>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert">
+    <p>
+        {{ "The password must be at least eight characters, and should contain at least three of the four following items"|translate }}:
+        <br>
+        {{ "A number, a lowercase letter, an uppsercase letter, a special character (not a letter or number)"|translate }}
+        <br>
+        {{ "For example"|translate }}: healthCar@09
+    </p>
+</div>
+
+{% if global.disable_non_default_groups %}
+    {% for g in groups %}
+        <span class="bold">
+            (<a href="usergroup_admin.php?mode=delete_group&id=" class="link_submit" onclick="top.restoreSession()">{{ "Remove"|translate }}</a>
+        </span>
+    {% endfor %}
+{% endif %}
+
+
+<script type="text/javascript">
+    {% if alertmsg|trim %}
+    alert('{{ alertmsg|e('js') }}');
+    {% endif %}
+</script>
+</body>
+</html>
