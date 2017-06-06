@@ -108,8 +108,7 @@ while($list = sqlFetchArray($send)){
   </div> 
   <div id="success"></div>  
 </div>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="../../library/js/jquery-ui.min.js"></script>
+
 <script type="text/javascript">
 
 <!-- This is not used right now but dont want to delete yet-->	
