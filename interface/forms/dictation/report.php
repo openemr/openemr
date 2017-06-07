@@ -14,9 +14,6 @@ include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
 require_once("../../../public/assets/htmlpurifier-4.9.2/library/HTMLPurifier.auto.php");
 
-$config = HTMLPurifier_Config::createDefault();
-$purifier = new HTMLPurifier($config);
-$clean_html = $purifier->purify($dirty_html);
 /**
  *  Retrieve data from the dictation table
  * 

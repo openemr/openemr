@@ -36,12 +36,12 @@ $returnurl = 'encounter_top.php';
        <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" cols=80 rows=24 wrap="virtual" name="dictation" ></textarea>
     </div>
     <div class="form-group">
-       <label for="additional-notes"><?php echo xlt('Additional Notes:'); ?> </label><br><textarea class="form-control ckeditor" cols=80 rows=8 wrap="virtual" name="additional_notes" ></textarea>
+       <label for="additional_notes"><?php echo xlt('Additional Notes:'); ?> </label><br><textarea class="form-control ckeditor" cols=80 rows=8 wrap="virtual" name="additional_notes" ></textarea>
     </div>
 
-     <a href="javascript:top.restoreSession();document.my_form.submit();" class="btn btn-default"><?php echo xlt('Save'); ?></a>
+     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>
 
-     <a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="btn btn-default" onclick="top.restoreSession()"><?php echo xlt('Don\'t Save'); ?></a>
+     <a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="btn btn-cancel btn-link" onclick="top.restoreSession()"><?php echo xlt('Cancel'); ?></a>
   </form>
 </div>
 
