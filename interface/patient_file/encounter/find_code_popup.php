@@ -113,7 +113,7 @@ $string_target_element = "?";
   </td>
  </tr>
 
- <tr bgcolor='#ddddff'>
+ <tr class = "head" bgcolor='#ddddff'>
   <td>
    <b>
 

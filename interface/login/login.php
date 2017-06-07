@@ -281,7 +281,7 @@ require_once("../globals.php");
                         </div>
                     <?php endif; // End language menu block ?>
                     <div class="form-group pull-right">
-                        <button type="submit" class="btn btn-default btn-lg" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
+                        <button type="submit" class="btn btn-default btn-medium" onClick="transmit_form()"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;<?php echo xlt('Login');?></button>
                     </div>
                 </div>
                 <div class="col-sm-12 text-center">

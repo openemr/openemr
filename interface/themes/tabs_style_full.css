@@ -104,7 +104,7 @@ body
 
 .tabSpan
 {
-    font-size: 0.9em;
+    font-size: 90%;
     margin: 0px;
     padding: 8px 8px;
     border-top: 3pt solid #1976d2;
@@ -220,9 +220,9 @@ div.closeDlgIframe:before {
 {
     background-color: #f4f4f4;
 }
-.patientInfo a {
+/*.patientInfo a {
     color: #333 !important;
-}
+}*/
 
 .patientCurrentEncounter {
     display: inline;
@@ -373,7 +373,7 @@ div.closeDlgIframe:before {
  * --Robert Down */
 .menuLabel
 {
-    font-size: 0.95em;
+    font-size: 95%;
     color: #333;
     padding: 15px 10px;
     font-weight: 600;
@@ -390,7 +390,7 @@ div.menuLabel:hover {
 
 /** Sub menu **/
 .menuEntries li .menuLabel {
-    font-size: 0.9em;
+    font-size: 90%;
     display: block;
     padding: 10px 20px;
 }
