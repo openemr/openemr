@@ -662,12 +662,16 @@ tr.odd, td.even {
   text-decoration: none;
 }
 
+.modal-footer button {
+  float: none;
+}
+
 .css_button, input[type="button"],input[type="submit"], button {
   background: #2672ec;
   color: #ffffff !important;
   display: block;
-  float: left;
   font-weight: 400;
+  float: left;
   margin-right: 3px;
   padding-right: 10px;
   /* sliding doors padding */

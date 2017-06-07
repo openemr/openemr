@@ -64,6 +64,7 @@ $viewVars = [
     'authorizations' => [1 => xl("None"), 2 => xl("Only Mine"), 3 => xl("All"),],
     'facilities' => $facilityService->getAll(),
     'serviceLocations' => $serviceLocations,
+    'collectThis' => $collectthis,
     'groups' => $groups,
     'users' => $users,
     'aclList' => $aclList,
