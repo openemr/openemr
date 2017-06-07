@@ -234,7 +234,7 @@ function formData($name, $type='P', $isTrim=false) {
     $s = isset($_GET[$name]) ? $_GET[$name] : '';
   else
     $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
-  
+
   return formDataCore($s,$isTrim);
 }
 

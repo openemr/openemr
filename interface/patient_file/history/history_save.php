@@ -12,10 +12,10 @@
  if (acl_check('patients','med')) {
   $tmp = getPatientData($pid, "squad");
   if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-   die(htmlspecialchars(xl("Not authorized for this squad."),ENT_NOQUOTES));
+   die(htmlspecialchars(xlt("Not authorized for this squad."),ENT_NOQUOTES));
  }
  if ( !acl_check('patients','med','',array('write','addonly') ))
-  die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
+  die(htmlspecialchars(xlt("Not authorized"),ENT_NOQUOTES));
 
 foreach ($_POST as $key => $val) {
   if ($val == "YYYY-MM-DD") {

@@ -167,8 +167,7 @@ if ($_POST['bn_save']) {
   foreach ($insurance_layout as $frow) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];
-    // newInsuranceData() does not escape for mysql so we have to do it here.
-    $newdata[$field_id] = add_escape_custom(get_layout_form_value($frow));
+    $newdata[$field_id] = get_layout_form_value($frow);
   }
   newInsuranceData(
     $ptid,
