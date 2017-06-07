@@ -49,14 +49,14 @@ function issue_ippf_gcac_newtype() {
 }
 
 function issue_ippf_gcac_save($issue) {
-  $sets = "id = '$issue'";
+  $sets = "id = '" . add_escape_custom($issue) . "'";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'GCA' AND uor > 0 AND field_id != '' AND edit_options != 'H' " .
     "ORDER BY group_name, seq");
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
     $value = get_layout_form_value($frow);
-    $sets .= ", $field_id = '$value'";
+    $sets .= ", $field_id = '" . add_escape_custom($value) . "'";
   }
   // This replaces the row if its id exists, otherwise inserts it.
   sqlStatement("REPLACE INTO lists_ippf_gcac SET $sets");
@@ -165,14 +165,14 @@ function issue_ippf_con_newtype() {
 }
 
 function issue_ippf_con_save($issue) {
-  $sets = "id = '$issue'";
+  $sets = "id = '" . add_escape_custom($issue) . "'";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'CON' AND uor > 0 AND field_id != '' AND edit_options != 'H' " .
     "ORDER BY group_name, seq");
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
     $value = get_layout_form_value($frow);
-    $sets .= ", $field_id = '$value'";
+    $sets .= ", $field_id = '" . add_escape_custom($value) . "'";
   }
   // This replaces the row if its id exists, otherwise inserts it.
   sqlStatement("REPLACE INTO lists_ippf_con SET $sets");
@@ -283,14 +283,14 @@ function issue_ippf_srh_newtype() {
 }
 
 function issue_ippf_srh_save($issue) {
-  $sets = "id = '$issue'";
+  $sets = "id = '" add_escape_custom($issue) . "'";
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'SRH' AND uor > 0 AND field_id != '' AND edit_options != 'H' " .
     "ORDER BY group_name, seq");
   while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
     $value = get_layout_form_value($frow);
-    $sets .= ", $field_id = '$value'";
+    $sets .= ", $field_id = '" . add_escape_custom($value) . "'";
   }
   // This replaces the row if its id exists, otherwise inserts it.
   sqlStatement("REPLACE INTO lists_ippf_srh SET $sets");
