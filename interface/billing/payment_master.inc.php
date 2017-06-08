@@ -136,8 +136,8 @@ if($payment_id>0)
 if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
  {//New entry or edit in edit screen comes here.
 ?>
-<table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+<table width="1024" border="0" cellspacing="0" cellpadding="10" class = "tabs_body" bgcolor="#DEDEDE"><tr><td>
+	<table width="1004" border="0" style="border:1px solid" class="divider" cellspacing="0" cellpadding="0">
 	  <tr height="5">
 		<td colspan="14" align="left" ></td>
 	  </tr>
@@ -260,7 +260,7 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 	  <tr>
 	    <td align="left" class="text"></td>
 		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
-		<td align="left" colspan="5"><input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' class="text "  style="width:369px"   onKeyDown="PreventIt(event)"  value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
+		<td align="left" colspan="5"><input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' type="text"class="text "  style="width:369px"   onKeyDown="PreventIt(event)"  value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
 		<!-- onKeyUp="ajaxFunction(event,'non','edit_payment.php');" -->
 		 <div id='ajax_div_insurance_section'>
 		  <div id='ajax_div_insurance_error'>

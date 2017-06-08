@@ -193,7 +193,7 @@ if ($fend > $count) $fend = $count;
  </tr>
 </table>
 
-<div id="searchResultsHeader">
+<div id="searchResultsHeader" class="head">
 <table>
 <tr>
 <th class="srID"   ><?php echo htmlspecialchars( xl('Hits'), ENT_NOQUOTES);?></th>

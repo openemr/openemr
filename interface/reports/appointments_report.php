@@ -176,6 +176,10 @@ function fetch_reminders($pid, $appt_date) {
 		display: none;
 	}
 }
+
+.make-bold{
+font-weight:600;
+}
 </style>
 </head>
 
@@ -434,10 +438,10 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 		<td class="detail" <?php echo $showDate ? '' : 'style="display:none;"' ?>><?php echo text(oeFormatShortDate($appointment['pc_eventDate'])) ?>
 		</td>
 
-		<td class="detail"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
+		<td class="detail make-bold"><?php echo text(oeFormatTime($appointment['pc_startTime'])) ?>
 		</td>
 
-		<td class="detail">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
+		<td class="detail make-bold">&nbsp;<?php echo text($appointment['fname'] . " " . $appointment['lname']) ?>
 		</td>
 
 		<td class="detail">&nbsp;<?php echo text($appointment['pubpid']) ?></td>

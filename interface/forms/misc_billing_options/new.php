@@ -27,7 +27,7 @@
  */
 
 
-
+use OpenEMR\Core\Header;
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc");
@@ -76,102 +76,222 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
+<?php Header::setupHeader(['bootstrap', 'knockout', 'datetime-picker']);?>
 
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+<style>
+	td{
+		 padding: 3px 10px;
+	}
+	.code_fieldset{
+		border: 1px solid #0000FF;
+		background-color:#F5F5F5;
+		display: block;
+		margin-left: 2px;
+		margin-right: 2px;
+		padding-top: 0.35em;
+		padding-bottom: 1em;
+		padding-left: 0.75em;
+		padding-right: 0.75em;
+		font-size:1.3em;
+		color:black;
+	}
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+	.code_edit{
+		background-color:#E0E0E0;
+	}
 
+	.code_legend{
+		font-weight:700;
+		font-size:16px;
+		background-color:#E0E0E0;
+		padding:0px 5px 0px 5px;
+		border: none!Important;
+		width:auto !Important;
+		font-size:16px !Important;
+		color:black;
+		margin-bottom: 0px;
+	} 
+
+	#code_edit_table span{
+		background-color:yellow;
+		font-weight:700;
+	}
+
+	#code_edit_table tr td {
+		padding: 0px 0px 5px 0px;
+	}
+
+	#code_edit_table .code_edit td {
+		font-weight: 700;
+		padding: 2px 0px 2px 0px;
+	}
+
+	#code_edit_table .code_edit td:first-child {
+		padding: 0px 0px 0px 10px;
+	}
+	.block {
+		height:100px;
+		width:200px;
+		text-align:left;
+	}
+	.center {
+		margin:auto;
+		
+	}
+	.form-group{
+			margin-bottom: 5px;
+			
+	}
+	legend{
+		border-bottom: 2px solid #E5E5E5;
+		background:#E5E5E5;
+		padding-left:10px;
+	}
+	.form-horizontal .control-label {
+		padding-top: 2px;
+	}
+	fieldset{
+		background-color: #F2F2F2;
+		margin-bottom:10px;
+		padding-bottom:15px;
+	}
+	@media only screen and (max-width: 768px) {
+					[class*="col-"] {
+					width: 100%;
+					text-align:left!Important;
+	}
+</style>
 </head>
 <body class="body_top">
-<form method=post <?php echo "name='my_form' " .  "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'>\n";?>
+	<div class="container">
+		<div class="row">
+            <div class="">
+                <div class="page-header">
+                    <h2><?php echo xlt('Misc Billing Options for HCFA-1500'); ?></h2>
+                </div>
+            </div>
+        </div>
+		<div class="row">
+			<form method=post <?php echo "name='my_form' " .  "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'\n";?>>
+				<fieldset>
+					<legend class=""><?php echo xlt('Select Options for Current Encounter')?></legend>
+					<div class='col-sm-11 col-offset-sm-1'>
+						<span class="text"><?php echo xlt('Checked box = yes ,  empty = no');?><br><br></span>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 10 A. Employment related '); ?>:
+								<input type="checkbox" name="employment_related" id="employment_related" value="1" <?php if ($obj['employment_related'] == "1") echo "checked";?>>
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 10 B. Auto Accident '); ?>:
+								<input type="text" name="accident_state" size=1 value="<?php echo attr($obj{"accident_state"});?>" >
+							</label>
+							<label><?php echo xlt('State'); ?>:
+								<input type="text" name="accident_state" size=1 value="<?php echo attr($obj{"accident_state"});?>" >
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 10 C. Other Accident '); ?>:
+								<input type="checkbox" name="other_accident" value="1" <?php if ($obj['other_accident'] == "1") echo "checked";?>>
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 10 D. EPSDT Referral Code');?> 
+								<input type="text" name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >
+							</label>
+							<label><?php echo xlt('EPSDT'); ?> :
+								 <input type="checkbox" name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>>
+							</label>
+						</div>
+						<span class="text" title="<?php echo xlt("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>"></span>
+						<span class="text" title="<?php echo xlt('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>"></span>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 14. Is Populated from the Encounter Screen as the Onset Date');?>
+								
+							</label>
+						</div>
+						<div class="form-group">
+								<label for='off_work_from' class="col-sm-3 form-inline"><?php echo xlt('BOX 16. Date unable to work from');?>:</label>
+									<?php $off_work_from = $obj{"off_work_from"}; ?>
+										<input type="text" class='datepicker form-inline col-sm-1 ' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
+								<label for='off_work_to'class="col-sm-3 form-inline"><?php echo xlt('BOX 16. Date unable to work to');?>:</label>
+									<?php $off_work_to = $obj{"off_work_to"}; ?>
+										<input type="text"  class='datepicker col-sm-1' name='off_work_to' id='off_work_to' value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
+						</div>
+						<div class="clearfix "></div>
+						<div class="form-group">
+							<label class="form-inline"><?php echo xlt('BOX 17. Provider') ?>:
+								<?php  # Build a drop-down list of providers. # Added (TLH)
+									   echo genProviderSelect('provider_id', '-- '.xl("Please Select").' --',$obj{"provider_id"});
+								?>
+							</label>
+							<label class="form-inline"><?php  echo xlt('BOX 17. Provider Qualifier'); ?>:
+								<?php	echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code',$obj{"provider_qualifier_code"}, 'Provider Qualifier Code');?>
+							</label>
+						</div>
+						<div class="form-group">
+							<label for='hospitalization_date_from' class="col-sm-3 form-inline"><?php echo xlt('BOX 18. Hospitalization date from');?>:</label>
+								<?php $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?>
+									<input type="text" class='datepicker col-sm-1 ' name='hospitalization_date_from' id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
+							<label for='off_work_to'class="col-sm-3 form-inline"><?php echo xlt('BOX 18. Hospitalization date to');?>:</label>
+								<?php $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?>
+									<input type="text"  class='datepicker col-sm-1'  name='hospitalization_date_to' id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>'>
+						</div>
+						<div class="clearfix "></div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 20. Is Outside Lab used?'); ?>:
+								<input type="checkbox" name="outside_lab" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?>>
+							</label>
+							<label><?php echo xlt('Amount Charges'); ?>:
+								<input type="text" size=7 align='right' name="lab_amount" value="<?php echo attr($obj{"lab_amount"});?>" >
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 22. Medicaid Resubmission Code (ICD-10) ');?>:
+								<input type="text"  name="medicaid_resubmission_code" value="<?php echo attr($obj{"medicaid_resubmission_code"});?>" >
+							</label>
+							<label><?php echo xlt(' Medicaid Original Reference No. ');?>:
+								<input type="text"  name="medicaid_original_reference" value="<?php echo attr($obj{"medicaid_original_reference"});?>" >
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('BOX 23. Prior Authorization No. ');?>:
+								<input type="text"  name="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"});?>" >
+							</label>
+						</div>
+						<div class="form-group">
+							<label><?php echo xlt('X12 only: Replacement Claim '); ?>:
+								<input type="checkbox" name="replacement_claim" value="1" <?php if ($obj['replacement_claim'] == "1") echo "checked";?>>
+							</label>
+							<label><?php echo xlt('X12 only ICN resubmission No.');?>:
+								<input type="text" class="" name="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" >
+							</label>
+						</div>
+					</div>
+				</fieldset>
+				<fieldset>
+						<legend class=""><?php echo xlt('Additional Notes');?></legend>
+							<div class="form-group">
+								<div class="col-sm-10 col-sm-offset-1">
+									<textarea name="comments"	class="form-control" cols="80" rows="3" ><?php echo text($obj{"comments"});?></textarea>
+								</div>
+							</div>
+				</fieldset>
 
-<span class="title"><?php echo xlt('Misc Billing Options for HCFA-1500'); ?></span><br><br>
-<span class=text><?php echo xlt('Checked box = yes ,  empty = no');?><br><br>
-<label><span class=text><?php echo xlt('BOX 10 A. Employment related '); ?>: </span><input type=checkbox name="employment_related" value="1" <?php if ($obj['employment_related'] == "1") echo "checked";?>></label><br><br>
-<label><span class=text><?php echo xlt('BOX 10 B. Auto Accident '); ?>: </span><input type=checkbox name="auto_accident" value="1" <?php if ($obj['auto_accident'] == "1") echo "checked";?>></label>
-<span class=text><?php echo xlt('State'); ?>: </span><input type=entry name="accident_state" size=1 value="<?php echo attr($obj{"accident_state"});?>" ><br><br>
-<label><span class=text><?php echo xlt('BOX 10 C. Other Accident '); ?>: </span><input type=checkbox name="other_accident" value="1" <?php if ($obj['other_accident'] == "1") echo "checked";?>></label><br><br>
-<span class=text><?php echo xlt('BOX 10 D. EPSDT Referral Code');?> </span><input type=entry style="width: 25px;" size=2 name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >&nbsp;&nbsp;&nbsp;&nbsp;
-<label><span class=text><?php echo xlt('EPSDT'); ?> : </span><input type=checkbox name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>></label><br><br>
-<span class="text" title="<?php echo xla("For HCFA 02/12 Onset date specified on the Encounter Form needs a qualifier");?>"></span>
-<span class=text title="<?php echo xla('For HCFA 02/12 Box 15 is Other Date with a qualifier to specify what the date indicates');?>"></span>
- <tr>
-  <td><span class=text><?php echo xlt('BOX 14. Is Populated from the Encounter Screen as the Onset Date');?>.</span></td>
- </tr><br><br>
- <tr>
-  <td><span class=text><?php echo xlt('BOX 16. Date unable to work from');?>:</span></td>
-  <td><?php $off_work_from = $obj{"off_work_from"}; ?>
-    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_from' id='off_work_from'
-    value='<?php echo attr($off_work_from); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
-  </td>
- </tr>
- &nbsp;&nbsp;
-<tr>
- <td><span class=text><?php echo xlt('BOX 16. Date unable to work to');?>:</span></td>
-  <td><?php $off_work_to = $obj{"off_work_to"}; ?>
-    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_to' id='off_work_to'
-    value='<?php echo attr($off_work_to); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
-  </td>
- </tr>
-    <br><br>
-
-    <td class='label_custom'><?php echo xlt('BOX 17. Provider') ?>:</td>
-    <td><?php  # Build a drop-down list of providers. # Added (TLH)
-               genProviderSelect('provider_id', '-- '.xl("Please Select").' --',$obj{"provider_id"});
-		?></td>&nbsp;&nbsp;
-	<td><span class=text><?php  echo xlt('BOX 17. Provider Qualifier'); ?>: </span>
-	<tr><td><?php
-                echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code',$obj{"provider_qualifier_code"}, 'Provider Qualifier Code');
-            ?></td>
-	</tr></td>
-<br><br>
-<tr>
- <td><span class=text><?php echo xlt('BOX 18. Hospitalization date from');?>:</span></td>
- <td><?php $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?>
-    <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_from' id='hospitalization_date_from'
-    value='<?php echo attr($hospitalization_date_from); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
-  </td>
- </tr>
- &nbsp;&nbsp;
- <tr>
-  <td><span class=text><?php echo xlt('BOX 18. Hospitalization date to');?>:</span></td>
-  <td><?php $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?>
-    <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to'
-    value='<?php echo attr($hospitalization_date_to); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
-  </td>
- </tr>
-    <br><br>
-<span class=text><?php echo xlt('BOX 20. Is Outside Lab used?'); ?>: </span><input type=checkbox name="outside_lab" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?>>
-<span class=text><?php echo xlt('Amount Charges'); ?>: </span><input type=entry size=7 align='right' name="lab_amount" value="<?php echo attr($obj{"lab_amount"});?>" ><br><br>
-<span class=text><?php echo xlt('BOX 22. Medicaid Resubmission Code (ICD-9) ');?></span><input type=entry size=9 name="medicaid_resubmission_code" value="<?php echo attr($obj{"medicaid_resubmission_code"});?>" >
-<span class=text><?php echo xlt(' Medicaid Original Reference No. ');?></span><input type=entry size=15 name="medicaid_original_reference" value="<?php echo attr($obj{"medicaid_original_reference"});?>" ><br><br>
-<span class=text><?php echo xlt('BOX 23. Prior Authorization No. ');?></span><input type=entry size=15 name="prior_auth_number" value="<?php echo attr($obj{"prior_auth_number"});?>" ><br><br>
-<label><span class=text><?php echo xlt('X12 only: Replacement Claim '); ?>: </span><input type=checkbox name="replacement_claim" value="1" <?php if ($obj['replacement_claim'] == "1") echo "checked";?>></label><br><br>
-<span class=text><?php echo xlt('X12 only ICN resubmission No.');?> </span><input type=entry size=35 name="icn_resubmission_number" value="<?php echo attr($obj{"icn_resubmission_number"});?>" ><br><br>
-
-<table>
-<tr>
-<td valign=top>
-<span class=text><?php echo xlt('Additional Notes'); ?>: </span><br><textarea cols=40 rows=8 wrap=virtual name="comments" ><?php echo text($obj{"comments"});?></textarea><br>
-</td>
-</table>
-<br>
-</tr>
-
- <div>
-<!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php echo xla('Save'); ?>"> &nbsp &nbsp &nbsp &nbsp;
-<input type="button" class="dontsave" value="<?php echo xla('Don\'t Save Changes'); ?>"> &nbsp;
-</div>
-</form>
+				<div class="form-group">
+					<div class="col-sm-12 text-center">
+						<div class="btn-group" role="group">
+							<!-- Save/Cancel buttons -->
+							<button type="submit" class="btn btn-default btn-save save" > <?php echo xla('Save'); ?></button>
+							<button type="button" class="btn btn-default btn-cancel dontsave"><?php echo xla('Don\'t Save Changes'); ?></button> 
+						</div>
+					</div>
+				</div>
+			</form>
+			<br>
+			<br>
+		</div>
+	</div>
 <script language="javascript">
 
 // jQuery stuff to make the page a little easier to use

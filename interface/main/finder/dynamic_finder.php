@@ -125,7 +125,7 @@ function openNewTopWindow(pid) {
   <tr>
 <?php echo $header0; ?>
   </tr>
-  <tr>
+  <tr class = "head">
 <?php echo $header; ?>
   </tr>
  </thead>
