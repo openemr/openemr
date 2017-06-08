@@ -108,8 +108,9 @@ function submitProps() {
 <?php
   echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
   for ($cols = 2; $cols <= 10; ++$cols) {
-  	if ($cols == 4) continue;
-    echo "<option value='$cols'>$cols</option>\n";
+  	if ($cols != 4) {
+    	echo "<option value='$cols'>$cols</option>\n";
+	}
   }
 ?>
    </select>
