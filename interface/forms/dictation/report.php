@@ -12,7 +12,7 @@
 
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
-require_once("../../../public/assets/htmlpurifier-4.9.2/library/HTMLPurifier.auto.php");
+
 
 /**
  *  Retrieve data from the dictation table

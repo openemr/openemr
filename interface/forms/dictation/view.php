@@ -12,7 +12,6 @@
 
 use OpenEMR\Core\Header;
 include_once("../../globals.php");
-require_once("../../../public/assets/htmlpurifier-4.9.2/library/HTMLPurifier.auto.php");
 
 $returnurl = 'encounter_top.php';
 ?>
@@ -20,9 +19,9 @@ $returnurl = 'encounter_top.php';
 <head>
 <title>Review</title>
    <?php Header::setupHeader(); ?>
-   <script type="text/javascript" src="<?php echo $webroot."/library/custom_template/ckeditor/ckeditor.js" ?>"</script>
-   <script src="<?php echo $webroot."/library/custom_template/ckeditor/_samples/sample.js" ?>" type="text/javascript"></script>
-   <link href="<?php echo $webroot."/library/custom_template/ckeditor/_samples.css"; ?>" rel="stylesheet" type="text/css" />
+   <script type="text/javascript" src="<?php echo $webroot."/public/assets/ckeditor-4-7-0/ckeditor.js" ?>"</script>
+   <script src="<?php echo $webroot."/public/assets/ckeditor-4-7-0/js/sample.js" ?>" type="text/javascript"></script>
+   <link href="<?php echo $webroot."/public/assets/ckeditor-4-7-0/css/samples.css"; ?>" rel="stylesheet" type="text/css" />
 </head>
 <body class="body_top">
 <div class="container">
@@ -36,14 +35,14 @@ $obj = formFetch("form_dictation", $id);
       <h1><?php echo xlt('Speech Dictation Review/Edit'); ?></h1>
      </div>
      <div class="form-group">
-       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" cols=80 rows=24 wrap="virtual" name="dictation" ><?php 
+       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" name="dictation" ><?php 
               $config = HTMLPurifier_Config::createDefault();
               $purifier = new HTMLPurifier($config);
               $clean_html = $purifier->purify($obj{"dictation"});
               echo trim($clean_html); ?></textarea>
      </div>
      <div class="form-group">
-       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></span><br><textarea class="form-control ckeditor"cols=80 rows=8 wrap="virtual" name="additional_notes" ><?php
+       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></label><br><textarea class="form-control ckeditor" name="additional_notes" ><?php
               $config = HTMLPurifier_Config::createDefault();
               $purifier = new HTMLPurifier($config);
               $clean_html = $purifier->purify($obj{"additional_notes"});
