@@ -990,7 +990,8 @@ function updatePatientData($pid, $new, $create=false)
     $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
     foreach ($new as $key => $value) {
       if ($key == 'id') continue;
-      $sql .= ", `$key` = " . pdValueOrNull($key, $value);
+      $clean_value=add_escape_custom($value);
+      $sql .= ", `$key` = " . pdValueOrNull($key, $clean_value);
     }
     $db_id = sqlInsert($sql);
   }
