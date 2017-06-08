@@ -58,30 +58,34 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 var target = opener.document.forms[0]['opt[<?php echo $opt_line_no; ?>][notes]'];
 
 $(document).ready(function () {
-  var f = document.forms[0];
-  var jobj = {};
-  if (target.value.length) {
-    try {
-      jobj = JSON.parse(target.value);
-    }
-    catch (e) {
-      alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
-    }
-  }
-  if (jobj['size'    ]) f.form_size.value     = jobj['size'];
-  if (jobj['columns' ]) f.form_columns.value  = jobj['columns'];
-  if (jobj['aco'     ]) f.form_aco.value      = jobj['aco'];
+	var jobj = {};
+	if (target.value.length) {
+		try {
+			jobj = JSON.parse(target.value);
+			$("#fm_props").find('input,select').each(function() {
+				var fm_prop = $(this).prop('name').slice(5);
+				if ((typeof(jobj[fm_prop]) !== 'undefined') && (fm_prop !== '')) {
+					$(this).val(jobj[fm_prop]);
+				}
+			});
+		}
+		catch (e) {
+			alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
+		}
+	}
 });
 
 // Onclick handler for Submit button.
 function submitProps() {
-  var f = document.forms[0];
-  var jobj = {};
-  if (f.form_size.value          ) jobj['size'    ] = f.form_size.value;
-  if (f.form_columns.value != '4') jobj['columns' ] = f.form_columns.value;
-  if (f.form_aco.value           ) jobj['aco'     ] = f.form_aco.value;
-  target.value = JSON.stringify(jobj);
-  window.close();
+	var jobj = {};
+	$("#fm_props").find('input,select').each(function() {
+		var fm_prop = $(this).prop('name').slice(5);
+		if (($(this).val() !== '') && (fm_prop !== '')) {
+			jobj[fm_prop] = $(this).val();
+		}
+	});
+	target.value = ((Object.keys(jobj).length > 0) ? JSON.stringify(jobj) : '');
+	window.close();
 }
 
 </script>
@@ -90,7 +94,7 @@ function submitProps() {
 
 <body class="body_top">
 
-<form method='post'>
+<form id='fm_props' method='post'>
 <center>
 
 <table border='0' width='100%'>
@@ -102,10 +106,11 @@ function submitProps() {
   <td>
    <select name='form_columns'>
 <?php
+  echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
   for ($cols = 2; $cols <= 10; ++$cols) {
-    echo "<option value='$cols'";
-    if ($cols == 4) echo " selected";
-    echo ">$cols</option>\n";
+  	if ($cols != 4) {
+    	echo "<option value='$cols'>$cols</option>\n";
+	}
   }
 ?>
    </select>
@@ -138,6 +143,15 @@ function submitProps() {
     <option value=''></option>
     <?php echo gen_aco_html_options(); ?>
    </select>
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' nowrap>
+   <label for='form_category'><?php echo xlt('Category'); ?></label>
+  </td>
+  <td>
+   <input type="text" id='form_category' name='form_category' size="40">
   </td>
  </tr>
 
