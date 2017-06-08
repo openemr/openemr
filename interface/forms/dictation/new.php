@@ -19,11 +19,11 @@ $returnurl = 'encounter_top.php';
 ?>
 <html>
 <head>
-  <title>Dictation</title>
+  <title><?php echo xlt('Dictation'); ?></title>
    <?php Header::setupHeader(); ?>
-   <script type="text/javascript" src="<?php echo $webroot."/public/assets/ckeditor-4-7-0/ckeditor.js" ?>"</script>
-   <script src="<?php echo $webroot."/public/assets/ckeditor-4-7-0/js/sample.js" ?>" type="text/javascript"></script>
-   <link href="<?php echo $webroot."/public/assets/ckeditor-4-7-0/css/samples.css"; ?>" rel="stylesheet" type="text/css" />
+   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/ckeditor.js"</script>
+   <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/js/sample.js" type="text/javascript"></script>
+   <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/css/samples.css" rel="stylesheet" type="text/css" />
 </head>
 <body class="body_top">
 <div class="container">
@@ -31,7 +31,7 @@ $returnurl = 'encounter_top.php';
       <h1><?php echo xlt('Speech Dictation'); ?></h1><br><br>
    </div>
 
-  <form method=post action="<?php echo $rootdir;?>/forms/dictation/save.php?mode=new" name="my_form">
+  <form method=post action="<?php echo $rootdir;?>/forms/dictation/save.php?mode=new" name="my_form" onclick="top.restoreSession()>
 
      <div class="form-group">
        <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" name="dictation" ></textarea>
