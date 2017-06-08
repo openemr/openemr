@@ -25,21 +25,21 @@ function toggle_code(data,event)
 function codes_ok(data,event)
 {
     codes_choices_vm.show_choices(false);
-        var f = document.forms[0];
-        var choices=codes_choices_vm.active_category().codes();
-        for (var i = 0; i < choices.length; ++i) {
-          if (choices[i].selected()) {
+    var f = document.forms[0];
+    var choices=codes_choices_vm.active_category().codes();
+    for (var i = 0; i < choices.length; ++i) {
+        if (choices[i].selected()) {
             if (f.newcodes.value) f.newcodes.value += '~';
             f.newcodes.value += choices[i].value();
             choices[i].selected(false);
-          }
         }
-        if (f.newcodes.value) {
-          // top.restoreSession();
-          // f.submit();
-          // This supports the option to immediately save:
-          codeselect(null);
-        }
+    }
+    if (f.newcodes.value) {
+        // top.restoreSession();
+        // f.submit();
+        // This supports the option to immediately save:
+        codeselect(null);
+    }
     return false;
 }
 
@@ -55,13 +55,6 @@ function set_active_category(data,event)
     codes_choices_vm.active_category(data);
     codes_choices_vm.show_choices(true);
 }
-
-//End Events
-var codes_choices_vm={
-    categories : ko.observableArray(),
-    active_category:ko.observable(false),
-    show_choices: ko.observable(false)
-};
 
 function code_category(title)
 {
@@ -86,10 +79,10 @@ function populate_vm_categories(idx,elem)
     jqElem.hide();
     jqElem.parent().parent().hide(); // select is child of a td and a tr.
     var title=jqElem.find("option[value='']").text();
-    
+
     var category=new code_category(title);
     codes_choices_vm.categories().push(category);
-    
+
     var choices=jqElem.find("option:not([value=''])");
     choices.each(function(idx,elem)
         {
@@ -120,4 +113,36 @@ function add_code_template(elem)
     codes_choices_vm.active_category(codes_choices_vm.categories()[1]);
 }
 
-analyze_codes();
+var script = document.createElement('script');
+var openemr_path= window.location.origin +window.location.pathname.substring(0, window.location.pathname.indexOf("interface"));
+
+script.src =openemr_path + "/public/assets/knockout-3-4-0/dist/knockout.js";
+document.head.appendChild(script);
+
+script.onload = function () {
+
+    if(!window.jQuery) {
+        var scriptJ = document.createElement('script');
+        scriptJ.src = openemr_path + "/public/assets/jquery-min-3-1-1/index.js";
+        document.head.appendChild(scriptJ);
+        scriptJ.onload = function () {
+            // After jquery loaded
+            codes_choices_vm = {
+                categories: ko.observableArray(),
+                active_category: ko.observable(false),
+                show_choices: ko.observable(false)
+            };
+            analyze_codes();
+        }
+    }
+    else {
+        //In case jquery is already loaded
+        codes_choices_vm = {
+            categories: ko.observableArray(),
+            active_category: ko.observable(false),
+            show_choices: ko.observable(false)
+        };
+        analyze_codes();
+    }
+
+};
