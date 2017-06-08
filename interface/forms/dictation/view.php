@@ -20,8 +20,9 @@ $returnurl = 'encounter_top.php';
 <title><?php echo xlt('Dictation'); ?></title>
    <?php Header::setupHeader(); ?>
    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/ckeditor.js"</script>
-   <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/js/sample.js" type="text/javascript"></script>
-   <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/css/samples.css" rel="stylesheet" type="text/css" /></head>
+   <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/js/samples/sample.js" type="text/javascript"></script>
+   <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/css/samples/samples.css" rel="stylesheet" type="text/css" />
+</head>
 <body class="body_top">
 <div class="container">
 <?php
@@ -29,7 +30,7 @@ include_once("$srcdir/api.inc");
 $id = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT);
 $obj = formFetch("form_dictation", $id);
 ?>
-   <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($id);?>" name="my_form" onclick="top.restoreSession()>
+   <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr($id);?>" name="my_form" onclick="top.restoreSession()">
      <div class="page-header">
       <h1><?php echo xlt('Speech Dictation'); ?></h1>
      </div>
