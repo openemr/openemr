@@ -1,11 +1,7 @@
 <head>
-<style type="text/css">@import url(library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
 <script type="text/javascript" src="library/textformat.js"></script>
-<script type="text/javascript" src="library/dynarch_calendar.js"></script>
-{php} include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); {/php}
-<script type="text/javascript" src="library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="{php}echo $GLOBALS['assets_static_relative'] {/php}/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="{php}echo $GLOBALS['assets_static_relative'] {/php}/jquery-min-3-1-1/index.js"></script>
 <script language="JavaScript">
  var mypcc = '{php} echo $GLOBALS['phone_country_code'] {/php}';
 
@@ -109,12 +105,6 @@ function ImgProcedure() {literal}{{/literal}
 <table valign="top" width="100%">
     <tr>
         <td>
-            <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
-            <a class="css_button">{$file->get_url_web()}</a>
-            <label for='chkShow' class="text" style="margin-left:20px;"><b>{xl t='View contents'}</b>
-                <input type="checkbox" id="chkShow" data-toggle="toggle" checked>
-            </label>
-            <span style="float:right;">
             <a class="css_button" href="{$web_path}" title="{xl t='Original file'}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
             {$delete_string}
@@ -122,11 +112,9 @@ function ImgProcedure() {literal}{{/literal}
             $file->get_imported($file->get_id()) eq 0 }
             <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()})'><span>{xl t='Import'}</span></a>
             {/if}
-            </span>
-            </div>
         </td>
     </tr>
-    <tr id="toggleDisplay">
+    <tr id="expandContent">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -178,12 +166,8 @@ function ImgProcedure() {literal}{{/literal}
               	</div>
                 <div>
                     {xl t='Date'}:
-                    <input type='text' size='10' name='docdate' id='docdate'
-                     value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}'
-                     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-                    <img src='interface/pic/show_calendar.gif' id='img_docdate' align='absbottom'
-                     width='24' height='22' border='0' alt='[?]' style='cursor:pointer'
-                     title='{xl t='Click here to choose a date'}' />
+                    <input class='oemr_date' type='text' size='10' name='docdate' id='docdate'
+                     value='{$DOCDATE}' title='{xl t='yyyy-mm-dd document date'}' />
                     <select name="issue_id">{$ISSUES_LIST}</select>
                 </div>
                 </form>
@@ -322,10 +306,10 @@ function ImgProcedure() {literal}{{/literal}
 	</tr>
 </table>
 <script language='JavaScript'>
- Calendar.setup({literal}{{/literal}inputField:"docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"{literal}}{/literal});
- $("#toggleDisplay").toggle();
- $('[data-toggle="toggle"]').change(function(){literal}{
-	 $("#toggleDisplay").toggle();
- }
- {/literal});
+$("#toggleDisplay").toggle();
+$('[data-toggle="toggle"]').change(function(){literal}{
+    $("#toggleDisplay").toggle();
+}
+{/literal});
 </script>
+{php} require_once("{$GLOBALS['srcdir']}/asset_datetimepicker.inc.php"); {/php}
