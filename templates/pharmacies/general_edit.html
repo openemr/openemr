@@ -48,13 +48,13 @@
 <tr>
     <td VALIGN="MIDDLE" >{xl t='NPI'}</td>
     	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="npi" SIZE="12" VALUE="{$pharmacy->get_npi()}" onKeyDown="PreventIt(event)" />
+		<input TYPE="TEXT" NAME="npi" SIZE="12" VALUE="{$pharmacy->get_npi()|escape:'html'}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
 	<td VALIGN="MIDDLE" >{xl t='NCPDP'}</td>
 	<td VALIGN="MIDDLE" >
-		<input TYPE="TEXT" NAME="ncpdp" SIZE="12" VALUE="{$pharmacy->get_ncpdp()}" onKeyDown="PreventIt(event)" />
+		<input TYPE="TEXT" NAME="ncpdp" SIZE="12" VALUE="{$pharmacy->get_ncpdp()|escape:'html'}" onKeyDown="PreventIt(event)" />
 	</td>
 </tr>
 <tr>
