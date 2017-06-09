@@ -1,35 +1,22 @@
 <?php
-
-
-/** Copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+/**
+ * weno rx pharmacy import.
  *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author  Alfonzo Perez  <aperez@hitechcompliance.net>
- * @link    http://www.open-emr.org
+ * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sanitize_all_escapes = true;   // SANITIZE ALL ESCAPES
-
-$fake_register_globals = false;   // STOP FAKE REGISTER GLOBALS
 
 require_once('../globals.php');
+
 
 $state = filter_input(INPUT_POST, "form_state"); //stores the variable sent in the post 
 
 $ref = $_SERVER["HTTP_REFERER"];     //stores the url the post came from to redirect back to 
-echo $ref."?status=finished";
 
 $sql = "SELECT MAX(id) FROM pharmacies";  // Find last record in the table
 $getMaxId = sqlQuery($sql);    //load to variable
@@ -40,7 +27,7 @@ $id = ++$getMaxId['MAX(id)'];  // set start import ID to max id plus 1
    /*
    *  Opens the CSV file and reads each line 
    */
-$file = fopen("pharmacyList3.csv","r");
+$file = fopen("pharmacyList.csv","r");
 
    while(! feof($file))    //This loop continues till the end of the file is reached. 
    { 
@@ -89,18 +76,14 @@ $file = fopen("pharmacyList3.csv","r");
     sqlStatement($psql, $faxInsert);
 
 
-  }
+       } //data insert if not present
+     } //loop conditional
+   } //end of loop
   
-
-        ++$id;
-       ob_start();
-         echo $id. "<br/>";
-           //var_dump($entry);
-       ob_end_clean();
-
-     }
-   }
-
  fclose($file);
 
  header("Location: ". $ref."?status=finished");
+
+ ?>
+ <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+<span class="sr-only"><?php echo xlt("Loading... Please wait"); ?></span>

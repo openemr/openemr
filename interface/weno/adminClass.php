@@ -1,6 +1,6 @@
 <?php
 /**
- * adminProperties class
+ * weno rx admin class.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
@@ -25,7 +25,7 @@ class adminProperties {
 
       sqlInsert($sqlNarc);
 
-          return "Tables Created!<br>";
+          return "Narcotic drugs imported<br>";
 
         }//end of create tables
 

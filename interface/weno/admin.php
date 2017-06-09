@@ -1,7 +1,7 @@
 <?php
 
 /**
- * admin for weno rx.
+ * weno admin.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org

@@ -129,37 +129,31 @@ VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calen
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 #EndIf
 
--- 1. users
 --
 #IfMissingColumn users weno_prov_id
 ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
 #Endif
 
--- 2. prescriptions 
 --
 #IfMissingColumn prescriptions ntx 
 ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
 #Endif
 
--- 3. prescriptions 
 --
 #IfMissingColumn prescriptions rtx 
 ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
 #Endif
 
--- 4. prescriptions 
 --
 #IfMissingColumn prescriptions txDate 
 ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
 #Endif
 
--- 5. pharmacies 
 --
 #IfMissingColumn pharmacies ncpdp
 ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL;
 #Endif
 
--- 6. pharmacies 
 --
 #IfMissingColumn pharmacies npi
 ALTER TABLE `pharmacies` ADD `npi` INT(12) NULL;  
