@@ -1,33 +1,19 @@
 <?php
 /**
- *  Patient Tracker (Patient Flow Board)
+ * Patient Tracker (Patient Flow Board)
  *
- *  This program displays the information entered in the Calendar program ,
- *  allowing the user to change status and view those changed here and in the Calendar
- *  Will allow the collection of length of time spent in each status
- *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * This program displays the information entered in the Calendar program ,
+ * allowing the user to change status and view those changed here and in the Calendar
+ * Will allow the collection of length of time spent in each status
  *
  * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @link http://www.open-emr.org
- *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
- *
+ * @link    http://www.open-emr.org
+ * @author  Terry Hill <terry@lilysystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../globals.php");
@@ -118,8 +104,7 @@ foreach ( $appointments as $apt ) {
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <script language="JavaScript">
 // Refresh self
@@ -555,7 +540,18 @@ if(!is_null($_POST['form_apptcat']) ){
   $(document).ready(function() {
 	  $('#settings').css("display","none");
 	  refreshbegin('1');
-	  $('.js-blink-infinite').modernBlink();
+
+    $('.js-blink-infinite').each(function() {
+      // set up blinking text
+      var elem = $(this);
+      setInterval(function() {
+        if (elem.css('visibility') == 'hidden') {
+          elem.css('visibility', 'visible');
+        } else {
+          elem.css('visibility', 'hidden');
+        }
+      }, 500);
+    });
 
   // toggle of the check box status for drug screen completed and ajax call to update the database
   $(".drug_screen_completed").change(function() {
