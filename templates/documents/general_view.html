@@ -109,6 +109,12 @@ function ImgProcedure() {literal}{{/literal}
 <table valign="top" width="100%">
     <tr>
         <td>
+            <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
+            <a class="css_button">{$file->get_url_web()}</a>
+            <label for='chkShow' class="text" style="margin-left:20px;"><b>{xl t='View contents'}</b>
+                <input type="checkbox" id="chkShow" data-toggle="toggle" checked>
+            </label>
+            <span style="float:right;">
             <a class="css_button" href="{$web_path}" title="{xl t='Original file'}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
             {$delete_string}
@@ -116,9 +122,11 @@ function ImgProcedure() {literal}{{/literal}
             $file->get_imported($file->get_id()) eq 0 }
             <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()})'><span>{xl t='Import'}</span></a>
             {/if}
+            </span>
+            </div>
         </td>
     </tr>
-    <tr id="expandContent">
+    <tr id="toggleDisplay">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -298,7 +306,6 @@ function ImgProcedure() {literal}{{/literal}
 	</tr>
 	<tr>
 		<td>
-            <div class="text"  title="{xl t='Preview file'}"><b>{xl t='Content'}</b>({xl t='Expand'})<input type="checkbox" id="show" data-toggle="toggle"></div>
             {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
@@ -316,8 +323,9 @@ function ImgProcedure() {literal}{{/literal}
 </table>
 <script language='JavaScript'>
  Calendar.setup({literal}{{/literal}inputField:"docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"{literal}}{/literal});
+ $("#toggleDisplay").toggle();
  $('[data-toggle="toggle"]').change(function(){literal}{
-	 $("#expandContent").toggle();
+	 $("#toggleDisplay").toggle();
  }
  {/literal});
 </script>
