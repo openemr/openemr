@@ -1,18 +1,32 @@
 <?php
+/**
+ * This program exports patient demographics to a custom XML format
+ *
+ * Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ *
+ * LICENSE: This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ *
+ * @package OpenEMR
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @link    http://www.open-emr.org
+ */
 
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
- /////////////////////////////////////////////////////////////////////
- // This program exports patient demographics to a custom XML format.
- /////////////////////////////////////////////////////////////////////
 
  include_once("../interface/globals.php");
  include_once("../library/patient.inc");
+
+ use OpenEMR\Core\Header;
 
  $out = "";
  $indent = 0;
@@ -252,25 +266,37 @@
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('Export Patient Demographics','e'); ?></title>
+<?php Header::setupHeader(); ?>
+<title><?php echo xlt('Export Patient Demographics'); ?></title>
 </head>
 <body>
-
-<p><?php xl('The exported data appears in the text area below.  You can copy and
-paste this into an email or to any other desired destination.','e'); ?></p>
-
-<center>
 <form>
+  <div class="container">
+     <div class="row">
+        <div class="col-xs-12">
+           <div class="page-header">
+               <h4><?php echo xlt('The exported data appears in the text area below. You can copy and
+                    paste this into an email or to any other desired destination.'); ?></h4>
+           </div>
+        </div> 
+     </div>
+     <div class="row">
+        <div class="col-xs-12">
+           <div class="form-group">
+              <textarea name="export_data" class=form-control cols="50" rows="18"><?php echo text($out) ?></textarea>
+           </div>
+           <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                 <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default btn-save" onclick="window.close()"><?php echo xlt("OK"); ?></button>
+                 </div>
+              </div>
+           </div>
+        </div>
+     </div>
+  </div> 
 
-<textarea rows='10' cols='50' style='width:95%' readonly>
-<?php echo $out ?>
-</textarea>
-
-<p><input type='button' value=<?php xl('OK','e','\'','\''); ?> onclick='window.close()' /></p>
 </form>
-</center>
 
 </body>
 </html>
