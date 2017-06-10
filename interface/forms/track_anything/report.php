@@ -69,7 +69,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 			echo "<tr><th class='time'>" . xlt('Time') . "</th>";
 			while($myrow2 = sqlFetchArray($query2)){
 				echo "<th class='item'>&nbsp;" . text($myrow2['the_name']) . "&nbsp;</th>";
-				$ofc_name[$col] = $myrow2['the_name']; // save for openflashchart-form
+				$ofc_name[$col] = $myrow2['the_name']; // save for chart-form
 				$col++;
 			}
 			echo "</tr>";
@@ -77,13 +77,13 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 
 		// post data entries per row
 		echo "<tr><td class='time'>" . text($thistime) . "</td>";
-		$ofc_date[$row] = $thistime; // save for openflashchart-form
+		$ofc_date[$row] = $thistime; // save for chart-form
 		$col_i = 0; // how many columns
 		$query2  = sqlStatement($spell, array($formid, $thistime));
 		while($myrow2 = sqlFetchArray($query2)){
 			echo "<td class='item'>&nbsp;" . text($myrow2['result']) . "&nbsp;</td>";
 			if (is_numeric($myrow2['result'])) {
-					$ofc_value[$col_i][$row] = $myrow2['result'];// save for openflashchart-form
+					$ofc_value[$col_i][$row] = $myrow2['result'];// save for chart-form
 			}
 			$col_i++;
 		}

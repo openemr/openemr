@@ -26,15 +26,6 @@ $the_checked_cols = json_decode($_POST['thecheckboxes'],TRUE);
 
 $laenge = count($the_date_array);
 
-// set up colors for lines to plot
-$line_colors[]	= "#a40000";
-$line_colors[]	= "#5c3566";
-$line_colors[]	= "#204a87";
-$line_colors[]	= "#4e9a06";
-$line_colors[]	= "#babdb6";
-$line_colors[]	= "#0000FF";
-$line_colors[]	= "#DB1750";
-
 // check if something was sent
 // and quit if not
 //-------------------------------
@@ -46,30 +37,13 @@ if ($the_checked_cols == NULL) {
 	}
 // end check if NULL data
 
-// get ideal y-axis-steps
-if(!function_exists('getIdealYSteps')) {
-	function getIdealYSteps($a) {
-		if ($a>1000) {
-			return 400;
-		} else if ($a>500) {
-			return 200;
-		} else if ($a>100) {
-			return 40;
-		} else if ($a>50) {
-			return 20;
-		} else {
-			return 5;
-		}
-	} // end function getIdeal...
-} // end if function_exist
-
 // build labels
-$graph_build = array();
-$graph_build['data_final'] = xl('Date');
+$data_final = array();
+$data_final = xl('Date');
 foreach($the_checked_cols as $col) {
-    $graph_build['data_final'] .= "\t" . $the_item_names[$col];
+    $data_final .= "\t" . $the_item_names[$col];
 }
-$graph_build['data_final'] .= "\n";
+$data_final .= "\n";
 
 // build data
 foreach($the_checked_cols as $col) {
@@ -79,7 +53,7 @@ foreach($the_checked_cols as $col) {
 	for ($i = 0; $i < $laenge; $i++){
 		if( is_numeric($the_value_array[$col][$i]) ) {
 			// is numeric
-			$graph_build['data_final'] .= $the_date_array[$i] . "\t" . $the_value_array[$col][$i] . "\n";
+			$data_final .= $the_date_array[$i] . "\t" . $the_value_array[$col][$i] . "\n";
 			$the_values[] = $the_value_array[$col][$i];
 			$the_dates[]  = $the_date_array[$i];
 		} else {
