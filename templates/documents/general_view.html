@@ -110,10 +110,11 @@ function ImgProcedure() {literal}{{/literal}
     <tr>
         <td>
             <div style="margin-bottom: 6px;padding-bottom: 6px;border-bottom:3px solid gray;">
-            <a class="css_button">{$file->get_url_web()}</a>
-            <label for='chkShow' class="text" style="margin-left:20px;"><b>{xl t='View contents'}</b>
-                <input type="checkbox" id="chkShow" data-toggle="toggle" checked>
-            </label>
+            <h4>{$file->get_url_web()}
+              <div class="btn-group btn-toggle"> 
+                <button class="btn btn-xs btn-default properties">{xl t='Properties'}</button>
+                <button class="btn btn-xs btn-primary active">{xl t='Contents'}</button>
+              </div>
             <span style="float:right;">
             <a class="css_button" href="{$web_path}" title="{xl t='Original file'}" onclick="top.restoreSession()"><span>{xl t='Download'}</span></a>
             <a class="css_button" href='' onclick='return showpnotes({$file->get_id()})'><span>{xl t='Show Notes'}</span></a>
@@ -123,10 +124,11 @@ function ImgProcedure() {literal}{{/literal}
             <a class="css_button" href='javascript:' onclick='return import_ccr({$file->get_id()})'><span>{xl t='Import'}</span></a>
             {/if}
             </span>
+            </h4>
             </div>
         </td>
     </tr>
-    <tr id="toggleDisplay">
+    <tr id="DocProperties" style="display:none;">
 		<td valign="top">
 			{if !$hide_encryption}
 			<div class="text">
@@ -301,10 +303,10 @@ function ImgProcedure() {literal}{{/literal}
                 </div>
             </div>
             </form>
-
+            <h4>{xl t='Contents'}</h4>
 		</td>
 	</tr>
-	<tr>
+	<tr id="DocContents">
 		<td>
             {if $file->get_mimetype() eq "image/tiff"}
 			<embed frameborder="0" type="{$file->get_mimetype()}" src="{$web_path}as_file=false"></embed>
@@ -322,10 +324,18 @@ function ImgProcedure() {literal}{{/literal}
 	</tr>
 </table>
 <script language='JavaScript'>
+{literal}
+$('.btn-toggle').click(function() {
+    $(this).find('.btn').toggleClass('active');  
+    
+    if ($(this).find('.btn-primary').length >0) {
+        $(this).find('.btn').toggleClass('btn-primary');
+    }
+
+    $(this).find('.btn').toggleClass('btn-default');
+    var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
+    $("#DocProperties").css('display', show_prop);
+});
+{/literal}
  Calendar.setup({literal}{{/literal}inputField:"docdate", ifFormat:"%Y-%m-%d", button:"img_docdate"{literal}}{/literal});
- $("#toggleDisplay").toggle();
- $('[data-toggle="toggle"]').change(function(){literal}{
-	 $("#toggleDisplay").toggle();
- }
- {/literal});
 </script>
