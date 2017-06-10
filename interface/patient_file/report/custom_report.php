@@ -62,11 +62,11 @@ if ($PDF_OUTPUT) {
        '', // default footer margin
        $GLOBALS['pdf_layout']
         ); // Globals default is 'P'
-
+      
       $pdf->shrink_tables_to_fit = 1;
       $keep_table_proportions = true;
       $pdf->use_kwt = true;
-
+      
  // set 'dejavusans' for now. which is supported by a lot of languages - http://dejavu-fonts.org/wiki/Main_Page
  // TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization. Don't think this is issue here.
        $pdf->setDefaultFont('dejavusans'); // see config_fonts.php/config_lang2fonts.php for OTL font declarations for different languages/fonts. Important for auto font select getting right font for lanaguage.
@@ -142,8 +142,6 @@ function postToGet($arin) {
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign_report.css" />
 <?php } ?>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
-
 <?php // do not show stuff from report.php in forms that is encaspulated
       // by div of navigateLink class. Specifically used for CAMOS, but
       // can also be used by other forms that require output in the
@@ -170,8 +168,6 @@ function postToGet($arin) {
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/js/SearchHighlight.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/dygraphs-2-0-0/dygraph.min.js"></script>
-
 <script type="text/javascript">var $j = jQuery.noConflict();</script>
 
 <?php // if the track_anything form exists, then include the styling
@@ -209,7 +205,7 @@ if ($printable) {
   // in HTML view it's just one line at the top of page 1
   echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
   echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
-
+        
         // Use logo if it exists as 'practice_logo.gif' in the site dir
         // old code used the global custom dir which is no longer a valid
     $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
@@ -635,13 +631,13 @@ foreach ($ar as $key => $val) {
                             $itpl = $pdf->importPage($i+1);
                             $pdf->useTemplate($itpl);
                         }
-
+                        
                         // Make sure whatever follows is on a new page.
                        // $pdf->AddPage(); // Only needed for signature line. Patched out 04/20/2017 sjpadgett.
-
+                        
                         // Resume output buffering and the above-closed tags.
                         ob_start();
-
+                        
                         echo "<div><div class='text documents'>\n";
                     } else {
                         if (! is_file($to_file))
