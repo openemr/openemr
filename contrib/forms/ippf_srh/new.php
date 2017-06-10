@@ -61,7 +61,7 @@ if ($_POST['bn_save']) {
     $field_id  = $frow['field_id'];
     $value = get_layout_form_value($frow);
     if ($sets) $sets .= ", ";
-    $sets .= "$field_id = '$value'";
+    $sets .= "$field_id = '" . add_escape_custom($value) . "'";
   }
 
   if ($formid) {
