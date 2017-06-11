@@ -47,7 +47,7 @@ if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 35;
+    $v_js_includes = 36;
 }
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

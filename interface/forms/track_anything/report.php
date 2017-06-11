@@ -34,7 +34,7 @@ function track_anything_report( $pid, $encounter, $cols, $id){
 	$dummy = array(); // counter to decide if graph-button is shown
 	$formid = $id;
 	$shownameflag = 0;
-	echo "<div id='graph" . attr($formid) . "' style='direction:ltr;'> </div><br>";
+	echo "<div id='graph" . attr($formid) . "' class='chart-dygraphs'> </div><br>";
 	echo "<table border='1'>";
 
 	// get name of selected track, used for GraphTitle

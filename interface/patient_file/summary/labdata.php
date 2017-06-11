@@ -229,7 +229,7 @@ if($value_select){
 		// get complete data of each item
 		foreach($value_select as $this_value){
 			// set a plot-spacer
-			echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "' style='direction:ltr;'></div></td></tr>";
+			echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "' class='chart-dygraphs'></div></td></tr>";
 			$value_count = 0;
 			$value_array = array(); // reset local array
 			$date_array  = array();//  reset local array
