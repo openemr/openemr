@@ -231,7 +231,7 @@ while($myrow = sqlFetchArray($query)){
 
 
 	// get every single tracks
-	echo "<div id='graph" . attr($track_count) . "' style='direction:ltr;'> </div><br>"; // here goes the graph
+	echo "<div id='graph" . attr($track_count) . "' class='chart-dygraphs'> </div><br>"; // here goes the graph
 	echo "<small>[" . xlt('Data from') . " ";
 	echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
 	echo "</small>";
