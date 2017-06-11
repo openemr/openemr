@@ -406,7 +406,9 @@ $today = date("Y-m-d");
     //
 
    if ($stmt['cid'] != $row['pid']) {
-        if (!empty($stmt)) ++$stmt_count;
+        if (!empty($stmt)) {
+            ++$stmt_count;
+        }
         if ($_POST['form_pdf']) {
                 fwrite($fhprint, make_statement($stmt));
         }
@@ -436,12 +438,11 @@ $today = date("Y-m-d");
   		#If you use the field in demographics layout called
   		#guardiansname this will allow you to send statements to the parent
   		#of a child or a guardian etc
-      if(strlen($row['guardiansname']) == 0) {
-        $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
-      } else
-      {
-       $stmt['to'] = array($row['guardiansname']);
-      }
+        if(strlen($row['guardiansname']) == 0) {
+             $stmt['to'] = array($row['fname'] . ' ' . $row['lname']);
+        } else {
+             $stmt['to'] = array($row['guardiansname']);
+        }
         if ($row['street']) $stmt['to'][] = $row['street'];
         $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
         $stmt['lines'] = array();
