@@ -264,9 +264,8 @@
      <div class="row">
         <div class="col-xs-12">
            <div class="page-header">
-              <h4><?php echo xlt('The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.'); ?></h4>
            </div>
-        </div> 
+        </div>  
      </div>
      <div class="row">
         <div class="col-xs-12">
@@ -274,9 +273,9 @@
               <textarea name="export_data" class=form-control cols="50" rows="18"><?php echo text($out) ?></textarea>
            </div>
            <div class="form-group">
-              <div class="col-sm-offset-2 col-sm-10">
+              <div class="col-xs-12 text-right">
                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default btn-save" onclick="window.close()"><?php echo xlt("OK"); ?></button>
+                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()"><?php echo xlt("OK"); ?></button>
                  </div>
               </div>
            </div>
