@@ -75,12 +75,15 @@ $track_count	= 0;		# counts tracks and generates div-ids
 echo "<html><head>";
 // Javascript support and Javascript-functions
 //******* **********************************
-?> 
+?>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="style.css" type="text/css"> 
+<link rel="stylesheet" href="style.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/swfobject.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript">
 //-------------- checkboxes checked checker --------------------
 // Pass the checkbox name to the function
@@ -99,23 +102,11 @@ function getCheckedBoxes(chkboxName) {
 //---------------------------------------------------------------
 
 
-// this is automatically called by swfobject.embedSWF()
-//------------------------------------------------------
-function open_flash_chart_data(){
-	return JSON.stringify(data);
-}
-//------------------------------------------------------
-
-
-// set up flashvars for ofc
-var flashvars = {};
-var data;
-
 // plot the current graph
 //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
 	top.restoreSession();
-	return $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+	return $.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
 		     type: 'POST',
 		     data: { dates:  thedates, 
 				     values: thevalues, 
@@ -125,15 +116,17 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 				   },
 			 dataType: "json",  
 			 success: function(returnData){
-				 // ofc will look after a variable named "ofc"
-				 // inside of the flashvar
-				 // However, we need to set both
-				 // data and flashvars.ofc 
-				 data=returnData;
-				 flashvars.ofc = returnData;
-				 // call ofc with proper falshchart
-					swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf', 
-					"graph"+trackCount, "650", "200", "9.0.0","",flashvars);  
+                 g2 = new Dygraph(
+                     document.getElementById("graph" + trackCount),
+                     returnData.data_final,
+                     {
+                         title: returnData.title,
+                         delimiter: '\t',
+                         xRangePad: 20,
+                         yRangePad: 20,
+                         xlabel: xlabel_translate
+                     }
+                 );
 			},
 			error: function (XMLHttpRequest, textStatus, errorThrown) {
 				alert(XMLHttpRequest.responseText);
@@ -238,7 +231,7 @@ while($myrow = sqlFetchArray($query)){
 
 	
 	// get every single tracks
-	echo "<div id='graph" . attr($track_count) . "'> </div><br>"; // here goes the graph
+	echo "<div id='graph" . attr($track_count) . "' style='direction:ltr;'> </div><br>"; // here goes the graph
 	echo "<small>[" . xlt('Data from') . " ";
 	echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
 	echo "</small>";

@@ -1,11 +1,15 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
-// Modified 2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Trending script for graphing objects.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2010-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
+ */
 
 $special_timeout = 3600;
 include_once("../../globals.php");
@@ -24,8 +28,12 @@ if ($is_lbf) {
 
 //Bring in the style sheet
 ?>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<?php 
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
+<?php
 // Hide the current value css entries. This is currently specific
 //  for the vitals form but could use this mechanism for other
 //  forms.
@@ -45,51 +53,49 @@ if ($is_lbf) {
   .graph {color:#0000cc;}
 
   #chart {
-    border-style:solid;
-    border-width:2px;
     margin:0em 1em 2em 2em;
   }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="../../../library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="../../../library/openflashchart/js/swfobject.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script type="text/javascript">
 
-// variable that holds graph information for the open_flash_chart_data() function
-var data;
-
-// Function that is built into swfobject.js script that will collect the
-//   data used for the graph.
-function open_flash_chart_data()
-{
-  return JSON.stringify(data);
-}
-	
 // Show the selected chart in the 'chart' div element
 function show_graph(table_graph, name_graph, title_graph)
 {
-  top.restoreSession();
-  $.ajax({ url: '../../../library/openflashchart/graphs.php',
-           type: 'POST',
-           data: ({ table: table_graph,
-	            name: name_graph,
-	            title: title_graph
-           }),
-           dataType: "json",
-           success: function(returnData){
-	     // place the raw graph data in the data variable
-             data=returnData;
-	     // this function will automatically call open_flash_chart_data() in order to collect the raw data
-             swfobject.embedSWF('../../../library/openflashchart/open-flash-chart.swf', "chart", "650", "200", "9.0.0");
-	     // ensure show the chart div
-	     $('#chart').show();
-           },
-	   error: function() {
-	     // hide the chart div
-	     $('#chart').hide();
-	   }	
-        });
+    top.restoreSession();
+    $.ajax({ url: '../../../library/ajax/graphs.php',
+    type: 'POST',
+        data: ({
+            table: table_graph,
+	          name: name_graph,
+	          title: title_graph
+        }),
+        dataType: "json",
+        success: function(returnData){
+
+        g2 = new Dygraph(
+            document.getElementById("chart"),
+            returnData.data_final,
+            {
+                title: returnData.title,
+                delimiter: '\t',
+                xRangePad: 20,
+                yRangePad: 20,
+                xlabel: xlabel_translate
+            }
+        );
+
+            // ensure show the chart div
+            $('#chart').show();
+        },
+        error: function() {
+            // hide the chart div
+            $('#chart').hide();
+        }
+    });
 }
 
 $(document).ready(function(){

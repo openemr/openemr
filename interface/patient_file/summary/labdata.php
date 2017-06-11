@@ -81,11 +81,15 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 echo "<html><head>";
 ?>
 <title><?php echo xlt("Labs"); ?></title>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $web_root; ?>/interface/themes/labdata.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $web_root; ?>/library/openflashchart/js/swfobject.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
+
 <script type="text/javascript" language="JavaScript">
 function checkAll(bx) {
     for (var tbls=document.getElementsByTagName("table"), i=tbls.length; i--; )
@@ -93,18 +97,6 @@ function checkAll(bx) {
          if (bxs[j].type=="checkbox")
             bxs[j].checked = bx.checked;
 }
-
-// this is automatically called by swfobject.embedSWF()
-//------------------------------------------------------
-function open_flash_chart_data(){
-	return JSON.stringify(data);
-}
-//------------------------------------------------------
-
-
-// set up flashvars for ofc
-var flashvars = {};
-var data;
 
 </script>
 <?php ##############################################################################
@@ -237,7 +229,7 @@ if($value_select){
 		// get complete data of each item
 		foreach($value_select as $this_value){
 			// set a plot-spacer
-			echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "'</td></tr>";
+			echo "<tr><td colspan='7'><div id='graph_item_" . attr($item_graph) . "' style='direction:ltr;'></div></td></tr>";
 			$value_count = 0;
 			$value_array = array(); // reset local array
 			$date_array  = array();//  reset local array
@@ -303,7 +295,7 @@ if($value_select){
 				var thetitle = JSON.stringify(<?php echo json_encode($the_item); ?>);
 				var checkboxfake = JSON.stringify(<?php echo json_encode(array(0)); ?>);
 
-				$.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+				$.ajax({ url: '<?php echo $web_root; ?>/library/ajax/graph_track_anything.php',
 						type: 'POST',
 						data: { dates:  thedates,
 								values: thevalues,
@@ -313,15 +305,17 @@ if($value_select){
 							},
 						dataType: "json",
 						success: function(returnData){
-						// ofc will look after a variable named "ofc"
-						// inside of the flashvar
-						// However, we need to set both
-						// data and flashvars.ofc
-							data=returnData;
-							flashvars.ofc = returnData;
-							// call ofc with proper falshchart
-							swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf',
-							"graph_item_<?php echo $item_graph ?>", "650", "200", "9.0.0","",flashvars);
+                            g2 = new Dygraph(
+                                document.getElementById("graph_item_<?php echo $item_graph ?>"),
+                                returnData.data_final,
+                                {
+                                    title: returnData.title,
+                                    delimiter: '\t',
+                                    xRangePad: 20,
+                                    yRangePad: 20,
+                                    xlabel: xlabel_translate
+                                }
+                            );
 						},
 							error: function (XMLHttpRequest, textStatus, errorThrown) {
 							alert(XMLHttpRequest.responseText);

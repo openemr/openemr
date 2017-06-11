@@ -1,13 +1,15 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady@sparmy.com>
-// Modified 2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// Flexible script for graphing entities in OpenEMR
+/**
+ * Flexible script for graphing entities in OpenEMR.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2010-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
+ */
 
 //SANITIZE ALL ESCAPES
 $sanitize_all_escapes=true;
@@ -18,7 +20,6 @@ $fake_register_globals=false;
 //
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-chart.php");
 require_once($GLOBALS['srcdir'] . "/formdata.inc.php");
 
 // Collect passed variable(s)
@@ -72,7 +73,7 @@ function graphsGetValues($name) {
     // Like below, but for LBF data.
     $values = sqlStatement("SELECT " .
       "ld.field_value AS " . add_escape_custom($name) . ", " .
-      "UNIX_TIMESTAMP(f.date) as unix_date " .
+      "f.date " .
       "FROM forms AS f, lbf_data AS ld WHERE " .
       "f.pid = ? AND " .
       "f.formdir = ? AND " .
@@ -89,7 +90,7 @@ function graphsGetValues($name) {
     //   optional in the future when using lab values)
     $values = SqlStatement("SELECT " .
       add_escape_custom($name) . ", " .
-      "UNIX_TIMESTAMP(date) as unix_date " .
+      "date " .
       "FROM " . add_escape_custom($table) . " " .
       "WHERE " . add_escape_custom($name) . " != 0 " .
       "AND pid = ? ORDER BY date", array($pid));
@@ -97,38 +98,7 @@ function graphsGetValues($name) {
   return $values;
 }
 
-function graphsGetRanges($name) {
-  global $is_lbf, $pid, $table;
-  if ($is_lbf) {
-    // Like below, but for LBF data.
-    $ranges = sqlQuery("SELECT " .
-      "MAX(CONVERT(ld.field_value, SIGNED)) AS max_" . add_escape_custom($name) . ", " .
-      "MAX(UNIX_TIMESTAMP(f.date)) AS max_date, " .
-      "MIN(UNIX_TIMESTAMP(f.date)) AS min_date " .
-      "FROM forms AS f, lbf_data AS ld WHERE " .
-      "f.pid = ? AND " .
-      "f.formdir = ? AND " .
-      "f.deleted = 0 AND " .
-      "ld.form_id = f.form_id AND " .
-      "ld.field_id = ? AND " .
-      "ld.field_value != '0'",
-      array($pid, $table, $name));
-  }
-  else {
-    $ranges = SqlQuery("SELECT " .
-      "MAX(CONVERT(" . add_escape_custom($name) . ",SIGNED)) AS " .
-      "max_" . add_escape_custom($name) . ", " .
-      "MAX(UNIX_TIMESTAMP(date)) as max_date, " .
-      "MIN(UNIX_TIMESTAMP(date)) as min_date  " .
-      "FROM " . add_escape_custom($table) . " " .
-		  "WHERE " . add_escape_custom($name) . " != 0 " .
-		  "AND pid = ?", array($pid));
-  }
-  return $ranges;
-}
-
 //Customizations (such as titles and conversions)
-
 if ($is_lbf) {
   $titleGraph = $title;
   if ($name == 'bp_systolic' || $name == 'bp_diastolic') {
@@ -210,7 +180,6 @@ else {
 if ($table) {
   // Like below, but for LBF data.
   $values = graphsGetValues($name);
-  $ranges = graphsGetRanges($name);
 }
 else {
   exit;
@@ -231,7 +200,6 @@ if ($is_lbf) {
     else $name_alt = "bp_systolic";
     // Collect the pertinent vitals and ranges.
     $values_alt = graphsGetValues($name_alt);
-    $ranges_alt = graphsGetRanges($name_alt);
   }
 }
 else {
@@ -242,26 +210,14 @@ else {
     if ($name == "bpd") $name_alt = "bps";
     // Collect the pertinent vitals and ranges.
     $values_alt = graphsGetValues($name_alt);
-    $ranges_alt = graphsGetRanges($name_alt);
   }
 }
 
-// Prepare look and feel of data points
-$s = new scatter_line( '#DB1750', 2 );
-$def = new hollow_dot();
-$def->size(4)->halo_size(3)->tooltip('#val#<br>#date:Y-m-d H:i#');
-$s->set_default_dot_style( $def );
-if ($isBP) {
-  //set up the other blood pressure line
-  $s_alt = new scatter_line( '#0000FF', 2 );
-  $s_alt->set_default_dot_style( $def );
-}
-
-// Prepare and insert data
+// Prepare data
 $data = array();
 while ($row = sqlFetchArray($values)) {
   if ($row["$name"]) {
-    $x=$row['unix_date'];
+    $x=$row['date'];
     if ($multiplier) {
       // apply unit conversion multiplier
       $y=$row["$name"]*$multiplier;
@@ -274,107 +230,54 @@ while ($row = sqlFetchArray($values)) {
      // no conversion, so use raw value
      $y=$row["$name"];
     }
-    $data[] = new scatter_value($x, $y);
+    $data[$x][$name] = $y;
   }
 }
-$s->set_values( $data );
 if ($isBP) {
   //set up the other blood pressure line
-  $data = array();
   while ($row = sqlFetchArray($values_alt)) {
     if ($row["$name_alt"]) {
-      $x=$row['unix_date'];
-    if ($multiplier) {
-      // apply unit conversion multiplier
-      $y=$row["$name_alt"]*$multiplier;
-    }
-    else if ($isConvertFtoC ) {
-      // apply temp F to C conversion
-      $y=convertFtoC($row["$name_alt"]);
-    }
-    else {
-     // no conversion, so use raw value
-     $y=$row["$name_alt"];
-    }
-      $data[] = new scatter_value($x, $y);
+      $x=$row['date'];
+      if ($multiplier) {
+        // apply unit conversion multiplier
+        $y=$row["$name_alt"]*$multiplier;
+      }
+      else if ($isConvertFtoC ) {
+        // apply temp F to C conversion
+        $y=convertFtoC($row["$name_alt"]);
+      }
+      else {
+       // no conversion, so use raw value
+       $y=$row["$name_alt"];
+      }
+      $data[$x][$name_alt] = $y;
     }
   }
-  $s_alt->set_values( $data );
 }
 
-// Prepare the x-axis
-$x = new x_axis();
-$x->set_range( $ranges['min_date'], $ranges['max_date']  );
-// Calculate the steps and visible steps
-$step=($ranges['max_date'] - $ranges['min_date'])/60;
-$step_vis=2;
-// do not allow steps to be less than 1 day
-if ($step < 86400) {
-  $step = 86400;
-  $step_vis=1;
-}
-$x->set_steps($step);
-$labels = new x_axis_labels();
-$labels->text('#date:Y-m-d#');
-$labels->set_steps($step);
-$labels->visible_steps($step_vis);
-$labels->rotate(90);
-$x->set_labels($labels);
-
-// Prepare the y-axis
-$y = new y_axis();
-if ($name == "bpd") {
-  // in this special case use the alternate ranges (the bps)
-  if ($multiplier) {
-    // apply unit conversion multiplier
-    $maximum = $ranges_alt["max_"."$name_alt"]*$multiplier;
-  }
-  else if ($isConvertFtoC ) {
-    // apply temp F to C conversion
-    $maximum = convertFtoC( $ranges_alt["max_"."$name_alt"] );
-  }
-  else {
-    // no conversion, so use raw value
-    $maximum = $ranges_alt["max_"."$name_alt"];
-  }
-}
-else {
-  if ($multiplier) {
-    // apply unit conversion multiplier
-    $maximum = $ranges["max_"."$name"]*$multiplier;
-  }
-  else if ($isConvertFtoC ) {
-    // apply temp F to C conversion
-    $maximum = convertFtoC( $ranges["max_"."$name"] );
-  }
-  else {
-    // no conversion, so use raw value
-    $maximum = $ranges["max_"."$name"];
-  }
-}
-// set the range and y-step
-$y->set_range( 0 , $maximum + getIdealYSteps( $maximum ) );
-$y->set_steps( getIdealYSteps( $maximum ) );
-
-// Build and show the chart
-$chart = new open_flash_chart();
-$chart->set_title( new Title( $titleGraph ));
+// Prepare label
+$data_final = "";
 if ($isBP) {
-  // Set up both bp lines
-  $s -> set_key( $titleGraphLine1 , 10 );
-  $chart->add_element( $s );
-  $s_alt -> set_key( $titleGraphLine2 , 10 );
-  $chart->add_element( $s_alt );
+  $data_final .= xl('Date') . "\t" . $titleGraphLine1 . "\t" . $titleGraphLine2 . "\n";
 }
 else {
-  // Set up the line
-  $chart->add_element( $s );
+  $data_final .= xl('Date') . "\t" . $titleGraph . "\n";
 }
-$chart->set_x_axis( $x );
-$chart->add_y_axis( $y );
-    
-//error_log("Chart: ".$chart->toPrettyString(),0);
 
-echo $chart->toPrettyString();
+// Prepare data
+foreach ($data as $date => $value) {
+  if ($isBP) {
+    $data_final .= $date . "\t" . $value[$name] . "\t" . $value[$name_alt] . "\n";
+  } else {
+    $data_final .= $date . "\t" . $value[$name] . "\n";
+  }
+}
 
-?>
+// Build and send back the json
+$graph_build = array();
+$graph_build['data_final'] = $data_final;
+$graph_build['title'] = $titleGraph;
+// Note need to also use " when building the $data_final rather
+// than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
+// \t get escaped.
+echo json_encode($graph_build,JSON_UNESCAPED_SLASHES);
