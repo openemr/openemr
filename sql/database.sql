@@ -5816,6 +5816,9 @@ CREATE TABLE `prescriptions` (
   `end_date` date default NULL,
   `indication` text,
   `prn` VARCHAR(30) DEFAULT NULL,
+  `ntx` INT(2) DEFAULT NULL,
+  `rtx` INT(2) DEFAULT NULL,
+  `txDate` DATE NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 ;
@@ -6748,6 +6751,7 @@ CREATE TABLE `users` (
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
   `irnpool` varchar(31) NOT NULL DEFAULT '',
   `state_license_number` VARCHAR(25) DEFAULT NULL,
+  `weno_prov_id` VARCHAR(15) DEFAULT NULL,
   `newcrop_user_role` VARCHAR(30) DEFAULT NULL,
   `cpoe` tinyint(1) NULL DEFAULT NULL,
   `physician_type` VARCHAR(50) DEFAULT NULL,
