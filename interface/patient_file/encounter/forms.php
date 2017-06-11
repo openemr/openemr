@@ -31,12 +31,7 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 
 <head>
 
-<script type="text/javascript">
-    // Support for translations of months in graphing dygraphs scripts
-    var SHORT_MONTH_NAMES_CUSTOM = ['<?php echo xla('Jan'); ?>', '<?php echo xla('Feb'); ?>', '<?php echo xla('Mar'); ?>', '<?php echo xla('Apr'); ?>', '<?php echo xla('May'); ?>', '<?php echo xla('Jun'); ?>', '<?php echo xla('Jul'); ?>', '<?php echo xla('Aug'); ?>', '<?php echo xla('Sep'); ?>', '<?php echo xla('Oct'); ?>', '<?php echo xla('Nov'); ?>', '<?php echo xla('Dec'); ?>'];
-    // Dygraph xlabel translation since the dygraph function here is called within a js script
-    var xlabel_translate = '<?php echo xla('Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'); ?>';
-</script>
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
