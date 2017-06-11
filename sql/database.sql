@@ -1217,7 +1217,7 @@ CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
   `avg_savings` decimal(6,2) NOT NULL,
   `avg_percent` decimal(6,2) NOT NULL,
    PRIMARY KEY (`drugid`)
-   ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=26121;
+   ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
@@ -1234,7 +1234,7 @@ CREATE TABLE IF NOT EXISTS `erx_rx_log` (
  `message_id` varchar(100) DEFAULT NULL,
  `read` int(1) DEFAULT NULL,
  PRIMARY KEY (`id`)
-  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=133;
+  ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
@@ -1249,7 +1249,7 @@ CREATE TABLE IF NOT EXISTS `erx_narcotics` (
   `narc` varchar(2) NOT NULL,
   `other_names` varchar(255) NOT NULL,
    PRIMARY KEY (`id`)
-  ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=570;
+  ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 --
