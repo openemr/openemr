@@ -118,7 +118,6 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
 				   },
 			 dataType: "json",
 			 success: function(returnData){
-			 	 //var SHORT_MONTH_NAMES_CUSTOM = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jenny', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
                  g2 = new Dygraph(
                      document.getElementById("graph" + trackCount),
                      returnData.data_final,
@@ -234,7 +233,7 @@ while($myrow = sqlFetchArray($query)){
 
 
 	// get every single tracks
-	echo "<div id='graph" . attr($track_count) . "'> </div><br>"; // here goes the graph
+	echo "<div id='graph" . attr($track_count) . "' style='direction:ltr;'> </div><br>"; // here goes the graph
 	echo "<small>[" . xlt('Data from') . " ";
 	echo "<a href='../../patient_file/encounter/encounter_top.php?set_encounter=" . attr($the_encounter) . "' target='RBot'>" . xlt('encounter') . " #" . text($the_encounter) . "</a>]";
 	echo "</small>";
