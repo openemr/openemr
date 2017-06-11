@@ -133,7 +133,7 @@ table.phpset { border-collapse:collapse;   }
 table.phpset td, table.phpset th { font-size:9pt; border:1px solid gray; padding:2px; }
 </style>
 
-<script type="text/javascript" src="public/assets/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="public/assets/jquery-min-1-2-2/index.js"></script>
 
 <script language="javascript">
 // onclick handler for "clone database" checkbox

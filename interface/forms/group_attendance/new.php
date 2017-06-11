@@ -29,8 +29,14 @@ require_once("../../globals.php");
 require_once("functions.php");
 require_once(dirname(__FILE__) . "/../../../library/group.inc");
 
-//Check acl if current user can edit form
+//Check acl
+$can_view = acl_check("groups","gadd",false, 'view');
 $can_edit = acl_check("groups","gadd",false, 'write');
+
+if (!$can_view && !$can_edit)
+{
+    formJump();
+}
 
 $statuses_in_meeting = getGroupAttendanceStatuses();
 
