@@ -24,8 +24,6 @@ $the_item_names   = json_decode($_POST['items'],TRUE);
 $the_checked_cols = json_decode($_POST['thecheckboxes'],TRUE);
 // ++++++/end get POSTed data
 
-$laenge = count($the_date_array);
-
 // check if something was sent
 // and quit if not
 //-------------------------------
@@ -40,32 +38,35 @@ if ($the_checked_cols == NULL) {
 // build labels
 $data_final = array();
 $data_final = xl('Date');
-foreach($the_checked_cols as $col) {
-    $data_final .= "\t" . $the_item_names[$col];
+foreach ($the_checked_cols as $col) {
+	if( is_numeric($the_value_array[$col][0]) ) {
+        $data_final .= "\t" . $the_item_names[$col];
+    }
+    else {
+    	// is NOT numeric, so skip column
+    }
 }
 $data_final .= "\n";
 
 // build data
-foreach($the_checked_cols as $col) {
-
-	// skip NULL or not-numeric entries
-	// check if values are numeric
-	for ($i = 0; $i < $laenge; $i++){
-		if( is_numeric($the_value_array[$col][$i]) ) {
+for ($i = 0; $i < count($the_date_array); $i++) {
+    $data_final .= $the_date_array[$i];
+	foreach ($the_checked_cols as $col) {
+		if( is_numeric($the_value_array[$col][0]) ) {
 			// is numeric
-			$data_final .= $the_date_array[$i] . "\t" . $the_value_array[$col][$i] . "\n";
-			$the_values[] = $the_value_array[$col][$i];
-			$the_dates[]  = $the_date_array[$i];
+			$data_final .= "\t" . $the_value_array[$col][$i];
 		} else {
 			// is NOT numeric, do nothing
 		}
 	}
+	$data_final .= "\n";
 }
 
 // Build and send back the json
 $graph_build = array();
 $graph_build['data_final'] = $data_final;
 $graph_build['title'] = $titleGraph;
+
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
