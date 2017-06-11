@@ -30,12 +30,20 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <html>
 
 <head>
+
+<script type="text/javascript">
+    // Support for translations of months in graphing dygraphs scripts
+    var SHORT_MONTH_NAMES_CUSTOM = ['<?php echo xla('Jan'); ?>', '<?php echo xla('Feb'); ?>', '<?php echo xla('Mar'); ?>', '<?php echo xla('Apr'); ?>', '<?php echo xla('May'); ?>', '<?php echo xla('Jun'); ?>', '<?php echo xla('Jul'); ?>', '<?php echo xla('Aug'); ?>', '<?php echo xla('Sep'); ?>', '<?php echo xla('Oct'); ?>', '<?php echo xla('Nov'); ?>', '<?php echo xla('Dec'); ?>'];
+    // Dygraph xlabel translation since the dygraph function here is called within a js script
+    var xlabel_translate = '<?php echo xla('Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'); ?>';
+</script>
+
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
@@ -47,7 +55,7 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/manual-added-packages/dygraphs-2-0-0/dygraph.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js"></script>
 
 <?php
 $esignApi = new Api();

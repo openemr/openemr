@@ -67,7 +67,7 @@ function ta_report_plot_graph(formid,ofc_name,the_track_name,ofc_date,ofc_value)
                                      delimiter: '\t',
                                      xRangePad: 20,
                                      yRangePad: 20,
-                                     xlabel: 'Zoom: click-drag, Pan: shift-click-drag, Restore: double-click'
+                                     xlabel: xlabel_translate
                                  }
                              );
                         },
