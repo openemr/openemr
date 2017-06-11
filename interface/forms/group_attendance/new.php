@@ -33,7 +33,7 @@ require_once(dirname(__FILE__) . "/../../../library/group.inc");
 $can_view = acl_check("groups","gadd",false, 'view');
 $can_edit = acl_check("groups","gadd",false, 'write');
 
-if (!$can_view)
+if (!$can_view && !$can_edit)
 {
     formJump();
 }

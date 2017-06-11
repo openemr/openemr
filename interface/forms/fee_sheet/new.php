@@ -31,7 +31,7 @@ require_once("codes.php");
 //acl check
 $can_view = acl_check('admin', 'superbill', false, 'view');
 $can_write = acl_check('admin', 'superbill', false, 'write');
-if (!$can_view)
+if (!$can_view && !$can_write)
 {
   formJump();
 }
