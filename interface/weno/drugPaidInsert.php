@@ -18,3 +18,4 @@ $drugs = file_get_contents('drugspaidinsert.sql');
 sqlInsert($drugs);
 
 header('Location: ' . $_SERVER['HTTP_REFERER']);
+exit;

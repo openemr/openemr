@@ -15,7 +15,7 @@ class adminProperties {
 
 
 
-    public function createTables(){
+  public function addNarcotics(){
 
 /*          
 * Import the narcotics into the table database from SQL file
@@ -31,7 +31,6 @@ class adminProperties {
 
 public function drugTableInfo(){
      $sql = "SELECT ndc FROM erx_drug_paid ORDER BY drugid LIMIT 1";
-     
      return sqlQuery($sql);
 
 }
