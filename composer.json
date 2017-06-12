@@ -29,7 +29,8 @@
         "symfony/http-foundation": "2.8.*",
         "vlucas/phpdotenv": "2.4",
         "symfony/yaml": "2.8.*",
-        "phpoffice/phpexcel": "1.8.1"
+        "phpoffice/phpexcel": "1.8.1",
+        "ezyang/htmlpurifier": "4.9.3"
 
     },
     "require-dev": {

@@ -30,10 +30,15 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <html>
 
 <head>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
@@ -45,15 +50,11 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php
 $esignApi = new Api();
 ?>
-
-<?php // include generic js support for graphing ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/swfobject.js"></script>
 
 <?php // if the track_anything form exists, then include the styling and js functions for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>

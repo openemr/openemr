@@ -28,6 +28,14 @@ require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 
+//acl check
+$can_view = acl_check('admin', 'superbill', false, 'view');
+$can_write = acl_check('admin', 'superbill', false, 'write');
+if (!$can_view && !$can_write)
+{
+  formJump();
+}
+
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";
@@ -493,7 +501,7 @@ $billresult = getBillingByEncounter($fs->pid, $fs->encounter, "*");
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
 
-<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-2-2-0/index.js"></script>
+<script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/knockout-3-4-0/dist/knockout.js"></script>
 <script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>

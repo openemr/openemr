@@ -373,7 +373,7 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
 ?>
 
 <title><?php echo xlt('Receipt for Payment'); ?></title>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script language="JavaScript">
 
@@ -508,7 +508,7 @@ $(document).ready(function() {
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 

@@ -14,7 +14,6 @@ if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
                     -o -path ./interface/main/calendar/modules \
                     -o -path ./interface/reports \
                     -o -path ./contrib/util \
-                    -o -path ./library/openflashchart \
                     -o -path ./library/html2pdf/vendor/tecnickcom \
                     -o -path ./library/classes/fpdf \
                     -o -path ./library/html2pdf \
