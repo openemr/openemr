@@ -1,14 +1,14 @@
 <?php
 /**
  * Exports patient demographics to a custom XML format
- * 
+ *
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
 
@@ -258,23 +258,24 @@
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('Export Patient Demographics'); ?></title>
 </head>
-<body>
+<body class="body_top">
   <div class="container">
      <div class="row">
         <div class="col-xs-12">
+           <div class="form-group"></div>
            <div class="form-group">
-              <textarea name="export_data" class=form-control cols="50" rows="18"><?php echo text($out) ?></textarea>
+              <textarea name="export_data" class="form-control" cols="50" rows="18" readonly><?php echo text($out) ?></textarea>
            </div>
            <div class="form-group">
               <div class="col-xs-12 text-right">
                  <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()"><?php echo xlt("OK"); ?></button>
+                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()"><?php echo xlt("Close"); ?></button>
                  </div>
               </div>
            </div>
         </div>
      </div>
-  </div> 
+  </div>
 
 </body>
 </html>
