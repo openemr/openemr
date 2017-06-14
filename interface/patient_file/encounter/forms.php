@@ -379,10 +379,12 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
     // Check for no access to the encounter's sensitivity level.
+    $high_sensitivity=false;
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $high_sensitivity=true;
     }
     // for therapy group
 } else {
@@ -395,10 +397,12 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
     }
     // Check for no access to the encounter's sensitivity level.
+    $high_sensitivity=false;
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $high_sensitivity=true;
     }
 }
 ?>
@@ -576,7 +580,7 @@ if ( $esign->isButtonViewable() ) {
 
 <?php
 
-  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+  if (!$high_sensitivity && $result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
