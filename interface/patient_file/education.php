@@ -135,10 +135,10 @@ if ($_POST['bn_submit']) {
                     <div class='form-group'>
                         <div class='btn-group' role='group'>
                             <button type='submit' class='btn btn-default btn-search' name='bn_submit' value='bn_submit'>
-                                <?php echo xla('Submit'); ?>
+                                <?php echo xlt('Submit'); ?>
                             </button>
                             <button type='button' class='btn btn-link btn-cancel' onclick='window.close()'>
-                                <?php echo xla('Cancel'); ?>
+                                <?php echo xlt('Cancel'); ?>
                             </button>
                         </div>
                     </div>
