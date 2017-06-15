@@ -132,7 +132,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 
 <td align="right">
 	<table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-		<td align="right" class="text" style="vertical-align:text-bottom;"><a href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+		<td align="right" class="text" style="vertical-align:text-bottom;"><a id="homeButton" href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
 		&nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
 		<td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
