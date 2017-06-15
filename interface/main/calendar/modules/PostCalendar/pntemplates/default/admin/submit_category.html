@@ -11,8 +11,8 @@
     // Runs when a color is clicked
     function pickColor(color) {
     	document.getElementById(field).value = color;
-	   
-	   
+
+
 	}
 
     var field;
@@ -21,9 +21,15 @@
 	    cp.show(anchorname);
 	}
     </SCRIPT>
-    
+
 <html>
-<head><link rel="stylesheet" href="[-$css_header-]" type="text/css"></head>
+<head>
+
+<title>[-$_EDIT_PC_CONFIG_CATDETAILS|escape:'html'-]</title>
+
+<link rel="stylesheet" href="[-$css_header-]" type="text/css">
+
+</head>
 <body bgcolor="[-$BGCOLOR2-]"/>
 [-$AdminMenu-]
 <form name="cats" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
@@ -92,11 +98,11 @@
             						</tr>
             					</table>
             				</td>
-            			</tr>			
+            			</tr>
 						<tr>
-							<td>                				
+							<td>
             					<table width='%100'>
-            						<tr>            			
+            						<tr>
                 						<td colspan="4" align="left" valign="top" >
                 							[-$RepeatingHeader-]
                 						</td>
@@ -106,9 +112,9 @@
                 							<input type="radio" name="new[-$InputNoRepeat-]" value="[-$ValueNoRepeat-]" />
                 							[-$NoRepeatTitle-]<br />
                 							<input type="radio" name="new[-$InputRepeat-]" value="[-$ValueRepeat-]"/>
-                							[-$RepeatTitle-] 
+                							[-$RepeatTitle-]
                 							<input type="text" name="new[-$InputRepeatFreq-]" value="0" size="4" />
-                							
+
                 							<select name="new[-$InputRepeatFreqType-]">
                 								[-foreach item=repeat from=$repeat_freq_type-]
                     								<option value="[-$repeat.value-]">
@@ -143,32 +149,32 @@
 											<table width ='%100'>
 												<tr>
 													<td>
-													[-$NoEndDateTitle-]    
+													[-$NoEndDateTitle-]
                 										<input type="radio" name="new[-$InputEndOn-]" value="[-$ValueNoEnd-]" checked />
                 										<br />
 														[-$EndDateTitle-]
                 										<input type="radio" name="new[-$InputEndOn-]" value="[-$ValueEnd-]"/>
                 										<br />
-                										
+
                 										<input type="text" name="new[-$InputEndDateFreq-]" value="0" size="4" />
-                										
+
                 										<select name="new[-$InputEndDateFreqType-]">
                 											[-foreach item=repeat from=$repeat_freq_type-]
                     											<option value="[-$repeat.value-]" [-$repeat.selected-]>
                     												[-$repeat.name-]
                     											</option>
                 											[-/foreach-]
-                										</select>   
-                										<br /> 
+                										</select>
+                										<br />
                 									</td>
                 								</tr>
-                								
+
                 							</table>
                 					 		<!-- /End Date End -->
                							 </td>
-               							 
+
            							 </tr>
-           							 
+
             					</table>
             				</td>
             			</tr>
@@ -266,11 +272,11 @@
             						</tr>
             					</table>
             				</td>
-            			</tr>			
+            			</tr>
 						<tr>
-							<td>                				
+							<td>
             					<table width='%100'>
-            						<tr>            			
+            						<tr>
                 						<td colspan="4" align="left" valign="top" >
                 							[-$RepeatingHeader-]
                 						</td>
@@ -280,9 +286,9 @@
                 							<input type="radio" name="[-$InputNoRepeat-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueNoRepeat-]" [-if $cat.event_repeat == 0-]checked[-/if-]/>
                 							[-$NoRepeatTitle-]<br />
                 							<input type="radio" name="[-$InputRepeat-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueRepeat-]" [-if $cat.event_repeat == 1-]checked[-/if-] />
-                							[-$RepeatTitle-] 
+                							[-$RepeatTitle-]
                 							<input type="text" name="[-$InputRepeatFreq-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.event_repeat_freq-]" size="4" />
-                							
+
                 							<select name="[-$InputRepeatFreqType-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
                 								[-foreach item=repeat from=$repeat_freq_type-]
                     								<option value="[-$repeat.value-]" [-if $cat.event_repeat_freq_type == $repeat.value-]selected[-/if-]>
@@ -317,13 +323,13 @@
 											<table width ='%100'>
 												<tr>
 													<td>
-														[-$NoEndDateTitle-]    
+														[-$NoEndDateTitle-]
                 										<input type="radio" name="[-$InputEndOn-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueNoEnd-]"  [-if $cat.end_date_flag == 0-] checked[-/if-] />
                 										<br />
 														[-$EndDateTitle-]
                 										<input type="radio" name="[-$InputEndOn-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$ValueEnd-]"  [-if $cat.end_date_flag == 1-] checked[-/if-] />
-                										<br />         
-                									
+                										<br />
+
                 										<input type="text" name="[-$InputEndDateFreq-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]" value="[-$cat.end_date_freq-]" size="4" />
                 										<select name="[-$InputEndDateFreqType-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
                 											[-foreach item=repeat from=$repeat_freq_type-]
@@ -331,10 +337,10 @@
                     												[-$repeat.name-]
                     											</option>
                 											[-/foreach-]
-                										</select>   
+                										</select>
                 									</td>
                 								</tr>
-                								
+
                 							</table>
                 					 		<!-- /End Date End -->
                							 </td>
@@ -349,7 +355,7 @@
  		<!-- /REPEATING ROWS -->
 		[-/foreach-]
 	</table>
-	
+
 <input type="hidden" name="pc_html_or_text" value="text" selected>
 [-*$EventHTMLorText*-]
 
