@@ -577,7 +577,7 @@ if ( $esign->isButtonViewable() ) {
 
 <?php
 
-  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+  if ($auth_notes_a && $result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
