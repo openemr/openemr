@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Imports patient demographics from our custom XML format.
  *
  * @package OpenEMR
@@ -193,33 +193,31 @@
 ?>
 <html>
 <head>
-<?php Header::setupHeader(); ?>
-<title><?php echo xlt('Import Patient Demographics'); ?></title>
+    <?php Header::setupHeader(); ?>
+    <title><?php echo xlt('Import Patient Demographics XML'); ?></title>
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
-<form method='post' action="import_xml.php" onsubmit="return top.restoreSession()"> 
-  <div class="container">
-     <div class="row"> 
-        <div class="col-xs-12">
-         <div class="form-group"></div>
-           <div class="form-group">
-              <textarea name='form_import_data' rows='10' cols='50' style='width:95%'></textarea>
-           </div>
-           <div class="form-group">
-              <div class="col-xs-12 text-right">
-                 <div class="btn-group" role="group">
-                    <button type='submit' class='btn btn-default btn-transmit' name='form_import' value='bn_import'>
-                          <?php echo xla('Import Patient'); ?>
-                    </button>
-                    <button type="button" class="btn btn-default btn-cancel" onclick="window.close()">
-                          <?php echo xla("Cancel"); ?>
-                    </button>
-                 </div>
-              </div>
-           </div>
+<form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group"></div>
+                <div class="form-group">
+                    <textarea name='form_import_data' class='form-control' rows='10' cols='50'></textarea>
+                </div>
+                <div class="form-group text-right">
+                    <div class="btn-group" role="group">
+                        <button type='submit' class='btn btn-default btn-save' name='form_import' value='bn_import'>
+                            <?php echo xla('Import'); ?>
+                        </button>
+                        <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">
+                            <?php echo xla("Cancel"); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-     </div>
-  </div>
+    </div>
 </form>
 </body>
 </html>
