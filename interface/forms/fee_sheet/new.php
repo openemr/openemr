@@ -29,10 +29,11 @@ require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 
 //acl check
-$can_view = acl_check('admin', 'superbill', false, 'view');
-$can_write = acl_check('admin', 'superbill', false, 'write');
-if (!$can_view && !$can_write)
+if (!acl_check('encounters','coding'))
 {
+  ?>
+  <script language="JavaScript">alert('<?php echo xls("Not authorized"); ?>')</script>;
+  <?php
   formJump();
 }
 
