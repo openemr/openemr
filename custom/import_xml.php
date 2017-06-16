@@ -4,7 +4,7 @@
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
- * @author  Road Roark <rod@sunsetsystems.com>
+ * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
