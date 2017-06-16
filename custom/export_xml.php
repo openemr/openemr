@@ -256,7 +256,7 @@
 <html>
 <head>
 <?php Header::setupHeader(); ?>
-<title><?php echo xlt('Export Patient Demographics'); ?></title>
+<title><?php echo xlt('Export Patient Demographics XML'); ?></title>
 </head>
 <body class="body_top">
   <div class="container">

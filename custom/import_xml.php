@@ -1,18 +1,21 @@
 <?php
- // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
-
- /////////////////////////////////////////////////////////////////////
- // This imports patient demographics from our custom XML format.
- /////////////////////////////////////////////////////////////////////
+/**
+ * Imports patient demographics from our custom XML format.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Road Roark <rod@sunsetsystems.com>
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*/
 
  include_once("../interface/globals.php");
  include_once("$srcdir/patient.inc");
  include_once("$srcdir/acl.inc");
+
+ use OpenEMR\Core\Header;
 
  function setInsurance($pid, $ainsurance, $asubscriber, $seq) {
   $iwhich = $seq == '2' ? "secondary" : ($seq == '3' ? "tertiary" : "primary");
@@ -190,24 +193,31 @@
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('Import Patient Demographics','e'); ?></title>
+    <?php Header::setupHeader(); ?>
+    <title><?php echo xlt('Import Patient Demographics XML'); ?></title>
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
-
-<p><?php xl('Paste the data to import into the text area below:','e'); ?></p>
-
-<center>
-<form method='post' action="import_xml.php">
-
-<textarea name='form_import_data' rows='10' cols='50' style='width:95%'></textarea>
-
-<p>
-<input type='submit' name='form_import' value=<?php xl('Import Patient','e','\'','\''); ?> /> &nbsp;
-<input type='button' value=<?php xl('Cancel','e','\'','\''); ?> onclick='window.close()' /></p>
+<form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="form-group"></div>
+                <div class="form-group">
+                    <textarea name='form_import_data' class='form-control' rows='10' cols='50'></textarea>
+                </div>
+                <div class="form-group text-right">
+                    <div class="btn-group" role="group">
+                        <button type='submit' class='btn btn-default btn-save' name='form_import' value='bn_import'>
+                            <?php echo xla('Import'); ?>
+                        </button>
+                        <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">
+                            <?php echo xla("Cancel"); ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
-</center>
-
 </body>
 </html>
