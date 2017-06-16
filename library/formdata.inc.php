@@ -226,6 +226,7 @@ function escape_identifier($s,$whitelist_items,$die_if_no_match=FALSE,$case_sens
  * @param string $type 'P', 'G' for post or get data, otherwise uses request.
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
+ * @deprecated
  */
 function formData($name, $type='P', $isTrim=false) {
   if ($type == 'P')
@@ -247,6 +248,7 @@ function formData($name, $type='P', $isTrim=false) {
  * @param string $s
  * @param bool $istrim whether to use trim() on the data.
  * @return string
+ * @deprecated
  */
 function formDataCore($s, $isTrim=false) {
       //trim if selected

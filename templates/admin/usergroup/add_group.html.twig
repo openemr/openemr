@@ -1,0 +1,23 @@
+<form name='new_group' method='post' action="usergroup_admin.php"
+      onsubmit='return top.restoreSession()'>
+    <div class="form-group">
+        <label class="control-label">{{ "Groupname"|translate }}</label>
+        <input type="text" name="groupname" class="form-control">
+    </div>
+    <input type=hidden name=mode value=new_group>
+    <div class="form-group">
+    </div>
+    <label for="rump"
+           class="control-label">{{ "Initial User"|translate }}</label>
+    <select name="rumple" id="rumple" class="form-control">
+        {% for u in users %}
+            <option value="{{ u.username }}">{{ u.username }}</option>
+        {% endfor %}
+    </select>
+</form>
+<div class="modal-footer">
+    <button type="button"
+            class="btn btn-default btn-save">{{ "Save"|translate }}</button>
+    <button type="button" class="btn btn-link btn-cancel"
+            data-dismiss="modal">{{ "Cancel"|translate }}</button>
+</div>

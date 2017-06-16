@@ -63,8 +63,17 @@ bootstrap modal. Eventually this could be abstracted into a twig snippet RD 2017
 <ul class="nav navbar-nav">
     <li>
         <a href="usergroup_admin_add.php" class="text-center">
-            <i class="fa fa-plus fa-lg" style="display:block"></i>
+            <span style="display:block">
+                <i class="fa fa-plus fa-lg"></i>
+                <i class="fa fa-user fa-lg"></i>
+            </span>
             {{ 'Add User'|translate }}
+        </a>
+    </li>
+    <li>
+        <a href="#" data-content="list_groups.php" class="text-center">
+            <i class="fa fa-group fa-lg" style="display:block"></i>
+            {{ 'Groups'|translate }}
         </a>
     </li>
     <li>

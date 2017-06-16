@@ -59,16 +59,16 @@ function test_password_strength($pwd,&$errMsg)
 /**
  * Setup or change a user's password
  * 
- * @param type $activeUser      ID of who is trying to make the change (either the user himself, or an administrator)
- * @param type $targetUser      ID of what account's password is to be updated (for a new user this doesn't exist yet).
- * @param type $currentPwd      the active user's current password 
- * @param type $newPwd          the new password for the target user
- * @param type $errMsg          passed by reference to return any 
- * @param type $create          Are we creating a new user or 
- * @param type $insert_sql      SQL to run to create the row in "users" (and generate a new id) when needed.
- * @param type $new_username    The username for a new user
- * @param type $newid           Return by reference of the ID of a created user
- * @return boolean              Was the password successfully updated/created? If false, then $errMsg will tell you why it failed.
+ * @param string $activeUser ID of who is trying to make the change (either the user himself, or an administrator)
+ * @param int $targetUser ID of what account's password is to be updated (for a new user this doesn't exist yet).
+ * @param string $currentPwd the active user's current password
+ * @param string $newPwd The new password for the target user
+ * @param string $errMsg Passed by reference to return any
+ * @param string $create Are we creating a new user or
+ * @param string $insert_sql SQL to run to create the row in "users" (and generate a new id) when needed.
+ * @param string $new_username The username for a new user
+ * @param string $newid Return by reference of the ID of a created user
+ * @return boolean Was the password successfully updated/created? If false, then $errMsg will tell you why it failed.
  */
 function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,$create=false,$insert_sql="",$new_username=null,&$newid=null)
 {

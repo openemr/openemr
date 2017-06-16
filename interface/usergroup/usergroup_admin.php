@@ -25,6 +25,8 @@ require_once "../../library/acl.inc";
 require_once "$srcdir/auth.inc";
 use Symfony\Component\HttpFoundation\Request;
 
+$request = Request::createFromGlobals();
+
 $alertmsg = '';
 $bg_msg = '';
 $set_active_msg=0;
@@ -34,23 +36,23 @@ $access_group = [];
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
 $mail_id = explode(".",$SMTP_HOST);
-for($i=0;$i<$bg_count;$i++){
-if(($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)){
-  if(($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")){
-    $res = sqlStatement("select username from users where id= ? ", array($_POST["id"]));
-    $row = sqlFetchArray($res);
-    $uname=$row['username'];
-    $mail = new MyMailer();
-        $mail->From = $GLOBALS["practice_return_email_path"];
-        $mail->FromName = "Administrator OpenEMR";
-        $text_body  = "Hello Security Admin,\n\n The Emergency Login user ".$uname.
-                                                " was activated at ".date('l jS \of F Y h:i:s A')." \n\nThanks,\nAdmin OpenEMR.";
-        $mail->Body = $text_body;
-        $mail->Subject = "Emergency Login User Activated";
-        $mail->AddAddress($_POST['admin_id']);
-        $mail->Send();
-}
-}
+for ($i = 0; $i < $bg_count; $i++) {
+    if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
+        if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
+            $res = sqlStatement("SELECT username FROM users WHERE id= ? ", array($_POST["id"]));
+            $row = sqlFetchArray($res);
+            $uname = $row['username'];
+            $mail = new MyMailer();
+            $mail->From = $GLOBALS["practice_return_email_path"];
+            $mail->FromName = "Administrator OpenEMR";
+            $text_body = "Hello Security Admin,\n\n The Emergency Login user " . $uname .
+                " was activated at " . date('l jS \of F Y h:i:s A') . " \n\nThanks,\nAdmin OpenEMR.";
+            $mail->Body = $text_body;
+            $mail->Subject = "Emergency Login User Activated";
+            $mail->AddAddress($_POST['admin_id']);
+            $mail->Send();
+        }
+    }
 }
 /* To refresh and save variables in mail frame */
 if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
@@ -191,161 +193,157 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
 }
 
 /* To refresh and save variables in mail frame  - Arb*/
-if (isset($_POST["mode"])) {
-  if ($_POST["mode"] == "new_user") {
-    if ($_POST["authorized"] != "1") {
-      $_POST["authorized"] = 0;
-    }
-    // $_POST["info"] = addslashes($_POST["info"]);
+$r = $request->request->all();
+switch ($p['mode']) {
+    case 'new_user':
+        $auth = ($r['authorized'] != "1") ? 0 : $r['authorized'];
+        $cal = ($r['calendar']) ? 1 : 0;
+        $rumple = $r['rumple'];
+        $sql = "SELECT DISTINCT username FROM users WHERE username != ''";
+        $result = sqlStatement($sql);
+        $doit = true;
+        while ($row = sqlFetchArray($result)) {
+            if ($doit === true && $row['username'] === $rumple) {
+                $doit = false;
+            }
+        }
 
-    $calvar = $_POST["calendar"] ? 1 : 0;
+        if ($doit === true) {
+            require_once "{$srcdir}/authentication/password_change.php";
+            $expDate = "";
 
-    $res = sqlStatement("select distinct username from users where username != ''");
-    $doit = true;
-    while ($row = sqlFetchArray($res)) {
-      if ($doit == true && $row['username'] == trim(formData('rumple'))) {
-        $doit = false;
-      }
-    }
+            // if password expiration option is enabled, calculate the expiration date of the password
+            if ($GLOBALS['password_expiration_days'] !== 0) {
+                $expDays = $GLOBALS['password_expiration_days'];
+                $expDate = date('Y-m-d', strtotime("+{$expDays} days"));
+            }
 
-    if ($doit == true) {
-    require_once("$srcdir/authentication/password_change.php");
+            // Keys = column names, Values = data value to parse
+            $insertArray = [
+                "username" => $rumple,
+                "fname" => $request->get("fname"),
+                "lname" => $request->get("lname"),
+                "federaltaxid" => $request->get("federaltaxid"),
+                "state_license_number" => $request->get("state_license_number"),
+                "newcrop_user_role" => $request->get("erxrole"),
+                "physician_type" => $request->get("physician_type"),
+                "authorized" => $request->get("authorized"),
+                "info" => $request->get("info"),
+                "federaldrugid" => $request->get("federaldrugid"),
+                "upin" => $request->get("upin"),
+                "npi" => $request->get("npi"),
+                "taxonomy" => $request->get("taxonomy"),
+                "facility_id" => $request->get("facility_id"),
+                "specialty" => $request->get("specialty"),
+                "see_auth" => $request->get("see_auth"),
+                "default_warehouse" => $request->get("default_warehouse"),
+                "irnpool" => $request->get("irnpool"),
+                "calendar" => $cal,
+                "password" => "NoLongerUsed",
+                "pwd_expiration_date" => $expDate
+            ];
 
-    //if password expiration option is enabled,  calculate the expiration date of the password
-    if($GLOBALS['password_expiration_days'] != 0){
-    $exp_days = $GLOBALS['password_expiration_days'];
-    $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-    }
+            $insertSql = "INSERT INTO users SET ";
+            foreach ($insertArray as $column => $value) {
+                $insertSql .= "{$column} = '{$value}'";
+            }
 
-    $insertUserSQL=
-            "insert into users set " .
-            "username = '"         . trim(formData('rumple'       )) .
-            "', password = '"      . 'NoLongerUsed'                  .
-            "', fname = '"         . trim(formData('fname'        )) .
-            "', mname = '"         . trim(formData('mname'        )) .
-            "', lname = '"         . trim(formData('lname'        )) .
-            "', federaltaxid = '"  . trim(formData('federaltaxid' )) .
-            "', state_license_number = '"  . trim(formData('state_license_number' )) .
-            "', newcrop_user_role = '"  . trim(formData('erxrole' )) .
-			"', physician_type = '"  . trim(formData('physician_type' )) .
-            "', authorized = '"    . trim(formData('authorized'   )) .
-            "', info = '"          . trim(formData('info'         )) .
-            "', federaldrugid = '" . trim(formData('federaldrugid')) .
-            "', upin = '"          . trim(formData('upin'         )) .
-            "', npi  = '"          . trim(formData('npi'          )).
-            "', taxonomy = '"      . trim(formData('taxonomy'     )) .
-            "', facility_id = '"   . trim(formData('facility_id'  )) .
-            "', specialty = '"     . trim(formData('specialty'    )) .
-            "', see_auth = '"      . trim(formData('see_auth'     )) .
-            "', default_warehouse = '" . trim(formData('default_warehouse')) .
-            "', irnpool = '"       . trim(formData('irnpool'      )) .
-            "', calendar = '"      . $calvar                         .
-            "', pwd_expiration_date = '" . trim("$exp_date") .
-            "'";
+            $clearAdminPass = $r['adminPass'];
+            $clearUserPass = $r['stiltskin'];
+            $errMsg = "";
+            $provId = "";
+            $rumple = trim(formData('rumple'));
+            $success = update_password($_SESSION['auth'], 0, $clearAdminPass,
+                $clearUserPass, $errMsg, true, $insertSql, $rumple, $provId);
 
-    $clearAdminPass=$_POST['adminPass'];
-    $clearUserPass=$_POST['stiltskin'];
-    $password_err_msg="";
-    $prov_id="";
-    $success = update_password($_SESSION['authId'], 0, $clearAdminPass, $clearUserPass,
-      $password_err_msg, true, $insertUserSQL, trim(formData('rumple')), $prov_id);
-    error_log($password_err_msg);
-    $alertmsg .=$password_err_msg;
-    if($success)
-    {
-      //set the facility name from the selected facility_id
-      sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '" . trim(formData('facility_id')) . "' AND users.username = '" . trim(formData('rumple')) . "'");
+            if ($errMsg !== "") {
+                error_log($errMsg);
+            }
 
-      sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
-        "', user = '" . trim(formData('rumple')) . "'");
+            $alertMsg .= $errMsg;
 
-      if (isset($phpgacl_location) && acl_check('admin', 'acl') && trim(formData('rumple'))) {
-        // Set the access control group of user
-        set_user_aro($_POST['access_group'], trim(formData('rumple')),
-          trim(formData('fname')), trim(formData('mname')), trim(formData('lname')));
-      }
-    }
+            if ($success) {
+                $facilitySql = "UPDATE users, facility SET users.facility = facility.name
+                                WHERE facility.id = ? AND users.username = ?";
+                sqlStatement($facilitySql, [$request->get('facility_id'), $rumple]);
 
+                $groupSql = "INSERT INTO groups SET name = ?, user = ?";
+                sqlStatement($groupSql, [$r['groupname'], $rumple]);
 
+                if (isset($phpgacl_location) && acl_check('admin', 'acl') && $rumple) {
+                    set_user_aro(
+                        $request->get('access_group'),
+                        $rumple,
+                        $r['fname'],
+                        $r['mname'],
+                        $r['lname']
+                    );
+                }
+            }
 
-    } else {
-      $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
-    }
-   if($_POST['access_group']){
-	 $bg_count=count($_POST['access_group']);
-         for($i=0;$i<$bg_count;$i++){
-          if($_POST['access_group'][$i] == "Emergency Login"){
-             $set_active_msg=1;
-           }
-	}
-      }
-  }
-  else if ($_POST["mode"] == "new_group") {
-    $res = sqlStatement("select distinct name, user from groups");
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-      $result[$iter] = $row;
-    $doit = 1;
-    foreach ($result as $iter) {
-      if ($doit == 1 && $iter{"name"} == trim(formData('groupname')) && $iter{"user"} == trim(formData('rumple')))
-        $doit--;
-    }
-    if ($doit == 1) {
-      sqlStatement("insert into groups set name = '" . trim(formData('groupname')) .
-        "', user = '" . trim(formData('rumple')) . "'");
-    } else {
-      $alertmsg .= "User " . trim(formData('rumple')) .
-        " is already a member of group " . trim(formData('groupname')) . ". ";
-    }
-  }
+        } else {
+            $alertMsg .= xl('User') . " {$rumple} " . xl('already exists');
+        }
+
+        $access = $request->get('access_group');
+        if ($access) {
+            $bg_count = count($access);
+            for ($i = 0; $i < $bg_count; $i++) {
+                if ($access_group[$i] === "Emergency Login") {
+                    $set_active_msg = 1;
+                }
+            }
+        }
+
+        break;
+    case 'delete_group':
+        break;
+    case 'update':
+        break;
 }
 
-if (isset($_GET["mode"])) {
-
-  /*******************************************************************
-  // This is the code to delete a user.  Note that the link which invokes
-  // this is commented out.  Somebody must have figured it was too dangerous.
-  //
-  if ($_GET["mode"] == "delete") {
-    $res = sqlStatement("select distinct username, id from users where id = '" .
-      $_GET["id"] . "'");
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-      $result[$iter] = $row;
-
-    // TBD: Before deleting the user, we should check all tables that
-    // reference users to make sure this user is not referenced!
-
-    foreach($result as $iter) {
-      sqlStatement("delete from groups where user = '" . $iter{"username"} . "'");
+if (isset($_POST["mode"])) {
+    if ($_POST["mode"] == "new_group") {
+        $res = sqlStatement("SELECT DISTINCT name, user FROM groups");
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+            $result[$iter] = $row;
+        $doit = 1;
+        foreach ($result as $iter) {
+            if ($doit == 1 && $iter{"name"} == trim(formData('groupname')) && $iter{"user"} == trim(formData('rumple')))
+                $doit--;
+        }
+        if ($doit == 1) {
+            sqlStatement("INSERT INTO groups SET name = '" . trim(formData('groupname')) .
+                "', USER = '" . trim(formData('rumple')) . "'");
+        } else {
+            $alertmsg .= "User " . trim(formData('rumple')) .
+                " is already a member of group " . trim(formData('groupname')) . ". ";
+        }
     }
-    sqlStatement("delete from users where id = '" . $_GET["id"] . "'");
-  }
-  *******************************************************************/
 
-  if ($_GET["mode"] == "delete_group") {
-    $res = sqlStatement("select distinct user from groups where id = ?", array($_GET["id"]));
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-      $result[$iter] = $row;
-    foreach($result as $iter)
-      $un = $iter{"user"};
-    $res = sqlStatement("select name, user from groups where user = '$un' " .
-      "and id != ?", array($_GET["id"]));
+    if ($_GET["mode"] == "delete_group") {
+        $res = sqlStatement("SELECT DISTINCT user FROM groups WHERE id = ?", array($_GET["id"]));
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+            $result[$iter] = $row;
+        foreach ($result as $iter)
+            $un = $iter{"user"};
+        $res = sqlStatement("select name, user from groups where user = '$un' " .
+            "and id != ?", array($_GET["id"]));
 
-    // Remove the user only if they are also in some other group.  I.e. every
-    // user must be a member of at least one group.
-    if (sqlFetchArray($res) != FALSE) {
-      sqlStatement("delete from groups where id = ?", array($_GET["id"]));
-    } else {
-      $alertmsg .= "You must add this user to some other group before " .
-        "removing them from this group. ";
+        // Remove the user only if they are also in some other group.  I.e. every
+        // user must be a member of at least one group.
+        if (sqlFetchArray($res) != FALSE) {
+            sqlStatement("DELETE FROM groups WHERE id = ?", array($_GET["id"]));
+        } else {
+            $alertmsg .= "You must add this user to some other group before " .
+                "removing them from this group. ";
+        }
     }
-  }
 }
 
 $form_inactive = empty($_REQUEST['form_inactive']) ? false : true;
 
 /** START OF IMPROVED CONTROLLER / MODEL */
-
-$request = Request::createFromGlobals();
 
 $users = function($active = 1) {
     $sql = "SELECT * FROM users WHERE username IS NOT NULL %s";

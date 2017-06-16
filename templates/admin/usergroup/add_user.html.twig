@@ -129,8 +129,7 @@
                 </p>
             </div>
 
-            <form action="usergroup_admin.php" name="new_user" id="new_user" class="form-horizontal"
-                  method="post" target="_parent">
+            <form action="usergroup_admin.php" name="new_user" id="new_user" class="form-horizontal" method="post">
                 <fieldset>
                     <legend>{{ "Basic Information"|translate }}</legend>
                     <div class="row">
@@ -340,6 +339,7 @@
                     </div>
                 </fieldset>
                 <div class="btn-group pull-right">
+                    <input type="hidden" name="mode" value="new_user">
                     <button type="submit" class="btn btn-default btn-save" name='form_save' id='form_save'>{{ "Save"|translate }}</button>
                     <a class="btn btn-link btn-cancel"  href='usergroup_admin.php'>{{ "Cancel"|translate }}</a>
                 </div>
@@ -348,65 +348,32 @@
     </div>
 </div>
 
+{% if global.disable_non_default_groups == false %}
 <div class="modal fade" tabindex="-1" role="dialog" id="modal-new-group">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form name='new_group' method='post' action="usergroup_admin.php" onsubmit='return top.restoreSession()'>
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-timex"></i></button>
-                    <h4 class="modal-title">{{ "New Group"|translate }}</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="control-label">{{ "Groupname"|translate }}</label>
-                        <input type="text" name=groupname size=10 class="form-control">
-                    </div>
-                    <input type=hidden name=mode value=new_group>
-                    <label for="rumple" class="control-label">{{ "Initial User"|translate }}</label>
-                    <select name="rumple" class="form-control">
-                        {% for u in users %}
-                            <option value="{{ u.username }}">{{ u.username }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-default btn-save">{{ "Save"|translate }}</button>
-                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal">{{ "Cancel"|translate }}</button>
-                </div>
-            </form>
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
+                <h4 class="modal-title">{{ "New Group"|translate }}</h4>
+            </div>
+            <div class="modal-body">
+                {% include "admin/usergroup/add_group.html.twig" %}
+            </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+{% endif %}
 
 <div class="modal fade" tabindex="-1" role="dialog" id="modal-add-to-group">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form name='new_group' method='post' action="usergroup_admin.php" onsubmit='return top.restoreSession()'>
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-timex"></i></button>
-                    <h4 class="modal-title">{{ "New Group"|translate }}</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="control-label">{{ "Groupname"|translate }}</label>
-                        <input type="text" name="groupname" class="form-control">
-                    </div>
-                    <input type=hidden name=mode value=new_group>
-                    <div class="form-group">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times"></i></button>
+                <h4 class="modal-title">{{ "New Group"|translate }}</h4>
+            </div>
+            <div class="modal-body">
 
-                    </div>
-                    <label for="rump" class="control-label">{{ "Initial User"|translate }}</label>
-                    <select name="rumple" id="rumple" class="form-control">
-                        {% for u in users %}
-                            <option value="{{ u.username }}">{{ u.username }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary btn-save">{{ "Save"|translate }}</button>
-                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal">{{ "Cancel"|translate }}</button>
-                </div>
-            </form>
+            </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
