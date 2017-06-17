@@ -203,15 +203,15 @@
             <div class="col-xs-12">
                 <div class="form-group"></div>
                 <div class="form-group">
-                    <textarea name='form_import_data' class='form-control' rows='10' cols='50'></textarea>
+                    <textarea name='form_import_data' class='form-control' rows='10'></textarea>
                 </div>
                 <div class="form-group text-right">
                     <div class="btn-group" role="group">
                         <button type='submit' class='btn btn-default btn-save' name='form_import' value='bn_import'>
-                            <?php echo xla('Import'); ?>
+                            <?php echo xlt('Import'); ?>
                         </button>
                         <button type="button" class="btn btn-link btn-cancel" onclick="window.close()">
-                            <?php echo xla("Cancel"); ?>
+                            <?php echo xlt("Cancel"); ?>
                         </button>
                     </div>
                 </div>

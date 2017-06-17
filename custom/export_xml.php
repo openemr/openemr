@@ -264,7 +264,7 @@
         <div class="col-xs-12">
            <div class="form-group"></div>
            <div class="form-group">
-              <textarea name="export_data" class="form-control" cols="50" rows="18" readonly><?php echo text($out) ?></textarea>
+              <textarea name="export_data" class="form-control" rows="18" readonly><?php echo text($out) ?></textarea>
            </div>
            <div class="form-group">
               <div class="col-xs-12 text-right">
