@@ -23,6 +23,37 @@
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @link    http://www.open-emr.org
  */
+function generateDateQualifierSelect($name,$options,$obj)
+{
+    echo     "<select name='".attr($name)."'>";
+    for($idx=0;$idx<count($options);$idx++)
+    {
+        echo "<option value='".attr($options[$idx][1])."'";
+        if($obj[$name]==$options[$idx][1]) echo " selected";
+        echo ">".text($options[$idx][0])."</option>";
+    }
+    echo     "</select>";
+
+}
+function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
+  $query = "SELECT id, lname, fname FROM users WHERE " .
+    "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
+    "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
+    "ORDER BY lname, fname";
+  $res = sqlStatement($query);
+  echo "   <select name='" . attr($selname) . "'";
+  if ($disabled) echo " disabled";
+  echo ">\n";
+  echo "    <option value=''>" . text($toptext) . "\n";
+  while ($row = sqlFetchArray($res)) {
+    $provid = $row['id'];
+    echo "    <option value='" . attr($provid) . "'";
+    if ($provid == $default) echo " selected";
+    echo ">" . text($row['lname'] . ", " . $row['fname']) . "\n";
+  }
+  echo text($provid);
+  echo "   </select>\n";
+}
 
 $box_14_qualifier_options=array(array(xl("Onset of Current Symptoms or Illness"),"431"),
                                             array(xl("Last Menstrual Period"),"484"));
