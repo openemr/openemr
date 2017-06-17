@@ -33,7 +33,7 @@ if ($GLOBALS['gbl_portal_cms_enable']) {
 <script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 
 <!-- include jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 
 <script language='JavaScript'>
 

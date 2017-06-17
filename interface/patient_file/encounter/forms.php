@@ -30,10 +30,15 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <html>
 
 <head>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
 <style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 
 <!-- supporting javascript code -->
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
@@ -45,15 +50,11 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <script type="text/javascript" src="../../../library/js/common.js"></script>
 <script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php
 $esignApi = new Api();
 ?>
-
-<?php // include generic js support for graphing ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/swfobject.js"></script>
 
 <?php // if the track_anything form exists, then include the styling and js functions for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
@@ -364,9 +365,7 @@ $providerNameRes = getProviderName($providerIDres);
 <div class='encounter-summary-column'>
 <div>
 <?php
-$auth_notes_a  = acl_check('encounters', 'notes_a');
-$auth_notes    = acl_check('encounters', 'notes');
-$auth_relaxed  = acl_check('encounters', 'relaxed');
+$pass_sens_squad = true;
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
 
@@ -376,13 +375,13 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // for therapy group
 } else {
@@ -392,13 +391,13 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     $result = getGroup($groupId);
     echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
 }
 ?>
@@ -576,7 +575,7 @@ if ( $esign->isButtonViewable() ) {
 
 <?php
 
-  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+  if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) ) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
@@ -712,6 +711,9 @@ if ( $esign->isButtonViewable() ) {
 		$divnos=$divnos+1;
     }
     echo "</table>";
+}
+if (!$pass_sens_squad) {
+    echo xlt("Not authorized to view this encounter");
 }
 ?>
 

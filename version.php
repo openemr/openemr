@@ -44,10 +44,10 @@ $v_offsite_portal='1.47';
 // All this is to keep browsers from using an older cached version.
 // Need to assign it as a global below to work in template scripts.
 if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
-    $v_js_includes = random_int(10000,99999);
+    $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 35;
+    $v_js_includes = 36;
 }
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;
