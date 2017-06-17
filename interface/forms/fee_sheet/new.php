@@ -29,11 +29,11 @@ require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 
 //acl check
-$can_view = acl_check('admin', 'superbill', false, 'view');
-$can_write = acl_check('admin', 'superbill', false, 'write');
-if (!$can_view && !$can_write)
-{
-  formJump();
+if (!acl_check_form('fee_sheet')) {
+    ?>
+    <script language="JavaScript">alert('<?php echo xls("Not authorized"); ?>')</script>;
+    <?php
+    formJump();
 }
 
 // Some table cells will not be displayed unless insurance billing is used.
