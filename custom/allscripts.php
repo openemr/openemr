@@ -39,9 +39,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/amc.php");
 
 // To Read the Excel input from ePrescribe, phpExcel package is needed.
-// Modify the relative path in the following line based on your local structure for
-// PHPExcel root directory. Original code assumes this file in 'custom' directory.
-require_once($GLOBALS['fileroot'].'/interface/PHPExcel/Classes/PHPExcel.php');
+// (As of OpenEMR 5.0.0, this package is installed via composer and autoloaded)
 
 /* Check the access control lists to ensure permissions to this page */
 $thisauth = acl_check('patients', 'med');
