@@ -1137,6 +1137,19 @@
             "global_req": "!disable_prescriptions"
           },
           {
+            "label": "Rx Import",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/custom/allscripts.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "patients",
+              "rx"
+            ],
+            "global_req": "!disable_prescriptions"
+          },
+          {
             "label": "Patient List Creation",
             "menu_id": "rep0",
             "target": "rep",
