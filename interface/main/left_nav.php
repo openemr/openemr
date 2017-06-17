@@ -1453,6 +1453,8 @@ if (!empty($reg)) {
       genMiscLink('RTop','rep','0',xl('List'),'reports/patient_list.php'); ?>
     <?php if (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions'])
       genMiscLink('RTop','rep','0',xl('Rx'),'reports/prescriptions_report.php'); ?>
+    <?php if (acl_check('patients', 'rx') && !$GLOBALS['disable_prescriptions'])
+      genMiscLink('RTop','rep','0',xl('Rx Import'),'../custom/allscripts.php'); ?>
     <?php if (acl_check('patients', 'med'))
       genMiscLink('RTop','rep','0',xl('Patient List Creation'),'reports/patient_list_creation.php'); ?>
     <?php if (acl_check('patients', 'med'))
