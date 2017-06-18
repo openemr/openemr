@@ -14,7 +14,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
-require_once("forms_review_header.php");
+
+$reviewMode = false;
+if (!empty($_REQUEST['review_id'])) {
+    $reviewMode = true;
+    $encounter=$_REQUEST['review_id'];
+}
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 if($attendant_type == 'gid'){
@@ -258,6 +263,14 @@ jQuery(document).ready( function($) {
   }
 ?>
 
+    <?php if ($reviewMode) { ?>
+        $("body table:first").hide();
+        $(".encounter-summary-column").hide();
+        $(".css_button").hide();
+        $(".css_button_small").hide();
+        $(".encounter-summary-column:first").show();
+        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ("+<?php echo addslashes($encounter); ?>+")");
+    <?php } ?>
 });
 
  // Process click on Delete link.
@@ -713,5 +726,4 @@ if (!$pass_sens_squad) {
 
 </div> <!-- end large encounter_forms DIV -->
 </body>
-<?php require_once("forms_review_footer.php"); ?>
 </html>
