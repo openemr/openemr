@@ -70,19 +70,15 @@ formHeader("Form: misc_billing_options");
     <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_from' id='off_work_from'
     value='<?php echo attr($off_work_from); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_off_work_from' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
   </td>
  </tr>
  &nbsp;&nbsp;
 <tr>
  <td><span class=text><?php echo xlt('Box 16. Date unable to work to');?>:</span></td>
   <td><?php $off_work_to = $obj{"off_work_to"}; ?>
-    <input type=text style="width: 70px;" size=10 name='off_work_to' id='off_work_to'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_to' id='off_work_to'
     value='<?php echo attr($off_work_to); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
   </td>
  </tr>
     <br><br>

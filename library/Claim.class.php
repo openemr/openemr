@@ -1,11 +1,11 @@
 <?php
-// Copyright (C) 2007-2009 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/** @package OpenEMR
+ *  @link http://www.open-emr.org
+ *  @author Rod Roark <rod@sunsetsystems.com>
+ *  @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
+ *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 
+ */
+ 
 require_once(dirname(__FILE__) . "/invoice_summary.inc.php");
 
 // This enforces the X12 Basic Character Set. Page A2.
@@ -1089,14 +1089,14 @@ class Claim {
     return cleanDate($this->billing_options['date_initial_treatment']);
   }
 
-  function box14qualifier()
+  function box14Qualifier()
   {
       // If no box qualifier specified use "431" indicating Onset
       return empty($this->billing_options['box_14_date_qual']) ? '431' :
               $this->billing_options['box_14_date_qual'];
   }
 
-  function box15qualifier()
+  function box15Qualifier()
   {
       // If no box qualifier specified use "454" indicating Initial Treatment
       return empty($this->billing_options['box_15_date_qual']) ? '454' :
