@@ -9,10 +9,7 @@ require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 
 $esignApi = new Esign\Api();
 ?>
-<?php if (empty($hide)) { // if not included by forms.php ?>
-<html>
-<head>
-<?php } ?>
+
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
@@ -186,16 +183,6 @@ isset($GLOBALS['encounter']) &&
 
 if (!empty($reg)) {
   $StringEcho= '<ul id="sddm">';
-  if(isset($hide)){
-    $StringEcho.= "<li><a id='enc2' >" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-  }else{
-    if ($GLOBALS['new_tabs_layout']) {
-      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame('enc2','enc','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-    }
-    else {
-      $StringEcho.= "<li><a href='JavaScript:void(0);' id='enc2' onclick=\" return top.window.parent.left_nav.loadFrame2('enc2','RBot','patient_file/encounter/encounter_top.php')\">" . htmlspecialchars( xl('Encounter Summary'),ENT_NOQUOTES) . "</a></li>";
-    }
-  }
   if ($encounterLocked === false) {
       foreach ($reg as $entry) {
         // Check permission to create forms of this type.
@@ -309,7 +296,3 @@ if($StringEcho){
   </tr>
 </table>
 </dl>
-<?php if (empty($hide)) { ?>
-</body>
-</html>
-<?php } ?>
