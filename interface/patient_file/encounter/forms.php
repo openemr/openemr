@@ -127,7 +127,7 @@ jQuery(document).ready( function($) {
     $(".onerow").click(function() { GotoForm(this); });
 
     $("#prov_edu_res").click(function() {
-        if ( $('#prov_edu_res').attr('checked') ) {
+        if ( $('#prov_edu_res').prop('checked') ) {
             var mode = "add";
         }
         else {
@@ -146,7 +146,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#provide_sum_pat_flag").click(function() {
-        if ( $('#provide_sum_pat_flag').attr('checked') ) {
+        if ( $('#provide_sum_pat_flag').prop('checked') ) {
             var mode = "add";
         }
         else {
@@ -165,7 +165,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#trans_trand_care").click(function() {
-        if ( $('#trans_trand_care').attr('checked') ) {
+        if ( $('#trans_trand_care').prop('checked') ) {
             var mode = "add";
             // Enable the reconciliation checkbox
             $("#med_reconc_perf").removeAttr("disabled");
@@ -175,9 +175,9 @@ jQuery(document).ready( function($) {
             var mode = "remove";
             //Disable the reconciliation checkbox (also uncheck it if applicable)
             $("#med_reconc_perf").attr("disabled", true);
-            $("#med_reconc_perf").removeAttr("checked");
+            $("#med_reconc_perf").prop("checked",false);
 	    $("#soc_provided").attr("disabled",true);
-	    $("#soc_provided").removeAttr("checked");
+	    $("#soc_provided").prop("checked",false);
         }
         top.restoreSession();
         $.post( "../../../library/ajax/amc_misc_data.php",
@@ -192,7 +192,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#med_reconc_perf").click(function() {
-        if ( $('#med_reconc_perf').attr('checked') ) {
+        if ( $('#med_reconc_perf').prop('checked') ) {
             var mode = "complete";
         }
         else {
@@ -210,7 +210,7 @@ jQuery(document).ready( function($) {
         );
     });
     $("#soc_provided").click(function(){
-        if($('#soc_provided').attr('checked')){
+        if($('#soc_provided').prop('checked')){
                 var mode = "soc_provided";
         }
         else{
