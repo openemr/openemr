@@ -1420,11 +1420,11 @@ function postcalendar_userapi_buildSubmitForm($args,$admin=false)
         $output->Text($tpl->fetch($template_name.'/admin/submit.html'));
     }
     //check flag no_nav, if true use much smaller submit form for find_patient.php, etc
-    elseif (pnVarCleanFromInput("no_nav") == 1) {
-        $output->Text($tpl->fetch($template_name.'/user/submit_no_nav.html'));
-    } else {
-        $output->Text($tpl->fetch($template_name.'/user/submit.html'));
-    }
+    //elseif (pnVarCleanFromInput("no_nav") == 1) {
+    //    $output->Text($tpl->fetch($template_name.'/user/submit_no_nav.html'));
+    //} else {
+    //    $output->Text($tpl->fetch($template_name.'/user/submit.html'));
+    //}
     $output->Text(postcalendar_footer());
     return $output->GetOutput();
 }

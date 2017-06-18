@@ -139,20 +139,6 @@ function newIssue() {
  dlgopen('summary/add_edit_issue.php' + tmp, '_blank', 600, 475);
 }
 
-// New Encounter button is clicked.
-function newEncounter() {
- var f = document.forms[0];
- if (!f.form_save.disabled) {
-  if (!confirm('<?php echo xls('This will abandon your unsaved changes. Are you sure?'); ?>'))
-   return;
- }
- top.restoreSession();
- var tmp = (keyid && f.form_key[0].checked) ? ('&issue=' + keyid) : '';
- opener.top.Title.location.href='encounter/encounter_title.php';
- opener.top.Main.location.href='encounter/patient_encounter.php?mode=new' + tmp;
- window.close();
-}
-
 // Determine if a given problem/encounter pair is currently linked.
 // If yes, return the "resolved" character (Y or N), else an empty string.
 function isPair(problem, encounter) {

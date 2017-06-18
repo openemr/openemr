@@ -45,7 +45,6 @@ use ESign\Api;
  // * interface/patient_file/encounter/encounter_top.php: another new frameset
  //   cloned from patient_encounter.php.
  // * interface/patient_file/encounter/forms.php: link target removal.
- // * interface/patient_file/encounter/new_form.php: target change.
  // * interface/forms/newpatient/new.php, view.php, save.php: link/target
  //   changes.
  // * interface/patient_file/summary/immunizations.php: removed back link.
