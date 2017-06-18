@@ -48,12 +48,12 @@ formHeader("Form: misc_billing_options");
 <span class=text><?php echo xlt('Box 10 D. EPSDT Referral Code');?> </span><input type=entry style="width: 25px;" size=2 name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >&nbsp;&nbsp;&nbsp;&nbsp;
 <label><span class=text><?php echo xlt('EPSDT'); ?> : </span><input type=checkbox name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>></label><br><br>
  <tr>
-  <td><span class=text><?php echo xlt('Box 14.  Populated from the Encounter Screen as the Onset Date needs a qualifier.');?>
+  <td><span class=text><?php echo xlt('Box 14. Populated from the Encounter Screen as the Onset Date needs a qualifier.');?>
     <?php generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?>
   </span></td>
  </tr><br><br>
  <tr>
-   <td><span class=text><?php echo xlt('Box 15.  Other Date with a qualifier to specify what the date indicates.');?>
+   <td><span class=text><?php echo xlt('Box 15. Other Date with a qualifier to specify what the date indicates.');?>
      <?php $date_initial_treatment = $obj{"date_initial_treatment"}; ?>
        <input type=text style="width: 70px;" size=10 class='datepicker' name='date_initial_treatment' id='date_initial_treatment'
        value='<?php echo attr($date_initial_treatment); ?>'
@@ -67,10 +67,9 @@ formHeader("Form: misc_billing_options");
  <tr>
   <td><span class=text><?php echo xlt('Box 16. Date unable to work from');?>:</span></td>
   <td><?php $off_work_from = $obj{"off_work_from"}; ?>
-    <input type=text style="width: 70px;" size=10 name='off_work_from' id='off_work_from'
+    <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_from' id='off_work_from'
     value='<?php echo attr($off_work_from); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
     <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_off_work_from' border='0' alt='[?]' style='cursor:pointer'
     title='<?php echo xla("Click here to choose a date"); ?>'></td>
@@ -84,9 +83,6 @@ formHeader("Form: misc_billing_options");
     value='<?php echo attr($off_work_to); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_off_work_to' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla("Click here to choose a date"); ?>'></td>
   </td>
  </tr>
     <br><br>
