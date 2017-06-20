@@ -78,7 +78,7 @@ formHeader("Form: misc_billing_options");
   <td><?php $off_work_to = $obj{"off_work_to"}; ?>
     <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_to' id='off_work_to'
     value='<?php echo attr($off_work_to); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
   </td>
  </tr>
     <br><br>
