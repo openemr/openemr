@@ -518,11 +518,12 @@ function HelpfulDie ($statement, $sqlerr='')
   if($GLOBALS['sql_string_no_show_screen']){
     echo "<h2>" . xlt('Save Unsuccessful.') . "</h2>";
   }
-
-  if(!$GLOBALS['sql_string_no_show_screen']) {
+  else {
     echo "<p><p><font color='red'>ERROR:</font> " . text($statement) . "<p>";
   }
+
   $logMsg="SQL Error with statement:".$statement;
+
   if ($sqlerr) {
     if(!$GLOBALS['sql_string_no_show_screen']) {
        echo "Error: <font color='red'>" . text($sqlerr) . "</font><p>";
@@ -530,8 +531,9 @@ function HelpfulDie ($statement, $sqlerr='')
     $logMsg.="--".$sqlerr;
   }//if error
 
+  $backtrace = debug_backtrace();
+
   if(!$GLOBALS['sql_string_no_show_screen']) {
-      $backtrace = debug_backtrace();
       for ($level = 1; $level < count($backtrace); $level++)
       {
           $info = $backtrace[$level];
@@ -541,7 +543,9 @@ function HelpfulDie ($statement, $sqlerr='')
           }
       }
   }
+
   $logMsg.="==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"];
+
   error_log($logMsg);
 
   exit;
