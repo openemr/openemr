@@ -1,7 +1,14 @@
 <?php
-//------------Forms generated from formsWiz
-
-
+/** 
+ *  Dictation store  
+ * 
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * 
+ */
 
 
 include_once("../../globals.php");
@@ -19,4 +26,4 @@ $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
+
