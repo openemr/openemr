@@ -243,8 +243,7 @@ if ($authorize) {
 /* added to adjust the height of this frame by the min/max buttons */
 var origRows = null;
 $(document).ready(function(){
-    $("#findpatients").click(function() { RestoreFrame(this); document.location.href='../calendar/find_patient.php?no_nav=1&mode=reset'; return true; });
-    
+
     $(".noterow").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".noterow").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".noterow").click(function() { EditNote(this); });

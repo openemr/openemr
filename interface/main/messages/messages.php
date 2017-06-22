@@ -425,7 +425,7 @@ $(document).ready(function(){
   top.restoreSession();
   $.ajax({
     type:'get',
-    url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
+    url:'<?php echo $GLOBALS['webroot']."/library/ajax/set_pt.php";?>',
     data:{set_pid: pid},
     async: false
   });
