@@ -1,13 +1,13 @@
 <?php
 /**
- * Patient Tracker (Patient Flow Board)
+ *  Patient Tracker (Patient Flow Board)
  *
- * This program displays the information entered in the Calendar program ,
- * allowing the user to change status and view those changed here and in the Calendar
- * Will allow the collection of length of time spent in each status
+ *  This program displays the information entered in the Calendar program ,
+ *  allowing the user to change status and view those changed here and in the Calendar
+ *  Will allow the collection of length of time spent in each status
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link http://www.open-emr.org
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
@@ -15,6 +15,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\Header;
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
@@ -22,6 +23,22 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 require_once("$srcdir/user.inc");
 
+// Source PHP documentation (@author - jimpoz at jimpoz dot com)
+function array_orderby() {
+	$args = func_get_args();
+	$data = array_shift($args);
+	foreach ($args as $n => $field) {
+		if (is_string($field)) {
+			$tmp = array();
+			foreach ($data as $key => $row)
+				$tmp[$key] = $row[$field];
+				$args[$n] = $tmp;
+		}
+	}
+	$args[] = &$data;
+	call_user_func_array('array_multisort', $args);
+	return array_pop($args);
+}
 // mdsupport - user_settings prefix
 $uspfx = substr(__FILE__, strlen($webserver_root)) . '.';
 $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window', ' ');
@@ -29,103 +46,426 @@ $setting_new_window = prevSetting($uspfx, 'setting_new_window', 'form_new_window
 #define variables, future enhancement allow changing the to_date and from_date
 #to allow picking a date to review
 
+// For auth users (with appts), check if allowed to see all appointments
+// They can also choose to filter their own appointments
+$provider = null;
 if (!is_null($_POST['form_provider'])) {
-  $provider = $_POST['form_provider'];
+	$provider = $_POST['form_provider'];
 }
 else if ($_SESSION['userauthorized']) {
-  $provider = $_SESSION['authUserID'];
-}
-else {
-  $provider = null;
+	$provider = $_SESSION['authUserID'];
 }
 $facility  = !is_null($_POST['form_facility']) ? $_POST['form_facility'] : null;
 $form_apptstatus = !is_null($_POST['form_apptstatus']) ? $_POST['form_apptstatus'] : null;
 $form_apptcat=null;
 if(isset($_POST['form_apptcat']))
 {
-    if($form_apptcat!="ALL")
-    {
-        $form_apptcat=intval($_POST['form_apptcat']);
-    }
+	if($form_apptcat!="ALL")
+	{
+		$form_apptcat=intval($_POST['form_apptcat']);
+	}
 }
 
 $appointments = array();
-$from_date = date("Y-m-d");
-$to_date = date("Y-m-d");
-$datetime = date("Y-m-d H:i:s");
+$today = date("Y-m-d");
 
 # go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
+$appointments = fetch_Patient_Tracker_Events($today, $today, $provider, $facility, $form_apptstatus, $form_apptcat);
 $appointments = sortAppointments( $appointments, 'time' );
 
-//grouping of the count of every status
-$appointments_status = getApptStatus($appointments);
-
-// Below are new constants for the translation pipeline
-// xl('None')
-// xl('Reminder done')
-// xl('Chart pulled')
-// xl('Canceled')
-// xl('No show')
-// xl('Arrived')
-// xl('Arrived late')
-// xl('Left w/o visit')
-// xl('Ins/fin issue')
-// xl('In exam room')
-// xl('Checked out')
-// xl('Coding done')
-// xl('Canceled < 24h')
-$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
+// Appointment status mappings
+$apt_stats = array();
+$li_stats_dropdown = '';
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1
+						ORDER BY seq", array('apptstat'));
 while ( $lrow = sqlFetchArray ( $lres ) ) {
-    // if exists, remove the legend character
-    if($lrow['title'][1] == ' '){
-        $splitTitle = explode(' ', $lrow['title']);
-        array_shift($splitTitle);
-        $title = implode(' ', $splitTitle);
-    }else{
-        $title = $lrow['title'];
-    }
+	// if exists, remove the legend character
+	$title = trim($lrow['title']);
+	$ttok = explode(' ', $title, 2);
+	if ($ttok[0] == $lrow['option_id']) { $title = $ttok[1]; }
+	$apt_stats[$lrow['option_id']] = xl($title);
+	$li_stats_dropdown .= sprintf('<li data-selected="%s" style="display:none;"><a href="#">%s</a></li>', 
+			htmlspecialchars($lrow['option_id']), $apt_stats[$lrow['option_id']]);
+}
+// Allowed status transitions : should be moved to apptstat
+$apt_stats_next = array(
+	'-' => '@x~%*+',
+	'*' => '@x~%',
+	'+' => '@x~%',
+	'@' => '!#<>',
+	'~' => '!#<>',
+	'<' => '>',
+	'x' => '$',
+	'?' => '$',
+	'!' => '$',
+	'#' => '$',
+	'>' => '$',
+	'%' => '$',
+	'$' => '',
+);
 
-    $statuses_list[$lrow['option_id']] = $title;
+// List of rooms - currently relying on description to specify facility
+$trk_rooms = array();
+$li_rooms_dropdown = '';
+$lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1
+						ORDER BY seq", array('patient_flow_board_rooms'));
+while ( $lrow = sqlFetchArray ( $lres ) ) {
+	$title = trim($lrow['title']);
+	$trk_rooms[$lrow['option_id']] = xl($title);
+	$li_rooms_dropdown .= sprintf('<li data-selected="%s"><a href="#">%s</a></li>',
+			htmlspecialchars($lrow['option_id']), $trk_rooms[$lrow['option_id']]);
 }
 
-$chk_prov = array();  // list of providers with appointments
+// Specify data to be tagged for each row
+$appt_tr_data = array('timer-in', 'timer-out', 'timer-hglt', 'timer-cur', 'edit-status', 'edit-room');
 
-// Scan appointments for additional info
-foreach ( $appointments as $apt ) {
-  $chk_prov[$apt['uprovider_id']] = $apt['ulname'] . ', ' . $apt['ufname'] . ' ' . $apt['umname'];
+// Map data display
+$trkr_cols = array(
+		'PID'  => array('show' => $GLOBALS['ptkr_show_pid'], 'class'=>'xable'),
+		'Patient' => array('class' => 'link-pt'),
+		'Visit Type' => array('class' => 'chk_single'),
+		'Facility' => array ('class' => 'chk_single', single_icon => 'hospital-o'),
+		'Provider' => array('class' => 'chk_single', single_icon => 'user-md'),
+		'Reason'  => array('show' => $GLOBALS['ptkr_visit_reason'], 'class'=>'xable'),
+		'Encounter'  => array('show' => $GLOBALS['ptkr_show_encounter'], 'class'=>'xable'),
+		'Appt' => array(),
+		'Arrived' => array('class' => 'timer-in timer-hglt', 'data' => array('hglt-min' => 5, 'hglt-max' => 15)),
+		'Status' => array('class' => 'timer-cur timer-hglt edit-status chk_single', 'data' => array('hglt-min' => 5, 'hglt-max' => 15)),
+		'Duration' => array('class' => 'timer-cur', 'data' => array('hglt-min' => 5, 'hglt-max' => 15)),
+		'Room' => array('class' => 'timer-cur timer-hglt edit-room', 'data' => array('hglt-min' => 5, 'hglt-max' => 15)),
+		'Checked Out' => array(),
+		'Total Time' => array('class' => 'timer-in timer-out', 'data' => array('hglt-min' => 20, 'hglt-max' => 60)),
+		'Updated By' => array(),
+		'Random Drug Screen' => array('show' => ($GLOBALS['drug_screen']),),
+		'Drug Screen Completed' => array('show' => ($GLOBALS['drug_screen']),),
+);
+
+// Check user filters, single value columns etc.
+$chk_single = array();
+$usr_filts = array();
+$str_filts = "";
+foreach ($trkr_cols as $col_hdr => $col_opts) {
+	$filt = getUserSetting($uspfx.'filter-'.xlt($col_hdr));
+	if (!is_null($filt) && (strlen($filt)>0)) {
+		$usr_filts[$col_hdr] = htmlspecialchars_decode($filt);
+		$str_filts .= xlt($col_hdr).' - '.$filt."\n";
+	}
+	
+	if (isset($col_opts['class'])) {
+		if (strpos($col_opts['class'], 'chk_single') !== FALSE) {
+			$chk_single[$col_hdr] = array();
+		}
+	}
+}
+
+foreach ( $appointments as $ix => $appt ) {
+	// Build values for each column - self documenting
+	$tracker_id = $appt['id'];
+	$newarrive = collect_checkin($tracker_id);
+	$newend = collect_checkout($tracker_id);
+	$skip_this = false;
+	
+	foreach ($trkr_cols as $col_hdr => $col_opts) {
+		switch ($col_hdr) {
+			case 'PID':
+				$appt[$col_hdr] = (!empty($appt['pid'])) ? $appt['pid'] : $appt['pc_pid'];
+				// skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+				$skip_this = $skip_this || ($appt['PID'] == 0);
+				break;
+			case 'Patient':
+				$appt[$col_hdr] = sprintf("%s, %s %s",
+				$appt['lname'], $appt['fname'], $appt['mname']);
+				break;
+			case 'Reason':
+				$appt[$col_hdr] = $appt['pc_hometext'];
+				break;
+			case 'Encounter':
+				$appt[$col_hdr] = ($appt['encounter'] != 0 ? $appt['encounter'] : '');
+				break;
+			case 'Room':
+				$appt['edit-room'] = (empty($appt['room'])) ? $appt['pc_room'] : $appt['room'];
+				$appt[$col_hdr] = getListItemTitle('patient_flow_board_rooms', $appt['edit-room']);
+				// $appt['edit-room-limit'] = '*';  // No room restrictions
+				break;
+			case 'Appt':
+				$appt[$col_hdr] = $appt['pc_startTime']; // ** Recurring appt? *** (!empty($appt['appttime'])) ? $appt['appttime'] : $appt['pc_startTime'];
+				$appt[$col_hdr] = oeFormatTime($appt[$col_hdr]);
+				break;
+			case 'Arrived':
+				if ($newarrive) {
+					$appt[$col_hdr] = ($newarrive ? oeFormatTime($newarrive) : '');
+					$appt['time-in'] = strtotime($newarrive);
+				} else {
+					$appt[$col_hdr] = "";
+				}
+				break;
+			case 'Status':
+				$appt['edit-status'] = (empty($appt['status']) ? $appt['pc_apptstatus'] : $appt['status']);
+				$appt[$col_hdr] = $apt_stats[$appt['edit-status']];
+				$appt['edit-status-limit'] = $apt_stats_next[$appt['edit-status']];
+				break;
+			case 'Duration':
+				if (!$newarrive) break;
+				
+				$to_time = strtotime(date("Y-m-d H:i:s"));
+				$yestime = '0';
+				if (strtotime($newend) != '') {
+					$from_time = strtotime($newarrive);
+					$to_time = strtotime($newend);
+					$yestime = '0';
+				}
+				else
+				{
+					$from_time = strtotime($appt['start_datetime']);
+					$yestime = '1';
+				}
+				
+				$timecheck = round(abs($to_time - $from_time) / 60,0);
+				if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
+					$appt[$col_hdr] = text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
+				} else {
+					$appt[$col_hdr] = "";
+				}
+				if (isset($appt['start_datetime'])) {
+					$appt['time-cur'] = strtotime($appt['start_datetime']);
+				}
+				break;
+			case 'Visit Type':
+				$appt[$col_hdr] = text(xl_appt_category($appt['pc_title']));
+				break;
+			case 'Provider':
+				$appt[$col_hdr] = text(trim(sprintf("%s, %s %s", $appt['ulname'], $appt['ufname'], $appt['umname'])));
+				break;
+			case 'Total Time':
+				if (strtotime($newend) != '') {
+					$from_time = strtotime($newarrive);
+					$to_time = strtotime($newend);
+				}
+				else
+				{
+					$from_time = strtotime($newarrive);
+					$to_time = strtotime(date("Y-m-d H:i:s"));
+				}
+				$timecheck2 = round(abs($to_time - $from_time) / 60,0);
+				if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
+					$appt[$col_hdr] = text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
+				} else {
+					$appt[$col_hdr] = "";
+				}
+				break;
+			case 'Checked Out':
+				if ($newend) {
+					$appt['time-out'] = strtotime($newend);
+					$appt[$col_hdr] = oeFormatTime($newend);
+				} else {
+					$appt[$col_hdr] = "";
+				}
+				break;
+			case 'Updated By':
+				$appt[$col_hdr] = $appt['user'];
+				break;
+			case 'Random Drug Screen':
+				$appt[$col_hdr] = "";
+				break;
+			case 'Drug Screen Completed':
+				$appt[$col_hdr] = "";
+				break;
+			case 'Facility':
+				$appt[$col_hdr] = $appt['name'];
+		};
+	}
+	
+	// Apply user filters
+	foreach ($usr_filts as $col_hdr => $filt_value) {
+		$skip_this = $skip_this || ($appt[$col_hdr] != $filt_value);
+	}
+	
+	$appt['skip_this'] = $skip_this;
+	$appointments[$ix] = $appt;
+	if ($skip_this) {
+		// unset $appointments[$ix];
+		continue;
+	}
+	
+	// Scan for chk_single column values
+	foreach ($chk_single as $col_hdr => $col_value) {
+		if (empty($col_value[$appt[$col_hdr]])) {
+			$col_value[$appt[$col_hdr]] = 1;
+		} else {
+			$col_value[$appt[$col_hdr]]++;
+		}
+		$chk_single[$col_hdr] = $col_value;
+	}
+	
+}
+
+$filt_cols = array_keys($chk_single);
+$disp_cols = array_keys($trkr_cols);
+$filt_flds = '';
+foreach ($filt_cols as $filt_col) {
+	$ix = array_search($filt_col, $disp_cols);
+	$filt_flds .= sprintf('<input id="filt-col-%s" name="filt-col[%s]" type="hidden" value="%s" data-col="%s" />',
+			$ix, $ix, (empty($_POST[filt-col[$ix]]) ? '' : $_POST[filt-col[$ix]]), $filt_col);
+}
+// Build nav control block for chk_singles
+$nav_chk_singles = '';
+foreach ($chk_single as $col_hdr => $col_values_array) {
+	$col_values = array_keys($col_values_array);
+	if (count($col_values) == 1) {
+		$nav_chk_singles .= sprintf('<li><a>%s:<strong>%s</strong></a></li>',
+				xl($col_hdr), $col_values[0]);
+		if ($col_hdr != 'Status') { $trkr_cols[$col_hdr]['show'] = false; }
+	} else {
+		$ix = array_search($col_hdr, $disp_cols);
+		$nav_value_sel = '';
+		foreach ($col_values_array as $col_value => $col_value_count) {
+			$nav_value_sel .= sprintf('<li data-selected="%s"><a href="#">%s <strong>(%s)</strong></a></li>', $col_value, $col_value, $col_value_count);
+		}
+		$nav_chk_singles .= sprintf('
+					<li class="dropdown" data-filt-col="%s">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+							aria-haspopup="true" aria-expanded="false">%s<span class="caret"></span></a>
+						<ul class="dropdown-menu">%s</ul>
+					</li>', $ix, $col_hdr, $nav_value_sel);
+	}
+}
+
+// Complex Sort of appointments
+$appointments = array_orderby($appointments, 'time-out', SORT_ASC, 'appttime', SORT_DESC, 'pc_startTime', SORT_ASC);
+
+// Helper to display stacked icons
+function show_stack ($hlp, $icon, $sym, $key_value) {
+	return sprintf('<li><a href="#"">%s(%s) - %s</a></li>',
+			$hlp, $sym, text($key_value));
+}
+
+// If the screen is set up for auto refresh, this will allow it to be closed by auto logoff
+$self_restore = '';
+if ($GLOBALS['pat_trkr_timer'] != '0') {
+	$self_restore = "?skip_timeout_reset=1";
 }
 ?>
 <html>
 <head>
 <title><?php echo xlt("Flow Board") ?></title>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
+<?php Header::setupHeader(["bootstrap"]); ?>
+<style>
+.dropdown:hover .dropdown-menu {
+    display: block;
+    margin-top: -3px;
+    margin-left: 24px;
+}
+body { 
+    padding-top: 50px; 
+}
+.table-condensed {
+  font-size: 100%;
+}
+</style>
+</head>
 
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<body class="body_top" >
+<form name='pattrk' id='pattrk' method='post' action='<?php echo $_SERVER["PHP_SELF"].$self_restore; ?>' 
+    onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
+<?php echo $filt_flds; // Save filters ?>
+<nav class="navbar navbar-xs navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header navbar-xs">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand title" href="#" id="navbar-title" <?php echo $home_ref ?> title=<?php echo xlt("Flow Board") ?>>
+      	<strong><?php echo count($appointments).' '.xlt("Appointments") ?></strong>
+      </a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse navbar-xs" id="navbar-collapse-div-template-id">
+      <ul class="nav navbar-nav" id="navbar-nav-ul-left-template-id">
+	  	<?php echo $nav_chk_singles?>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a id='refreshme' style="font-size: 150%;"><i class="fa fa-refresh fa-fw"></i></a>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<table id='tbl_ptkr' class='table table-condensed table-hover table-striped'>
+	<tr>
+     <?php
+     $trkr_col_ix = -1;
+     foreach ($trkr_cols as $col_hdr => $col_opts) {
+     	$trkr_col_ix++;
+     	$col_show = (isset($col_opts['show']) ? $col_opts['show'] : true);
+     	if (!$col_show) { continue; }
 
-<script language="JavaScript">
-// Refresh self
+     	$col_cls = sprintf(' class="filt-col-%s%s"', $trkr_col_ix, (isset($col_opts['class']) ? (" ".$col_opts['class']) : ""));
+     	$filt = getUserSetting($uspfx.'filter-'.xlt($col_hdr));
+     	$fa = '';
+     	if (!is_null($filt) && (strlen($filt)>0)) {
+     		$usr_filts[$col_hdr] = $filt;
+     		$fa = sprintf("<a class='no-filter' data-lbl='filter-%s'><i class='fa fa-filter'></i></a>", xlt($col_hdr));
+     	}
+     	$col_data = '';
+     	if (isset($col_opts['data'])) {
+     		foreach ($col_opts['data'] as $dkey => $dval) {
+     			$col_data .= sprintf(' data-%s="%s"', $dkey, $dval);
+     		}
+     	}
+     	printf ("<th%s%s>%s%s</th>", $col_cls, $col_data, $fa, xlt($col_hdr));
+     }
+     ?>
+	</tr>
+
+<?php
+foreach ( $appointments as $appt ) {
+	if ($appt['skip_this']) continue;
+	$data_js = '';
+	foreach ($appt_tr_data as $js_fld) {
+		if (isset($js_fld) && ($appt[$js_fld]>'')) {
+			$data_js .= sprintf(' data-%s="%s"', $js_fld, $appt[$js_fld]);
+			if (isset($appt[$js_fld.'-limit']) && $appt[$js_fld.'-limit']>'') {
+				$data_js .= sprintf(' data-%s="%s"', $js_fld.'-limit', $appt[$js_fld.'-limit']);
+			}
+		}
+	}
+	// Print all columns
+	printf ('<tr data-tk-id="%s" data-tk-eid="%s" %s>', 
+		$appt['id'], ((empty($appt['eid'])) ? $appt['pc_eid'] : $appt['eid']), $data_js);
+	foreach ($trkr_cols as $col_hdr => $col_opts) {
+		$col_show = (isset($col_opts['show']) ? $col_opts['show'] : true);
+		if ($col_show) {
+			printf ('<td>%s</td>', text($appt[$col_hdr]) );
+		}
+	}
+	printf ("</tr>");
+	
+} //end for
+?>
+
+<?php
+//saving the filter for auto refresh
+if(isset($_POST['form_facility']) ){
+    echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
+}
+if(isset($_POST['form_apptcat']) ){
+    echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
+}
+?>
+</table>
+</form>
+
+<script type="text/javascript">
+//Refresh self
 function refreshme() {
   top.restoreSession();
   document.pattrk.submit();
 }
-// popup for patient tracker status
-function bpopup(tkid) {
- top.restoreSession()
- dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + tkid, '_blank', 500, 250);
- return false;
-}
-
-// popup for calendar add edit
-function calendarpopup(eid,date_squash) {
- top.restoreSession()
- dlgopen('../main/calendar/add_edit_event.php?eid=' + eid + '&date=' + date_squash, '_blank', 775, 500);
- return false;
-}
-
 // auto refresh screen pat_trkr_timer is the timer variable
 function refreshbegin(first){
   <?php if ($GLOBALS['pat_trkr_timer'] != '0') { ?>
@@ -139,457 +479,200 @@ function refreshbegin(first){
   <?php } else { ?>
     return;
  <?php } ?>
-}
+} 
+$(document).ready(function() { 
+	$('#settings').css("display","none");
+	timedActions();
+	var intervalID = setInterval(timedActions, (60*1000));
+});	
 
-// used to display the patient demographic and encounter screens
-function topatient(newpid, enc) {
- if (document.pattrk.form_new_window.checked) {
-   openNewTopWindow(newpid,enc);
- }
- else {
-   top.restoreSession();
-   if (enc > 0) {
-     top.RTop.location= "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid + "&set_encounterid=" + enc;
-   }
-   else {
-     top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + newpid;
-   }
- }
-}
-
-// opens the demographic and encounter screens in a new window
-function openNewTopWindow(newpid,newencounterid) {
- document.fnew.patientID.value = newpid;
- document.fnew.encounterID.value = newencounterid;
- top.restoreSession();
- document.fnew.submit();
- }
-
-</script>
-
-</head>
-
-<?php
-  if ($GLOBALS['pat_trkr_timer'] == '0') {
-    // if the screen is not set up for auto refresh, use standard page call
-    $action_page = "patient_tracker.php";
-  }
-  else {
-    // if the screen is set up for auto refresh, this will allow it to be closed by auto logoff
-    $action_page = "patient_tracker.php?skip_timeout_reset=1";
-  }
-
-?>
-<span class="title"><?php echo xlt("Flow Board") ?></span>
-<body class="body_top" >
-<form method='post' name='theform' id='theform' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()'>
-    <div id="flow_board_parameters">
-        <table>
-            <tr class="text">
-                <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
-                <td><?php
-
-                    # Build a drop-down list of providers.
-
-                    $query = "SELECT id, lname, fname FROM users WHERE ".
-                        "authorized = 1  ORDER BY lname, fname"; #(CHEMED) facility filter
-
-                    $ures = sqlStatement($query);
-
-                    echo "   <select name='form_provider'>\n";
-                    echo "    <option value='ALL'>-- " . xlt('All') . " --\n";
-
-                    while ($urow = sqlFetchArray($ures)) {
-                        $provid = $urow['id'];
-                        echo "    <option value='" . attr($provid) . "'";
-                        if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']){
-                            echo " selected";
-                        } elseif(!isset($_POST['form_provider'])&& $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']){
-                            echo " selected";
-                        }
-                        echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
-                    }
-
-                    echo "   </select>\n";
-
-                    ?>
-                </td>
-                <td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
-                <td><?php echo xlt('Category') #category drop down creation ?>:</td>
-                <td>
-                    <select id="form_apptcat" name="form_apptcat">
-                        <?php
-                        $categories=fetchAppointmentCategories();
-                        echo "<option value='ALL'>".xlt("All")."</option>";
-                        while($cat=sqlFetchArray($categories))
-                        {
-                            echo "<option value='".attr($cat['id'])."'";
-                            if($cat['id']==$_POST['form_apptcat'])
-                            {
-                                echo " selected='true' ";
-                            }
-                            echo    ">".text(xl_appt_category($cat['category']))."</option>";
-                        }
-                        ?>
-                    </select>
-                </td>
-                <td style="border-left: 1px solid;">
-                    <div style='margin-left: 15px'>
-                        <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-                            <span> <?php echo xlt('Submit'); ?> </span> </a>
-                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
-                            <a href='#' class='css_button' id='printbutton'>
-                                <span> <?php echo xlt('Print'); ?> </span> </a>
-                        <?php } ?>
-                    </div>
-                </td>
-            </tr>
-        </table>
-    </div>
-</form>
-
-<form name='pattrk' id='pattrk' method='post' action='<?php echo $action_page; ?>' onsubmit='return top.restoreSession()' enctype='multipart/form-data'>
-
-<div>
-  <?php if (count($chk_prov) == 1) {?>
-  <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
-  <?php } ?>
- <div id= 'inanewwindow' class='inanewwindow'>
- <span style='float: right'>
-   <a id='setting_cog'><i class="fa fa-cog fa-2x fa-fw">&nbsp;</i></a>
-   <?php // Note that are unable to html escape below $setting_new_window, or else will break the code, secondary to white space issues. ?>
-   <input type='hidden' name='setting_new_window' id='setting_new_window' value='<?php echo $setting_new_window ?>' />
-   <label id='settings'><input type='checkbox' name='form_new_window' id='form_new_window' value='1'<?php echo $setting_new_window ?> >
-     <?php echo xlt('Open Patient in New Window'); ?></input></label>
-   <a id='refreshme'><i class="fa fa-refresh fa-2x fa-fw">&nbsp;</i></a>
- </span>
-</div>
- </div>
-<?php if ($GLOBALS['pat_trkr_timer'] =='0') { ?>
-<table border='0' cellpadding='5' cellspacing='0'>
- <tr>
-  <td  align='center'><br>
-   <a href='javascript:;' class='css_button_small' align='center' style='color:gray' onclick="document.getElementById('pattrk').submit();"><span><?php echo xlt('Refresh Screen'); ?></span></a>
-   </td>
- </tr>
-</table>
-<?php } ?>
-
-<table border='0' cellpadding='1' cellspacing='2' width='100%'>
- <tr>
-     <td colspan="12">
-         <b><small>
-             <?php
-             $statuses_output =  xlt('Total patients')  . ':' . text($appointments_status['count_all']);
-             unset($appointments_status['count_all']);
-             foreach($appointments_status as $status_symbol => $count){
-                 $statuses_output .= " | " . text(xl_list_label($statuses_list[$status_symbol]))  .":" . $count;
-             }
-             echo $statuses_output;
-             ?>
-         </small></b>
-     </td>
- </tr>
- <tr bgcolor="#cccff">
-  <?php if ($GLOBALS['ptkr_show_pid']) { ?>
-   <td class="dehead" align="center">
-   <?php  echo xlt('PID'); ?>
-  </td>
-  <?php } ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Patient'); ?>
-  </td>
-  <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Reason'); ?>
-  </td>
-  <?php } ?>
-  <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Encounter'); ?>
-  </td>
-  <?php } ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Exam Room #'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Appt Time'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Arrive Time'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Status'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Current Status Time'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Visit Type'); ?>
-  </td>
-  <?php if (count($chk_prov) > 1) { ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Provider'); ?>
-  </td>
-  <?php } ?>
- <td class="dehead" align="center">
-   <?php  echo xlt('Total Time'); ?>
-  </td>
- <td class="dehead" align="center">
-   <?php  echo xlt('Check Out Time'); ?>
-  </td>
-   <td class="dehead" align="center">
-   <?php  echo xlt('Updated By'); ?>
-  </td>
- <?php if ($GLOBALS['drug_screen']) { ?>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Random Drug Screen'); ?>
-  </td>
-  <td class="dehead" align="center">
-   <?php  echo xlt('Drug Screen Completed'); ?>
-  </td>
- <?php } ?>
- </tr>
-
-<?php
-	foreach ( $appointments as $appointment ) {
-
-                # Collect appt date and set up squashed date for use below
-                $date_appt = $appointment['pc_eventDate'];
-                $date_squash = str_replace("-","",$date_appt);
-
-                # Collect variables and do some processing
-                $docname  = $chk_prov[$appointment['uprovider_id']];
-                if (strlen($docname)<= 3 ) continue;
-                $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
-                $appt_enc = $appointment['encounter'];
-                $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
-                $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
-                if ($appt_pid ==0 ) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
-                $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
-                $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
-                $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
-                $tracker_id = $appointment['id'];
-                # reason for visit
-                if ($GLOBALS['ptkr_visit_reason']) {
-                  $reason_visit = $appointment['pc_hometext'];
-                }
-                $newarrive = collect_checkin($tracker_id);
-                $newend = collect_checkout($tracker_id);
-                $colorevents = (collectApptStatusSettings($status));
-                $bgcolor = $colorevents['color'];
-                $statalert = $colorevents['time_alert'];
-                # process the time to allow items with a check out status to be displayed
-                if ( is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0) ) {
-                        $to_time = strtotime($newend);
-                        $from_time = strtotime($datetime);
-                        $display_check_out = round(abs($from_time - $to_time) / 60,0);
-                        if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
-                }
-?>
-        <tr bgcolor='<?php echo $bgcolor ?>'>
-        <?php if ($GLOBALS['ptkr_show_pid']) { ?>
-        <td class="detail" align="center">
-        <?php echo text($appt_pid) ?>
-         </td>
-        <?php } ?>
-        <td class="detail" align="center">
-        <a href="#" onclick="return topatient('<?php echo attr($appt_pid);?>','<?php echo attr($appt_enc);?>')" >
-        <?php echo text($ptname); ?></a>
-         </td>
-         <!-- reason -->
-         <?php if ($GLOBALS['ptkr_visit_reason']) { ?>
-         <td class="detail" align="center">
-         <?php echo text($reason_visit) ?>
-         </td>
-         <?php } ?>
-		 <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
-        <td class="detail" align="center">
-		 <?php if($appt_enc != 0) echo text($appt_enc); ?></a>
-         </td>
-		 <?php } ?>
-         <td class="detail" align="center">
-         <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
-         </td>
-         <td class="detail" align="center">
-         <?php echo oeFormatTime($appt_time) ?>
-         </td>
-         <td class="detail" align="center">
-        <?php echo ($newarrive ? oeFormatTime($newarrive) : '&nbsp;') ?>
-         </td>
-         <td class="detail" align="center">
-         <?php if (empty($tracker_id)) { #for appt not yet with tracker id and for recurring appt ?>
-           <a href=""  onclick="return calendarpopup(<?php echo attr($appt_eid).",".attr($date_squash); # calls popup for add edit calendar event?>)">
-         <?php } else { ?>
-           <a href=""  onclick="return bpopup(<?php echo attr($tracker_id); # calls popup for patient tracker status?>)">
-         <?php } ?>
-         <?php echo text(getListItemTitle("apptstat",$status)); # drop down list for appointment status?>
-         </a>
-
-		 </td>
-        <?php
-		 #time in current status
-		 $to_time = strtotime(date("Y-m-d H:i:s"));
-		 $yestime = '0';
-		 if (strtotime($newend) != '') {
- 			$from_time = strtotime($newarrive);
-			$to_time = strtotime($newend);
-			$yestime = '0';
-		 }
-         else
-        {
-			$from_time = strtotime($appointment['start_datetime']);
-			$yestime = '1';
-        }
-
-        $timecheck = round(abs($to_time - $from_time) / 60,0);
-        if ($timecheck >= $statalert && ($statalert != '0')) { # Determine if the time in status limit has been reached.
-           echo "<td align='center' class='js-blink-infinite'>	"; # and if so blink
-        }
-        else
-        {
-           echo "<td align='center' class='detail'> "; # and if not do not blink
-        }
-        if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
-		   echo text($timecheck . ' ' .($timecheck >=2 ? xl('minutes'): xl('minute')));
-		}
-        #end time in current status
-        ?>
-		 </td>
-         <td class="detail" align="center">
-         <?php echo text(xl_appt_category($appointment['pc_title'])) ?>
-         </td>
-         <?php if (count($chk_prov) > 1) { ?>
-         <td class="detail" align="center">
-         <?php echo text($docname); ?>
-         </td>
-         <?php } ?>
-         <td class="detail" align="center">
-         <?php
-
-		 # total time in practice
-		 if (strtotime($newend) != '') {
- 			$from_time = strtotime($newarrive);
-			$to_time = strtotime($newend);
-		 }
-         else
-         {
-			$from_time = strtotime($newarrive);
- 		    $to_time = strtotime(date("Y-m-d H:i:s"));
-         }
-         $timecheck2 = round(abs($to_time - $from_time) / 60,0);
-         if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
-            echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
-         }
-         # end total time in practice
-        ?>
-		<?php echo text($appointment['pc_time']); ?>
-         </td>
-        <td class="detail" align="center">
-         <?php
-		 if (strtotime($newend) != '') {
-		    echo oeFormatTime($newend) ;
-		 }
-		 ?>
-         </td>
-         <td class="detail" align="center">
-         <?php echo text($appointment['user']) ?>
-         </td>
-         <?php if ($GLOBALS['drug_screen']) { ?>
-         <?php if (strtotime($newarrive) != '') { ?>
-         <td class="detail" align="center">
-         <?php if (text($appointment['random_drug_test']) == '1') {  echo xl('Yes'); }  else { echo xl('No'); }?>
-         </td>
-         <?php } else {  echo "  <td>"; }?>
-         <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
-         <td class="detail" align="center">
-		 <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
-		     <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
-		 <?php } else { ?>
-		     <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
-         <?php } ?>
-		 </td>
-         <?php } else {  echo "  <td>"; }?>
-		 <?php } ?>
-		 </tr>
-        <?php
-	} //end for
-?>
-
-<?php
-//saving the filter for auto refresh
-if(!is_null($_POST['form_provider']) ){
-    echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
-}
-if(!is_null($_POST['form_facility']) ){
-    echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
-}
-if(!is_null($_POST['form_apptstatus']) ){
-    echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
-}
-if(!is_null($_POST['form_apptcat']) ){
-    echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
-}
-?>
-
-</table>
-</form>
-
-<script type="text/javascript">
-  $(document).ready(function() {
-	  $('#settings').css("display","none");
-	  refreshbegin('1');
-
-    $('.js-blink-infinite').each(function() {
-      // set up blinking text
-      var elem = $(this);
-      setInterval(function() {
-        if (elem.css('visibility') == 'hidden') {
-          elem.css('visibility', 'visible');
-        } else {
-          elem.css('visibility', 'hidden');
-        }
-      }, 500);
+// toggle of the check box status for drug screen completed and ajax call to update the database
+$(".drug_screen_completed").change(function() {
+    top.restoreSession();
+    testcomplete_toggle=(this.checked);
+    $.post( "../../library/ajax/drug_screen_completed.php", {
+      trackerid: this.id,
+      testcomplete: testcomplete_toggle
     });
+  });
 
-  // toggle of the check box status for drug screen completed and ajax call to update the database
-  $(".drug_screen_completed").change(function() {
-      top.restoreSession();
-    if (this.checked) {
-      testcomplete_toggle="true";
-    } else {
-      testcomplete_toggle="false";
+$('#refreshme').click(function () {
+  refreshme();
+});
+
+<?php // *** TBD - Filters - map $trkr_cols index to table hdr, hide rows with matching content and store id for $_POST *** ?>
+$("#tbl_ptkr tr th").each( function() {
+    var th_col = $("#tbl_ptkr tr th").index($(this))+1;
+    var th = $(this);
+    $("#tbl_ptkr tr td:nth-child("+th_col+")").each( function(ix) {
+        add_class(th, $(this), 'filterable', true);
+        add_class(th, $(this), 'edit-status', true);
+        add_class(th, $(this), 'edit-room', true);
+
+        var tr = $(this).parent();
+        add_class(th, $(this), 'timer-in', (tr.data('time-in') !== undefined));
+        add_class(th, $(this), 'timer-cur', (tr.data('time-cur') !== undefined));
+        add_class(th, $(this), 'timer-hglt', (tr.data('time-in') !== undefined));
+    });
+    $(this).removeClass('timer-in');
+    $(this).removeClass('timer-cur');
+    $(this).removeClass('timer-hglt');
+});
+function add_class(src, tgt, cls, chk) {
+    if (src.hasClass(cls) && chk) {
+        tgt.addClass(cls);
     }
-      $.post( "../../library/ajax/drug_screen_completed.php", {
-        trackerid: this.id,
-        testcomplete: testcomplete_toggle
+}
+$(".no-filter").click( function() {
+    var lbl = $(this).data("lbl");
+    setFilter (lbl, '');
+});
+// Delegated dropdown selections
+$('body').on("click", ".dropdown .dropdown-menu li", function() {
+	var dd = $(this).closest(".dropdown");
+	var tr = $(dd).closest('tr');
+// 	if ($(tr).attr('class').toString().indexOf('edit-') != -1) {
+// 		alert ('Editing');
+// 	} else {
+// 		alert ('Filtering');
+// 	}
+	if ($(dd).hasClass("edit-status")) {
+		updateTrkr({
+			'id':{'get':$(tr).data('tk-id')},
+			'eid':{'get':$(tr).data('tk-eid')},
+			'status':{'get':$(tr).data('edit-status'), 'set':$(this).data('selected')},
+			'room':{'get':$(tr).data('edit-room'), 'set':$(tr).data('edit-room')},
+		});
+	} else if ($(dd).hasClass("edit-room")) {
+		updateTrkr({
+			'id':{'get':$(tr).data('tk-id')},
+			'eid':{'get':$(tr).data('tk-eid')},
+			'status':{'get':$(tr).data('edit-status'), 'set':$(tr).data('edit-status')},
+			'room':{'get':$(tr).data('edit-room'), 'set':$(this).data('selected')},
+		});
+	} else {
+		alert('TBD : Set filter to '+$(this).data('selected'));
+	}
+});
+$("td.edit-status").hover(
+    function() {
+      var col = $(this).closest("tr").children().index($(this))+1;
+      var cur=$.trim($(this).html());
+      $(this).addClass("dropdown");
+      $(this).html($("div.edit-status-all label.dropdown").html());
+      $(this).find("a.edit-status-text").html(cur);
+      var valid_next = $(this).closest("tr").data("edit-status-limit");
+      $(this).find("ul.edit-status-menu li").each(function() {
+    	  if (valid_next.indexOf($(this).data('selected')) != -1) {
+        	  $(this).css("display", "");
+          }
       });
+   },
+   function() {
+	  $(this).removeClass("dropdown");
+	  $(this).html($(this).find("a.edit-status-text").html());
+   }
+);
+<?php // Allow room selections only when next status is '>' - Checked Out ?>
+$("tr[data-edit-status='<'] td.edit-room").hover(
+    function() {
+      var col = $(this).closest("tr").children().index($(this))+1;
+      var cur=$.trim($(this).html());
+      $(this).addClass("dropdown");
+      $(this).html($("div.edit-rooms-all label.dropdown").html());
+      $(this).find("a.edit-room-text").html(cur);
+   },
+   function() {
+	  $(this).removeClass("dropdown");
+	  $(this).html($(this).find("a.edit-room-text").html());
+   }
+);
+<?php // Expected updt - field(current value[, updated value]) 
+      // Specify only current value to help locate correct record and prevent blind updates ?>
+function updateTrkr(updt) {
+	$.post("../../library/ajax/pt_trkr_updates.php",
+		{ update_spec : JSON.stringify(updt) })
+		.done(function(result) {
+			// Information block
+			var res = JSON.parse(result);
+			if (res.status != 'success') {
+				var res_display = res.status+'\n';
+				for(var det in res.details) {
+					res_display += res.details[det] + '\n';
+				}
+				alert( res_display );
+			}
+		})
+		.fail(function(err) {
+			alert( err['status'] + " : " + err['statusText']);
+		})
+		.always(function() {
+			refreshme();
+		});
+}
+function timedHighlight(curr, hglt_min, hglt_max) {
+    // alert (curr + '-'+ hglt_min + '-' + hglt_max);
+    if (curr > hglt_max) return "#ff0000";
+    if (curr < hglt_min) return false;
+    var r = parseInt(255*((hglt_max - curr)/(hglt_max - hglt_min))).toString(16);
+    return ("#ff"+r+"00");
+}
+function getSelData(sel, dtxt) {
+    if (sel.data(dtxt) === undefined) {
+        return 0;
+    } else {
+        return sel.data(dtxt);
+    }
+}
+function timedActions() {
+    $(".timer-cur, .timer-in").each( function(e) {
+        var tr = $(this).parent();
+        if ($(this).hasClass('timer-in')) {
+            var tm_from = getSelData(tr, 'time-in');
+        } else {
+            var tm_from = getSelData(tr, 'time-cur');
+        }
+        var tm_chkout = getSelData(tr, 'time-out');
+        if (tm_chkout != 0) return;
+        var msecs = Date.now() - tm_from*1000;
+        var mm = parseInt((msecs/(1000*60))%60)
+        , HH = parseInt((msecs/(1000*60*60))%24);
+        HH = (HH < 10) ? "0" + HH : HH;
+        mm = (mm < 10) ? "0" + mm : mm;
+            
+        var col = $(this).parent().children().index($(this))+1;
+        var th = $("#tbl_ptkr tr th:nth-child("+col+")");
+        var bkgrnd = timedHighlight(parseInt(msecs/(60*1000)), getSelData(th, "hglt-min"), getSelData(th, "hglt-max"));
+        if (bkgrnd) {        
+            $(this).css('background-color', bkgrnd);
+        }
+        if (!$(this).hasClass('timer-hglt')) {
+            $(this).html(HH+':'+mm);
+        }
     });
-  });
-
-  // mdsupport - Immediately post changes to form_new_window
-  $('#form_new_window').click(function () {
-    $('#setting_new_window').val(this.checked ? ' checked' : ' ');
-    $.post( "<?php echo basename(__FILE__) ?>", {
-      data: $('form#pattrk').serialize(),
-      success: function (data) {}
-    });
-  });
-
-  $('#setting_cog').click(function () {
-	  $(this).css("display","none");
-	  $('#settings').css("display","inline");
-  });
-
-  $('#refreshme').click(function () {
-	  refreshme();
-  });
+}
 </script>
-<!-- form used to open a new top level window when a patient row is clicked -->
-<form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr($_SESSION['site_id']); ?>'>
-<input type='hidden' name='patientID'      value='0' />
-<input type='hidden' name='encounterID'    value='0' />
-</form>
+<?php // Status update options ?>
+<div class='edit-status-all' style="display: none;">
+	<label class="dropdown">
+	  <a class="dropdown-toggle edit-status-text" type="button" data-toggle="dropdown">
+	    <span class="caret"></span>
+	  </a>
+	  <ul class="dropdown-menu edit-status-menu" role="menu">
+	    <?php echo $li_stats_dropdown ?>
+	  </ul>
+	</label>
+</div>
+<?php // Rooms list ?>
+<div class='edit-rooms-all' style="display: none;">
+	<label class="dropdown">
+	  <a class="dropdown-toggle edit-room-text" type="button" data-toggle="dropdown">
+	    <span class="caret"></span>
+	  </a>
+	  <ul class="dropdown-menu edit-rooms-menu" role="menu">
+	    <?php echo $li_rooms_dropdown ?>
+	  </ul>
+	</label>
+</div>
 </body>
 </html>

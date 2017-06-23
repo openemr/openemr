@@ -145,13 +145,23 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
 
 function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null)
 {
-    # used to determine which providers to display in the Patient Tracker
-    if ($provider_id == 'ALL'){
-      //set null to $provider id if it's 'all'
-      $provider_id = null;
-    }
-    $events = fetchAppointments( $from_date, $to_date, null, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true );
-    return $events;
+	// mdsupport - Until fetchAppointments arguments are made into readable list ..
+	$fa_args = array( "from_date" => $from_date,
+			"to_date" => $to_date,
+			"patient_id" => null,
+			"provider_id" => ($provider_id == 'ALL' ? null : $provider_id),
+			"facility_id" => $facility_id,
+			"pc_appstatus" => $form_apptstatus,
+			"with_out_provider" => null,
+			"with_out_facility" => null,
+			"pc_catid" => $form_apptcat,
+			"tracker_board" => true,
+			"nextX" => 0,
+			"group_id" => null,
+	);
+	
+	$events = call_user_func_array('fetchAppointments', array_values($fa_args));
+	return $events;
 }
 
 #check to see if a status code exist as a check in
@@ -177,9 +187,10 @@ function  is_checkout($option) {
 #   1. The tracker item does not exist
 #   2. If the tracker item does exist, but the encounter has not been set
 function  is_tracker_encounter_exist($apptdate,$appttime,$pid,$eid) {
-  #Check to see if there is an encounter in the patient_tracker table.
-  $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND `appttime` = ? " .
-                      "AND `eid` = ? AND `pid` = ?", array($apptdate,$appttime,$eid,$pid));
+  #Check to see if there is an encounter in the patient_tracker table
+	// mdsupport - Ignore `apptdate` = ? AND `appttime` = ? " .
+  $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `eid` = ? AND `pid` = ?", 
+  		array($eid,$pid));  // removed - $apptdate,$appttime,
 if ($enc_yn['encounter'] == '0' || $enc_yn == '0') return(false);
   return(true);
 }
@@ -205,8 +216,8 @@ function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$r
 					   "LEFT JOIN patient_tracker_element " .
                        "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                        "AND patient_tracker.lastseq = patient_tracker_element.seq " .
-					   "WHERE `apptdate` = ? AND `appttime` = ? " .
-                       "AND `eid` = ? AND `pid` = ?", array($apptdate,$appttime,$eid,$pid));
+                       "WHERE `eid` = ? AND `pid` = ?", // removed - AND `apptdate` = ? AND `appttime` = ? " .
+                       array($eid,$pid));  // removed - $apptdate,$appttime,
 
   if (empty($tracker)) {
     #Add a new tracker.
