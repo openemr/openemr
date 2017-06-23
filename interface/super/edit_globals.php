@@ -579,7 +579,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 WHERE pc_active = 1 ORDER BY pc_seq";
         $result = sqlStatement($sql);
         echo "<select name=\"form_{$i}\" id=\"form_{$i}\">\n";
-        echo "<option value='_blank'>" . xlt('None') . "</option>";
+        echo "<option value='_blank'>" . xl('None') . "</option>";
         while ($row = sqlFetchArray($result)) {
             $id = $row['pc_catid'];
             $name = $row['pc_catname'];
@@ -592,8 +592,8 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             }
 
             $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
-            $optionStr = str_replace("%pc_catid%", $row['pc_catid'], $optionStr);
-            $optionStr = str_replace("%pc_catname%", $row['pc_catname'], $optionStr);
+            $optionStr = str_replace("%pc_catid%", attr($id), $optionStr);
+            $optionStr = str_replace("%pc_catname%", xl($name), $optionStr);
             $selected = ($fldvalue == $id) ? " selected" : "";
             $optionStr = str_replace("%selected%", $selected, $optionStr);
             echo $optionStr;

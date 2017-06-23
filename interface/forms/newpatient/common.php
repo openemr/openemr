@@ -220,8 +220,8 @@ function cancelClicked() {
 
 
               $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
-              $optionStr = str_replace("%pc_catid%", $row['pc_catid'], $optionStr);
-              $optionStr = str_replace("%pc_catname%", $row['pc_catname'], $optionStr);
+              $optionStr = str_replace("%pc_catid%", attr($id), $optionStr);
+              $optionStr = str_replace("%pc_catname%", xl($name), $optionStr);
               $selected = ($GLOBALS['default_visit_category'] == $id) ? " selected" : "";
               $optionStr = str_replace("%selected%", $selected, $optionStr);
               echo $optionStr;
