@@ -1230,7 +1230,7 @@ CREATE TABLE IF NOT EXISTS `erx_rx_log` (
  `date` varchar(25) NOT NULL,
  `time` varchar(15) NOT NULL,
  `code` int(6) NOT NULL,
- `status` text NOT NULL,
+ `status` text,
  `message_id` varchar(100) DEFAULT NULL,
  `read` int(1) DEFAULT NULL,
  PRIMARY KEY (`id`)
