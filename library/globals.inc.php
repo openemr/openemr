@@ -695,6 +695,13 @@ $GLOBALS_METADATA = array(
             xl('Option to support inventory and sales of products')
         ),
 
+        'default_visit_category' => [
+            xl('Default Visit Category'),
+            'visit_category',
+            '_blank',
+            xl('Define a default visit category'),
+        ],
+
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type

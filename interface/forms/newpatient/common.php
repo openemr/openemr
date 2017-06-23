@@ -200,22 +200,33 @@ function cancelClicked() {
      <td class='bold' nowrap><?php echo xlt('Visit Category:'); ?></td>
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
-	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-<?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
- $therapyGroupCategories = array();
- while ($crow = sqlFetchArray($cres)) {
-  $catid = $crow['pc_catid'];
-  if($crow['pc_cattype'] == 3)$therapyGroupCategories[] = $catid;
-  // Show Thrapy group category only if global enable_group_therapy is true
-  if($crow['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) continue;
-  if ($catid < 9 && $catid != 5) continue;
-  echo "       <option value='" . attr($catid) . "'";
-  if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
-  echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
- }
-?>
+          <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+          <?php
+          $visitSQL = "SELECT pc_catid, pc_catname, pc_cattype 
+                       FROM openemr_postcalendar_categories
+                       WHERE pc_active = 1 ORDER BY pc_seq";
+          $visitResult = sqlStatement($visitSQL);
+
+          while ($row = sqlFetchArray($visitResult)) {
+              $id = $row['pc_catid'];
+              $name = $row['pc_catname'];
+              if (($id < 9 && $id != "5") || $id === "_blank") {
+                  continue;
+              }
+
+              if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                  continue;
+              }
+
+
+              $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
+              $optionStr = str_replace("%pc_catid%", $row['pc_catid'], $optionStr);
+              $optionStr = str_replace("%pc_catname%", $row['pc_catname'], $optionStr);
+              $selected = ($GLOBALS['default_visit_category'] == $id) ? " selected" : "";
+              $optionStr = str_replace("%selected%", $selected, $optionStr);
+              echo $optionStr;
+          }
+          ?>
       </select>
      </td>
     </tr>
