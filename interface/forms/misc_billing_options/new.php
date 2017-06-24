@@ -22,7 +22,16 @@ if (! $encounter) { // comes from globals.php
  die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$formid   = 0 + formData('id', 'G');
+$mboquery = array();
+$mboquery = sqlquery("SELECT fmbo.id FROM form_misc_billing_options AS fmbo 
+                      INNER JOIN forms ON (fmbo.id = forms.form_id) WHERE 
+                      forms.encounter = ?", array($encounter));
+if ($mboquery) {
+  $formid = 0 + $mboquery['id'];
+} else {
+  $formid   = 0 + formData('id', 'G');
+}
+
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
 
 formHeader("Form: misc_billing_options");
