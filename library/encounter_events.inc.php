@@ -26,6 +26,7 @@
 // +------------------------------------------------------------------------------+
 
 require_once(dirname(__FILE__) . '/calendar.inc');
+require_once(dirname(__FILE__) . '/forms.inc');
 require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
 
@@ -41,15 +42,15 @@ define('REPEAT_EVERY_WORK_DAY',4);
 //===============================================================================
 //Create event in calender as arrived
 function calendar_arrived($form_pid) {
-	$Today=date('Y-m-d');
+	$today=date('Y-m-d');
 	//Take all recurring events relevent for today.
 	$result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_recurrtype != '0' and pc_pid = ? and pc_endDate != '0000-00-00'
 		and pc_eventDate < ? and pc_endDate >= ? ",
-		array($form_pid,$Today,$Today));
+		array($form_pid,$today,$today));
 	if(sqlNumRows($result_event)==0)//no repeating appointment
 	 {
-		$result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
-			array($form_pid,$Today));
+	 	$result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
+			array($form_pid,$today));
 		if(sqlNumRows($result_event)==0)//no appointment
 		 {
 			echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
@@ -57,22 +58,22 @@ function calendar_arrived($form_pid) {
 		 }
 		else//one appointment
 		 {
-			 $enc = todaysEncounterCheck($form_pid);//create encounter
+		 	sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
+		 			array($form_pid,$today));
+		 	$enc = todaysEncounterCheck($form_pid);//create encounter
 			 $zero_enc=0;
-			 sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
-				 array($form_pid,$Today));
 		 }
 	 }
 	else//repeating appointment set
 	 {
-		while($row_event=sqlFetchArray($result_event))
+	 	while($row_event=sqlFetchArray($result_event))
 		 {
 			$pc_eid = $row_event['pc_eid'];
 			$pc_eventDate = $row_event['pc_eventDate'];
 			$pc_recurrspec_array = unserialize($row_event['pc_recurrspec']);
 			while(1)
 			 {
-				if($pc_eventDate==$Today)//Matches so insert.
+			 	if($pc_eventDate==$today)//Matches so insert.
 				 {
 				 if(!$exist_eid=check_event_exist($pc_eid))
 					{
@@ -87,13 +88,13 @@ function calendar_arrived($form_pid) {
 					 $zero_enc=0;
 				 break;
 				 }
-				elseif($pc_eventDate>$Today)//the frequency does not match today,no need to increment furthur.
+				elseif($pc_eventDate>$today)//the frequency does not match today,no need to increment furthur.
 				 {
 					echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
 					die;
 				 break;
 				 }
-
+				 
         // Added by Rod to handle repeats on nth or last given weekday of a month:
         if ($row_event['pc_recurrtype'] == 2) {
           $my_repeat_on_day = $pc_recurrspec_array['event_repeat_on_day'];
@@ -120,16 +121,16 @@ function calendar_arrived($form_pid) {
         } // end recurrtype 2
 
         else { // pc_recurrtype is 1
-				  $pc_eventDate_array = explode('-', $pc_eventDate);
+        	$pc_eventDate_array = explode('-', $pc_eventDate);
 				  // Find the next day as per the frequency definition.
 				  $pc_eventDate =& __increment($pc_eventDate_array[2], $pc_eventDate_array[1], $pc_eventDate_array[0],
             $pc_recurrspec_array['event_repeat_freq'], $pc_recurrspec_array['event_repeat_freq_type']);
         }
-
+        
 			 }
 		 }
 	 }
-	return $enc;
+	 return $enc;
 }
 //===============================================================================
 // Checks for the patient's encounter ID for today, creating it if there is none.
@@ -151,8 +152,10 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     } else {
         $visit_provider = '(NULL)';
     }
-	$dos = $enc_date ? $enc_date : $today;
-	$visit_reason = $reason ? $reason : 'Please indicate visit reason';
+    // Validate date format
+    $chk_dt = date_create_from_format('Y-m-d', $enc_date);
+    $dos = ($chk_dt ? $enc_date : $today);
+	$visit_reason = $reason ? $reason : xl('Please indicate visit reason');
   $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
   $username = $tmprow['username'];
   $facility = $tmprow['facility'];
@@ -380,52 +383,62 @@ function check_event_exist($eid)
 // insert an event
 // $args is mainly filled with content from the POST http var
 function InsertEvent($args,$from = 'general') {
-  $pc_recurrtype = '0';
-  if ($args['form_repeat'] || $args['days_every_week']) {
-  	if($args['recurrspec']['event_repeat_freq_type'] == "6"){
-  		$pc_recurrtype = 3;
+	$pc_recurrtype = '0';
+	if ($args['form_repeat'] || $args['days_every_week']) {
+		if($args['recurrspec']['event_repeat_freq_type'] == "6"){
+			$pc_recurrtype = 3;
+		}
+		else {
+			$pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
+		}
 	}
-	else {
-		$pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
+	$evt_cols = array(
+			"pc_catid" => $args['form_category'],
+			"pc_multiple" => (isset($args['new_multiple_value'])?$args['new_multiple_value']:''),
+			"pc_aid" => $args['form_provider'],
+			"pc_pid" => (empty($args['form_pid']) ? '' : $args['form_pid']),
+			"pc_gid" => (empty($args['form_gid']) ? '' : $args['form_gid']),
+			"pc_title" => $args['form_title'],
+			"pc_time" => NOW(),
+			"pc_hometext" => $args['form_comments'],
+			"pc_informant" => $_SESSION['authUserID'],
+			"pc_eventDate" => $args['event_date'],
+			"pc_endDate" => fixDate($args['form_enddate']),
+			"pc_duration" => $args['duration'],
+			"pc_recurrtype" => $pc_recurrtype,
+			"pc_recurrspec" => serialize($args['recurrspec']),
+			"pc_startTime" => $args['starttime'],
+			"pc_endTime" => $args['endtime'],
+			"pc_alldayevent" => $args['form_allday'],
+			"pc_apptstatus" => $args['form_apptstatus'],
+			"pc_prefcatid" => $args['form_prefcat'],
+			"pc_location" => $args['locationspec'],
+			"pc_eventstatus" => 1,
+			"pc_sharing" => 1,
+			"pc_facility" => (int)$args['facility'],
+			"pc_billing_location" => (int)$args['billing_facility'],
+			"pc_room" => (empty($args['form_room']) ? '' : $args['form_room']),
+	);
+	$evt_sql = '';
+	$evt_pin = '';
+	$evt_vals = array();
+	foreach ($evt_cols as $col => $val) {
+		$evt_sql .= $col.',';
+		$evt_pin .= "?,";
+		array_push($evt_vals, $val);
 	}
-  }
-  $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
-  $form_room = empty($args['form_room']) ? '' : $args['form_room'];
-  $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];;
-	if($from == 'general'){
-    $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
-			"pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
-			"pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-			"pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
-			") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
-			array($args['form_category'],(isset($args['new_multiple_value']) ? $args['new_multiple_value'] : ''),$args['form_provider'],$form_pid,$form_gid,
-			$args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
-			fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
-			$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
-			$args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room)
-		);
-
-            //Manage tracker status.
-            if (!empty($form_pid)) {
-              manage_tracker_status($args['event_date'],$args['starttime'],$pc_eid,$form_pid,$_SESSION['authUser'],$args['form_apptstatus'],$args['form_room']);
-            }
-            $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in
-
-            return $pc_eid;
-
-	}elseif($from == 'payment'){
-		sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
-			"pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, " .
-			"pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-			"pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-			"pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location " .
-			") VALUES (?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-			array($args['form_category'],$args['new_multiple_value'],$args['form_provider'],$form_pid,$args['form_title'],
-				$args['event_date'],$args['form_enddate'],$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
-				$args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'], $args['locationspec'],
-				1,1,(int)$args['facility'],(int)$args['billing_facility']));
+	$evt_sql = sprintf('INSERT INTO openemr_postcalendar_events (%s) VALUES (%s)',
+			rtrim($evt_sql,","), rtrim($evt_pin,","));
+	$pc_eid = sqlInsert($evt_sql, $evt_vals);
+	
+	// mdsupport - Decide tracker action based on apptstatus instead of $from == 'general' or 'payment'
+	if (is_checkin($evt_cols["pc_apptstatus"])) {
+		manage_tracker_status($args['event_date'],$args['starttime'],$pc_eid,$form_pid,
+				$_SESSION['authUser'],$args['form_apptstatus'],$args['form_room']);
+		// Set event id for use by manage tracker module to set correct encounter in tracker during check in
+		$GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid;
 	}
+	return $pc_eid;
 }
 //================================================================================================================
 /**

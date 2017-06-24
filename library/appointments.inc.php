@@ -116,13 +116,16 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     }
 
     // Tracker Board specific stuff
+    // mdsupport - Removed "AND t.apptdate = e.pc_eventDate AND t.appttime = e.pc_starttime "
+    // Normal appointments should only match eid and pid - may have issues with group feature
+    // (TBD) - Use apptdate to differentiate between multiple tracks for same eid 
     $tracker_fields = '';
     $tracker_joins = '';
     if ($tracker_board) {
     $tracker_fields = "e.pc_room, e.pc_pid, t.id, t.date, t.apptdate, t.appttime, t.eid, t.pid, t.original_user, t.encounter, t.lastseq, t.random_drug_test, t.drug_screen_completed, " .
     "q.pt_tracker_id, q.start_datetime, q.room, q.status, q.seq, q.user, " .
     "s.toggle_setting_1, s.toggle_setting_2, s.option_id, ";
-    $tracker_joins = "LEFT OUTER JOIN patient_tracker AS t ON t.pid = e.pc_pid AND t.apptdate = e.pc_eventDate AND t.appttime = e.pc_starttime AND t.eid = e.pc_eid " .
+    $tracker_joins = "LEFT OUTER JOIN patient_tracker AS t ON t.pid = e.pc_pid AND t.eid = e.pc_eid " .
     "LEFT OUTER JOIN patient_tracker_element AS q ON q.pt_tracker_id = t.id AND q.seq = t.lastseq " .
     "LEFT OUTER JOIN list_options AS s ON s.list_id = 'apptstat' AND s.option_id = q.status AND s.activity = 1 " ;
     }
