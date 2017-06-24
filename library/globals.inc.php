@@ -2309,7 +2309,7 @@ $GLOBALS_METADATA = array(
         'hylafax_basedir' => array(
             xl('Hylafax Directory'),
             'text',                           // data type
-            '/var/spool/fax',                 // default
+            '/var/spool/hylafax',             // default
             xl('Location where Hylafax stores faxes.')
         ),
 
