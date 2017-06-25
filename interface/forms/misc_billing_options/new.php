@@ -5,9 +5,11 @@
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (C) 2007 Bo Huynh
  * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -21,7 +23,6 @@ if (! $encounter) { // comes from globals.php
  die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$formid   = 0 + formData('id', 'G');
 //only one misc billing form so grab existing form
 $formid   = 0 + formData('id', 'G');
 if (empty($formid)) {
