@@ -1,7 +1,20 @@
 <?php
+/**
+ * CAMOS note generator.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Mark Leeds <drleeds@gmail.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2006-2009 Mark Leeds <drleeds@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+
 $depth = '../../../';
-include_once ($depth.'interface/globals.php');
-include_once("content_parser.php");
+require_once ($depth.'interface/globals.php');
+require_once("content_parser.php");
 ?>
 <?php
 if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
@@ -27,56 +40,60 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 ?>
 <html>
 <head>
+
 <title>
 <?php xl('Print Notes','e'); ?>
 </title>
-<style type="text/css">@import url('<?php echo $depth ?>library/dynarch_calendar.css');</style>
+
+<?php html_header_show();?>
+<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="<?php echo $depth ?>library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $depth ?>library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $depth ?>library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $depth ?>library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+</script>
+
 </head>
 
 <body>
 <script language='JavaScript'> var mypcc = '1'; </script>
 
-<form method=post name=choose_patients> 
+<form method=post name=choose_patients>
 
 <table>
 <tr><td>
 <span class='text'><?php xl('Start (yyyy-mm-dd): ','e') ?></span>
 </td><td>
-<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
-onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+<input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
+class='datepicker'
 title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
-<img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-id='img_start' border='0' alt='[?]' style='cursor:pointer'
-title='<?php xl('Click here to choose a date','e'); ?>'>
-<script>
-Calendar.setup({inputField:'start', ifFormat:'%Y-%m-%d', button:'img_start'});
-</script>
 </td></tr>
-
 <tr><td>
 <span class='text'><?php xl('End (yyyy-mm-dd): ','e') ?></span>
 </td><td>
-<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>' 
-onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
+<input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
+class='datepicker'
 title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
-<img src='<?php echo $depth ?>interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
-id='img_end' border='0' alt='[?]' style='cursor:pointer'
-title='<?php xl('Click here to choose a date','e'); ?>'>
-<script>
-Calendar.setup({inputField:'end', ifFormat:'%Y-%m-%d', button:'img_end'});
-</script>
 </td></tr>
 <tr><td></td><td></td></tr>
 <tr><td><?php xl('Last Name','e'); ?>: </td><td>
-<input type='text' name='lname'/> 
+<input type='text' name='lname'/>
 </td></tr>
 <tr><td><?php xl('First Name','e'); ?>: </td><td>
-<input type='text' name='fname'/> 
+<input type='text' name='fname'/>
 </td></tr>
 <tr><td>
 <input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
@@ -105,29 +122,29 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 	 font-size: 8pt;
 	 background: white;
 	 color: black;
-	}	
+	}
 	.paddingdiv {
 	 width: 524pt;
 	 padding: 0pt;
 	}
 	.navigate {
 	 margin-top: 2.5em;
-	}	
+	}
 	@media print {
 	 .navigate {
 	  display: none;
-	 }	
+	 }
 	}
 	div.page {
 	 page-break-after: always;
 	 padding: 0pt;
-	 margin-top: 50pt;	 
-	}	
+	 margin-top: 50pt;
+	}
 	span.heading {
 	 font-weight: bold;
 	 font-size: 130%;
-	}	
-	</style>	
+	}
+	</style>
 	<title><?php xl('Patient Notes','e'); ?></title>
 	</head>
         <body>
@@ -138,15 +155,15 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
 			preg_match('/(\d+)_(\d+)/', $note_id, $matches); //the unique note id contains the pid and encounter
 			$pid = $matches[1];
 			$enc = $matches[2];
-		    
+
 			//new page code here
 			print "<DIV class='page'>";
-		    
+
 			print xl("Date").": ".$notecontents['date'] . "<br/>";
 			print xl("Name").": ".$notecontents['name'] . "<br/>";
 		        print xl("DOB").": ".$notecontents['dob'] . "<br/>";
                         print xl("Claim")."# ".$notecontents['pubpid'] . "<br/>";
-		    
+
 			print "<br/>";
 			print xl("Chief Complaint").": ".$notecontents['reason'] . "<br/>";
 			if ($notecontents['vitals']) {
@@ -415,7 +432,7 @@ function getFormData($start_date,$end_date,$lname,$fname) { //dates in sql forma
 						'content' => $results2['content'],
 						'date' => $results2['date']);
 					array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['calories'],$values);
-					
+
 				}
 				else {
 					if (!$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']]) {
