@@ -33,7 +33,6 @@ $_SERVER['HTTP_HOST']   = 'default'; //for multi-site i believe
 require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/../patient.inc");
 require_once(dirname(__FILE__)."/../log.inc");
-require_once(dirname(__FILE__)."/../formatting.inc.php");
 require_once(dirname(__FILE__)."/API.php");
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
@@ -43,9 +42,9 @@ $log['Time']= date(DATE_RFC2822);
 $log['action'] = "MedEx.php fired";
 
 if ($logged_in) {
-	if (!empty($_POST['callback'])) { 
+	if (!empty($_POST['callback'])) {
 		$data = json_decode($_POST,true);
-		$response = $MedEx->callback->receive($data); 
+		$response = $MedEx->callback->receive($data);
 		echo $response;
 		exit;
 	}

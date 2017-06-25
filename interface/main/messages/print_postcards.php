@@ -26,14 +26,11 @@
  * @author MedEx <support@MedExBank.com>
  * @link http://www.open-emr.org
  */
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
+
 
 require_once("../../globals.php");
-require_once("$srcdir/fpdf/fpdf.php");
-require_once("$srcdir/formatting.inc.php");
 
-# This is based on session array. 
+# This is based on session array.
 $pid_list = array();
 $pid_list = $_SESSION['pidList'];
 
@@ -53,7 +50,7 @@ $patdata = sqlQuery("SELECT " .
   "FROM patient_data AS p " .
   "WHERE p.pid = ? LIMIT 1", array($pid));
 
-# sprintf to print data 
+# sprintf to print data
 $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);
 
 $postcard_message = "It's time to get your EYES checked!
@@ -88,7 +85,7 @@ $pdf->Text(15,90,"We are across from the Greek Orthodox Church");
 $pdf->Text(18,95,"and next to the Surgery Center of New England.");
 
 }
-$pdf->Output('postcards.pdf','D'); 
+$pdf->Output('postcards.pdf','D');
 //D forces the file download instead of showing it in browser
 //isn't there an openEMR global for this?
 

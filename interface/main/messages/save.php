@@ -22,8 +22,6 @@
  * @link http://www.open-emr.org
  */
 
-$fake_register_globals=false;
-$sanitize_all_escapes=true;
 
 require_once("../../globals.php");
 require_once("$srcdir/acl.inc");
@@ -58,8 +56,8 @@ if ($_REQUEST['go'] =='Preferences') {
 
 	    $_GLOBALS['chart_label_type'] = $_REQUEST['chart_label_type'];
 	    sqlStatement( 'UPDATE `globals` set gl_value = ? where gl_name like "chart_label_type" ', array( $_REQUEST['chart_label_type'] ) );
-	    
-		$result = sqlQuery($sql,$myValues);      
+
+		$result = sqlQuery($sql,$myValues);
 		echo json_encode($result);
 	}
 	exit;
@@ -67,10 +65,10 @@ if ($_REQUEST['go'] =='Preferences') {
 if ($_REQUEST['MedEx']=="start") {
 	if (acl_check('admin', 'super')) {
 		$query = "SELECT * FROM users where id = ?";
-		$user_data = sqlQuery($query,array($_SESSION['authUserID']));	
+		$user_data = sqlQuery($query,array($_SESSION['authUserID']));
 		$query = "SELECT * from facility where primary_business_entity='1' limit 1";
 		$facility = sqlFetchArray(sqlStatement($query));
-		
+
 		$data['firstname'] 		= $user_data['fname'];
 		$data['lastname'] 		= $user_data['lname'];
 		$data['username'] 		= $_SESSION['authUser'];
@@ -101,7 +99,7 @@ if ($_REQUEST['MedEx']=="start") {
 		}
 		$response = $MedEx->setup->autoReg($data);
 		if (($response['API_key']>'')&&($response['customer_id'] > '')) {
-			sqlQuery("Delete from medex_prefs");		
+			sqlQuery("Delete from medex_prefs");
 			$runQuery ="select * from facility order by name";
 			$fetch = sqlStatement($runQuery);
 			while ($frow = sqlFetchArray($fetch)) { $facilities[] = $frow; }
@@ -111,9 +109,9 @@ if ($_REQUEST['MedEx']=="start") {
 			$facilities = implode("|",$facilities);
 			$providers 	= implode("|",$providers);
 			$sqlINSERT 	= "INSERT into `medex_prefs` (
-								MedEx_id,ME_api_key,ME_username, 
+								MedEx_id,ME_api_key,ME_username,
 								ME_facilities,ME_providers,ME_hipaa_default_override,MSGS_default_yes,
-								PHONE_country_code,LABELS_local,LABELS_choice) 
+								PHONE_country_code,LABELS_local,LABELS_choice)
 							VALUES (?,?,?,?,?,?,?,?,?,?)";
 			sqlStatement($sqlINSERT,array($response['customer_id'],$response['API_key'],$_POST['new_email'],$facilities,$providers,"1","1","1","1","5160"));
 		}
@@ -123,11 +121,11 @@ if ($_REQUEST['MedEx']=="start") {
 			$token 		= $logged_in['token'];
 			$practice 	= $MedEx->practice->sync($token);
 			$token 		= $logged_in['token'];
-			
+
 			$response 	= $MedEx->practice->sync($token);
 			$campaigns 	= $MedEx->campaign->events($token);
 			$response 	= $MedEx->events->generate($token,$campaigns['events']);
-	
+
 			$response['success'] = "OK BABY!";
 			$response['show'] =  xlt("Sign-up successful for")." ".$data['company']. ".<br />".xlt("Proceeding to Preferences").".<br />".
 				xlt("If this page does not refresh, reload the Messages page manually").".<br />
@@ -163,14 +161,14 @@ if (($_REQUEST['pid'])&&($_REQUEST['action']=="new_recall")) {
 	$result['age'] = $MedEx->events->getAge($result['DOB']);
 
 	/**
-	 *  Did the clinician create a PLAN at the last visit?  
-	 *  To do an in office test, and get paid for it, 
+	 *  Did the clinician create a PLAN at the last visit?
+	 *  To do an in office test, and get paid for it,
 	 *  we must have an order (and a report of the findings).
 	 *  If the practice is using the eye form then uncomment the 3 lines below.
 	 * 	It provides the PLAN and orders for next visit.
-	 *  As forms mature, there should be a uniform way to find the PLAN?  
+	 *  As forms mature, there should be a uniform way to find the PLAN?
 	 *  And when that day comes we'll put it here...
-	 *  The other option is to use Visit Categories here.  Maybe both?  Consensus?  
+	 *  The other option is to use Visit Categories here.  Maybe both?  Consensus?
 	 *  Beuller?  The silence is deafening.  I need to get some friends.
 	 */
 	$query = "select PLAN from form_eye_mag where PID=? and date < NOW() ORDER by date desc LIMIT 1";
@@ -206,7 +204,7 @@ $pid_list = array();
 if ($_REQUEST['action'] == "process") {
 	$new_pid = json_decode($_POST['parameter'],true);
    	$new_pc_eid = json_decode($_POST['pc_eid'],true);
-   	
+
 	if (($_POST['item']=="phone")||(($_POST['item']=="notes")&&($_POST['msg_notes']>''))) {
     	$sql ="INSERT INTO medex_outgoing (msg_pc_eid, msg_type, msg_reply, msg_extra_text) VALUES (?,?,?,?)";
 		echo $sql.'recall_'.$new_pid[0]." - ".$_POST['item']. " - ". $_SESSION['authUserID'] ." - ".$_POST['msg_notes']. "\n";
@@ -219,7 +217,7 @@ if ($_REQUEST['action'] == "process") {
     $_SESSION['pidList'] = $pidList;
     if ($_POST['item']=="SMS") {
 	    $sql ="update hipaa_reminders set r_phone_done=NOW(),r_phone_bywhom=? where r_pid in (".$_SESSION['pidList'].")";
-		sqlQuery($sql,array($_SESSION['authUser'])); 
+		sqlQuery($sql,array($_SESSION['authUser']));
     }
     if ($_POST['item']=="AVM") {
 	    $sql ="update hipaa_reminders set r_vm_sent=NOW(),r_vm_sent_by=? where r_pid in (".$_SESSION['pidList'].")";

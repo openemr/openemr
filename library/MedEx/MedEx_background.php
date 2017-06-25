@@ -35,23 +35,21 @@ require_once(dirname(__FILE__)."/../../interface/globals.php");
 require_once(dirname(__FILE__)."/API.php");
 require_once(dirname(__FILE__)."/../patient.inc");
 require_once(dirname(__FILE__)."/../log.inc");
-require_once(dirname(__FILE__)."/../formatting.inc.php");
-require_once(dirname(__FILE__) ."/../log.inc");
 
 function start_MedEx() {
     $log = "/tmp/myhipaa.log" ;
     $stdlog = fopen($log, 'a');
     $timed = date(DATE_RFC2822);
-    fputs($stdlog,"\n".$timed."\n");        
-    
+    fputs($stdlog,"\n".$timed."\n");
+
     $hb = new MedExApi\MedEx('MedExBank.com');
     $logged_in = $hb->login();
     if ($logged_in) {
-        fputs($stdlog,"MedEx_background Started - Login: success\n");     
-        $debug = "1";   
-        if (!empty($_POST['callback'])) { 
+        fputs($stdlog,"MedEx_background Started - Login: success\n");
+        $debug = "1";
+        if (!empty($_POST['callback'])) {
             $data = json_decode($_POST,true);
-            $response = $hb->callback->receive($data); 
+            $response = $hb->callback->receive($data);
             echo $response;
             exit;
         }
