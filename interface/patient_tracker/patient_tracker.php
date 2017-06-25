@@ -48,6 +48,8 @@ if(isset($_POST['form_apptcat']))
         $form_apptcat=intval($_POST['form_apptcat']);
     }
 }
+$form_patient_name=!is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
+$form_patient_id=!is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
 $appointments = array();
 $from_date = date("Y-m-d");
@@ -55,7 +57,7 @@ $to_date = date("Y-m-d");
 $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
+$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
 $appointments = sortAppointments( $appointments, 'time' );
 
 //grouping of the count of every status
@@ -233,6 +235,14 @@ function openNewTopWindow(newpid,newencounterid) {
                         }
                         ?>
                     </select>
+                </td>
+                <td><?php echo xlt('Patient ID') ?>:</td>
+                <td>
+                    <input type="text" id="patient_id" name="form_patient_id" value="<?php if($form_patient_id) echo attr($form_patient_id) ?>">
+                </td>
+                <td><?php echo xlt('Patient Name') ?>:</td>
+                <td>
+                    <input type="text" id="patient_name" name="form_patient_name" value="<?php if($form_patient_name) echo attr($form_patient_name) ?>">
                 </td>
                 <td style="border-left: 1px solid;">
                     <div style='margin-left: 15px'>
