@@ -129,6 +129,37 @@ VALUES ('page_validation','add_edit_event#theform_groups','/interface/main/calen
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `notes`, `activity`) VALUES ('page_validation', 'common#new-encounter-form', '/interface/forms/newGroupEncounter/common.php', 160, '{pc_catid:{exclusion: ["_blank"]}}', 1);
 #EndIf
 
+--
+#IfMissingColumn users weno_prov_id
+ALTER TABLE `users` ADD `weno_prov_id` VARCHAR(15) DEFAULT NULL;
+#Endif
+
+--
+#IfMissingColumn prescriptions ntx 
+ALTER TABLE `prescriptions` ADD `ntx` INT(2) DEFAULT NULL;
+#Endif
+
+--
+#IfMissingColumn prescriptions rtx 
+ALTER TABLE `prescriptions` ADD `rtx` INT(2) DEFAULT NULL;
+#Endif
+
+--
+#IfMissingColumn prescriptions txDate 
+ALTER TABLE `prescriptions` ADD `txDate` DATE NOT NULL;
+#Endif
+
+--
+#IfMissingColumn pharmacies ncpdp
+ALTER TABLE `pharmacies` ADD `ncpdp` INT(12) NULL;
+#Endif
+
+--
+#IfMissingColumn pharmacies npi
+ALTER TABLE `pharmacies` ADD `npi` INT(12) NULL;  
+#Endif
+
+
 #IfNotTable therapy_groups
 CREATE TABLE `therapy_groups` (
   `group_id` int(11) NOT NULL auto_increment,
@@ -439,3 +470,60 @@ ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #IfNotColumnType openemr_postcalendar_events pc_facility int(11)
 ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int(11) NOT NULL DEFAULT '0' COMMENT 'facility id for this event';
 #Endif
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_drug_paid`
+--
+DROP TABLE IF EXISTS `erx_drug_paid`;
+CREATE TABLE IF NOT EXISTS `erx_drug_paid` (
+  `drugid` int(11) NOT NULL AUTO_INCREMENT,
+  `drug_label_name` varchar(45) NOT NULL,
+  `ahfs_descr` varchar(45) NOT NULL,
+  `ndc` bigint(12) NOT NULL,
+  `price_per_unit` decimal(5,2) NOT NULL,
+  `avg_price` decimal(6,2) NOT NULL,
+  `avg_price_paid` int(6) NOT NULL,
+  `avg_savings` decimal(6,2) NOT NULL,
+  `avg_percent` decimal(6,2) NOT NULL,
+   PRIMARY KEY (`drugid`)
+   ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_rx_log`
+--
+DROP TABLE IF EXISTS `erx_rx_log`;
+CREATE TABLE IF NOT EXISTS `erx_rx_log` (
+ `id` int(20) NOT NULL AUTO_INCREMENT,
+ `prescription_id` int(6) NOT NULL,
+ `date` varchar(25) NOT NULL,
+ `time` varchar(15) NOT NULL,
+ `code` int(6) NOT NULL,
+ `status` text,
+ `message_id` varchar(100) DEFAULT NULL,
+ `read` int(1) DEFAULT NULL,
+ PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `erx_narcotics`
+--
+DROP TABLE IF EXISTS `erx_narcotics`;
+CREATE TABLE IF NOT EXISTS `erx_narcotics` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `drug` varchar(255) NOT NULL,
+  `dea_number` varchar(5) NOT NULL,
+  `csa_sch` varchar(2) NOT NULL,
+  `narc` varchar(2) NOT NULL,
+  `other_names` varchar(255) NOT NULL,
+   PRIMARY KEY (`id`)
+  ) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `standardized_tables_track`
+--
+
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('state','PR','Puerto Rico'         ,39,0);

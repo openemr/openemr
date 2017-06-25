@@ -23,6 +23,15 @@ function changeLinkHref(id,addValue,value) {
     }
 }
 
+ //uses jquery to update database table
+ 
+ function markTx(id){
+     
+ $.get('./interface/weno/markTx.php?rx='+id);
+
+ return false;
+ }
+
 function changeLinkHref_All(id,addValue,value) {
     var myRegExp = new RegExp(":" + value + ":");
     if (addValue){ //add value to href
@@ -131,6 +140,12 @@ $(document).ready(function(){
                         <td style="border-style:none;">
                             <a id="multiprintToFax" href="{$CONTROLLER}prescription&multiprintfax&id={$printm}" onclick="top.restoreSession()" class="css_button"><span>{xl t='Download'} ({xl t='Fax'})</span></a>
                         </td>
+
+                {php} if ($GLOBALS['weno_rx_enable']) { {/php}
+						<td style="border-style:none;">
+                            <a id="multiprintToFax" href="{$WEBROOT}/interface/weno/validate.php" onclick="top.restoreSession()" class="css_button"><span>{xl t='Transmit'} {xl t='Rx'}</span></a>
+                        </td>
+				{php} } {/php}
                         {if $CAMOS_FORM == true}
                         <td>
                             <a id="four_panel_rx" href="{$WEBROOT}/interface/forms/CAMOS/rx_print.php?sigline=plain" onclick="top.restoreSession()" class="css_button"><span>{xl t='View Four Panel'}</span></a>
@@ -159,13 +174,20 @@ $(document).ready(function(){
        <!-- TajEmo Changes 2012/06/14 02:01:43 PM by CB added Heading for checkbox column -->   
         <th width="8px">&nbsp;</th>
 		    <th width="8px">&nbsp;</th>
-        <th width="180px">{xl t='Drug'}</th>
-        <th>{xl t='Code'}</th>
-        <th>{xl t='Created'}<br />{xl t='Changed'}</th>
-        <th>{xl t='Dosage'}</th>
-        <th>{xl t='Qty'}.</th>
+
+        <th width="70px">{xl t='Drug'}</th>
+		<th width="70px">{xl t='RxNorm'}</th>		
+        <th width="70px">{xl t='Created'}<br />{xl t='Changed'}</th>
+        <th width="20px">{xl t='Dosage'}</th>
+        <th width="20px">{xl t='Qty'}.</th>		
         <th>{xl t='Unit'}</th>
+		<th width="20px">{xl t='Refills'}</th>		
         <th>{xl t='Provider'}</th>
+{php} if ($GLOBALS['weno_rx_enable']) { {/php}		
+		<th>{xl t='Send'}<br>{xl t='NewRx'}</th>
+		<th>{xl t='Refill'}<br>{xl t='Rx'}</th>
+		<th>{xl t='Last'}<br>{xl t='Tx Date'}</th>
+{php} } {/php}		
     </tr>
 
 	{foreach from=$prescriptions item=prescription} 
@@ -215,10 +237,29 @@ $(document).ready(function(){
        {$prescription->get_size()} {$prescription->get_unit_display()}&nbsp;
     </td>
     <td id="{$prescription->id}">
+      {$prescription->refills} &nbsp;
+    </td>	
+    <td id="{$prescription->id}">
       {$prescription->provider->get_name_display()}&nbsp;
     </td>
+{php} if ($GLOBALS['weno_rx_enable']) { {/php}	
+	 <td align="center"> 
+	 {if $prescription->ntx == 0}
+      <input class="check_list" id="NewRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('NewRx-{$prescription->id}');" title={xl t="Select to transmit"}>
+     {/if}
+     </td>
+	 <td align="center"> 
+     {if $prescription->ntx == 1}
+      <input class="check_list" id="RefillRx-{$smarty.foreach.rx.index}" type="checkbox" value="{$prescription->id}" onClick="markTx('RefillRx-{$prescription->id}');" title={xl t="Select to transmit"}>
+	 {/if} 
+     </td>
+	 <td id="{$prescription->id}" align="center"> 
+      {$prescription->txDate}
+     </td>	
+{php} } {/php}	 
   </tr>
 	{/foreach}
+	
 </table>
 
 </form>
