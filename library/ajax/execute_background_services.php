@@ -68,6 +68,7 @@ if (!$isAjaxCall) {
 
 //an additional require file can be specified for each service in the background_services table
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
+require_once(dirname(__FILE__) . "/../sql.inc");
 
 //Remove time limit so script doesn't time out
 set_time_limit(0);
