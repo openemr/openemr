@@ -62,7 +62,7 @@ $logged_in = $MedEx->login();
 
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/dialog.js"></script>
     <script type="text/javascript" src="<?php echo $GLOBALS['web_root']; ?>/library/textformat.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-2-2-0/index.js"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-3-1-1/index.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
     <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.js"></script>
