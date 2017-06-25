@@ -1262,7 +1262,6 @@ body.admin-layout input[type="button"] {
 
 /* flow board filters*/
 #flow_board_parameters{
-  width: 1041px;
   margin: 25px auto;
   background-color: #ececec;
 }
