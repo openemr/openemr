@@ -2,13 +2,12 @@
 /*
  * This program creates the misc_billing_form
  *
- * Copyright (C) 2007 Bo Huynh
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2007 Bo Huynh
+ * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @link http://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -22,14 +21,17 @@ if (! $encounter) { // comes from globals.php
  die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$mboquery = array();
-$mboquery = sqlquery("SELECT fmbo.id FROM form_misc_billing_options AS fmbo 
-                      INNER JOIN forms ON (fmbo.id = forms.form_id) WHERE 
-                      forms.encounter = ?", array($encounter));
-if ($mboquery) {
-  $formid = 0 + $mboquery['id'];
-} else {
-  $formid   = 0 + formData('id', 'G');
+$formid   = 0 + formData('id', 'G');
+//only one misc billing form so grab existing form
+$formid   = 0 + formData('id', 'G');
+if (empty($formid)) {
+    $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo` 
+                          INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE 
+                          `forms`.`deleted` = 0 AND
+                          `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
+    if (!empty($mboquery['id'])) {
+        $formid = 0 + $mboquery['id'];
+    }
 }
 
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
@@ -57,9 +59,15 @@ formHeader("Form: misc_billing_options");
 <span class=text><?php echo xlt('Box 10 D. EPSDT Referral Code');?> </span><input type=entry style="width: 25px;" size=2 name="medicaid_referral_code" value="<?php echo attr($obj{"medicaid_referral_code"});?>" >&nbsp;&nbsp;&nbsp;&nbsp;
 <label><span class=text><?php echo xlt('EPSDT'); ?> : </span><input type=checkbox name="epsdt_flag" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked";?>></label><br><br>
  <tr>
-  <td><span class=text><?php echo xlt('Box 14. Populated from the Encounter Screen as the Onset Date needs a qualifier.');?>
-    <?php generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?>
+  <td><span class=text><?php echo xlt('Box 14. Onset Date with a qualifier to specify.');?>
+     <?php $onset_date = $obj{"onset_date"}; ?>
+       <input type=text style="width: 70px;" size=12 class='datepicker' name='onset_date' id='onset_date'
+       value='<?php echo attr($onset_date); ?>'
+       title='<?php echo xla('yyyy-mm-dd'); ?>' />
   </span></td>
+  <td>
+    <?php generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?>
+  </td>
  </tr><br><br>
  <tr>
    <td><span class=text><?php echo xlt('Box 15. Other Date with a qualifier to specify what the date indicates.');?>

@@ -1387,6 +1387,7 @@ CREATE TABLE `form_misc_billing_options` (
   `outside_lab` tinyint(1) default NULL,
   `lab_amount` decimal(5,2) default NULL,
   `is_unable_to_work` tinyint(1) default NULL,
+  `onset_date` date defaults NULL,
   `date_initial_treatment` date default NULL,
   `off_work_from` date default NULL,
   `off_work_to` date default NULL,

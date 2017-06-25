@@ -1044,9 +1044,18 @@ class Claim {
   function hospitalizedFrom() {
     return cleanDate($this->billing_options['hospitalization_date_from']);
   }
+  
+  function hospitalizedFromDateValid()
+  {
+      return $this->hospitalizedFrom()!=='';
+  }
 
   function hospitalizedTo() {
     return cleanDate($this->billing_options['hospitalization_date_to']);
+  }
+  function hospitalizedToDateValid()
+  {
+      return $this->hospitalizedTo()!=='';
   }
 
   function isOutsideLab() {
@@ -1084,9 +1093,22 @@ class Claim {
   function additionalNotes() {
     return x12clean(trim($this->billing_options['comments']));
   }
+  
+  function miscOnsetDate() {
+    return cleanDate($this->billing_options['onset_date']);
+  }
+
+  function miscOnsetDateValid()
+  {
+      return $this->miscOnsetDate()!=='';
+  }
 
   function dateInitialTreatment() {
     return cleanDate($this->billing_options['date_initial_treatment']);
+  }
+  
+  function dateInitialTreatmentValid() {
+    return $this->dateInitialTreatment()!=='';
   }
 
   function box14Qualifier()

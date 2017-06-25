@@ -439,3 +439,7 @@ ALTER TABLE `onsite_mail` CHANGE `owner` `owner` varchar(128) DEFAULT NULL;
 #IfNotColumnType openemr_postcalendar_events pc_facility int(11)
 ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int(11) NOT NULL DEFAULT '0' COMMENT 'facility id for this event';
 #Endif
+
+#IfMissingColumn form_misc_billing_options onset_date
+ALTER TABLE `form_misc_billing_options` ADD `onset_date` date default NULL;
+#EndIf
