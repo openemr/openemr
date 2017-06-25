@@ -79,7 +79,7 @@ $REPEAT_ON_DAY = array(
 
 function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param = null, $tracker_board = false, $nextX = 0, $bind_param = null, $query_param = null )
 {
-	
+
   $sqlBindArray = array();
 
   if($query_param) {
@@ -109,7 +109,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
     }
 
     if ( $where_param ) $where .= $where_param;
-	
+
     $order_by = "e.pc_eventDate, e.pc_startTime";
     if ( $orderby_param ) {
        $order_by = $orderby_param;
@@ -219,7 +219,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
               }
               //////
             }
-            
+
             $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
             list($ny,$nm,$nd) = explode('-',$occurance);
 
@@ -256,7 +256,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
         }
 
         while($occuranceYm <= $stopDateYm) {
- 
+
           // (YYYY-mm)-dd
           $dnum = $rnum;
           do {
@@ -264,7 +264,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
           } while($occurance === -1);
 
           if($occurance >= $from_date && $occurance <= $stopDate) {
-        
+
             $excluded = false;
             if (isset($exdate)) {
                 foreach (explode(",", $exdate) as $exception) {
@@ -301,7 +301,7 @@ function fetchEvents( $from_date, $to_date, $where_param = null, $orderby_param 
         break;
 
 
-	    
+
     }
 
   }
@@ -344,7 +344,7 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	if ( $patient_id ) {
 		$where .= " AND e.pc_pid = ?";
 		array_push($sqlBindArray, $patient_id);
-	} elseif( $group_id ) {
+	} elseif ( $group_id ) {
 		//if $group_id this means we want only the group events
 		$where .= " AND e.pc_gid = ? AND e.pc_pid = ''";
 		array_push($sqlBindArray, $group_id);
@@ -358,28 +358,28 @@ function fetchAppointments( $from_date, $to_date, $patient_id = null, $provider_
 	}
 
 	//Appointment Status Checking
-	if($pc_appstatus != ''){
+	if ($pc_appstatus != '') {
 		$where .= " AND e.pc_apptstatus = ?";
 		array_push($sqlBindArray, $pc_appstatus);
 	}
 
-	if($pc_catid !=null) {
+	if ($pc_catid != null) {
 		$where .= " AND e.pc_catid = ?";
 		array_push($sqlBindArray, $pc_catid);
 	}
 
-	if($patient_name !=null) {
+	if ($patient_name != null) {
 		$where .= " AND (p.fname LIKE CONCAT('%',?,'%') OR p.lname LIKE CONCAT('%',?,'%'))";
 		array_push($sqlBindArray, $patient_name, $patient_name);
 	}
 
 	//Without Provider checking
-	if($with_out_provider != ''){
+	if ($with_out_provider != '') {
 		$where .= " AND e.pc_aid = ''";
 	}
 
 	//Without Facility checking
-	if($with_out_facility != ''){
+	if ($with_out_facility != '') {
 		$where .= " AND e.pc_facility = 0";
 	}
 
@@ -527,7 +527,7 @@ function compareBasic( $e1, $e2 )
 	} else if ( $e1 > $e2 ) {
 		return 1;
 	}
-	
+
 	return 0;
 }
 

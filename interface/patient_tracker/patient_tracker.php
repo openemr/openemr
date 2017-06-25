@@ -48,8 +48,8 @@ if(isset($_POST['form_apptcat']))
         $form_apptcat=intval($_POST['form_apptcat']);
     }
 }
-$form_patient_name=!is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
-$form_patient_id=!is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
+$form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
+$form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
 $appointments = array();
 $from_date = date("Y-m-d");
@@ -236,15 +236,7 @@ function openNewTopWindow(newpid,newencounterid) {
                         ?>
                     </select>
                 </td>
-                <td><?php echo xlt('Patient ID') ?>:</td>
-                <td>
-                    <input type="text" id="patient_id" name="form_patient_id" value="<?php if($form_patient_id) echo attr($form_patient_id) ?>">
-                </td>
-                <td><?php echo xlt('Patient Name') ?>:</td>
-                <td>
-                    <input type="text" id="patient_name" name="form_patient_name" value="<?php if($form_patient_name) echo attr($form_patient_name) ?>">
-                </td>
-                <td style="border-left: 1px solid;">
+                <td style="border-left: 1px solid;" rowspan="2">
                     <div style='margin-left: 15px'>
                         <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <span> <?php echo xlt('Submit'); ?> </span> </a>
@@ -253,6 +245,16 @@ function openNewTopWindow(newpid,newencounterid) {
                                 <span> <?php echo xlt('Print'); ?> </span> </a>
                         <?php } ?>
                     </div>
+                </td>
+            </tr>
+            <tr class="text">
+                <td><?php echo xlt('Patient ID') ?>:</td>
+                <td>
+                    <input type="text" id="patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>">
+                </td>
+                <td><?php echo xlt('Patient Name') ?>:</td>
+                <td>
+                    <input type="text" id="patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>">
                 </td>
             </tr>
         </table>
@@ -529,17 +531,23 @@ function openNewTopWindow(newpid,newencounterid) {
 
 <?php
 //saving the filter for auto refresh
-if(!is_null($_POST['form_provider']) ){
+if (!is_null($_POST['form_provider'])) {
     echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
 }
-if(!is_null($_POST['form_facility']) ){
+if (!is_null($_POST['form_facility'])) {
     echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
 }
-if(!is_null($_POST['form_apptstatus']) ){
+if (!is_null($_POST['form_apptstatus'])) {
     echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
 }
-if(!is_null($_POST['form_apptcat']) ){
+if (!is_null($_POST['form_apptcat'])) {
     echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
+}
+if (!is_null($_POST['form_patient_id'])) {
+    echo "<input type='hidden' name='form_patient_id' value='" . attr($_POST['form_patient_id']) . "'>";
+}
+if (!is_null($_POST['form_patient_name'])) {
+    echo "<input type='hidden' name='form_patient_name' value='" . attr($_POST['form_patient_name']) . "'>";
 }
 ?>
 
