@@ -1,9 +1,14 @@
 <?php
-/** @package OpenEMR
- *  @link http://www.open-emr.org
- *  @author Rod Roark <rod@sunsetsystems.com>
- *  @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 
+/*
+ * This program creates the HCFA 1500 claim form.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("Claim.class.php");
@@ -313,19 +318,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     }
   }
   
-  # Box 10d. Claim Codes  medicaid_referral_code
+  // Box 10d. Claim Codes  medicaid_referral_code
   
   if($claim->epsdtFlag()) {
       put_hcfa(26, 34, 2, $claim->medicaidReferralCode());
     }
 
-  # Box 10d. Claim Codes  medicaid_referral_code
-
-  if($claim->epsdtFlag()) {
-      put_hcfa(26, 34, 2, $claim->medicaidReferralCode());
-    }
-
   // Box 11d. Is There Another Health Benefit Plan
+
   if (!$new_medicare_logic) {
     put_hcfa(26, $claim->payerCount() > 1 ? 52 : 57, 1, 'X');
   }
