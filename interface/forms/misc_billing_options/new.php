@@ -84,7 +84,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
       <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked"; ?> ><br><br>
       <label for="onset_date"><?php echo xlt('Box 14. Onset Date:'); $onset_date = $obj{"onset_date"}; ?></label>
       <input type=text style="width: 70px;" size=12 class='datepicker' name='onset_date' id='onset_date' value='<?= attr($onset_date); ?>' title='<?= xla('yyyy-mm-dd'); ?>' >
-      <?php generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
+      <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
       <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:'); $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
       <input type=text style="width: 70px;" size=10 class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?= attr($date_initial_treatment); ?>' title='<?= xla('yyyy-mm-dd'); ?>' >
       <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?><br><br>
