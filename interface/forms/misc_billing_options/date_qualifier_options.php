@@ -36,7 +36,7 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
   $res = sqlStatement($query);
   echo "<select name='" . attr($selname) . "'";
   if ($disabled) echo " disabled";
-  echo ">\n";
+  echo ">";
   echo "<option value=''>" . text($toptext);
   while ($row = sqlFetchArray($res)) {
     $provid = $row['id'];
