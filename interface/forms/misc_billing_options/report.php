@@ -30,7 +30,7 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id) {
             }
 
             if (($key === 'box_14_date_qual') || $key === 'box_15_date_qual') {
-              $value = text(qual_id_to_description($key, $value));
+              $value = qual_id_to_description($key, $value);
             }
             
             if ($key === 'provider_qualifier_code') {

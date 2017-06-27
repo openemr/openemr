@@ -34,8 +34,9 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
     "ORDER BY lname, fname";
   $res = sqlStatement($query);
-  echo "<select name='" . attr($selname) . "'>";
+  echo "<select name='" . attr($selname) . "'";
   if ($disabled) echo " disabled";
+  echo ">\n";
   echo "<option value=''>" . text($toptext);
   while ($row = sqlFetchArray($res)) {
     $provid = $row['id'];
