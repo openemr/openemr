@@ -143,14 +143,14 @@ function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow
     return $tracker_time ;
 }
 
-function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null)
+function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null, $form_patient_name = null, $form_patient_id = null)
 {
     # used to determine which providers to display in the Patient Tracker
     if ($provider_id == 'ALL'){
       //set null to $provider id if it's 'all'
       $provider_id = null;
     }
-    $events = fetchAppointments( $from_date, $to_date, null, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true );
+    $events = fetchAppointments( $from_date, $to_date, $form_patient_id, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true, 0, null, $form_patient_name);
     return $events;
 }
 

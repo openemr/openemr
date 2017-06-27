@@ -36,7 +36,7 @@ If you are using git for your project and you want to integrate CKEditor, we rec
 
 ### Using Package Managers
 
-See the [Installing CKEditor with Package Managers](http://docs.ckeditor.com/#!/guide/dev_package_managers) article for more details about installing CKEditor with [Bower](http://bower.io/), [Composer](https://getcomposer.org/) and [npm](https://www.npmjs.com/).
+See the [Installing CKEditor with Package Managers](http://docs.ckeditor.com/#!/guide/dev_package_managers) article for more details about installing CKEditor with Bower and Composer.
 
 ## Repository Structure
 
@@ -65,7 +65,7 @@ For example: `4.0/basic`, `4.0.1/standard`. This convention was changed in CKEdi
 
 ## Checking Your Installation
 
-The editor comes with a sample page that can be used to verify if the installation succeeded. Take a look at the `samples` directory.
+The editor comes with a few sample pages that can be used to verify if the installation succeeded. Take a look at the `samples` directory.
 
 To test your installation, just call the following page for your website:
 

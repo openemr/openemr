@@ -1,11 +1,13 @@
 <?php
-// Copyright (C) 2010 Brady Miller <brady.g.miller@gmail.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/**
+ * patient_data.php
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2010-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
@@ -16,16 +18,13 @@ require_once("$srcdir/options.inc.php");
 <html>
 <head>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css" media="screen" />
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <SCRIPT LANGUAGE="JavaScript">
 
 function validate(f) {
@@ -41,7 +40,7 @@ function validate(f) {
 	var time_split = form_date[1].split( ":" );
 	var d = new Date( date_split[0], date_split[1]-1, date_split[2], time_split[0], time_split[1], time_split[2] );
 	var now = new Date();
-	if ( d > now && 
+	if ( d > now &&
 		f.form_complete.value == "YES" ) {
 		alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
 	    f.form_date.focus();
@@ -62,6 +61,15 @@ function submitme() {
 
 $(document).ready(function(){
   $("#cancel").click(function() { parent.$.fn.fancybox.close(); });
+
+  $('.datetimepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = true; ?>
+    <?php $datetimepicker_showseconds = true; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+  });
+
 });
 
 </script>
@@ -144,14 +152,9 @@ if (isset($entryID)) {
     echo "<tr><td class='required'>";
     echo xlt('Date/Time');
     echo ":</td><td class='text'>";
-    echo "<input type='text' size='16' name='form_date' id='form_date' " .
+    echo "<input type='text' size='16' class='datetimepicker' name='form_date' id='form_date' " .
       "value='" . attr( $form_date) . "' " .
-      "onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' " .
       "title='" . xla('yyyy-mm-dd hh:mm:ss') . "' />";
-    echo "<img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'" .
-      "id='img_date' border='0' alt='[?]' style='cursor:pointer'" .
-      "title='" . xla('Click here to choose a date') . "' />";
-    echo "<script language='JavaScript'>Calendar.setup({inputField:'form_date', ifFormat:'%Y-%m-%d %H:%M:%S', button:'img_date', showsTime:'true'});</script>";
     echo "</td></tr>";
 
     echo "<tr><td class='required'>";

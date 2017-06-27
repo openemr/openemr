@@ -338,14 +338,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(29, 55, 17, 'Signature on File');
 
   // Box 14. Date of Current Illness/Injury/Pregnancy
-  $tmp = $claim->onsetDate();
+  $tmp = $claim->miscOnsetDate();
   put_hcfa(32, 2, 2, substr($tmp,4,2));
   put_hcfa(32, 5, 2, substr($tmp,6,2));
   put_hcfa(32, 8, 4, substr($tmp,0,4));
 
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
-    // Only include the Box 14 qualifier if there we are using version 02/12 and there is a Box 14 date.
+    // Only include the Box 14 qualifier if using version 02/12 and there is a Box 14 date.
     put_hcfa(32, 16, 3, $claim->box14Qualifier());
 
   }
@@ -353,15 +353,13 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   $tmp = $claim->dateInitialTreatment();
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
-    // Only include the Box 15 qualifier if there we are using version 02/12 and there is a Box 15 date.
+    // Only include the Box 15 qualifier if using version 02/12 and there is a Box 15 date.
     put_hcfa(32, 31, 3, $claim->box15Qualifier());
   }
-
 
   put_hcfa(32,37, 2, substr($tmp,4,2));
   put_hcfa(32,40, 2, substr($tmp,6,2));
   put_hcfa(32,43, 4, substr($tmp,0,4));
-
 
   // Box 16. Dates Patient Unable to Work in Current Occupation
   if ($claim->isUnableToWork()) {
@@ -395,9 +393,6 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     put_hcfa(33, 30,  2, 'ZZ');
     put_hcfa(33, 33, 14, $claim->referrerTaxonomy());
   }
-
-
-
     // Box 17. Name of Referring Provider or Other Source leave it like it is just check if there is info in misc_billing the use it provider_qualifier_code
     # Changed to look first at the misc hcfa billing form to complete this box if nothing on misc hcfa form use referrer
     if (strlen($claim->billingProviderLastName()) !=0) {

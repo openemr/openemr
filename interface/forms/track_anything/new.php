@@ -1,24 +1,15 @@
 <?php
 /**
-* Encounter form to track any clinical parameter.
-*
-* Copyright (C) 2014 Joe Slam <trackanything@produnis.de>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package OpenEMR
-* @author Joe Slam <trackanything@produnis.de>
-* @link http://www.open-emr.org
-*/
+ * Encounter form to track any clinical parameter.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Joe Slam <trackanything@produnis.de>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // Some initial api-inputs
 
@@ -43,17 +34,29 @@ if (!$formid){
 $myprocedureid =  $_POST['procedure2track'];
 
 echo "<html><head>";
-?> 
+?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">  
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
+<link rel="stylesheet" href="<?php echo $web_root; ?>/interface/forms/track_anything/style.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
-<?php 
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.datetimepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = true; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
+</script>
+
+<?php
 echo "</head><body class='body_top'>";
 echo "<div id='track_anything'>";
 
@@ -77,7 +80,7 @@ if (!$formid){
 			addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
 		} else {
 				echo xlt('No track selected'). ".<br>";
-?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php	
+?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
 		}
 
 	}else{
@@ -108,7 +111,7 @@ if (!$formid){
 
 		echo "<tr><td align='center'>";
 		echo "<input type='submit' name='create_track' value='" . xla('Configure tracks') . "' ";
-		?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php 
+		?> onclick="top.restoreSession();location='<?php echo $web_root ?>/interface/forms/track_anything/create.php'"<?php
 		echo " />";
 		echo "</td></tr>";
 		echo "</table>";
@@ -120,7 +123,7 @@ if (!$formid){
 // instead of "else", we check again for "formid"
 if ($formid){
 	// this is an existing Track
-	//----------------------------------------------------	
+	//----------------------------------------------------
 	// get submitted item-Ids
 	$mylist = $_POST['liste'];
 	#echo $mylist;
@@ -150,7 +153,7 @@ if ($formid){
 			sqlInsert($query, array($formid,$thedate,$thisid,$thisvalue));
 		}
 	}
-	//----------------------------------------------------	
+	//----------------------------------------------------
 
 
 
@@ -163,7 +166,7 @@ if ($formid){
 	$old_value 	= $_POST['old_value'];
 
 	$how_many = count($old_time);
-	// do this for each data row	
+	// do this for each data row
 	for ($x=0; $x<=$how_many; $x++) {
 		// how many columns do we have
 		$how_many_cols = count($old_value[$x]);
@@ -174,7 +177,7 @@ if ($formid){
 				$insertspell .= "WHERE id = ? ";
 				sqlStatement($insertspell, array($old_time[$x], $old_value[$x][$y], $old_id[$x][$y]));
 		}
-		
+
 	}
 //--------------------------------------------------
 
@@ -184,7 +187,7 @@ if ($formid){
 		$spell = "SELECT procedure_type_id FROM form_track_anything WHERE id = ?";
 		$myrow = sqlQuery($spell, array($formid));
 		$myprocedureid = $myrow["procedure_type_id"];
-		
+
 	}
 	echo "<br><b>" . xlt('Enter new data') . "</b>:<br>";
 	echo "<form method='post' action='" . $rootdir . "/forms/track_anything/new.php' onsubmit='return top.restoreSession()'>";
@@ -196,13 +199,8 @@ if ($formid){
 	echo "<tr><td>" . xlt('Date Time') . "</td>";
 	echo "<td><input type='text' size='16' name='datetime' id='datetime'" .
              "value='" . attr(date('Y-m-d H:i:s', time())) . "'" .
-             "onkeyup='datekeyup(this,mypcc,true)' onblur='dateblur(this,mypcc,true)' />" .
-             "<img src='" . $rootdir . "/pic/show_calendar.gif' id='img_date' align='absbottom'" .
-             "width='24' height='22' border='0' alt='[?]' style='cursor:pointer' /></td></tr>";
+             "class='datetimepicker' /></td></tr>";
         ?>
-        <script language="javascript">
-        Calendar.setup({inputField:"datetime", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_date", showsTime:true});
-        </script>
 
 	<?php
 	// get items to track
@@ -226,7 +224,7 @@ if ($formid){
 	// get unique timestamps of track
 	echo "<br><br><hr><br>";
 	echo "<b>" . xlt('Edit your entered data') . ":</b><br>";
-	$shownameflag = 0;	// flag if this is <table>-headline 
+	$shownameflag = 0;	// flag if this is <table>-headline
 	echo "<table border='1'>";
 
 	$spell0 = "SELECT DISTINCT track_timestamp FROM form_track_anything_results WHERE track_anything_id = ? ORDER BY track_timestamp DESC";
@@ -235,14 +233,14 @@ if ($formid){
 	while($myrow = sqlFetchArray($query)){
 		$thistime = $myrow['track_timestamp'];
 		$shownameflag++;
-		
+
 		$spell  = "SELECT form_track_anything_results.id AS result_id, form_track_anything_results.itemid, form_track_anything_results.result, form_track_anything_type.name AS the_name ";
 		$spell .= "FROM form_track_anything_results ";
 		$spell .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
 		$spell .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
 		$spell .= "ORDER BY form_track_anything_type.position ASC, the_name ASC ";
 		$query2  = sqlStatement($spell,array($formid ,$thistime));
-		
+
 		// <table> heading line
 		if ($shownameflag==1){
 			echo "<tr><th class='time'>" . xlt('Time') . "</th>";
@@ -251,13 +249,13 @@ if ($formid){
 			}
 			echo "</tr>";
 		}
-		
+
 		echo "<tr><td bgcolor=#eeeeec>";
 		$main_counter++; // next row
-		echo "<input type='text' size='12' name='old_time[" . attr($main_counter) . "]' value='" . attr($thistime) . "'></td>";
+		echo "<input type='text' class='datetimepicker' size='16' name='old_time[" . attr($main_counter) . "]' value='" . attr($thistime) . "'></td>";
 		$query2  = sqlStatement($spell,array($formid ,$thistime));
-		
-		$counter = 0; // this counts columns 
+
+		$counter = 0; // this counts columns
 		while($myrow2 = sqlFetchArray($query2)){
 			echo "<td>";
 			echo "<input type='hidden' name='old_id[" . attr($main_counter) . "][" . attr($counter) . "]' value='". attr($myrow2['result_id']) . "'>";

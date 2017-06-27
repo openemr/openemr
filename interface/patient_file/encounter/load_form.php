@@ -16,9 +16,6 @@ else {
 		$pid = $_GET['pid'];
 		$encounter = $_GET['encounter'];
 	 }
-         if($_GET["formname"] != "newpatient" ){
-            include_once("$incdir/patient_file/encounter/new_form.php");
-         }
 
   // ensure the path variable has no illegal characters
   check_file_dir_name($_GET["formname"]);

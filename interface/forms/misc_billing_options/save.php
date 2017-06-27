@@ -1,27 +1,14 @@
 <?php
 /*
- * save.php for the saving of information from the misc_billing_form
- *
  * This program saves data from the misc_billing_form
- *
- * Copyright (C) 2007 Bo Huynh
- * Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see http://opensource.org/licenses/gpl-license.php.
  *
  * @package OpenEMR
  * @author Terry Hill <terry@lilysystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2007 Bo Huynh
+ * @copyright Copyright (C) 2016 Terry Hill <terry@lillysystems.com>
  * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General P
  */
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
@@ -56,6 +43,7 @@ $sets = "pid = {$_SESSION["pid"]},
   provider_qualifier_code     = '" . formData("provider_qualifier_code") . "',
   lab_amount                  = '" . formData("lab_amount") . "',
   is_unable_to_work           = '" . formData("is_unable_to_work") . "',
+  onset_date                  = '" . formData("onset_date") . "',
   date_initial_treatment      = '" . formData("date_initial_treatment") . "',
   off_work_from               = '" . formData("off_work_from") . "',
   off_work_to                 = '" . formData("off_work_to") . "',

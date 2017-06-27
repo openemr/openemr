@@ -60,7 +60,7 @@ $provider  = trim($_POST['form_provider']);
  });
 
  function send_sum(patient_id,transaction_id) {
-   if ( $('#send_sum_flag_' + patient_id + '_' + transaction_id).attr('checked') ) {
+   if ( $('#send_sum_flag_' + patient_id + '_' + transaction_id).prop('checked') ) {
      var mode = "add";
    }
    else {
@@ -79,9 +79,9 @@ $provider  = trim($_POST['form_provider']);
  }
 
  function send_sum_elec(patient_id,transaction_id) {
-   if ( $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).attr('checked') ) {
-     if ( !$('#send_sum_flag_' + patient_id + '_' + transaction_id).attr('checked') ) {
-       $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).removeAttr("checked");
+   if ( $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).prop('checked') ) {
+     if ( !$('#send_sum_flag_' + patient_id + '_' + transaction_id).prop('checked') ) {
+       $('#send_sum_elec_flag_' + patient_id + '_' + transaction_id).prop("checked", false);
        alert("<?php echo xls('Can not set this unless the Summary of Care Sent toggle is set.'); ?>");
        return false;
      }
@@ -103,7 +103,7 @@ $provider  = trim($_POST['form_provider']);
  }
 
  function provide_rec_pat(patient_id,date_created) {
-   if ( $('#provide_rec_pat_flag_' + patient_id ).attr('checked') ) {
+   if ( $('#provide_rec_pat_flag_' + patient_id ).prop('checked') ) {
      var mode = "complete_safe";
    }
    else {
@@ -121,7 +121,7 @@ $provider  = trim($_POST['form_provider']);
  }
 
  function provide_sum_pat(patient_id,encounter_id) {
-   if ( $('#provide_sum_pat_flag_' + patient_id + '_' + encounter_id).attr('checked') ) {
+   if ( $('#provide_sum_pat_flag_' + patient_id + '_' + encounter_id).prop('checked') ) {
      var mode = "add";
    }
    else {
@@ -374,7 +374,7 @@ $provider  = trim($_POST['form_provider']);
        echo "<td>" . htmlspecialchars($result['id'],ENT_NOQUOTES) . "</td>";
      }
      else { //$rule == "provide_rec_pat_amc"
-       echo "&nbsp";
+       echo "<td>&nbsp</td>";
      }
 
      if ($rule == "send_sum_amc") {
