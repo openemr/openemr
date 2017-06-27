@@ -69,7 +69,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
     </script>
   </head>
   <body class="body_top">
-    <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'>\n";?>
+    <form method='post' <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr($formid) . "'>\n";?>>
       <h4><?php echo xlt('Miscellaneous Billing Options for HCFA-1500'); ?></h4>
       <label for="box10a"><?php echo xlt('Box 10. a. Employment related:'); ?></label>
       <input type=checkbox name="employment_related" id="box10a" value="1" <?php if ($obj['employment_related'] == "1") echo "checked"; ?> ><br><br>
@@ -80,25 +80,25 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
       <label for="box10c"><?php echo xlt('Box 10. c. Other Accident:'); ?></label>
       <input type=checkbox name="other_accident" id="box10c" value="1" <?php if ($obj['other_accident'] == "1") echo "checked" ; ?> ><br><br>
       <label for="box10d"><?php echo xlt('Box 10. d. EPSDT Referral Code:'); ?></label>
-      <input type="entry" style="width: 25px;" size=2 name="medicaid_referral_code" id="box10d" value="<?php echo attr($obj{"medicaid_referral_code"}); ?>" >
+      <input type="entry" size=2 name="medicaid_referral_code" id="box10d" value="<?php echo attr($obj{"medicaid_referral_code"}); ?>" >
       <label for="box10depsdt"><?php echo xlt('EPSDT:'); ?></label>
       <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked"; ?> ><br><br>
       <label for="onset_date"><?php echo xlt('Box 14. Onset Date:'); $onset_date = $obj{"onset_date"}; ?></label>
-      <input type=text style="width: 70px;" size=12 class='datepicker' name='onset_date' id='onset_date' value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
+      <input type=text size=10 class='datepicker' name='onset_date' id='onset_date' value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
       <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:'); $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
-      <input type=text style="width: 70px;" size=10 class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
+      <input type=text size=10 class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?><br><br>
       <label for="off_work_from"><?php echo xlt('Box 16. Date unable to work from:'); $off_work_from = $obj{"off_work_from"}; ?></label>
-      <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
+      <input type=text size=10 class='datepicker' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="off_work_to"><?php echo xlt('Box 16. Date unable to work to:'); $off_work_to = $obj{"off_work_to"}; ?></label>
-      <input type=text style="width: 70px;" size=10 class='datepicker' name='off_work_to' id='off_work_to' value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
+      <input type=text size=10 class='datepicker' name='off_work_to' id='off_work_to' value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
       <label for="provider_id"><?php echo xlt('Box 17. Provider:'); genProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?></label>
       <label for="provider_qualifier_code"><?php echo xlt('Box 17. Provider Qualifier:'); echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?></label><br><br>
       <label for="hospitalization_date_from"><?php echo xlt('Box 18. Hospitalization date from:'); $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?></label>
-      <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_from' id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
+      <input type=text size=10 class='datepicker' name='hospitalization_date_from' id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="hospitalization_date_to"><?php echo xlt('Box 18. Hospitalization date to:'); $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?></label>
-      <input type=text style="width: 70px;" size=10 class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
+      <input type=text size=10 class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
       <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?></label>
       <input type=checkbox name="outside_lab" id="outside_labe" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?> >
       <label for="lab_amount"><?php echo xlt('Amount Charges:'); ?></label>
