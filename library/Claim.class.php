@@ -35,7 +35,7 @@ class Claim {
   var $encounter_id;      // encounter id
   var $procs;             // array of procedure rows from billing table
   var $diags;             // array of icd9 codes from billing table
-  var $diagtype= "ICD9";  // diagnosis code_type.Assume ICD9 unless otherwise specified.
+  var $diagtype= "ICD10"; // diagnosis code_type; safe to assume ICD10 now
   var $x12_partner;       // row from x12_partners table
   var $encounter;         // row from form_encounter table
   var $facility;          // row from facility table
@@ -44,7 +44,7 @@ class Claim {
   var $referrer;          // row from users table (referring provider)
   var $supervisor;        // row from users table (supervising provider)
   var $insurance_numbers; // row from insurance_numbers table for current payer
-  var $supervisor_numbers; // row from insurance_numbers table for current payer
+  var $supervisor_numbers;// row from insurance_numbers table for current payer
   var $patient_data;      // row from patient_data table
   var $billing_options;   // row from form_misc_billing_options table
   var $invoice;           // result from get_invoice_summary()

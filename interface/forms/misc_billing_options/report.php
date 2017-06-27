@@ -28,30 +28,44 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id) {
                 ($key =="box_15_date_qual" && ($data['date_initial_treatment'] == 0))) {
                 continue;
             }
+
+            if (($key === 'box_14_date_qual') || $key === 'box_15_date_qual') {
+              $value = text(qual_id_to_description($key, $value));
+            }
+            
+            if ($key === 'provider_qualifier_code') {
+              $pqe = $data['provider_qualifier_code'];
+              if (!empty($pqe)) {
+                switch($pqe) {
+                  case ($pqe == "DN"): $value = "Referring";
+                  case ($pqe == "DK"): $value = "Ordering";
+                  case ($pqe == "DQ"): $value = "Supervising";
+                }
+              $key = 'Box 17 Qualifier';
+              }
+            }
+
+            if ($key === 'provider_id') {
+              $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
+                         "id = ? ", array($value));
+              $value = $trow['fname'] . ' ' . $trow['lname'];
+              $key = 'Box 17 Provider';
+            }
+            
             if ($value == "1") {
-                $value = "yes";
+              $value = "Yes";
             }
-            if(($key==='box_14_date_qual')||$key==='box_15_date_qual')
-            {
-                $value=text(qual_id_to_description($key,$value));
-            }
-            if($key==='provider_id')
-            {
 
-                $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE ".
-                         "id = ? ",array($value));
-                $value=$trow['fname'] . ' ' . $trow['lname'];
-
-            }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>$key: </span><span class=text>" . text($value) . "</span></td>";
             $count++;
+
             if ($count == $cols) {
                 $count = 0;
                 print "</tr><tr>\n";
             }
         }
-    }
+    }   
     print "</tr></table>";
 }
 ?>

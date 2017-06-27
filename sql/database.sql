@@ -4646,8 +4646,9 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 -- provider_qualifier_code
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DK','DK',10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DN','DN',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DK','Ordering Provider',10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DN','Referring Provider',20,1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DQ','Supervising Provider',30,0);
 
 -- Files type white list
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');
