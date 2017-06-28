@@ -259,10 +259,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
 }
 
 function generate_order_report($orderid, $input_form=false, $genstyles=true, $finals_only=false) {
-  global $aNotes;
+  global $aNotes, $ignoreAuth;
 
   // Check authorization.
-  $thisauth = acl_check('patients', 'med');
+  $thisauth = acl_check('patients', 'med') || (isset($ignoreAuth) ? $ignoreAuth : false);;
   if (!$thisauth) return xl('Not authorized');
 
   $orow = sqlQuery("SELECT " .
