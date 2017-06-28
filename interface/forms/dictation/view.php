@@ -19,9 +19,7 @@ $returnurl = 'encounter_top.php';
 <head>
 <title><?php echo xlt('Dictation'); ?></title>
    <?php Header::setupHeader(); ?>
-   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/ckeditor.js"</script>
-   <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/js/samples/sample.js" type="text/javascript"></script>
-   <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/css/samples/samples.css" rel="stylesheet" type="text/css" />
+   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/ckeditor-4-7-0/ckeditor.js"></script>
 </head>
 <body class="body_top">
 <div class="container">
@@ -35,18 +33,25 @@ $obj = formFetch("form_dictation", $id);
       <h1><?php echo xlt('Speech Dictation'); ?></h1>
      </div>
      <div class="form-group">
-       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control ckeditor" name="dictation" ><?php 
+       <label for="dictation"><?php echo xlt('Dictation: '); ?></label><br><textarea class="form-control" name="dictation" ><?php 
               $config = HTMLPurifier_Config::createDefault();
               $purifier = new HTMLPurifier($config);
               $clean_html = $purifier->purify($obj{"dictation"});
               echo trim($clean_html); ?></textarea>
+       <script>
+          CKEDITOR.replace('dictation');
+       </script>               
      </div>
+
      <div class="form-group">
-       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></label><br><textarea class="form-control ckeditor" name="additional_notes" ><?php
+       <label for="additional_notes"><?php echo xlt('Additional Notes: '); ?></label><br><textarea class="form-control" name="additional_notes" ><?php
               $config = HTMLPurifier_Config::createDefault();
               $purifier = new HTMLPurifier($config);
               $clean_html = $purifier->purify($obj{"additional_notes"});
               echo trim($clean_html); ?></textarea>
+       <script>
+          CKEDITOR.replace('additional_notes');
+       </script>              
      </div>
 
        <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Update'); ?></button>
