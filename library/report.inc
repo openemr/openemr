@@ -106,6 +106,13 @@ subscriber_employer_state => xl('Subscriber Employer State') . ": ",
 subscriber_employer_country => xl('Subscriber Employer Country') . ": "
 );
 
+// mdsupport - list of various mysql date value strings that should not be printed.
+// A site can control the result by setting value to false if display is needed 
+$SUPPRESS_ZERO_DATES = array(
+	"0000-00-00 00:00:00" => true,
+	"0000-00-00" => true,
+);
+
 function getPatientReport($pid)
 {
 	$sql = "select * from patient_data where pid='$pid' order by date ASC";
@@ -481,10 +488,11 @@ function printRecData($data_array, $recres, $N) {
 
 function printData ($retar, $key, $sep, $date_format) {
 	//$retar{$key}
+	global $SUPPRESS_ZERO_DATES;
 	if (@array_key_exists($key,$retar)) {
 		$length = sizeof($retar{$key});
 		for ($iter = $length;$iter>=1;$iter--) {
-			if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
+			if (!$SUPPRESS_ZERO_DATES[$retar{$key}[$iter]{"value"}]) {
 				print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
 			}
 		}
@@ -500,10 +508,11 @@ function printRecDataOne($data_array, $recres, $N) {
 	//$data_array is an array with table_column_name => "display name"
 	//$recres is the return from getRecPatientData for example
 	//$N is the number of items to display in one row
+	global $SUPPRESS_ZERO_DATES;
 	print "<table><tr>\n";
 	$count = 0;
 	foreach ($data_array as $akey => $aval) {
-		if (sizeof($recres{$akey})>0 && ($recres{$akey}[1]{"value"}!="0000-00-00 00:00:00")) {
+		if (sizeof($recres{$akey})>0 && (!$SUPPRESS_ZERO_DATES[$recres{$akey}[1]{"value"}])) {
 			if ($count == $N) {
 				print "</tr><tr>\n";
 				$count = 0;
@@ -519,9 +528,10 @@ function printRecDataOne($data_array, $recres, $N) {
 
 function printDataOne ($retar, $key, $sep, $date_format) {
 	//this function supports the printRecDataOne function above
+	global $SUPPRESS_ZERO_DATES;
 	if (@array_key_exists($key,$retar)) {
 		$length = sizeof($retar{$key});
-		if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
+		if (!$SUPPRESS_ZERO_DATES[$retar{$key}[$length]{"value"}]) {
       $tmp = $retar{$key}[$length]{"value"};
       if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
 			print text($tmp) . $sep;
