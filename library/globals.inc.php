@@ -697,7 +697,7 @@ $GLOBALS_METADATA = array(
 
         'default_visit_category' => [
             xl('Default Visit Category'),
-            'visit_category',
+            'default_visit_category',
             '_blank',
             xl('Define a default visit category'),
         ],

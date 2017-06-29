@@ -206,11 +206,12 @@ function cancelClicked() {
                        FROM openemr_postcalendar_categories
                        WHERE pc_active = 1 ORDER BY pc_seq";
           $visitResult = sqlStatement($visitSQL);
+          $therapyGroupCategories = [];
 
           while ($row = sqlFetchArray($visitResult)) {
-              $id = $row['pc_catid'];
+              $catId = $row['pc_catid'];
               $name = $row['pc_catname'];
-              if (($id < 9 && $id != "5") || $id === "_blank") {
+              if (($catId < 9 && $catId != "5") || $catId === "_blank") {
                   continue;
               }
 
@@ -220,9 +221,9 @@ function cancelClicked() {
 
 
               $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
-              $optionStr = str_replace("%pc_catid%", attr($id), $optionStr);
-              $optionStr = str_replace("%pc_catname%", xl($name), $optionStr);
-              $selected = ($GLOBALS['default_visit_category'] == $id) ? " selected" : "";
+              $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+              $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+              $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
               $optionStr = str_replace("%selected%", $selected, $optionStr);
               echo $optionStr;
           }
