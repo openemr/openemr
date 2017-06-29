@@ -223,7 +223,11 @@ function cancelClicked() {
               $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
               $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
               $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
-              $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
+              if ($viewmode) {
+                  $selected = ($result['pc_catid'] == $catId) ? " selected" : "";
+              } else {
+                  $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
+              }
               $optionStr = str_replace("%selected%", $selected, $optionStr);
               echo $optionStr;
           }
