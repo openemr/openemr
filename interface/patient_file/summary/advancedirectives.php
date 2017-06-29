@@ -1,21 +1,30 @@
 <?php
+/**
+ * Advanced directives gui.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+
 <SCRIPT LANGUAGE="JavaScript">
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 function validate(f) {
 if (f.form_adreviewed.value == "")
 {
@@ -25,9 +34,19 @@ if (f.form_adreviewed.value == "")
 }
  return true;
 }
+
 $(document).ready(function(){
     $("#cancel").click(function() { window.close(); });
+
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
 });
+
 </script>
 </head>
 
@@ -64,7 +83,6 @@ if ($myrow)
 	xl('Last Reviewed','e');
 	echo ":</td><td width=10></td><td class='text'>";
         generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), $form_adreviewed);
-        echo "<script language='JavaScript'>Calendar.setup({inputField:'form_adreviewed', ifFormat:'%Y-%m-%d', button:'img_adreviewed'});</script>";
 	echo "</td></tr>";
 	echo "<tr><td class=text colspan=2><br><input type=submit id=create value='" . xl('Save') . "' /> &nbsp; <input type=button id=cancel value='" . xl('Cancel') . "' /></td></tr>";
       ?>
