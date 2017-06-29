@@ -1986,7 +1986,12 @@ function validateform(event,valu){
     if($GLOBALS['select_multi_providers']){
     ?>
     //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
-    collectvalidation.form_provider = {presence: true};
+    if(typeof (collectvalidation) == 'undefined'){
+        collectvalidation = {form_provider:{presence: true}};
+    }
+    else{
+        collectvalidation.form_provider = {presence: true};
+    }
     <?php
     }
     ?>
