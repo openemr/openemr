@@ -134,6 +134,7 @@ function csv_edihist_log ( $msg_str ) {
  * @return string
  */
 function csv_log_html($logname='') {
+	check_file_dir_name($logname);
 	$html_str = "<div class='filetext'>".PHP_EOL."<ol class='logview'>".PHP_EOL;
     $fp = csv_edih_basedir().DS.'log'.DS.$logname;
     if ( is_file($fp) ) {
