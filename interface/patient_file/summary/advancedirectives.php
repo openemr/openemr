@@ -1,6 +1,6 @@
 <?php
 /**
- * Advanced directives gui.
+ * Advance directives gui.
  *
  * @package OpenEMR
  * @link    http://www.open-emr.org
@@ -11,117 +11,132 @@
 
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
 ?>
+
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+    <title><?php echo xlt('Advance Directives'); ?></title>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
+    <?php html_header_show();?>
 
-<SCRIPT LANGUAGE="JavaScript">
-function validate(f) {
-if (f.form_adreviewed.value == "")
-{
-	alert("<?php xl('Please enter a date for Last Reviewed.','e'); ?>");
-	f.form_adreviewed.focus();
-	return false;
-}
- return true;
-}
+    <?php Header::setupHeader(['datetime-picker','opener']); ?>
 
-$(document).ready(function(){
-    $("#cancel").click(function() { window.close(); });
+    <?php
+    if ($_POST['form_yesno']) {
+        $form_yesno = filter_input(INPUT_POST,'form_yesno');
+        $form_adreviewed = filter_input(INPUT_POST,'form_adreviewed');
+        sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
+        // Close this window and refresh the calendar display.
+        echo "</head><body>\n<script language='JavaScript'>\n";
+        echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
+        echo " window.close();\n";
+        echo "</script>\n</body>\n</html>\n";
+        exit();
+    }
+    $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
+    $myrow = sqlQuery($sql, array($pid));
+    if ($myrow) {
+        $form_completedad = $myrow['completed_ad'];
+        $form_adreviewed = $myrow['ad_reviewed'];
+    }
+    ?>
 
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
-});
+    <script type="text/javascript" language="JavaScript">
+        function validate(f) {
+            if (f.form_adreviewed.value == "") {
+	              alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
+	              f.form_adreviewed.focus();
+	              return false;
+            }
+            return true;
+        }
 
-</script>
+        $(document).ready(function(){
+            $("#cancel").click(function() { window.close(); });
+
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = false; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
+    </script>
 </head>
 
-<body class="body_top">
-<?php
-if ($_POST['form_yesno'])
-{
-	sqlQuery("UPDATE patient_data SET completed_ad='".formData('form_yesno','P',true)."', ad_reviewed='".formData('form_adreviewed','P',true)."' where pid='$pid'");
-  // Close this window and refresh the calendar display.
-  echo "<html>\n<body>\n<script language='JavaScript'>\n";
-  echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
-  echo " window.close();\n";
-  echo "</script>\n</body>\n</html>\n";
-  exit();
-}
-	$sql = "select completed_ad, ad_reviewed from patient_data where pid='$pid'";
-	$myrow = sqlQuery($sql);
-if ($myrow)
-{
-	$form_completedad = $myrow['completed_ad'];
-	$form_adreviewed = $myrow['ad_reviewed'];
-}
-?>
-<span class="title"><?php xl('Advance Directives','e'); ?></span>
-<br><br>
-<form action='advancedirectives.php' method='post' onsubmit='return validate(this)' enctype="multipart/form-data">
-      <table border=0 cellpadding=1 cellspacing=1>
-      <?php
-	echo "<tr><td class='required'>";
-	xl('Completed','e');
-	echo ":</td><td width=10></td><td class='text'>";
-	generate_form_field(array('data_type'=>1,'field_id'=>'yesno','list_id'=>'yesno','empty_title'=>'SKIP'), $form_completedad);
-	echo "</td></tr><tr><td class='required'>";
-	xl('Last Reviewed','e');
-	echo ":</td><td width=10></td><td class='text'>";
-        generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), $form_adreviewed);
-	echo "</td></tr>";
-	echo "<tr><td class=text colspan=2><br><input type=submit id=create value='" . xl('Save') . "' /> &nbsp; <input type=button id=cancel value='" . xl('Cancel') . "' /></td></tr>";
-      ?>
-      </table></form>
-<div>
-<?php
-$query = "SELECT id FROM categories WHERE name='Advance Directive'";
-$myrow2 = sqlQuery($query);
-if ($myrow2) {
-        $parentId = $myrow2['id'];
-        $query = "SELECT id, name FROM categories WHERE parent='$parentId'";
-        $resNew1 = sqlStatement($query);
-        while ($myrows3 = sqlFetchArray($resNew1)) {
-            $categoryId = $myrows3['id'];
-            $nameDoc = $myrows3['name'];
-            $query = "SELECT documents.date, documents.id " .
-                     "FROM documents " .
-                     "INNER JOIN categories_to_documents " .
-                     "ON categories_to_documents.document_id=documents.id " .
-	             "WHERE categories_to_documents.category_id='$categoryId' " .
-	             "AND documents.foreign_id='$pid' " .
-                     "ORDER BY documents.date DESC";
-            $resNew2 = sqlStatement($query);
-	    $counterFlag = false; //flag used to check for empty categories
-            while ($myrows4 = sqlFetchArray($resNew2)) {
-                $dateTimeDoc = $myrows4['date'];
-                $idDoc = $myrows4['id'];
-                echo "<br>";
-                echo "<a href='$web_root/controller.php?document&retrieve&patient_id=$pid&document_id=".$idDoc."&as_file=true'>".xl_document_category($nameDoc)."</a> ".$dateTimeDoc;
-		$counterFlag = true;
-            }
-	    // if no associated docs with category then show it's empty
-	    if (!$counterFlag) {
-	        echo "<br>";
-		echo $nameDoc . " <span style='color:red;'>[" . xl('EMPTY') . "]</span>";
-	    }
-        }
-}
-?>
-</div>
-  </body>
+<body class="body_top modal-body">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h3><?php echo xlt('Advance Directives'); ?></h3>
+                </div>
+            </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
+                    <div class="form-group">
+                        <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
+                        <?php generate_form_field(array('data_type'=>1,'field_id'=>'yesno','list_id'=>'yesno','empty_title'=>'SKIP'), $form_completedad); ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
+                        <?php generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), $form_adreviewed); ?>
+                    </div>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" id="create" class="btn btn-default btn-save"><?php echo xla('Save'); ?></button>
+                            <button type="button" id="cancel" class="btn btn-link btn-cancel"><?php echo xla('Cancel'); ?></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-xs-12">
+                <?php
+                $query = "SELECT id FROM categories WHERE name='Advance Directive'";
+                $myrow2 = sqlQuery($query);
+                if ($myrow2) {
+                    $parentId = $myrow2['id'];
+                    $query = "SELECT id, name FROM categories WHERE parent = ?";
+                    $resNew1 = sqlStatement($query, array($parentId));
+                    while ($myrows3 = sqlFetchArray($resNew1)) {
+                        $categoryId = $myrows3['id'];
+                        $nameDoc = $myrows3['name'];
+                        $query = "SELECT documents.date, documents.id " .
+                                 "FROM documents " .
+                                 "INNER JOIN categories_to_documents " .
+                                 "ON categories_to_documents.document_id=documents.id " .
+	                               "WHERE categories_to_documents.category_id=? " .
+	                               "AND documents.foreign_id=? " .
+                                "ORDER BY documents.date DESC";
+                        $resNew2 = sqlStatement($query, array($categoryId, $pid));
+	                      $counterFlag = false; //flag used to check for empty categories
+                        while ($myrows4 = sqlFetchArray($resNew2)) {
+                            $dateTimeDoc = $myrows4['date'];
+                            $idDoc = $myrows4['id'];
+                            ?>
+                            <br>
+                            <a href='<?php echo $web_root; ?>/controller.php?document&retrieve&patient_id=<?php echo attr($pid); ?>&document_id=<?php echo attr($idDoc); ?>&as_file=true'>
+                                <?php echo text(xl_document_category($nameDoc)); ?>
+                            </a>
+                            <?php echo text($dateTimeDoc);
+		                        $counterFlag = true;
+                        }
+	                      // if no associated docs with category then show it's empty
+	                      if (!$counterFlag) {
+                            ?>
+	                          <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
+	                      <?php }
+                    }
+                }
+                ?>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
