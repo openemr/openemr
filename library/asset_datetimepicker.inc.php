@@ -84,7 +84,7 @@ jQuery(jq_sel.join(",")).each(function() {
     <?php // Other properties (without validation) ?>
     var ctl_data = ctl.data();
     for (var ctl_prop in ctl_data) {
-        if (ctl_prop.toString().substr(0,5) == "dttm-") {
+        if (ctl_prop.toString().substr(0,5) == "dttm_") { // "_" needed to avoid jQ 3 case conversion
             ctl_opts[ctl_prop.toString().slice(5)] = ctl_data[ctl_prop];
         }
     }
