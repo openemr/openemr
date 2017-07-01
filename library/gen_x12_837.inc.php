@@ -1,10 +1,10 @@
 <?php
-// Copyright (C) 2007-2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/** @package OpenEMR
+ *  @link http://www.open-emr.org
+ *  @author Rod Roark <rod@sunsetsystems.com>
+ *  @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
+ *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3 
+ */
 
 require_once("Claim.class.php");
 function stripZipCode($zip)
@@ -559,24 +559,43 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "~\n";
   }
 
-  if ($claim->dateInitialTreatment() && ($claim->onsetDateValid())) {
+  // above is for historical use of encounter onset date, now in misc_billing_options
+  // Segment DTP*431 (Onset of Current Symptoms or Illness)
+  // Segment DTP*484 (Last Menstrual Period Date)
+  
+  if ($claim->miscOnsetDate() && 
+      ($claim->box14Qualifier()) &&
+      ($claim->miscOnsetDateValid())) {
     ++$edicount;
-    $out .= "DTP" .       // Date of Initial Treatment
-      "*454" .
+    $out .= "DTP" .       // Date Last Seen
+      "*" . $claim->box14Qualifier() .
+      "*D8" .
+      "*" . $claim->miscOnsetDate() .
+      "~\n";
+  }
+  
+  // Segment DTP*454 (Initial Treatment Date)
+  // Segment DTP*304 (Last Seen Date)
+  // Segment DTP*453 (Acute Manifestation Date)
+  // Segment DTP*439 (Accident Date)
+  // Segment DTP*455 (Last X-Ray Date)
+  // Segment DTP*471 (Hearing and Vision Prescription Date)
+  // Segment DTP*314 (Disability) omitted.
+  // Segment DTP*360 (Initial Disability Period Start) omitted.
+  // Segment DTP*361 (Initial Disability Period End) omitted.
+  // Segment DTP*297 (Last Worked Date)
+  // Segment DTP*296 (Authorized Return to Work Date)
+
+  if ($claim->dateInitialTreatment() && 
+      ($claim->box15Qualifier()) &&
+      ($claim->dateInitialTreatmentValid())){
+    ++$edicount;
+    $out .= "DTP" .       // Date Last Seen
+      "*" . $claim->box15Qualifier() .
       "*D8" .
       "*" . $claim->dateInitialTreatment() .
       "~\n";
   }
-
-  // Segment DTP*304 (Last Seen Date) omitted.
-  // Segment DTP*453 (Acute Manifestation Date) omitted.
-  // Segment DTP*439 (Accident Date) omitted.
-  // Segment DTP*484 (Last Menstrual Period Date) omitted.
-  // Segment DTP*455 (Last X-Ray Date) omitted.
-  // Segment DTP*471 (Hearing and Vision Prescription Date) omitted.
-  // Segments DTP (Disability Dates) omitted.
-  // Segment DTP*297 (Last Worked Date) omitted.
-  // Segment DTP*296 (Authorized Return to Work Date) omitted.
 
   if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->onsetDateValid() ) {
     ++$edicount;
@@ -586,8 +605,27 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false) {
       "*" . $claim->onsetDate() .
       "~\n";
   }
+  
+  // above is for historical use of encounter onset date, now in misc_billing_options
+  if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->hospitalizedFromDateValid() ) {
+    ++$edicount;
+    $out .= "DTP" .     // Date of Admission
+      "*435" .
+      "*D8" .
+      "*" . $claim->hospitalizedFrom() .
+      "~\n";
+  }
 
-  // Segment DTP*096 (Discharge Date) omitted.
+  // Segment DTP*096 (Discharge Date)
+  if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->hospitalizedToDateValid() ) {
+    ++$edicount;
+    $out .= "DTP" .     // Date of Discharge
+      "*96" .
+      "*D8" .
+      "*" . $claim->hospitalizedTo() .
+      "~\n";
+  }
+
   // Segments DTP (Assumed and Relinquished Care Dates) omitted.
   // Segment DTP*444 (Property and Casualty Date of First Contact) omitted.
   // Segment DTP*050 (Repricer Received Date) omitted.

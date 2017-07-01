@@ -1006,6 +1006,7 @@ font-size:9pt;
     border-left: 1px solid #000000;
     border-right: 1px solid #000000;
     border-bottom: 1px solid #000000;
+    z-index:20;
 }
 
 #sddm div a
@@ -1148,7 +1149,6 @@ height: 300px !important;
 
 /* flow board filters*/
 #flow_board_parameters{
-    width: 1041px;
     margin: 25px auto;
     background-color: #ececec;
 }

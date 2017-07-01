@@ -2,28 +2,19 @@
 /**
  * This is called as a pop-up to display patient education materials.
  *
- * Copyright (C) 2014 Rod Roark <rod@sunsetsystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>.
- *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
 
 $educationdir = "$OE_SITE_DIR/documents/education";
 
@@ -97,71 +88,63 @@ if ($_POST['bn_submit']) {
 ?>
 <html>
 <head>
-<?php html_header_show(); ?>
-<!-- There is a problem with cross site scripting with iframes -->
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>    
-<link rel=stylesheet href="<?php echo $css_header; ?>" type="text/css">
 
-<style type="text/css">@import url(../../library/dynarch_calendar.css);</style>
-<style>
+    <title><?php echo xlt('Education'); ?></title>
 
-tr.head   { font-size:10pt; background-color:#cccccc; text-align:center; }
-tr.detail { font-size:10pt; background-color:#ddddff; }
-td input  { background-color:transparent; }
+    <?php Header::setupHeader('opener'); ?>
 
-</style>
-
-<script type="text/javascript" src="../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-
-<script language="JavaScript">
-
-var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
-
-</script>
 </head>
-
 <body class="body_top">
-<center>
-
-<h2>
-<?php
-echo xlt('Educational materials for');
-echo ' ' . text($codetype) . ' ';
-echo xlt('code');
-echo ' "' . text($codevalue) . '"';
-if ($language) {
-  echo ' ' . xlt('with preferred language') . ' ' .
-    text(getListItemTitle('language', $_REQUEST['language']));
-}
-?>
-</h2>
-
-<?php
-  if ($errmsg) echo "<p style='color:red'>" . text($errmsg) . "</p>\n";
-?>
-
-<form method='post' action='education.php'>
-
-<input type='hidden' name='type'     value='<?php echo attr($codetype ); ?>' />
-<input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
-<input type='hidden' name='language' value='<?php echo attr($language ); ?>' />
-
-<p class='bold'>
- <?php echo xlt('Select source'); ?>:
- <select name='source'>
-  <option value='MLP'  ><?php echo xlt('MedlinePlus Connect'); ?></option>
-  <option value='Local'><?php echo xlt('Local Content'      ); ?></option>
- </select>
-</p>
-
-<p>
- <input type='submit' name='bn_submit' value='<?php echo xla('Submit'); ?>' />
- &nbsp;
- <input type='button' value='<?php echo xla('Cancel'); ?>' onclick="window.close()" />
-</p>
-
-</form>
-</center>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h3>
+                        <?php
+                        echo xlt('Educational materials for');
+                        echo ' ' . text($codetype) . ' ';
+                        echo xlt('code');
+                        echo ' "' . text($codevalue) . '"';
+                        if ($language) {
+                            echo ' ' . xlt('with preferred language') . ' ' .
+                            text(getListItemTitle('language', $_REQUEST['language']));
+                        }
+                        ?>
+                    </h3>
+                    <?php
+                    if ($errmsg) {
+                        echo "<p style='color:red'>" . text($errmsg) . "</p>\n";
+                    }
+                    ?>
+                </div>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-xs-12'>
+                <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
+                    <input type='hidden' name='type'     value='<?php echo attr($codetype ); ?>' />
+                    <input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
+                    <input type='hidden' name='language' value='<?php echo attr($language ); ?>' />
+                    <div class='form-group'>
+                        <label for="source"><?php echo xlt('Select source'); ?></label>
+                        <select name='source' id='source' class='form-control'>
+                            <option value='MLP'  ><?php echo xlt('MedlinePlus Connect'); ?></option>
+                            <option value='Local'><?php echo xlt('Local Content'      ); ?></option>
+                        </select>
+                    </div>
+                    <div class='form-group'>
+                        <div class='btn-group' role='group'>
+                            <button type='submit' class='btn btn-default btn-search' name='bn_submit' value='bn_submit'>
+                                <?php echo xlt('Submit'); ?>
+                            </button>
+                            <button type='button' class='btn btn-link btn-cancel' onclick='window.close()'>
+                                <?php echo xlt('Cancel'); ?>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

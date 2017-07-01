@@ -1,22 +1,22 @@
 <?php
 @define('__POSTCALENDAR__','PostCalendar');
-/** 
+/**
  *  $Id$
  *
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
  *  http://postcalendar.tv
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -125,14 +125,14 @@ function postcalendar_admin_adminevents()
             case 'listhidden' :
                 $output .= postcalendar_admin_showlist($e,_EVENT_HIDDEN,'showlist');
                 break;
-                
+
             case 'listapproved' :
                 $output .= postcalendar_admin_showlist($e,_EVENT_APPROVED,'showlist');
                 break;
         }
         return $output;
     }
-    
+
     // main menu
     $output = postcalendar_adminmenu();
     $function = '';
@@ -141,12 +141,12 @@ function postcalendar_admin_adminevents()
             $function = 'approveevents';
 			$are_you_sure_text = _PC_APPROVE_ARE_YOU_SURE;
 			break;
-            
+
         case _ADMIN_ACTION_HIDE :
             $function = 'hideevents';
 			$are_you_sure_text = _PC_HIDE_ARE_YOU_SURE;
 			break;
-            
+
         case _ADMIN_ACTION_DELETE :
             $function = 'deleteevents';
 			$are_you_sure_text = _PC_DELETE_ARE_YOU_SURE;
@@ -175,26 +175,26 @@ function postcalendar_admin_adminevents()
     	$output .= '<input type="submit" name="submit" value="'._PC_ADMIN_YES.'" />';
     	$output .= '</form>';
 	}
-    
+
 	return $output;
 }
 
 function postcalendar_admin_approveevents()
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
-	
+
 	$pc_eid = pnVarCleanFromInput('pc_eid');
     $approve_list = '';
     foreach($pc_eid as $eid) {
         if(!empty($approve_list)) { $approve_list .= ','; }
         $approve_list .= $eid;
     }
-    
+
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     $events_table = $pntable['postcalendar_events'];
     $events_column = &$pntable['postcalendar_events_column'];
-    
+
     $sql = "UPDATE $events_table
             SET $events_column[eventstatus] = "._EVENT_APPROVED."
             WHERE $events_column[eid] IN ($approve_list)";
@@ -215,7 +215,7 @@ function postcalendar_admin_approveevents()
 function postcalendar_admin_hideevents()
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
-	
+
 	$pc_eid = pnVarCleanFromInput('pc_eid');
     $output = postcalendar_adminmenu();
     $event_list = '';
@@ -223,12 +223,12 @@ function postcalendar_admin_hideevents()
         if(!empty($event_list)) { $event_list .= ','; }
         $event_list .= $eid;
     }
-    
+
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     $events_table = $pntable['postcalendar_events'];
     $events_column = &$pntable['postcalendar_events_column'];
-    
+
     $sql = "UPDATE $events_table
             SET $events_column[eventstatus] = "._EVENT_HIDDEN."
             WHERE $events_column[eid] IN ($event_list)";
@@ -239,7 +239,7 @@ function postcalendar_admin_hideevents()
     } else {
         $msg = _PC_ADMIN_EVENTS_HIDDEN;
     }
-    
+
 	// clear the template cache
 	$tpl = new pcSmarty();
 	$tpl->clear_all_cache();
@@ -289,21 +289,21 @@ function postcalendar_admin_submit($args)
 	// get the theme globals :: is there a better way to do this?
     pnThemeLoad(pnUserGetTheme());
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $textcolor1, $textcolor2;
-    
+
 	extract($args);
-	
+
 	$Date = postcalendar_getDate();
 	$year   = substr($Date,0,4);
     $month  = substr($Date,4,2);
     $day    = substr($Date,6,2);
-    
+
 	// basic event information
 	$event_subject  	= pnVarCleanFromInput('event_subject');
 	$event_desc 		= pnVarCleanFromInput('event_desc');
 	$event_sharing  	= pnVarCleanFromInput('event_sharing');
 	$event_category 	= pnVarCleanFromInput('event_category');
 	$event_topic 		= pnVarCleanFromInput('event_topic');
-	
+
 	// event start information
 	$event_startmonth 	= pnVarCleanFromInput('event_startmonth');
 	$event_startday 	= pnVarCleanFromInput('event_startday');
@@ -311,7 +311,7 @@ function postcalendar_admin_submit($args)
 	$event_starttimeh	= pnVarCleanFromInput('event_starttimeh');
 	$event_starttimem 	= pnVarCleanFromInput('event_starttimem');
 	$event_startampm 	= pnVarCleanFromInput('event_startampm');
-	
+
 	// event end information
 	$event_endmonth 	= pnVarCleanFromInput('event_endmonth');
 	$event_endday 		= pnVarCleanFromInput('event_endday');
@@ -321,7 +321,7 @@ function postcalendar_admin_submit($args)
 	$event_dur_minutes  = pnVarCleanFromInput('event_dur_minutes');
 	$event_duration 	= (60*60*$event_dur_hours) + (60*$event_dur_minutes);
 	$event_allday 		= pnVarCleanFromInput('event_allday');
-	
+
 	// location data
 	$event_location 	= pnVarCleanFromInput('event_location');
 	$event_street1  	= pnVarCleanFromInput('event_street1');
@@ -337,7 +337,7 @@ function postcalendar_admin_submit($args)
 	$event_contemail 	= pnVarCleanFromInput('event_contemail');
 	$event_website  	= pnVarCleanFromInput('event_website');
 	$event_fee  		= pnVarCleanFromInput('event_fee');
-	
+
 	// event repeating data
 	$event_repeat 		= pnVarCleanFromInput('event_repeat');
 	$event_repeat_freq  = pnVarCleanFromInput('event_repeat_freq');
@@ -347,18 +347,18 @@ function postcalendar_admin_submit($args)
 	$event_repeat_on_freq = pnVarCleanFromInput('event_repeat_on_freq');
 	$event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
                                           'event_repeat_on_day', 'event_repeat_on_freq'));
-	
+
 	$pc_html_or_text = pnVarCleanFromInput('pc_html_or_text');
 	$form_action = pnVarCleanFromInput('form_action');
     $pc_event_id = pnVarCleanFromInput('pc_event_id');
 	$data_loaded = pnVarCleanFromInput('data_loaded');
     $is_update   = pnVarCleanFromInput('is_update');
     $authid      = pnVarCleanFromInput('authid');
-	
+
 	if(pnUserLoggedIn()) { $uname = pnUserGetVar('uname'); }
     else { $uname = pnConfigGetVar('anonymous'); }
     if(!isset($event_repeat)) { $event_repeat = 0; }
-    
+
 	// lets wrap all the data into array for passing to submit and preview functions
 	if(!isset($pc_event_id) || empty($pc_event_id) || $data_loaded) {
 		$eventdata = compact('event_subject','event_desc','event_sharing','event_category','event_topic',
@@ -426,11 +426,11 @@ function postcalendar_admin_submit($args)
 		$eventdata['data_loaded'] = true;
 		$eventdata['pc_html_or_text'] = $pc_html_or_text;
 	}
-	
+
 	// lets get the module's information
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
-	
+
 	//================================================================
 	//	ERROR CHECKING
 	//================================================================
@@ -482,7 +482,7 @@ function postcalendar_admin_submit($args)
     if(!checkdate($event_endmonth,$event_endday,$event_endyear)) {
         $error_msg .= _PC_SUBMIT_ERROR3 . '<br />';
     }
-    
+
 	//================================================================
 	//	Preview the event
 	//================================================================
@@ -502,7 +502,7 @@ function postcalendar_admin_submit($args)
 			$output .= '<br />';
         }
     }
-    
+
 	//================================================================
 	//	Enter the event into the DB
 	//================================================================
@@ -1027,7 +1027,7 @@ EOF;
    			return $output->GetOutput();
    		}
     }
-      		
+
     if(!empty($newnam))
     {
     	if(!is_numeric($new_durationh) || !is_numeric($new_durationm) ||
@@ -1041,7 +1041,7 @@ EOF;
 	$new_duration = ($new_durationh * (60 * 60)) + ($new_durationm * 60);
 	$event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
                                           'event_repeat_on_day', 'event_repeat_on_freq'));
-  	
+
   	$new_event_recurrspec = serialize(compact('new_event_repeat_freq', 'new_event_repeat_freq_type', 'new_event_repeat_on_num',
                                           'new_event_repeat_on_day', 'new_event_repeat_on_freq'));
   	if(is_array($del)) {
@@ -1073,7 +1073,7 @@ EOF;
         $output->FormHidden('newend_all_day', $new_end_all_day);
         $output->FormHidden("newactive",$newactive);
         $output->FormHidden("newsequence",$newsequence);
-        
+
         $output->Text(_PC_ADD_CAT . $newname .'.');
         $output->Linebreak();
     }
@@ -1126,7 +1126,7 @@ function postcalendar_admin_categoriesUpdate()
 							'newend_date_flag','newend_date_type',
 							'newend_date_freq','newend_all_day','newvalue_cat_type','newactive','newsequence'
                           	);
-	
+
     $id = unserialize($id);
     $del = unserialize($del);
     $name = unserialize($name);
@@ -1144,7 +1144,7 @@ function postcalendar_admin_categoriesUpdate()
     $active = unserialize($active);
     $sequence = unserialize($sequence);
     $updates = array();
-    
+
     if(isset($id)) {
 		foreach($id as $k=>$i) {
         	$found = false;
@@ -1162,12 +1162,12 @@ function postcalendar_admin_categoriesUpdate()
 				$event_repeat_on_num = $event_recurrspec_array['event_repeat_on_num'][$i];
                 $event_repeat_on_day = $event_recurrspec_array['event_repeat_on_day'][$i];
                 $event_repeat_on_freq = $event_recurrspec_array['event_repeat_on_freq'][$i];
-            	
+
             	$recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
                                           'event_repeat_on_day', 'event_repeat_on_freq'));
-            	
+
             	$dur = ( ($durationh[$i]*(60 * 60)) + ($durationm[$i] * 60));
-            	
+
             	$update_sql = "UPDATE $pntable[postcalendar_categories]
 		                             SET pc_catname='".pnVarPrepForStore($name[$k])."',
 		                                 pc_catdesc='".trim(pnVarPrepForStore($desc[$k]))."',
@@ -1181,17 +1181,17 @@ function postcalendar_admin_categoriesUpdate()
 		                             	 pc_end_date_freq='".pnVarPrepForStore($end_date_freq[$i])."',
 		                             	 pc_end_all_day='".pnVarPrepForStore($end_all_day[$i])."',
 		                             	 pc_active ='".pnVarPrepForStore($active[$i])."',
-		                             	 pc_seq = '".pnVarPrepForStore($sequence[$k])."'  
+		                             	 pc_seq = '".pnVarPrepForStore($sequence[$k])."'
 		                             WHERE pc_catid=$i";
-            	
+
 		        array_push($updates, $update_sql);
 		       	unset($recurrspec);
 		       	unset($dur);
         	}
     	}
 	}
-	
-	
+
+
 	$delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($dels)";
     $e =  $msg = '';
     if(!pnModAPIFunc(__POSTCALENDAR__,'admin','updateCategories',array('updates'=>$updates))) {
@@ -1211,7 +1211,7 @@ function postcalendar_admin_categoriesUpdate()
     	$new_event_recurrspec['event_repeat_on_day'] = $unpacked['new_event_repeat_on_day'];
     	$new_event_recurrspec['event_repeat_on_freq'] = $unpacked['new_event_repeat_on_freq'];
     	$new_event_recurrspec = serialize($new_event_recurrspec);
-    	
+
         if(!pnModAPIFunc(__POSTCALENDAR__,'admin','addCategories',
         	array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence,
         	'repeat'=>$new_event_repeat,'spec'=>$new_event_recurrspec,
@@ -1221,7 +1221,7 @@ function postcalendar_admin_categoriesUpdate()
             $e .= 'INSERT FAILED';
         }
     }
-    
+
 	if(empty($e)) { $msg = 'DONE'; }
     $output->Text(postcalendar_admin_categories($msg,$e));
     return $output->GetOutput();
@@ -1242,11 +1242,11 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	$tpl->caching = false;
 
 	$template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
-	
+
     if(!isset($template_name)) {
         $template_name ='default';
     }
-	
+
 	if(!empty($e)) {
 		$output->Text('<div style="padding:5px; border:1px solid red; background-color: pink;">');
 		$output->Text('<center><b>'.$e.'</b></center>');
@@ -1258,7 +1258,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 		$output->Text('<center><b>'.$msg.'</b></center>');
 		$output->Text('</div><br />');
 	}
-	
+
     //=================================================================
     //  Setup the correct config file path for the templates
     //=================================================================
@@ -1269,7 +1269,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	//print_r($all_categories);
 	unset($modinfo);
     $tpl->config_dir = "modules/$modir/pntemplates/$template_name/config/";
-    
+
     //=================================================================
     //  PARSE MAIN
     //=================================================================
@@ -1285,13 +1285,13 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	}
     }
     $tpl->assign('globals', $GLOBALS);
-    
+
 	$tpl->assign_by_ref('TPL_NAME',$template_name);
     $tpl->assign('FUNCTION',pnVarCleanFromInput('func'));
     $tpl->assign_by_ref('ModuleName', $modname);
     $tpl->assign_by_ref('ModuleDirectory', $modir);
     $tpl->assign_by_ref('all_categories', $all_categories);
-   	
+
     $tpl->assign('pcDir', $modir);
     $tpl->assign('action', pnModURL(__POSTCALENDAR__,'admin','categoriesConfirm'));
     $tpl->assign('adminmenu', postcalendar_adminmenu());
@@ -1308,6 +1308,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('_PC_CAT_DELETE',_PC_CAT_DELETE);
     $tpl->assign('_PC_CAT_DUR',_PC_CAT_DUR);
     $tpl->assign('_PC_COLOR_PICK_TITLE',_PC_COLOR_PICK_TITLE);
+    $tpl->assign('_EDIT_PC_CONFIG_CATDETAILS',_EDIT_PC_CONFIG_CATDETAILS);
     $tpl->assign("_PC_ACTIVE",_PC_ACTIVE);
     $tpl->assign("_PC_SEQ",_PC_SEQ);
     //=================================================================
@@ -1328,7 +1329,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('InputRepeat', 'event_repeat');
     $tpl->assign('ValueRepeat', '1');
     $tpl->assign('SelectedRepeat', (int) $event_repeat==1 ? 'checked':'');
-    
+
 
     unset($in);
     $in = array(_PC_EVERY,_PC_EVERY_OTHER,_PC_EVERY_THIRD,_PC_EVERY_FOURTH);
@@ -1344,7 +1345,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	$tpl->assign('InputRepeatFreqVal',$event_repeat_freq);
     $tpl->assign('repeat_freq',$event_repeat_freq);
     unset($in);
-    
+
     $in = array(_PC_EVERY_DAY,_PC_EVERY_WORKDAY,_PC_EVERY_WEEK,_PC_EVERY_MONTH,_PC_EVERY_YEAR);
     $keys = array(REPEAT_EVERY_DAY,REPEAT_EVERY_WORK_DAY,REPEAT_EVERY_WEEK,REPEAT_EVERY_MONTH,REPEAT_EVERY_YEAR);
     $repeat_freq_type = array();
@@ -1360,7 +1361,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('InputRepeatOn', 'event_repeat');
     $tpl->assign('ValueRepeatOn', '2');
     $tpl->assign('SelectedRepeatOn', (int) $event_repeat==2 ? 'checked':'');
-   
+
  	// All Day START
  	$tpl->assign('InputAllDay', 	'end_all_day');
 	$tpl->assign('ValueAllDay', 	'1');
@@ -1368,17 +1369,17 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	$tpl->assign('ALL_DAY_CAT_TITLE',	_PC_ALL_DAY_CAT_TITLE);
  	$tpl->assign('ALL_DAY_CAT_YES',	_PC_ALL_DAY_CAT_YES);
  	$tpl->assign('ALL_DAY_CAT_NO',	_PC_ALL_DAY_CAT_NO);
- 	
+
  //ALL Day End
-// End date gather date start	    
+// End date gather date start
 
 	$tpl->assign('InputEndDateFreq','end_date_freq');
 	$tpl->assign('InputEndOn', 	'end_date_flag');
 	$tpl->assign('InputEndDateFreqType', 'end_date_type');
 	$tpl->assign('ValueNoEnd', '0');
     $tpl->assign('ValueEnd', '1');
-    
-    
+
+
     foreach($in as $k=>$v) {
         array_push($end_date_type,array('value'=>$keys[$k],
                                            'selected'=>($keys[$k]==$end_date_type?'selected':''),
@@ -1387,9 +1388,9 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     unset($in);
 
 
-// End date gather date end   
+// End date gather date end
 
-   
+
     unset($in);
     $in = array(_PC_EVERY_1ST,_PC_EVERY_2ND,_PC_EVERY_3RD,_PC_EVERY_4TH,_PC_EVERY_LAST);
     $keys = array(REPEAT_ON_1ST,REPEAT_ON_2ND,REPEAT_ON_3RD,REPEAT_ON_4TH,REPEAT_ON_LAST);
@@ -1446,7 +1447,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	$tpl->assign('InputDurationMin', "durationm");
 	$tpl->assign('ActiveTitleYes',xl('Yes'));
 	$tpl->assign('ActiveTitleNo',xl('No'));
-	
+
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $authkey = $output->FormHidden('authid',pnSecGenAuthKey());
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
@@ -1557,7 +1558,7 @@ function postcalendar_admin_clearCache()
 	if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
         $tpl = new pcSmarty();
-        //fmg: check that both subdirs to be cleared first exist and are writeable  
+        //fmg: check that both subdirs to be cleared first exist and are writeable
         $spec_err = '';
     if (!file_exists($tpl->compile_dir))
 		 $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
@@ -1567,10 +1568,10 @@ function postcalendar_admin_clearCache()
        $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
     else if (!is_writeable($tpl->cache_dir))
 	    $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";
-        //note: we don't abort on error... like before.                                       
+        //note: we don't abort on error... like before.
         $tpl->clear_all_cache();
         $tpl->clear_compiled_tpl();
-		  
+
     return postcalendar_admin_modifyconfig('<center>'.$spec_err._PC_CACHE_CLEARED.'</center>');
 }
 
@@ -1811,7 +1812,7 @@ function postcalendar_admin_categoryDetail($args)
     $tpl->assign_by_ref('ModuleDirectory', $modir);
     $tpl->assign('Category', "Category");
     $tpl->assign_by_ref('categories', $all_categories);
-    
+
 	//=================================================================
     //  Repeating Information
     //=================================================================
@@ -1912,7 +1913,7 @@ function postcalendar_admin_categoryDetail($args)
     $tpl->assign('FormSubmit',$form_submit);
 
     $output->Text($tpl->fetch($template_name.'/admin/submit_detail.html'));
-	
+
     $output->Text(postcalendar_footer());
     return $output->GetOutput();
 }
@@ -1929,11 +1930,11 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
 	$tpl->caching = false;
 
 	$template_name = pnModGetVar(__POSTCALENDAR__,'pcTemplate');
-	
+
     if(!isset($template_name)) {
         $template_name ='default';
     }
-	
+
 	if(!empty($e)) {
 		$output->Text('<div style="padding:5px; border:1px solid red; background-color: pink;">');
 		$output->Text('<center><b>'.$e.'</b></center>');
@@ -1945,19 +1946,19 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
 		$output->Text('<center><b>'.$msg.'</b></center>');
 		$output->Text('</div><br />');
 	}
-	
+
     //=================================================================
     //  Setup the correct config file path for the templates
     //=================================================================
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $modir = pnVarPrepForOS($modinfo['directory']);
 	$modname = $modinfo['displayname'];
-	
+
 	//print_r($all_categories);
 	unset($modinfo);
    	$tpl->assign('action', pnModURL(__POSTCALENDAR__,'admin','categoryLimitsUpdate'));
     //===============================================================
-    //  Setup titles for smarty 
+    //  Setup titles for smarty
     //===============================================================
 
     $tpl->assign('_PC_LIMIT_TITLE', 	_PC_LIMIT_TITLE);
@@ -1981,13 +1982,13 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     $tpl->assign('_PC_NEW_LIMIT_TITLE',	_PC_NEW_LIMIT_TITLE);
     $tpl->assign('_PC_CAT_DELETE',		_PC_CAT_DELETE);
     $tpl->assign('EndTimeTitle',	_PC_LIMIT_END_TIME);
-        
+
     $hour_array =array('00','01','02','03','04','05','06','07','08','09','10','11','12',
     					'13','14','15','16','17','18','19','21','21','22','23');
     $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     $tpl->assign_by_ref('hour_array',	$hour_array);
     $tpl->assign_by_ref('min_array',	$min_array);
-    
+
     $categories =   pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
     // create translations of category names if applicable
     $sizeAllCat = count($categories);
@@ -2004,12 +2005,12 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
 				   '.$authkey.'<input type="submit" name="submit" value="' . xl('go') . '">';
 	$tpl->assign('FormSubmit',$form_submit);
-   
-    
+
+
      $output->Text($tpl->fetch($template_name.'/admin/submit_category_limit.html'));
 	$output->Text(postcalendar_footer());
     return $output->GetOutput();
-    
+
 }
 
 function postcalendar_admin_categoryLimitsUpdate()
@@ -2042,7 +2043,7 @@ function postcalendar_admin_categoryLimitsUpdate()
             	}
         	}
         	if(!$found) {
-        		
+
         		$start = date("H:i:s", mktime($startTimeH[$k],$startTimeM[$k],0));
     			$end = date("H:i:s", mktime($endTimeH[$k],$endTimeM[$k],0));
         		$update_sql = "UPDATE $pntable[postcalendar_limits]
@@ -2055,7 +2056,7 @@ function postcalendar_admin_categoryLimitsUpdate()
         	}
     	}
 	}
-	
+
 	$dels = implode(",", $del);
 	$delete = "DELETE FROM $pntable[postcalendar_limits] WHERE pc_limitid IN ($dels)";
 	$e =  $msg = '';
@@ -2070,17 +2071,17 @@ function postcalendar_admin_categoryLimitsUpdate()
     if(isset($newLimit) && $newLimit > 0) {
     	$start = date("H:i:s", mktime($newStartTimeH,$newStartTimeM,0));
     	$end = date("H:i:s", mktime($newEndTimeH,$newEndTimeM,0));
-    	
+
         if(!pnModAPIFunc(__POSTCALENDAR__,'admin','addCategoryLimit',
         	array('catid'=>$newCatId,'starttime'=>$start,'endtime'=>$end,
         	'limit'=>$newLimit))) {
             $e .= 'INSERT FAILED';
         }
     }
-    
+
 	if(empty($e)) { $msg = 'DONE'; }
     $output->Text(postcalendar_admin_categoryLimits($msg,$e));
     return $output->GetOutput();
-	
+
 }
 ?>

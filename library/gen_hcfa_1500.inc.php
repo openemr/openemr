@@ -1,10 +1,15 @@
 <?php
-// Copyright (C) 2008-2011 Rod Roark <rod@sunsetsystems.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/*
+ * This program creates the HCFA 1500 claim form.
+ *
+ * @package OpenEMR
+ * @author Rod Roark <rod@sunsetsystems.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2011 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
+ * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 require_once("Claim.class.php");
 require_once("gen_hcfa_1500_02_12.inc.php");
@@ -313,19 +318,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     }
   }
   
-  # Box 10d. Claim Codes  medicaid_referral_code
+  // Box 10d. Claim Codes  medicaid_referral_code
   
   if($claim->epsdtFlag()) {
       put_hcfa(26, 34, 2, $claim->medicaidReferralCode());
     }
 
-  # Box 10d. Claim Codes  medicaid_referral_code
-
-  if($claim->epsdtFlag()) {
-      put_hcfa(26, 34, 2, $claim->medicaidReferralCode());
-    }
-
   // Box 11d. Is There Another Health Benefit Plan
+
   if (!$new_medicare_logic) {
     put_hcfa(26, $claim->payerCount() > 1 ? 52 : 57, 1, 'X');
   }
@@ -338,30 +338,28 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
   put_hcfa(29, 55, 17, 'Signature on File');
 
   // Box 14. Date of Current Illness/Injury/Pregnancy
-  $tmp = $claim->onsetDate();
+  $tmp = $claim->miscOnsetDate();
   put_hcfa(32, 2, 2, substr($tmp,4,2));
   put_hcfa(32, 5, 2, substr($tmp,6,2));
   put_hcfa(32, 8, 4, substr($tmp,0,4));
 
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
-    // Only include the Box 14 qualifier if there we are using version 02/12 and there is a Box 14 date.
-    put_hcfa(32, 16, 3, $claim->box14qualifier());
+    // Only include the Box 14 qualifier if using version 02/12 and there is a Box 14 date.
+    put_hcfa(32, 16, 3, $claim->box14Qualifier());
 
   }
   // Box 15. First Date of Same or Similar Illness, if applicable
   $tmp = $claim->dateInitialTreatment();
   if(hcfa_1500_version_02_12() && !empty($tmp))
   {
-    // Only include the Box 15 qualifier if there we are using version 02/12 and there is a Box 15 date.
-    put_hcfa(32, 31, 3, $claim->box15qualifier());
+    // Only include the Box 15 qualifier if using version 02/12 and there is a Box 15 date.
+    put_hcfa(32, 31, 3, $claim->box15Qualifier());
   }
-
 
   put_hcfa(32,37, 2, substr($tmp,4,2));
   put_hcfa(32,40, 2, substr($tmp,6,2));
   put_hcfa(32,43, 4, substr($tmp,0,4));
-
 
   // Box 16. Dates Patient Unable to Work in Current Occupation
   if ($claim->isUnableToWork()) {
@@ -395,9 +393,6 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim) {
     put_hcfa(33, 30,  2, 'ZZ');
     put_hcfa(33, 33, 14, $claim->referrerTaxonomy());
   }
-
-
-
     // Box 17. Name of Referring Provider or Other Source leave it like it is just check if there is info in misc_billing the use it provider_qualifier_code
     # Changed to look first at the misc hcfa billing form to complete this box if nothing on misc hcfa form use referrer
     if (strlen($claim->billingProviderLastName()) !=0) {

@@ -14,7 +14,12 @@ require_once("$srcdir/patient.inc");
 require_once("$srcdir/amc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once("$srcdir/../controllers/C_Document.class.php");
-require_once("forms_review_header.php");
+
+$reviewMode = false;
+if (!empty($_REQUEST['review_id'])) {
+    $reviewMode = true;
+    $encounter=$_REQUEST['review_id'];
+}
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 if($attendant_type == 'gid'){
@@ -30,30 +35,25 @@ if($is_group && !acl_check("groups","glog",false, array('view','write'))){
 <html>
 
 <head>
+
+<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.css" media="screen" />
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
+<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.css" type="text/css"></script>
 
 <!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-7-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
 <script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox-1.3.4/jquery.fancybox-1.3.4.js"></script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/ESign/js/jquery.esign.js"></script>
-<link rel="stylesheet" type="text/css" href="<?php echo $GLOBALS['webroot'] ?>/library/ESign/css/esign.css" />
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/modified/dygraphs-2-0-0/dygraph.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <?php
 $esignApi = new Api();
 ?>
-
-<?php // include generic js support for graphing ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/json/json2.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['web_root']?>/library/openflashchart/js/swfobject.js"></script>
 
 <?php // if the track_anything form exists, then include the styling and js functions for graphing
 if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { ?>
@@ -132,7 +132,7 @@ jQuery(document).ready( function($) {
     $(".onerow").click(function() { GotoForm(this); });
 
     $("#prov_edu_res").click(function() {
-        if ( $('#prov_edu_res').attr('checked') ) {
+        if ( $('#prov_edu_res').prop('checked') ) {
             var mode = "add";
         }
         else {
@@ -151,7 +151,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#provide_sum_pat_flag").click(function() {
-        if ( $('#provide_sum_pat_flag').attr('checked') ) {
+        if ( $('#provide_sum_pat_flag').prop('checked') ) {
             var mode = "add";
         }
         else {
@@ -170,7 +170,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#trans_trand_care").click(function() {
-        if ( $('#trans_trand_care').attr('checked') ) {
+        if ( $('#trans_trand_care').prop('checked') ) {
             var mode = "add";
             // Enable the reconciliation checkbox
             $("#med_reconc_perf").removeAttr("disabled");
@@ -180,9 +180,9 @@ jQuery(document).ready( function($) {
             var mode = "remove";
             //Disable the reconciliation checkbox (also uncheck it if applicable)
             $("#med_reconc_perf").attr("disabled", true);
-            $("#med_reconc_perf").removeAttr("checked");
+            $("#med_reconc_perf").prop("checked",false);
 	    $("#soc_provided").attr("disabled",true);
-	    $("#soc_provided").removeAttr("checked");
+	    $("#soc_provided").prop("checked",false);
         }
         top.restoreSession();
         $.post( "../../../library/ajax/amc_misc_data.php",
@@ -197,7 +197,7 @@ jQuery(document).ready( function($) {
     });
 
     $("#med_reconc_perf").click(function() {
-        if ( $('#med_reconc_perf').attr('checked') ) {
+        if ( $('#med_reconc_perf').prop('checked') ) {
             var mode = "complete";
         }
         else {
@@ -215,7 +215,7 @@ jQuery(document).ready( function($) {
         );
     });
     $("#soc_provided").click(function(){
-        if($('#soc_provided').attr('checked')){
+        if($('#soc_provided').prop('checked')){
                 var mode = "soc_provided";
         }
         else{
@@ -263,6 +263,14 @@ jQuery(document).ready( function($) {
   }
 ?>
 
+    <?php if ($reviewMode) { ?>
+        $("body table:first").hide();
+        $(".encounter-summary-column").hide();
+        $(".css_button").hide();
+        $(".css_button_small").hide();
+        $(".encounter-summary-column:first").show();
+        $(".title:first").text("<?php echo xls("Review"); ?> " + $(".title:first").text() + " ("+<?php echo addslashes($encounter); ?>+")");
+    <?php } ?>
 });
 
  // Process click on Delete link.
@@ -346,10 +354,293 @@ function divtoggle(spanid, divid) {
     }
 </style>
 
-<?php
-$hide=1;
-require_once("$incdir/patient_file/encounter/new_form.php");
+<!-- *************** -->
+<!-- Form menu start -->
+<script language="JavaScript">
+
+function openNewForm(sel) {
+  top.restoreSession();
+  FormNameValueArray = sel.split('formname=');
+  if(FormNameValueArray[1] == 'newpatient' || FormNameValueArray[1] == 'newGroupEncounter')
+  {
+    parent.location.href = sel;
+  }
+  else if (!parent.Forms)
+  {
+    location.href = sel;
+  }
+  else
+  {
+    parent.Forms.location.href = sel;
+  }
+}
+
+function toggleFrame1(fnum) {
+  top.frames['left_nav'].document.forms[0].cb_top.checked=false;
+  top.window.parent.left_nav.toggleFrame(fnum);
+ }
+</script>
+<style type="text/css">
+#sddm
+{   margin: 0;
+    padding: 0;
+    z-index: 30;
+}
+
+</style>
+<script type="text/javascript" language="javascript">
+
+var timeout = 500;
+var closetimer  = 0;
+var ddmenuitem  = 0;
+var oldddmenuitem = 0;
+var flag = 0;
+
+// open hidden layer
+function mopen(id)
+{
+    // cancel close timer
+    //mcancelclosetime();
+
+    flag=10;
+
+    // close old layer
+    //if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
+    //if(ddmenuitem) ddmenuitem.style.display = 'none';
+
+    // get new layer and show it
+        oldddmenuitem = ddmenuitem;
+    ddmenuitem = document.getElementById(id);
+        if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
+            if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
+            if(oldddmenuitem) oldddmenuitem.style.display = 'none';
+            ddmenuitem.style.visibility = 'visible';
+            ddmenuitem.style.display = 'block';
+        }else{
+            ddmenuitem.style.visibility = 'hidden';
+            ddmenuitem.style.display = 'none';
+        }
+}
+// close showed layer
+function mclose()
+{
+    if(flag==10)
+     {
+      flag=11;
+      return;
+     }
+    if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
+    if(ddmenuitem) ddmenuitem.style.display = 'none';
+}
+
+// close layer when click-out
+document.onclick = mclose;
+//=================================================
+function findPosX(id)
+  {
+    obj=document.getElementById(id);
+    var curleft = 0;
+    if(obj.offsetParent)
+        while(1)
+        {
+          curleft += obj.offsetLeft;
+          if(!obj.offsetParent)
+            break;
+          obj = obj.offsetParent;
+        }
+    else if(obj.x)
+        curleft += obj.x;
+   PropertyWidth=document.getElementById(id).offsetWidth;
+   if(PropertyWidth>curleft)
+    {
+     document.getElementById(id).style.left=0;
+    }
+  }
+
+  function findPosY(obj)
+  {
+    var curtop = 0;
+    if(obj.offsetParent)
+        while(1)
+        {
+          curtop += obj.offsetTop;
+          if(!obj.offsetParent)
+            break;
+          obj = obj.offsetParent;
+        }
+    else if(obj.y)
+        curtop += obj.y;
+    return curtop;
+  }
+</script>
+
+</head>
+<body class="bgcolor2">
+<dl>
+<?php //DYNAMIC FORM RETREIVAL
+include_once("$srcdir/registry.inc");
+
+function myGetRegistered($state="1", $limit="unlimited", $offset="0") {
+    global $attendant_type;
+  $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
+    "unpackaged, date, aco_spec FROM registry WHERE ";
+  // select different forms for groups
+  if($attendant_type == 'pid' )
+  {
+    $sql .= "patient_encounter = 1 AND ";
+  }
+  else
+  {
+    $sql .= "therapy_group_encounter = 1 AND ";
+  }
+  $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
+  if ($limit != "unlimited") $sql .= " limit $limit, $offset";
+  $res = sqlStatement($sql);
+  if ($res) {
+    for($iter=0; $row=sqlFetchArray($res); $iter++) {
+      $all[$iter] = $row;
+    }
+  }
+  else {
+    return false;
+  }
+  return $all;
+}
+
+$reg = myGetRegistered();
+$old_category = '';
+
+  $DivId=1;
+
+// To see if the encounter is locked. If it is, no new forms can be created
+$encounterLocked = false;
+if ( $esignApi->lockEncounters() &&
+isset($GLOBALS['encounter']) &&
+!empty($GLOBALS['encounter']) ) {
+
+  $esign = $esignApi->createEncounterESign( $GLOBALS['encounter'] );
+  if ( $esign->isLocked() ) {
+      $encounterLocked = true;
+  }
+}
+
+if (!empty($reg)) {
+  $StringEcho= '<ul id="sddm">';
+  if ($encounterLocked === false) {
+      foreach ($reg as $entry) {
+        // Check permission to create forms of this type.
+        $tmp = explode('|', $entry['aco_spec']);
+        if (!empty($tmp[1])) {
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
+        $new_category = trim($entry['category']);
+        $new_nickname = trim($entry['nickname']);
+        if ($new_category == '') {
+          $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
+        }else{
+          $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
+        }
+        if ($new_nickname != '') {$nickname = $new_nickname;}
+        else {$nickname = $entry['name'];}
+        if ($old_category != $new_category) {
+          $new_category_ = $new_category;
+          $new_category_ = str_replace(' ','_',$new_category_);
+          if ($old_category != '') {$StringEcho.= "</table></div></li>";}
+          $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+          $old_category = $new_category;
+          $DivId++;
+        }
+        $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('" . $rootdir .'/patient_file/encounter/load_form.php?formname=' .urlencode($entry['directory']) .
+        "')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+      }
+  }
+  $StringEcho.= '</table></div></li>';
+}
+
+if($StringEcho){
+  $StringEcho2= '<div style="clear:both"></div>';
+}else{
+  $StringEcho2="";
+}
+
+// This shows Layout Based Form names just like the above.
+//
+if ($encounterLocked === false) {
+    $lres = sqlStatement("SELECT * FROM list_options " .
+      "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
+    if (sqlNumRows($lres)) {
+      if(!$StringEcho){
+        $StringEcho= '<ul id="sddm">';
+      }
+      $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('lbf');\" >" .
+        xl('Layout Based') . "</a><div id='lbf' ><table border='0' cellspacing='0' cellpadding='0'>";
+      while ($lrow = sqlFetchArray($lres)) {
+        $option_id = $lrow['option_id']; // should start with LBF
+        $title = $lrow['title'];
+        // Check ACO attribute, if any, of this LBF.
+        $jobj = json_decode($lrow['notes'], true);
+        if (!empty($jobj['aco'])) {
+          $tmp = explode('|', $jobj['aco']);
+          if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
+            continue;
+        }
+        $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
+          $rootdir . '/patient_file/encounter/load_form.php?formname=' .
+          urlencode($option_id) . "' >" . xl_form_title($title) . "</a></td></tr>";
+      }
+    }
+}
 ?>
+<!-- DISPLAYING HOOKS STARTS HERE -->
+<?php
+    $module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
+                                    obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
+                                    WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
+  $DivId = 'mod_installer';
+  if (sqlNumRows($module_query)) {
+    $jid = 0;
+    $modid = '';
+    while ($modulerow = sqlFetchArray($module_query)) {
+      $DivId = 'mod_'.$modulerow['mod_id'];
+      $new_category = $modulerow['mod_ui_name'];
+      $modulePath = "";
+      $added      = "";
+      if($modulerow['type'] == 0) {
+        $modulePath = $GLOBALS['customModDir'];
+        $added      = "";
+      }
+      else{
+        $added      = "index";
+        $modulePath = $GLOBALS['zendModDir'];
+      }
+      $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
+      $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+      if($jid==0 || ($modid!=$modulerow['mod_id'])){
+        if($modid!='')
+        $StringEcho.= '</table></div></li>';
+      $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+      }
+      $jid++;
+      $modid = $modulerow['mod_id'];
+      $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('$relative_link')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
+   }
+  }
+    ?>
+<!-- DISPLAYING HOOKS ENDS HERE -->
+<?php
+if($StringEcho){
+  $StringEcho.= "</table></div></li></ul>".$StringEcho2;
+}
+?>
+<table cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td valign="top"><?php echo $StringEcho; ?></td>
+  </tr>
+</table>
+</dl>
+<!-- Form menu stop -->
+<!-- *************** -->
 
 <div id="encounter_forms">
 
@@ -364,9 +655,7 @@ $providerNameRes = getProviderName($providerIDres);
 <div class='encounter-summary-column'>
 <div>
 <?php
-$auth_notes_a  = acl_check('encounters', 'notes_a');
-$auth_notes    = acl_check('encounters', 'notes');
-$auth_relaxed  = acl_check('encounters', 'relaxed');
+$pass_sens_squad = true;
 
 if ($attendant_type == 'pid' && is_numeric($pid)) {
 
@@ -376,13 +665,13 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     $result = getPatientData($pid, "fname,lname,squad");
     echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // for therapy group
 } else {
@@ -392,13 +681,13 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     $result = getGroup($groupId);
     echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
-        $auth_notes_a = $auth_notes = $auth_relaxed = 0;
+        $pass_sens_squad = false;
     }
 }
 ?>
@@ -576,7 +865,7 @@ if ( $esign->isButtonViewable() ) {
 
 <?php
 
-  if ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) {
+  if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounter, "id, date, form_id, form_name, formdir, user, deleted")) ) {
     echo "<table width='100%' id='partable'>";
 	$divnos=1;
     foreach ($result as $iter) {
@@ -713,9 +1002,11 @@ if ( $esign->isButtonViewable() ) {
     }
     echo "</table>";
 }
+if (!$pass_sens_squad) {
+    echo xlt("Not authorized to view this encounter");
+}
 ?>
 
 </div> <!-- end large encounter_forms DIV -->
 </body>
-<?php require_once("forms_review_footer.php"); ?>
 </html>

@@ -1,33 +1,19 @@
 <?php
 /**
- *  Patient Tracker (Patient Flow Board)
+ * Patient Tracker (Patient Flow Board)
  *
- *  This program displays the information entered in the Calendar program ,
- *  allowing the user to change status and view those changed here and in the Calendar
- *  Will allow the collection of length of time spent in each status
- *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * This program displays the information entered in the Calendar program ,
+ * allowing the user to change status and view those changed here and in the Calendar
+ * Will allow the collection of length of time spent in each status
  *
  * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @link http://www.open-emr.org
- *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
- *
+ * @link    http://www.open-emr.org
+ * @author  Terry Hill <terry@lilysystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2015 Terry Hill <terry@lillysystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-
 
 
 require_once("../globals.php");
@@ -62,6 +48,8 @@ if(isset($_POST['form_apptcat']))
         $form_apptcat=intval($_POST['form_apptcat']);
     }
 }
+$form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
+$form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
 $appointments = array();
 $from_date = date("Y-m-d");
@@ -69,7 +57,7 @@ $to_date = date("Y-m-d");
 $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
-$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat);
+$appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
 $appointments = sortAppointments( $appointments, 'time' );
 
 //grouping of the count of every status
@@ -118,8 +106,7 @@ foreach ( $appointments as $apt ) {
 
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../library/js/common.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-modern-blink-0-1-3/jquery.modern-blink.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <script language="JavaScript">
 // Refresh self
@@ -249,7 +236,7 @@ function openNewTopWindow(newpid,newencounterid) {
                         ?>
                     </select>
                 </td>
-                <td style="border-left: 1px solid;">
+                <td style="border-left: 1px solid;" rowspan="2">
                     <div style='margin-left: 15px'>
                         <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <span> <?php echo xlt('Submit'); ?> </span> </a>
@@ -258,6 +245,16 @@ function openNewTopWindow(newpid,newencounterid) {
                                 <span> <?php echo xlt('Print'); ?> </span> </a>
                         <?php } ?>
                     </div>
+                </td>
+            </tr>
+            <tr class="text">
+                <td><?php echo xlt('Patient ID') ?>:</td>
+                <td>
+                    <input type="text" id="patient_id" name="form_patient_id" value="<?php echo ($form_patient_id) ? attr($form_patient_id) : ""; ?>">
+                </td>
+                <td><?php echo xlt('Patient Name') ?>:</td>
+                <td>
+                    <input type="text" id="patient_name" name="form_patient_name" value="<?php echo ($form_patient_name) ? attr($form_patient_name) : ""; ?>">
                 </td>
             </tr>
         </table>
@@ -534,17 +531,23 @@ function openNewTopWindow(newpid,newencounterid) {
 
 <?php
 //saving the filter for auto refresh
-if(!is_null($_POST['form_provider']) ){
+if (!is_null($_POST['form_provider'])) {
     echo "<input type='hidden' name='form_provider' value='" . attr($_POST['form_provider']) . "'>";
 }
-if(!is_null($_POST['form_facility']) ){
+if (!is_null($_POST['form_facility'])) {
     echo "<input type='hidden' name='form_facility' value='" . attr($_POST['form_facility']) . "'>";
 }
-if(!is_null($_POST['form_apptstatus']) ){
+if (!is_null($_POST['form_apptstatus'])) {
     echo "<input type='hidden' name='form_apptstatus' value='" . attr($_POST['form_apptstatus']) . "'>";
 }
-if(!is_null($_POST['form_apptcat']) ){
+if (!is_null($_POST['form_apptcat'])) {
     echo "<input type='hidden' name='form_apptcat' value='" . attr($_POST['form_apptcat']) . "'>";
+}
+if (!is_null($_POST['form_patient_id'])) {
+    echo "<input type='hidden' name='form_patient_id' value='" . attr($_POST['form_patient_id']) . "'>";
+}
+if (!is_null($_POST['form_patient_name'])) {
+    echo "<input type='hidden' name='form_patient_name' value='" . attr($_POST['form_patient_name']) . "'>";
 }
 ?>
 
@@ -555,7 +558,18 @@ if(!is_null($_POST['form_apptcat']) ){
   $(document).ready(function() {
 	  $('#settings').css("display","none");
 	  refreshbegin('1');
-	  $('.js-blink-infinite').modernBlink();
+
+    $('.js-blink-infinite').each(function() {
+      // set up blinking text
+      var elem = $(this);
+      setInterval(function() {
+        if (elem.css('visibility') == 'hidden') {
+          elem.css('visibility', 'visible');
+        } else {
+          elem.css('visibility', 'hidden');
+        }
+      }, 500);
+    });
 
   // toggle of the check box status for drug screen completed and ajax call to update the database
   $(".drug_screen_completed").change(function() {

@@ -28,6 +28,14 @@ require_once("../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 require_once("codes.php");
 
+//acl check
+if (!acl_check_form('fee_sheet')) {
+    ?>
+    <script language="JavaScript">alert('<?php echo xls("Not authorized"); ?>')</script>;
+    <?php
+    formJump();
+}
+
 // Some table cells will not be displayed unless insurance billing is used.
 $usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";

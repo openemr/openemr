@@ -1112,15 +1112,7 @@ function postcalendar_user_search()
     $tpl->caching = false;
     $tpl->assign('STYLE',$GLOBALS['style']);
     $pageSetup =& pnModAPIFunc(__POSTCALENDAR__,'user','pageSetup');
-    if (pnVarCleanFromInput("no_nav") == 1) {
-      $return = $pageSetup . $tpl->fetch($template_name.'/user/findfirst.html');
-    }
-    elseif (pnVarCleanFromInput("no_nav") == 2) {
-      $return = $pageSetup . $tpl->fetch($template_name.'/user/listapps.html');
-    }
-    else {
-     $return = $pageSetup . $tpl->fetch($template_name.'/user/search.html');
-    }
+    $return = $pageSetup . $tpl->fetch($template_name.'/user/search.html');
     return $return;
 }
 

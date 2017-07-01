@@ -23,7 +23,6 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo ".htmlspecialchars( $browsenum, ENT_QUOTES)."?>">
 
-<?php //<a href="javascript:document.find_patient.action='finder/patient_finder_keyboard.php';document.find_patient.submit();" class=link>Find Patient:</a>?>
 <input type='entry' size='10' name='patient'>
 <select name="findBy" size='1'>
  <option value="ID"><?php echo htmlspecialchars( xl('ID'), ENT_NOQUOTES); ?></option>

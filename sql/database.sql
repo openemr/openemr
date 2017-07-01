@@ -1387,6 +1387,7 @@ CREATE TABLE `form_misc_billing_options` (
   `outside_lab` tinyint(1) default NULL,
   `lab_amount` decimal(5,2) default NULL,
   `is_unable_to_work` tinyint(1) default NULL,
+  `onset_date` date default NULL,
   `date_initial_treatment` date default NULL,
   `off_work_from` date default NULL,
   `off_work_to` date default NULL,
@@ -4645,8 +4646,9 @@ INSERT INTO list_options (list_id,option_id,title,seq,notes,activity) VALUES ('f
 -- provider_qualifier_code
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','provider_qualifier_code','Provider Qualifier Code', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dk','DK',10,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','dn','DN',20,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DK','Ordering Provider',10,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DN','Referring Provider',20,1);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('provider_qualifier_code','DQ','Supervising Provider',30,0);
 
 -- Files type white list
 INSERT INTO list_options (`list_id`, `option_id`, `title`) VALUES ('lists', 'files_white_list', 'Files type white list');

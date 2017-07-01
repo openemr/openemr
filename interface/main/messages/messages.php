@@ -44,7 +44,7 @@ require_once("$srcdir/gprelations.inc.php");
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 </head>
 
 <body class="body_top">
@@ -425,7 +425,7 @@ $(document).ready(function(){
   top.restoreSession();
   $.ajax({
     type:'get',
-    url:'<?php echo $GLOBALS['webroot']."/interface/patient_file/encounter/patient_encounter.php";?>',
+    url:'<?php echo $GLOBALS['webroot']."/library/ajax/set_pt.php";?>',
     data:{set_pid: pid},
     async: false
   });

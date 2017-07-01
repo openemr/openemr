@@ -1,13 +1,15 @@
 <?php
-// Copyright (C) 2011 by following authors:
-//   -Brady Miller <brady.g.miller@gmail.com>
-//   -Ensofttek, LLC
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/**
+ * patient reminders gui
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Ensofttek, LLC
+ * @copyright Copyright (c) 2011-2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2011 Ensofttek, LLC
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../../globals.php");
@@ -22,16 +24,10 @@ require_once "$srcdir/report_database.inc";
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
 <script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-<script type="text/javascript" src="../../../library/js/common.js"></script>
-<script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
-<link rel="stylesheet" type="text/css" href="../../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
+<script type="text/javascript" src="../../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="../../../library/js/common.js?v=<?php echo $v_js_includes; ?>"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <script LANGUAGE="JavaScript">
 var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
@@ -76,7 +72,7 @@ if ($mode == "simple") {
 <div>
   <span class='title'><?php echo htmlspecialchars( xl('Patient Reminders'), ENT_NOQUOTES); ?></span>
 </div>
-<?php if ($mode == "simple") { ?> 
+<?php if ($mode == "simple") { ?>
   <div id='namecontainer_preminders' class='namecontainer_preminders' style='float:left;margin-right:10px'>
     <?php echo htmlspecialchars( xl('for'), ENT_NOQUOTES);?>&nbsp;
     <span class="title">
