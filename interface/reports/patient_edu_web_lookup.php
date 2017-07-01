@@ -56,30 +56,36 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
         </div>
         <div class="row">
             <div class="col-xs-12">
-                <form method='post' action='patient_edu_web_lookup.php' id='theform' onsubmit='return top.restoreSession()'>
+                <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
                     <div class="form-group">
-                        <label for='form_lookup_at'><?php echo xlt('Patient Resource'); ?></label>
-                        <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
-                            <?php
-				                    foreach ($websites as $key => $value) {
-				                        echo "    <option value='" . attr($key) . "'";
-				                        if ($key == $form_lookup_at) echo ' selected';
-				                        echo ">" .  text($key) . "</option>\n";
-				                    }
-                            ?>
-				                </select>
+                        <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
+                        <div class='col-sm-10'>
+                            <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
+                                <?php
+                                foreach ($websites as $key => $value) {
+                                    echo "    <option value='" . attr($key) . "'";
+                                    if ($key == $form_lookup_at) echo ' selected';
+                                    echo ">" .  text($key) . "</option>\n";
+                                }
+                                ?>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for='form_diagnosis'><?php echo xlt('Search'); ?></label>
-                        <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
-                            value='<?php echo attr($form_diagnosis); ?>' title='<?php echo xla('Search Text'); ?>'>
-                        <span id="searchHelpBox" class="help-block">
-                            <?php echo xlt('Please input search criteria above, and click Submit to view results. (Results will be displayed in a pop up window)'); ?>
-                        </span>
+                        <label for='form_diagnosis' class='control-label col-sm-2'><?php echo xlt('Search'); ?></label>
+                        <div class='col-sm-10'>
+                            <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
+                                value='<?php echo attr($form_diagnosis); ?>' title='<?php echo xla('Search Text'); ?>'>
+                            <span id="searchHelpBox" class="help-block">
+                                <?php echo xlt('Please input search criteria above, and click Submit to view results. (Results will be displayed in a pop up window)'); ?>
+                            </span>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <div class="btn-group" role="group">
-                            <button type='submit' class='btn btn-default btn-search'><?php echo xlt("Submit"); ?></button>
+                        <div class='col-sm-offset-2 col-sm-10'>
+                            <div class="btn-group" role="group">
+                                <button type='submit' class='btn btn-default btn-search'><?php echo xlt("Submit"); ?></button>
+                            </div>
                         </div>
                     </div>
                 </form>
