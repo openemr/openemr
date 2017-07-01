@@ -66,7 +66,7 @@ use OpenEMR\Core\Header;
     </script>
 </head>
 
-<body class="body_top modal-body">
+<body class="body_top">
     <div class="container">
         <div class="row">
             <div class="col-xs-12">
@@ -74,6 +74,7 @@ use OpenEMR\Core\Header;
                     <h3><?php echo xlt('Advance Directives'); ?></h3>
                 </div>
             </div>
+        </div>
         <div class="row">
             <div class="col-xs-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
