@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
     <?php
     if ($_POST['form_yesno']) {
         $form_yesno = filter_input(INPUT_POST,'form_yesno');
-        $form_adreviewed = filter_input(INPUT_POST,'form_adreviewed');
+        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST,'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script language='JavaScript'>\n";
@@ -58,7 +58,7 @@ use OpenEMR\Core\Header;
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
@@ -83,7 +83,7 @@ use OpenEMR\Core\Header;
                     </div>
                     <div class="form-group">
                         <label for="form_adreviewed"><?php echo xlt('Last Reviewed'); ?></label>
-                        <?php generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), $form_adreviewed); ?>
+                        <?php generate_form_field(array('data_type'=>4,'field_id'=>'adreviewed'), oeFormatShortDate($form_adreviewed)); ?>
                     </div>
                     <div class="form-group">
                         <div class="btn-group" role="group">
