@@ -18,8 +18,6 @@ use OpenEMR\Core\Header;
 <head>
     <title><?php echo xlt('Advance Directives'); ?></title>
 
-    <?php html_header_show();?>
-
     <?php Header::setupHeader(['datetime-picker','opener']); ?>
 
     <?php
