@@ -68,6 +68,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($siteslist);
 
+$encount = 0;
 foreach ($siteslist as $sfname) {
   $sitedir = "$OE_SITES_BASE/$sfname";
   $errmsg = '';
