@@ -18,9 +18,13 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Eldho Chacko <eldho@zhservices.com>
  * @author  Ajil P M <ajilpm@zhservices.com>
- * @link    http://www.open-emr.org
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2017 Jason Oettinger
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 require_once(dirname(__FILE__) . "../../globals.php");
 
@@ -29,9 +33,8 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['opener']); ?>
+<?php Header::setupHeader(); ?>
 <title><?php echo xlt('Import');?></title>
-<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <style>
 .list-group-item {
     display: list-item;
@@ -39,17 +42,19 @@ use OpenEMR\Core\Header;
 </style>
 </head>
 <body class="body_top" >
-  <div class="row">
-    <div class="col-md-3"></div>
-    <div class="col-md-6">
-      <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
-      <ol class="list-group">
-        <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents').'.'; ?></li>
-        <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR').'.'; ?></li>
-        <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"').'.'; ?></li>
-        <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></li>
-      </ol>
+  <main class="container">
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
+        <ol class="list-group">
+          <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents').'.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR').'.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"').'.'; ?></li>
+          <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></li>
+        </ol>
+      </div>
     </div>
-  </div>
+  </main>
 </body>
 </html>
