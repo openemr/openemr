@@ -336,7 +336,7 @@ if ($noteid) {
     $body = preg_replace('/(:\d{2}\s\()'.$result['pid'].'(\sto\s)/','${1}'.$patientname.'${2}',$body);
     $body = preg_replace('/\sto\s/i',' '.xl('to').' ',$body);
     $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
-    echo "<div class='text' style='direction:ltr; background-color:white; color: gray; border:1px solid #999; padding: 5px; width: 640px;'>".$body."</div>";
+    echo "<div class='text' style='background-color:white; color: gray; border:1px solid #999; padding: 5px; width: 640px;'>".$body."</div>";
 }
 
 ?>
