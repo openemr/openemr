@@ -22,39 +22,34 @@
  * @author  Ajil P M <ajilpm@zhservices.com>
  * @link    http://www.open-emr.org
  */
+require_once(dirname(__FILE__) . "../../globals.php");
 
-
-
-require_once(dirname(__FILE__) . "/../globals.php");
+use OpenEMR\Core\Header;
 
 ?>
 <html>
 <head>
+<?php Header::setupHeader(['opener']); ?>
 <title><?php echo xlt('Import');?></title>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+<style>
+.list-group-item {
+    display: list-item;
+}
+</style>
 </head>
 <body class="body_top" >
-<center>
-<p><b><?php echo xlt("Steps for uploading CCR XML");?></b></p>
-<table style="width:85%;font-size:14px;" >
-  <tr>
-    <td>1.</td>
-    <td><?php echo xlt('To upload CCR document of already existing patient use Patient Summary Screen->Documents. For CCR document of a new patient use Miscellanous->New Documents screen').'.'; ?></td>
-  </tr>
-  <tr>
-    <td>2.</td>
-    <td><?php echo xlt('Upload the xml file under the category CCR').'.'; ?></td>
-  </tr>
-  <tr>
-    <td>3.</td>
-    <td><?php echo xlt('After Uploading click the button "Import"').'.'; ?></td>
-  </tr>
-  <tr>
-    <td>4.</td>
-    <td><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></td>
-  </tr>
-</table>
-</center>
-</form>
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+      <h3><?php echo xlt("Steps for uploading CCR XML");?></h3>
+      <ol class="list-group">
+        <li class="list-group-item"><?php echo xlt('For an existing patient, go to Patient Summary->Documents. For a new patient, go to Miscellanous->New Documents').'.'; ?></li>
+        <li class="list-group-item"><?php echo xlt('Upload the xml file under the category CCR').'.'; ?></li>
+        <li class="list-group-item"><?php echo xlt('After Uploading, click "Import"').'.'; ?></li>
+        <li class="list-group-item"><?php echo xlt('Approve the patient from Patient/Client->Import->Pending Approval').'.'; ?></li>
+      </ol>
+    </div>
+  </div>
 </body>
 </html>
