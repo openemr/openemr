@@ -198,7 +198,7 @@
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = array('lengthMenu'=>(xla('Display').' _MENU_  '.xla('records per page')),
                                                           'zeroRecords'=>(xla('Nothing found - sorry')),
-                                                          'info'=>(xla('Showing page') .' _PAGE_ '. xla('of') . ' _PAGES_'),
+                                                          'info'=>(xla('Showing') .' _START_ '. xla('to') . ' _END_ ' . xla('of') . ' _TOTAL_ ' . xla('participants')),
                                                           'infoEmpty'=>(xla('No records available')),
                                                           'infoFiltered'=>('('.xla('filtered from').' _MAX_ '.xla('total records').')'),
                                                           'infoPostFix'=>(''),
