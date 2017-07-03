@@ -15,10 +15,10 @@
 
 $zip = new ZipArchive;
 $zip->open('FormularyFiles.zip');
-$zip->extractTo('./');
+$zip->extractTo($GLOBALS['temporary_files_dir']);
 $zip->close();
 
- $file = "./Weno Exchange LLC/BSureFormulary.txt";
+ $file = $GLOBALS['temporary_files_dir'] . "./Weno Exchange LLC/BSureFormulary.txt";
  $lines = count(file($file));
  echo text($lines). "<br>";
   

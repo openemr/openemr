@@ -4,9 +4,6 @@
 
 <link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
 <link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
-<link rel="stylesheet" href="{$WEBROOT}/library/js/jquery-ui.min.css" type="text/css" /> 
-
-
 {literal}
 <style type="text/css">
 
@@ -28,18 +25,6 @@ select{
       // Close the window
       window.self.close();
     }
-    function validateForm() {
-    var x = document.forms["prescribe"]["dosage"].value;
-  var y = document.forms["prescribe"]["quantity"].value;
-    if (x == null || x == "") {
-        alert("<?php print xls('Dosage must be filled out')?>");
-        return false;
-    }
-  if (y == null || y == "") {
-        alert("<?php print xls('Quantity must be filled out')?>");
-        return false;
-    }
-}
 {/literal}
 </script>
 {literal}
@@ -67,8 +52,6 @@ select{
   }
  }
 
-
- 
  // Fill in default values when a drop-down drug is selected.
  function drugselected(sel) {
   var f = document.forms[0];
@@ -79,6 +62,7 @@ select{
    selchoose(f.form, d[1]);
    f.dosage.value = d[2];
    f.size.value = d[3];
+   f.rxnorm_drugcode.value = d[11];
    selchoose(f.unit, d[4]);
    selchoose(f.route, d[5]);
    selchoose(f.interval, d[6]);
@@ -202,6 +186,7 @@ select{
     <select name="drug_id" onchange="drugselected(this)">
     {html_options values=$DRUG_ARRAY_VALUES output=$DRUG_ARRAY_OUTPUT selected=$prescription->get_drug_id()}
     </select>
+		<input type="hidden" name="rxnorm_drugcode" value="{$prescription->rxnorm_drugcode}">
   </td>
 </tr>
 {/if}
@@ -295,16 +280,6 @@ $(function() {
     });                
 
 });
-$(function() {
-    
-    //Pharmacy autocomplete
-    $(".pharmacy").autocomplete({
-        source: "./library/ajax/pharmacy_autocomplete/search.php",
-        minLength: 3
-    });                
-
-});
-
 
 function submitfun() {
     top.restoreSession();
@@ -334,6 +309,18 @@ function cancelParlookup () {
     $('#hiddendiv').hide();
     $("#hiddendiv").html( "&nbsp;" );
 }
+
+$().ready(function() {
+    $("#drug").autocomplete('library/ajax/prescription_drugname_lookup.php',
+                            {
+                            width: 200,
+                            scrollHeight: 100,
+                            selectFirst: true
+                            });
+    $("#drug").focus();
+    $("#prescribe").submit(function() { return CheckForErrors(this) });
+    $("#druglookup").click(function() { DoDrugLookup(this) });
+});
 
 
 // pop up a drug lookup window with the value of the drug name, if we have one

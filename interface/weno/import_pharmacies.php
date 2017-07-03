@@ -85,5 +85,5 @@ $file = fopen("pharmacyList.csv","r");
  header("Location: ". $ref."?status=finished");
 
  ?>
- <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>
+ <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i> 
 <span class="sr-only"><?php echo xlt("Loading... Please wait"); ?></span>
