@@ -2,32 +2,22 @@
 /**
  * Open websearch for patient education materials
  *
- * Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
- * Copyright (C) 2011 Brady Miller   <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
+ * @link    http://www.open-emr.org
  * @author  Tony McCormick <tony@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
+ * @copyright Copyright (C) 2011-2017 Brady Miller   <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @license  https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
+ *
  */
-
-
-
 
 //Include required scripts/libraries
 require_once("../globals.php");
 
+use OpenEMR\Core\Header;
 
 // Reference website links
 $websites = array(
@@ -43,91 +33,69 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
 
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-3-2/index.js"></script>
-
-<script type="text/javascript">
-  function searchResultsPopup(search_term,link) {
-    link_formatted = link.replace("[%]",encodeURIComponent(search_term));
-    top.restoreSession();
-    window.open(link_formatted);
-  }
-</script>
-
-<title><?php echo htmlspecialchars( xl('Find Patient Education Materials'), ENT_NOQUOTES); ?></title>
+    <?php Header::setupHeader(); ?>
+    <title><?php echo xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></title>
+    <script type="text/javascript">
+        function searchResultsPopup(search_term,link)
+        {
+            link_formatted = link.replace("[%]",encodeURIComponent(search_term));
+            top.restoreSession();
+            window.open(link_formatted);
+        }
+    </script>
 </head>
 
-<body class="body_top">
-
-<span class='title'><?php echo htmlspecialchars( xl('Web Search'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Patient Education Materials'), ENT_NOQUOTES); ?></span>
-
-<form method='post' action='patient_edu_web_lookup.php' id='theform' onsubmit='return top.restoreSession()'>
-
-<div id="report_parameters">
-
-    <table>
-        <tr class="misc-internet-search">
-  <td>
-	<div style='float:left'>
-	<table class='text'>
-		<tr>
-			<td>
-			   <?php echo htmlspecialchars( xl('Search in'), ENT_NOQUOTES);
-                echo '&nbsp;&nbsp;';
-				echo "<select name='form_lookup_at'>\n";
-				foreach ($websites as $key => $value) {
-				  echo "    <option value='" . htmlspecialchars($key, ENT_QUOTES) . "'";
-				  if ($key == $form_lookup_at) echo ' selected';
-				  echo ">" . htmlspecialchars( xl($key), ENT_NOQUOTES) . "</option>\n";
-				}
-				echo "</select>"; ?>
-			</td>
-        </tr>
-        <tr>
-            <td>
-			   <input type='text' name='form_diagnosis' size='60' value='<?php echo htmlspecialchars($form_diagnosis, ENT_QUOTES); ?>'
-				title='<?php echo htmlspecialchars( xl('Search Text'), ENT_QUOTES); ?>'>
-			</td>
-		</tr>
-	</table>
-
-	</div>
-
-  </td>
-  <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit();'>
-					<span>
-						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
-
-				</div>
-			</td>
-		</tr>
-	</table>
-  </td>
- </tr>
-</table>
-
-</div> <!-- end of parameters -->
-
-<div class='text'>
-<?php
-  echo htmlspecialchars( xl('Please input search criteria above, and click Submit to view results. (Results will be displayed in a pop up window)'), ENT_NOQUOTES);
-?>
-</div>
-<div class='text'>
-<?php if (!empty($form_diagnosis) && !empty($form_lookup_at)) { ?>
-    <script type="text/javascript">
-      searchResultsPopup('<?php echo addslashes($form_diagnosis); ?>','<?php echo addslashes($websites[$form_lookup_at]) ?>');
-    </script>
-<?php } ?>
-</div>
-</form>
+<body class="body_top" onload="document.forms[0].form_diagnosis.focus()">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="page-header">
+                    <h2><?php echo  xlt('Web Search'); ?> - <?php echo xlt('Patient Education Materials'); ?></h2>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
+                    <div class="form-group">
+                        <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
+                        <div class='col-sm-10'>
+                            <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
+                                <?php
+                                foreach ($websites as $key => $value) {
+                                    echo "    <option value='" . attr($key) . "'";
+                                    if ($key == $form_lookup_at) echo ' selected';
+                                    echo ">" .  text($key) . "</option>\n";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for='form_diagnosis' class='control-label col-sm-2'><?php echo xlt('Search'); ?></label>
+                        <div class='col-sm-10'>
+                            <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
+                                value='<?php echo attr($form_diagnosis); ?>' title='<?php echo xla('Search Text'); ?>'>
+                            <span id="searchHelpBox" class="help-block">
+                                <?php echo xlt('Please input search criteria above, and click Submit to view results. (Results will be displayed in a pop up window)'); ?>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class='col-sm-offset-2 col-sm-10'>
+                            <div class="btn-group" role="group">
+                                <button type='submit' class='btn btn-default btn-search'><?php echo xlt("Submit"); ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php if (!empty($form_diagnosis) && !empty($form_lookup_at)) { ?>
+        <script type="text/javascript">
+            searchResultsPopup('<?php echo addslashes($form_diagnosis); ?>','<?php echo addslashes($websites[$form_lookup_at]) ?>');
+        </script>
+    <?php } ?>
 </body>
 </html>

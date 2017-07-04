@@ -442,6 +442,10 @@ ALTER TABLE `openemr_postcalendar_events` CHANGE `pc_facility` `pc_facility` int
 
 #IfMissingColumn form_misc_billing_options onset_date
 ALTER TABLE `form_misc_billing_options` ADD `onset_date` date default NULL;
-UPDATE `list_options` SET `option_id` = `DK` WHERE `list_id` = `provider_qualifier_code` AND `option_id` = `dk`
-UPDATE `list_options` SET `option_id` = `DN` WHERE `list_id` = `provider_qualifier_code` AND `option_id` = `dn`
+UPDATE `list_options` SET `option_id` = 'DK', `title` = 'Ordering Provider' WHERE `list_id` = 'provider_qualifier_code' AND `option_id` = 'dk';
+UPDATE `list_options` SET `option_id` = 'DN', `title` = 'Referring Provider', `is_default` = '1' WHERE `list_id` = 'provider_qualifier_code' AND `option_id` = 'dn';
+#EndIF
+
+#IfNotRow2D list_options list_id provider_qualifier_code option_id DQ
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('provider_qualifier_code', 'DQ', 'Supervising Provider', '30', '0');
 #EndIf

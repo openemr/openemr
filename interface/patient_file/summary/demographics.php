@@ -169,7 +169,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function advdirconfigure() {
-   dlgopen('advancedirectives.php', '_blank', 500, 450);
+   dlgopen('advancedirectives.php', '_blank', 400, 500);
   }
 
  function refreshme() {

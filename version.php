@@ -25,7 +25,7 @@ $v_realpatch = '0';
 // is a database change in the course of development.  It is used
 // internally to determine when a database upgrade is needed.
 //
-$v_database = 225;
+$v_database = 226;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -47,7 +47,7 @@ if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
     $v_js_includes = md5(microtime());
 } else {
     // Change this number when bumping
-    $v_js_includes = 38;
+    $v_js_includes = 39;
 }
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

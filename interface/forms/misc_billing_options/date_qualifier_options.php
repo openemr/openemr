@@ -6,22 +6,13 @@
  * For details on format refer to: 
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  * 
- * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
+ * @author Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
+ * @copyright Copyright (C) 2017 Stephen Waite <stephen.waite@cmsvt.com>
  * @link    http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 function generateDateQualifierSelect($name,$options,$obj)
@@ -43,18 +34,17 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
     "ORDER BY lname, fname";
   $res = sqlStatement($query);
-  echo "   <select name='" . attr($selname) . "'";
+  echo "<select name='" . attr($selname) . "'";
   if ($disabled) echo " disabled";
-  echo ">\n";
-  echo "    <option value=''>" . text($toptext) . "\n";
+  echo ">";
+  echo "<option value=''>" . text($toptext);
   while ($row = sqlFetchArray($res)) {
     $provid = $row['id'];
-    echo "    <option value='" . attr($provid) . "'";
+    echo "<option value='" . attr($provid) . "'";
     if ($provid == $default) echo " selected";
-    echo ">" . text($row['lname'] . ", " . $row['fname']) . "\n";
+    echo ">" . text($row['lname'] . ", " . $row['fname']);
   }
-  echo text($provid);
-  echo "   </select>\n";
+  echo "</select>\n";
 }
 
 $box_14_qualifier_options=array(array(xl("Onset of Current Symptoms or Illness"),"431"),
