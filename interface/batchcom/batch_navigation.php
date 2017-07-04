@@ -1,30 +1,18 @@
-<table border="0" align="center" cellspacing="0" cellpadding="0" width="100%" height="22">
-<tr bgcolor="#00ffff">
-<?php if (acl_check('admin', 'batchcom')) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/batchcom.php"
- onclick="top.restoreSession()"
- title="Batch Communication and Export"><?php echo xlt('BatchCom');?></a>&nbsp;
-</td>
-<?php } ?>
-<?php if (acl_check('admin', 'notification')) { ?>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/smsnotification.php"
- onclick="top.restoreSession()"
- title="SMS Notification"><?php echo xlt('SMS Notification');?></a>&nbsp;
-</td>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/emailnotification.php"
- onclick="top.restoreSession()"
- title="SMS Notification"><?php echo xlt('Email Notification');?></a>&nbsp;
-</td>
-<td valign="middle" nowrap>
-&nbsp;<a class=menu target=Main href="../batchcom/settingsnotification.php"
- onclick="top.restoreSession()"
- title="SMS/Email Alert Settings"><?php echo xlt('SMS/Email Alert Settings');?></a>&nbsp;
-</td>
-<?php } ?>
+<nav>
+    <ul class="nav nav-tabs nav-justified">
+        <?php
+        function menu_item($label,$href,$class) {
+            return "<li class=\"$class\" role=\"presentation\" title=\"$label\"><a href=\"$href\">$label</a></li>";
+        }
 
-<td width="20%">&nbsp;</td>
-</tr>
-</table>
+        if (acl_check('admin', 'batchcom')) {
+            echo menu_item(xlt('BatchCom'),"/interface/batchcom/batchcom.php");
+        }
+        if (acl_check('admin', 'notification')) {
+            echo menu_item(xlt('SMS Notification'),"/interface/batchcom/smsnotification.php");
+        }
+        echo menu_item(xlt("Email Notification","/interface/batchcom/emailnotification.php"));
+        echo menu_item(xlt("SMS/Email Alert Settings"),"/interface/batchcom/settingsnotification.php");
+        ?>
+    </ul>
+</nav>
