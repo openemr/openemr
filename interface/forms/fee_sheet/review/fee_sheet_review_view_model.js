@@ -48,7 +48,12 @@ function procedure(json_source)
     retval.units=ko.observable(json_source.units);
     retval.mod_size=ko.observable(json_source.mod_size);
     retval.justify=ko.observableArray();
-    var justify_codes=json_source.justify.split(":");
+    if(json_source.justify !== null){
+      var justify_codes=json_source.justify.split(":");
+    }else
+    {
+      var justify_codes="";
+    }
     for(var idx=0;idx<justify_codes.length;idx++)
         {
             var justify_parse=justify_codes[idx].split("|");
