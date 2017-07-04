@@ -35,8 +35,13 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false) {
     // A previous change did this instead of the above, not sure if desirable? -- Rod
     // $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
     // Hi Rod content width issue in Encounter Summary - epsdky
-    if($no_wrap) $arr[$field_id] = $currvalue; // Making wordwrap selectable - epsdky 2017
-    else $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+    // Also had it not wordwrap nation notes which breaks it since it splits
+    //  html tags apart - brady
+    if ( $no_wrap || ($frow['data_type'] == 34) ) {
+      $arr[$field_id] = $currvalue;
+    } else {
+      $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+    }
   }
   echo "<table>\n";
   display_layout_rows($formname, $arr);
