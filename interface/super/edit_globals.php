@@ -573,6 +573,35 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
     }
 
+    else if ($fldtype == 'default_visit_category') {
+        $sql = "SELECT pc_catid, pc_catname, pc_cattype 
+                FROM openemr_postcalendar_categories
+                WHERE pc_active = 1 ORDER BY pc_seq";
+        $result = sqlStatement($sql);
+        echo "<select name=\"form_{$i}\" id=\"form_{$i}\">\n";
+        echo "<option value='_blank'>" . xlt('None') . "</option>";
+        while ($row = sqlFetchArray($result)) {
+            $catId = $row['pc_catid'];
+            $name = $row['pc_catname'];
+            if ($catId < 9 && $catId != "5") {
+                continue;
+            }
+
+            if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                continue;
+            }
+
+            $optionStr = '<option value="%pc_catid%"%selected%>%pc_catname%</option>';
+            $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
+            $optionStr = str_replace("%pc_catname%", text(xl_appt_category($name)), $optionStr);
+            $selected = ($fldvalue == $catId) ? " selected" : "";
+            $optionStr = str_replace("%selected%", $selected, $optionStr);
+            echo $optionStr;
+
+        }
+        echo "</select>";
+    }
+
     else if ($fldtype == 'css') {
       if ($userMode) {
         $globalTitle = $globalValue;
