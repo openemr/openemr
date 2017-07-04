@@ -211,6 +211,10 @@ function cancelClicked() {
           while ($row = sqlFetchArray($visitResult)) {
               $catId = $row['pc_catid'];
               $name = $row['pc_catname'];
+
+              if ($row['pc_cattype'] == 3) {
+                  $therapyGroupCategories[] = $catId;
+              }
               if (($catId < 9 && $catId != "5") || $catId === "_blank") {
                   continue;
               }
