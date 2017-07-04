@@ -424,8 +424,8 @@ $GLOBALS_METADATA = array(
         'gb_how_sort_list' => array(
             xl('How to sort a drop-lists'),
             array(
-                '0' => 'Sort by seq',
-                '1' => 'Sort alphabetically'
+                '0' => xl('Sort by seq'),
+                '1' => xl('Sort alphabetically')
             ),
             '0',
             xl('What kind of sorting will be in the drop lists.')
@@ -1424,10 +1424,10 @@ $GLOBALS_METADATA = array(
         'calendar_appt_style' => array(
             xl('Appointment Display Style'),
             array(
-                '1' => 'Last name',
-                '2' => 'Last name, first name',
-                '3' => 'Last name, first name (title)',
-                '4' => 'Last name, first name (title: comments)',
+                '1' => xl('Last name'),
+                '2' => xl('Last name, first name'),
+                '3' => xl('Last name, first name (title)'),
+                '4' => xl('Last name, first name (title: comments)'),
             ),
             '2',                               // default
             xl('This determines how appointments display on the calendar.')
@@ -1436,8 +1436,8 @@ $GLOBALS_METADATA = array(
         'event_color' => array(
             xl('Appointment/Event Color'),
             array(
-                '1' => 'Category Color Schema',
-                '2' => 'Facility Color Schema',
+                '1' => xl('Category Color Schema'),
+                '2' => xl('Facility Color Schema'),
             ),                           // data type
             '1',                              // default
             xl('This determines which color schema used for appointment')
@@ -1570,7 +1570,7 @@ $GLOBALS_METADATA = array(
         'pat_trkr_timer' => array(
             xl('Patient Flow Board Timer Interval'),
             array(
-                '0' => 'No automatic refresh',
+                '0' => xl('No automatic refresh'),
                 '0:10' => '10',
                 '0:20' => '20',
                 '0:30' => '30',
