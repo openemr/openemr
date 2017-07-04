@@ -570,7 +570,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
       }
       echo "  <input type='text' class='color {hash:true}' name='form_$i' id='form_$i' " .
         "size='6' maxlength='15' value='" . attr($fldvalue) . "' />" .
-        "<input type='button' value='" . xlt('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
+        "<input type='button' value='" . xla('Default'). "' onclick=\"document.forms[0].form_$i.color.fromString('" . attr($flddef) . "')\">\n";
     }
 
     else if ($fldtype == 'css') {
