@@ -11,7 +11,7 @@
         if (acl_check('admin', 'notification')) {
             echo menu_item(xlt('SMS Notification'),"/interface/batchcom/smsnotification.php");
         }
-        echo menu_item(xlt("Email Notification","/interface/batchcom/emailnotification.php"));
+        echo menu_item(xlt("Email Notification"),"/interface/batchcom/emailnotification.php");
         echo menu_item(xlt("SMS/Email Alert Settings"),"/interface/batchcom/settingsnotification.php");
         ?>
     </ul>

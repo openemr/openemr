@@ -6,42 +6,45 @@
 // create a list for phone calls
 // menu for fields could be added in the future
 
+include_once("../globals.php");
+use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="batchcom.css" type="text/css">
+<?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
-<span class="title"><?php xl('Batch Communication Tool','e')?></span>
-<br><br>
-<span class="pclist" ><?php xl('Phone Call List report','e')?></span>
-<br><br>
-
-<?php
-
-echo ("<table class='batchcom'>"); //will do css
-
-echo ("<thead bgcolor='#ECECEC'><th width='22%'>".xl('Name') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('DOB') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Home')."</th>");
-echo ("<th align='Center' width='15%'>".xl('Work') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Contact') ."</th>");
-echo ("<th align='Center' width='15%'>".xl('Cell') ."</th></thead>\n");
-
-while ($row=sqlFetchArray($res)) {
-
-    echo ("<tr><td width='22%'>${row['title']} ");
-    echo ("${row['fname']} ");
-    echo ("${row['lname']} </td>");
-    echo ("<td align='Center'>${row['DOB']} </td>");
-    echo ("<td align='right'>${row['phone_home']} </td>");
-    echo ("<td align='right'>${row['phone_biz']} </td>");
-    echo ("<td align='right'>${row['phone_contact']} </td>");
-    echo ("<td align='right'>${row['phone_cell']} </td></tr>\n");
-}
-
-echo ("</table>");
-
-?>
+    <header>
+        <h1>
+            <?php xl('Batch Communication Tool','e'); ?>
+            <small><?php xl('Phone Call List report','e'); ?></small>
+        </h1>
+    </header>
+    <main class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered">
+                <thead>
+                    <?php foreach([xl('Name'),xl('DOB'),xl('Home'),xl('Work'),xl('Contact'),xl('Cell')] as $header) {
+                        echo "<th>$header</th>";
+                    } ?>
+                </thead>
+                <?php
+                while ($row = sqlFetchArray($res)) {
+                    echo("<tr><td>${row['title']} ");
+                    echo("${row['fname']} ");
+                    echo("${row['lname']} </td>");
+                    echo("<td>${row['DOB']} </td>");
+                    echo("<td>${row['phone_home']} </td>");
+                    echo("<td>${row['phone_biz']} </td>");
+                    echo("<td>${row['phone_contact']} </td>");
+                    echo("<td>${row['phone_cell']} </td></tr>\n");
+                }
+                ?>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
