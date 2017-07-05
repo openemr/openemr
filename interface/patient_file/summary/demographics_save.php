@@ -30,6 +30,10 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
+  //continue if field is defined as disabled in the LBF (disabled field in the html form doesn't sent by submit but it isn't empty field)
+  if(strpos($frow['edit_options'], '0') !== false){
+      continue;
+  }
   $data_type = $frow['data_type'];
   $field_id  = $frow['field_id'];
   // $value  = '';
