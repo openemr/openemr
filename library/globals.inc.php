@@ -3099,5 +3099,40 @@ $GLOBALS_METADATA = array(
             xl('Select to print patient address labels from popups in left nav screen.')
         ),
 
+        'env_x_width' => array(
+            xl('Envelope Width in mm'),
+            'num',                           // data type
+            '104.775',                              // default = false
+            xl('In Portrait mode, determines the width of the envelope along the x-axis in mm')
+        ),
+
+        'env_y_height' => array(
+            xl('Envelope Height in mm'),
+            'num',                           // data type
+            '241.3',                              // default = false
+            xl('In Portrait mode, determines the height of the envelope along the y-axis in mm')
+        ),
+
+        'env_font_size' => array(
+            xl('Font Size in Pt'),
+            'num',                           // data type
+            '14',                              // default = false
+            xl('Sets the font of the address text on the envelope in mm')
+        ),
+
+        'env_x_dist' => array(
+            xl('Envelope x-axis starting pt'),
+            'num',                           // data type
+            '65',                              // default = false
+            xl('Distance from the \'top\' of the envelope in mm')
+        ),
+
+        'env_y_dist' => array(
+            xl('Envelope y-axis starting pt'),
+            'num',                           // data type
+            '220',                              // default = false
+            xl(' Distance from the right most edge of the envelope in portrait position in mm')
+        ),
+
     ),
 );
