@@ -1,4 +1,14 @@
 <?php
+/**
+ * Add new user.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
@@ -246,6 +256,32 @@ if ($fres) {
 	<td>
 		<?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
 	</td>
+  <td>
+    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+  </td>
+  <td>
+    <select name="main_menu_role">
+      <option value="standard"><?php echo xlt("Standard"); ?></option>
+      <option value="answering_service"><?php echo xlt("Answering Service"); ?></option>
+      <option value="front_office"><?php echo xlt("Front Office"); ?></option>
+      <?php
+        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus";
+        if (file_exists($customMenuDir)) {
+          $dHandle = opendir($customMenuDir);
+          while (false !== ($menuCustom = readdir($dHandle))) {
+            // Only process files that contain *.json
+            if (preg_match("/.json$/", $menuCustom)) {
+              echo "<option value='" . attr($menuCustom) . "'>";
+              // Drop the .json and translate the name
+              echo xlt(substr($menuCustom, 0, -5));
+              echo "</option>";
+            }
+          }
+          closedir($dHandle);
+        }
+      ?>
+    </select>
+  </td>
 </tr>
 
 <tr>

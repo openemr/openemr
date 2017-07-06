@@ -449,3 +449,7 @@ UPDATE `list_options` SET `option_id` = 'DN', `title` = 'Referring Provider', `i
 #IfNotRow2D list_options list_id provider_qualifier_code option_id DQ
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('provider_qualifier_code', 'DQ', 'Supervising Provider', '30', '0');
 #EndIf
+
+#IfMissingColumn users main_menu_role
+ALTER TABLE `users` ADD `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard';
+#EndIf
