@@ -10,9 +10,9 @@
  */
  
 
-include_once('../globals.php');
-include_once('transmitDataClass.php');
-include_once('$srcdir/patient.inc');
+require_once('../globals.php');
+require_once('transmitDataClass.php');
+require_once('$srcdir/patient.inc');
 use OpenEMR\Core\Header;
 
 $date = date("Y-m-d");

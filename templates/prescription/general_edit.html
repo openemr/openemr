@@ -4,6 +4,7 @@
 
 <link rel="stylesheet" href="{$CSS_HEADER}" type="text/css">
 <link rel="stylesheet" href="{$WEBROOT}/interface/themes/jquery.autocomplete.css" type="text/css">
+<link rel="stylesheet" href="{$WEBROOT}/library/js/jquery-ui.min.css" type="text/css" />
 {literal}
 <style type="text/css">
 
@@ -31,7 +32,6 @@ select{
 {/literal}
 <!---Gen Look up-->
 <script type="text/javascript" src="{$WEBROOT}/library/dialog.js?v={php} echo $v_js_includes; {/php}"></script>
-<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-2-2/index.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.bgiframe.min.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.dimensions.pack.js"></script>
 <script type="text/javascript" src="{$WEBROOT}/library/js/jquery.autocomplete.pack.js"></script>
@@ -173,7 +173,7 @@ select{
 <tr>
   <td COLSPAN="1" class="text" ALIGN="right" VALIGN="MIDDLE" >{xl t='Drug'}</td>
   <td COLSPAN="2" ALIGN="LEFT" VALIGN="MIDDLE" >
-            <input type="input" size="20" name="drug" id="drug" class="drug" value="{$prescription->drug}"/>
+            <input type="input" size="20" name="drug" id="drug" class="wDrug" value="{$prescription->drug}"/>
             <a href="javascript:;" id="druglookup" class="small" name="B4" onclick="$('#hiddendiv').show(); document.getElementById('hiddendiv').innerHTML='&lt;iframe src=&quot;controller.php?prescription&amp;lookup&amp;drug=&quot; width=&quot;100%&quot;height=&quot;52&quot; scrolling=&quot;no&quot; frameborder=&quot;no&quot;&gt;&lt;/iframe&gt;'">
             ({xl t='click here to search'})</a>
             <div id=hiddendiv style="display:none">&nbsp;</div>
@@ -265,17 +265,19 @@ select{
 {$ENDING_JAVASCRIPT}
 </script>
 </form>
-<script type="text/javascript" src="{$WEBROOT}/public/assets/jquery-min-1-9-1/index.js"></script>
-<script type="text/javascript" src="{$WEBROOT}/library/js/jquery-ui.min.js"></script>
+<!-- Has to be loaded after the form -->
+<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-min-1-9-1/index.js"></script>
+<script type="text/javascript" src="{php} echo $GLOBALS['assets_static_relative']; {/php}/jquery-ui-1-12-1/jquery-ui.js"></script>
+
 {literal}
 <!-- for the fancy jQuery stuff -->
 <script type="text/javascript">
 
 $(function() {
     
-    //Drug autocomplete
-    $(".drug").autocomplete({
-        source: "./library/ajax/drug_autocomplete/search.php",
+    //Drug form autocomplete to text box.
+    $(".wDrug").autocomplete({
+        source: "library/ajax/drug_autocomplete/search.php",
         minLength: 3
     });                
 

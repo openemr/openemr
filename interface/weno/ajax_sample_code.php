@@ -53,7 +53,7 @@ $(document).ready(function(){
    
 $(document).ready(function(){
 	$('#order').click(function(){
-		$('#success').html("<img src='img/progress.gif'>");
+		$('#success').html("<i class="fa fa-refresh fa-spin fa-3x fa-fw"></i>");
 		var patient = { "patient": {
 					 "lname" : "Ike",
 					 "fname" : "Turner",

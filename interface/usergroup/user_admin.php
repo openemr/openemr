@@ -463,7 +463,7 @@ foreach($result as $iter2) {
 </td>
 </tr>
 <tr>
-<td><span class="text"><?php xlt('Weno Provider ID','e'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;"  value="<?php echo $iter["weno_prov_id"]?>"></td>
+<td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;"  value="<?php echo $iter["weno_prov_id"]?>"></td>
 </tr>
 
 <tr>

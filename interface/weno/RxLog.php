@@ -14,13 +14,14 @@ require_once("../globals.php");
 use OpenEMR\Core\Header;
 
 ?>
-<h1><?php print xlt("Rx Log"); ?></h1>
+
 <html>
 <head>
  <?php Header::setupHeader(); ?>
 
 </head>
 <body class="body_top">
+<h1><?php print xlt("Rx Log"); ?></h1>
 <?php
 
 $log = sqlStatement("SELECT * FROM erx_rx_log ORDER BY id DESC");
