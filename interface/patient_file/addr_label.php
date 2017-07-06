@@ -1,7 +1,6 @@
 <?php
-/** 
-* interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing. 
-* 
+/**
+* interface/patient_file/addr_label.php Displaying a PDF file of Labels for printing.
 *
 * Program for displaying Address Labels
 *
@@ -12,25 +11,7 @@
 * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
 * @copyright Copyright (c) 2017 Daniel Pflieger <growlingflea@gmail.com>
 * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-
-* Copyright (C) 2014 Terry Hill <terry@lillysystems.com> 
-* 
-* LICENSE: This program is free software; you can redistribute it and/or 
-* modify it under the terms of the GNU General Public License 
-* as published by the Free Software Foundation; either version 3 
-* of the License, or (at your option) any later version. 
-* This program is distributed in the hope that it will be useful, 
-* but WITHOUT ANY WARRANTY; without even the implied warranty of 
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
-* GNU General Public License for more details. 
-* You should have received a copy of the GNU General Public License 
-* along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;. 
-*
-**/
-
-
-
-
+*/
 
 require_once("../globals.php");
 
@@ -48,11 +29,8 @@ $patdata = sqlQuery("SELECT " .
 $today = oeFormatShortDate($date='today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
-
-
 //Keep in mind the envelope is shifted by 90 degrees.
 // Changes made by Daniel Pflieger, daniel@mi-squared.com growlingflea@gmail.com
-
 
 $x_width =  $GLOBALS['env_x_width'];
 $y_height = $GLOBALS['env_y_height'];
@@ -71,13 +49,9 @@ $xt       = .2*$font_size;
 //ymargin of printed text. The smaller the number, the further from the left edge edge the address is printed
 $yt       = 0;
 
-
-
-
 $text1 = sprintf("%s %s\n", $patdata['fname'], $patdata['lname']);
 $text2 = sprintf("%s \n", $patdata['street']);
 $text3 = sprintf("%s , %s %s", $patdata['city'], $patdata['state'], $patdata['postal_code']);
-
 
 $pdf = new eFPDF('P', 'mm',array($x_width, $y_height)); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
@@ -89,6 +63,4 @@ $xt +=$xt;
 $pdf->TextWithRotation($x + $xt, $y + $yt, $text3, $angle);
 $xt +=$xt;
 
-
 $pdf->Output();
-?>
