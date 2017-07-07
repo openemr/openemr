@@ -29,6 +29,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/lists.inc");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
+use OpenEMR\Core\Header;
 
 // Below allows the list to default to the first item on the list
 //   when list_id is blank.
@@ -614,27 +615,21 @@ function writeITLine($it_array) {
 <html>
 
 <head>
-<?php
-html_header_show();
-require_once "{$GLOBALS['srcdir']}/templates/standard_header_template.php";
-?>
-
-<!-- supporting javascript code -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-
-<link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<?php echo Header::setupHeader('select2'); ?>
 <title><?php  xl('List Editor','e'); ?></title>
-
 <style>
-input     { font-size:10pt; }
+.optcell  { }
+.optin    { background-color:transparent; }
+.help     { cursor:help; }
 .translation { color:green; }
 </style>
-
-<script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jscolor-1-4-5/jscolor.js"></script>
-
-<script language="JavaScript">
-
+<script type="text/javascript">
+$(document).ready(function(){
+    $(".select-dropdown").select2({
+        theme: "bootstrap"
+    });
+});
 var current_lino = 0;
 
 // Helper function to set the contents of a div.
@@ -814,57 +809,73 @@ function mysubmit() {
 </head>
 
 <body class="body_top">
+<nav class="navbar navbar-default navbar-fixed-top">
+<div class="container-fluid">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only"><?php xl('Toggle navigation', 'e');?></span>
+            <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="#"><?php xl('Manage Lists', 'e'); ?></a>
+    </div>
 
-<form method='post' name='theform' id='theform' action='edit_list.php'>
-<input type="hidden" name="formaction" id="formaction">
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+            <li><a href="#" id="newlist"><i class="fa fa-plus"></i>&nbsp;<?php xl('New List', 'e'); ?></a></li>
+            <li><a href="#" id="<?php echo $list_id; ?>"><i class="fa fa-trash"></i>&nbsp;<?php xl('Delete List', 'e'); ?></a></li>
+        </ul>
+        <form method='post' name='theform' id='theform' action='edit_list.php' class="navbar-form navbar-left">
+            <input type="hidden" name="formaction" id="formaction">
+            <div class="form-group">
+                <select name='list_id' class="form-control select-dropdown" id="list_id">
+                    <?php
 
-<p><b><?php xl('Edit list','e'); ?>:</b>&nbsp;
-<select name='list_id' id="list_id">
-<?php
+                    // List order depends on language translation options.
+                    $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
 
-// List order depends on language translation options.
-$lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
+                    if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
+                        !$GLOBALS['translate_lists'])
+                    {
+                        $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
+                            "list_id = 'lists' ORDER BY title, seq");
+                    }
+                    else {
+                        // Use and sort by the translated list name.
+                        $res = sqlStatement("SELECT lo.option_id, " .
+                            "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
+                            "FROM list_options AS lo " .
+                            "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
+                            "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
+                            "ld.lang_id = '$lang_id' " .
+                            "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
+                            "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
+                    }
 
-if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
-  !$GLOBALS['translate_lists'])
-{
-  $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-    "list_id = 'lists' ORDER BY title, seq");
-}
-else {
-  // Use and sort by the translated list name.
-  $res = sqlStatement("SELECT lo.option_id, " .
-    "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
-    "FROM list_options AS lo " .
-    "LEFT JOIN lang_constants AS lc ON lc.constant_name = lo.title " .
-    "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
-    "ld.lang_id = '$lang_id' " .
-    "WHERE lo.list_id = 'lists' AND lo.edit_options = 1 " .
-    "ORDER BY IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq");
-}
+                    while ($row = sqlFetchArray($res)) {
 
-while ($row = sqlFetchArray($res)) {
+                        // This allows the list to default to the first item on the list
+                        //   when the list_id request parameter is blank.
+                        if( ($blank_list_id) && ($list_id == 'language') ) {
+                            $list_id = $row['option_id'];
+                            $blank_list_id = false;
+                        }
 
-    // This allows the list to default to the first item on the list
-    //   when the list_id request parameter is blank.
-    if( ($blank_list_id) && ($list_id == 'language') ) {
-        $list_id = $row['option_id'];
-        $blank_list_id = false;
-    }
+                        $key = $row['option_id'];
+                        echo "<option value='$key'";
+                        if ($key == $list_id) echo " selected";
+                        echo ">" . $row['title'] . "</option>\n";
+                    }
 
-    $key = $row['option_id'];
-    echo "<option value='$key'";
-    if ($key == $list_id) echo " selected";
-    echo ">" . $row['title'] . "</option>\n";
-}
+                    ?>
+                </select>
+            </div>
+        </form>
+    </div><!-- /.navbar-collapse -->
+</div>
+</nav>
 
-?>
-</select>
-<button type="button" id="newlist" class="btn btn-default btn-add"><?php xl('New List','e'); ?></button>
-<button type="button" id="<?php echo $list_id; ?>" class="btn btn-link btn-delete"><?php xl('Delete List','e'); ?></button>
-</p>
-
-<table class="table table-striped">
+<table class="table table-striped table-condensed" style="margin-top:55px;">
 <thead>
  <tr>
 <?php if ($list_id == 'feesheet') { ?>
@@ -1077,7 +1088,7 @@ if ($list_id) {
 <input type="button" class="cancelnewlist" value=<?php xl('Cancel','e','\'','\''); ?>>
 </div>
 </body>
-<script language="javascript">
+<script type="text/javascript">
 // jQuery stuff to make the page a little easier to use
 
 $(document).ready(function(){
@@ -1146,5 +1157,4 @@ $(document).ready(function(){
 });
 
 </script>
-
 </html>
