@@ -22,12 +22,11 @@ if(count($menu_parsed)==0)
     // Note this is currently the standard mechanism
 
     // Collect the selected menu by user
-    $mainMenuRole = "standard";
-    if (!empty($_SESSION['authUser'])) {
-        $sqlResult = sqlQuery("SELECT `main_menu_role` FROM `users` WHERE `username` = ?", array($_SESSION['authUser']));
-        if (!empty($sqlResult['main_menu_role'])) {
-            $mainMenuRole = $sqlResult['main_menu_role'];
-        }
+    $userService = new \services\UserService();
+    $user = $userService->getCurrentlyLoggedInUser();
+    $mainMenuRole = $user->getMainMenuRole();
+    if (empty($mainMenuRole)) {
+        $mainMenuRole = "standard";
     }
 
     // Load the selected menu
