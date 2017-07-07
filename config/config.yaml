@@ -70,3 +70,9 @@ assets:
         basePath: %webroot%/library/
         script: dialog.js
         autoload: true
+    select2:
+        basePath: %assets_static_relative%/
+        script: select2-4-0/dist/js/select2.full.js
+        link:
+            - select2-bootstrap-theme-0-1-0/dist/select2-bootstrap.css
+            - select2-4-0/dist/css/select2.css

@@ -68,9 +68,13 @@ class Header
      */
     static public function setupHeader($assets = [])
     {
-        html_header_show();
-        echo self::loadTheme();
-        echo self::includeAsset($assets);
+        try {
+            html_header_show();
+            echo self::loadTheme();
+            echo self::includeAsset($assets);
+        } catch (\InvalidArgumentException $e) {
+            error_log($e->getMessage());
+        }
     }
 
     /**
@@ -152,9 +156,17 @@ class Header
         }
 
         if ($link) {
-            $link = self::parsePlaceholders($link);
-            $path = self::createFullPath($basePath, $link);
-            $links[] = self::createElement($path, 'link');
+            if (!is_string($link) && !is_array($link)) {
+                throw new \InvalidArgumentException("Link must be of type string or array");
+            }
+            if (is_string($link)) {
+                $link = [$link];
+            }
+            foreach ($link as $l) {
+                $l = self::parsePlaceholders($l);
+                $path = self::createFullPath($basePath, $l);
+                $links[] = self::createElement($path, 'link');
+            }
         }
 
         return ['scripts' => $scripts, 'links' => $links];
