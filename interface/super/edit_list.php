@@ -234,6 +234,7 @@ else if ($_POST['formaction']=='addlist') {
                 "'".($row['maxseq']+1)."',".
                 "'1', '0')"
                 );
+    $list_id = $newlistID;
 }
 else if ($_POST['formaction']=='deletelist') {
     // delete the lists options
@@ -812,7 +813,7 @@ function mysubmit() {
 <nav class="navbar navbar-default navbar-fixed-top">
 <div class="container-fluid">
     <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-list" aria-expanded="false">
             <span class="sr-only"><?php xl('Toggle navigation', 'e');?></span>
             <i class="fa fa-bars"></i>
         </button>
@@ -820,10 +821,10 @@ function mysubmit() {
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <div class="collapse navbar-collapse" id="navbar-list">
         <ul class="nav navbar-nav">
-            <li><a href="#" id="newlist"><i class="fa fa-plus"></i>&nbsp;<?php xl('New List', 'e'); ?></a></li>
-            <li><a href="#" id="<?php echo $list_id; ?>"><i class="fa fa-trash"></i>&nbsp;<?php xl('Delete List', 'e'); ?></a></li>
+            <li><a href="#" data-toggle="modal" data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php xl('New List', 'e'); ?></a></li>
+            <li><a href="#" class="deletelist" id="<?php echo $list_id; ?>"><i class="fa fa-trash"></i>&nbsp;<?php xl('Delete List', 'e'); ?></a></li>
         </ul>
         <form method='post' name='theform' id='theform' action='edit_list.php' class="navbar-form navbar-left">
             <input type="hidden" name="formaction" id="formaction">
@@ -1080,13 +1081,29 @@ if ($list_id) {
 
 </form>
 
-<!-- template DIV that appears when user chooses to make a new list -->
-<div id="newlistdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
-<?php xl('List Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newlistname" id="newlistname">
-<br>
-<input type="button" class="savenewlist" value=<?php xl('Save New List','e','\'','\''); ?>>
-<input type="button" class="cancelnewlist" value=<?php xl('Cancel','e','\'','\''); ?>>
-</div>
+<div class="modal fade" id="modal-new-list" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="edit_list.php" method="post" class="form">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
+                    <h4 class="modal-title"><?php xl('New List', 'e'); ?></h4>
+                </div>
+                <div class="modal-body">
+                        <label for="newlistname" class="control-label"><?php xl('List Name', 'e');?></label>
+                        <input type="text" size="20" class="form-control" maxlength="30" name="newlistname" id="newlistname">
+                        <input type="hidden" name="formaction" value="addlist">
+
+                </div>
+                <div class="modal-footer text-right">
+                    <button type="submit" class="btn btn-default btn-save"><?php xl('Save', 'e'); ?></button>
+                    <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal"><?php xl('Cancel','e'); ?></button>
+                </div>
+            </form>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal #modal-new-list -->
+
 </body>
 <script type="text/javascript">
 // jQuery stuff to make the page a little easier to use
@@ -1098,13 +1115,12 @@ $(document).ready(function(){
     $(".newlist").click(function() { NewList(this); });
     $(".savenewlist").click(function() { SaveNewList(this); });
     $(".deletelist").click(function() { DeleteList(this); });
-    $(".cancelnewlist").click(function() { CancelNewList(this); });
 
     var SaveChanges = function() {
         $("#formaction").val("save");
         // $('#theform').submit();
         mysubmit();
-    }
+    };
 
     // show the DIV to create a new list
     var NewList = function(btnObj) {
@@ -1144,15 +1160,6 @@ $(document).ready(function(){
             $("#deletelistname").val(listid);
             $("#theform").submit();
         }
-    };
-
-    // just hide the new list DIV
-    var CancelNewList = function(btnObj) {
-        // hide the list details DIV
-        $('#newlistdetail').css('visibility', 'hidden');
-        $('#newlistdetail').css('display', 'none');
-        // reset the new group values to a default
-        $('#newlistdetail > #newlistname').val("");
     };
 });
 
