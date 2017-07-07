@@ -13,6 +13,7 @@ require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
@@ -260,27 +261,7 @@ if ($fres) {
     <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
   </td>
   <td>
-    <select name="main_menu_role">
-      <option value="standard"><?php echo xlt("Standard"); ?></option>
-      <option value="answering_service"><?php echo xlt("Answering Service"); ?></option>
-      <option value="front_office"><?php echo xlt("Front Office"); ?></option>
-      <?php
-        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus";
-        if (file_exists($customMenuDir)) {
-          $dHandle = opendir($customMenuDir);
-          while (false !== ($menuCustom = readdir($dHandle))) {
-            // Only process files that contain *.json
-            if (preg_match("/.json$/", $menuCustom)) {
-              echo "<option value='" . attr($menuCustom) . "'>";
-              // Drop the .json and translate the name
-              echo xlt(substr($menuCustom, 0, -5));
-              echo "</option>";
-            }
-          }
-          closedir($dHandle);
-        }
-      ?>
-    </select>
+    <?php echo MainMenuRole::displayMainMenuRoleSelector(); ?>
   </td>
 </tr>
 

@@ -72,6 +72,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         ),
         'O' => 
         array (
+            'OpenEMR\\Menu\\' => 13,
             'OpenEMR\\Encounter\\Services\\' => 27,
             'OpenEMR\\Core\\' => 13,
         ),
@@ -166,6 +167,10 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
+        ),
+        'OpenEMR\\Menu\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library/menu',
         ),
         'OpenEMR\\Encounter\\Services\\' => 
         array (
@@ -1619,6 +1624,7 @@ class ComposerStaticInit22ddb69348c7ed922c96325249cef3d0
         'OTLdump' => __DIR__ . '/..' . '/mpdf/mpdf/classes/otl_dump.php',
         'OpenEMR\\Core\\Header' => __DIR__ . '/../..' . '/library/core/src/Header.php',
         'OpenEMR\\Encounter\\Services\\ViewHelper' => __DIR__ . '/../..' . '/interface/patient_file/encounter/Services/ViewHelper.php',
+        'OpenEMR\\Menu\\MainMenuRole' => __DIR__ . '/../..' . '/library/menu/MainMenuRole.php',
         'PDFBarcode' => __DIR__ . '/..' . '/mpdf/mpdf/classes/barcode.php',
         'PDF_Label' => __DIR__ . '/../..' . '/library/classes/PDF_Label.php',
         'PHPExcel' => __DIR__ . '/..' . '/phpoffice/phpexcel/Classes/PHPExcel.php',

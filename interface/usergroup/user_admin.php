@@ -14,6 +14,7 @@ require_once("../../library/acl.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
@@ -347,31 +348,7 @@ foreach($result as $iter2) {
     <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
   </td>
   <td>
-    <?php
-    $mainMenuRole = $iter["main_menu_role"];
-    ?>
-    <select name="main_menu_role">
-      <option value="standard" <?php echo ($mainMenuRole == "standard") ? "selected" : ""?>><?php echo xlt("Standard"); ?></option>
-      <option value="answering_service" <?php echo ($mainMenuRole == "answering_service") ? "selected" : ""?>><?php echo xlt("Answering Service"); ?></option>
-      <option value="front_office" <?php echo ($mainMenuRole == "front_office") ? "selected" : ""?>><?php echo xlt("Front Office"); ?></option>
-      <?php
-        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus";
-        if (file_exists($customMenuDir)) {
-          $dHandle = opendir($customMenuDir);
-          while (false !== ($menuCustom = readdir($dHandle))) {
-            // Only process files that contain *.json
-            if (preg_match("/.json$/", $menuCustom)) {
-              $selectedTag = ($mainMenuRole == $menuCustom) ? "selected" : "";
-              echo "<option value='" . attr($menuCustom) . "' " . $selectedTag . ">";
-              // Drop the .json and translate the name
-              echo xlt(substr($menuCustom, 0, -5));
-              echo "</option>";
-            }
-          }
-          closedir($dHandle);
-        }
-      ?>
-    </select>
+    <?php echo MainMenuRole::displayMainMenuRoleSelector($iter["main_menu_role"]); ?>
   </td>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>

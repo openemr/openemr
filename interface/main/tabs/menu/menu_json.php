@@ -14,6 +14,7 @@
 
 require_once("menu_updates.php");
 require_once("menu_db.php");
+use OpenEMR\Menu\MainMenuRole;
 
 $menu_parsed=load_menu("default");
 if(count($menu_parsed)==0)
@@ -21,13 +22,8 @@ if(count($menu_parsed)==0)
     // Use a json file to build menu rather than database
     // Note this is currently the standard mechanism
 
-    // Collect the selected menu by user
-    $userService = new \services\UserService();
-    $user = $userService->getCurrentlyLoggedInUser();
-    $mainMenuRole = $user->getMainMenuRole();
-    if (empty($mainMenuRole)) {
-        $mainMenuRole = "standard";
-    }
+    // Collect the selected menu of user
+    $mainMenuRole = MainMenuRole::getMainMenuRole();
 
     // Load the selected menu
     if (preg_match("/.json$/", $mainMenuRole)) {
