@@ -47,3 +47,12 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfNotRow2D list_options list_id lists option_id Apps
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'Apps','Apps', 0, 0);
+#EndIf
+
+#IfNotRow2D list_options list_id Apps option_id Calendar
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, activity ) VALUES ('Apps', '*OpenEMR','main/main_screen.php',    10, 1, 0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, activity ) VALUES ('Apps', 'Calendar','main/calendar/index.php', 10, 0, 0);
+#EndIf
