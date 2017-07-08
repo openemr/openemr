@@ -56,14 +56,32 @@ if(isset($_POST['form_apptcat']))
 $form_patient_name = !is_null($_POST['form_patient_name']) ? $_POST['form_patient_name'] : null;
 $form_patient_id = !is_null($_POST['form_patient_id']) ? $_POST['form_patient_id'] : null;
 
-$appointments = array();
-$from_date = date("Y-m-d");
-$to_date = date("Y-m-d");
+if ($GLOBALS['ptkr_date_range']) {
+  // Calculate $ptkr_future_time which is used below
+  if (substr($GLOBALS['ptkr_end_date'],0,1) == 'Y') {
+    $ptkr_time = substr($GLOBALS['ptkr_end_date'],1,1);
+    $ptkr_future_time = mktime(0,0,0,date('m'),date('d'),date('Y')+$ptkr_time);
+  } elseif (substr($GLOBALS['ptkr_end_date'],0,1) == 'M') {
+    $ptkr_time = substr($GLOBALS['ptkr_end_date'],1,1);
+    $ptkr_future_time = mktime(0,0,0,date('m')+$ptkr_time ,date('d'),date('Y'));
+  } elseif (substr($GLOBALS['ptkr_end_date'],0,1) == 'D') {
+    $ptkr_time = substr($GLOBALS['ptkr_end_date'],1,1);
+    $ptkr_future_time = mktime(0,0,0,date('m') ,date('d')+$ptkr_time,date('Y'));
+  }
+}
+
+$from_date = !is_null($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date("Y-m-d");
+if ($GLOBALS['ptkr_date_range']) {
+  $to_date = !is_null($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date("Y-m-d", $ptkr_future_time);;
+} else {
+  $to_date = !is_null($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date("Y-m-d");
+}
 $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
+$appointments = array();
 $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
-$appointments = sortAppointments( $appointments, 'time' );
+$appointments = sortAppointments( $appointments, 'date', 'time' );
 
 //grouping of the count of every status
 $appointments_status = getApptStatus($appointments);
@@ -109,13 +127,18 @@ foreach ( $appointments as $apt ) {
 <head>
   <title><?php echo xlt("Flow Board") ?></title>
   <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+  <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-rtl-3-3-4/dist/css/bootstrap-rtl.min.css">
+  <?php } ?>
   <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/font-awesome-4-6-3/css/font-awesome.css" type="text/css">
   <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
   <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
   <script type="text/javascript" src="../../library/js/common.js"></script>
   <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+  <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 
   <script language="JavaScript">
 // Refresh self
@@ -218,6 +241,14 @@ else {
     <div id="flow_board_parameters">
       <table>
         <tr class="text">
+          <td class='label_custom'><?php echo ($GLOBALS['ptkr_date_range']) ? xlt('From') : xlt('Date'); ?>:</td>
+          <td><input type='text' size='9' class='datepicker' name='form_from_date' id="form_from_date" value='<?php echo attr(oeFormatShortDate($from_date)); ?>'></td>
+          <?php if ($GLOBALS['ptkr_date_range']) { ?>
+            <td class='label_custom'><?php echo xlt('To'); ?>:</td>
+            <td><input type='text' size='9' class='datepicker' name='form_to_date' id='form_to_date' value='<?php echo attr(oeFormatShortDate($to_date)) ?>'></td>
+          <?php } ?>
+        </tr>
+        <tr class="text">
                 <td class='label_custom'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
 
@@ -294,7 +325,17 @@ else {
 
 <div>
   <?php if (count($chk_prov) == 1) {?>
-  <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) ?></span></h2>
+    <?php if ($GLOBALS['ptkr_date_range']) { ?>
+      <h2><span style='float: left'><?php echo xlt('Appointments for') . ' : '. text(reset($chk_prov)) . ' ' . ' : '. xlt('Date Range') . ' ' . text($from_date) . ' ' . xlt('to'). ' ' . text($to_date) ?></span></h2>
+    <?php } else { ?>
+      <h2><span style='float: left'><?php echo xlt('Appointments for'). ' : '. text(reset($chk_prov)) . ' : '. xlt('Date') . ' ' . text($from_date) ?></span></h2>
+    <?php } ?>
+  <?php } else { ?>
+    <?php if ($GLOBALS['ptkr_date_range']) { ?>
+      <h2><span style='float: left'><?php echo xlt('Appointments Date Range'). ' : ' . text($from_date) . ' ' . xlt('to'). ' ' . text($to_date) ?></span></h2>
+    <?php } else { ?>
+      <h2><span style='float: left'><?php echo xlt('Appointment Date'). ' : ' . text($from_date) ?></span></h2>
+    <?php } ?>
   <?php } ?>
               <div id= 'inanewwindow' class='inanewwindow'>
  <span style='float: right'>
@@ -356,6 +397,11 @@ else {
              <td class="dehead" align="center">
                <?php  echo xlt('Exam Room #'); ?>
              </td>
+             <?php if($GLOBALS['ptkr_date_range']) { ?>
+               <td class="dehead" align="center">
+                 <?php  echo xlt('Appt Date'); ?>
+               </td>
+             <?php } ?>
              <td class="dehead" align="center">
                <?php  echo xlt('Appt Time'); ?>
              </td>
@@ -546,6 +592,11 @@ else {
                <td class="detail" align="center">
                  <?php echo getListItemTitle('patient_flow_board_rooms', $appt_room);?>
                </td>
+               <?php if ($GLOBALS['ptkr_date_range']) { ?>
+                 <td class="detail" align="center">
+                 <?php echo oeFormatShortDate($date_appt); ?>
+                 </td>
+               <?php } ?>
                <td class="detail" align="center">
          <?php echo oeFormatTime($appt_time) ?>
                </td>
@@ -679,6 +730,12 @@ if (!is_null($_POST['form_patient_id'])) {
 if (!is_null($_POST['form_patient_name'])) {
     echo "<input type='hidden' name='form_patient_name' value='" . attr($_POST['form_patient_name']) . "'>";
 }
+if (!is_null($_POST['form_from_date']) ) {
+    echo "<input type='hidden' name='form_from_date' value='" . attr($_POST['form_from_date']) . "'>";
+}
+if (!is_null($_POST['form_to_date']) ) {
+    echo "<input type='hidden' name='form_to_date' value='" . attr($_POST['form_to_date']) . "'>";
+}
 ?>
 
 </table>
@@ -713,6 +770,14 @@ if (!is_null($_POST['form_patient_name'])) {
       trackerid: this.id,
       testcomplete: testcomplete_toggle
     });
+  });
+
+  $('.datepicker').datetimepicker({
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = true; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 });
 
