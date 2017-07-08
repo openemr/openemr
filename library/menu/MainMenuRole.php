@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Menu;
 
+use services\UserService;
+
 class MainMenuRole
 {
 
@@ -21,7 +23,7 @@ class MainMenuRole
      */
     static public function getMainMenuRole()
     {
-        $userService = new \services\UserService();
+        $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
         $mainMenuRole = $user->getMainMenuRole();
         if (empty($mainMenuRole)) {
