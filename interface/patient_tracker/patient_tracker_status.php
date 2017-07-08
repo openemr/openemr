@@ -1,34 +1,31 @@
 <?php
-/**
- * Patient Tracker Status Editor
+/** 
+ * Patient Tracker Status Editor 
  *
  * This allows entry and editing of current status for the patient from within patient tracker and updates the status on the calendar.
  * Contains a drop down for the Room information driven by the list Patient Flow Board Rooms.
- *
- * Copyright (C) 2015 Terry Hill <terry@lillysystems.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
- * @package OpenEMR
- * @author Terry Hill <terry@lilysystems.com>
- * @link http://www.open-emr.org
- *
- * Please help the overall project by sending changes you make to the author and to the OpenEMR community.
+ * 
+ * Copyright (C) 2015-2017 Terry Hill <terry@lillysystems.com>
+ * 
+ * LICENSE: This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License 
+ * as published by the Free Software Foundation; either version 3 
+ * of the License, or (at your option) any later version. 
+ * This program is distributed in the hope that it will be useful, 
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the 
+ * GNU General Public License for more details. 
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>. 
+ * 
+ * @package OpenEMR 
+ * @author Terry Hill <terry@lilysystems.com> 
+ * @link http://www.open-emr.org 
+ *  
  *
  */
-
-
-
-
+ 
+  
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/forms.inc");
@@ -54,14 +51,14 @@ require_once("$srcdir/patient_tracker.inc.php");
                             "ON patient_tracker.id = patient_tracker_element.pt_tracker_id " .
                             "AND patient_tracker.lastseq = patient_tracker_element.seq " .
                             "WHERE patient_tracker.id =?",array($_GET['tracker_id']));
-
+ 
     $tkpid = $trow['pid'];
     $appttime = $trow['appttime'];
-    $apptdate = $trow['apptdate'];
+    $apptdate = $trow['apptdate']; 
     $pceid = $trow['eid'];
     $theroom = '';
-
-  if ($_POST['statustype'] !='') {
+     
+  if ($_POST['statustype'] !='') { 
     $status = $_POST['statustype'];
     if (strlen($_POST['roomnum']) != 0) {
        $theroom = $_POST['roomnum'];
@@ -69,8 +66,8 @@ require_once("$srcdir/patient_tracker.inc.php");
 
     # Manage tracker status. Also auto create encounter, if applicable.
     if (!empty($tkpid)) {
-     if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate,$appttime,$tkpid,$pceid))
-	 {
+     if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate,$appttime,$tkpid,$pceid))         
+     {      
         # Gather information for encounter fields
         $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
                            "from openemr_postcalendar_events where pc_eid =? " , array($pceid));
@@ -78,9 +75,9 @@ require_once("$srcdir/patient_tracker.inc.php");
         # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
         if (!empty($pceid)) {
         manage_tracker_status($apptdate,$appttime,$pceid,$tkpid,$_SESSION["authUser"],$status,$theroom,$encounter);
-	 }
+     }
       }
-      else
+      else 
       {
         # Capture the appt status and room number for patient tracker.
         if (!empty($pceid)) {
@@ -88,10 +85,10 @@ require_once("$srcdir/patient_tracker.inc.php");
         }
       }
      }
-
-     echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    
+     echo "<html>\n<body>\n<script language='JavaScript'>\n";   
      echo " window.opener.document.pattrk.submit();\n";
-     echo " window.close();\n";
+     echo " window.close();\n";    
      echo "</script></body></html>\n";
      exit();
   }
@@ -107,16 +104,17 @@ require_once("$srcdir/patient_tracker.inc.php");
     <table>
     <h2><?php echo xlt('Change Status for'). " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
 
-    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br>
+    <span class=text><?php  echo xlt('Status Type'); ?>: </span><br> 
 <?php
     # Generate drop down list for status.
-	echo generate_select_list('statustype', 'apptstat',$trow['laststatus'], xl('Status Type'));
+    echo generate_select_list('statustype', 'apptstat',$trow['laststatus'], xl('Status Type'));
 ?>
-	<br><br>
-	<span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
+
+    <br><br>   
+    <span class=text><?php  echo xlt('Exam Room Number'); ?>: </span><br>
 <?php
     # Generate drop down list for room number.
-	echo generate_select_list('roomnum', 'patient_flow_board_rooms',$trow['lastroom'], xl('Exam Room Number'));
+    echo generate_select_list('roomnum', 'patient_flow_board_rooms',$trow['lastroom'], xl('Exam Room Number'));
 ?>
 <br><br>
     <tr>

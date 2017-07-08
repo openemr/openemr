@@ -115,6 +115,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'event_color',
     'pat_trkr_timer',
     'ptkr_visit_reason',
+    'ptkr_date_range',
+    'ptkr_end_date',
     'checkout_roll_off',
     'erx_import_status_message');
 
@@ -1572,6 +1574,27 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '1',                              // default = true
             xl('When Checked, Patient Encounter Number Will Show in Patient Flow Board.')
+        ),
+
+        'ptkr_date_range' => array(
+            xl('Allow Date Range in Patient Flow Board'),
+            'bool',                          // data type
+            '1',                             // default = true
+            xl('This Allows a Date Range to be Selected in Patient Flow Board.')
+        ),
+
+        'ptkr_end_date' => array(
+            xl('Ending Date for Patient Flow Board'),
+            array(
+                'Y1' => xl('One Year Ahead'),
+                'Y2' => xl('Two Years Ahead'),
+                'M6' => xl('Six Months Ahead'),
+                'M3' => xl('Three Months Ahead'),
+                'M1' => xl('One Month Ahead'),
+                'D1' => xl('One Day Ahead'),
+            ),
+            'D1',                     // default = One Day Ahead
+            xl('This is the Ending date for the Patient Flow Board Date Range. (only applicable if Allow Date Range in option above is Enabled)')
         ),
 
         'pat_trkr_timer' => array(
