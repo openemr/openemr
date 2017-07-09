@@ -57,11 +57,11 @@ if (count($emr_app)) {
 		$emr_app['*OpenEMR'] = $std_app;
 	}
 	if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
-		$div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', $_REQUEST['app']);
+		$div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
 	} else {
 		foreach ( $emr_app as $opt_disp => $opt_value ) {
 			$opt_htm .= sprintf('<option value="%s" %s>%s</option>\n',
-					attr($opt_disp), ($opt_disp == $opt_default ? 'selected="selected"' : ''), text($opt_disp));
+					attr($opt_disp), ($opt_disp == $opt_default ? 'selected="selected"' : ''), text(xl_list_label($opt_disp)));
 		}
 		$div_app = sprintf('
 <div id="divApp" class="form-group">
