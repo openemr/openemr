@@ -19,14 +19,15 @@ _[next chapter >](02-Private-Cloud.md)_
 4. Click **Add user**.
 5. Under **Set user details**, enter your username in the **User name** field.
 6. Under **Select AWS access type**, select only **AWS Management Console access** in the **Access type** area.
-7. Click **Next: Permissions**.
-8. Under **Set permissions for ...**, click the **Attach existing policies directly**  box.
-9. With the table at the bottom of the page in view, select **AdministratorAccess** (will be the first row).
-10. Click **Next: Review**.
-11. Under **Review**, ensure all information reflects the above steps.
-12. Click **Next: Create user**.
-13. Log out of the AWS console, go to the sign-in link you copied down in step 2, and log in with your new credentials.
-14. (_Optional but highly recommended step_): Enable two-factor authentication via the **Security credentials** tab of your user profile in IAM. Click the pencil beside **Assigned MFA Device** to start this process.
+7. Enter a [strong password](https://www.random.org/passwords/?num=1&len=16&format=html&rnd=new) for the **Console password** field. Note this in a safe place.
+8. Click **Next: Permissions**.
+9. Under **Set permissions for ...**, click the **Attach existing policies directly**  box.
+10. With the table at the bottom of the page in view, select **AdministratorAccess** (will be the first row).
+11. Click **Next: Review**.
+12. Under **Review**, ensure all information reflects the above steps.
+13. Click **Next: Create user**.
+14. Log out of the AWS console, go to the sign-in link you copied down in step 2, and log in with your new credentials.
+15. (_Optional but highly recommended step_): Enable two-factor authentication via the **Security credentials** tab of your user profile in IAM. Click the pencil beside **Assigned MFA Device** to start this process.
 
 ### Select an AWS Region
 
