@@ -17,7 +17,7 @@ Although this AWS Guide is in beta, it is suitable for production use for instit
 - Redis is set up as a large single instance as opposed to a cluster of instances.
 - No SMTP solution is in place so OpenEMR emails will not be sent.
 
-A **Stable** version of this solution is being worked on by TeamEpsilon. All of the above limitations will be addressed. In addition, the solution can be ran on Microsoft, Google, and Oracle clouds.
+A **Stable** version of this solution is being worked on by TeamEpsilon. All of the above limitations will be addressed.
 
 ### What are the Recommendations for Development and Testing?
 
