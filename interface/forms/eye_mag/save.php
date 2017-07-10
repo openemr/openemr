@@ -432,7 +432,9 @@ if ($_REQUEST["mode"] == "new")             {
           "ORDER BY group_name, seq");
         while ($frow = sqlFetchArray($fres)) {
           $field_id  = $frow['field_id'];
-          $newdata[$field_id] = get_layout_form_value($frow);
+          if (isset($_POST["form_$field_id"])) {
+              $newdata[$field_id] = get_layout_form_value($frow);
+          }
         }
         updateHistoryData($pid, $newdata);
         if ($_REQUEST['marital_status'] >'') {

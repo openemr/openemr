@@ -30,24 +30,23 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-  //continue if field is defined as disabled in the LBF (disabled field in the html form doesn't sent by submit but it isn't empty field)
-  if(strpos($frow['edit_options'], '0') !== false){
-      continue;
-  }
-  $data_type = $frow['data_type'];
-  $field_id  = $frow['field_id'];
-  // $value  = '';
-  $colname = $field_id;
-  $table = 'patient_data';
-  if (strpos($field_id, 'em_') === 0) {
-    $colname = substr($field_id, 3);
-    $table = 'employer_data';
-  }
 
-  // if (isset($_POST["form_$field_id"])) $value = $_POST["form_$field_id"];
-  $value = get_layout_form_value($frow);
+    $data_type = $frow['data_type'];
+    $field_id = $frow['field_id'];
+    // $value  = '';
+    $colname = $field_id;
+    $table = 'patient_data';
+    if (strpos($field_id, 'em_') === 0) {
+        $colname = substr($field_id, 3);
+        $table = 'employer_data';
+    }
 
-  $newdata[$table][$colname] = $value;
+    //continue if field is defined as disabled in the LBF (disabled field in the html form doesn't sent by submit but it isn't empty field)
+    if (isset($_POST["form_$field_id"])){
+        $newdata[$table][$colname] = get_layout_form_value($frow);
+    }
+
+
 }
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);

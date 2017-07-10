@@ -60,11 +60,12 @@ while ($frow = sqlFetchArray($fres)) {
     $colname = substr($field_id, 3);
     $tblname = 'employer_data';
   }
+  if (isset($_POST["form_$field_id"])) {
+      $value = get_layout_form_value($frow);
+      if ($field_id == 'pubpid' && empty($value)) $value = $pid;
+      $newdata[$tblname][$colname] = $value;
+  }
 
-  $value = get_layout_form_value($frow);
-
-  if ($field_id == 'pubpid' && empty($value)) $value = $pid;
-  $newdata[$tblname][$colname] = $value;
 }
 updatePatientData($pid, $newdata['patient_data'], true);
 updateEmployerData($pid, $newdata['employer_data'], true);
