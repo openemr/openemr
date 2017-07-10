@@ -1,152 +1,30 @@
 <?php
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
+/**
+ * Edit user.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
 if (!$_GET["id"] || !acl_check('admin', 'users'))
   exit();
 
-if ($_GET["mode"] == "update") {
-  if ($_GET["username"]) {
-    // $tqvar = addslashes(trim($_GET["username"]));
-    $tqvar = trim(formData('username','G'));
-    $user_data = sqlFetchArray(sqlStatement("select * from users where id={$_GET["id"]}"));
-    sqlStatement("update users set username='$tqvar' where id={$_GET["id"]}");
-    sqlStatement("update groups set user='$tqvar' where user='". $user_data["username"]  ."'");
-    //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
-  }
-  if ($_GET["taxid"]) {
-    $tqvar = formData('taxid','G');
-    sqlStatement("update users set federaltaxid='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["drugid"]) {
-    $tqvar = formData('drugid','G');
-    sqlStatement("update users set federaldrugid='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["upin"]) {
-    $tqvar = formData('upin','G');
-    sqlStatement("update users set upin='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["npi"]) {
-    $tqvar = formData('npi','G');
-    sqlStatement("update users set npi='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["taxonomy"]) {
-    $tqvar = formData('taxonomy','G');
-    sqlStatement("update users set taxonomy = '$tqvar' where id= {$_GET["id"]}");
-  }
-  if ($_GET["lname"]) {
-    $tqvar = formData('lname','G');
-    sqlStatement("update users set lname='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["job"]) {
-    $tqvar = formData('job','G');
-    sqlStatement("update users set specialty='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["mname"]) {
-          $tqvar = formData('mname','G');
-          sqlStatement("update users set mname='$tqvar' where id={$_GET["id"]}");
-  }
-  if ($_GET["facility_id"]) {
-          $tqvar = formData('facility_id','G');
-          sqlStatement("update users set facility_id = '$tqvar' where id = {$_GET["id"]}");
-          //(CHEMED) Update facility name when changing the id
-          sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_GET["id"]}");
-          //END (CHEMED)
-  }
-  if ($GLOBALS['restrict_user_facility'] && $_GET["schedule_facility"]) {
-	  sqlStatement("delete from users_facility
-	    where tablename='users'
-	    and table_id={$_GET["id"]}
-	    and facility_id not in (" . implode(",", $_GET['schedule_facility']) . ")");
-	  foreach($_GET["schedule_facility"] as $tqvar) {
-      sqlStatement("replace into users_facility set
-		    facility_id = '$tqvar',
-		    tablename='users',
-		    table_id = {$_GET["id"]}");
-    }
-  }
-  if ($_GET["fname"]) {
-          $tqvar = formData('fname','G');
-          sqlStatement("update users set fname='$tqvar' where id={$_GET["id"]}");
-  }
-
-  if (isset($_GET['default_warehouse'])) {
-    sqlStatement("UPDATE users SET default_warehouse = '" .
-      formData('default_warehouse','G') .
-      "' WHERE id = '" . formData('id','G') . "'");
-  }
-
-  if (isset($_GET['irnpool'])) {
-    sqlStatement("UPDATE users SET irnpool = '" .
-      formData('irnpool','G') .
-      "' WHERE id = '" . formData('id','G') . "'");
-  }
-
-  if ($_GET["newauthPass"] && $_GET["newauthPass"] != "d41d8cd98f00b204e9800998ecf8427e") { // account for empty
-    $tqvar = formData('newauthPass','G');
-    sqlStatement("update users set password='$tqvar' where id={$_GET["id"]}");
-  }
-
-  $tqvar  = $_GET["authorized"] ? 1 : 0;
-  $actvar = $_GET["active"]     ? 1 : 0;
-  $calvar = $_GET["calendar"]   ? 1 : 0;
-
-  sqlStatement("UPDATE users SET authorized = $tqvar, active = $actvar, " .
-    "calendar = $calvar, see_auth = '" . $_GET['see_auth'] . "' WHERE " .
-    "id = {$_GET["id"]}");
-
-  if ($_GET["comments"]) {
-    $tqvar = formData('comments','G');
-    sqlStatement("update users set info = '$tqvar' where id = {$_GET["id"]}");
-  }
-
-  if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
-    // Set the access control group of user
-    $user_data = sqlFetchArray(sqlStatement("select username from users where id={$_GET["id"]}"));
-    set_user_aro($_GET['access_group'], $user_data["username"],
-      formData('fname','G'), formData('mname','G'), formData('lname','G'));
-  }
-
-  /*Dont move usergroup_admin (1).php just close window
-  // On a successful update, return to the users list.
-  include("usergroup_admin.php");
-  exit(0);
-  */  	echo '
-<script type="text/javascript">
-<!--
-parent.$.fn.fancybox.close();
-//-->
-</script>
-
-	';
-}
-
 $res = sqlStatement("select * from users where id=?",array($_GET["id"]));
 for ($iter = 0;$row = sqlFetchArray($res);$iter++)
                 $result[$iter] = $row;
 $iter = $result[0];
-
-///
-if (isset($_POST["mode"])) {
-  	echo '
-<script type="text/javascript">
-<!--
-parent.$.fn.fancybox.close();
-//-->
-</script>
-
-	';
-}
-///
 
 ?>
 
@@ -466,6 +344,12 @@ foreach($result as $iter2) {
 <tr>
   <td><span class="text"><?php xl('Provider Type','e'); ?>: </span></td>
   <td><?php echo generate_select_list("physician_type", "physician_type", $iter['physician_type'],'',xl('Select Type'),'physician_type_class','','',''); ?></td>
+  <td>
+    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+  </td>
+  <td>
+    <?php echo MainMenuRole::displayMainMenuRoleSelector($iter["main_menu_role"]); ?>
+  </td>
 </tr>
 <?php if ($GLOBALS['inhouse_pharmacy']) { ?>
 <tr>

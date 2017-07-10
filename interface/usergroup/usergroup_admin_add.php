@@ -1,8 +1,19 @@
 <?php
+/**
+ * Add new user.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once("../globals.php");
 require_once("../../library/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
+use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
@@ -246,6 +257,12 @@ if ($fres) {
 	<td>
 		<?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
 	</td>
+  <td>
+    <span class="text"><?php echo xlt('Main Menu Role'); ?>: </span>
+  </td>
+  <td>
+    <?php echo MainMenuRole::displayMainMenuRoleSelector(); ?>
+  </td>
 </tr>
 
 <tr>
