@@ -41,7 +41,7 @@ while ($frow = sqlFetchArray($fres)) {
         $table = 'employer_data';
     }
 
-    //continue if field is defined as disabled in the LBF (disabled field in the html form doesn't sent by submit but it isn't empty field)
+    //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
     if (isset($_POST["form_$field_id"])){
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }

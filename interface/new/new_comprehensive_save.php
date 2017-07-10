@@ -60,6 +60,7 @@ while ($frow = sqlFetchArray($fres)) {
     $colname = substr($field_id, 3);
     $tblname = 'employer_data';
   }
+  //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
   if (isset($_POST["form_$field_id"])) {
       $value = get_layout_form_value($frow);
       if ($field_id == 'pubpid' && empty($value)) $value = $pid;
