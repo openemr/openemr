@@ -1,0 +1,6 @@
+services:
+    sample_subscriber:
+        class: OpenEMR\Sample\Event\SampleSubscriber
+        public: true
+        tags:
+            - { name: kernel.event_subscriber }
