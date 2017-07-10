@@ -180,9 +180,9 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
     $disp_mainBox = '';
     if (isset($_SESSION['app1'])) {
     	$rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-    			array('Apps', $_SESSION['app1']));
+    			array('apps', $_SESSION['app1']));
     	if ($rs['app_url'] != "main/main_screen.php") {
-    		echo '<iframe name="app1" src="../../'.$rs['app_url'].'"
+    		echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
     		$disp_mainBox = 'style="display: none;"';
     	}

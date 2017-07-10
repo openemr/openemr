@@ -449,3 +449,9 @@ UPDATE `list_options` SET `option_id` = 'DN', `title` = 'Referring Provider', `i
 #IfNotRow2D list_options list_id provider_qualifier_code option_id DQ
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('provider_qualifier_code', 'DQ', 'Supervising Provider', '30', '0');
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id apps
+INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+#EndIf
