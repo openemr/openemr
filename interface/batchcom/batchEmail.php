@@ -14,19 +14,18 @@
 <link rel="stylesheet" href="batchcom.css" type="text/css">
 </head>
 <body class="body_top">
-<span class="title"><?php xl('Batch Communication Tool', 'e')?></span>
+<span class="title"><?php echo xlt('Batch Communication Tool'); ?></span>
 <br><br>
-<span class="title" ><?php xl('Email Notification Report', 'e')?></span>
+<span class="title" ><?php echo xlt('Email Notification Report'); ?></span>
 <br><br>
 
 
 <?php
 $email_sender=$_POST['email_sender'];
 $sent_by=$_SESSION["authId"];
-$msg_type=xl('Email from Batchcom');
+$msg_type=xlt('Email from Batchcom');
 
 while ($row=sqlFetchArray($res)) {
-
     // prepare text for ***NAME*** tag
     $pt_name=$row['title'].' '.$row['fname'].' '.$row['lname'];
     $pt_email=$row['email'];
@@ -43,7 +42,7 @@ while ($row=sqlFetchArray($res)) {
     $headers .= "X-Priority: 3\r\n";
     $headers .= "X-Mailer: PHP mailer\r\n";
     if (mail($pt_email, $email_subject, $email_body, $headers)) {
-        echo ("<br>" . xl('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "<br>");
+        echo "<br>" . xlt('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "<br>";
     } else {
         $m_error = true;
         $m_error_count++;
@@ -51,7 +50,7 @@ while ($row=sqlFetchArray($res)) {
 }
 
 if ($m_error) {
-    echo (xl('Could not send email due to a server problem. ', '', '<br>'). $m_error_count . xl(' emails not sent', '', ''));
+    echo xlt('Could not send email due to a server problem. ') . '<br>' . $m_error_count . xlt(' emails not sent');
 }
 
 ?> 

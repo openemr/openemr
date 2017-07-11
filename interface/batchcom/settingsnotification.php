@@ -31,12 +31,10 @@ include_once("batchcom.inc.php");
 use OpenEMR\Core\Header;
 
 // gacl control
-$thisauth = acl_check('admin', 'notification');
-
-if (!$thisauth) {
-    echo "<html>\n<body>\n";
-    echo "<p>".xl('You are not authorized for this.', '', '', '</p>')."\n";
-    echo "</body>\n</html>\n";
+if (!acl_check('admin', 'notification')) {
+    echo "<html>\n<body>\n<h1>";
+    echo xlt('You are not authorized for this.');
+    echo "</h1>\n</body>\n</html>\n";
     exit();
 }
 
@@ -44,16 +42,16 @@ if (!$thisauth) {
 // process form
 if ($_POST['form_action']=='save') {
     if ($_POST['Send_SMS_Before_Hours']=="") {
-        $form_err.=xl('Empty value in "SMS Hours"', '', '<br>');
+        $form_err .= xlt('Empty value in "SMS Hours"') . '<br>';
     }
     if ($_POST['Send_Email_Before_Hours']=="") {
-        $form_err.=xl('Empty value in "Email Hours"', '', '<br>');
+        $form_err .= xlt('Empty value in "Email Hours"') . '<br>';
     }
     if ($_POST['SMS_gateway_username']=="") {
-        $form_err.=xl('Empty value in "Username"', '', '<br>');
+        $form_err .= xlt('Empty value in "Username"') . '<br>';
     }
     if ($_POST['SMS_gateway_password']=="") {
-        $form_err.=xl('Empty value in "Password"', '', '<br>');
+        $form_err .= xlt('Empty value in "Password"') . '<br>';
     }
     //process sql
     if (!$form_err) {
@@ -86,24 +84,24 @@ if ($result) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
-    <title><?php xl("Notification Settings"); ?></title>
+    <title><?php echo xlt("Notification Settings"); ?></title>
 </head>
 <body class="body_top">
     <?php include_once("batch_navigation.php");?>
     <header class="text-center">
         <h1>
-            <?php xl('Batch Communication Tool', 'e'); ?>
-            <small><?php xl('SMS/Email Alert Settings', 'e')?></small>
+            <?php echo xlt('Batch Communication Tool'); ?>
+            <small><?php echo xlt('SMS/Email Alert Settings')?></small>
         </h1>
     </header>
 
     <main class="container">
         <?php
         if ($form_err) {
-             echo "<div class=\"alert alert-danger\">".xl("The following errors occurred").": $form_err</div>";
+             echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
         }
         if ($sql_msg) {
-            echo "<div class=\"alert alert-info\">".xl("The following errors occurred").": $sql_msg</div>";
+            echo "<div class=\"alert alert-info\">" . xlt("The following errors occurred") . ": $sql_msg</div>";
         }
         ?>
         <form name="select_form" method="post" action="">
@@ -112,31 +110,31 @@ if ($result) {
 
             <div class="row">
                 <div class="col-md-12">
-                    <label for="Send_SMS_Before_Hours"><?php xl('SMS send before', 'e')?>:</label>
+                    <label for="Send_SMS_Before_Hours"><?php echo xlt('SMS send before')?>:</label>
                     <input type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_SMS_Before_Hours; ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="Send_Email_Before_Hours"><?php xl('Email send before', 'e')?>:</label>
+                    <label for="Send_Email_Before_Hours"><?php echo xlt('Email send before')?>:</label>
                     <input type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_Email_Before_Hours; ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_username"><?php xl('Username for SMS Gateway', 'e')?>:</label>
+                    <label for="SMS_gateway_username"><?php echo xlt('Username for SMS Gateway')?>:</label>
                     <input type="text" name="SMS_gateway_username" size="40" value="<?php echo $SMS_gateway_username; ?>" placeholder="username">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_password"><?php xl('Password for SMS Gateway', 'e')?>:</label>
+                    <label for="SMS_gateway_password"><?php echo xlt('Password for SMS Gateway')?>:</label>
                     <input type="password" name="SMS_gateway_password" size="40" value="<?php echo $SMS_gateway_password; ?>" placeholder="password">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_apikey"><?php xl('SMS Gateway API key', 'e')?>:</label>
+                    <label for="SMS_gateway_apikey"><?php echo xlt('SMS Gateway API key')?>:</label>
                     <input type="text" name="SMS_gateway_apikey" size="40" value="<?php echo $SMS_gateway_apikey; ?>" placeholder="key">
                 </div>
             </div>

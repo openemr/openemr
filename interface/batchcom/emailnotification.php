@@ -34,9 +34,9 @@ use OpenEMR\Core\Header;
 $thisauth = acl_check('admin', 'notification');
 
 if (!$thisauth) {
-    echo "<html>\n<body>\n";
-    echo "<p>".xl('You are not authorized for this.', '', '', '</p>')."\n";
-    echo "</body>\n</html>\n";
+    echo "<html>\n<body>\n<h1>";
+    echo xlt('You are not authorized for this.');
+    echo "</h1>\n</body>\n</html>\n";
     exit();
 }
 
@@ -53,21 +53,21 @@ $email_subject = "Welcome to EMR Group";
 if ($_POST['form_action']=='save') {
     //validation uses the functions in notification.inc.php
     if ($_POST['email_sender']=="") {
-        $form_err.=xl('Empty value in "Email Sender"', '', '<br>');
+        $form_err .= xlt('Empty value in "Email Sender"') . '<br>';
     }
     if ($_POST['email_subject']=="") {
-        $form_err.=xl('Empty value in "Email Subject"', '', '<br>');
+        $form_err .= xlt('Empty value in "Email Subject"') . '<br>';
     }
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
-        $form_err.=xl('Date format for "Next Appointment" is not valid', '', '<br>');
+        $form_err .= xlt('Date format for "Next Appointment" is not valid') . '<br>';
     }
     // validates and or
     if ($_POST['provider_name']=="") {
-        $form_err.=xl('Empty value in "Name of Provider"', '', '<br>');
+        $form_err .= xlt('Empty value in "Name of Provider"') . '<br>';
     }
     if ($_POST['message']=="") {
-        $form_err.=xl('Empty value in "Email Text"', '', '<br>');
+        $form_err .= xlt('Empty value in "Email Text"') . '<br>';
     }
     //process sql
     if (!$form_err) {
@@ -108,23 +108,23 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker']); ?>
-    <title><?php xl("Email Notification"); ?></title>
+    <title><?php echo xlt("Email Notification"); ?></title>
 </head>
 <body class="body_top">
     <?php include_once("batch_navigation.php");?>
     <header class="text-center">
         <h1>
-            <?php xl('Batch Communication Tool', 'e'); ?>
-            <small><?php xl('Email Notification', 'e')?></small>
+            <?php echo xlt('Batch Communication Tool'); ?>
+            <small><?php echo xlt('Email Notification'); ?></small>
         </h1>
     </header>
     <main class="container">
         <?php
         if ($form_err) {
-            echo "<div class=\"alert alert-danger\">".xl("The following errors occurred").": $form_err</div>";
+            echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
         }
         if ($sql_msg) {
-            echo "<div class=\"alert alert-info\">".xl("The following errors occurred").": $sql_msg</div>";
+            echo "<div class=\"alert alert-info\">" . xlt("The following errors occurred") . ": $sql_msg</div>";
         }
         ?>
         <form name="select_form" method="post" action="">
@@ -132,25 +132,25 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <input type="Hidden" name="notification_id" value="<?php echo $notification_id;?>">
             <div class="row">
                 <div class="col-md-12">
-                    <label for="email_sender"><?php xl('Email Sender', 'e')?>:</label>
+                    <label for="email_sender"><?php echo xlt('Email Sender')?>:</label>
                     <input type="text" name="email_sender" size="40" value="<?php echo $email_sender; ?>" placeholder="sender name">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="email_subject"><?php xl('Email Subject', 'e')?>:</label>
+                    <label for="email_subject"><?php echo xlt('Email Subject')?>:</label>
                     <input type="text" name="email_subject" size="40" value="<?php echo $email_subject; ?>" placeholder="email subject">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="provider_name"><?php xl('Name of Provider', 'e')?>:</label>
+                    <label for="provider_name"><?php echo xlt('Name of Provider')?>:</label>
                     <input type="text" name="provider_name" size="40" value="<?php echo $provider_name; ?>" placeholder="provider name">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="message"><?php xl('SMS Text, Usable Tags: ', 'e'); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
+                    <label for="message"><?php echo xlt('SMS Text Usable Tags'); ?>: ***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
                 </div>
             </div>
             <div class="row">

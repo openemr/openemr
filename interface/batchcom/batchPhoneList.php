@@ -18,8 +18,8 @@ use OpenEMR\Core\Header;
 <body class="body_top">
     <header>
         <h1>
-            <?php xlt('Batch Communication Tool', 'e'); ?>
-            <small><?php xlt('Phone Call List report', 'e'); ?></small>
+            <?php echo xlt('Batch Communication Tool', 'e'); ?>
+            <small><?php echo xlt('Phone Call List report', 'e'); ?></small>
         </h1>
     </header>
     <main class="container">
@@ -28,7 +28,7 @@ use OpenEMR\Core\Header;
                 <table class="table table-striped table-bordered">
                 <thead>
                     <?php
-                    foreach ([xl('Name'),xl('DOB'),xl('Home'),xl('Work'),xl('Contact'),xl('Cell')] as $header) {
+                    foreach ([xlt('Name'),xlt('DOB'),xlt('Home'),xlt('Work'),xlt('Contact'),xlt('Cell')] as $header) {
                         echo "<th>$header</th>";
                     }
                     ?>

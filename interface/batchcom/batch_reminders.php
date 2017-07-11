@@ -40,7 +40,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
 <link rel="stylesheet" href="batchcom.css" type="text/css">
 </head>
 <body class="body_top">
-<span class="title"><?php echo htmlspecialchars(xl('Patient Reminder Batch Job'), ENT_NOQUOTES)?></span>
+<span class="title"><?php echo xlt('Patient Reminder Batch Job') ?></span>
 
 <?php
 // Collect the sender information
@@ -70,33 +70,33 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
     }
     ?>
 
-    <span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been updated'), ENT_NOQUOTES) . ":"?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total active actions'), ENT_NOQUOTES) . ": " . $update_rem_log['total_active_actions'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total active reminders before update'), ENT_NOQUOTES) . ": " . $update_rem_log['total_pre_active_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders before update'), ENT_NOQUOTES) . ": " . $update_rem_log['total_pre_unsent_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total active reminders after update'), ENT_NOQUOTES) . ": " . $update_rem_log['total_post_active_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders after update'), ENT_NOQUOTES) . ": " . $update_rem_log['total_post_unsent_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total new reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_new_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total updated reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_updated_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total inactivated reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_inactivated_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total unchanged reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_unchanged_reminders'];?></span><br>
+    <span class="text"><?php echo xlt('The patient reminders have been updated') . ":"?></span><br>
+      <span class="text"><?php echo xlt('Total active actions') . ": " . $update_rem_log['total_active_actions'];?></span><br>
+      <span class="text"><?php echo xlt('Total active reminders before update') . ": " . $update_rem_log['total_pre_active_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total unsent reminders before update') . ": " . $update_rem_log['total_pre_unsent_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total active reminders after update') . ": " . $update_rem_log['total_post_active_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total unsent reminders after update') . ": " . $update_rem_log['total_post_unsent_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total new reminders') . ": " . $update_rem_log['number_new_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total updated reminders') . ": " . $update_rem_log['number_updated_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total inactivated reminders') . ": " . $update_rem_log['number_inactivated_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total unchanged reminders') . ": " . $update_rem_log['number_unchanged_reminders'];?></span><br>
 
     <?php if ($results_log['type'] != "process_reminders") { ?>
-    <br><span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been sent'), ENT_NOQUOTES) . ":"?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders before sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_pre_unsent_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders after sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_post_unsent_reminders'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total successful reminders sent via email'), ENT_NOQUOTES) . ": " . $send_rem_log['number_success_emails'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total failed reminders sent via email'), ENT_NOQUOTES) . ": " . $send_rem_log['number_failed_emails'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total successful reminders sent via phone'), ENT_NOQUOTES) . ": " . $send_rem_log['number_success_calls'];?></span><br>
-      <span class="text"><?php echo htmlspecialchars(xl('Total failed reminders sent via phone'), ENT_NOQUOTES) . ": " . $send_rem_log['number_unchanged_reminders'];?></span><br>
+    <br><span class="text"><?php echo xlt('The patient reminders have been sent') . ":"?></span><br>
+      <span class="text"><?php echo xlt('Total unsent reminders before sending process') . ": " . $send_rem_log['total_pre_unsent_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total unsent reminders after sending process') . ": " . $send_rem_log['total_post_unsent_reminders'];?></span><br>
+      <span class="text"><?php echo xlt('Total successful reminders sent via email') . ": " . $send_rem_log['number_success_emails'];?></span><br>
+      <span class="text"><?php echo xlt('Total failed reminders sent via email') . ": " . $send_rem_log['number_failed_emails'];?></span><br>
+      <span class="text"><?php echo xlt('Total successful reminders sent via phone') . ": " . $send_rem_log['number_success_calls'];?></span><br>
+      <span class="text"><?php echo xlt('Total failed reminders sent via phone') . ": " . $send_rem_log['number_unchanged_reminders'];?></span><br>
 
-    <br><span class="text"><?php echo htmlspecialchars(xl('(Email delivery is immediate, while automated VOIP is sent to the service provider for further processing.)'), ENT_NOQUOTES)?></span><br>
+    <br><span class="text"><?php echo xlt('(Email delivery is immediate, while automated VOIP is sent to the service provider for further processing.)')?></span><br>
     <?php } // end of ($results_log['type'] != "process_reminders") ?>
 
     <?php if (report_id) { ?>
-     <br><input type="button" value="<?php echo htmlspecialchars(xl('Back'), ENT_QUOTES); ?>" onClick="top.restoreSession(); window.open('../reports/report_results.php','_self',false)"><br><br><br>
+     <br><input type="button" value="<?php echo xlt('Back'); ?>" onClick="top.restoreSession(); window.open('../reports/report_results.php','_self',false)"><br><br><br>
     <?php } else { ?>
-     <br><input type="button" value="<?php echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>" onClick="window.close()"><br><br><br>
+     <br><input type="button" value="<?php echo xlt('Close'); ?>" onClick="window.close()"><br><br><br>
     <?php } ?>
 
   </td>

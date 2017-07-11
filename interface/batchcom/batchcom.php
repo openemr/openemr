@@ -32,63 +32,63 @@ include_once("batchcom.inc.php");
 use OpenEMR\Core\Header;
 
 if (!acl_check('admin', 'batchcom')) {
-    echo "<html>\n<body>\n";
-    echo "<h1>".xl('You are not authorized for this.', '', '', '</h1>')."\n";
-    echo "</body>\n</html>";
+    echo "<html>\n<body>\n<h1>";
+    echo xlt('You are not authorized for this.');
+    echo "</h1>\n</body>\n</html>";
     exit();
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$process_choices = array (xl('Download CSV File'),xl('Send Emails'),xl('Phone call list'));
-$gender_choices = array (xl('Any'),xl('Male'),xl('Female'));
-$hipaa_choices = array (xl('No'),xl('Yes'));
-$sort_by_choices = array (xl('Zip Code')=>'patient_data.postal_code',xl('Last Name')=>'patient_data.lname',xl('Appointment Date')=>'last_ap' );
+$process_choices = array (xlt('Download CSV File'),xlt('Send Emails'),xlt('Phone call list'));
+$gender_choices = array (xlt('Any'),xlt('Male'),xlt('Female'));
+$hipaa_choices = array (xlt('No'),xlt('Yes'));
+$sort_by_choices = array (xlt('Zip Code')=>'patient_data.postal_code',xlt('Last Name')=>'patient_data.lname',xlt('Appointment Date')=>'last_ap' );
 
 // process form
 if ($_POST['form_action']=='process') {
     //validation uses the functions in batchcom.inc.php
     //validate dates
     if (!check_date_format($_POST['app_s'])) {
-        $form_err.= xl('Date format for "appointment start" is not valid');
+        $form_err.= xlt('Date format for "appointment start" is not valid');
     }
     if (!check_date_format($_POST['app_e'])) {
-        $form_err .= xl('Date format for "appointment end" is not valid', '', '<br>');
+        $form_err .= xlt('Date format for "appointment end" is not valid');
     }
     if (!check_date_format($_POST['seen_since'])) {
-        $form_err .= xl('Date format for "seen since" is not valid', '', '<br>');
+        $form_err .= xlt('Date format for "seen since" is not valid');
     }
     if (!check_date_format($_POST['seen_before'])) {
-        $form_err .= xl('Date format for "seen before" is not valid', '', '<br>');
+        $form_err .= xlt('Date format for "seen before" is not valid');
     }
     // validate numbers
     if (!check_age($_POST['age_from'])) {
-        $form_err .= xl('Age format for "age from" is not valid', '', '<br>');
+        $form_err .= xlt('Age format for "age from" is not valid');
     }
     if (!check_age($_POST['age_upto'])) {
-        $form_err .= xl('Age format for "age up to" is not valid', '', '<br>');
+        $form_err .= xlt('Age format for "age up to" is not valid');
     }
     // validate selections
     if (!check_select($_POST['gender'], $gender_choices)) {
-        $form_err .= xl('Error in "Gender" selection', '', '<br>');
+        $form_err .= xlt('Error in "Gender" selection');
     }
     if (!check_select($_POST['process_type'], $process_choices)) {
-        $form_err .= xl('Error in "Process" selection', '', '<br>');
+        $form_err .= xlt('Error in "Process" selection');
     }
     if (!check_select($_POST['hipaa_choice'], $hipaa_choices)) {
-        $form_err .= xl('Error in "HIPAA" selection', '', '<br>');
+        $form_err .= xlt('Error in "HIPAA" selection');
     }
     if (!check_select($_POST['sort_by'], $sort_by_choices)) {
-        $form_err.=xl('Error in "Sort By" selection', '', '<br>');
+        $form_err.=xlt('Error in "Sort By" selection');
     }
     // validates and or
     if (!check_and_or($_POST['and_or_gender'])) {
-        $form_err.=xl('Error in and/or option', '', '<br>');
+        $form_err .= xlt('Error in and/or option');
     }
     if (!check_and_or($_POST['and_or_app_within'])) {
-        $form_err.=xl('Error in and/or option', '', '<br>');
+        $form_err .= xlt('Error in and/or option');
     }
     if (!check_and_or($_POST['and_or_seen_within'])) {
-        $form_err.=xl('Error in and/or option', '', '<br>');
+        $form_err .= xlt('Error in and/or option');
     }
 
     //process sql
@@ -137,7 +137,7 @@ if ($_POST['form_action']=='process') {
         $res = sqlStatement($sql);
 
         if (sqlNumRows($res)==0) {
-            $form_err = xl('No results found, please try again.');
+            $form_err = xlt('No results found, please try again.');
         } else {
             switch ($_POST['process_type']) :
                 case $process_choices[0]: // CSV File
@@ -173,14 +173,18 @@ if ($_POST['form_action']=='process') {
 <main class="container">
     <header class="row">
         <div class="col-md-6 col-md-offset-3 text-center">
-            <h1><?php xl('Batch Communication Tool', 'e')?></h1>
+            <h1><?php echo xlt('Batch Communication Tool', 'e')?></h1>
         </div>    
     </header>
-    <?php if ($form_err) { echo "<div class=\"alert alert-danger\">".xl("The following errors occurred").": $form_err</div>"; } ?>
+    <?php
+    if ($form_err) {
+        echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
+    }
+    ?>
     <form name="select_form" method="post" action="">
         <div class="row">
             <div class="col-md-3 well">
-                <label for="process_type"><?php echo xl("Process", "e").":"; ?></label>
+                <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>
                 <select name="process_type">
                     <?php
                     foreach ($process_choices as $choice) {
@@ -190,7 +194,7 @@ if ($_POST['form_action']=='process') {
                 </select>
             </div>
             <div class="col-md-3 well">
-                <label for="hipaa_choice"><?php echo xl("Override HIPAA choice").":"; ?></label>
+                <label for="hipaa_choice"><?php echo xlt("Override HIPAA choice") . ":"; ?></label>
                 <select name="hipaa_choice">
                     <?php
                     foreach ($hipaa_choices as $choice) {
@@ -200,7 +204,7 @@ if ($_POST['form_action']=='process') {
                 </select>
             </div>
             <div class="col-md-3 well">
-                <label for="sort_by"><?php echo xl("Sort by", "e"); ?></label>
+                <label for="sort_by"><?php echo xlt("Sort by"); ?></label>
                 <select name="sort_by">
                     <?php
                     foreach ($sort_by_choices as $choice => $sorting_code) {
@@ -210,17 +214,19 @@ if ($_POST['form_action']=='process') {
                 </select>
             </div>
             <div class="col-md-3 well">
-                <label for="age_from"><?php echo xl("Age Range", "e").":"; ?></label>
-                <input name="age_from" size="2" type="num" placeholder="<?php echo xl("any"); ?>"> - <input name="age_upto" size="2" type="num" placeholder="<?php echo xl("any"); ?>">
+                <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
+                <input name="age_from" size="2" type="num" placeholder="<?php echo xla("any"); ?>">
+                -
+                <input name="age_upto" size="2" type="num" placeholder="<?php echo xla("any"); ?>">
             </div>
         </div>
         <div class="row">
             <div class="col-md-3 well">
                 <select name="and_or_gender">
-                    <option value="AND"><?php xl('And', 'e')?></option>
-                    <option value="OR"><?php xl('Or', 'e')?></option>
+                    <option value="AND"><?php echo xlt('And') ?></option>
+                    <option value="OR"><?php echo xlt('Or') ?></option>
                 </select>
-                <label for="gender"><?php xl('Gender', 'e')?>:</label>
+                <label for="gender"><?php echo xlt('Gender') ?>:</label>
                 <select name="gender">
                     <?php
                     foreach ($gender_choices as $choice) {
@@ -231,39 +237,39 @@ if ($_POST['form_action']=='process') {
             </div>
             <div class="col-md-3 well">
                 <select name="and_or_app_within">
-                    <option value="AND"><?php xl('And', 'e')?></option>
-                    <option value="OR"><?php xl('Or', 'e')?></option>
-                    <option value="AND NOT"><?php xl('And not', 'e')?></option>
-                    <option value="OR NOT"><?php xl('Or not', 'e')?></option>
+                    <option value="AND"><?php echo xlt('And') ?></option>
+                    <option value="OR"><?php echo xlt('Or', 'e') ?></option>
+                    <option value="AND NOT"><?php echo xlt('And not') ?></option>
+                    <option value="OR NOT"><?php echo xlt('Or not') ?></option>
                 </select>
-                <label for="app_s"><?php xl('Appointment within', 'e')?>:</label>
+                <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
                     <input type="text" class="datepicker" name="app_s" placeholder="any date">
-                    <div class="text-center"><?php xl('to', 'e'); ?></div>
+                    <div class="text-center"><?php echo xlt('to'); ?></div>
                     <input type="text" class="datepicker" name="app_e" placeholder="any date">
             </div>
             <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md-3 well">
                 <select name="and_or_seen_within">
-                    <option value="AND"><?php xl('And', 'e')?></option>
-                    <option value="OR"><?php xl('Or', 'e')?></option>
-                    <option value="AND NOT"><?php xl('And not', 'e')?></option>
-                    <option value="OR NOT"><?php xl('Or not', 'e')?></option>
+                    <option value="AND"><?php echo xlt('And'); ?></option>
+                    <option value="OR"><?php echo xlt('Or'); ?></option>
+                    <option value="AND NOT"><?php echo xlt('And not'); ?></option>
+                    <option value="OR NOT"><?php echo xlt('Or not'); ?></option>
                 </select>
-                <label for="app_s"><?php xl('Seen within', 'e')?>:</label>
+                <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker" name="seen_since" placeholder="any date">
-                    <div class="text-center"><?php xl('to', 'e'); ?></div>
+                    <div class="text-center"><?php echo xlt('to'); ?></div>
                     <input type="text" class="datepicker" name="seen_before" placeholder="any date">
             </div>
         </div>
         <div class="email row">
             <div class="col-md-6 col-md-offset-3 well">
                 <div class="col-md-6">
-                    <label for="email_sender"><?php xl('Email Sender', 'e'); ?>:</label>
+                    <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
                     <input type="text" name="email_sender" placeholder="your@email.email">
                 </div>
                 
                 <div class="col-md-6">
-                    <label for="email_subject"><?php xl('Email Subject', 'e'); ?>:</label>
+                    <label for="email_subject"><?php echo xlt('Email Subject'); ?>:</label>
                     <input type="text" name="email_subject" placeholder="From your clinic">
                 </div>
                 <div class="col-md-12">
@@ -277,7 +283,7 @@ if ($_POST['form_action']=='process') {
         <div class="row">
             <div class="col-md-4 col-md-offset-4 text-center">
                 <input type="hidden" name="form_action" value="process">
-                <input type="submit" name="submit" class="btn btn-primary" value="<?php xl("Process (can take some time)", 'e'); ?>">
+                <input type="submit" name="submit" class="btn btn-primary" value="<?php echo xla("Process (can take some time)"); ?>">
             </div>
         </div>
     </form>
