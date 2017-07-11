@@ -933,4 +933,11 @@
     if (empty($tmp['aco_spec'])) return true;
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
   }
+
+  //Fetches aco for given postcalendar category
+  function fetchPostCalendarCategoryACO($pc_catid){
+     $aco = sqlQuery("SELECT aco_spec FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1",
+      array($pc_catid));
+      return $aco['aco_spec'];
+  }
 ?>

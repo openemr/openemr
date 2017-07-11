@@ -6,7 +6,7 @@ use ESign\Api;
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/encounter.inc");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
@@ -667,10 +667,18 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
+
+    //fetch acl for category of given encounter
+    $pc_catid = fetchCategoryIdByEncounter($encounter);
+    $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
+    $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
+    $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+
+
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
     // for therapy group
@@ -686,7 +694,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
 }
