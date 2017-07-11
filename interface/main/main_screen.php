@@ -116,6 +116,10 @@ if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_
 if ($GLOBALS['new_tabs_layout']) {
   $_SESSION['frame1url'] = $frame1url;
   $_SESSION['frame1target'] = $frame1target;
+  // mdsupport - Apps processing invoked for valid app selections from list
+  if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
+  	$_SESSION['app1'] = $_POST['appChoice']; 
+  }
   header('Location: '.$web_root."/interface/main/tabs/main.php");
   exit();
 }
