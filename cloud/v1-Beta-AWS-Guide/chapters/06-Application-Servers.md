@@ -4,13 +4,15 @@ _[< previous chapter](05-Session-Management.md) | [next chapter >](07-Secure-Dom
 
 ### Configure the servers to use your timezone
 
-1. Open "**openemr/.ebextensions/00-options.config**" and replace "**&lt;&lt;enter timezone here&gt;&gt;**" with your timezone from the [following list](http://php.net/manual/en/timezones.php). Do not enter spaces (e.g.: "**America\\/New_York**" is valid while "**America\\/New York**" is not - note the "\\" is required for the sed command the bash script will run).
+1. Open "**openemr/.ebextensions/00-options.config**" and replace "**&lt;&lt;enter timezone here&gt;&gt;**" with your timezone from the [following list](http://php.net/manual/en/timezones.php). Do not enter spaces (e.g.: "**America/New_York**" is valid while "**America/New York**" is not.
 
 ### Prepare your first deployment
 
 1. Archive **openemr** as "**openemr.zip**". Note that the name of the file must be exact.
 
 ### Establish fully managed web server infrastructure
+
+_NOTE: If you are on a fresh account, you will need to look at the bottom area of the following screens for a link to "switch to previous version while we finalize the design.". Please know that TeamEpsilon will most likely be done with automated AWS solution before Amazon forces users to use this new design, which breaks the following sections._
 
 1. In the AWS Management Console, click **Services**, **Elastic Beanstalk**, and then click **Create New Application** to the top right.
 2. Enter "**openemr**" for the **Application Name**
@@ -78,7 +80,7 @@ _[< previous chapter](05-Session-Management.md) | [next chapter >](07-Secure-Dom
 ### Post-install security update
 
 1. In the AWS Management Console, click **EC2** and then click **Instances** in the left hand pane.
-2. Clickbox the running **your_practice** instance and note the **Public DNS (IPv4)** in the bottom pane.
+2. Clickbox the running **your_practice** instance and note the **Private IP** in the bottom pane.
 3. Using this IP, SSH into the server. If you aren't sure, please review [How do I SSH into Instances](../chapters/09-Administration.md#how-do-i-ssh-into-instances) section.
 4. Run `sudo /opt/elasticbeanstalk/hooks/appdeploy/post/09-post-install-setup-file-deletion.sh` to manually remove public setup files (will be ran automatically when subsequent instances are created by ElasticBeanstalk).
 

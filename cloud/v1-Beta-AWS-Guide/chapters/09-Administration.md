@@ -118,7 +118,7 @@ _Note: If you are not already connected to OpenVPN, be sure that the **OpenVPN C
 
 #### OpenVPN
 
-Using your "**your-username.ppk**" keypair, access your instance by following [these instructions](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html#putty-ssh). Note that step 1 can be skipped. Also note that "**user_name@public_dns_name**" is "**openvpnas@(your noted internal redis ip)**".
+Using your "**your-username.ppk**" keypair, access your instance by following [these instructions](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html#putty-ssh). Note that step 1 can be skipped. Also note that "**user_name@public_dns_name**" is "**openvpnas@(your noted internal openvpn ip)**".
 
 #### Redis Access
 
@@ -132,6 +132,10 @@ Using your "**your-username.ppk**" keypair, access your instance by following [t
 4. Using your "**your-username.ppk**" keypair, access your instance by following [these instructions](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html#putty-ssh). Note that step 1 can be skipped. Also note that "**user_name@public_dns_name**" is "**ec2-user@(your noted internal ec2 ip)**".
 
 ## KNOWN ISSUES
+
+### I Can't Access the Billing Section
+
+Logout of AWS and relogin as the "root" user instead of the IAM user that was created for going through the guide.
 
 ### I'm Occasionally Seeing "Site ID is missing from session data!" Errors
 

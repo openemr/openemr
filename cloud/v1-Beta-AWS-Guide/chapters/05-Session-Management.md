@@ -6,7 +6,7 @@ _[< previous chapter](04-Database-System.md) | [next chapter >](06-Application-S
 
 1. In the AWS Management Console, click **Services**, **EC2**, and then click **Launch Instance**.
 2. Under **Quick Start**, select "**Ubuntu Server 16.04**".
-3. Under **Choose an Instance Type**, select your preferred instance size. If you aren't sure, select "**t2.medium**".
+3. Under **Choose an Instance Type**, select your preferred instance size. If you aren't sure, select "**t2.micro**".
 4. Click **Next: Configure Instance Details**.
 
 ### Associate cache with your private network
