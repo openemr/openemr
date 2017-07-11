@@ -56,8 +56,8 @@ if ($_POST['form_action']=='save') {
         $next_app_time = $_POST[hour].":".$_POST['min'];
         $sql_text=" ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
         $sql_value=" (?, ?, ?, ?, ?, ?, ?, 'SMS') ";
-        $values = array($_POST[notification_id], $_POST[sms_gateway_type], $_POST[next_app_date], $next_app_time,
-                        $_POST[provider_name], $_POST[message], $_POST[email_sender], $_POST[email_subject]);
+        $values = array($_POST['notification_id'], $_POST['sms_gateway_type'], $_POST['next_app_date'], $next_app_time,
+                        $_POST['provider_name'], $_POST['message'], $_POST['email_sender'], $_POST['email_subject']);
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query);
@@ -89,7 +89,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("SMS Notification"); ?></title>
 </head>
 <body class="body_top container">
