@@ -455,5 +455,5 @@ ALTER TABLE `users` ADD `main_menu_role` VARCHAR(50) NOT NULL DEFAULT 'standard'
 #EndIf
 
 #IfMissingColumn openemr_postcalendar_categories aco_spec
-ALTER TABLE `openemr_postcalendar_categories` ADD COLUMN `aco_spec` VARCHAR(63) NOT NULL DEFAULT 'encounters|all_encounters';
+ALTER TABLE `openemr_postcalendar_categories` ADD COLUMN `aco_spec` VARCHAR(63) NOT NULL DEFAULT 'encounters|notes';
 #EndIf

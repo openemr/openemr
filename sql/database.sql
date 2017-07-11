@@ -5129,7 +5129,7 @@ CREATE TABLE `openemr_postcalendar_categories` (
   `pc_cattype` INT( 11 ) NOT NULL COMMENT 'Used in grouping categories',
   `pc_active` tinyint(1) NOT NULL default 1,
   `pc_seq` int(11) NOT NULL default '0',
-  `aco_spec` VARCHAR(63) NOT NULL default 'encounters|all_encounters',
+  `aco_spec` VARCHAR(63) NOT NULL default 'encounters|notes',
   PRIMARY KEY  (`pc_catid`),
   KEY `basic_cat` (`pc_catname`,`pc_catcolor`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 ;
