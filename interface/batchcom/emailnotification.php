@@ -24,10 +24,10 @@
  */
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
-include_once("../globals.php");
-include_once("$srcdir/registry.inc");
-include_once("../../library/acl.inc");
-include_once("batchcom.inc.php");
+require_once("../globals.php");
+require_once("$srcdir/registry.inc");
+require_once("../../library/acl.inc");
+require_once("batchcom.inc.php");
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -111,7 +111,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <title><?php echo xlt("Email Notification"); ?></title>
 </head>
 <body class="body_top">
-    <?php include_once("batch_navigation.php");?>
+    <?php require_once("batch_navigation.php");?>
     <header class="text-center">
         <h1>
             <?php echo xlt('Batch Communication Tool'); ?>

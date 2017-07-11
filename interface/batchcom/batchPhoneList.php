@@ -6,7 +6,7 @@
 // create a list for phone calls
 // menu for fields could be added in the future
 
-include_once("../globals.php");
+require_once("../globals.php");
 use OpenEMR\Core\Header;
 
 ?>
