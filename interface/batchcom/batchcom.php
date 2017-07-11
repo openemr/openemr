@@ -1,17 +1,6 @@
 <?php
 /**
- * Batchcom script.
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
+ * Batch Communication Tool for selecting/communicating with subsets of patients
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
@@ -20,7 +9,6 @@
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * @todo    KNOWN SQL INJECTION VECTOR
  */
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
@@ -39,10 +27,10 @@ if (!acl_check('admin', 'batchcom')) {
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
-$process_choices = array (xlt('Download CSV File'),xlt('Send Emails'),xlt('Phone call list'));
-$gender_choices = array (xlt('Any'),xlt('Male'),xlt('Female'));
-$hipaa_choices = array (xlt('No'),xlt('Yes'));
-$sort_by_choices = array (xlt('Zip Code')=>'patient_data.postal_code',xlt('Last Name')=>'patient_data.lname',xlt('Appointment Date')=>'last_ap' );
+$process_choices = array(xlt('Download CSV File'), xlt('Send Emails'), xlt('Phone call list'));
+$gender_choices = array(xlt('Any'), xlt('Male'), xlt('Female'));
+$hipaa_choices = array(xlt('No'), xlt('Yes'));
+$sort_by_choices = array(xlt('Zip Code')=>'patient_data.postal_code', xlt('Last Name')=>'patient_data.lname', xlt('Appointment Date')=>'last_ap' );
 
 // process form
 if ($_POST['form_action']=='process') {
@@ -118,7 +106,7 @@ if ($_POST['form_action']=='process') {
         // gender
         if ($_POST['gender']!='Any') {
             $sql .= " and patient_data.sex='".$_POST['gender']."' ";
-        }//INJECTION VECTOR HERE
+        }
         // hipaa overwrite
         if ($_POST['hipaa_choice'] != $hipaa_choices[0]) {
              $sql .= " and patient_data.hipaa_mail='YES' ";
@@ -131,7 +119,7 @@ if ($_POST['form_action']=='process') {
         endswitch;
 
         // sort by
-        $sql.=' ORDER BY '.$_POST['sort_by'];//INJECTION VECTOR
+        $sql.=' ORDER BY '.$_POST['sort_by'];
         // send query for results.
         //echo $sql;exit();
         $res = sqlStatement($sql);
@@ -173,7 +161,7 @@ if ($_POST['form_action']=='process') {
 <main class="container">
     <header class="row">
         <div class="col-md-6 col-md-offset-3 text-center">
-            <h1><?php echo xlt('Batch Communication Tool', 'e')?></h1>
+            <h1><?php echo xlt('Batch Communication Tool')?></h1>
         </div>    
     </header>
     <?php
@@ -238,7 +226,7 @@ if ($_POST['form_action']=='process') {
             <div class="col-md-3 well">
                 <select name="and_or_app_within">
                     <option value="AND"><?php echo xlt('And') ?></option>
-                    <option value="OR"><?php echo xlt('Or', 'e') ?></option>
+                    <option value="OR"><?php echo xlt('Or') ?></option>
                     <option value="AND NOT"><?php echo xlt('And not') ?></option>
                     <option value="OR NOT"><?php echo xlt('Or not') ?></option>
                 </select>

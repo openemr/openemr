@@ -1,10 +1,17 @@
 <?php
-// Copyright (C) 2010 OpenEMR Support LLC
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
+/**
+ * To be run by cron hourly, sending phone reminders
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @author  Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2012 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");

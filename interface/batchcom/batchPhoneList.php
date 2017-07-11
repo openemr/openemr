@@ -1,10 +1,16 @@
 <?php
-/*    
-    batch list processor, included from batchcom 
-*/
-
-// create a list for phone calls
-// menu for fields could be added in the future
+/**
+ * Batch list processor, included from batchcom
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2008 cfapress
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @todo menu for fields could be added in the future
+ */
 
 require_once("../globals.php");
 use OpenEMR\Core\Header;
@@ -18,8 +24,8 @@ use OpenEMR\Core\Header;
 <body class="body_top">
     <header>
         <h1>
-            <?php echo xlt('Batch Communication Tool', 'e'); ?>
-            <small><?php echo xlt('Phone Call List report', 'e'); ?></small>
+            <?php echo xlt('Batch Communication Tool'); ?>
+            <small><?php echo xlt('Phone Call List report'); ?></small>
         </h1>
     </header>
     <main class="container">
@@ -27,7 +33,7 @@ use OpenEMR\Core\Header;
             <div class="col-md-12">
                 <table class="table table-striped table-bordered">
                 <thead>
-                    <?php
+                    <?php'e'
                     foreach ([xlt('Name'),xlt('DOB'),xlt('Home'),xlt('Work'),xlt('Contact'),xlt('Cell')] as $header) {
                         echo "<th>$header</th>";
                     }

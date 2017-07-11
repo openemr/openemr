@@ -1,7 +1,15 @@
 <?php
-/*    
-    batch Email processor, included from batchcom 
-*/
+/**
+ * Batch Email processor, included from batchcom
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2008 cfapress
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // create file header.
 // menu for fields could be added in the future

@@ -1,4 +1,15 @@
 <?php
+/**
+ * Misc. BatchCom convenience functions
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Andres Paglayan <andres@paglayan.com>
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @copyright Copyright (c) 2005 Andres Paglayan <andres@paglayan.com>
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 //validation functions
 function check_date_format($date)

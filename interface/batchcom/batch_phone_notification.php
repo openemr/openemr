@@ -1,23 +1,23 @@
 <?php
-// Copyright (C) 2010 Maviq <info@maviq.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-////////////////////////////////////////////////////////////////////
-// Package:	cron_phone_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an phone reminder
-//		Based on cron_email_notification by Larry Lart
-// Created by:
-// Updated by:	Maviq on 01/12/2010
-////////////////////////////////////////////////////////////////////
+/**
+ * To be run by cron hourly, sending phone reminders
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Matthew Vita <matthewvita48@gmail.com>
+ * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @author  Maviq
+ * @copyright Copyright (c) 2010 Maviq
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 $backpic = "";
 //phone notification
-$ignoreAuth=1;
+$ignoreAuth = 1;
 
 //Set the working directory to the path of the file
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -111,7 +111,6 @@ sqlClose();
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
-
     $query = "update openemr_postcalendar_events set ";
 
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table

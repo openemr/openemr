@@ -2,25 +2,13 @@
 /**
  * smsnotification script.
  *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
- * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  cfapress
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @link    http://www.open-emr.org
- * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008 cfapress
  * @copyright Copyright (c) 2017 Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * @todo    KNOWN SQL INJECTION VECTOR
  */
 
 require_once("../globals.php");
@@ -31,9 +19,7 @@ require_once("batchcom.inc.php");
 use OpenEMR\Core\Header;
 
 // gacl control
-$thisauth = acl_check('admin', 'notification');
-
-if (!$thisauth) {
+if (!acl_check('admin', 'notification')) {
     echo "<html>\n<body>\n<h1>";
     echo xlt('You are not authorized for this.');
     echo "</h1>\n</body>\n</html>\n";
@@ -105,11 +91,11 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <title><?php echo xlt("SMS Notification"); ?></title>
 </head>
 <body class="body_top">
-    <?php require_once("batch_navigation.php");?>
+    <?php require_once("batch_navigation.php"); ?>
     <header class="text-center">
         <h1>
             <?php echo xlt('Batch Communication Tool'); ?>
-            <small><?php echo xlt('SMS Notification')?></small>
+            <small><?php echo xlt('SMS Notification'); ?></small>
         </h1>
     </header>
 
@@ -124,14 +110,14 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         ?>
         <form name="select_form" method="post" action="">
             <input type="hidden" name="type" value="SMS">
-            <input type="hidden" name="notification_id" value="<?php echo $notification_id;?>">
+            <input type="hidden" name="notification_id" value="<?php echo $notification_id; ?>">
             <div class="row">
                 <div class="col-md-12">
                     <label for="sms_gateway_type"><?php echo xlt('SMS Gateway') ?>:</label>
                     <select name="sms_gateway_type">
                         <option value="">Select SMS Gateway</option>
                         <?php foreach ($sms_gateway as $value) { ?>
-                            <option value="<?php echo $value;?>" 
+                            <option value="<?php echo $value; ?>" 
                             <?php
                             if ($sms_gateway_type == $value) {
                                 echo "selected";
@@ -145,7 +131,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="provider_name"><?php echo xlt('Name of Provider')?>:</label>
+                    <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
                     <input type="text" name="provider_name" size="40" value="<?php echo $provider_name; ?>" placeholder="provider name">
                 </div>
             </div>
