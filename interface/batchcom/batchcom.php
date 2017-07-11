@@ -132,22 +132,8 @@ if ($_POST['form_action']=='Process') {
 	<?php html_header_show();?>
 	<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 	<link rel="stylesheet" href="batchcom.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
-    <script LANGUAGE="JavaScript">
-    $(document).ready(function() {
-        $('.datepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = false; ?>
-            <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-        });
-    });
-    </script>
 
 	</head>
 	<body class="body_top">
@@ -188,22 +174,8 @@ if ($_POST['form_action']=='Process') {
 <?php html_header_show();?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" href="batchcom.css" type="text/css">
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
-
-<script LANGUAGE="JavaScript">
-$(document).ready(function() {
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
-});
-</script>
 
 </head>
 <body class="body_top">
@@ -258,16 +230,16 @@ $(document).ready(function() {
 
                         </SELECT>
         -->
-      <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"></td><td> <?php xl('Appointment within','e')?>:</td><td><INPUT TYPE='text' size='12' class='datepicker' NAME='app_s'></td><td>
+      <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_app_within" value="OR"></td><td> <?php xl('Appointment within','e')?>:</td><td><INPUT TYPE='text' size='12' class='oemr_date' NAME='app_s'></td><td>
 
-        <?php xl('And','e')?> :  <INPUT TYPE='text' size='12' class='datepicker' NAME='app_e'></td>
+        <?php xl('And','e')?> :  <INPUT TYPE='text' size='12' class='oemr_date' NAME='app_e'></td>
      </tr><tr><td>
 
-     <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"></td><td> <?php xl('Seen since','e')?> :</td><td><INPUT TYPE='text' size='12' class='datepicker' NAME='seen_since'></td>
+     <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_seen_since" value="OR"></td><td> <?php xl('Seen since','e')?> :</td><td><INPUT TYPE='text' size='12' class='oemr_date' NAME='seen_since'></td>
   <td>&nbsp;</td>
    </tr><tr><td>
 
-        <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"></td><td> <?php xl('Not seen since','e')?> :</td><td><INPUT TYPE='text' size='12' class='datepicker' NAME='not_seen_since'></td>
+        <?php xl('And','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="AND" checked>, <?php xl('Or','e')?>:<INPUT TYPE="radio" NAME="and_or_not_seen_since" value="OR"></td><td> <?php xl('Not seen since','e')?> :</td><td><INPUT TYPE='text' size='12' class='oemr_date' NAME='not_seen_since'></td>
  <td>&nbsp;</td>
    </tr><tr><td>
         <?php xl('Sort by','e')?> :</td><td><SELECT NAME="sort_by">
@@ -300,4 +272,5 @@ $(document).ready(function() {
 </div>
 </div>
 </FORM>
-
+<?php require_once($GLOBALS['srcdir']."/asset_datetimepicker.inc.php"); ?>
+</body>
