@@ -30,11 +30,6 @@ function check_select($select, $array)
     return array_search($select, $array) or 0===array_search($select, $array);
 }
 
-function check_and_or($option)
-{
-    return $option=='AND' or $option=='OR' or $option=='AND NOT' or $option=='OR NOT';
-}
-
 function where_or_and($and)
 {
     if ($and=='') {

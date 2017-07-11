@@ -68,16 +68,6 @@ if ($_POST['form_action']=='process') {
     if (!check_select($_POST['sort_by'], $sort_by_choices)) {
         $form_err.=xl('Error in "Sort By" selection');
     }
-    // validates and or
-    if (!check_and_or($_POST['and_or_gender'])) {
-        $form_err .= xl('Error in and/or option');
-    }
-    if (!check_and_or($_POST['and_or_app_within'])) {
-        $form_err .= xl('Error in and/or option');
-    }
-    if (!check_and_or($_POST['and_or_seen_within'])) {
-        $form_err .= xl('Error in and/or option');
-    }
 
     //process sql
     if (!$form_err) {
@@ -123,7 +113,7 @@ if ($_POST['form_action']=='process') {
             $sql .= " and patient_data.sex=?";
             array_push($params, $_POST['gender']);
         }
-        // hipaa overwrite
+        // hipaa override
         if ($_POST['hipaa_choice'] != $hipaa_choices[0]) {
             $sql .= " and patient_data.hipaa_mail='YES' ";
         }
@@ -210,20 +200,8 @@ if ($_POST['form_action']=='process') {
                 </select>
             </div>
             <div class="col-md-3 well form-group">
-                <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
-                <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
-                <label for="age_upto text-center"><?php echo xlt('to'); ?></label>
-                <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-3 well form-group">
-                <select name="and_or_gender">
-                    <option value="AND"><?php echo xlt('And') ?></option>
-                    <option value="OR"><?php echo xlt('Or') ?></option>
-                </select>
                 <label for="gender"><?php echo xlt('Gender') ?>:</label>
-                <select name="gender">
+                <select name="gender" class="form-control">
                     <?php
                     foreach ($gender_choices as $choice) {
                         echo "<option>" . text($choice) . "</option>";
@@ -231,13 +209,15 @@ if ($_POST['form_action']=='process') {
                     ?>
                 </select>
             </div>
+        </div>
+        <div class="row">
             <div class="col-md-3 well form-group">
-                <select name="and_or_app_within">
-                    <option value="AND"><?php echo xlt('And') ?></option>
-                    <option value="OR"><?php echo xlt('Or') ?></option>
-                    <option value="AND NOT"><?php echo xlt('And not') ?></option>
-                    <option value="OR NOT"><?php echo xlt('Or not') ?></option>
-                </select>
+                <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
+                <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
+                <label for="age_upto text-center"><?php echo xlt('to'); ?></label>
+                <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
+            </div>
+            <div class="col-md-3 well form-group">
                 <label for="app_s"><?php echo xlt('Appointment within') ?>:</label>
                     <input type="text" class="datepicker form-control" name="app_s" placeholder="<?php echo xla('any date'); ?>">
                     <div class="text-center"><?php echo xlt('to'); ?></div>
@@ -245,12 +225,6 @@ if ($_POST['form_action']=='process') {
             </div>
             <!-- later gator    <br>Insurance: <SELECT multiple NAME="insurance" Rows="10" cols="20"></SELECT> -->
             <div class="col-md-3 well form-group">
-                <select name="and_or_seen_within">
-                    <option value="AND"><?php echo xlt('And'); ?></option>
-                    <option value="OR"><?php echo xlt('Or'); ?></option>
-                    <option value="AND NOT"><?php echo xlt('And not'); ?></option>
-                    <option value="OR NOT"><?php echo xlt('Or not'); ?></option>
-                </select>
                 <label for="app_s"><?php echo xlt('Seen within')?>:</label>
                     <input type="text" class="datepicker form-control" name="seen_since" placeholder="<?php echo xla('any date'); ?>">
                     <div class="text-center"><?php echo xlt('to'); ?></div>
