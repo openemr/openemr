@@ -35,7 +35,7 @@ $thisauth = acl_check('admin', 'notification');
 
 if (!$thisauth) {
     echo "<html>\n<body>\n";
-    echo "<p>".xl('You are not authorized for this.','','','</p>')."\n";
+    echo "<p>".xl('You are not authorized for this.', '', '', '</p>')."\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -43,10 +43,18 @@ if (!$thisauth) {
  $type = 'SMS/Email Settings';
 // process form
 if ($_POST['form_action']=='save') {
-    if ($_POST['Send_SMS_Before_Hours']=="") $form_err.=xl('Empty value in "SMS Hours"','','<br>');
-    if ($_POST['Send_Email_Before_Hours']=="") $form_err.=xl('Empty value in "Email Hours"','','<br>');
-    if ($_POST['SMS_gateway_username']=="") $form_err.=xl('Empty value in "Username"','','<br>');
-    if ($_POST['SMS_gateway_password']=="") $form_err.=xl('Empty value in "Password"','','<br>');
+    if ($_POST['Send_SMS_Before_Hours']=="") {
+        $form_err.=xl('Empty value in "SMS Hours"', '', '<br>');
+    }
+    if ($_POST['Send_Email_Before_Hours']=="") {
+        $form_err.=xl('Empty value in "Email Hours"', '', '<br>');
+    }
+    if ($_POST['SMS_gateway_username']=="") {
+        $form_err.=xl('Empty value in "Username"', '', '<br>');
+    }
+    if ($_POST['SMS_gateway_password']=="") {
+        $form_err.=xl('Empty value in "Password"', '', '<br>');
+    }
     //process sql
     if (!$form_err) {
         $sql_text=" ( `SettingsId` , `Send_SMS_Before_Hours` , `Send_Email_Before_Hours` , `SMS_gateway_password` , `SMS_gateway_apikey` , `SMS_gateway_username` , `type` ) ";
@@ -55,14 +63,16 @@ if ($_POST['form_action']=='save') {
         //echo $query;
         $id = sqlInsert($query);
         $sql_msg="ERROR!... in Update";
-        if($id)    $sql_msg="SMS/Email Alert Settings Updated Successfully";
+        if ($id) {
+            $sql_msg="SMS/Email Alert Settings Updated Successfully";
+        }
     }
 }
 
 // fetch data from table
 $sql="select * from notification_settings where type='$type'";
 $result = sqlQuery($sql);
-if($result) {
+if ($result) {
     $SettingsId = $result[SettingsId];
     $Send_SMS_Before_Hours = $result[Send_SMS_Before_Hours];
     $Send_Email_Before_Hours = $result[Send_Email_Before_Hours];
@@ -82,45 +92,51 @@ if($result) {
     <?php include_once("batch_navigation.php");?>
     <header class="text-center">
         <h1>
-            <?php xl('Batch Communication Tool','e'); ?>
-            <small><?php xl('SMS/Email Alert Settings','e')?></small>
+            <?php xl('Batch Communication Tool', 'e'); ?>
+            <small><?php xl('SMS/Email Alert Settings', 'e')?></small>
         </h1>
     </header>
 
     <main class="container">
-        <?php if ($form_err) { echo "<div class=\"alert alert-danger\">".xl("The following errors occurred").": $form_err</div>"; } ?>
-        <?php if ($sql_msg) { echo "<div class=\"alert alert-info\">".xl("The following errors occurred").": $sql_msg</div>"; } ?>
+        <?php
+        if ($form_err) {
+             echo "<div class=\"alert alert-danger\">".xl("The following errors occurred").": $form_err</div>";
+        }
+        if ($sql_msg) {
+            echo "<div class=\"alert alert-info\">".xl("The following errors occurred").": $sql_msg</div>";
+        }
+        ?>
         <form name="select_form" method="post" action="">
             <input type="hidden" name="type" value="SMS">
             <input type="Hidden" name="SettingsId" value="<?php echo $SettingsId;?>">
 
             <div class="row">
                 <div class="col-md-12">
-                    <label for="Send_SMS_Before_Hours"><?php xl('SMS send before','e')?>:</label>
+                    <label for="Send_SMS_Before_Hours"><?php xl('SMS send before', 'e')?>:</label>
                     <input type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_SMS_Before_Hours; ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="Send_Email_Before_Hours"><?php xl('Email send before','e')?>:</label>
+                    <label for="Send_Email_Before_Hours"><?php xl('Email send before', 'e')?>:</label>
                     <input type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_Email_Before_Hours; ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_username"><?php xl('Username for SMS Gateway','e')?>:</label>
+                    <label for="SMS_gateway_username"><?php xl('Username for SMS Gateway', 'e')?>:</label>
                     <input type="text" name="SMS_gateway_username" size="40" value="<?php echo $SMS_gateway_username; ?>" placeholder="username">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_password"><?php xl('Password for SMS Gateway','e')?>:</label>
+                    <label for="SMS_gateway_password"><?php xl('Password for SMS Gateway', 'e')?>:</label>
                     <input type="password" name="SMS_gateway_password" size="40" value="<?php echo $SMS_gateway_password; ?>" placeholder="password">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <label for="SMS_gateway_apikey"><?php xl('SMS Gateway API key','e')?>:</label>
+                    <label for="SMS_gateway_apikey"><?php xl('SMS Gateway API key', 'e')?>:</label>
                     <input type="text" name="SMS_gateway_apikey" size="40" value="<?php echo $SMS_gateway_apikey; ?>" placeholder="key">
                 </div>
             </div>

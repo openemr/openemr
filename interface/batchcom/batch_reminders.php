@@ -8,7 +8,7 @@
 
 
 require_once(dirname(__FILE__)."/../../interface/globals.php");
-require_once ($GLOBALS['srcdir'] . "/maviq_phone_api.php");
+require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
 require_once($GLOBALS['srcdir'] . "/reminders.php");
 require_once($GLOBALS['srcdir'] . "/report_database.inc");
 
@@ -29,7 +29,7 @@ $report_id = ($_GET['report_id']) ? $_GET['report_id'] : "";
 // of other server activities, albeit it may negatively impact the performance
 // of this script (note this is only applicable for linux).
 if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
-  proc_nice($GLOBALS['pat_rem_clin_nice']);
+    proc_nice($GLOBALS['pat_rem_clin_nice']);
 }
 ?>
 
@@ -54,21 +54,21 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
  <tr>
   <td class='text' align='left' colspan="3"><br>
 
-   <?php if ($report_id) {
+    <?php
+    if ($report_id) {
      // collect log from a previous run to show
-     $results_log = collectReportDatabase($report_id);
-     $data_log = json_decode($results_log['data'],TRUE);
-     $update_rem_log = $data_log[0];
-     if ($results_log['type'] == "process_send_reminders") {
-       $send_rem_log = $data_log[1];
-     }
-     echo "<span class='text'>" . xlt("Date of Report") . ": " . text($results_log['date_report']) . "</span><br><br>";
-   }
-   else {
-     $update_rem_log = update_reminders_batch_method();
-     $send_rem_log = send_reminders();
-   }
-   ?>
+        $results_log = collectReportDatabase($report_id);
+        $data_log = json_decode($results_log['data'], true);
+        $update_rem_log = $data_log[0];
+        if ($results_log['type'] == "process_send_reminders") {
+             $send_rem_log = $data_log[1];
+        }
+        echo "<span class='text'>" . xlt("Date of Report") . ": " . text($results_log['date_report']) . "</span><br><br>";
+    } else {
+        $update_rem_log = update_reminders_batch_method();
+        $send_rem_log = send_reminders();
+    }
+    ?>
 
     <span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been updated'), ENT_NOQUOTES) . ":"?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total active actions'), ENT_NOQUOTES) . ": " . $update_rem_log['total_active_actions'];?></span><br>
@@ -81,7 +81,7 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
       <span class="text"><?php echo htmlspecialchars(xl('Total inactivated reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_inactivated_reminders'];?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unchanged reminders'), ENT_NOQUOTES) . ": " . $update_rem_log['number_unchanged_reminders'];?></span><br>
 
-   <?php if ($results_log['type'] != "process_reminders") { ?>
+    <?php if ($results_log['type'] != "process_reminders") { ?>
     <br><span class="text"><?php echo htmlspecialchars(xl('The patient reminders have been sent'), ENT_NOQUOTES) . ":"?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders before sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_pre_unsent_reminders'];?></span><br>
       <span class="text"><?php echo htmlspecialchars(xl('Total unsent reminders after sending process'), ENT_NOQUOTES) . ": " . $send_rem_log['total_post_unsent_reminders'];?></span><br>
@@ -91,13 +91,13 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
       <span class="text"><?php echo htmlspecialchars(xl('Total failed reminders sent via phone'), ENT_NOQUOTES) . ": " . $send_rem_log['number_unchanged_reminders'];?></span><br>
 
     <br><span class="text"><?php echo htmlspecialchars(xl('(Email delivery is immediate, while automated VOIP is sent to the service provider for further processing.)'), ENT_NOQUOTES)?></span><br>
-   <?php } // end of ($results_log['type'] != "process_reminders") ?>
+    <?php } // end of ($results_log['type'] != "process_reminders") ?>
 
-   <?php if (report_id) { ?>
+    <?php if (report_id) { ?>
      <br><input type="button" value="<?php echo htmlspecialchars(xl('Back'), ENT_QUOTES); ?>" onClick="top.restoreSession(); window.open('../reports/report_results.php','_self',false)"><br><br><br>
-   <?php } else { ?>
+    <?php } else { ?>
      <br><input type="button" value="<?php echo htmlspecialchars(xl('Close'), ENT_QUOTES); ?>" onClick="window.close()"><br><br><br>
-   <?php } ?>
+    <?php } ?>
 
   </td>
  </tr>

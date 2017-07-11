@@ -12,13 +12,14 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
+<title><?php echo xlt("Phone Call List"); ?></title>
 <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
     <header>
         <h1>
-            <?php xl('Batch Communication Tool','e'); ?>
-            <small><?php xl('Phone Call List report','e'); ?></small>
+            <?php xlt('Batch Communication Tool', 'e'); ?>
+            <small><?php xlt('Phone Call List report', 'e'); ?></small>
         </h1>
     </header>
     <main class="container">
@@ -26,9 +27,11 @@ use OpenEMR\Core\Header;
             <div class="col-md-12">
                 <table class="table table-striped table-bordered">
                 <thead>
-                    <?php foreach([xl('Name'),xl('DOB'),xl('Home'),xl('Work'),xl('Contact'),xl('Cell')] as $header) {
+                    <?php
+                    foreach ([xl('Name'),xl('DOB'),xl('Home'),xl('Work'),xl('Contact'),xl('Cell')] as $header) {
                         echo "<th>$header</th>";
-                    } ?>
+                    }
+                    ?>
                 </thead>
                 <?php
                 while ($row = sqlFetchArray($res)) {
