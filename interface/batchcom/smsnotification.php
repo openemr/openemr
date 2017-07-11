@@ -38,30 +38,32 @@ if ($_POST['form_action']=='save') {
     //validation uses the functions in notification.inc.php
     //validate dates
     if (!check_date_format($_POST['next_app_date'])) {
-        $form_err .= xlt('Date format for "Next Appointment" is not valid') . '<br>';
+        $form_err .= xl('Date format for "Next Appointment" is not valid') . '<br>';
     }
     // validate selections
-    if ($_POST['sms_gateway_type']=="") {
-        $form_err .= xlt('Error in "SMS Gateway" selection') . '<br>';
+    if ($_POST['sms_gateway_type'] == "") {
+        $form_err .= xl('Error in "SMS Gateway" selection') . '<br>';
     }
     // validates and or
-    if ($_POST['provider_name']=="") {
-        $form_err .= xlt('Empty value in "Name of Provider"') . '<br>';
+    if ($_POST['provider_name'] == "") {
+        $form_err .= xl('Empty value in "Name of Provider"') . '<br>';
     }
-    if ($_POST['message']=="") {
-        $form_err .= xlt('Empty value in "SMS Text"') . '<br>';
+    if ($_POST['message'] == "") {
+        $form_err .= xl('Empty value in "SMS Text"') . '<br>';
     }
     //process sql
     if (!$form_err) {
         $next_app_time = $_POST[hour].":".$_POST['min'];
         $sql_text=" ( `notification_id` , `sms_gateway_type` , `next_app_date` , `next_app_time` , `provider_name` , `message` , `email_sender` , `email_subject` , `type` ) ";
-        $sql_value=" ( '".$_POST[notification_id]."' , '".$_POST[sms_gateway_type]."' , '".$_POST[next_app_date]."' , '".$next_app_time."' , '".$_POST[provider_name]."' , '".$_POST[message]."' , '".$_POST[email_sender]."' , '".$_POST[email_subject]."' , 'SMS' ) ";
+        $sql_value=" (?, ?, ?, ?, ?, ?, ?, 'SMS') ";
+        $values = array($_POST[notification_id], $_POST[sms_gateway_type], $_POST[next_app_date], $next_app_time,
+                        $_POST[provider_name], $_POST[message], $_POST[email_sender], $_POST[email_subject]);
         $query = "REPLACE INTO `automatic_notification` $sql_text VALUES $sql_value";
         //echo $query;
         $id = sqlInsert($query);
-        $sql_msg = "ERROR!... in Update";
+        $sql_msg = xl("ERROR!... in Update");
         if ($id) {
-            $sql_msg = "SMS Notification Settings Updated Successfully";
+            $sql_msg = xl("SMS Notification Settings Updated Successfully");
         }
     }
 }
@@ -70,12 +72,12 @@ if ($_POST['form_action']=='save') {
 $sql = "select * from automatic_notification where type='SMS'";
 $result = sqlQuery($sql);
 if ($result) {
-    $notification_id = $result[notification_id];
-    $sms_gateway_type = $result[sms_gateway_type];
-    $next_app_date = $result[next_app_date];
-    list($hour,$min) = @explode(":", $result[next_app_time]);
-    $provider_name=$result[provider_name];
-    $message=$result[message];
+    $notification_id = $result['notification_id'];
+    $sms_gateway_type = $result['sms_gateway_type'];
+    $next_app_date = $result['next_app_date'];
+    list($hour,$min) = @explode(":", $result['next_app_time']);
+    $provider_name = $result['provider_name'];
+    $message = $result['message'];
 }
 
 // menu arrays (done this way so it's easier to validate input on validate selections)
@@ -101,19 +103,19 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <main>
         <?php
         if ($form_err) {
-            echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
+            echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
         }
         if ($sql_msg) {
-            echo "<div class=\"alert alert-info\">" . xlt("The following errors occurred") . ": $sql_msg</div>";
+            echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
         }
         ?>
         <form name="select_form" method="post" action="">
             <input type="hidden" name="type" value="SMS">
             <input type="hidden" name="notification_id" value="<?php echo $notification_id; ?>">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="sms_gateway_type"><?php echo xlt('SMS Gateway') ?>:</label>
-                    <select name="sms_gateway_type">
+                    <select name="sms_gateway_type" class="form-control">
                         <option value="">Select SMS Gateway</option>
                         <?php foreach ($sms_gateway as $value) { ?>
                             <option value="<?php echo $value; ?>" 
@@ -127,26 +129,20 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                         <?php }?>
                     </select>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
-                    <input type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
+                    <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
-            </div>
+            </div>    
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 form-group">
                     <label for="message"><?php echo xlt('SMS Text, Usable Tags: '); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
-                </div>
-            </div>                    
-            <div class="row">
-                <div class="col-md-12">
-                    <textarea cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
+                    <textarea class="form-control" cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <input class="btn btn-primary" type="submit" name="form_action" value="save">
+                    <input class="btn btn-primary form-control" type="submit" name="form_action" value="save">
                 </div>
             </div>
         </form>

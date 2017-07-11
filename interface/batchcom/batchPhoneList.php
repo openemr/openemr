@@ -30,8 +30,8 @@ use OpenEMR\Core\Header;
         </h1>
     </header>
     <main class="row">
-            <div class="col-md-12">
-                <table class="table table-striped table-bordered">
+        <div class="col-md-12">
+            <table class="table table-striped table-bordered">
                 <thead>
                     <?php
                     foreach ([xlt('Name'),xlt('DOB'),xlt('Home'),xlt('Work'),xlt('Contact'),xlt('Cell')] as $header) {
@@ -39,20 +39,27 @@ use OpenEMR\Core\Header;
                     }
                     ?>
                 </thead>
-                <?php
-                while ($row = sqlFetchArray($res)) {
-                    echo("<tr><td>${row['title']} ");
-                    echo("${row['fname']} ");
-                    echo("${row['lname']} </td>");
-                    echo("<td>${row['DOB']} </td>");
-                    echo("<td>${row['phone_home']} </td>");
-                    echo("<td>${row['phone_biz']} </td>");
-                    echo("<td>${row['phone_contact']} </td>");
-                    echo("<td>${row['phone_cell']} </td></tr>\n");
-                }
-                ?>
-                </table>
-            </div>
+                <tbody>
+                    <?php
+                    while ($row = sqlFetchArray($res)) {
+                        echo "<tr><td>";
+                        echo text(row['title']). ' ' . text(row['fname']) . ' ' . text(row['lname']);
+                        echo "</td><td>";
+                        echo text(row['DOB']);
+                        echo "</td><td>";
+                        echo text(row['phone_home']);
+                        echo "</td><td>";
+                        echo text(row['phone_biz']);
+                        echo "</td><td>";
+                        echo text(row['phone_contact']);
+                        echo "</td><td>";
+                        echo text(row['phone_cell']);
+                        echo "</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
     </main>
 </body>
 </html>

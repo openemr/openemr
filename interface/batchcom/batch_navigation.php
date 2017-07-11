@@ -14,20 +14,34 @@
 <nav>
     <ul class="nav nav-tabs nav-justified">
         <?php
-        function menu_item($label, $href, $class)
-        {
-            return "<li class=\"$class\" role=\"presentation\" title=\"$label\"><a href=\"$href\">$label</a></li>";
+        if (acl_check('admin', 'batchcom')) { ?>
+            <li role="presentation" title="<?php echo xla('BatchCom'); ?>">
+                <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/batchcom.php">
+                    <?php echo xlt('BatchCom'); ?>
+                </a>
+            </li>
+        <?php
         }
-
-        if (acl_check('admin', 'batchcom')) {
-            echo menu_item(xlt('BatchCom'), "/interface/batchcom/batchcom.php");
+        if (acl_check('admin', 'notification')) { ?>
+            <li role="presentation" title="<?php echo xla('SMS Notification'); ?>">
+                <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/smsnotification.php">
+                    <?php echo xlt('SMS Notification'); ?>
+                </a>
+            </li>
+        <?php
         }
-        if (acl_check('admin', 'notification')) {
-            echo menu_item(xlt('SMS Notification'), "/interface/batchcom/smsnotification.php");
-        }
-        echo menu_item(xlt("Email Notification"), "/interface/batchcom/emailnotification.php");
-        echo menu_item(xlt("SMS/Email Alert Settings"), "/interface/batchcom/settingsnotification.php");
         ?>
+        <li role="presentation" title="<?php echo xla('Email Notification'); ?>">
+            <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/emailnotification.php">
+                <?php echo xlt('Email Notification'); ?>
+            </a>
+        </li>
+        <li role="presentation" title="<?php echo xla('SMS/Email Alert Settings'); ?>">
+            <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/settingsnotification.php">
+                <?php echo xlt('SMS/Email Alert Settings'); ?>
+            </a>
+        </li>
+       
     </ul>
 </nav>
 

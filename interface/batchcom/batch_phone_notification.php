@@ -136,7 +136,7 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
 
     //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
-    if ($type=='Phone') {
+    if ($type == 'Phone') {
         $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>''	and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
 
         $check_date = date("Y-m-d", mktime(date("H")+$trigger_hours, 0, 0, date("m"), date("d"), date("Y")));

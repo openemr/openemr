@@ -28,41 +28,44 @@ if (!acl_check('admin', 'notification')) {
 // process form
 if ($_POST['form_action']=='save') {
     if ($_POST['Send_SMS_Before_Hours']=="") {
-        $form_err .= xlt('Empty value in "SMS Hours"') . '<br>';
+        $form_err .= xl('Empty value in "SMS Hours"') . '<br>';
     }
     if ($_POST['Send_Email_Before_Hours']=="") {
-        $form_err .= xlt('Empty value in "Email Hours"') . '<br>';
+        $form_err .= xl('Empty value in "Email Hours"') . '<br>';
     }
     if ($_POST['SMS_gateway_username']=="") {
-        $form_err .= xlt('Empty value in "Username"') . '<br>';
+        $form_err .= xl('Empty value in "Username"') . '<br>';
     }
     if ($_POST['SMS_gateway_password']=="") {
-        $form_err .= xlt('Empty value in "Password"') . '<br>';
+        $form_err .= xl('Empty value in "Password"') . '<br>';
     }
     //process sql
     if (!$form_err) {
-        $sql_text=" ( `SettingsId` , `Send_SMS_Before_Hours` , `Send_Email_Before_Hours` , `SMS_gateway_password` , `SMS_gateway_apikey` , `SMS_gateway_username` , `type` ) ";
-        $sql_value=" ( '".$_POST[SettingsId]."' , '".$_POST[Send_SMS_Before_Hours]."' , '".$_POST[Send_Email_Before_Hours]."' , '".$_POST[SMS_gateway_password]."' , '".$_POST[SMS_gateway_apikey]."' , '".$_POST[SMS_gateway_username]."' , '".$type."' ) ";
+        $sql_text = " ( `SettingsId` , `Send_SMS_Before_Hours` , `Send_Email_Before_Hours` , `SMS_gateway_password` , `SMS_gateway_apikey` , `SMS_gateway_username` , `type` ) ";
+        $sql_value = " (?, ?, ?, ?, ?, ?, ?) ";
+        $values = array($_POST['SettingsId'], $_POST['Send_SMS_Before_Hours'], $_POST['Send_Email_Before_Hours'],
+                        $_POST['SMS_gateway_password'], $_POST['SMS_gateway_apikey'], $_POST['SMS_gateway_username'],
+                        $type);
         $query = "REPLACE INTO `notification_settings` $sql_text VALUES $sql_value";
         //echo $query;
-        $id = sqlInsert($query);
-        $sql_msg="ERROR!... in Update";
+        $id = sqlInsert($query, $values);
+        $sql_msg = xl("ERROR!... in Update");
         if ($id) {
-            $sql_msg="SMS/Email Alert Settings Updated Successfully";
+            $sql_msg = xl("SMS/Email Alert Settings Updated Successfully");
         }
     }
 }
 
 // fetch data from table
-$sql="select * from notification_settings where type='$type'";
+$sql="select * from notification_settings where type='SMS/Email Settings'";
 $result = sqlQuery($sql);
 if ($result) {
-    $SettingsId = $result[SettingsId];
-    $Send_SMS_Before_Hours = $result[Send_SMS_Before_Hours];
-    $Send_Email_Before_Hours = $result[Send_Email_Before_Hours];
-    $SMS_gateway_password=$result[SMS_gateway_password];
-    $SMS_gateway_username=$result[SMS_gateway_username];
-    $SMS_gateway_apikey=$result[SMS_gateway_apikey];
+    $SettingsId = $result['SettingsId'];
+    $Send_SMS_Before_Hours = $result['Send_SMS_Before_Hours'];
+    $Send_Email_Before_Hours = $result['Send_Email_Before_Hours'];
+    $SMS_gateway_password = $result['SMS_gateway_password'];
+    $SMS_gateway_username = $result['SMS_gateway_username'];
+    $SMS_gateway_apikey = $result['SMS_gateway_apikey'];
 }
 //my_print_r($result);
 //START OUT OUR PAGE....
@@ -83,10 +86,10 @@ if ($result) {
     <main>
         <?php
         if ($form_err) {
-             echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
+            echo '<div class="alert alert-danger">' . xlt('The following errors occurred') . ': ' . text($form_err) . '</div>';
         }
         if ($sql_msg) {
-            echo "<div class=\"alert alert-info\">" . xlt("The following errors occurred") . ": $sql_msg</div>";
+            echo '<div class="alert alert-info">' . xlt('The following errors occurred') . ': ' . text($sql_msg) . '</div>';
         }
         ?>
         <form name="select_form" method="post" action="">
@@ -94,38 +97,34 @@ if ($result) {
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="Send_SMS_Before_Hours"><?php echo xlt('SMS send before')?>:</label>
-                    <input type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_SMS_Before_Hours); ?>" placeholder="###">
+                    <input class="form-control" type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_SMS_Before_Hours); ?>" placeholder="###">
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="Send_Email_Before_Hours"><?php echo xlt('Email send before')?>:</label>
-                    <input type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_Email_Before_Hours); ?>" placeholder="###">
+                    <input class="form-control" type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_Email_Before_Hours); ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="SMS_gateway_username"><?php echo xlt('Username for SMS Gateway')?>:</label>
-                    <input type="text" name="SMS_gateway_username" size="40" value="<?php echo attr($SMS_gateway_username); ?>" placeholder="<?php echo xla('username'); ?>">
+                    <input class="form-control" type="text" name="SMS_gateway_username" size="40" value="<?php echo attr($SMS_gateway_username); ?>" placeholder="<?php echo xla('username'); ?>">
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-6 form-group">
                     <label for="SMS_gateway_password"><?php echo xlt('Password for SMS Gateway')?>:</label>
-                    <input type="password" name="SMS_gateway_password" size="40" value="<?php echo attr($SMS_gateway_password); ?>" placeholder="<?php echo xla('password'); ?>">
+                    <input class="form-control" type="password" name="SMS_gateway_password" size="40" value="<?php echo attr($SMS_gateway_password); ?>" placeholder="<?php echo xla('password'); ?>">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 form-group">
                     <label for="SMS_gateway_apikey"><?php echo xlt('SMS Gateway API key')?>:</label>
-                    <input type="text" name="SMS_gateway_apikey" size="40" value="<?php echo attr($SMS_gateway_apikey); ?>" placeholder="<?php echo xla('key'); ?>">
+                    <input class="form-control" type="text" name="SMS_gateway_apikey" size="40" value="<?php echo attr($SMS_gateway_apikey); ?>" placeholder="<?php echo xla('key'); ?>">
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <input class="btn btn-primary" type="submit" name="form_action" value="save">
+                <div class="col-md-12 form-group">
+                    <input class="btn btn-primary form-control" type="submit" name="form_action" value="<?php echo xla('save'); ?>">
                 </div>
             </div>
             

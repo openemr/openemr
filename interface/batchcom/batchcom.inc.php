@@ -50,17 +50,13 @@ function where_or_and($and)
 function register_email($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text)
 {
 
-    $sql="INSERT INTO batchcom SET ";
-    $sql.=" patient_id='$patient_id', ";
-    $sql.="sent_by='$sent_by', ";
-    $sql.="msg_type='$msg_type', ";
-    $sql.="msg_subject='$msg_subject', ";
-    $sql.="msg_text='$msg_text', ";
-    $sql.="msg_date_sent=NOW() ";
-    
+    $sql = "INSERT INTO batchcom SET patient_id=?, sent_by=?,
+                                     msg_type=?, msg_subject=?,
+                                     msg_text=?, msg_date_sent=NOW()";
+
     echo $sql;
 
-    $res = sqlStatement($sql);
+    $res = sqlStatement($sql, array($patient_id, $sent_by, $msg_type, $msg_subject, $msg_text));
 }
 
 function generate_csv($sql_result)
