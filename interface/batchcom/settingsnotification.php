@@ -72,7 +72,7 @@ if ($result) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("Notification Settings"); ?></title>
 </head>
 <body class="body_top container">

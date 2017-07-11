@@ -94,7 +94,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(); ?>
     <title><?php echo xlt("Email Notification"); ?></title>
 </head>
 <body class="body_top container">
