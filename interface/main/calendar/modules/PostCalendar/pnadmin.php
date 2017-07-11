@@ -992,22 +992,22 @@ EOF;
         $event_repeat,$event_repeat_freq,
         $event_repeat_freq_type,$event_repeat_on_num,
         $event_repeat_on_day,$event_repeat_on_freq,$durationh,$durationm,
-        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,
+        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,
         $newname,$newdesc,$newcolor,$new_event_repeat,$new_event_repeat_freq,
         $new_event_repeat_freq_type,$new_event_repeat_on_num,$new_event_repeat_on_day,
         $new_event_repeat_on_freq,$new_durationh,$new_durationm,$new_limitid,$new_end_date_flag,
-        $new_end_date_type,$new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence
+        $new_end_date_type,$new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
         ) = pnVarCleanFromInput('id','del','name','value_cat_type','desc','color',
                             'event_repeat','event_repeat_freq','event_repeat_freq_type',
                             'event_repeat_on_num','event_repeat_on_day',
                             'event_repeat_on_freq','durationh','durationm',
                             'end_date_flag','end_date_type','end_date_freq',
-                            'end_all_day','active','sequence','newname','newdesc','newcolor',
+                            'end_all_day','active','sequence','aco','newname','newdesc','newcolor',
                             'newevent_repeat','newevent_repeat_freq',
                             'newevent_repeat_freq_type','newevent_repeat_on_num',
                             'newevent_repeat_on_day','newevent_repeat_on_freq',
                             'newdurationh','newdurationm','newlimitid','newend_date_flag',
-                            'newend_date_type','newend_date_freq','newend_all_day','newvalue_cat_type','newactive','newsequence'
+                            'newend_date_type','newend_date_freq','newend_all_day','newvalue_cat_type','newactive','newsequence','newaco'
                             );
     //data validation
     foreach($name as $i=>$item)
@@ -1081,6 +1081,7 @@ EOF;
         $output->FormHidden('newend_all_day', $new_end_all_day);
         $output->FormHidden("newactive",$newactive);
         $output->FormHidden("newsequence",$newsequence);
+        $output->FormHidden("newaco",$newaco);
 
         $output->Text(_PC_ADD_CAT . $newname .'.');
         $output->Linebreak();
@@ -1102,6 +1103,7 @@ EOF;
     $output->FormHidden('end_all_day',serialize($end_all_day));
     $output->FormHidden("active",serialize($active));
     $output->FormHidden("sequence",serialize($sequence));
+    $output->FormHidden("aco",serialize($aco));
     $output->Linebreak();
     $output->FormSubmit(_PC_CATS_CONFIRM);
     $output->FormEnd();
@@ -1121,18 +1123,18 @@ function postcalendar_admin_categoriesUpdate()
 
     list($id,$del,$name,$value_cat_type,$desc,$color,
         $event_repeat_array,$event_recurrspec_array,$dels,$durationh,$durationm,
-        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$newname,$newdesc,$newcolor,
+        $end_date_flag,$end_date_type,$end_date_freq,$end_all_day,$active,$sequence,$aco,$newname,$newdesc,$newcolor,
         $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
         $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
-        $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence
+        $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence,$newaco
         ) = pnVarCleanFromInput('id','del','name','value_cat_type','desc','color','event_repeat',
                             'event_recurrspec','dels','durationh','durationm',
-                            'end_date_flag','end_date_type','end_date_freq','end_all_day','active','sequence',
+                            'end_date_flag','end_date_type','end_date_freq','end_all_day','active','sequence','aco',
                             'newname','newdesc','newcolor',
                             'newevent_repeat','newevent_recurrspec',
                             'newevent_recurrfreq','newduration','newlimitid',
                             'newend_date_flag','newend_date_type',
-                            'newend_date_freq','newend_all_day','newvalue_cat_type','newactive','newsequence'
+                            'newend_date_freq','newend_all_day','newvalue_cat_type','newactive','newsequence','newaco'
                             );
 
     $id = unserialize($id);
@@ -1151,6 +1153,7 @@ function postcalendar_admin_categoriesUpdate()
     $end_all_day = unserialize($end_all_day);
     $active = unserialize($active);
     $sequence = unserialize($sequence);
+    $aco = unserialize($aco);
     $updates = array();
 
     if(isset($id)) {
@@ -1189,7 +1192,8 @@ function postcalendar_admin_categoriesUpdate()
 		                             	 pc_end_date_freq='".pnVarPrepForStore($end_date_freq[$i])."',
 		                             	 pc_end_all_day='".pnVarPrepForStore($end_all_day[$i])."',
 		                             	 pc_active ='".pnVarPrepForStore($active[$i])."',
-		                             	 pc_seq = '".pnVarPrepForStore($sequence[$k])."'
+		                             	 pc_seq = '".pnVarPrepForStore($sequence[$k])."',
+		                             	 aco_spec = '".pnVarPrepForStore($aco[$k])."'
 		                             WHERE pc_catid=$i";
 
                 array_push($updates, $update_sql);
@@ -1221,7 +1225,7 @@ function postcalendar_admin_categoriesUpdate()
         $new_event_recurrspec = serialize($new_event_recurrspec);
 
         if(!pnModAPIFunc(__POSTCALENDAR__,'admin','addCategories',
-            array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence,
+            array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence, 'aco'=>$newaco,
             'repeat'=>$new_event_repeat,'spec'=>$new_event_recurrspec,
             'recurrfreq'=>$new_recurrfreq,'duration'=>$new_duration,'limitid'=>$new_dailylimitid,
             'end_date_flag'=>$new_end_date_flag,'end_date_type'=>$new_end_date_flag,
@@ -1320,6 +1324,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('_EDIT_PC_CONFIG_CATDETAILS',_EDIT_PC_CONFIG_CATDETAILS);
     $tpl->assign("_PC_ACTIVE",_PC_ACTIVE);
     $tpl->assign("_PC_SEQ",_PC_SEQ);
+    $tpl->assign("_ACO",_ACO);
     //=================================================================
     //  Repeating Information
     //=================================================================
@@ -1456,6 +1461,11 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('InputDurationMin', "durationm");
     $tpl->assign('ActiveTitleYes',xl('Yes'));
     $tpl->assign('ActiveTitleNo',xl('No'));
+
+    // Added ACO for each category
+    $tpl->assign('InputACO','aco');
+    $acoList = gen_aco_array();
+    $tpl->assign('ACO_List',$acoList);
 
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $authkey = $output->FormHidden('authid',pnSecGenAuthKey());

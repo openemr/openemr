@@ -6,7 +6,7 @@ use ESign\Api;
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/encounter.inc");
 require_once("$srcdir/group.inc");
 require_once("$srcdir/calendar.inc");
 require_once("$srcdir/acl.inc");
@@ -668,10 +668,23 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
+
+    //fetch acl for category of given encounter
+    $pc_catid = fetchCategoryIdByEncounter($encounter);
+    $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
+    if ($postCalendarCategoryACO) {
+        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+        $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+    } else { // if no aco is set for category
+        $authPostCalendarCategory = true;
+        $authPostCalendarCategoryWrite = true;
+    }
+
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
                         "pid = '$pid' AND encounter = '$encounter' LIMIT 1");
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
     // for therapy group
@@ -687,7 +700,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE " .
         "group_id = ? AND encounter = ? LIMIT 1", array($groupId, $encounter));
-    if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
+    if (($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) || !$authPostCalendarCategory) {
         $pass_sens_squad = false;
     }
 }
@@ -932,8 +945,8 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         if ($esign->isLocked()) {
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
         } else {
-            if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') and $is_group == 0)
-            or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) and $is_group and acl_check("groups","glog",false, 'write')))) {
+            if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
+            or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) and $is_group and acl_check("groups","glog",false, 'write')) and $authPostCalendarCategoryWrite)) {
                 echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -943,7 +956,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
             }
         }
 
-        if ( ($esign->isButtonViewable() and $is_group == 0) or ($esign->isButtonViewable() and $is_group and acl_check("groups","glog",false, 'write'))) {
+        if ( ($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and acl_check("groups","glog",false, 'write') and $authPostCalendarCategoryWrite)) {
             if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
                 echo $esign->buttonHtml();
             }

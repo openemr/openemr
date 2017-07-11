@@ -94,7 +94,22 @@
                 						<td valign="top" align="left">
                 							[-$_PC_SEQ-]:<br/>
                 							<input type="text" name="newsequence" value="0" size="4" />
-                						</td>
+										</td>
+										<td valign="top" align="left">
+											[-$_ACO-]:<br/>
+											&nbsp;<select name="new[-$InputACO-]">
+               									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
+													<optgroup label="[-$acoGroupKey-]" >
+													[-foreach item=aco  from=$acoGroup-]
+														<option value="[-$aco.value-]" [-if $cat.aco == $aco.value-]selected [-/if-]>
+															[-$aco.name-]
+														</option>
+													[-/foreach-]
+													</optgroup>
+                								[-/foreach-]
+											</select>
+										</td>
+
             						</tr>
             					</table>
             				</td>
@@ -269,6 +284,21 @@
                 							[-$_PC_SEQ-]:<br/>
                 							<input type="text" name="sequence[]" value="[-$cat.sequence-]" size="4" />
                 						</td>
+										<td valign="top" align="left">
+											[-$_ACO-]:<br/>
+											&nbsp;<select name="[-$InputACO-][]">
+               									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
+													<optgroup label="[-$acoGroupKey-]" >
+													[-foreach item=aco  from=$acoGroup-]
+														<option value="[-$aco.value-]" [-if $cat.aco == $aco.value-]selected [-/if-]>
+															[-$aco.name-]
+														</option>
+													[-/foreach-]
+													</optgroup>
+                								[-/foreach-]
+											</select>
+										</td>
+
             						</tr>
             					</table>
             				</td>

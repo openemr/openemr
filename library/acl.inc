@@ -857,9 +857,27 @@ function zh_acl_check($user_id,$section_identifier)
   //
 function gen_aco_html_options($default='')
 {
+    $acoArray = gen_aco_array();
+    $s = '';
+    foreach ($acoArray as $section => $acos_array) {
+        $s .= "<optgroup label='" . xla($section) . "'>\n";
+        foreach($acos_array as $aco_array) {
+            $s .= "<option value='" . attr($aco_array['value']) . "'";
+            if ($aco_array['value'] == $default) $s .= ' selected';
+            $s .= ">" . xlt($aco_array['name']) . "</option>";
+        }
+        $s .= "</optgroup>";
+    }
+    return $s;
+}
+
+
+  // Returns array of all ACOs
+function gen_aco_array()
+{
     global $phpgacl_location;
     require_once("$phpgacl_location/gacl_api.class.php");
-    $s = '';
+    $acoArray = array();
     $gacl = new gacl_api();
     // collect and sort all aco objects
     $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
@@ -869,20 +887,18 @@ function gen_aco_html_options($default='')
         asort($list_aco_objects[$seckey]);
         $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
         $aco_section_title = $aco_section_data[3];
-        $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
         foreach($list_aco_objects[$seckey] as $acokey) {
             $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $optkey = "$seckey|$acokey";
-            $s .= "<option value='" . attr($optkey) . "'";
-            if ($optkey == $default) $s .= ' selected';
-            $s .= ">" . xlt($aco_title) . "</option>";
+            $acoArray[$aco_section_title][$aco_id]['name'] = $aco_title;
+            $acoArray[$aco_section_title][$aco_id]['value'] = $optkey;
         }
-        $s .= "</optgroup>";
     }
-    return $s;
+    return $acoArray;
 }
+
 
   // Permissions check for an ACO in "section|aco" format.
   // Note $return_value may be an array of return values.
@@ -928,5 +944,13 @@ function acl_check_cat_name($catname, $user='', $return_value='')
     array($catname));
     if (empty($tmp['aco_spec'])) return true;
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
+}
+
+  //Fetches aco for given postcalendar category
+function fetchPostCalendarCategoryACO($pc_catid)
+{
+    $aco = sqlQuery("SELECT aco_spec FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1",
+    array($pc_catid));
+    return $aco['aco_spec'];
 }
 ?>

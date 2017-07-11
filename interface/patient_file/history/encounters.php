@@ -464,6 +464,15 @@ while ($result4 = sqlFetchArray($res4)) {
         $raw_encounter_date = date("Y-m-d", strtotime($result4{"date"}));
         $encounter_date = date("D F jS", strtotime($result4{"date"}));
 
+        //fetch acl for given pc_catid
+        $postCalendarCategoryACO = fetchPostCalendarCategoryACO($result4['pc_catid']);
+    if ($postCalendarCategoryACO) {
+        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+    } else { // if no aco is set for category
+        $authPostCalendarCategory = true;
+    }
+
         // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
         $reason_string .= htmlspecialchars( $result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
         // else
@@ -471,7 +480,7 @@ while ($result4 = sqlFetchArray($res4)) {
 
     if ($result4['sensitivity']) {
         $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
-        if (!$auth_sensitivity) {
+        if (!$auth_sensitivity || !$authPostCalendarCategory) {
             $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
         }
     }
@@ -486,7 +495,7 @@ while ($result4 = sqlFetchArray($res4)) {
         // this encounter's notes and this is the clinical view.
         $encarr = array();
         $encounter_rows = 1;
-    if (!$billing_view && $auth_sensitivity &&
+    if (!$billing_view && $auth_sensitivity && $authPostCalendarCategory &&
             ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser'])))
         {
         $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
@@ -523,7 +532,7 @@ while ($result4 = sqlFetchArray($res4)) {
         if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues
             // show issues for this encounter
             echo "<td>";
-            if ($auth_med && $auth_sensitivity) {
+            if ($auth_med && $auth_sensitivity && $authPostCalendarCategory) {
                 $ires = sqlStatement("SELECT lists.type, lists.title, lists.begdate " .
                                     "FROM issue_encounter, lists WHERE " .
                                     "issue_encounter.pid = ? AND " .
@@ -635,7 +644,7 @@ while ($result4 = sqlFetchArray($res4)) {
     }
         $coded = "";
         $arid = 0;
-    if ($thisauth && $auth_sensitivity) {
+    if ($thisauth && $auth_sensitivity && $authPostCalendarCategory) {
         $binfo = array('', '', '', '', '');
         if ($subresult2 = getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee"))
         {
