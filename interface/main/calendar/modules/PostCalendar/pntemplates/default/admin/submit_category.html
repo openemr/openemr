@@ -97,7 +97,7 @@
 										</td>
 										<td valign="top" align="left">
 											[-$_ACO-]:<br/>
-											&nbsp;<select name="[-$InputACO-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+											&nbsp;<select name="new[-$InputACO-]">
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
 													<optgroup label="[-$acoGroupKey-]" >
 													[-foreach item=aco  from=$acoGroup-]
@@ -286,7 +286,7 @@
                 						</td>
 										<td valign="top" align="left">
 											[-$_ACO-]:<br/>
-											&nbsp;<select name="[-$InputACO-][-literal-][[-/literal-][-$cat.id-][-literal-]][-/literal-]">
+											&nbsp;<select name="[-$InputACO-][]">
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
 													<optgroup label="[-$acoGroupKey-]" >
 													[-foreach item=aco  from=$acoGroup-]
