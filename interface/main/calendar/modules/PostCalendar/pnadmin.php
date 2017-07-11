@@ -1311,6 +1311,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('_EDIT_PC_CONFIG_CATDETAILS',_EDIT_PC_CONFIG_CATDETAILS);
     $tpl->assign("_PC_ACTIVE",_PC_ACTIVE);
     $tpl->assign("_PC_SEQ",_PC_SEQ);
+	$tpl->assign("_ACO",_ACO);
     //=================================================================
     //  Repeating Information
     //=================================================================
@@ -1447,6 +1448,12 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 	$tpl->assign('InputDurationMin', "durationm");
 	$tpl->assign('ActiveTitleYes',xl('Yes'));
 	$tpl->assign('ActiveTitleNo',xl('No'));
+
+	// Added ACO for each category
+	$tpl->assign('InputACO','aco');
+	$acoList = gen_aco_array();
+	$tpl->assign('ACO_List',$acoList);
+
 
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $authkey = $output->FormHidden('authid',pnSecGenAuthKey());

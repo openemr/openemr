@@ -35,6 +35,7 @@ include_once("$srcdir/calendar.inc");
 include_once("$srcdir/patient.inc");
 include "includes/pnre.inc.php";
 include 'includes/pnAPI.php';
+include_once("$srcdir/acl.inc");
 
 // From Michael Brinson 2006-09-19:
 if (isset($_POST['pc_username'])) $_SESSION['pc_username'] = $_POST['pc_username'];
