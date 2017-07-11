@@ -13,52 +13,60 @@
 
 // create file header.
 // menu for fields could be added in the future
+require_once("../globals.php");
+use OpenEMR\Core\Header;
 
 ?>
 <html>
 <head>
-<?php html_header_show();?>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<link rel="stylesheet" href="batchcom.css" type="text/css">
+    <title><?php echo xlt('Email Notification Report'); ?></title>
+    <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
-<span class="title"><?php echo xlt('Batch Communication Tool'); ?></span>
-<br><br>
-<span class="title" ><?php echo xlt('Email Notification Report'); ?></span>
-<br><br>
+<body class="body_top container">
+<header class="row">
+    <?php require_once("batch_navigation.php");?>
+    <h1 class="col-md-12">
+        <a href="batchcom.php"><?php echo xlt('Batch Communication Tool')?></a>
+        <small><?php echo xlt('Email Notification Report'); ?></small>
+    </h1>
+</header>
+<main class="row">
+    <ul class="col-md-12">
+        <?php
+        $email_sender = $_POST['email_sender'];
+        $sent_by = $_SESSION["authId"];
+        $msg_type = xlt('Email from Batchcom');
 
+        while ($row = sqlFetchArray($res)) {
+            // prepare text for ***NAME*** tag
+            $pt_name = $row['title'].' '.$row['fname'].' '.$row['lname'];
+            $pt_email = $row['email'];
 
-<?php
-$email_sender=$_POST['email_sender'];
-$sent_by=$_SESSION["authId"];
-$msg_type=xlt('Email from Batchcom');
+            $email_subject = $_POST['email_subject'];
+            $email_body = $_POST['email_body'];
+            $email_subject = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_subject);
+            $email_body = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_body);
 
-while ($row=sqlFetchArray($res)) {
-    // prepare text for ***NAME*** tag
-    $pt_name=$row['title'].' '.$row['fname'].' '.$row['lname'];
-    $pt_email=$row['email'];
-
-    $email_subject = $_POST['email_subject'];
-    $email_body = $_POST['email_body'];
-    $email_subject = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_subject);
-    $email_body = preg_replace('/\*{3}NAME\*{3}/', $pt_name, $email_body);
-
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "To: $pt_name<".$pt_email.">\r\n";
-    $headers .= "From: <".$email_sender.">\r\n";
-    $headers .= "Reply-to: <".$email_sender.">\r\n";
-    $headers .= "X-Priority: 3\r\n";
-    $headers .= "X-Mailer: PHP mailer\r\n";
-    if (mail($pt_email, $email_subject, $email_body, $headers)) {
-        echo "<br>" . xlt('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "<br>";
-    } else {
-        $m_error = true;
-        $m_error_count++;
+            $headers = "MIME-Version: 1.0\r\n";
+            $headers .= "To: $pt_name<".$pt_email.">\r\n";
+            $headers .= "From: <".$email_sender.">\r\n";
+            $headers .= "Reply-to: <".$email_sender.">\r\n";
+            $headers .= "X-Priority: 3\r\n";
+            $headers .= "X-Mailer: PHP mailer\r\n";
+            if (mail($pt_email, $email_subject, $email_body, $headers)) {
+                echo "<li>" . xlt('Email sent to') . ": " . text($pt_name) . " , " . text($pt_email) . "</li>";
+            } else {
+                $m_error = true;
+                $m_error_count++;
+            }
+        }
+    ?>
+    </ul>
+    <?php
+    if ($m_error) {
+        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . $m_error_count . ' ' . xlt('emails not sent') . '</div>';
     }
-}
-
-if ($m_error) {
-    echo xlt('Could not send email due to a server problem. ') . '<br>' . $m_error_count . xlt(' emails not sent');
-}
-
-?> 
+    ?> 
+</main>
+</body>
+</html>

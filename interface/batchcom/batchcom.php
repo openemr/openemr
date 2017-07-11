@@ -154,16 +154,14 @@ if ($_POST['form_action']=='process') {
 </style>
 </head>
 
-<body class="body_top">
-<!-- larry's sms/email notification -->
-<?php require_once("batch_navigation.php");?>
-<!--- end of larry's insert -->
-<main class="container">
-    <header class="row">
-        <div class="col-md-6 col-md-offset-3 text-center">
-            <h1><?php echo xlt('Batch Communication Tool')?></h1>
-        </div>    
-    </header>
+<body class="body_top container">
+<header class="row">
+    <?php require_once("batch_navigation.php");?>
+    <h1 class="col-md-6 col-md-offset-3 text-center">
+        <?php echo xlt('Batch Communication Tool')?>
+    </h1>    
+</header>
+<main>
     <?php
     if ($form_err) {
         echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";

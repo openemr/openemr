@@ -94,15 +94,15 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt("Email Notification"); ?></title>
 </head>
-<body class="body_top">
-    <?php require_once("batch_navigation.php");?>
-    <header class="text-center">
-        <h1>
-            <?php echo xlt('Batch Communication Tool'); ?>
+<body class="body_top container">
+    <header class="row">
+        <?php require_once("batch_navigation.php");?>
+        <h1 class="col-md-12">
+            <a href="batchcom.php"><?php echo xlt('Batch Communication Tool'); ?></a>
             <small><?php echo xlt('Email Notification'); ?></small>
         </h1>
     </header>
-    <main class="container">
+    <main>
         <?php
         if ($form_err) {
             echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
@@ -113,23 +113,23 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         ?>
         <form name="select_form" method="post" action="">
             <input type="Hidden" name="type" value="Email">
-            <input type="Hidden" name="notification_id" value="<?php echo $notification_id;?>">
+            <input type="Hidden" name="notification_id" value="<?php echo attr($notification_id);?>">
             <div class="row">
                 <div class="col-md-12">
                     <label for="email_sender"><?php echo xlt('Email Sender')?>:</label>
-                    <input type="text" name="email_sender" size="40" value="<?php echo $email_sender; ?>" placeholder="sender name">
+                    <input type="text" name="email_sender" size="40" value="<?php echo attr($email_sender); ?>" placeholder="<?php xla('sender name'); ?>">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="email_subject"><?php echo xlt('Email Subject')?>:</label>
-                    <input type="text" name="email_subject" size="40" value="<?php echo $email_subject; ?>" placeholder="email subject">
+                    <input type="text" name="email_subject" size="40" value="<?php echo attr($email_subject); ?>" placeholder="<?php xla('email subject'); ?>">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="provider_name"><?php echo xlt('Name of Provider')?>:</label>
-                    <input type="text" name="provider_name" size="40" value="<?php echo $provider_name; ?>" placeholder="provider name">
+                    <input type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
             </div>
             <div class="row">
@@ -139,12 +139,12 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <textarea cols="35" rows="8" name="message"><?php echo $message; ?></textarea>
+                    <textarea cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    <input class="btn btn-primary" type="submit" name="form_action" value="save">
+                    <input class="btn btn-primary" type="submit" name="form_action" value="<?php echo xla('save'); ?>">
                 </div>
             </div>
         </form>

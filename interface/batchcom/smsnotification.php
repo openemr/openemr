@@ -90,16 +90,15 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt("SMS Notification"); ?></title>
 </head>
-<body class="body_top">
-    <?php require_once("batch_navigation.php"); ?>
-    <header class="text-center">
-        <h1>
-            <?php echo xlt('Batch Communication Tool'); ?>
+<body class="body_top container">
+    <header class="row">
+        <?php require_once("batch_navigation.php");?>
+        <h1 class="col-md-12">
+            <a href="batchcom.php"><?php echo xlt('Batch Communication Tool'); ?></a>
             <small><?php echo xlt('SMS Notification'); ?></small>
         </h1>
     </header>
-
-    <main class="container">
+    <main>
         <?php
         if ($form_err) {
             echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
@@ -122,7 +121,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                             if ($sms_gateway_type == $value) {
                                 echo "selected";
                             }
-                            echo $value;
+                            echo text($value);
                             ?>
                             </option>
                         <?php }?>
@@ -132,7 +131,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             <div class="row">
                 <div class="col-md-12">
                     <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
-                    <input type="text" name="provider_name" size="40" value="<?php echo $provider_name; ?>" placeholder="provider name">
+                    <input type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
             </div>
             <div class="row">
@@ -142,7 +141,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
             </div>                    
             <div class="row">
                 <div class="col-md-12">
-                    <textarea cols="35" rows="8" name="message"><?php echo $message; ?></textarea>
+                    <textarea cols="35" rows="8" name="message"><?php echo text($message); ?></textarea>
                 </div>
             </div>
             <div class="row">
@@ -150,9 +149,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                     <input class="btn btn-primary" type="submit" name="form_action" value="save">
                 </div>
             </div>
-            
         </form>
-    </div>
-    
+    </main>
 </body>
 </html>

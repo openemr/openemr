@@ -21,19 +21,19 @@ use OpenEMR\Core\Header;
 <title><?php echo xlt("Phone Call List"); ?></title>
 <?php Header::setupHeader(); ?>
 </head>
-<body class="body_top">
-    <header>
-        <h1>
-            <?php echo xlt('Batch Communication Tool'); ?>
+<body class="body_top container">
+    <header class="row">
+        <?php require_once("batch_navigation.php");?>
+        <h1 class="col-md-12">
+            <a href="batchcom.php"><?php echo xlt('Batch Communication Tool'); ?></a>
             <small><?php echo xlt('Phone Call List report'); ?></small>
         </h1>
     </header>
-    <main class="container">
-        <div class="row">
+    <main class="row">
             <div class="col-md-12">
                 <table class="table table-striped table-bordered">
                 <thead>
-                    <?php'e'
+                    <?php
                     foreach ([xlt('Name'),xlt('DOB'),xlt('Home'),xlt('Work'),xlt('Contact'),xlt('Cell')] as $header) {
                         echo "<th>$header</th>";
                     }
@@ -53,7 +53,6 @@ use OpenEMR\Core\Header;
                 ?>
                 </table>
             </div>
-        </div>
     </main>
 </body>
 </html>

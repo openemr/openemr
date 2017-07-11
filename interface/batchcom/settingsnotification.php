@@ -72,16 +72,15 @@ if ($result) {
     <?php Header::setupHeader(['datetime-picker']); ?>
     <title><?php echo xlt("Notification Settings"); ?></title>
 </head>
-<body class="body_top">
-    <?php require_once("batch_navigation.php");?>
-    <header class="text-center">
-        <h1>
-            <?php echo xlt('Batch Communication Tool'); ?>
-            <small><?php echo xlt('SMS/Email Alert Settings')?></small>
+<body class="body_top container">
+    <header class="row">
+        <?php require_once("batch_navigation.php");?>
+        <h1 class="col-md-12">
+            <a href="batchcom.php"><?php echo xlt('Batch Communication Tool'); ?></a>
+            <small><?php echo xlt('SMS/Email Alert Settings'); ?></small>
         </h1>
     </header>
-
-    <main class="container">
+    <main>
         <?php
         if ($form_err) {
              echo "<div class=\"alert alert-danger\">" . xlt("The following errors occurred") . ": $form_err</div>";
@@ -92,36 +91,36 @@ if ($result) {
         ?>
         <form name="select_form" method="post" action="">
             <input type="hidden" name="type" value="SMS">
-            <input type="Hidden" name="SettingsId" value="<?php echo $SettingsId;?>">
+            <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 
             <div class="row">
                 <div class="col-md-12">
                     <label for="Send_SMS_Before_Hours"><?php echo xlt('SMS send before')?>:</label>
-                    <input type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_SMS_Before_Hours; ?>" placeholder="###">
+                    <input type="num" name="Send_SMS_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_SMS_Before_Hours); ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="Send_Email_Before_Hours"><?php echo xlt('Email send before')?>:</label>
-                    <input type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo $Send_Email_Before_Hours; ?>" placeholder="###">
+                    <input type="num" name="Send_Email_Before_Hours" size="10" maxlength="3" value="<?php echo attr($Send_Email_Before_Hours); ?>" placeholder="###">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="SMS_gateway_username"><?php echo xlt('Username for SMS Gateway')?>:</label>
-                    <input type="text" name="SMS_gateway_username" size="40" value="<?php echo $SMS_gateway_username; ?>" placeholder="username">
+                    <input type="text" name="SMS_gateway_username" size="40" value="<?php echo attr($SMS_gateway_username); ?>" placeholder="<?php echo xla('username'); ?>">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="SMS_gateway_password"><?php echo xlt('Password for SMS Gateway')?>:</label>
-                    <input type="password" name="SMS_gateway_password" size="40" value="<?php echo $SMS_gateway_password; ?>" placeholder="password">
+                    <input type="password" name="SMS_gateway_password" size="40" value="<?php echo attr($SMS_gateway_password); ?>" placeholder="<?php echo xla('password'); ?>">
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <label for="SMS_gateway_apikey"><?php echo xlt('SMS Gateway API key')?>:</label>
-                    <input type="text" name="SMS_gateway_apikey" size="40" value="<?php echo $SMS_gateway_apikey; ?>" placeholder="key">
+                    <input type="text" name="SMS_gateway_apikey" size="40" value="<?php echo attr($SMS_gateway_apikey); ?>" placeholder="<?php echo xla('key'); ?>">
                 </div>
             </div>
             <div class="row">
@@ -131,7 +130,7 @@ if ($result) {
             </div>
             
         </form>
-    </div>
+    </main>
     
 </body>
 </html>
