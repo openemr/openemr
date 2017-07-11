@@ -454,9 +454,9 @@ foreach ($providers as $provider) {
                 if ($e1['eid'] == "") { continue; }
 
                 // skip events for other providers
-                // $event['aid']!=0 :With the holidays we included clinic events, they have provider id =0
+                // $e1['aid']!=0 :With the holidays we included clinic events, they have provider id =0
                 // we dont want to exclude those events from being displayed
-                if ($providerid != $e1['aid']  && $event['aid']!=0) { continue; }
+                if ($providerid != $e1['aid']  && $e1['aid'] != 0) { continue; }
 
                 // specially handle all-day events
                 if ($e1['alldayevent'] == 1) {
