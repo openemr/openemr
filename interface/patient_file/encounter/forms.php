@@ -673,7 +673,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
     $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
     $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
-
+    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1],'','write');
 
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .
@@ -939,8 +939,8 @@ if ( $esign->isButtonViewable() ) {
         if ($esign->isLocked()) {
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
           } else {
-          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $is_group == 0)
-              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $is_group AND acl_check("groups","glog",false, 'write')))) {
+          if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') AND $is_group == 0 AND $authPostCalendarCategoryWrite)
+              OR (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) AND $is_group AND acl_check("groups","glog",false, 'write')) AND $authPostCalendarCategoryWrite)) {
             echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -950,7 +950,7 @@ if ( $esign->isButtonViewable() ) {
           }
         }
 
-        if ( ($esign->isButtonViewable() AND $is_group == 0) OR ($esign->isButtonViewable() AND $is_group AND acl_check("groups","glog",false, 'write'))) {
+        if ( ($esign->isButtonViewable() AND $is_group == 0 AND $authPostCalendarCategoryWrite) OR ($esign->isButtonViewable() AND $is_group AND acl_check("groups","glog",false, 'write') AND $authPostCalendarCategoryWrite)) {
           if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
             echo $esign->buttonHtml();
           }
