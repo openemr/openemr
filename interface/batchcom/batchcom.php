@@ -159,7 +159,7 @@ if ($_POST['form_action']=='process') {
     <?php require_once("batch_navigation.php");?>
     <h1 class="col-md-6 col-md-offset-3 text-center">
         <?php echo xlt('Batch Communication Tool')?>
-    </h1>    
+    </h1>
 </header>
 <main>
     <?php
@@ -214,7 +214,7 @@ if ($_POST['form_action']=='process') {
             <div class="col-md-3 well form-group">
                 <label for="age_from"><?php echo xlt("Age Range") . ":"; ?></label>
                 <input name="age_from" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
-                <label for="age_upto text-center"><?php echo xlt('to'); ?></label>
+                <label for="age_upto" class="text-center"><?php echo xlt('to'); ?></label>
                 <input name="age_upto" size="2" type="num" class="form-control" placeholder="<?php echo xla("any"); ?>">
             </div>
             <div class="col-md-3 well form-group">
@@ -237,7 +237,7 @@ if ($_POST['form_action']=='process') {
                     <label for="email_sender"><?php echo xlt('Email Sender'); ?>:</label>
                     <input class="form-control" type="text" name="email_sender" placeholder="your@email.email">
                 </div>
-                
+
                 <div class="col-md-6">
                     <label for="email_subject"><?php echo xlt('Email Subject'); ?>:</label>
                     <input class="form-control" type="text" name="email_subject" placeholder="From your clinic">
@@ -251,9 +251,11 @@ if ($_POST['form_action']=='process') {
             </div>
         </div>
         <div class="row">
-            <div class="col-md-4 col-md-offset-4 text-center form-group">
+            <div class="col-md-12 form-group">
                 <input type="hidden" name="form_action" value="process">
-                <input type="submit" name="submit" class="btn btn-primary form-control" value="<?php echo xla("Process (can take some time)"); ?>">
+                <button type="submit" name="submit" class="btn btn-default btn-save">
+                    <?php echo xla("Process"); ?>
+                </button>
             </div>
         </div>
     </form>

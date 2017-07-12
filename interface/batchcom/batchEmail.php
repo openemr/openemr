@@ -35,7 +35,6 @@ use OpenEMR\Core\Header;
         <?php
         $email_sender = $_POST['email_sender'];
         $sent_by = $_SESSION["authId"];
-        $msg_type = xlt('Email from Batchcom');
 
         while ($row = sqlFetchArray($res)) {
             // prepare text for ***NAME*** tag
@@ -66,7 +65,7 @@ use OpenEMR\Core\Header;
     if ($m_error) {
         echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . $m_error_count . ' ' . xlt('emails not sent') . '</div>';
     }
-    ?> 
+    ?>
 </main>
 </body>
 </html>

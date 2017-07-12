@@ -43,17 +43,17 @@ use OpenEMR\Core\Header;
                     <?php
                     while ($row = sqlFetchArray($res)) {
                         echo "<tr><td>";
-                        echo text(row['title']). ' ' . text(row['fname']) . ' ' . text(row['lname']);
+                        echo text($row['title']). ' ' . text($row['fname']) . ' ' . text($row['lname']);
                         echo "</td><td>";
-                        echo text(row['DOB']);
+                        echo text($row['DOB']);
                         echo "</td><td>";
-                        echo text(row['phone_home']);
+                        echo text($row['phone_home']);
                         echo "</td><td>";
-                        echo text(row['phone_biz']);
+                        echo text($row['phone_biz']);
                         echo "</td><td>";
-                        echo text(row['phone_contact']);
+                        echo text($row['phone_contact']);
                         echo "</td><td>";
-                        echo text(row['phone_cell']);
+                        echo text($row['phone_cell']);
                         echo "</td></tr>";
                     }
                     ?>

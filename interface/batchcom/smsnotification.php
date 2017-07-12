@@ -111,14 +111,14 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
         ?>
         <form name="select_form" method="post" action="">
             <input type="hidden" name="type" value="SMS">
-            <input type="hidden" name="notification_id" value="<?php echo $notification_id; ?>">
+            <input type="hidden" name="notification_id" value="<?php echo attr($notification_id); ?>">
             <div class="row">
                 <div class="col-md-6 form-group">
                     <label for="sms_gateway_type"><?php echo xlt('SMS Gateway') ?>:</label>
                     <select name="sms_gateway_type" class="form-control">
-                        <option value="">Select SMS Gateway</option>
+                        <option value=""><?php echo xlt('Select SMS Gateway'); ?></option>
                         <?php foreach ($sms_gateway as $value) { ?>
-                            <option value="<?php echo $value; ?>" 
+                            <option value="<?php echo attr($value); ?>"
                             <?php
                             if ($sms_gateway_type == $value) {
                                 echo "selected";
@@ -133,7 +133,7 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                     <label for="provider_name"><?php echo xlt('Name of Provider'); ?>:</label>
                     <input class="form-control" type="text" name="provider_name" size="40" value="<?php echo attr($provider_name); ?>" placeholder="<?php xla('provider name'); ?>">
                 </div>
-            </div>    
+            </div>
             <div class="row">
                 <div class="col-md-12 form-group">
                     <label for="message"><?php echo xlt('SMS Text, Usable Tags: '); ?>***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME*** (i.e. Dear ***NAME***):</label>
@@ -141,8 +141,8 @@ $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <input class="btn btn-primary form-control" type="submit" name="form_action" value="save">
+                <div class="col-md-12 form-group">
+                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
         </form>

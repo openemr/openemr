@@ -124,12 +124,12 @@ if ($result) {
             </div>
             <div class="row">
                 <div class="col-md-12 form-group">
-                    <input class="btn btn-primary form-control" type="submit" name="form_action" value="<?php echo xla('save'); ?>">
+                    <button class="btn btn-default btn-save" type="submit" name="form_action" value="save"><?php echo xlt('Save'); ?></button>
                 </div>
             </div>
-            
+
         </form>
     </main>
-    
+
 </body>
 </html>
