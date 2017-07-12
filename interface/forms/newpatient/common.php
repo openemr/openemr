@@ -223,6 +223,16 @@ function cancelClicked() {
                   continue;
               }
 
+              // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
+              $postCalendarCategoryACO = fetchPostCalendarCategoryACO($catId);
+              $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
+              //$authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+              $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1],'','write');
+
+              if (!$authPostCalendarCategoryWrite) {
+                  continue;
+              }
+
 
               $optionStr = '<option value="%pc_catid%" %selected%>%pc_catname%</option>';
               $optionStr = str_replace("%pc_catid%", attr($catId), $optionStr);
