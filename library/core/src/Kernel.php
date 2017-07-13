@@ -10,17 +10,15 @@ namespace OpenEMR\Core;
 
 //require_once dirname(__FILE__) . '/../../../interface/globals.php';
 
-use OpenEMR\Admin\Event\AdminSubscriber;
-use OpenEMR\Core\Event\HeaderLoadedEvent;
-use OpenEMR\Sample\Event\SampleSubscriber;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
-use Symfony\Component\Config\FileLocator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 class Kernel
 {
@@ -43,14 +41,15 @@ class Kernel
     private function prepareContainer()
     {
         if (!$this->container) {
-            $this->container = new ContainerBuilder(new ParameterBag());
-            $this->getContainer()->addCompilerPass(new RegisterListenersPass());
-            $this->getContainer()->register('event_dispatcher', EventDispatcher::class);
-            $this->loadServiceConfig();
+            $builder = new ContainerBuilder(new ParameterBag());
+            $builder->addCompilerPass(new RegisterListenersPass());
+            $definition = new Definition(ContainerAwareEventDispatcher::class, [new Reference('service_container')]);
+            $builder->setDefinition('event_dispatcher', $definition);
 
-            /** @var EventDispatcher $ed */
-            $ed = $this->getContainer()->get('event_dispatcher');
-            $ed->addSubscriber(new SampleSubscriber());
+            $this->loadServiceConfig($builder);
+
+            $builder->compile();
+            $this->container = $builder;
         }
     }
 
@@ -59,9 +58,9 @@ class Kernel
      *
      * Low level stuff, needs more abstraction - RD 2017-07-09
      */
-    private function loadServiceConfig()
+    private function loadServiceConfig(ContainerBuilder $builder)
     {
-        $loader = new YamlFileLoader($this->container, new FileLocator($GLOBALS['webserver_root']));
+        $loader = new YamlFileLoader($builder, new FileLocator($GLOBALS['webserver_root']));
         $loader->load('config/services.yml');
     }
 
@@ -83,10 +82,13 @@ class Kernel
      *
      * @return EventDispatcher
      */
-    public function getDispatcher()
+    public function getEventDispatcher()
     {
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = $this->container->get('event_dispatcher');
-        return $dispatcher;
+        if ($this->container) {
+            /** @var EventDispatcher $dispatcher */
+            return $this->container->get('event_dispatcher');
+        } else {
+            throw new \Exception('Container does not exist');
+        }
     }
 }

@@ -254,8 +254,13 @@ require_once (dirname(__FILE__) . "/../version.php");
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
 
-/** @var Kernel */
-$GLOBALS["kernel"] = new Kernel();
+try {
+    /** @var Kernel */
+    $GLOBALS["kernel"] = new Kernel();
+} catch (\Exception $e) {
+    error_log($e->getMessage());
+    die();
+}
 
 // Should Doctrine make use of connection pooling? Database connection pooling is a method
 // used to keep database connections open so they can be reused by others. (The only reason

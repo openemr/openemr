@@ -8,6 +8,7 @@
 
 namespace OpenEMR\Sample\Event;
 
+use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SampleSubscriber implements EventSubscriberInterface
@@ -19,7 +20,7 @@ class SampleSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onSampleEvent(SampleEvent $event)
+    public function onSampleEvent(Event $event)
     {
         print("You've been notified of an event!");
     }
