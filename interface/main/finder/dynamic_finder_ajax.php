@@ -15,7 +15,6 @@ $fake_register_globals = false;
 require_once("../../globals.php");
 require_once("$srcdir/formdata.inc.php");
 require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/jsonwrapper/jsonwrapper.php");
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 
@@ -63,10 +62,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
   foreach ($aColumns as $colname) {
     $where .= $where ? "OR " : "WHERE ( ";
     if ($colname == 'name') {
-      $where .=
-        "lname LIKE '$sSearch%' OR " .
-        "fname LIKE '$sSearch%' OR " .
-        "mname LIKE '$sSearch%' ";
+       //$where .=
+      //  "lname LIKE '$sSearch%' OR " .
+      //  "fname LIKE '$sSearch%' OR " .
+      //  "mname LIKE '$sSearch%' ";
+	  
+	  $where .=
+        "CONCAT(lname,' ',fname,' ',mname) LIKE '%$sSearch%')";
     }
     else {
       $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
@@ -83,10 +85,12 @@ for ($i = 0; $i < count($aColumns); ++$i) {
     $where .= $where ? ' AND' : 'WHERE';
     $sSearch = add_escape_custom($_GET["sSearch_$i"]);
     if ($colname == 'name') {
-      $where .= " ( " .
-        "lname LIKE '$sSearch%' OR " .
-        "fname LIKE '$sSearch%' OR " .
-        "mname LIKE '$sSearch%' )";
+      //$where .= " ( " .
+      //  "lname LIKE '$sSearch%' OR " .
+      //  "fname LIKE '$sSearch%' OR " .
+      //  "mname LIKE '$sSearch%' )";
+	   $where .= " ( " .
+		"CONCAT(lname,' ',fname,' ',mname) LIKE '%$sSearch%')";
     }
     else {
       $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
@@ -135,7 +139,8 @@ while ($row = sqlFetchArray($res)) {
   foreach ($aColumns as $colname) {
     if ($colname == 'name') {
       $name = $row['lname'];
-      if ($name && $row['fname']) $name .= ', ';
+      //if ($name && $row['fname']) $name .= ', ';
+      if ($name && $row['fname']) $name .= ' ';  	
       if ($row['fname']) $name .= $row['fname'];
       if ($row['mname']) $name .= ' ' . $row['mname'];
       $arow[] = $name;

@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012 Rod Roark <rod@sunsetsystems.com>
+// Copyright (C) 2012, 2016 Rod Roark <rod@sunsetsystems.com>
 // Sponsored by David Eschelbacher, MD
 //
 // This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ $header0 = "";
 $header  = "";
 $coljson = "";
 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
-  "list_id = 'ptlistcols' ORDER BY seq, title");
+  "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 while ($row = sqlFetchArray($res)) {
   $colname = $row['option_id'];
   $title = xl_list_label($row['title']);
@@ -32,7 +32,7 @@ while ($row = sqlFetchArray($res)) {
   $header .= text($title);
   $header .= "</th>\n";
   $header0 .= "   <td align='center'><input type='text' size='10' ";
-  $header0 .= "value='' class='search_init' /></td>\n";
+  $header0 .= "value='' id='textID' class='search_init' /></td>\n";
   if ($coljson) $coljson .= ", ";
   $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
   ++$colcount;
@@ -41,19 +41,17 @@ while ($row = sqlFetchArray($res)) {
 <html>
 <head>
 <?php html_header_show(); ?>
-
+    <title><?php echo xlt("Patient Finder"); ?></title>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 
-<style type="text/css">
-@import "../../../library/js/datatables/media/css/demo_page.css";
-@import "../../../library/js/datatables/media/css/demo_table.css";
-.mytopdiv { float: left; margin-right: 1em; }
-</style>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-dt-1-10-13/css/jquery.dataTables.min.css" type="text/css">
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-dt-1-3-2/css/colReorder.dataTables.min.css" type="text/css">
 
-<script type="text/javascript" src="../../../library/js/datatables/media/js/jquery.js"></script>
-<script type="text/javascript" src="../../../library/js/datatables/media/js/jquery.dataTables.min.js"></script>
-<!-- this is a 3rd party script -->
-<script type="text/javascript" src="../../../library/js/datatables/extras/ColReorder/media/js/ColReorderWithResize.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-10-2/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-1-10-13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/datatables.net-colreorder-1-3-2/js/dataTables.colReorder.min.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
 
 <script language="JavaScript">
 
@@ -104,7 +102,45 @@ $(document).ready(function() {
  });
 
  // OnClick handler for the rows
- $('#pt_table tbody tr').live('click', function () {
+
+  $(document).on('keyup', '#textID', function (e) {
+	 var code = e.which;
+
+	 if(code == 13){
+		 
+		  // ID of a row element is pid_{value}
+		  var newpid = $('#pt_table tbody tr').attr('id').substr(4);
+		  // If the pid is invalid, then don't attempt to set 
+		  // The row display for "No matching records found" has no valid ID, but is
+		  // otherwise clickable. (Matches this CSS selector).  This prevents an invalid
+		  // state for the PID to be set.
+		  if (newpid.length===0)
+		  {
+			  return;
+		  }
+		  if (document.myform.form_new_window.checked) {
+		   openNewTopWindow(newpid);
+		  }
+		  else {
+		   top.restoreSession();
+		<?php if ($GLOBALS['concurrent_layout']) { ?>
+		   document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+		<?php } else { ?>
+		   top.location.href = "../../patient_file/patient_file.php?set_pid=" + newpid;
+		<?php } ?>
+		  }
+		  
+		 
+		function openNewTopWindow(pid) {
+		 document.fnew.patientID.value = pid;
+		 top.restoreSession();
+		 document.fnew.submit();
+		}
+	 }
+ } );
+
+
+ $('#pt_table').on('click', 'tbody tr', function () {
   // ID of a row element is pid_{value}
   var newpid = this.id.substring(4);
   // If the pid is invalid, then don't attempt to set 
@@ -120,11 +156,7 @@ $(document).ready(function() {
   }
   else {
    top.restoreSession();
-<?php if ($GLOBALS['concurrent_layout']) { ?>
-   document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
-<?php } else { ?>
-   top.location.href = "../../patient_file/patient_file.php?set_pid=" + newpid;
-<?php } ?>
+   top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
   }
  } );
 
@@ -138,8 +170,45 @@ function openNewTopWindow(pid) {
 
 </script>
 
+<script type="text/javascript">
+	function focusText(){
+		document.getElementById('textID').focus();
+		autoCompl();
+	}
+</script>
+
+<script>
+  $(function() {
+	  var jsonVar = <?php
+	$query = 'Select * from patient_data'.';';
+	//$sql = sqlStatement($jct);
+	
+	$res = sqlStatement($query);
+	
+	$arowArr = array();
+	
+	while ($row = sqlFetchArray($res)) {
+		$arow = $row['lname'];
+		$arow1 = $row['fname'];
+		$arow2 = $row['mname'];
+		
+		$arow3 = ($arow." ".$arow1." ".$arow2);
+		//$arowArr = ($arow3);
+		
+		array_push($arowArr,$arow3);
+	}
+	//$peData = mysql_fetch_array($sql);
+	//echo $peData[0];
+	echo json_encode($arowArr);
+	?>;
+    $( "#textID" ).autocomplete({
+      source: jsonVar 
+    });
+  });
+ </script>
+
 </head>
-<body class="body_top">
+<body class="body_top" onload="focusText();">
 
 <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
 
