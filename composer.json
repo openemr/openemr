@@ -71,6 +71,7 @@
             "OpenEMR\\Admin\\": "library/admin/src",
             "OpenEMR\\Core\\": "library/core/src",
             "OpenEMR\\Menu\\": "library/menu",
+            "OpenEMR\\Calendar\\": "library/calendar/src",
             "OpenEMR\\Sample\\": "library/sample/src"
         }
     },

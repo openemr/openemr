@@ -63,6 +63,8 @@ class Kernel
      * Handle loading the services config file
      *
      * Low level stuff, needs more abstraction - RD 2017-07-09
+     *
+     * @param $builder ContainerBuilder The builder needed to load the config into
      */
     private function loadServiceConfig(ContainerBuilder $builder)
     {
@@ -87,6 +89,7 @@ class Kernel
      * Get the Event Dispatcher
      *
      * @return EventDispatcher
+     * @throws \Exception
      */
     public function getEventDispatcher()
     {
