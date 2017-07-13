@@ -35,7 +35,8 @@ class ProductRegistration {
     /**
      * Default constructor.
      */
-    public function __construct(){
+    public function __construct()
+    {
 
     }
 
@@ -65,7 +66,8 @@ class ProductRegistration {
      *
      * return registration id
      */
-    public function getRegistrationId() {
+    public function getRegistrationId()
+    {
         return $this->registrationId;
     }
 
@@ -74,7 +76,8 @@ class ProductRegistration {
      *
      * @param registration id
      */
-    public function setRegistrationId($value) {
+    public function setRegistrationId($value)
+    {
         $this->registrationId = $value;
     }
 
@@ -83,7 +86,8 @@ class ProductRegistration {
      *
      * return email string
      */
-    public function getEmail() {
+    public function getEmail()
+    {
         return $this->email;
     }
 
@@ -92,7 +96,8 @@ class ProductRegistration {
      *
      * @param email string
      */
-    public function setEmail($value) {
+    public function setEmail($value)
+    {
         $this->email = $value;
     }
 
@@ -101,7 +106,8 @@ class ProductRegistration {
      *
      * return opt out string
      */
-    public function getOptOut() {
+    public function getOptOut()
+    {
         return $this->optOut;
     }
 
@@ -110,7 +116,8 @@ class ProductRegistration {
      *
      * @param opt out number
      */
-    public function setOptOut($value) {
+    public function setOptOut($value)
+    {
         $this->optOut = $value;
     }
 
@@ -120,7 +127,8 @@ class ProductRegistration {
      *
      * return human-readable status.
      */
-    public function getStatusAsString() {
+    public function getStatusAsString()
+    {
         return $this->statusAsString;
     }
 
@@ -130,7 +138,8 @@ class ProductRegistration {
      *
      * @param human-readable status.
      */
-    public function setStatusAsString($value) {
+    public function setStatusAsString($value)
+    {
         $this->statusAsString = $value;
     }
 
@@ -139,7 +148,8 @@ class ProductRegistration {
      *
      * @return object as string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return "registrationId: '" . $this->getRegistrationId() . "' " .
                "email: '" . $this->getEmail() . "' " .
                "statusAsString: '" . $this->getStatusAsString() . "' " .
@@ -151,8 +161,8 @@ class ProductRegistration {
      *
      * @return object as serialized object.
      */
-    public function toSerializedObject() {
-      return get_object_vars($this);
+    public function toSerializedObject()
+    {
+        return get_object_vars($this);
     }
 }
-

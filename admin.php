@@ -11,7 +11,7 @@ require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
 $response = OpenEMR\Checker::checkPhpVersion();
 if ($response !== true) {
-  die($response);
+    die($response);
 }
 
 require_once "version.php";
@@ -25,9 +25,10 @@ if (stripos(PHP_OS,'WIN') === 0)
   $webserver_root = str_replace("\\","/",$webserver_root);
 $OE_SITES_BASE = "$webserver_root/sites";
 
-function sqlQuery($statement, $link) {
-  $row = mysqli_fetch_array(mysqli_query($link, $statement), MYSQLI_ASSOC);
-  return $row;
+function sqlQuery($statement, $link)
+{
+    $row = mysqli_fetch_array(mysqli_query($link, $statement), MYSQLI_ASSOC);
+    return $row;
 }
 ?>
 <html>
@@ -57,12 +58,12 @@ if (!$dh) die("Cannot read directory '$OE_SITES_BASE'.");
 $siteslist = array();
 
 while (false !== ($sfname = readdir($dh))) {
-  if (substr($sfname, 0, 1) == '.') continue;
-  if ($sfname == 'CVS'            ) continue;
-  $sitedir = "$OE_SITES_BASE/$sfname";
-  if (!is_dir($sitedir)               ) continue;
-  if (!is_file("$sitedir/sqlconf.php")) continue;
-  $siteslist[$sfname] = $sfname;
+    if (substr($sfname, 0, 1) == '.') continue;
+    if ($sfname == 'CVS'            ) continue;
+    $sitedir = "$OE_SITES_BASE/$sfname";
+    if (!is_dir($sitedir)               ) continue;
+    if (!is_file("$sitedir/sqlconf.php")) continue;
+    $siteslist[$sfname] = $sfname;
 }
 
 closedir($dh);
@@ -70,74 +71,74 @@ ksort($siteslist);
 
 $encount = 0;
 foreach ($siteslist as $sfname) {
-  $sitedir = "$OE_SITES_BASE/$sfname";
-  $errmsg = '';
-  ++$encount;
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    $sitedir = "$OE_SITES_BASE/$sfname";
+    $errmsg = '';
+    ++$encount;
+    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
-  echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
 
   // Access the site's database.
-  include "$sitedir/sqlconf.php";
+    include "$sitedir/sqlconf.php";
 
-  if ($config) {
-    $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
-    if (!$dbh)
-      $errmsg = "MySQL connect failed";
-  }
+    if ($config) {
+        $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
+        if (!$dbh)
+        $errmsg = "MySQL connect failed";
+    }
 
-  echo "  <td>$sfname</td>\n";
-  echo "  <td>$dbase</td>\n";
+    echo "  <td>$sfname</td>\n";
+    echo "  <td>$dbase</td>\n";
 
-  if (!$config) {
-    echo "  <td colspan='3'><a href='setup.php?site=$sfname'>Needs setup, click here to run it</a></td>\n";
-  }
-  else if ($errmsg) {
-    echo "  <td colspan='3' style='color:red'>$errmsg</td>\n";
-  }
-  else {
-    // Get site name for display.
-    $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
-    $openemr_name = $row ? $row['gl_value'] : '';
-
-    // Get version indicators from the database.
-    $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
-    if (empty($row)) {
-      $openemr_version = 'Unknown';
-      $database_version = 0;
+    if (!$config) {
+        echo "  <td colspan='3'><a href='setup.php?site=$sfname'>Needs setup, click here to run it</a></td>\n";
+    }
+    else if ($errmsg) {
+        echo "  <td colspan='3' style='color:red'>$errmsg</td>\n";
     }
     else {
-      $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
-      $database_patch_txt = "";
-      if ( !(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0 ) {
-        $database_patch_txt = " (" . $row['v_realpatch'] .")";
-      }
-      $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
-        $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
-      $database_version = 0 + $row['v_database'];
-      $database_acl = 0 + $row['v_acl'];
-      $database_patch = 0 + $row['v_realpatch'];
-    }
+        // Get site name for display.
+        $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
+        $openemr_name = $row ? $row['gl_value'] : '';
 
-    // Display relevant columns.
-    echo "  <td>$openemr_name</td>\n";
-    echo "  <td>$openemr_version</td>\n";
-    if ($v_database != $database_version) {
-      echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
-    }
-    else if ( ($v_acl > $database_acl) ) {
-      echo "  <td><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
-    }
-    else if ( ($v_realpatch != $database_patch) ) {
-      echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
-    }
-    else {
-      echo "  <td><a href='interface/login/login.php?site=$sfname'>Log In</a></td>\n";
-    }
-  }
-  echo " </tr>\n";
+        // Get version indicators from the database.
+        $row = sqlQuery("SHOW TABLES LIKE 'version'", $dbh);
+        if (empty($row)) {
+            $openemr_version = 'Unknown';
+            $database_version = 0;
+        }
+        else {
+            $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
+            $database_patch_txt = "";
+            if ( !(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0 ) {
+                $database_patch_txt = " (" . $row['v_realpatch'] .")";
+            }
+            $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
+            $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
+            $database_version = 0 + $row['v_database'];
+            $database_acl = 0 + $row['v_acl'];
+            $database_patch = 0 + $row['v_realpatch'];
+        }
 
-  if ($config && $dbh !== FALSE) mysqli_close($dbh);
+        // Display relevant columns.
+        echo "  <td>$openemr_name</td>\n";
+        echo "  <td>$openemr_version</td>\n";
+        if ($v_database != $database_version) {
+            echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
+        }
+        else if ( ($v_acl > $database_acl) ) {
+            echo "  <td><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
+        }
+        else if ( ($v_realpatch != $database_patch) ) {
+            echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
+        }
+        else {
+            echo "  <td><a href='interface/login/login.php?site=$sfname'>Log In</a></td>\n";
+        }
+    }
+    echo " </tr>\n";
+
+    if ($config && $dbh !== false) mysqli_close($dbh);
 }
 ?>
 </table>

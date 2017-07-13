@@ -45,7 +45,7 @@ $_SESSION['alert_notify_pid'] = $pid;
 $all_allergy_alerts = array();
 if ($GLOBALS['enable_allergy_check']) {
   // Will show allergy and medication/prescription conflicts here
-  $all_allergy_alerts = allergy_conflict($pid,'all',$_SESSION['authUser']);
+    $all_allergy_alerts = allergy_conflict($pid,'all',$_SESSION['authUser']);
 }
 $active_alerts = active_alert_summary($pid,"reminders-due",'','default',$_SESSION['authUser']);
 ?>
@@ -53,13 +53,13 @@ $active_alerts = active_alert_summary($pid,"reminders-due",'','default',$_SESSIO
 <td><span class="title">
 <?php
 if (!empty($active_alerts) && empty($all_allergy_alerts)) {
-  echo xlt("Alerts/Reminders");
+    echo xlt("Alerts/Reminders");
 }
 else if (!empty($active_alerts) && !empty($all_allergy_alerts))  {
-  echo xlt("WARNINGS and Alerts/Reminders");
+    echo xlt("WARNINGS and Alerts/Reminders");
 }
 else { // empty($active_alerts) && !empty($all_allergy_alerts)
- echo xlt("WARNINGS");
+    echo xlt("WARNINGS");
 }
 
 ?>
@@ -70,10 +70,10 @@ else { // empty($active_alerts) && !empty($all_allergy_alerts)
 <br>
 <?php
 foreach ($all_allergy_alerts as $allergy) {
-  echo xlt("ALLERGY WARNING") . ":" . $allergy ."<br>";
+    echo xlt("ALLERGY WARNING") . ":" . $allergy ."<br>";
 }
 if (!empty($all_allergy_alerts)) {
-echo "<br>";
+    echo "<br>";
 }
 echo $active_alerts;
 ?>

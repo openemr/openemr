@@ -38,7 +38,7 @@ class AMC_302f_2_STG1_Numerator implements AmcFilterIF
             return true;
         }
         else {
-			return false;
+            return false;
         }
     }
 }

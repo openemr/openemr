@@ -18,13 +18,13 @@ $formname = strtr($_GET['formname'],
 $formid   = $_GET['formid'] + 0;
 
 if (substr($formname, 0, 3) == 'LBF') {
-  include_once("{$GLOBALS['incdir']}/forms/LBF/report.php");
-  lbf_report($ptid, $encid, 2, $formid, $formname);
+    include_once("{$GLOBALS['incdir']}/forms/LBF/report.php");
+    lbf_report($ptid, $encid, 2, $formid, $formname);
 }
 else {
-  include_once("{$GLOBALS['incdir']}/forms/$formname/report.php");
-  $report_function = $formname . '_report';
-  if (!function_exists($report_function)) exit;
-  call_user_func($report_function, $ptid, $encid, 2, $formid);
+    include_once("{$GLOBALS['incdir']}/forms/$formname/report.php");
+    $report_function = $formname . '_report';
+    if (!function_exists($report_function)) exit;
+    call_user_func($report_function, $ptid, $encid, 2, $formid);
 }
 ?>

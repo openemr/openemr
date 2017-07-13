@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
  * Billing notes.
  *
  * Copyright (C) 2007 Rod Roark <rod@sunsetsystems.com>
@@ -46,25 +46,25 @@
 <body>
 <?php
 if ($_POST['form_submit'] || $_POST['form_cancel']) {
-  $fenote = trim($_POST['form_note']);
-  if ($_POST['form_submit']) {
-    sqlStatement("UPDATE form_encounter " .
-      "SET billing_note = ? WHERE id = ?", array($fenote,$feid) );
-  }
-  else {
-    $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-      " WHERE id = ?", array($feid) );
-    $fenote = $tmp['billing_note'];
-  }
+    $fenote = trim($_POST['form_note']);
+    if ($_POST['form_submit']) {
+        sqlStatement("UPDATE form_encounter " .
+        "SET billing_note = ? WHERE id = ?", array($fenote,$feid) );
+    }
+    else {
+        $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
+        " WHERE id = ?", array($feid) );
+        $fenote = $tmp['billing_note'];
+    }
   // escape and format note for viewing
-  $fenote = htmlspecialchars($fenote,ENT_QUOTES);
-  $fenote = str_replace("\r\n", "<br />", $fenote);
-  $fenote = str_replace("\n"  , "<br />", $fenote);
-  if (! $fenote) $fenote = '['. xl('Add') . ']';
-  echo "<script language='JavaScript'>\n";
-  echo " parent.closeNote($feid, '$fenote')\n";
-  echo "</script></body></html>\n";
-  exit();
+    $fenote = htmlspecialchars($fenote,ENT_QUOTES);
+    $fenote = str_replace("\r\n", "<br />", $fenote);
+    $fenote = str_replace("\n"  , "<br />", $fenote);
+    if (! $fenote) $fenote = '['. xl('Add') . ']';
+    echo "<script language='JavaScript'>\n";
+    echo " parent.closeNote($feid, '$fenote')\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .

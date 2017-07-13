@@ -69,12 +69,12 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   $auth_notes_a = $auth_notes = $auth_coding_a = $auth_coding = $auth_med = $auth_demo = $auth_relaxed = 0;
 
- if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
-  echo "<body>\n<html>\n";
-  echo "<p>(".htmlspecialchars( xl('Encounters not authorized'), ENT_NOQUOTES).")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
- }
+if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)) {
+    echo "<body>\n<html>\n";
+    echo "<p>(".htmlspecialchars( xl('Encounters not authorized'), ENT_NOQUOTES).")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
+}
 
 // Perhaps the view choice should be saved as a session variable.
 //
@@ -83,80 +83,82 @@ $tmp = sqlQuery("select authorized from users " .
 $billing_view = ($tmp['authorized']) ? 0 : 1;
 if (isset($_GET['billing']))
     {$billing_view = empty($_GET['billing']) ? 0 : 1;
-    }else $billing_view = ($default_encounter == 0) ? 0 : 1;
+}else $billing_view = ($default_encounter == 0) ? 0 : 1;
 
 //Get Document List by Encounter ID
-function getDocListByEncID($encounter,$raw_encounter_date,$pid){
-	global $ISSUE_TYPES, $auth_med;
+function getDocListByEncID($encounter,$raw_encounter_date,$pid)
+{
+    global $ISSUE_TYPES, $auth_med;
 
-	$documents = getDocumentsByEncounter($pid,$encounter);
-	if ( count($documents) > 0 ) {
-		foreach ( $documents as $documentrow) {
-			if ($auth_med) {
-				$irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", array($documentrow['list_id']) );
-				if ($irow) {
-				  $tcode = $irow['type'];
-				  if ($ISSUE_TYPES[$tcode])
-					  $tcode = $ISSUE_TYPES[$tcode][2];
-				  echo text("$tcode: " . $irow['title']);
-				}
-			}
-			else {
-				echo "(" . xlt('No access') . ")";
-			}
+    $documents = getDocumentsByEncounter($pid,$encounter);
+    if ( count($documents) > 0 ) {
+        foreach ( $documents as $documentrow) {
+            if ($auth_med) {
+                $irow = sqlQuery("SELECT type, title, begdate FROM lists WHERE id = ? LIMIT 1", array($documentrow['list_id']) );
+                if ($irow) {
+                    $tcode = $irow['type'];
+                    if ($ISSUE_TYPES[$tcode])
+                      $tcode = $ISSUE_TYPES[$tcode][2];
+                    echo text("$tcode: " . $irow['title']);
+                }
+            }
+            else {
+                echo "(" . xlt('No access') . ")";
+            }
 
-			// Get the notes for this document and display as title for the link.
-			$queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
-			$noteResultSet = sqlStatement($queryString,array($documentrow['id']));
-			$note = '';
-			while ( $row = sqlFetchArray($noteResultSet)) {
-				$note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
-			}
-			$docTitle = ( $note ) ? $note : xla("View document");
+            // Get the notes for this document and display as title for the link.
+            $queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
+            $noteResultSet = sqlStatement($queryString,array($documentrow['id']));
+            $note = '';
+            while ( $row = sqlFetchArray($noteResultSet)) {
+                $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
+            }
+            $docTitle = ( $note ) ? $note : xla("View document");
 
-			$docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".attr($pid)."&doc_id=".attr($documentrow['id']);
-			echo "<div class='text docrow' id='" . attr($documentrow['id'])."' title='". $docTitle . "'>\n";
-			echo "<a href='$docHref' onclick='top.restoreSession()' >". xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
-			echo "</div>";
-		}
-	}
+            $docHref = $GLOBALS['webroot']."/controller.php?document&view&patient_id=".attr($pid)."&doc_id=".attr($documentrow['id']);
+            echo "<div class='text docrow' id='" . attr($documentrow['id'])."' title='". $docTitle . "'>\n";
+            echo "<a href='$docHref' onclick='top.restoreSession()' >". xlt('Document') . ": " . text(basename($documentrow['url'])) . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
+            echo "</div>";
+        }
+    }
 }
 
 // This is called to generate a line of output for a patient document.
 //
-function showDocument(&$drow) {
-  global $ISSUE_TYPES, $auth_med;
+function showDocument(&$drow)
+{
+    global $ISSUE_TYPES, $auth_med;
 
-  $docdate = $drow['docdate'];
+    $docdate = $drow['docdate'];
 
-  echo "<tr class='text docrow' id='".htmlspecialchars( $drow['id'], ENT_QUOTES)."' title='". htmlspecialchars( xl('View document'), ENT_QUOTES) . "'>\n";
+    echo "<tr class='text docrow' id='".htmlspecialchars( $drow['id'], ENT_QUOTES)."' title='". htmlspecialchars( xl('View document'), ENT_QUOTES) . "'>\n";
 
   // show date
-  echo "<td>" . htmlspecialchars( oeFormatShortDate($docdate), ENT_NOQUOTES) . "</td>\n";
+    echo "<td>" . htmlspecialchars( oeFormatShortDate($docdate), ENT_NOQUOTES) . "</td>\n";
 
   // show associated issue, if any
-  echo "<td>";
-  if ($auth_med) {
-    $irow = sqlQuery("SELECT type, title, begdate " .
-      "FROM lists WHERE " .
-      "id = ? " .
-      "LIMIT 1", array($drow['list_id']) );
-    if ($irow) {
-      $tcode = $irow['type'];
-      if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
-      echo htmlspecialchars("$tcode: " . $irow['title'], ENT_NOQUOTES);
+    echo "<td>";
+    if ($auth_med) {
+        $irow = sqlQuery("SELECT type, title, begdate " .
+        "FROM lists WHERE " .
+        "id = ? " .
+        "LIMIT 1", array($drow['list_id']) );
+        if ($irow) {
+              $tcode = $irow['type'];
+              if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+              echo htmlspecialchars("$tcode: " . $irow['title'], ENT_NOQUOTES);
+        }
+    } else {
+        echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
     }
-  } else {
-    echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
-  }
-  echo "</td>\n";
+    echo "</td>\n";
 
   // show document name and category
-  echo "<td colspan='3'>".
+    echo "<td colspan='3'>".
     htmlspecialchars( xl('Document') . ": " . basename($drow['url']) . ' (' . xl_document_category($drow['name']) . ')', ENT_NOQUOTES) .
     "</td>\n";
-  echo "<td colspan=5>&nbsp;</td>\n";
-  echo "</tr>\n";
+    echo "<td colspan=5>&nbsp;</td>\n";
+    echo "</tr>\n";
 }
 
 function generatePageElement($start,$pagesize,$billing,$issue,$text)
@@ -252,13 +254,13 @@ function efmouseover(elem, ptid, encid, formname, formid) {
 <font class='title'>
 <?php
 if ($issue) {
-  echo htmlspecialchars(xl('Past Encounters for'), ENT_NOQUOTES) . ' ';
-  $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", array($issue));
-  echo htmlspecialchars($tmp['title'], ENT_NOQUOTES);
+    echo htmlspecialchars(xl('Past Encounters for'), ENT_NOQUOTES) . ' ';
+    $tmp = sqlQuery("SELECT title FROM lists WHERE id = ?", array($issue));
+    echo htmlspecialchars($tmp['title'], ENT_NOQUOTES);
 }
 else {
     //There isn't documents for therapy group yet
-  echo $attendant_type == 'pid' ? htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES) : htmlspecialchars(xl('Past Therapy Group Encounters'), ENT_NOQUOTES);
+    echo $attendant_type == 'pid' ? htmlspecialchars(xl('Past Encounters and Documents'), ENT_NOQUOTES) : htmlspecialchars(xl('Past Therapy Group Encounters'), ENT_NOQUOTES);
 }
 ?>
 </font>
@@ -305,28 +307,28 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
     <select id="selPagesize" billing="<?php echo htmlspecialchars($billing_view,ENT_QUOTES); ?>" issue="<?php echo htmlspecialchars($issue,ENT_QUOTES); ?>" pagestart="<?php echo htmlspecialchars($pagestart,ENT_QUOTES); ?>" >
 <?php
     $pagesizes=array(5,10,15,20,25,50,0);
-    for($idx=0;$idx<count($pagesizes);$idx++)
+for($idx=0;$idx<count($pagesizes);$idx++)
+{
+    echo "<OPTION value='" . $pagesizes[$idx] . "'";
+    if($pagesize==$pagesizes[$idx])
     {
-        echo "<OPTION value='" . $pagesizes[$idx] . "'";
-        if($pagesize==$pagesizes[$idx])
-        {
-            echo " SELECTED='true'>";
-        }
-        else
-        {
-            echo ">";
-        }
-        if($pagesizes[$idx]==0)
-        {
-            echo htmlspecialchars( xl('ALL'), ENT_NOQUOTES);
-        }
-        else
-        {
-            echo $pagesizes[$idx];
-        }
-        echo "</OPTION>";
-
+        echo " SELECTED='true'>";
     }
+    else
+    {
+        echo ">";
+    }
+    if($pagesizes[$idx]==0)
+    {
+        echo htmlspecialchars( xl('ALL'), ENT_NOQUOTES);
+    }
+    else
+    {
+        echo $pagesizes[$idx];
+    }
+    echo "</OPTION>";
+
+}
 ?>
     </select>
 </span>
@@ -344,9 +346,9 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
   <th><?php echo htmlspecialchars( xl('Issue'), ENT_NOQUOTES);       ?></th>
 <?php } ?>
   <th><?php echo htmlspecialchars( xl('Reason/Form'), ENT_NOQUOTES); ?></th>
-  <?php if($attendant_type == 'pid') { ?>
+    <?php if($attendant_type == 'pid') { ?>
   <th><?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES);    ?></th>
-  <?php } else { ?>
+    <?php } else { ?>
         <th><?php echo htmlspecialchars( xl('Counselors'), ENT_NOQUOTES);    ?></th>
     <?php } ?>
 <?php } ?>
@@ -377,17 +379,17 @@ $drow = false;
 if (!$billing_view) {
   // Query the documents for this patient.  If this list is issue-specific
   // then also limit the query to documents that are linked to the issue.
-  $queryarr = array($pid);
-  $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
+    $queryarr = array($pid);
+    $query = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name " .
     "FROM documents AS d, categories_to_documents AS cd, categories AS c WHERE " .
     "d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id ";
-  if ($issue) {
-    $query .= "AND d.list_id = ? ";
-    $queryarr[] = $issue;
-  }
-  $query .= "ORDER BY d.docdate DESC, d.id DESC";
-  $dres = sqlStatement($query, $queryarr);
-  $drow = sqlFetchArray($dres);
+    if ($issue) {
+        $query .= "AND d.list_id = ? ";
+        $queryarr[] = $issue;
+    }
+    $query .= "ORDER BY d.docdate DESC, d.id DESC";
+    $dres = sqlStatement($query, $queryarr);
+    $drow = sqlFetchArray($dres);
 }
 
 // $count = 0;
@@ -404,9 +406,9 @@ if($attendant_type == 'pid') {
 }
 
 if ($issue) {
-  $from .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
+    $from .= "JOIN issue_encounter AS ie ON ie.pid = ? AND " .
     "ie.list_id = ? AND ie.encounter = fe.encounter ";
-  array_push($sqlBindArray, $pid, $issue);
+    array_push($sqlBindArray, $pid, $issue);
 }
 if($attendant_type == 'pid') {
     $from .= "LEFT JOIN users AS u ON u.id = fe.provider_id WHERE fe.pid = ? ";
@@ -467,30 +469,30 @@ while ($result4 = sqlFetchArray($res4)) {
         // else
         //   $reason_string = "(No access)";
 
-        if ($result4['sensitivity']) {
-            $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
-            if (!$auth_sensitivity) {
-                $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
-            }
+    if ($result4['sensitivity']) {
+        $auth_sensitivity = acl_check('sensitivities', $result4['sensitivity']);
+        if (!$auth_sensitivity) {
+            $reason_string = "(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
         }
+    }
 
         // This generates document lines as appropriate for the date order.
-        while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
-            showDocument($drow);
-            $drow = sqlFetchArray($dres);
-        }
+    while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
+        showDocument($drow);
+        $drow = sqlFetchArray($dres);
+    }
 
         // Fetch all forms for this encounter, if the user is authorized to see
         // this encounter's notes and this is the clinical view.
         $encarr = array();
         $encounter_rows = 1;
-        if (!$billing_view && $auth_sensitivity &&
+    if (!$billing_view && $auth_sensitivity &&
             ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser'])))
         {
-            $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-            $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
-            $encounter_rows = count($encarr);
-        }
+        $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
+        $encarr = getFormByEncounter($attendant_id, $result4['encounter'], "formdir, user, form_name, form_id, deleted");
+        $encounter_rows = count($encarr);
+    }
 
         $rawdata = $result4['encounter'] . "~" . oeFormatShortDate($raw_encounter_date);
         echo "<tr class='encrow text' id='" . htmlspecialchars($rawdata, ENT_QUOTES) .
@@ -501,24 +503,24 @@ while ($result4 = sqlFetchArray($res4)) {
           "$pid.{$result4['encounter']}", ENT_QUOTES) . "'>" .
           htmlspecialchars(oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
 
-        if ($billing_view) {
+    if ($billing_view) {
 
-            // Show billing note that you can click on to edit.
-            $feid = $result4['id'] ? htmlspecialchars( $result4['id'], ENT_QUOTES) : 0; // form_encounter id
-            echo "<td valign='top'>";
-            echo "<div id='note_$feid'>";
-            //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
-            echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
-            echo $result4['billing_note'] ? nl2br(htmlspecialchars( $result4['billing_note'], ENT_NOQUOTES)) : htmlspecialchars( xl('Add','','[',']'), ENT_NOQUOTES);
-            echo "</div>";
-            echo "</div>";
-            echo "</td>\n";
+        // Show billing note that you can click on to edit.
+        $feid = $result4['id'] ? htmlspecialchars( $result4['id'], ENT_QUOTES) : 0; // form_encounter id
+        echo "<td valign='top'>";
+        echo "<div id='note_$feid'>";
+        //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
+        echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
+        echo $result4['billing_note'] ? nl2br(htmlspecialchars( $result4['billing_note'], ENT_NOQUOTES)) : htmlspecialchars( xl('Add','','[',']'), ENT_NOQUOTES);
+        echo "</div>";
+        echo "</div>";
+        echo "</td>\n";
 
         //  *************** end billing view *********************
-        }
-        else {
+    }
+    else {
 
-          if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues
+        if ($attendant_type == 'pid' && !$issue) { // only for patient encounter and if listing for multiple issues
             // show issues for this encounter
             echo "<td>";
             if ($auth_med && $auth_sensitivity) {
@@ -539,256 +541,261 @@ while ($result4 = sqlFetchArray($res4)) {
                 echo "(" . htmlspecialchars( xl('No access'), ENT_NOQUOTES) . ")";
             }
             echo "</td>\n";
-          } // end if (!$issue)
+        } // end if (!$issue)
 
-            // show encounter reason/title
-            echo "<td>".$reason_string;
+        // show encounter reason/title
+        echo "<td>".$reason_string;
 
-			//Display the documents tagged to this encounter
-			getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);
+        //Display the documents tagged to this encounter
+        getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);
 
-            echo "<div style='padding-left:10px;'>";
+        echo "<div style='padding-left:10px;'>";
 
-            // Now show a line for each encounter form, if the user is authorized to
-            // see this encounter's notes.
+        // Now show a line for each encounter form, if the user is authorized to
+        // see this encounter's notes.
 
-            foreach ($encarr as $enc) {
-                if ($enc['formdir'] == 'newpatient' || $enc['formdir'] == 'newGroupEncounter') continue;
+        foreach ($encarr as $enc) {
+            if ($enc['formdir'] == 'newpatient' || $enc['formdir'] == 'newGroupEncounter') continue;
 
-                // skip forms whose 'deleted' flag is set to 1 --JRM--
-                if ($enc['deleted'] == 1) continue;
+            // skip forms whose 'deleted' flag is set to 1 --JRM--
+            if ($enc['deleted'] == 1) continue;
 
-                // Skip forms that we are not authorized to see. --JRM--
-                // pardon the wonky logic
-                $formdir = $enc['formdir'];
-                if (($auth_notes_a) ||
-                    ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
-                    ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
-                else continue;
+            // Skip forms that we are not authorized to see. --JRM--
+            // pardon the wonky logic
+            $formdir = $enc['formdir'];
+            if (($auth_notes_a) ||
+                ($auth_notes && $enc['user'] == $_SESSION['authUser']) ||
+                ($auth_relaxed && ($formdir == 'sports_fitness' || $formdir == 'podiatry'))) ;
+            else continue;
 
-                // Show the form name.  In addition, for the specific-issue case show
-                // the data collected by the form (this used to be a huge tooltip
-                // but we did away with that).
-                //
-                $formdir = $enc['formdir'];
-                if ($issue) {
-                  echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
-                  echo "<br>";
-                  echo "<div class='encreport' style='padding-left:10px;'>";
-                  // Use the form's report.php for display.  Forms with names starting with LBF
-                  // are list-based forms sharing a single collection of code.
-                  if (substr($formdir,0,3) == 'LBF') {
+            // Show the form name.  In addition, for the specific-issue case show
+            // the data collected by the form (this used to be a huge tooltip
+            // but we did away with that).
+            //
+            $formdir = $enc['formdir'];
+            if ($issue) {
+                echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
+                echo "<br>";
+                echo "<div class='encreport' style='padding-left:10px;'>";
+          // Use the form's report.php for display.  Forms with names starting with LBF
+          // are list-based forms sharing a single collection of code.
+                if (substr($formdir,0,3) == 'LBF') {
                     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
                     call_user_func("lbf_report", $pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
-                  }
-                  else  {
+                }
+                else  {
                     include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
                     call_user_func($formdir . "_report", $pid, $result4['encounter'], 2, $enc['form_id']);
-                  }
-                  echo "</div>";
                 }
-                else {
-                  echo "<div " .
-                    "onmouseover='efmouseover(this,$pid," . $result4['encounter'] .
-                    ",\"$formdir\"," . $enc['form_id'] . ")' " .
-                    "onmouseout='ttMouseOut()'>";
-                  echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
-                  echo "</div>";
-                }
-
-            } // end encounter Forms loop
-
-            echo "</div>";
-            echo "</td>\n";
-
-            if($attendant_type == 'pid'){
-
-                // show user (Provider) for the encounter
-                $provname = '&nbsp;';
-                if (!empty($result4['lname']) || !empty($result4['fname'])) {
-                    $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
-                    if (!empty($result4['fname']) || !empty($result4['mname']))
-                        $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
-                }
-                echo "<td>$provname</td>\n";
-
-                // for therapy group view
-            } else {
-                $counselors ='';
-                foreach (explode(',',$result4['counselors']) as $userId){
-                    $counselors .= getUserNameById($userId) . ', ';
-                }
-                $counselors = rtrim($counselors, ", ");
-                echo "<td>" . text($counselors) . "</td>\n";
+                echo "</div>";
+            }
+            else {
+                echo "<div " .
+                "onmouseover='efmouseover(this,$pid," . $result4['encounter'] .
+                ",\"$formdir\"," . $enc['form_id'] . ")' " .
+                "onmouseout='ttMouseOut()'>";
+                echo htmlspecialchars(xl_form_title($enc['form_name']), ENT_NOQUOTES);
+                echo "</div>";
             }
 
+        } // end encounter Forms loop
 
-        } // end not billing view
+        echo "</div>";
+        echo "</td>\n";
+
+        if($attendant_type == 'pid'){
+
+            // show user (Provider) for the encounter
+            $provname = '&nbsp;';
+            if (!empty($result4['lname']) || !empty($result4['fname'])) {
+                $provname = htmlspecialchars( $result4['lname'], ENT_NOQUOTES);
+                if (!empty($result4['fname']) || !empty($result4['mname']))
+                    $provname .= htmlspecialchars( ', ' . $result4['fname'] . ' ' . $result4['mname'], ENT_NOQUOTES);
+            }
+            echo "<td>$provname</td>\n";
+
+            // for therapy group view
+        } else {
+            $counselors ='';
+            foreach (explode(',',$result4['counselors']) as $userId){
+                $counselors .= getUserNameById($userId) . ', ';
+            }
+            $counselors = rtrim($counselors, ", ");
+            echo "<td>" . text($counselors) . "</td>\n";
+        }
+
+
+    } // end not billing view
 
         //this is where we print out the text of the billing that occurred on this encounter
         $thisauth = $auth_coding_a;
-        if (!$thisauth && $auth_coding) {
-            if ($result4['user'] == $_SESSION['authUser'])
-                $thisauth = $auth_coding;
-        }
+    if (!$thisauth && $auth_coding) {
+        if ($result4['user'] == $_SESSION['authUser'])
+        $thisauth = $auth_coding;
+    }
         $coded = "";
         $arid = 0;
-        if ($thisauth && $auth_sensitivity) {
-            $binfo = array('', '', '', '', '');
-            if ($subresult2 = getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee"))
-            {
-                // Get A/R info, if available, for this encounter.
-                $arinvoice = array();
-                $arlinkbeg = "";
-                $arlinkend = "";
+    if ($thisauth && $auth_sensitivity) {
+        $binfo = array('', '', '', '', '');
+        if ($subresult2 = getBillingByEncounter($pid, $result4['encounter'], "code_type, code, modifier, code_text, fee"))
+        {
+            // Get A/R info, if available, for this encounter.
+            $arinvoice = array();
+            $arlinkbeg = "";
+            $arlinkend = "";
+            if ($billing_view) {
+                    $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
+                                "pid = ? AND encounter = ?", array($pid,$result4['encounter']) );
+                    $arid = 0 + $tmp['id'];
+                    if ($arid) $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
+                if ($arid) {
+                    $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=" .
+                    htmlspecialchars( $arid, ENT_QUOTES)."'" .
+                            " target='_blank' class='text' style='color:#00cc00'>";
+                    $arlinkend = "</a>";
+                }
+            }
+
+            // Throw in product sales.
+            $query = "SELECT s.drug_id, s.fee, d.name " .
+              "FROM drug_sales AS s " .
+              "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
+              "WHERE s.pid = ? AND s.encounter = ? " .
+              "ORDER BY s.sale_id";
+            $sres = sqlStatement($query, array($pid,$result4['encounter']) );
+            while ($srow = sqlFetchArray($sres)) {
+                $subresult2[] = array('code_type' => 'PROD',
+                'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
+                'code_text' => $srow['name'], 'fee' => $srow['fee']);
+            }
+
+            // This creates 5 columns of billing information:
+            // billing code, charges, payments, adjustments, balance.
+            foreach ($subresult2 as $iter2) {
+                // Next 2 lines were to skip diagnoses, but that seems unpopular.
+                // if ($iter2['code_type'] != 'COPAY' &&
+                //   !$code_types[$iter2['code_type']]['fee']) continue;
+                $title = htmlspecialchars(($iter2['code_text']), ENT_QUOTES);
+                $codekey = $iter2['code'];
+                $codekeydisp = $iter2['code_type']." - ".$iter2['code'];
+                if ($iter2['code_type'] == 'COPAY') {
+                    $codekey = 'CO-PAY';
+                    $codekeydisp = xl('CO-PAY');
+                }
+                if ($iter2['modifier']) {
+                    $codekey .= ':' . $iter2['modifier'];
+                    $codekeydisp .= ':' . $iter2['modifier'];
+                }
+
+                $codekeydisp = htmlspecialchars($codekeydisp, ENT_NOQUOTES);
+
+                if ($binfo[0]) $binfo[0] .= '<br>';
+                if ($issue && !$billing_view) {
+                  // Single issue clinical view: show code description after the code.
+                    $binfo[0] .= "$arlinkbeg$codekeydisp $title$arlinkend";
+                }
+                else {
+                  // Otherwise offer the description as a tooltip.
+                    $binfo[0] .= "<span title='$title'>$arlinkbeg$codekeydisp$arlinkend</span>";
+                }
                 if ($billing_view) {
-                        $tmp = sqlQuery("SELECT id FROM form_encounter WHERE " .
-                                    "pid = ? AND encounter = ?", array($pid,$result4['encounter']) );
-                        $arid = 0 + $tmp['id'];
-                        if ($arid) $arinvoice = ar_get_invoice_summary($pid, $result4['encounter'], true);
-                    if ($arid) {
-                        $arlinkbeg = "<a href='../../billing/sl_eob_invoice.php?id=" .
-			            htmlspecialchars( $arid, ENT_QUOTES)."'" .
-                                    " target='_blank' class='text' style='color:#00cc00'>";
-                        $arlinkend = "</a>";
+                    if ($binfo[1]) {
+                        for ($i = 1; $i < 5;
+                        ++$i) $binfo[$i] .= '<br>';
                     }
-                }
+                    if (empty($arinvoice[$codekey])) {
+                        // If no invoice, show the fee.
+                        if ($arlinkbeg) $binfo[1] .= '&nbsp;';
+                        else $binfo[1] .= htmlspecialchars( oeFormatMoney($iter2['fee']), ENT_NOQUOTES);
 
-                // Throw in product sales.
-                $query = "SELECT s.drug_id, s.fee, d.name " .
-                  "FROM drug_sales AS s " .
-                  "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
-                  "WHERE s.pid = ? AND s.encounter = ? " .
-                  "ORDER BY s.sale_id";
-                $sres = sqlStatement($query, array($pid,$result4['encounter']) );
-                while ($srow = sqlFetchArray($sres)) {
-                  $subresult2[] = array('code_type' => 'PROD',
-                    'code' => 'PROD:' . $srow['drug_id'], 'modifier' => '',
-                    'code_text' => $srow['name'], 'fee' => $srow['fee']);
-                }
-
-                // This creates 5 columns of billing information:
-                // billing code, charges, payments, adjustments, balance.
-                foreach ($subresult2 as $iter2) {
-                    // Next 2 lines were to skip diagnoses, but that seems unpopular.
-                    // if ($iter2['code_type'] != 'COPAY' &&
-                    //   !$code_types[$iter2['code_type']]['fee']) continue;
-                    $title = htmlspecialchars(($iter2['code_text']), ENT_QUOTES);
-                    $codekey = $iter2['code'];
-                    $codekeydisp = $iter2['code_type']." - ".$iter2['code'];
-                    if ($iter2['code_type'] == 'COPAY') {
-                      $codekey = 'CO-PAY';
-                      $codekeydisp = xl('CO-PAY');
-                    }
-                    if ($iter2['modifier']) {
-                      $codekey .= ':' . $iter2['modifier'];
-                      $codekeydisp .= ':' . $iter2['modifier'];
-                    }
-
-                    $codekeydisp = htmlspecialchars($codekeydisp, ENT_NOQUOTES);
-
-                    if ($binfo[0]) $binfo[0] .= '<br>';
-                    if ($issue && !$billing_view) {
-                      // Single issue clinical view: show code description after the code.
-                      $binfo[0] .= "$arlinkbeg$codekeydisp $title$arlinkend";
+                        for ($i = 2; $i < 5;
+                        ++$i) $binfo[$i] .= '&nbsp;';
                     }
                     else {
-                      // Otherwise offer the description as a tooltip.
-                      $binfo[0] .= "<span title='$title'>$arlinkbeg$codekeydisp$arlinkend</span>";
-                    }
-                    if ($billing_view) {
-                        if ($binfo[1]) {
-                            for ($i = 1; $i < 5; ++$i) $binfo[$i] .= '<br>';
-                        }
-                        if (empty($arinvoice[$codekey])) {
-                            // If no invoice, show the fee.
-                            if ($arlinkbeg) $binfo[1] .= '&nbsp;';
-                            else $binfo[1] .= htmlspecialchars( oeFormatMoney($iter2['fee']), ENT_NOQUOTES);
-
-                            for ($i = 2; $i < 5; ++$i) $binfo[$i] .= '&nbsp;';
-                        }
-                        else {
-                            $binfo[1] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']), ENT_NOQUOTES);
-                            $binfo[2] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']), ENT_NOQUOTES);
-                            $binfo[3] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['adj']), ENT_NOQUOTES);
-                            $binfo[4] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['bal']), ENT_NOQUOTES);
-                            unset($arinvoice[$codekey]);
-                        }
-                    }
-                } // end foreach
-
-                // Pick up any remaining unmatched invoice items from the accounting
-                // system.  Display them in red, as they should be unusual.
-                if (!empty($arinvoice)) {
-                    foreach ($arinvoice as $codekey => $val) {
-                        if ($binfo[0]) {
-                            for ($i = 0; $i < 5; ++$i) $binfo[$i] .= '<br>';
-                        }
-                        for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "<font color='red'>";
-                        $binfo[0] .= htmlspecialchars( $codekey, ENT_NOQUOTES);
-                        $binfo[1] .= htmlspecialchars( oeFormatMoney($val['chg'] + $val['adj']), ENT_NOQUOTES);
-                        $binfo[2] .= htmlspecialchars( oeFormatMoney($val['chg'] - $val['bal']), ENT_NOQUOTES);
-                        $binfo[3] .= htmlspecialchars( oeFormatMoney($val['adj']), ENT_NOQUOTES);
-                        $binfo[4] .= htmlspecialchars( oeFormatMoney($val['bal']), ENT_NOQUOTES);
-                        for ($i = 0; $i < 5; ++$i) $binfo[$i] .= "</font>";
+                        $binfo[1] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] + $arinvoice[$codekey]['adj']), ENT_NOQUOTES);
+                        $binfo[2] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['chg'] - $arinvoice[$codekey]['bal']), ENT_NOQUOTES);
+                        $binfo[3] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['adj']), ENT_NOQUOTES);
+                        $binfo[4] .= htmlspecialchars( oeFormatMoney($arinvoice[$codekey]['bal']), ENT_NOQUOTES);
+                        unset($arinvoice[$codekey]);
                     }
                 }
-            } // end if there is billing
+            } // end foreach
 
-            echo "<td class='text'>".$binfo[0]."</td>\n";
-            for ($i = 1; $i < 5; ++$i) {
-                echo "<td class='text right'>". $binfo[$i]."</td>\n";
+            // Pick up any remaining unmatched invoice items from the accounting
+            // system.  Display them in red, as they should be unusual.
+            if (!empty($arinvoice)) {
+                foreach ($arinvoice as $codekey => $val) {
+                    if ($binfo[0]) {
+                        for ($i = 0; $i < 5;
+                        ++$i) $binfo[$i] .= '<br>';
+                    }
+                    for ($i = 0; $i < 5;
+                    ++$i) $binfo[$i] .= "<font color='red'>";
+                    $binfo[0] .= htmlspecialchars( $codekey, ENT_NOQUOTES);
+                    $binfo[1] .= htmlspecialchars( oeFormatMoney($val['chg'] + $val['adj']), ENT_NOQUOTES);
+                    $binfo[2] .= htmlspecialchars( oeFormatMoney($val['chg'] - $val['bal']), ENT_NOQUOTES);
+                    $binfo[3] .= htmlspecialchars( oeFormatMoney($val['adj']), ENT_NOQUOTES);
+                    $binfo[4] .= htmlspecialchars( oeFormatMoney($val['bal']), ENT_NOQUOTES);
+                    for ($i = 0; $i < 5;
+                    ++$i) $binfo[$i] .= "</font>";
+                }
             }
-        } // end if authorized
+        } // end if there is billing
 
-        else {
-            echo "<td class='text' valign='top' colspan='5' rowspan='$encounter_rows'>(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")</td>\n";
+        echo "<td class='text'>".$binfo[0]."</td>\n";
+        for ($i = 1; $i < 5; ++$i) {
+            echo "<td class='text right'>". $binfo[$i]."</td>\n";
         }
+    } // end if authorized
+
+    else {
+        echo "<td class='text' valign='top' colspan='5' rowspan='$encounter_rows'>(".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")</td>\n";
+    }
 
         // show insurance
-        if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) {
-            $insured = oeFormatShortDate($raw_encounter_date);
-            if ($auth_demo) {
-                $responsible = -1;
-                if ($arid) {
-                        $responsible = ar_responsible_party($pid, $result4['encounter']);
-                }
-                $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
-                if ($subresult5 && $subresult5{"provider_name"}) {
-                    $style = $responsible == 1 ? " style='color:red'" : "";
-                    $insured = "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Primary'), ENT_NOQUOTES) . ": " .
-                    htmlspecialchars( $subresult5{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
-                }
-                $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
-                if ($subresult6 && $subresult6{"provider_name"}) {
-                    $style = $responsible == 2 ? " style='color:red'" : "";
-                    $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Secondary'), ENT_NOQUOTES) . ": " .
-                    htmlspecialchars( $subresult6{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
-                }
-                $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
-                if ($subresult6 && $subresult7{"provider_name"}) {
-                    $style = $responsible == 3 ? " style='color:red'" : "";
-                    $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Tertiary'), ENT_NOQUOTES) . ": " .
-                    htmlspecialchars( $subresult7{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
-                }
-                if ($responsible == 0) {
-                    $insured .= "<span class='text' style='color:red'>&nbsp;" . htmlspecialchars( xl('Patient'), ENT_NOQUOTES) .
-                                "</span><br>\n";
-                }
+    if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) {
+        $insured = oeFormatShortDate($raw_encounter_date);
+        if ($auth_demo) {
+            $responsible = -1;
+            if ($arid) {
+                    $responsible = ar_responsible_party($pid, $result4['encounter']);
             }
-            else {
-                $insured = " (".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
+            $subresult5 = getInsuranceDataByDate($pid, $raw_encounter_date, "primary");
+            if ($subresult5 && $subresult5{"provider_name"}) {
+                $style = $responsible == 1 ? " style='color:red'" : "";
+                $insured = "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Primary'), ENT_NOQUOTES) . ": " .
+                htmlspecialchars( $subresult5{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
             }
-
-            echo "<td>".$insured."</td>\n";
+            $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
+            if ($subresult6 && $subresult6{"provider_name"}) {
+                $style = $responsible == 2 ? " style='color:red'" : "";
+                $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Secondary'), ENT_NOQUOTES) . ": " .
+                htmlspecialchars( $subresult6{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
+            }
+            $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
+            if ($subresult6 && $subresult7{"provider_name"}) {
+                $style = $responsible == 3 ? " style='color:red'" : "";
+                $insured .= "<span class='text'$style>&nbsp;" . htmlspecialchars( xl('Tertiary'), ENT_NOQUOTES) . ": " .
+                htmlspecialchars( $subresult7{"provider_name"}, ENT_NOQUOTES) . "</span><br>\n";
+            }
+            if ($responsible == 0) {
+                $insured .= "<span class='text' style='color:red'>&nbsp;" . htmlspecialchars( xl('Patient'), ENT_NOQUOTES) .
+                            "</span><br>\n";
+            }
+        }
+        else {
+            $insured = " (".htmlspecialchars( xl("No access"), ENT_NOQUOTES).")";
         }
 
-        if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0){
-            $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
-            echo "<td>".xlt($encounter_type['pc_catname'])."</td>\n";
-            $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
-            echo "<td>". text($group_name) . "</td>\n";
-        }
+        echo "<td>".$insured."</td>\n";
+    }
+
+    if($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0){
+        $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", array($result4['pc_catid']));
+        echo "<td>".xlt($encounter_type['pc_catname'])."</td>\n";
+        $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
+        echo "<td>". text($group_name) . "</td>\n";
+    }
 
         echo "</tr>\n";
 

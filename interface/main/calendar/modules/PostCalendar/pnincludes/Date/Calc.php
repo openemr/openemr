@@ -552,10 +552,10 @@ class Date_Calc {
         $curr_weekday = Date_Calc::dayOfWeek($day,$month,$year);
 
         if($curr_weekday == $dow)
-		{
-			if(!$onOrAfter)
-            	$days += 7;
-		}
+        {
+            if(!$onOrAfter)
+                $days += 7;
+        }
         elseif($curr_weekday > $dow)
             $days += 7 - ( $curr_weekday - $dow );
         else
@@ -594,10 +594,10 @@ class Date_Calc {
         $curr_weekday = Date_Calc::dayOfWeek($day,$month,$year);
 
         if($curr_weekday == $dow)
-		{
-			if(!$onOrBefore)
-            	$days -= 7;
-		}
+        {
+            if(!$onOrBefore)
+                $days -= 7;
+        }
         elseif($curr_weekday < $dow)
             $days -= 7 - ( $dow - $curr_weekday );
         else
@@ -802,30 +802,30 @@ class Date_Calc {
     {
         if(empty($year)) {
             $year = Date_Calc::dateNow("%Y");
-		}
+        }
         if(empty($month)) {
             $month = Date_Calc::dateNow("%m");
-		}
-		// starts on monday
-		if(DATE_CALC_BEGIN_WEEKDAY == 1)
-		{	if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
-				$first_week_days = 1;
-			} else {
-				$first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) - 1);
-			}
-		// starts on saturday
-		} elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {
-			if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
-				$first_week_days = 6;
-			} else {
-				$first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) + 1);
-			}
-		// starts on sunday
-		} else {
-			$first_week_days = 7 - Date_Calc::firstOfMonthWeekday($month,$year);
-		}
-		return ceil(((Date_Calc::daysInMonth($month,$year) - $first_week_days) / 7) + 1);
-	} // end func weeksInMonth
+        }
+        // starts on monday
+        if(DATE_CALC_BEGIN_WEEKDAY == 1)
+        {   if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
+                $first_week_days = 1;
+        } else {
+            $first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) - 1);
+        }
+        // starts on saturday
+        } elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {
+            if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
+                $first_week_days = 6;
+            } else {
+                $first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) + 1);
+            }
+        // starts on sunday
+        } else {
+            $first_week_days = 7 - Date_Calc::firstOfMonthWeekday($month,$year);
+        }
+        return ceil(((Date_Calc::daysInMonth($month,$year) - $first_week_days) / 7) + 1);
+    } // end func weeksInMonth
 
     /**
      * Find the day of the week for the first of the month of given date.
@@ -897,17 +897,17 @@ class Date_Calc {
 
         $this_weekday = Date_Calc::dayOfWeek($day,$month,$year);
 
-	if(DATE_CALC_BEGIN_WEEKDAY == 1)
-	{
-		if($this_weekday == 0)
-			$beginOfWeek = Date_Calc::dateToDays($day,$month,$year) - 6;
-		else
-			$beginOfWeek = Date_Calc::dateToDays($day,$month,$year)
-				- $this_weekday + 1;
-	}
-	else
-        	$beginOfWeek = (Date_Calc::dateToDays($day,$month,$year)
-            	- $this_weekday);
+        if(DATE_CALC_BEGIN_WEEKDAY == 1)
+        {
+            if($this_weekday == 0)
+            $beginOfWeek = Date_Calc::dateToDays($day,$month,$year) - 6;
+            else
+            $beginOfWeek = Date_Calc::dateToDays($day,$month,$year)
+                - $this_weekday + 1;
+        }
+        else
+            $beginOfWeek = (Date_Calc::dateToDays($day,$month,$year)
+                - $this_weekday);
 
 
        /*  $beginOfWeek = (Date_Calc::dateToDays($day,$month,$year)
@@ -1054,11 +1054,11 @@ class Date_Calc {
 
         $curr_day = Date_Calc::beginOfWeek($day,$month,$year,"%E");
 
-            for($counter=0; $counter <= 6; $counter++)
+        for($counter=0; $counter <= 6; $counter++)
             {
-                $week_array[$counter] = Date_Calc::daysToDate($curr_day,$format);
-                $curr_day++;
-            }
+            $week_array[$counter] = Date_Calc::daysToDate($curr_day,$format);
+            $curr_day++;
+        }
 
         return $week_array;
 
@@ -1081,26 +1081,26 @@ class Date_Calc {
     {
         if(empty($year)) $year = Date_Calc::dateNow("%Y");
         if(empty($month)) $month = Date_Calc::dateNow("%m");
-		$month_array = array();
-		// starts on monday
-		if(DATE_CALC_BEGIN_WEEKDAY == 1) {
-			if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
-				$curr_day = Date_Calc::dateToDays("01",$month,$year) - 6;
-			} else {
-				$curr_day = Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year) + 1;
-			}
-		// starts on saturday
-		} elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {
-			if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
-				$curr_day = Date_Calc::dateToDays("01",$month,$year) - 1;
-			} else {
-				$curr_day = Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year) - 1;
-			}
-		// starts on sunday		
-		} else {
-			$curr_day = (Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year));
-		}
-		// number of days in this month
+        $month_array = array();
+        // starts on monday
+        if(DATE_CALC_BEGIN_WEEKDAY == 1) {
+            if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
+                $curr_day = Date_Calc::dateToDays("01",$month,$year) - 6;
+            } else {
+                $curr_day = Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year) + 1;
+            }
+        // starts on saturday
+        } elseif(DATE_CALC_BEGIN_WEEKDAY == 6) {
+            if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
+                $curr_day = Date_Calc::dateToDays("01",$month,$year) - 1;
+            } else {
+                $curr_day = Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year) - 1;
+            }
+        // starts on sunday
+        } else {
+            $curr_day = (Date_Calc::dateToDays("01",$month,$year) - Date_Calc::firstOfMonthWeekday($month,$year));
+        }
+        // number of days in this month
         $daysInMonth = Date_Calc::daysInMonth($month,$year);
 
         $weeksInMonth = Date_Calc::weeksInMonth($month,$year);
@@ -1244,7 +1244,8 @@ class Date_Calc {
      * @return string date in given format
      */
 
-    static function NWeekdayOfMonth($occurance,$dayOfWeek,$month,$year,$format="%Y%m%d")    {
+    static function NWeekdayOfMonth($occurance,$dayOfWeek,$month,$year,$format="%Y%m%d")
+    {
 
         $year = sprintf("%04d",$year);
         $month = sprintf("%02d",$month);
@@ -1531,7 +1532,8 @@ class Date_Calc {
     * @param    string  month name
     * @return   integer month number
     */
-    static function getMonthFromFullName($month){
+    static function getMonthFromFullName($month)
+    {
         $month = strtolower($month);
         $months = Date_Calc::getMonthNames();
         while(list($id, $name) = each($months)){
@@ -1551,7 +1553,8 @@ class Date_Calc {
     *
     * @returns array An array of month names
     */
-    static function getMonthNames(){
+    static function getMonthNames()
+    {
         for($i=1;$i<13;$i++){
             $months[$i] = strftime('%B', mktime(0, 0, 0, $i, 1, 2001));
         }
@@ -1567,7 +1570,8 @@ class Date_Calc {
     *
     * @returns array An array of week day names
     */
-    static function getWeekDays(){
+    static function getWeekDays()
+    {
         for($i=0;$i<7;$i++){
             $weekdays[$i] = strftime('%A', mktime(0, 0, 0, 1, $i, 2001));
         }

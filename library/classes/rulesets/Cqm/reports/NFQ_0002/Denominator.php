@@ -30,7 +30,7 @@ class NFQ_0002_Denominator implements CqmFilterIF
     
     public function test( CqmPatient $patient, $beginDate, $endDate )
     {
-		//Same as initial population
-		return true;
+        //Same as initial population
+        return true;
     }
 }

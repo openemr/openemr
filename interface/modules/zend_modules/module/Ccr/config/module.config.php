@@ -6,7 +6,7 @@ return array(
         ),
     ),
 
-	'router' => array(
+    'router' => array(
         'routes' => array(
             'ccr' => array(
                 'type'    => 'segment',

@@ -25,12 +25,12 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 
 // kick out if patient not authenticated
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
-  $pid = $_SESSION['pid'];
+    $pid = $_SESSION['pid'];
 }
 else {
-  session_destroy();
-  header('Location: '.$landingpage.'&w');
-  exit;
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit;
 }
 //
 
@@ -160,7 +160,7 @@ $(document).ready(function(){
                   }
           });
       });
-	  $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
+      $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
           $(".medium_modal").fancybox( {
                   'overlayOpacity' : 0.0,
@@ -198,13 +198,13 @@ $(document).ready(function(){
   });
 
   $(".add_event").fancybox( {
-  	'overlayOpacity' : 0.0,
+    'overlayOpacity' : 0.0,
     'showCloseButton' : true,
     'centerOnScroll' : false,
     'autoscale' : true,
     'hideOnContentClick' : false,
     'onClose' : function() {
-    	refreshme();
+        refreshme();
     }
   });
 
@@ -303,20 +303,20 @@ $(document).ready(function(){
                 raw[0].value = 'send '+ccrRecipient;
                 if(ccrRecipient=="") {
                   $("#ccr_send_message").html("<?php
-       echo xla('Please enter a valid Direct Address above.');?>");
+                    echo xla('Please enter a valid Direct Address above.');?>");
                   $("#ccr_send_result").show();
                 } else {
                   $(".viewCCR_transmit").attr('disabled','disabled');
                   $("#ccr_send_message").html("<?php
-       echo xla('Working... this may take a minute.');?>");
+                    echo xla('Working... this may take a minute.');?>");
                   $("#ccr_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'patient'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccr_send_message").html("<?php
-       echo xla('Your message was submitted for delivery to');
-                           ?> "+ccrRecipient);
+                            echo xla('Your message was submitted for delivery to');
+                            ?> "+ccrRecipient);
                          $("#ccr_send_to").val("");
                        } else {
                          $("#ccr_send_message").html(data);
@@ -326,7 +326,7 @@ $(document).ready(function(){
                 }
         });
 <?php }
-      if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
+if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {
                 $("#ccd_send_dialog").toggle();
@@ -341,25 +341,25 @@ $(document).ready(function(){
                 raw[0].value = 'send '+ccdRecipient;
                 if(ccdRecipient=="") {
                   $("#ccd_send_message").html("<?php
-       echo xla('Please enter a valid Direct Address above.');?>");
+                    echo xla('Please enter a valid Direct Address above.');?>");
                   $("#ccd_send_result").show();
                 } else {
                   $(".viewCCD_transmit").attr('disabled','disabled');
                   $("#ccd_send_message").html("<?php
-       echo xla('Working... this may take a minute.');?>");
+                    echo xla('Working... this may take a minute.');?>");
                   $("#ccd_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'patient'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccd_send_message").html("<?php
-       echo xla('Your message was submitted for delivery to');
-                           ?> "+ccdRecipient);
+                            echo xla('Your message was submitted for delivery to');
+                            ?> "+ccdRecipient);
                          $("#ccd_send_to").val("");
                        } else {
                          $("#ccd_send_message").html(data);
                        }
-             	       $(".viewCCD_transmit").removeAttr('disabled');
+                       $(".viewCCD_transmit").removeAttr('disabled');
                   });
                 }
         });
@@ -388,23 +388,23 @@ $(document).ready(function(){
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
-      <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
+        <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
        <tr>
         <td width='650px'>
-          <?php
+            <?php
           // Reports widget
-          $widgetTitle = xl("Reports");
-          $widgetLabel = "reports";
-          $widgetButtonLabel = xl("");
-          $widgetButtonClass = "hidden";
-          $linkMethod = "html";
-          $bodyClass = "notab";
-          $widgetAuth = false;
-          $fixedWidth = true;
-          expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-           $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-           $widgetAuth, $fixedWidth);
-          ?>
+            $widgetTitle = xl("Reports");
+            $widgetLabel = "reports";
+            $widgetButtonLabel = xl("");
+            $widgetButtonClass = "hidden";
+            $linkMethod = "html";
+            $bodyClass = "notab";
+            $widgetAuth = false;
+            $fixedWidth = true;
+            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
+            $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
+            $widgetAuth, $fixedWidth);
+            ?>
            <br/>
            <div style='margin-left:3em; margin-right:3em; padding:1em; border:1px solid blue;' class='text'>
             <div id="ccr_report">
@@ -532,7 +532,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 <span class="text"><?php echo xlt('Download all patient documents');?></span>
 <br /><br />
 <form name='doc_form' id='doc_form' action='get_patient_documents.php' method='post'>
-	<input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+    <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
 </form>
 </div>
 </td>
@@ -557,8 +557,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
                   </div>
 
-			</td>
-		</tr>
+            </td>
+        </tr>
                 <?php echo "<tr><td width='650px'>";
                 // problem list collapse widget
                 $widgetTitle = xl("Problem List");
@@ -624,8 +624,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 <!-- Amendments -->
 <?php if ( $GLOBALS['amendments'] ) { ?>
-	<tr>
-	<td width='650px'>
+    <tr>
+    <td width='650px'>
 <?php
 $widgetTitle = xl("Amendments");
 $widgetLabel = "amendments";
@@ -641,50 +641,50 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 ?>
 
 <br/>
-	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
-	</td>
-	</tr>
+    <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
+    </td>
+    </tr>
 <?php } ?>
     <tr>
       <td width='650px'>
 <?php
-	// Show current and upcoming appointments.
-	 $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
-	  "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
-	  "c.pc_catname " .
-	  "FROM openemr_postcalendar_events AS e, users AS u, " .
-	  "openemr_postcalendar_categories AS c WHERE " .
-	  "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
-	  "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
-	  "ORDER BY e.pc_eventDate, e.pc_startTime";
-	  //echo $query;
-	 $res = sqlStatement($query, array($pid) );
+    // Show current and upcoming appointments.
+     $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, " .
+      "e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, " .
+      "c.pc_catname " .
+      "FROM openemr_postcalendar_events AS e, users AS u, " .
+      "openemr_postcalendar_categories AS c WHERE " .
+      "e.pc_pid = ? AND e.pc_eventDate >= CURRENT_DATE AND " .
+      "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
+      "ORDER BY e.pc_eventDate, e.pc_startTime";
+      //echo $query;
+     $res = sqlStatement($query, array($pid) );
 
-	// appointments expand collapse widget
-	$widgetTitle = xl("Appointments");
-	$widgetLabel = "appointments";
-	$widgetButtonLabel = xl("Add");
+    // appointments expand collapse widget
+    $widgetTitle = xl("Appointments");
+    $widgetLabel = "appointments";
+    $widgetButtonLabel = xl("Add");
         $widgetButtonLink = "add_edit_event_user.php?pid=".htmlspecialchars($pid, ENT_QUOTES);
         $widgetButtonClass = "edit_event iframe";
-	$linkMethod = "";
-	$bodyClass = "summary_item small";
-    if ($GLOBALS['portal_onsite_appt_modify'])
-    {
-      $widgetAuth = true;
-    }
-    else
-    {
-      $widgetAuth = false;
-    }
-	$fixedWidth = false;
-	expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
-			 $count = 0;
+    $linkMethod = "";
+    $bodyClass = "summary_item small";
+if ($GLOBALS['portal_onsite_appt_modify'])
+{
+    $widgetAuth = true;
+}
+else
+{
+    $widgetAuth = false;
+}
+    $fixedWidth = false;
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+             $count = 0;
 ?>
-			<div id='stats_div' style="display:none">
-            	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div>
-        	</div>
-		</td>
-	</tr>
+            <div id='stats_div' style="display:none">
+                <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div>
+            </div>
+        </td>
+    </tr>
    </table>
 
    </div>

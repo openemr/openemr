@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * Form implementation of LogIF interface, which is used to
  * display the signature log
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -33,12 +33,12 @@ class Form_Log implements LogIF
     protected $_viewer = null;
     
     /**
-     * Create a new instance of Form_Log. 
-     * 
+     * Create a new instance of Form_Log.
+     *
      * We pass custom variables needed to render log through
      * the constructor because they aren't necessarily available
      * through the SignableIF interface when render() function is called.
-     * 
+     *
      * @param unknown $formId
      * @param unknown $formDir
      * @param unknown $encounterId

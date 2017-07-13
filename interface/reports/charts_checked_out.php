@@ -76,29 +76,29 @@ $res = \services\PatientService::getChartTrackerInformation();
 $data_ctr = 0;
 while ($row = sqlFetchArray($res)) {
 
-if ( $data_ctr == 0 ) { ?>
-<table>
- <thead>
-  <th> <?php xl('Chart','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('Location','e'); ?> </th>
-  <th> <?php xl('As Of','e'); ?> </th>
- </thead>
- <tbody>
-<?php  } ?>
+    if ( $data_ctr == 0 ) { ?>
+    <table>
+     <thead>
+          <th> <?php xl('Chart','e'); ?> </th>
+          <th> <?php xl('Patient','e'); ?> </th>
+          <th> <?php xl('Location','e'); ?> </th>
+          <th> <?php xl('As Of','e'); ?> </th>
+     </thead>
+     <tbody>
+        <?php  } ?>
 
  <tr>
   <td>
-   <?php echo $row['pubpid']; ?>
+    <?php echo $row['pubpid']; ?>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
+    <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']; ?>
   </td>
   <td>
-   <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
+    <?php echo $row['ulname'] . ', ' . $row['ufname'] . ' ' . $row['umname']; ?>
   </td>
   <td>
-   <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
+    <?php echo oeFormatShortDate(substr($row['ct_when'], 0, 10)) . substr($row['ct_when'], 10); ?>
   </td>
  </tr>
 <?php

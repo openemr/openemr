@@ -3,16 +3,17 @@ include_once("../../globals.php");
 
 // This may be more appropriate to move to the library
 // later
-function getInsuranceCompanies($pid) {
-  $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = '$pid' " .
+function getInsuranceCompanies($pid)
+{
+    $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = '$pid' " .
     "ORDER BY type ASC, date DESC");
-  $prevtype = '';
-  for($iter = 0; $row = sqlFetchArray($res); $iter++) {
-    if (strcmp($row['type'], $prevtype) == 0) continue;
-    $prevtype = $row['type'];
-    $all[$iter] = $row;
-  }
-  return $all;
+    $prevtype = '';
+    for($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        if (strcmp($row['type'], $prevtype) == 0) continue;
+        $prevtype = $row['type'];
+        $all[$iter] = $row;
+    }
+    return $all;
 }
 
 //the number of rows to display before resetting and starting a new column:
@@ -61,18 +62,18 @@ document.copay_form.codeH.value="";
 <input type="RADIO" name="payment_method" value="insurance"><?php xl('insurance','e'); ?>
 <?php
 if ($ret=getInsuranceCompanies($pid)) {
-	if (sizeof($ret)>0) {
-		echo "<select name=insurance_company>\n";
-		foreach($ret as $iter) {
-			$plan_name = trim($iter['plan_name']);
-			if ($plan_name != '') {
-				echo "<option value='"
-				.$plan_name
-				."'>".$plan_name ."\n";
-			}
-		}
-		echo "</select>\n";
-	}
+    if (sizeof($ret)>0) {
+        echo "<select name=insurance_company>\n";
+        foreach($ret as $iter) {
+            $plan_name = trim($iter['plan_name']);
+            if ($plan_name != '') {
+                echo "<option value='"
+                .$plan_name
+                ."'>".$plan_name ."\n";
+            }
+        }
+        echo "</select>\n";
+    }
 }
 ?>
 <br><br>

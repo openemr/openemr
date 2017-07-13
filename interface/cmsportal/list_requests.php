@@ -34,13 +34,14 @@ require_once("portal.inc.php");
  * @param  string  $value   List item identifier.
  * @return string  The item's title.
  */
-function getListItem($listid, $value) {
-  $lrow = sqlQuery("SELECT title FROM list_options " .
+function getListItem($listid, $value)
+{
+    $lrow = sqlQuery("SELECT title FROM list_options " .
     "WHERE list_id = ? AND option_id = ? AND activity = 1",
     array($listid, $value));
-  $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = "($report_status)";
-  return $tmp;
+    $tmp = xl_list_label($lrow['title']);
+    if (empty($tmp)) $tmp = "($report_status)";
+    return $tmp;
 }
 
 /**
@@ -49,26 +50,28 @@ function getListItem($listid, $value) {
  * @param  string  $s  Input text.
  * @return string  Output text.
  */
-function myCellText($s) {
-  if ($s === '') return '&nbsp;';
-  return text($s);
+function myCellText($s)
+{
+    if ($s === '') return '&nbsp;';
+    return text($s);
 }
 
 // Get patient name from OpenEMR, or empty if not there.
-function patientNameFromLogin($login) {
-  $ptname = '';
-  if ($login) {
-    $tmp = sqlQuery("SELECT fname, lname, mname, pid " .
-      "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
-      array($login));
-    if (!empty($tmp['pid'])) {
-      $ptname = $tmp['lname'];
-      if ($tmp['fname'] || $tmp['mname']) $ptname .= ',';
-      if ($tmp['fname']) $ptname .= ' ' . $tmp['fname'];
-      if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
+function patientNameFromLogin($login)
+{
+    $ptname = '';
+    if ($login) {
+        $tmp = sqlQuery("SELECT fname, lname, mname, pid " .
+        "FROM patient_data WHERE cmsportal_login = ? ORDER BY id LIMIT 1",
+        array($login));
+        if (!empty($tmp['pid'])) {
+              $ptname = $tmp['lname'];
+              if ($tmp['fname'] || $tmp['mname']) $ptname .= ',';
+              if ($tmp['fname']) $ptname .= ' ' . $tmp['fname'];
+              if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
+        }
     }
-  }
-  return $ptname;
+    return $ptname;
 }
 
 // Check authorization.
@@ -79,22 +82,22 @@ $errmsg = '';
 
 // If Delete clicked, delete selected posts/messages from the portal.
 if (!empty($_POST['bn_delete'])) {
-  if (is_array($_POST['form_req_cb'])) {
-    foreach ($_POST['form_req_cb'] as $postid) {
-      $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
-      if ($result['errmsg']) {
-        die(text($result['errmsg']));
-      }
+    if (is_array($_POST['form_req_cb'])) {
+        foreach ($_POST['form_req_cb'] as $postid) {
+            $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+        }
     }
-  }
-  if (is_array($_POST['form_msg_cb'])) {
-    foreach ($_POST['form_msg_cb'] as $messageid) {
-      $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
-      if ($result['errmsg']) {
-        die(text($result['errmsg']));
-      }
+    if (is_array($_POST['form_msg_cb'])) {
+        foreach ($_POST['form_msg_cb'] as $messageid) {
+            $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+        }
     }
-  }
 }
 ?>
 <html>
@@ -199,7 +202,7 @@ $result = cms_portal_call(array(
 ));
 
 if ($result['errmsg']) {
-  echo "<font color='red'>" . text($result['errmsg']) . "</font><br />\n";
+    echo "<font color='red'>" . text($result['errmsg']) . "</font><br />\n";
 }
 ?>
 <center>
@@ -207,7 +210,7 @@ if ($result['errmsg']) {
 <table width='100%'>
  <tr>
   <td class='text' align='center'>
-   <?php echo xlt('From'); ?>:
+    <?php echo xlt('From'); ?>:
    <input type='text' size='8' name='form_from_date' id='form_from_date'
     value='<?php echo attr($form_from_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
@@ -216,7 +219,7 @@ if ($result['errmsg']) {
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php echo xla('Click here to choose a date'); ?>' />
    &nbsp;
-   <?php echo xlt('To'); ?>:
+    <?php echo xlt('To'); ?>:
    <input type='text' size='8' name='form_to_date' id='form_to_date'
     value='<?php echo attr($form_to_date); ?>'
     title='<?php echo xla('yyyy-mm-dd'); ?>'
@@ -251,38 +254,38 @@ if ($result['errmsg']) {
 $v1 = each($result['list']);
 $v2 = each($result['messages']);
 while ($v1 || $v2) {
-  echo " <tr class='detail' bgcolor='#ddddff'>\n";
-  if (!$v2 || $v1 && $v1[1]['datetime'] < $v2[1]['datetime']) {
-    $postid = $v1[1]['postid'];
-    $ptname = patientNameFromLogin($v1[1]['user']);
-    echo "  <td>" . text($v1[1]['user']) . "</td>\n";
-    echo "  <td>" . text($ptname       ) . "</td>\n";
-    echo "  <td style='cursor:pointer;color:blue;'";
-    echo " onclick=\"openRequest(" .
+    echo " <tr class='detail' bgcolor='#ddddff'>\n";
+    if (!$v2 || $v1 && $v1[1]['datetime'] < $v2[1]['datetime']) {
+        $postid = $v1[1]['postid'];
+        $ptname = patientNameFromLogin($v1[1]['user']);
+        echo "  <td>" . text($v1[1]['user']) . "</td>\n";
+        echo "  <td>" . text($ptname       ) . "</td>\n";
+        echo "  <td style='cursor:pointer;color:blue;'";
+        echo " onclick=\"openRequest(" .
          "'" . addslashes($postid)      . "'," .
          "'" . addslashes($v1[1]['type']) . "'"  .
          ")\">" . text($v1[1]['datetime']) . "</td>\n";
-    echo "  <td>" . text($v1[1]['type'    ]) . "</td>\n";
-    echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
+        echo "  <td>" . text($v1[1]['type'    ]) . "</td>\n";
+        echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
          attr($postid) . "]' value='" . attr($postid) . "' /></td>\n";
-    $v1 = each($result['list']);
-  }
-  else {
-    $messageid = $v2[1]['messageid'];
-    $ptname = patientNameFromLogin($v2[1]['user']);
-    echo "  <td>" . text($v2[1]['user']) . "</td>\n";
-    echo "  <td>" . text($ptname       ) . "</td>\n";
-    echo "  <td style='cursor:pointer;color:blue;'";
-    echo " onclick=\"openMessage(" .
+        $v1 = each($result['list']);
+    }
+    else {
+        $messageid = $v2[1]['messageid'];
+        $ptname = patientNameFromLogin($v2[1]['user']);
+        echo "  <td>" . text($v2[1]['user']) . "</td>\n";
+        echo "  <td>" . text($ptname       ) . "</td>\n";
+        echo "  <td style='cursor:pointer;color:blue;'";
+        echo " onclick=\"openMessage(" .
          "'" . addslashes($messageid)      . "'" .
          ")\">" . text($v2[1]['datetime']) . "</td>\n";
-    echo "  <td>" . text($v2[1]['user'] == $v2[1]['fromuser'] ?
+        echo "  <td>" . text($v2[1]['user'] == $v2[1]['fromuser'] ?
          xl('Message from patient') : xl('Message to patient')) . "</td>\n";
-    echo "  <td align='center'><input type='checkbox' name='form_msg_cb[" .
-         attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
-    $v2 = each($result['messages']);
-  }
-  echo " </tr>\n";
+        echo "  <td align='center'><input type='checkbox' name='form_msg_cb[" .
+           attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
+        $v2 = each($result['messages']);
+    }
+    echo " </tr>\n";
 }
 ?>
 

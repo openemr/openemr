@@ -13,13 +13,15 @@
  */
 class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
 
-    function __construct() {
+    function __construct()
+    {
     }
 
     /**
      * @return RuleCriteriaType
      */
-    function resolveRuleCriteriaType( $method, $methodDetail, $value ) {
+    function resolveRuleCriteriaType( $method, $methodDetail, $value )
+    {
         if (strpos($method, "database") ) {
             $exploded = explode("::", $value);
             if ( $exploded[0] == "LIFESTYLE" ) {
@@ -40,7 +42,8 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    function build( $ruleCriteriaType, $value, $methodDetail ) {
+    function build( $ruleCriteriaType, $value, $methodDetail )
+    {
         $exploded = explode("::", $value);
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
@@ -77,7 +80,8 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
      *
      * @param RuleCriteriaType $ruleCriteriaType
      */
-    function newInstance( $ruleCriteriaType ) {
+    function newInstance( $ruleCriteriaType )
+    {
         if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
             return new RuleCriteriaLifestyle( null, null );
         }

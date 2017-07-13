@@ -31,7 +31,8 @@ class ONoteRepository extends EntityRepository {
      * @param $note The new office note.
      * @return the new id.
      */
-    public function save(\entities\ONote $note) {
+    public function save(\entities\ONote $note)
+    {
         $this->_em->persist($note);
         $this->_em->flush();
         return $note->getId();
@@ -41,7 +42,8 @@ class ONoteRepository extends EntityRepository {
      * @param $id The office note id.
      * @return The single note.
      */
-    public function findNoteById($id) {
+    public function findNoteById($id)
+    {
         $result = $this->_em->getRepository($this->_entityName)->findOneBy(array("id" => $id));
         return $result;
     }
@@ -52,7 +54,8 @@ class ONoteRepository extends EntityRepository {
      * @param $id The office note id.
      * @return true/false if the update was successful.
      */
-    public function enableNoteById($id) {
+    public function enableNoteById($id)
+    {
         $result = false;
 
         try {
@@ -75,7 +78,8 @@ class ONoteRepository extends EntityRepository {
      * @param $id The office note id.
      * @return true/false if the update was successful.
      */
-    public function disableNoteById($id) {
+    public function disableNoteById($id)
+    {
         $result = false;
 
         try {
@@ -102,7 +106,8 @@ class ONoteRepository extends EntityRepository {
      * @param $limit The limit for pagination.
      * @return list of office notes.
      */
-    public function getNotes($activity, $offset, $limit) {
+    public function getNotes($activity, $offset, $limit)
+    {
         if (!is_numeric($offset) || !is_numeric($limit)) {
             return null;
         }
@@ -130,7 +135,8 @@ class ONoteRepository extends EntityRepository {
      * HQL when the methods that EntityRepository provides
      * cannot sufficiently meet the complexity of your query.
      */
-    public function findAllHqlExample() {
+    public function findAllHqlExample()
+    {
         // $sql  = "SELECT o ";
         // $sql .= "FROM entities\\ONote o ";
         // $sql .= "JOIN entities\\User u ";

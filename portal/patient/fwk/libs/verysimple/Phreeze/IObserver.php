@@ -20,7 +20,7 @@ define ( "OBSERVE_FATAL", 16 );
  * @version 2.0
  */
 interface IObserver {
-	public function Observe($obj, $ltype = OBSERVE_INFO);
+    public function Observe($obj, $ltype = OBSERVE_INFO);
 }
 
 ?>

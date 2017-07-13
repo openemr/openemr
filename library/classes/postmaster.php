@@ -38,7 +38,7 @@ class MyMailer extends PHPMailer
             break;
             case "SMTP" :
             {
-		global $SMTP_Auth;
+                global $SMTP_Auth;
                 $this->Mailer = "smtp";
                 $this->SMTPAuth = $SMTP_Auth;
                 $this->Host = $GLOBALS['SMTP_HOST'];

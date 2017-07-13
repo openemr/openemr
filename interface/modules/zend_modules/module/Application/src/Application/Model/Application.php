@@ -31,7 +31,7 @@ class Application implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-	
+    
     }
     
     public function getArrayCopy()
@@ -46,12 +46,12 @@ class Application implements InputFilterAwareInterface
 
     public function getInputFilter()
     {
-      if (!$this->inputFilter) {
-        $inputFilter = new InputFilter();
-        $factory     = new InputFactory();
+        if (!$this->inputFilter) {
+            $inputFilter = new InputFilter();
+            $factory     = new InputFactory();
 
-        $this->inputFilter = $inputFilter;
-      }
-      return $this->inputFilter;
+            $this->inputFilter = $inputFilter;
+        }
+        return $this->inputFilter;
     }
 }

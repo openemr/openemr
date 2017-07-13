@@ -8,7 +8,8 @@
 
 class Controller_edit extends BaseController {
 
-    function _action_summary() {
+    function _action_summary()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         if (is_null($rule)) {
@@ -19,7 +20,8 @@ class Controller_edit extends BaseController {
         $this->set_view( "summary.php" );
     }
 
-    function _action_submit_summary() {
+    function _action_submit_summary()
+    {
         $ruleId = _post('id');
         $types = _post('fld_ruleTypes');
         $title = _post('fld_title');
@@ -38,7 +40,8 @@ class Controller_edit extends BaseController {
         }
     }
 
-    function _action_intervals() {
+    function _action_intervals()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
 
@@ -46,7 +49,8 @@ class Controller_edit extends BaseController {
         $this->set_view( "intervals.php" );
     }
 
-    function _action_submit_intervals() {
+    function _action_submit_intervals()
+    {
         // parse results from response
         $ruleId = _post('id');
         $rule = $this->getRuleManager()->getRule($ruleId );
@@ -76,7 +80,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_filter() {
+    function _action_filter()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -91,7 +96,8 @@ class Controller_edit extends BaseController {
         $this->set_view( $criteria->getView(), "criteria.php" );
     }
 
-    function _action_delete_filter() {
+    function _action_delete_filter()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -99,7 +105,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_target() {
+    function _action_target()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -114,7 +121,8 @@ class Controller_edit extends BaseController {
         $this->set_view( $criteria->getView(), "criteria.php" );
     }
 
-    function _action_delete_target() {
+    function _action_delete_target()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -122,7 +130,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_codes() {
+    function _action_codes()
+    {
         $search = _get('q');
         $codes = $this->getCodeManager()->search( $search );
         foreach( $codes as $code ) {
@@ -130,7 +139,8 @@ class Controller_edit extends BaseController {
         }
     }
 
-    function _action_categories() {
+    function _action_categories()
+    {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
@@ -138,7 +148,8 @@ class Controller_edit extends BaseController {
         $this->emit_json($columns);
     }
 
-    function _action_items() {
+    function _action_items()
+    {
         $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
@@ -146,7 +157,8 @@ class Controller_edit extends BaseController {
         $this->emit_json($columns);
     }
 
-    function _action_columns() {
+    function _action_columns()
+    {
         $columns = array();
         $table = _get('table');
         $stmts = sqlStatement( "SHOW COLUMNS FROM " . $table );
@@ -156,7 +168,8 @@ class Controller_edit extends BaseController {
         $this->emit_json($columns);
     }
 
-    function _action_submit_criteria() {
+    function _action_submit_criteria()
+    {
         // parse results from response
         $ruleId = _post('id');
         $groupId = _post('group_id');
@@ -188,7 +201,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_action() {
+    function _action_action()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -199,7 +213,8 @@ class Controller_edit extends BaseController {
         $this->set_view( "action.php" );
     }
 
-    function _action_delete_action() {
+    function _action_delete_action()
+    {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $guid = _get('guid');
@@ -207,7 +222,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_add_action() {
+    function _action_add_action()
+    {
         $ruleId = _get('id');
         $groupId = _get('group_id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
@@ -220,7 +236,8 @@ class Controller_edit extends BaseController {
         $this->set_view( "action.php" );
     }
 
-    function _action_submit_action() {
+    function _action_submit_action()
+    {
         $ruleId = _post('id');
         $rule = $this->getRuleManager()->getRule( $ruleId );
         $groupId = _post('group_id');
@@ -256,7 +273,8 @@ class Controller_edit extends BaseController {
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
-    function _action_add_criteria() {
+    function _action_add_criteria()
+    {
         $type = _get("criteriaType");
         $id = _get("id");
         $groupId = _get("group_id");
@@ -276,7 +294,8 @@ class Controller_edit extends BaseController {
         $this->set_view( "add_criteria.php" );
     }
 
-    function _action_choose_criteria() {
+    function _action_choose_criteria()
+    {
         $type = _get("type");
         $id = _get("id");
         $groupId = _get("group_id");

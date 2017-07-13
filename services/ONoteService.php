@@ -42,7 +42,8 @@ class ONoteService {
     /**
      * Default constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->logger = new \common\logging\Logger("\services\ONoteService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
@@ -56,7 +57,8 @@ class ONoteService {
      * @param The text of the office note.
      * @return $body New id.
      */
-    public function add($body) {
+    public function add($body)
+    {
         $newNote = new \entities\ONote();
         $newNote->setBody($body);
         $newNote->setGroupName($this->userService->getCurrentlyLoggedInUserGroup());
@@ -82,7 +84,8 @@ class ONoteService {
      * @param $id The office note id.
      * @return true/false if the update was successful.
      */
-    public function enableNoteById($id) {
+    public function enableNoteById($id)
+    {
         $this->logger->debug("Enabling office note with id " . $id);
         $result = $this->repository->enableNoteById($id);
 
@@ -99,7 +102,8 @@ class ONoteService {
      * @param $id The office note id.
      * @return true/false if the update was successful.
      */
-    public function disableNoteById($id) {
+    public function disableNoteById($id)
+    {
         $this->logger->debug("Disabling office note with id " . $id);
         $result = $this->repository->disableNoteById($id);
 
@@ -118,7 +122,8 @@ class ONoteService {
      * @param $limit The limit for pagination.
      * @return list of office notes.
      */
-    public function getNotes($activity, $offset, $limit) {
+    public function getNotes($activity, $offset, $limit)
+    {
         $this->logger->debug("Getting " . $activity . " onotes with filters: " . $offset . " " . $limit);
         return $this->repository->getNotes($activity, $offset, $limit);
     }

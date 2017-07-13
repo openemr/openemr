@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * LBF Form implementation of SignableIF interface, which represents an
  * object that can be signed, locked and/or amended.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,9 +32,9 @@ class Form_LBF_Signable extends Form_Signable implements SignableIF
 {
     /**
      * Get the data in an array for this form.
-     * 
+     *
      * get the lbf form key, and all the entries associates with that key
-     * 
+     *
      * @see \ESign\SignableIF::getData()
      */
     public function getData()

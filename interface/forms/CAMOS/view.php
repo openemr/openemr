@@ -79,7 +79,7 @@ while ($result = sqlFetchArray($statement)) {
     print "<div id=id_textarea_".$result['id']." style='display:none'>\n";
     print "<textarea name=textarea_".$result['id']." cols=$textarea_cols rows= $textarea_rows onFocus='content_focus()' onBlur='content_blur()' >".$result['content']."</textarea><br/>\n";
     print "</div>\n";
-  }
+}
 
 
 //experimental code end

@@ -30,34 +30,34 @@
 <?php
  // If we are saving, then save and close the window.
  //
- if ($_POST['form_save']) {
-  $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = '$line_id'";
-  sqlStatement($query);
+if ($_POST['form_save']) {
+    $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = '$line_id'";
+    sqlStatement($query);
 
-  $form_diagnoses = $_POST['form_diagnosis'];
-  $form_orderings = $_POST['form_ordering'];
-  foreach ($form_diagnoses as $i => $diagnosis) {
-   if ($diagnosis) {
-    $ordering = $form_orderings[$i];
-    $query = "INSERT INTO form_physical_exam_diagnoses ( " .
-     "line_id, ordering, diagnosis " .
-     ") VALUES ( " .
-     "'$line_id', '$ordering', '$diagnosis' " .
-     ")";
-    sqlInsert($query);
-   }
-  }
+    $form_diagnoses = $_POST['form_diagnosis'];
+    $form_orderings = $_POST['form_ordering'];
+    foreach ($form_diagnoses as $i => $diagnosis) {
+        if ($diagnosis) {
+            $ordering = $form_orderings[$i];
+            $query = "INSERT INTO form_physical_exam_diagnoses ( " .
+            "line_id, ordering, diagnosis " .
+            ") VALUES ( " .
+            "'$line_id', '$ordering', '$diagnosis' " .
+            ")";
+            sqlInsert($query);
+        }
+    }
 
   // Close this window and redisplay the updated encounter form.
   //
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('$info_msg');\n";
+    echo " window.close();\n";
   // echo " opener.location.reload();\n";
-  echo " if (opener.refreshme) opener.refreshme();\n";
-  echo "</script></body></html>\n";
-  exit();
- }
+    echo " if (opener.refreshme) opener.refreshme();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
  $dres = sqlStatement(
   "SELECT * FROM form_physical_exam_diagnoses WHERE " .

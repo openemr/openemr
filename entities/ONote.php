@@ -38,7 +38,8 @@ class ONote {
     /**
      * Default constructor.
      */
-    public function __construct() {}
+    public function __construct()
+    {}
 
     /**
      * @Id
@@ -73,51 +74,63 @@ class ONote {
      */
     private $activity;
 
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setId($value) {
+    public function setId($value)
+    {
         $this->id = $value;
     }
 
-    public function getDate() {
+    public function getDate()
+    {
         return $this->date;
     }
 
-    public function setDate($value) {
+    public function setDate($value)
+    {
         $this->date = $value;
     }
 
-    public function getBody() {
+    public function getBody()
+    {
         return $this->body;
     }
 
-    public function setBody($value) {
+    public function setBody($value)
+    {
         $this->body = $value;
     }
 
-    public function getGroupName() {
+    public function getGroupName()
+    {
         return $this->groupName;
     }
 
-    public function setGroupName($value) {
+    public function setGroupName($value)
+    {
         $this->groupName = $value;
     }
 
-    public function getUser() {
+    public function getUser()
+    {
         return $this->user;
     }
 
-    public function setUser($value) {
+    public function setUser($value)
+    {
         $this->user = $value;
     }
 
-    public function getActivity() {
+    public function getActivity()
+    {
         return $this->activity;
     }
 
-    public function setActivity($value) {
+    public function setActivity($value)
+    {
         $this->activity = $value;
     }
 
@@ -126,7 +139,8 @@ class ONote {
      *
      * @return object as string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return "id: '" . $this->getId() . "' " .
                "date: '" . $this->getDate()->format('Y-m-d H:i:s') . "' " .
                "activity: '" . $this->getActivity() . "' " .
@@ -139,7 +153,8 @@ class ONote {
      *
      * @return object as serialized object.
      */
-    public function toSerializedObject() {
-      return get_object_vars($this);
+    public function toSerializedObject()
+    {
+        return get_object_vars($this);
     }
 }

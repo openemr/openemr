@@ -23,10 +23,10 @@ if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   $auth_notes_a = $auth_notes = $auth_demo = $auth_relaxed = 0;
 
 if (!($auth_notes_a || $auth_notes || $auth_relaxed)) {
-  echo "<body>\n<html>\n";
-  echo "<p>(".xl('Encounters not authorized').")</p>\n";
-  echo "</body>\n</html>\n";
-  exit();
+    echo "<body>\n<html>\n";
+    echo "<p>(".xl('Encounters not authorized').")</p>\n";
+    echo "</body>\n</html>\n";
+    exit();
 }
 ?>
 <html>
@@ -70,36 +70,36 @@ $res = sqlStatement("SELECT " .
   "ORDER BY fe.date DESC, f.encounter DESC");
 
 while ($row = sqlFetchArray($res)) {
-  $raw_encounter_date = date("Y-m-d", strtotime($row['date']));
-  $reason_string = $row['reason'];
-  $auth_sensitivity = true;
+    $raw_encounter_date = date("Y-m-d", strtotime($row['date']));
+    $reason_string = $row['reason'];
+    $auth_sensitivity = true;
 
-  $href = "javascript:window.toencounter(" . $row['encounter'] . ",\"" .
+    $href = "javascript:window.toencounter(" . $row['encounter'] . ",\"" .
     oeFormatShortDate($raw_encounter_date) . "\")";
-  $linkbeg = "<a class='text' href='$href'>";
-  $linkend = "</a>";
+    $linkbeg = "<a class='text' href='$href'>";
+    $linkend = "</a>";
 
-  if ($row['sensitivity']) {
-    $auth_sensitivity = acl_check('sensitivities', $row['sensitivity']);
-    if (!$auth_sensitivity) {
-      $reason_string = "(No access)";
-      $linkbeg = "<span class='text'>";
-      $linkend = "</span>";
+    if ($row['sensitivity']) {
+        $auth_sensitivity = acl_check('sensitivities', $row['sensitivity']);
+        if (!$auth_sensitivity) {
+            $reason_string = "(No access)";
+            $linkbeg = "<span class='text'>";
+            $linkend = "</span>";
+        }
     }
-  }
 
-  echo "<tr>\n";
+    echo "<tr>\n";
 
   // show encounter date
-  echo "<td valign='top'>$linkbeg$raw_encounter_date$linkend</td>\n";
+    echo "<td valign='top'>$linkbeg$raw_encounter_date$linkend</td>\n";
 
   // show encounter reason/title
-  echo "<td valign='top'>$linkbeg" . $reason_string . "$linkend</td>\n";
+    echo "<td valign='top'>$linkbeg" . $reason_string . "$linkend</td>\n";
 
   // show user who created the encounter
-  echo "<td valign='top'>$linkbeg" . $row['user'] . "$linkend</td>\n";
+    echo "<td valign='top'>$linkbeg" . $row['user'] . "$linkend</td>\n";
 
-  echo "</tr>\n";
+    echo "</tr>\n";
 }
 ?>
 

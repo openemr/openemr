@@ -46,8 +46,8 @@ $featureData['amendment']['listLink'] = "list_amendments.php";
 <a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['listLink']); ?>?id=<?php echo attr($pid); ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">
 <span><?php echo xlt('List');?></span></a>
 <?php if ( acl_check('patients', 'trans') ) { ?>
-	<a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['addLink']); ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">
-	<span><?php echo xlt('Add');?></span></a>
+    <a href="<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/<?php echo attr($featureData[$feature]['addLink']); ?>" target='rightFrame' class="css_button" onclick="top.restoreSession()">
+    <span><?php echo xlt('Add');?></span></a>
 <?php } ?>
 </td>
 </tr>

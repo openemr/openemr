@@ -21,7 +21,7 @@ class AMC_304a_Denominator implements AmcFilterIF
         // Also need at least one medication on the med list.
         //  (basically needs an encounter within the report dates and medications
         //   entered by the endDate)
-	 $sql = "SELECT drug,1 as cpoe_stat " .
+        $sql = "SELECT drug,1 as cpoe_stat " .
                        "FROM `prescriptions` " .
                        "WHERE `patient_id` = ? " .
                        "AND `date_added` BETWEEN ? AND ? ".

@@ -64,7 +64,7 @@ include_once("$srcdir/log.inc");
     color: #336699;
 }
 .tamperColor{
-	color:red;
+    color:red;
 }
 </style>
 <script>
@@ -112,11 +112,12 @@ $form_patient = $_GET['form_patient'];
  */
 if ($start_date && $end_date)
 {
-	if($start_date > $end_date){
-		echo "<table><tr class='alert'><td colspan=7>"; echo xlt('Start Date should not be greater than End Date');
-		echo "</td></tr></table>";
-		$err_message=1;
-	}
+    if($start_date > $end_date){
+        echo "<table><tr class='alert'><td colspan=7>";
+        echo xlt('Start Date should not be greater than End Date');
+        echo "</td></tr></table>";
+        $err_message=1;
+    }
 }
 
 ?>
@@ -187,10 +188,10 @@ $check_sum = $_GET['check_sum'];
   <th id="sortby_user" class="text" title="<?php echo xla('Sort by User'); ?>"><?php echo xlt('User'); ?></th>
   <th id="sortby_pid" class="text" title="<?php echo xla('Sort by PatientID'); ?>"><?php echo xlt('PatientID'); ?></th>
   <th id="sortby_comments" class="text" title="<?php echo  xla('Sort by Comments'); ?>"><?php echo xlt('Comments'); ?></th>
- <?php  if($check_sum) {?>
+    <?php  if($check_sum) {?>
   <th id="sortby_newchecksum" class="text" title="<?php xla('Sort by New Checksum'); ?>"><?php  xlt('Tampered Checksum'); ?></th>
   <th id="sortby_oldchecksum" class="text" title="<?php xla('Sort by Old Checksum'); ?>"><?php  xlt('Original Checksum'); ?></th>
-  <?php } ?>
+    <?php } ?>
  </tr>
 <?php
 
@@ -203,88 +204,88 @@ $type_event = "update";
 $tevent="";
 $gev="";
 if($eventname != "" && $type_event != ""){
-	$getevent=$eventname."-".$type_event;
+    $getevent=$eventname."-".$type_event;
 }
 
 if(($eventname == "") && ($type_event != "")){
-	$tevent=$type_event;
+    $tevent=$type_event;
 }else if($type_event =="" && $eventname != ""){
-	$gev=$eventname;
+    $gev=$eventname;
 }else if ($eventname == ""){
-	$gev = "";
+    $gev = "";
 }else{
-	$gev = $getevent;
+    $gev = $getevent;
 }
 
 $dispArr = array();
 $icnt = 1;
 if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent))) {
-  foreach ($ret as $iter) {
-    //translate comments
-    $patterns = array ('/^success/','/^failure/','/ encounter/');
-	$replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
+    foreach ($ret as $iter) {
+        //translate comments
+        $patterns = array ('/^success/','/^failure/','/ encounter/');
+        $replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
 
-	$dispCheck = false;
-	$log_id = $iter['id'];
-	$commentEncrStatus = "No";
-	$logEncryptData = logCommentEncryptData($log_id);
+        $dispCheck = false;
+        $log_id = $iter['id'];
+        $commentEncrStatus = "No";
+        $logEncryptData = logCommentEncryptData($log_id);
 
-	if(count($logEncryptData) > 0){
-		$commentEncrStatus = $logEncryptData['encrypt'];
-		$checkSumOld = $logEncryptData['checksum'];
-		$concatLogColumns = $iter['date'].$iter['event'].$iter['user'].$iter['groupname'].$iter['comments'].$iter['patient_id'].$iter['success'].$iter['checksum'].$iter['crt_user'];
-		$checkSumNew = sha1($concatLogColumns);
+        if(count($logEncryptData) > 0){
+            $commentEncrStatus = $logEncryptData['encrypt'];
+            $checkSumOld = $logEncryptData['checksum'];
+            $concatLogColumns = $iter['date'].$iter['event'].$iter['user'].$iter['groupname'].$iter['comments'].$iter['patient_id'].$iter['success'].$iter['checksum'].$iter['crt_user'];
+            $checkSumNew = sha1($concatLogColumns);
 
-		if($checkSumOld != $checkSumNew){
-			$dispCheck = true;
-		}else{
-			$dispCheck = false;
-			continue;
-		}
-	}else{
-		continue;
-	}
+            if($checkSumOld != $checkSumNew){
+                $dispCheck = true;
+            }else{
+                $dispCheck = false;
+                continue;
+            }
+        }else{
+            continue;
+        }
 
-	if($commentEncrStatus == "Yes"){
-		$decrypt_comment =  trim(aes256Decrypt($iter["comments"]));
-		$trans_comments = preg_replace($patterns, $replace, $decrypt_comment);
-	}else{
-		$comments = trim($iter["comments"]);
-		$trans_comments = preg_replace($patterns, $replace, $comments);
-	}
+        if($commentEncrStatus == "Yes"){
+            $decrypt_comment =  trim(aes256Decrypt($iter["comments"]));
+            $trans_comments = preg_replace($patterns, $replace, $decrypt_comment);
+        }else{
+            $comments = trim($iter["comments"]);
+            $trans_comments = preg_replace($patterns, $replace, $comments);
+        }
 
-	//Alter Checksum value records only display here
-	if($dispCheck){
-		$dispArr[] = $icnt++;
-?>
-	 <TR class="oneresult">
-		  <TD class="text tamperColor"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
-		  <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
-		  <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
-		  <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
-		  <?php  if($check_sum) { ?>
-		  <TD class="text tamperColor"><?php echo text($checkSumNew);?></TD>
-		  <TD class="text tamperColor"><?php echo text($checkSumOld);?></TD>
-		  <?php } ?>
-	 </TR>
+        //Alter Checksum value records only display here
+        if($dispCheck){
+            $dispArr[] = $icnt++;
+        ?>
+     <TR class="oneresult">
+          <TD class="text tamperColor"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
+          <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
+          <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
+          <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
+            <?php  if($check_sum) { ?>
+          <TD class="text tamperColor"><?php echo text($checkSumNew);?></TD>
+          <TD class="text tamperColor"><?php echo text($checkSumOld);?></TD>
+            <?php } ?>
+     </TR>
 <?php
-      }
+        }
     }
-  }
+}
 
-  if( count($dispArr) == 0 ){?>
-	 <TR class="oneresult">
-		 <?php
-			$colspan = 4;
-			if($check_sum) $colspan=6;
-		 ?>
-		<TD class="text" colspan="<?php echo $colspan;?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
-	 </TR>
+if( count($dispArr) == 0 ){?>
+     <TR class="oneresult">
+            <?php
+            $colspan = 4;
+            if($check_sum) $colspan=6;
+            ?>
+        <TD class="text" colspan="<?php echo $colspan;?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
+     </TR>
 <?php
-  }else{?>
-	<script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
-  <?php
-  }
+}else{?>
+    <script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
+    <?php
+}
 
 ?>
 </table>
@@ -315,7 +316,7 @@ $(document).ready(function(){
     $("#sortby_success").click(function() { $("#sortby").val("success"); $("#theform").submit(); });
     $("#sortby_comments").click(function() { $("#sortby").val("comments"); $("#theform").submit(); });
     $("#sortby_oldchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
-	$("#sortby_newchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
+    $("#sortby_newchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
 });
 
 

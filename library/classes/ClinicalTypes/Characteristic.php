@@ -14,7 +14,8 @@ class Characteristic extends ClinicalType
     const TOBACCO_USER = 'char_tobacco_user';
     const TOBACCO_NON_USER = 'char_tobacco_non_user';
     
-    public function getListId() {
+    public function getListId()
+    {
         return 'Clinical_Rules_Char_Types';
     }
     

@@ -31,10 +31,10 @@ class AMC_304a_2_Numerator implements AmcFilterIF
     public function test( AmcPatient $patient, $beginDate, $endDate )
     {
         // MEASURE STAGE2: Procedure Order(s) Created CPOE
-	if ( isset($patient->object['history_order']) && $patient->object['history_order'] == '0' )  {
-          return true;
+        if ( isset($patient->object['history_order']) && $patient->object['history_order'] == '0' )  {
+              return true;
         }else {
-          return false;
+            return false;
         }
     }
 }

@@ -16,13 +16,13 @@ include_once("$srcdir/acl.inc");
 
 //ensure user has proper access
 if (!acl_check('admin', 'acl')) {
- echo "(" . xl('ACL Administration Not Authorized') . ")";
- exit;
+    echo "(" . xl('ACL Administration Not Authorized') . ")";
+    exit;
 }
 //ensure phpgacl is installed
 if (!isset($phpgacl_location)) {
- echo "(" . xl('PHP-gacl is not installed') . ")";
- exit;
+    echo "(" . xl('PHP-gacl is not installed') . ")";
+    exit;
 }
 ?>
 
@@ -367,7 +367,7 @@ if (!isset($phpgacl_location)) {
       }
       else if (action == "list") {
        $(xml).find("acl").each(function(){
-	$(contentPointer + " select").append("<option value='" + $(this).find("value").text() + "-" + $(this).find("returnid").text() + "'>" + $(this).find("title").text() + "-" + $(this).find("returntitle").text() + "</option>");
+    $(contentPointer + " select").append("<option value='" + $(this).find("value").text() + "-" + $(this).find("returnid").text() + "'>" + $(this).find("title").text() + "-" + $(this).find("returntitle").text() + "</option>");
        });
       }
       $(contentPointer + " option").removeAttr('selected');
@@ -388,7 +388,7 @@ if (!isset($phpgacl_location)) {
        counterActive = counterActive + 1;
       });
       $(xml).find("inactive").find("group").each(function(){
-	$(contentPointer + " select:last").append("<option value='" + $(this).find("value").text() + "'>" + $(this).find("label").text() + "</option>");
+    $(contentPointer + " select:last").append("<option value='" + $(this).find("value").text() + "'>" + $(this).find("label").text() + "</option>");
        counterInactive = counterInactive + 1;
       });
       $(contentPointer + " option").removeAttr('selected');
@@ -416,8 +416,8 @@ if (!isset($phpgacl_location)) {
        $(contentPointer + " select:first").append("<optgroup label='" + $(this).find("name").text() + "'>");
        counterActive = counterActive + 1;
        $(this).find("aco").each(function(){
-	$(contentPointer + " select:first").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
-	counterActive = counterActive + 1;
+    $(contentPointer + " select:first").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
+    counterActive = counterActive + 1;
        });
       $(contentPointer + " select:first").append("</optgroup>");
       });
@@ -426,7 +426,7 @@ if (!isset($phpgacl_location)) {
        counterInactive = counterInactive + 1;
        $(this).find("aco").each(function(){
         $(contentPointer + " select:last").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
-	counterInactive = counterInactive + 1;
+    counterInactive = counterInactive + 1;
        });
        $(contentPointer + " select:last").append("</optgroup>");
       });
@@ -490,13 +490,13 @@ if (!isset($phpgacl_location)) {
    text-decoration: blink;
    font-size: 10pt;
    color: red;
-   font-weight:	bold;
+   font-weight: bold;
   }
   .alert {
-   font-family:	sans-serif;
+   font-family: sans-serif;
    font-size: 10pt;
    color: red;
-   font-weight:	bold;
+   font-weight: bold;
   }
   .section {
   border: solid;
@@ -510,9 +510,9 @@ if (!isset($phpgacl_location)) {
 
 <body class="body_top">
  <span class='title'><?php xl('Access Control List Administration','e'); ?></span>&nbsp;
- <?php if ($phpgacl_location) {
-  echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(" . xl('Advanced') . ")</span></a>";
- } ?>
+    <?php if ($phpgacl_location) {
+        echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(" . xl('Advanced') . ")</span></a>";
+} ?>
  <br><br>
  <div id='membership_edit'>
   <span class=bold><input type='checkbox' id='membership_show'><?php xl('User Memberships','e'); ?></span>
@@ -588,9 +588,9 @@ if (!isset($phpgacl_location)) {
        <span class='text'><?php xl('Do you really want to delete this group','e'); ?>?</span>
       </td>
       <td>
-	<input type="radio" name="acl_remove_confirm" value = "yes"><span class='text'><?php xl('Yes','e'); ?></span>
-	<input type="radio" name="acl_remove_confirm" value = "no" checked><span class='text'><?php xl('No','e'); ?></span>
-	<td><span class="alert" id="remove_confirm_error"></span></td>
+    <input type="radio" name="acl_remove_confirm" value = "yes"><span class='text'><?php xl('Yes','e'); ?></span>
+    <input type="radio" name="acl_remove_confirm" value = "no" checked><span class='text'><?php xl('No','e'); ?></span>
+    <td><span class="alert" id="remove_confirm_error"></span></td>
       </td>
      </tr>
     </table>

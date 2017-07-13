@@ -26,49 +26,51 @@
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
 if( $getdir > 0){
-	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $getdir . '/';
-	if(!is_dir($tdir)){
-		if (!mkdir($tdir, 0755, true)) {
-			die(xl('Failed to create folder'));
-		}
-	}
+    $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $getdir . '/';
+    if(!is_dir($tdir)){
+        if (!mkdir($tdir, 0755, true)) {
+            die(xl('Failed to create folder'));
+        }
+    }
 }
 else {
-	$tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/';
+    $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/';
 }
-function getAuthUsers(){
-	$response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
-	$resultpd = array ();
-	while( $row = sqlFetchArray($response) ){
-		$resultpd[] = $row;
-	}
-	return $resultpd;
+function getAuthUsers()
+{
+    $response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
+    $resultpd = array ();
+    while( $row = sqlFetchArray($response) ){
+        $resultpd[] = $row;
+    }
+    return $resultpd;
 }
-function getTemplateList($dir){
-	$retval = array();
-	if(substr($dir, -1) != "/") $dir .= "/";
-	$d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
-	while(false !== ($entry = $d->read())) {
-		if($entry[0] == "." || substr($entry,-3) != 'tpl') continue;
+function getTemplateList($dir)
+{
+    $retval = array();
+    if(substr($dir, -1) != "/") $dir .= "/";
+    $d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
+    while(false !== ($entry = $d->read())) {
+        if($entry[0] == "." || substr($entry,-3) != 'tpl') continue;
 
-		if(is_dir("$dir$entry")) {
-			$retval[] = array(
-					'pathname' => "$dir$entry",
-					'name' => "$entry",
-					'size' => 0,
-					'lastmod' => filemtime("$dir$entry")
-			);
-		} elseif(is_readable("$dir$entry")) {
-			$retval[] = array(
-					'pathname' => "$dir$entry",
-					'name' => "$entry",
-					'size' => filesize("$dir$entry"),
-					'lastmod' => filemtime("$dir$entry")
-			);
-		}
-	}
-	$d->close();
-	return $retval;
+        if(is_dir("$dir$entry")) {
+            $retval[] = array(
+                    'pathname' => "$dir$entry",
+                    'name' => "$entry",
+                    'size' => 0,
+                    'lastmod' => filemtime("$dir$entry")
+            );
+        } elseif(is_readable("$dir$entry")) {
+            $retval[] = array(
+                    'pathname' => "$dir$entry",
+                    'name' => "$entry",
+                    'size' => filesize("$dir$entry"),
+                    'lastmod' => filemtime("$dir$entry")
+            );
+        }
+    }
+    $d->close();
+    return $retval;
 }
 ?>
 <html>
@@ -93,75 +95,75 @@ function getTemplateList($dir){
 <script>
 var currentEdit = "";
 var tedit = function(docname) {
-	currentEdit = docname;
-	getDocument(docname, 'get', '')
-	return false;
-	};
+    currentEdit = docname;
+    getDocument(docname, 'get', '')
+    return false;
+    };
 
 var tsave = function() {
-	var makrup = $('#templatecontent').summernote('code');
-	getDocument(currentEdit, 'save', makrup)
-	};
+    var makrup = $('#templatecontent').summernote('code');
+    getDocument(currentEdit, 'save', makrup)
+    };
 var tdelete = function(docname) {
-	var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
-	if(delok === true) {getDocument(docname, 'delete', '')}
-	return false;
-	};
+    var delok = confirm("<?php echo xls('You are about to delete template'); ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
+    if(delok === true) {getDocument(docname, 'delete', '')}
+    return false;
+    };
  function getDocument(docname, mode, content){
-		var liburl = 'import_template.php';
-			$.ajax({
-				type: "POST",
-				url: liburl,
-				data: {docid: docname, mode: mode,content: content},
-				beforeSend: function(xhr){
-					console.log("Please wait..."+content);
-				},
-				error: function(qXHR, textStatus, errorThrow){
-					console.log("There was an error");
-				},
-				success: function(templateHtml, textStatus, jqXHR){
-					if(mode == 'get'){
-						//console.log("File get..."+templateHtml);
-						$('#templatecontent').summernote('destroy');
-						$('#templatecontent').empty().append(templateHtml);
-						$('#popeditor').modal({backdrop: "static"});
-						$('#templatecontent').summernote({
-					       // height: 200,
-							focus: true,
-				   			placeholder: '',
-				   			toolbar: [
-				   			    ['style', ['bold', 'italic', 'underline', 'clear']],
-				   			    ['fontsize', ['fontsize']],
-				   			    ['color', ['color']],
-				   			    ['para', ['ul', 'ol', 'paragraph']],
-				   			    ['insert', ['link','picture', 'video', 'hr']],
-				   			    ['view', ['fullscreen', 'codeview']],
-				   			 	['insert', ['nugget']],
-				   			 	['edit',['undo','redo']]
-				   			 	],
-				   			    nugget: {
-				   			        list: [
-					   			        '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
-				   			            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
-				   			            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
-				   			        ],
-				   			        label: 'Tags / Directives',
-				   			    	tooltip: 'Insert at current cursor location.'
-				   			    },
-				   			 options:{'label': 'Tags/Directives',
-					   			    'tooltip': 'Insert Tag or Directive'}
-				   			});
-						}
-					else if(mode == 'save'){
-						$('#templatecontent').summernote('destroy');
-						location.reload();
-					}
-					else if(mode == 'delete'){
-						location.reload();
-					}
-				}
-			});
-	}
+        var liburl = 'import_template.php';
+            $.ajax({
+                type: "POST",
+                url: liburl,
+                data: {docid: docname, mode: mode,content: content},
+                beforeSend: function(xhr){
+                    console.log("Please wait..."+content);
+                },
+                error: function(qXHR, textStatus, errorThrow){
+                    console.log("There was an error");
+                },
+                success: function(templateHtml, textStatus, jqXHR){
+                    if(mode == 'get'){
+                        //console.log("File get..."+templateHtml);
+                        $('#templatecontent').summernote('destroy');
+                        $('#templatecontent').empty().append(templateHtml);
+                        $('#popeditor').modal({backdrop: "static"});
+                        $('#templatecontent').summernote({
+                           // height: 200,
+                            focus: true,
+                            placeholder: '',
+                            toolbar: [
+                                ['style', ['bold', 'italic', 'underline', 'clear']],
+                                ['fontsize', ['fontsize']],
+                                ['color', ['color']],
+                                ['para', ['ul', 'ol', 'paragraph']],
+                                ['insert', ['link','picture', 'video', 'hr']],
+                                ['view', ['fullscreen', 'codeview']],
+                                ['insert', ['nugget']],
+                                ['edit',['undo','redo']]
+                                ],
+                                nugget: {
+                                    list: [
+                                        '{ParseAsHTML}{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
+                                        '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
+                                        '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+                                    ],
+                                    label: 'Tags / Directives',
+                                    tooltip: 'Insert at current cursor location.'
+                                },
+                             options:{'label': 'Tags/Directives',
+                                    'tooltip': 'Insert Tag or Directive'}
+                            });
+                        }
+                    else if(mode == 'save'){
+                        $('#templatecontent').summernote('destroy');
+                        location.reload();
+                    }
+                    else if(mode == 'delete'){
+                        location.reload();
+                    }
+                }
+            });
+    }
 </script>
 <style>
 .modal.modal-wide .modal-dialog {
@@ -181,7 +183,8 @@ var tdelete = function(docname) {
 <input class="btn btn-info" type="file" name="tplFile">
 <br>
 <button class="btn btn-primary" type="button" onclick="location.href='./patient/provider'"><?php echo xlt('Home'); ?></button>
-<input type='hidden' name="up_dir" value='<?php global $getdir; echo $getdir;?>' />
+<input type='hidden' name="up_dir" value='<?php global $getdir;
+echo $getdir;?>' />
 <button class="btn btn-success" type="submit" name="upload_submit" id="upload_submit"><?php echo xlt('Upload Template for'); ?> <span style="font-size: 14px;" class="label label-default" id='ptstatus'></span></button>
 </form>
 <div class='row'>
@@ -225,14 +228,14 @@ echo "</table>";
 ?>
 <script>
 $(document).ready(function(){
-	$("#popeditor").on("show.bs.modal", function() {
-		  var height = $(window).height() - 200;
-		  $(this).find(".modal-body").css("max-height", height);
-		});
-	$("#sel_pt").change(function(){
-		$("#edit_form").submit();
-	});
-	$("#ptstatus").text($("#sel_pt").find(":selected").text())
+    $("#popeditor").on("show.bs.modal", function() {
+          var height = $(window).height() - 200;
+          $(this).find(".modal-body").css("max-height", height);
+        });
+    $("#sel_pt").change(function(){
+        $("#edit_form").submit();
+    });
+    $("#ptstatus").text($("#sel_pt").find(":selected").text())
 });
 </script>
 </div>

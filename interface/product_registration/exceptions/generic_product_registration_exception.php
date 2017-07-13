@@ -19,7 +19,8 @@
  */
 
 class GenericProductRegistrationException extends Exception {
-    public function errorMessage() {
+    public function errorMessage()
+    {
         return $this->getMessage();
     }
 }

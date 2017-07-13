@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * CQM NQF 0002 
+ * CQM NQF 0002
  *
  * Copyright (C) 2015 Ensoftek, Inc
  *

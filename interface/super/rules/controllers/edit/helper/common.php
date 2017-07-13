@@ -15,7 +15,9 @@ General Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function render_select( $args ) { ?>
+<?php function render_select( $args )
+{
+    ?>
 <select data-grp-tgt="<?php echo out( $args['target'] ); ?>"
         type="dropdown"
         name="<?php echo out( $args['name'] ); ?>"
@@ -39,7 +41,9 @@ General Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function textfield_row( $args ) { ?>
+<?php function textfield_row( $args )
+{
+    ?>
 <p class="row">
     <span class="left_col colhead req" data-field="<?php echo out( $args['name'] ); ?>"><?php echo out( $args['title'] ); ?></span>
     <span class="end_col">
@@ -61,15 +65,17 @@ Compound Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function common_fields( $args ) { ?>
+<?php function common_fields( $args )
+{
+    ?>
     <?php $criteria = $args['criteria'];  ?>
     <p class="row">
         <span class="left_col colhead req" data-field="fld_optional"><?php echo out( xl( 'Optional' ) ); ?></span>
         <span class="end_col">
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
-                   <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo out( xl( 'Yes' ) ); ?>
+                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo out( xl( 'Yes' ) ); ?>
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
-                   <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo out( xl( 'No' ) ); ?>
+                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo out( xl( 'No' ) ); ?>
         </span>
     </p>
 
@@ -77,9 +83,9 @@ Compound Helpers
         <span class="left_col colhead req" data-field="fld_inclusion"><?php echo out( xl( 'Inclusion' ) ); ?></span>
         <span class="end_col">
             <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="yes"
-                   <?php echo $criteria->inclusion ? "CHECKED" : ""?>> <?php echo out( xl( 'Yes' ) ); ?>
+                    <?php echo $criteria->inclusion ? "CHECKED" : ""?>> <?php echo out( xl( 'Yes' ) ); ?>
             <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="no"
-                   <?php echo !$criteria->inclusion ? "CHECKED" : ""?>> <?php echo out( xl( 'No' ) ); ?>
+                    <?php echo !$criteria->inclusion ? "CHECKED" : ""?>> <?php echo out( xl( 'No' ) ); ?>
         </span>
     </p>
 
@@ -101,7 +107,8 @@ Compound Helpers
 <!--                  -->
 <!-- render time unit -->
 <!--                  -->
-<?php function timeunit_select( $args ) {
+<?php function timeunit_select( $args )
+{
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
     return generate_select_list(

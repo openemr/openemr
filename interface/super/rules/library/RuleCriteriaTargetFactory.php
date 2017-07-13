@@ -23,7 +23,8 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory {
      *
      * @param RuleCriteria $criteria
      */
-    function modify($criteria, $ruleId) {
+    function modify($criteria, $ruleId)
+    {
         // get interval
         $result = sqlQuery( self::SQL_RULE_INTERVAL, array($ruleId) );
         $criteria->interval = $result['interval'] ? $result['interval'] : 1;
@@ -35,7 +36,8 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory {
      * @param string $ruleId
      * @param RuleCriteriaType $criteriaType
      */
-    function buildNewInstance($ruleId, $criteriaType) {
+    function buildNewInstance($ruleId, $criteriaType)
+    {
         $criteria = parent::buildNewInstance($ruleId, $criteriaType);
         $criteria->interval = 1;
         $criteria->intervalType = TimeUnit::from( TimeUnit::Month );

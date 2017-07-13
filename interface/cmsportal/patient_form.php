@@ -31,61 +31,61 @@ $postid = intval($_REQUEST['postid']);
 $ptid   = intval($_REQUEST['ptid'  ]);
 
 if ($_POST['bn_save']) {
-  $newdata = array();
-  $newdata['patient_data' ] = array();
-  $newdata['employer_data'] = array();
-  $ptid = intval($_POST['ptid']);
+    $newdata = array();
+    $newdata['patient_data' ] = array();
+    $newdata['employer_data'] = array();
+    $ptid = intval($_POST['ptid']);
   // Note we are careful to maintain cmsportal_login even if the layout has it
   // configured as unused.
-  $fres = sqlStatement("SELECT * FROM layout_options WHERE " .
+    $fres = sqlStatement("SELECT * FROM layout_options WHERE " .
     "form_id = 'DEM' AND field_id != '' AND (uor > 0 OR field_id = 'cmsportal_login') " .
     "ORDER BY group_name, seq");
-  while ($frow = sqlFetchArray($fres)) {
-    $data_type = $frow['data_type'];
-    $field_id  = $frow['field_id'];
-    $table = 'patient_data';
-    if (isset($_POST["form_$field_id"])) {
-      $newdata[$table][$field_id] = get_layout_form_value($frow);
+    while ($frow = sqlFetchArray($fres)) {
+        $data_type = $frow['data_type'];
+        $field_id  = $frow['field_id'];
+        $table = 'patient_data';
+        if (isset($_POST["form_$field_id"])) {
+            $newdata[$table][$field_id] = get_layout_form_value($frow);
+        }
     }
-  }
-  if (empty($ptid)) {
-    $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
-    $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
-    if (empty($newdata['patient_data']['pubpid'])) {
-      // pubpid for new patient defaults to pid.
-      $newdata['patient_data']['pubpid'] = "$ptid";
+    if (empty($ptid)) {
+        $tmp = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
+        $ptid = empty($tmp['pid']) ? 1 : intval($tmp['pid']);
+        if (empty($newdata['patient_data']['pubpid'])) {
+            // pubpid for new patient defaults to pid.
+            $newdata['patient_data']['pubpid'] = "$ptid";
+        }
+        updatePatientData ($ptid, $newdata['patient_data' ], true);
+        updateEmployerData($ptid, $newdata['employer_data'], true);
+        newHistoryData($ptid);
     }
-    updatePatientData ($ptid, $newdata['patient_data' ], true);
-    updateEmployerData($ptid, $newdata['employer_data'], true);
-    newHistoryData($ptid);
-  }
-  else {
-    $newdata['patient_data']['id'] = $_POST['db_id'];
-    updatePatientData($ptid, $newdata['patient_data']);
-  }
+    else {
+        $newdata['patient_data']['id'] = $_POST['db_id'];
+        updatePatientData($ptid, $newdata['patient_data']);
+    }
   // Finally, delete the request from the portal.
-  $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
-  if ($result['errmsg']) {
-    die(text($result['errmsg']));
-  }
-  echo "<html><body><script language='JavaScript'>\n";
-  echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
-  echo "document.location.href = 'list_requests.php';\n";
-  echo "</script></body></html>\n";
-  exit();
+    $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
+    echo "<html><body><script language='JavaScript'>\n";
+    echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
+    echo "document.location.href = 'list_requests.php';\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 $db_id  = 0;
 if ($ptid) {
-  $ptrow = getPatientData($ptid, "*");
-  $db_id = $ptrow['id'];
+    $ptrow = getPatientData($ptid, "*");
+    $db_id = $ptrow['id'];
 }
 
 if ($postid) {
-  $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
-  if ($result['errmsg']) {
-    die(text($result['errmsg']));
-  }
+    $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
 }
 ?>
 <html>
@@ -219,71 +219,71 @@ $lores = sqlStatement("SELECT * FROM layout_options " .
 $portal_registration_needed = false;
 
 while ($lorow = sqlFetchArray($lores)) {
-  $data_type  = $lorow['data_type'];
-  $field_id   = $lorow['field_id'];
+    $data_type  = $lorow['data_type'];
+    $field_id   = $lorow['field_id'];
   // We deal with this one at the end.
-  if ($field_id == 'cmsportal_login') continue;
+    if ($field_id == 'cmsportal_login') continue;
   // Flamingo translates field names to lower case so we have to match with those.
-  $reskey = $field_id;
-  foreach ($result['fields'] as $key => $dummy) {
-    if (strcasecmp($key, $field_id) == 0) $reskey = $key;
-  }
+    $reskey = $field_id;
+    foreach ($result['fields'] as $key => $dummy) {
+        if (strcasecmp($key, $field_id) == 0) $reskey = $key;
+    }
   // Generate form fields for items that are either from the WordPress form
   // or are mandatory for a new patient.
-  if (isset($result['fields'][$reskey]) || ($lorow['uor'] > 1 && $ptid == 0)) {
-    $list_id = $lorow['list_id'];
-    $field_title = $lorow['title'];
-    if ($field_title === '') $field_title = '(' . $field_id . ')';
+    if (isset($result['fields'][$reskey]) || ($lorow['uor'] > 1 && $ptid == 0)) {
+        $list_id = $lorow['list_id'];
+        $field_title = $lorow['title'];
+        if ($field_title === '') $field_title = '(' . $field_id . ')';
 
-    $currvalue  = '';
-    if (isset($ptrow[$field_id])) $currvalue = $ptrow[$field_id];
+        $currvalue  = '';
+        if (isset($ptrow[$field_id])) $currvalue = $ptrow[$field_id];
 
-    /*****************************************************************
-    $newvalue = '';
-    if (isset($result['fields'][$reskey])) $newvalue = $result['fields'][$reskey];
-    //// Zero-length input means nothing will change.
-    // if ($newvalue === '') $newvalue = $currvalue;
-    // $newvalue = trim($newvalue);
-    $newvalue = cms_field_to_lbf($newvalue, $data_type, $field_id);
-    *****************************************************************/
-    $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
+        /*****************************************************************
+      $newvalue = '';
+      if (isset($result['fields'][$reskey])) $newvalue = $result['fields'][$reskey];
+      //// Zero-length input means nothing will change.
+      // if ($newvalue === '') $newvalue = $currvalue;
+      // $newvalue = trim($newvalue);
+      $newvalue = cms_field_to_lbf($newvalue, $data_type, $field_id);
+        *****************************************************************/
+        $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 
-    echo " <tr class='detail'>\n";
-    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
-    echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
-    echo "  <td>";
-    generate_form_field($lorow, $newvalue);
-    echo "</td>\n";
-    echo " </tr>\n";
-  }
+        echo " <tr class='detail'>\n";
+        echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+        echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
+        echo "  <td>";
+        generate_form_field($lorow, $newvalue);
+        echo "</td>\n";
+        echo " </tr>\n";
+    }
 }
 
 $field_id = 'cmsportal_login';
 if (empty($ptrow[$field_id])) {
-  if ($result['post']['user'] !== '') {
-    // Registered in portal but still need to record that in openemr.
-    echo "</table>\n";
-    echo "<input type='hidden' name='form_$field_id' value='" . attr($result['post']['user']) . "' />\n";
-  }
-  else {
-    // Portal registration is needed.
-    $newvalue = isset($result['fields']['email']) ? trim($result['fields']['email']) : '';
-    echo " <tr class='detail'>\n";
-    echo "  <td class='bold' style='color:red;'>" . xlt('New Portal Login') . "</td>\n";
-    echo "  <td>&nbsp;</td>\n";
-    echo "  <td>";
-    echo "<input type='text' name='form_$field_id' size='10' maxlength='60' value='" . attr($newvalue) . "' />";
-    echo "&nbsp;&nbsp;" . xlt('Password') . ": ";
-    echo "<input type='text' name='form_" . attr($field_id) . "_pass' size='10' maxlength='60' />";
-    echo "<input type='button' value='" . xla('Generate') . "' onclick='randompass()' />";
-    echo "</td>\n";
-    echo " </tr>\n";
-    echo "</table>\n";
-  }
+    if ($result['post']['user'] !== '') {
+        // Registered in portal but still need to record that in openemr.
+        echo "</table>\n";
+        echo "<input type='hidden' name='form_$field_id' value='" . attr($result['post']['user']) . "' />\n";
+    }
+    else {
+        // Portal registration is needed.
+        $newvalue = isset($result['fields']['email']) ? trim($result['fields']['email']) : '';
+        echo " <tr class='detail'>\n";
+        echo "  <td class='bold' style='color:red;'>" . xlt('New Portal Login') . "</td>\n";
+        echo "  <td>&nbsp;</td>\n";
+        echo "  <td>";
+        echo "<input type='text' name='form_$field_id' size='10' maxlength='60' value='" . attr($newvalue) . "' />";
+        echo "&nbsp;&nbsp;" . xlt('Password') . ": ";
+        echo "<input type='text' name='form_" . attr($field_id) . "_pass' size='10' maxlength='60' />";
+        echo "<input type='button' value='" . xla('Generate') . "' onclick='randompass()' />";
+        echo "</td>\n";
+        echo " </tr>\n";
+        echo "</table>\n";
+    }
 }
 else {
   // Portal login name is already in openemr.
-  echo "</table>\n";
+    echo "</table>\n";
 }
 ?>
 

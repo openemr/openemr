@@ -36,7 +36,8 @@ class ChartTracker {
     /**
      * Default constructor.
      */
-    public function __construct(){
+    public function __construct()
+    {
 
     }
 
@@ -67,7 +68,8 @@ class ChartTracker {
      *
      * return pid
      */
-    public function getPid() {
+    public function getPid()
+    {
         return $this->pid;
     }
 
@@ -76,7 +78,8 @@ class ChartTracker {
      *
      * @param pid
      */
-    public function setPid($value) {
+    public function setPid($value)
+    {
         $this->pid = $value;
     }
 
@@ -85,7 +88,8 @@ class ChartTracker {
      *
      * return when datetime
      */
-    public function getWhen() {
+    public function getWhen()
+    {
         return $this->when;
     }
 
@@ -94,7 +98,8 @@ class ChartTracker {
      *
      * @param when datetime
      */
-    public function setWhen($value) {
+    public function setWhen($value)
+    {
         $this->when = $value;
     }
 
@@ -103,7 +108,8 @@ class ChartTracker {
      *
      * return user id number
      */
-    public function getUserId() {
+    public function getUserId()
+    {
         return $this->userId;
     }
 
@@ -112,7 +118,8 @@ class ChartTracker {
      *
      * @param user id number
      */
-    public function setUserId($value) {
+    public function setUserId($value)
+    {
         $this->userId = $value;
     }
 
@@ -121,7 +128,8 @@ class ChartTracker {
      *
      * return location string
      */
-    public function getLocation() {
+    public function getLocation()
+    {
         return $this->location;
     }
 
@@ -130,7 +138,8 @@ class ChartTracker {
      *
      * @param location string
      */
-    public function setLocation($value) {
+    public function setLocation($value)
+    {
         $this->location = $value;
     }
 
@@ -139,7 +148,8 @@ class ChartTracker {
      *
      * @return object as string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return "pid: '" . $this->getPid() . "' " .
                "date: '" . $this->getDate() . "' " .
                "userId: '" . $this->getUserId() . "' " .
@@ -151,8 +161,9 @@ class ChartTracker {
      *
      * @return object as serialized object.
      */
-    public function toSerializedObject() {
-      return get_object_vars($this);
+    public function toSerializedObject()
+    {
+        return get_object_vars($this);
     }
 
 }

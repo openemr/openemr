@@ -27,7 +27,8 @@ class LBF_Validation{
  * Function to generate the constraints used in validation.js library
  * Using the data save in layout options validation
  */
-    public static function generate_validate_constraints($form_id){
+    public static function generate_validate_constraints($form_id)
+    {
         //to prevent an empty form id error do :
         if(!$form_id || $form_id==''){
             return json_encode(array());

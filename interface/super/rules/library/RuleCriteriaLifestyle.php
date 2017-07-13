@@ -15,12 +15,14 @@ class RuleCriteriaLifestyle extends RuleCriteria {
     var $type;
     var $matchValue;
 
-    function __construct( $type, $matchValue ) {
+    function __construct( $type, $matchValue )
+    {
         $this->type = $type;
         $this->matchValue = $matchValue;
     }
 
-    function getRequirements() {
+    function getRequirements()
+    {
         $requirements = xl( "Value" ) . ": ";
         if ( is_null($this->matchValue ) ) {
             $requirements .= xl( "Any" );
@@ -30,16 +32,19 @@ class RuleCriteriaLifestyle extends RuleCriteria {
         return $requirements;
     }
 
-    function getTitle() {
+    function getTitle()
+    {
         $label = xl_layout_label( $this->getLayoutLabel( $this->type, "HIS") );
         return xl( "Lifestyle" ) . " - " . $label;
     }
 
-    function getView() {
+    function getView()
+    {
         return "lifestyle.php";
     }
 
-    function getOptions() {
+    function getOptions()
+    {
 
         $stmt = sqlStatement(
             "SELECT field_id, title FROM layout_options "
@@ -57,7 +62,8 @@ class RuleCriteriaLifestyle extends RuleCriteria {
         return $options;
     }
 
-    function getDbView() {
+    function getDbView()
+    {
         $dbView = parent::getDbView();
 
         $dbView->method = "database";
@@ -66,7 +72,8 @@ class RuleCriteriaLifestyle extends RuleCriteria {
         return $dbView;
     }
 
-     function updateFromRequest() {
+    function updateFromRequest()
+    {
         parent::updateFromRequest();
         
         $lifestyle = _post("fld_lifestyle");

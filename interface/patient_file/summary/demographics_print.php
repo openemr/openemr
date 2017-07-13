@@ -94,31 +94,35 @@ div.section {
 
 <?php
 
-function end_cell() {
-  global $item_count, $cell_count;
-  if ($item_count > 0) {
-    echo "</td>";
-    $item_count = 0;
-  }
+function end_cell()
+{
+    global $item_count, $cell_count;
+    if ($item_count > 0) {
+        echo "</td>";
+        $item_count = 0;
+    }
 }
 
-function end_row() {
-  global $cell_count, $CPR;
-  end_cell();
-  if ($cell_count > 0) {
-    for (; $cell_count < $CPR; ++$cell_count) echo "<td></td>";
-    echo "</tr>\n";
-    $cell_count = 0;
-  }
+function end_row()
+{
+    global $cell_count, $CPR;
+    end_cell();
+    if ($cell_count > 0) {
+        for (; $cell_count < $CPR;
+        ++$cell_count) echo "<td></td>";
+        echo "</tr>\n";
+        $cell_count = 0;
+    }
 }
 
-function end_group() {
-  global $last_group;
-  if (strlen($last_group) > 0) {
-    end_row();
-    echo " </table>\n";
-    echo "</div>\n";
-  }
+function end_group()
+{
+    global $last_group;
+    if (strlen($last_group) > 0) {
+        end_row();
+        echo " </table>\n";
+        echo "</div>\n";
+    }
 }
 
 $last_group = '';
@@ -126,70 +130,71 @@ $cell_count = 0;
 $item_count = 0;
 
 while ($frow = sqlFetchArray($fres)) {
-  $this_group = $frow['group_name'];
-  $titlecols  = $frow['titlecols'];
-  $datacols   = $frow['datacols'];
-  $data_type  = $frow['data_type'];
-  $field_id   = $frow['field_id'];
-  $list_id    = $frow['list_id'];
-  $currvalue  = '';
+    $this_group = $frow['group_name'];
+    $titlecols  = $frow['titlecols'];
+    $datacols   = $frow['datacols'];
+    $data_type  = $frow['data_type'];
+    $field_id   = $frow['field_id'];
+    $list_id    = $frow['list_id'];
+    $currvalue  = '';
 
-  if (strpos($field_id, 'em_') === 0) {
-    $tmp = substr($field_id, 3);
-    // if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-  }
-  else {
-    // if (isset($result[$field_id])) $currvalue = $result[$field_id];
-  }
+    if (strpos($field_id, 'em_') === 0) {
+        $tmp = substr($field_id, 3);
+        // if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+    }
+    else {
+        // if (isset($result[$field_id])) $currvalue = $result[$field_id];
+    }
 
   // Handle a data category (group) change.
-  if (strcmp($this_group, $last_group) != 0) {
-    end_group();
-    if (strlen($last_group) > 0) echo "<br />\n";
-    $group_name = substr($this_group, 1);
-    $last_group = $this_group;
-    echo "<b>" . xl_layout_label($group_name) . "</b>\n";
+    if (strcmp($this_group, $last_group) != 0) {
+        end_group();
+        if (strlen($last_group) > 0) echo "<br />\n";
+        $group_name = substr($this_group, 1);
+        $last_group = $this_group;
+        echo "<b>" . xl_layout_label($group_name) . "</b>\n";
       
-    echo "<div class='section'>\n";
-    echo " <table border='0' cellpadding='0'>\n";
-  }
+        echo "<div class='section'>\n";
+        echo " <table border='0' cellpadding='0'>\n";
+    }
 
   // Handle starting of a new row.
-  if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-    end_row();
-    echo "  <tr style='height:30pt'>";
-  }
+    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+        end_row();
+        echo "  <tr style='height:30pt'>";
+    }
 
-  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+    if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
 
   // Handle starting of a new label cell.
-  if ($titlecols > 0) {
-    end_cell();
-    echo "<td colspan='$titlecols' width='10%'";
-    echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-    if ($cell_count == 2) echo " style='padding-left:10pt'";
-    echo ">";
-    $cell_count += $titlecols;
-  }
-  ++$item_count;
+    if ($titlecols > 0) {
+        end_cell();
+        echo "<td colspan='$titlecols' width='10%'";
+        echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
+        if ($cell_count == 2) echo " style='padding-left:10pt'";
+        echo ">";
+        $cell_count += $titlecols;
+    }
+    ++$item_count;
 
-  echo "<b>";
+    echo "<b>";
     
-  if ($frow['title']) echo (xl_layout_label($frow['title']) . ":"); else echo "&nbsp;";
+    if ($frow['title']) echo (xl_layout_label($frow['title']) . ":");
+    else echo "&nbsp;";
 
-  echo "</b>";
+    echo "</b>";
 
   // Handle starting of a new data cell.
-  if ($datacols > 0) {
-    end_cell();
-    echo "<td colspan='$datacols' width='40%' class='under'";
-    if ($cell_count > 0) echo " style='padding-left:5pt;'";
-    echo ">";
-    $cell_count += $datacols;
-  }
+    if ($datacols > 0) {
+        end_cell();
+        echo "<td colspan='$datacols' width='40%' class='under'";
+        if ($cell_count > 0) echo " style='padding-left:5pt;'";
+        echo ">";
+        $cell_count += $datacols;
+    }
 
-  ++$item_count;
-  generate_print_field($frow, $currvalue);
+    ++$item_count;
+    generate_print_field($frow, $currvalue);
 }
 
 end_group();

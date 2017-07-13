@@ -38,7 +38,8 @@ class ChartTrackerService {
     /**
      * Default constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->logger = new \common\logging\Logger("\services\ChartTrackerService");
         $database = \common\database\Connector::Instance();
         $entityManager = $database->entityManager;
@@ -51,7 +52,8 @@ class ChartTrackerService {
      * @param array (pid, date, userid, location).
      * @return the pid.
      */
-    public function trackPatientLocation($patientLocation) {
+    public function trackPatientLocation($patientLocation)
+    {
         $patientLocation->setPid(add_escape_custom($patientLocation->getPid()));
         $patientLocation->setUserId(add_escape_custom($patientLocation->getUserId()));
         $patientLocation->setLocation(add_escape_custom($patientLocation->getLocation()));

@@ -1,8 +1,8 @@
 <?php
 /**
- * 
+ *
  * Controller to handle user password change requests.
- * 
+ *
  * <pre>
  * Expected REQUEST parameters
  * $_REQUEST['pk'] - The primary key being used for encryption. The browser would have requested this previously

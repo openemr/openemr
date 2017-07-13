@@ -42,48 +42,48 @@ require_once ( "verysimple/Phreeze/Reporter.php" );
  */
 class OnsiteActivityViewReporter extends Reporter{
 
-	// the properties in this class must match the columns returned by GetCustomQuery().
-	// 'CustomFieldExample' is an example that is not part of the `onsite_activity_view` table
-	public $Id;
-	public $Date;
-	public $PatientId;
-	public $Activity;
-	public $RequireAudit;
-	public $PendingAction;
-	public $ActionTaken;
-	public $Status;
-	public $Narrative;
-	public $TableAction;
-	public $TableArgs;
-	public $ActionUser;
-	public $ActionTakenTime;
-	public $Checksum;
-	public $Title;
-	public $Fname;
-	public $Lname;
-	public $Mname;
-	public $Dob;
-	public $Ss;
-	public $Street;
-	public $PostalCode;
-	public $City;
-	public $State;
-	public $Referrerid;
-	public $Providerid;
-	public $RefProviderid;
-	public $Pubpid;
-	public $CareTeam;
-	public $Username;
-	public $Authorized;
-	public $Ufname;
-	public $Umname;
-	public $Ulname;
-	public $Facility;
-	public $Active;
-	public $Utitle;
-	public $PhysicianType;
+    // the properties in this class must match the columns returned by GetCustomQuery().
+    // 'CustomFieldExample' is an example that is not part of the `onsite_activity_view` table
+    public $Id;
+    public $Date;
+    public $PatientId;
+    public $Activity;
+    public $RequireAudit;
+    public $PendingAction;
+    public $ActionTaken;
+    public $Status;
+    public $Narrative;
+    public $TableAction;
+    public $TableArgs;
+    public $ActionUser;
+    public $ActionTakenTime;
+    public $Checksum;
+    public $Title;
+    public $Fname;
+    public $Lname;
+    public $Mname;
+    public $Dob;
+    public $Ss;
+    public $Street;
+    public $PostalCode;
+    public $City;
+    public $State;
+    public $Referrerid;
+    public $Providerid;
+    public $RefProviderid;
+    public $Pubpid;
+    public $CareTeam;
+    public $Username;
+    public $Authorized;
+    public $Ufname;
+    public $Umname;
+    public $Ulname;
+    public $Facility;
+    public $Active;
+    public $Utitle;
+    public $PhysicianType;
 
-	/*
+    /*
 	 * GetCustomQuery returns a fully formed SQL statement. The result columns
 	 * must match with the properties of this reporter object.
 	 *
@@ -91,9 +91,10 @@ class OnsiteActivityViewReporter extends Reporter{
 	 * @param Criteria $criteria
 	 * @return string SQL statement
 	 */
-	static function GetCustomQuery( $criteria ){
+    static function GetCustomQuery( $criteria )
+    {
 
-		$sql = "select
+        $sql = "select
 			`onsite_activity_view`.`id` as Id
 			,`onsite_activity_view`.`date` as Date
 			,`onsite_activity_view`.`patient_id` as PatientId
@@ -134,15 +135,15 @@ class OnsiteActivityViewReporter extends Reporter{
 			,`onsite_activity_view`.`physician_type` as PhysicianType
 		from `onsite_activity_view`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
-		$sql .= $criteria->GetOrder();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
+        $sql .= $criteria->GetOrder();
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	/*
+    /*
 	 * GetCustomCountQuery returns a fully formed SQL statement that will count
 	 * the results. This query must return the correct number of results that
 	 * GetCustomQuery would, given the same criteria
@@ -151,15 +152,16 @@ class OnsiteActivityViewReporter extends Reporter{
 	 * @param Criteria $criteria
 	 * @return string SQL statement
 	 */
-	static function GetCustomCountQuery( $criteria ){
-		$sql = "select count(1) as counter from `onsite_activity_view`";
+    static function GetCustomCountQuery( $criteria )
+    {
+        $sql = "select count(1) as counter from `onsite_activity_view`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
 
-		return $sql;
-	}
+        return $sql;
+    }
 
 }
 

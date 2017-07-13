@@ -1,7 +1,7 @@
 <?php
 /**
  * Controller for AJAX requests to search for codes from the fee sheet
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or

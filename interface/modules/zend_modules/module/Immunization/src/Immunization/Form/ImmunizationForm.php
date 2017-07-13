@@ -26,26 +26,26 @@ class ImmunizationForm extends Form
 {
     public function __construct($name = null)
     {
-	global $pid,$encounter;
-	parent::__construct('immunization');
-	$this->setAttribute('method', 'post');
-		
-	 // Codes
+        global $pid,$encounter;
+        parent::__construct('immunization');
+        $this->setAttribute('method', 'post');
+        
+     // Codes
         $this->add(array(
-        		'name' 			=> 'codes',
-        		'type'  		=> 'Zend\Form\Element\Select',
-        		'attributes' 		=> array(
+                'name'          => 'codes',
+                'type'          => 'Zend\Form\Element\Select',
+                'attributes'        => array(
                                         'multiple'      => 'multiple',
                                         'size'          => '3',
-        				'class' 	=> 'select',
-        				'style' 	=> 'width:150px',
-        				'editable' 	=> 'false',
-        				'id' 		=> 'codes'
-        		),
-        		'options' => array(
-        				'value_options' => array(
-        						'' => \Application\Listener\Listener::z_xlt('Unassigned'),
-        				),),
+                        'class'     => 'select',
+                        'style'     => 'width:150px',
+                        'editable'  => 'false',
+                        'id'        => 'codes'
+                ),
+                'options' => array(
+                        'value_options' => array(
+                                '' => \Application\Listener\Listener::z_xlt('Unassigned'),
+                        ),),
         ));
         
         $this->add(array(
@@ -64,8 +64,8 @@ class ImmunizationForm extends Form
                         'name' => 'to_date',
                         'type' => 'Date',
                         'attributes' => array(
-                                        'id' 		=> 'to_date',
-                                        'placeholder' 	=> 'To Date',
+                                        'id'        => 'to_date',
+                                        'placeholder'   => 'To Date',
                                         'class'         => 'date_field',
                                         'value'         => date('Y-m-d'),
                                         'style'         => 'width: 42%;cursor:not-allowed;',
@@ -102,4 +102,3 @@ class ImmunizationForm extends Form
                     ));
     }
 }
-

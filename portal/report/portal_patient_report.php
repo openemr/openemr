@@ -29,13 +29,13 @@ $landingpage = "../index.php?site=".$_SESSION['site_id'];
 
 // kick out if patient not authenticated
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
-	$pid = $_SESSION['pid'];
-	$user = $_SESSION['sessionUser'];
+    $pid = $_SESSION['pid'];
+    $user = $_SESSION['sessionUser'];
 }
 else {
-	session_destroy();
-	header('Location: '.$landingpage.'&w');
-	exit;
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit;
 }
 $ignoreAuth = true;
 global $ignoreAuth;
@@ -58,8 +58,8 @@ $auth_demo     = true; //acl_check('patients'  , 'demo');
 
 $cmsportal = false;
 if ($GLOBALS['gbl_portal_cms_enable']) {
-  $ptdata = getPatientData($pid, 'cmsportal_login');
-  $cmsportal = $ptdata['cmsportal_login'] !== '';
+    $ptdata = getPatientData($pid, 'cmsportal_login');
+    $cmsportal = $ptdata['cmsportal_login'] !== '';
 }
 $ignoreAuth = 1;
 ?>
@@ -302,7 +302,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
                 <td>
                  <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                 <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-		<input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
+        <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
                 <input type="button" class="viewCCD_transmit" value="<?php echo xlt('Send'); ?>" />
                 <div id="ccd_send_result" style="display:none" >
                  <span class="text" id="ccd_send_message"></span>
@@ -541,23 +541,23 @@ $res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
   "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
   array($pid));
 while($row = sqlFetchArray($res)) {
-  $poid = $row['procedure_order_id'];
-  echo " <tr>\n";
-  echo "  <td align='center' class='text'>" .
+    $poid = $row['procedure_order_id'];
+    echo " <tr>\n";
+    echo "  <td align='center' class='text'>" .
        "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
-  echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
-  echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
-  echo "  <td class='text'>";
-  $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
+    echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
+    echo "  <td class='text'>";
+    $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
     "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
     array($poid));
-  while($oprow = sqlFetchArray($opres)) {
-    $tmp = $oprow['procedure_name'];
-    if (empty($tmp)) $tmp = $oprow['procedure_code'];
-    echo text($tmp) . "<br />";
-  }
-  echo "</td>\n";
-  echo " </tr>\n";
+    while($oprow = sqlFetchArray($opres)) {
+        $tmp = $oprow['procedure_name'];
+        if (empty($tmp)) $tmp = $oprow['procedure_code'];
+        echo text($tmp) . "<br />";
+    }
+    echo "</td>\n";
+    echo " </tr>\n";
 }
 ?>
 </table>
@@ -651,25 +651,25 @@ initReport = function(){
             .ajax(params)
             .then(function () {  });
     }
-	$(".generateCCR").click(
+    $(".generateCCR").click(
         function() {
                 if(document.getElementById('show_date').checked == true){
-               	  	if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                    if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
                        alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
                             return false;
-                 	}
+                    }
                 }
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'generate';
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
         var raw = document.getElementsByName('raw');
         raw[0].value = 'no';
 
-		ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
-		//showCCR();
+        ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
+        //showCCR();
 
         ccr_form.setAttribute("target", "");
-	});
+    });
         $(".generateCCR_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -705,17 +705,17 @@ initReport = function(){
 
                 $("#ccr_form").submit();
         });
-	$(".viewCCD").click(
-	function() {
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'viewccd';
+    $(".viewCCD").click(
+    function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
 
                 ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
+        $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
-	});
+    });
         $(".viewCCD_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -750,20 +750,20 @@ initReport = function(){
                 raw[0].value = 'send '+ccrRecipient;
                 if(ccrRecipient=="") {
                   $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
                   $("#ccr_send_result").show();
                 } else {
                   $(".viewCCR_transmit").attr('disabled','disabled');
                   $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
                   $("#ccr_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'user'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccr_send_message").html("<?php
-       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                           ?> "+ccrRecipient);
+                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+                            ?> "+ccrRecipient);
                          $("#ccr_send_to").val("");
                        } else {
                          $("#ccr_send_message").html(data);
@@ -773,7 +773,7 @@ initReport = function(){
                 }
         });
 <?php }
-      if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
+if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {
                 $("#ccd_send_dialog").toggle();
@@ -788,20 +788,20 @@ initReport = function(){
                 raw[0].value = 'send '+ccdRecipient;
                 if(ccdRecipient=="") {
                   $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
+                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
                   $("#ccd_send_result").show();
                 } else {
                   $(".viewCCD_transmit").attr('disabled','disabled');
                   $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
+                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
                   $("#ccd_send_result").show();
                   var action=$("#ccr_form").attr('action');
                   $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'user'},
                      function(data) {
                        if(data=="SUCCESS") {
                          $("#ccd_send_message").html("<?php
-       echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                           ?> "+ccdRecipient);
+                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
+                            ?> "+ccdRecipient);
                          $("#ccd_send_to").val("");
                        } else {
                          $("#ccd_send_message").html(data);
@@ -815,7 +815,7 @@ initReport = function(){
 
 }; // end initReport
 $( document ).ready(function(){
-		initReport();
+        initReport();
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>

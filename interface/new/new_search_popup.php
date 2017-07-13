@@ -129,21 +129,21 @@ $sqlBindArraySpecial = array();
 $where = "1 = 0";
 
 foreach ($_REQUEST as $key => $value) {
-  if (substr($key, 0, 3) != 'mf_') continue; // "match field"
-  $fldname = substr($key, 3);
+    if (substr($key, 0, 3) != 'mf_') continue; // "match field"
+    $fldname = substr($key, 3);
   // pubpid requires special treatment.  Match on that is fatal.
-  if ($fldname == 'pubpid') {
-    $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
-    array_push($sqlBindArray, $value);
-  }
-  else {
-    $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
-    array_push($sqlBindArray, $value);
-  }
-  $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
-  array_push($sqlBindArraySpecial, $value);
-  echo "<input type='hidden' name='".htmlspecialchars( $key, ENT_QUOTES)."' value='".htmlspecialchars( $value, ENT_QUOTES)."' />\n";
-  ++$numfields;
+    if ($fldname == 'pubpid') {
+        $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
+        array_push($sqlBindArray, $value);
+    }
+    else {
+        $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
+        array_push($sqlBindArray, $value);
+    }
+    $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
+    array_push($sqlBindArraySpecial, $value);
+    echo "<input type='hidden' name='".htmlspecialchars( $key, ENT_QUOTES)."' value='".htmlspecialchars( $value, ENT_QUOTES)."' />\n";
+    ++$numfields;
 }
 
 $sql = "SELECT *, ( $relevance ) AS relevance, " .
@@ -182,7 +182,7 @@ if ($fend > $count) $fend = $count;
    </a>
    &nbsp;&nbsp;
 <?php } ?>
-   <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES) ?>
+    <?php echo ($fstart + 1) . htmlspecialchars( " - $fend of $count", ENT_NOQUOTES) ?>
 <?php if ($count > $fend) { ?>
    &nbsp;&nbsp;
    <a href="javascript:submitList(<?php echo $MAXSHOW ?>)">
@@ -209,8 +209,8 @@ $tres = sqlStatement("SELECT field_id, title FROM layout_options " .
   "ORDER BY group_name, seq, title LIMIT 9");
 
 while ($trow = sqlFetchArray($tres)) {
-  $extracols[$trow['field_id']] = $trow['title'];
-  echo "<th class='srMisc'>" . htmlspecialchars( xl_layout_label($trow['title']), ENT_NOQUOTES) . "</th>\n";
+    $extracols[$trow['field_id']] = $trow['title'];
+    echo "<th class='srMisc'>" . htmlspecialchars( xl_layout_label($trow['title']), ENT_NOQUOTES) . "</th>\n";
 }
 ?>
 
@@ -225,22 +225,22 @@ while ($trow = sqlFetchArray($tres)) {
 <?php
 $pubpid_matched = false;
 if ($result) {
-  foreach ($result as $iter) {
-    $relevance = $iter['relevance'];
-    if ($relevance > 999) {
-      $relevance -= 999;
-      $pubpid_matched = true;
+    foreach ($result as $iter) {
+        $relevance = $iter['relevance'];
+        if ($relevance > 999) {
+            $relevance -= 999;
+            $pubpid_matched = true;
+        }
+        echo "<tr id='" . htmlspecialchars( $iter['pid'], ENT_QUOTES) . "' class='oneresult";
+        // Highlight entries where all fields matched.
+        echo $numfields <= $iter['relevance'] ? " topresult" : "";
+        echo "'>";
+        echo  "<td class='srID'>".htmlspecialchars( $relevance, ENT_NOQUOTES)."</td>\n";
+        echo  "<td class='srName'>" . htmlspecialchars( $iter['lname'] . ", " . $iter['fname'], ENT_NOQUOTES) . "</td>\n";
+        foreach ($extracols as $field_id => $title) {
+            echo "<td class='srMisc'>" . htmlspecialchars( $iter[$field_id], ENT_NOQUOTES) . "</td>\n";
+        }
     }
-    echo "<tr id='" . htmlspecialchars( $iter['pid'], ENT_QUOTES) . "' class='oneresult";
-    // Highlight entries where all fields matched.
-    echo $numfields <= $iter['relevance'] ? " topresult" : "";
-    echo "'>";
-    echo  "<td class='srID'>".htmlspecialchars( $relevance, ENT_NOQUOTES)."</td>\n";
-    echo  "<td class='srName'>" . htmlspecialchars( $iter['lname'] . ", " . $iter['fname'], ENT_NOQUOTES) . "</td>\n";
-    foreach ($extracols as $field_id => $title) {
-      echo "<td class='srMisc'>" . htmlspecialchars( $iter[$field_id], ENT_NOQUOTES) . "</td>\n";
-    }
-  }
 }
 ?>
 </table>
@@ -267,7 +267,7 @@ $(document).ready(function() {
 });
 
 var SelectPatient = function (eObj) {
-<?php 
+<?php
 // The layout loads just the demographics frame here, which in turn
 // will set the pid and load all the other frames.
   $newPage = "../patient_file/summary/demographics.php?set_pid=";

@@ -31,13 +31,15 @@ require_once("{$GLOBALS['srcdir']}/pid.inc");
 
 class ParticipantsController extends BaseController{
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->groupParticipantsModel = $this->loadModel('therapy_groups_participants');
         $this->groupEventsModel = $this->loadModel('Therapy_Groups_Events');
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
-    public function index($groupId ,$data = array()){
+    public function index($groupId ,$data = array())
+    {
 
         if(isset($_POST['save'])){
 
@@ -91,7 +93,8 @@ class ParticipantsController extends BaseController{
     }
 
 
-    public function add($groupId){
+    public function add($groupId)
+    {
 
         if(isset($_POST['save_new'])){
 

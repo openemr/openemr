@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Any model can inherit this class to add some common functionality
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

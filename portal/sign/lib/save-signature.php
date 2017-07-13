@@ -86,12 +86,12 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         $c = sqlFetchArray( $r );
         $isit = $c['x'] * 1;
         if($isit){
-       		$qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
-       		$rcnt = sqlStatement( $qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user) );
+            $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
+            $rcnt = sqlStatement( $qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user) );
         }
         else{
             $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
-		 	sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
+            sqlStatement( $qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data) );
         }
     }
     print json_encode( 'Done' );

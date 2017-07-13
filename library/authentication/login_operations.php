@@ -139,10 +139,10 @@ function verify_user_gacl_group($user)
 {
     global $phpgacl_location;
     if (isset ($phpgacl_location)) {
-      if (acl_get_group_titles($user) == 0) {
-          newEvent( 'login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
-	  return false;
-      }
+        if (acl_get_group_titles($user) == 0) {
+            newEvent( 'login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
+            return false;
+        }
     }
     return true;
 }

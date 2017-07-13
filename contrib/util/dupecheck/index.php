@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once("../../../interface/globals.php");
 require_once("./Utils.php");
 

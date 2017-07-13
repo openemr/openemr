@@ -23,10 +23,10 @@ $labid = formData('labid', 'G') + 0;
 // If Save was clicked, set the result, close the window and exit.
 //
 if ($popup && $_POST['form_save']) {
-  $form_order = formData('form_order') + 0;
-  $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
+    $form_order = formData('form_order') + 0;
+    $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
     "procedure_type_id = '$form_order'");
-  $name = addslashes($ptrow['name']);
+    $name = addslashes($ptrow['name']);
 ?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script language="JavaScript">
@@ -39,11 +39,11 @@ else {
 // This is to generate the "Questions at Order Entry" for the Procedure Order form.
 // GET parms needed for this are: formid, formseq.
 if (isset($_GET['formid'])) {
-  require_once("qoe.inc.php");
-  $qoe_init_javascript = '';
-  echo ' opener.set_proc_html("';
-  echo generate_qoe_html($form_order, intval($_GET['formid']), 0, intval($_GET['formseq']));
-  echo '", "' . $qoe_init_javascript .  '");' . "\n";
+    require_once("qoe.inc.php");
+    $qoe_init_javascript = '';
+    echo ' opener.set_proc_html("';
+    echo generate_qoe_html($form_order, intval($_GET['formid']), 0, intval($_GET['formseq']));
+    echo '", "' . $qoe_init_javascript .  '");' . "\n";
 }
 ?>
 }
@@ -123,9 +123,9 @@ tr.oddrow {
 echo "preopen = [";
 echo $order > 0 ? $order : 0;
 for ($parentid = $order; $parentid > 0;) {
-  $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = '$parentid'");
-  $parentid = $row['parent'] + 0;
-  echo ", $parentid";
+    $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = '$parentid'");
+    $parentid = $row['parent'] + 0;
+    echo ", $parentid";
 }
 echo "];\n";
 ?>

@@ -35,7 +35,8 @@ class Version {
     /**
      * Default constructor.
      */
-    public function __construct() {}
+    public function __construct()
+    {}
 
     /**
      * @Column(name="v_major", type="integer", length=11, nullable=false, options={"default" : 0})
@@ -78,7 +79,8 @@ class Version {
      *
      * return major number
      */
-    public function getMajor() {
+    public function getMajor()
+    {
         return $this->major;
     }
 
@@ -87,7 +89,8 @@ class Version {
      *
      * @param major number
      */
-    public function setMajor($value) {
+    public function setMajor($value)
+    {
         $this->major = $value;
     }
 
@@ -96,7 +99,8 @@ class Version {
      *
      * return minor number
      */
-    public function getMinor() {
+    public function getMinor()
+    {
         return $this->minor;
     }
 
@@ -105,7 +109,8 @@ class Version {
      *
      * @param minor number
      */
-    public function setMinor($value) {
+    public function setMinor($value)
+    {
         $this->minor = $value;
     }
 
@@ -114,7 +119,8 @@ class Version {
      *
      * @return patch number
      */
-    public function getPatch() {
+    public function getPatch()
+    {
         return $this->patch;
     }
 
@@ -123,7 +129,8 @@ class Version {
      *
      * @param patch number
      */
-    public function setPatch($value) {
+    public function setPatch($value)
+    {
         $this->patch = $value;
     }
 
@@ -132,7 +139,8 @@ class Version {
      *
      * @return real patch number
      */
-    public function getRealPatch() {
+    public function getRealPatch()
+    {
         return $this->realPatch;
     }
 
@@ -141,7 +149,8 @@ class Version {
      *
      * @param real patch number
      */
-    public function setRealPatch($value) {
+    public function setRealPatch($value)
+    {
         $this->realPatch = $value;
     }
 
@@ -150,7 +159,8 @@ class Version {
      *
      * @return tag string
      */
-    public function getTag() {
+    public function getTag()
+    {
         return $this->tag;
     }
 
@@ -159,7 +169,8 @@ class Version {
      *
      * @param tag string
      */
-    public function setTag($value) {
+    public function setTag($value)
+    {
         $this->tag = $value;
     }
 
@@ -168,7 +179,8 @@ class Version {
      *
      * @return database number
      */
-    public function getDatabase() {
+    public function getDatabase()
+    {
         return $this->database;
     }
 
@@ -177,7 +189,8 @@ class Version {
      *
      * @param database number
      */
-    public function setDatabase($value) {
+    public function setDatabase($value)
+    {
         $this->database = $value;
     }
 
@@ -186,7 +199,8 @@ class Version {
      *
      * @return acl number
      */
-    public function getAcl() {
+    public function getAcl()
+    {
         return $this->acl;
     }
 
@@ -195,7 +209,8 @@ class Version {
      *
      * @param acl number
      */
-    public function setAcl($value) {
+    public function setAcl($value)
+    {
         $this->acl = $value;
     }
 
@@ -204,7 +219,8 @@ class Version {
      *
      * @return object as string
      */
-    public function __toString() {
+    public function __toString()
+    {
         return "acl: '" . $this->getAcl() . "' " .
                "database: '" . $this->getDatabase() . "' " .
                "tag: '" . $this->getTag() . "' " .
@@ -219,7 +235,8 @@ class Version {
      *
      * @return object as serialized object.
      */
-    public function toSerializedObject() {
-      return get_object_vars($this);
+    public function toSerializedObject()
+    {
+        return get_object_vars($this);
     }
 }

@@ -3,7 +3,7 @@
 /**
  * Interface for the ESign configuration. You can convert this object
  * to JSON and pass it to the jquery.esign.js plugin to override default settings.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

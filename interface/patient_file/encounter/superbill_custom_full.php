@@ -23,14 +23,16 @@ if (!($thisauthwrite || $thisauthview)) {
 }
 
 // Translation for form fields.
-function ffescape($field) {
+function ffescape($field)
+{
     $field = add_escape_custom($field);
     return trim($field);
 }
 
 // Format dollars for display.
 //
-function bucks($amount) {
+function bucks($amount)
+{
     if ($amount) {
         $amount = oeFormatMoney($amount);
         return $amount;
@@ -235,7 +237,7 @@ if (!empty($search_financial_reporting)) {
 }
 
 if (isset($_REQUEST['filter'])) {
-    $count = main_code_set_search($filter_key,$search,NULL,NULL,false,NULL,true,NULL,NULL,$filter_elements);
+    $count = main_code_set_search($filter_key,$search,null,null,false,null,true,null,null,$filter_elements);
 }
 
 if ($fstart >= $count) $fstart -= $pagesize;
@@ -414,7 +416,7 @@ if ($fend > $count) $fend = $count;
                             <?php } ?>
                             <?php if ($value['external']) {
                                 array_push($external_sets,$key);
-                            } ?>
+} ?>
                         <?php } // end foreach ?>
 
                         <?php if ($mode != "modify") { ?>
@@ -450,7 +452,7 @@ if ($fend > $count) $fend = $count;
                     <?php } ?>
 
                     &nbsp;&nbsp;
-                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == NULL) ) echo ' checked'; ?> />
+                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null) ) echo ' checked'; ?> />
                     <?php echo xlt('Active'); ?>
                 </td>
             </tr>
@@ -633,10 +635,11 @@ if ($fend > $count) $fend = $count;
     <?php
 
     if (isset($_REQUEST['filter'])) {
-        $res = main_code_set_search($filter_key,$search,NULL,NULL,false,NULL,false,$fstart,($fend - $fstart),$filter_elements);
+        $res = main_code_set_search($filter_key,$search,null,null,false,null,false,$fstart,($fend - $fstart),$filter_elements);
     }
 
-    for ($i = 0; $row = sqlFetchArray($res); $i++) $all[$i] = $row;
+    for ($i = 0; $row = sqlFetchArray($res);
+    $i++) $all[$i] = $row;
 
     if (!empty($all)) {
         $count = 0;
@@ -657,7 +660,7 @@ if ($fend > $count) $fend = $count;
             if ($iter["code_external"] > 0) {
                 // If there is no entry in codes sql table, then default to active
                 //  (this is reason for including NULL below)
-                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==NULL) ? xlt('Yes') : xlt('No')) . "</td>\n";
+                echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==null) ? xlt('Yes') : xlt('No')) . "</td>\n";
             }
             else {
                 echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";

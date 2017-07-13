@@ -109,7 +109,8 @@ class RuleManager {
     var $filterCriteriaFactory;
     var $targetCriteriaFactory;
 
-    function __construct() {
+    function __construct()
+    {
         $this->filterCriteriaFactory = new RuleCriteriaFilterFactory();
         $this->targetCriteriaFactory = new RuleCriteriaTargetFactory();
     }
@@ -124,7 +125,8 @@ class RuleManager {
      * @param <type> $pid
      * @return Rule
      */
-    function getRule($id, $pid = 0) {
+    function getRule($id, $pid = 0)
+    {
         $ruleResult = sqlQuery(
             self::SQL_RULE_DETAIL . " WHERE id = ? AND pid = ?", array($id, $pid)
         );
@@ -148,7 +150,8 @@ class RuleManager {
         return $rule;
     }
 
-    function newRule() {
+    function newRule()
+    {
         $rule = new Rule();
         return $rule;
     }
@@ -158,7 +161,8 @@ class RuleManager {
      * passed to it, evaluating the *_flag columns.
      * @param Rule $rule
      */
-    private function fillRuleTypes( $rule, $ruleResult ) {
+    private function fillRuleTypes( $rule, $ruleResult )
+    {
         if ($ruleResult['active_alert_flag'] == 1) {
             $rule->addRuleType(RuleType::from(RuleType::ActiveAlert));
         }
@@ -184,7 +188,8 @@ class RuleManager {
      * rows in this table into concrete subtypes of RuleCriteria.
      * @param Rule $rule
      */
-    private function fillRuleFilterCriteria( $rule ) {
+    private function fillRuleFilterCriteria( $rule )
+    {
         $stmt = sqlStatement( self::SQL_RULE_FILTER, array( $rule->id ) );
         $criterion = $this->gatherCriteria($rule, $stmt, $this->filterCriteriaFactory);
         $ruleFilters = new RuleFilters();
@@ -196,7 +201,8 @@ class RuleManager {
         }
     }
     
-    private function fillRuleTargetActionGroups( $rule ) {
+    private function fillRuleTargetActionGroups( $rule )
+    {
         $stmt = sqlStatement( self::SQL_RULE_TARGET, array( $rule->id ) );
         $criterion = $this->gatherCriteria($rule, $stmt, $this->targetCriteriaFactory);
                 
@@ -229,7 +235,8 @@ class RuleManager {
     /**
      * @param Rule $rule
      */
-    private function fetchRuleTargetCriteria( $rule ) {
+    private function fetchRuleTargetCriteria( $rule )
+    {
         $stmt = sqlStatement( self::SQL_RULE_TARGET, array( $rule->id ) );
         $criterion = $this->gatherCriteria($rule, $stmt,
                 $this->targetCriteriaFactory);
@@ -246,10 +253,11 @@ class RuleManager {
         return $ruleTargetGroups;
     }
     
-	/**
+    /**
      * @param Rule $rule
      */
-    private function fetchRuleActions( $rule ) {
+    private function fetchRuleActions( $rule )
+    {
         $stmt = sqlStatement( self::SQL_RULE_ACTIONS, array( $rule->id ) );
         $ruleActionGroups = array();
         for ( $iter=0; $row=sqlFetchArray($stmt); $iter++ ) {
@@ -271,7 +279,8 @@ class RuleManager {
      * @param string $guid
      * @return RuleCriteria
      */
-    function getRuleFilterCriteria( $rule, $guid ) {
+    function getRuleFilterCriteria( $rule, $guid )
+    {
         $stmt = sqlStatement( self::SQL_RULE_FILTER_BY_GUID, array( $guid ) );
         $criterion = $this->gatherCriteria($rule, $stmt,
                 $this->filterCriteriaFactory );
@@ -284,11 +293,12 @@ class RuleManager {
         return null;
     }
     
-	/**
+    /**
      * @param string $guid
      * @return array of RuleTargetActionGroup
      */
-    function getRuleTargetActionGroups( $rule ) {
+    function getRuleTargetActionGroups( $rule )
+    {
         $criterion = $this->getRuleTargetCriteria( $rule );
         $actions = $this->getRuleAction( $rule );
         if ( sizeof( $criterion ) > 0 ) {
@@ -304,7 +314,8 @@ class RuleManager {
      * @param string $guid
      * @return RuleCriteria
      */
-    function getRuleTargetCriteria( $rule, $guid ) {
+    function getRuleTargetCriteria( $rule, $guid )
+    {
         $stmt = sqlStatement( self::SQL_RULE_TARGET_BY_GUID, array( $guid ) );
         $criterion = $this->gatherCriteria($rule,
                 $stmt, $this->targetCriteriaFactory );
@@ -321,7 +332,8 @@ class RuleManager {
      * @param string $guid
      * @return RuleCriteria
      */
-    function getRuleTargetCriteriaByGroupId( $rule, $groupId ) {
+    function getRuleTargetCriteriaByGroupId( $rule, $groupId )
+    {
         $stmt = sqlStatement( self::SQL_RULE_TARGET_BY_ID_GROUP_ID, array( $rule->id, $groupId ) );
         $criterion = $this->gatherCriteria($rule,
                 $stmt, $this->targetCriteriaFactory );
@@ -344,7 +356,8 @@ class RuleManager {
      * @param Rule $rule
      * @param RuleCriteriaFactory $factory
      */
-    private function gatherCriteria( $rule, $stmt, $factory ) {
+    private function gatherCriteria( $rule, $stmt, $factory )
+    {
         $criterion = array();
         for($iter=0; $row=sqlFetchArray($stmt); $iter++) {
             $guid = $row['guid'];
@@ -380,7 +393,8 @@ class RuleManager {
      * and sets it in the supplied Rule.
      * @param Rule $rule
      */
-    private function fillRuleReminderIntervals( $rule ) {
+    private function fillRuleReminderIntervals( $rule )
+    {
         $stmt = sqlStatement( self::SQL_RULE_REMINDER_INTERVAL, array( $rule->id ) );
         $reminderInterval = new ReminderIntervals();
 
@@ -403,7 +417,8 @@ class RuleManager {
      *
      * @return RuleAction
      */
-    function getRuleAction( $rule, $guid ) {
+    function getRuleAction( $rule, $guid )
+    {
         $result = sqlQuery( self::SQL_RULE_ACTION_BY_GUID, array($guid) );
 
         if ( !$result ) {
@@ -427,19 +442,23 @@ class RuleManager {
         return $action;
     }
 
-    function deleteRuleAction( $rule, $guid ) {
+    function deleteRuleAction( $rule, $guid )
+    {
         sqlStatement( "DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = '". $guid . "'" );
     }
 
-    function deleteRuleTarget( $rule, $guid ) {
+    function deleteRuleTarget( $rule, $guid )
+    {
         sqlStatement( "DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = '". $guid . "'" );
     }
 
-    function deleteRuleFilter( $rule, $guid ) {
+    function deleteRuleFilter( $rule, $guid )
+    {
         sqlStatement( "DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = '". $guid . "'" );
     }
 
-    function updateSummary( $ruleId, $types, $title, $developer, $funding, $release, $web_ref  ) {
+    function updateSummary( $ruleId, $types, $title, $developer, $funding, $release, $web_ref  )
+    {
         $rule = $this->getRule( $ruleId );
 
         if ( is_null($rule) ) {
@@ -456,9 +475,9 @@ class RuleManager {
                         in_array(RuleType::CQM, $types) ? 1 : 0,
                         in_array(RuleType::AMC, $types) ? 1 : 0,
                         in_array(RuleType::PatientReminder, $types) ? 1 : 0,
-						$developer,
-						$funding,
-						$release,
+                        $developer,
+                        $funding,
+                        $release,
                                                 $web_ref
                     )
             );
@@ -494,7 +513,8 @@ class RuleManager {
      * @param Rule $rule
      * @param ReminderIntervals $intervals
      */
-    function updateIntervals( $rule, $intervals ) {
+    function updateIntervals( $rule, $intervals )
+    {
         // remove old intervals
         sqlStatement( self::SQL_REMOVE_INTERVALS, array( $rule->id ));
 
@@ -518,7 +538,8 @@ class RuleManager {
      * @param Rule $rule
      * @param RuleCriteria $criteria
      */
-    function updateFilterCriteria( $rule, $criteria ) {
+    function updateFilterCriteria( $rule, $criteria )
+    {
         $dbView = $criteria->getDbView();
         $method = "filt_" . $dbView->method;
 
@@ -551,7 +572,8 @@ class RuleManager {
      * @param Rule $rule
      * @param RuleCriteria $criteria
      */
-    function updateTargetCriteria( $rule, $criteria ) {
+    function updateTargetCriteria( $rule, $criteria )
+    {
         $dbView = $criteria->getDbView();
         $method = "target_" . $dbView->method;
 
@@ -617,7 +639,8 @@ class RuleManager {
         }
     }
 
-    function getAllowedFilterCriteriaTypes() {
+    function getAllowedFilterCriteriaTypes()
+    {
         $allowed = array();
         foreach( RuleCriteriaType::values() as $type ) {
             $criteria = RuleCriteriaType::from($type);
@@ -626,7 +649,8 @@ class RuleManager {
         return $allowed;
     }
 
-    function getAllowedTargetCriteriaTypes() {
+    function getAllowedTargetCriteriaTypes()
+    {
         $allowed = array();
         array_push($allowed, RuleCriteriaType::from(RuleCriteriaType::lifestyle));
         array_push($allowed, RuleCriteriaType::from(RuleCriteriaType::custom));
@@ -640,7 +664,8 @@ class RuleManager {
      * @param RuleCriteriaType $criteriaType
      * @return RuleCriteria
      */
-    function createFilterRuleCriteria( $rule, $criteriaType ) {
+    function createFilterRuleCriteria( $rule, $criteriaType )
+    {
         return $this->filterCriteriaFactory->buildNewInstance($rule->id, $criteriaType);
     }
 
@@ -650,7 +675,8 @@ class RuleManager {
      * @param RuleCriteriaType $criteriaType
      * @return RuleCriteria
      */
-    function createTargetRuleCriteria( $rule, $criteriaType ) {
+    function createTargetRuleCriteria( $rule, $criteriaType )
+    {
         return $this->targetCriteriaFactory->buildNewInstance($rule->id, $criteriaType);
     }
 
@@ -659,7 +685,8 @@ class RuleManager {
      *
      * @param RuleAction $action
      */
-    function updateRuleAction( $action ) {
+    function updateRuleAction( $action )
+    {
         $ruleId = $action->id;
         $rule = $this->getRule( $ruleId );
         $groupId = $action->groupId;
@@ -728,7 +755,8 @@ class RuleManager {
         }
     }
 
-    private function doRuleLabel( $exists, $listId, $optionId, $title) {
+    private function doRuleLabel( $exists, $listId, $optionId, $title)
+    {
         if ( $exists) {
             // edit
             sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = ? AND option_id = ?", array(
@@ -749,7 +777,8 @@ class RuleManager {
         }
     }
 
-    private function labelExists( $listId, $optionId, $title ) {
+    private function labelExists( $listId, $optionId, $title )
+    {
         $result = sqlQuery( "SELECT COUNT(*) AS CT FROM list_options WHERE list_id = ? AND option_id = ? AND title = ? AND activity = 1", array($listId, $optionId, $title) );
         if ( $result && $result['CT'] > 0 ) {
             return true;

@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * SignableIF Interface represents an object that can be signed, locked
  * and verified
- *  
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

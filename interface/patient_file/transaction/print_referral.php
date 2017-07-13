@@ -57,28 +57,28 @@ $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 // if (!$transid) die("Transaction ID is missing!");
 
 if ($transid) {
-  $trow = getTransById($transid);
-  $patient_id = $trow['pid'];
-  $refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
+    $trow = getTransById($transid);
+    $patient_id = $trow['pid'];
+    $refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
 }
 else {
-  if (empty($_REQUEST['patient_id'])) {
-    // If no transaction ID or patient ID, this will be a totally blank form.
-    $patient_id = 0;
-    $refer_date = '';
-  } else {
-    $patient_id = $_REQUEST['patient_id'] + 0;
-    $refer_date = date('Y-m-d');
-  }
-  $trow = array('id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date);
+    if (empty($_REQUEST['patient_id'])) {
+        // If no transaction ID or patient ID, this will be a totally blank form.
+        $patient_id = 0;
+        $refer_date = '';
+    } else {
+        $patient_id = $_REQUEST['patient_id'] + 0;
+        $refer_date = date('Y-m-d');
+    }
+    $trow = array('id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date);
 }
 
 if ($patient_id) {
-  $patdata = getPatientData($patient_id);
-  $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
+    $patdata = getPatientData($patient_id);
+    $patient_age = getPatientAge(str_replace('-', '', $patdata['DOB']));
 } else {
-  $patdata = array('DOB' => '');
-  $patient_age = '';
+    $patdata = array('DOB' => '');
+    $patient_age = '';
 }
 
 if (empty($trow['refer_from'])) $trow['refer_from'] = 0;
@@ -133,37 +133,37 @@ $s = str_replace("{pt_age}"          , $patient_age           , $s);
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-  $data_type = $frow['data_type'];
-  $field_id  = $frow['field_id'];
-  $currvalue = '';
-  if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
-  $s = str_replace("{ref_$field_id}",
+    $data_type = $frow['data_type'];
+    $field_id  = $frow['field_id'];
+    $currvalue = '';
+    if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
+    $s = str_replace("{ref_$field_id}",
     generate_display_field($frow, $currvalue), $s);
 }
 
 foreach ($patdata as $key => $value) {
-  if ($key == "sex") {
-   $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
-  }
-  else {
-   $s = str_replace("{pt_$key}", $value, $s);
-  }
+    if ($key == "sex") {
+        $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
+    }
+    else {
+        $s = str_replace("{pt_$key}", $value, $s);
+    }
 }
 
 foreach ($frrow as $key => $value) {
-  $s = str_replace("{from_$key}", $value, $s);
+    $s = str_replace("{from_$key}", $value, $s);
 }
 
 foreach ($torow as $key => $value) {
-  $s = str_replace("{to_$key}", $value, $s);
+    $s = str_replace("{to_$key}", $value, $s);
 }
 
 foreach ($vrow as $key => $value) {
-  $s = str_replace("{v_$key}", $value, $s);
+    $s = str_replace("{v_$key}", $value, $s);
 }
 
 foreach ($TEMPLATE_LABELS as $key => $value) {
-  $s = str_replace("{".$key."}", $value, $s);
+    $s = str_replace("{".$key."}", $value, $s);
 }
 
 // A final pass to clear any unmatched variables:

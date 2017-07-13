@@ -67,7 +67,7 @@ $(document).ready(function() {
 
  <tr>
   <td>
-   <?php xl('From','e'); ?>:
+    <?php xl('From','e'); ?>:
    <input type='text' name='form_from_date' id='form_from_date'
     size='10' value='<?php echo $form_from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title=<?php xl('yyyy-mm-dd','e','\'','\''); ?>>
@@ -101,90 +101,90 @@ $(document).ready(function() {
  <thead>
  <tr bgcolor="#dddddd">
   <td class='dehead'>
-   <?php xl('Drug Name','e'); ?>
+    <?php xl('Drug Name','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('NDC','e'); ?>
+    <?php xl('NDC','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Lot','e'); ?>
+    <?php xl('Lot','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Qty','e'); ?>
+    <?php xl('Qty','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Date Destroyed','e'); ?>
+    <?php xl('Date Destroyed','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Method','e'); ?>
+    <?php xl('Method','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Witness','e'); ?>
+    <?php xl('Witness','e'); ?>
   </td>
   <td class='dehead'>
-   <?php xl('Notes','e'); ?>
+    <?php xl('Notes','e'); ?>
   </td>
  </tr>
  </thead>
  <tbody>
 <?php
- if ($_POST['form_refresh']) {
-  $where = "i.destroy_date >= '$form_from_date' AND " .
-   "i.destroy_date <= '$form_to_date'";
+if ($_POST['form_refresh']) {
+    $where = "i.destroy_date >= '$form_from_date' AND " .
+    "i.destroy_date <= '$form_to_date'";
 
-  $query = "SELECT i.inventory_id, i.lot_number, i.on_hand, i.drug_id, " .
-   "i.destroy_date, i.destroy_method, i.destroy_witness, i.destroy_notes, " .
-   "d.name, d.ndc_number " .
-   "FROM drug_inventory AS i " .
-   "LEFT OUTER JOIN drugs AS d ON d.drug_id = i.drug_id " .
-   "WHERE $where " .
-   "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
+    $query = "SELECT i.inventory_id, i.lot_number, i.on_hand, i.drug_id, " .
+    "i.destroy_date, i.destroy_method, i.destroy_witness, i.destroy_notes, " .
+    "d.name, d.ndc_number " .
+    "FROM drug_inventory AS i " .
+    "LEFT OUTER JOIN drugs AS d ON d.drug_id = i.drug_id " .
+    "WHERE $where " .
+    "ORDER BY d.name, i.drug_id, i.destroy_date, i.lot_number";
 
   // echo "<!-- $query -->\n"; // debugging
-  $res = sqlStatement($query);
+    $res = sqlStatement($query);
 
-  $last_drug_id = 0;
-  while ($row = sqlFetchArray($res)) {
-   $drug_name       = $row['name'];
-   $ndc_number      = $row['ndc_number'];
-   if ($row['drug_id'] == $last_drug_id) {
-    $drug_name  = '&nbsp;';
-    $ndc_number = '&nbsp;';
-   }
-?>
- <tr>
-  <td class='detail'>
-   <?php echo $drug_name ?>
+    $last_drug_id = 0;
+    while ($row = sqlFetchArray($res)) {
+        $drug_name       = $row['name'];
+        $ndc_number      = $row['ndc_number'];
+        if ($row['drug_id'] == $last_drug_id) {
+            $drug_name  = '&nbsp;';
+            $ndc_number = '&nbsp;';
+        }
+    ?>
+   <tr>
+    <td class='detail'>
+        <?php echo $drug_name ?>
   </td>
   <td class='detail'>
-   <?php echo $ndc_number ?>
+        <?php echo $ndc_number ?>
   </td>
   <td class='detail'>
-   <a href='../drugs/destroy_lot.php?drug=<?php echo $row['drug_id'] ?>&lot=<?php echo $row['inventory_id'] ?>'
+     <a href='../drugs/destroy_lot.php?drug=<?php echo $row['drug_id'] ?>&lot=<?php echo $row['inventory_id'] ?>'
     style='color:#0000ff' target='_blank'>
-   <?php echo $row['lot_number'] ?>
+        <?php echo $row['lot_number'] ?>
    </a>
   </td>
   <td class='detail'>
-   <?php echo $row['on_hand'] ?>
+        <?php echo $row['on_hand'] ?>
   </td>
   <td class='detail'>
-   <?php echo oeFormatShortDate($row['destroy_date']) ?>
+        <?php echo oeFormatShortDate($row['destroy_date']) ?>
   </td>
   <td class='detail'>
-   <?php echo $row['destroy_method'] ?>
+        <?php echo $row['destroy_method'] ?>
   </td>
   <td class='detail'>
-   <?php echo $row['destroy_witness'] ?>
+        <?php echo $row['destroy_witness'] ?>
   </td>
   <td class='detail'>
-   <?php echo $row['destroy_notes'] ?>
+        <?php echo $row['destroy_notes'] ?>
   </td>
  </tr>
 <?php
-   $last_drug_id = $row['drug_id'];
-  } // end while
- } // end if
+     $last_drug_id = $row['drug_id'];
+    } // end while
+} // end if
 ?>
 
  </tbody>

@@ -57,7 +57,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
   //   $code_types[$code_type]['id'] . "' ORDER BY code LIMIT " . ($M + 1);
 
   // The above is obsolete now, fees come from the prices table:
-  $sql = "SELECT codes.*, prices.pr_price FROM codes " .
+    $sql = "SELECT codes.*, prices.pr_price FROM codes " .
     "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
     "LEFT OUTER JOIN prices ON prices.pr_id = codes.id AND " .
     "prices.pr_selector = '' AND " .
@@ -69,11 +69,11 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT " . ($M + 1).
     "";
 
-	if ($res = sqlStatement($sql) ) {
-		for($iter=0; $row=sqlFetchArray($res); $iter++)
-		{
-			$result[$iter] = $row;
-		}
+    if ($res = sqlStatement($sql) ) {
+        for($iter=0; $row=sqlFetchArray($res); $iter++)
+        {
+            $result[$iter] = $row;
+        }
         echo "<div id='resultsummary' style='background-color:lightgreen;'>";
         if (count($result) > $M) {
             echo "Showing the first ".$M." results";
@@ -127,7 +127,7 @@ if ($result) {
 </td></tr></table>
 </div>
 <?php
-	}
+    }
 }
 ?>
 

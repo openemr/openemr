@@ -39,48 +39,52 @@ $row = array(
 );
 
 if (! $encounter) { // comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
 
-function cbvalue($cbname) {
- return $_POST[$cbname] ? '1' : '0';
+function cbvalue($cbname)
+{
+    return $_POST[$cbname] ? '1' : '0';
 }
 
-function cbinput($name, $colname) {
- global $row;
- $ret  = "<input type='checkbox' name='$name' value='1'";
- if ($row[$colname]) $ret .= " checked";
- $ret .= " />";
- return $ret;
+function cbinput($name, $colname)
+{
+    global $row;
+    $ret  = "<input type='checkbox' name='$name' value='1'";
+    if ($row[$colname]) $ret .= " checked";
+    $ret .= " />";
+    return $ret;
 }
 
-function cbcell($name, $desc, $colname) {
- return "<td width='25%' nowrap>" . cbinput($name, $colname) . "$desc</td>\n";
+function cbcell($name, $desc, $colname)
+{
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . "$desc</td>\n";
 }
 
-function QuotedOrNull($fld) {
-  if (empty($fld)) return "NULL";
-  return "'$fld'";
+function QuotedOrNull($fld)
+{
+    if (empty($fld)) return "NULL";
+    return "'$fld'";
 }
 
 function getListOptions($list_id , $fieldnames=array('option_id', 'title', 'seq'))
 {
-	$output =  array();
-	$query = sqlStatement("SELECT ".implode(',',$fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
-	while($ll = sqlFetchArray($query)) {
-		foreach($fieldnames as $val)
-		  $output[$ll['option_id']][$val] = $ll[$val];
-	}
-	return $output;
+    $output =  array();
+    $query = sqlStatement("SELECT ".implode(',',$fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
+    while($ll = sqlFetchArray($query)) {
+        foreach($fieldnames as $val)
+          $output[$ll['option_id']][$val] = $ll[$val];
+    }
+    return $output;
 }
 $formid = formData('id', 'G') + 0;
 
 // If Save or Transmit was clicked, save the info.
 //
 if ($_POST['bn_save'] || $_POST['bn_xmit']) {
-  $ppid = formData('form_lab_id') + 0;
+    $ppid = formData('form_lab_id') + 0;
 
-  $sets =
+    $sets =
     "date_ordered = " . QuotedOrNull(formData('form_date_ordered'))     . ", " .
     "provider_id = " . (formData('form_provider_id') + 0)               . ", " .
     "lab_id = " . $ppid                                                 . ", " .
@@ -95,111 +99,111 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
   // If updating an existing form...
   //
-  if ($formid) {
-    $query = "UPDATE procedure_order SET $sets "  .
-      "WHERE procedure_order_id = '$formid'";
-    sqlStatement($query);
-  }
+    if ($formid) {
+        $query = "UPDATE procedure_order SET $sets "  .
+        "WHERE procedure_order_id = '$formid'";
+        sqlStatement($query);
+    }
 
   // If adding a new form...
   //
-  else {
-    $query = "INSERT INTO procedure_order SET $sets";
-    $formid = sqlInsert($query);
-    addForm($encounter, "Procedure Order", $formid, "procedure_order", $pid, $userauthorized);
-  }
+    else {
+        $query = "INSERT INTO procedure_order SET $sets";
+        $formid = sqlInsert($query);
+        addForm($encounter, "Procedure Order", $formid, "procedure_order", $pid, $userauthorized);
+    }
 
   // Remove any existing procedures and their answers for this order and
   // replace them from the form.
 
-  sqlStatement("DELETE FROM procedure_answers WHERE procedure_order_id = ?",
+    sqlStatement("DELETE FROM procedure_answers WHERE procedure_order_id = ?",
     array($formid));
-  sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
+    sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
     array($formid));
 
-  for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
-    $ptid = $_POST['form_proc_type'][$i] + 0;
-    if ($ptid <= 0) continue;
+    for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
+        $ptid = $_POST['form_proc_type'][$i] + 0;
+        if ($ptid <= 0) continue;
 
-    $prefix = "ans$i" . "_";
+        $prefix = "ans$i" . "_";
 
-      sqlBeginTrans();
-      $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
-      $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
-      "procedure_order_id = ?, " .
-      "diagnoses = ?, " .
-	  "procedure_order_title = ?, " .
-      "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
-      "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
-      "procedure_order_seq = ? ",
-      array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment']));
-      sqlCommitTrans();
-
-    $qres = sqlStatement("SELECT " .
-      "q.procedure_code, q.question_code, q.options, q.fldtype " .
-      "FROM procedure_type AS t " .
-      "JOIN procedure_questions AS q ON q.lab_id = t.lab_id " .
-      "AND q.procedure_code = t.procedure_code AND q.activity = 1 " .
-      "WHERE t.procedure_type_id = ? " .
-      "ORDER BY q.seq, q.question_text", array($ptid));
-
-    while ($qrow = sqlFetchArray($qres)) {
-      $options = trim($qrow['options']);
-      $qcode = trim($qrow['question_code']);
-      $fldtype = $qrow['fldtype'];
-      $data = '';
-      if ($fldtype == 'G') {
-        if ($_POST["G1_$prefix$qcode"]) {
-          $data = $_POST["G1_$prefix$qcode"] * 7 + $_POST["G2_$prefix$qcode"];
-        }
-      }
-      else {
-        $data = $_POST["$prefix$qcode"];
-      }
-      if (!isset($data) || $data === '') continue;
-      if (!is_array($data)) $data = array($data);
-      foreach ($data as $datum) {
-        // Note this will auto-assign the seq value.
         sqlBeginTrans();
-        $answer_seq = sqlQuery( "SELECT IFNULL(MAX(answer_seq),0) + 1 AS increment FROM procedure_answers WHERE procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? ", array($formid, $poseq, $qcode));
-        sqlStatement("INSERT INTO procedure_answers SET ".
-          "procedure_order_id = ?, " .
-          "procedure_order_seq = ?, " .
-          "question_code = ?, " .
-          "answer_seq = ?, " .
-          "answer = ?",
-          array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum)));
-        sqlCommitTrans();
-      }
-    }
-  }
+        $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
+        $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
+        "procedure_order_id = ?, " .
+        "diagnoses = ?, " .
+        "procedure_order_title = ?, " .
+        "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
+        "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
+        "procedure_order_seq = ? ",
+        array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment']));
+          sqlCommitTrans();
 
-  $alertmsg = '';
-  if ($_POST['bn_xmit']) {
-    $hl7 = '';
-    $alertmsg = gen_hl7_order($formid, $hl7);
-    if (empty($alertmsg)) {
-      $alertmsg = send_hl7_order($ppid, $hl7);
-    }
-    if (empty($alertmsg)) {
-      sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
-        "procedure_order_id = ?", array($formid));
-    }
-  }
+        $qres = sqlStatement("SELECT " .
+          "q.procedure_code, q.question_code, q.options, q.fldtype " .
+          "FROM procedure_type AS t " .
+          "JOIN procedure_questions AS q ON q.lab_id = t.lab_id " .
+          "AND q.procedure_code = t.procedure_code AND q.activity = 1 " .
+          "WHERE t.procedure_type_id = ? " .
+          "ORDER BY q.seq, q.question_text", array($ptid));
 
-  formHeader("Redirecting....");
-  if ($alertmsg) {
-    echo "\n<script language='Javascript'>alert('";
-    echo addslashes(xl('Transmit failed') . ': ' . $alertmsg);
-    echo "')</script>\n";
-  }
-  formJump();
-  formFooter();
-  exit;
+        while ($qrow = sqlFetchArray($qres)) {
+              $options = trim($qrow['options']);
+              $qcode = trim($qrow['question_code']);
+              $fldtype = $qrow['fldtype'];
+              $data = '';
+            if ($fldtype == 'G') {
+                if ($_POST["G1_$prefix$qcode"]) {
+                    $data = $_POST["G1_$prefix$qcode"] * 7 + $_POST["G2_$prefix$qcode"];
+                }
+            }
+            else {
+                  $data = $_POST["$prefix$qcode"];
+            }
+              if (!isset($data) || $data === '') continue;
+              if (!is_array($data)) $data = array($data);
+            foreach ($data as $datum) {
+                  // Note this will auto-assign the seq value.
+                  sqlBeginTrans();
+                  $answer_seq = sqlQuery( "SELECT IFNULL(MAX(answer_seq),0) + 1 AS increment FROM procedure_answers WHERE procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? ", array($formid, $poseq, $qcode));
+                  sqlStatement("INSERT INTO procedure_answers SET ".
+                  "procedure_order_id = ?, " .
+                  "procedure_order_seq = ?, " .
+                  "question_code = ?, " .
+                  "answer_seq = ?, " .
+                  "answer = ?",
+                  array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum)));
+                  sqlCommitTrans();
+            }
+        }
+    }
+
+    $alertmsg = '';
+    if ($_POST['bn_xmit']) {
+        $hl7 = '';
+        $alertmsg = gen_hl7_order($formid, $hl7);
+        if (empty($alertmsg)) {
+            $alertmsg = send_hl7_order($ppid, $hl7);
+        }
+        if (empty($alertmsg)) {
+            sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
+            "procedure_order_id = ?", array($formid));
+        }
+    }
+
+    formHeader("Redirecting....");
+    if ($alertmsg) {
+        echo "\n<script language='Javascript'>alert('";
+        echo addslashes(xl('Transmit failed') . ': ' . $alertmsg);
+        echo "')</script>\n";
+    }
+    formJump();
+    formFooter();
+    exit;
 }
 
 if ($formid) {
-  $row = sqlQuery ("SELECT * FROM procedure_order WHERE " .
+    $row = sqlQuery ("SELECT * FROM procedure_order WHERE " .
     "procedure_order_id = ?",
     array($formid)) ;
 }

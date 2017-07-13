@@ -14,7 +14,8 @@
 abstract class RuleCriteriaFactory {
 
     var $strategyMap;
-    function __construct() {
+    function __construct()
+    {
         $this->strategyMap[ RuleCriteriaType::ageMin ] = new RuleCriteriaAgeBuilder();
         $this->strategyMap[ RuleCriteriaType::ageMax ] = new RuleCriteriaAgeBuilder();
         $this->strategyMap[ RuleCriteriaType::sex ] = new RuleCriteriaSexBuilder();
@@ -30,7 +31,8 @@ abstract class RuleCriteriaFactory {
         $this->strategyMap[ RuleCriteriaType::custom_bucket ] = new RuleCriteriaDatabaseBuilder();
     }
 
-    function resolveCriteriaType( $method, $methodDetail, $ruleValue) {
+    function resolveCriteriaType( $method, $methodDetail, $ruleValue)
+    {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
         foreach( $strategyMap as $key=>$value ) {
@@ -46,8 +48,15 @@ abstract class RuleCriteriaFactory {
      *
      * @param RuleCriteria $criteria
      */
-    function build($ruleId, $guid, $inclusion, $optional,
-            $method, $methodDetail, $value) {
+    function build(
+        $ruleId,
+        $guid,
+        $inclusion,
+        $optional,
+        $method,
+        $methodDetail,
+        $value
+    ) {
         
         $criteriaType = $this->resolveCriteriaType($method, $methodDetail, $value);
         if ( $criteriaType == null ) {
@@ -79,7 +88,8 @@ abstract class RuleCriteriaFactory {
      * @param string $ruleId
      * @param RuleCriteriaType $criteriaType
      */
-    function buildNewInstance($ruleId, $criteriaType) {
+    function buildNewInstance($ruleId, $criteriaType)
+    {
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor( $criteriaType );
         if ( is_null( $builder ) ) {
@@ -96,7 +106,8 @@ abstract class RuleCriteriaFactory {
         return $criteria;
     }
 
-    function getStrategyMap() {
+    function getStrategyMap()
+    {
         return $this->strategyMap;
     }
 
@@ -105,7 +116,8 @@ abstract class RuleCriteriaFactory {
      * @param RuleCriteriaType $criteriaType
      * @return RuleCriteria
      */
-    function getBuilderFor( $criteriaType ) {
+    function getBuilderFor( $criteriaType )
+    {
         $map = $this->getStrategyMap();
         return $map[ $criteriaType->code ];
     }

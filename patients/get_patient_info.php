@@ -12,28 +12,28 @@
     //
 
     //landing page definition -- where to go if something goes wrong
-	$landingpage = "index.php?site=".$_SESSION['site_id'];
+    $landingpage = "index.php?site=".$_SESSION['site_id'];
     //
 
     //checking whether the request comes from index.php
-        if (!isset($_SESSION['itsme'])) {
-                session_destroy();
-		header('Location: '.$landingpage.'&w');
-		exit;
-	}
+    if (!isset($_SESSION['itsme'])) {
+        session_destroy();
+        header('Location: '.$landingpage.'&w');
+        exit;
+    }
     //
 
     //some validation
-        if (!isset($_POST['uname']) || empty($_POST['uname'])) {
-                session_destroy();
-		header('Location: '.$landingpage.'&w&c');
-		exit;
-	}
-        if (!isset($_POST['pass']) || empty($_POST['pass'])) {
-                session_destroy();
-                header('Location: '.$landingpage.'&w&c');
-		exit;
-        }
+    if (!isset($_POST['uname']) || empty($_POST['uname'])) {
+        session_destroy();
+        header('Location: '.$landingpage.'&w&c');
+        exit;
+    }
+    if (!isset($_POST['pass']) || empty($_POST['pass'])) {
+        session_destroy();
+        header('Location: '.$landingpage.'&w&c');
+        exit;
+    }
     //
 
     // set the language
@@ -53,7 +53,7 @@
     //
 
     //Authentication
-	require_once('../interface/globals.php');
+    require_once('../interface/globals.php');
     require_once("$srcdir/authentication/common_operations.php");
     $password_update=isset($_SESSION['password_update']);
     unset($_SESSION['password_update']);
@@ -71,38 +71,38 @@
           ." FROM ".TBL_PAT_ACC_ON
           ." WHERE ".COL_POR_USER."=?";
             $auth = privQuery($sql, array($_POST['uname']));
-            if($auth===false)
-            {
-                session_destroy();
-                header('Location: '.$landingpage.'&w');
-                exit;
-            }
-            if(empty($auth[COL_POR_SALT]))
-            {
-                if(SHA1($plain_code)!=$auth[COL_POR_PWD])
-                {
-                    session_destroy();
-                    header('Location: '.$landingpage.'&w');
-                    exit;
-                }
-                $new_salt=oemr_password_salt();
-                $new_hash=oemr_password_hash($plain_code,$new_salt);
-                $sqlUpdatePwd= " UPDATE " . TBL_PAT_ACC_ON
-                              ." SET " .COL_POR_PWD."=?, "
-                              . COL_POR_SALT . "=? "
-                              ." WHERE ".COL_ID."=?";
-                privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));
-            }
-            else {
-                if(oemr_password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
-                {
-                    session_destroy();
-                    header('Location: '.$landingpage.'&w');
-                    exit;
+    if($auth===false)
+    {
+        session_destroy();
+        header('Location: '.$landingpage.'&w');
+        exit;
+    }
+    if(empty($auth[COL_POR_SALT]))
+    {
+        if(SHA1($plain_code)!=$auth[COL_POR_PWD])
+        {
+            session_destroy();
+            header('Location: '.$landingpage.'&w');
+            exit;
+        }
+        $new_salt=oemr_password_salt();
+        $new_hash=oemr_password_hash($plain_code,$new_salt);
+        $sqlUpdatePwd= " UPDATE " . TBL_PAT_ACC_ON
+              ." SET " .COL_POR_PWD."=?, "
+              . COL_POR_SALT . "=? "
+              ." WHERE ".COL_ID."=?";
+        privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));
+    }
+    else {
+        if(oemr_password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
+        {
+            session_destroy();
+            header('Location: '.$landingpage.'&w');
+            exit;
 
-                }
+        }
 
-            }
+    }
             $_SESSION['portal_username']=$_POST['uname'];
     $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
@@ -113,14 +113,14 @@
             session_destroy();
                             header('Location: '.$landingpage.'&w');
             exit;
-                    }
+        }
 
         if ($userData['allow_patient_portal'] != "YES") {
             // Patient has not authorized portal, so escape
             session_destroy();
                             header('Location: '.$landingpage.'&w');
             exit;
-                    }
+        }
 
         if ($auth['pid'] != $userData['pid']) {
             // Not sure if this is even possible, but should escape if this happens
@@ -133,13 +133,13 @@
             {
                 $code_new=$_POST['pass_new'];
                 $code_new_confirm=$_POST['pass_new_confirm'];
-                if(!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
+            if(!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
                 $new_salt=oemr_password_salt();
                 $new_hash=oemr_password_hash($code_new,$new_salt);
 
                 // Update the password and continue (patient is authorized)
                 privStatement("UPDATE ".TBL_PAT_ACC_ON
-                              ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']) );
+                      ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']) );
                 $authorizedPortal = true;
             }
         }

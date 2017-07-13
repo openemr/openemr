@@ -28,7 +28,8 @@ class Therapy_Groups_Counselors{
 
     const TABLE = 'therapy_groups_counselors';
 
-    public function getAllCounselors(){
+    public function getAllCounselors()
+    {
 
         $sql = 'SELECT * FROM ' . SELf::TABLE;
 
@@ -41,7 +42,8 @@ class Therapy_Groups_Counselors{
 
     }
 
-    public function getCounselors($groupId){
+    public function getCounselors($groupId)
+    {
 
         $sql = 'SELECT user_id FROM ' . self::TABLE . ' WHERE group_id = ?';
 
@@ -55,13 +57,15 @@ class Therapy_Groups_Counselors{
     }
 
 
-    public function save($groupId, $userId){
+    public function save($groupId, $userId)
+    {
 
         $sql = "INSERT INTO " . self::TABLE . " (group_id, user_id) VALUES(?,?)";
         sqlStatement($sql, array($groupId, $userId));
     }
 
-    public function remove($groupId, $userId = null){
+    public function remove($groupId, $userId = null)
+    {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ?";
         $condition[] = $groupId;
@@ -73,7 +77,8 @@ class Therapy_Groups_Counselors{
         sqlStatement($sql, $condition);
     }
 
-    public function getAllCounselorsNames($groupId){
+    public function getAllCounselorsNames($groupId)
+    {
 
         $counselors = $this->getCounselors($groupId);
         $userModel = new Users();

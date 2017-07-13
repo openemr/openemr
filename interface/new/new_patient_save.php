@@ -3,14 +3,14 @@ require_once("../globals.php");
 
 // Validation for non-unique external patient identifier.
 if (!empty($_POST["pubpid"])) {
-  $form_pubpid = trim($_POST["pubpid"]);
-  $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
+    $form_pubpid = trim($_POST["pubpid"]);
+    $result = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE " .
     "pubpid = ?", array($form_pubpid));
-  if ($result['count']) {
-    // Error, not unique.
-    require_once("new.php");
-    exit();
-  }
+    if ($result['count']) {
+        // Error, not unique.
+        require_once("new.php");
+        exit();
+    }
 }
 
 require_once("$srcdir/pid.inc");
@@ -34,35 +34,35 @@ if ($result['pid'] > 1)
 
 setpid($newpid);
 
-if($pid == NULL) {
-  $pid = 0;
+if($pid == null) {
+    $pid = 0;
 }
 
 // what do we set for the public pid?
 if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
-  $mypubpid = $_POST["pubpid"];
+    $mypubpid = $_POST["pubpid"];
 } else {
-  $mypubpid = $pid;
+    $mypubpid = $pid;
 }
 
 if ($_POST['form_create']) {
 
-  $form_fname = ucwords(trim($_POST["fname"]));
-  $form_lname = ucwords(trim($_POST["lname"]));
-  $form_mname = ucwords(trim($_POST["mname"]));
+    $form_fname = ucwords(trim($_POST["fname"]));
+    $form_lname = ucwords(trim($_POST["lname"]));
+    $form_mname = ucwords(trim($_POST["mname"]));
 
   // ===================
   // DBC SYSTEM WAS REMOVED
-  $form_sex               = trim($_POST["sex"]) ;
-  $form_dob               = trim($_POST["DOB"]) ;
-  $form_street            = '' ;
-  $form_city              = '' ;
-  $form_postcode          = '' ;
-  $form_countrycode       = '' ;
+    $form_sex               = trim($_POST["sex"]) ;
+    $form_dob               = trim($_POST["DOB"]) ;
+    $form_street            = '' ;
+    $form_city              = '' ;
+    $form_postcode          = '' ;
+    $form_countrycode       = '' ;
   // EOS DBC
   // ===================
 
-  newPatientData(
+    newPatientData(
     $_POST["db_id"],
     $_POST["title"],
     $form_fname,
@@ -100,7 +100,7 @@ if ($_POST['form_create']) {
     "", // genericval1
     "", // genericname2
     "", // genericval2
-	"", //billing_note
+    "", //billing_note
     "", // phone_cell
     "", // hipaa_mail
     "", // hipaa_voice
@@ -110,20 +110,20 @@ if ($_POST['form_create']) {
     "", // $hipaa_notice = "",
     "", // $hipaa_message = "",
     $_POST['regdate']
-  );
+    );
 
-  newEmployerData($pid);
-  newHistoryData($pid);
-  newInsuranceData($pid, "primary");
-  newInsuranceData($pid, "secondary");
-  newInsuranceData($pid, "tertiary");
+    newEmployerData($pid);
+    newHistoryData($pid);
+    newInsuranceData($pid, "primary");
+    newInsuranceData($pid, "secondary");
+    newInsuranceData($pid, "tertiary");
 
   // Set referral source separately because we don't want it messed
   // with later by newPatientData().
-  if ($refsource = trim($_POST["refsource"])) {
-    sqlQuery("UPDATE patient_data SET referral_source = ? " .
-      "WHERE pid = ?", array($refsource, $pid));
-  }
+    if ($refsource = trim($_POST["refsource"])) {
+        sqlQuery("UPDATE patient_data SET referral_source = ? " .
+        "WHERE pid = ?", array($refsource, $pid));
+    }
 
 }
 ?>
@@ -132,7 +132,7 @@ if ($_POST['form_create']) {
 <script language="Javascript">
 <?php
 if ($alertmsg) {
-  echo "alert('" . addslashes($alertmsg) . "');\n";
+    echo "alert('" . addslashes($alertmsg) . "');\n";
 }
   echo "window.location='$rootdir/patient_file/summary/demographics.php?" .
     "set_pid=" . attr($pid) . "&is_new=1';\n";

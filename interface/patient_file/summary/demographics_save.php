@@ -6,20 +6,20 @@ include_once("$srcdir/options.inc.php");
 
 // Check authorization.
 if ($pid) {
-  if ( !acl_check('patients','demo','','write') )
+    if ( !acl_check('patients','demo','','write') )
     die(xlt('Updating demographics is not authorized.'));
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     die(xlt('You are not authorized to access this squad.'));
 } else {
-  if (!acl_check('patients','demo','',array('write','addonly') ))
+    if (!acl_check('patients','demo','',array('write','addonly') ))
     die(xlt('Adding demographics is not authorized.'));
 }
 
 foreach ($_POST as $key => $val) {
-  if ($val == "MM/DD/YYYY") {
-    $_POST[$key] = "";
-  }
+    if ($val == "MM/DD/YYYY") {
+        $_POST[$key] = "";
+    }
 }
 
 // Update patient_data and employer_data:

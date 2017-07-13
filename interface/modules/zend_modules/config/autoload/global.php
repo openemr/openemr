@@ -85,7 +85,8 @@ return array(
  * @param $value
  * @return bool|string
  */
-function my_encrypt($data) {
+function my_encrypt($data)
+{
     // Remove the base64 encoding from our key
     $encryption_key = base64_decode($GLOBALS['safe_key_database']);
     // Generate an initialization vector
@@ -102,7 +103,8 @@ function my_encrypt($data) {
  * @return bool|string
  */
 
-function my_decrypt($data) {
+function my_decrypt($data)
+{
     // Remove the base64 encoding from our key
     $encryption_key = base64_decode($GLOBALS['safe_key_database']);
     // To decrypt, split the encrypted data from our IV - our unique separator used was "::"

@@ -86,9 +86,12 @@ else { $backurl="../main_info.php"; }
 <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
 
 <?php //change the view on the current mode, whether all, active, or inactive
-if ($active==="1") { $inactive_class="_small"; $all_class="_small"; }
-elseif ($active==="0") { $active_class="_small"; $all_class="_small";}
-else { $active_class="_small"; $inactive_class="_small";}
+if ($active==="1") { $inactive_class="_small";
+    $all_class="_small"; }
+elseif ($active==="0") { $active_class="_small";
+    $all_class="_small";}
+else { $active_class="_small";
+    $inactive_class="_small";}
 ?>
 
 <a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
@@ -110,32 +113,32 @@ $result_count = 0;
 //retrieve all notes
 if ($notes) {
     print "<thead><tr><th>" . xlt("Active") . "</th><th>" . xlt("Date") . " (" . xlt("Sender") . ")</th><th>" . xlt("Office Note") . "</th></tr></thead><tbody>";
-foreach ($notes as $note) {
-    $result_count++;
+    foreach ($notes as $note) {
+        $result_count++;
 
-    $date = $note->getDate()->format('Y-m-d');
-    $date = oeFormatShortDate($date);
+        $date = $note->getDate()->format('Y-m-d');
+        $date = oeFormatShortDate($date);
 
-    $todaysDate = new DateTime();
-    if ($todaysDate->format('Y-m-d') == $date) {
-        $date_string = xl("Today") . ", " . $date;
-    } else {
-        $date_string = $date;
+        $todaysDate = new DateTime();
+        if ($todaysDate->format('Y-m-d') == $date) {
+            $date_string = xl("Today") . ", " . $date;
+        } else {
+            $date_string = $date;
+        }
+
+        if ($note->getActivity()) { $checked = "checked"; }
+        else { $checked = ""; }
+
+            print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
+            print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
+            print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
+            print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
+            print "<td><label for='box".attr($note->getId())."' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr></tbody>\n";
+
     }
-
-    if ($note->getActivity()) { $checked = "checked"; }
-    else { $checked = ""; }
-
-    print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
-    print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
-    print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
-    print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
-    print "<td><label for='box".attr($note->getId())."' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr></tbody>\n";
-
-}
 }else{
 //no results
-print "<tr><td></td><td></td><td></td></tr>\n";
+    print "<tr><td></td><td></td><td></td></tr>\n";
 }
 
 ?>
@@ -148,13 +151,13 @@ print "<tr><td></td><td></td><td></td></tr>\n";
 <tr><td>
 <?php
 if ($offset>($N-1)) {
-echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset-$N)." onclick='top.restoreSession()'>".xlt('Previous')."</a>";
 }
 ?>
 </td><td align=right>
 <?php
 if ($result_count == $N) {
-echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
+    echo "<a class='css_button' href=office_comments_full.php?active=".attr($active)."&offset=".attr($offset+$N)." onclick='top.restoreSession()'>".xlt('Next')."</a>";
 }
 ?>
 </td></tr>

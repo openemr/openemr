@@ -10,7 +10,7 @@ return array(
         ),
     ),
 
-	'router' => array(
+    'router' => array(
         'routes' => array(
             'carecoordination' => array(
                 'type'    => 'segment',

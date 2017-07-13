@@ -56,7 +56,7 @@ if (!$result) { //If there are none
   <br />
   <a href='../encounter/trend_form.php?formname=<?php echo $lbf_form_id; ?>'
    onclick='top.restoreSession()'>
-   <?php echo htmlspecialchars(xl('Click here to view and graph'),ENT_NOQUOTES);?>
+    <?php echo htmlspecialchars(xl('Click here to view and graph'),ENT_NOQUOTES);?>
   </a>
   </span>
 <?php } ?>

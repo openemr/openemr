@@ -9,7 +9,8 @@ require_once("../globals.php");
 
 // Find and match the patient with the incoming lab report.
 // return patient pid if matched else return false
-function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastName, $dob, $gender, $ssn, $address) {
+function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastName, $dob, $gender, $ssn, $address)
+{
     $sql = "SELECT pid from patient_data WHERE ";
     $where = "";
     /*
@@ -158,21 +159,21 @@ function processFacility($facilities)
 
         $facilityId = null;
 
-        foreach ($facilities as $facility) {
-            // Access facility fields
-            $users_id = "";
+    foreach ($facilities as $facility) {
+        // Access facility fields
+        $users_id = "";
 
-            if(!$users_id = getLabFacility($facility))
-            {
-                $users_id = addNewLabFacility($facility);
-            }
-            $facilityId[] = $facility->FacilityID . "_" . $users_id;   //=>procedure_result.facility
-
+        if(!$users_id = getLabFacility($facility))
+        {
+            $users_id = addNewLabFacility($facility);
         }
+        $facilityId[] = $facility->FacilityID . "_" . $users_id;   //=>procedure_result.facility
 
-        if (count($facilityId) > 0) {
-            $str_facilityId = implode(":", $facilityId);
-        }
+    }
+
+    if (count($facilityId) > 0) {
+        $str_facilityId = implode(":", $facilityId);
+    }
         return $str_facilityId;
 }
 /**
@@ -278,7 +279,8 @@ function addNewLabFacility($facility)
     return sqlInsert($query);
 }
 
-function mapReportStatus($stat) {
+function mapReportStatus($stat)
+{
     $return_status = $stat;
 
     // if($stat == "")
@@ -295,7 +297,8 @@ function mapReportStatus($stat) {
     return $return_status;
 }
 
-function mapResultStatus($stat) {
+function mapResultStatus($stat)
+{
     $return_status = $stat;
 
     // if($stat == "")
@@ -314,7 +317,8 @@ function mapResultStatus($stat) {
     return $return_status;
 }
 
-function mapAbnormalStatus($stat) {
+function mapAbnormalStatus($stat)
+{
     $return_status = $stat;
 
     // if($stat == "")
@@ -344,7 +348,7 @@ function formatPhone($phone)
                 return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
         elseif(strlen($phone) == 10)
                 return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
-        else
+    else
                 return $phone;
 }
 

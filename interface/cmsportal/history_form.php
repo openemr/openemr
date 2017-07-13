@@ -31,35 +31,35 @@ $postid = intval($_REQUEST['postid']);
 $ptid   = intval($_REQUEST['ptid'  ]);
 
 if ($_POST['bn_save']) {
-  $newdata = array();
-  $fres = sqlStatement("SELECT * FROM layout_options WHERE " .
+    $newdata = array();
+    $fres = sqlStatement("SELECT * FROM layout_options WHERE " .
     "form_id = 'HIS' AND field_id != '' AND uor > 0 " .
     "ORDER BY group_name, seq");
-  while ($frow = sqlFetchArray($fres)) {
-    $data_type = $frow['data_type'];
-    $field_id  = $frow['field_id'];
-    if (isset($_POST["form_$field_id"])) {
-      $newdata[$field_id] = get_layout_form_value($frow);
+    while ($frow = sqlFetchArray($fres)) {
+        $data_type = $frow['data_type'];
+        $field_id  = $frow['field_id'];
+        if (isset($_POST["form_$field_id"])) {
+            $newdata[$field_id] = get_layout_form_value($frow);
+        }
     }
-  }
-  updateHistoryData($ptid, $newdata);
+    updateHistoryData($ptid, $newdata);
   // Finally, delete the request from the portal.
-  $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
-  if ($result['errmsg']) {
-    die(text($result['errmsg']));
-  }
-  echo "<html><body><script language='JavaScript'>\n";
-  echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
-  echo "document.location.href = 'list_requests.php';\n";
-  echo "</script></body></html>\n";
-  exit();
+    $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
+    echo "<html><body><script language='JavaScript'>\n";
+    echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
+    echo "document.location.href = 'list_requests.php';\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 // Get the portal request data.
 if (!$postid) die(xlt('Request ID is missing!'));
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
-  die(text($result['errmsg']));
+    die(text($result['errmsg']));
 }
 
 // Look up the patient in OpenEMR.
@@ -142,39 +142,41 @@ $lores = sqlStatement("SELECT * FROM layout_options " .
   array('HIS'));
 
 while ($lorow = sqlFetchArray($lores)) {
-  $data_type  = $lorow['data_type'];
-  $field_id   = $lorow['field_id'];
+    $data_type  = $lorow['data_type'];
+    $field_id   = $lorow['field_id'];
   // Check for field name match in portal results, case insensitive.
-  $reskey = $field_id;
-  $gotfield = false;
-  foreach ($result['fields'] as $key => $dummy) {
-    // For Exam Results the field ID has a colon and list item ID appended.
-    if (($i = strpos($key, ':')) !== false) {
-      $key = substr($key, 0, $i);
+    $reskey = $field_id;
+    $gotfield = false;
+    foreach ($result['fields'] as $key => $dummy) {
+        // For Exam Results the field ID has a colon and list item ID appended.
+        if (($i = strpos($key, ':')) !== false) {
+            $key = substr($key, 0, $i);
+        }
+        if (strcasecmp($key, $field_id) == 0) {
+            $reskey = $key;
+            $gotfield = true;
+        }
     }
-    if (strcasecmp($key, $field_id) == 0) {
-      $reskey = $key;
-      $gotfield = true;
-    }
-  }
   // Generate form fields for items that are either from the WordPress form
   // or are mandatory.
-  if ($gotfield || $lorow['uor'] > 1) {
-    $list_id = $lorow['list_id'];
-    $field_title = $lorow['title'];
-    if ($field_title === '') $field_title = '(' . $field_id . ')';
+    if ($gotfield || $lorow['uor'] > 1) {
+        $list_id = $lorow['list_id'];
+        $field_title = $lorow['title'];
+        if ($field_title === '') $field_title = '(' . $field_id . ')';
 
-    $currvalue = '';
-    if (isset($hyrow[$field_id])) $currvalue = $hyrow[$field_id];
+        $currvalue = '';
+        if (isset($hyrow[$field_id])) $currvalue = $hyrow[$field_id];
 
-    $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
+        $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 
-    echo " <tr class='detail'>\n";
-    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
-    echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
-    echo "  <td>"; generate_form_field($lorow, $newvalue); echo "</td>\n";
-    echo " </tr>\n";
-  }
+        echo " <tr class='detail'>\n";
+        echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+        echo "  <td>" . generate_display_field($lorow, $currvalue) . "</td>\n";
+        echo "  <td>";
+        generate_form_field($lorow, $newvalue);
+        echo "</td>\n";
+        echo " </tr>\n";
+    }
 }
 
 echo "</table>\n";

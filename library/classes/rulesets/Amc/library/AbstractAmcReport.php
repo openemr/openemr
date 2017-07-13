@@ -68,7 +68,8 @@ abstract class AbstractAmcReport implements RsReportIF
     public abstract function createDenominator();
     public abstract function getObjectToCount();
         
-    public function getResults() {
+    public function getResults()
+    {
         return $this->_resultsArray;
     }
 
@@ -78,7 +79,7 @@ abstract class AbstractAmcReport implements RsReportIF
         // If itemization is turned on, then iterate the rule id iterator
         //
         // Note that when AMC rules suports different patient populations and
-        // numerator caclulation, then it will need to change placement of 
+        // numerator caclulation, then it will need to change placement of
         // this and mimick the CQM rules mechanism
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $GLOBALS['report_itemized_test_id_iterator']++;
@@ -192,7 +193,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
         // Deal with the manually added labs for the electronic labs AMC measure
         if ($object_to_count == "labs") {
-          $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
+            $denominatorObjects = $denominatorObjects + $this->_manualLabNumber;
         }
         
         $percentage = calculate_percentage( $denominatorObjects, 0, $numeratorObjects );
@@ -200,14 +201,15 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_resultsArray[]= $result;
     }
 
-    private function collectObjects ($patient,$object_label,$begin,$end) {
+    private function collectObjects($patient,$object_label,$begin,$end)
+    {
 
         $results = array();
         $sqlBindArray = array();
 
         switch ($object_label) {
             case "transitions-in":
-		         $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
+                 $sql = "SELECT amc_misc_data.map_id as `encounter`, amc_misc_data.date_completed as `completed`, form_encounter.date as `date` " .
                         "FROM `amc_misc_data`, `form_encounter` " .
                         "INNER JOIN openemr_postcalendar_categories opc on opc.pc_catid = form_encounter.pc_catid ".
                         "WHERE amc_misc_data.map_id = form_encounter.encounter " .
@@ -216,10 +218,10 @@ abstract class AbstractAmcReport implements RsReportIF
                         "AND amc_misc_data.amc_id = 'med_reconc_amc' " .
                         "AND form_encounter.date >= ? AND form_encounter.date <= ? ".
                         "AND ((opc.pc_catname = 'New Patient') OR (opc.pc_catname = 'Established Patient' AND amc_misc_data.soc_provided is not null)) ";
-		array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
+                array_push($sqlBindArray, $patient->id, $patient->id, $begin, $end);
                 break;
             case "transitions-out":
-	 	$sql = "SELECT transactions.id as id " .
+                $sql = "SELECT transactions.id as id " .
                        "FROM transactions " .
                        "INNER JOIN lbt_data on lbt_data.form_id = transactions.id ".
                        "WHERE transactions.title = 'LBTref' " .
@@ -243,7 +245,7 @@ abstract class AbstractAmcReport implements RsReportIF
                        "AND `date` >= ? AND `date` <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-	    case "cpoe_medications":
+            case "cpoe_medications":
                 $sql = "SELECT  `drug` " .
                        "FROM `prescriptions` " .
                        "WHERE `patient_id` = ? " .
@@ -269,68 +271,68 @@ abstract class AbstractAmcReport implements RsReportIF
                        "procedure_report.date_collected >= ? AND procedure_report.date_collected <= ?";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-		         	case "image_orders":
-            	$sql = "SELECT pr.* FROM procedure_order pr ".
-                		"INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-                		"WHERE pr.patient_id = ? ".
-                		"AND prc.procedure_order_title LIKE '%imaging%' ".
-                		"AND (pr.date_ordered BETWEEN ? AND ?)";
+            case "image_orders":
+                $sql = "SELECT pr.* FROM procedure_order pr ".
+                "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+                "WHERE pr.patient_id = ? ".
+                "AND prc.procedure_order_title LIKE '%imaging%' ".
+                "AND (pr.date_ordered BETWEEN ? AND ?)";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
-               	break;
-			
-			
-			case "lab_radiology":
-				$sql = "SELECT pr.* FROM procedure_order pr ".
-					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
-					  "LEFT JOIN users u ON u.id = pp.lab_director ".
-					  "WHERE pr.patient_id = ? ".
-					  "AND prc.procedure_order_title LIKE '%imaging%' ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)";
-				array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-			
-			case "cpoe_lab_orders":
-				$sql = "SELECT pr.* FROM procedure_order pr ".
-					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-					  "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
-					  "LEFT JOIN users u ON u.id = pp.lab_director ".
-					  "WHERE pr.patient_id = ? ".
-					  "AND prc.procedure_order_title LIKE '%laboratory_test%' ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)";
-				array_push($sqlBindArray, $patient->id, $begin, $end);
+            
+            
+            case "lab_radiology":
+                $sql = "SELECT pr.* FROM procedure_order pr ".
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
+                      "LEFT JOIN users u ON u.id = pp.lab_director ".
+                      "WHERE pr.patient_id = ? ".
+                      "AND prc.procedure_order_title LIKE '%imaging%' ".
+                      "AND (pr.date_ordered BETWEEN ? AND ?)";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-			
-			case "med_orders":
+            
+            case "cpoe_lab_orders":
+                $sql = "SELECT pr.* FROM procedure_order pr ".
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+                      "LEFT JOIN procedure_providers pp ON pr.lab_id = pp.ppid ".
+                      "LEFT JOIN users u ON u.id = pp.lab_director ".
+                      "WHERE pr.patient_id = ? ".
+                      "AND prc.procedure_order_title LIKE '%laboratory_test%' ".
+                      "AND (pr.date_ordered BETWEEN ? AND ?)";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
+                break;
+            
+            case "med_orders":
                         // Still TODO
                         // AMC MU2 TODO :
                         //  Note the cpoe_flag and functionality does not exist in OpenEMR official codebase.
                         //
-			$sql = "SELECT drug,erx_source as cpoe_stat " .
+                $sql = "SELECT drug,erx_source as cpoe_stat " .
                        "FROM `prescriptions` " .
                        "WHERE `patient_id` = ? " .
                        "AND `date_added` BETWEEN ? AND ? ";
                 array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
-				
-			case "lab_orders":
-               $sql = "SELECT prc.* FROM procedure_order pr ".
-					  "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
-					  "WHERE pr.patient_id = ? ".
-					  "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) ".
-					  "AND (pr.date_ordered BETWEEN ? AND ?)";
-				array_push($sqlBindArray, $patient->id, $begin, $end);
+                
+            case "lab_orders":
+                $sql = "SELECT prc.* FROM procedure_order pr ".
+                      "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".
+                      "WHERE pr.patient_id = ? ".
+                      "AND (prc.procedure_order_title LIKE '%Laboratory%' or (prc.procedure_source = 2 and prc.procedure_order_title is NULL)) ".
+                      "AND (pr.date_ordered BETWEEN ? AND ?)";
+                array_push($sqlBindArray, $patient->id, $begin, $end);
                 break;
         }
 
         $rez = sqlStatement($sql, $sqlBindArray);
         for($iter=0; $row=sqlFetchArray($rez); $iter++) {
             if ('transitions-out' == $object_label) {
-              $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
+                $fres = sqlStatement("SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
                 array($row['id']));
-              while ($frow = sqlFetchArray($fres)) {
-                $row[$frow['field_id']] = $frow['field_value'];
-              }
+                while ($frow = sqlFetchArray($fres)) {
+                    $row[$frow['field_id']] = $frow['field_value'];
+                }
             }
             $results[$iter]=$row;
         }

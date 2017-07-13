@@ -30,7 +30,8 @@ class RuleCriteriaType {
     var $lbl;
     var $method;
 
-    function __construct( $code, $lbl, $method ) {
+    function __construct( $code, $lbl, $method )
+    {
         $this->lbl = $lbl;
         $this->code = $code;
         $this->method = $method;
@@ -41,17 +42,20 @@ class RuleCriteriaType {
      * @param string $value
      * @return RuleCriteriaType
      */
-    public static function from( $code ) {
+    public static function from( $code )
+    {
         $map = self::map();
         return $map[$code];
     }
 
-    public static function values() {
+    public static function values()
+    {
         $map = self::map();
         return array_keys($map);
     }
 
-    private static function map() {
+    private static function map()
+    {
         $map = array(
             self::ageMin   =>  new RuleCriteriaType( self::ageMin, xl('Age min'), 'age_min' ),
             self::ageMax   =>  new RuleCriteriaType( self::ageMax, xl('Age max'), 'age_max' ),

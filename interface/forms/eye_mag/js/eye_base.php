@@ -3034,15 +3034,15 @@ $(document).ready(function() {
                                               // Also, each field should be "display:none" if desired, via another user specific list.
                                               // This would be another list.  Let's see if the public likes the form itself before
                                               // developing these features...
-                                            $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
-                                            $pres = sqlStatement($query);
-                                            $maxseq = sqlFetchArray($pres);
+                                                $query = "SELECT max(seq) as maxseq FROM list_options WHERE list_id= 'lists'";
+                                                $pres = sqlStatement($query);
+                                                $maxseq = sqlFetchArray($pres);
 
-                                            $seq=$maxseq['maxseq'];
-                                            $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
+                                                $seq=$maxseq['maxseq'];
+                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
                                             ('lists', ?, ?, ?, '1', '0', '', '', '')";
-                                            sqlStatement($query,array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
-                                            $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`seq`) VALUES
+                                                sqlStatement($query,array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`seq`) VALUES
                                             ('Eye_defaults_".$providerID."','RUL','normal lids and lashes','EXT','10'),
                                             ('Eye_defaults_".$providerID."','LUL','normal lids and lashes','EXT','20'),
                                             ('Eye_defaults_".$providerID."','RLL','good tone','EXT','30'),
@@ -3095,7 +3095,7 @@ $(document).ready(function() {
                                             ('Eye_defaults_".$providerID."','OSVESSELS','2:3','RETINA','500'),
                                             ('Eye_defaults_".$providerID."','ODPERIPH','flat','RETINA','510'),
                                             ('Eye_defaults_".$providerID."','OSPERIPH','flat','RETINA','520')";
-                                            sqlStatement($query);
+                                                sqlStatement($query);
                                             }
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
@@ -3104,8 +3104,8 @@ $(document).ready(function() {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name
                                             //$row['title'] is the default value to use for this provider
-                                            ${$row[notes]}[$row[option_id]] = $row[title]; //This builds each clinical section into its own array (used below)
-                                            echo '$("#'.$row['option_id'].'").val("'.$row['title'].'").css("background-color","beige");
+                                                ${$row[notes]}[$row[option_id]] = $row[title]; //This builds each clinical section into its own array (used below)
+                                                echo '$("#'.$row['option_id'].'").val("'.$row['title'].'").css("background-color","beige");
                                             ';
                                             }
                                             ?>
@@ -3113,40 +3113,40 @@ $(document).ready(function() {
                                             });
 
                   $("#EXT_defaults").click(function() {
-                                           <?php
-                                           foreach ($EXT as $item => $value) {
-                                           echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                            <?php
+                                            foreach ($EXT as $item => $value) {
+                                                echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
                                            ';
-                                           }
-                                           ?>
+                                            }
+                                            ?>
                                            submit_form("eye_mag");
                                            });
 
                   $("#ANTSEG_defaults").click(function() {
-                                              <?php
-                                              foreach ($ANTSEG as $item => $value) {
-                                              echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                <?php
+                                                foreach ($ANTSEG as $item => $value) {
+                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
                                               ';
-                                              }
-                                              ?>
+                                                }
+                                                ?>
                                               submit_form("eye_mag");
                                               });
                   $("#RETINA_defaults").click(function() {
-                                              <?php
-                                              foreach ($RETINA as $item => $value) {
-                                              echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                <?php
+                                                foreach ($RETINA as $item => $value) {
+                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
                                               ';
-                                              }
-                                              ?>
+                                                }
+                                                ?>
                                               submit_form("eye_mag");
                                               });
                   $("#NEURO_defaults").click(function() {
-                                             <?php
-                                             foreach ($NEURO as $item => $value) {
-                                             echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
+                                                <?php
+                                                foreach ($NEURO as $item => $value) {
+                                                    echo '$("#'.$item.'").val("'.$value.'").css("background-color","beige");
                                              ';
-                                             }
-                                             ?>
+                                                }
+                                                ?>
                                              submit_form("eye_mag");
                                              });
 
@@ -3852,7 +3852,7 @@ $(document).ready(function() {
                   });
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
-                  <?php if ($GLOBALS['new_tabs_layout'] !=='1') { ?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>
+                    <?php if ($GLOBALS['new_tabs_layout'] !=='1') { ?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });

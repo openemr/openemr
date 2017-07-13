@@ -48,7 +48,8 @@ for($idx=0;$idx<13;$idx++)
 {
     $pDay = $cDay;
 
-    if ($pMonth > 12) { $pMonth = $pMonth-12; $pYear = $pYear + 1; }
+    if ($pMonth > 12) { $pMonth = $pMonth-12;
+        $pYear = $pYear + 1; }
     while (! checkdate($pMonth, $pDay, $pYear)) { $pDay = $pDay - 1; }
     $pDate = sprintf("%d%02d%02d",$pYear,$pMonth,$pDay);
     $trMonth=$DOM->createElement("TR");

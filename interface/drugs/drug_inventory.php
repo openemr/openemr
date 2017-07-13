@@ -112,50 +112,50 @@ $(document).ready(function() {
  <tr class='head'>
   <td title='<?php echo xla('Click to edit'); ?>'>
    <a href="#" onclick="return dosort('prod')"
-   <?php if ($form_orderby == "prod") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('Name'); ?> </a>
+    <?php if ($form_orderby == "prod") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('Name'); ?> </a>
   </td>
   <td>
-   <?php echo xlt('Act'); ?>
+    <?php echo xlt('Act'); ?>
   </td>
   <td>
    <a href="#" onclick="return dosort('ndc')"
-   <?php if ($form_orderby == "ndc") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('NDC'); ?> </a>
+    <?php if ($form_orderby == "ndc") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('NDC'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('form')"
-   <?php if ($form_orderby == "form") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('Form'); ?> </a>
+    <?php if ($form_orderby == "form") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('Form'); ?> </a>
   </td>
   <td>
-   <?php echo xlt('Size'); ?>
+    <?php echo xlt('Size'); ?>
   </td>
   <td>
-   <?php echo xlt('Unit'); ?>
+    <?php echo xlt('Unit'); ?>
   </td>
   <td title='<?php echo xla('Click to receive (add) new lot'); ?>'>
-   <?php echo xlt('New'); ?>
+    <?php echo xlt('New'); ?>
   </td>
   <td title='<?php echo xla('Click to edit'); ?>'>
    <a href="#" onclick="return dosort('lot')"
-   <?php if ($form_orderby == "lot") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('Lot'); ?> </a>
+    <?php if ($form_orderby == "lot") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('Lot'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('wh')"
-   <?php if ($form_orderby == "wh") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('Warehouse'); ?> </a>
+    <?php if ($form_orderby == "wh") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('Warehouse'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('qoh')"
-   <?php if ($form_orderby == "qoh") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('QOH'); ?> </a>
+    <?php if ($form_orderby == "qoh") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('QOH'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('exp')"
-   <?php if ($form_orderby == "exp") echo " style=\"color:#00cc00\""; ?>>
-   <?php echo xlt('Expires'); ?> </a>
+    <?php if ($form_orderby == "exp") echo " style=\"color:#00cc00\""; ?>>
+    <?php echo xlt('Expires'); ?> </a>
   </td>
  </tr>
  </thead>
@@ -163,41 +163,41 @@ $(document).ready(function() {
 <?php
  $lastid = "";
  $encount = 0;
- while ($row = sqlFetchArray($res)) {
-  if ($lastid != $row['drug_id']) {
-   ++$encount;
-   $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-   $lastid = $row['drug_id'];
-   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-   echo "  <td onclick='dodclick(".attr($lastid).")'>" .
-    "<a href='' onclick='return false'>" .
-    text($row['name']) . "</a></td>\n";
-   echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
-   echo "  <td>" . text($row['ndc_number']) . "</td>\n";
-   echo "  <td>" .
-	generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
-	"</td>\n";
-   echo "  <td>" . text($row['size']) . "</td>\n";
-   echo "  <td>" .
-	generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-	"</td>\n";
-   echo "  <td onclick='doiclick(".attr($lastid).",0)' title='" . xla('Add new lot and transaction') . "'>" .
-    "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
-  } else {
-   echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-   echo "  <td colspan='7'>&nbsp;</td>\n";
-  }
-  if (!empty($row['inventory_id'])) {
-   echo "  <td onclick='doiclick(" . attr($lastid) . "," . attr($row['inventory_id']) . ")'>" .
-    "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
-   echo "  <td>" . text($row['title']) . "</td>\n";
-   echo "  <td>" . text($row['on_hand']) . "</td>\n";
-   echo "  <td>" . text(oeFormatShortDate($row['expiration'])) . "</td>\n";
-  } else {
-   echo "  <td colspan='4'>&nbsp;</td>\n";
-  }
-  echo " </tr>\n";
- } // end while
+while ($row = sqlFetchArray($res)) {
+    if ($lastid != $row['drug_id']) {
+        ++$encount;
+        $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+        $lastid = $row['drug_id'];
+        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+        echo "  <td onclick='dodclick(".attr($lastid).")'>" .
+        "<a href='' onclick='return false'>" .
+        text($row['name']) . "</a></td>\n";
+        echo "  <td>" . ($row['active'] ? xlt('Yes') : xlt('No')) . "</td>\n";
+        echo "  <td>" . text($row['ndc_number']) . "</td>\n";
+        echo "  <td>" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+        "</td>\n";
+        echo "  <td>" . text($row['size']) . "</td>\n";
+        echo "  <td>" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+        "</td>\n";
+        echo "  <td onclick='doiclick(".attr($lastid).",0)' title='" . xla('Add new lot and transaction') . "'>" .
+        "<a href='' onclick='return false'>" . xlt('New') . "</a></td>\n";
+    } else {
+        echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+        echo "  <td colspan='7'>&nbsp;</td>\n";
+    }
+    if (!empty($row['inventory_id'])) {
+        echo "  <td onclick='doiclick(" . attr($lastid) . "," . attr($row['inventory_id']) . ")'>" .
+        "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
+        echo "  <td>" . text($row['title']) . "</td>\n";
+        echo "  <td>" . text($row['on_hand']) . "</td>\n";
+        echo "  <td>" . text(oeFormatShortDate($row['expiration'])) . "</td>\n";
+    } else {
+        echo "  <td colspan='4'>&nbsp;</td>\n";
+    }
+    echo " </tr>\n";
+} // end while
 ?>
  </tbody>
 </table>

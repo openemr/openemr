@@ -37,7 +37,7 @@ class ImmunizationController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /**
@@ -52,7 +52,7 @@ class ImmunizationController extends AbstractActionController
         $isPost          =   '';
         $data            =   $request->getPost();
         $isFormRefresh   =   'true';
-        $form_code       =   isset($data['codes']) ? $data['codes'] : Array();
+        $form_code       =   isset($data['codes']) ? $data['codes'] : array();
         $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
         $to_date         =   $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         $form_get_hl7    =   '';
@@ -74,13 +74,13 @@ class ImmunizationController extends AbstractActionController
             $query_pids       = '(';
             foreach($pid_arr as $pid_val) {
                 $query_pids     .= "p.pid = ( '";
-            $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "' ) or ";
+                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "' ) or ";
                 $query_pids     .= "p.fname like ( '%";
-            $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
                 $query_pids     .= "p.mname like ( '%";
-            $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
                 $query_pids     .= "p.lname like ( '%";
-            $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
             }
             $query_pids          = trim($query_pids);
             $query_pids          = rtrim($query_pids ,'or');
@@ -140,7 +140,7 @@ class ImmunizationController extends AbstractActionController
                 'view'             =>  $rows,
                 'isFormRefresh'    =>  $isFormRefresh,
                 'form_data'        =>  $params,
-				'commonplugin'  => $this->CommonPlugin(),
+                'commonplugin'  => $this->CommonPlugin(),
             ));
         return $view;
     }
@@ -156,16 +156,16 @@ class ImmunizationController extends AbstractActionController
         $i             =   0;
         foreach ($res as $value) {
             if ($value == $defaultCode){
-                $select =   TRUE;
-    	    } else{
-                $select =   FALSE;
-    	    }
+                $select =   true;
+            } else{
+                $select =   false;
+            }
             $rows[$i]   =   array (
                             'value' => $value['id'],
                             'label' => $value['NAME'],
                             'selected' => $select,
                             );
-    	    $i++;
+            $i++;
         }
         return $rows;
     }
@@ -176,10 +176,10 @@ class ImmunizationController extends AbstractActionController
     */
     public function reportAction()
     {
-        $request    = 	$this->getRequest();
+        $request    =   $this->getRequest();
         $data       = $request->getPost();
         if(isset($data['hl7button'])){
-            $form_code        =   isset($data['codes']) ? $data['codes'] : Array();
+            $form_code        =   isset($data['codes']) ? $data['codes'] : array();
             $from_date       =   $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
             $to_date         =   $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
             $form_get_hl7     =   'true';
@@ -212,13 +212,13 @@ class ImmunizationController extends AbstractActionController
                 $query_pids       = '(';
                 foreach($pid_arr as $pid_val) {
                     $query_pids     .= "p.pid = ( '";
-                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "' ) or ";
+                    $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "' ) or ";
                     $query_pids     .= "p.fname like ( '%";
-                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                    $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
                     $query_pids     .= "p.mname like ( '%";
-                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                    $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
                     $query_pids     .= "p.lname like ( '%";
-                $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
+                    $query_pids     .= \Application\Model\ApplicationTable::quoteValue($pid_val) . "%' ) or ";
                 }
                 $query_pids          = trim($query_pids);
                 $query_pids          = rtrim($query_pids ,'or');
@@ -277,29 +277,29 @@ class ImmunizationController extends AbstractActionController
                     if($r['patientid'] != $patient_id) {
                         $content .= "MSH|^~\&|OPENEMR|" .$r['facility_code']."||NIST Test Iz Reg|$nowdate||".
                         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1|||AL|ER" .
-                    "$D" ;
+                        "$D" ;
                         $race_code            = $this->getImmunizationTable()->getNotes($r['race'],'race');
                         $race_title           = $this->CommonPlugin()->getListtitle('race', $r['race']);
                         $ethnicity_code       = $this->getImmunizationTable()->getNotes($r['ethnicity'],'ethnicity');
                         $ethnicity_title      = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
                         $guardianarray        = explode(' ',$r['guardiansname']);
                         $guardianname         = $guardianarray[1].'^'.$guardianarray[0];
-                    if ($r['sex']==='Male') $r['sex'] = 'M';
-                    if ($r['sex']==='Female') $r['sex'] = 'F';
-                    if ($r['status']==='married') $r['status'] = 'M';
-                    if ($r['status']==='single') $r['status'] = 'S';
-                    if ($r['status']==='divorced') $r['status'] = 'D';
-                    if ($r['status']==='widowed') $r['status'] = 'W';
-                    if ($r['status']==='separated') $r['status'] = 'A';
-                    if ($r['status']==='domestic partner') $r['status'] = 'P';
+                        if ($r['sex']==='Male') $r['sex'] = 'M';
+                        if ($r['sex']==='Female') $r['sex'] = 'F';
+                        if ($r['status']==='married') $r['status'] = 'M';
+                        if ($r['status']==='single') $r['status'] = 'S';
+                        if ($r['status']==='divorced') $r['status'] = 'D';
+                        if ($r['status']==='widowed') $r['status'] = 'W';
+                        if ($r['status']==='separated') $r['status'] = 'A';
+                        if ($r['status']==='domestic partner') $r['status'] = 'P';
                         if ($r['email']) $email  = '~^NET^Internet^'.$r['email'];
                         if ($r['race']) $race       = $race_code.'^'.$race_title.'^HL70005';
                         if ($r['ethnicity']) $ethnicity = $ethnicity_code.'^'.$ethnicity_title.'^CDCREC';
                         $r['ss'] = $r['ss'] ? "~".$r['ss']."^^^MAA^SS" : "";
-                    $content .= "PID|" . // [[ 3.72 ]]
+                        $content .= "PID|" . // [[ 3.72 ]]
                             "1|" . // 1. Set id
                         "|" . // 2. (B)Patient id
-                            $r['pubpid']. "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss']. "|". // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test. 
+                            $r['pubpid']. "^^^MPI&2.16.840.1.113883.19.3.2.1&ISO^MR" . $r['ss']. "|". // 3. (R) Patient indentifier list. TODO: Hard-coded the OID from NIST test.
                         "|" . // 4. (B) Alternate PID
                             $r['patientname']."^^^^L|" . // 5.R. Name
                             $guardianname."|" . // 6. Mather Maiden Name
@@ -377,7 +377,7 @@ class ImmunizationController extends AbstractActionController
                                 "1|" . // Set ID
                                 $guardianname."^^^^^L|".  // 2. Legal Name of next of kin
                                 $guardian_relationship_code."^".$r['guardianrelationship']."^HL70063|" . // 3. Relationship of next of kin with patient
-                                $r['guardian_address']."|" . // 4. Address of next of kin 
+                                $r['guardian_address']."|" . // 4. Address of next of kin
                                 "^PRN^PH^^^" . $this->format_phone($r['guardianphone']) . "|" . //  5. Phone Home of next of kin. Default to Primary Home Number(PRN)
                                 "^WPN^PH^^^" . $this->format_phone($r['guardianworkphone'])    .  // 6. Phone Business of next of kin.
                                 "|" . //7. Contact Role
@@ -454,7 +454,7 @@ class ImmunizationController extends AbstractActionController
                     if($administered_unit_title) $units   = $administered_unit_title.'^'.$administered_unit_title.'^UCUM^^^';
                     if($r['manufacturer']) $manufacturer  = $manufacturer_code . "^" . $r['manufacturer']. "^" . "MVX";
                     if($r['information_source']) $information_source = $immunization_info_source_code."^".$r['information_source']."^NIP001";
-                    if($r['providername'] != NULL && $r['information_source'] == 'new_immunization_record') $r['providername'] = $r['users_id']."^".$r['providername'];
+                    if($r['providername'] != null && $r['information_source'] == 'new_immunization_record') $r['providername'] = $r['users_id']."^".$r['providername'];
                     $refusal_reason_code = $this->getImmunizationTable()->getNotes($r['refusal_reason'],'immunization_refusal_reason');
                     $completion_status   = $this->getImmunizationTable()->getNotes($r['completion_status'],'Immunization_Completion_Status');
                     if($r['refusal_reason']) {
@@ -489,7 +489,7 @@ class ImmunizationController extends AbstractActionController
                     $administered_site_code        =  $this->getImmunizationTable()->getNotes($r['administration_site'],'immunization_administered_site');
                     if($r['route_code'] || $r['administration_site']) {
                         $content .=  "RXR|".
-                            $r['route_code']."^".$administered_route_title."^HL70162|"      . //1. Route 
+                            $r['route_code']."^".$administered_route_title."^HL70162|"      . //1. Route
                             $administered_site_code."^".$r['administration_site']."^HL70163". // 2. Administration Site
                             "|". // 3. Administration Device
                             "|". // 4. Administration Method
@@ -640,7 +640,7 @@ class ImmunizationController extends AbstractActionController
     }
     
     /**
-    * 
+    *
     * @param type $ethnicity
     * @return type
     */
@@ -657,7 +657,7 @@ class ImmunizationController extends AbstractActionController
     }
     
     /**
-    * 
+    *
     * @param type   $a
     * @return type
     */
@@ -667,7 +667,7 @@ class ImmunizationController extends AbstractActionController
     }
     
     /**
-    * 
+    *
     * @param type   $cvx_code
     * @return type
     */
@@ -680,7 +680,7 @@ class ImmunizationController extends AbstractActionController
     }
     
     /**
-    * 
+    *
     * @param   $phone      String          phone number
     * @return              String          formatted phone
     */

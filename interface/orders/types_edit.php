@@ -15,42 +15,48 @@ $parent = formData('parent', 'R') + 0;
 
 $info_msg = "";
 
-function QuotedOrNull($fld) {
-  $fld = formDataCore($fld,true);
-  if ($fld) return "'$fld'";
-  return "NULL";
+function QuotedOrNull($fld)
+{
+    $fld = formDataCore($fld,true);
+    if ($fld) return "'$fld'";
+    return "NULL";
 }
 
-function invalue($name) {
-  $fld = formData($name,"P",true);
-  return "'$fld'";
+function invalue($name)
+{
+    $fld = formData($name,"P",true);
+    return "'$fld'";
 }
 
-function rbinput($name, $value, $desc, $colname) {
-  global $row;
-  $ret  = "<input type='radio' name='$name' value='$value'";
-  if ($row[$colname] == $value) $ret .= " checked";
-  $ret .= " />$desc";
-  return $ret;
+function rbinput($name, $value, $desc, $colname)
+{
+    global $row;
+    $ret  = "<input type='radio' name='$name' value='$value'";
+    if ($row[$colname] == $value) $ret .= " checked";
+    $ret .= " />$desc";
+    return $ret;
 }
 
-function rbvalue($rbname) {
-  $tmp = $_POST[$rbname];
-  if (! $tmp) $tmp = '0';
-  return "'$tmp'";
+function rbvalue($rbname)
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) $tmp = '0';
+    return "'$tmp'";
 }
 
-function cbvalue($cbname) {
-  return empty($_POST[$cbname]) ? 0 : 1;
+function cbvalue($cbname)
+{
+    return empty($_POST[$cbname]) ? 0 : 1;
 }
 
-function recursiveDelete($typeid) {
-  $res = sqlStatement("SELECT procedure_type_id FROM " .
+function recursiveDelete($typeid)
+{
+    $res = sqlStatement("SELECT procedure_type_id FROM " .
     "procedure_type WHERE parent = '$typeid'");
-  while ($row = sqlFetchArray($res)) {
-    recursiveDelete($row['procedure_type_id']);
-  }
-  sqlStatement("DELETE FROM procedure_type WHERE " .
+    while ($row = sqlFetchArray($res)) {
+        recursiveDelete($row['procedure_type_id']);
+    }
+    sqlStatement("DELETE FROM procedure_type WHERE " .
     "procedure_type_id = '$typeid'");
 }
 
@@ -140,7 +146,7 @@ $(document).ready(function() {
 //
 if ($_POST['form_save']) {
 
-  $sets =
+    $sets =
     "name = "           . invalue('form_name')           . ", " .
     "lab_id = "         . invalue('form_lab_id')         . ", " .
     "procedure_code = " . invalue('form_procedure_code') . ", " .
@@ -156,45 +162,45 @@ if ($_POST['form_save']) {
     "related_code = "   . invalue('form_related_code')   . ", " .
     "seq = "            . invalue('form_seq');
 
-  if ($typeid) {
-    sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '$typeid'");
-    // Get parent ID so we can refresh the tree view.
-    $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
-      "procedure_type_id = '$typeid'");
-    $parent = $row['parent'];
-  } else {
-    $newid = sqlInsert("INSERT INTO procedure_type SET parent = '$parent', $sets");
-    // $newid is not really used in this script
-  }
+    if ($typeid) {
+        sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '$typeid'");
+        // Get parent ID so we can refresh the tree view.
+        $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
+        "procedure_type_id = '$typeid'");
+        $parent = $row['parent'];
+    } else {
+        $newid = sqlInsert("INSERT INTO procedure_type SET parent = '$parent', $sets");
+        // $newid is not really used in this script
+    }
 }
 
 else  if ($_POST['form_delete']) {
 
-  if ($typeid) {
-    // Get parent ID so we can refresh the tree view after deleting.
-    $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
-      "procedure_type_id = '$typeid'");
-    $parent = $row['parent'];
-    recursiveDelete($typeid);
-  }
+    if ($typeid) {
+        // Get parent ID so we can refresh the tree view after deleting.
+        $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
+        "procedure_type_id = '$typeid'");
+        $parent = $row['parent'];
+        recursiveDelete($typeid);
+    }
 
 }
 
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Find out if this parent still has any children.
-  $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = '$parent' LIMIT 1");
-  $haskids = empty($trow['procedure_type_id']) ? 'false' : 'true';
+    $trow = sqlQuery("SELECT procedure_type_id FROM procedure_type WHERE parent = '$parent' LIMIT 1");
+    $haskids = empty($trow['procedure_type_id']) ? 'false' : 'true';
   // Close this window and redisplay the updated list.
-  echo "<script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
-  echo " window.close();\n";
-  echo " if (opener.refreshFamily) opener.refreshFamily($parent,$haskids);\n";
-  echo "</script></body></html>\n";
-  exit();
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('$info_msg');\n";
+    echo " window.close();\n";
+    echo " if (opener.refreshFamily) opener.refreshFamily($parent,$haskids);\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 if ($typeid) {
-  $row = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = '$typeid'");
+    $row = sqlQuery("SELECT * FROM procedure_type WHERE procedure_type_id = '$typeid'");
 }
 ?>
 <form method='post' name='theform'
@@ -249,14 +255,14 @@ echo generate_select_list('form_procedure_type', 'proc_type', $row['procedure_ty
   <td width='1%' nowrap><b><?php echo xlt('Order From'); ?>:</b></td>
   <td>
    <select name='form_lab_id' title='<?php echo xla('The entity performing this procedure'); ?>'>
- <?php
-  $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " .
+    <?php
+    $ppres = sqlStatement("SELECT ppid, name FROM procedure_providers " .
     "ORDER BY name, ppid");
-  while ($pprow = sqlFetchArray($ppres)) {
-    echo "<option value='" . attr($pprow['ppid']) . "'";
-    if ($pprow['ppid'] == $row['lab_id']) echo " selected";
-    echo ">" . text($pprow['name']) . "</option>";
-  }
+    while ($pprow = sqlFetchArray($ppres)) {
+        echo "<option value='" . attr($pprow['ppid']) . "'";
+        if ($pprow['ppid'] == $row['lab_id']) echo " selected";
+        echo ">" . text($pprow['name']) . "</option>";
+    }
 ?>
    </select>
   </td>

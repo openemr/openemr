@@ -17,7 +17,8 @@ namespace OpenEMR;
 class Checker {
     private static $minimumPhpVersion = "5.6.0";
 
-    private static function xlDelegate($value) {
+    private static function xlDelegate($value)
+    {
         if (function_exists("xl")) {
             return xl($value);
         }
@@ -30,7 +31,8 @@ class Checker {
      *
      * @return bool | warning string
      */
-    public static function checkPhpVersion() {
+    public static function checkPhpVersion()
+    {
         $phpCheck = self::isPhpSupported();
         $response = "";
 
@@ -48,7 +50,8 @@ class Checker {
      *
      * @return bool
      */
-    private static function isPhpSupported() {
+    private static function isPhpSupported()
+    {
         return version_compare(phpversion(), self::$minimumPhpVersion, ">=");
     }
 }

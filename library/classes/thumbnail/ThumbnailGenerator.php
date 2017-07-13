@@ -84,7 +84,8 @@ class ThumbnailGenerator{
                     $new_file =  $this->generate_couch_file($row['couch_docid'], $row['url']);
                     break;
                 default:
-                    $this->error_log($row['url']);continue;
+                    $this->error_log($row['url']);
+continue;
             }
             // Write error to log if failed
             if (!$new_file) {
@@ -97,8 +98,8 @@ class ThumbnailGenerator{
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
             $update = sqlStatement($sql, array($new_file, $row['id']));
             if($update) {
-               $feedback['sum_success'] ++;
-               $feedback['success'][] = $row['url'];
+                $feedback['sum_success'] ++;
+                $feedback['success'][] = $row['url'];
             }
         }
 
@@ -198,7 +199,8 @@ class ThumbnailGenerator{
      * Return file name for thumbnail (adding 'th_')
      * @param $file_name
      */
-    private function get_thumb_name($file_name) {
+    private function get_thumb_name($file_name)
+    {
         return 'th_' . $file_name;
     }
 
@@ -207,11 +209,9 @@ class ThumbnailGenerator{
      * save error in error log
      * @param $url
      */
-    private function error_log($url){
+    private function error_log($url)
+    {
 
         error_log('Failed to create thumbnail of ' . $url);
     }
 }
-
-
-

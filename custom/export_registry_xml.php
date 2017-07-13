@@ -31,41 +31,43 @@ set_time_limit(0);
 // of other server activities, albeit it may negatively impact the performance
 // of this report (note this is only applicable for linux).
 if (!empty($GLOBALS['cdr_report_nice'])) {
-  proc_nice($GLOBALS['cdr_report_nice']);
+    proc_nice($GLOBALS['cdr_report_nice']);
 }
 
-function getLabelNumber($label) {
+function getLabelNumber($label)
+{
 
-	if ( strlen($label) == 0) {
-		return "1";
-	}
+    if ( strlen($label) == 0) {
+        return "1";
+    }
 
-	$tokens = explode(" ", $label);
+    $tokens = explode(" ", $label);
 
-	$num_tokens = sizeof($tokens);
-	if ( $tokens[$num_tokens-1] != null ) {
-		if ( is_numeric($tokens[$num_tokens-1])) {
-			return $tokens[$num_tokens-1];
-		}
-	}
+    $num_tokens = sizeof($tokens);
+    if ( $tokens[$num_tokens-1] != null ) {
+        if ( is_numeric($tokens[$num_tokens-1])) {
+            return $tokens[$num_tokens-1];
+        }
+    }
 
-	return "1";
+    return "1";
 
 }
 
-function getMeasureNumber($row) {
-       if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) ) {
-         if (!empty($row['cqm_pqri_code'])) {
-         	return $row['cqm_pqri_code'];
-         }
-         if (!empty($row['cqm_nqf_code'])) {
-         	return $row['cqm_nqf_code'];
-         }
-       }
-       else
+function getMeasureNumber($row)
+{
+    if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) ) {
+        if (!empty($row['cqm_pqri_code'])) {
+            return $row['cqm_pqri_code'];
+        }
+        if (!empty($row['cqm_nqf_code'])) {
+            return $row['cqm_nqf_code'];
+        }
+    }
+    else
        {
-       	 return "";
-       }
+        return "";
+    }
 }
 
 
@@ -82,98 +84,98 @@ $xml->add_file_audit_data();
 
 // Add the registry entries
 if ( $nested == 'false') {
-	$xml->add_registry('A');
+    $xml->add_registry('A');
 }
 else {
-	$xml->add_registry('E');
+    $xml->add_registry('E');
 }
 
 
 // Add the measure groups.
 if ( $nested == 'false' ) {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
-	$dataSheet = test_rules_clinic_batch_method('collate_outer','cqm_2011',$target_date,'report','','');
+    $dataSheet = test_rules_clinic_batch_method('collate_outer','cqm_2011',$target_date,'report','','');
 }
 else {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
-	$dataSheet = test_rules_clinic_batch_method('collate_inner','cqm_2011',$target_date,'report','cqm','plans');
+    $dataSheet = test_rules_clinic_batch_method('collate_inner','cqm_2011',$target_date,'report','cqm','plans');
 }
 
-$firstProviderFlag = TRUE;
-$firstPlanFlag = TRUE;
-$existProvider = FALSE;
+$firstProviderFlag = true;
+$firstPlanFlag = true;
+$existProvider = false;
 
 if ( $nested == 'false' ){
      $xml->open_measure_group('X');
 }
 
 foreach ($dataSheet as $row) {
-	//print_r($row);
- 	if (isset($row['is_main']) || isset($row['is_sub'])) {
-		if (isset($row['is_main'])) {
-			// Add PQRI measures
- 			$pqri_measures = array();
-			$pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
-			$pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
-			$pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
-			$pqri_measures['eligible-instances'] = $row['pass_filter'];
-	       	$pqri_measures['meets-performance-instances'] = $row['pass_target'];
-		    $pqri_measures['performance-exclusion-instances'] =  $row['excluded'];
-		    $performance_not_met_instances = (int)$row['pass_filter'] - (int)$row['pass_target'] - (int)$row['excluded'];
+    //print_r($row);
+    if (isset($row['is_main']) || isset($row['is_sub'])) {
+        if (isset($row['is_main'])) {
+            // Add PQRI measures
+            $pqri_measures = array();
+            $pqri_measures['pqri-measure-number'] =  getMeasureNumber($row);
+            $pqri_measures['patient-population'] = getLabelNumber($row['population_label']);
+            $pqri_measures['numerator'] = getLabelNumber($row['numerator_label']);
+            $pqri_measures['eligible-instances'] = $row['pass_filter'];
+            $pqri_measures['meets-performance-instances'] = $row['pass_target'];
+            $pqri_measures['performance-exclusion-instances'] =  $row['excluded'];
+            $performance_not_met_instances = (int)$row['pass_filter'] - (int)$row['pass_target'] - (int)$row['excluded'];
             $pqri_measures['performance-not-met-instances'] = (string)$performance_not_met_instances;
-			$pqri_measures['performance-rate'] = $row['percentage'];
-	        $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
+            $pqri_measures['performance-rate'] = $row['percentage'];
+            $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
                 $pqri_measures['reporting-rate']=$pqri_measures['reporting-rate'].'%';
-	        $xml->add_pqri_measures($pqri_measures);
-		}
-		else { // $row[0] == "sub"
+            $xml->add_pqri_measures($pqri_measures);
+        }
+        else { // $row[0] == "sub"
 
-		}
- 	}
+        }
+    }
     else if (isset($row['is_provider'])) {
-    	if ( $firstProviderFlag == FALSE ){
-		     $xml->close_provider();
-    	}
-      	 // Add the provider
- 		$physician_ids = array();
-    	if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
-	       if (!empty($row['npi'])) {
-	          $physician_ids['npi'] = $row['npi'];
-	       }
-	       if (!empty($row['federaltaxid'])) {
-	           $physician_ids['tin'] = $row['federaltaxid'];
-	       }
-	     }
-	     $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date ));
-	     $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
+        if ( $firstProviderFlag == false ){
+             $xml->close_provider();
+        }
+         // Add the provider
+        $physician_ids = array();
+        if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
+            if (!empty($row['npi'])) {
+                $physician_ids['npi'] = $row['npi'];
+            }
+            if (!empty($row['federaltaxid'])) {
+                $physician_ids['tin'] = $row['federaltaxid'];
+            }
+        }
+         $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date ));
+         $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
 
-       	 $xml->open_provider($physician_ids);
-	     $firstProviderFlag = FALSE;
-	     $existProvider = TRUE;
-   }
-   else { // isset($row['is_plan'])
+         $xml->open_provider($physician_ids);
+         $firstProviderFlag = false;
+         $existProvider = true;
+    }
+    else { // isset($row['is_plan'])
 
-   	    if ( $firstPlanFlag == FALSE ) {
-   	    	if ( $firstProviderFlag == FALSE ) {
-		    	$xml->close_provider();
-   	    	}
-    	 	if ( $nested == 'true' ) {
-    	 		$xml->close_measure_group();
-    	 	}
-    	}
+        if ( $firstPlanFlag == false ) {
+            if ( $firstProviderFlag == false ) {
+                $xml->close_provider();
+            }
+            if ( $nested == 'true' ) {
+                $xml->close_measure_group();
+            }
+        }
 
-    	 if ( $nested == 'true' ){
-    	 	$xml->open_measure_group($row['cqm_measure_group']);
-    	 }
-	     $firstPlanFlag = FALSE;
-       	 $firstProviderFlag = TRUE; // Reset the provider flag
-   }
+        if ( $nested == 'true' ){
+            $xml->open_measure_group($row['cqm_measure_group']);
+        }
+         $firstPlanFlag = false;
+         $firstProviderFlag = true; // Reset the provider flag
+    }
 
 }
 
-if ( $existProvider == TRUE ){
-   	$xml->close_provider();
-	$xml->close_measure_group();
+if ( $existProvider == true ){
+    $xml->close_provider();
+    $xml->close_measure_group();
 }
 
 $xml->close_submission();

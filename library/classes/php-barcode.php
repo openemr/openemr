@@ -27,15 +27,18 @@
 
 class Barcode {
 
-    static public function gd($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null){
+    static public function gd($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null)
+    {
         return self::_draw(__FUNCTION__, $res, $color, $x, $y, $angle, $type, $datas, $width, $height);
     }
 
-    static public function fpdf($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null){
+    static public function fpdf($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null)
+    {
         return self::_draw(__FUNCTION__, $res, $color, $x, $y, $angle, $type, $datas, $width, $height);
     }
 
-    static private function _draw($call, $res, $color, $x, $y, $angle, $type, $datas, $width, $height){
+    static private function _draw($call, $res, $color, $x, $y, $angle, $type, $datas, $width, $height)
+    {
         $digit = '';
         $hri   = '';
         $code  = '';
@@ -124,14 +127,17 @@ class Barcode {
     }
 
     // convert a bit string to an array of array of bit char
-    private static function bitStringTo2DArray( $digit ){
+    private static function bitStringTo2DArray( $digit )
+    {
         $d = array();
         $len = strlen($digit);
-        for($i=0; $i<$len; $i++) $d[$i] = $digit[$i];
+        for($i=0; $i<$len;
+        $i++) $d[$i] = $digit[$i];
         return(array($d));
     }
 
-    private static function digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit){
+    private static function digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit)
+    {
         $lines = count($digit);
         $columns = count($digit[0]);
         $angle = deg2rad(-$angle);
@@ -172,14 +178,16 @@ class Barcode {
     }
 
     // GD barcode renderer
-    private static function digitToGDRenderer($gd, $color, $xi, $yi, $angle, $mw, $mh, $digit){
-        $fn = function($points) use ($gd, $color) {
+    private static function digitToGDRenderer($gd, $color, $xi, $yi, $angle, $mw, $mh, $digit)
+    {
+        $fn = function ($points) use ($gd, $color) {
             imagefilledpolygon($gd, $points, 4, $color);
         };
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
     }
     // FPDF barcode renderer
-    private static function digitToFPDFRenderer($pdf, $color, $xi, $yi, $angle, $mw, $mh, $digit){
+    private static function digitToFPDFRenderer($pdf, $color, $xi, $yi, $angle, $mw, $mh, $digit)
+    {
         if (!is_array($color)){
             if (preg_match('`([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})`i', $color, $m)){
                 $color = array(hexdec($m[1]),hexdec($m[2]),hexdec($m[3]));
@@ -191,7 +199,7 @@ class Barcode {
         $pdf->SetDrawColor($color[0],$color[1],$color[2]);
         $pdf->SetFillColor($color[0],$color[1],$color[2]);
 
-        $fn = function($points) use ($pdf) {
+        $fn = function ($points) use ($pdf) {
             $op = 'f';
             $h = $pdf->h;
             $k = $pdf->k;
@@ -205,7 +213,8 @@ class Barcode {
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
     }
 
-    static private function result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin){
+    static private function result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin)
+    {
         self::_rotate(0, 0, $cos, $sin , $x1, $y1);
         self::_rotate($columns * $mw, 0, $cos, $sin , $x2, $y2);
         self::_rotate($columns * $mw, $lines * $mh, $cos, $sin , $x3, $y3);
@@ -233,12 +242,14 @@ class Barcode {
         );
     }
 
-    static private function _rotate($x1, $y1, $cos, $sin , &$x, &$y){
+    static private function _rotate($x1, $y1, $cos, $sin , &$x, &$y)
+    {
         $x = $x1 * $cos - $y1 * $sin;
         $y = $x1 * $sin + $y1 * $cos;
     }
 
-    static public function rotate($x1, $y1, $angle , &$x, &$y){
+    static public function rotate($x1, $y1, $angle , &$x, &$y)
+    {
         $angle = deg2rad(-$angle);
         $cos = cos($angle);
         $sin = sin($angle);
@@ -250,7 +261,8 @@ class Barcode {
 class BarcodeI25 {
     static private $encoding = array('NNWWN', 'WNNNW', 'NWNNW', 'WWNNN', 'NNWNW', 'WNWNN', 'NWWNN', 'NNNWW', 'WNNWN','NWNWN');
 
-    static public function compute($code, $crc, $type){
+    static public function compute($code, $crc, $type)
+    {
         if (! $crc) {
             if (strlen($code) % 2) $code = '0' . $code;
         } else {
@@ -267,7 +279,8 @@ class BarcodeI25 {
         return($code);
     }
 
-    static public function getDigit($code, $crc, $type){
+    static public function getDigit($code, $crc, $type)
+    {
         $code = self::compute($code, $crc, $type);
         if ($code == '') return($code);
         $result = '';
@@ -332,7 +345,8 @@ class BarcodeEAN {
 
     static private $first = array('000000','001011','001101','001110','010011','011001','011100','010101','010110','011010');
 
-    static public function getDigit($code, $type){
+    static public function getDigit($code, $type)
+    {
         // Check len (12 for ean13, 7 for ean8)
         $len = $type == 'ean8' ? 7 : 12;
         $code = substr($code, 0, $len);
@@ -380,7 +394,8 @@ class BarcodeEAN {
         return($result);
     }
 
-    static public function compute($code, $type){
+    static public function compute($code, $type)
+    {
         $len = $type == 'ean13' ? 12 : 7;
         $code = substr($code, 0, $len);
         if (!preg_match('`[0-9]{'.$len.'}`', $code)) return('');
@@ -396,14 +411,16 @@ class BarcodeEAN {
 
 class BarcodeUPC {
 
-    static public function getDigit($code){
+    static public function getDigit($code)
+    {
         if (strlen($code) < 12) {
             $code = '0' . $code;
         }
         return BarcodeEAN::getDigit($code, 'ean13');
     }
 
-    static public function compute($code){
+    static public function compute($code)
+    {
         if (strlen($code) < 12) {
             $code = '0' . $code;
         }
@@ -417,7 +434,8 @@ class BarcodeMSI {
         '100110100100', '100110100110', '100110110100', '100110110110',
         '110100100100', '110100100110');
 
-    static public function compute($code, $crc){
+    static public function compute($code, $crc)
+    {
         if (is_array($crc)){
             if ($crc['crc1'] == 'mod10'){
                 $code = self::computeMod10($code);
@@ -435,7 +453,8 @@ class BarcodeMSI {
         return($code);
     }
 
-    static private function computeMod10($code){
+    static private function computeMod10($code)
+    {
         $len = strlen($code);
         $toPart1 = $len % 2;
         $n1 = 0;
@@ -456,7 +475,8 @@ class BarcodeMSI {
         return($code . ( (string) (10 - $sum % 10) % 10));
     }
 
-    static private function computeMod11($code){
+    static private function computeMod11($code)
+    {
         $sum = 0;
         $weight = 2;
         for($i=strlen($code)-1; $i>-1; $i--){
@@ -466,7 +486,8 @@ class BarcodeMSI {
         return($code . ( (string) (11 - $sum % 11) % 11) );
     }
 
-    static public function getDigit($code, $crc){
+    static public function getDigit($code, $crc)
+    {
         if (preg_match('`[^0-9]`', $code)) return '';
         $index = 0;
         $result = '';
@@ -495,7 +516,8 @@ class Barcode11 {
         '1011011', '1101101', '1001101', '1010011',
         '1101001', '110101', '101101');
 
-    static public function getDigit($code){
+    static public function getDigit($code)
+    {
         if (preg_match('`[^0-9\-]`', $code)) return '';
         $result = '';
         $intercharacter = '0';
@@ -555,7 +577,8 @@ class Barcode39 {
         '110011010101', '100101101011', '110010110101', '100110110101',
         '100101011011', '110010101101', '100110101101', '100100100101',
         '100100101001', '100101001001', '101001001001', '100101101101');
-    static public function getDigit($code){
+    static public function getDigit($code)
+    {
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%*';
         $result = '';
         $intercharacter = '0';
@@ -591,7 +614,8 @@ class Barcode93{
         '101101110', '101110110', '110101110', '100100110',
         '111011010', '111010110', '100110010', '101011110');
 
-    static public function getDigit($code, $crc){
+    static public function getDigit($code, $crc)
+    {
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
 
@@ -673,7 +697,8 @@ class Barcode128 {
         '10111100010', '11110101000', '11110100010', '10111011110',
         '10111101110', '11101011110', '11110101110', '11010000100',
         '11010010000', '11010011100', '11000111010');
-    static public function getDigit($code){
+    static public function getDigit($code)
+    {
         $tableB = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         $result = "";
         $sum = 0;
@@ -753,7 +778,8 @@ class BarcodeCodabar {
         '1101011011', '1101101011', '1101101101', '1011011011',
         '1011001001', '1010010011', '1001001011', '1010011001');
 
-    static public function getDigit($code){
+    static public function getDigit($code)
+    {
         $table = '0123456789-$:/.+';
         $result = '';
         $intercharacter = '0';
@@ -849,19 +875,27 @@ class BarcodeDatamatrix {
         37, 74, 148, 5, 10, 20, 40, 80, 160, 109, 218, 153, 31, 62, 124, 248,
         221, 151, 3, 6, 12, 24, 48, 96, 192, 173, 119, 238, 241, 207, 179, 75,
         150, 1);
-    static private function champGaloisMult($a, $b){  // MULTIPLICATION IN GALOIS FIELD GF(2^8)
+    static private function champGaloisMult($a, $b)
+    {
+  // MULTIPLICATION IN GALOIS FIELD GF(2^8)
         if(!$a || !$b) return 0;
         return self::$aLogTab[(self::$logTab[$a] + self::$logTab[$b]) % 255];
     }
-    static private function champGaloisDoub($a, $b){  // THE OPERATION a * 2^b IN GALOIS FIELD GF(2^8)
+    static private function champGaloisDoub($a, $b)
+    {
+  // THE OPERATION a * 2^b IN GALOIS FIELD GF(2^8)
         if (!$a) return 0;
         if (!$b) return $a;
         return self::$aLogTab[(self::$logTab[$a] + $b) % 255];
     }
-    static private function champGaloisSum($a, $b){ // SUM IN GALOIS FIELD GF(2^8)
+    static private function champGaloisSum($a, $b)
+    {
+ // SUM IN GALOIS FIELD GF(2^8)
         return $a ^ $b;
     }
-    static private function selectIndex($dataCodeWordsCount, $rectangular){ // CHOOSE THE GOOD INDEX FOR TABLES
+    static private function selectIndex($dataCodeWordsCount, $rectangular)
+    {
+ // CHOOSE THE GOOD INDEX FOR TABLES
         if (($dataCodeWordsCount<1 || $dataCodeWordsCount>1558) && !$rectangular) return -1;
         if (($dataCodeWordsCount<1 || $dataCodeWordsCount>49) && $rectangular)  return -1;
 
@@ -870,7 +904,8 @@ class BarcodeDatamatrix {
         while (self::$dataCWCount[$n] < $dataCodeWordsCount) $n++;
         return $n;
     }
-    static private function encodeDataCodeWordsASCII($text) {
+    static private function encodeDataCodeWordsASCII($text)
+    {
         $dataCodeWords = array();
         $n = 0;
         $len = strlen($text);
@@ -890,7 +925,8 @@ class BarcodeDatamatrix {
         }
         return $dataCodeWords;
     }
-    static private function addPadCW(&$tab, $from, $to){
+    static private function addPadCW(&$tab, $from, $to)
+    {
         if ($from >= $to) return ;
         $tab[$from] = 129;
         for ($i=$from+1; $i<$to; $i++){
@@ -898,7 +934,9 @@ class BarcodeDatamatrix {
             $tab[$i] = (129 + $r) % 254;
         }
     }
-    static private function calculSolFactorTable($solomonCWCount){ // CALCULATE THE REED SOLOMON FACTORS
+    static private function calculSolFactorTable($solomonCWCount)
+    {
+ // CALCULATE THE REED SOLOMON FACTORS
         $g = array_fill(0, $solomonCWCount+1, 1);
         for($i = 1; $i <= $solomonCWCount; $i++) {
             for($j = $i - 1; $j >= 0; $j--) {
@@ -908,12 +946,15 @@ class BarcodeDatamatrix {
         }
         return $g;
     }
-    static private function addReedSolomonCW($nSolomonCW, $coeffTab, $nDataCW, &$dataTab, $blocks){ // Add the Reed Solomon codewords
+    static private function addReedSolomonCW($nSolomonCW, $coeffTab, $nDataCW, &$dataTab, $blocks)
+    {
+ // Add the Reed Solomon codewords
         $errorBlocks = $nSolomonCW / $blocks;
         $correctionCW = array();
 
         for($k = 0; $k < $blocks; $k++) {
-            for ($i=0; $i < $errorBlocks; $i++) $correctionCW[$i] = 0;
+            for ($i=0; $i < $errorBlocks;
+            $i++) $correctionCW[$i] = 0;
 
             for ($i=$k; $i<$nDataCW; $i+=$blocks){
                 $temp = self::champGaloisSum($dataTab[$i], $correctionCW[$errorBlocks-1]);
@@ -935,14 +976,18 @@ class BarcodeDatamatrix {
         }
         return $dataTab;
     }
-    static private function getBits($entier){ // Transform integer to tab of bits
+    static private function getBits($entier)
+    {
+ // Transform integer to tab of bits
         $bits = array();
         for ($i=0; $i<8; $i++){
             $bits[$i] = $entier & (128 >> $i) ? 1 : 0;
         }
         return $bits;
     }
-    static private function next($etape, $totalRows, $totalCols, $codeWordsBits, &$datamatrix, &$assigned){ // Place codewords into the matrix
+    static private function next($etape, $totalRows, $totalCols, $codeWordsBits, &$datamatrix, &$assigned)
+    {
+ // Place codewords into the matrix
         $chr = 0; // Place of the 8st bit from the first character to [4][0]
         $row = 4;
         $col = 0;
@@ -989,7 +1034,9 @@ class BarcodeDatamatrix {
             $col += 1;
         } while (($row < $totalRows) || ($col < $totalCols));
     }
-    static private function patternShapeStandard(&$datamatrix, &$assigned, $bits, $row, $col, $totalRows, $totalCols){ // Place bits in the matrix (standard or special case)
+    static private function patternShapeStandard(&$datamatrix, &$assigned, $bits, $row, $col, $totalRows, $totalCols)
+    {
+ // Place bits in the matrix (standard or special case)
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $row-2, $col-2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $row-2, $col-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $row-1, $col-2, $totalRows, $totalCols);
@@ -999,7 +1046,8 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], $row, $col-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], $row, $col, $totalRows, $totalCols);
     }
-    static private function patternShapeSpecial1(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols ){
+    static private function patternShapeSpecial1(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1,  1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  2, $totalRows, $totalCols);
@@ -1009,7 +1057,8 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 2, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 3, $totalCols-1, $totalRows, $totalCols);
     }
-    static private function patternShapeSpecial2(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols ){
+    static private function patternShapeSpecial2(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  0, $totalRows, $totalCols);
@@ -1019,7 +1068,8 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 0, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 1, $totalCols-1, $totalRows, $totalCols);
     }
-    static private function patternShapeSpecial3(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols ){
+    static private function patternShapeSpecial3(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  0, $totalRows, $totalCols);
@@ -1029,7 +1079,8 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 2, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 3, $totalCols-1, $totalRows, $totalCols);
     }
-    static private function patternShapeSpecial4(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols ){
+    static private function patternShapeSpecial4(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], 0, $totalCols-3, $totalRows, $totalCols);
@@ -1039,7 +1090,9 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 1, $totalCols-2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 1, $totalCols-1, $totalRows, $totalCols);
     }
-    static private function placeBitInDatamatrix(&$datamatrix, &$assigned, $bit, $row, $col, $totalRows, $totalCols){ // Put a bit into the matrix
+    static private function placeBitInDatamatrix(&$datamatrix, &$assigned, $bit, $row, $col, $totalRows, $totalCols)
+    {
+ // Put a bit into the matrix
         if ($row < 0) {
             $row += $totalRows;
             $col += 4 - (($totalRows+4)%8);
@@ -1053,7 +1106,9 @@ class BarcodeDatamatrix {
             $assigned[$row][$col] = 1;
         }
     }
-    static private function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW){ // Add the finder pattern
+    static private function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW)
+    {
+ // Add the finder pattern
         $totalRowsCW = ($rowsRegionCW+2) * $rowsRegion;
         $totalColsCW = ($colsRegionCW+2) * $colsRegion;
 
@@ -1093,7 +1148,8 @@ class BarcodeDatamatrix {
         }
         return $datamatrixTemp;
     }
-    static public function getDigit($text, $rectangular){
+    static public function getDigit($text, $rectangular)
+    {
         $dataCodeWords = self::encodeDataCodeWordsASCII($text); // Code the text in the ASCII mode
         $dataCWCount = count($dataCodeWords);
         $index = self::selectIndex($dataCWCount, $rectangular); // Select the index for the data tables

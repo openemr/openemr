@@ -18,38 +18,38 @@ require_once ("KeyMap.php");
  * @version 2.0
  */
 interface IDaoMap2 {
-	/**
-	 * Add a new FieldMap
-	 * 
-	 * @param string $property        	
-	 * @param FieldMap $map        	
-	 */
-	static function AddMap($property, FieldMap $map);
-	
-	/**
-	 * Change the fetching strategy for a KeyMap
-	 * 
-	 * @param unknown $property        	
-	 * @param int $loadType
-	 *        	(KM_LOAD_LAZY | KM_LOAD_INNER | KM_LOAD_EAGER)
-	 */
-	static function SetFetchingStrategy($property, $loadType);
-	
-	/**
-	 * Returns a singleton array of FieldMaps for a Phreezable object
-	 * 
-	 * @access public
-	 * @return FieldMap[]
-	 */
-	static function GetFieldMaps();
-	
-	/**
-	 * Returns a singleton array of KeyMaps for the Phreezable object
-	 * 
-	 * @access public
-	 * @return KeyMap[]
-	 */
-	static function GetKeyMaps();
+    /**
+     * Add a new FieldMap
+     *
+     * @param string $property
+     * @param FieldMap $map
+     */
+    static function AddMap($property, FieldMap $map);
+    
+    /**
+     * Change the fetching strategy for a KeyMap
+     *
+     * @param unknown $property
+     * @param int $loadType
+     *          (KM_LOAD_LAZY | KM_LOAD_INNER | KM_LOAD_EAGER)
+     */
+    static function SetFetchingStrategy($property, $loadType);
+    
+    /**
+     * Returns a singleton array of FieldMaps for a Phreezable object
+     *
+     * @access public
+     * @return FieldMap[]
+     */
+    static function GetFieldMaps();
+    
+    /**
+     * Returns a singleton array of KeyMaps for the Phreezable object
+     *
+     * @access public
+     * @return KeyMap[]
+     */
+    static function GetKeyMaps();
 }
 
 ?>

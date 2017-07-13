@@ -23,67 +23,67 @@ $iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] :
 $iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
 $limit = '';
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-  $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
 }
 
 // Column sorting parameters.
 //
 $orderby = '';
 if (isset($_GET['iSortCol_0'])) {
-	for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
-    $iSortCol = intval($_GET["iSortCol_$i"]);
-		if ($_GET["bSortable_$iSortCol"] == "true" ) {
-      $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
+    for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
+        $iSortCol = intval($_GET["iSortCol_$i"]);
+        if ($_GET["bSortable_$iSortCol"] == "true" ) {
+            $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
       // We are to sort on column # $iSortCol in direction $sSortDir.
-      $orderby .= $orderby ? ', ' : 'ORDER BY ';
+            $orderby .= $orderby ? ', ' : 'ORDER BY ';
       //
-      if ($aColumns[$iSortCol] == 'name') {
-        $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
-      }
-      else {
-        $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol],array('patient_data')) . "` $sSortDir";
-      }
-		}
-	}
+            if ($aColumns[$iSortCol] == 'name') {
+                    $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
+            }
+            else {
+                    $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol],array('patient_data')) . "` $sSortDir";
+            }
+        }
+    }
 }
 
 // Global filtering.
 //
 $where = '';
 if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
-  $sSearch = add_escape_custom($_GET['sSearch']);
-  foreach ($aColumns as $colname) {
-    $where .= $where ? "OR " : "WHERE ( ";
-    if ($colname == 'name') {
-      $where .=
-        "lname LIKE '$sSearch%' OR " .
-        "fname LIKE '$sSearch%' OR " .
-        "mname LIKE '$sSearch%' ";
+    $sSearch = add_escape_custom($_GET['sSearch']);
+    foreach ($aColumns as $colname) {
+        $where .= $where ? "OR " : "WHERE ( ";
+        if ($colname == 'name') {
+            $where .=
+            "lname LIKE '$sSearch%' OR " .
+            "fname LIKE '$sSearch%' OR " .
+            "mname LIKE '$sSearch%' ";
+        }
+        else {
+            $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
+        }
     }
-    else {
-      $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
-    }
-  }
-  if ($where) $where .= ")";
+    if ($where) $where .= ")";
 }
 
 // Column-specific filtering.
 //
 for ($i = 0; $i < count($aColumns); ++$i) {
-  $colname = $aColumns[$i];
-  if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
-    $where .= $where ? ' AND' : 'WHERE';
-    $sSearch = add_escape_custom($_GET["sSearch_$i"]);
-    if ($colname == 'name') {
-      $where .= " ( " .
-        "lname LIKE '$sSearch%' OR " .
-        "fname LIKE '$sSearch%' OR " .
-        "mname LIKE '$sSearch%' )";
+    $colname = $aColumns[$i];
+    if (isset($_GET["bSearchable_$i"]) && $_GET["bSearchable_$i"] == "true" && $_GET["sSearch_$i"] != '') {
+        $where .= $where ? ' AND' : 'WHERE';
+        $sSearch = add_escape_custom($_GET["sSearch_$i"]);
+        if ($colname == 'name') {
+            $where .= " ( " .
+            "lname LIKE '$sSearch%' OR " .
+            "fname LIKE '$sSearch%' OR " .
+            "mname LIKE '$sSearch%' )";
+        }
+        else {
+            $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
+        }
     }
-    else {
-      $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
-    }
-  }
 }
 
 // Compute list of column names for SELECT clause.
@@ -91,14 +91,14 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 //
 $sellist = 'pid';
 foreach ($aColumns as $colname) {
-  if ($colname == 'pid') continue;
-  $sellist .= ", ";
-  if ($colname == 'name') {
-    $sellist .= "lname, fname, mname";
-  }
-  else {
-    $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
-  }
+    if ($colname == 'pid') continue;
+    $sellist .= ", ";
+    if ($colname == 'name') {
+        $sellist .= "lname, fname, mname";
+    }
+    else {
+        $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
+    }
 }
 
 // Get total number of rows in the table.
@@ -123,23 +123,23 @@ $query = "SELECT $sellist FROM patient_data $where $orderby $limit";
 $res = sqlStatement($query);
 while ($row = sqlFetchArray($res)) {
   // Each <tr> will have an ID identifying the patient.
-  $arow = array('DT_RowId' => 'pid_' . $row['pid']);
-  foreach ($aColumns as $colname) {
-    if ($colname == 'name') {
-      $name = $row['lname'];
-      if ($name && $row['fname']) $name .= ', ';
-      if ($row['fname']) $name .= $row['fname'];
-      if ($row['mname']) $name .= ' ' . $row['mname'];
-      $arow[] = $name;
+    $arow = array('DT_RowId' => 'pid_' . $row['pid']);
+    foreach ($aColumns as $colname) {
+        if ($colname == 'name') {
+            $name = $row['lname'];
+            if ($name && $row['fname']) $name .= ', ';
+            if ($row['fname']) $name .= $row['fname'];
+            if ($row['mname']) $name .= ' ' . $row['mname'];
+            $arow[] = $name;
+        }
+        else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
+            $arow[] = oeFormatShortDate($row[$colname]);
+        }
+        else {
+            $arow[] = $row[$colname];
+        }
     }
-    else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
-      $arow[] = oeFormatShortDate($row[$colname]);
-    }
-    else {
-      $arow[] = $row[$colname];
-    }
-  }
-  $out['aaData'][] = $arow;
+    $out['aaData'][] = $arow;
 }
 
 // error_log($query); // debugging
