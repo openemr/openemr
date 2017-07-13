@@ -34,6 +34,10 @@ class ChoiceQuestion extends Question
      */
     public function __construct($question, array $choices, $default = null)
     {
+        if (!$choices) {
+            throw new \LogicException('Choice question must have at least 1 choice available.');
+        }
+
         parent::__construct($question, $default);
 
         $this->choices = $choices;
@@ -137,7 +141,7 @@ class ChoiceQuestion extends Question
 
             if ($multiselect) {
                 // Check for a separated comma values
-                if (!preg_match('/^[a-zA-Z0-9_-]+(?:,[a-zA-Z0-9_-]+)*$/', $selectedChoices, $matches)) {
+                if (!preg_match('/^[^,]+(?:,[^,]+)*$/', $selectedChoices, $matches)) {
                     throw new InvalidArgumentException(sprintf($errorMessage, $selected));
                 }
                 $selectedChoices = explode(',', $selectedChoices);

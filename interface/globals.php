@@ -4,6 +4,7 @@
 require_once(dirname(__FILE__) . "/../common/compatibility/Checker.php");
 
 use OpenEMR\Checker;
+use OpenEMR\Core\Kernel;
 use Dotenv\Dotenv;
 
 $response = Checker::checkPhpVersion();
@@ -252,6 +253,14 @@ require_once (dirname(__FILE__) . "/../version.php");
 //    - INFO/WARN/ERROR are great for production
 //    - TRACE is useful when debugging hard to spot bugs
 $GLOBALS["log_level"] = "OFF";
+
+try {
+    /** @var Kernel */
+    $GLOBALS["kernel"] = new Kernel();
+} catch (\Exception $e) {
+    error_log($e->getMessage());
+    die();
+}
 
 // Should Doctrine make use of connection pooling? Database connection pooling is a method
 // used to keep database connections open so they can be reused by others. (The only reason

@@ -147,6 +147,9 @@ final class Mbstring
 
         if ('UTF-8' === $encoding) {
             $encoding = null;
+            if (!preg_match('//u', $s)) {
+                $s = @iconv('UTF-8', 'UTF-8//IGNORE', $s);
+            }
         } else {
             $s = iconv($encoding, 'UTF-8//IGNORE', $s);
         }
@@ -336,10 +339,9 @@ final class Mbstring
 
     public static function mb_strlen($s, $encoding = null)
     {
-        switch ($encoding = self::getEncoding($encoding)) {
-            case 'ASCII':
-            case 'CP850':
-                return strlen($s);
+        $encoding = self::getEncoding($encoding);
+        if ('CP850' === $encoding || 'ASCII' === $encoding) {
+            return strlen($s);
         }
 
         return @iconv_strlen($s, $encoding);
@@ -348,6 +350,9 @@ final class Mbstring
     public static function mb_strpos($haystack, $needle, $offset = 0, $encoding = null)
     {
         $encoding = self::getEncoding($encoding);
+        if ('CP850' === $encoding || 'ASCII' === $encoding) {
+            return strpos($haystack, $needle, $offset);
+        }
 
         if ('' === $needle .= '') {
             trigger_error(__METHOD__.': Empty delimiter', E_USER_WARNING);
@@ -361,6 +366,9 @@ final class Mbstring
     public static function mb_strrpos($haystack, $needle, $offset = 0, $encoding = null)
     {
         $encoding = self::getEncoding($encoding);
+        if ('CP850' === $encoding || 'ASCII' === $encoding) {
+            return strrpos($haystack, $needle, $offset);
+        }
 
         if ($offset != (int) $offset) {
             $offset = 0;
@@ -400,6 +408,9 @@ final class Mbstring
     public static function mb_substr($s, $start, $length = null, $encoding = null)
     {
         $encoding = self::getEncoding($encoding);
+        if ('CP850' === $encoding || 'ASCII' === $encoding) {
+            return substr($s, $start, null === $length ? 2147483647 : $length);
+        }
 
         if ($start < 0) {
             $start = iconv_strlen($s, $encoding) + $start;
@@ -438,6 +449,9 @@ final class Mbstring
     public static function mb_strrchr($haystack, $needle, $part = false, $encoding = null)
     {
         $encoding = self::getEncoding($encoding);
+        if ('CP850' === $encoding || 'ASCII' === $encoding) {
+            return strrchr($haystack, $needle, $part);
+        }
         $needle = self::mb_substr($needle, 0, 1, $encoding);
         $pos = iconv_strrpos($haystack, $needle, $encoding);
 

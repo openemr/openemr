@@ -65,10 +65,14 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
      * @param  callable  $callback
      * @return static
      */
-    public static function times($amount, callable $callback)
+    public static function times($amount, callable $callback = null)
     {
         if ($amount < 1) {
             return new static;
+        }
+
+        if (is_null($callback)) {
+            return new static(range(1, $amount));
         }
 
         return (new static(range(1, $amount)))->map($callback);
@@ -227,6 +231,19 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     }
 
     /**
+     * Cross join with the given lists, returning all possible permutations.
+     *
+     * @param  mixed  ...$lists
+     * @return static
+     */
+    public function crossJoin(...$lists)
+    {
+        return new static(Arr::crossJoin(
+            $this->items, ...array_map([$this, 'getArrayableItems'], $lists)
+        ));
+    }
+
+    /**
      * Get the items in the collection that are not present in the given items.
      *
      * @param  mixed  $items
@@ -235,6 +252,17 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     public function diff($items)
     {
         return new static(array_diff($this->items, $this->getArrayableItems($items)));
+    }
+
+    /**
+     * Get the items in the collection whose keys and values are not present in the given items.
+     *
+     * @param  mixed  $items
+     * @return static
+     */
+    public function diffAssoc($items)
+    {
+        return new static(array_diff_assoc($this->items, $this->getArrayableItems($items)));
     }
 
     /**
@@ -263,6 +291,19 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         }
 
         return $this;
+    }
+
+    /**
+     * Execute a callback over each nested chunk of items.
+     *
+     * @param  callable  $callback
+     * @return static
+     */
+    public function eachSpread(callable $callback)
+    {
+        return $this->each(function ($chunk) use ($callback) {
+            return $callback(...$chunk);
+        });
     }
 
     /**
@@ -705,6 +746,38 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
     }
 
     /**
+     * Run a map over each nested chunk of items.
+     *
+     * @param  callable  $callback
+     * @return static
+     */
+    public function mapSpread(callable $callback)
+    {
+        return $this->map(function ($chunk) use ($callback) {
+            return $callback(...$chunk);
+        });
+    }
+
+    /**
+     * Run a grouping map over the items.
+     *
+     * The callback should return an associative array with a single key/value pair.
+     *
+     * @param  callable  $callback
+     * @return static
+     */
+    public function mapToGroups(callable $callback)
+    {
+        $groups = $this->map($callback)->reduce(function ($groups, $pair) {
+            $groups[key($pair)][] = reset($pair);
+
+            return $groups;
+        }, []);
+
+        return (new static($groups))->map([$this, 'make']);
+    }
+
+    /**
      * Run an associative map over each of the items.
      *
      * The callback should return an associative array with a single key/value pair.
@@ -927,6 +1000,23 @@ class Collection implements ArrayAccess, Arrayable, Countable, IteratorAggregate
         $this->offsetSet(null, $value);
 
         return $this;
+    }
+
+    /**
+     * Push all of the given items onto the collection.
+     *
+     * @param  \Traversable  $source
+     * @return self
+     */
+    public function concat($source)
+    {
+        $result = new static($this);
+
+        foreach ($source as $item) {
+            $result->push($item);
+        }
+
+        return $result;
     }
 
     /**
