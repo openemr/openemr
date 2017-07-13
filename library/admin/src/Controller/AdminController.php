@@ -1,20 +1,26 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: rdown
- * Date: 2017-07-12
- * Time: 22:02
+ * This file is part of OpenEMR.
+ *
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Admin\Controller;
 
-require_once "../../../../interface/globals.php";
-require_once "{$GLOBALS['srcdir']}/globals.inc.php";
-
 use OpenEMR\Admin\Service\AdminMenuBuilder;
 use OpenEMR\Core\Controller;
 
-
+/**
+ * Class AdminController.
+ *
+ * Main entry point for the admin module
+ *
+ * @package OpenEMR\Admin
+ * @subpackage Controller
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ */
 class AdminController extends Controller
 {
 
@@ -35,5 +41,3 @@ class AdminController extends Controller
         $this->menuBuilder->generateMainMenu();
     }
 }
-
-$test = new AdminController();

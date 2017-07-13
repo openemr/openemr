@@ -1,9 +1,9 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: rdown
- * Date: 2017-07-10
- * Time: 00:02
+ * This file is part of OpenEMR.
+ *
+ * @link https://github.com/openemr/openemr/tree/master
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Sample\Event;
@@ -11,6 +11,15 @@ namespace OpenEMR\Sample\Event;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Sample subscriber class.
+ *
+ * Explicitly tell the event dispatcher to register a subscriber
+ *
+ * @package OpenEMR\Admin
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ */
 class SampleSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()

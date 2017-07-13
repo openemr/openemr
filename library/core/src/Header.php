@@ -7,10 +7,8 @@
 
 namespace OpenEMR\Core;
 
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
-use OpenEMR\Sample\Event\SampleEvent;
 
 /**
  * Class Header.
