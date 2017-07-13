@@ -1,14 +1,13 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: rdown
- * Date: 2017-07-09
- * Time: 21:37
+ * OpenEMR <http://open-emr.org>.
+ *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Core;
 
-//require_once dirname(__FILE__) . '/../../../interface/globals.php';
+require_once dirname(__FILE__) . '/../../../interface/globals.php';
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -20,19 +19,26 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
+/**
+ * Class Kernel.
+ *
+ * This is the core of OpenEMR. It is a thin class enabling service containers,
+ * event dispatching for now.
+ *
+ * @package OpenEMR
+ * @subpackage Core
+ * @author Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Robert Down
+ */
 class Kernel
 {
 
     /** @var ContainerBuilder */
     private $container;
 
-    /** @var  EventDispatcher */
-    private $dispatcher;
-
     public function __construct()
     {
         $this->prepareContainer();
-
     }
 
     /**
