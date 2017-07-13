@@ -1468,7 +1468,8 @@ The patient has received a separate notice of this denial decision. The notice a
     }
     // edih_835_codes
     public function classname()
-    { return get_class($this); }
+    {
+        return get_class($this); }
     //
     public function get_835_code($elem, $code)
     {

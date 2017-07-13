@@ -168,7 +168,7 @@ function smoking_statusClicked(cb)
      {
      document.getElementById('form_tobacco').selectedIndex = 6;
      }
-	 radioChange(document.getElementById('form_tobacco').value);
+     radioChange(document.getElementById('form_tobacco').value);
 }
 
 // The ID of the input element to receive a found code.
@@ -225,8 +225,8 @@ $(document).ready(function(){
 
 <style type="text/css">
 div.tab {
-	height: auto;
-	width: auto;
+    height: auto;
+    width: auto;
 }
 </style>
 

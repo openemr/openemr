@@ -238,45 +238,45 @@ if (/MSIE (\d+\.\d+);/.test(navigator.userAgent)){ //test for MSIE x.x;
  var ieversion=new Number(RegExp.$1) // capture x.x portion and store as a number
  if (ieversion>=5 && ieversion<=8)
    {
-	 $(document).ready(function() {
-		// fancy box
-		// special size for
-		$(".medium_modal").fancybox( {
-			'overlayOpacity' : 0.0,
-			'showCloseButton' : true,
-			'frameHeight' : 500,
-			'frameWidth' : 1097,
-			'centerOnScroll' : false
-		});
-	});
+     $(document).ready(function() {
+        // fancy box
+        // special size for
+        $(".medium_modal").fancybox( {
+            'overlayOpacity' : 0.0,
+            'showCloseButton' : true,
+            'frameHeight' : 500,
+            'frameWidth' : 1097,
+            'centerOnScroll' : false
+        });
+    });
    }
   else
    {
-	 $(document).ready(function() {
-		// fancy box
-		// special size for
-		$(".medium_modal").fancybox( {
-			'overlayOpacity' : 0.0,
-			'showCloseButton' : true,
-			'frameHeight' : 500,
-			'frameWidth' : 1050,
-			'centerOnScroll' : false
-		});
-	});
+     $(document).ready(function() {
+        // fancy box
+        // special size for
+        $(".medium_modal").fancybox( {
+            'overlayOpacity' : 0.0,
+            'showCloseButton' : true,
+            'frameHeight' : 500,
+            'frameWidth' : 1050,
+            'centerOnScroll' : false
+        });
+    });
    }
 }
 else
 {
  $(document).ready(function() {
-	// fancy box
-	// special size for
-	$(".medium_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 500,
-		'frameWidth' : 1050,
-		'centerOnScroll' : false
-	});
+    // fancy box
+    // special size for
+    $(".medium_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 500,
+        'frameWidth' : 1050,
+        'centerOnScroll' : false
+    });
 });
 }
 
@@ -297,35 +297,35 @@ $(document).ready(function() {
 <script language='JavaScript'>
  function SearchPayment()
   {//Search  validations.
-	if(document.getElementById('FromDate').value=='' && document.getElementById('ToDate').value=='' && document.getElementById('PaymentStatus').selectedIndex==0 && document.getElementById('payment_method').selectedIndex==0 && document.getElementById('type_name').selectedIndex==0 && document.getElementById('adjustment_code').selectedIndex==0 && document.getElementById('check_number').value==''  && document.getElementById('payment_amount').value==''  && document.getElementById('hidden_type_code').value=='' )
-	 {
-		alert("<?php echo htmlspecialchars( xl('Please select any Search Option.'), ENT_QUOTES) ?>");
-		return false;
-	 }
-	if(document.getElementById('FromDate').value!='' && document.getElementById('ToDate').value!='')
-	 {
-		if(!DateCheckGreater(document.getElementById('FromDate').value,document.getElementById('ToDate').value,'<?php echo DateFormatRead();?>'))
-		 {
-			alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
-			document.getElementById('FromDate').focus();
-			return false;
-		 }
-	 }
-	top.restoreSession();
-	document.getElementById('mode').value='SearchPayment';
-	document.forms[0].submit();
+    if(document.getElementById('FromDate').value=='' && document.getElementById('ToDate').value=='' && document.getElementById('PaymentStatus').selectedIndex==0 && document.getElementById('payment_method').selectedIndex==0 && document.getElementById('type_name').selectedIndex==0 && document.getElementById('adjustment_code').selectedIndex==0 && document.getElementById('check_number').value==''  && document.getElementById('payment_amount').value==''  && document.getElementById('hidden_type_code').value=='' )
+     {
+        alert("<?php echo htmlspecialchars( xl('Please select any Search Option.'), ENT_QUOTES) ?>");
+        return false;
+     }
+    if(document.getElementById('FromDate').value!='' && document.getElementById('ToDate').value!='')
+     {
+        if(!DateCheckGreater(document.getElementById('FromDate').value,document.getElementById('ToDate').value,'<?php echo DateFormatRead();?>'))
+         {
+            alert("<?php echo htmlspecialchars( xl('From Date Cannot be Greater than To Date.'), ENT_QUOTES) ?>");
+            document.getElementById('FromDate').focus();
+            return false;
+         }
+     }
+    top.restoreSession();
+    document.getElementById('mode').value='SearchPayment';
+    document.forms[0].submit();
   }
 function DeletePayments(DeleteId)
  {//Confirms deletion of payment and all its distribution.
-	if(confirm("<?php echo htmlspecialchars( xl('Would you like to Delete Payments?'), ENT_QUOTES) ?>"))
-	 {
-		document.getElementById('mode').value='DeletePayments';
-		document.getElementById('DeletePaymentId').value=DeleteId;
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 return false;
+    if(confirm("<?php echo htmlspecialchars( xl('Would you like to Delete Payments?'), ENT_QUOTES) ?>"))
+     {
+        document.getElementById('mode').value='DeletePayments';
+        document.getElementById('DeletePaymentId').value=DeleteId;
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     return false;
  }
 function OnloadAction()
  {//Displays message after deletion.
@@ -346,12 +346,12 @@ function SearchPayingEntityAction()
   document.getElementById('description').value='';
   if(document.getElementById('ajax_div_insurance'))
    {
-	 $("#ajax_div_patient_error").empty();
-	 $("#ajax_div_patient").empty();
-	 $("#ajax_div_insurance_error").empty();
-	 $("#ajax_div_insurance").empty();
-	 $("#ajax_div_insurance").hide();
-	  document.getElementById('payment_method').style.display='';
+     $("#ajax_div_patient_error").empty();
+     $("#ajax_div_patient").empty();
+     $("#ajax_div_insurance_error").empty();
+     $("#ajax_div_insurance").empty();
+     $("#ajax_div_insurance").hide();
+      document.getElementById('payment_method').style.display='';
    }
  }
 </script>
@@ -364,18 +364,18 @@ document.onclick=HideTheAjaxDivs;
 .class3{width:100px;}
 .class4{width:103px;}
 #ajax_div_insurance {
-	position: absolute;
-	z-index:10;
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 #ajax_div_patient {
-	position: absolute;
-	z-index:10;
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 .bottom{border-bottom:1px solid black;}
 .top{border-top:1px solid black;}
@@ -394,27 +394,27 @@ document.onclick=HideTheAjaxDivs;
   </tr>
   <tr>
     <td colspan="3" align="left">
-		<ul class="tabNav">
-		 <li><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
-		 <li class='current'><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
-		 <li><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
-		</ul>	</td>
+        <ul class="tabNav">
+         <li><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
+         <li class='current'><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
+         <li><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
+        </ul>   </td>
   </tr>
   <tr>
     <td colspan="3" align="left" >
     <table width="974" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="954" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
-	  <tr height="5">
-		<td width="954" colspan="6" align="left" ></td>
-	  </tr>
-	  <tr>
-		<td colspan="6" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars( xl('Payment List'), ENT_QUOTES) ?></font></td>
-	  </tr>
-	  <tr height="5">
-		<td colspan="6" align="left" ></td>
-	  </tr>
-	  <tr>
-	    <td colspan="6" align="left" ><table width="954" border="0" cellspacing="0" cellpadding="0">
+    <table width="954" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+      <tr height="5">
+        <td width="954" colspan="6" align="left" ></td>
+      </tr>
+      <tr>
+        <td colspan="6" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars( xl('Payment List'), ENT_QUOTES) ?></font></td>
+      </tr>
+      <tr height="5">
+        <td colspan="6" align="left" ></td>
+      </tr>
+      <tr>
+        <td colspan="6" align="left" ><table width="954" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td width="5"></td>
             <td width="106"></td>
@@ -433,78 +433,78 @@ document.onclick=HideTheAjaxDivs;
             <td align="right"></td>
             <td align="left" class="text"><?php	echo generate_select_list("payment_date", "payment_date", "$PaymentDate", "Payment Date","","class4 text");?></td>
             <td colspan="4">
-				<table  border="0" cellspacing="0" cellpadding="0">
-				  <tr>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:90px;" class='datepicker' name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
-					</td>
-					<td width="53">&nbsp;</td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
-					<td><input type='text'  style="width:103px;"  class='datepicker' name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
-					</td>
-				  </tr>
-				</table>
-	    </td>
+                <table  border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('From'), ENT_QUOTES).':' ?></td>
+                    <td><input type='text'  style="width:90px;" class='datepicker' name='FromDate' id='FromDate' class="text" value='<?php echo attr($FromDate); ?>' />
+                    </td>
+                    <td width="53">&nbsp;</td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('To'), ENT_QUOTES).':' ?></td>
+                    <td><input type='text'  style="width:103px;"  class='datepicker' name='ToDate' id='ToDate' class="text" value='<?php echo attr($ToDate); ?>' />
+                    </td>
+                  </tr>
+                </table>
+        </td>
         <td class="text"></td>
-	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
-	    <td align="left"><?php	echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method"," ","class1 text");?></td>
-	    <td></td>
-	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
-	    <td><input type="text" name="check_number"   autocomplete="off"  value="<?php echo htmlspecialchars(formData('check_number'));?>"  id="check_number"  class=" class1 text "   /></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
+        <td align="left"><?php	echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method"," ","class1 text");?></td>
+        <td></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
+        <td><input type="text" name="check_number"   autocomplete="off"  value="<?php echo htmlspecialchars(formData('check_number'));?>"  id="check_number"  class=" class1 text "   /></td>
           </tr>
           <tr>
             <td align="right"></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
-		<td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount" onKeyUp="ValidateNumeric(this);"  value="<?php echo htmlspecialchars(formData('payment_amount'));?>"  style="text-align:right"    class="class1 text "   /></td>
-	    <td align="left" ></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name","Paying Entity"," ","class1 text","SearchPayingEntityAction()");?>	   </td>
-	    <td align="left" ></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code","Paying Category"," ","class1 text");?>			</td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
+        <td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount" onKeyUp="ValidateNumeric(this);"  value="<?php echo htmlspecialchars(formData('payment_amount'));?>"  style="text-align:right"    class="class1 text "   /></td>
+        <td align="left" ></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
+        <td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name","Paying Entity"," ","class1 text","SearchPayingEntityAction()");?>      </td>
+        <td align="left" ></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
+        <td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code","Paying Category"," ","class1 text");?>           </td>
             <td></td>
-			<td align="left" class=" text " ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES).':' ?></td>
-			<td align="left" ><?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus","Pay Status"," ","class1 text");?></td>
+            <td align="left" class=" text " ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES).':' ?></td>
+            <td align="left" ><?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus","Pay Status"," ","class1 text");?></td>
           </tr>
           <tr>
             <td align="right"></td>
-			<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
-			<td align="left" colspan="5" >
+            <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+            <td align="left" colspan="5" >
 
-			<table width="335" border="0" cellspacing="0" cellpadding="0">
-			  <tr>
-				<td width="280">
-				<input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' class="text "
-				style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
-				<!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
-					<div id='ajax_div_insurance_section'>
-					<div id='ajax_div_insurance_error'>					</div>
-					<div id="ajax_div_insurance" style="display:none;"></div>
-					</div>
-					</div>				</td>
-				<td width="50" style="padding-left:5px;"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;"><?php echo htmlspecialchars(formData('hidden_type_code'));?></div><input type="hidden" name="description"  id="description" /><input type="text" name="deposit_date"  id="deposit_date"  style="display:none"/></td>
-			  </tr>
-			</table>			</td>
+            <table width="335" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="280">
+                <input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' class="text "
+                style=" width:280px;"   onKeyDown="PreventIt(event)" value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
+                <!--onKeyUp="ajaxFunction(event,'non','search_payments.php');"-->
+                    <div id='ajax_div_insurance_section'>
+                    <div id='ajax_div_insurance_error'>                 </div>
+                    <div id="ajax_div_insurance" style="display:none;"></div>
+                    </div>
+                    </div>              </td>
+                <td width="50" style="padding-left:5px;"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:50px; height:17px;"><?php echo htmlspecialchars(formData('hidden_type_code'));?></div><input type="hidden" name="description"  id="description" /><input type="text" name="deposit_date"  id="deposit_date"  style="display:none"/></td>
+              </tr>
+            </table>            </td>
             <td align="left" class="text"><?php echo htmlspecialchars( xl('Sort Result by'), ENT_QUOTES).':' ?></td>
             <td align="left" class="text"><?php echo generate_select_list("PaymentSortBy", "payment_sort_by", "$PaymentSortBy","Sort Result by"," ","class1 text");?>            </td>
             <td align="left" class="text"></td>
             <td align="left" class="text"><table  border="0" cellspacing="0" cellpadding="0">
-				  <tr>
-					<td><a href="#" class="css_button" onClick="javascript:return SearchPayment();" ><span><?php echo htmlspecialchars( xl('Search'), ENT_QUOTES);?></span></a></td>
-				  </tr>
-				</table></td>
+                  <tr>
+                    <td><a href="#" class="css_button" onClick="javascript:return SearchPayment();" ><span><?php echo htmlspecialchars( xl('Search'), ENT_QUOTES);?></span></a></td>
+                  </tr>
+                </table></td>
             <td align="left"></td>
           </tr>
-		  <tr height="5">
-			<td colspan="12" align="left" ></td>
-		  </tr>
+          <tr height="5">
+            <td colspan="12" align="left" ></td>
+          </tr>
         </table></td>
-	    </tr>
-	</table>
-	</td></tr>
+        </tr>
+    </table>
+    </td></tr>
 
-		<!--Search-->
-		<?php //
+        <!--Search-->
+        <?php //
         if ($_POST["mode"] == "SearchPayment")
            {
             ?>
@@ -573,8 +573,8 @@ document.onclick=HideTheAjaxDivs;
                                     $bgcolor='#ffdddd';
                                 }
                                 ?>
-							  <tr class="text"  bgcolor='<?php echo $bgcolor; ?>'>
-								<td class="<?php echo $StringClass;
+                              <tr class="text"  bgcolor='<?php echo $bgcolor; ?>'>
+                                <td class="<?php echo $StringClass;
 ?>" ><a href="#" onClick="javascript:return DeletePayments(<?php echo htmlspecialchars($RowSearch['session_id']); ?>);" ><img src="../pic/Delete.gif" border="0"/></a></td>
                               <td class="<?php echo $StringClass;
 ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
@@ -628,7 +628,7 @@ elseif(($RowSearch['payer_id']*1 == 0 && $RowSearch['patient_id']*1 == 0))
                               $pay_amount=$row['sum_pay_amount'];
                               $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
                               echo $UndistributedAmount*1==0 ? htmlspecialchars( xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars( xl('Unapplied'), ENT_QUOTES); ?></a></td>
-								<td align="right" class="<?php echo $StringClass;
+                                <td align="right" class="<?php echo $StringClass;
 ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']);
 ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
                               <td align="right" class="<?php echo $StringClass;
@@ -647,14 +647,14 @@ elseif(($RowSearch['payer_id']*1 == 0 && $RowSearch['patient_id']*1 == 0))
                             <?php
                     }// else
                             ?>
-					</table>
-				</td>
-			  </tr>
+                    </table>
+                </td>
+              </tr>
             <?php
         }//if ($_POST["mode"] == "SearchPayment")
         ?>
     </table>
-	</td>
+    </td>
   </tr>
 </table>
 <input type='hidden' name='mode' id='mode' value='' />

@@ -223,33 +223,33 @@ if ($_POST['form_save']) {
     }
 }
 
- else  if ($_POST['form_delete']) {
+else  if ($_POST['form_delete']) {
 
     if ($userid) {
      // Be careful not to delete internal users.
         sqlStatement("DELETE FROM users WHERE id = ? AND username = ''", array($userid));
     }
 
-    }
+}
 
-    if ($_POST['form_save'] || $_POST['form_delete']) {
-     // Close this window and redisplay the updated list.
-        echo "<script language='JavaScript'>\n";
-        if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
-        echo " window.close();\n";
-        echo " if (opener.refreshme) opener.refreshme();\n";
-        echo "</script></body></html>\n";
-        exit();
-    }
+if ($_POST['form_save'] || $_POST['form_delete']) {
+ // Close this window and redisplay the updated list.
+    echo "<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    echo " window.close();\n";
+    echo " if (opener.refreshme) opener.refreshme();\n";
+    echo "</script></body></html>\n";
+    exit();
+}
 
-    if ($userid) {
-        $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
-    }
+if ($userid) {
+    $row = sqlQuery("SELECT * FROM users WHERE id = ?", array($userid));
+}
 
-    if ($type) { // note this only happens when its new
-     // Set up type
-        $row['abook_type'] = $type;
-    }
+if ($type) { // note this only happens when its new
+ // Set up type
+    $row['abook_type'] = $type;
+}
 
 ?>
 
@@ -311,10 +311,10 @@ if ($_POST['form_save']) {
    <input type='text' size='40' name='form_organization' maxlength='250'
     value='<?php echo attr($row['organization']); ?>'
     style='width:100%' class='inputtext' />
-	<span id='cpoe_span' style="display:none;">
-		<input type='checkbox' title="<?php echo xla('CPOE');
+    <span id='cpoe_span' style="display:none;">
+        <input type='checkbox' title="<?php echo xla('CPOE');
 ?>" name='form_cpoe' id='form_cpoe' value='1' <?php if($row['cpoe']=='1') echo "CHECKED"; ?>/>
-		<label for='form_cpoe'><b><?php echo xlt('CPOE'); ?></b></label>
+        <label for='form_cpoe'><b><?php echo xlt('CPOE'); ?></b></label>
    </span>
   </td>
  </tr>

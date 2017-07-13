@@ -38,7 +38,7 @@ class CommonPlugin extends AbstractPlugin
     {
         $sm->get('Zend\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
   
   /**
@@ -66,12 +66,12 @@ class CommonPlugin extends AbstractPlugin
     
         $keywords   = preg_replace('/\s\s+/', ' ', strip_tags(trim($keywords)));
         $style      = '???';
-        $style_i	= 'highlight_i';
+        $style_i    = 'highlight_i';
         $var        = '';
         foreach(explode(' ', $keywords) as $keyword) {
             $replacement  =   "<?? ?='" . $style . "'>" . trim($keyword). "</??>";
             $var          .=  $replacement . " ";
-            $str	    =   str_ireplace($keyword, $replacement, $str);
+            $str        =   str_ireplace($keyword, $replacement, $str);
         }
 
         $str = str_ireplace(rtrim($var), "<?? ?='" . $style_i . "'>" . trim($keywords) . "</??>", $str);

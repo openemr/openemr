@@ -248,14 +248,14 @@ if ($form_patient == '' ) $form_pid = '';
                 </td>
             </tr>
             <tr>
-			<td>
-			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
-			</td>
-			<td>
-			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select');
+            <td>
+            &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
+            </td>
+            <td>
+            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select');
 ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
-			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
-			</td>
+            <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
+            </td>
 
                 <td colspan="2"><label><input type="checkbox" name="show_details" id="show_details" <?php if($chk_show_details) echo "checked";
 ?>>&nbsp;<?php echo xlt('Show Details'); ?></label></td>
@@ -264,7 +264,7 @@ if ($form_patient == '' ) $form_pid = '';
 
             </tr>
             <?php if ($GLOBALS['drug_screen']) { ?>
-           	<tr>
+            <tr>
             <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed
                   # if both are selected then only completed drug screens will be displayed. ?>
@@ -307,7 +307,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <div id="report_results">
 <table>
 
-	<thead>
+    <thead>
     <?php if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
         <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Provider'); ?>
@@ -527,7 +527,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
               $k = '0';
             for ($x = 1; $x <= $last_seq; $x++) {
         ?>
-	    <tr valign='top' class="detail" >
+        <tr valign='top' class="detail" >
         <td colspan="6" class="detail" align='left'>
 
             <?php

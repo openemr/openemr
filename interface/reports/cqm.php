@@ -219,25 +219,25 @@ else {
  }
 
  function GenXml(sNested) {
-	  top.restoreSession();
-	  //QRDA Category III Export
-	  if(sNested == "QRDA"){
-		var form_rule_filter = theform.form_rule_filter.value
-		var sLoc = '../../custom/export_qrda_xml.php?target_date=' + theform.form_target_date.value + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
-	  }else{
-		var sLoc = '../../custom/export_registry_xml.php?&target_date=' + theform.form_target_date.value + '&nested=' + sNested;
-	  }
-	  dlgopen(sLoc, '_blank', 600, 500);
-	  return false;
+      top.restoreSession();
+      //QRDA Category III Export
+      if(sNested == "QRDA"){
+        var form_rule_filter = theform.form_rule_filter.value
+        var sLoc = '../../custom/export_qrda_xml.php?target_date=' + theform.form_target_date.value + '&qrda_version=3&rule_filter=cqm_2014&form_provider='+theform.form_provider.value+"&report_id=<?php echo attr($report_id);?>";
+      }else{
+        var sLoc = '../../custom/export_registry_xml.php?&target_date=' + theform.form_target_date.value + '&nested=' + sNested;
+      }
+      dlgopen(sLoc, '_blank', 600, 500);
+      return false;
  }
 
  //QRDA I - 2014 Download
  function downloadQRDA() {
-	top.restoreSession();
-	var reportID = '<?php echo attr($report_id); ?>';
-	var provider = $("#form_provider").val();
-	sLoc = '../../custom/download_qrda.php?&report_id=' + reportID + '&provider_id=' + provider;
-	dlgopen(sLoc, '_blank', 600, 500);
+    top.restoreSession();
+    var reportID = '<?php echo attr($report_id); ?>';
+    var provider = $("#form_provider").val();
+    sLoc = '../../custom/download_qrda.php?&report_id=' + reportID + '&provider_id=' + provider;
+    dlgopen(sLoc, '_blank', 600, 500);
  }
 
  function validateForm() {
@@ -260,27 +260,27 @@ else {
 
  function Form_Validate() {
         <?php if ( (empty($report_id)) && (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) ){ ?>
-		 var d = document.forms[0];
-		 FromDate = d.form_begin_date.value;
-		 ToDate = d.form_target_date.value;
-		  if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
-			 if (FromDate > ToDate){
-				  alert("<?php echo xls('End date must be later than Begin date!'); ?>");
-				  return false;
-			 }
-		 }
-	<?php } ?>
+         var d = document.forms[0];
+         FromDate = d.form_begin_date.value;
+         ToDate = d.form_target_date.value;
+          if ( (FromDate.length > 0) && (ToDate.length > 0) ) {
+             if (FromDate > ToDate){
+                  alert("<?php echo xls('End date must be later than Begin date!'); ?>");
+                  return false;
+             }
+         }
+    <?php } ?>
 
-	//For Results are in Gray Background & disabling anchor links
-	<?php if($report_id != ""){?>
-	$("#report_results").css("opacity", '0.4');
-	$("#report_results").css("filter", 'alpha(opacity=40)');
-	$("a").removeAttr("href");
-	<?php }?>
+    //For Results are in Gray Background & disabling anchor links
+    <?php if($report_id != ""){?>
+    $("#report_results").css("opacity", '0.4');
+    $("#report_results").css("filter", 'alpha(opacity=40)');
+    $("a").removeAttr("href");
+    <?php }?>
 
-	$("#form_refresh").attr("value","true");
-	runReport();
-	return true;
+    $("#form_refresh").attr("value","true");
+    runReport();
+    return true;
 }
 
 </script>
@@ -365,11 +365,11 @@ else {
 <table>
  <tr>
   <td scope="row" width='<?php echo $widthDyn;?>'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
-		<?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
+        <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                    <tr>
                       <td class='label_custom'>
                             <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
@@ -383,7 +383,7 @@ else {
                             <?php } ?>
                       </td>
                    </tr>
-		<?php } ?>
+        <?php } ?>
 
                 <tr>
                         <td class='label_custom'>
@@ -436,9 +436,9 @@ else {
 
                             <option value='amc_2011' <?php if ($rule_filter == "amc_2011") echo "selected"; ?>>
                             <?php  echo xlt('2011 Automated Measure Calculations (AMC)'); ?></option>
-							<option value='amc_2014_stage1' <?php if ($rule_filter == "amc_2014_stage1") echo "selected"; ?>>
+                            <option value='amc_2014_stage1' <?php if ($rule_filter == "amc_2014_stage1") echo "selected"; ?>>
                             <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage I'); ?></option>
-							<option value='amc_2014_stage2' <?php if ($rule_filter == "amc_2014_stage2") echo "selected"; ?>>
+                            <option value='amc_2014_stage2' <?php if ($rule_filter == "amc_2014_stage2") echo "selected"; ?>>
                             <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage II'); ?></option>
                             </select>
                         </td>
@@ -490,11 +490,11 @@ else {
                 <?php } ?>
 
                 <tr>
-			<td class='label_custom'>
+            <td class='label_custom'>
                 <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
-			</td>
-			<td>
-				<?php
+            </td>
+            <td>
+                <?php
 
                  // Build a drop-down list of providers.
                  //
@@ -526,7 +526,7 @@ else {
 
                 ?>
                         </td>
-		</tr>
+        </tr>
 
                 <tr>
                         <td class='label_custom'>
@@ -562,46 +562,46 @@ else {
                   </tr>
                 <?php } ?>
 
-	</table>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td scope="row">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td scope="row">
 
-				<div style='margin-left:15px'>
+                <div style='margin-left:15px'>
 
                                     <?php if (empty($report_id)) { ?>
-					<a id='submit_button' href='#' class='css_button' onclick='runReport();'>
-					<span>
-						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
+                    <a id='submit_button' href='#' class='css_button' onclick='runReport();'>
+                    <span>
+                        <?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
+                    </span>
+                    </a>
                                         <span id='status_span'></span>
                                         <div id='processing' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
-					<?php if ($type_report == "cqm") { ?>
-						<a id='xmla_button' href='#' class='css_button' onclick='return GenXml("false")'>
-							<span>
-								<?php echo htmlspecialchars( xl('Generate PQRI report (Method A) - 2011'), ENT_NOQUOTES); ?>
-							</span>
-						</a>
-                                        	<a id='xmlb_button' href='#' class='css_button' onclick='return GenXml("true")'>
-                                                	<span>
-                                                        	<?php echo htmlspecialchars( xl('Generate PQRI report (Method E) - 2011'), ENT_NOQUOTES); ?>
-                                                	</span>
-                                        	</a>
-					<?php } ?>
+                    <?php if ($type_report == "cqm") { ?>
+                        <a id='xmla_button' href='#' class='css_button' onclick='return GenXml("false")'>
+                            <span>
+                                <?php echo htmlspecialchars( xl('Generate PQRI report (Method A) - 2011'), ENT_NOQUOTES); ?>
+                            </span>
+                        </a>
+                                            <a id='xmlb_button' href='#' class='css_button' onclick='return GenXml("true")'>
+                                                    <span>
+                                                            <?php echo htmlspecialchars( xl('Generate PQRI report (Method E) - 2011'), ENT_NOQUOTES); ?>
+                                                    </span>
+                                            </a>
+                    <?php } ?>
                                     <?php } ?>
 
                                     <?php if (!empty($report_id)) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
-						</span>
-					</a>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
+                        </span>
+                    </a>
                                             <?php if ($type_report == "cqm_2014") { ?>
                                                         <a href="#" id="genQRDA" class='css_button' onclick='return downloadQRDA()'>
                                                                 <span>
@@ -621,10 +621,10 @@ else {
                                                <a href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit();'><span><?php echo xlt("Start Another Report"); ?></span></a>
                                             <?php } ?>
                                     <?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -650,7 +650,7 @@ if (!empty($report_id)) {
     <?php
        if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
            echo htmlspecialchars( xl('Initial Patient Population'), ENT_NOQUOTES);
-       else
+    else
            echo htmlspecialchars( xl('Total Patients'), ENT_NOQUOTES);
     ?>
   </th>
@@ -766,7 +766,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
 
         if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
         echo "<td align='center'>" . $row['initial_population'] . "</td>";
-        else
+    else
         echo "<td align='center'>" . $row['total_patients'] . "</td>";
 
     if ( isset($row['itemized_test_id']) && ($row['pass_filter'] > 0) ) {
@@ -828,13 +828,13 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
 
         echo "<td align='center'>" . $row['percentage'] . "</td>";
 }
-    else if (isset($row['is_provider'])) {
-      // Display the provider information
+else if (isset($row['is_provider'])) {
+  // Display the provider information
     if (!$firstProviderFlag && $_POST['form_provider'] == 'collate_outer') {
         echo "<tr><td>&nbsp</td></tr>";
     }
-        echo "<td class='detail' align='center'><b>";
-        echo htmlspecialchars( xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
+    echo "<td class='detail' align='center'><b>";
+    echo htmlspecialchars( xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
     if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
         echo " (";
         if (!empty($row['npi'])) {
@@ -845,23 +845,23 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         }
         echo ")";
     }
-        echo "</b></td>";
-        $firstProviderFlag = false;
-        $existProvider = true;
+    echo "</b></td>";
+    $firstProviderFlag = false;
+    $existProvider = true;
+}
+else { // isset($row['is_plan'])
+    if (!$firstPlanFlag && $_POST['form_provider'] != 'collate_outer') {
+        echo "<tr><td>&nbsp</td></tr>";
     }
-    else { // isset($row['is_plan'])
-        if (!$firstPlanFlag && $_POST['form_provider'] != 'collate_outer') {
-            echo "<tr><td>&nbsp</td></tr>";
-        }
-        echo "<td class='detail' align='center'><b>";
-        echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$row['id']);
-        if (!empty($row['cqm_measure_group'])) {
-            echo " (". htmlspecialchars( xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
-        }
-        echo "</b></td>";
-        $firstPlanFlag = false;
+    echo "<td class='detail' align='center'><b>";
+    echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$row['id']);
+    if (!empty($row['cqm_measure_group'])) {
+        echo " (". htmlspecialchars( xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
     }
+    echo "</b></td>";
+    $firstPlanFlag = false;
+}
     ?>
  </tr>
 
@@ -873,7 +873,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
 </div>  <!-- end of search results -->
 <?php } else { ?>
 <div id="instructions_text" class='text'>
- 	<?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to start report.'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to start report.'), ENT_NOQUOTES); ?>
 </div>
 <?php } ?>
 

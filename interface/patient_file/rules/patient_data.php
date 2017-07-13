@@ -43,18 +43,18 @@ function validate(f) {
     f.form_date.style.backgroundColor="red";
     return false;
   } else {
-	var form_date = f.form_date.value.split( " " );
-	var date_split = form_date[0].split( "-" );
-	var time_split = form_date[1].split( ":" );
-	var d = new Date( date_split[0], date_split[1]-1, date_split[2], time_split[0], time_split[1], time_split[2] );
-	var now = new Date();
-	if ( d > now && 
-		f.form_complete.value == "YES" ) {
-		alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
-	    f.form_date.focus();
-	    f.form_date.style.backgroundColor="red";
-	    return false;
-	}
+    var form_date = f.form_date.value.split( " " );
+    var date_split = form_date[0].split( "-" );
+    var time_split = form_date[1].split( ":" );
+    var d = new Date( date_split[0], date_split[1]-1, date_split[2], time_split[0], time_split[1], time_split[2] );
+    var now = new Date();
+    if ( d > now && 
+        f.form_complete.value == "YES" ) {
+        alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
+        f.form_date.focus();
+        f.form_date.style.backgroundColor="red";
+        return false;
+    }
   }
   return true;
 }

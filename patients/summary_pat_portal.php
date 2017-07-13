@@ -161,7 +161,7 @@ $(document).ready(function(){
                   }
           });
       });
-	  $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
+      $("#amendments_ps_expand").load("get_amendments.php", { 'embeddedScreen' : true }, function() {
           // (note need to place javascript code here also to get the dynamic link to work)
           $(".medium_modal").fancybox( {
                   'overlayOpacity' : 0.0,
@@ -199,13 +199,13 @@ $(document).ready(function(){
   });
 
   $(".add_event").fancybox( {
-  	'overlayOpacity' : 0.0,
+    'overlayOpacity' : 0.0,
     'showCloseButton' : true,
     'centerOnScroll' : false,
     'autoscale' : true,
     'hideOnContentClick' : false,
     'onClose' : function() {
-    	refreshme();
+        refreshme();
     }
   });
 
@@ -360,7 +360,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
                        } else {
                          $("#ccd_send_message").html(data);
                        }
-             	       $(".viewCCD_transmit").removeAttr('disabled');
+                       $(".viewCCD_transmit").removeAttr('disabled');
                   });
                 }
         });
@@ -534,7 +534,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 <span class="text"><?php echo xlt('Download all patient documents');?></span>
 <br /><br />
 <form name='doc_form' id='doc_form' action='get_patient_documents.php' method='post'>
-	<input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
+    <input type="button" class="generateDoc_download" value="<?php echo xla('Download'); ?>" />
 </form>
 </div>
 </td>
@@ -559,8 +559,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
                   </div>
 
-			</td>
-		</tr>
+            </td>
+        </tr>
                 <?php echo "<tr><td width='650px'>";
                 // problem list collapse widget
                 $widgetTitle = xl("Problem List");
@@ -626,8 +626,8 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 
 <!-- Amendments -->
 <?php if ( $GLOBALS['amendments'] ) { ?>
-	<tr>
-	<td width='650px'>
+    <tr>
+    <td width='650px'>
 <?php
 $widgetTitle = xl("Amendments");
 $widgetLabel = "amendments";
@@ -643,9 +643,9 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
 ?>
 
 <br/>
-	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
-	</td>
-	</tr>
+    <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
+    </td>
+    </tr>
 <?php } ?>
     <tr>
       <td width='650px'>
@@ -682,11 +682,11 @@ else
     expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
              $count = 0;
 ?>
-			<div id='stats_div' style="display:none">
-            	<div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div>
-        	</div>
-		</td>
-	</tr>
+            <div id='stats_div' style="display:none">
+                <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div>
+            </div>
+        </td>
+    </tr>
    </table>
 
    </div>

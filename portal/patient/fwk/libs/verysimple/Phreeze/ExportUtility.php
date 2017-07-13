@@ -31,7 +31,7 @@ class ExportUtility {
      * @param
      *          string (optional) The title of the report
      */
-    static function OutputAsExcel(Array $objects, Phreezer $phreezer, $reportTitle = "Data Export", $fileName = "export.xls", $creator = "Phreeze Library")
+    static function OutputAsExcel(array $objects, Phreezer $phreezer, $reportTitle = "Data Export", $fileName = "export.xls", $creator = "Phreeze Library")
     {
         require_once ("PEAR/PHPExcel.php");
         

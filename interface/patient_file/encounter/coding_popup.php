@@ -12,14 +12,14 @@
 
  // Call this to get the URL for form submission.
 function coding_form_action()
- {
+{
     return $GLOBALS['rootdir'] . "/patient_file/encounter/coding_popup.php";
 }
 
  // Call this to generate JavaScript that will close the window.
  //
 function terminate_coding()
- {
+{
     global $info_msg;
     echo "<script language='JavaScript'>\n";
     if ($info_msg) echo " alert('$info_msg');\n";

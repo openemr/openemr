@@ -38,11 +38,11 @@ class ImmunizationTable extends AbstractTableGateway
 
     public function __construct(TableGateway $tableGateway)
     {
-        $this->tableGateway 		= 	$tableGateway;
-        $adapter 					= 	\Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
-        $this->adapter              = 	$adapter;
-        $this->resultSetPrototype   = 	new ResultSet();
-        $this->applicationTable	    = 	new ApplicationTable;
+        $this->tableGateway         =   $tableGateway;
+        $adapter                    =   \Zend\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $this->adapter              =   $adapter;
+        $this->resultSetPrototype   =   new ResultSet();
+        $this->applicationTable     =   new ApplicationTable;
     }
     
     /**
@@ -51,8 +51,8 @@ class ImmunizationTable extends AbstractTableGateway
     */
     public function codeslist()
     {
-        $sql	=   "SELECT id, CONCAT('CVX:',CODE) AS NAME FROM codes LEFT JOIN code_types ct ON codes.code_type = ct.ct_id WHERE ct.ct_key='CVX' ORDER BY NAME";
-        $result	=   $this->applicationTable->zQuery($sql);
+        $sql    =   "SELECT id, CONCAT('CVX:',CODE) AS NAME FROM codes LEFT JOIN code_types ct ON codes.code_type = ct.ct_id WHERE ct.ct_key='CVX' ORDER BY NAME";
+        $result =   $this->applicationTable->zQuery($sql);
         return $result;
     }
     
@@ -166,13 +166,13 @@ class ImmunizationTable extends AbstractTableGateway
         "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
         
         if($getCount){
-            $result		=	$this->applicationTable->zQuery($query,$query_data);
-            $resCount 	=   $result->count();
+            $result     =   $this->applicationTable->zQuery($query,$query_data);
+            $resCount   =   $result->count();
             return $resCount;
         }
         
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
-        $result	=	$this->applicationTable->zQuery($query,$query_data);
+        $result =   $this->applicationTable->zQuery($query,$query_data);
         return $result;
     }
   

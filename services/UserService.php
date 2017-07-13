@@ -42,14 +42,16 @@ class UserService {
     /**
      * @return Fully hydrated user object
      */
-    public function getUser($userId) {
+    public function getUser($userId)
+    {
         return $this->repository->getUser($userId);
     }
 
     /**
      * @return active users (fully hydrated)
      */
-    public function getActiveUsers() {
+    public function getActiveUsers()
+    {
         return $this->repository->getActiveUsers();
     }
 

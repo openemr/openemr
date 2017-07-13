@@ -21,7 +21,7 @@
   // except that some payers mangle the claim ID that we give them.
   //
 function slInvoiceNumber(&$out)
-  {
+{
     $invnumber = $out['our_claim_id'];
     $atmp = preg_split('/[ -]/', $invnumber);
     $acount = count($atmp);
@@ -62,7 +62,7 @@ function slInvoiceNumber(&$out)
   // is created.
   //
 function arGetSession($payer_id, $reference, $check_date, $deposit_date='', $pay_total=0)
-  {
+{
     if (empty($deposit_date)) $deposit_date = $check_date;
     if ($payer_id) {
         $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
@@ -84,7 +84,7 @@ function arGetSession($payer_id, $reference, $check_date, $deposit_date='', $pay
 }
   //writing the check details to Session Table on ERA proxcessing
 function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_date,$deposit_date,$debug)
-  {
+{
       $query = "INSERT INTO ar_session( " .
       "payer_id,user_id,closed,reference,check_date,pay_total,post_to_date,deposit_date,patient_id,payment_type,adjustment_code,payment_method " .
       ") VALUES ( " .
@@ -108,7 +108,7 @@ function arPostSession($payer_id,$check_number,$check_date,$pay_total,$post_to_d
   // Post a payment, new style.
   //
 function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $memo, $debug, $time='', $codetype='')
-  {
+{
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -147,7 +147,7 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
   // Here we add it as an unauthorized item to the billing table.
   //
 function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, $thisdate, $code, $description, $debug, $codetype='')
-  {
+{
     /*****************************************************************
     // Select an existing billing item as a template.
     $row= sqlQuery("SELECT * FROM billing WHERE " .
@@ -191,7 +191,7 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
   // Post an adjustment, new style.
   //
 function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $code, $payer_type, $reason, $debug, $time='', $codetype='')
-  {
+{
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -241,7 +241,7 @@ function arGetPayerID($patient_id, $date_of_service, $payer_type)
   // Make this invoice re-billable, new style.
   //
 function arSetupSecondary($patient_id, $encounter_id, $debug,$crossover=0)
-  {
+{
     if ($crossover==1) {
     //if claim forwarded setting a new status
         $status=6;

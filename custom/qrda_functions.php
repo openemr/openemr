@@ -25,7 +25,7 @@
 
     //function for Stratification data getting for NQF# 0024 Rule
 function getQRDAStratumInfo($patArr, $begin_date)
-    {
+{
     $startumArr = array();
     if(count($patArr) > 0){
         //Age Between 3 and 11
@@ -48,7 +48,7 @@ function getQRDAStratumInfo($patArr, $begin_date)
     
     //function for getting Payer(Insurance Type) Information for Export QRDA
 function getQRDAPayerInfo($patArr)
-    {
+{
     $payerCheckArr = array();
     $payerCheckArr['Medicare'] = 0;
     $payerCheckArr['Medicaid'] = 0;
@@ -77,7 +77,7 @@ function getQRDAPayerInfo($patArr)
     
     //function for getting Race, Ethnicity and Gender Information for Export QRDA
 function getQRDAPatientNeedInfo($patArr)
-    {
+{
     //Defining Array elements
     //Gender
     $genderArr = array();

@@ -198,9 +198,9 @@ $provider  = trim($_POST['form_provider']);
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                  <tr>
                       <td class='label_custom'>
@@ -241,11 +241,11 @@ $provider  = trim($_POST['form_provider']);
                 </tr>
 
                 <tr>
-			<td class='label_custom'>
+            <td class='label_custom'>
                 <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
-			</td>
-			<td>
-				<?php
+            </td>
+            <td>
+                <?php
 
                  // Build a drop-down list of providers.
                  //
@@ -269,33 +269,33 @@ $provider  = trim($_POST['form_provider']);
 
                 ?>
                         </td>
-		</tr>
-	</table>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
-					<span>
-						<?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); top.restoreSession(); $("#theform").submit();'>
+                    <span>
+                        <?php echo htmlspecialchars( xl('Submit'), ENT_NOQUOTES); ?>
+                    </span>
+                    </a>
                                         <?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php echo htmlspecialchars( xl('Print'), ENT_NOQUOTES); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -326,12 +326,12 @@ if ($_POST['form_refresh']) {
     if ($rule == "send_sum_amc") {
         echo htmlspecialchars( xl('Referral Date'), ENT_NOQUOTES);
     }
-        else if ($rule == "provide_rec_pat_amc") {
-          echo htmlspecialchars( xl('Record Request Date'), ENT_NOQUOTES);
-        }
-        else { // $rule == "provide_sum_pat_amc"
-            echo htmlspecialchars( xl('Encounter Date'), ENT_NOQUOTES);
-        }
+    else if ($rule == "provide_rec_pat_amc") {
+        echo htmlspecialchars( xl('Record Request Date'), ENT_NOQUOTES);
+    }
+    else { // $rule == "provide_sum_pat_amc"
+        echo htmlspecialchars( xl('Encounter Date'), ENT_NOQUOTES);
+    }
     ?>
   </th>
 
@@ -340,12 +340,12 @@ if ($_POST['form_refresh']) {
     if ($rule == "send_sum_amc") {
         echo htmlspecialchars( xl('Referral ID'), ENT_NOQUOTES);
     }
-     else if ($rule == "provide_rec_pat_amc") {
+    else if ($rule == "provide_rec_pat_amc") {
         echo "&nbsp";
-        }
-        else { // $rule == "provide_sum_pat_amc"
-            echo htmlspecialchars( xl('Encounter ID'), ENT_NOQUOTES);
-        }
+    }
+    else { // $rule == "provide_sum_pat_amc"
+        echo htmlspecialchars( xl('Encounter ID'), ENT_NOQUOTES);
+    }
     ?>
   </th>
 
@@ -411,7 +411,7 @@ if ($_POST['form_refresh']) {
 </div>  <!-- end of search results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to view results.'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to view results.'), ENT_NOQUOTES); ?>
 </div>
 <?php } ?>
 

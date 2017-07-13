@@ -180,7 +180,7 @@ class Barcode {
     // GD barcode renderer
     private static function digitToGDRenderer($gd, $color, $xi, $yi, $angle, $mw, $mh, $digit)
     {
-        $fn = function($points) use ($gd, $color) {
+        $fn = function ($points) use ($gd, $color) {
             imagefilledpolygon($gd, $points, 4, $color);
         };
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
@@ -199,7 +199,7 @@ class Barcode {
         $pdf->SetDrawColor($color[0],$color[1],$color[2]);
         $pdf->SetFillColor($color[0],$color[1],$color[2]);
 
-        $fn = function($points) use ($pdf) {
+        $fn = function ($points) use ($pdf) {
             $op = 'f';
             $h = $pdf->h;
             $k = $pdf->k;
@@ -876,22 +876,26 @@ class BarcodeDatamatrix {
         221, 151, 3, 6, 12, 24, 48, 96, 192, 173, 119, 238, 241, 207, 179, 75,
         150, 1);
     static private function champGaloisMult($a, $b)
-    {  // MULTIPLICATION IN GALOIS FIELD GF(2^8)
+    {
+  // MULTIPLICATION IN GALOIS FIELD GF(2^8)
         if(!$a || !$b) return 0;
         return self::$aLogTab[(self::$logTab[$a] + self::$logTab[$b]) % 255];
     }
     static private function champGaloisDoub($a, $b)
-    {  // THE OPERATION a * 2^b IN GALOIS FIELD GF(2^8)
+    {
+  // THE OPERATION a * 2^b IN GALOIS FIELD GF(2^8)
         if (!$a) return 0;
         if (!$b) return $a;
         return self::$aLogTab[(self::$logTab[$a] + $b) % 255];
     }
     static private function champGaloisSum($a, $b)
-    { // SUM IN GALOIS FIELD GF(2^8)
+    {
+ // SUM IN GALOIS FIELD GF(2^8)
         return $a ^ $b;
     }
     static private function selectIndex($dataCodeWordsCount, $rectangular)
-    { // CHOOSE THE GOOD INDEX FOR TABLES
+    {
+ // CHOOSE THE GOOD INDEX FOR TABLES
         if (($dataCodeWordsCount<1 || $dataCodeWordsCount>1558) && !$rectangular) return -1;
         if (($dataCodeWordsCount<1 || $dataCodeWordsCount>49) && $rectangular)  return -1;
 
@@ -931,7 +935,8 @@ class BarcodeDatamatrix {
         }
     }
     static private function calculSolFactorTable($solomonCWCount)
-    { // CALCULATE THE REED SOLOMON FACTORS
+    {
+ // CALCULATE THE REED SOLOMON FACTORS
         $g = array_fill(0, $solomonCWCount+1, 1);
         for($i = 1; $i <= $solomonCWCount; $i++) {
             for($j = $i - 1; $j >= 0; $j--) {
@@ -942,7 +947,8 @@ class BarcodeDatamatrix {
         return $g;
     }
     static private function addReedSolomonCW($nSolomonCW, $coeffTab, $nDataCW, &$dataTab, $blocks)
-    { // Add the Reed Solomon codewords
+    {
+ // Add the Reed Solomon codewords
         $errorBlocks = $nSolomonCW / $blocks;
         $correctionCW = array();
 
@@ -971,7 +977,8 @@ class BarcodeDatamatrix {
         return $dataTab;
     }
     static private function getBits($entier)
-    { // Transform integer to tab of bits
+    {
+ // Transform integer to tab of bits
         $bits = array();
         for ($i=0; $i<8; $i++){
             $bits[$i] = $entier & (128 >> $i) ? 1 : 0;
@@ -979,7 +986,8 @@ class BarcodeDatamatrix {
         return $bits;
     }
     static private function next($etape, $totalRows, $totalCols, $codeWordsBits, &$datamatrix, &$assigned)
-    { // Place codewords into the matrix
+    {
+ // Place codewords into the matrix
         $chr = 0; // Place of the 8st bit from the first character to [4][0]
         $row = 4;
         $col = 0;
@@ -1027,7 +1035,8 @@ class BarcodeDatamatrix {
         } while (($row < $totalRows) || ($col < $totalCols));
     }
     static private function patternShapeStandard(&$datamatrix, &$assigned, $bits, $row, $col, $totalRows, $totalCols)
-    { // Place bits in the matrix (standard or special case)
+    {
+ // Place bits in the matrix (standard or special case)
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $row-2, $col-2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $row-2, $col-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $row-1, $col-2, $totalRows, $totalCols);
@@ -1082,7 +1091,8 @@ class BarcodeDatamatrix {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 1, $totalCols-1, $totalRows, $totalCols);
     }
     static private function placeBitInDatamatrix(&$datamatrix, &$assigned, $bit, $row, $col, $totalRows, $totalCols)
-    { // Put a bit into the matrix
+    {
+ // Put a bit into the matrix
         if ($row < 0) {
             $row += $totalRows;
             $col += 4 - (($totalRows+4)%8);
@@ -1097,7 +1107,8 @@ class BarcodeDatamatrix {
         }
     }
     static private function addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW)
-    { // Add the finder pattern
+    {
+ // Add the finder pattern
         $totalRowsCW = ($rowsRegionCW+2) * $rowsRegion;
         $totalColsCW = ($colsRegionCW+2) * $colsRegion;
 

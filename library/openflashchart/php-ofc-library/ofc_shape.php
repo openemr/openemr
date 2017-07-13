@@ -13,9 +13,9 @@ class shape
 {
     public function __construct( $colour )
     {
-        $this->type		= "shape";
-        $this->colour	= $colour;
-        $this->values	= array();
+        $this->type     = "shape";
+        $this->colour   = $colour;
+        $this->values   = array();
     }
     
     public function append_value( $p )

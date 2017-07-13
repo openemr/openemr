@@ -413,41 +413,41 @@ else if ($_POST["mode"] == "download_certificates") {
 
     //check whether email id is valid or not
     function checkEmail(email) {
-	var str=email;
-	var at="@";
-	var dot=".";
-	var lat=str.indexOf(at);
-	var lstr=str.length;
-	var ldot=str.indexOf(dot);
-	if (str.indexOf(at)==-1){
-	   return false;
-	}
+    var str=email;
+    var at="@";
+    var dot=".";
+    var lat=str.indexOf(at);
+    var lstr=str.length;
+    var ldot=str.indexOf(dot);
+    if (str.indexOf(at)==-1){
+       return false;
+    }
 
-	if (str.indexOf(at)==-1 || str.indexOf(at)==0 || str.indexOf(at)==lstr){
-	   return false;
-	}
+    if (str.indexOf(at)==-1 || str.indexOf(at)==0 || str.indexOf(at)==lstr){
+       return false;
+    }
 
-	if (str.indexOf(dot)==-1 || str.indexOf(dot)==0 || str.indexOf(dot)==lstr){
-	    return false;
-	}
+    if (str.indexOf(dot)==-1 || str.indexOf(dot)==0 || str.indexOf(dot)==lstr){
+        return false;
+    }
 
-	 if (str.indexOf(at,(lat+1))!=-1){
-	    return false;
-	 }
+     if (str.indexOf(at,(lat+1))!=-1){
+        return false;
+     }
 
-	 if (str.substring(lat-1,lat)==dot || str.substring(lat+1,lat+2)==dot){
-	    return false;
-	 }
+     if (str.substring(lat-1,lat)==dot || str.substring(lat+1,lat+2)==dot){
+        return false;
+     }
 
-	 if (str.indexOf(dot,(lat+2))==-1){
-	    return false;
-	 }
+     if (str.indexOf(dot,(lat+2))==-1){
+        return false;
+     }
 
-	 if (str.indexOf(" ")!=-1){
-	    return false;
-	 }
+     if (str.indexOf(" ")!=-1){
+        return false;
+     }
 
-	return true;
+    return true;
     }
     function download_click(){
         if (document.ssl_certificate_frm.commonName.value == "") {
@@ -457,11 +457,11 @@ else if ($_POST["mode"] == "download_certificates") {
         }
 
         if (document.ssl_certificate_frm.emailAddress.value) {
-	     //call checkEmail function
+         //call checkEmail function
              if(checkEmail(document.ssl_certificate_frm.emailAddress.value) == false){
-		alert ("<?php xl('Provide valid Email Address', 'e'); ?>");
-		return false;
-	     }
+        alert ("<?php xl('Provide valid Email Address', 'e'); ?>");
+        return false;
+         }
         }
 
         if (document.ssl_certificate_frm.countryName.value.length > 2) {
@@ -479,7 +479,7 @@ else if ($_POST["mode"] == "download_certificates") {
 
         /*if(document.ssl_frm.isClientAuthenticationEnabled[1].checked == true)
         {
-	    alert ("<?php xl('User Certificate Authentication is disabled', 'e'); ?>");
+        alert ("<?php xl('User Certificate Authentication is disabled', 'e'); ?>");
             return false;
         }*/
 
@@ -488,12 +488,12 @@ else if ($_POST["mode"] == "download_certificates") {
             document.ssl_certificate_frm.commonName.focus();
             return false;
         }
-	if (document.client_cert_frm.client_cert_email.value) {
-	     //call checkEmail function
+    if (document.client_cert_frm.client_cert_email.value) {
+         //call checkEmail function
              if(checkEmail(document.client_cert_frm.client_cert_email.value) == false){
-		alert ("<?php xl('Provide valid Email Address', 'e'); ?>");
-		return false;
-	     }
+        alert ("<?php xl('Provide valid Email Address', 'e'); ?>");
+        return false;
+         }
         }
     }
 

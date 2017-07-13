@@ -96,54 +96,54 @@ table.mymaintable td, table.mymaintable th {
 <table>
  <tr>
   <td width='280px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td>
-			   <select name='filter'>
-				<option value='0'><?php xl('All','e'); ?></option>
-			<?php
+    <table class='text'>
+        <tr>
+            <td>
+               <select name='filter'>
+                <option value='0'><?php xl('All','e'); ?></option>
+            <?php
             foreach ($code_types as $key => $value) {
                 echo "<option value='" . $value['id'] . "'";
                 if ($value['id'] == $filter) echo " selected";
                 echo ">$key</option>\n";
             }
             ?>
-			   </select>
-			</td>
-			<td>
-			   <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
+               </select>
+            </td>
+            <td>
+               <input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
                 <?php xl('Include Uncategorized','e'); ?>
-			</td>
-		</tr>
-	</table>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php xl('Submit','e'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php xl('Print','e'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>

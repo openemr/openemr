@@ -45,15 +45,15 @@ var collectvalidation = <?php echo($collectthis); ?>;
 
 function trimAll(sString)
 {
-	while (sString.substring(0,1) == ' ')
-	{
-		sString = sString.substring(1, sString.length);
-	}
-	while (sString.substring(sString.length-1, sString.length) == ' ')
-	{
-		sString = sString.substring(0,sString.length-1);
-	}
-	return sString;
+    while (sString.substring(0,1) == ' ')
+    {
+        sString = sString.substring(1, sString.length);
+    }
+    while (sString.substring(sString.length-1, sString.length) == ' ')
+    {
+        sString = sString.substring(0,sString.length-1);
+    }
+    return sString;
 }
 
 function submitform() {
@@ -159,9 +159,9 @@ function authorized_clicked() {
 <span class="title"><?php xl('Add User','e'); ?></span>&nbsp;</td>
 <td>
 <a class="css_button" name='form_save' id='form_save' href='#' onclick="return submitform()">
-	<span><?php xl('Save','e');?></span></a>
+    <span><?php xl('Save','e');?></span></a>
 <a class="css_button large_button" id='cancel' href='#'>
-	<span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
+    <span class='css_button_span large_button_span'><?php xl('Cancel','e');?></span>
 </a>
 </td></tr></table>
 <br><br>
@@ -256,12 +256,12 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
 </tr>
 
 <tr>
-	<td>
-		<span class="text"><?php xl('Provider Type','e'); ?>: </span>
-	</td>
-	<td>
-		<?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
-	</td>
+    <td>
+        <span class="text"><?php xl('Provider Type','e'); ?>: </span>
+    </td>
+    <td>
+        <?php echo generate_select_list("physician_type", "physician_type", '','',xl('Select Type'),'physician_type_class','','',''); ?>
+    </td>
 </tr>
 
 <!-- (CHEMED) Calendar UI preference -->
@@ -445,8 +445,8 @@ if ($alertmsg = trim($alertmsg)) {
 ?>
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
 });
 </script>

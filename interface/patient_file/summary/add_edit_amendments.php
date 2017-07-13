@@ -145,18 +145,18 @@ tr.selected {
 <script type="text/javascript">
 
 function formValidation() {
-	if ( $("#amendment_date").val() == "" ) {
-		alert("<?php echo xls('Select Amendment Date'); ?>");
-		return;
-	} else if ( $("#form_amendment_by").val() == "" ) {
-		alert("<?php echo xls('Select Requested By'); ?>");
-		return;
-	}
+    if ( $("#amendment_date").val() == "" ) {
+        alert("<?php echo xls('Select Amendment Date'); ?>");
+        return;
+    } else if ( $("#form_amendment_by").val() == "" ) {
+        alert("<?php echo xls('Select Requested By'); ?>");
+        return;
+    }
 
-	var statusText = $("#form_amendment_status option:selected").text();
-	$("#note").val($("#note").val() + ' ' + statusText);
+    var statusText = $("#form_amendment_status option:selected").text();
+    $("#note").val($("#note").val() + ' ' + statusText);
 
-	$("#add_edit_amendments").submit();
+    $("#add_edit_amendments").submit();
 }
 
 $(document).ready(function() {
@@ -177,84 +177,84 @@ $(document).ready(function() {
 
 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
 
-	<table>
-	<tr>
-		<td>
-			<span class="title"><?php echo xlt('Amendments'); ?></span>&nbsp;
-		</td>
-		<?php if ( ! $onlyRead ) { ?>
-		<td>
-			<a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
-		</td>
-		<?php } ?>
-		<td>
-			<a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
-		</td>
-	</tr>
-	</table>
+    <table>
+    <tr>
+        <td>
+            <span class="title"><?php echo xlt('Amendments'); ?></span>&nbsp;
+        </td>
+        <?php if ( ! $onlyRead ) { ?>
+        <td>
+            <a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
+        </td>
+        <?php } ?>
+        <td>
+            <a href="list_amendments.php" class="css_button_small"><span><?php echo xlt('Back');?></span></a>
+        </td>
+    </tr>
+    </table>
 
-	<br>
+    <br>
     <table border=0 cellpadding=1 cellspacing=1>
-		<tr>
-			<td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
-			<td>
-			<?php if ( ! $onlyRead ) { ?>
+        <tr>
+            <td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
+            <td>
+            <?php if ( ! $onlyRead ) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
-	                value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                    value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
-			<?php } else  { ?>
+            <?php } else  { ?>
                 <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
                     value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
-			<?php } ?>
-			</td>
-		</tr>
+            <?php } ?>
+            </td>
+        </tr>
 
-		<tr>
-			<td><span class=text ><?php echo xlt('Requested By'); ?></span></td>
-			<td>
-				<?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by,'Amendment Request By',' ','','','',$customAttributes); ?>
-			</td>
-		</tr>
+        <tr>
+            <td><span class=text ><?php echo xlt('Requested By'); ?></span></td>
+            <td>
+                <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by,'Amendment Request By',' ','','','',$customAttributes); ?>
+            </td>
+        </tr>
 
-		<tr>
-			<td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
-			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php
+        <tr>
+            <td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
+            <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php
             if($amendment_id) { echo text($amendment_desc);
             }else{ echo ""; } ?></textarea></td>
-		</tr>
+        </tr>
 
-		<tr>
-			<td><span class=text ><?php echo xlt('Request Status'); ?></span></td>
-			<td>
-				<?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status,'Amendment Status',' ','','','',$customAttributes); ?>
-			</td>
-		</tr>
+        <tr>
+            <td><span class=text ><?php echo xlt('Request Status'); ?></span></td>
+            <td>
+                <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status,'Amendment Status',' ','','','',$customAttributes); ?>
+            </td>
+        </tr>
 
-		<tr>
-			<td><span class=text ><?php echo xlt('Comments'); ?></span></td>
-			<td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
+        <tr>
+            <td><span class=text ><?php echo xlt('Comments'); ?></span></td>
+            <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
             if($amendment_id) echo "";
             else echo xlt('New amendment request'); ?></textarea></td>
-		</tr>
-	</table>
+        </tr>
+    </table>
 
-	<?php if ( $amendment_id ) { ?>
-	<hr>
+    <?php if ( $amendment_id ) { ?>
+    <hr>
 
-	<span class="title"><?php echo xlt("History") ; ?></span>
+    <span class="title"><?php echo xlt("History") ; ?></span>
 
-	<table border="1" cellpadding=3 cellspacing=0 class="historytbl">
+    <table border="1" cellpadding=3 cellspacing=0 class="historytbl">
 
     <!-- some columns are sortable -->
     <tr class='text bold'>
-		<th align="left" style="width:15%"><?php echo xlt('Date'); ?></th>
-		<th align="left" style="width:25%"><?php echo xlt('By'); ?></th>
-		<th align="left" style="width:15%"><?php echo xlt('Status'); ?></th>
-		<th align="left"><?php echo xlt('Comments'); ?></th>
-	</tr>
+        <th align="left" style="width:15%"><?php echo xlt('Date'); ?></th>
+        <th align="left" style="width:25%"><?php echo xlt('By'); ?></th>
+        <th align="left" style="width:15%"><?php echo xlt('Status'); ?></th>
+        <th align="left"><?php echo xlt('Comments'); ?></th>
+    </tr>
 
-	<?php
+    <?php
     if (sqlNumRows($resultSet)) {
         while ( $row = sqlFetchArray($resultSet) ) {
             $created_date = date('Y-m-d', strtotime($row['created_time']));
@@ -268,11 +268,11 @@ $(document).ready(function() {
         }
     }
     ?>
-	</table>
-	<?php } ?>
+    </table>
+    <?php } ?>
 
-	<input type="hidden" id="mode" name="mode" value=""/>
-	<input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
+    <input type="hidden" id="mode" name="mode" value=""/>
+    <input type="hidden" id="amendment_id" name="amendment_id" value="<?php echo attr($amendment_id); ?>"/>
 </form>
 </body>
 </html>

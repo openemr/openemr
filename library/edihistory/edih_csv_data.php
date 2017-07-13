@@ -138,7 +138,7 @@ function edih_csv_process_html($data_ar, $err_only=false)
                 $typ = (isset($csvfile['RspType'])) ? $claim['RspType'] : '';
                 $auth = (isset($csvfile['Auth'])) ? $claim['Auth'] : '';
                 //
-                $ins = (isset($csvfile['InsBnft'])) ? $claim['InsBnft']	 : '';
+                $ins = (isset($csvfile['InsBnft'])) ? $claim['InsBnft']  : '';
                 $ins = (isset($csvfile['InsLevel'])) ? $claim['InsLevel'] : $ins;
                 //
                 $clm = (isset($csvfile['ClaimID'])) ? $claim['ClaimID'] : $ins;
@@ -330,7 +330,7 @@ function edih_claim_history($encounter)
             $ch_html .= "<tr class='chhead'>".PHP_EOL;
             $ch_html .= "<td colspan=3>Acknowledgement File</td><td>Notes</td>".PHP_EOL;
             $ch_html .= "</tr>".PHP_EOL;
-            foreach($f997ar as $ch)	{
+            foreach($f997ar as $ch) {
                 //
                 $msg = strlen($ch[7]) ? $ch[7] : 'ST Number';
                 //array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');;

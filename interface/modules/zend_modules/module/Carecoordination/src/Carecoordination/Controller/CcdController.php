@@ -37,7 +37,7 @@ class CcdController extends AbstractActionController
     protected $ccdTable;
     public function __construct($sm)
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -93,7 +93,7 @@ class CcdController extends AbstractActionController
         $request     = $this->getRequest();
         if($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
-            $category_details  	     = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
+            $category_details        = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
             \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
         }
         $document_id                      =    $_REQUEST["document_id"];

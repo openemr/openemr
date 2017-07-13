@@ -245,7 +245,8 @@ function &postcalendar_today($format='%Y%m%d')
  * @return string javascript to insert into the page
  */
 function postcalendar_adminapi_pageSetup()
-{ return postcalendar_userapi_pageSetup(); }
+{
+    return postcalendar_userapi_pageSetup(); }
 /**
  * postcalendar_userapi_pageSetup()
  *
@@ -266,10 +267,11 @@ function postcalendar_userapi_pageSetup()
  * Creates the necessary javascript code for a popup window
  */
 function postcalendar_userapi_jsPopup()
-{   if(defined('_POSTCALENDAR_JSPOPUPS_LOADED')) {
+{
+    if(defined('_POSTCALENDAR_JSPOPUPS_LOADED')) {
         // only put the script on the page once
         return false;
-}
+    }
     define('_POSTCALENDAR_JSPOPUPS_LOADED',true);
 
     // build the correct link
@@ -284,7 +286,7 @@ function postcalendar_userapi_jsPopup()
                        . 'width=600,'
                        . 'height=300';
 
-$output = <<<EOF
+    $output = <<<EOF
 
 <script language="javascript">
 <!--
@@ -304,10 +306,11 @@ EOF;
  * Creates the necessary javascript code for mouseover dHTML popups
  */
 function postcalendar_userapi_loadPopups()
-{   if(defined('_POSTCALENDAR_LOADPOPUPS_LOADED')) {
+{
+    if(defined('_POSTCALENDAR_LOADPOPUPS_LOADED')) {
         // only put the script on the page once
         return false;
-}
+    }
     define('_POSTCALENDAR_LOADPOPUPS_LOADED',true);
 
     // get the theme globals :: is there a better way to do this?
@@ -321,7 +324,7 @@ function postcalendar_userapi_loadPopups()
     $capicon = '';
     $close = _PC_OL_CLOSE;
 
-$output = <<<EOF
+    $output = <<<EOF
 
 <script language="JavaScript">
 <!-- overLIB configuration -->
@@ -375,7 +378,8 @@ EOF;
  * @return string month name in user's language
  */
 function postcalendar_adminapi_getmonthname($args)
-{ return postcalendar_userapi_getmonthname($args); }
+{
+    return postcalendar_userapi_getmonthname($args); }
 /**
  * postcalendar_userapi_getmonthname()
  *
@@ -399,7 +403,8 @@ function postcalendar_userapi_getmonthname($args)
  *  Returns an array of form data for FormSelectMultiple
  */
 function postcalendar_adminapi_buildTimeSelect($args)
-{ return postcalendar_userapi_buildTimeSelect($args); }
+{
+    return postcalendar_userapi_buildTimeSelect($args); }
 function postcalendar_userapi_buildTimeSelect($args)
 {
     $inc = _SETTING_TIME_INCREMENT;
@@ -432,7 +437,8 @@ function postcalendar_userapi_buildTimeSelect($args)
  *  Returns an array of form data for FormSelectMultiple
  */
 function postcalendar_adminapi_buildMonthSelect($args)
-{ return postcalendar_userapi_buildMonthSelect($args); }
+{
+    return postcalendar_userapi_buildMonthSelect($args); }
 function postcalendar_userapi_buildMonthSelect($args)
 {
     extract($args);
@@ -456,7 +462,8 @@ function postcalendar_userapi_buildMonthSelect($args)
  *  Returns an array of form data for FormSelectMultiple
  */
 function postcalendar_adminapi_buildDaySelect($args)
-{ return postcalendar_userapi_buildDaySelect($args); }
+{
+    return postcalendar_userapi_buildDaySelect($args); }
 function postcalendar_userapi_buildDaySelect($args)
 {
     extract($args);
@@ -480,7 +487,8 @@ function postcalendar_userapi_buildDaySelect($args)
  *  Returns an array of form data for FormSelectMultiple
  */
 function postcalendar_adminapi_buildYearSelect($args)
-{ return postcalendar_userapi_buildYearSelect($args); }
+{
+    return postcalendar_userapi_buildYearSelect($args); }
 function postcalendar_userapi_buildYearSelect($args)
 {
     extract($args);
@@ -505,7 +513,8 @@ function postcalendar_userapi_buildYearSelect($args)
 }
 
 function &postcalendar_adminapi_getCategories()
-{ return postcalendar_userapi_getCategories(); }
+{
+    return postcalendar_userapi_getCategories(); }
 function &postcalendar_userapi_getCategories()
 {
     list($dbconn) = pnDBGetConn();
@@ -560,7 +569,8 @@ function &postcalendar_userapi_getCategories()
 }
 
 function &postcalendar_adminapi_getTopics()
-{ return postcalendar_userapi_getTopics(); }
+{
+    return postcalendar_userapi_getTopics(); }
 function &postcalendar_userapi_getTopics()
 {
     list($dbconn) = pnDBGetConn();
@@ -593,7 +603,8 @@ function &postcalendar_userapi_getTopics()
  *    @return bool true on success : false on failure;
  */
 function postcalendar_adminapi_submitEvent($args)
-{ return postcalendar_userapi_submitEvent($args); }
+{
+    return postcalendar_userapi_submitEvent($args); }
 /**
  *    postcalendar_userapi_submitEvent()
  *    submit an event
@@ -934,12 +945,12 @@ function findFirstInDay($day,$date)
 
 }
 
-function dtSec ($date, $time)
+function dtSec($date, $time)
 {
     return date("U",strtotime($date . " " . $time));
 }
 
-function dtSecDur ($date, $time, $dur)
+function dtSecDur($date, $time, $dur)
 {
     $time_sec = date("U",strtotime($date . " " . $time));
     return $time_sec + $dur;
@@ -950,7 +961,8 @@ function dtSecDur ($date, $time, $dur)
  *    create event submit form
  */
 function postcalendar_adminapi_buildSubmitForm($args)
-{ return postcalendar_userapi_buildSubmitForm($args,true); }
+{
+    return postcalendar_userapi_buildSubmitForm($args,true); }
 /**
  *    postcalendar_userapi_buildSubmitForm()
  *    create event submit form
@@ -1576,7 +1588,8 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
  *  @access public
  */
 function postcalendar_adminapi_eventDetail($args)
-{ return postcalendar_userapi_eventDetail($args,true); }
+{
+    return postcalendar_userapi_eventDetail($args,true); }
 function postcalendar_userapi_eventDetail($args,$admin=false)
 {
     if(!(bool)PC_ACCESS_READ) { return _POSTCALENDARNOAUTH; }
@@ -1912,7 +1925,8 @@ function pc_clean($s)
 }
 
 function &postcalendar_adminapi_getCategoryLimits()
-{ return postcalendar_userapi_getCategoryLimits(); }
+{
+    return postcalendar_userapi_getCategoryLimits(); }
 function &postcalendar_userapi_getCategoryLimits()
 {
     list($dbconn) = pnDBGetConn();

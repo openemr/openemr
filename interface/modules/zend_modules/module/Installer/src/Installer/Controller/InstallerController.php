@@ -37,7 +37,7 @@ class InstallerController extends AbstractActionController
 
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
 
     public function nolayout()
@@ -79,8 +79,8 @@ class InstallerController extends AbstractActionController
     
     public function registerAction()
     {
-        $status 	= false;
-        $request 	= $this->getRequest();
+        $status     = false;
+        $request    = $this->getRequest();
         if ($request->isPost()) {
             if($request->getPost('mtype') == 'zend'){
                 $rel_path = "public/".$request->getPost('mod_name')."/";
@@ -126,14 +126,14 @@ class InstallerController extends AbstractActionController
         $status  = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable"){
-                $resp	= $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=0" );
+                $resp   = $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=0" );
                 if($resp['status'] == 'failure' && $resp['code'] == '200'){
                     $status = $resp['value'];
                 } else {
                     $status = $this->listenerObject->z_xlt("Success");
                 }
             } elseif ($request->getPost('modAction') == "disable"){
-                $resp	= $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=1" );
+                $resp   = $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=1" );
                 if($resp['status'] == 'failure' && $resp['code'] == '200'){
                     $plural = "Module";
                     if(count($resp['value']) > 1){
@@ -167,7 +167,7 @@ class InstallerController extends AbstractActionController
    * @param     string  $dir Location of the php file which calling functions to add sections,aco etc.
    * @return boolean
    */
-    private function installACL ($dir)
+    private function installACL($dir)
     {
         $aclfile = $dir."/moduleACL.php";
         if (file_exists($aclfile)) {
@@ -187,7 +187,7 @@ class InstallerController extends AbstractActionController
             $string .= " '$key' => ";
             if(is_array($value)){
                 $string .= " array(";
-                $string .= 		$this ->getContent($value);
+                $string .=      $this ->getContent($value);
                 $string .= " )";
             } else
             $string .= "'$value'";
@@ -199,7 +199,7 @@ class InstallerController extends AbstractActionController
     public function SaveHooksAction()
     {
         $request = $this->getRequest();
-        $postArr	= $request->getPost();
+        $postArr    = $request->getPost();
       //DELETE OLD HOOKS OF A MODULE
         $this->getInstallerTable()->deleteModuleHooks($postArr['mod_id']);
         if(count($postArr['hook_hanger']) > 0){
@@ -218,20 +218,20 @@ class InstallerController extends AbstractActionController
  
     public function configureAction()
     {
-        $request 	= $this->getRequest();
-        $modId		= $request->getPost('mod_id');
+        $request    = $this->getRequest();
+        $modId      = $request->getPost('mod_id');
 
       /** Configuration Details */
         $result = $this->getInstallerTable()->getConfigSettings($request->getPost('mod_id'));
-        $configuration 	= array();
+        $configuration  = array();
         foreach($result as $tmp){
             $configuration[$tmp['field_name']] = $tmp;
             array_push($config['moduleconfig'], $tmp);
         }
       //INSERT MODULE HOOKS IF NOT EXISTS
-        $moduleDirectory	= $this->getInstallerTable()->getModuleDirectory($modId);
+        $moduleDirectory    = $this->getInstallerTable()->getModuleDirectory($modId);
       //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
-        $hooksArr	= $this->getInstallerTable()->getModuleHooks($moduleDirectory);
+        $hooksArr   = $this->getInstallerTable()->getModuleHooks($moduleDirectory);
     
         if(count($hooksArr) > 0) {
             foreach($hooksArr as $hook) {
@@ -249,7 +249,7 @@ class InstallerController extends AbstractActionController
         }
 
       //GET MODULE ACL SECTION FROM A FUNCTION IN CONFIGURATION MODEL CLASS
-        $aclArray	= $this->getInstallerTable()->getModuleAclSections($moduleDirectory);
+        $aclArray   = $this->getInstallerTable()->getModuleAclSections($moduleDirectory);
         if(sizeof($aclArray)>0){
             $this->getInstallerTable()->insertAclSections($aclArray,$moduleDirectory,$modId);
         } else {
@@ -257,9 +257,9 @@ class InstallerController extends AbstractActionController
         }
 
         $obj = $this->getInstallerTable()->getObject($moduleDirectory, 'Controller');
-        $aclArray	= array();
+        $aclArray   = array();
         if($obj){
-            $aclArray	= $obj->getAclConfig();
+            $aclArray   = $obj->getAclConfig();
         }
 
       /** Configuration Form and Configuration Form Class */
@@ -271,20 +271,20 @@ class InstallerController extends AbstractActionController
         $setup = $this->getInstallerTable()->getObject($moduleDirectory, 'Setup');
 
         return new ViewModel(array(
-          'mod_id'                	=> $request->getPost('mod_id'),
-          'TabSettings'           	=> $this->getInstallerTable()->getTabSettings($request->getPost('mod_id')),
-          'ACL'                   	=> $this->getInstallerTable()->getSettings('ACL',$request->getPost('mod_id')),
-          'OemrUserGroup'         	=> $this->getInstallerTable()->getOemrUserGroup(),
-          'OemrUserGroupAroMap'   	=> $this->getInstallerTable()->getOemrUserGroupAroMap(),
-          'ListActiveUsers'       	=> $this->getInstallerTable()->getActiveUsers(),
-          'ListActiveACL'         	=> $this->getInstallerTable()->getActiveACL($request->getPost('mod_id')),
-          'ListActiveHooks'       	=> $this->getInstallerTable()->getActiveHooks($request->getPost('mod_id')),
-          'helperObject'          	=> $this->helperObject,
-          'configuration'         	=> $configuration,
-          'hangers'               	=> $this->getInstallerTable()->getHangers(),
-          'Hooks'                 	=> $hooksArr,
-          'hookObject'            	=> $this->getInstallerTable(),
-          'settings'              	=> $configForm,
+          'mod_id'                  => $request->getPost('mod_id'),
+          'TabSettings'             => $this->getInstallerTable()->getTabSettings($request->getPost('mod_id')),
+          'ACL'                     => $this->getInstallerTable()->getSettings('ACL',$request->getPost('mod_id')),
+          'OemrUserGroup'           => $this->getInstallerTable()->getOemrUserGroup(),
+          'OemrUserGroupAroMap'     => $this->getInstallerTable()->getOemrUserGroupAroMap(),
+          'ListActiveUsers'         => $this->getInstallerTable()->getActiveUsers(),
+          'ListActiveACL'           => $this->getInstallerTable()->getActiveACL($request->getPost('mod_id')),
+          'ListActiveHooks'         => $this->getInstallerTable()->getActiveHooks($request->getPost('mod_id')),
+          'helperObject'            => $this->helperObject,
+          'configuration'           => $configuration,
+          'hangers'                 => $this->getInstallerTable()->getHangers(),
+          'Hooks'                   => $hooksArr,
+          'hookObject'              => $this->getInstallerTable(),
+          'settings'                => $configForm,
           'listenerObject'          => $this->listenerObject,
           'setup'                   => $setup,
         ));
@@ -303,9 +303,9 @@ class InstallerController extends AbstractActionController
             }
         }
     
-        $data 		= array();
-        $returnArr 	= array('modeId' => $moduleId);
-        $return 	= new JsonModel($returnArr);
+        $data       = array();
+        $returnArr  = array('modeId' => $moduleId);
+        $return     = new JsonModel($returnArr);
         return $return;
     }
   

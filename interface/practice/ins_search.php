@@ -65,11 +65,11 @@ td { font-size:10pt; }
 .search { background-color:#aaffaa }
 
 #form_entry {
-	display:block;
+    display:block;
 }
 
 #form_list {
-	display:none;
+    display:none;
 }
 
 </style>
@@ -91,9 +91,9 @@ td { font-size:10pt; }
  // This is invoked when our Search button is clicked.
  function dosearch() {
 
-	$("#form_entry").hide();
-  	var f = document.forms[0];
-	var search_list = 'ins_list.php' +
+    $("#form_entry").hide();
+    var f = document.forms[0];
+    var search_list = 'ins_list.php' +
    '?form_name='   + doescape(f.form_name.value  ) +
    '&form_attn='   + doescape(f.form_attn.value  ) +
    '&form_addr1='  + doescape(f.form_addr1.value ) +
@@ -105,7 +105,7 @@ td { font-size:10pt; }
    '&form_cms_id=' + doescape(f.form_cms_id.value);
 
     top.restoreSession();
-    $("#form_list").load( search_list ).show();	
+    $("#form_list").load( search_list ).show(); 
 
   return false;
  }

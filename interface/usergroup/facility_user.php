@@ -78,17 +78,17 @@ $(document).ready(function(){
     enable_modals();
 
     // special size for
-	$(".iframe_small").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 300,
-		'frameWidth' : 500
-	});
+    $(".iframe_small").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 300,
+        'frameWidth' : 500
+    });
 
-	$(function(){
-		// add drag and drop functionality to fancybox
-		$("#fancy_outer").easydrag();
-	});
+    $(function(){
+        // add drag and drop functionality to fancybox
+        $("#fancy_outer").easydrag();
+    });
 });
 
 </script>
@@ -121,38 +121,38 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
 <div>
     <div>
        <table>
-	  <tr >
-		<td><b><?php echo xlt('Facility Specific User Information'); ?></b></td>
-		<td><a href="usergroup_admin.php" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back to Users'); ?></span></a>
-		</td>
-	 </tr>
-	</table>
+      <tr >
+        <td><b><?php echo xlt('Facility Specific User Information'); ?></b></td>
+        <td><a href="usergroup_admin.php" class="css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back to Users'); ?></span></a>
+        </td>
+     </tr>
+    </table>
     </div>
 
-	<div style="width:400px;">
-		<div>
+    <div style="width:400px;">
+        <div>
 
-			<table cellpadding="1" cellspacing="0" class="showborder">
-				<tbody><tr height="22" class="showborder_head">
-					<th width="180px"><b><?php echo xlt('Username'); ?></b></th>
-					<th width="270px"><b><?php echo xlt('Full Name'); ?></b></th>
-					<th width="190px"><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
+            <table cellpadding="1" cellspacing="0" class="showborder">
+                <tbody><tr height="22" class="showborder_head">
+                    <th width="180px"><b><?php echo xlt('Username'); ?></b></th>
+                    <th width="270px"><b><?php echo xlt('Full Name'); ?></b></th>
+                    <th width="190px"><b><span class="bold"><?php echo xlt('Facility'); ?></span></b></th>
                                         <?php
                                         foreach ($l_arr as $layout_entry) {
                                             echo "<th width='100px'><b><span class='bold'>" . text(xl_layout_label($layout_entry['title'])) . "&nbsp;</span></b></th>";
                                         }
                                         ?>
-				</tr>
-					<?php
+                </tr>
+                    <?php
                     while ($user = sqlFetchArray($u_res)) {
                         foreach ($f_arr as $facility) {
                     ?>
-				<tr height="20"  class="text" style="border-bottom: 1px dashed;">
-				   <td class="text"><b><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);
+                <tr height="20"  class="text" style="border-bottom: 1px dashed;">
+                   <td class="text"><b><a href="facility_user_admin.php?user_id=<?php echo attr($user['id']);
 ?>&fac_id=<?php echo attr($facility['id']);
 ?>" class="iframe_small" onclick="top.restoreSession()"><span><?php echo text($user['username']);?></span></a></b>&nbsp;</td>
-				   <td><span class="text"><?php echo text($user['fname'] . " " . $user['lname']);?></span>&nbsp;</td>
-				   <td><span class="text"><?php echo text($facility['name']);?>&nbsp;</td>
+                   <td><span class="text"><?php echo text($user['fname'] . " " . $user['lname']);?></span>&nbsp;</td>
+                   <td><span class="text"><?php echo text($facility['name']);?>&nbsp;</td>
                                     <?php
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
@@ -160,13 +160,13 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                                         echo "<td><span class='text'>" . generate_display_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
                                     }
                                     ?>
-				</tr>
-				<?php
+                </tr>
+                <?php
                         }}
                 ?>
-				</tbody>
-			</table>
-		</div>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 </body>

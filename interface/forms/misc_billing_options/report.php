@@ -22,8 +22,8 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id)
     if ($data) {
         print "<table><tr>";
         foreach($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || 
-                $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || 
+            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
+                $key == "authorized" || $key == "activity" || $key == "date" || $value == "" ||
                 $value == "0" || $value == "0000-00-00 00:00:00" || $value =="0000-00-00" ||
                 ($key =="box_14_date_qual" && ($data['onset_date'] == 0)) ||
                 ($key =="box_15_date_qual" && ($data['date_initial_treatment'] == 0))) {
@@ -31,30 +31,30 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id)
             }
 
             if (($key === 'box_14_date_qual') || $key === 'box_15_date_qual') {
-              $value = qual_id_to_description($key, $value);
+                $value = qual_id_to_description($key, $value);
             }
             
             if ($key === 'provider_qualifier_code') {
-              $pqe = $data['provider_qualifier_code'];
-              if (!empty($pqe)) {
-                switch($pqe) {
-                  case ($pqe == "DN"): $value = "Referring";
-                  case ($pqe == "DK"): $value = "Ordering";
-                  case ($pqe == "DQ"): $value = "Supervising";
+                $pqe = $data['provider_qualifier_code'];
+                if (!empty($pqe)) {
+                    switch($pqe) {
+                        case ($pqe == "DN"): $value = "Referring";
+                        case ($pqe == "DK"): $value = "Ordering";
+                        case ($pqe == "DQ"): $value = "Supervising";
+                    }
+                    $key = 'Box 17 Qualifier';
                 }
-              $key = 'Box 17 Qualifier';
-              }
             }
 
             if ($key === 'provider_id') {
-              $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
+                $trow = sqlQuery("SELECT id, lname, fname FROM users WHERE " .
                          "id = ? ", array($value));
-              $value = $trow['fname'] . ' ' . $trow['lname'];
-              $key = 'Box 17 Provider';
+                $value = $trow['fname'] . ' ' . $trow['lname'];
+                $key = 'Box 17 Provider';
             }
             
             if ($value == "1") {
-              $value = "Yes";
+                $value = "Yes";
             }
 
             $key=ucwords(str_replace("_", " ", $key));
@@ -66,7 +66,7 @@ function misc_billing_options_report( $pid, $encounter, $cols, $id)
                 print "</tr><tr>\n";
             }
         }
-    }   
+    }
     print "</tr></table>";
 }
 ?>

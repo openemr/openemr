@@ -64,7 +64,7 @@ function edih_archive_report($period = '')
     //
     $bdir = csv_edih_basedir();
     $params = csv_parameters('ALL');
-    if ( !is_array($params)	 && count($params) ) {
+    if ( !is_array($params)  && count($params) ) {
         csv_edihist_log("edih_archive_report: invalid csv_parameters");
         return "<p>There was an error creating the report.</p>";
     }
@@ -717,7 +717,7 @@ function edih_archive_restore($archive_name)
     foreach($arch_ar as $fa) {
         if ($fa == '.' || $fa == '..') { continue; }
         if (is_dir($tmpdir.DS.$fa)) {
-            if ($fa == 'csv') {	continue; }
+            if ($fa == 'csv') { continue; }
             // if a /history/ftype dir exists
             if (is_dir($bdir.DS.$fa)) {
                 $type_ar[] = $fa;

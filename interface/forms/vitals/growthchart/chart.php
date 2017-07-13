@@ -276,11 +276,11 @@ function cssHeader()
         div.label_custom {
             font-size: 7pt;
         }
-	div.DoNotPrint {
-	    position: absolute;
-	    top: 2pt;
-	    left: 200pt;
-	}
+    div.DoNotPrint {
+        position: absolute;
+        top: 2pt;
+        left: 200pt;
+    }
         img {
             margin: 0;
             padding: 0;
@@ -290,26 +290,26 @@ function cssHeader()
             height: <?php echo $cssHeight; ?>pt;
         }
         @media print {
-	    div.DoNotPrint {
-	        display: none;
-	    }
-	}
+        div.DoNotPrint {
+            display: none;
+        }
+    }
     </style>
     <SCRIPT LANGUAGE="JavaScript">
-        function FormSetup()	{
-	    changeStyle('page1')
-	}
-	function changeStyle(css_title) {
-	    var i, link_tag ;
-	    for (i = 0, link_tag = document.getElementsByTagName("link") ; i < link_tag.length ; i++ ) {
-	        if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].title) {
-		    link_tag[i].disabled = true ;
-	    	    if (link_tag[i].title == css_title) {
-	    	        link_tag[i].disabled = false ;
-	    	    }
-	    	}
-	    }
-	}
+        function FormSetup()    {
+        changeStyle('page1')
+    }
+    function changeStyle(css_title) {
+        var i, link_tag ;
+        for (i = 0, link_tag = document.getElementsByTagName("link") ; i < link_tag.length ; i++ ) {
+            if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].title) {
+            link_tag[i].disabled = true ;
+                if (link_tag[i].title == css_title) {
+                    link_tag[i].disabled = false ;
+                }
+            }
+        }
+    }
   function pagePrint(title) {
     changeStyle(title);
     var win = top.printLogPrint ? top : opener.top;
@@ -349,7 +349,7 @@ function cssPage($image1,$image2)
         <img class='background' src='<?php echo $image1; ?>' />
     </div>
     <div class='paddingdiv' id='page2'>
-	<img class='background' src='<?php echo $image2; ?>' />
+    <img class='background' src='<?php echo $image2; ?>' />
     </div>
     <?php
 }

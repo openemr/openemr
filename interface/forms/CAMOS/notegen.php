@@ -100,38 +100,38 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
         <head>
         <style>
         body {
-	 font-family: sans-serif;
-	 font-weight: normal;
-	 font-size: 8pt;
-	 background: white;
-	 color: black;
-	}	
-	.paddingdiv {
-	 width: 524pt;
-	 padding: 0pt;
-	}
-	.navigate {
-	 margin-top: 2.5em;
-	}	
-	@media print {
-	 .navigate {
-	  display: none;
-	 }	
-	}
-	div.page {
-	 page-break-after: always;
-	 padding: 0pt;
-	 margin-top: 50pt;	 
-	}	
-	span.heading {
-	 font-weight: bold;
-	 font-size: 130%;
-	}	
-	</style>	
-	<title><?php xl('Patient Notes','e'); ?></title>
-	</head>
+     font-family: sans-serif;
+     font-weight: normal;
+     font-size: 8pt;
+     background: white;
+     color: black;
+    }   
+    .paddingdiv {
+     width: 524pt;
+     padding: 0pt;
+    }
+    .navigate {
+     margin-top: 2.5em;
+    }   
+    @media print {
+     .navigate {
+      display: none;
+     }  
+    }
+    div.page {
+     page-break-after: always;
+     padding: 0pt;
+     margin-top: 50pt;   
+    }   
+    span.heading {
+     font-weight: bold;
+     font-size: 130%;
+    }   
+    </style>    
+    <title><?php xl('Patient Notes','e'); ?></title>
+    </head>
         <body>
-	<div class='paddingdiv'>
+    <div class='paddingdiv'>
 <?php
 foreach ($output as $datekey => $dailynote) {
     foreach ($dailynote as $note_id => $notecontents) {
@@ -336,7 +336,8 @@ foreach ($output as $datekey => $dailynote) {
     }
 }
 function getFormData($start_date,$end_date,$lname,$fname)
-{ //dates in sql format
+{
+ //dates in sql format
 
         // All 4 parameters have previously been trimmed, globally validated,
     //  and prepared for database insert
@@ -431,7 +432,8 @@ function getFormData($start_date,$end_date,$lname,$fname)
     return $dates;
 }
 function formatVitals($raw)
-{ //pass raw vitals array, format and return as string
+{
+ //pass raw vitals array, format and return as string
     $height = '';
     $weight = '';
     $bmi = '';

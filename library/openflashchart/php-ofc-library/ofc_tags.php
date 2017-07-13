@@ -5,7 +5,7 @@ class ofc_tags
     public function __construct()
     {
         $this->type      = "tags";
-        $this->values	= array();
+        $this->values   = array();
     }
     
     function colour( $colour )

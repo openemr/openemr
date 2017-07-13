@@ -241,7 +241,7 @@ if (is_dir($mainPATH)) {
             }
             if ($supported_file === 1) {
             ?><div class="stg"><?php echo text(basename($file)); ?></div>
-		<?php
+        <?php
             } else {
                 ?>
                 <div class="error_msg"><?php echo xlt("UNSUPPORTED database load file");
@@ -408,7 +408,7 @@ if ($supported_file === 1) {
             <div class="error_msg"><?php echo xlt("The installed version and the staged files are the same."); ?></div>
             <div class="stg msg"><?php echo xlt("Follow these instructions for installing or upgrading the following database") . ": " . text($db);
     ?><span class="msg" id="<?php echo attr($db); ?>_instrmsg">?</span></div>
-	    <?php
+        <?php
             } else if ( strtotime($current_revision) > strtotime($file_revision_date) ) {
                 // Note the exception here when installing US Extension
                 // Note the US extension package has been deprecated for some time and was replaced by the Complete US extension package, which is
@@ -450,7 +450,7 @@ if ($supported_file === 1) {
 ?>" file_revision_date="<?php echo attr($file_revision_date);
 ?>" file_checksum="<?php echo attr($file_checksum);
 ?>" type="button" value="<?php echo attr($action); ?>"/>
-	  </div>
+      </div>
     <?php
         }
     }

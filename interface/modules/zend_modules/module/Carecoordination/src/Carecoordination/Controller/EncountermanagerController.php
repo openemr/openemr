@@ -34,13 +34,13 @@ class EncountermanagerController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     public function indexAction()
     {
         $request        = $this->getRequest();
-        $fromDate 		= $request->getPost('form_date_from', null);
+        $fromDate       = $request->getPost('form_date_from', null);
         $fromDate       = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
         $toDate         = $request->getPost('form_date_to', null);
         $toDate         = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
@@ -135,7 +135,7 @@ class EncountermanagerController extends AbstractActionController
             'table_obj'     => $this->getEncountermanagerTable(),
             'status_details'=> $status_details,
             'listenerObject'=> $this->listenerObject,
-            'commonplugin' 	=> $this->CommonPlugin(),
+            'commonplugin'  => $this->CommonPlugin(),
         ));
         return $index;
     }

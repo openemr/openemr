@@ -431,16 +431,16 @@ break;
         */
 
         $bad = array(
-            'document.cookie'	=> '',
-            'document.write'	=> '',
-            'window.location'	=> '',
-            "javascript\s*:"	=> '',
-            "Redirect\s+302"	=> '',
-            '<!--'			=> '&lt;!--',
-            '-->'			=> '--&gt;'
+            'document.cookie'   => '',
+            'document.write'    => '',
+            'window.location'   => '',
+            "javascript\s*:"    => '',
+            "Redirect\s+302"    => '',
+            '<!--'          => '&lt;!--',
+            '-->'           => '--&gt;'
         );
 
-        foreach ($bad as $key => $val)	{
+        foreach ($bad as $key => $val)  {
             $str = preg_replace("#".$key."#i", $val, $str);
         }
 

@@ -409,11 +409,11 @@ $(document).ready(function(){
     }
 });
  function gotoReport(doc_id,pname,pid,pubpid,str_dob){
-		EncounterDateArray=new Array;
+        EncounterDateArray=new Array;
         CalendarCategoryArray=new Array;
         EncounterIdArray=new Array;
         Count = 0;
-	<?php
+    <?php
     if(isset($enc_list) && sqlNumRows($enc_list) >0 ){
         while($row = sqlFetchArray($enc_list)){
     ?>
@@ -421,7 +421,7 @@ $(document).ready(function(){
                                     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($row['date'])))); ?>';
                                     CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($row['pc_catname'])); ?>';
                                     Count++;
-	<?php
+    <?php
         }
     }
     ?>
@@ -432,8 +432,8 @@ $(document).ready(function(){
     data:{set_pid: pid},
     async: false
   });
-	parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
-	parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
+    parent.left_nav.setPatient(pname,pid,pubpid,'',str_dob);
+    parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);
     <?php if ($GLOBALS['new_tabs_layout']) { ?>
     var docurl  = '../controller.php?document&view' + "&patient_id=" + pid + "&document_id=" + doc_id + "&";
     var paturl = 'patient_file/summary/demographics.php?pid=' + pid;

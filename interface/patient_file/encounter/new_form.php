@@ -43,8 +43,8 @@ function toggleFrame1(fnum) {
 <style type="text/css">
 #sddm
 {	margin: 0;
-	padding: 0;
-	z-index: 30;
+    padding: 0;
+    z-index: 30;
 }
 
 </style>
@@ -59,18 +59,18 @@ var flag = 0;
 // open hidden layer
 function mopen(id)
 {
-	// cancel close timer
-	//mcancelclosetime();
+    // cancel close timer
+    //mcancelclosetime();
 
-	flag=10;
+    flag=10;
 
-	// close old layer
-	//if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
-	//if(ddmenuitem) ddmenuitem.style.display = 'none';
+    // close old layer
+    //if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
+    //if(ddmenuitem) ddmenuitem.style.display = 'none';
 
-	// get new layer and show it
+    // get new layer and show it
         oldddmenuitem = ddmenuitem;
-	ddmenuitem = document.getElementById(id);
+    ddmenuitem = document.getElementById(id);
         if((ddmenuitem.style.visibility == '')||(ddmenuitem.style.visibility == 'hidden')){
             if(oldddmenuitem) oldddmenuitem.style.visibility = 'hidden';
             if(oldddmenuitem) oldddmenuitem.style.display = 'none';
@@ -84,13 +84,13 @@ function mopen(id)
 // close showed layer
 function mclose()
 {
-	if(flag==10)
-	 {
-	  flag=11;
-	  return;
-	 }
-	if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
-	if(ddmenuitem) ddmenuitem.style.display = 'none';
+    if(flag==10)
+     {
+      flag=11;
+      return;
+     }
+    if(ddmenuitem) ddmenuitem.style.visibility = 'hidden';
+    if(ddmenuitem) ddmenuitem.style.display = 'none';
 }
 
 // close layer when click-out
@@ -99,7 +99,7 @@ document.onclick = mclose;
 function findPosX(id)
   {
     obj=document.getElementById(id);
-	var curleft = 0;
+    var curleft = 0;
     if(obj.offsetParent)
         while(1)
         {
@@ -113,8 +113,8 @@ function findPosX(id)
    PropertyWidth=document.getElementById(id).offsetWidth;
    if(PropertyWidth>curleft)
     {
-	 document.getElementById(id).style.left=0;
-	}
+     document.getElementById(id).style.left=0;
+    }
   }
 
   function findPosY(obj)
@@ -268,35 +268,35 @@ if ($encounterLocked === false) {
     $module_query = sqlStatement("SELECT msh.*,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='encounter' ORDER BY mod_id");
-  $DivId = 'mod_installer';
-if (sqlNumRows($module_query)) {
-    $jid = 0;
-    $modid = '';
-    while ($modulerow = sqlFetchArray($module_query)) {
-        $DivId = 'mod_'.$modulerow['mod_id'];
-        $new_category = $modulerow['mod_ui_name'];
-        $modulePath = "";
-        $added      = "";
-        if($modulerow['type'] == 0) {
-            $modulePath = $GLOBALS['customModDir'];
-            $added		= "";
+    $DivId = 'mod_installer';
+    if (sqlNumRows($module_query)) {
+        $jid = 0;
+        $modid = '';
+        while ($modulerow = sqlFetchArray($module_query)) {
+            $DivId = 'mod_'.$modulerow['mod_id'];
+            $new_category = $modulerow['mod_ui_name'];
+            $modulePath = "";
+            $added      = "";
+            if($modulerow['type'] == 0) {
+                $modulePath = $GLOBALS['customModDir'];
+                $added      = "";
+            }
+            else{
+                $added      = "index";
+                $modulePath = $GLOBALS['zendModDir'];
+            }
+            $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
+            $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
+            if($jid==0 || ($modid!=$modulerow['mod_id'])){
+                if($modid!='')
+                $StringEcho.= '</table></div></li>';
+                $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
+            }
+            $jid++;
+            $modid = $modulerow['mod_id'];
+            $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('$relative_link')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
         }
-        else{
-            $added		= "index";
-            $modulePath = $GLOBALS['zendModDir'];
-        }
-        $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
-        $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
-        if($jid==0 || ($modid!=$modulerow['mod_id'])){
-            if($modid!='')
-            $StringEcho.= '</table></div></li>';
-            $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
-        }
-        $jid++;
-        $modid = $modulerow['mod_id'];
-        $StringEcho.= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a onclick=\"openNewForm('$relative_link')\" href='JavaScript:void(0);'>" . xl_form_title($nickname) . "</a></td></tr>";
     }
-}
     ?>
 <!-- DISPLAYING HOOKS ENDS HERE -->
 <?php

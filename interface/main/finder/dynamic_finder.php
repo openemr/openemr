@@ -80,7 +80,7 @@ $(document).ready(function() {
  // Borrowed from the multi_filter.html example.
  $("thead input").keyup(function () {
   // Filter on the column (the index) of this element
-	oTable.fnFilter( this.value, $("thead input").index(this) );
+    oTable.fnFilter( this.value, $("thead input").index(this) );
  });
 
  // OnClick handler for the rows

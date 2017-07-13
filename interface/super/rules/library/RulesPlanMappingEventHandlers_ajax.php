@@ -159,7 +159,7 @@ switch ($action) {
 
         $isPlanActive = isPlanActive($plan_id);
 
-        $isPlanActive = ($isPlanActive) ? 1 : 0	;
+        $isPlanActive = ($isPlanActive) ? 1 : 0 ;
 
         $plan_status = array('plan_id'=>$plan_id, 'is_plan_active'=>$isPlanActive);
         echo json_encode($plan_status);

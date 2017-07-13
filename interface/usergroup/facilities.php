@@ -17,7 +17,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
     "country_code = '" . trim(formData('country_code')) . "', " .
     "federal_ein = '"  . trim(formData('federal_ein' )) . "', " .
     "website = '"      . trim(formData('website'     )) . "', " .
-    "email = '"      	 . trim(formData('email'       )) . "', " .
+    "email = '"          . trim(formData('email'       )) . "', " .
     "color = '"  . trim(formData('ncolor' )) . "', " .
     "service_location = '"  . trim(formData('service_location' )) . "', " .
     "billing_location = '"  . trim(formData('billing_location' )) . "', " .
@@ -80,20 +80,20 @@ $(document).ready(function(){
     enable_modals();
 
     // special size for
-	$(".addfac_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 460,
-		'frameWidth' : 650
-	});
+    $(".addfac_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 460,
+        'frameWidth' : 650
+    });
 
     // special size for
-	$(".medium_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 460,
-		'frameWidth' : 650
-	});
+    $(".medium_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 460,
+        'frameWidth' : 650
+    });
 
 });
 
@@ -105,19 +105,19 @@ $(document).ready(function(){
 
 <div>
     <div>
-	<table><tr><td>
+    <table><tr><td>
         <b><?php xl('Facilities','e'); ?></b>&nbsp;</td><td>
-		 <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
-		 </td></tr>
-	</table>
+         <a href="facilities_add.php" class="iframe addfac_modal css_button"><span><?php xl('Add','e');?></span></a>
+         </td></tr>
+    </table>
     </div>
     <div class="tabContainer" style="width:550px;">
         <div>
 <table cellpadding="1" cellspacing="0" class="showborder">
-	<tr class="showborder_head" height="22">
-		<th style="border-style:1px solid #000" width="140px"><?php xl('Name','e'); ?></th>
-		<th style="border-style:1px solid #000" width="320px"><?php xl('Address','e'); ?></th>
-		<th style="border-style:1px solid #000"><?php xl('Phone','e'); ?></th>
+    <tr class="showborder_head" height="22">
+        <th style="border-style:1px solid #000" width="140px"><?php xl('Name','e'); ?></th>
+        <th style="border-style:1px solid #000" width="320px"><?php xl('Address','e'); ?></th>
+        <th style="border-style:1px solid #000"><?php xl('Phone','e'); ?></th>
     </tr>
         <?php
         $fres = 0;
@@ -147,11 +147,11 @@ $(document).ready(function(){
         if (count($result2)<=0)
         {?>
          <tr height="25">
-		<td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
-	</tr>
+        <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl( "Currently there are no facilities." ); ?></td>
+    </tr>
             <?php }
 ?>
-	</table>
+    </table>
         </div>
     </div>
 </div>

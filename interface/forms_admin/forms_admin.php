@@ -69,17 +69,17 @@ if ($err)
 <i><?php echo xlt('click here to update priority, category, nickname and access control settings'); ?></i>
 <input type='submit' name='update' value='<?php echo xla('update'); ?>'><br>
 <table border=0 cellpadding=1 cellspacing=2 width="500">
-	<tr>
-		<td> </td>
-		<td> </td>
-		<td> </td>
-		<td> </td>
-		<td> </td>
-		<td><?php echo xlt('Priority'); ?> </td>
-		<td><?php echo xlt('Category'); ?> </td>
-		<td><?php echo xlt('Nickname'); ?> </td>
-		<td><?php echo xlt('Access Control'); ?></td>
-	</tr>
+    <tr>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td> </td>
+        <td><?php echo xlt('Priority'); ?> </td>
+        <td><?php echo xlt('Category'); ?> </td>
+        <td><?php echo xlt('Nickname'); ?> </td>
+        <td><?php echo xlt('Access Control'); ?></td>
+    </tr>
 <?php
 $color="#CCCCCC";
 if ($bigdata != false)
@@ -100,7 +100,7 @@ foreach($bigdata as $registry)
         echo "<td bgcolor='" . attr($color) . "' width='10%'><span class='text'>" . xlt('registered') . "</span>";
       elseif ($registry['state'] == "0")
         echo "<td bgcolor='#FFCCCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=enable'>" . xlt('disabled') . "</a>";
-      else
+    else
         echo "<td bgcolor='#CCFFCC' width='10%'><a class='link_submit' href='./forms_admin.php?id={$registry['id']}&method=disable'>" . xlt('enabled') . "</a>";
     ?></td>
     <td bgcolor="<?php echo attr($color); ?>" width="10%">
@@ -176,34 +176,34 @@ foreach ( $inDir as $fname )
     else
         $phpState =  "PHP extracted";
     ?>
-	<tr>
-		<td bgcolor="<?php echo $color?>" width="1%">
-			<span class=text> </span>
-		</td>
-		<td bgcolor="<?php echo $color?>" width="20%">
-	        <?php
+    <tr>
+        <td bgcolor="<?php echo $color?>" width="1%">
+            <span class=text> </span>
+        </td>
+        <td bgcolor="<?php echo $color?>" width="20%">
+            <?php
                 $form_title_file = @file($GLOBALS['srcdir']."/../interface/forms/$fname/info.txt");
                         if ($form_title_file)
                                 $form_title = $form_title_file[0];
-                        else
+            else
                                 $form_title = $fname;
                 ?>
-			<span class=bold><?php echo xl_form_title($form_title); ?></span>
-		</td>
-		<td bgcolor="<?php echo $color?>" width="10%"><?php
+            <span class=bold><?php echo xl_form_title($form_title); ?></span>
+        </td>
+        <td bgcolor="<?php echo $color?>" width="10%"><?php
             if ($phpState == "PHP extracted")
                 echo '<a class=link_submit href="./forms_admin.php?name=' . urlencode($fname) . '&method=register">' . xl('register') . '</a>';
-            else
+        else
                 echo '<span class=text>' . xl('n/a') . '</span>';
         ?></td>
-		<td bgcolor="<?php echo $color?>" width="20%">
-			<span class=text><?php echo xl($phpState); ?></span>
-		</td>
-		<td bgcolor="<?php echo $color?>" width="10%">
-			<span class=text><?php xl('n/a','e'); ?></span>
-		</td>
-	</tr>
-	<?php
+        <td bgcolor="<?php echo $color?>" width="20%">
+            <span class=text><?php echo xl($phpState); ?></span>
+        </td>
+        <td bgcolor="<?php echo $color?>" width="10%">
+            <span class=text><?php xl('n/a','e'); ?></span>
+        </td>
+    </tr>
+    <?php
     if ($color=="#CCCCCC")
             $color="#999999";
     else

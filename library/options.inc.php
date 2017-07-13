@@ -2486,10 +2486,10 @@ function display_layout_tabs($formtype, $result1, $result2='')
         $group_name = substr($this_group, 1);
         if ($group_name === 'Employer' && $GLOBALS['omit_employers']) continue;
         ?>
-		<li <?php echo $first ? 'class="current"' : '' ?>>
+        <li <?php echo $first ? 'class="current"' : '' ?>>
             <a href="#" id="header_tab_<?php echo str_replace(" ", "_",htmlspecialchars($group_name,ENT_QUOTES))?>">
                         <?php echo htmlspecialchars(xl_layout_label($group_name),ENT_NOQUOTES); ?></a>
-		</li>
+        </li>
         <?php
         $first = false;
     }
@@ -2520,10 +2520,10 @@ function display_layout_tabs_data($formtype, $result1, $result2='')
         "ORDER BY seq", array($formtype, $this_group) );
     ?>
 
-		<div class="tab <?php echo $first ? 'current' : '' ?>">
-			<table border='0' cellpadding='0'>
+        <div class="tab <?php echo $first ? 'current' : '' ?>">
+            <table border='0' cellpadding='0'>
 
-			<?php
+            <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
 
                 $titlecols     = $group_fields['titlecols'];
@@ -2606,8 +2606,8 @@ function display_layout_tabs_data($formtype, $result1, $result2='')
             disp_end_row();
             ?>
 
-			</table>
-		</div>
+            </table>
+        </div>
 
         <?php
 
@@ -2661,10 +2661,10 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='')
         "ORDER BY seq", array($formtype,$this_group) );
     ?>
 
-		<div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_',$group_name_esc)?>" >
-			<table border='0' cellpadding='0'>
+        <div class="tab <?php echo $first ? 'current' : '' ?>" id="tab_<?php echo str_replace(' ', '_',$group_name_esc)?>" >
+            <table border='0' cellpadding='0'>
 
-			<?php
+            <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
 
                 $titlecols  = $group_fields['titlecols'];
@@ -2740,8 +2740,8 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='')
             }
             ?>
 
-			</table>
-		</div>
+            </table>
+        </div>
 
         <?php
 

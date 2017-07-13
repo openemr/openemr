@@ -45,7 +45,7 @@
 
  // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
- {
+{
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
     $udate = strtotime($starttime, $udate);
     if ($udate < $slotstime) return;
@@ -118,86 +118,86 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
  // Compute the number of time slots for the given event duration, or if
  // none is given then assume the default category duration.
  $evslots = $catslots;
-if (isset($_REQUEST['evdur'])) {
+ if (isset($_REQUEST['evdur'])) {
 
-  // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-  // if the event duration is less than or equal to zero, use the global calander interval
-  // if the global calendar interval is less than or equal to zero, use 10 mins
-    if(intval($_REQUEST['evdur']) <= 0){
-        if(intval($GLOBALS['calendar_interval']) <= 0){
-            $_REQUEST['evdur'] = 10;
-        }else{
-            $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
+    // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
+    // if the event duration is less than or equal to zero, use the global calander interval
+    // if the global calendar interval is less than or equal to zero, use 10 mins
+     if(intval($_REQUEST['evdur']) <= 0){
+         if(intval($GLOBALS['calendar_interval']) <= 0){
+             $_REQUEST['evdur'] = 10;
+            }else{
+                $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
+            }
         }
+        $evslots = 60 * $_REQUEST['evdur'];
+        $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
     }
-    $evslots = 60 * $_REQUEST['evdur'];
-    $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
-}
 
  // If we have a provider, search.
  //
-if ($_REQUEST['providerid']) {
-    $providerid = $_REQUEST['providerid'];
+    if ($_REQUEST['providerid']) {
+        $providerid = $_REQUEST['providerid'];
 
-  // Create and initialize the slot array. Values are bit-mapped:
-  //   bit 0 = in-office occurs here
-  //   bit 1 = out-of-office occurs here
-  //   bit 2 = reserved
-  // So, values may range from 0 to 7.
-  //
-    $slots = array_pad(array(), $slotcount, 0);
+          // Create and initialize the slot array. Values are bit-mapped:
+          //   bit 0 = in-office occurs here
+          //   bit 1 = out-of-office occurs here
+          //   bit 2 = reserved
+          // So, values may range from 0 to 7.
+          //
+        $slots = array_pad(array(), $slotcount, 0);
 
-    $sqlBindArray = array();
+        $sqlBindArray = array();
 
-  // Note there is no need to sort the query results.
-    $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
-    "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
-    "FROM openemr_postcalendar_events " .
-    "WHERE pc_aid = ? AND " .
-    "pc_eid != ? AND " .
-    "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
-    "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+          // Note there is no need to sort the query results.
+        $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
+        "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid " .
+        "FROM openemr_postcalendar_events " .
+        "WHERE pc_aid = ? AND " .
+        "pc_eid != ? AND " .
+        "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
+        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
-    array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
+        array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
-  // phyaura whimmel facility filtering
-    if ($_REQUEST['facility'] > 0 ) {
-        $facility = $_REQUEST['facility'];
-        $query .= " AND pc_facility = ?";
-        array_push($sqlBindArray, $facility);
-    }
-  // end facility filtering whimmel 29apr08
+          // phyaura whimmel facility filtering
+        if ($_REQUEST['facility'] > 0 ) {
+            $facility = $_REQUEST['facility'];
+            $query .= " AND pc_facility = ?";
+            array_push($sqlBindArray, $facility);
+        }
+          // end facility filtering whimmel 29apr08
 
-  //////
-    $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
-    foreach($events2 as $row) {
-        $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-        doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
+          //////
+        $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
+        foreach($events2 as $row) {
+            $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
+            doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
              $row['pc_duration'], $row['pc_prefcatid']);
-    }
-  //////
+        }
+          //////
 
-  // Mark all slots reserved where the provider is not in-office.
-  // Actually we could do this in the display loop instead.
-    $inoffice = false;
-    for ($i = 0; $i < $slotcount; ++$i) {
-        if (($i % $slotsperday) == 0) $inoffice = false;
-        if ($slots[$i] & 1) $inoffice = true;
-        if ($slots[$i] & 2) $inoffice = false;
-        if (! $inoffice) { $slots[$i] |= 4;
-            $prov[$i] = $i; }
+          // Mark all slots reserved where the provider is not in-office.
+          // Actually we could do this in the display loop instead.
+        $inoffice = false;
+        for ($i = 0; $i < $slotcount; ++$i) {
+            if (($i % $slotsperday) == 0) $inoffice = false;
+            if ($slots[$i] & 1) $inoffice = true;
+            if ($slots[$i] & 2) $inoffice = false;
+            if (! $inoffice) { $slots[$i] |= 4;
+                $prov[$i] = $i; }
+        }
     }
-}
-$ckavail = true;
+    $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
-$is_holiday=false;
-$holidays_controller = new Holidays_Controller();
-$holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
-if(in_array($sdate,$holidays)){
-    $is_holiday=true;
-    $ckavail=true;
-}
+    $is_holiday=false;
+    $holidays_controller = new Holidays_Controller();
+    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
+    if(in_array($sdate,$holidays)){
+        $is_holiday=true;
+        $ckavail=true;
+    }
 //////
 
 
@@ -208,35 +208,35 @@ if(in_array($sdate,$holidays)){
  // the opener and go away quietly if it is.  If it's not then we have more
  // work to do.
 
-if (isset($_REQUEST['cktime'])) {
-    $cktime = 0 + $_REQUEST['cktime'];
-    $ckindex = (int) ($cktime * 60 / $slotsecs);
-    for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
-        if ($slots[$j] >= 4) {
-            $ckavail = false;
-            $isProv = false;
-            if(isset($prov[$j])){
-                $isProv = 'TRUE';
+    if (isset($_REQUEST['cktime'])) {
+        $cktime = 0 + $_REQUEST['cktime'];
+        $ckindex = (int) ($cktime * 60 / $slotsecs);
+        for ($j = $ckindex; $j < $ckindex + $evslots; ++$j) {
+            if ($slots[$j] >= 4) {
+                $ckavail = false;
+                $isProv = false;
+                if(isset($prov[$j])){
+                    $isProv = 'TRUE';
+                }
             }
         }
-    }
 
-    if ($ckavail) {
-      // The chosen appointment time is available.
-        echo "<html>"
-        . "<script language='JavaScript'>\n";
-        echo "function mytimeout() {\n";
-        echo " opener.top.restoreSession();\n";
-        echo " opener.document.forms[0].submit();\n";
-        echo " window.close();\n";
-        echo "}\n";
-        echo "</script></head><body onload='setTimeout(\"mytimeout()\",250);'>" .
-        xlt('Time slot is open, saving event') . "...</body></html>";
-        exit();
+        if ($ckavail) {
+          // The chosen appointment time is available.
+            echo "<html>"
+            . "<script language='JavaScript'>\n";
+            echo "function mytimeout() {\n";
+            echo " opener.top.restoreSession();\n";
+            echo " opener.document.forms[0].submit();\n";
+            echo " window.close();\n";
+            echo "}\n";
+            echo "</script></head><body onload='setTimeout(\"mytimeout()\",250);'>" .
+            xlt('Time slot is open, saving event') . "...</body></html>";
+            exit();
+        }
+          // The appointment slot is not available.  A message will be displayed
+          // after this page is loaded.
     }
-  // The appointment slot is not available.  A message will be displayed
-  // after this page is loaded.
-}
 ?>
 <html>
 <head>

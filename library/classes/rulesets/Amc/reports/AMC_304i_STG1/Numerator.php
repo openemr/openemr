@@ -37,7 +37,7 @@ class AMC_304i_STG1_Numerator implements AmcFilterIF
             $no_problems = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medical_problem'",array($patient->id));
                 $problems    = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'medical_problem'",array($patient->id));
 
-                $no_allergy 	= sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'allergy'",array($patient->id));
+                $no_allergy     = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'allergy'",array($patient->id));
                 $allergies      = sqlQuery("select count(*) as cnt from lists where pid = ? and type = 'allergy'",array($patient->id));
 
                 $no_medication = sqlQuery("select count(*) as cnt from lists_touch where pid = ? and type = 'medication'",array($patient->id));

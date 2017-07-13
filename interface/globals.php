@@ -502,9 +502,9 @@ $SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
 
 //module configurations
-$GLOBALS['baseModDir'] 	= "interface/modules/"; //default path of modules
-$GLOBALS['customModDir']= "custom_modules";	//non zend modules
-$GLOBALS['zendModDir']	= "zend_modules";	//zend modules
+$GLOBALS['baseModDir']  = "interface/modules/"; //default path of modules
+$GLOBALS['customModDir']= "custom_modules"; //non zend modules
+$GLOBALS['zendModDir']  = "zend_modules";   //zend modules
 
 // Don't change anything below this line. ////////////////////////////
 

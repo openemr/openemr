@@ -219,7 +219,7 @@ function iterate_over_node($node)
                     break;
             }
         
-            default :
+        default :
             // do nothing
     }
     

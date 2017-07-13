@@ -75,7 +75,7 @@ if ($mode == "new_payment" || $mode == "distribute")
         "', user_id = '"     . trim($user_id                  )  .
         "', closed = '"      . trim($closed                   )  .
         "', reference = '"   . trim(formData('check_number'   )) .
-        "', check_date = '"  . trim($check_date					) .
+        "', check_date = '"  . trim($check_date                 ) .
         "', deposit_date = '" . trim($deposit_date            )  .
         "', pay_total = '"    . trim(formData('payment_amount')) .
         "', modified_time = '" . trim($modified_time            )  .
@@ -142,110 +142,110 @@ $payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
 <script LANGUAGE="javascript" TYPE="text/javascript">
 function CancelDistribute()
  {//Used in the cancel button.Helpful while cancelling the distribution.
-	if(confirm("<?php echo htmlspecialchars( xl('Would you like to Cancel Distribution for this Patient?'), ENT_QUOTES) ?>"))
-	 {
-		document.getElementById('hidden_patient_code').value='';
-		document.getElementById('mode').value='search';
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 return false;
+    if(confirm("<?php echo htmlspecialchars( xl('Would you like to Cancel Distribution for this Patient?'), ENT_QUOTES) ?>"))
+     {
+        document.getElementById('hidden_patient_code').value='';
+        document.getElementById('mode').value='search';
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     return false;
  }
 function PostPayments()
  {//Used in saving the allocation
- 	if(CompletlyBlank())//Checks whether any of the allocation row is filled.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
- 	if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-	 {
-	  return false;
-	 }
-	PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-	if(PostValue==1)
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
-	if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post Payments?'), ENT_QUOTES) ?>"))
-	 {
-		document.getElementById('mode').value='PostPayments';
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 return false;
+    if(CompletlyBlank())//Checks whether any of the allocation row is filled.
+     {
+      alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+     {
+      return false;
+     }
+    PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if(PostValue==1)
+     {
+      alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post Payments?'), ENT_QUOTES) ?>"))
+     {
+        document.getElementById('mode').value='PostPayments';
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     return false;
  }
 function FinishPayments()
  {//Used in finishig the allocation.Usually done when the amount gets reduced to zero.
  //After this is pressed a confirmation screen comes,where you can edit if needed.
- 	if(CompletlyBlank())//Checks whether any of the allocation row is filled.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
- 	if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-	 {
-	  return false;
-	 }
- 	PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-	if(PostValue==1)
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
-	if(PostValue==2)
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
-		 {
-			UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
-			if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
-			 {
-				document.getElementById('mode').value='FinishPayments';
-				document.getElementById('global_amount').value='yes';
-				top.restoreSession();
-				document.forms[0].submit();
-			 }
-			else
-			 {
-				document.getElementById('mode').value='FinishPayments';
-				top.restoreSession();
-				document.forms[0].submit();
-			 }
-		 }
-		else
-		 return false;
-	 }
-	else
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
-		 {
-			document.getElementById('mode').value='FinishPayments';
-			top.restoreSession();
-			document.forms[0].submit();
-		 }
-		else
-		 return false;
-	 }
+    if(CompletlyBlank())//Checks whether any of the allocation row is filled.
+     {
+      alert("<?php echo htmlspecialchars( xl('Fill the Row.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+     {
+      return false;
+     }
+    PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if(PostValue==1)
+     {
+      alert("<?php echo htmlspecialchars( xl('Cannot Post Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(PostValue==2)
+     {
+        if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
+         {
+            UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
+            if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount +  '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
+             {
+                document.getElementById('mode').value='FinishPayments';
+                document.getElementById('global_amount').value='yes';
+                top.restoreSession();
+                document.forms[0].submit();
+             }
+            else
+             {
+                document.getElementById('mode').value='FinishPayments';
+                top.restoreSession();
+                document.forms[0].submit();
+             }
+         }
+        else
+         return false;
+     }
+    else
+     {
+        if(confirm("<?php echo htmlspecialchars( xl('Would you like to Post and Finish Payments?'), ENT_QUOTES) ?>"))
+         {
+            document.getElementById('mode').value='FinishPayments';
+            top.restoreSession();
+            document.forms[0].submit();
+         }
+        else
+         return false;
+     }
 
  }
 function CompletlyBlank()
  {//Checks whether any of the allocation row is filled.
   for(RowCount=1;;RowCount++)
    {
-	  if(!document.getElementById('Payment'+RowCount))
-	   break;
-	  else
-	   {
-		   if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
-			{
+      if(!document.getElementById('Payment'+RowCount))
+       break;
+      else
+       {
+           if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
+            {
 
-			}
-		    else
-			 return false;
-	   }
+            }
+            else
+             return false;
+       }
    }
   return true;
  }
@@ -258,17 +258,17 @@ function OnloadAction()
    }
   else if(after_value=='new_payment')
    {
-	if(document.getElementById('TablePatientPortion'))
-	 {
-		document.getElementById('TablePatientPortion').style.display='none';
-	 }
-	if(confirm("<?php echo htmlspecialchars( xl('Successfully Saved.Would you like to Allocate?'), ENT_QUOTES) ?>"))
-	 {
-		if(document.getElementById('TablePatientPortion'))
-		 {
-			document.getElementById('TablePatientPortion').style.display='';
-		 }
-	 }
+    if(document.getElementById('TablePatientPortion'))
+     {
+        document.getElementById('TablePatientPortion').style.display='none';
+     }
+    if(confirm("<?php echo htmlspecialchars( xl('Successfully Saved.Would you like to Allocate?'), ENT_QUOTES) ?>"))
+     {
+        if(document.getElementById('TablePatientPortion'))
+         {
+            document.getElementById('TablePatientPortion').style.display='';
+         }
+     }
    }
 
  }
@@ -306,18 +306,18 @@ document.onclick=HideTheAjaxDivs;
 .left{border-left:1px solid black;}
 .right{border-right:1px solid black;}
 #ajax_div_insurance {
-	position: absolute;
-	z-index:10;
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 #ajax_div_patient {
-	position: absolute;
-	z-index:10;
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 </style>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
@@ -350,18 +350,18 @@ return false;
   </tr>
   <tr>
     <td colspan="3" align="left">
-		<ul class="tabNav">
-		 <li class='current'><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
-		 <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
-		 <li><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
-		</ul>	</td>
+        <ul class="tabNav">
+         <li class='current'><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
+         <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
+         <li><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
+        </ul>   </td>
   </tr>
   <tr>
     <td colspan="3" align="left" >
     <?php
     require_once("payment_master.inc.php"); //Check/cash details are entered here.
     ?>
-	</td>
+    </td>
   </tr>
 </table>
 <?php
@@ -369,7 +369,7 @@ if($payment_id*1>0)
   {
     ?>
 <table width="999" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="979" border="0" cellspacing="0" cellpadding="0">
+    <table width="979" border="0" cellspacing="0" cellpadding="0">
      <tr>
        <td colspan="13" align="left" >
                <!--Distribute section-->
@@ -384,35 +384,35 @@ if($payment_id*1>0)
                 }
                 require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                 ?>
-			</td>
-		  </tr>
-		  <tr>
-			<td colspan="13" align="left" >
-				<?php
+            </td>
+          </tr>
+          <tr>
+            <td colspan="13" align="left" >
+                <?php
                 if($CountIndexBelow>0)
                 {
                 ?>
-				<table border="0" cellspacing="0" cellpadding="0" width="267" align="center" id="AllocateButtons">
-				  <tr height="5">
-					<td ></td>
-					<td ></td>
-					<td></td>
-				  </tr>
-				  <tr>
-					<td width="100"><a href="#" onClick="javascript:return PostPayments();"  class="css_button"><span><?php echo htmlspecialchars( xl('Post Payments'), ENT_QUOTES);?></span></a></td>
-					<td width="107"><a href="#" onClick="javascript:return FinishPayments();"  class="css_button"><span><?php echo htmlspecialchars( xl('Finish Payments'), ENT_QUOTES);?></span></a></td>
-					<td width="60"><a href="#"  onClick="CancelDistribute()" class="css_button"><span><?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES);?></span></a></td>
-				  </tr>
-				</table>
-				<?php
+                <table border="0" cellspacing="0" cellpadding="0" width="267" align="center" id="AllocateButtons">
+                  <tr height="5">
+                    <td ></td>
+                    <td ></td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td width="100"><a href="#" onClick="javascript:return PostPayments();"  class="css_button"><span><?php echo htmlspecialchars( xl('Post Payments'), ENT_QUOTES);?></span></a></td>
+                    <td width="107"><a href="#" onClick="javascript:return FinishPayments();"  class="css_button"><span><?php echo htmlspecialchars( xl('Finish Payments'), ENT_QUOTES);?></span></a></td>
+                    <td width="60"><a href="#"  onClick="CancelDistribute()" class="css_button"><span><?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES);?></span></a></td>
+                  </tr>
+                </table>
+                <?php
                 }//if($CountIndexBelow>0)
                 ?>
-		<?php
+        <?php
 }
-        ?>		</td>
-	  </tr>
-	</table>
-	</td></tr></table>
+        ?>      </td>
+      </tr>
+    </table>
+    </td></tr></table>
 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo htmlspecialchars($hidden_patient_code);?>"/>
 <input type='hidden' name='mode' id='mode' value='' />
 <input type='hidden' name='default_search_patient' id='default_search_patient' value='<?php echo $default_search_patient ?>' />

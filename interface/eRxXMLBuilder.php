@@ -302,15 +302,15 @@ class eRxXMLBuilder {
         switch ($eRxUserRole) {
             case 'admin':
             case 'manager':
-            case 'nurse':				$newCropUser = 'Staff';
+            case 'nurse':               $newCropUser = 'Staff';
 break;
-            case 'doctor':				$newCropUser = 'LicensedPrescriber';
+            case 'doctor':              $newCropUser = 'LicensedPrescriber';
 break;
-            case 'supervisingDoctor':	$newCropUser = 'SupervisingDoctor';
+            case 'supervisingDoctor':   $newCropUser = 'SupervisingDoctor';
 break;
-            case 'midlevelPrescriber':	$newCropUser = 'MidlevelPrescriber';
+            case 'midlevelPrescriber':  $newCropUser = 'MidlevelPrescriber';
 break;
-            default:					$newCropUser = '';
+            default:                    $newCropUser = '';
         }
 
         $element = $this->getDocument()->createElement('UserRole');
@@ -672,14 +672,14 @@ break;
                     ->getPrescriptionById($prescriptionId);
 
                 $element = $this->getOutsidePrescription(array(
-                    'externalId'		=> $prescription['prescid'],
-                    'date'				=> $prescription['date_added'],
-                    'doctorName'		=> $prescription['docname'],
-                    'drug'				=> $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
-                    'dispenseNumber'	=> intval($prescription['quantity']),
-                    'sig'				=> $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3'], 140)),
-                    'refillCount'		=> intval($prescription['per_refill']),
-                    'prescriptionType'	=> 'reconcile'
+                    'externalId'        => $prescription['prescid'],
+                    'date'              => $prescription['date_added'],
+                    'doctorName'        => $prescription['docname'],
+                    'drug'              => $this->trimData($this->stripSpecialCharacter($prescription['drug']), 80),
+                    'dispenseNumber'    => intval($prescription['quantity']),
+                    'sig'               => $this->trimData($this->stripSpecialCharacter($prescription['quantity'][1].$prescription['size'].' '.$prescription['title4'].' '.$prescription['dosage'].' In '.$prescription['title1'].' '.$prescription['title2'].' '.$prescription['title3'], 140)),
+                    'refillCount'       => intval($prescription['per_refill']),
+                    'prescriptionType'  => 'reconcile'
                 ));
 
                 $this->addSentPrescriptionId($prescriptionId);
@@ -700,14 +700,14 @@ break;
 
         while($medication = sqlFetchArray($medications)) {
             $elements[] = $this->getOutsidePrescription(array(
-                'externalId'		=> $medication['id'],
-                'date'				=> $medication['begdate'],
-                'doctorName'		=> '',
-                'drug'				=> $this->trimData($medication['title'], 80),
-                'dispenseNumber'	=> '',
-                'sig'				=> '',
-                'refillCount'		=> '',
-                'prescriptionType'	=> 'reconcile'
+                'externalId'        => $medication['id'],
+                'date'              => $medication['begdate'],
+                'doctorName'        => '',
+                'drug'              => $this->trimData($medication['title'], 80),
+                'dispenseNumber'    => '',
+                'sig'               => '',
+                'refillCount'       => '',
+                'prescriptionType'  => 'reconcile'
             ));
 
             $this->addSentMedicationIds($medication['id']);

@@ -13,11 +13,11 @@ include_once("$srcdir/options.inc.php");
 <script type='text/javascript'>
     function load_location( location ) {
         top.restoreSession();
-		if ( !top.frames["RTop"] ) {
-			document.location=location;
-		} else {
-        	top.frames["RTop"].location=location;
-		}
+        if ( !top.frames["RTop"] ) {
+            document.location=location;
+        } else {
+            top.frames["RTop"].location=location;
+        }
     }
 </script>
 
@@ -45,12 +45,12 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     if($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
         $display_current_medications_below=0;
     ?>
-	<div>
-	    <table id="patient_stats_prescriptions">
+    <div>
+        <table id="patient_stats_prescriptions">
     <?php
     if($GLOBALS['erx_enable']) {
 ?>
-	    <tr><td>
+        <tr><td>
 <?php
 if ($_POST['embeddedScreen']) {
     $widgetTitle = xl('Current Medications');
@@ -66,7 +66,7 @@ if ($_POST['embeddedScreen']) {
 }
       $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'",array($pid));
 ?>
-	    <table>
+        <table>
 <?php
 if (sqlNumRows($res) == 0) {
 ?>
@@ -93,8 +93,8 @@ while($row_currentMed=sqlFetchArray($res)) {
 <?php
 } // end while
 ?>
-	    </table>
-	    </td></tr>
+        </table>
+        </td></tr>
 <?php
     } // end erx_enable
     $old_key='';
@@ -335,7 +335,7 @@ if(sqlNumRows($res)==0)
 {
     ?>
     <tr class=text>
-	    <td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
+        <td><?php echo htmlspecialchars(xl('None'), ENT_NOQUOTES);?></td>
     </tr>
     <?php
 }
@@ -347,8 +347,8 @@ while($row_currentMed=sqlFetchArray($res))
     $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),$row_currentMed['interval']);
     ?>
     <tr class=text >
-	    <td><?php echo $row_currentMed['drug'];?></td>
-	    <td><?php $unit='';
+        <td><?php echo $row_currentMed['drug'];?></td>
+        <td><?php $unit='';
         if($row_currentMed['size']>0) $unit=$row_currentMed['size']." ".$runit." ";
         echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);?></td>
     </tr>

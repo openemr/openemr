@@ -120,7 +120,7 @@ class sms
     * @return object New SMS object.
     * @access public
     */
-    function sms ()
+    function sms()
     {
         if ($this->use_ssl) {
             $this->base   = "http://api.clickatell.com/http";
@@ -226,7 +226,7 @@ class sms
     * @return mixed  Return encoded text of message.
     * @access public
     */
-    function encode_message ($text)
+    function encode_message($text)
     {
         if ($this->unicode != true) {
             //standard encoding
@@ -277,7 +277,7 @@ class sms
     * @return mixed  Status code
     * @access public
     */
-    function token_pay ($token)
+    function token_pay($token)
     {
         $comm = sprintf ("%s/http/token_pay?session_id=%s&token=%s",
         $this->base,
@@ -343,7 +343,7 @@ class sms
     * Parse authentication command response text
     * @access private
     */
-    function _parse_auth ($result)
+    function _parse_auth($result)
     {
         $session = substr($result, 4);
         $code = substr($result, 0, 2);
@@ -357,7 +357,7 @@ class sms
     * Parse send command response text
     * @access private
     */
-    function _parse_send ($result)
+    function _parse_send($result)
     {
         $code = substr($result, 0, 2);
         if ($code!="ID") {
@@ -372,7 +372,7 @@ class sms
     * Parse getbalance command response text
     * @access private
     */
-    function _parse_getbalance ($result)
+    function _parse_getbalance($result)
     {
         $result = substr($result, 8);
         return (int)$result;

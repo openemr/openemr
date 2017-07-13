@@ -44,7 +44,7 @@ class sms
             // larry :: default if not defined - TODO  replace
             if( !$sender )
                   $request .= "&from=BosmanGGZ";
-                else
+        else
           $request .= "&from=".urlencode($sender);
         
         $request .= "&route=GD02";

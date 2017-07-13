@@ -728,21 +728,21 @@ function edih_278_csv_data($obj278)
                 if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
                     $sar = explode($de, $seg);
                     $hl = $sar[1];
-                    $hlpc = $sar[2];							// parent code
+                    $hlpc = $sar[2];                            // parent code
                     $hllc = $sar[3];
-                    $hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
-                    if ($sar[3] == '20') {						// level code
-                        $loopid = '2000A';						// info source (payer)
+                    $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+                    if ($sar[3] == '20') {                      // level code
+                        $loopid = '2000A';                      // info source (payer)
                     } elseif ($sar[3] == '21') {
-                        $loopid = '2000B';						// info receiver (clinic)
+                        $loopid = '2000B';                      // info receiver (clinic)
                     } elseif ($sar[3] == '22') {
-                        $loopid = '2000C';						// subscriber
+                        $loopid = '2000C';                      // subscriber
                     } elseif ($sar[3] == '23') {
-                        $loopid = '2000D';						// dependent
+                        $loopid = '2000D';                      // dependent
                     } elseif ($sar[3] == 'EV') {
-                        $loopid = '2000E';						// patient event
+                        $loopid = '2000E';                      // patient event
                     } elseif ($sar[3] == 'SS') {
-                        $loopid = '2000F';						// service
+                        $loopid = '2000F';                      // service
                     } else {
                         //debug
                         csv_edihist_log('HL has no level '.$seg.' in '.$fn);
@@ -996,7 +996,7 @@ function edih_997_csv_data($obj997)
                     $loopid = '2100';
                     $ctx_ct = 0;
                     //
-                    $err_seg .= ($err_seg) ? '' : $bht03syn.'*IK3*';	// ISA13+ST02 * invalid segment ID
+                    $err_seg .= ($err_seg) ? '' : $bht03syn.'*IK3*';    // ISA13+ST02 * invalid segment ID
                     $err_seg .= (isset($sar[1])) ? '*'.$sar[1] : '*';
                     $err_seg .= (isset($sar[2])) ? '*'.$sar[2] : '*';   // segment position
                     //$err_seg .= (isset($sar[3])) ? '*'.$sar[3] : '*';   // loop, first 4 characters
@@ -1204,17 +1204,17 @@ function edih_271_csv_data($obj270)
                 if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
                     $sar = explode($de, $seg);
                     $hl = $sar[1];
-                    $hlpc = $sar[2];							// parent code
+                    $hlpc = $sar[2];                            // parent code
                     $hllc = $sar[3];
-                    $hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
-                    if ($sar[3] == '20') {						// level code
-                        $loopid = '2000A';						// info source (payer)
+                    $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+                    if ($sar[3] == '20') {                      // level code
+                        $loopid = '2000A';                      // info source (payer)
                     } elseif ($sar[3] == '21') {
-                        $loopid = '2000B';						// info receiver (clinic)
+                        $loopid = '2000B';                      // info receiver (clinic)
                     } elseif ($sar[3] == '22') {
-                        $loopid = '2000C';						// subscriber
+                        $loopid = '2000C';                      // subscriber
                     } elseif ($sar[3] == '23') {
-                        $loopid = '2000D';						// dependent
+                        $loopid = '2000D';                      // dependent
                     } else {
                         //debug
                         csv_edihist_log('HL has no level '.$seg.' in '.$fn);

@@ -1091,7 +1091,7 @@ while ($row = sqlFetchArray($res)) {
     <?php // if not english and showing layout label translations, then show translation header for title
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
-    } ?>		  
+    } ?>          
     <th><?php xl('UOR','e'); ?></th>
     <th><?php xl('Data Type','e'); ?></th>
     <th><?php xl('Size','e'); ?></th>
@@ -1130,7 +1130,7 @@ while ($row = sqlFetchArray($res)) {
 <!-- template DIV that appears when user chooses to rename an existing group -->
 <div id="renamegroupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="">
-<?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
+<?php xl('Group Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
 <br>
 <input type="button" class="saverenamegroup" value=<?php xl('Rename Group','e','\'','\''); ?>>
 <input type="button" class="cancelrenamegroup" value=<?php xl('Cancel','e','\'','\''); ?>>
@@ -1139,7 +1139,7 @@ while ($row = sqlFetchArray($res)) {
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <span class='bold'>
-<?php xl('Group Name','e'); ?>:	<input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
+<?php xl('Group Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
 <table style="border-collapse: collapse; margin-top: 5px;">
 <thead>

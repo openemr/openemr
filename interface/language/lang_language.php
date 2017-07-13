@@ -34,16 +34,16 @@ if ($_POST['add']){
 <TABLE>
 <FORM name="lang_form" METHOD=POST ACTION="?m=language" onsubmit="return top.restoreSession()">
 <TR>
-	<TD><?php  echo htmlspecialchars(xl('Language Code'),ENT_NOQUOTES); ?>:</TD>
-	<TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<?php echo htmlspecialchars($val_lang_code,ENT_QUOTES); ?>"></TD>
+    <TD><?php  echo htmlspecialchars(xl('Language Code'),ENT_NOQUOTES); ?>:</TD>
+    <TD><INPUT TYPE="text" NAME="lang_code" size="2" maxlength="2" value="<?php echo htmlspecialchars($val_lang_code,ENT_QUOTES); ?>"></TD>
 </TR>
 <TR>
-	<TD><?php  echo htmlspecialchars(xl('Language Name'),ENT_NOQUOTES); ?>:</TD>
-	<TD><INPUT TYPE="text" NAME="lang_name" size="24" value="<?php echo htmlspecialchars($val_lang_name,ENT_QUOTES); ?>"></TD>
+    <TD><?php  echo htmlspecialchars(xl('Language Name'),ENT_NOQUOTES); ?>:</TD>
+    <TD><INPUT TYPE="text" NAME="lang_name" size="24" value="<?php echo htmlspecialchars($val_lang_name,ENT_QUOTES); ?>"></TD>
 </TR>
 <TR>
-	<TD></TD>
-	<TD><INPUT TYPE="submit" name="add" value="<?php echo htmlspecialchars(xl('Add'),ENT_QUOTES); ?>"></TD>
+    <TD></TD>
+    <TD><INPUT TYPE="submit" name="add" value="<?php echo htmlspecialchars(xl('Add'),ENT_QUOTES); ?>"></TD>
 </TR>
 </FORM>
 </TABLE>

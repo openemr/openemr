@@ -130,7 +130,7 @@ if ($_GET["mode"] == "update") {
   // On a successful update, return to the users list.
   include("usergroup_admin.php");
   exit(0);
-  */  	echo '
+  */    echo '
 <script type="text/javascript">
 <!--
 parent.$.fn.fancybox.close();
@@ -203,14 +203,14 @@ function submitform() {
     var valid = submitme(1, undefined, 'user_form', collectvalidation);
     if (!valid) return;
 
-	top.restoreSession();
-	var flag=0;
+    top.restoreSession();
+    var flag=0;
     <?php if(!$GLOBALS['use_active_directory']){ ?>
-	if(document.forms[0].clearPass.value!="")
-	{
-		//Checking for the strong password if the 'secure password' feature is enabled
-		if(document.forms[0].secure_pwd.value == 1)
-		{
+    if(document.forms[0].clearPass.value!="")
+    {
+        //Checking for the strong password if the 'secure password' feature is enabled
+        if(document.forms[0].secure_pwd.value == 1)
+        {
                     var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
                     if(pwdresult == 0) {
                             flag=1;
@@ -233,18 +233,18 @@ function submitform() {
                             echo ' healthCare@09'; ?>");
                             return false;
                     }
-		}
+        }
 
-	}//If pwd null ends here
+    }//If pwd null ends here
     <?php } ?>
-	//Request to reset the user password if the user was deactived once the password expired.
-	if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
-		if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
-		{
-			flag=1;
-			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
-		}
-	}
+    //Request to reset the user password if the user was deactived once the password expired.
+    if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
+        if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
+        {
+            flag=1;
+            document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
+        }
+    }
 
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);
@@ -256,48 +256,48 @@ function submitform() {
   }
 
         <?php if($GLOBALS['erx_enable']){ ?>
-	alertMsg='';
-	f=document.forms[0];
-	for(i=0;i<f.length;i++){
-	  if(f[i].type=='text' && f[i].value)
-	  {
-	    if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,35);
-	      alertMsg += checkUsername(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'taxid')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkFederalEin(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'state_license_number')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'npi')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'drugid')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,30);
-	      alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
-	    }
-	  }
-	}
-	if(alertMsg)
-	{
-	  alert(alertMsg);
-	  return false;
-	}
-	<?php } ?>
-	if(flag == 0){
+    alertMsg='';
+    f=document.forms[0];
+    for(i=0;i<f.length;i++){
+      if(f[i].type=='text' && f[i].value)
+      {
+        if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,35);
+          alertMsg += checkUsername(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'taxid')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkFederalEin(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'state_license_number')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'npi')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'drugid')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,30);
+          alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+        }
+      }
+    }
+    if(alertMsg)
+    {
+      alert(alertMsg);
+      return false;
+    }
+    <?php } ?>
+    if(flag == 0){
                     document.forms[0].submit();
                     parent.$.fn.fancybox.close();
-	}
+    }
 }
 //Getting the list of selected item in ACL
 function getSelected(opt) {
@@ -333,7 +333,7 @@ function authorized_clicked() {
 <span class="title"><?php xl('Edit User','e'); ?></span>&nbsp;
 </td><td>
     <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php xl('Save','e');?></span> </a>
-	<a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
+    <a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
 </td></tr>
 </table>
 <br>
@@ -577,8 +577,8 @@ Display red alert if entered password matched one of last three passwords/Displa
 <script language="JavaScript">
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
 });
 </script>

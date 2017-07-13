@@ -68,20 +68,20 @@
 //   Vietnamese                     // xl('Vietnamese')
 
 // OS-dependent stuff.
-   if (stristr(PHP_OS, 'WIN')) {
-     // MS Windows
-       $mysql_bin_dir       = 'C:/xampp/mysql/bin';
-       $perl_bin_dir        = 'C:/xampp/perl/bin';
-       $temporary_files_dir = 'C:/windows/temp';
-       $backup_log_dir      = 'C:/windows/temp';
-    }
-    else {
-      // Everything else
-        $mysql_bin_dir       = '/usr/bin';
-        $perl_bin_dir        = '/usr/bin';
-        $temporary_files_dir = '/tmp';
-        $backup_log_dir      = '/tmp';
-    }
+if (stristr(PHP_OS, 'WIN')) {
+  // MS Windows
+    $mysql_bin_dir       = 'C:/xampp/mysql/bin';
+    $perl_bin_dir        = 'C:/xampp/perl/bin';
+    $temporary_files_dir = 'C:/windows/temp';
+    $backup_log_dir      = 'C:/windows/temp';
+}
+else {
+  // Everything else
+    $mysql_bin_dir       = '/usr/bin';
+    $perl_bin_dir        = '/usr/bin';
+    $temporary_files_dir = '/tmp';
+    $backup_log_dir      = '/tmp';
+}
 
 // Language constant declarations:
 // xl('Appearance')

@@ -66,72 +66,72 @@ class PhoneNumber extends ORDataObject{
         return $phone_numbers;
     }
 
-    function set_id ($id)
+    function set_id($id)
     {
         $this->id = $id;
     }
 
-    function get_id ()
+    function get_id()
     {
         return $this->id;
     }
 
-    function foreign_id ($id)
+    function foreign_id($id)
     {
         $this->foreign_id = $id;
     }
 
-    function get_foreign_id ()
+    function get_foreign_id()
     {
         return $this->foreign_id;
     }
 
-    function set_country_code ($ccode)
+    function set_country_code($ccode)
     {
         $this->country_code = $ccode;
     }
 
-    function get_country_code ()
+    function get_country_code()
     {
         return $this->country_code;
     }
-    function set_area_code ($acode)
+    function set_area_code($acode)
     {
         $this->area_code = $acode;
     }
 
-    function get_area_code ()
+    function get_area_code()
     {
         return $this->area_code;
     }
 
-    function set_number ($num)
+    function set_number($num)
     {
         $this->number = $num;
     }
 
-    function get_number ()
+    function get_number()
     {
         return $this->number;
     }
 
 
-    function set_type ($type)
+    function set_type($type)
     {
         $this->type = $type;
     }
 
-    function get_type ()
+    function get_type()
     {
         return $this->type;
     }
 
-    function set_prefix ($prefix)
+    function set_prefix($prefix)
     {
         $this->prefix = $prefix;
     }
 
-    function get_prefix ()
+    function get_prefix()
     {
         return $this->prefix;
     }

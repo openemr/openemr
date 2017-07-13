@@ -302,7 +302,7 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
                 <td>
                  <span class='bold'><?php echo xlt('Enter Recipient\'s Direct Address');?>: </span>
                 <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-		<input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
+        <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
                 <input type="button" class="viewCCD_transmit" value="<?php echo xlt('Send'); ?>" />
                 <div id="ccd_send_result" style="display:none" >
                  <span class="text" id="ccd_send_message"></span>
@@ -652,25 +652,25 @@ initReport = function(){
             .ajax(params)
             .then(function () {  });
     }
-	$(".generateCCR").click(
+    $(".generateCCR").click(
         function() {
                 if(document.getElementById('show_date').checked == true){
-               	  	if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
+                    if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
                        alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
                             return false;
-                 	}
+                    }
                 }
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'generate';
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
         var raw = document.getElementsByName('raw');
         raw[0].value = 'no';
 
-		ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
-		//showCCR();
+        ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
+        //showCCR();
 
         ccr_form.setAttribute("target", "");
-	});
+    });
         $(".generateCCR_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -706,17 +706,17 @@ initReport = function(){
 
                 $("#ccr_form").submit();
         });
-	$(".viewCCD").click(
-	function() {
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'viewccd';
+    $(".viewCCD").click(
+    function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
 
                 ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
+        $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
-	});
+    });
         $(".viewCCD_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -816,7 +816,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
 
 }; // end initReport
 $( document ).ready(function(){
-		initReport();
+        initReport();
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>

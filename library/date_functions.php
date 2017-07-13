@@ -13,7 +13,7 @@
 // 10.07.2007 - dateformat accepts now an argument
 // ============================================================
 
-function dateformat ($strtime = '', $with_dow = false)
+function dateformat($strtime = '', $with_dow = false)
 {
 
 // without an argument, display current date

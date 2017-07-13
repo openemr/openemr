@@ -30,7 +30,7 @@ class CdrAlertManager{
         /**
          * Constructor
          */
-    function CdrActivationManager ($id = "", $prefix = "")
+    function CdrActivationManager($id = "", $prefix = "")
     {
     }
         

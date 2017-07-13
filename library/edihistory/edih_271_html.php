@@ -96,18 +96,18 @@ function edih_271_transaction_html($obj271, $bht03)
             //
             if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
                 $sar = explode($de, $seg);
-                if ($sar[3] == '20') {						// level code
-                    $loopid = '2000A';						// info source (payer)
+                if ($sar[3] == '20') {                      // level code
+                    $loopid = '2000A';                      // info source (payer)
                     $src_html .= "<tr><td colspan=4><b>Information Source</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '21') {
-                    $loopid = '2000B';						// info receiver (clinic)
+                    $loopid = '2000B';                      // info receiver (clinic)
                     $rcv_html .= "<tr><td colspan=4><b>Information Receiver</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '22') {
-                    $loopid = '2000C';						// subscriber
+                    $loopid = '2000C';                      // subscriber
                     $has_eb = false;
                     $sbr_nm1_html .= "<tr><td colspan=4><b>Subscriber</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '23') {
-                    $loopid = '2000D';						// dependent
+                    $loopid = '2000D';                      // dependent
                     $has_eb = false;
                     $dep_nm1_html .= "<tr><td colspan=4><b>Dependent</b></td></tr>".PHP_EOL;
                 }
@@ -326,20 +326,20 @@ function edih_271_transaction_html($obj271, $bht03)
                 $cls = ($ebct % 2) ? 'ebe' : 'ebo';
                 $sar = explode($de, $seg);
                 //
-                $eb01 = $cd271->get_271_code('EB01', $sar[1]); 										// eligibility or benefit
-                $eb02 = (isset($sar[2]) && $sar[2]) ? $cd271->get_271_code('EB02', $sar[2]) : '';	// coverage level
-                $eb03 = (isset($sar[3]) && $sar[3]) ? $cd271->get_271_code('EB03', $sar[3]) : '';	// service type
-                $eb04 = (isset($sar[4]) && $sar[4]) ? $cd271->get_271_code('EB04', $sar[4]) : '';	// insurance type
-                $eb05 = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';									// descriptive (plan name)
-                $eb06 = (isset($sar[6]) && $sar[6]) ? $cd271->get_271_code('EB06', $sar[6]) : '';	// time qualifier
-                $eb07 = (isset($sar[7]) && strlen($sar[7])) ? edih_format_money($sar[7]) : '';		// monetary amount
-                $eb08 = (isset($sar[8]) && $sar[8]) ? edih_format_percent($sar[8]) : '';				// percentage amount
-                $eb09 = (isset($sar[9]) && $sar[9]) ? $cd271->get_271_code('EB09', $sar[9]) : '';	// Quantity qualifier
-                $eb10 = (isset($sar[10]) && $sar[10]) ? $sar[10] : '';								// quantity
-                $eb11 = (isset($sar[11]) && $sar[11]) ? $cd271->get_271_code('EB11', $sar[11]) : '';	// authorization required?
-                $eb12 = (isset($sar[12]) && $sar[12]) ? $cd271->get_271_code('EB12', $sar[12]) : '';	// in network?
+                $eb01 = $cd271->get_271_code('EB01', $sar[1]);                                      // eligibility or benefit
+                $eb02 = (isset($sar[2]) && $sar[2]) ? $cd271->get_271_code('EB02', $sar[2]) : '';   // coverage level
+                $eb03 = (isset($sar[3]) && $sar[3]) ? $cd271->get_271_code('EB03', $sar[3]) : '';   // service type
+                $eb04 = (isset($sar[4]) && $sar[4]) ? $cd271->get_271_code('EB04', $sar[4]) : '';   // insurance type
+                $eb05 = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';                                 // descriptive (plan name)
+                $eb06 = (isset($sar[6]) && $sar[6]) ? $cd271->get_271_code('EB06', $sar[6]) : '';   // time qualifier
+                $eb07 = (isset($sar[7]) && strlen($sar[7])) ? edih_format_money($sar[7]) : '';      // monetary amount
+                $eb08 = (isset($sar[8]) && $sar[8]) ? edih_format_percent($sar[8]) : '';                // percentage amount
+                $eb09 = (isset($sar[9]) && $sar[9]) ? $cd271->get_271_code('EB09', $sar[9]) : '';   // Quantity qualifier
+                $eb10 = (isset($sar[10]) && $sar[10]) ? $sar[10] : '';                              // quantity
+                $eb11 = (isset($sar[11]) && $sar[11]) ? $cd271->get_271_code('EB11', $sar[11]) : '';    // authorization required?
+                $eb12 = (isset($sar[12]) && $sar[12]) ? $cd271->get_271_code('EB12', $sar[12]) : '';    // in network?
                 $eb13 = "";
-                if (isset($sar[13]) && strpos($sar[13], $ds)) {										// composite procedure ID
+                if (isset($sar[13]) && strpos($sar[13], $ds)) {                                     // composite procedure ID
                     $eb13ar = explode($ds, $sar[13]);
                     reset($eb13ar);
                     while( list($k, $v) = each($eb13ar) ) {
@@ -354,7 +354,7 @@ function edih_271_transaction_html($obj271, $bht03)
                 }
                 $eb14 = "";
                 if (isset($sar[14])) {
-                    if (strpos($sar[14], $ds)) {										// composite diagnosis pointer
+                    if (strpos($sar[14], $ds)) {                                        // composite diagnosis pointer
                         $eb14 = str_replace($ds, " | ",$sar[14]) ;
                     } else {
                         $eb14 = $sar[14];
@@ -397,14 +397,14 @@ function edih_271_transaction_html($obj271, $bht03)
             if ( strncmp('HSD'.$de, $seg, 4) === 0 ) {
                 $sar = explode($de, $seg);
                 //
-                $hsd01 = (isset($sar[1]) && $sar[1]) ? $cd271->get_271_code('HSD01', $sar[1]) : '';	// quantity qualifier
-                $hsd02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';									// numeric quantity
-                $hsd03 = (isset($sar[3]) && $sar[3]) ? $cd271->get_271_code('HSD01', $sar[3]) : '';	// measurement unit
-                $hsd04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';									// sample selection modulus
-                $hsd05 = (isset($sar[5]) && $sar[5]) ? $cd271->get_271_code('EB06', $sar[5]) : '';	// time period qualifier
-                $hsd06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';									// number of periods
-                $hsd07 = (isset($sar[7]) && $sar[7]) ? $cd271->get_271_code('HSD07', $sar[7]) : '';	// delivery
-                $hsd08 = (isset($sar[8]) && $sar[8]) ? $cd271->get_271_code('HSD08', $sar[8]) : '';	// delivery
+                $hsd01 = (isset($sar[1]) && $sar[1]) ? $cd271->get_271_code('HSD01', $sar[1]) : ''; // quantity qualifier
+                $hsd02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';                                    // numeric quantity
+                $hsd03 = (isset($sar[3]) && $sar[3]) ? $cd271->get_271_code('HSD01', $sar[3]) : ''; // measurement unit
+                $hsd04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';                                    // sample selection modulus
+                $hsd05 = (isset($sar[5]) && $sar[5]) ? $cd271->get_271_code('EB06', $sar[5]) : '';  // time period qualifier
+                $hsd06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';                                    // number of periods
+                $hsd07 = (isset($sar[7]) && $sar[7]) ? $cd271->get_271_code('HSD07', $sar[7]) : ''; // delivery
+                $hsd08 = (isset($sar[8]) && $sar[8]) ? $cd271->get_271_code('HSD08', $sar[8]) : ''; // delivery
                 //
                 if ($loopid == '2110C') {
                     $sbr_eb_html .= "<tr class=$cls><td>&gt;</td><td>$hsd01 : $hsd02</td><td>$hsd03 : $hsd04</td><td>$hsd05 : $hsd06</td></tr>" .PHP_EOL;
@@ -418,9 +418,9 @@ function edih_271_transaction_html($obj271, $bht03)
             if ( strncmp('REF'.$de, $seg, 4) === 0 ) {
                 $sar = explode($de, $seg);
                 //
-                $ref01 = (isset($sar[1]) && $sar[1]) ? $cd271->get_271_code('REF', $sar[1]) : '';	// identification qualifier
-                $ref02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';									// identification value
-                $ref03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';									// description
+                $ref01 = (isset($sar[1]) && $sar[1]) ? $cd271->get_271_code('REF', $sar[1]) : '';   // identification qualifier
+                $ref02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';                                    // identification value
+                $ref03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';                                    // description
                 //
                 if  ($loopid == '2100C') {
                     $sbr_ref_html .= "<tr><td>&gt;</td><td colspan=2>$ref03</td><td>$ref01 $ref02 </td></tr>" .PHP_EOL;

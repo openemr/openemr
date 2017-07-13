@@ -181,11 +181,11 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
         error_log(var_dump(get_object_vars($e)));
     }
     if(array_key_exists('status', $response) && $response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY
-        $tmpfilename	= realpath(sys_get_temp_dir())."/".date('YmdHis').".zip";
-        $fp			= fopen($tmpfilename,"wb");
+        $tmpfilename    = realpath(sys_get_temp_dir())."/".date('YmdHis').".zip";
+        $fp         = fopen($tmpfilename,"wb");
         fwrite($fp,base64_decode($response['value']));
         fclose($fp);
-        $practice_filename	= $response['file_name'];//practicename.zip
+        $practice_filename  = $response['file_name'];//practicename.zip
         ob_clean();
       // Set headers
         header("Cache-Control: public");
@@ -351,21 +351,21 @@ input     { font-size:10pt; }
       type: "POST",
       url: "<?php echo $GLOBALS['webroot']?>/library/ajax/offsite_portal_ajax.php",
       data: {
-	action: 'check_file',
+    action: 'check_file',
       },
       cache: false,
       success: function( message )
       {
-	if(message == 'OK'){
-	  document.getElementById('form_download').value = 1;
-	  document.getElementById('file_error_message').innerHTML = '';
-	  document.forms[0].submit();
-	}
-	else{
-	  document.getElementById('form_download').value = 0;
-	  document.getElementById('file_error_message').innerHTML = message;
-	  return false;
-	}
+    if(message == 'OK'){
+      document.getElementById('form_download').value = 1;
+      document.getElementById('file_error_message').innerHTML = '';
+      document.forms[0].submit();
+    }
+    else{
+      document.getElementById('form_download').value = 0;
+      document.getElementById('file_error_message').innerHTML = message;
+      return false;
+    }
       }
     });
   }

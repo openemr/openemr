@@ -66,37 +66,37 @@ if($filename) {
 
 ?>
 <html>
-	<head>
-		<?php html_header_show(); ?>
-		<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css" type="text/css">
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot'];
+    <head>
+        <?php html_header_show(); ?>
+        <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.css" type="text/css">
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot'];
 ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
-		<?php include_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
-		<script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
-		<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-	</head>
-	<body class="body_top">
-		<form method="post">
-		<font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
-		<table>
-			<tr>
-				<td>
-					<span class="text"><?php echo xlt('Date'); ?>: </span>
-				</td>
-				<td>
-					<input type="text" size="10" name="start_date" id="start_date" value="<?php echo $start_date ? substr($start_date, 0, 10) : date('Y-m-d');
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar.js"></script>
+        <?php include_once($GLOBALS['srcdir'].'/dynarch_calendar_en.inc.php'); ?>
+        <script type="text/javascript" src="<?php echo $GLOBALS['webroot']; ?>/library/dynarch_calendar_setup.js"></script>
+        <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
+    </head>
+    <body class="body_top">
+        <form method="post">
+        <font class="title"><?php echo xlt('eRx Logs'); ?></font><br><br>
+        <table>
+            <tr>
+                <td>
+                    <span class="text"><?php echo xlt('Date'); ?>: </span>
+                </td>
+                <td>
+                    <input type="text" size="10" name="start_date" id="start_date" value="<?php echo $start_date ? substr($start_date, 0, 10) : date('Y-m-d');
 ?>" title="<?php echo xlt('yyyy-mm-dd Date of service'); ?>" onkeyup="datekeyup(this, mypcc)" onblur="dateblur(this, mypcc)" />
-					<img src="<?php echo $GLOBALS['webroot'];
+                    <img src="<?php echo $GLOBALS['webroot'];
 ?>/interface/pic/show_calendar.gif" align="absbottom" width="24" height="22" id="img_begin_date" border="0" alt="[?]" style="cursor: pointer; cursor: hand" title="<?php echo xlt('Click here to choose a date'); ?>">&nbsp;
-				</td>
-				<td>
-					<input type="submit" name="search_logs" value="<?php echo xlt('Search'); ?>">
-				</td>
-			</tr>
-		</table>
-		</form>
+                </td>
+                <td>
+                    <input type="submit" name="search_logs" value="<?php echo xlt('Search'); ?>">
+                </td>
+            </tr>
+        </table>
+        </form>
 <?php
 
     $check_for_file = 0;
@@ -124,8 +124,8 @@ if(array_key_exists('search_logs', $_REQUEST)) {
 }
 
 ?>
-	</body>
-	<script type="text/javascript">
-		Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
-	</script>
+    </body>
+    <script type="text/javascript">
+        Calendar.setup({inputField:"start_date", ifFormat:"%Y-%m-%d", button:"img_begin_date"});
+    </script>
 </html>

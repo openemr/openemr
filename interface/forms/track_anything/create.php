@@ -44,11 +44,11 @@ $dbaction = isset($_POST['dbaction']) ? trim($_POST['dbaction']) : '';
 // save new item to a track
 //-----------------------------
 if($dbaction == 'add'){
-        $the_name 	= $_POST['name'];
-        $the_descr 	= $_POST['description'];
-        $the_pos 	= $_POST['position'];
+        $the_name   = $_POST['name'];
+        $the_descr  = $_POST['description'];
+        $the_pos    = $_POST['position'];
         $the_parent = $_POST['parentid'];
-        $the_type	= $_POST['the_type'];
+        $the_type   = $_POST['the_type'];
         
     if($the_name != null){
 
@@ -76,9 +76,9 @@ if($dbaction == 'add'){
 // edit existing track/items
 //-----------------------------
 if($dbaction == 'edit'){
-        $the_name 	= $_POST['name'];
-        $the_descr 	= $_POST['description'];
-        $the_pos 	= $_POST['position'];
+        $the_name   = $_POST['name'];
+        $the_descr  = $_POST['description'];
+        $the_pos    = $_POST['position'];
         $the_item = $_POST['itemid'];
         
     if($the_name != null){
@@ -100,7 +100,7 @@ if($dbaction == 'edit'){
 //-----------------------------
 if($dbaction == 'delete' && acl_check('admin', 'super')){
         
-        $the_item 	= $_POST['itemid'];
+        $the_item   = $_POST['itemid'];
         $deletespell  = "DELETE FROM form_track_anything_type ";
         $deletespell .= "WHERE track_anything_type_id = ? ";
         sqlStatement($deletespell, array($the_item));
@@ -145,11 +145,11 @@ if ($create_track){
 // user clicked some buttons...
 $the_item = isset($_POST['typeid']) ? trim($_POST['typeid']) : '';
 if($the_item){
-    $add 		= $_POST['add'];
-    $edit 		= $_POST['edit'];
-    $delete 	= $_POST['delete'];
+    $add        = $_POST['add'];
+    $edit       = $_POST['edit'];
+    $delete     = $_POST['delete'];
     $deactivate = $_POST['deact'];
-    $activate 	= $_POST['act'];
+    $activate   = $_POST['act'];
 
     // add a new item to track
     //------------------------
@@ -193,9 +193,9 @@ if($the_item){
         $spell  = "SELECT name, description, position FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
         $myrow = sqlQuery($spell, array($the_item));
-        $the_name 	= $myrow['name'];
-        $the_descr 	= $myrow['description'];
-        $the_pos 	= $myrow['position'];
+        $the_name   = $myrow['name'];
+        $the_descr  = $myrow['description'];
+        $the_pos    = $myrow['position'];
         echo "<br>&nbsp;&nbsp;";
         echo xlt('Edit')  . " <b>" . text($the_name) . "</b><br>&nbsp;";
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
@@ -226,7 +226,7 @@ if($the_item){
         $spell  = "SELECT name FROM form_track_anything_type ";
         $spell .= "WHERE track_anything_type_id = ?";
         $myrow = sqlQuery($spell, array($the_item));
-        $the_name 	= $myrow['name'];
+        $the_name   = $myrow['name'];
 
         echo "<br>&nbsp;&nbsp;<span class='failure'>\n";
         echo xlt('Are you sure you want to delete') . " <b>" . text($the_name) . "</b>?</span><br>\n";
@@ -281,11 +281,11 @@ $spell .= "WHERE parent = 0 ";
 $spell .= "ORDER BY position ASC, active DESC, name ASC";
 $result = sqlStatement($spell);
 while($myrow = sqlFetchArray($result)){
-    $type_id 		= $myrow['track_anything_type_id'];
-    $type_name 		= $myrow['name'];
-    $type_pos 		= $myrow['position'];
-    $type_descr 	= $myrow['description'];
-    $type_active 	= $myrow['active'];
+    $type_id        = $myrow['track_anything_type_id'];
+    $type_name      = $myrow['name'];
+    $type_pos       = $myrow['position'];
+    $type_descr     = $myrow['description'];
+    $type_active    = $myrow['active'];
     echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
     
     echo "<tr>\n";
@@ -318,11 +318,11 @@ while($myrow = sqlFetchArray($result)){
     $spell2 .= "ORDER BY position ASC, active DESC, name ASC";
     $result2 = sqlStatement($spell2, array($type_id));
     while($myrow2 = sqlFetchArray($result2)){
-        $item_id		= $myrow2['track_anything_type_id'];
-        $item_name		= $myrow2['name'];
-        $item_pos 		= $myrow2['position'];
-        $item_descr		= $myrow2['description'];
-        $item_active	= $myrow2['active'];
+        $item_id        = $myrow2['track_anything_type_id'];
+        $item_name      = $myrow2['name'];
+        $item_pos       = $myrow2['position'];
+        $item_descr     = $myrow2['description'];
+        $item_active    = $myrow2['active'];
         echo "<form method='post' action='" . $rootdir . "/forms/track_anything/create.php' onsubmit='return top.restoreSession()'>\n";
         echo "<tr>\n";
         if($item_active == '1'){

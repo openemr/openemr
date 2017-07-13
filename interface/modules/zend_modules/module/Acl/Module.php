@@ -46,7 +46,7 @@ class Module
     {
         return array(
             'factories' => array(
-                'Acl\Model\AclTable' =>  function($sm) {
+                'Acl\Model\AclTable' =>  function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new AclTable($dbAdapter);
                     return $table;
@@ -63,7 +63,7 @@ class Module
     public function init(ModuleManager $moduleManager)
     {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function ($e) {
             $controller = $e->getTarget();
             $controller->layout('acl/layout/layout');
             $route = $controller->getEvent()->getRouteMatch();

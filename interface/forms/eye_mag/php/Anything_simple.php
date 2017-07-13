@@ -65,226 +65,226 @@
 
 ?><!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8" />
+    <head>
+        <meta charset="utf-8" />
 
-		<title><?php echo xlt('Document Library'); ?></title>
-		<link rel="shortcut icon" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/images/favicon.ico" type="image/x-icon">
-		<link rel="apple-touch-icon" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/images/apple-touch-icon.png">
+        <title><?php echo xlt('Document Library'); ?></title>
+        <link rel="shortcut icon" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/images/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/images/apple-touch-icon.png">
 
-	    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
-	    <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
-      	<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/anythingslider.css">
-		<!-- AnythingSlider optional extensions -->
-		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.fx.js"></script>
-		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.video.js"></script>
-		<!-- Anything Slider optional plugins -->
-		 <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.easing.1.2.js"></script>
-		<!-- Anything Slider -->
-		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-min-1-10-2/index.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/js/bootstrap.min.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/anythingslider.css">
+        <!-- AnythingSlider optional extensions -->
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.fx.js"></script>
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.video.js"></script>
+        <!-- Anything Slider optional plugins -->
+         <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.easing.1.2.js"></script>
+        <!-- Anything Slider -->
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/js/jquery.anythingslider.min.js"></script>
 
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-metallic.css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-minimalist-round.css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-minimalist-square.css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-construction.css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-cs-portfolio.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-metallic.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-minimalist-round.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-minimalist-square.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-construction.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/css/theme-cs-portfolio.css">
 
-	 	<!-- ColorBox -->
-	 	<link href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/colorbox/colorbox.css" rel="stylesheet">
-		<script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/colorbox/jquery.colorbox-min.js"></script>
-		<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
-		<style>
-			 #slider { width: 700px; height: 390px; }
-			 /* New in version 1.7+ */
-			 #slider {
-			 	width: 1200px;
-			 	height: 600px;
-			 	list-style: none;
-			 }
-			 /* CSS to expand the image to fit inside colorbox */
-			 #cboxPhoto { width: 100%; height: 100%; margin: 0 !important; }
-			 /* Change metallic theme defaults to show thumbnails */
-			 div.anythingControls {
-			 	bottom: 25px; /* thumbnail images are larger than the original bullets; move it up */
-			 }
-			 .anythingSlider-metallic .thumbNav a {
-			 	background-image: url();
-			 	height: 30px;
-			 	width: 30px;
-			 	border: #000 1px solid;
-			 	border-radius: 2px;
-			 	-moz-border-radius: 2px;
-			 	-webkit-border-radius: 2px;
-			 	text-indent: 0;
-			 }
-			 .anythingSlider-metallic .thumbNav a span {
-			 	visibility: visible; /* span changed to visibility hidden in v1.7.20 */
-			 }
-			 /* border around link (image) to show current panel */
-			 .anythingSlider-metallic .thumbNav a:hover,
-			 .anythingSlider-metallic .thumbNav a.cur {
-			 	border-color: #fff;
-			 }
-			 /* reposition the start/stop button */
-			 .anythingSlider-metallic .start-stop {
-			 	margin-top: 15px;
-			 }
-			 .git {
-			 	background-color: #DEC2C4;
-			 	}
-		</style>
+        <!-- ColorBox -->
+        <link href="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/colorbox/colorbox.css" rel="stylesheet">
+        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/AnythingSlider-1-9-4/demos/colorbox/jquery.colorbox-min.js"></script>
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+        <style>
+             #slider { width: 700px; height: 390px; }
+             /* New in version 1.7+ */
+             #slider {
+                width: 1200px;
+                height: 600px;
+                list-style: none;
+             }
+             /* CSS to expand the image to fit inside colorbox */
+             #cboxPhoto { width: 100%; height: 100%; margin: 0 !important; }
+             /* Change metallic theme defaults to show thumbnails */
+             div.anythingControls {
+                bottom: 25px; /* thumbnail images are larger than the original bullets; move it up */
+             }
+             .anythingSlider-metallic .thumbNav a {
+                background-image: url();
+                height: 30px;
+                width: 30px;
+                border: #000 1px solid;
+                border-radius: 2px;
+                -moz-border-radius: 2px;
+                -webkit-border-radius: 2px;
+                text-indent: 0;
+             }
+             .anythingSlider-metallic .thumbNav a span {
+                visibility: visible; /* span changed to visibility hidden in v1.7.20 */
+             }
+             /* border around link (image) to show current panel */
+             .anythingSlider-metallic .thumbNav a:hover,
+             .anythingSlider-metallic .thumbNav a.cur {
+                border-color: #fff;
+             }
+             /* reposition the start/stop button */
+             .anythingSlider-metallic .start-stop {
+                margin-top: 15px;
+             }
+             .git {
+                background-color: #DEC2C4;
+                }
+        </style>
 
-	 	<!-- AnythingSlider initialization -->
-	 	<script>
-			// DOM Ready
-			$(function(){
-				$('#slider').anythingSlider({
-					// Appearance
-					theme               : "metallic", // Theme name
-					mode                : "horizontal",   // Set mode to "horizontal", "vertical" or "fade" (only first letter needed); replaces vertical option
-					expand              : false,     // If true, the entire slider will expand to fit the parent element
-					resizeContents      : false,      // If true, solitary images/objects in the panel will expand to fit the viewport
-					showMultiple        : false,     // Set this value to a number and it will show that many slides at once
-					easing              : "swing",   // Anything other than "linear" or "swing" requires the easing plugin or jQuery UI
+        <!-- AnythingSlider initialization -->
+        <script>
+            // DOM Ready
+            $(function(){
+                $('#slider').anythingSlider({
+                    // Appearance
+                    theme               : "metallic", // Theme name
+                    mode                : "horizontal",   // Set mode to "horizontal", "vertical" or "fade" (only first letter needed); replaces vertical option
+                    expand              : false,     // If true, the entire slider will expand to fit the parent element
+                    resizeContents      : false,      // If true, solitary images/objects in the panel will expand to fit the viewport
+                    showMultiple        : false,     // Set this value to a number and it will show that many slides at once
+                    easing              : "swing",   // Anything other than "linear" or "swing" requires the easing plugin or jQuery UI
 
-					buildArrows         : true,      // If true, builds the forwards and backwards buttons
-					buildNavigation     : true,      // If true, builds a list of anchor links to link to each panel
-					buildStartStop      : false,      // If true, builds the start/stop button
+                    buildArrows         : true,      // If true, builds the forwards and backwards buttons
+                    buildNavigation     : true,      // If true, builds a list of anchor links to link to each panel
+                    buildStartStop      : false,      // If true, builds the start/stop button
 
-					appendForwardTo     : null,      // Append forward arrow to a HTML element (jQuery Object, selector or HTMLNode), if not null
-					appendBackTo        : null,      // Append back arrow to a HTML element (jQuery Object, selector or HTMLNode), if not null
-					appendControlsTo    : null,      // Append controls (navigation + start-stop) to a HTML element (jQuery Object, selector or HTMLNode), if not null
-					appendNavigationTo  : null,      // Append navigation buttons to a HTML element (jQuery Object, selector or HTMLNode), if not null
-					appendStartStopTo   : null,      // Append start-stop button to a HTML element (jQuery Object, selector or HTMLNode), if not null
+                    appendForwardTo     : null,      // Append forward arrow to a HTML element (jQuery Object, selector or HTMLNode), if not null
+                    appendBackTo        : null,      // Append back arrow to a HTML element (jQuery Object, selector or HTMLNode), if not null
+                    appendControlsTo    : null,      // Append controls (navigation + start-stop) to a HTML element (jQuery Object, selector or HTMLNode), if not null
+                    appendNavigationTo  : null,      // Append navigation buttons to a HTML element (jQuery Object, selector or HTMLNode), if not null
+                    appendStartStopTo   : null,      // Append start-stop button to a HTML element (jQuery Object, selector or HTMLNode), if not null
 
-					toggleArrows        : true,     // If true, side navigation arrows will slide out on hovering & hide @ other times
-					toggleControls      : true,     // if true, slide in controls (navigation + play/stop button) on hover and slide change, hide @ other times
+                    toggleArrows        : true,     // If true, side navigation arrows will slide out on hovering & hide @ other times
+                    toggleControls      : true,     // if true, slide in controls (navigation + play/stop button) on hover and slide change, hide @ other times
 
-					startText           : "<?php echo xla("Start"); ?>",   // Start button text
-					stopText            : "<?php echo xla("Stop"); ?>",    // Stop button text
-					forwardText         : "&raquo;", // Link text used to move the slider forward (hidden by CSS, replaced with arrow image)
-					backText            : "&laquo;", // Link text used to move the slider back (hidden by CSS, replace with arrow image)
-					tooltipClass        : "tooltip", // Class added to navigation & start/stop button (text copied to title if it is hidden by a negative text indent)
+                    startText           : "<?php echo xla("Start"); ?>",   // Start button text
+                    stopText            : "<?php echo xla("Stop"); ?>",    // Stop button text
+                    forwardText         : "&raquo;", // Link text used to move the slider forward (hidden by CSS, replaced with arrow image)
+                    backText            : "&laquo;", // Link text used to move the slider back (hidden by CSS, replace with arrow image)
+                    tooltipClass        : "tooltip", // Class added to navigation & start/stop button (text copied to title if it is hidden by a negative text indent)
 
-					// Function
-					enableArrows        : true,      // if false, arrows will be visible, but not clickable.
-					enableNavigation    : true,      // if false, navigation links will still be visible, but not clickable.
-					enableStartStop     : true,      // if false, the play/stop button will still be visible, but not clickable. Previously "enablePlay"
-					enableKeyboard      : true,      // if false, keyboard arrow keys will not work for this slider.
+                    // Function
+                    enableArrows        : true,      // if false, arrows will be visible, but not clickable.
+                    enableNavigation    : true,      // if false, navigation links will still be visible, but not clickable.
+                    enableStartStop     : true,      // if false, the play/stop button will still be visible, but not clickable. Previously "enablePlay"
+                    enableKeyboard      : true,      // if false, keyboard arrow keys will not work for this slider.
 
-					// Navigation
-					startPanel          : 1,         // This sets the initial panel
-					changeBy            : 1,         // Amount to go forward or back when changing panels.
-					hashTags            : true,      // Should links change the hashtag in the URL?
-					infiniteSlides      : false,      // if false, the slider will not wrap & not clone any panels
-					//navigationFormatter : 1,      // Details at the top of the file on this use (advanced use)
-					navigationSize      : 10,     // Set this to the maximum number of visible navigation tabs; false to disable
-	    			navigationFormatter : function(i, panel){
-	      									return panel.find('h2').text();
-	    									},
-					// Slideshow options
-					autoPlay            : false,     // If true, the slideshow will start running; replaces "startStopped" option
-					autoPlayLocked      : false,     // If true, user changing slides will not stop the slideshow
-					autoPlayDelayed     : false,     // If true, starting a slideshow will delay advancing slides; if false, the slider will immediately advance to the next slide when slideshow starts
-					pauseOnHover        : true,      // If true & the slideshow is active, the slideshow will pause on hover
-					stopAtEnd           : false,     // If true & the slideshow is active, the slideshow will stop on the last page. This also stops the rewind effect when infiniteSlides is false.
-					playRtl             : false,     // If true, the slideshow will move right-to-left
+                    // Navigation
+                    startPanel          : 1,         // This sets the initial panel
+                    changeBy            : 1,         // Amount to go forward or back when changing panels.
+                    hashTags            : true,      // Should links change the hashtag in the URL?
+                    infiniteSlides      : false,      // if false, the slider will not wrap & not clone any panels
+                    //navigationFormatter : 1,      // Details at the top of the file on this use (advanced use)
+                    navigationSize      : 10,     // Set this to the maximum number of visible navigation tabs; false to disable
+                    navigationFormatter : function(i, panel){
+                                            return panel.find('h2').text();
+                                            },
+                    // Slideshow options
+                    autoPlay            : false,     // If true, the slideshow will start running; replaces "startStopped" option
+                    autoPlayLocked      : false,     // If true, user changing slides will not stop the slideshow
+                    autoPlayDelayed     : false,     // If true, starting a slideshow will delay advancing slides; if false, the slider will immediately advance to the next slide when slideshow starts
+                    pauseOnHover        : true,      // If true & the slideshow is active, the slideshow will pause on hover
+                    stopAtEnd           : false,     // If true & the slideshow is active, the slideshow will stop on the last page. This also stops the rewind effect when infiniteSlides is false.
+                    playRtl             : false,     // If true, the slideshow will move right-to-left
 
-					// Times
-					delay               : 3000,      // How long between slideshow transitions in AutoPlay mode (in milliseconds)
-					resumeDelay         : 15000,     // Resume slideshow after user interaction, only if autoplayLocked is true (in milliseconds).
-					animationTime       : 600,       // How long the slideshow transition takes (in milliseconds)
-					delayBeforeAnimate  : 0,         // How long to pause slide animation before going to the desired slide (used if you want your "out" FX to show).
+                    // Times
+                    delay               : 3000,      // How long between slideshow transitions in AutoPlay mode (in milliseconds)
+                    resumeDelay         : 15000,     // Resume slideshow after user interaction, only if autoplayLocked is true (in milliseconds).
+                    animationTime       : 600,       // How long the slideshow transition takes (in milliseconds)
+                    delayBeforeAnimate  : 0,         // How long to pause slide animation before going to the desired slide (used if you want your "out" FX to show).
 
-					// Callbacks
-					onBeforeInitialize  : function(e, slider) {}, // Callback before the plugin initializes
-					onInitialized       : function(e, slider) {}, // Callback when the plugin finished initializing
-					onShowStart         : function(e, slider) {}, // Callback on slideshow start
-					onShowStop          : function(e, slider) {}, // Callback after slideshow stops
-					onShowPause         : function(e, slider) {}, // Callback when slideshow pauses
-					onShowUnpause       : function(e, slider) {}, // Callback when slideshow unpauses - may not trigger properly if user clicks on any controls
-					onSlideInit         : function(e, slider) {}, // Callback when slide initiates, before control animation
-					onSlideBegin        : function(e, slider) {}, // Callback before slide animates
-					onSlideComplete     : function(slider) {},    // Callback when slide completes; this is the only callback without an event "e" parameter
+                    // Callbacks
+                    onBeforeInitialize  : function(e, slider) {}, // Callback before the plugin initializes
+                    onInitialized       : function(e, slider) {}, // Callback when the plugin finished initializing
+                    onShowStart         : function(e, slider) {}, // Callback on slideshow start
+                    onShowStop          : function(e, slider) {}, // Callback after slideshow stops
+                    onShowPause         : function(e, slider) {}, // Callback when slideshow pauses
+                    onShowUnpause       : function(e, slider) {}, // Callback when slideshow unpauses - may not trigger properly if user clicks on any controls
+                    onSlideInit         : function(e, slider) {}, // Callback when slide initiates, before control animation
+                    onSlideBegin        : function(e, slider) {}, // Callback before slide animates
+                    onSlideComplete     : function(slider) {},    // Callback when slide completes; this is the only callback without an event "e" parameter
 
-					// Interactivity
-					clickForwardArrow   : "click",         // Event used to activate forward arrow functionality (e.g. add jQuery mobile's "swiperight")
-					clickBackArrow      : "click",         // Event used to activate back arrow functionality (e.g. add jQuery mobile's "swipeleft")
-					clickControls       : "click focusin", // Events used to activate navigation control functionality
-					clickSlideshow      : "click",         // Event used to activate slideshow play/stop button
-					allowRapidChange    : true,           // If true, allow rapid changing of the active pane, instead of ignoring activity during animation
+                    // Interactivity
+                    clickForwardArrow   : "click",         // Event used to activate forward arrow functionality (e.g. add jQuery mobile's "swiperight")
+                    clickBackArrow      : "click",         // Event used to activate back arrow functionality (e.g. add jQuery mobile's "swipeleft")
+                    clickControls       : "click focusin", // Events used to activate navigation control functionality
+                    clickSlideshow      : "click",         // Event used to activate slideshow play/stop button
+                    allowRapidChange    : true,           // If true, allow rapid changing of the active pane, instead of ignoring activity during animation
 
-					// Video
-					resumeOnVideoEnd    : true,      // If true & the slideshow is active & a supported video is playing, it will pause the autoplay until the video is complete
-					resumeOnVisible     : true,      // If true the video will resume playing (if previously paused, except for YouTube iframe - known issue); if false, the video remains paused.
-					addWmodeToObject    : "opaque",  // If your slider has an embedded object, the script will automatically add a wmode parameter with this setting
-					isVideoPlaying      : function(base){ return false; } // return true if video is playing or false if not - used by video extension
-				});
-			});
-		</script>
+                    // Video
+                    resumeOnVideoEnd    : true,      // If true & the slideshow is active & a supported video is playing, it will pause the autoplay until the video is complete
+                    resumeOnVisible     : true,      // If true the video will resume playing (if previously paused, except for YouTube iframe - known issue); if false, the video remains paused.
+                    addWmodeToObject    : "opaque",  // If your slider has an embedded object, the script will automatically add a wmode parameter with this setting
+                    isVideoPlaying      : function(base){ return false; } // return true if video is playing or false if not - used by video extension
+                });
+            });
+        </script>
 
-	    <script language="JavaScript">
-	    	<?php require_once("$srcdir/restoreSession.php"); ?>
-	    </script>
+        <script language="JavaScript">
+            <?php require_once("$srcdir/restoreSession.php"); ?>
+        </script>
 
-		<!-- Add Font stuff for the look and feel.  -->
-		<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
-	    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
-	    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-		<link rel="stylesheet" href="<?php echo $GLOBALS['webroot'];
+        <!-- Add Font stuff for the look and feel.  -->
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/jquery-ui-1-11-4/themes/excite-bike/jquery-ui.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/pure-0-5-0/pure-min.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap-3-3-4/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/qtip2-2-2-1/jquery.qtip.min.css" />
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/font-awesome-4-6-3/css/font-awesome.min.css">
+        <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['webroot'];
 ?>/interface/forms/<?php echo $form_folder; ?>/css/style.css" type="text/css">
 
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="description" content="openEMR: Eye Exam">
-		<meta name="author" content="openEMR: Ophthalmology">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="openEMR: Eye Exam">
+        <meta name="author" content="openEMR: Ophthalmology">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<style>
-			 /* New in version 1.7+ */
-			 #slider {
-			 	width: 1000px;
-			 	height: 600px;
-			 	list-style: none;
-			 }
-			 /* CSS to expand the image to fit inside colorbox */
-			 #cboxPhoto { width: 100%; height: 100%; margin: 0 !important; }
-			 /* Change metallic theme defaults to show thumbnails */
-			 div.anythingControls {
-			 	bottom: 25px; /* thumbnail images are larger than the original bullets; move it up */
-			 }
-			 .anythingSlider-metallic .thumbNav a {
-			 	background-image: url();
-			 	height: 30px;
-			 	width: 30px;
-			 	border: #000 1px solid;
-			 	border-radius: 2px;
-			 	-moz-border-radius: 2px;
-			 	-webkit-border-radius: 2px;
-			 	text-indent: 0;
-			 }
-			 .anythingSlider-metallic .thumbNav a span {
-			 	visibility: visible; /* span changed to visibility hidden in v1.7.20 */
-			 }
-			 /* border around link (image) to show current panel */
-			 .anythingSlider-metallic .thumbNav a:hover,
-			 .anythingSlider-metallic .thumbNav a.cur {
-			 	border-color: #fff;
-			 }
-			 /* reposition the start/stop button */
-			 .anythingSlider-metallic .start-stop {
-			 	margin-top: 15px;
-			 }
-			 .git {
-			 	}
-		</style>
-	</head>
-	<body id="simple">
+        <style>
+             /* New in version 1.7+ */
+             #slider {
+                width: 1000px;
+                height: 600px;
+                list-style: none;
+             }
+             /* CSS to expand the image to fit inside colorbox */
+             #cboxPhoto { width: 100%; height: 100%; margin: 0 !important; }
+             /* Change metallic theme defaults to show thumbnails */
+             div.anythingControls {
+                bottom: 25px; /* thumbnail images are larger than the original bullets; move it up */
+             }
+             .anythingSlider-metallic .thumbNav a {
+                background-image: url();
+                height: 30px;
+                width: 30px;
+                border: #000 1px solid;
+                border-radius: 2px;
+                -moz-border-radius: 2px;
+                -webkit-border-radius: 2px;
+                text-indent: 0;
+             }
+             .anythingSlider-metallic .thumbNav a span {
+                visibility: visible; /* span changed to visibility hidden in v1.7.20 */
+             }
+             /* border around link (image) to show current panel */
+             .anythingSlider-metallic .thumbNav a:hover,
+             .anythingSlider-metallic .thumbNav a.cur {
+                border-color: #fff;
+             }
+             /* reposition the start/stop button */
+             .anythingSlider-metallic .start-stop {
+                margin-top: 15px;
+             }
+             .git {
+                }
+        </style>
+    </head>
+    <body id="simple">
 
     <!-- Navigation -->
     <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" role="banner" role="navigation" style="margin-bottom: 0;z-index:1999999;font-size: 1.4em;">
@@ -368,8 +368,8 @@
                                         '.xlt('OTHER').'<span class="menu_icon">+</span></a></li>
                                         ';
                             ?>
-						</ul>
-					</li>
+                        </ul>
+                    </li>
 
                     <li class="dropdown">
                         <a class="dropdown-toggle"  class="disabled" role="button" id="menu_dropdown_patients" data-toggle="dropdown"><?php echo xlt("Patients"); ?> </a>
@@ -396,7 +396,7 @@
                             <?php echo xlt("Pending Approval"); ?></a></li>
                         </ul>
                     </li>
-                   	<!-- let's import the original openEMR menu_bar here.  Needs to add restoreSession stuff? -->
+                    <!-- let's import the original openEMR menu_bar here.  Needs to add restoreSession stuff? -->
                     <?php
                         $reg = Menu_myGetRegistered();
                     if (!empty($reg)) {
@@ -467,17 +467,17 @@
                             </li>
                         </ul>
                     </li>
-			    </ul>
+                </ul>
             </div>
         </div>
     </nav>
-	<br /><br />
+    <br /><br />
 
-	<div class="borderShadow" style="margin:0px 0px 5px 0px;padding:10px;">
-		<div style="position:absolute;margin:0 5px 10px 0; top:0.0in;text-align:center;width:95%;font-size:0.75em;;">
-			<!-- Links to other demo pages & docs -->
-			<div id="nav" style="position:absolute;top:0.0in;text-align:center;">
-				<?php
+    <div class="borderShadow" style="margin:0px 0px 5px 0px;padding:10px;">
+        <div style="position:absolute;margin:0 5px 10px 0; top:0.0in;text-align:center;width:95%;font-size:0.75em;;">
+            <!-- Links to other demo pages & docs -->
+            <div id="nav" style="position:absolute;top:0.0in;text-align:center;">
+                <?php
                 foreach ($documents['zones'][$category_name] as $zone) {
                     $class = "git";
                     $append ='';
@@ -511,14 +511,14 @@
                     }
                 }
                 ?>
-			</div>
-		</div>
-		<!-- End Links -->
-	</div>
-	<br />
-	<!-- Simple AnythingSlider -->
-	<ul id="slider">
-		<?php
+            </div>
+        </div>
+        <!-- End Links -->
+    </div>
+    <br />
+    <!-- Simple AnythingSlider -->
+    <ul id="slider">
+        <?php
         $i='0';
         if ($category_id) {
             $counter = count($documents['docs_in_cat_id'][$category_id]) -10;
@@ -540,21 +540,21 @@
             }
         }
         ?>
-	</ul>
+    </ul>
 
-	<!-- END AnythingSlider -->
-	<center>
-		<?php
+    <!-- END AnythingSlider -->
+    <center>
+        <?php
         $output = menu_overhaul_left($pid,$encounter);
         echo $output;
         ?>
-	</center>
-	<?php
+    </center>
+    <?php
     if ($display=="fullscreen") {
        // this function is in php/".$form_name."_functions.php
         $output = menu_overhaul_bottom($pid,$encounter);
         echo $output;
     }
     ?>
-	</body>
+    </body>
 </html>

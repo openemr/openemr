@@ -37,10 +37,10 @@ if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
 }
- else if ($orderid) {
+else if ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
-    }
+}
     $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 <html>
@@ -80,9 +80,9 @@ if ($docid) {
     $d = new Document($docid);
     echo $d->get_url_file();
 }
-  else if ($orderid) {
+else if ($orderid) {
     echo " " . xlt("linked to procedure order") . " $orderid";
-    }
+}
 ?>
 </span>
 <span class=more><?php echo htmlspecialchars( $tmore, ENT_NOQUOTES);?></span>

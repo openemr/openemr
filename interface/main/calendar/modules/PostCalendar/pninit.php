@@ -121,16 +121,16 @@ function postcalendar_init()
     pnModSetVar(__POSTCALENDAR__, 'pcDisplayTopics',            '0');
     pnModSetVar(__POSTCALENDAR__, 'pcAllowDirectSubmit',        '0');
     pnModSetVar(__POSTCALENDAR__, 'pcListHowManyEvents',        '15');
-    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',        	'15');
-    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',        	'0');
+    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',            '15');
+    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',            '0');
     pnModSetVar(__POSTCALENDAR__, 'pcAllowUserCalendar',        '1');
-    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',        	'%Y-%m-%d');
-    pnModSetVar(__POSTCALENDAR__, 'pcTemplate',         		'default');
-    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',         		'1');
-    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',         	'3600');
-    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',         		'month');
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',         		'0');
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',         		pnConfigGetVar('adminmail'));
+    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',          '%Y-%m-%d');
+    pnModSetVar(__POSTCALENDAR__, 'pcTemplate',                 'default');
+    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',                 '1');
+    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',            '3600');
+    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',              'month');
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',              '0');
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',              pnConfigGetVar('adminmail'));
     return true;
 }
 

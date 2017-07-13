@@ -103,10 +103,10 @@ function printAmendment($amendmentID,$lastAmendment)
 </head>
 
 <body class="body_top">
-	<span class='title'><?php echo xlt("Amendments for") . " " . text($patientName); ?></span>
-	<p></p>
+    <span class='title'><?php echo xlt("Amendments for") . " " . text($patientName); ?></span>
+    <p></p>
 
-	<?php
+    <?php
     for ( $i = 0 ; $i < count($amendmentsList) ; $i++ ) {
         $lastAmendment = ( $i == count($amendmentsList) - 1 ) ? true : false;
         printAmendment($amendmentsList[$i],$lastAmendment);
@@ -114,7 +114,7 @@ function printAmendment($amendmentID,$lastAmendment)
     ?>
 
 <script language='JavaScript'>
-	opener.top.printLogPrint(window);
+    opener.top.printLogPrint(window);
 </script>
 
 </body>

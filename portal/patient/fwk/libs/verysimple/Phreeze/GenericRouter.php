@@ -56,7 +56,7 @@ class GenericRouter implements IRouter {
      * @param array $mapping
      *          the
      */
-    public function __construct($appRootUrl, $defaultAction, Array $routeMap)
+    public function __construct($appRootUrl, $defaultAction, array $routeMap)
     {
         $this->defaultAction = $defaultAction;
         $this->appRootUrl = $appRootUrl;

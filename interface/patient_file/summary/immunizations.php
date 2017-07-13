@@ -373,22 +373,22 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                 // Modified 7/2009 by BM to incorporate the immunization items into the list_options listings
                 generate_form_field(array('data_type'=>1,'field_id'=>'immunization_id','list_id'=>'immunizations','empty_title'=>'SKIP'), $immunization_id);
                 ?>
-		   </td>
+           </td>
         </tr>
         <?php } else { ?>
-	    <tr>
+        <tr>
           <td align="right" valign="top" style="padding-top:4px;">
             <span class=text>
                 <?php echo htmlspecialchars( xl('Immunization'), ENT_NOQUOTES);
 ?> (<?php echo htmlspecialchars( xl('CVX Code'), ENT_NOQUOTES); ?>)            </span>          </td>
-		  <td>
-		   <input type='text' size='10' name='cvx_code' id='cvx_code'
-		    value='<?php echo htmlspecialchars($cvx_code,ENT_QUOTES); ?>' onclick='sel_cvxcode(this)'
-		    title='<?php echo htmlspecialchars( xl('Click to select or change CVX code'), ENT_QUOTES); ?>'
-		    />
-		    <div id='cvx_description' style='display:inline; float:right; padding:3px; margin-left:3px; width:400px'>
-		        <?php echo htmlspecialchars( xl( $code_text ), ENT_QUOTES); ?>		    </div>		  </td>
-		</tr>
+          <td>
+           <input type='text' size='10' name='cvx_code' id='cvx_code'
+            value='<?php echo htmlspecialchars($cvx_code,ENT_QUOTES); ?>' onclick='sel_cvxcode(this)'
+            title='<?php echo htmlspecialchars( xl('Click to select or change CVX code'), ENT_QUOTES); ?>'
+            />
+            <div id='cvx_description' style='display:inline; float:right; padding:3px; margin-left:3px; width:400px'>
+                <?php echo htmlspecialchars( xl( $code_text ), ENT_QUOTES); ?>          </div>        </td>
+        </tr>
         <?php } ?>
 
         <tr>
@@ -398,19 +398,19 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
           <td><table border="0">
      <tr>
        <td><input type='text' size='14' class='datetimepicker' name="administered_date" id="administered_date"
-    		value='<?php echo $administered_date ? htmlspecialchars( $administered_date, ENT_QUOTES) : date('Y-m-d H:i'); ?>'
-    		title='<?php echo htmlspecialchars( xl('yyyy-mm-dd Hours(24):minutes'), ENT_QUOTES); ?>'
-    		/>
-		   </td>
+            value='<?php echo $administered_date ? htmlspecialchars( $administered_date, ENT_QUOTES) : date('Y-m-d H:i'); ?>'
+            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd Hours(24):minutes'), ENT_QUOTES); ?>'
+            />
+           </td>
      </tr>
    </table></td>
         </tr>
         <tr>
           <td align="right"><span class="text"><?php echo htmlspecialchars( xl('Amount Administered'), ENT_NOQUOTES); ?></span></td>
           <td class='text'>
-		  	<input class='text' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo htmlspecialchars( $immuniz_amt_adminstrd, ENT_QUOTES); ?>">
-		  	<?php echo generate_select_list("form_drug_units", "drug_units", $drugunitselecteditem,'Select Drug Unit',''); ?>
-		  </td>
+            <input class='text' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo htmlspecialchars( $immuniz_amt_adminstrd, ENT_QUOTES); ?>">
+            <?php echo generate_select_list("form_drug_units", "drug_units", $drugunitselecteditem,'Select Drug Unit',''); ?>
+          </td>
         </tr>
         <tr>
           <td align="right"><span class="text"><?php echo htmlspecialchars( xl('Immunization Expiration Date'), ENT_NOQUOTES); ?></span></td>
@@ -482,14 +482,14 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <tr>
           <td align="right" class='text'><?php echo htmlspecialchars( xl('Route'), ENT_NOQUOTES); ?></td>
           <td>
-		  	<?php echo generate_select_list('immuniz_route', 'drug_route', $immuniz_route, 'Select Route', '');?>
-		  </td>
+            <?php echo generate_select_list('immuniz_route', 'drug_route', $immuniz_route, 'Select Route', '');?>
+          </td>
         </tr>
         <tr>
           <td align="right" class='text'><?php echo htmlspecialchars( xl('Administration Site'), ENT_NOQUOTES); ?></td>
           <td>
-		  	<?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '','','',null,false,'proc_body_site');?>
-		  </td>
+            <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '','','',null,false,'proc_body_site');?>
+          </td>
         </tr>
         <tr>
           <td align="right" class='text'>
@@ -541,18 +541,18 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             </select>
           </td>
         </tr>
-	<?php
+    <?php
     if($entered_by){
     ?>
-	<tr>
-		<td align="right" class='text'>
-			<?php echo htmlspecialchars( xl('Entered By'), ENT_NOQUOTES); ?>
-		 </td>
-		<td>
-			<?php echo htmlspecialchars( $entered_by, ENT_NOQUOTES); ?>
-		</td>
-	</tr>
-	<?php
+    <tr>
+        <td align="right" class='text'>
+            <?php echo htmlspecialchars( xl('Entered By'), ENT_NOQUOTES); ?>
+         </td>
+        <td>
+            <?php echo htmlspecialchars( $entered_by, ENT_NOQUOTES); ?>
+        </td>
+    </tr>
+    <?php
     }
     if($GLOBALS['observation_results_immunization']) {
         ?>
@@ -722,11 +722,11 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <tr>
           <td colspan="3" align="center">
 
-	    <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
+        <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
 
             <input type="button" name="print" id="print" value="<?php echo htmlspecialchars( xl('Print Record') . xl('PDF','',' (',')'), ENT_QUOTES); ?>">
 
-	    <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML','',' (',')'), ENT_QUOTES); ?>">
+        <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML','',' (',')'), ENT_QUOTES); ?>">
 
             <input type="reset" name="clear" id="clear" value="<?php echo htmlspecialchars( xl('Clear'), ENT_QUOTES); ?>">          </td>
         </tr>
@@ -749,18 +749,18 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
             <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') { echo 'v'; } ?></span>
     </th>
-	<th><?php echo htmlspecialchars( xl('Amount'), ENT_NOQUOTES); ?></th>
-	<th><?php echo xlt('Expiration'); ?></th>
+    <th><?php echo htmlspecialchars( xl('Amount'), ENT_NOQUOTES); ?></th>
+    <th><?php echo xlt('Expiration'); ?></th>
     <th><?php echo htmlspecialchars( xl('Manufacturer'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Lot Number'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Administered By'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Education Date'), ENT_NOQUOTES); ?></th>
-	<th><?php echo htmlspecialchars( xl('Route'), ENT_NOQUOTES); ?></th>
-	<th><?php echo htmlspecialchars( xl('Administered Site'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Route'), ENT_NOQUOTES); ?></th>
+    <th><?php echo htmlspecialchars( xl('Administered Site'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Notes'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Completion Status'), ENT_NOQUOTES); ?></th>
     <th><?php echo htmlspecialchars( xl('Error'), ENT_NOQUOTES); ?></th>
-	<th>&nbsp;</th>
+    <th>&nbsp;</th>
     </tr>
 
 <?php
@@ -868,7 +868,7 @@ $(document).ready(function(){
     $("#print").click(function() { PrintForm("pdf"); });
     $("#printHtml").click(function() { PrintForm("html"); });
     $(".immrow").click(function() { EditImm(this); });
-	$(".error").click(function(event) { ErrorImm(this); event.stopPropagation(); });
+    $(".error").click(function(event) { ErrorImm(this); event.stopPropagation(); });
     $(".delete").click(function(event) { DeleteImm(this); event.stopPropagation(); });
 
     $(".immrow").mouseover(function() { $(this).toggleClass("highlight"); });
@@ -876,13 +876,13 @@ $(document).ready(function(){
 
     $("#administered_by_id").change(function() { $("#administered_by").val($("#administered_by_id :selected").text()); });
 
-	$("#form_immunization_id").change( function() {
-		if ( $(this).val() != "" ) {
-			$("#cvx_code").val( "" );
-			$("#cvx_description").text( "" );
-			$("#cvx_code").change();
-		}
-	});
+    $("#form_immunization_id").change( function() {
+        if ( $(this).val() != "" ) {
+            $("#cvx_code").val( "" );
+            $("#cvx_description").text( "" );
+            $("#cvx_code").change();
+        }
+    });
 
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
@@ -913,7 +913,7 @@ $(document).ready(function(){
 var PrintForm = function(typ) {
     top.restoreSession();
     newURL='shot_record.php?output='+typ+'&sortby=<?php echo $sortby; ?>';
-	window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
 }
 
 var SaveForm = function() {
@@ -936,29 +936,29 @@ var DeleteImm = function(imm) {
 
 var ErrorImm = function(imm) {
     top.restoreSession();
-	location.href='immunizations.php?mode=added_error&id='+imm.id+'&isError='+imm.checked;
+    location.href='immunizations.php?mode=added_error&id='+imm.id+'&isError='+imm.checked;
 }
 
 //This is for callback by the find-code popup.
 //Appends to or erases the current list of diagnoses.
 function set_related(codetype, code, selector, codedesc) {
     if(codetype == 'CVX') {
-	var f = document.forms[0][current_sel_name];
+    var f = document.forms[0][current_sel_name];
         if(!f.length) {
-	var s = f.value;
+    var s = f.value;
 
-	if (code) {
-		s = code;
-	}
-	else {
-		s = '';
-	}
+    if (code) {
+        s = code;
+    }
+    else {
+        s = '';
+    }
 
-	f.value = s;
+    f.value = s;
             if(f.name != 'cvx_vac_type_code[]'){
-	$("#cvx_description").text( codedesc );
-	$("#form_immunization_id").attr( "value", "" );
-	$("#form_immunization_id").change();
+    $("#cvx_description").text( codedesc );
+    $("#form_immunization_id").attr( "value", "" );
+    $("#form_immunization_id").change();
             }else{
                 id_arr = f.id.split('cvx_code');
                 counter = id_arr[1];

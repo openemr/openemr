@@ -115,7 +115,7 @@ class ORDataObject {
     {
         if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
-            && !empty($this->_table)) 												{
+            && !empty($this->_table))                                               {
 
             return $GLOBALS['static']['enums'][$this->_table][$field_name];
         }

@@ -295,14 +295,14 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
 var pt_name;
 var pt_id;
 function checkSubmit() {
-	var pat = document.forms[0].elements['form_patient'].value;
-	if(!pat || pat == 0) {
-		alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
-		return false;
-	}
-	document.forms[0].elements['form_refresh'].value = true;
-	document.forms[0].elements['form_csvexport'].value = '';
-	document.forms[0].submit();
+    var pat = document.forms[0].elements['form_patient'].value;
+    if(!pat || pat == 0) {
+        alert('<?php echo xls('A Patient Must Be Selected to Generate This Report') ?>');
+        return false;
+    }
+    document.forms[0].elements['form_refresh'].value = true;
+    document.forms[0].elements['form_csvexport'].value = '';
+    document.forms[0].submit();
 }
 function setpatient(pid, lname, fname, dob) {
   document.forms[0].elements['form_patient'].value = lname + ', ' + fname;
@@ -396,16 +396,16 @@ function sel_patient() {
     <?php }else{ ?>
   <td width='70%'>
     <?php } ?>
-	<div style='float:left'>
-	<table class='text'>
-		<tr>
+    <div style='float:left'>
+    <table class='text'>
+        <tr>
         <?php if($type_form == '0') { ?>
-			<td class='label_custom'>
-				<?php echo xlt('Facility'); ?>:
-			</td>
-			<td>
-			<?php dropdown_facility($form_facility, 'form_facility', true); ?>
-			</td>
+            <td class='label_custom'>
+                <?php echo xlt('Facility'); ?>:
+            </td>
+            <td>
+            <?php dropdown_facility($form_facility, 'form_facility', true); ?>
+            </td>
       <td><?php echo xlt('Provider'); ?>:</td>
       <td><?php
         $query = "SELECT id, lname, fname FROM users WHERE ".
@@ -421,7 +421,7 @@ function sel_patient() {
         }
         echo "   </select>\n";
         ?></td>
-		</tr><tr>
+        </tr><tr>
 <?php } ?>
       <td colspan="2">
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
@@ -445,32 +445,32 @@ function sel_patient() {
         <input type='hidden' name='form_dob' value='<?php echo attr($form_dob); ?>' />
 
       </td>
-		</tr>
-	</table>
-	</div>
+        </tr>
+    </table>
+    </div>
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick="checkSubmit();" >
-					<span><?php echo xlt('Submit'); ?></span></a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick="checkSubmit();" >
+                    <span><?php echo xlt('Submit'); ?></span></a>
 
-			<?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
-					<div id="controls">
+            <?php if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) { ?>
+                    <div id="controls">
                     <a href='#' class='css_button' id='printbutton'>
                          <span><?php echo xlt('Print Ledger'); ?></span></a>
                     <?php if($type_form == '1') { ?>
                     <a href="../patient_file/summary/demographics.php" class="css_button" onclick="top.restoreSession()">
                          <span><?php echo xlt('Back To Patient');?></span></a>
                     <?php } ?>
-					</div>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    </div>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -542,25 +542,25 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
   <tr>
     <td class="title" ><?php echo xlt('Patient Ledger'); ?></td>
   </tr>
-	<tr>
-		<?php
+    <tr>
+        <?php
             $title = xl('All Providers');
         if($form_provider) { $title = xl('For Provider') . ': '.User_Id_Look($form_provider); }
         ?>
     <td class="title" ><?php echo text($title); ?></td>
-	</tr>
-	<tr>
-		<?php
+    </tr>
+    <tr>
+        <?php
             $title = xl('For Dates') . ': '.$form_from_date.' - '.$form_to_date;
         ?>
     <td class="title" ><?php echo text($title); ?></td>
-	</tr>
+    </tr>
 </table>
 <br/>
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td class='bold' ><?php echo xlt('Date')?>:
-		<?php echo text(date('Y-m-d')); ?></td>
+        <?php echo text(date('Y-m-d')); ?></td>
     <td class='bold' ><?php echo xlt('Patient')?>:
         <?php if($type_form == '1') { ?>
             <?php echo text($pat_name); ?></td>
@@ -574,7 +574,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             <?php echo text($form_dob); ?></td>
         <?php } ?>
     <td class='bold' > <?php echo xlt('ID')?>:
-		<?php echo text($form_pid);?></td>
+        <?php echo text($form_pid);?></td>
   </tr>
 </table>
 </div>
@@ -645,8 +645,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $bill = substr($erow['bill_date'],0,10);
             if($bill == '') { $bill = 'unbilled'; }
             $print .= "<td class='detail'>".text($bill)."&nbsp;/&nbsp;".text($who)."</td>";
-            $print .= "<td class='detail' style='text-align: right;'>".	text($erow['units'])."</td>";
-            $print .= "<td class='detail' style='text-align: right;'>".	text(oeFormatMoney($erow['fee']))."</td>";
+            $print .= "<td class='detail' style='text-align: right;'>". text($erow['units'])."</td>";
+            $print .= "<td class='detail' style='text-align: right;'>". text(oeFormatMoney($erow['fee']))."</td>";
             $print .= "<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>";
             $print .= "</tr>\n";
 

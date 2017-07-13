@@ -57,11 +57,11 @@ if (!($GLOBALS['portal_onsite_appt_modify'])) {
  $date          = $_GET['date'];        // this and below only for new events
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
- $patientid		= $_GET['patid'];
+ $patientid     = $_GET['patid'];
  //
  if ($date)
   $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
- else
+else
   $date = date("Y-m-d");
  //
  $starttimem = '00';
@@ -552,10 +552,10 @@ if ($_POST['form_action'] == "save") {
     }
 
 }
- else if ($_POST['form_action'] == "delete") {
-        // =======================================
-        //  multi providers case
-        // =======================================
+else if ($_POST['form_action'] == "delete") {
+      // =======================================
+      //  multi providers case
+      // =======================================
     if ($GLOBALS['select_multi_providers']) {
          // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
@@ -570,20 +570,20 @@ if ($_POST['form_action'] == "save") {
     } else {
         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
     }
-    }
+}
 
-    if ($_POST['form_action'] != "") {
-     // Close this window and refresh the calendar display.
-        echo "<html>\n<body>\n<script language='JavaScript'>\n";
-        if ($info_msg) echo " alert('$info_msg');\n";
+if ($_POST['form_action'] != "") {
+ // Close this window and refresh the calendar display.
+    echo "<html>\n<body>\n<script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('$info_msg');\n";
    //  echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
    //  echo " if (!opener.closed && opener.refreshme) window.opener.location.reload(true);\n";
    //  echo " opener.refreshme();";
    //  echo " window.location='https://ehr.clinicdr.com/".$GLOBALS['instance_name']."/clinicdr-ehr/interface/main/calendar/index.php?module=PostCalendar&func=view&tplview=default&pc_category=&pc_topic='";
-        echo " parent.jQuery.fn.fancybox.close();\n";
-        echo "</script>\n</body>\n</html>\n";
-        exit();
-    }
+    echo " parent.jQuery.fn.fancybox.close();\n";
+    echo "</script>\n</body>\n</html>\n";
+    exit();
+}
  // If we get this far then we are displaying the form.
 
     $statuses = array(
@@ -783,9 +783,9 @@ while ($crow = sqlFetchArray($cres)) {
  function categoryChanged() {
     var value = '5';
    
-	document.getElementById("form_patient").disabled=false;
-	//document.getElementById("form_apptstatus").disabled=false;
-	//document.getElementById("form_prefcat").disabled=false;
+    document.getElementById("form_patient").disabled=false;
+    //document.getElementById("form_apptstatus").disabled=false;
+    //document.getElementById("form_prefcat").disabled=false;
  
  }
 
@@ -890,11 +890,11 @@ while ($crow = sqlFetchArray($cres)) {
   f.form_category.value='12';
   if (f.form_patient.value=='Click to select' && (!(
          f.form_category.value=='2' || f.form_category.value=='8' || f.form_category.value=='3' || f.form_category.value=='4' || f.form_category.value=='11'
-	 || f.form_category.value=='10'))) {
+     || f.form_category.value=='10'))) {
    alert('Please select a patient.');
    return false;
   } else if (f.form_category.value=='10') {
-	unsetpatient();	
+    unsetpatient(); 
   }
   var form_action = document.getElementById('form_action');
   form_action.value="save";
@@ -936,7 +936,7 @@ while ($crow = sqlFetchArray($cres)) {
   </td>
   <td></td>
   <td width='1%' nowrap>
-  	<b><?php xl('Date','e'); ?>:</b>
+    <b><?php xl('Date','e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input type='text' size='10' name='form_date' readonly id='form_date' <?php echo $disabled ?>
@@ -991,7 +991,7 @@ while ($crow = sqlFetchArray($cres)) {
  </tr>
 
     <tr>
-    	
+        
     </tr>
 
 
@@ -1031,7 +1031,7 @@ while ($crow = sqlFetchArray($cres)) {
    <b><?php xl('Comments','e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
-	<input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
+    <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 

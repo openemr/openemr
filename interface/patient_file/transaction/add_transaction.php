@@ -286,12 +286,12 @@ function validate(f) {
  var msg = "";
  msg += "<?php echo htmlspecialchars( xl('The following fields are required'), ENT_QUOTES); ?>:\n\n";
  for ( var i = 0; i < errMsgs.length; i++ ) {
-	msg += errMsgs[i] + "\n";
+    msg += errMsgs[i] + "\n";
  }
  msg += "\n<?php echo htmlspecialchars( xl('Please fill them in before continuing.'), ENT_QUOTES); ?>";
 
  if ( errMsgs.length > 0 ) {
-	alert(msg);
+    alert(msg);
  }
 
  return errMsgs.length < 1;
@@ -311,8 +311,8 @@ function submitme() {
 
 <style type="text/css">
 div.tab {
-	height: auto;
-	width: auto;
+    height: auto;
+    width: auto;
 }
 </style>
 
@@ -321,8 +321,8 @@ div.tab {
 <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo htmlspecialchars( $transid, ENT_QUOTES); ?>' onsubmit='return validate(this)'>
 <input type='hidden' name='mode' value='add'>
 
-	<table>
-	    <tr>
+    <table>
+        <tr>
             <td>
                 <b><?php echo htmlspecialchars( xl('Add/Edit Patient Transaction'), ENT_NOQUOTES); ?></b>&nbsp;</td><td>
                  <a href="javascript:;" class="css_button" onclick="submitme();">
@@ -335,14 +335,14 @@ div.tab {
                 </a>
             </td>
         </tr>
-	</table>
+    </table>
 
-	<table class="text">
-	    <tr><td>
+    <table class="text">
+        <tr><td>
         <?php echo htmlspecialchars( xl('Transaction Type'), ENT_NOQUOTES); ?>:&nbsp;</td><td>
-	<?php echo generate_select_list('title','transactions',$form_id,'','','','titleChanged()'); ?>
+    <?php echo generate_select_list('title','transactions',$form_id,'','','','titleChanged()'); ?>
         </td></tr>
-	</table>
+    </table>
 
 <div id='referdiv'>
 
@@ -377,8 +377,8 @@ div.tab {
         </div>
     <?php } ?>
 
-					<div id="DEM">
-						<ul class="tabNav">
+                    <div id="DEM">
+                        <ul class="tabNav">
 <?php
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = ? AND uor > 0 " .
@@ -405,10 +405,10 @@ while ($frow = sqlFetchArray($fres)) {
     }
 }
 ?>
-						</ul>
-						<div class="tabContainer">
+                        </ul>
+                        <div class="tabContainer">
 
-								<?php
+                                <?php
                                 $fres = sqlStatement("SELECT * FROM layout_options " .
                                 "WHERE form_id = ? AND uor > 0 " .
                                 "ORDER BY group_name, seq", array($form_id));
@@ -465,7 +465,7 @@ while ($frow = sqlFetchArray($fres)) {
                                         $group_name = substr($this_group, 1);
                                         $last_group = $this_group;
                                         $group_seq_esc = htmlspecialchars( $group_seq, ENT_QUOTES);
-                                        if($group_seq == 1)	echo "<div class='tab current' id='div_$group_seq_esc'>";
+                                        if($group_seq == 1) echo "<div class='tab current' id='div_$group_seq_esc'>";
                                         else echo "<div class='tab' id='div_$group_seq_esc'>";
                                         echo " <table border='0' cellpadding='0'>\n";
                                         $display_style = 'none';

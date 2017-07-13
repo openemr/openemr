@@ -43,8 +43,8 @@ td { font-size:10pt; }
   if (len==undefined && chk.checked==1) 
   {
     if(!str)
-	  str = chk.value;
-	else  
+      str = chk.value;
+    else  
     str = "#"+chk.value;
   }
   else
@@ -53,15 +53,15 @@ td { font-size:10pt; }
    {
     if(chk[pr].checked == 1)
     {
-	 if(!str)
-	  str = chk[pr].value;
-	 else 
+     if(!str)
+      str = chk[pr].value;
+     else 
       str = str+"#"+chk[pr].value;
-	}
+    }
    }
   }
   if(!str)
-	alert('<?php echo xl("Select Diagnosis");?>');
+    alert('<?php echo xl("Select Diagnosis");?>');
   if (opener.closed || ! opener.set_related)
    alert("<?php echo xl('The destination form was closed');?>");
   else
@@ -182,7 +182,7 @@ else {
             $drug_id = addslashes($row['drug_id']);
             $selector = addslashes($row['selector']);
             $desc = addslashes($row['name']);
-            ?>	 
+            ?>   
            <input type="checkbox" name="diagnosis[row_count]" value= "<?php echo $desc;
     ?>" > <?php echo $drug_id."    ".$selector."     ".$desc."</br>";
         }

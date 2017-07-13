@@ -808,7 +808,7 @@ class Date_Calc {
         }
         // starts on monday
         if(DATE_CALC_BEGIN_WEEKDAY == 1)
-        {	if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
+        {   if(Date_Calc::firstOfMonthWeekday($month,$year) == 0) {
                 $first_week_days = 1;
         } else {
             $first_week_days = 7 - (Date_Calc::firstOfMonthWeekday($month,$year) - 1);

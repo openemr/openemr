@@ -307,15 +307,15 @@ function sel_procedure() {
 <table>
  <tr>
   <td width='630px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
                 <?php xl('Report by','e'); ?>
-			</td>
-			<td>
-				<?php
+            </td>
+            <td>
+                <?php
                 echo "   <select name='form_report_by'>\n";
                 foreach (array(1 => 'Payer', 2 => 'Payment Method', 3 => 'Check Number') as $key => $value) {
                     echo "    <option value='$key'";
@@ -323,70 +323,70 @@ function sel_procedure() {
                     echo ">" . xl($value) . "</option>\n";
                 }
                 echo "   </select>&nbsp;\n"; ?>
-			</td>
+            </td>
 
-			<td>
-			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
-			</td>
+            <td>
+            <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
+            </td>
 
-			<td>
+            <td>
                 <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Procedure/Service') . ':'; ?>
-			</td>
-			<td>
-			   <input type='text' name='form_proc_codefull' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
-				title='<?php xl('Click to select optional procedure code','e'); ?>'
-				<?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
+            </td>
+            <td>
+               <input type='text' name='form_proc_codefull' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
+                title='<?php xl('Click to select optional procedure code','e'); ?>'
+                <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
                                 <br>
-			   &nbsp;<input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
-			</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>
-			   <select name='form_use_edate'>
-				<option value='0'><?php xl('Payment Date','e'); ?></option>
-				<option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
-			   </select>
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
-				title='yyyy-mm-dd'>
-			</td>
-			<td class='label_custom'>
+               &nbsp;<input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?xl('Details','e')?>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+               <select name='form_use_edate'>
+                <option value='0'><?php xl('Payment Date','e'); ?></option>
+                <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
+               </select>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
+                title='yyyy-mm-dd'>
+            </td>
+            <td class='label_custom'>
                 <?php xl('To','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
-				title='yyyy-mm-dd'>
-			</td>
-		</tr>
-	</table>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
+                title='yyyy-mm-dd'>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php xl('Submit','e'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php xl('Print','e'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -630,7 +630,7 @@ if ($_POST['form_refresh']) {
 </div>
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
 <?php } ?>
 

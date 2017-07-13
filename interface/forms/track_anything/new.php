@@ -37,7 +37,7 @@ if (! $encounter) { // comes from globals.php
 // get vars posted by FORMs
 if (!$formid){
     $formid = $_GET['id'];
-    if (!$formid){ $formid = $_POST['formid'];	}
+    if (!$formid){ $formid = $_POST['formid'];  }
 }
 
 $myprocedureid =  $_POST['procedure2track'];
@@ -160,9 +160,9 @@ if ($formid){
     // ---------------------------
 
     // getting old entries from <form>
-    $old_id 	= $_POST['old_id'];
-    $old_time 	= $_POST['old_time'];
-    $old_value 	= $_POST['old_value'];
+    $old_id     = $_POST['old_id'];
+    $old_time   = $_POST['old_time'];
+    $old_value  = $_POST['old_value'];
 
     $how_many = count($old_time);
     // do this for each data row
@@ -206,7 +206,7 @@ if ($formid){
         Calendar.setup({inputField:"datetime", ifFormat:"%Y-%m-%d %H:%M:%S", button:"img_date", showsTime:true});
         </script>
 
-	<?php
+    <?php
     // get items to track
     $liste = array();
     $spell = "SELECT * FROM form_track_anything_type WHERE parent = ? AND active = 1 ORDER BY position ASC, name ASC ";
@@ -229,7 +229,7 @@ if ($formid){
     // get unique timestamps of track
     echo "<br><br><hr><br>";
     echo "<b>" . xlt('Edit your entered data') . ":</b><br>";
-    $shownameflag = 0;	// flag if this is <table>-headline
+    $shownameflag = 0;  // flag if this is <table>-headline
     echo "<table border='1'>";
 
     $spell0 = "SELECT DISTINCT track_timestamp FROM form_track_anything_results WHERE track_anything_id = ? ORDER BY track_timestamp DESC";

@@ -22,7 +22,7 @@
 
  // Add a string to output with some basic sanitizing.
 function Add($tag, $text)
- {
+{
     global $out, $indent;
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
     if ($text) {
@@ -52,13 +52,13 @@ function CloseTag($tag)
 
  // Remove all non-digits from a string.
 function Digits($field)
- {
+{
     return preg_replace("/\D/", "", $field);
 }
 
  // Translate sex.
 function Sex($field)
- {
+{
     $sex = strtoupper(substr(trim($field), 0, 1));
     if ($sex != "M" && $sex != "F") $sex = "U";
     return $sex;
@@ -66,13 +66,13 @@ function Sex($field)
 
  // Translate a date.
 function LWDate($field)
- {
+{
     return fixDate($field);
 }
 
  // Add an insurance section.
 function addInsurance($row, $seq)
- {
+{
     if ($row["name$seq"]) {
         OpenTag("insurance");
         Add("priority"            , $seq);

@@ -71,8 +71,8 @@ function show_graph(table_graph, name_graph, title_graph)
     type: 'POST',
         data: ({
             table: table_graph,
-	          name: name_graph,
-	          title: title_graph
+              name: name_graph,
+              title: title_graph
         }),
         dataType: "json",
         success: function(returnData){

@@ -614,7 +614,7 @@ function edih_disp_x12file()
                 return $str_htm;
             } else {
                 $fnar = reset($f_array);  // type filename array
-                $ft = key($f_array);    			// type
+                $ft = key($f_array);                // type
                 $fn1 = $f_array[$ft][0];   //$upldir.DS.
                 $fn = csv_check_filepath($fn1);
                 csv_edihist_log("edih_disp_x12file: submitted POST $format $ft $fn1 $fnupl");

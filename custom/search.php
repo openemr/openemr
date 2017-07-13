@@ -22,47 +22,47 @@ require_once("../interface/globals.php");
  }
 </style>
 <script language="javascript">
-	function doSelectorButton() {
-		var selector = document.getElementById('selectorButton');
-		var value;
-		if ( selector.value == "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" ) {
-			selector.value = "<?php echo htmlspecialchars( xl('Unselect All'), ENT_QUOTES); ?>";
-			value = true;
-		} else {
-			selector.value = "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>";
-			value = false;
-		}
-		var checkBoxes = document.getElementsByName( "searchFields" );
-		setAll( checkBoxes, value );
-	}
+    function doSelectorButton() {
+        var selector = document.getElementById('selectorButton');
+        var value;
+        if ( selector.value == "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" ) {
+            selector.value = "<?php echo htmlspecialchars( xl('Unselect All'), ENT_QUOTES); ?>";
+            value = true;
+        } else {
+            selector.value = "<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>";
+            value = false;
+        }
+        var checkBoxes = document.getElementsByName( "searchFields" );
+        setAll( checkBoxes, value );
+    }
 
-	function setAll(field, value) {
-		for (i = 0; i < field.length; i++) {
-			field[i].checked = value ;
-		}
-	}
+    function setAll(field, value) {
+        for (i = 0; i < field.length; i++) {
+            field[i].checked = value ;
+        }
+    }
 
-	function doSubmit() {
-		// buildup fieldstring
-		var checkBoxes = document.getElementsByName( "searchFields" );
-		var fieldString = '';
+    function doSubmit() {
+        // buildup fieldstring
+        var checkBoxes = document.getElementsByName( "searchFields" );
+        var fieldString = '';
     var ssc = document.forms[0].search_service_code.value;
-		for (i = 0; i < checkBoxes.length; i++) {
-			if ( checkBoxes[i].checked ) {
-				if ( fieldString != '' ) {
-					fieldString += "~";
-				}
-				fieldString += checkBoxes[i].value;
-			}
-		}
-		if ( opener != null ) {
-			if (fieldString == undefined || (fieldString == '' && ssc.length == '')) {
-				alert("<?php echo htmlspecialchars( xl('You must select some fields to continue.'), ENT_QUOTES); ?>");
-				return false;
-			}
-			opener.processFilter(fieldString, ssc);
-		}
-	}
+        for (i = 0; i < checkBoxes.length; i++) {
+            if ( checkBoxes[i].checked ) {
+                if ( fieldString != '' ) {
+                    fieldString += "~";
+                }
+                fieldString += checkBoxes[i].value;
+            }
+        }
+        if ( opener != null ) {
+            if (fieldString == undefined || (fieldString == '' && ssc.length == '')) {
+                alert("<?php echo htmlspecialchars( xl('You must select some fields to continue.'), ENT_QUOTES); ?>");
+                return false;
+            }
+            opener.processFilter(fieldString, ssc);
+        }
+    }
 
 </script>
 </head>
@@ -70,21 +70,21 @@ require_once("../interface/globals.php");
 <body>
 <form>
 
-	<table>
-	  <tr>
-		<td>
-		  <b><?php echo htmlspecialchars(xl('Select Fields')); ?>:</b>
-		</td>
-	    <td>
-		<input type="button" value="<?php echo htmlspecialchars( xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
-	    </td>
-		<td>
-		<input type="button" value="<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
-		</td>
-	  </tr>
-	</table>
+    <table>
+      <tr>
+        <td>
+          <b><?php echo htmlspecialchars(xl('Select Fields')); ?>:</b>
+        </td>
+        <td>
+        <input type="button" value="<?php echo htmlspecialchars( xl('Submit'), ENT_QUOTES); ?>" id="submit" onclick="javascript:doSubmit();"></input>
+        </td>
+        <td>
+        <input type="button" value="<?php echo htmlspecialchars( xl('Select All'), ENT_QUOTES); ?>" id="selectorButton" onclick="javascript:doSelectorButton();"></input>
+        </td>
+      </tr>
+    </table>
 
-	<?php
+    <?php
     function echoFilterItem($iter, $fieldId, $fieldTitle)
     {
         if ($iter % 3 == 0) {
@@ -107,18 +107,18 @@ require_once("../interface/globals.php");
 
         echo "<table>";
 
-    for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
-        $label = $row['title'] ? $row['title'] : $row['description'];
-        if ( !$label ) {
-            $label = $row['field_id'];
-        }
-        echoFilterItem(
+        for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+            $label = $row['title'] ? $row['title'] : $row['description'];
+            if ( !$label ) {
+                $label = $row['field_id'];
+            }
+            echoFilterItem(
             $iter,
             $row['field_id'],
             xl_layout_label($label)
-        );
-    }
-    echoFilterItem($iter++, 'pid', xl('Internal Identifier (pid)'));
+                );
+        }
+        echoFilterItem($iter++, 'pid', xl('Internal Identifier (pid)'));
 
         // Finish the row gracefully.
         while ($iter++ % 3) echo "<td>&nbsp;</td>\n";

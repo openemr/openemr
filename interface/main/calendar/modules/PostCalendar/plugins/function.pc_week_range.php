@@ -58,18 +58,18 @@ function smarty_function_pc_week_range($args)
     // get the week date range for the supplied $date
     $dow = date('w',mktime(0,0,0,$m,$d,$y));
     if(_SETTING_FIRST_DAY_WEEK == 0) {
-        $firstDay 	= strftime($args['format1'],mktime(0,0,0,$m,($d-$dow),$y));
-        $lastDay 	= strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$dow)),$y));
+        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$dow),$y));
+        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$dow)),$y));
     } elseif(_SETTING_FIRST_DAY_WEEK == 1) {
         if($dow == 0) $sub = 6;
         else $sub = $dow-1;
-        $firstDay 	= strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
-        $lastDay 	= strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
+        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
+        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
     } elseif(_SETTING_FIRST_DAY_WEEK == 6) {
         if($dow == 6) $sub = 0;
         else $sub = $dow+1;
-        $firstDay 	= strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
-        $lastDay 	= strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
+        $firstDay   = strftime($args['format1'],mktime(0,0,0,$m,($d-$sub),$y));
+        $lastDay    = strftime($args['format2'],mktime(0,0,0,$m,($d+(6-$sub)),$y));
     }
     // return the formated range
     echo $firstDay.$args['sep'].$lastDay;

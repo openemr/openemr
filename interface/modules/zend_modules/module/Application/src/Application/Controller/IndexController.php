@@ -33,7 +33,7 @@ class IndexController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     public function indexAction()

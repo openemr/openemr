@@ -251,7 +251,8 @@ function delete_event($title)
  * submit an event
  */
 function postcalendar_user_edit($args)
-{return postcalendar_user_submit($args); }
+{
+    return postcalendar_user_submit($args); }
 function postcalendar_user_submit2($args)
 {
 

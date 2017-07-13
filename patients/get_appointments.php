@@ -16,7 +16,7 @@
     $events = array();
     $apptNum = (int)$GLOBALS['patient_portal_appt_display_num'];
     if($apptNum != 0) $apptNum2 = abs($apptNum);
-    else $apptNum2 = 20;
+else $apptNum2 = 20;
     $events = fetchNextXAppts($current_date2, $pid, $apptNum2);
     ///////
 

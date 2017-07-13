@@ -101,7 +101,7 @@ class BillingExport {
   // Filename format is "transYYYYMMDDHHMMSS.txt".
   //
     function BillingExport()
-  {
+    {
         $this->tmpname = $this->TMP_DIR . '/trans' . date("YmdHis") . '.txt';
         $this->tmpfh = fopen($this->tmpname, 'w');
     }
@@ -109,7 +109,7 @@ class BillingExport {
   // Call this once for each claim to be processed.
   //
     function addClaim($patient_id, $encounter)
-  {
+    {
 
       // Patient information:
 
@@ -247,7 +247,7 @@ class BillingExport {
   // Close the output file and move it to the ftp download area.
   //
     function close()
-  {
+    {
         fclose($this->tmpfh);
         chmod($this->tmpname, 0666);
         rename($this->tmpname, $this->TARGET_DIR . '/' . basename($this->tmpname));

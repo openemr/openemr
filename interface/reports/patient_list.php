@@ -89,7 +89,7 @@ $(document).ready(function() {
     #report_parameters_daterange {
         visibility: visible;
         display: inline;
-		margin-bottom: 10px;
+        margin-bottom: 10px;
     }
     #report_results table {
        margin-top: 0px;
@@ -98,13 +98,13 @@ $(document).ready(function() {
 
 /* specifically exclude some from the screen */
 @media screen {
-	#report_parameters_daterange {
-		visibility: hidden;
-		display: none;
-	}
-	#report_results {
-		width: 100%;
-	}
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+    #report_results {
+        width: 100%;
+    }
 }
 
 </style>
@@ -135,10 +135,10 @@ $(document).ready(function() {
 <table>
  <tr>
   <td width='60%'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
+    <table class='text'>
+        <tr>
       <td class='control-label'>
         <?php xl('Provider','e'); ?>:
       </td>
@@ -148,46 +148,46 @@ $(document).ready(function() {
             'empty_title' => '-- All --'), $_POST['form_provider']);
             ?>
       </td>
-			<td class='control-label'>
+            <td class='control-label'>
                 <?php xl('Visits From','e'); ?>:
-			</td>
-			<td>
-			   <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
-			</td>
-			<td class='control-label'>
+            </td>
+            <td>
+               <input class='datepicker form-control' type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($from_date) ?>'>
+            </td>
+            <td class='control-label'>
                 <?php xl('To','e'); ?>:
-			</td>
-			<td>
-			   <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
-			</td>
-		</tr>
-	</table>
+            </td>
+            <td>
+               <input class='datepicker form-control' type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($to_date) ?>'>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
         <div class="text-center">
-				  <div class="btn-group" role="group">
-	  				<a href='#' class='btn btn-default btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
-	  				  <?php echo xlt('Submit'); ?>
-	  				</a>
-	  				<a href='#' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
-	  					<?php echo xlt('Export to CSV'); ?>
-	  				</a>
-	  				<?php if ($_POST['form_refresh']) { ?>
-	  				  <a href='#' id='printbutton' class='btn btn-default btn-print'>
-	  						<?php xl('Print','e'); ?>
-  					  </a>
-  					<?php } ?>
-  			  </div>
+                  <div class="btn-group" role="group">
+                    <a href='#' class='btn btn-default btn-save' onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                        <?php echo xlt('Submit'); ?>
+                    </a>
+                    <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();'>
+                        <?php echo xlt('Export to CSV'); ?>
+                    </a>
+                    <?php if ($_POST['form_refresh']) { ?>
+                      <a href='#' id='printbutton' class='btn btn-default btn-print'>
+                            <?php xl('Print','e'); ?>
+                      </a>
+                    <?php } ?>
+              </div>
         </div>
-			</td>
-		</tr>
-	</table>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -354,7 +354,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
 ?>
 <div class='text'>
- 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
 <?php
 }

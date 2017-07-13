@@ -379,11 +379,11 @@ else {
     "pw.pw_warehouse = lo.option_id WHERE " .
     "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
     array($drug_id));
-while ($pwrow = sqlFetchArray($pwres)) {
-    $pwarr[] = $pwrow;
-    echo "     <td valign='top' nowrap>" .
-    text($pwrow['title']) . "</td>\n";
-}
+  while ($pwrow = sqlFetchArray($pwres)) {
+      $pwarr[] = $pwrow;
+      echo "     <td valign='top' nowrap>" .
+      text($pwrow['title']) . "</td>\n";
+    }
 ?>
     </tr>
     <tr>
@@ -497,20 +497,20 @@ foreach ($pwarr as $pwrow) {
   $emptyPrices = array();
   $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
-while ($prow = sqlFetchArray($pres)) {
-    $emptyPrices[$prow['option_id']] = '';
-    echo "     <td><b>" .
-    generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
-    "</b></td>\n";
-}
+  while ($prow = sqlFetchArray($pres)) {
+      $emptyPrices[$prow['option_id']] = '';
+      echo "     <td><b>" .
+      generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
+      "</b></td>\n";
+    }
   // Show a heading for each tax rate.
-  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+    $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-while ($prow = sqlFetchArray($pres)) {
-    echo "     <td><b>" .
-    generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
-    "</b></td>\n";
-}
+    while ($prow = sqlFetchArray($pres)) {
+        echo "     <td><b>" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
+        "</b></td>\n";
+    }
 ?>
     </tr>
 <?php

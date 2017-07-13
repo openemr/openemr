@@ -161,199 +161,199 @@ use ESign\Api;
   'dld' => array(xl('Display Documents'), 0, 'main/display_documents.php')
  );
  $primary_docs['npa']=array(xl('Batch Payments')   , 0, 'billing/new_payment.php');
-if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
-    $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
-}
+ if ($GLOBALS['use_charges_panel'] || $GLOBALS['menu_styling_vertical'] == 0) {
+     $primary_docs['cod'] = array(xl('Charges'), 2, 'patient_file/encounter/encounter_bottom.php');
+    }
 
-if($GLOBALS['enable_group_therapy']){
-    $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
-    $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
-    $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
-    $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
-    $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
-}
+    if($GLOBALS['enable_group_therapy']){
+        $primary_docs['gng'] = array(xl('New')    , 0, 'therapy_groups/index.php?method=addGroup');
+        $primary_docs['gdg'] = array(xl('Group Details')   , 3,  '/therapy_groups/index.php?method=groupDetails&group_id=from_session');
+        $primary_docs['gcv'] = array(xl('Create Visit'), 3, 'forms/newGroupEncounter/new.php?autoloaded=1&calenc=');
+        $primary_docs['gce'] = array(xl('Current') , 4, 'patient_file/encounter/encounter_top.php');
+        $primary_docs['gvh'] = array(xl('Visit History'), 3, 'patient_file/history/encounters.php');
+    }
 
- $esignApi = new Api();
+    $esignApi = new Api();
  // This section decides which navigation items will not appear.
 
- $disallowed = array();
- $disallowed['edi'] = !($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob'));
- $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
-  acl_check('admin', 'database') || acl_check('admin', 'forms') ||
-  acl_check('admin', 'practice') || acl_check('admin', 'users') ||
-  acl_check('admin', 'acl')      || acl_check('admin', 'super') ||
-  acl_check('admin', 'superbill') || acl_check('admin', 'drugs'));
+    $disallowed = array();
+    $disallowed['edi'] = !($GLOBALS['enable_edihistory_in_left_menu'] && acl_check('acct', 'eob'));
+    $disallowed['adm'] = !(acl_check('admin', 'calendar') ||
+    acl_check('admin', 'database') || acl_check('admin', 'forms') ||
+    acl_check('admin', 'practice') || acl_check('admin', 'users') ||
+    acl_check('admin', 'acl')      || acl_check('admin', 'super') ||
+    acl_check('admin', 'superbill') || acl_check('admin', 'drugs'));
 
- $disallowed['bil'] = !(acl_check('acct', 'eob') || acl_check('acct', 'bill'));
+    $disallowed['bil'] = !(acl_check('acct', 'eob') || acl_check('acct', 'bill'));
 
- $disallowed['new'] = !(acl_check('patients','demo','',array('write','addonly') ));
+    $disallowed['new'] = !(acl_check('patients','demo','',array('write','addonly') ));
 
- $disallowed['fax'] = !(($GLOBALS['enable_hylafax'] || $GLOBALS['enable_scanner']) && acl_check('patients', 'docs'));
+    $disallowed['fax'] = !(($GLOBALS['enable_hylafax'] || $GLOBALS['enable_scanner']) && acl_check('patients', 'docs'));
 
- $disallowed['iss'] = !((acl_check('encounters','notes','','write') ||
-  acl_check('encounters','notes_a','','write') ) &&
-  acl_check('patients','med','','write') );
+    $disallowed['iss'] = !((acl_check('encounters','notes','','write') ||
+    acl_check('encounters','notes_a','','write') ) &&
+    acl_check('patients','med','','write') );
 
- $disallowed['imp'] = $disallowed['new'] || !is_readable("$webserver_root/custom/import.php");
+    $disallowed['imp'] = $disallowed['new'] || !is_readable("$webserver_root/custom/import.php");
 
- $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
+    $disallowed['cht'] = !is_readable("$webserver_root/custom/chart_tracker.php");
 
- $disallowed['pre'] = !(acl_check('patients', 'med'));
- $disallowed['eob'] = !(acl_check('acct', 'eob'));
+    $disallowed['pre'] = !(acl_check('patients', 'med'));
+    $disallowed['eob'] = !(acl_check('acct', 'eob'));
 
  // Helper functions for treeview generation.
-function genTreeLink($frame, $name, $title, $mono=false)
- {
-    global $primary_docs, $disallowed;
-    if (empty($disallowed[$name])) {
-        $id = $name . $primary_docs[$name][1];
-        echo "<li><a href='' id='$id' onclick=\"";
-        if ($mono) {
-            if ($frame == 'RTop')
-            echo "forceSpec(true,false);";
-            else
-            echo "forceSpec(false,true);";
+    function genTreeLink($frame, $name, $title, $mono=false)
+    {
+        global $primary_docs, $disallowed;
+        if (empty($disallowed[$name])) {
+            $id = $name . $primary_docs[$name][1];
+            echo "<li><a href='' id='$id' onclick=\"";
+            if ($mono) {
+                if ($frame == 'RTop')
+                echo "forceSpec(true,false);";
+                else
+                echo "forceSpec(false,true);";
+            }
+            echo "return loadFrame2('$id','$frame','" .
+            $primary_docs[$name][2] . "')\">" . $title . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
         }
-        echo "return loadFrame2('$id','$frame','" .
-        $primary_docs[$name][2] . "')\">" . $title . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
     }
-}
-function genMiscLink($frame, $name, $level, $title, $url, $mono=false)
-{
-    global $disallowed;
-    if (empty($disallowed[$name])) {
-        $id = $name . $level;
-        echo "<li><a href='' id='$id' onclick=\"";
-        if ($mono) {
-            if ($frame == 'RTop')
-            echo "forceSpec(true,false);";
-            else
-            echo "forceSpec(false,true);";
+    function genMiscLink($frame, $name, $level, $title, $url, $mono=false)
+    {
+        global $disallowed;
+        if (empty($disallowed[$name])) {
+            $id = $name . $level;
+            echo "<li><a href='' id='$id' onclick=\"";
+            if ($mono) {
+                if ($frame == 'RTop')
+                echo "forceSpec(true,false);";
+                else
+                echo "forceSpec(false,true);";
+            }
+            echo "return loadFrame2('$id','$frame','" .
+            $url . "')\">" . $title . "</a></li>";
         }
-        echo "return loadFrame2('$id','$frame','" .
-        $url . "')\">" . $title . "</a></li>";
     }
-}
-function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="")
-{
-    global $disallowed;
-    if (empty($disallowed[$name])) {
+    function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="")
+    {
+        global $disallowed;
+        if (empty($disallowed[$name])) {
 
-        $id = $name . $level;
-        echo "<li><a href='' id='$id' title='$mouseovertext' onclick=\"";
-        if ($mono) {
-            if ($frame == 'RTop')
-            echo "forceSpec(true,false);";
-            else
-            echo "forceSpec(false,true);";
+            $id = $name . $level;
+            echo "<li><a href='' id='$id' title='$mouseovertext' onclick=\"";
+            if ($mono) {
+                if ($frame == 'RTop')
+                echo "forceSpec(true,false);";
+                else
+                echo "forceSpec(false,true);";
+            }
+            echo "return loadFrame3('$id','$frame','" .
+            $url . "')\">" . $title . "</a></li>";
         }
-        echo "return loadFrame3('$id','$frame','" .
-        $url . "')\">" . $title . "</a></li>";
     }
-}
-function genPopLink($title, $url, $linkid='')
-{
-    echo "<li><a href='' ";
-    if ($linkid) echo "id='$linkid' ";
-    echo "onclick=\"return repPopup('$url')\"" .
-      ">" . $title . "</a></li>";
-}
-function genDualLink($topname, $botname, $title)
-{
-    global $primary_docs, $disallowed;
-    if (empty($disallowed[$topname]) && empty($disallowed[$botname])) {
-        $topid = $topname . $primary_docs[$topname][1];
-        $botid = $botname . $primary_docs[$botname][1];
-        echo "<li><a href='' id='$topid' " .
-        "onclick=\"return loadFrameDual('$topid','$botid','" .
-        $primary_docs[$topname][2] . "','" .
-        $primary_docs[$botname][2] . "')\">" . $title . "</a></li>";
+    function genPopLink($title, $url, $linkid='')
+    {
+        echo "<li><a href='' ";
+        if ($linkid) echo "id='$linkid' ";
+        echo "onclick=\"return repPopup('$url')\"" .
+          ">" . $title . "</a></li>";
     }
-}
+    function genDualLink($topname, $botname, $title)
+    {
+        global $primary_docs, $disallowed;
+        if (empty($disallowed[$topname]) && empty($disallowed[$botname])) {
+            $topid = $topname . $primary_docs[$topname][1];
+            $botid = $botname . $primary_docs[$botname][1];
+            echo "<li><a href='' id='$topid' " .
+            "onclick=\"return loadFrameDual('$topid','$botid','" .
+            $primary_docs[$topname][2] . "','" .
+            $primary_docs[$botname][2] . "')\">" . $title . "</a></li>";
+        }
+    }
 
-function genPopupsList($style='')
-{
-    global $disallowed, $webserver_root;
-?>
-<select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;<?php echo $style; ?>'>
- <option value=''><?php xl('Popups','e'); ?></option>
-<?php if (!$disallowed['iss']) { ?>
- <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
-<?php } ?>
-<?php if (!$GLOBALS['ippf_specific'] && acl_check('patients', 'demo')) { ?>
- <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
-<?php if (acl_check('patients', 'demo', '', 'write')) { ?>
- <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
-<?php }}
+    function genPopupsList($style='')
+    {
+        global $disallowed, $webserver_root;
+        ?>
+        <select name='popups' onchange='selpopup(this)' style='background-color:transparent;font-size:9pt;<?php echo $style; ?>'>
+     <option value=''><?php xl('Popups','e'); ?></option>
+    <?php if (!$disallowed['iss']) { ?>
+     <option value='../patient_file/problem_encounter.php'><?php xl('Issues','e'); ?></option>
+    <?php } ?>
+    <?php if (!$GLOBALS['ippf_specific'] && acl_check('patients', 'demo')) { ?>
+     <option value='../../custom/export_xml.php'><?php xl('Export','e'); ?></option>
+    <?php if (acl_check('patients', 'demo', '', 'write')) { ?>
+     <option value='../../custom/import_xml.php'><?php xl('Import','e'); ?></option>
+    <?php }}
 if (!$GLOBALS['disable_calendar'] && acl_check('patients', 'appt')) { ?>
- <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;
+     <option value='../reports/appointments_report.php?patient=<?php if(isset($pid)) {echo $pid;
 } ?>'><?php xl('Appts','e'); ?></option>
-<?php } ?>
-<?php if (acl_check('patients', 'med')) { ?>
- <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
-<?php } ?>
-<?php if (acl_check('acct', 'bill', '', 'write')) { ?>
- <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
-<?php } ?>
-<?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('acct', 'bill', '', 'write')) { ?>
- <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
-<?php } ?>
-<?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates") && acl_check('patients', 'med')) { ?>
- <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
-<?php } ?>
-<?php if ($GLOBALS['chart_label_type'] != '0' && acl_check('patients', 'demo')) { ?>
-<option value='../patient_file/label.php'><?php xl('Chart Label','e'); ?></option>
-<?php } ?>
-<?php if ($GLOBALS['barcode_label_type'] != '0' && acl_check('patients', 'demo')) { ?>
-<option value='../patient_file/barcode_label.php'><?php xl('Barcode Label','e'); ?></option>
-<?php } ?>
-<?php if ($GLOBALS['addr_label_type'] && acl_check('patients', 'demo')) { ?>
-<option value='../patient_file/addr_label.php'><?php xl('Address Label','e'); ?></option>
-<?php } ?>
-</select>
-<?php
-}
+    <?php } ?>
+    <?php if (acl_check('patients', 'med')) { ?>
+     <option value='../patient_file/printed_fee_sheet.php?fill=1'><?php xl('Superbill','e'); ?></option>
+    <?php } ?>
+    <?php if (acl_check('acct', 'bill', '', 'write')) { ?>
+     <option value='../patient_file/front_payment.php'><?php xl('Payment','e'); ?></option>
+    <?php } ?>
+    <?php if ($GLOBALS['inhouse_pharmacy'] && acl_check('acct', 'bill', '', 'write')) { ?>
+     <option value='../patient_file/pos_checkout.php'><?php xl('Checkout','e'); ?></option>
+    <?php } ?>
+    <?php if (is_dir($GLOBALS['OE_SITE_DIR'] . "/letter_templates") && acl_check('patients', 'med')) { ?>
+     <option value='../patient_file/letter.php'><?php xl('Letter','e'); ?></option>
+    <?php } ?>
+    <?php if ($GLOBALS['chart_label_type'] != '0' && acl_check('patients', 'demo')) { ?>
+    <option value='../patient_file/label.php'><?php xl('Chart Label','e'); ?></option>
+    <?php } ?>
+    <?php if ($GLOBALS['barcode_label_type'] != '0' && acl_check('patients', 'demo')) { ?>
+    <option value='../patient_file/barcode_label.php'><?php xl('Barcode Label','e'); ?></option>
+    <?php } ?>
+    <?php if ($GLOBALS['addr_label_type'] && acl_check('patients', 'demo')) { ?>
+    <option value='../patient_file/addr_label.php'><?php xl('Address Label','e'); ?></option>
+    <?php } ?>
+    </select>
+    <?php
+    }
 
-function genFindBlock()
-{
-?>
-<table cellpadding='0' cellspacing='0' border='0'>
- <tr>
-  <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
+    function genFindBlock()
+    {
+        ?>
+    <table cellpadding='0' cellspacing='0' border='0'>
+     <tr>
+          <td class='smalltext'><?php xl('Find','e') ?>:&nbsp;</td>
   <td class='smalltext' colspan='2'>
    <input type="entry" size="7" name="patient" class='inputtext' style='width:65px;' />
   </td>
  </tr>
  <tr>
-  <td class='smalltext'><?php xl('by','e') ?>:</td>
+      <td class='smalltext'><?php xl('by','e') ?>:</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
+       <a href="javascript:findPatient('Last');" class="navitem"><?php xl('Name','e'); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
+       <a href="javascript:findPatient('ID');"   class="navitem"><?php xl('ID','e'); ?></a>
   </td>
  </tr>
  <tr>
   <td class='smalltext'>&nbsp;</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
+       <a href="javascript:findPatient('SSN');"  class="navitem"><?php xl('SSN','e'); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
+       <a href="javascript:findPatient('DOB');"  class="navitem"><?php xl('DOB','e'); ?></a>
   </td>
  </tr>
  <tr>
   <td class='smalltext'>&nbsp;</td>
   <td class='smalltext'>
-   <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
+       <a href="javascript:findPatient('Any');"  class="navitem"><?php xl('Any', 'e'); ?></a>
   </td>
   <td class='smalltext' align='right'>
-   <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
+       <a href="javascript:initFilter();"  class="navitem"><?php xl('Filter', 'e'); ?></a>
   </td>
  </tr>
 </table>
 <?php
-} // End function genFindBlock()
+    } // End function genFindBlock()
 
 ?>
 <html>
@@ -507,8 +507,8 @@ function genFindBlock()
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   if(f.sel_frame)
    {
-	  var fi = f.sel_frame.selectedIndex;
-	  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+      var fi = f.sel_frame.selectedIndex;
+      if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
    }
   if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
@@ -523,8 +523,8 @@ function genFindBlock()
   if (i >= 0) url = url.substring(0,i) + active_pid + url.substring(i+5);
   if(f.sel_frame)
    {
-	  var fi = f.sel_frame.selectedIndex;
-	  if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
+      var fi = f.sel_frame.selectedIndex;
+      if (fi == 1) frame = 'RTop'; else if (fi == 2) frame = 'RBot';
    }
   if (!f.cb_bot.checked) frame = 'RTop'; else if (!f.cb_top.checked) frame = 'RBot';
   top.frames[frame].location = '<?php echo "$web_root/interface/" ?>' + url;
@@ -634,23 +634,23 @@ function goHome() {
 
 //Function to clear active patient and encounter in the server side
 function clearactive() {
-	top.restoreSession();
-	//Ajax call to clear active patient in session
+    top.restoreSession();
+    //Ajax call to clear active patient in session
     var method = (active_pid > 0) ? 'unset_pid' : 'unset_gid';
-	$.ajax({
-	  type: "POST",
-	  url: "<?php echo $GLOBALS['webroot'] ?>/library/ajax/unset_session_ajax.php",
-	  data: { func: method},
-	  success:function( msg ) {
-		clearPatient();
-		clearTherapyGroup();
-		top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
-		top.frames['RBot'].location='messages/messages.php?form_active=1';
-	  }
-	});
+    $.ajax({
+      type: "POST",
+      url: "<?php echo $GLOBALS['webroot'] ?>/library/ajax/unset_session_ajax.php",
+      data: { func: method},
+      success:function( msg ) {
+        clearPatient();
+        clearTherapyGroup();
+        top.frames['RTop'].location='<?php echo $GLOBALS['default_top_pane']?>';
+        top.frames['RBot'].location='messages/messages.php?form_active=1';
+      }
+    });
 
-	$(parent.Title.document.getElementById('clear_active')).hide();
-	$(parent.Title.document.getElementById('clear_active_group')).hide();
+    $(parent.Title.document.getElementById('clear_active')).hide();
+    $(parent.Title.document.getElementById('clear_active_group')).hide();
 }
  // Reference to the search.php window.
  var my_window;
@@ -847,11 +847,11 @@ function getEncounterTargetFrame( name ) {
 }
 
 function isEncounterLocked( encounterId ) {
-	<?php if ( $esignApi->lockEncounters() ) { ?>
-	// If encounter locking is enabled, make a syncronous call (async=false) to check the
-	// DB to see if the encounter is locked.
-	// Call restore session, just in case
-	top.restoreSession();
+    <?php if ( $esignApi->lockEncounters() ) { ?>
+    // If encounter locking is enabled, make a syncronous call (async=false) to check the
+    // DB to see if the encounter is locked.
+    // Call restore session, just in case
+    top.restoreSession();
     $.ajax({
         type: 'POST',
         url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
@@ -861,13 +861,13 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});
-	return encounter_locked;
-	<?php } else { ?>
-	// If encounter locking isn't enabled, just tell the left_nav that the encounter
+    });
+    return encounter_locked;
+    <?php } else { ?>
+    // If encounter locking isn't enabled, just tell the left_nav that the encounter
     // isn't locked.
-	return false;
-	<?php } ?>
+    return false;
+    <?php } ?>
  }
 
  // Call this to announce that the encounter has changed.  You must call this
@@ -946,15 +946,15 @@ function isEncounterLocked( encounterId ) {
 
 function removeOptionSelected(EncounterId)
 {//Removes an item from the Encounter drop down.
-	var elSel = top.window.parent.Title.document.getElementById('EncounterHistory');
-	var i;
-	for (i = elSel.length - 1; i>=2; i--) {
-	 EncounterHistoryValue=elSel.options[i].value;
-	 EncounterHistoryValueArray=EncounterHistoryValue.split('~');
-		if (EncounterHistoryValueArray[0]==EncounterId) {
-			elSel.remove(i);
-		}
-	}
+    var elSel = top.window.parent.Title.document.getElementById('EncounterHistory');
+    var i;
+    for (i = elSel.length - 1; i>=2; i--) {
+     EncounterHistoryValue=elSel.options[i].value;
+     EncounterHistoryValueArray=EncounterHistoryValue.split('~');
+        if (EncounterHistoryValueArray[0]==EncounterId) {
+            elSel.remove(i);
+        }
+    }
 }
 
  // You can call this to make sure the session pid is what we expect.
@@ -1035,7 +1035,7 @@ $(document).ready(function(){
     $("#navigation-slide > li  > a#admimg").prepend('<i class="fa fa-fw fa-cogs"></i>&nbsp;');
     $("#navigation-slide > li  > a#misimg").prepend('<i class="fa fa-fw fa-cog"></i>&nbsp;');
     $("#navigation-slide > li  > a#proimg").prepend('<i class="fa fa-fw fa-stethoscope"></i>&nbsp;');
-		$("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-puzzle-piece"></i>&nbsp;');
+        $("#navigation-slide > li  > a#modimg").prepend('<i class="fa fa-fw fa-puzzle-piece"></i>&nbsp;');
     $("#navigation-slide > li").each(function(index) {
       if($(" > ul > li", this).size() == 0){
         $(" > a", this).addClass("collapsed");
@@ -1246,25 +1246,25 @@ if (!empty($reg)) {
   </li>
     <?php } ?>
 
-	<?php  if (acl_check('menus', 'modle')) {?>
+    <?php  if (acl_check('menus', 'modle')) {?>
    <li><a class="collapsed" id="modimg" ><span><?php echo xlt('Modules') ?></span></a>
     <ul>
-	<?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
+    <?php genMiscLink('RTop','adm','0',xl('Manage Modules'),'modules/zend_modules/public/Installer'); ?>
         <?php //genTreeLink('RTop','ort',xl('Settings')); ?>
-      	<?php
+        <?php
         $module_query = sqlStatement("select mod_directory,mod_name,mod_nick_name,mod_relative_link,type from modules where mod_active = 1 AND sql_run= 1 order by mod_ui_order asc");
         if (sqlNumRows($module_query)) {
             while ($modulerow = sqlFetchArray($module_query)) {
                 $acl_section = strtolower($modulerow['mod_directory']);
                 $disallowed[$acl_section] = zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1";
                 $modulePath = "";
-                $added 		= "";
+                $added      = "";
                 if($modulerow['type'] == 0) {
                     $modulePath = $GLOBALS['customModDir'];
-                    $added		= "";
+                    $added      = "";
                 }
                 else{
-                    $added		= "index";
+                    $added      = "index";
                     $modulePath = $GLOBALS['zendModDir'];
                 }
 
@@ -1371,7 +1371,7 @@ if (!empty($reg)) {
 
   <li><a class="collapsed" id="repimg" ><span><?php xl('Reports','e') ?></span></a>
     <ul>
-				<?php
+                <?php
                 $module_query = sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
                                     WHERE fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='reports' ORDER BY mod_id");
@@ -1380,13 +1380,13 @@ if (!empty($reg)) {
                     $modid = '';
                     while ($modulerow = sqlFetchArray($module_query)) {
                         $modulePath = "";
-                        $added 		= "";
+                        $added      = "";
                         if($modulerow['type'] == 0) {
                             $modulePath = $GLOBALS['customModDir'];
-                            $added		= "";
+                            $added      = "";
                         }
                         else{
-                            $added		= "index";
+                            $added      = "index";
                             $modulePath = $GLOBALS['zendModDir'];
                         }
                         $disallowed[$modulerow['obj_name']] = !$disallowed['adm'] || zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']) ?  "" : "1";
@@ -1398,9 +1398,9 @@ if (!empty($reg)) {
                             if($modid!='')
                             echo "</ul>";
                         ?>
-						<li><a class="collapsed_lv2"><span><?php echo xlt($modulerow['mod_ui_name']); ?></span></a>
-							<ul>
-						<?php
+                        <li><a class="collapsed_lv2"><span><?php echo xlt($modulerow['mod_ui_name']); ?></span></a>
+                            <ul>
+                        <?php
                         }
                         $jid++;
                         $modid = $modulerow['mod_id'];
@@ -1466,7 +1466,7 @@ if (!empty($reg)) {
             genMiscLink('RTop','rep','0',xl('Eligibility'),'reports/edi_270.php'); ?>
             <?php if (acl_check('patients', 'demo'))
             genMiscLink('RTop','rep','0',xl('Eligibility Response'),'reports/edi_271.php'); ?>
-	            <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt'))
+                <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt'))
                 genMiscLink('RTop','rep','0',xl('Chart Activity'),'reports/chart_location_activity.php'); ?>
             <?php if (!$GLOBALS['disable_chart_tracker'] && acl_check('patients', 'appt'))
             genMiscLink('RTop','rep','0',xl('Charts Out'),'reports/charts_checked_out.php'); ?>
@@ -1543,17 +1543,17 @@ if (!empty($reg)) {
 <?php
   $lres = sqlStatement("SELECT * FROM list_options " .
   "WHERE list_id = 'lbfnames' AND activity = 1 ORDER BY seq, title");
-while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['option_id']; // should start with LBF
-    $title = $lrow['title'];
-    // Check ACO attribute, if any, of this LBF.
-    $jobj = json_decode($lrow['notes'], true);
-    if (!empty($jobj['aco'])) {
-        $tmp = explode('|', $jobj['aco']);
-        if (!acl_check($tmp[0], $tmp[1])) continue;
+  while ($lrow = sqlFetchArray($lres)) {
+      $option_id = $lrow['option_id']; // should start with LBF
+      $title = $lrow['title'];
+      // Check ACO attribute, if any, of this LBF.
+      $jobj = json_decode($lrow['notes'], true);
+      if (!empty($jobj['aco'])) {
+          $tmp = explode('|', $jobj['aco']);
+          if (!acl_check($tmp[0], $tmp[1])) continue;
+        }
+        genPopLink($title, "../forms/LBF/printable.php?formname=$option_id");
     }
-    genPopLink($title, "../forms/LBF/printable.php?formname=$option_id");
-}
 ?>
         </ul>
       </li>
@@ -1627,23 +1627,23 @@ syncRadios();
 
 function save_setting (cb_frames) {
     for (var i = 0, len = cb_frames.length; i < len; i++) {
-	    try {
-	        var fref = '<?php echo $uspfx ?>frame' + i + '_chk';
-	        var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+        try {
+            var fref = '<?php echo $uspfx ?>frame' + i + '_chk';
+            var ureq = $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
                     { lab: fref, val: cb_frames[i] })
-	        .done(function(data) {
-	            // alert( "Data Loaded: " + data );
-	        })
-	        .fail(function(xhr, textStatus, errorThrown) {
-	            alert("Error:"+xhr.responseText+"\n"+textStatus+"\n"+errorThrown);
-	        })
-	        .always(function() {
-	            // alert( "finished" );
-	        });
+            .done(function(data) {
+                // alert( "Data Loaded: " + data );
+            })
+            .fail(function(xhr, textStatus, errorThrown) {
+                alert("Error:"+xhr.responseText+"\n"+textStatus+"\n"+errorThrown);
+            })
+            .always(function() {
+                // alert( "finished" );
+            });
 
-	    } catch (err) {
-	        alert (err.message);
-	    }
+        } catch (err) {
+            alert (err.message);
+        }
     }
 }
 </script>

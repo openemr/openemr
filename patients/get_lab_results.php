@@ -34,10 +34,10 @@
       "WHERE po.patient_id = ? AND $where " .
       "ORDER BY $orderby", array($pid));
 
-if(sqlNumRows($res)>0)
+  if(sqlNumRows($res)>0)
     {
-    ?>
-    <table class="class1">
+        ?>
+      <table class="class1">
         <tr class="header">
             <th><?php echo htmlspecialchars( xl('Order Date'),ENT_NOQUOTES); ?></th>
             <th><?php echo htmlspecialchars( xl('Order Name'),ENT_NOQUOTES); ?></th>
@@ -49,7 +49,7 @@ if(sqlNumRows($res)>0)
                             <th><?php echo htmlspecialchars( xl('Result Status'),ENT_NOQUOTES); ?></th>
                             <th><?php echo htmlspecialchars( xl('Report Status'),ENT_NOQUOTES); ?></th>
         </tr>
-  		<?php
+        <?php
         $even=false;
 
         while ($row = sqlFetchArray($res)) {
@@ -111,9 +111,9 @@ if(sqlNumRows($res)>0)
         }
 
         echo "</table>";
-}
-else
+    }
+    else
     {
-    echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
-}
+        echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
+    }
 ?>

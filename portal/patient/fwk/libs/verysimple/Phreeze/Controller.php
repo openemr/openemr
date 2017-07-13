@@ -536,7 +536,7 @@ abstract class Controller {
      * @param string $feedTitle
      * @param string $feedDescription
      */
-    protected function RenderRSS(Array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
+    protected function RenderRSS(array $feedItems, $feedTitle = "RSS Feed", $feedDescription = "RSS Feed")
     {
         require_once ('verysimple/RSS/Writer.php');
         require_once ('verysimple/RSS/IRSSFeedItem.php');

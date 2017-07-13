@@ -16,7 +16,8 @@ General Helpers
 <!-- -->
 <!-- -->
 <?php function render_select( $args )
-{ ?>
+{
+    ?>
 <select data-grp-tgt="<?php echo out( $args['target'] ); ?>"
         type="dropdown"
         name="<?php echo out( $args['name'] ); ?>"
@@ -41,7 +42,8 @@ General Helpers
 <!-- -->
 <!-- -->
 <?php function textfield_row( $args )
-{ ?>
+{
+    ?>
 <p class="row">
     <span class="left_col colhead req" data-field="<?php echo out( $args['name'] );
 ?>"><?php echo out( $args['title'] ); ?></span>
@@ -66,7 +68,8 @@ Compound Helpers
 <!-- -->
 <!-- -->
 <?php function common_fields( $args )
-{ ?>
+{
+    ?>
     <?php $criteria = $args['criteria'];  ?>
     <p class="row">
         <span class="left_col colhead req" data-field="fld_optional"><?php echo out( xl( 'Optional' ) ); ?></span>

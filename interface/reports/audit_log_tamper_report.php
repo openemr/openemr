@@ -64,7 +64,7 @@ include_once("$srcdir/log.inc");
     color: #336699;
 }
 .tamperColor{
-	color:red;
+    color:red;
 }
 </style>
 <script>
@@ -267,33 +267,33 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
         if($dispCheck){
             $dispArr[] = $icnt++;
     ?>
-	 <TR class="oneresult">
-		  <TD class="text tamperColor"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
-		  <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
-		  <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
-		  <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
+     <TR class="oneresult">
+          <TD class="text tamperColor"><?php echo oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10) ?></TD>
+          <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
+          <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
+          <TD class="text tamperColor"><?php echo text($trans_comments);?></TD>
             <?php  if($check_sum) { ?>
-		  <TD class="text tamperColor"><?php echo text($checkSumNew);?></TD>
-		  <TD class="text tamperColor"><?php echo text($checkSumOld);?></TD>
+          <TD class="text tamperColor"><?php echo text($checkSumNew);?></TD>
+          <TD class="text tamperColor"><?php echo text($checkSumOld);?></TD>
             <?php } ?>
-	 </TR>
+     </TR>
     <?php
         }
     }
 }
 
 if( count($dispArr) == 0 ){?>
-	 <TR class="oneresult">
+     <TR class="oneresult">
             <?php
             $colspan = 4;
             if($check_sum) $colspan=6;
             ?>
-		<TD class="text" colspan="<?php echo $colspan;
+        <TD class="text" colspan="<?php echo $colspan;
 ?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
-	 </TR>
+     </TR>
 <?php
 }else{?>
-	<script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
+    <script type="text/javascript">$('#display_tamper').css('display', 'block');</script>
     <?php
 }
 
@@ -326,7 +326,7 @@ $(document).ready(function(){
     $("#sortby_success").click(function() { $("#sortby").val("success"); $("#theform").submit(); });
     $("#sortby_comments").click(function() { $("#sortby").val("comments"); $("#theform").submit(); });
     $("#sortby_oldchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
-	$("#sortby_newchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
+    $("#sortby_newchecksum").click(function() { $("#sortby").val("checksum"); $("#theform").submit(); });
 });
 
 

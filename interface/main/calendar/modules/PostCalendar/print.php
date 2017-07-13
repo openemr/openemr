@@ -26,13 +26,13 @@
  */
 
 // grab the form variables
-$tplview 		= pnVarCleanFromInput('tplview');
-$viewtype 		= pnVarCleanFromInput('viewtype');
-$eid 			= pnVarCleanFromInput('eid');
-$Date 			= pnVarCleanFromInput('Date');
-$print  		= pnVarCleanFromInput('print');
-$uid 			= pnUserGetVar('uid');
-$pc_username 	= pnVarCleanFromInput('pc_username');
+$tplview        = pnVarCleanFromInput('tplview');
+$viewtype       = pnVarCleanFromInput('viewtype');
+$eid            = pnVarCleanFromInput('eid');
+$Date           = pnVarCleanFromInput('Date');
+$print          = pnVarCleanFromInput('print');
+$uid            = pnUserGetVar('uid');
+$pc_username    = pnVarCleanFromInput('pc_username');
 
 $output =& new pnHTML();
 $output->SetInputMode(_PNH_VERBATIMINPUT);

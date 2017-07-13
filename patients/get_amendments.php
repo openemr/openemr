@@ -28,14 +28,14 @@ $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM a
 $res = sqlStatement($query, array($pid) );
 if ( sqlNumRows($res) > 0 ) { ?>
 
-	<table class="class1">
-		<tr class="header">
-			<th><?php echo xlt('Date'); ?></th>
-			<th><?php echo xlt('Requested By'); ?></th>
-			<th><?php echo xlt('Description'); ?></th>
-			<th><?php echo xlt('Status'); ?></th>
-		</tr>
-	<?php
+    <table class="class1">
+        <tr class="header">
+            <th><?php echo xlt('Date'); ?></th>
+            <th><?php echo xlt('Requested By'); ?></th>
+            <th><?php echo xlt('Description'); ?></th>
+            <th><?php echo xlt('Status'); ?></th>
+        </tr>
+    <?php
         $even = false;
     while ($row = sqlFetchArray($res)) {
         if ( $even ) {

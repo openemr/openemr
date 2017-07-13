@@ -96,8 +96,8 @@ class ApplicationTable extends AbstractTableGateway
      * @param string  $sql
      * @param array   $binds
      */
-     public function errorHandler($e, $sql, $binds = '')
-     {
+    public function errorHandler($e, $sql, $binds = '')
+    {
         $escaper = new \Zend\Escaper\Escaper('utf-8');
         $trace  = $e->getTraceAsString();
         $nLast = strpos($trace , '[internal function]');
@@ -135,7 +135,7 @@ class ApplicationTable extends AbstractTableGateway
         $logMsg .= "\n SQL statement : $sql" . $processedBinds;
         $logMsg .= "\n $trace";
         error_log("ERROR: " . $logMsg, 0);
-        }
+    }
      
     /**
      * Function quoteValue
@@ -144,10 +144,10 @@ class ApplicationTable extends AbstractTableGateway
      * @param type $value
      * @return type
      */
-        public function quoteValue($value)
-        {
-            return $this->adapter->platform->quoteValue($value);
-        }
+    public function quoteValue($value)
+    {
+        return $this->adapter->platform->quoteValue($value);
+    }
 
     /**
      * Function zAclCheck
@@ -162,9 +162,9 @@ class ApplicationTable extends AbstractTableGateway
      * $param String  $section_identifier ACL Section id
      * @return boolean
      */
-        public function zAclCheck($user_id,$section_identifier)
-        {
-            $sql_user_acl   = " SELECT 
+    public function zAclCheck($user_id,$section_identifier)
+    {
+        $sql_user_acl   = " SELECT 
                                 COUNT(allowed) AS count 
                             FROM
                                 module_acl_user_settings AS usr_settings 
@@ -172,7 +172,7 @@ class ApplicationTable extends AbstractTableGateway
                                     ON usr_settings.section_id = acl_sections.`section_id` 
                             WHERE 
                                 acl_sections.section_identifier = ? AND usr_settings.user_id = ? AND usr_settings.allowed = ?";
-            $sql_group_acl  = " SELECT 
+        $sql_group_acl  = " SELECT 
                                 COUNT(allowed) AS count 
                             FROM
                                 module_acl_group_settings AS group_settings 
@@ -180,7 +180,7 @@ class ApplicationTable extends AbstractTableGateway
                                   ON group_settings.section_id = acl_sections.section_id
                             WHERE
                                 acl_sections.`section_identifier` = ? AND group_settings.group_id IN (?) AND group_settings.allowed = ?";
-            $sql_user_group = " SELECT 
+        $sql_user_group = " SELECT 
                                 gagp.id AS group_id
                             FROM
                                 gacl_aro AS garo 
@@ -193,95 +193,95 @@ class ApplicationTable extends AbstractTableGateway
                             WHERE
                                 garo.section_value = ? AND usr. id = ?";
                                 
-            $res_groups     = $this->zQuery($sql_user_group,array('users',$user_id));
-            $groups = array();
-            foreach($res_groups as $row){
-                array_push($groups,$row['group_id']);
-            }
-            $groups_str = implode(",",$groups);
-        
-            $count_user_denied      = 0;
-            $count_user_allowed     = 0;
-            $count_group_denied     = 0;
-            $count_group_allowed    = 0;
-        
-            $res_user_denied    = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,0));
-            foreach($res_user_denied as $row){
-                $count_user_denied  = $row['count'];
-            }
-        
-            $res_user_allowed   = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,1));
-            foreach($res_user_allowed as $row){
-                $count_user_allowed  = $row['count'];
-            }
-        
-            $res_group_denied   = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,0));
-            foreach($res_group_denied as $row){
-                $count_group_denied  = $row['count'];
-            }
-        
-            $res_group_allowed  = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,1));
-            foreach($res_group_allowed as $row){
-                $count_group_allowed  = $row['count'];
-            }
-
-            if($count_user_denied > 0)
-            return false;
-            elseif($count_user_allowed > 0)
-            return true;
-            elseif($count_group_denied > 0)
-            return false;
-            elseif($count_group_allowed > 0)
-            return true;
-            else
-            return false;
+        $res_groups     = $this->zQuery($sql_user_group,array('users',$user_id));
+        $groups = array();
+        foreach($res_groups as $row){
+            array_push($groups,$row['group_id']);
         }
+        $groups_str = implode(",",$groups);
+        
+        $count_user_denied      = 0;
+        $count_user_allowed     = 0;
+        $count_group_denied     = 0;
+        $count_group_allowed    = 0;
+        
+        $res_user_denied    = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,0));
+        foreach($res_user_denied as $row){
+            $count_user_denied  = $row['count'];
+        }
+        
+        $res_user_allowed   = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,1));
+        foreach($res_user_allowed as $row){
+            $count_user_allowed  = $row['count'];
+        }
+        
+        $res_group_denied   = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,0));
+        foreach($res_group_denied as $row){
+            $count_group_denied  = $row['count'];
+        }
+        
+        $res_group_allowed  = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,1));
+        foreach($res_group_allowed as $row){
+            $count_group_allowed  = $row['count'];
+        }
+
+        if($count_user_denied > 0)
+        return false;
+        elseif($count_user_allowed > 0)
+        return true;
+        elseif($count_group_denied > 0)
+        return false;
+        elseif($count_group_allowed > 0)
+        return true;
+        else
+        return false;
+    }
 
     /**
      * Auto Suggest
      */
-        public function listAutoSuggest($post, $limit)
-        {
-            $pages        = 0;
-            $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
+    public function listAutoSuggest($post, $limit)
+    {
+        $pages        = 0;
+        $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
       
-            if (isset($GLOBALS['set_autosuggest_options'])) {
+        if (isset($GLOBALS['set_autosuggest_options'])) {
           
-                if ($GLOBALS['set_autosuggest_options'] == 1) {
-                    $leading        = '%';
-                } else {
-                    $leading        = $post->leading;
-                }
-                if ($GLOBALS['set_autosuggest_options'] == 2) {
-                    $trailing       = '%';
-                } else {
-                    $trailing       = $post->trailing;
-                }
-                if ($GLOBALS['set_autosuggest_options'] == 3) {
-                    $leading        = '%';
-                    $trailing       = '%';
-                }
+            if ($GLOBALS['set_autosuggest_options'] == 1) {
+                $leading        = '%';
             } else {
                 $leading        = $post->leading;
+            }
+            if ($GLOBALS['set_autosuggest_options'] == 2) {
+                $trailing       = '%';
+            } else {
                 $trailing       = $post->trailing;
             }
-      
-            $queryString  = $post->queryString;
-      
-      
-            $page         = $post->page;
-            $searchType   = $post->searchType;
-            $searchEleNo  = $post->searchEleNo;
-      
-            if ($page == '') {
-                $limitStart = 0;
-            } else {
-                $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
+            if ($GLOBALS['set_autosuggest_options'] == 3) {
+                $leading        = '%';
+                $trailing       = '%';
             }
+        } else {
+            $leading        = $post->leading;
+            $trailing       = $post->trailing;
+        }
+      
+        $queryString  = $post->queryString;
+      
+      
+        $page         = $post->page;
+        $searchType   = $post->searchType;
+        $searchEleNo  = $post->searchEleNo;
+      
+        if ($page == '') {
+            $limitStart = 0;
+        } else {
+            $limitStart = \Application\Plugin\CommonPlugin::escapeLimit($page);
+        }
 
-            $keyword = $leading . $queryString . $trailing;
-            if (strtolower($searchType) == 'patient') {
-                $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data 
+        $keyword = $leading . $queryString . $trailing;
+        if (strtolower($searchType) == 'patient') {
+            $sql = "SELECT fname, mname, lname, pid, DOB FROM patient_data 
                 WHERE pid LIKE ? 
                 OR  CONCAT(fname, ' ', lname) LIKE ?  
                 OR  CONCAT(lname, ' ', fname) LIKE ? 
@@ -289,56 +289,56 @@ class ApplicationTable extends AbstractTableGateway
                 OR DATE_FORMAT(DOB,'%d-%m-%Y') LIKE ?  
                 OR DATE_FORMAT(DOB,'%Y-%m-%d') LIKE ?  
                 ORDER BY fname ";
-                $result = $this->zQuery($sql, array(
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword
-                                      ));
-                $rowCount   =  $result->count();
-                $sql        .= "LIMIT $limitStart, $limitEnd";
-                $result     = $this->zQuery($sql, array(
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
+            $result = $this->zQuery($sql, array(
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword
+                                  ));
+            $rowCount   =  $result->count();
+            $sql        .= "LIMIT $limitStart, $limitEnd";
+            $result     = $this->zQuery($sql, array(
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
 
-                                      ));
-            }
-            elseif (strtolower($searchType) == 'emrdirect') {
-                $sql = "SELECT fname, mname, lname,email,id FROM users 
+                                  ));
+        }
+        elseif (strtolower($searchType) == 'emrdirect') {
+            $sql = "SELECT fname, mname, lname,email,id FROM users 
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?  
                 OR  CONCAT(lname, ' ', fname) LIKE ? 
                 OR email LIKE ?)   
                 AND abook_type = 'emr_direct' 
                 AND active = 1
                 ORDER BY fname ";
-                $result = $this->zQuery($sql, array(
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                      ));
-                $rowCount   =  $result->count();
-                $sql        .= "LIMIT $limitStart, $limitEnd";
-                $result     = $this->zQuery($sql, array(
-                                          $keyword,
-                                          $keyword,
-                                          $keyword,
-                                      ));
-            }
-            $arr = array();
-            if ($result) {
-                foreach ($result as $row) {
-                    $arr[] = $row;
-                }
-                $arr['rowCount'] = $rowCount;
-            }
-            return $arr;
+            $result = $this->zQuery($sql, array(
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                  ));
+            $rowCount   =  $result->count();
+            $sql        .= "LIMIT $limitStart, $limitEnd";
+            $result     = $this->zQuery($sql, array(
+                                      $keyword,
+                                      $keyword,
+                                      $keyword,
+                                  ));
         }
+        $arr = array();
+        if ($result) {
+            foreach ($result as $row) {
+                $arr[] = $row;
+            }
+            $arr['rowCount'] = $rowCount;
+        }
+        return $arr;
+    }
     
     /*
     * Retrive the data format from GLOBALS
@@ -346,57 +346,57 @@ class ApplicationTable extends AbstractTableGateway
     * @param    Date format set in GLOBALS
     * @return   Date format in PHP
     **/
-        public function dateFormat($format)
-        {
-            if($format == "0")
-            $date_format = 'yyyy/mm/dd';
-            else if($format == 1)
-            $date_format = 'mm/dd/yyyy';
-            else if($format == 2)
-            $date_format = 'dd/mm/yyyy';
-            else
-            $date_format = $format;
-            return $date_format;
-        }
+    public function dateFormat($format)
+    {
+        if($format == "0")
+        $date_format = 'yyyy/mm/dd';
+        else if($format == 1)
+        $date_format = 'mm/dd/yyyy';
+        else if($format == 2)
+        $date_format = 'dd/mm/yyyy';
+        else
+        $date_format = $format;
+        return $date_format;
+    }
     /**
     * fixDate - Date Conversion Between Different Formats
     * @param String $input_date Date to be converted
     * @param String $date_format Target Date Format
     */
-        public function fixDate($input_date, $output_format=null, $input_format=null)
-        {
-            if(!$input_date) return;
+    public function fixDate($input_date, $output_format=null, $input_format=null)
+    {
+        if(!$input_date) return;
         
-            $input_date = preg_replace('/T|Z/', ' ', $input_date);
+        $input_date = preg_replace('/T|Z/', ' ', $input_date);
         
-            $temp 	= explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
-            $input_date = $temp[0];
+        $temp   = explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
+        $input_date = $temp[0];
         
-            $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
-            $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
+        $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
+        $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
         
-            preg_match("/[^ymd]/", $output_format,$date_seperator_output);
-            $seperator_output   = $date_seperator_output[0];
-            $output_date_arr    = explode($seperator_output, $output_format);
+        preg_match("/[^ymd]/", $output_format,$date_seperator_output);
+        $seperator_output   = $date_seperator_output[0];
+        $output_date_arr    = explode($seperator_output, $output_format);
         
-            preg_match("/[^ymd]/", $input_format,$date_seperator_input);
-            $seperator_input    = $date_seperator_input[0];
-            $input_date_array   = explode($seperator_input, $input_format);
+        preg_match("/[^ymd]/", $input_format,$date_seperator_input);
+        $seperator_input    = $date_seperator_input[0];
+        $input_date_array   = explode($seperator_input, $input_format);
         
-            preg_match("/[^1234567890]/", $input_date,$date_seperator_input);
-            $seperator_input    = $date_seperator_input[0];
-            $input_date_arr     = explode($seperator_input, $input_date);
+        preg_match("/[^1234567890]/", $input_date,$date_seperator_input);
+        $seperator_input    = $date_seperator_input[0];
+        $input_date_arr     = explode($seperator_input, $input_date);
   
-            foreach($output_date_arr as $key => $format) {
-                $index = array_search($format,$input_date_array);
-                $output_date_arr[$key] = $input_date_arr[$index];
-            }
-        
-            $output_date = implode($seperator_output, $output_date_arr);
-        
-            $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
-            return $output_date;
+        foreach($output_date_arr as $key => $format) {
+            $index = array_search($format,$input_date_array);
+            $output_date_arr[$key] = $input_date_arr[$index];
         }
+        
+        $output_date = implode($seperator_output, $output_date_arr);
+        
+        $output_date = $temp[1] ? $output_date." ".$temp[1] : $output_date; //append the time, if exists, with the new formatted date
+        return $output_date;
+    }
     
     /*
     * Using generate id function from OpenEMR sql.inc library file
@@ -404,8 +404,8 @@ class ApplicationTable extends AbstractTableGateway
     * @param  integer $startID     id to start with for a new sequence (default is 1)
     * @return integer              returns the sequence integer
     */
-        public function generateSequenceID()
-        {
-            return generate_id();
-        }
+    public function generateSequenceID()
+    {
+        return generate_id();
+    }
 }

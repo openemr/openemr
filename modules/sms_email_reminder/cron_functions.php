@@ -32,7 +32,7 @@ function cron_SendMail( $to, $subject, $vBody, $from )
         $format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
 
         //echo "function called";exit;
-        if( strlen( $format )==0 )	$format="text/html";
+        if( strlen( $format )==0 )  $format="text/html";
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
         

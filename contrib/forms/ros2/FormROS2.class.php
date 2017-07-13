@@ -145,10 +145,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_headache_yes()
     {
-        return $this->general_headache == "Yes" ? "CHECKED" : "";	}
+        return $this->general_headache == "Yes" ? "CHECKED" : "";   }
     function get_general_headache_no()
     {
-        return $this->general_headache == "No" ? "CHECKED" : "";	}
+        return $this->general_headache == "No" ? "CHECKED" : "";    }
     function set_general_headache($data)
     {
         if(!empty($data)) {
@@ -175,10 +175,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_fever_yes()
     {
-        return $this->general_fever == "Yes" ? "CHECKED" : "";	}
+        return $this->general_fever == "Yes" ? "CHECKED" : "";  }
     function get_general_fever_no()
     {
-        return $this->general_fever == "No" ? "CHECKED" : "";	}
+        return $this->general_fever == "No" ? "CHECKED" : "";   }
     function set_general_fever($data)
     {
         if(!empty($data)) {
@@ -205,10 +205,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_chills_yes()
     {
-        return $this->general_chills == "Yes" ? "CHECKED" : "";	}
+        return $this->general_chills == "Yes" ? "CHECKED" : ""; }
     function get_general_chills_no()
     {
-        return $this->general_chills == "No" ? "CHECKED" : "";	}
+        return $this->general_chills == "No" ? "CHECKED" : "";  }
     function set_general_chills($data)
     {
         if(!empty($data)) {
@@ -235,10 +235,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_body_aches_yes()
     {
-        return $this->general_body_aches == "Yes" ? "CHECKED" : "";	}
+        return $this->general_body_aches == "Yes" ? "CHECKED" : ""; }
     function get_general_body_aches_no()
     {
-        return $this->general_body_aches == "No" ? "CHECKED" : "";	}
+        return $this->general_body_aches == "No" ? "CHECKED" : "";  }
     function set_general_body_aches($data)
     {
         if(!empty($data)) {
@@ -265,10 +265,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_fatigue_yes()
     {
-        return $this->general_fatigue == "Yes" ? "CHECKED" : "";	}
+        return $this->general_fatigue == "Yes" ? "CHECKED" : "";    }
     function get_general_fatigue_no()
     {
-        return $this->general_fatigue == "No" ? "CHECKED" : "";	}
+        return $this->general_fatigue == "No" ? "CHECKED" : ""; }
     function set_general_fatigue($data)
     {
         if(!empty($data)) {
@@ -295,10 +295,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_loss_of_appetite_yes()
     {
-        return $this->general_loss_of_appetite == "Yes" ? "CHECKED" : "";	}
+        return $this->general_loss_of_appetite == "Yes" ? "CHECKED" : "";   }
     function get_general_loss_of_appetite_no()
     {
-        return $this->general_loss_of_appetite == "No" ? "CHECKED" : "";	}
+        return $this->general_loss_of_appetite == "No" ? "CHECKED" : "";    }
     function set_general_loss_of_appetite($data)
     {
         if(!empty($data)) {
@@ -325,10 +325,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_weight_loss_yes()
     {
-        return $this->general_weight_loss == "Yes" ? "CHECKED" : "";	}
+        return $this->general_weight_loss == "Yes" ? "CHECKED" : "";    }
     function get_general_weight_loss_no()
     {
-        return $this->general_weight_loss == "No" ? "CHECKED" : "";	}
+        return $this->general_weight_loss == "No" ? "CHECKED" : ""; }
     function set_general_weight_loss($data)
     {
         if(!empty($data)) {
@@ -355,10 +355,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_daytime_drowsiness_yes()
     {
-        return $this->general_daytime_drowsiness == "Yes" ? "CHECKED" : "";	}
+        return $this->general_daytime_drowsiness == "Yes" ? "CHECKED" : ""; }
     function get_general_daytime_drowsiness_no()
     {
-        return $this->general_daytime_drowsiness == "No" ? "CHECKED" : "";	}
+        return $this->general_daytime_drowsiness == "No" ? "CHECKED" : "";  }
     function set_general_daytime_drowsiness($data)
     {
         if(!empty($data)) {
@@ -385,10 +385,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_general_excessive_snoring_yes()
     {
-        return $this->general_excessive_snoring == "Yes" ? "CHECKED" : "";	}
+        return $this->general_excessive_snoring == "Yes" ? "CHECKED" : "";  }
     function get_general_excessive_snoring_no()
     {
-        return $this->general_excessive_snoring == "No" ? "CHECKED" : "";	}
+        return $this->general_excessive_snoring == "No" ? "CHECKED" : "";   }
     function set_general_excessive_snoring($data)
     {
         if(!empty($data)) {
@@ -416,10 +416,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_disorientation_yes()
     {
-        return $this->neuro_disorientation == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_disorientation == "Yes" ? "CHECKED" : "";   }
     function get_neuro_disorientation_no()
     {
-        return $this->neuro_disorientation == "No" ? "CHECKED" : "";	}
+        return $this->neuro_disorientation == "No" ? "CHECKED" : "";    }
     function set_neuro_disorientation($data)
     {
         if(!empty($data)) {
@@ -446,10 +446,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_loss_of_consciousness_yes()
     {
-        return $this->neuro_loss_of_consciousness == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_loss_of_consciousness == "Yes" ? "CHECKED" : "";    }
     function get_neuro_loss_of_consciousness_no()
     {
-        return $this->neuro_loss_of_consciousness == "No" ? "CHECKED" : "";	}
+        return $this->neuro_loss_of_consciousness == "No" ? "CHECKED" : ""; }
     function set_neuro_loss_of_consciousness($data)
     {
         if(!empty($data)) {
@@ -476,10 +476,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_numbness_yes()
     {
-        return $this->neuro_numbness == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_numbness == "Yes" ? "CHECKED" : ""; }
     function get_neuro_numbness_no()
     {
-        return $this->neuro_numbness == "No" ? "CHECKED" : "";	}
+        return $this->neuro_numbness == "No" ? "CHECKED" : "";  }
     function set_neuro_numbness($data)
     {
         if(!empty($data)) {
@@ -506,10 +506,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_tingling_yes()
     {
-        return $this->neuro_tingling == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_tingling == "Yes" ? "CHECKED" : ""; }
     function get_neuro_tingling_no()
     {
-        return $this->neuro_tingling == "No" ? "CHECKED" : "";	}
+        return $this->neuro_tingling == "No" ? "CHECKED" : "";  }
     function set_neuro_tingling($data)
     {
         if(!empty($data)) {
@@ -536,10 +536,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_restlessness_yes()
     {
-        return $this->neuro_restlessness == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_restlessness == "Yes" ? "CHECKED" : ""; }
     function get_neuro_restlessness_no()
     {
-        return $this->neuro_restlessness == "No" ? "CHECKED" : "";	}
+        return $this->neuro_restlessness == "No" ? "CHECKED" : "";  }
     function set_neuro_restlessness($data)
     {
         if(!empty($data)) {
@@ -566,10 +566,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_dizziness_yes()
     {
-        return $this->neuro_dizziness == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_dizziness == "Yes" ? "CHECKED" : "";    }
     function get_neuro_dizziness_no()
     {
-        return $this->neuro_dizziness == "No" ? "CHECKED" : "";	}
+        return $this->neuro_dizziness == "No" ? "CHECKED" : ""; }
     function set_neuro_dizziness($data)
     {
         if(!empty($data)) {
@@ -596,10 +596,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_vertigo_yes()
     {
-        return $this->neuro_vertigo == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_vertigo == "Yes" ? "CHECKED" : "";  }
     function get_neuro_vertigo_no()
     {
-        return $this->neuro_vertigo == "No" ? "CHECKED" : "";	}
+        return $this->neuro_vertigo == "No" ? "CHECKED" : "";   }
     function set_neuro_vertigo($data)
     {
         if(!empty($data)) {
@@ -626,10 +626,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_amaurosis_fugax_yes()
     {
-        return $this->neuro_amaurosis_fugax == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_amaurosis_fugax == "Yes" ? "CHECKED" : "";  }
     function get_neuro_amaurosis_fugax_no()
     {
-        return $this->neuro_amaurosis_fugax == "No" ? "CHECKED" : "";	}
+        return $this->neuro_amaurosis_fugax == "No" ? "CHECKED" : "";   }
     function set_neuro_amaurosis_fugax($data)
     {
         if(!empty($data)) {
@@ -656,10 +656,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_stroke_yes()
     {
-        return $this->neuro_stroke == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_stroke == "Yes" ? "CHECKED" : "";   }
     function get_neuro_stroke_no()
     {
-        return $this->neuro_stroke == "No" ? "CHECKED" : "";	}
+        return $this->neuro_stroke == "No" ? "CHECKED" : "";    }
     function set_neuro_stroke($data)
     {
         if(!empty($data)) {
@@ -686,10 +686,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_gait_abnormality_yes()
     {
-        return $this->neuro_gait_abnormality == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_gait_abnormality == "Yes" ? "CHECKED" : ""; }
     function get_neuro_gait_abnormality_no()
     {
-        return $this->neuro_gait_abnormality == "No" ? "CHECKED" : "";	}
+        return $this->neuro_gait_abnormality == "No" ? "CHECKED" : "";  }
     function set_neuro_gait_abnormality($data)
     {
         if(!empty($data)) {
@@ -716,10 +716,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_frequent_headaches_yes()
     {
-        return $this->neuro_frequent_headaches == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_frequent_headaches == "Yes" ? "CHECKED" : "";   }
     function get_neuro_frequent_headaches_no()
     {
-        return $this->neuro_frequent_headaches == "No" ? "CHECKED" : "";	}
+        return $this->neuro_frequent_headaches == "No" ? "CHECKED" : "";    }
     function set_neuro_frequent_headaches($data)
     {
         if(!empty($data)) {
@@ -746,10 +746,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_parathesias_yes()
     {
-        return $this->neuro_parathesias == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_parathesias == "Yes" ? "CHECKED" : "";  }
     function get_neuro_parathesias_no()
     {
-        return $this->neuro_parathesias == "No" ? "CHECKED" : "";	}
+        return $this->neuro_parathesias == "No" ? "CHECKED" : "";   }
     function set_neuro_parathesias($data)
     {
         if(!empty($data)) {
@@ -776,10 +776,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_seizures_yes()
     {
-        return $this->neuro_seizures == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_seizures == "Yes" ? "CHECKED" : ""; }
     function get_neuro_seizures_no()
     {
-        return $this->neuro_seizures == "No" ? "CHECKED" : "";	}
+        return $this->neuro_seizures == "No" ? "CHECKED" : "";  }
     function set_neuro_seizures($data)
     {
         if(!empty($data)) {
@@ -806,10 +806,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_trans_ischemic_attacks_yes()
     {
-        return $this->neuro_trans_ischemic_attacks == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_trans_ischemic_attacks == "Yes" ? "CHECKED" : "";   }
     function get_neuro_trans_ischemic_attacks_no()
     {
-        return $this->neuro_trans_ischemic_attacks == "No" ? "CHECKED" : "";	}
+        return $this->neuro_trans_ischemic_attacks == "No" ? "CHECKED" : "";    }
     function set_neuro_trans_ischemic_attacks($data)
     {
         if(!empty($data)) {
@@ -836,10 +836,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neuro_significant_tremors_yes()
     {
-        return $this->neuro_significant_tremors == "Yes" ? "CHECKED" : "";	}
+        return $this->neuro_significant_tremors == "Yes" ? "CHECKED" : "";  }
     function get_neuro_significant_tremors_no()
     {
-        return $this->neuro_significant_tremors == "No" ? "CHECKED" : "";	}
+        return $this->neuro_significant_tremors == "No" ? "CHECKED" : "";   }
     function set_neuro_significant_tremors($data)
     {
         if(!empty($data)) {
@@ -867,10 +867,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neck_neck_stiffness_yes()
     {
-        return $this->neck_neck_stiffness == "Yes" ? "CHECKED" : "";	}
+        return $this->neck_neck_stiffness == "Yes" ? "CHECKED" : "";    }
     function get_neck_neck_stiffness_no()
     {
-        return $this->neck_neck_stiffness == "No" ? "CHECKED" : "";	}
+        return $this->neck_neck_stiffness == "No" ? "CHECKED" : ""; }
     function set_neck_neck_stiffness($data)
     {
         if(!empty($data)) {
@@ -897,10 +897,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neck_neck_pain_yes()
     {
-        return $this->neck_neck_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->neck_neck_pain == "Yes" ? "CHECKED" : ""; }
     function get_neck_neck_pain_no()
     {
-        return $this->neck_neck_pain == "No" ? "CHECKED" : "";	}
+        return $this->neck_neck_pain == "No" ? "CHECKED" : "";  }
     function set_neck_neck_pain($data)
     {
         if(!empty($data)) {
@@ -927,10 +927,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neck_neck_masses_yes()
     {
-        return $this->neck_neck_masses == "Yes" ? "CHECKED" : "";	}
+        return $this->neck_neck_masses == "Yes" ? "CHECKED" : "";   }
     function get_neck_neck_masses_no()
     {
-        return $this->neck_neck_masses == "No" ? "CHECKED" : "";	}
+        return $this->neck_neck_masses == "No" ? "CHECKED" : "";    }
     function set_neck_neck_masses($data)
     {
         if(!empty($data)) {
@@ -957,10 +957,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_neck_neck_tenderness_yes()
     {
-        return $this->neck_neck_tenderness == "Yes" ? "CHECKED" : "";	}
+        return $this->neck_neck_tenderness == "Yes" ? "CHECKED" : "";   }
     function get_neck_neck_tenderness_no()
     {
-        return $this->neck_neck_tenderness == "No" ? "CHECKED" : "";	}
+        return $this->neck_neck_tenderness == "No" ? "CHECKED" : "";    }
     function set_neck_neck_tenderness($data)
     {
         if(!empty($data)) {
@@ -988,10 +988,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_oral_ulcers_yes()
     {
-        return $this->heent_oral_ulcers == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_oral_ulcers == "Yes" ? "CHECKED" : "";  }
     function get_heent_oral_ulcers_no()
     {
-        return $this->heent_oral_ulcers == "No" ? "CHECKED" : "";	}
+        return $this->heent_oral_ulcers == "No" ? "CHECKED" : "";   }
     function set_heent_oral_ulcers($data)
     {
         if(!empty($data)) {
@@ -1018,10 +1018,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_excessive_cavities_yes()
     {
-        return $this->heent_excessive_cavities == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_excessive_cavities == "Yes" ? "CHECKED" : "";   }
     function get_heent_excessive_cavities_no()
     {
-        return $this->heent_excessive_cavities == "No" ? "CHECKED" : "";	}
+        return $this->heent_excessive_cavities == "No" ? "CHECKED" : "";    }
     function set_heent_excessive_cavities($data)
     {
         if(!empty($data)) {
@@ -1048,10 +1048,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_gingival_disease_yes()
     {
-        return $this->heent_gingival_disease == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_gingival_disease == "Yes" ? "CHECKED" : ""; }
     function get_heent_gingival_disease_no()
     {
-        return $this->heent_gingival_disease == "No" ? "CHECKED" : "";	}
+        return $this->heent_gingival_disease == "No" ? "CHECKED" : "";  }
     function set_heent_gingival_disease($data)
     {
         if(!empty($data)) {
@@ -1078,10 +1078,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_persistent_hoarseness_yes()
     {
-        return $this->heent_persistent_hoarseness == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_persistent_hoarseness == "Yes" ? "CHECKED" : "";    }
     function get_heent_persistent_hoarseness_no()
     {
-        return $this->heent_persistent_hoarseness == "No" ? "CHECKED" : "";	}
+        return $this->heent_persistent_hoarseness == "No" ? "CHECKED" : ""; }
     function set_heent_persistent_hoarseness($data)
     {
         if(!empty($data)) {
@@ -1108,10 +1108,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_mouth_lesions_yes()
     {
-        return $this->heent_mouth_lesions == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_mouth_lesions == "Yes" ? "CHECKED" : "";    }
     function get_heent_mouth_lesions_no()
     {
-        return $this->heent_mouth_lesions == "No" ? "CHECKED" : "";	}
+        return $this->heent_mouth_lesions == "No" ? "CHECKED" : ""; }
     function set_heent_mouth_lesions($data)
     {
         if(!empty($data)) {
@@ -1138,10 +1138,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_dysphagia_yes()
     {
-        return $this->heent_dysphagia == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_dysphagia == "Yes" ? "CHECKED" : "";    }
     function get_heent_dysphagia_no()
     {
-        return $this->heent_dysphagia == "No" ? "CHECKED" : "";	}
+        return $this->heent_dysphagia == "No" ? "CHECKED" : ""; }
     function set_heent_dysphagia($data)
     {
         if(!empty($data)) {
@@ -1168,10 +1168,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_odynophagia_yes()
     {
-        return $this->heent_odynophagia == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_odynophagia == "Yes" ? "CHECKED" : "";  }
     function get_heent_odynophagia_no()
     {
-        return $this->heent_odynophagia == "No" ? "CHECKED" : "";	}
+        return $this->heent_odynophagia == "No" ? "CHECKED" : "";   }
     function set_heent_odynophagia($data)
     {
         if(!empty($data)) {
@@ -1198,10 +1198,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_dental_pain_yes()
     {
-        return $this->heent_dental_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_dental_pain == "Yes" ? "CHECKED" : "";  }
     function get_heent_dental_pain_no()
     {
-        return $this->heent_dental_pain == "No" ? "CHECKED" : "";	}
+        return $this->heent_dental_pain == "No" ? "CHECKED" : "";   }
     function set_heent_dental_pain($data)
     {
         if(!empty($data)) {
@@ -1228,10 +1228,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_sore_throat_yes()
     {
-        return $this->heent_sore_throat == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_sore_throat == "Yes" ? "CHECKED" : "";  }
     function get_heent_sore_throat_no()
     {
-        return $this->heent_sore_throat == "No" ? "CHECKED" : "";	}
+        return $this->heent_sore_throat == "No" ? "CHECKED" : "";   }
     function set_heent_sore_throat($data)
     {
         if(!empty($data)) {
@@ -1258,10 +1258,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_ear_pain_yes()
     {
-        return $this->heent_ear_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_ear_pain == "Yes" ? "CHECKED" : ""; }
     function get_heent_ear_pain_no()
     {
-        return $this->heent_ear_pain == "No" ? "CHECKED" : "";	}
+        return $this->heent_ear_pain == "No" ? "CHECKED" : "";  }
     function set_heent_ear_pain($data)
     {
         if(!empty($data)) {
@@ -1288,10 +1288,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_ear_discharge_yes()
     {
-        return $this->heent_ear_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_ear_discharge == "Yes" ? "CHECKED" : "";    }
     function get_heent_ear_discharge_no()
     {
-        return $this->heent_ear_discharge == "No" ? "CHECKED" : "";	}
+        return $this->heent_ear_discharge == "No" ? "CHECKED" : ""; }
     function set_heent_ear_discharge($data)
     {
         if(!empty($data)) {
@@ -1318,10 +1318,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_tinnitus_yes()
     {
-        return $this->heent_tinnitus == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_tinnitus == "Yes" ? "CHECKED" : ""; }
     function get_heent_tinnitus_no()
     {
-        return $this->heent_tinnitus == "No" ? "CHECKED" : "";	}
+        return $this->heent_tinnitus == "No" ? "CHECKED" : "";  }
     function set_heent_tinnitus($data)
     {
         if(!empty($data)) {
@@ -1348,10 +1348,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_hearing_loss_yes()
     {
-        return $this->heent_hearing_loss == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_hearing_loss == "Yes" ? "CHECKED" : ""; }
     function get_heent_hearing_loss_no()
     {
-        return $this->heent_hearing_loss == "No" ? "CHECKED" : "";	}
+        return $this->heent_hearing_loss == "No" ? "CHECKED" : "";  }
     function set_heent_hearing_loss($data)
     {
         if(!empty($data)) {
@@ -1378,10 +1378,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_allergic_rhinitis_yes()
     {
-        return $this->heent_allergic_rhinitis == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_allergic_rhinitis == "Yes" ? "CHECKED" : "";    }
     function get_heent_allergic_rhinitis_no()
     {
-        return $this->heent_allergic_rhinitis == "No" ? "CHECKED" : "";	}
+        return $this->heent_allergic_rhinitis == "No" ? "CHECKED" : ""; }
     function set_heent_allergic_rhinitis($data)
     {
         if(!empty($data)) {
@@ -1408,10 +1408,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_nasal_congestion_yes()
     {
-        return $this->heent_nasal_congestion == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_nasal_congestion == "Yes" ? "CHECKED" : ""; }
     function get_heent_nasal_congestion_no()
     {
-        return $this->heent_nasal_congestion == "No" ? "CHECKED" : "";	}
+        return $this->heent_nasal_congestion == "No" ? "CHECKED" : "";  }
     function set_heent_nasal_congestion($data)
     {
         if(!empty($data)) {
@@ -1438,10 +1438,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_nasal_discharge_yes()
     {
-        return $this->heent_nasal_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_nasal_discharge == "Yes" ? "CHECKED" : "";  }
     function get_heent_nasal_discharge_no()
     {
-        return $this->heent_nasal_discharge == "No" ? "CHECKED" : "";	}
+        return $this->heent_nasal_discharge == "No" ? "CHECKED" : "";   }
     function set_heent_nasal_discharge($data)
     {
         if(!empty($data)) {
@@ -1468,10 +1468,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_nasal_injury_yes()
     {
-        return $this->heent_nasal_injury == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_nasal_injury == "Yes" ? "CHECKED" : ""; }
     function get_heent_nasal_injury_no()
     {
-        return $this->heent_nasal_injury == "No" ? "CHECKED" : "";	}
+        return $this->heent_nasal_injury == "No" ? "CHECKED" : "";  }
     function set_heent_nasal_injury($data)
     {
         if(!empty($data)) {
@@ -1498,10 +1498,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_nasal_surgery_yes()
     {
-        return $this->heent_nasal_surgery == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_nasal_surgery == "Yes" ? "CHECKED" : "";    }
     function get_heent_nasal_surgery_no()
     {
-        return $this->heent_nasal_surgery == "No" ? "CHECKED" : "";	}
+        return $this->heent_nasal_surgery == "No" ? "CHECKED" : ""; }
     function set_heent_nasal_surgery($data)
     {
         if(!empty($data)) {
@@ -1528,10 +1528,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_nose_bleeds_yes()
     {
-        return $this->heent_nose_bleeds == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_nose_bleeds == "Yes" ? "CHECKED" : "";  }
     function get_heent_nose_bleeds_no()
     {
-        return $this->heent_nose_bleeds == "No" ? "CHECKED" : "";	}
+        return $this->heent_nose_bleeds == "No" ? "CHECKED" : "";   }
     function set_heent_nose_bleeds($data)
     {
         if(!empty($data)) {
@@ -1558,10 +1558,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_post_nasal_drip_yes()
     {
-        return $this->heent_post_nasal_drip == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_post_nasal_drip == "Yes" ? "CHECKED" : "";  }
     function get_heent_post_nasal_drip_no()
     {
-        return $this->heent_post_nasal_drip == "No" ? "CHECKED" : "";	}
+        return $this->heent_post_nasal_drip == "No" ? "CHECKED" : "";   }
     function set_heent_post_nasal_drip($data)
     {
         if(!empty($data)) {
@@ -1588,10 +1588,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_sinus_pressure_yes()
     {
-        return $this->heent_sinus_pressure == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_sinus_pressure == "Yes" ? "CHECKED" : "";   }
     function get_heent_sinus_pressure_no()
     {
-        return $this->heent_sinus_pressure == "No" ? "CHECKED" : "";	}
+        return $this->heent_sinus_pressure == "No" ? "CHECKED" : "";    }
     function set_heent_sinus_pressure($data)
     {
         if(!empty($data)) {
@@ -1618,10 +1618,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_sinus_pain_yes()
     {
-        return $this->heent_sinus_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_sinus_pain == "Yes" ? "CHECKED" : "";   }
     function get_heent_sinus_pain_no()
     {
-        return $this->heent_sinus_pain == "No" ? "CHECKED" : "";	}
+        return $this->heent_sinus_pain == "No" ? "CHECKED" : "";    }
     function set_heent_sinus_pain($data)
     {
         if(!empty($data)) {
@@ -1648,10 +1648,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_headache_yes()
     {
-        return $this->heent_headache == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_headache == "Yes" ? "CHECKED" : ""; }
     function get_heent_headache_no()
     {
-        return $this->heent_headache == "No" ? "CHECKED" : "";	}
+        return $this->heent_headache == "No" ? "CHECKED" : "";  }
     function set_heent_headache($data)
     {
         if(!empty($data)) {
@@ -1678,10 +1678,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_eye_pain_yes()
     {
-        return $this->heent_eye_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_eye_pain == "Yes" ? "CHECKED" : ""; }
     function get_heent_eye_pain_no()
     {
-        return $this->heent_eye_pain == "No" ? "CHECKED" : "";	}
+        return $this->heent_eye_pain == "No" ? "CHECKED" : "";  }
     function set_heent_eye_pain($data)
     {
         if(!empty($data)) {
@@ -1708,10 +1708,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_eye_redness_yes()
     {
-        return $this->heent_eye_redness == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_eye_redness == "Yes" ? "CHECKED" : "";  }
     function get_heent_eye_redness_no()
     {
-        return $this->heent_eye_redness == "No" ? "CHECKED" : "";	}
+        return $this->heent_eye_redness == "No" ? "CHECKED" : "";   }
     function set_heent_eye_redness($data)
     {
         if(!empty($data)) {
@@ -1738,10 +1738,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_visual_changes_yes()
     {
-        return $this->heent_visual_changes == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_visual_changes == "Yes" ? "CHECKED" : "";   }
     function get_heent_visual_changes_no()
     {
-        return $this->heent_visual_changes == "No" ? "CHECKED" : "";	}
+        return $this->heent_visual_changes == "No" ? "CHECKED" : "";    }
     function set_heent_visual_changes($data)
     {
         if(!empty($data)) {
@@ -1768,10 +1768,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_blurry_vision_yes()
     {
-        return $this->heent_blurry_vision == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_blurry_vision == "Yes" ? "CHECKED" : "";    }
     function get_heent_blurry_vision_no()
     {
-        return $this->heent_blurry_vision == "No" ? "CHECKED" : "";	}
+        return $this->heent_blurry_vision == "No" ? "CHECKED" : ""; }
     function set_heent_blurry_vision($data)
     {
         if(!empty($data)) {
@@ -1798,10 +1798,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_eye_discharge_yes()
     {
-        return $this->heent_eye_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_eye_discharge == "Yes" ? "CHECKED" : "";    }
     function get_heent_eye_discharge_no()
     {
-        return $this->heent_eye_discharge == "No" ? "CHECKED" : "";	}
+        return $this->heent_eye_discharge == "No" ? "CHECKED" : ""; }
     function set_heent_eye_discharge($data)
     {
         if(!empty($data)) {
@@ -1828,10 +1828,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_eye_glasses_contacts_yes()
     {
-        return $this->heent_eye_glasses_contacts == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_eye_glasses_contacts == "Yes" ? "CHECKED" : ""; }
     function get_heent_eye_glasses_contacts_no()
     {
-        return $this->heent_eye_glasses_contacts == "No" ? "CHECKED" : "";	}
+        return $this->heent_eye_glasses_contacts == "No" ? "CHECKED" : "";  }
     function set_heent_eye_glasses_contacts($data)
     {
         if(!empty($data)) {
@@ -1858,10 +1858,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_excess_tearing_yes()
     {
-        return $this->heent_excess_tearing == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_excess_tearing == "Yes" ? "CHECKED" : "";   }
     function get_heent_excess_tearing_no()
     {
-        return $this->heent_excess_tearing == "No" ? "CHECKED" : "";	}
+        return $this->heent_excess_tearing == "No" ? "CHECKED" : "";    }
     function set_heent_excess_tearing($data)
     {
         if(!empty($data)) {
@@ -1888,10 +1888,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_photophobia_yes()
     {
-        return $this->heent_photophobia == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_photophobia == "Yes" ? "CHECKED" : "";  }
     function get_heent_photophobia_no()
     {
-        return $this->heent_photophobia == "No" ? "CHECKED" : "";	}
+        return $this->heent_photophobia == "No" ? "CHECKED" : "";   }
     function set_heent_photophobia($data)
     {
         if(!empty($data)) {
@@ -1918,10 +1918,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_scotomata_yes()
     {
-        return $this->heent_scotomata == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_scotomata == "Yes" ? "CHECKED" : "";    }
     function get_heent_scotomata_no()
     {
-        return $this->heent_scotomata == "No" ? "CHECKED" : "";	}
+        return $this->heent_scotomata == "No" ? "CHECKED" : ""; }
     function set_heent_scotomata($data)
     {
         if(!empty($data)) {
@@ -1948,10 +1948,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_tunnel_vision_yes()
     {
-        return $this->heent_tunnel_vision == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_tunnel_vision == "Yes" ? "CHECKED" : "";    }
     function get_heent_tunnel_vision_no()
     {
-        return $this->heent_tunnel_vision == "No" ? "CHECKED" : "";	}
+        return $this->heent_tunnel_vision == "No" ? "CHECKED" : ""; }
     function set_heent_tunnel_vision($data)
     {
         if(!empty($data)) {
@@ -1978,10 +1978,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_heent_glaucoma_yes()
     {
-        return $this->heent_glaucoma == "Yes" ? "CHECKED" : "";	}
+        return $this->heent_glaucoma == "Yes" ? "CHECKED" : ""; }
     function get_heent_glaucoma_no()
     {
-        return $this->heent_glaucoma == "No" ? "CHECKED" : "";	}
+        return $this->heent_glaucoma == "No" ? "CHECKED" : "";  }
     function set_heent_glaucoma($data)
     {
         if(!empty($data)) {
@@ -2009,10 +2009,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_sub_sternal_or_left_chest_pain_yes()
     {
-        return $this->cardiovascular_sub_sternal_or_left_chest_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_sub_sternal_or_left_chest_pain == "Yes" ? "CHECKED" : "";  }
     function get_cardiovascular_sub_sternal_or_left_chest_pain_no()
     {
-        return $this->cardiovascular_sub_sternal_or_left_chest_pain == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_sub_sternal_or_left_chest_pain == "No" ? "CHECKED" : "";   }
     function set_cardiovascular_sub_sternal_or_left_chest_pain($data)
     {
         if(!empty($data)) {
@@ -2039,10 +2039,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_other_chest_pain_yes()
     {
-        return $this->cardiovascular_other_chest_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_other_chest_pain == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_other_chest_pain_no()
     {
-        return $this->cardiovascular_other_chest_pain == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_other_chest_pain == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_other_chest_pain($data)
     {
         if(!empty($data)) {
@@ -2069,10 +2069,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_palpitations_yes()
     {
-        return $this->cardiovascular_palpitations == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_palpitations == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_palpitations_no()
     {
-        return $this->cardiovascular_palpitations == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_palpitations == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_palpitations($data)
     {
         if(!empty($data)) {
@@ -2099,10 +2099,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_irregular_rhythm_yes()
     {
-        return $this->cardiovascular_irregular_rhythm == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_irregular_rhythm == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_irregular_rhythm_no()
     {
-        return $this->cardiovascular_irregular_rhythm == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_irregular_rhythm == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_irregular_rhythm($data)
     {
         if(!empty($data)) {
@@ -2129,10 +2129,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_jugular_vein_distention_yes()
     {
-        return $this->cardiovascular_jugular_vein_distention == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_jugular_vein_distention == "Yes" ? "CHECKED" : ""; }
     function get_cardiovascular_jugular_vein_distention_no()
     {
-        return $this->cardiovascular_jugular_vein_distention == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_jugular_vein_distention == "No" ? "CHECKED" : "";  }
     function set_cardiovascular_jugular_vein_distention($data)
     {
         if(!empty($data)) {
@@ -2159,10 +2159,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_claudication_yes()
     {
-        return $this->cardiovascular_claudication == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_claudication == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_claudication_no()
     {
-        return $this->cardiovascular_claudication == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_claudication == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_claudication($data)
     {
         if(!empty($data)) {
@@ -2189,10 +2189,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_dizziness_yes()
     {
-        return $this->cardiovascular_dizziness == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_dizziness == "Yes" ? "CHECKED" : "";   }
     function get_cardiovascular_dizziness_no()
     {
-        return $this->cardiovascular_dizziness == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_dizziness == "No" ? "CHECKED" : "";    }
     function set_cardiovascular_dizziness($data)
     {
         if(!empty($data)) {
@@ -2219,10 +2219,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_dyspnea_on_exertion_yes()
     {
-        return $this->cardiovascular_dyspnea_on_exertion == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_dyspnea_on_exertion == "Yes" ? "CHECKED" : ""; }
     function get_cardiovascular_dyspnea_on_exertion_no()
     {
-        return $this->cardiovascular_dyspnea_on_exertion == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_dyspnea_on_exertion == "No" ? "CHECKED" : "";  }
     function set_cardiovascular_dyspnea_on_exertion($data)
     {
         if(!empty($data)) {
@@ -2249,10 +2249,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_orthopnea_yes()
     {
-        return $this->cardiovascular_orthopnea == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_orthopnea == "Yes" ? "CHECKED" : "";   }
     function get_cardiovascular_orthopnea_no()
     {
-        return $this->cardiovascular_orthopnea == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_orthopnea == "No" ? "CHECKED" : "";    }
     function set_cardiovascular_orthopnea($data)
     {
         if(!empty($data)) {
@@ -2279,10 +2279,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_noctural_dyspnea_yes()
     {
-        return $this->cardiovascular_noctural_dyspnea == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_noctural_dyspnea == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_noctural_dyspnea_no()
     {
-        return $this->cardiovascular_noctural_dyspnea == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_noctural_dyspnea == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_noctural_dyspnea($data)
     {
         if(!empty($data)) {
@@ -2309,10 +2309,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_edema_yes()
     {
-        return $this->cardiovascular_edema == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_edema == "Yes" ? "CHECKED" : "";   }
     function get_cardiovascular_edema_no()
     {
-        return $this->cardiovascular_edema == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_edema == "No" ? "CHECKED" : "";    }
     function set_cardiovascular_edema($data)
     {
         if(!empty($data)) {
@@ -2339,10 +2339,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_presyncope_yes()
     {
-        return $this->cardiovascular_presyncope == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_presyncope == "Yes" ? "CHECKED" : "";  }
     function get_cardiovascular_presyncope_no()
     {
-        return $this->cardiovascular_presyncope == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_presyncope == "No" ? "CHECKED" : "";   }
     function set_cardiovascular_presyncope($data)
     {
         if(!empty($data)) {
@@ -2369,10 +2369,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_syncope_yes()
     {
-        return $this->cardiovascular_syncope == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_syncope == "Yes" ? "CHECKED" : ""; }
     function get_cardiovascular_syncope_no()
     {
-        return $this->cardiovascular_syncope == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_syncope == "No" ? "CHECKED" : "";  }
     function set_cardiovascular_syncope($data)
     {
         if(!empty($data)) {
@@ -2399,10 +2399,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_heart_murmur_yes()
     {
-        return $this->cardiovascular_heart_murmur == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_heart_murmur == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_heart_murmur_no()
     {
-        return $this->cardiovascular_heart_murmur == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_heart_murmur == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_heart_murmur($data)
     {
         if(!empty($data)) {
@@ -2429,10 +2429,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_raynauds_yes()
     {
-        return $this->cardiovascular_raynauds == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_raynauds == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_raynauds_no()
     {
-        return $this->cardiovascular_raynauds == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_raynauds == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_raynauds($data)
     {
         if(!empty($data)) {
@@ -2459,10 +2459,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_severe_varicose_veins_yes()
     {
-        return $this->cardiovascular_severe_varicose_veins == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_severe_varicose_veins == "Yes" ? "CHECKED" : "";   }
     function get_cardiovascular_severe_varicose_veins_no()
     {
-        return $this->cardiovascular_severe_varicose_veins == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_severe_varicose_veins == "No" ? "CHECKED" : "";    }
     function set_cardiovascular_severe_varicose_veins($data)
     {
         if(!empty($data)) {
@@ -2489,10 +2489,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_deep_vein_thrombosis_yes()
     {
-        return $this->cardiovascular_deep_vein_thrombosis == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_deep_vein_thrombosis == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_deep_vein_thrombosis_no()
     {
-        return $this->cardiovascular_deep_vein_thrombosis == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_deep_vein_thrombosis == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_deep_vein_thrombosis($data)
     {
         if(!empty($data)) {
@@ -2519,10 +2519,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_cardiovascular_thrombophlebitis_yes()
     {
-        return $this->cardiovascular_thrombophlebitis == "Yes" ? "CHECKED" : "";	}
+        return $this->cardiovascular_thrombophlebitis == "Yes" ? "CHECKED" : "";    }
     function get_cardiovascular_thrombophlebitis_no()
     {
-        return $this->cardiovascular_thrombophlebitis == "No" ? "CHECKED" : "";	}
+        return $this->cardiovascular_thrombophlebitis == "No" ? "CHECKED" : ""; }
     function set_cardiovascular_thrombophlebitis($data)
     {
         if(!empty($data)) {
@@ -2550,10 +2550,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_cough_yes()
     {
-        return $this->respirations_cough == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_cough == "Yes" ? "CHECKED" : ""; }
     function get_respirations_cough_no()
     {
-        return $this->respirations_cough == "No" ? "CHECKED" : "";	}
+        return $this->respirations_cough == "No" ? "CHECKED" : "";  }
     function set_respirations_cough($data)
     {
         if(!empty($data)) {
@@ -2580,10 +2580,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_sputum_yes()
     {
-        return $this->respirations_sputum == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_sputum == "Yes" ? "CHECKED" : "";    }
     function get_respirations_sputum_no()
     {
-        return $this->respirations_sputum == "No" ? "CHECKED" : "";	}
+        return $this->respirations_sputum == "No" ? "CHECKED" : ""; }
     function set_respirations_sputum($data)
     {
         if(!empty($data)) {
@@ -2610,10 +2610,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_dyspnea_yes()
     {
-        return $this->respirations_dyspnea == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_dyspnea == "Yes" ? "CHECKED" : "";   }
     function get_respirations_dyspnea_no()
     {
-        return $this->respirations_dyspnea == "No" ? "CHECKED" : "";	}
+        return $this->respirations_dyspnea == "No" ? "CHECKED" : "";    }
     function set_respirations_dyspnea($data)
     {
         if(!empty($data)) {
@@ -2640,10 +2640,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_wheezes_yes()
     {
-        return $this->respirations_wheezes == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_wheezes == "Yes" ? "CHECKED" : "";   }
     function get_respirations_wheezes_no()
     {
-        return $this->respirations_wheezes == "No" ? "CHECKED" : "";	}
+        return $this->respirations_wheezes == "No" ? "CHECKED" : "";    }
     function set_respirations_wheezes($data)
     {
         if(!empty($data)) {
@@ -2670,10 +2670,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_rales_yes()
     {
-        return $this->respirations_rales == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_rales == "Yes" ? "CHECKED" : ""; }
     function get_respirations_rales_no()
     {
-        return $this->respirations_rales == "No" ? "CHECKED" : "";	}
+        return $this->respirations_rales == "No" ? "CHECKED" : "";  }
     function set_respirations_rales($data)
     {
         if(!empty($data)) {
@@ -2700,10 +2700,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_labored_breathing_yes()
     {
-        return $this->respirations_labored_breathing == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_labored_breathing == "Yes" ? "CHECKED" : ""; }
     function get_respirations_labored_breathing_no()
     {
-        return $this->respirations_labored_breathing == "No" ? "CHECKED" : "";	}
+        return $this->respirations_labored_breathing == "No" ? "CHECKED" : "";  }
     function set_respirations_labored_breathing($data)
     {
         if(!empty($data)) {
@@ -2730,10 +2730,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_respirations_hemoptysis_yes()
     {
-        return $this->respirations_hemoptysis == "Yes" ? "CHECKED" : "";	}
+        return $this->respirations_hemoptysis == "Yes" ? "CHECKED" : "";    }
     function get_respirations_hemoptysis_no()
     {
-        return $this->respirations_hemoptysis == "No" ? "CHECKED" : "";	}
+        return $this->respirations_hemoptysis == "No" ? "CHECKED" : ""; }
     function set_respirations_hemoptysis($data)
     {
         if(!empty($data)) {
@@ -2761,10 +2761,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_frequent_urination_yes()
     {
-        return $this->gu_frequent_urination == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_frequent_urination == "Yes" ? "CHECKED" : "";  }
     function get_gu_frequent_urination_no()
     {
-        return $this->gu_frequent_urination == "No" ? "CHECKED" : "";	}
+        return $this->gu_frequent_urination == "No" ? "CHECKED" : "";   }
     function set_gu_frequent_urination($data)
     {
         if(!empty($data)) {
@@ -2791,10 +2791,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_dysuria_yes()
     {
-        return $this->gu_dysuria == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_dysuria == "Yes" ? "CHECKED" : ""; }
     function get_gu_dysuria_no()
     {
-        return $this->gu_dysuria == "No" ? "CHECKED" : "";	}
+        return $this->gu_dysuria == "No" ? "CHECKED" : "";  }
     function set_gu_dysuria($data)
     {
         if(!empty($data)) {
@@ -2821,10 +2821,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_dyspareunia_yes()
     {
-        return $this->gu_dyspareunia == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_dyspareunia == "Yes" ? "CHECKED" : ""; }
     function get_gu_dyspareunia_no()
     {
-        return $this->gu_dyspareunia == "No" ? "CHECKED" : "";	}
+        return $this->gu_dyspareunia == "No" ? "CHECKED" : "";  }
     function set_gu_dyspareunia($data)
     {
         if(!empty($data)) {
@@ -2851,10 +2851,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_discharge_yes()
     {
-        return $this->gu_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_discharge == "Yes" ? "CHECKED" : "";   }
     function get_gu_discharge_no()
     {
-        return $this->gu_discharge == "No" ? "CHECKED" : "";	}
+        return $this->gu_discharge == "No" ? "CHECKED" : "";    }
     function set_gu_discharge($data)
     {
         if(!empty($data)) {
@@ -2881,10 +2881,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_odor_yes()
     {
-        return $this->gu_odor == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_odor == "Yes" ? "CHECKED" : "";    }
     function get_gu_odor_no()
     {
-        return $this->gu_odor == "No" ? "CHECKED" : "";	}
+        return $this->gu_odor == "No" ? "CHECKED" : ""; }
     function set_gu_odor($data)
     {
         if(!empty($data)) {
@@ -2911,10 +2911,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_fertility_problems_yes()
     {
-        return $this->gu_fertility_problems == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_fertility_problems == "Yes" ? "CHECKED" : "";  }
     function get_gu_fertility_problems_no()
     {
-        return $this->gu_fertility_problems == "No" ? "CHECKED" : "";	}
+        return $this->gu_fertility_problems == "No" ? "CHECKED" : "";   }
     function set_gu_fertility_problems($data)
     {
         if(!empty($data)) {
@@ -2941,10 +2941,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_flank_pain_kidney_stone_yes()
     {
-        return $this->gu_flank_pain_kidney_stone == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_flank_pain_kidney_stone == "Yes" ? "CHECKED" : ""; }
     function get_gu_flank_pain_kidney_stone_no()
     {
-        return $this->gu_flank_pain_kidney_stone == "No" ? "CHECKED" : "";	}
+        return $this->gu_flank_pain_kidney_stone == "No" ? "CHECKED" : "";  }
     function set_gu_flank_pain_kidney_stone($data)
     {
         if(!empty($data)) {
@@ -2971,10 +2971,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_polyuria_yes()
     {
-        return $this->gu_polyuria == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_polyuria == "Yes" ? "CHECKED" : "";    }
     function get_gu_polyuria_no()
     {
-        return $this->gu_polyuria == "No" ? "CHECKED" : "";	}
+        return $this->gu_polyuria == "No" ? "CHECKED" : ""; }
     function set_gu_polyuria($data)
     {
         if(!empty($data)) {
@@ -3001,10 +3001,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_hematuria_yes()
     {
-        return $this->gu_hematuria == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_hematuria == "Yes" ? "CHECKED" : "";   }
     function get_gu_hematuria_no()
     {
-        return $this->gu_hematuria == "No" ? "CHECKED" : "";	}
+        return $this->gu_hematuria == "No" ? "CHECKED" : "";    }
     function set_gu_hematuria($data)
     {
         if(!empty($data)) {
@@ -3031,10 +3031,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_pyuria_yes()
     {
-        return $this->gu_pyuria == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_pyuria == "Yes" ? "CHECKED" : "";  }
     function get_gu_pyuria_no()
     {
-        return $this->gu_pyuria == "No" ? "CHECKED" : "";	}
+        return $this->gu_pyuria == "No" ? "CHECKED" : "";   }
     function set_gu_pyuria($data)
     {
         if(!empty($data)) {
@@ -3061,10 +3061,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_umbilical_hernia_yes()
     {
-        return $this->gu_umbilical_hernia == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_umbilical_hernia == "Yes" ? "CHECKED" : "";    }
     function get_gu_umbilical_hernia_no()
     {
-        return $this->gu_umbilical_hernia == "No" ? "CHECKED" : "";	}
+        return $this->gu_umbilical_hernia == "No" ? "CHECKED" : ""; }
     function set_gu_umbilical_hernia($data)
     {
         if(!empty($data)) {
@@ -3091,10 +3091,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_incontinence_yes()
     {
-        return $this->gu_incontinence == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_incontinence == "Yes" ? "CHECKED" : "";    }
     function get_gu_incontinence_no()
     {
-        return $this->gu_incontinence == "No" ? "CHECKED" : "";	}
+        return $this->gu_incontinence == "No" ? "CHECKED" : ""; }
     function set_gu_incontinence($data)
     {
         if(!empty($data)) {
@@ -3121,10 +3121,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_nocturia_yes()
     {
-        return $this->gu_nocturia == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_nocturia == "Yes" ? "CHECKED" : "";    }
     function get_gu_nocturia_no()
     {
-        return $this->gu_nocturia == "No" ? "CHECKED" : "";	}
+        return $this->gu_nocturia == "No" ? "CHECKED" : ""; }
     function set_gu_nocturia($data)
     {
         if(!empty($data)) {
@@ -3151,10 +3151,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_urinary_urgency_yes()
     {
-        return $this->gu_urinary_urgency == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_urinary_urgency == "Yes" ? "CHECKED" : ""; }
     function get_gu_urinary_urgency_no()
     {
-        return $this->gu_urinary_urgency == "No" ? "CHECKED" : "";	}
+        return $this->gu_urinary_urgency == "No" ? "CHECKED" : "";  }
     function set_gu_urinary_urgency($data)
     {
         if(!empty($data)) {
@@ -3181,10 +3181,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_recurrent_utis_yes()
     {
-        return $this->gu_recurrent_utis == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_recurrent_utis == "Yes" ? "CHECKED" : "";  }
     function get_gu_recurrent_utis_no()
     {
-        return $this->gu_recurrent_utis == "No" ? "CHECKED" : "";	}
+        return $this->gu_recurrent_utis == "No" ? "CHECKED" : "";   }
     function set_gu_recurrent_utis($data)
     {
         if(!empty($data)) {
@@ -3211,10 +3211,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gu_venereal_disease_yes()
     {
-        return $this->gu_venereal_disease == "Yes" ? "CHECKED" : "";	}
+        return $this->gu_venereal_disease == "Yes" ? "CHECKED" : "";    }
     function get_gu_venereal_disease_no()
     {
-        return $this->gu_venereal_disease == "No" ? "CHECKED" : "";	}
+        return $this->gu_venereal_disease == "No" ? "CHECKED" : ""; }
     function set_gu_venereal_disease($data)
     {
         if(!empty($data)) {
@@ -3242,10 +3242,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_erectile_dysfunction_yes()
     {
-        return $this->male_gu_erectile_dysfunction == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_erectile_dysfunction == "Yes" ? "CHECKED" : "";   }
     function get_male_gu_erectile_dysfunction_no()
     {
-        return $this->male_gu_erectile_dysfunction == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_erectile_dysfunction == "No" ? "CHECKED" : "";    }
     function set_male_gu_erectile_dysfunction($data)
     {
         if(!empty($data)) {
@@ -3272,10 +3272,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_inguinal_hernia_yes()
     {
-        return $this->male_gu_inguinal_hernia == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_inguinal_hernia == "Yes" ? "CHECKED" : "";    }
     function get_male_gu_inguinal_hernia_no()
     {
-        return $this->male_gu_inguinal_hernia == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_inguinal_hernia == "No" ? "CHECKED" : ""; }
     function set_male_gu_inguinal_hernia($data)
     {
         if(!empty($data)) {
@@ -3302,10 +3302,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_penile_lesions_yes()
     {
-        return $this->male_gu_penile_lesions == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_penile_lesions == "Yes" ? "CHECKED" : ""; }
     function get_male_gu_penile_lesions_no()
     {
-        return $this->male_gu_penile_lesions == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_penile_lesions == "No" ? "CHECKED" : "";  }
     function set_male_gu_penile_lesions($data)
     {
         if(!empty($data)) {
@@ -3332,10 +3332,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_scrotal_mass_yes()
     {
-        return $this->male_gu_scrotal_mass == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_scrotal_mass == "Yes" ? "CHECKED" : "";   }
     function get_male_gu_scrotal_mass_no()
     {
-        return $this->male_gu_scrotal_mass == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_scrotal_mass == "No" ? "CHECKED" : "";    }
     function set_male_gu_scrotal_mass($data)
     {
         if(!empty($data)) {
@@ -3362,10 +3362,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_testicular_pain_yes()
     {
-        return $this->male_gu_testicular_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_testicular_pain == "Yes" ? "CHECKED" : "";    }
     function get_male_gu_testicular_pain_no()
     {
-        return $this->male_gu_testicular_pain == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_testicular_pain == "No" ? "CHECKED" : ""; }
     function set_male_gu_testicular_pain($data)
     {
         if(!empty($data)) {
@@ -3392,10 +3392,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_urethral_discharge_yes()
     {
-        return $this->male_gu_urethral_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_urethral_discharge == "Yes" ? "CHECKED" : ""; }
     function get_male_gu_urethral_discharge_no()
     {
-        return $this->male_gu_urethral_discharge == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_urethral_discharge == "No" ? "CHECKED" : "";  }
     function set_male_gu_urethral_discharge($data)
     {
         if(!empty($data)) {
@@ -3422,10 +3422,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_male_gu_weak_urinary_stream_yes()
     {
-        return $this->male_gu_weak_urinary_stream == "Yes" ? "CHECKED" : "";	}
+        return $this->male_gu_weak_urinary_stream == "Yes" ? "CHECKED" : "";    }
     function get_male_gu_weak_urinary_stream_no()
     {
-        return $this->male_gu_weak_urinary_stream == "No" ? "CHECKED" : "";	}
+        return $this->male_gu_weak_urinary_stream == "No" ? "CHECKED" : ""; }
     function set_male_gu_weak_urinary_stream($data)
     {
         if(!empty($data)) {
@@ -3453,10 +3453,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_female_gu_abnormal_menses_yes()
     {
-        return $this->female_gu_abnormal_menses == "Yes" ? "CHECKED" : "";	}
+        return $this->female_gu_abnormal_menses == "Yes" ? "CHECKED" : "";  }
     function get_female_gu_abnormal_menses_no()
     {
-        return $this->female_gu_abnormal_menses == "No" ? "CHECKED" : "";	}
+        return $this->female_gu_abnormal_menses == "No" ? "CHECKED" : "";   }
     function set_female_gu_abnormal_menses($data)
     {
         if(!empty($data)) {
@@ -3483,10 +3483,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_female_gu_abnormal_vaginal_bleeding_yes()
     {
-        return $this->female_gu_abnormal_vaginal_bleeding == "Yes" ? "CHECKED" : "";	}
+        return $this->female_gu_abnormal_vaginal_bleeding == "Yes" ? "CHECKED" : "";    }
     function get_female_gu_abnormal_vaginal_bleeding_no()
     {
-        return $this->female_gu_abnormal_vaginal_bleeding == "No" ? "CHECKED" : "";	}
+        return $this->female_gu_abnormal_vaginal_bleeding == "No" ? "CHECKED" : ""; }
     function set_female_gu_abnormal_vaginal_bleeding($data)
     {
         if(!empty($data)) {
@@ -3513,10 +3513,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_female_gu_vaginal_discharge_yes()
     {
-        return $this->female_gu_vaginal_discharge == "Yes" ? "CHECKED" : "";	}
+        return $this->female_gu_vaginal_discharge == "Yes" ? "CHECKED" : "";    }
     function get_female_gu_vaginal_discharge_no()
     {
-        return $this->female_gu_vaginal_discharge == "No" ? "CHECKED" : "";	}
+        return $this->female_gu_vaginal_discharge == "No" ? "CHECKED" : ""; }
     function set_female_gu_vaginal_discharge($data)
     {
         if(!empty($data)) {
@@ -3544,10 +3544,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_abdominal_pain_yes()
     {
-        return $this->gi_abdominal_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_abdominal_pain == "Yes" ? "CHECKED" : "";  }
     function get_gi_abdominal_pain_no()
     {
-        return $this->gi_abdominal_pain == "No" ? "CHECKED" : "";	}
+        return $this->gi_abdominal_pain == "No" ? "CHECKED" : "";   }
     function set_gi_abdominal_pain($data)
     {
         if(!empty($data)) {
@@ -3574,10 +3574,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_cramps_yes()
     {
-        return $this->gi_cramps == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_cramps == "Yes" ? "CHECKED" : "";  }
     function get_gi_cramps_no()
     {
-        return $this->gi_cramps == "No" ? "CHECKED" : "";	}
+        return $this->gi_cramps == "No" ? "CHECKED" : "";   }
     function set_gi_cramps($data)
     {
         if(!empty($data)) {
@@ -3604,10 +3604,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_tenderness_yes()
     {
-        return $this->gi_tenderness == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_tenderness == "Yes" ? "CHECKED" : "";  }
     function get_gi_tenderness_no()
     {
-        return $this->gi_tenderness == "No" ? "CHECKED" : "";	}
+        return $this->gi_tenderness == "No" ? "CHECKED" : "";   }
     function set_gi_tenderness($data)
     {
         if(!empty($data)) {
@@ -3634,10 +3634,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_vomiting_yes()
     {
-        return $this->gi_vomiting == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_vomiting == "Yes" ? "CHECKED" : "";    }
     function get_gi_vomiting_no()
     {
-        return $this->gi_vomiting == "No" ? "CHECKED" : "";	}
+        return $this->gi_vomiting == "No" ? "CHECKED" : ""; }
     function set_gi_vomiting($data)
     {
         if(!empty($data)) {
@@ -3664,10 +3664,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_frequent_diarrhea_yes()
     {
-        return $this->gi_frequent_diarrhea == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_frequent_diarrhea == "Yes" ? "CHECKED" : "";   }
     function get_gi_frequent_diarrhea_no()
     {
-        return $this->gi_frequent_diarrhea == "No" ? "CHECKED" : "";	}
+        return $this->gi_frequent_diarrhea == "No" ? "CHECKED" : "";    }
     function set_gi_frequent_diarrhea($data)
     {
         if(!empty($data)) {
@@ -3694,10 +3694,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_significant_constipation_yes()
     {
-        return $this->gi_significant_constipation == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_significant_constipation == "Yes" ? "CHECKED" : "";    }
     function get_gi_significant_constipation_no()
     {
-        return $this->gi_significant_constipation == "No" ? "CHECKED" : "";	}
+        return $this->gi_significant_constipation == "No" ? "CHECKED" : ""; }
     function set_gi_significant_constipation($data)
     {
         if(!empty($data)) {
@@ -3724,10 +3724,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_excessive_belching_yes()
     {
-        return $this->gi_excessive_belching == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_excessive_belching == "Yes" ? "CHECKED" : "";  }
     function get_gi_excessive_belching_no()
     {
-        return $this->gi_excessive_belching == "No" ? "CHECKED" : "";	}
+        return $this->gi_excessive_belching == "No" ? "CHECKED" : "";   }
     function set_gi_excessive_belching($data)
     {
         if(!empty($data)) {
@@ -3754,10 +3754,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_changed_bowel_habits_yes()
     {
-        return $this->gi_changed_bowel_habits == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_changed_bowel_habits == "Yes" ? "CHECKED" : "";    }
     function get_gi_changed_bowel_habits_no()
     {
-        return $this->gi_changed_bowel_habits == "No" ? "CHECKED" : "";	}
+        return $this->gi_changed_bowel_habits == "No" ? "CHECKED" : ""; }
     function set_gi_changed_bowel_habits($data)
     {
         if(!empty($data)) {
@@ -3784,10 +3784,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_excessive_flatulence_yes()
     {
-        return $this->gi_excessive_flatulence == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_excessive_flatulence == "Yes" ? "CHECKED" : "";    }
     function get_gi_excessive_flatulence_no()
     {
-        return $this->gi_excessive_flatulence == "No" ? "CHECKED" : "";	}
+        return $this->gi_excessive_flatulence == "No" ? "CHECKED" : ""; }
     function set_gi_excessive_flatulence($data)
     {
         if(!empty($data)) {
@@ -3814,10 +3814,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_hematemesis_yes()
     {
-        return $this->gi_hematemesis == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_hematemesis == "Yes" ? "CHECKED" : ""; }
     function get_gi_hematemesis_no()
     {
-        return $this->gi_hematemesis == "No" ? "CHECKED" : "";	}
+        return $this->gi_hematemesis == "No" ? "CHECKED" : "";  }
     function set_gi_hematemesis($data)
     {
         if(!empty($data)) {
@@ -3844,10 +3844,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_hemorrhoids_yes()
     {
-        return $this->gi_hemorrhoids == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_hemorrhoids == "Yes" ? "CHECKED" : ""; }
     function get_gi_hemorrhoids_no()
     {
-        return $this->gi_hemorrhoids == "No" ? "CHECKED" : "";	}
+        return $this->gi_hemorrhoids == "No" ? "CHECKED" : "";  }
     function set_gi_hemorrhoids($data)
     {
         if(!empty($data)) {
@@ -3874,10 +3874,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_hepatitis_yes()
     {
-        return $this->gi_hepatitis == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_hepatitis == "Yes" ? "CHECKED" : "";   }
     function get_gi_hepatitis_no()
     {
-        return $this->gi_hepatitis == "No" ? "CHECKED" : "";	}
+        return $this->gi_hepatitis == "No" ? "CHECKED" : "";    }
     function set_gi_hepatitis($data)
     {
         if(!empty($data)) {
@@ -3904,10 +3904,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_jaundice_yes()
     {
-        return $this->gi_jaundice == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_jaundice == "Yes" ? "CHECKED" : "";    }
     function get_gi_jaundice_no()
     {
-        return $this->gi_jaundice == "No" ? "CHECKED" : "";	}
+        return $this->gi_jaundice == "No" ? "CHECKED" : ""; }
     function set_gi_jaundice($data)
     {
         if(!empty($data)) {
@@ -3934,10 +3934,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_lactose_intolerance_yes()
     {
-        return $this->gi_lactose_intolerance == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_lactose_intolerance == "Yes" ? "CHECKED" : ""; }
     function get_gi_lactose_intolerance_no()
     {
-        return $this->gi_lactose_intolerance == "No" ? "CHECKED" : "";	}
+        return $this->gi_lactose_intolerance == "No" ? "CHECKED" : "";  }
     function set_gi_lactose_intolerance($data)
     {
         if(!empty($data)) {
@@ -3964,10 +3964,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_chronic_laxative_use_yes()
     {
-        return $this->gi_chronic_laxative_use == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_chronic_laxative_use == "Yes" ? "CHECKED" : "";    }
     function get_gi_chronic_laxative_use_no()
     {
-        return $this->gi_chronic_laxative_use == "No" ? "CHECKED" : "";	}
+        return $this->gi_chronic_laxative_use == "No" ? "CHECKED" : ""; }
     function set_gi_chronic_laxative_use($data)
     {
         if(!empty($data)) {
@@ -3994,10 +3994,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_melena_yes()
     {
-        return $this->gi_melena == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_melena == "Yes" ? "CHECKED" : "";  }
     function get_gi_melena_no()
     {
-        return $this->gi_melena == "No" ? "CHECKED" : "";	}
+        return $this->gi_melena == "No" ? "CHECKED" : "";   }
     function set_gi_melena($data)
     {
         if(!empty($data)) {
@@ -4024,10 +4024,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_frequent_nausea_yes()
     {
-        return $this->gi_frequent_nausea == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_frequent_nausea == "Yes" ? "CHECKED" : ""; }
     function get_gi_frequent_nausea_no()
     {
-        return $this->gi_frequent_nausea == "No" ? "CHECKED" : "";	}
+        return $this->gi_frequent_nausea == "No" ? "CHECKED" : "";  }
     function set_gi_frequent_nausea($data)
     {
         if(!empty($data)) {
@@ -4054,10 +4054,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_rectal_bleeding_yes()
     {
-        return $this->gi_rectal_bleeding == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_rectal_bleeding == "Yes" ? "CHECKED" : ""; }
     function get_gi_rectal_bleeding_no()
     {
-        return $this->gi_rectal_bleeding == "No" ? "CHECKED" : "";	}
+        return $this->gi_rectal_bleeding == "No" ? "CHECKED" : "";  }
     function set_gi_rectal_bleeding($data)
     {
         if(!empty($data)) {
@@ -4084,10 +4084,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_rectal_pain_yes()
     {
-        return $this->gi_rectal_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_rectal_pain == "Yes" ? "CHECKED" : ""; }
     function get_gi_rectal_pain_no()
     {
-        return $this->gi_rectal_pain == "No" ? "CHECKED" : "";	}
+        return $this->gi_rectal_pain == "No" ? "CHECKED" : "";  }
     function set_gi_rectal_pain($data)
     {
         if(!empty($data)) {
@@ -4114,10 +4114,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_gi_stool_caliber_change_yes()
     {
-        return $this->gi_stool_caliber_change == "Yes" ? "CHECKED" : "";	}
+        return $this->gi_stool_caliber_change == "Yes" ? "CHECKED" : "";    }
     function get_gi_stool_caliber_change_no()
     {
-        return $this->gi_stool_caliber_change == "No" ? "CHECKED" : "";	}
+        return $this->gi_stool_caliber_change == "No" ? "CHECKED" : ""; }
     function set_gi_stool_caliber_change($data)
     {
         if(!empty($data)) {
@@ -4145,10 +4145,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_pallor_yes()
     {
-        return $this->integument_pallor == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_pallor == "Yes" ? "CHECKED" : "";  }
     function get_integument_pallor_no()
     {
-        return $this->integument_pallor == "No" ? "CHECKED" : "";	}
+        return $this->integument_pallor == "No" ? "CHECKED" : "";   }
     function set_integument_pallor($data)
     {
         if(!empty($data)) {
@@ -4175,10 +4175,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_diaphoresis_yes()
     {
-        return $this->integument_diaphoresis == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_diaphoresis == "Yes" ? "CHECKED" : ""; }
     function get_integument_diaphoresis_no()
     {
-        return $this->integument_diaphoresis == "No" ? "CHECKED" : "";	}
+        return $this->integument_diaphoresis == "No" ? "CHECKED" : "";  }
     function set_integument_diaphoresis($data)
     {
         if(!empty($data)) {
@@ -4205,10 +4205,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_rash_yes()
     {
-        return $this->integument_rash == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_rash == "Yes" ? "CHECKED" : "";    }
     function get_integument_rash_no()
     {
-        return $this->integument_rash == "No" ? "CHECKED" : "";	}
+        return $this->integument_rash == "No" ? "CHECKED" : ""; }
     function set_integument_rash($data)
     {
         if(!empty($data)) {
@@ -4235,10 +4235,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_itching_yes()
     {
-        return $this->integument_itching == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_itching == "Yes" ? "CHECKED" : ""; }
     function get_integument_itching_no()
     {
-        return $this->integument_itching == "No" ? "CHECKED" : "";	}
+        return $this->integument_itching == "No" ? "CHECKED" : "";  }
     function set_integument_itching($data)
     {
         if(!empty($data)) {
@@ -4265,10 +4265,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_ulcers_yes()
     {
-        return $this->integument_ulcers == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_ulcers == "Yes" ? "CHECKED" : "";  }
     function get_integument_ulcers_no()
     {
-        return $this->integument_ulcers == "No" ? "CHECKED" : "";	}
+        return $this->integument_ulcers == "No" ? "CHECKED" : "";   }
     function set_integument_ulcers($data)
     {
         if(!empty($data)) {
@@ -4295,10 +4295,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_abscess_yes()
     {
-        return $this->integument_abscess == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_abscess == "Yes" ? "CHECKED" : ""; }
     function get_integument_abscess_no()
     {
-        return $this->integument_abscess == "No" ? "CHECKED" : "";	}
+        return $this->integument_abscess == "No" ? "CHECKED" : "";  }
     function set_integument_abscess($data)
     {
         if(!empty($data)) {
@@ -4325,10 +4325,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_nodules_yes()
     {
-        return $this->integument_nodules == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_nodules == "Yes" ? "CHECKED" : ""; }
     function get_integument_nodules_no()
     {
-        return $this->integument_nodules == "No" ? "CHECKED" : "";	}
+        return $this->integument_nodules == "No" ? "CHECKED" : "";  }
     function set_integument_nodules($data)
     {
         if(!empty($data)) {
@@ -4355,10 +4355,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_acne_yes()
     {
-        return $this->integument_acne == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_acne == "Yes" ? "CHECKED" : "";    }
     function get_integument_acne_no()
     {
-        return $this->integument_acne == "No" ? "CHECKED" : "";	}
+        return $this->integument_acne == "No" ? "CHECKED" : ""; }
     function set_integument_acne($data)
     {
         if(!empty($data)) {
@@ -4385,10 +4385,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_recurrent_boils_yes()
     {
-        return $this->integument_recurrent_boils == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_recurrent_boils == "Yes" ? "CHECKED" : ""; }
     function get_integument_recurrent_boils_no()
     {
-        return $this->integument_recurrent_boils == "No" ? "CHECKED" : "";	}
+        return $this->integument_recurrent_boils == "No" ? "CHECKED" : "";  }
     function set_integument_recurrent_boils($data)
     {
         if(!empty($data)) {
@@ -4415,10 +4415,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_chronic_eczema_yes()
     {
-        return $this->integument_chronic_eczema == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_chronic_eczema == "Yes" ? "CHECKED" : "";  }
     function get_integument_chronic_eczema_no()
     {
-        return $this->integument_chronic_eczema == "No" ? "CHECKED" : "";	}
+        return $this->integument_chronic_eczema == "No" ? "CHECKED" : "";   }
     function set_integument_chronic_eczema($data)
     {
         if(!empty($data)) {
@@ -4445,10 +4445,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_changing_moles_yes()
     {
-        return $this->integument_changing_moles == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_changing_moles == "Yes" ? "CHECKED" : "";  }
     function get_integument_changing_moles_no()
     {
-        return $this->integument_changing_moles == "No" ? "CHECKED" : "";	}
+        return $this->integument_changing_moles == "No" ? "CHECKED" : "";   }
     function set_integument_changing_moles($data)
     {
         if(!empty($data)) {
@@ -4475,10 +4475,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_nail_abnormalities_yes()
     {
-        return $this->integument_nail_abnormalities == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_nail_abnormalities == "Yes" ? "CHECKED" : "";  }
     function get_integument_nail_abnormalities_no()
     {
-        return $this->integument_nail_abnormalities == "No" ? "CHECKED" : "";	}
+        return $this->integument_nail_abnormalities == "No" ? "CHECKED" : "";   }
     function set_integument_nail_abnormalities($data)
     {
         if(!empty($data)) {
@@ -4505,10 +4505,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_psoriasis_yes()
     {
-        return $this->integument_psoriasis == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_psoriasis == "Yes" ? "CHECKED" : "";   }
     function get_integument_psoriasis_no()
     {
-        return $this->integument_psoriasis == "No" ? "CHECKED" : "";	}
+        return $this->integument_psoriasis == "No" ? "CHECKED" : "";    }
     function set_integument_psoriasis($data)
     {
         if(!empty($data)) {
@@ -4535,10 +4535,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_integument_recurrent_hives_yes()
     {
-        return $this->integument_recurrent_hives == "Yes" ? "CHECKED" : "";	}
+        return $this->integument_recurrent_hives == "Yes" ? "CHECKED" : ""; }
     function get_integument_recurrent_hives_no()
     {
-        return $this->integument_recurrent_hives == "No" ? "CHECKED" : "";	}
+        return $this->integument_recurrent_hives == "No" ? "CHECKED" : "";  }
     function set_integument_recurrent_hives($data)
     {
         if(!empty($data)) {
@@ -4566,10 +4566,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_deformity_yes()
     {
-        return $this->musculoskeletal_deformity == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_deformity == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_deformity_no()
     {
-        return $this->musculoskeletal_deformity == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_deformity == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_deformity($data)
     {
         if(!empty($data)) {
@@ -4596,10 +4596,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_edema_yes()
     {
-        return $this->musculoskeletal_edema == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_edema == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_edema_no()
     {
-        return $this->musculoskeletal_edema == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_edema == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_edema($data)
     {
         if(!empty($data)) {
@@ -4626,10 +4626,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_pain_yes()
     {
-        return $this->musculoskeletal_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_pain == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_pain_no()
     {
-        return $this->musculoskeletal_pain == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_pain == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_pain($data)
     {
         if(!empty($data)) {
@@ -4656,10 +4656,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_limited_rom_yes()
     {
-        return $this->musculoskeletal_limited_rom == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_limited_rom == "Yes" ? "CHECKED" : "";    }
     function get_musculoskeletal_limited_rom_no()
     {
-        return $this->musculoskeletal_limited_rom == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_limited_rom == "No" ? "CHECKED" : ""; }
     function set_musculoskeletal_limited_rom($data)
     {
         if(!empty($data)) {
@@ -4686,10 +4686,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_gait_yes()
     {
-        return $this->musculoskeletal_gait == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_gait == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_gait_no()
     {
-        return $this->musculoskeletal_gait == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_gait == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_gait($data)
     {
         if(!empty($data)) {
@@ -4716,10 +4716,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_arthritis_yes()
     {
-        return $this->musculoskeletal_arthritis == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_arthritis == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_arthritis_no()
     {
-        return $this->musculoskeletal_arthritis == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_arthritis == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_arthritis($data)
     {
         if(!empty($data)) {
@@ -4746,10 +4746,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_neck_pain_yes()
     {
-        return $this->musculoskeletal_neck_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_neck_pain == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_neck_pain_no()
     {
-        return $this->musculoskeletal_neck_pain == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_neck_pain == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_neck_pain($data)
     {
         if(!empty($data)) {
@@ -4776,10 +4776,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_mid_back_pain_yes()
     {
-        return $this->musculoskeletal_mid_back_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_mid_back_pain == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_mid_back_pain_no()
     {
-        return $this->musculoskeletal_mid_back_pain == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_mid_back_pain == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_mid_back_pain($data)
     {
         if(!empty($data)) {
@@ -4806,10 +4806,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_low_back_pain_yes()
     {
-        return $this->musculoskeletal_low_back_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_low_back_pain == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_low_back_pain_no()
     {
-        return $this->musculoskeletal_low_back_pain == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_low_back_pain == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_low_back_pain($data)
     {
         if(!empty($data)) {
@@ -4836,10 +4836,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_bursitis_yes()
     {
-        return $this->musculoskeletal_bursitis == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_bursitis == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_bursitis_no()
     {
-        return $this->musculoskeletal_bursitis == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_bursitis == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_bursitis($data)
     {
         if(!empty($data)) {
@@ -4866,10 +4866,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_gout_yes()
     {
-        return $this->musculoskeletal_gout == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_gout == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_gout_no()
     {
-        return $this->musculoskeletal_gout == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_gout == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_gout($data)
     {
         if(!empty($data)) {
@@ -4896,10 +4896,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_joint_injury_yes()
     {
-        return $this->musculoskeletal_joint_injury == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_injury == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_joint_injury_no()
     {
-        return $this->musculoskeletal_joint_injury == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_injury == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_joint_injury($data)
     {
         if(!empty($data)) {
@@ -4926,10 +4926,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_joint_pain_yes()
     {
-        return $this->musculoskeletal_joint_pain == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_pain == "Yes" ? "CHECKED" : ""; }
     function get_musculoskeletal_joint_pain_no()
     {
-        return $this->musculoskeletal_joint_pain == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_pain == "No" ? "CHECKED" : "";  }
     function set_musculoskeletal_joint_pain($data)
     {
         if(!empty($data)) {
@@ -4956,10 +4956,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_joint_swelling_yes()
     {
-        return $this->musculoskeletal_joint_swelling == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_swelling == "Yes" ? "CHECKED" : ""; }
     function get_musculoskeletal_joint_swelling_no()
     {
-        return $this->musculoskeletal_joint_swelling == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_joint_swelling == "No" ? "CHECKED" : "";  }
     function set_musculoskeletal_joint_swelling($data)
     {
         if(!empty($data)) {
@@ -4986,10 +4986,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_myalgias_yes()
     {
-        return $this->musculoskeletal_myalgias == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_myalgias == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_myalgias_no()
     {
-        return $this->musculoskeletal_myalgias == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_myalgias == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_myalgias($data)
     {
         if(!empty($data)) {
@@ -5016,10 +5016,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_sciatica_yes()
     {
-        return $this->musculoskeletal_sciatica == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_sciatica == "Yes" ? "CHECKED" : "";   }
     function get_musculoskeletal_sciatica_no()
     {
-        return $this->musculoskeletal_sciatica == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_sciatica == "No" ? "CHECKED" : "";    }
     function set_musculoskeletal_sciatica($data)
     {
         if(!empty($data)) {
@@ -5046,10 +5046,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_musculoskeletal_scoliosis_yes()
     {
-        return $this->musculoskeletal_scoliosis == "Yes" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_scoliosis == "Yes" ? "CHECKED" : "";  }
     function get_musculoskeletal_scoliosis_no()
     {
-        return $this->musculoskeletal_scoliosis == "No" ? "CHECKED" : "";	}
+        return $this->musculoskeletal_scoliosis == "No" ? "CHECKED" : "";   }
     function set_musculoskeletal_scoliosis($data)
     {
         if(!empty($data)) {
@@ -5077,10 +5077,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_hematological_anemia_yes()
     {
-        return $this->hematological_anemia == "Yes" ? "CHECKED" : "";	}
+        return $this->hematological_anemia == "Yes" ? "CHECKED" : "";   }
     function get_hematological_anemia_no()
     {
-        return $this->hematological_anemia == "No" ? "CHECKED" : "";	}
+        return $this->hematological_anemia == "No" ? "CHECKED" : "";    }
     function set_hematological_anemia($data)
     {
         if(!empty($data)) {
@@ -5107,10 +5107,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_hematological_pallor_yes()
     {
-        return $this->hematological_pallor == "Yes" ? "CHECKED" : "";	}
+        return $this->hematological_pallor == "Yes" ? "CHECKED" : "";   }
     function get_hematological_pallor_no()
     {
-        return $this->hematological_pallor == "No" ? "CHECKED" : "";	}
+        return $this->hematological_pallor == "No" ? "CHECKED" : "";    }
     function set_hematological_pallor($data)
     {
         if(!empty($data)) {
@@ -5137,10 +5137,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_hematological_bleeding_tendencies_yes()
     {
-        return $this->hematological_bleeding_tendencies == "Yes" ? "CHECKED" : "";	}
+        return $this->hematological_bleeding_tendencies == "Yes" ? "CHECKED" : "";  }
     function get_hematological_bleeding_tendencies_no()
     {
-        return $this->hematological_bleeding_tendencies == "No" ? "CHECKED" : "";	}
+        return $this->hematological_bleeding_tendencies == "No" ? "CHECKED" : "";   }
     function set_hematological_bleeding_tendencies($data)
     {
         if(!empty($data)) {
@@ -5167,10 +5167,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_hematological_bruising_yes()
     {
-        return $this->hematological_bruising == "Yes" ? "CHECKED" : "";	}
+        return $this->hematological_bruising == "Yes" ? "CHECKED" : ""; }
     function get_hematological_bruising_no()
     {
-        return $this->hematological_bruising == "No" ? "CHECKED" : "";	}
+        return $this->hematological_bruising == "No" ? "CHECKED" : "";  }
     function set_hematological_bruising($data)
     {
         if(!empty($data)) {
@@ -5198,10 +5198,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_thyroid_problems_yes()
     {
-        return $this->endocrine_thyroid_problems == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_thyroid_problems == "Yes" ? "CHECKED" : ""; }
     function get_endocrine_thyroid_problems_no()
     {
-        return $this->endocrine_thyroid_problems == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_thyroid_problems == "No" ? "CHECKED" : "";  }
     function set_endocrine_thyroid_problems($data)
     {
         if(!empty($data)) {
@@ -5228,10 +5228,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_enlarged_thyroid_yes()
     {
-        return $this->endocrine_enlarged_thyroid == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_enlarged_thyroid == "Yes" ? "CHECKED" : ""; }
     function get_endocrine_enlarged_thyroid_no()
     {
-        return $this->endocrine_enlarged_thyroid == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_enlarged_thyroid == "No" ? "CHECKED" : "";  }
     function set_endocrine_enlarged_thyroid($data)
     {
         if(!empty($data)) {
@@ -5258,10 +5258,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_hyperglycemia_yes()
     {
-        return $this->endocrine_hyperglycemia == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_hyperglycemia == "Yes" ? "CHECKED" : "";    }
     function get_endocrine_hyperglycemia_no()
     {
-        return $this->endocrine_hyperglycemia == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_hyperglycemia == "No" ? "CHECKED" : ""; }
     function set_endocrine_hyperglycemia($data)
     {
         if(!empty($data)) {
@@ -5288,10 +5288,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_hypoglycemia_yes()
     {
-        return $this->endocrine_hypoglycemia == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_hypoglycemia == "Yes" ? "CHECKED" : ""; }
     function get_endocrine_hypoglycemia_no()
     {
-        return $this->endocrine_hypoglycemia == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_hypoglycemia == "No" ? "CHECKED" : "";  }
     function set_endocrine_hypoglycemia($data)
     {
         if(!empty($data)) {
@@ -5318,10 +5318,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_cold_intolerance_yes()
     {
-        return $this->endocrine_cold_intolerance == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_cold_intolerance == "Yes" ? "CHECKED" : ""; }
     function get_endocrine_cold_intolerance_no()
     {
-        return $this->endocrine_cold_intolerance == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_cold_intolerance == "No" ? "CHECKED" : "";  }
     function set_endocrine_cold_intolerance($data)
     {
         if(!empty($data)) {
@@ -5348,10 +5348,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_heat_intolerance_yes()
     {
-        return $this->endocrine_heat_intolerance == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_heat_intolerance == "Yes" ? "CHECKED" : ""; }
     function get_endocrine_heat_intolerance_no()
     {
-        return $this->endocrine_heat_intolerance == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_heat_intolerance == "No" ? "CHECKED" : "";  }
     function set_endocrine_heat_intolerance($data)
     {
         if(!empty($data)) {
@@ -5378,10 +5378,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_early_awakening_yes()
     {
-        return $this->endocrine_early_awakening == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_early_awakening == "Yes" ? "CHECKED" : "";  }
     function get_endocrine_early_awakening_no()
     {
-        return $this->endocrine_early_awakening == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_early_awakening == "No" ? "CHECKED" : "";   }
     function set_endocrine_early_awakening($data)
     {
         if(!empty($data)) {
@@ -5408,10 +5408,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_fatigue_unexplained_yes()
     {
-        return $this->endocrine_fatigue_unexplained == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_fatigue_unexplained == "Yes" ? "CHECKED" : "";  }
     function get_endocrine_fatigue_unexplained_no()
     {
-        return $this->endocrine_fatigue_unexplained == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_fatigue_unexplained == "No" ? "CHECKED" : "";   }
     function set_endocrine_fatigue_unexplained($data)
     {
         if(!empty($data)) {
@@ -5438,10 +5438,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_weight_gain_yes()
     {
-        return $this->endocrine_weight_gain == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_weight_gain == "Yes" ? "CHECKED" : "";  }
     function get_endocrine_weight_gain_no()
     {
-        return $this->endocrine_weight_gain == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_weight_gain == "No" ? "CHECKED" : "";   }
     function set_endocrine_weight_gain($data)
     {
         if(!empty($data)) {
@@ -5468,10 +5468,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_weight_loss_yes()
     {
-        return $this->endocrine_weight_loss == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_weight_loss == "Yes" ? "CHECKED" : "";  }
     function get_endocrine_weight_loss_no()
     {
-        return $this->endocrine_weight_loss == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_weight_loss == "No" ? "CHECKED" : "";   }
     function set_endocrine_weight_loss($data)
     {
         if(!empty($data)) {
@@ -5498,10 +5498,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_premenstrual_symptoms_yes()
     {
-        return $this->endocrine_premenstrual_symptoms == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_premenstrual_symptoms == "Yes" ? "CHECKED" : "";    }
     function get_endocrine_premenstrual_symptoms_no()
     {
-        return $this->endocrine_premenstrual_symptoms == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_premenstrual_symptoms == "No" ? "CHECKED" : ""; }
     function set_endocrine_premenstrual_symptoms($data)
     {
         if(!empty($data)) {
@@ -5528,10 +5528,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_hair_no_change_or_no_loss_yes()
     {
-        return $this->endocrine_hair_no_change_or_no_loss == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_hair_no_change_or_no_loss == "Yes" ? "CHECKED" : "";    }
     function get_endocrine_hair_no_change_or_no_loss_no()
     {
-        return $this->endocrine_hair_no_change_or_no_loss == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_hair_no_change_or_no_loss == "No" ? "CHECKED" : ""; }
     function set_endocrine_hair_no_change_or_no_loss($data)
     {
         if(!empty($data)) {
@@ -5558,10 +5558,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_endocrine_hot_flashes_yes()
     {
-        return $this->endocrine_hot_flashes == "Yes" ? "CHECKED" : "";	}
+        return $this->endocrine_hot_flashes == "Yes" ? "CHECKED" : "";  }
     function get_endocrine_hot_flashes_no()
     {
-        return $this->endocrine_hot_flashes == "No" ? "CHECKED" : "";	}
+        return $this->endocrine_hot_flashes == "No" ? "CHECKED" : "";   }
     function set_endocrine_hot_flashes($data)
     {
         if(!empty($data)) {
@@ -5589,10 +5589,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_lymphatic_swollen_lymph_nodes_yes()
     {
-        return $this->lymphatic_swollen_lymph_nodes == "Yes" ? "CHECKED" : "";	}
+        return $this->lymphatic_swollen_lymph_nodes == "Yes" ? "CHECKED" : "";  }
     function get_lymphatic_swollen_lymph_nodes_no()
     {
-        return $this->lymphatic_swollen_lymph_nodes == "No" ? "CHECKED" : "";	}
+        return $this->lymphatic_swollen_lymph_nodes == "No" ? "CHECKED" : "";   }
     function set_lymphatic_swollen_lymph_nodes($data)
     {
         if(!empty($data)) {
@@ -5619,10 +5619,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_lymphatic_swollen_extremities_yes()
     {
-        return $this->lymphatic_swollen_extremities == "Yes" ? "CHECKED" : "";	}
+        return $this->lymphatic_swollen_extremities == "Yes" ? "CHECKED" : "";  }
     function get_lymphatic_swollen_extremities_no()
     {
-        return $this->lymphatic_swollen_extremities == "No" ? "CHECKED" : "";	}
+        return $this->lymphatic_swollen_extremities == "No" ? "CHECKED" : "";   }
     function set_lymphatic_swollen_extremities($data)
     {
         if(!empty($data)) {
@@ -5650,10 +5650,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_compulsions_yes()
     {
-        return $this->psychiatric_compulsions == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_compulsions == "Yes" ? "CHECKED" : "";    }
     function get_psychiatric_compulsions_no()
     {
-        return $this->psychiatric_compulsions == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_compulsions == "No" ? "CHECKED" : ""; }
     function set_psychiatric_compulsions($data)
     {
         if(!empty($data)) {
@@ -5680,10 +5680,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_depression_yes()
     {
-        return $this->psychiatric_depression == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_depression == "Yes" ? "CHECKED" : ""; }
     function get_psychiatric_depression_no()
     {
-        return $this->psychiatric_depression == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_depression == "No" ? "CHECKED" : "";  }
     function set_psychiatric_depression($data)
     {
         if(!empty($data)) {
@@ -5710,10 +5710,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_fear_yes()
     {
-        return $this->psychiatric_fear == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_fear == "Yes" ? "CHECKED" : "";   }
     function get_psychiatric_fear_no()
     {
-        return $this->psychiatric_fear == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_fear == "No" ? "CHECKED" : "";    }
     function set_psychiatric_fear($data)
     {
         if(!empty($data)) {
@@ -5740,10 +5740,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_anxiety_yes()
     {
-        return $this->psychiatric_anxiety == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_anxiety == "Yes" ? "CHECKED" : "";    }
     function get_psychiatric_anxiety_no()
     {
-        return $this->psychiatric_anxiety == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_anxiety == "No" ? "CHECKED" : ""; }
     function set_psychiatric_anxiety($data)
     {
         if(!empty($data)) {
@@ -5770,10 +5770,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_hallucinations_yes()
     {
-        return $this->psychiatric_hallucinations == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_hallucinations == "Yes" ? "CHECKED" : ""; }
     function get_psychiatric_hallucinations_no()
     {
-        return $this->psychiatric_hallucinations == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_hallucinations == "No" ? "CHECKED" : "";  }
     function set_psychiatric_hallucinations($data)
     {
         if(!empty($data)) {
@@ -5800,10 +5800,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_loss_of_interest_yes()
     {
-        return $this->psychiatric_loss_of_interest == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_loss_of_interest == "Yes" ? "CHECKED" : "";   }
     function get_psychiatric_loss_of_interest_no()
     {
-        return $this->psychiatric_loss_of_interest == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_loss_of_interest == "No" ? "CHECKED" : "";    }
     function set_psychiatric_loss_of_interest($data)
     {
         if(!empty($data)) {
@@ -5830,10 +5830,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_memory_loss_yes()
     {
-        return $this->psychiatric_memory_loss == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_memory_loss == "Yes" ? "CHECKED" : "";    }
     function get_psychiatric_memory_loss_no()
     {
-        return $this->psychiatric_memory_loss == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_memory_loss == "No" ? "CHECKED" : ""; }
     function set_psychiatric_memory_loss($data)
     {
         if(!empty($data)) {
@@ -5860,10 +5860,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_mood_swings_yes()
     {
-        return $this->psychiatric_mood_swings == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_mood_swings == "Yes" ? "CHECKED" : "";    }
     function get_psychiatric_mood_swings_no()
     {
-        return $this->psychiatric_mood_swings == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_mood_swings == "No" ? "CHECKED" : ""; }
     function set_psychiatric_mood_swings($data)
     {
         if(!empty($data)) {
@@ -5890,10 +5890,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_pananoia_yes()
     {
-        return $this->psychiatric_pananoia == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_pananoia == "Yes" ? "CHECKED" : "";   }
     function get_psychiatric_pananoia_no()
     {
-        return $this->psychiatric_pananoia == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_pananoia == "No" ? "CHECKED" : "";    }
     function set_psychiatric_pananoia($data)
     {
         if(!empty($data)) {
@@ -5920,10 +5920,10 @@ class FormROS2 extends ORDataObject {
     }
     function get_psychiatric_insomnia_yes()
     {
-        return $this->psychiatric_insomnia == "Yes" ? "CHECKED" : "";	}
+        return $this->psychiatric_insomnia == "Yes" ? "CHECKED" : "";   }
     function get_psychiatric_insomnia_no()
     {
-        return $this->psychiatric_insomnia == "No" ? "CHECKED" : "";	}
+        return $this->psychiatric_insomnia == "No" ? "CHECKED" : "";    }
     function set_psychiatric_insomnia($data)
     {
         if(!empty($data)) {
@@ -5941,6 +5941,6 @@ class FormROS2 extends ORDataObject {
         }
     }
 
-}	// end of Form
+}   // end of Form
 
 ?>

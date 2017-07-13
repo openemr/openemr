@@ -37,7 +37,7 @@ if(sqlNumRows($res)>0)
             <th><?php echo xlt('End Date'); ?></th>
             <th><?php echo xlt('Referrer'); ?></th>
         </tr>
-  		<?php
+        <?php
         $even=false;
         while ($row = sqlFetchArray($res)) {
 

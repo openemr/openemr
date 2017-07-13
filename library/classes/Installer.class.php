@@ -374,7 +374,8 @@ if ($it_died != 0) {
     public function insert_globals()
     {
         function xl($s)
-        { return $s; }
+        {
+            return $s; }
         require(dirname(__FILE__) . '/../globals.inc.php');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             foreach ($grparr as $fldid => $fldarr) {

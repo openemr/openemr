@@ -201,7 +201,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_resultsArray[]= $result;
     }
 
-    private function collectObjects ($patient,$object_label,$begin,$end)
+    private function collectObjects($patient,$object_label,$begin,$end)
     {
 
         $results = array();

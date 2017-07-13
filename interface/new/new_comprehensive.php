@@ -322,10 +322,10 @@ currentDate = year+'-'+month+'-'+day;
 if(errMsgs.length > 0 || dateVal > currentDate)
 {
 if(errMsgs.length > 0)
-	alert(msg);
+    alert(msg);
 if(dateVal > currentDate)
-	alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
-	return false;
+    alert ('<?php echo xls("Deceased Date should not be greater than Today"); ?>');
+    return false;
 }
  return true;
 }
@@ -644,7 +644,7 @@ foreach ($insurancei as $iid => $iname) {
          value="<?php echo $result3{"subscriber_employer_city"}?>"
           onchange="capitalizeMe(this);" /></td>
         <td><span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('SE State','e') : xl('SE Locality','e') ?>: </span></td>
-	<td>
+    <td>
             <?php
             // Modified 7/2009 by BM to incorporate data types
             generate_form_field(array('data_type'=>$GLOBALS['state_data_type'],'field_id'=>('i'.$i.'subscriber_employer_state'),'list_id'=>$GLOBALS['state_list'],'fld_length'=>'15','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_employer_state']);

@@ -604,10 +604,10 @@ echo "<script language='JavaScript'>$qoe_init_javascript</script>";
 <div style="display:inline-block">
 <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
-	<?php foreach($procedure_order_type as $ordered_types){?>
-	<option value="<?php echo attr($ordered_types['option_id']);
+    <?php foreach($procedure_order_type as $ordered_types){?>
+    <option value="<?php echo attr($ordered_types['option_id']);
 ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
-	<?php } ?>
+    <?php } ?>
 </select>
 </div>
 <div style="display:inline-block">

@@ -1,14 +1,14 @@
 <?php
 
 //validation functions
-function check_date_format ($date)
+function check_date_format($date)
 {
     $pat="/^(19[0-9]{2}|20[0-1]{1}[0-9]{1})-(0[1-9]|1[0-2])-(0[1-9]{1}|1[0-9]{1}|2[0-9]{1}|3[0-1]{1})$/";
     if (preg_match($pat, $date) or $date=='' or $date=='0000-00-00') { return true ;
     } else { return false; }
 }
 
-function check_age ($age)
+function check_age($age)
 {
     $age=trim ($age);
     $pat="/^([0-9]+)$/";
@@ -16,19 +16,19 @@ function check_age ($age)
     } else { return false; }
 }
 
-function check_select ($select, $array)
+function check_select($select, $array)
 {
     if (array_search($select,$array) or 0===array_search($select,$array) ) { return true ;
     } else { return false; }
 }
 
-function check_yes_no ($option)
+function check_yes_no($option)
 {
     if ($option=='AND' or $option=='OR') { return true ;
     } else { return false; }
 }
 
-function where_or_and ($and)
+function where_or_and($and)
 {
     if  ($and=='') {
         $and='WHERE ';

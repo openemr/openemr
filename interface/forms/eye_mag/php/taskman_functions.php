@@ -32,16 +32,16 @@
 function make_task($ajax_req)
 {
     global $send;
-    $from_id 	= $ajax_req['from_id'];
-    $to_id 		= $ajax_req['to_id'];
+    $from_id    = $ajax_req['from_id'];
+    $to_id      = $ajax_req['to_id'];
     $patient_id = $ajax_req['pid'];
-    $doc_type 	= $ajax_req['doc_type'];
-    $doc_id 	= $ajax_req['doc_id'];
-    $enc 	 	= $ajax_req['enc'];
+    $doc_type   = $ajax_req['doc_type'];
+    $doc_id     = $ajax_req['doc_id'];
+    $enc        = $ajax_req['enc'];
 
-    $query 		= "SELECT * FROM users WHERE id=?";
-    $to_data 	=  sqlQuery($query,array($to_id));
-    $filename 	= "Fax_".$encounter."_".$to_data['lname'].".pdf";
+    $query      = "SELECT * FROM users WHERE id=?";
+    $to_data    =  sqlQuery($query,array($to_id));
+    $filename   = "Fax_".$encounter."_".$to_data['lname'].".pdf";
         
     $query = "SELECT * FROM documents where encounter_id=? and foreign_id=? and url like ?";
     $doc = sqlQuery($query,array($encounter,$pid,'%'.$filename.'%' ));
@@ -162,21 +162,21 @@ function update_taskman($task,$action,$value)
 function deliver_document($task)
 {
     //use PHPMAILER
-    $query 			= "SELECT * FROM users WHERE id=?";
-    $to_data 		=  sqlQuery($query,array($task['TO_ID']));
-    $from_data 		=  sqlQuery($query,array($task['FROM_ID']));
-    $sql 			= "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-    $facility_data 	=  sqlQuery($sql);
-    $query 			= "SELECT * FROM patient_data where pid=?";
-    $patientData 	=  sqlQuery($query,array($task['PATIENT_ID']));
+    $query          = "SELECT * FROM users WHERE id=?";
+    $to_data        =  sqlQuery($query,array($task['TO_ID']));
+    $from_data      =  sqlQuery($query,array($task['FROM_ID']));
+    $sql            = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+    $facility_data  =  sqlQuery($sql);
+    $query          = "SELECT * FROM patient_data where pid=?";
+    $patientData    =  sqlQuery($query,array($task['PATIENT_ID']));
 
-    $from_fax 	= preg_replace("/[^0-9]/", "", $facility_data['fax']);
-    $from_name 	= $from_data['fname']." ".$from_data['lname'];
-    $from_fac 	= $from_facility['name'];
-    $to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']);
+    $from_fax   = preg_replace("/[^0-9]/", "", $facility_data['fax']);
+    $from_name  = $from_data['fname']." ".$from_data['lname'];
+    $from_fac   = $from_facility['name'];
+    $to_fax     = preg_replace("/[^0-9]/", "", $to_data['fax']);
 
-    $to_name  	= $to_data['fname']." ".$to_data['lname'];
-    $pt_name	= $patientData['fname'].' '.$patientData['lname'];
+    $to_name    = $to_data['fname']." ".$to_data['lname'];
+    $pt_name    = $patientData['fname'].' '.$patientData['lname'];
     
     $encounter = $task['ENC_ID'];
 
@@ -231,22 +231,22 @@ function make_document($task)
     /**
      * We want to store the current PDF version of this task.
      */
-    $query 			= "SELECT * FROM users WHERE id=?";
-    $to_data 		=  sqlQuery($query,array($task['TO_ID']));
-    $from_data 		=  sqlQuery($query,array($task['FROM_ID']));
-    $sql 			= "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-    $facility_data 	=  sqlQuery($sql);
-    $query 			= "SELECT * FROM patient_data where pid=?";
-    $patientData 	=  sqlQuery($query,array($task['PATIENT_ID']));
+    $query          = "SELECT * FROM users WHERE id=?";
+    $to_data        =  sqlQuery($query,array($task['TO_ID']));
+    $from_data      =  sqlQuery($query,array($task['FROM_ID']));
+    $sql            = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+    $facility_data  =  sqlQuery($sql);
+    $query          = "SELECT * FROM patient_data where pid=?";
+    $patientData    =  sqlQuery($query,array($task['PATIENT_ID']));
 
-    $from_fax 	= preg_replace("/[^0-9]/", "", $facility_data['fax']);
-    $from_name 	= $from_data['fname']." ".$from_data['lname'];
+    $from_fax   = preg_replace("/[^0-9]/", "", $facility_data['fax']);
+    $from_name  = $from_data['fname']." ".$from_data['lname'];
     if ($from_data['suffix']) $from_name .=", ".$from_data['suffix'];
-    $from_fac 	= $from_facility['name'];
-    $to_fax 	= preg_replace("/[^0-9]/", "", $to_data['fax']);
-    $to_name  	= $to_data['fname']." ".$to_data['lname'];
+    $from_fac   = $from_facility['name'];
+    $to_fax     = preg_replace("/[^0-9]/", "", $to_data['fax']);
+    $to_name    = $to_data['fname']." ".$to_data['lname'];
     if ($to_data['suffix']) $to_name .=", ".$to_data['suffix'];
-    $pt_name	= $patientData['fname'].' '.$patientData['lname'];
+    $pt_name    = $patientData['fname'].' '.$patientData['lname'];
     $encounter = $task['ENC_ID'];
     $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.* 
             from form_eye_mag ,forms,form_encounter 
@@ -314,45 +314,45 @@ function make_document($task)
 
     ob_start();
     ?><html>
-	<head> 
-		<TITLE><?php echo xlt('Taskman: Documents in openEMR'); ?></TITLE> 
-		<style>
-			.wrapper {
-				margin:20px;
-			}
-			.col1 {
-				font-weight:bold;
-				width:100px;
-				padding:10px;
-				text-align:right;
-			}
-			.col2 {
-				width:375px;
-				padding:10px;
-			}
-		</style>
-    	<link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
-	</head>
-	<body>
-	<?php
+    <head> 
+        <TITLE><?php echo xlt('Taskman: Documents in openEMR'); ?></TITLE> 
+        <style>
+            .wrapper {
+                margin:20px;
+            }
+            .col1 {
+                font-weight:bold;
+                width:100px;
+                padding:10px;
+                text-align:right;
+            }
+            .col2 {
+                width:375px;
+                padding:10px;
+            }
+        </style>
+        <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
+    </head>
+    <body>
+    <?php
     if ($task['DOC_TYPE'] == 'Fax') {
         ?>
-		<div class='wrapper'>
+        <div class='wrapper'>
         <?php echo report_header($task['PATIENT_ID'],'PDF'); ?>
-			<br />
-	 		<br />
-	 		<br />
-	 		<br />
-	 		<br />
-	 		<br />
-	 		<br />
-	 		<hr />
-   			<table>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <hr />
+            <table>
                 <tr>
                     <td class='col1'><?php echo xlt('From'); ?>:</td>
                     <td class='col2'>
                         <?php echo text($from_name); ?><br />
-							
+                            
                     </td>
                 </tr>
                 <tr>
@@ -389,37 +389,37 @@ function make_document($task)
                     <td class='col2'>
                         <?php echo text($to_data['street'])."<br />
                             ".text($to_data['city']).", ".text($to_data['state'])." ".text($to_data['zip']); ?>
-				 			<br />
-				 		</td>
-				 	</tr>
-				 	<tr>
-				 		<td class='col1'>
-				 			<?php echo xlt('Phone'); ?>:
-				 		</td>
-				 		<td class='col2'>
-				 			<?php echo text($to_data['phonew1']); ?>
-				 		</td>
-				 	</tr>
-				 	<tr>
-				 		<td class='col1'>
-				 			<?php echo xlt('Fax'); ?>: 
-				 		</td>
-				 		<td class='col2'>
-				 			<?php echo text($to_data['fax']); ?>
-				 		</td>
-				 	</tr>
-				 	<tr><td colspan="2"><br /><hr /></td></tr>
-				 	<tr>
-				 		<td class='col1'>
-				 			<?php echo xlt('Comments'); ?>: 
-				 		</td>
-						<td class='col2'><?php echo xlt('Report of visit');
+                            <br />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='col1'>
+                            <?php echo xlt('Phone'); ?>:
+                        </td>
+                        <td class='col2'>
+                            <?php echo text($to_data['phonew1']); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='col1'>
+                            <?php echo xlt('Fax'); ?>: 
+                        </td>
+                        <td class='col2'>
+                            <?php echo text($to_data['fax']); ?>
+                        </td>
+                    </tr>
+                    <tr><td colspan="2"><br /><hr /></td></tr>
+                    <tr>
+                        <td class='col1'>
+                            <?php echo xlt('Comments'); ?>: 
+                        </td>
+                        <td class='col2'><?php echo xlt('Report of visit');
 ?>: <?php echo text($pt_name);
 ?> on <?php echo $visit_date; ?>
-						</td>
-					</tr>
-			</table>
-		</div>
+                        </td>
+                    </tr>
+            </table>
+        </div>
     <?php
         echo '<page></page><div style="page-break-after:always; clear:both"></div>';
     }
@@ -430,7 +430,7 @@ function make_document($task)
         echo narrative($pid, $encounter, $task['DOC_TYPE'], $form_id);
         ?>
     </body>
-	</html>
+    </html>
     <?php
     global $web_root, $webserver_root;
     $content = ob_get_clean();

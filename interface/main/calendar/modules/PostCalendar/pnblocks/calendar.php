@@ -198,7 +198,7 @@ function postcalendar_calendarblock_display($blockinfo)
 
         $month_view_start = date('Y-m-d',mktime(0,0,0,$the_month,1,$the_year));
         $month_view_end   = date('Y-m-t',mktime(0,0,0,$the_month,1,$the_year));
-        $today_date 	  = postcalendar_today('%Y-%m-%d');
+        $today_date       = postcalendar_today('%Y-%m-%d');
         $starting_date    = date('m/d/Y',mktime(0,0,0,$the_month,1-$first_day,$the_year));
         $ending_date      = date('m/t/Y',mktime(0,0,0,$the_month+$pcbeventsrange,1,$the_year));
 

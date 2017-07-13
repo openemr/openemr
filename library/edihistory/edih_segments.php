@@ -141,12 +141,12 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
         //
         if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
             $sar = explode($de, $seg);
-            if ($sar[3] == '20') {						// level code
-                $loopid = '2000A';						// billing provider (clinic)
+            if ($sar[3] == '20') {                      // level code
+                $loopid = '2000A';                      // billing provider (clinic)
             } elseif ($sar[3] == '22') {
-                $loopid = '2000B';						// subscriber
+                $loopid = '2000B';                      // subscriber
             } elseif ($sar[3] == '23' || $sar[3] == 'PT') {
-                $loopid = '2000C';						// dependent
+                $loopid = '2000C';                      // dependent
                 $has_eb = false;
             } else {
                 //debug
@@ -401,15 +401,15 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
         //
         if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
             $sar = explode($de, $seg);
-            if ($sar[3] == '20') {						// level code
-                $loopid = '2000A';						// info source (payer)
+            if ($sar[3] == '20') {                      // level code
+                $loopid = '2000A';                      // info source (payer)
             } elseif ($sar[3] == '21') {
-                $loopid = '2000B';						// info receiver (clinic)
+                $loopid = '2000B';                      // info receiver (clinic)
             } elseif ($sar[3] == '22') {
-                $loopid = '2000C';						// subscriber
+                $loopid = '2000C';                      // subscriber
                 $has_eb = false;
             } elseif ($sar[3] == '23') {
-                $loopid = '2000D';						// dependent
+                $loopid = '2000D';                      // dependent
                 $has_eb = false;
             } else {
                 //debug
@@ -428,7 +428,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
             }
             switch((string)$loopid) {
                 case '2000A': $loopid = '2100A';
-break; 	// edih_change_loop($lptest, &$lpval)
+break;  // edih_change_loop($lptest, &$lpval)
                 case '2000B': $loopid = '2100B';
 break;
                 case '2000C': $loopid = '2100C';
@@ -654,16 +654,16 @@ function edih_277_text($segments, $delimiter, $stpos='')
         //
         if ( strncmp('HL'.$de, $seg, 3) === 0 ) {
             $sar = explode($de, $seg);
-            if ($sar[3] == '20') {						// level code
-                $loopid = '2000A';						// info source (payer)
+            if ($sar[3] == '20') {                      // level code
+                $loopid = '2000A';                      // info source (payer)
             } elseif ($sar[3] == '21') {
-                $loopid = '2000B';						// info receiver (clinic)
+                $loopid = '2000B';                      // info receiver (clinic)
             } elseif ($sar[3] == '19') {
-                $loopid = '2000C';						// provider
+                $loopid = '2000C';                      // provider
             } elseif ($sar[3] == '22' || $sar[3] == 'PT') {
-                $loopid = '2000D';						// subscriber
+                $loopid = '2000D';                      // subscriber
             } elseif ($sar[3] == '23') {
-                $loopid = '2000E';						// dependent
+                $loopid = '2000E';                      // dependent
             } else {
                 //debug
                 csv_edihist_log('edih_277_text: HL has no level '.$seg);
@@ -682,7 +682,7 @@ function edih_277_text($segments, $delimiter, $stpos='')
             }
             switch((string)$loopid) {
                 case '2000A': $loopid = '2100A';
-break; 	// edih_change_loop($lptest, &$lpval)
+break;  // edih_change_loop($lptest, &$lpval)
                 case '2000B': $loopid = '2100B';
 break;
                 case '2000C': $loopid = '2100C';
@@ -819,26 +819,26 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
         if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
             $sar = explode($de, $seg);
             $hl = $sar[1];
-            $hlpc = $sar[2];							// parent code
+            $hlpc = $sar[2];                            // parent code
             $hllc = $sar[3];
-            $hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
-            if ($sar[3] == '20') {						// level code
-                $loopid = '2000A';						// info source (payer)
+            $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+            if ($sar[3] == '20') {                      // level code
+                $loopid = '2000A';                      // info source (payer)
                 $title = 'Info Source';
             } elseif ($sar[3] == '21') {
-                $loopid = '2000B';						// info receiver (clinic)
+                $loopid = '2000B';                      // info receiver (clinic)
                 $title = 'Info Receiver';
             } elseif ($sar[3] == '22') {
-                $loopid = '2000C';						// subscriber
+                $loopid = '2000C';                      // subscriber
                 $title = 'Subscriber';
             } elseif ($sar[3] == '23') {
-                $loopid = '2000D';						// dependent
+                $loopid = '2000D';                      // dependent
                 $title = 'Dependent';
             } elseif ($sar[3] == 'EV') {
-                $loopid = '2000E';						// patient event
+                $loopid = '2000E';                      // patient event
                 $title = 'Patient Event';
             } elseif ($sar[3] == 'SS') {
-                $loopid = '2000F';						// service
+                $loopid = '2000F';                      // service
                 $title = 'Service';
             } else {
                 //debug
@@ -856,11 +856,11 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
             if ($loopid == '2000A') {
                 $loopid == '2010A';  // Source
             } elseif ( $loopid == '2000B' ) {
-                $loopid = '2010B';	 // Receiver
+                $loopid = '2010B';   // Receiver
             } elseif ( $loopid == '2000C' ) {
-                $loopid = '2010C';	 // Subscriber
+                $loopid = '2010C';   // Subscriber
             } elseif ( $loopid == '2000D') {
-                $loopid = '2010D';	 // Dependent
+                $loopid = '2010D';   // Dependent
             } elseif ( $loopid == '2000E' || strpos($loopid, '010E') ) {    // Patient Event
                 $loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010EA' : $loopid;
                 $loopid = (strpos('|45|FS|ND|PW|R3', $nm101) ) ? '2010EB' : $loopid;

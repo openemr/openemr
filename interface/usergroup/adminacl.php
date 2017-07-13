@@ -25,26 +25,26 @@ if (!isset($phpgacl_location)) {
     exit;
 }
 ?>
-		
+        
 <html>
 <head>
  <script type="text/JavaScript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-1/index.js"></script>
- <script type="text/JavaScript" src="../../library/js/jquery.livequery101.js"></script>	
+ <script type="text/JavaScript" src="../../library/js/jquery.livequery101.js"></script> 
  <script type="text/JavaScript">
-	
- $(document).ready(function(){	
+    
+ $(document).ready(function(){  
   
   //Show membership section by default
   $("#membership_show").click();
   membership_show();
   //Show membership section by default
-				
-  $("a.link_submit").livequery("click", function(){	
+                
+  $("a.link_submit").livequery("click", function(){ 
    generic_click(this);
    return false;
   });
   
-  $("input.button_submit").livequery("click", function(){	
+  $("input.button_submit").livequery("click", function(){   
    generic_click(this);
    return false;
   });
@@ -52,12 +52,12 @@ if (!isset($phpgacl_location)) {
   $("#membership_show").livequery("click", function(){
    membership_show();
    return;
-  });	
+  });   
 
   $("#acl_show").livequery("click", function(){
    acl_show();
    return;
-  });	
+  });   
   
   $("input.button_acl_add").livequery("click", function(){
    //if Clear, then reset form
@@ -65,7 +65,7 @@ if (!isset($phpgacl_location)) {
     $("#acl_error").empty();
     $("#div_acl_add_form span.alert").empty();
     return;
-   }	
+   }    
    //if Cancel, then reset/hide form and show create/remove acl links
    if (this.id == "button_acl_add_cancel") {
     $("#div_acl_add_form").hide("slow");
@@ -74,7 +74,7 @@ if (!isset($phpgacl_location)) {
     $("#none_acl_returns").show();
     $("#none_acl_list").show();
     return;
-   }	
+   }    
    //Submit selected, so send ajax request
    title = $("#title_field").val();
    identifier = $("#id_field").val();
@@ -88,22 +88,22 @@ if (!isset($phpgacl_location)) {
      control: "acl",
      action: "add",
      title: title,
-     identifier: identifier,	
+     identifier: identifier,    
      return_value: return_value,
      description: description
     },
-    success: function(xml){	
+    success: function(xml){ 
      //if successful, then show new group
      if ($(xml).find("success").text() == "SUCCESS") {
       $("#button_acl_add_cancel").click();
       acl_show();
-     }			
+     }          
      //Remove Loading indicator and old errors, then display new errors
-     $("#div_acl_add_form span.loading").hide();	
+     $("#div_acl_add_form span.loading").hide();    
      $("#acl_error").empty();
      $("#div_acl_add_form span.alert").empty();
      $(xml).find("error").each(function(){
-      temparray = $(this).text().split("_");	
+      temparray = $(this).text().split("_");    
       $("#" + temparray[0] + "_error").append(temparray[1]);
      });
      $("#acl_error").show();
@@ -121,16 +121,16 @@ if (!isset($phpgacl_location)) {
      $("#acl_error").show();
     }
    });
-   return false;	
+   return false;    
   });
   
-  $("input.button_acl_remove").livequery("click", function(){	
+  $("input.button_acl_remove").livequery("click", function(){   
    //if Clear, then reset form
    if (this.id == "button_acl_remove_clear") {
     $("#acl_error").empty();
     $("#div_acl_remove_form span.alert").empty();
     return;
-   }	
+   }    
    //if Cancel, then reset/hide form and show create/remove acl links
    if (this.id == "button_acl_remove_cancel") {
     $("#div_acl_remove_form").hide("slow");
@@ -146,11 +146,11 @@ if (!isset($phpgacl_location)) {
     $("#remove_confirm_error").empty();
     $("#remove_confirm_error").append("<?php xl('Select Yes to confirm group deletion','e'); ?>");    
     return false;
-   }	
+   }    
    //Delete and confirmed, so send ajax request
    temparray = $("#acl_field").val().split("-");
    title = temparray[0];
-   return_value = temparray[1];	
+   return_value = temparray[1]; 
    $.ajax({
     type: "POST",
     url: "../../library/ajax/adminacl_ajax.php",
@@ -166,7 +166,7 @@ if (!isset($phpgacl_location)) {
      if ($(xml).find("success").text() == "SUCCESS") {
       $("#button_acl_remove_cancel").click();
       acl_show();
-     }	
+     }  
      //Remove Loading indicator and old errors, then display new errors
      $("#div_acl_remove_form span.loading").hide();
      $("#acl_error").empty();
@@ -188,12 +188,12 @@ if (!isset($phpgacl_location)) {
      $("#acl_error").empty();
      $("#acl_error").append("<span class='alert'><?php xl('ERROR, unable to collect data from server','e'); ?><br></span>");
      $("#acl_error").show();
-    }	
+    }   
    });
    return false;
   });
-  	    
-  function membership_show() {		
+        
+  function membership_show() {      
    if (!$("#membership_show").attr("checked")) {
     $("#membership_error").empty();
     $("#membership").hide("slow");
@@ -212,7 +212,7 @@ if (!isset($phpgacl_location)) {
      $("#membership_error").empty();
      $("#membership").empty();
      $(xml).find("user").each(function(){
-      username = $(this).find("username").text();     	
+      username = $(this).find("username").text();       
       $("#membership").append("<div id='link_" + username + "'><span class='text'>" + username + "</span><a class='link_submit' href='no_javascript' id='" + username + "_membership_list' title='<?php xl('Edit','e');
 ?> " + username + "'>(<?php xl('Edit','e');
 ?>)</a></span><a class='link_submit' href='no_javascript' id='" + username +  "_membership_hide' style='display: none' title='<?php xl('Hide','e');
@@ -225,9 +225,9 @@ if (!isset($phpgacl_location)) {
 ?>' id='" + username  + "_membership_remove' value=' >> '></p></td><td align='center'><select name='inactive[]' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='<?php xl('Add','e'); ?>' id='" + username + "_membership_add' value=' << ' ></p></td></tr></table></div>");
       if ($(this).find("alert").text() == "no membership") {
        $("#link_" + username + " span.alert").show();              
-      }	
+      } 
      });
-     //Show the username list and remove loading indicator		
+     //Show the username list and remove loading indicator      
      $("#membership").show("slow");
      $("#membership_edit span.loading:first").hide();
     },
@@ -241,13 +241,13 @@ if (!isset($phpgacl_location)) {
      $("#membership_error").empty();
      $("#membership_error").append("<span class='alert'><?php xl('ERROR, unable to collect data from server','e'); ?><br><br></span>");
      $("#membership_error").show();
-    }	
+    }   
    });
-   return;	
+   return;  
   }
-		
+        
   function acl_show() {
-   if (!$("#acl_show").attr("checked")) {	
+   if (!$("#acl_show").attr("checked")) {   
     $("#acl_error").empty();
     $("#none_acl_returns").hide();
     $("#none_acl_list").hide();
@@ -255,7 +255,7 @@ if (!isset($phpgacl_location)) {
     $("#div_acl_add_form").hide("slow");
     $("#div_acl_remove_form").hide("slow");
     return;
-   }	
+   }    
    //Send ajax request
    $.ajax({
     type: "POST",
@@ -283,13 +283,13 @@ if (!isset($phpgacl_location)) {
 ?>...</span></div><div id='acl_error_" + titleDash + "_" + return_value + "'></div><div id='acl_" + titleDash + "_" + return_value  + "' style='display: none'><table border='1' bgcolor='white' cellpadding='3' cellspacing='2'><tr><td align='center'><span class='bold'><?php xl('Active','e');
 ?></span></td><td align='center'><span class='bold'><?php xl('Inactive','e');
 ?></span></td></tr><tr><td align='center'><select name='active[]' size='6' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='<?php xl('Remove','e');
-?>' id='" + titleDash  +"_aco_remove_" + return_value  + "' value=' >> '></p></td><td align='center'><select name='inactive[]' size='6' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='<?php xl('Add','e'); ?>' id='" + titleDash  + "_aco_add_" + return_value  + "' value=' << ' ></p></td></tr></table></div>");	
+?>' id='" + titleDash  +"_aco_remove_" + return_value  + "' value=' >> '></p></td><td align='center'><select name='inactive[]' size='6' multiple></select><br /><p align='center'><input class='button_submit' type='button' title='<?php xl('Add','e'); ?>' id='" + titleDash  + "_aco_add_" + return_value  + "' value=' << ' ></p></td></tr></table></div>");    
      });
      //Show the acl list and add link. Remove loading indicator.
      $("#acl").show("slow");
      $("#acl_edit span.loading:first").hide();
      $("#none_acl_returns").show();
-     $("#none_acl_list").show();	
+     $("#none_acl_list").show();    
     },
     beforeSend: function(){
      //Show Loading indicator
@@ -301,11 +301,11 @@ if (!isset($phpgacl_location)) {
      $("#acl_error").empty();
      $("#acl_error").append("<span class='alert'><?php xl('ERROR, unable to collect data from server','e'); ?><br><br></span>");
      $("#acl_error").show();
-    }	
+    }   
    });
-   return;		
+   return;      
   }
-		
+        
   function generic_click(cthis) {
    //set up variables and html page pointers
    temparray = cthis.id.split("_");
@@ -332,13 +332,13 @@ if (!isset($phpgacl_location)) {
      contentPointer = "#div_acl_add_form";
     }
     else if (action == "list") {
-     contentPointer = "#div_acl_remove_form"; 	
-    }	
+     contentPointer = "#div_acl_remove_form";   
+    }   
     linkPointer = "#acl_edit";
     linkPointerPost =":first";
     errorPointer = "#acl_error";
    }
-	
+    
    //If clicked Hide link
    if (action == "hide") {
     //Remove stuff and  show Edit link
@@ -347,21 +347,21 @@ if (!isset($phpgacl_location)) {
     $(linkPointer + " a.link_submit:last").hide();
     $(linkPointer + " a.link_submit:first").show();
     return;
-   }			
-		
+   }            
+        
    //If clicked Add with ACO or membership, then collect selections
    if (action == "add" && !(control == "acl")) {
     var selected = [];
     selected = $(contentPointer + " select:last").val();
-   }	
+   }    
    
-   //If clicked Remove with ACO or membership, then collect selections			
+   //If clicked Remove with ACO or membership, then collect selections          
    if (action == "remove" && !(control == "acl")) {
     var selected = [];
     selected = $(contentPointer + " select:first").val();
-   }	
-	
-   //Send ajax request	
+   }    
+    
+   //Send ajax request  
    $.ajax({
     type: "POST",
     url: "../../library/ajax/adminacl_ajax.php",
@@ -374,20 +374,20 @@ if (!isset($phpgacl_location)) {
      return_value: return_value
     },
     success: function(xml){
-	
+    
      //SPECIAL CASES to show the add/remove acl form, then exit
      if (identity == "none" && control == "acl") {
       $(contentPointer + " select").empty();
       if (action == "returns") {
        $(xml).find("return").each(function(){
-        $(contentPointer + " select").append("<option value='" + $(this).find("returnid").text() + "'>" + $(this).find("returntitle").text() + "</option>");	
+        $(contentPointer + " select").append("<option value='" + $(this).find("returnid").text() + "'>" + $(this).find("returntitle").text() + "</option>");    
        });
       }
       else if (action == "list") {
        $(xml).find("acl").each(function(){
-	$(contentPointer + " select").append("<option value='" + $(this).find("value").text() + "-" + $(this).find("returnid").text() + "'>" + $(this).find("title").text() + "-" + $(this).find("returntitle").text() + "</option>");
+    $(contentPointer + " select").append("<option value='" + $(this).find("value").text() + "-" + $(this).find("returnid").text() + "'>" + $(this).find("title").text() + "-" + $(this).find("returntitle").text() + "</option>");
        });
-      }	
+      } 
       $(contentPointer + " option").removeAttr('selected');
       $(contentPointer).show("slow");
       $("#none_acl_returns").hide();
@@ -395,7 +395,7 @@ if (!isset($phpgacl_location)) {
       $(linkPointer + " span.loading" + linkPointerPost).hide();
       return; 
      }
-	
+    
      if (control == "membership") {
       //Remove, then re-populate, then set size of selection boxes
       $(contentPointer + " select").empty();
@@ -406,9 +406,9 @@ if (!isset($phpgacl_location)) {
        counterActive = counterActive + 1;
       });
       $(xml).find("inactive").find("group").each(function(){
-	$(contentPointer + " select:last").append("<option value='" + $(this).find("value").text() + "'>" + $(this).find("label").text() + "</option>");
+    $(contentPointer + " select:last").append("<option value='" + $(this).find("value").text() + "'>" + $(this).find("label").text() + "</option>");
        counterInactive = counterInactive + 1;
-      });	
+      });   
       $(contentPointer + " option").removeAttr('selected');
       if (counterActive > counterInactive) {
        size = counterActive;
@@ -422,8 +422,8 @@ if (!isset($phpgacl_location)) {
       if (counterActive > 0) {
        //ensure remove the no active group alert
        $(linkPointer  + " span.alert").hide();
-      }	
-     }		
+      } 
+     }      
     
      if (control == "acl" || control == "aco") {
       //Remove, then re-populate, then set size of selection boxes
@@ -434,45 +434,45 @@ if (!isset($phpgacl_location)) {
        $(contentPointer + " select:first").append("<optgroup label='" + $(this).find("name").text() + "'>");
        counterActive = counterActive + 1;
        $(this).find("aco").each(function(){
-	$(contentPointer + " select:first").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
-	counterActive = counterActive + 1;
+    $(contentPointer + " select:first").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
+    counterActive = counterActive + 1;
        });
-      $(contentPointer + " select:first").append("</optgroup>");	
+      $(contentPointer + " select:first").append("</optgroup>");    
       });
       $(xml).find("inactive").find("section").each(function(){      
        $(contentPointer + " select:last").append("<optgroup label='" + $(this).find("name").text() + "'>");
-       counterInactive = counterInactive + 1;	
+       counterInactive = counterInactive + 1;   
        $(this).find("aco").each(function(){
         $(contentPointer + " select:last").append("<option value='" + $(this).find("id").text() + "'>" + $(this).find("title").text() + "</option>");
-	counterInactive = counterInactive + 1;
-       });		
+    counterInactive = counterInactive + 1;
+       });      
        $(contentPointer + " select:last").append("</optgroup>");
-      });	
+      });   
       $(contentPointer + " option").removeAttr('selected');
       if (counterActive > counterInactive) {
        size = counterActive;
-      }	
+      } 
       else {
        size = counterInactive;
-      }	
+      } 
       if (size > 15) {
        size = 15;
-      }	
-     }	
+      } 
+     }  
 
      //display the selection boxes
      $(contentPointer + " select").attr('size', size);
      $(contentPointer).show("slow");
-	
-     if (action == "list") {		
+    
+     if (action == "list") {        
       //Remove Edit link and show Hide link
       $(linkPointer + " a.link_submit:first").hide();
       $(linkPointer + " a.link_submit:last").show();
      }
-	
+    
      //Remove Loading indicator
      $(linkPointer + " span.loading" + linkPointerPost).hide();
-	
+    
      //Remove old errors, then display any new errors to user
      $(errorPointer).empty();
      $(xml).find("error").each(function(){
@@ -483,47 +483,47 @@ if (!isset($phpgacl_location)) {
     beforeSend:  function(){
      //Show Loading indicator
      $(linkPointer + " span.loading" + linkPointerPost).show();
-    },		
-    error: function(){	
-     //Remove Loading indicator and show errors	
+    },      
+    error: function(){  
+     //Remove Loading indicator and show errors 
      $(linkPointer + " span.loading" + linkPointerPost).hide();
      $(errorPointer).empty();
      $(errorPointer).append("<span class='alert'><?php xl('ERROR, unable to collect data from server','e'); ?><br></span>");
      $(errorPointer).show();
-    }	
+    }   
    });
   return;
-  }    				     
+  }                      
  });
  </script>
-		
+        
  <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
  <style type="text/css">
   body {
    padding: 5pt 15pt 5pt 5pt;
    margin: 0pt;
-  }		
+  }     
   .loading {
    font-family: sans-serif;
    text-decoration: blink;
    font-size: 10pt;
    color: red;
-   font-weight:	bold;
+   font-weight: bold;
   }
   .alert {
-   font-family:	sans-serif;
+   font-family: sans-serif;
    font-size: 10pt;
    color: red;
-   font-weight:	bold;
-  }			
+   font-weight: bold;
+  }         
   .section {
   border: solid;
   border-width: 1px;
   border-color: #0000ff;
   margin: 0 0 10pt 10pt;
-  padding: 5pt;	
+  padding: 5pt; 
   }
- </style>	
+ </style>   
 </head>
 
 <body class="body_top">
@@ -531,7 +531,7 @@ if (!isset($phpgacl_location)) {
     <?php if ($phpgacl_location) {
         echo "<a href='../../gacl/admin/acl_admin.php' onclick='top.restoreSession()'><span class='back'>(" . xl('Advanced') . ")</span></a>";
 } ?>
- <br><br>	
+ <br><br>   
  <div id='membership_edit'>
   <span class=bold><input type='checkbox' id='membership_show'><?php xl('User Memberships','e'); ?></span>
   <span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('LOADING','e'); ?>...</span>
@@ -558,7 +558,7 @@ if (!isset($phpgacl_location)) {
       <td>
        <span class='text'><?php xl('Title','e'); ?>:</span>
       </td>
-      <td>	 
+      <td>   
        <input type="text" id="title_field"><td><span class="alert" id="title_error"></span></td>
       </td>
      </tr>
@@ -583,7 +583,7 @@ if (!isset($phpgacl_location)) {
        <span class='text'><?php xl('Description','e'); ?>:</span>
       </td>
       <td>
-       <input type="text" id="desc_field"><td><span class="alert" id="description_error"></span></td>	
+       <input type="text" id="desc_field"><td><span class="alert" id="description_error"></span></td>   
       </td>
      </tr>
     </table>
@@ -613,9 +613,9 @@ if (!isset($phpgacl_location)) {
        <span class='text'><?php xl('Do you really want to delete this group','e'); ?>?</span>
       </td>
       <td>
-	<input type="radio" name="acl_remove_confirm" value = "yes"><span class='text'><?php xl('Yes','e'); ?></span>
-	<input type="radio" name="acl_remove_confirm" value = "no" checked><span class='text'><?php xl('No','e'); ?></span>
-	<td><span class="alert" id="remove_confirm_error"></span></td>
+    <input type="radio" name="acl_remove_confirm" value = "yes"><span class='text'><?php xl('Yes','e'); ?></span>
+    <input type="radio" name="acl_remove_confirm" value = "no" checked><span class='text'><?php xl('No','e'); ?></span>
+    <td><span class="alert" id="remove_confirm_error"></span></td>
       </td>
      </tr>
     </table>

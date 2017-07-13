@@ -127,7 +127,7 @@ if ($upgrade != 1) {
             continue;
         if ($line == "")
             continue;
-        $query = $query.$line;		// Check for full query
+        $query = $query.$line;      // Check for full query
         $chr = substr($query,strlen($query)-1,1);
         if ($chr == ";") { // valid query, execute
             $query = rtrim($query,";");
@@ -226,9 +226,9 @@ fclose($fd);
     $contents = preg_replace('/\$web_root\s+=\s+[\"\'].*?[\"\'];/',
         "\$web_root = '/".$newname."';",$contents);
     file_put_contents($d.'/interface/globals.php',$contents);
-if (rename($d,$dn.'/'.$newname)) {
-    echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
-}
+  if (rename($d,$dn.'/'.$newname)) {
+      echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
+    }
 }
 ?>
 </body>

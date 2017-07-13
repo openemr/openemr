@@ -32,20 +32,20 @@
 
  // Add a string to output with some basic sanitizing.
 function Add($field)
- {
+{
     global $out;
     $out .= "^" . trim(str_replace(array("\r", "\n", "\t"), " ", $field));
 }
 
  // Remove all non-digits from a string.
 function Digits($field)
- {
+{
     return preg_replace("/\D/", "", $field);
 }
 
  // Translate sex.
 function Sex($field)
- {
+{
     $sex = strtoupper(substr(trim($field), 0, 1));
     if ($sex != "M" && $sex != "F") $sex = "U";
     return $sex;
@@ -53,14 +53,14 @@ function Sex($field)
 
  // Translate a date.
 function LWDate($field)
- {
+{
     $tmp = fixDate($field);
     return substr($tmp, 5, 2) . substr($tmp, 8, 2) . substr($tmp, 0, 4);
 }
 
  // Translate insurance type.
 function InsType($field)
- {
+{
     if (! $field)    return "";
     if ($field == 2) return "Medicare";
     if ($field == 3) return "Medicaid";
@@ -69,7 +69,7 @@ function InsType($field)
 
  // Error abort function that does not leave the system locked.
 function mydie($msg)
- {
+{
     global $EXPORT_PATH;
     rename("$EXPORT_PATH/locked", "$EXPORT_PATH/unlocked");
     die($msg);

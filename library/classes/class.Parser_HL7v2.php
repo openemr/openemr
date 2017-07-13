@@ -13,7 +13,7 @@ class Parser_HL7v2 {
     var $MSH;
     var $EVN;
 
-    function __construct ( $message, $_options = null )
+    function __construct( $message, $_options = null )
     {
         // Assume separator is a pipe
         $this->message = $message;
@@ -22,7 +22,7 @@ class Parser_HL7v2 {
             $this->options = $_options;
         }
     }
-    function parse ()
+    function parse()
     {
         $message = $this->message;
         // Split HL7v2 message into lines
@@ -99,7 +99,7 @@ class Parser_HL7v2 {
 
     //----- All handlers go below here
 
-    function _EVN ($segment)
+    function _EVN($segment)
     {
         $composites = $this->__parse_segment ($segment);
         if ($this->options['debug']) {
@@ -118,7 +118,7 @@ class Parser_HL7v2 {
         ) = $composites;
     } // end method _EVN
 
-    function _MSH ($segment)
+    function _MSH($segment)
     {
         // Get separator
         $this->field_separator = substr($segment, 0, 1);
@@ -157,7 +157,7 @@ class Parser_HL7v2 {
 
     //----- Truly internal functions
 
-    function __default_segment_parser ($segment)
+    function __default_segment_parser($segment)
     {
         $composites = $this->__parse_segment($segment);
 
@@ -194,12 +194,12 @@ class Parser_HL7v2 {
         $this->map[$pos][$type] = $composites;
     } // end method __default_segment_parser
 
-    function __parse_composite ($composite)
+    function __parse_composite($composite)
     {
         return explode('^', $composite);
     } // end method __parse_composite
 
-    function __parse_segment ($segment)
+    function __parse_segment($segment)
     {
         return explode($this->field_separator, $segment);
     } // end method __parse_segment

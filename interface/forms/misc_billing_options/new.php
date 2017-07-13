@@ -132,11 +132,11 @@ function genProviderSelect($selname, $toptext, $default=0, $disabled=false)
     <td><?php  # Build a drop-down list of providers. # Added (TLH)
                genProviderSelect('provider_id', '-- '.xl("Please Select").' --',$obj{"provider_id"});
         ?></td>&nbsp;&nbsp;
-	<td><span class=text><?php  echo xlt('BOX 17. Provider Qualifier'); ?>: </span>
-	<tr><td><?php
+    <td><span class=text><?php  echo xlt('BOX 17. Provider Qualifier'); ?>: </span>
+    <tr><td><?php
                 echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code',$obj{"provider_qualifier_code"}, 'Provider Qualifier Code');
             ?></td>
-	</tr></td>
+    </tr></td>
 <br><br>
 <tr>
  <td><span class=text><?php echo xlt('BOX 18. Hospitalization date from');?>:</span></td>

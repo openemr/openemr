@@ -101,31 +101,31 @@ function edih_278_transaction_html($obj278, $bht03)
             if (strncmp($seg, 'HL'.$de, 3) === 0 ) {
                 $sar = explode($de, $seg);
                 $hl = $sar[1];
-                $hlpc = $sar[2];							// parent code
+                $hlpc = $sar[2];                            // parent code
                 $hllc = $sar[3];
-                $hlcc = (isset($sar[4])) ? $sar[4] : '';	// child code
-                if ($sar[3] == '20') {						// level code
+                $hlcc = (isset($sar[4])) ? $sar[4] : '';    // child code
+                if ($sar[3] == '20') {                      // level code
                     $loopid = '2000A';
-                    $cls = 'src';					// info source (payer)
+                    $cls = 'src';                   // info source (payer)
                     $src_html .= "<tr class='$cls'><td colspan=4><b>Information Source</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '21') {
                     $loopid = '2000B';
-                    $cls = 'rcv';							// info receiver (clinic)
+                    $cls = 'rcv';                           // info receiver (clinic)
                     $rcv_html .= "<tr class='$cls'><td colspan=4><b>Information Receiver</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '22') {
-                    $loopid = '2000C';						// subscriber
+                    $loopid = '2000C';                      // subscriber
                     $cls = 'sbr';
                     $sbr_nm1_html .= "<tr class='$cls'><td colspan=4><b>Subscriber</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == '23') {
-                    $loopid = '2000D';						// dependent
+                    $loopid = '2000D';                      // dependent
                     $cls = 'dep';
                     $dep_nm1_html .= "<tr class='$cls'><td colspan=4><b>Dependent</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == 'EV') {
-                    $loopid = '2000E';						// patient event
+                    $loopid = '2000E';                      // patient event
                     $cls = 'evt';
                     $evt_html .= "<tr class='$cls'><td colspan=4><b>Patient Event</b></td></tr>".PHP_EOL;
                 } elseif ($sar[3] == 'SS') {
-                    $loopid = '2000F';						// service
+                    $loopid = '2000F';                      // service
                     $cls = 'svc';
                     $svc_html .= "<tr class='$cls'><td colspan=4><b>Service</b></td></tr>".PHP_EOL;
                 }
@@ -479,14 +479,14 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $id = "Services Delivery";
                 $tr_str = '';
-                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('HSD01', $sar[1]) : '';	// quantity qualifier
-                $elem02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';									// numeric quantity
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('HSD01', $sar[3]) : '';	// measurement unit
-                $elem04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';									// sample selection modulus
-                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('EB06', $sar[5]) : '';	// time period qualifier
-                $elem06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';									// number of periods
-                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('HSD07', $sar[7]) : '';	// delivery
-                $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('HSD08', $sar[8]) : '';	// delivery
+                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('HSD01', $sar[1]) : '';    // quantity qualifier
+                $elem02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';                                   // numeric quantity
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('HSD01', $sar[3]) : '';    // measurement unit
+                $elem04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';                                   // sample selection modulus
+                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('EB06', $sar[5]) : ''; // time period qualifier
+                $elem06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';                                   // number of periods
+                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('HSD07', $sar[7]) : '';    // delivery
+                $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('HSD08', $sar[8]) : '';    // delivery
                 //
                 if ( ($elem01 || $elem02) && !$elem08 ) {
                     $tr_str .= ($elem03 && $elem04 && $elem06) ? "<tr class='$cls'><td><em>$id</em></td><td colspan=3>$elem02 $elem01 per every $elem04 $elem03 for $elem06 $elem05 $elem07</td></tr>".PHP_EOL : "";
@@ -509,13 +509,13 @@ function edih_278_transaction_html($obj278, $bht03)
                 // Certification
                 $sar = explode($de, $seg);
                 //
-                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('CRC01', $sar[1]) : '';	// certification type code
-                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('HCR04', $sar[2]) : '';	// condition indicater
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CRC03', $sar[3]) : '';	// condition descripter
-                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CRC03', $sar[4]) : '';	// condition descripter
-                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('CRC03', $sar[5]) : '';	// condition descripter
-                $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('CRC03', $sar[6]) : '';	// condition descripter
-                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('CRC03', $sar[7]) : '';	// condition descripter
+                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('CRC01', $sar[1]) : '';    // certification type code
+                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('HCR04', $sar[2]) : '';    // condition indicater
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CRC03', $sar[3]) : '';    // condition descripter
+                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CRC03', $sar[4]) : '';    // condition descripter
+                $elem05 = (isset($sar[5]) && $sar[5]) ? $cd27x->get_271_code('CRC03', $sar[5]) : '';    // condition descripter
+                $elem06 = (isset($sar[6]) && $sar[6]) ? $cd27x->get_271_code('CRC03', $sar[6]) : '';    // condition descripter
+                $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('CRC03', $sar[7]) : '';    // condition descripter
                 //
                 $evt_html .= ($elem01) ? "<tr class='$cls'><td><em>$elem01</em></td><td colspan=3><em>Conditions Apply:</em> $elem02</td></tr>".PHP_EOL : "";
                 $evt_html .= ($elem03) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL : "";
@@ -532,9 +532,9 @@ function edih_278_transaction_html($obj278, $bht03)
                 $sar = explode($de, $seg);
                 //
                 $tr_str = '';
-                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('CL101', $sar[1]) : '';	// admission type code
-                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('CL102', $sar[2]) : '';	// admission source code
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CL103', $sar[3]) : '';	// patient status code
+                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('CL101', $sar[1]) : '';    // admission type code
+                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('CL102', $sar[2]) : '';    // admission source code
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CL103', $sar[3]) : '';    // patient status code
                 //
                 $tr_str .= "<tr class='$cls'><td><em>Hospital</em> </td><td colspan=3>$elem01 $elem02</td></tr>".PHP_EOL;
                 $tr_str .= ($elem03) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$elem03</td></tr>".PHP_EOL : "";
@@ -551,7 +551,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 //  ambulance
                 $sar = explode($de, $seg);
                 //
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR103', $sar[3]) : '';	// ambulance transit code
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR103', $sar[3]) : '';    // ambulance transit code
                 if ( isset($sar[5]) ) {
                     if ($sar[5] == 'DH') {
                         $elem05 = "miles";
@@ -576,8 +576,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $elem01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : "";
                 $elem02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : "";
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR203', $sar[3]) : "";	// spinal code
-                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR203', $sar[4]) : "";	// spinal code
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR203', $sar[3]) : "";    // spinal code
+                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR203', $sar[4]) : "";    // spinal code
                 $elem04 = ($elem04) ? "-- ".$elem04 : "";
                 // elem05 -- elem12 not used
                 //
@@ -591,8 +591,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 $sar = explode($de, $seg);
                 //
                 $tr_str = '';
-                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR503', $sar[3]) : "";	// oxygen code
-                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR503', $sar[4]) : "";	// oxygen code
+                $elem03 = (isset($sar[3]) && $sar[3]) ? $cd27x->get_271_code('CR503', $sar[3]) : "";    // oxygen code
+                $elem04 = (isset($sar[4]) && $sar[4]) ? $cd27x->get_271_code('CR503', $sar[4]) : "";    // oxygen code
                 $elem06 = (isset($sar[6]) && $sar[6]) ? "Flow (lpm): ".$sar[6] : "";
                 $elem07 = (isset($sar[7]) && $sar[7]) ? "Times/day: ".$sar[7] : "";
                 $elem08 = (isset($sar[8]) && $sar[8]) ? "Hours: ".$sar[8] : "";
@@ -622,8 +622,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 //  oxygen
                 $sar = explode($de, $seg);
                 //
-                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('UM07', $sar[1]) : "";	// patient condition code
-                $elem02 = (isset($sar[2]) && $sar[2]) ? edih_format_date($sar[2]) : "";				// HH start date
+                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('UM07', $sar[1]) : ""; // patient condition code
+                $elem02 = (isset($sar[2]) && $sar[2]) ? edih_format_date($sar[2]) : "";             // HH start date
                 $elem03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : "";
                 $elem04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : "";
                 if ( $elem03 == 'D8' && $elem04) {
@@ -633,7 +633,7 @@ function edih_278_transaction_html($obj278, $bht03)
                     $elem04 = $var.' - '.edih_format_date( substr($elem04, -8) );
                 }
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('HCR04', $sar[8]) : "";
-                $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('CR608', $sar[8]) : "";	// certification type code
+                $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('CR608', $sar[8]) : "";    // certification type code
                 //
                 $evt_html .= "<tr class='$cls'><td><em>Home Health</em></td><td><em>HH Began</em> $elem02</td><td colspan=2>$elem01</td></tr>".PHP_EOL;
                 $evt_html .= ($elem03 || $elem04) ? "<tr class='$cls'><td>&gt;</td><td colspan=2><em>Period</em> $elem04</td><td>(MCR) $elem07</td></tr>".PHP_EOL : "";
@@ -648,8 +648,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
                 $tr_str = '';
                 //
-                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('PWK01', $sar[1]) : "";	// paperwork code
-                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('PWK02', $sar[2]) : "";	// delivery code
+                $elem01 = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('PWK01', $sar[1]) : "";    // paperwork code
+                $elem02 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('PWK02', $sar[2]) : "";    // delivery code
                 $elem05 = (isset($sar[5]) && $sar[5] == 'AC') ? "Attachment Control Number" : "";
                 $elem06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : "";
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : "";

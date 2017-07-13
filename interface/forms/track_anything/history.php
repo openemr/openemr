@@ -53,21 +53,21 @@ if(!$ASC_DESC) {
 
 // set up some vars
 //-------------------
-$items_c 		= 0; 		# (count how many items are tracked)
-$items_n 		= array(); 	# (save items names)
-$row_gl 		= 0; 		# (global count of data_rows)
-$row_lc 		= 0;		# (local count of data_rows)
-$hidden_loop 	= '';		# (collects all <input type='hidden'> entries )
-$date_global 	= array();	# (collects items datetime for global rows)
-$value_global 	= array(); 	# (collects items' values [global array])
-$date_local 	= array(); 	# (collects items' datetime for local row)
-$value_local 	= array(); 	# (collects item's values [local array])
-$save_item_flag = 0;		# flag to get item_names
-$localplot 		= 0;		# flag if local plot-button is shown
-$localplot_c	= array();  # dummy counter for localplot
-$globalplot		= 0;		# flag if global plot-button is shown
-$globalplot_c	= array();	# flag if global plot-button is shown
-$track_count	= 0;		# counts tracks and generates div-ids
+$items_c        = 0;        # (count how many items are tracked)
+$items_n        = array();  # (save items names)
+$row_gl         = 0;        # (global count of data_rows)
+$row_lc         = 0;        # (local count of data_rows)
+$hidden_loop    = '';       # (collects all <input type='hidden'> entries )
+$date_global    = array();  # (collects items datetime for global rows)
+$value_global   = array();  # (collects items' values [global array])
+$date_local     = array();  # (collects items' datetime for local row)
+$value_local    = array();  # (collects item's values [local array])
+$save_item_flag = 0;        # flag to get item_names
+$localplot      = 0;        # flag if local plot-button is shown
+$localplot_c    = array();  # dummy counter for localplot
+$globalplot     = 0;        # flag if global plot-button is shown
+$globalplot_c   = array();  # flag if global plot-button is shown
+$track_count    = 0;        # counts tracks and generates div-ids
 //-----------end setup vars
 
 
@@ -102,7 +102,7 @@ function getCheckedBoxes(chkboxName) {
 // this is automatically called by swfobject.embedSWF()
 //------------------------------------------------------
 function open_flash_chart_data(){
-	return JSON.stringify(data);
+    return JSON.stringify(data);
 }
 //------------------------------------------------------
 
@@ -114,33 +114,33 @@ var data;
 // plot the current graph
 //------------------------------------------------------
 function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, trackCount){
-	top.restoreSession();
-	return $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
-		     type: 'POST',
-		     data: { dates:  thedates, 
-				     values: thevalues, 
-				     items:  theitems, 
-				     track:  thetrack, 
-				     thecheckboxes: checkedBoxes
-				   },
-			 dataType: "json",  
-			 success: function(returnData){
-				 // ofc will look after a variable named "ofc"
-				 // inside of the flashvar
-				 // However, we need to set both
-				 // data and flashvars.ofc 
-				 data=returnData;
-				 flashvars.ofc = returnData;
-				 // call ofc with proper falshchart
-					swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf', 
-					"graph"+trackCount, "650", "200", "9.0.0","",flashvars);  
-			},
-			error: function (XMLHttpRequest, textStatus, errorThrown) {
-				alert(XMLHttpRequest.responseText);
-				//alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
-			}
-	
-	}); // end ajax query	
+    top.restoreSession();
+    return $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+             type: 'POST',
+             data: { dates:  thedates, 
+                     values: thevalues, 
+                     items:  theitems, 
+                     track:  thetrack, 
+                     thecheckboxes: checkedBoxes
+                   },
+             dataType: "json",  
+             success: function(returnData){
+                 // ofc will look after a variable named "ofc"
+                 // inside of the flashvar
+                 // However, we need to set both
+                 // data and flashvars.ofc 
+                 data=returnData;
+                 flashvars.ofc = returnData;
+                 // call ofc with proper falshchart
+                    swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf', 
+                    "graph"+trackCount, "650", "200", "9.0.0","",flashvars);  
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.responseText);
+                //alert("XMLHttpRequest="+XMLHttpRequest.responseText+"\ntextStatus="+textStatus+"\nerrorThrown="+errorThrown);
+            }
+    
+    }); // end ajax query   
 }
 //------------------------------------------------------
 </script>
@@ -227,13 +227,13 @@ while($myrow = sqlFetchArray($query)){
     $track_count++;
     
     // reset local arrays;
-    $date_local 	= array(); 	# (collects items' datetime for local row)
-    $value_local 	= array(); 	# (collects item's values [local array])
-    $localplot_c 	= array(); // counter to decide if graph-button is shown
-    $shownameflag 	= 0; // show table-head	?
-    $localplot	  	= 0; // show graph-button?
-    $col 			= 0; // how many Items per row
-    $row_lc 		= 0; // local row counter
+    $date_local     = array();  # (collects items' datetime for local row)
+    $value_local    = array();  # (collects item's values [local array])
+    $localplot_c    = array(); // counter to decide if graph-button is shown
+    $shownameflag   = 0; // show table-head	?
+    $localplot      = 0; // show graph-button?
+    $col            = 0; // how many Items per row
+    $row_lc         = 0; // local row counter
     //--- end reset local arrays
 
     
@@ -266,7 +266,7 @@ while($myrow = sqlFetchArray($query)){
         if ($shownameflag==1){
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
             while($myrow3 = sqlFetchArray($query3)){
-                echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>";	//
+                echo "<th class='item'>&nbsp;" . text($myrow3['the_name']) . "&nbsp;</th>"; //
 
                 if($save_item_flag == 0) {
                     $items_n[$items_c] = $myrow3['the_name']; // save item names
@@ -352,22 +352,22 @@ while($myrow = sqlFetchArray($query)){
 ?>
 <script type="text/javascript">	
 function get_my_graph<?php echo attr($track_count); ?>(where){
-	top.restoreSession();
-	if(where=="local"){
-		//alert("local");
-		var thedates = JSON.stringify(<?php echo json_encode($date_local); ?>);
-		var thevalues =  JSON.stringify(<?php echo json_encode($value_local); ?>);
-	}
-	if(where=="global"){
-		//alert("global");
-		var thedates = JSON.stringify(<?php echo json_encode($date_global); ?>);
-		var thevalues =  JSON.stringify(<?php echo json_encode($value_global); ?>);
-	}
+    top.restoreSession();
+    if(where=="local"){
+        //alert("local");
+        var thedates = JSON.stringify(<?php echo json_encode($date_local); ?>);
+        var thevalues =  JSON.stringify(<?php echo json_encode($value_local); ?>);
+    }
+    if(where=="global"){
+        //alert("global");
+        var thedates = JSON.stringify(<?php echo json_encode($date_global); ?>);
+        var thevalues =  JSON.stringify(<?php echo json_encode($value_global); ?>);
+    }
 
-	var checkedBoxes = JSON.stringify(getCheckedBoxes("check_col<?php echo attr($track_count) ?>"));
-	var theitems = JSON.stringify(<?php echo json_encode($items_n); ?>);
-	var thetrack = JSON.stringify(<?php echo json_encode($the_procedure_name); ?>);
-	plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, <?php echo attr($track_count); ?>);
+    var checkedBoxes = JSON.stringify(getCheckedBoxes("check_col<?php echo attr($track_count) ?>"));
+    var theitems = JSON.stringify(<?php echo json_encode($items_n); ?>);
+    var thetrack = JSON.stringify(<?php echo json_encode($the_procedure_name); ?>);
+    plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, <?php echo attr($track_count); ?>);
 }
 </script>
 <?php

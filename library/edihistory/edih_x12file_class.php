@@ -82,7 +82,7 @@ class edih_x12_file {
     function __construct($file_path='', $mk_segs=true, $text=false )
     {
         //
-        if ($file_path === '') { return true;	}
+        if ($file_path === '') { return true;   }
         //
         if ( is_file($file_path) && is_readable($file_path) ) {
             $this->filepath = trim($file_path);
@@ -163,33 +163,47 @@ class edih_x12_file {
 	 *  functions to return properties
 	 */
     public function classname()
-    { return get_class($this); }
+    {
+        return get_class($this); }
     public function edih_filepath()
-    { return $this->filepath; }
+    {
+        return $this->filepath; }
     public function edih_filename()
-    { return $this->filename; }
+    {
+        return $this->filename; }
     public function edih_type()
-    { return $this->type; }
+    {
+        return $this->type; }
     public function edih_version()
-    { return $this->version; }
+    {
+        return $this->version; }
     public function edih_text()
-    { return $this->text; }
+    {
+        return $this->text; }
     public function edih_length()
-    { return $this->length; }
+    {
+        return $this->length; }
     public function edih_valid()
-    { return $this->valid; }
+    {
+        return $this->valid; }
     public function edih_isx12()
-    { return $this->isx12; }
+    {
+        return $this->isx12; }
     public function edih_hasGS()
-    { return $this->hasGS; }
+    {
+        return $this->hasGS; }
     public function edih_hasST()
-    { return $this->hasST; }
+    {
+        return $this->hasST; }
     public function edih_delimiters()
-    { return $this->delimiters; }
+    {
+        return $this->delimiters; }
     public function edih_segments()
-    { return $this->segments; }
+    {
+        return $this->segments; }
     public function edih_envelopes()
-    { return $this->envelopes; }
+    {
+        return $this->envelopes; }
 
     /**
      * message statements regarding object or from functions
@@ -582,7 +596,7 @@ class edih_x12_file {
                 $env_ar['ISA'][$icn]['sender'] = trim($seg_ar[6]);
                 $env_ar['ISA'][$icn]['receiver'] = trim($seg_ar[8]);
                 $env_ar['ISA'][$icn]['icn'] = $icn;
-                $env_ar['ISA'][$icn]['date'] = trim($seg_ar[9]); 	// YYMMDD
+                $env_ar['ISA'][$icn]['date'] = trim($seg_ar[9]);    // YYMMDD
                 $env_ar['ISA'][$icn]['version'] = trim($seg_ar[12]);
                 //
                 $isa_segs_ct = 1;
@@ -1318,7 +1332,7 @@ break;
             if ($stn) {
                 $srchstr = ($srchstr) ? $srchstr : $f_str;
                 $sttp = $this->gstype_ar[$ft];
-                $seg_st = $dt.'ST'.$de.$sttp.$de.$stn	;
+                $seg_st = $dt.'ST'.$de.$sttp.$de.$stn   ;
                 $seg_se = $dt.'SE'.$de;
                 // $segpos = 1;
                 $stpos = strpos($srchstr, $seg_st);

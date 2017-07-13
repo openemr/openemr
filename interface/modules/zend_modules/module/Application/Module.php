@@ -40,13 +40,13 @@ class Module
     {
         return array(
         'factories' => array(
-          'CommonPlugin' => function($sm) {
+          'CommonPlugin' => function ($sm) {
                 $sm = $sm->getServiceLocator();
                 return new Plugin\CommonPlugin($sm);
-            }
+          }
         ),
         
-        'Phimail' => function($sm) {
+        'Phimail' => function ($sm) {
             $sm = $sm->getServiceLocator();
             return new Plugin\Phimail($sm);
         },
@@ -57,12 +57,12 @@ class Module
     {
         return array(
         'factories' => array(
-          'Application\Model\ApplicationTable' =>  function($sm) {
+          'Application\Model\ApplicationTable' =>  function ($sm) {
                 $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                 $table = new ApplicationTable($dbAdapter);
                 return $table;
-            },
-            'Application\Model\SendtoTable' =>  function($sm) {
+          },
+            'Application\Model\SendtoTable' =>  function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
                     $table = new SendtoTable($dbAdapter);
                     return $table;

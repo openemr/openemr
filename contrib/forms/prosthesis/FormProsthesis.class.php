@@ -62,8 +62,8 @@ class FormProsthesis extends ORDataObject {
     var $given_instructions;
     var $patient_understands;
 
-    var $cpt_array = array( "L0500" => "L0500 LS corset", 			"L3010" => "L3010 Molded FO", 			"L3010" => "L3020 Molded FO + Met pad",
-                            "L3221" => "L3221 Men's depth shoes", 	"L3216" => "L3216 Women's depth shoes", "L3332" => "L3332 In-shoe .5\" heel lift",
+    var $cpt_array = array( "L0500" => "L0500 LS corset",           "L3010" => "L3010 Molded FO",           "L3010" => "L3020 Molded FO + Met pad",
+                            "L3221" => "L3221 Men's depth shoes",   "L3216" => "L3216 Women's depth shoes", "L3332" => "L3332 In-shoe .5\" heel lift",
                             "L8100" => "L8100 BK comp hose (20-30mmHg)","L8110" => "L8110 BK comp hose (30-40mmHg)", "L8130" => "L8130 AK comp hose (20-30mmHg)",
                             "L8140" => "L8140 AK comp hose (30-40mmHg)");
 
@@ -447,6 +447,6 @@ class FormProsthesis extends ORDataObject {
         return $this->patient_understands;
     }
 
-}	// end of Form
+}   // end of Form
 
 ?>

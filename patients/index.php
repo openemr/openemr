@@ -56,7 +56,7 @@ if (!(isset($_SESSION['password_update']))) {
         if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
             $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
             $res3=SqlStatement($sql);
-          }
+        }
         else {
           // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
@@ -68,14 +68,14 @@ if (!(isset($_SESSION['password_update']))) {
                  "ld.lang_id = ? " .
                  "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
             $res3=SqlStatement($sql, array($mainLangID) );
-          }
+        }
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++) {
             $result3[$iter] = $row;
-          }
+        }
         if (count($result3) == 1) {
           //default to english if only return one language
             $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
-          }
+        }
     }
     else {
         $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
@@ -102,18 +102,18 @@ if (!(isset($_SESSION['password_update']))) {
                 return false;
             }
         }
-	function validate() {
+    function validate() {
             var pass=true;            
-	    if (document.getElementById('uname').value == "") {
-		document.getElementById('uname').style.border = "1px solid red";
+        if (document.getElementById('uname').value == "") {
+        document.getElementById('uname').style.border = "1px solid red";
                 pass=false;
-	    }
-	    if (document.getElementById('pass').value == "") {
-		document.getElementById('pass').style.border = "1px solid red";
+        }
+        if (document.getElementById('pass').value == "") {
+        document.getElementById('pass').style.border = "1px solid red";
                 pass=false;
-	    }
+        }
             return pass;
-	}
+    }
         function process_new_pass() {
 
             if (!(validate_new_pass())) {
@@ -152,13 +152,13 @@ if (!(isset($_SESSION['password_update']))) {
         }
     </script>
     <style type="text/css">
-	body {
-	    font-family: sans-serif;
-	    background-color: #638fd0;
-	    
-	    background: -webkit-radial-gradient(circle, white, #638fd0);
-	    background: -moz-radial-gradient(circle, white, #638fd0);
-	}
+    body {
+        font-family: sans-serif;
+        background-color: #638fd0;
+        
+        background: -webkit-radial-gradient(circle, white, #638fd0);
+        background: -moz-radial-gradient(circle, white, #638fd0);
+    }
 
     </style>
     
@@ -207,19 +207,19 @@ if (!(isset($_SESSION['password_update']))) {
       </div>
     <?php } else { ?>
       <div id="wrapper" class="centerwrapper">
-	<h2 class="title"><?php echo htmlspecialchars( xl('Patient Portal Login'), ENT_NOQUOTES); ?></h2>
-	<form action="get_patient_info.php" method="POST" onsubmit="return process()" >
-	    <table>
-		<tr>
-		    <td class="algnRight"><?php echo htmlspecialchars( xl('User Name'), ENT_NOQUOTES); ?></td>
-		    <td><input name="uname" id="uname" type="text" autocomplete="off" /></td>
-		</tr>
-		<tr>
-		    <td class="algnRight"><?php echo htmlspecialchars( xl('Password'), ENT_NOQUOTES);?></>
-		    <td>
-			<input name="pass" id="pass" type="password" autocomplete="off" />
-		    </td>
-		</tr>
+    <h2 class="title"><?php echo htmlspecialchars( xl('Patient Portal Login'), ENT_NOQUOTES); ?></h2>
+    <form action="get_patient_info.php" method="POST" onsubmit="return process()" >
+        <table>
+        <tr>
+            <td class="algnRight"><?php echo htmlspecialchars( xl('User Name'), ENT_NOQUOTES); ?></td>
+            <td><input name="uname" id="uname" type="text" autocomplete="off" /></td>
+        </tr>
+        <tr>
+            <td class="algnRight"><?php echo htmlspecialchars( xl('Password'), ENT_NOQUOTES);?></>
+            <td>
+            <input name="pass" id="pass" type="password" autocomplete="off" />
+            </td>
+        </tr>
 
                 <?php if ($GLOBALS['language_menu_login']) { ?>
                     <?php if (count($result3) != 1) { ?>
@@ -247,12 +247,12 @@ if (!(isset($_SESSION['password_update']))) {
                   </tr>
                 <?php }} ?>
 
-		<tr>
-		    <td colspan=2><br><center><input type="submit" value="<?php echo htmlspecialchars( xl('Log In'), ENT_QUOTES);?>" /></center></td>
-		</tr>
-	    </table>
+        <tr>
+            <td colspan=2><br><center><input type="submit" value="<?php echo htmlspecialchars( xl('Log In'), ENT_QUOTES);?>" /></center></td>
+        </tr>
+        </table>
             <?php if (!(empty($hiddenLanguageField))) echo $hiddenLanguageField; ?>
-	</form>
+    </form>
     
         <div class="copyright"><?php echo htmlspecialchars( xl('Powered by'), ENT_NOQUOTES);?> OpenEMR</div>
       </div>
@@ -265,26 +265,26 @@ if (!(isset($_SESSION['password_update']))) {
 
 <?php // if something went wrong
 if (isset($_GET['w'])) { ?>    
-	var unique_id = $.gritter.add({
-	    title: '<span class="red"><?php echo htmlspecialchars( xl('Oops!'), ENT_QUOTES);?></span>',
-	    text: '<?php echo htmlspecialchars( xl('Something went wrong. Please try again.', ENT_QUOTES)); ?>',
-	    sticky: false,
-	    time: '5000',
-	    class_name: 'my-nonsticky-class'
-	});    
+    var unique_id = $.gritter.add({
+        title: '<span class="red"><?php echo htmlspecialchars( xl('Oops!'), ENT_QUOTES);?></span>',
+        text: '<?php echo htmlspecialchars( xl('Something went wrong. Please try again.', ENT_QUOTES)); ?>',
+        sticky: false,
+        time: '5000',
+        class_name: 'my-nonsticky-class'
+    });    
 <?php } ?>
 
 <?php // if successfully logged out
 if (isset($_GET['logout'])) { ?>    
-	var unique_id = $.gritter.add({
-	    title: '<span class="green"><?php echo htmlspecialchars( xl('Success'), ENT_QUOTES);?></span>',
-	    text: '<?php echo htmlspecialchars( xl('You have been successfully logged out.'), ENT_QUOTES);?>',
-	    sticky: false,
-	    time: '5000',
-	    class_name: 'my-nonsticky-class'
-	});    
+    var unique_id = $.gritter.add({
+        title: '<span class="green"><?php echo htmlspecialchars( xl('Success'), ENT_QUOTES);?></span>',
+        text: '<?php echo htmlspecialchars( xl('You have been successfully logged out.'), ENT_QUOTES);?>',
+        sticky: false,
+        time: '5000',
+        class_name: 'my-nonsticky-class'
+    });    
 <?php } ?>
-	return false;
+    return false;
     
     });
 </script>

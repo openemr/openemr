@@ -33,7 +33,7 @@
  *  @return object
  */
 
-function sigJsonToImage ($json, $options = array())
+function sigJsonToImage($json, $options = array())
 {
     $defaultOptions = array(
             'imageSize' => array(240,70)
@@ -211,7 +211,7 @@ break;
  *
  *  @return void
  */
-function drawThickLine ($img, $startX, $startY, $endX, $endY, $colour, $thickness)
+function drawThickLine($img, $startX, $startY, $endX, $endY, $colour, $thickness)
 {
     $angle = (atan2(($startY - $endY), ($endX - $startX)));
 

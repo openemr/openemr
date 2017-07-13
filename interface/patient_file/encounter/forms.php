@@ -79,13 +79,13 @@ if (!empty($_GET['attachid'])) {
 <script type="text/javascript">
 $.noConflict();
 jQuery(document).ready( function($) {
-	var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
+    var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
     $(".esign-button-form").esign(
-    	formConfig,
+        formConfig,
         {
             afterFormSuccess : function( response ) {
                 if ( response.locked ) {
-                	var editButtonId = "form-edit-button-"+response.formDir+"-"+response.formId;
+                    var editButtonId = "form-edit-button-"+response.formDir+"-"+response.formId;
                     $("#"+editButtonId).replaceWith( response.editButtonHtml );
                 }
 
@@ -94,12 +94,12 @@ jQuery(document).ready( function($) {
                     $("#"+logId).replaceWith( html );
                 });
             }
-		}
+        }
     );
 
     var encounterConfig = <?php echo $esignApi->encounterConfigToJson(); ?>;
     $(".esign-button-encounter").esign(
-    	encounterConfig,
+        encounterConfig,
         {
             afterFormSuccess : function( response ) {
                 // If the response indicates a locked encounter, replace all
@@ -107,11 +107,11 @@ jQuery(document).ready( function($) {
                 // nav visit form links
                 if ( response.locked ) {
                     // Lock the form edit buttons
-                	$(".form-edit-button").replaceWith( response.editButtonHtml );
-                	// Disable the new-form capabilities in left nav
-                	top.window.parent.left_nav.syncRadios();
+                    $(".form-edit-button").replaceWith( response.editButtonHtml );
+                    // Disable the new-form capabilities in left nav
+                    top.window.parent.left_nav.syncRadios();
                     // Disable the new-form capabilities in top nav of the encounter
-                	$(".encounter-form-category-li").remove();
+                    $(".encounter-form-category-li").remove();
                 }
 
                 var logId = "esign-signature-log-encounter-"+response.encounterId;
@@ -119,7 +119,7 @@ jQuery(document).ready( function($) {
                     $("#"+logId).replaceWith( html );
                 });
             }
-		}
+        }
     );
 
     $(".onerow").mouseover(function() { $(this).toggleClass("highlight"); });
@@ -169,15 +169,15 @@ jQuery(document).ready( function($) {
             var mode = "add";
             // Enable the reconciliation checkbox
             $("#med_reconc_perf").removeAttr("disabled");
-	    $("#soc_provided").removeAttr("disabled");
+        $("#soc_provided").removeAttr("disabled");
         }
         else {
             var mode = "remove";
             //Disable the reconciliation checkbox (also uncheck it if applicable)
             $("#med_reconc_perf").attr("disabled", true);
             $("#med_reconc_perf").removeAttr("checked");
-	    $("#soc_provided").attr("disabled",true);
-	    $("#soc_provided").removeAttr("checked");
+        $("#soc_provided").attr("disabled",true);
+        $("#soc_provided").removeAttr("checked");
         }
         top.restoreSession();
         $.post( "../../../library/ajax/amc_misc_data.php",
@@ -276,40 +276,40 @@ if (!isset($_GET['attachid'])) {
 
 <script language="javascript">
 function expandcollapse(atr){
-	if(atr == "expand") {
-		for(i=1;i<15;i++){
-			var mydivid="divid_"+i;var myspanid="spanid_"+i;
-				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				if (typeof(ele) != 'undefined' && ele != null)
-					ele.style.display = "block";
-				if (typeof(text) != 'undefined' && text != null)
-					text.innerHTML = "<?php xl('Collapse','e'); ?>";
-		}
-  	}
-	else {
-		for(i=1;i<15;i++){
-			var mydivid="divid_"+i;var myspanid="spanid_"+i;
-				var ele = document.getElementById(mydivid);	var text = document.getElementById(myspanid);
-				if (typeof(ele) != 'undefined' && ele != null)
-					ele.style.display = "none";
-				if (typeof(text) != 'undefined' && text != null)
-					text.innerHTML = "<?php xl('Expand','e'); ?>";
-		}
-	}
+    if(atr == "expand") {
+        for(i=1;i<15;i++){
+            var mydivid="divid_"+i;var myspanid="spanid_"+i;
+                var ele = document.getElementById(mydivid); var text = document.getElementById(myspanid);
+                if (typeof(ele) != 'undefined' && ele != null)
+                    ele.style.display = "block";
+                if (typeof(text) != 'undefined' && text != null)
+                    text.innerHTML = "<?php xl('Collapse','e'); ?>";
+        }
+    }
+    else {
+        for(i=1;i<15;i++){
+            var mydivid="divid_"+i;var myspanid="spanid_"+i;
+                var ele = document.getElementById(mydivid); var text = document.getElementById(myspanid);
+                if (typeof(ele) != 'undefined' && ele != null)
+                    ele.style.display = "none";
+                if (typeof(text) != 'undefined' && text != null)
+                    text.innerHTML = "<?php xl('Expand','e'); ?>";
+        }
+    }
 
 }
 
 function divtoggle(spanid, divid) {
-	var ele = document.getElementById(divid);
-	var text = document.getElementById(spanid);
-	if(ele.style.display == "block") {
-		ele.style.display = "none";
-		text.innerHTML = "<?php xl('Expand','e'); ?>";
-  	}
-	else {
-		ele.style.display = "block";
-		text.innerHTML = "<?php xl('Collapse','e'); ?>";
-	}
+    var ele = document.getElementById(divid);
+    var text = document.getElementById(spanid);
+    if(ele.style.display == "block") {
+        ele.style.display = "none";
+        text.innerHTML = "<?php xl('Expand','e'); ?>";
+    }
+    else {
+        ele.style.display = "block";
+        text.innerHTML = "<?php xl('Collapse','e'); ?>";
+    }
 }
 </script>
 
@@ -481,7 +481,7 @@ if ( $esign->isButtonViewable() ) {
                 <span class="text"><?php echo xl('Medication Reconciliation Performed?') ?></span>
                 </td>
                 </tr>
-		<tr>
+        <tr>
                 <td>
                 <?php if (!(empty($itemAMC['soc_provided']))) { ?>
                     <input type="checkbox" id="soc_provided" checked>
@@ -563,8 +563,8 @@ foreach ($docs_list as $doc_iter) {
 <a href="<?php echo $doc_url;
 ?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
 <?php if($note != '') {?>
-			<a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
-	<?php }?>
+            <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
+    <?php }?>
 <?php } ?>
 </div>
 <?php } ?>

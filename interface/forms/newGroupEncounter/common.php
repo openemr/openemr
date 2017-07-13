@@ -202,19 +202,19 @@ function cancelClicked() {
      <td class='bold' nowrap><?php echo xlt('Visit Category'); ?>:</td>
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
-	<option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
+    <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
 <?php
  $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
   "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
-while ($crow = sqlFetchArray($cres)) {
-    $catid = $crow['pc_catid'];
-    if ($crow['pc_cattype'] != 3) continue;
-    echo "       <option value='" . attr($catid) . "'";
-  // mark therapy group's category as selected
-    if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
-    if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
-    echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-}
+ while ($crow = sqlFetchArray($cres)) {
+     $catid = $crow['pc_catid'];
+     if ($crow['pc_cattype'] != 3) continue;
+     echo "       <option value='" . attr($catid) . "'";
+    // mark therapy group's category as selected
+     if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
+     if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
+     echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+    }
 ?>
       </select>
      </td>
@@ -250,15 +250,15 @@ if ($fres) {
       </select>
      </td>
     </tr>
-	<tr>
-		<td class='bold' nowrap><?php echo xlt('Billing Facility'); ?>:</td>
-		<td class='text'>
-			<div id="ajaxdiv">
-			<?php
+    <tr>
+        <td class='bold' nowrap><?php echo xlt('Billing Facility'); ?>:</td>
+        <td class='text'>
+            <div id="ajaxdiv">
+            <?php
             billing_facility('billing_facility',$result['billing_facility']);
             ?>
-			</div>
-		</td>
+            </div>
+        </td>
      </tr>
         <?php if($GLOBALS['set_pos_code_encounter']){ ?>
         <tr>
@@ -341,9 +341,9 @@ foreach ($sensitivities as $value) {
        title='<?php echo xla('yyyy-mm-dd Date of onset or hospitalization'); ?>' />
      </td>
     </tr>
-	<tr>
+    <tr>
      <td class='text' colspan='2' style='padding-top:1em'>
-	 </td>
+     </td>
     </tr>
    </table>
 

@@ -24,7 +24,7 @@ require_once($GLOBALS['srcdir'] . "/openflashchart/php-ofc-library/open-flash-ch
 
 // get $_POSTed data
 //+++++++++++++++++++++++
-$titleGraph   	  = json_decode($_POST['track'],true);
+$titleGraph       = json_decode($_POST['track'],true);
 $the_date_array   = json_decode($_POST['dates'],true);
 $the_value_array  = json_decode($_POST['values'],true);
 $the_item_names   = json_decode($_POST['items'],true);
@@ -33,13 +33,13 @@ $the_checked_cols = json_decode($_POST['thecheckboxes'],true);
 $laenge = count($the_date_array);
 
 // set up colors for lines to plot
-$line_colors[]	= "#a40000";
-$line_colors[]	= "#5c3566";
-$line_colors[]	= "#204a87";
-$line_colors[]	= "#4e9a06";
-$line_colors[]	= "#babdb6";
-$line_colors[]	= "#0000FF";
-$line_colors[]	= "#DB1750";
+$line_colors[]  = "#a40000";
+$line_colors[]  = "#5c3566";
+$line_colors[]  = "#204a87";
+$line_colors[]  = "#4e9a06";
+$line_colors[]  = "#babdb6";
+$line_colors[]  = "#0000FF";
+$line_colors[]  = "#DB1750";
 
 
 

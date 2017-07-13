@@ -37,7 +37,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
     class RxList {
 
-        function getPage ( $query )
+        function getPage( $query )
         {
             $url = "http://www.rxlist.com/script/main/srchcont_rxlist.asp?src=".
             //$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
@@ -58,7 +58,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             } // end checking for successful open
         } // end function RxList::getPage
 
-        function get_list ( $query )
+        function get_list( $query )
         {
             $page = RxList::getPage($query);
             $tokens = RxList::parse2tokens($page);
@@ -113,7 +113,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
 
         /* WTF does this crap do? */
-        function tokens2hash ( $tokens )
+        function tokens2hash( $tokens )
         {
             $record = false;
             $current = 0;

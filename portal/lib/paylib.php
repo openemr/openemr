@@ -123,7 +123,8 @@ function CloseAudit( $pid, $amts, $cc, $action='payment posted', $paction='notif
     return 0;
 }
 function OnlinePayPost($type, $auditrec)
-{ // start of port for payments
+{
+ // start of port for payments
     $extra = json_decode($_POST['extra_values'], true);
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);

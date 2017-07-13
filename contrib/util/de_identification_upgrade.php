@@ -156,7 +156,7 @@ if (!empty($_POST['form_submit'])) {
         echo "\n";
         break;
     }
-        else
+    else
     echo "<font color='green'>";
     echo xl("File privilege granted to OpenEMR user.");
     echo "<br></font>\n";
@@ -209,26 +209,26 @@ else
 {
     xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process','e');?></p></br>
         <table class="de_id_upgrade_login" align="center">
-	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
-	<tr valign="top">
-		<td>&nbsp;</td>
-		<td><?php xl('Enter Database root Username','e'); ?></td>
-		<td>:</td>
-		<td> <input type='text' size='20' name='root_user_name' id='root_user_name'
-			value= "" title="<?php xl('Enter Database root Username','e'); ?>" /> </td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr valign="top">
-		<td>&nbsp;</td>
-		<td><?php xl('Enter Database root Password','e'); ?></td>
-		<td>:</td>
-		<td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
-			value= "" title="<?php xl('Enter Database root Password','e'); ?>" /> </td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
+    <tr valign="top">
+        <td>&nbsp;</td>
+        <td><?php xl('Enter Database root Username','e'); ?></td>
+        <td>:</td>
+        <td> <input type='text' size='20' name='root_user_name' id='root_user_name'
+            value= "" title="<?php xl('Enter Database root Username','e'); ?>" /> </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr valign="top">
+        <td>&nbsp;</td>
+        <td><?php xl('Enter Database root Password','e'); ?></td>
+        <td>:</td>
+        <td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
+            value= "" title="<?php xl('Enter Database root Password','e'); ?>" /> </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
 
-	</table>
+    </table>
 <p><input type='submit' name='form_submit' value="<?php xl('Upgrade Database','e');?>"  /></p>
 <?php } ?>
 </form>

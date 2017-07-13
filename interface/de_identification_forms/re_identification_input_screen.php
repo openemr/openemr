@@ -27,14 +27,14 @@ require_once("$srcdir/options.inc.php");
 <title><?php xl('Re Identification','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
-	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
-	type='text/css'>
+    href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
+    type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <style type="text/css">
 .style1 {
-	text-align: center;
+    text-align: center;
 }
 </style>
 <script language="JavaScript">
@@ -63,24 +63,24 @@ function download_file()
 <body class="body_top">
 <strong><?php xl('Re Identification','e');  ?></strong>
 <div id="overDiv"
-	style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+    style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 <form name="re_identification" enctype="Re_identification_ip_single_code"
-	action="re_identification_op_single_patient.php" method="POST" onsubmit="return form_validate();"><?php
+    action="re_identification_op_single_patient.php" method="POST" onsubmit="return form_validate();"><?php
     $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
     if (empty($row))
     {
         ?>
       <table>  <tr>    <td>&nbsp;</td> <td>&nbsp;</td> </tr>
-	      <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
+          <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
     </table>
     <table class="de_identification_status_message" align="center" >
        <tr valign="top">
-		<td>&nbsp;</td>
-		<td rowspan="3">
-		<br>
+        <td>&nbsp;</td>
+        <td rowspan="3">
+        <br>
         <?php echo xl('Please upgrade OpenEMR Database to include De Identification procedures, function, tables'); ?>
-	</br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
-	<?php echo xl('to run');
+    </br></br><a  target="Blank" href="../../contrib/util/de_identification_upgrade.php"><?php echo xl('Click here');?></a>
+    <?php echo xl('to run');
         echo " de_identification_upgrade.php</br>";?><br>
            </td>
            <td>&nbsp;</td>
@@ -130,7 +130,7 @@ function download_file()
             <?php echo xl('Re Identification Process is ongoing');
             echo "</br></br>";
             echo xl('Please visit Re Identification screen after some time');
-            echo "</br>";	?> <br>
+            echo "</br>";   ?> <br>
             </td>
             <td>&nbsp;</td>
         </tr>
@@ -190,7 +190,7 @@ function download_file()
             <?php echo xl('No Patient record found for the given Re Identification code');
             echo "</br></br>";
             echo xl('Please enter the correct Re Identification code');
-            echo "</br>";	?> </br>
+            echo "</br>";   ?> </br>
             </td>
             <td>&nbsp;</td>
         </tr>
@@ -231,7 +231,7 @@ function download_file()
             <?php echo xl('Re Identification Process is completed');
             echo "</br></br>";
             echo xl('Please Click download button to download the Re Identified data');
-            echo "</br>";	?> <br>
+            echo "</br>";   ?> <br>
             </td>
             <td>&nbsp;</td>
         </tr>

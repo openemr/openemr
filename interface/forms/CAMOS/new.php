@@ -1253,7 +1253,7 @@ formFooter();
 
 //PHP FUNCTIONS
 
-function fixquotes ($string)
+function fixquotes($string)
 {
 // this function is needed to treat a string before php echos it in the process of generating javascript.
 // commented out below line because I have replaced single quotes around php that generates javascript with double quotes so single quotes don't have to be 'fixed'.
@@ -1263,7 +1263,8 @@ function fixquotes ($string)
 }
 
 function searchName($string)
-{ //match one or more names and return clause for query of pids
+{
+ //match one or more names and return clause for query of pids
     $string = trim($string);
     if ($string == 'this') {
         return " and (pid = ".$_SESSION['pid'].") ";
@@ -1291,7 +1292,8 @@ function searchName($string)
     return $ret;
 }
 function getMyPatientData($form_id, $show_phone_flag)
-{//return a string of patient data and encounter data based on the form_CAMOS id
+{
+//return a string of patient data and encounter data based on the form_CAMOS id
     $ret = '';
     $name = '';
     $dob = '';

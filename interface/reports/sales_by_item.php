@@ -681,7 +681,7 @@ if (! $_POST['form_csvexport']) {
 </div> <!-- report results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
 </div>
 <?php } ?>
 

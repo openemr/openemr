@@ -27,7 +27,7 @@
 */
 require_once(dirname(__FILE__) . '/appointments.inc.php');
 
-function get_Tracker_Time_Interval ($tracker_from_time, $tracker_to_time, $allow_sec=false)
+function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec=false)
 {
 
     $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
@@ -191,7 +191,7 @@ function is_tracker_encounter_exist($apptdate,$appttime,$pid,$eid)
  # this function will return the tracker id that is managed
  # or will return false if no tracker id was managed (in the case of a recurrent appointment)
 function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$room='',$enc_id='')
- {
+{
 
   #First ensure the eid is not a recurrent appointment. If it is, then do not do anything and return false.
     $pc_appt =  sqlQuery("SELECT `pc_recurrtype` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", array($eid));

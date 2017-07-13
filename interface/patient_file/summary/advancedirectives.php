@@ -19,9 +19,9 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 function validate(f) {
 if (f.form_adreviewed.value == "")
 {
-	alert("<?php xl('Please enter a date for Last Reviewed.','e'); ?>");
-	f.form_adreviewed.focus();
-	return false;
+    alert("<?php xl('Please enter a date for Last Reviewed.','e'); ?>");
+    f.form_adreviewed.focus();
+    return false;
 }
  return true;
 }

@@ -129,7 +129,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                         case 1: $clp01 = $v;
                             $capstr = $v;
                             $tblid = $v;
-break;				// Pt ID CLM01
+break;              // Pt ID CLM01
                         case 2: $clp02 = $cd835->get_835_code('CLAIM_STATUS', $v);
 break;
                         case 3: $clp03 = ($v) ? "<em>Fee:</em> ".edih_format_money($v) : "0";
@@ -363,7 +363,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $sar = explode($de, $seg);
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
-                $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';  			// production date
+                $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';             // production date
                 $dtm05 = (isset($sar[5])) ? $sar[5] : '';
                 $dtm06 = (isset($sar[6])) ? edih_format_date($sar[2]) : '';
                 //
@@ -424,17 +424,17 @@ break;
                 //
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = '';
                 //
-                $clp01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';  										// Pt ID CLM01
+                $clp01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';                                        // Pt ID CLM01
                 $clp02 = (isset($sar[2]) && $sar[2]) ? $cd835->get_835_code('CLAIM_STATUS', $sar[2]) : '';  // status code
-                $clp03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : '0';  					// fee amont
-                $clp04 = (isset($sar[4]) && $sar[4]) ? edih_format_money($sar[4]) : '0';  					// paid amount
-                $clp05 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '0';  					// pt responsibility amont
-                $clp06 = (isset($sar[6]) && $sar[6]) ? $cd835->get_835_code('CLP06', $sar[6]) : '';  		// filing indicator code
-                $clp07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';  										// Payer reference ID
+                $clp03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : '0';                    // fee amont
+                $clp04 = (isset($sar[4]) && $sar[4]) ? edih_format_money($sar[4]) : '0';                    // paid amount
+                $clp05 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '0';                    // pt responsibility amont
+                $clp06 = (isset($sar[6]) && $sar[6]) ? $cd835->get_835_code('CLP06', $sar[6]) : '';         // filing indicator code
+                $clp07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';                                        // Payer reference ID
                 $clp08 = (isset($sar[8]) && $sar[8]) ? "<em>Location</em> ".$cd27x->get_271_code('POS', $sar[8]) : ''; // Faciliy code place of service
                 // frequency type code 1 original  7 replacement  8 void
                 $clp09ar = array('1'=>'original', '7'=>'replacement',  '8'=>'void');
-                if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar) ) { 															// claim frequency code
+                if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar) ) {                                                           // claim frequency code
                     $clp09 = "<em>Freq</em> ".$clp09ar[$sar[9]];
                 } else {
                     $clp09 = (isset($sar[9]) && $sar[9]) ? "<em>Freq</em> ".$sar[9] : "";
@@ -637,7 +637,7 @@ break;
                 //
                 $svc02 = (isset($sar[2]) && $sar[2]) ? edih_format_money($sar[2]) : "";  // billed amount
                 $svc03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : "";  // paid amount
-                $svc04 = (isset($sar[4]) && $sar[4]) ? "<em>NUBC</em> ".$sar[4] : "";	// NUBC revenue code
+                $svc04 = (isset($sar[4]) && $sar[4]) ? "<em>NUBC</em> ".$sar[4] : "";   // NUBC revenue code
                 $svc05 = (isset($sar[5]) && $sar[5]) ? "<em>Units</em> ".$sar[5] : "";  // quantity
                 //
                 $svc06 = '';
@@ -658,7 +658,7 @@ break;
                     }
                 }
                 
-                $svc07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : "";  					// original unis of service
+                $svc07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : "";                    // original unis of service
                 //
                 $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Service</em> $svc01 <em>Fee</em> $svc02 <em>Pmt</em> $svc03 $svc05 $svc04</td></tr>".PHP_EOL;
                 $svc_html .= ($svc06) ? "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Submitted Svc</em> $svc06 <em>Units</em> $svc07</td></tr>".PHP_EOL : "";
@@ -866,21 +866,21 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 $sar = explode($de, $seg);
                 $bpr01 = (isset($sar[1]) && $sar[1]) ? $cd835->get_835_code('BPR01', $sar[1]) : ''; // handling code
-                $bpr02 = (isset($sar[2]) && $sar[2]) ? edih_format_money($sar[2]) : ''; 			// full payment amount
-                $bpr03 = (isset($sar[3]) && $sar[3] == 'D' ) ? 'Debit' : 'Credit'; 					// credit or debit flag
-                $bpr04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';								// payment method ACH|CHK|NON
-                $bpr05 = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';								// payment format code CCP|CTX
-                $bpr06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';								// DFI ID qualifier
-                $bpr07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';								// bank ID
-                $bpr08 = (isset($sar[8]) && $sar[8]) ? $sar[8] : '';								// account no. qualifier DA
-                $bpr09 = (isset($sar[9]) && $sar[9]) ? $sar[9] : '';								// sender account number
-                $bpr10 = (isset($sar[10]) && $sar[10]) ? $sar[10] : '';								// originating company ID
-                $bpr11 = (isset($sar[11]) && $sar[11]) ? $sar[11] : '';								// originating company supplemental ID
-                $bpr12 = (isset($sar[12]) && $sar[12]) ? $sar[12] : '';								// deposit acount ID
-                $bpr13 = (isset($sar[13]) && $sar[13]) ? $sar[13] : '';								// deposit bank ID
-                $bpr14 = (isset($sar[14]) && $sar[14]) ? $sar[14] : '';								// account type DA deposit SG savings
-                $bpr15 = (isset($sar[15]) && $sar[15]) ? $sar[15] : '';								// account number
-                $bpr16 = (isset($sar[16]) && $sar[16]) ? edih_format_date($sar[16]) : ''; 			// check or payment date
+                $bpr02 = (isset($sar[2]) && $sar[2]) ? edih_format_money($sar[2]) : '';             // full payment amount
+                $bpr03 = (isset($sar[3]) && $sar[3] == 'D' ) ? 'Debit' : 'Credit';                  // credit or debit flag
+                $bpr04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';                                // payment method ACH|CHK|NON
+                $bpr05 = (isset($sar[5]) && $sar[5]) ? $sar[5] : '';                                // payment format code CCP|CTX
+                $bpr06 = (isset($sar[6]) && $sar[6]) ? $sar[6] : '';                                // DFI ID qualifier
+                $bpr07 = (isset($sar[7]) && $sar[7]) ? $sar[7] : '';                                // bank ID
+                $bpr08 = (isset($sar[8]) && $sar[8]) ? $sar[8] : '';                                // account no. qualifier DA
+                $bpr09 = (isset($sar[9]) && $sar[9]) ? $sar[9] : '';                                // sender account number
+                $bpr10 = (isset($sar[10]) && $sar[10]) ? $sar[10] : '';                             // originating company ID
+                $bpr11 = (isset($sar[11]) && $sar[11]) ? $sar[11] : '';                             // originating company supplemental ID
+                $bpr12 = (isset($sar[12]) && $sar[12]) ? $sar[12] : '';                             // deposit acount ID
+                $bpr13 = (isset($sar[13]) && $sar[13]) ? $sar[13] : '';                             // deposit bank ID
+                $bpr14 = (isset($sar[14]) && $sar[14]) ? $sar[14] : '';                             // account type DA deposit SG savings
+                $bpr15 = (isset($sar[15]) && $sar[15]) ? $sar[15] : '';                             // account number
+                $bpr16 = (isset($sar[16]) && $sar[16]) ? edih_format_date($sar[16]) : '';           // check or payment date
                 //
                 if ($bpr04 == 'NON') {
                     $pmt_html .= "<tr class='$cls'><td>$bpr16</td><td>$bpr03 $bpr04</td><td colspan=2>Non Payment</td></tr>".PHP_EOL;
@@ -954,7 +954,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $sar = explode($de, $seg);
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
-                $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';  			// production date
+                $dtm02 = (isset($sar[2])) ? edih_format_date($sar[2]) : '';             // production date
                 $dtm05 = (isset($sar[5])) ? $sar[5] : '';
                 $dtm06 = (isset($sar[6])) ? edih_format_date($sar[2]) : '';
                 //
@@ -982,7 +982,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $sar = explode($de, $seg);
                 //
                 $n101 = (isset($sar[1])) ? $cd27x->get_271_code('NM101', $sar[1]) : '';  // entity ID code
-                $n102 = (isset($sar[2])) ? $sar[2] : '';  								// name
+                $n102 = (isset($sar[2])) ? $sar[2] : '';                                // name
                 $n103 = (isset($sar[3])) ? $cd27x->get_271_code('NM108', $sar[3]) : '';  // entity ID type code
                 $n104 = (isset($sar[4])) ? $sar[4] : '';
                 //
@@ -1091,8 +1091,8 @@ break;
                 } elseif ($sar[1] == 'OL') {
                     $rdm01 = 'By online';
                 }
-                $rdm02 = (isset($sar[2])) ? $sar[2] : '';  								// name
-                $rdm03 = (isset($sar[3])) ? $sar[3] : '';  								// number
+                $rdm02 = (isset($sar[2])) ? $sar[2] : '';                               // name
+                $rdm03 = (isset($sar[3])) ? $sar[3] : '';                               // number
                 //
                 $pmt_html .= "<tr class='$cls'><td>$rdm01</td><td colspan=3>$rdm02 $rdm03</td></tr>".PHP_EOL;
                 //
@@ -1136,11 +1136,11 @@ break;
                 // this looks like a medicare part A or hospital remittance segment
                 // segment TS2 gives DRG totals -- not read in this sequence. If you need it, code it
                 $loopid = '2000';
-                $ts301 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';  								// Provider ID
+                $ts301 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';                                // Provider ID
                 $ts302 = (isset($sar[2]) && $sar[2]) ? $cd27x->get_271_code('POS', $sar[2]) : '';  // Facility Code (place of service)
-                $ts303 = (isset($sar[3]) && $sar[3]) ? edih_format_date($sar[3]) : '';  			// date - last day of provider fiscal year
-                $ts304 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';  								// quantity
-                $ts305 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '';  			// monetary amount
+                $ts303 = (isset($sar[3]) && $sar[3]) ? edih_format_date($sar[3]) : '';              // date - last day of provider fiscal year
+                $ts304 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';                                // quantity
+                $ts305 = (isset($sar[5]) && $sar[5]) ? edih_format_money($sar[5]) : '';             // monetary amount
                 //
                 $lx_html .= "<tr class='$cls'><td><em>Prv</em> $ts301</td><td colspan=3>$ts302 <em>Count</em> $ts304 <em>Amount</em> $ts305</td></tr>".PHP_EOL;
                 //
@@ -1216,7 +1216,7 @@ break;
                         if ($k==0) {
                             if ($p && strpos($p, $ds) ) {
                                 $plb_rc = substr($p, 0, strpos($p, $ds));   // code
-                                $plb_tr = substr($p, strpos($p, $ds)+1); 	// reference (case #)?
+                                $plb_tr = substr($p, strpos($p, $ds)+1);    // reference (case #)?
                             } else {
                                 $plb_rc = ($p) ? $p : "";
                                 $plb_tr = "";

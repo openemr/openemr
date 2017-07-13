@@ -177,17 +177,17 @@ $(document).ready(function() {
                    </a>
 
                     <?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<a href='#' class='css_button' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Labels','e'); ?>
-					</span>
-					</a>
-					<?php } ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php xl('Print','e'); ?>
+                        </span>
+                    </a>
+                    <a href='#' class='css_button' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php xl('Labels','e'); ?>
+                    </span>
+                    </a>
+                    <?php } ?>
                </div>
            </td>
        </tr>

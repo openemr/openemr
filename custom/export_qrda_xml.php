@@ -263,9 +263,9 @@ if(count($dataSheet) > 0){
         if($row['cqm_nqf_code'] == "0024"){
             if( $row['population_label'] == "Population Criteria 2" ){
                 if($row['numerator_label'] == "Numerator 1"){
-                    $stratum_1_ipp 		= $row['initial_population'];
+                    $stratum_1_ipp      = $row['initial_population'];
                     $stratum_1_exclude  = $row['excluded'];
-                    $stratum_1_denom	= $row['pass_filter'];
+                    $stratum_1_denom    = $row['pass_filter'];
                     $stratum_1_numer1  = $row['pass_target'];
                 }else if($row['numerator_label'] == "Numerator 2"){
                     $stratum_1_numer2 = $row['pass_target'];
@@ -274,9 +274,9 @@ if(count($dataSheet) > 0){
                 }
             }else if( $row['population_label'] == "Population Criteria 3" ){
                 if($row['numerator_label'] == "Numerator 1"){
-                    $stratum_2_ipp 		= $row['initial_population'];
+                    $stratum_2_ipp      = $row['initial_population'];
                     $stratum_2_exclude  = $row['excluded'];
-                    $stratum_2_denom	= $row['pass_filter'];
+                    $stratum_2_denom    = $row['pass_filter'];
                     $stratum_2_numer1  = $row['pass_target'];
                 }else if($row['numerator_label'] == "Numerator 2"){
                     $stratum_2_numer2 = $row['pass_target'];
@@ -984,7 +984,7 @@ if(count($dataSheet) > 0){
 
                         if($row['numerator_label'] == "Numerator 2") $strata_value = $stratum[$strat_count]['numer2'];
 
-                        else if($row['numerator_label'] == "Numerator 3") $strata_value = $stratum[$strat_count]['numer3'];
+                    else if($row['numerator_label'] == "Numerator 3") $strata_value = $stratum[$strat_count]['numer3'];
 
                         //entryRelationship Open
                         $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));
@@ -1474,10 +1474,10 @@ fclose($fileQRDAOPen);
 <title><?php echo xlt('Export QRDA Report'); ?></title>
 
 <script type="text/javascript">
-	//Close Me function
-	function closeme() {
-	  window.close();
-	}
+    //Close Me function
+    function closeme() {
+      window.close();
+    }
 </script>
 </head>
 <body>
@@ -1487,7 +1487,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-	<a href="qrda_download.php?qrda_fname=<?php echo attr($qrda_fname);
+    <a href="qrda_download.php?qrda_fname=<?php echo attr($qrda_fname);
 ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>

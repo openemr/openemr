@@ -78,16 +78,16 @@ class Documents extends AbstractPlugin
         $port       = $GLOBALS['couchdb_port'];
         $usename    = $GLOBALS['couchdb_user'];
         $password   = $GLOBALS['couchdb_pass'];
-        $database	= $GLOBALS['couchdb_dbase'];
+        $database   = $GLOBALS['couchdb_dbase'];
         $enable_log = ($GLOBALS['couchdb_log'] == 1) ? true : false;
         
         $options = array(
-            'host' 		  => $host,
-            'port' 		  => $port,
-            'user' 		  => $usename,
-            'password' 	  => $password,
-            'logging' 	  => $enable_log,
-            'dbname'	  => $database
+            'host'        => $host,
+            'port'        => $port,
+            'user'        => $usename,
+            'password'    => $password,
+            'logging'     => $enable_log,
+            'dbname'      => $database
         );
         $connection = \Doctrine\CouchDB\CouchDBClient::create($options);
         return $connection;
@@ -101,9 +101,9 @@ class Documents extends AbstractPlugin
      */
     public function saveCouchDocument($connection,$data)
     {
-        $couch 	= $connection->postDocument($data);
-        $id			= $couch[0];
-        $rev		= $couch[1];
+        $couch  = $connection->postDocument($data);
+        $id         = $couch[0];
+        $rev        = $couch[1];
         if($id && $rev) {
             $connection->putDocument($data,$id,$rev);
             return $couch;

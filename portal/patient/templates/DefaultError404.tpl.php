@@ -29,12 +29,12 @@
 
 <div class="container">
 
-	<h1><?php echo xlt('Oh Snap!'); ?></h1>
+    <h1><?php echo xlt('Oh Snap!'); ?></h1>
 
-	<!-- this is used by app.js for scraping -->
-	<!-- ERROR The page you requested was not found /ERROR -->
+    <!-- this is used by app.js for scraping -->
+    <!-- ERROR The page you requested was not found /ERROR -->
 
-	<p><?php echo xlt('The page you requested was not found. Please check that you typed the URL correctly.'); ?></p>
+    <p><?php echo xlt('The page you requested was not found. Please check that you typed the URL correctly.'); ?></p>
 
 </div> <!-- /container -->
 

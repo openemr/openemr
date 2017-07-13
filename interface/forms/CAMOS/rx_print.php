@@ -133,7 +133,7 @@ if ($camos_content[0]) { //decide if we are printing this rx
 ?>
 <?php
 function topHeaderRx()
-    {
+{
     global $physician_name,$practice_address,$practice_city,$practice_state,$practice_zip,$practice_phone,$practice_fax,$practice_dea;
     print $physician_name . "<br/>\n";
     print $practice_address . "<br/>\n";
@@ -296,30 +296,30 @@ else {
         <head>
         <style>
         body {
-	 font-family: sans-serif;
-	 font-weight: normal;
-	 font-size: 12pt;
-	 background: white;
-	 color: black;
-	}
-	.paddingdiv {
-	 width: 524pt;
-	 padding: 0pt;
-	 margin-top: 50pt;
-	}
-	.navigate {
-	 margin-top: 2.5em;
-	}
-	@media print {
-	 .navigate {
-	  display: none;
-	 }
-	}
-	</style>
-	<title><?php xl('Letter','e'); ?></title>
-	</head>
+     font-family: sans-serif;
+     font-weight: normal;
+     font-size: 12pt;
+     background: white;
+     color: black;
+    }
+    .paddingdiv {
+     width: 524pt;
+     padding: 0pt;
+     margin-top: 50pt;
+    }
+    .navigate {
+     margin-top: 2.5em;
+    }
+    @media print {
+     .navigate {
+      display: none;
+     }
+    }
+    </style>
+    <title><?php xl('Letter','e'); ?></title>
+    </head>
         <body>
-	<div class='paddingdiv'>
+    <div class='paddingdiv'>
     <?php
     //bold
         print "<div style='font-weight:bold;'>";
@@ -356,7 +356,7 @@ else {
         var win = top.printLogPrint ? top : opener.top;
         win.printLogPrint(window);
         </script>
-	</div>
+    </div>
         </body>
         </html>
     <?php

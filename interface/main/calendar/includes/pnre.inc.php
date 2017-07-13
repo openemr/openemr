@@ -1,6 +1,6 @@
 <?php
 
-function pnSecAuthAction ($a,$b,$c,$d)
+function pnSecAuthAction($a,$b,$c,$d)
 {
 //	echo "forcing auth to true";
     return true;

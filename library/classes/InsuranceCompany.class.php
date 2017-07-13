@@ -154,7 +154,7 @@ class InsuranceCompany extends ORDataObject{
     }
 
     //special function the the html forms use to prepopulate which allows for partial edits and wizard functionality
-    function set_form_id ($id = "")
+    function set_form_id($id = "")
     {
         if (!empty($id)) {
             $this->populate($id);
@@ -339,7 +339,7 @@ class InsuranceCompany extends ORDataObject{
         return ($pharmacy_array);
     }
 
-    function insurance_companies_factory ($city = "", $sort = "ORDER BY name, id")
+    function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
     {
         if (empty($city)) {
              $city= "";

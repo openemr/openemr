@@ -221,7 +221,7 @@ $get_count = extract( $_GET, EXTR_OVERWRITE);
 $script_dir = dirname(__FILE__);
 ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/phpseclib");
 require_once ("$script_dir/phpseclib/Net/SFTP.php");
-function get_openemr_globals ($libdir)
+function get_openemr_globals($libdir)
 {
     if (!isset($site)) $_GET['site'] = 'default';
     require_once ("$libdir/../interface/globals.php");
@@ -265,12 +265,12 @@ if (isset($ppid)) {
 } else { // fill in host detais from parameters
     if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir)))
     $sftp_hosts[] = array (
-         'remote_host' 	=> $host
-        ,'port' 		=> $port
-        ,'login' 		=> $user
-        ,'password'		=> $pass
+         'remote_host'  => $host
+        ,'port'         => $port
+        ,'login'        => $user
+        ,'password'     => $pass
         ,'results_path' => $fdir
-        ,'orders_path'	=> $pdir
+        ,'orders_path'  => $pdir
     );
 }
 if ((!isset($sftp_hosts)) || (!isset($ldir)) ||

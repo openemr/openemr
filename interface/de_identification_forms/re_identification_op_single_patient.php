@@ -41,21 +41,21 @@ if($status == 0)
 <title><?php xl('Re Identification','e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
-	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
-	type='text/css'>
+    href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
+    type='text/css'>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <style type="text/css">
 .style1 {
-	text-align: center;
+    text-align: center;
 }
 </style>
 </head>
 <body class="body_top">
 <strong><?php xl('Re Identification','e');  ?></strong>
 <div id="overDiv"
-	style="position: absolute; visibility: hidden; z-index: 1000;"></div>
+    style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <form enctype="Re_identification_output" method="POST"><?php
 if ($_POST["re_id_code"]) {    $reIdCode = formData('re_id_code','P',true);  }
@@ -78,44 +78,44 @@ $sh_cmd='./re_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login
 system ($sh_cmd);
 
 ?>
-	<table>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table class="de_identification_status_message" align="center">
-	<tr valign="top">
+    <table>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table class="de_identification_status_message" align="center">
+    <tr valign="top">
 
-		<td>&nbsp;</td>
-		<td rowspan="3"><br>
-		<?php echo xl('Re Identification Process is ongoing');
+        <td>&nbsp;</td>
+        <td rowspan="3"><br>
+        <?php echo xl('Re Identification Process is ongoing');
         echo "</br></br>";
         echo xl('Please visit Re Identification screen after some time');
-        echo "</br>";	?> </br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table align="center">
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-		<?php
+        echo "</br>";   ?> </br>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table align="center">
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+        <?php
 
 }
 else if($status == 2)
@@ -133,43 +133,43 @@ else if($status == 2)
     if($no_of_items <= 1)
     {
         ?>
-	<table>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table class="de_identification_status_message" align="center">
-	<tr valign="top">
-		<td>&nbsp;</td>
-		<td rowspan="3"><br>
-		<?php echo xl('No match Patient record found for the given Re Idenitification code');
+    <table>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table class="de_identification_status_message" align="center">
+    <tr valign="top">
+        <td>&nbsp;</td>
+        <td rowspan="3"><br>
+        <?php echo xl('No match Patient record found for the given Re Idenitification code');
         echo "</br></br>";
         echo xl('Please enter correct Re Identification code');
-        echo "</br>";	?> </br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table align="center">
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-		<?php
+        echo "</br>";   ?> </br>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table align="center">
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+        <?php
     }
     else
     {

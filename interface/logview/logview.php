@@ -333,11 +333,11 @@ if($eventname != "" && $type_event != "")
 }
 
 if(($eventname == "") && ($type_event != ""))
-    {	$tevent=$type_event;
+    {   $tevent=$type_event;
 }
-    else if($type_event =="" && $eventname != "")
+else if($type_event =="" && $eventname != "")
     {$gev=$eventname;}
-    else if ($eventname == "")
+else if ($eventname == "")
     {$gev = "";}
 else
     {$gev = $getevent;}
@@ -454,41 +454,41 @@ $(document).ready(function(){
 });
 
 function set_sort_direction(){
-	if($('#direction').val() == 'asc')
-		$('#direction').val('desc');
-	else
-		$('#direction').val('asc');
+    if($('#direction').val() == 'asc')
+        $('#direction').val('desc');
+    else
+        $('#direction').val('asc');
 }
 
 function validatelog(){
-	 var img = document.getElementById('log_loading');
-	 var btn = document.getElementById('valid_button');
-	 if(img){
-		 if(img.style.display == "block"){
-			 return false;
-		 }
-		 img.style.display = "block";
-	 	if(btn){btn.style.display = "none"}
-	 }
-	 $.ajax({
-		 	url:"../../library/log_validation.php",
-	        asynchronous : true,
-	        method: "post",
-	        success :function(response){
-	                if(img){
-	                        img.style.display="none";
-	                        if(btn){btn.style.display="block";}
-	                }
-	                alert(response);
-	                },
-	        failure :function(){
-	                if(img){
-	                        img.style.display="none";
-	                        if(btn){btn.style.display="block";}
-	                }
-	                alert('<?php echo xls("Audit Log Validation Failed"); ?>');
-	        }
-	 });
+     var img = document.getElementById('log_loading');
+     var btn = document.getElementById('valid_button');
+     if(img){
+         if(img.style.display == "block"){
+             return false;
+         }
+         img.style.display = "block";
+        if(btn){btn.style.display = "none"}
+     }
+     $.ajax({
+            url:"../../library/log_validation.php",
+            asynchronous : true,
+            method: "post",
+            success :function(response){
+                    if(img){
+                            img.style.display="none";
+                            if(btn){btn.style.display="block";}
+                    }
+                    alert(response);
+                    },
+            failure :function(){
+                    if(img){
+                            img.style.display="none";
+                            if(btn){btn.style.display="block";}
+                    }
+                    alert('<?php echo xls("Audit Log Validation Failed"); ?>');
+            }
+     });
 
 }
 </script>

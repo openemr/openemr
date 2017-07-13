@@ -61,14 +61,14 @@ class AclController extends AbstractActionController
                 $array_active_modules[$row['mod_id']] = $row['mod_name'];
         }
         $index = new ViewModel(array(
-                        'user_group_main' 	 	=> $user_group_main,
-            'user_group_allowed' 	=> $user_group_allowed,
-            'user_group_denied'  	=> $user_group_denied,
-            'sections'           	=> $sections,
-            'component_id'       	=> "0-".$module_id,
-            'module_id'          	=> $module_id,
-            'listenerObject' 	 		=> $this->listenerObject,
-            'active_modules'     	=> $array_active_modules,
+                        'user_group_main'       => $user_group_main,
+            'user_group_allowed'    => $user_group_allowed,
+            'user_group_denied'     => $user_group_denied,
+            'sections'              => $sections,
+            'component_id'          => "0-".$module_id,
+            'module_id'             => $module_id,
+            'listenerObject'            => $this->listenerObject,
+            'active_modules'        => $array_active_modules,
                 ));
                 return $index;
     }
@@ -108,8 +108,8 @@ class AclController extends AbstractActionController
                         
         }
         
-                $data 			= $this->getAclTable()->getGroupAcl($module_id);
-                $saved_ACL 	= array();
+                $data           = $this->getAclTable()->getGroupAcl($module_id);
+                $saved_ACL  = array();
         foreach($data as $row){
                 if(!$saved_ACL[$row['section_id']]) $saved_ACL[$row['section_id']] = array();
                 array_push($saved_ACL[$row['section_id']],$row['group_id']);
@@ -143,8 +143,8 @@ class AclController extends AbstractActionController
             $denied_users = array_unique($denied_users);
             
                         // Delete Saved ACL Data
-                        $data	= $this->getAclTable()->deleteGroupACL($selected_componet_arr[0],$selected_componet_arr[1]);
-                        $data	= $this->getAclTable()->deleteUserACL($selected_componet_arr[0],$selected_componet_arr[1]);
+                        $data   = $this->getAclTable()->deleteGroupACL($selected_componet_arr[0],$selected_componet_arr[1]);
+                        $data   = $this->getAclTable()->deleteUserACL($selected_componet_arr[0],$selected_componet_arr[1]);
                         
                         // Allowed
             foreach($allowed_users as $allowed_user){
@@ -152,9 +152,9 @@ class AclController extends AbstractActionController
                 $arr_id = explode("-",$id);
                              
                 if($arr_id[1] == 0){
-                    $data	= $this->getAclTable()->insertGroupACL($selected_componet_arr[0],$arr_id[0],$selected_componet_arr[1],1);
+                    $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0],$arr_id[0],$selected_componet_arr[1],1);
                 }else{
-                                        $data	= $this->getAclTable()->insertUserACL($selected_componet_arr[0],$arr_id[1],$selected_componet_arr[1],1);
+                                        $data   = $this->getAclTable()->insertUserACL($selected_componet_arr[0],$arr_id[1],$selected_componet_arr[1],1);
                 }
             }
             
@@ -164,9 +164,9 @@ class AclController extends AbstractActionController
                 $arr_id = explode("-",$id);
                
                 if($arr_id[1] == 0){
-                                        $data	= $this->getAclTable()->insertGroupACL($selected_componet_arr[0],$arr_id[0],$selected_componet_arr[1],0);
+                                        $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0],$arr_id[0],$selected_componet_arr[1],0);
                 }else{
-                                        $data	= $this->getAclTable()->insertuserACL($selected_componet_arr[0],$arr_id[1],$selected_componet_arr[1],0);
+                                        $data   = $this->getAclTable()->insertuserACL($selected_componet_arr[0],$arr_id[1],$selected_componet_arr[1],0);
                 }
             }
         }elseif($ajax_mode == "rebuild"){
@@ -179,7 +179,7 @@ class AclController extends AbstractActionController
             $array_groups_allowed = array();
             $array_groups_denied = array();
                         
-                       $res_users	= $this->getAclTable()->getAclDataUsers($selected_componet_arr[1]);
+                       $res_users   = $this->getAclTable()->getAclDataUsers($selected_componet_arr[1]);
             foreach($res_users as $row){
                 if($row['allowed'] == 1){
                         if(!$array_users_allowed[$row['group_id']]) $array_users_allowed[$row['group_id']] = array();
@@ -189,7 +189,7 @@ class AclController extends AbstractActionController
                         array_push($array_users_denied[$row['group_id']],$row['user_id']);
                 }
             }
-                        $res_group	= $this->getAclTable()->getAclDataGroups($selected_componet_arr[1]);
+                        $res_group  = $this->getAclTable()->getAclDataGroups($selected_componet_arr[1]);
             foreach($res_group as $row){
                 if($row['allowed'] == 1){
                         array_push($array_groups_allowed,$row['group_id']);
@@ -238,7 +238,7 @@ class AclController extends AbstractActionController
             $section_name       = $this->getRequest()->getPost('section_name', null);
             
             if(!$parent_id) $parent_id = $module_id;
-            $current_section_id	= $this->getAclTable()->getSectionsInsertId();
+            $current_section_id = $this->getAclTable()->getSectionsInsertId();
                         $this->getAclTable()->saveACLSections($module_id,$parent_id,$section_identifier,$section_name,$current_section_id);
         }
         exit();

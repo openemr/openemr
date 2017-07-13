@@ -783,15 +783,15 @@ foreach (explode(',',$given) as $item) {
                 if ($dateStart && $dateEnd) {
                       $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd) );
                 }
-                  else if ($dateStart && !$dateEnd) {
-                      $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart) );
-                    }
-                    else if (!$dateStart && $dateEnd) {
-                        $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd) );
-                    }
-                    else {
-                        $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
-                    }
+                else if ($dateStart && !$dateEnd) {
+                    $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart) );
+                }
+                else if (!$dateStart && $dateEnd) {
+                    $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd) );
+                }
+                else {
+                    $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid) );
+                }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
                     "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .

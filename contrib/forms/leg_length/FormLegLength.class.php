@@ -316,6 +316,6 @@ class FormLegLength extends ORDataObject {
         }
     }
 
-}	// end of Form
+}   // end of Form
 
 ?>

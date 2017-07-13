@@ -43,7 +43,7 @@
   // Format money for display.
   //
 function bucks($amount)
-  {
+{
     if ($amount)
     printf("%.2f", $amount);
 }
@@ -52,7 +52,7 @@ function bucks($amount)
   // specified WHERE clause.  Borrowed from deleter.php.
   //
 function row_delete($table, $where)
-  {
+{
     $tres = sqlStatement("SELECT * FROM $table WHERE $where");
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
@@ -207,141 +207,141 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     $form_deposit_date = fixDate($_POST['form_deposit_date'], $form_check_date);
     $form_pay_total    = 0 + $_POST['form_pay_total'];
 
-  $payer_type = 0;
-if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
-    $payer_type = $matches[1];
-}
-
-if ($_POST['form_save'] || $_POST['form_cancel']) {
-    if ($_POST['form_save']) {
-        if ($debug) {
-            echo xl("This module is in test mode. The database will not be changed.",'','<p><b>',"</b><p>\n");
-        }
-
-        $session_id = arGetSession($form_payer_id, $form_reference,
-          $form_check_date, $form_deposit_date, $form_pay_total);
-        // The sl_eob_search page needs its invoice links modified to invoke
-        // javascript to load form parms for all the above and submit.
-        // At the same time that page would be modified to work off the
-        // openemr database exclusively.
-        // And back to the sl_eob_invoice page, I think we may want to move
-        // the source input fields from row level to header level.
-
-        // Handle deletes. row_delete() is borrowed from deleter.php.
-        if ($ALLOW_DELETE && !$debug) {
-            foreach ($_POST['form_del'] as $arseq => $dummy) {
-                row_delete("ar_activity", "pid = '$patient_id' AND " .
-                "encounter = '$encounter_id' AND sequence_no = '$arseq'");
-            }
-        }
-
-        $paytotal = 0;
-        foreach ($_POST['form_line'] as $code => $cdata) {
-            $thispay  = trim($cdata['pay']);
-            $thisadj  = trim($cdata['adj']);
-            $thisins  = trim($cdata['ins']);
-            $thiscodetype = trim($cdata['code_type']);
-            $reason   = strip_escape_custom($cdata['reason']);
-
-          // Get the adjustment reason type.  Possible values are:
-          // 1 = Charge adjustment
-          // 2 = Coinsurance
-          // 3 = Deductible
-          // 4 = Other pt resp
-          // 5 = Comment
-            $reason_type = '1';
-            if ($reason) {
-                $tmp = sqlQuery("SELECT option_value FROM list_options WHERE " .
-                "list_id = 'adjreason' AND activity = 1 AND " .
-                "option_id = '" . add_escape_custom($reason) . "'");
-                if (empty($tmp['option_value'])) {
-                  // This should not happen but if it does, apply old logic.
-                    if (preg_match("/To copay/", $reason)) {
-                        $reason_type = 2;
-                    }
-                    else if (preg_match("/To ded'ble/", $reason)) {
-                        $reason_type = 3;
-                    }
-                    $info_msg .= xl("No adjustment reason type found for") . " \"$reason\". ";
-                }
-                else {
-                    $reason_type = $tmp['option_value'];
-                }
-            }
-
-            if (! $thisins) $thisins = 0;
-
-            if ($thispay) {
-                arPostPayment($patient_id, $encounter_id, $session_id,
-                $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
-                $paytotal += $thispay;
-            }
-
-          // Be sure to record adjustment reasons, even for zero adjustments if
-          // they happen to be comments.
-            if ($thisadj || ($reason && $reason_type == 5)) {
-              // "To copay" and "To ded'ble" need to become a comment in a zero
-              // adjustment, formatted just like sl_eob_process.php.
-                if ($reason_type == '2') {
-                    $reason = $_POST['form_insurance'] . " coins: $thisadj";
-                    $thisadj = 0;
-                }
-                else if ($reason_type == '3') {
-                    $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
-                    $thisadj = 0;
-                }
-                else if ($reason_type == '4') {
-                    $reason = $_POST['form_insurance'] . " ptresp: $thisadj $reason";
-                    $thisadj = 0;
-                }
-                else if ($reason_type == '5') {
-                    $reason = $_POST['form_insurance'] . " note: $thisadj $reason";
-                    $thisadj = 0;
-                }
-                else {
-                  // An adjustment reason including "Ins" is assumed to be assigned by
-                  // insurance, and in that case we identify which one by appending
-                  // Ins1, Ins2 or Ins3.
-                    if (strpos(strtolower($reason), 'ins') !== false)
-                    $reason .= ' ' . $_POST['form_insurance'];
-                }
-                arPostAdjustment($patient_id, $encounter_id, $session_id,
-                $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
-            }
-        }
-
-      // Maintain which insurances are marked as finished.
-
-        $form_done = 0 + $_POST['form_done'];
-        $form_stmt_count = 0 + $_POST['form_stmt_count'];
-        sqlStatement("UPDATE form_encounter " .
-          "SET last_level_closed = $form_done, " .
-          "stmt_count = $form_stmt_count WHERE " .
-          "pid = '$patient_id' AND encounter = '$encounter_id'");
-
-        if ($_POST['form_secondary']) {
-            arSetupSecondary($patient_id, $encounter_id, $debug);
-        }
-        echo "<script language='JavaScript'>\n";
-        echo " if (opener.document.forms[0] !== undefined) {\n";
-        echo "   if (opener.document.forms[0].form_amount) {\n";
-        echo "     var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
-        echo "     opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
-        echo "   }\n";
-        echo " }\n";
-    } else {
-        echo "<script language='JavaScript'>\n";
+    $payer_type = 0;
+    if (preg_match('/^Ins(\d)/i', $_POST['form_insurance'], $matches)) {
+        $payer_type = $matches[1];
     }
-    if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
-    if (! $debug) echo " window.close();\n";
-    echo "</script></body></html>\n";
-    exit();
-}
+
+    if ($_POST['form_save'] || $_POST['form_cancel']) {
+        if ($_POST['form_save']) {
+            if ($debug) {
+                echo xl("This module is in test mode. The database will not be changed.",'','<p><b>',"</b><p>\n");
+            }
+
+            $session_id = arGetSession($form_payer_id, $form_reference,
+              $form_check_date, $form_deposit_date, $form_pay_total);
+            // The sl_eob_search page needs its invoice links modified to invoke
+            // javascript to load form parms for all the above and submit.
+            // At the same time that page would be modified to work off the
+            // openemr database exclusively.
+            // And back to the sl_eob_invoice page, I think we may want to move
+            // the source input fields from row level to header level.
+
+            // Handle deletes. row_delete() is borrowed from deleter.php.
+            if ($ALLOW_DELETE && !$debug) {
+                foreach ($_POST['form_del'] as $arseq => $dummy) {
+                    row_delete("ar_activity", "pid = '$patient_id' AND " .
+                    "encounter = '$encounter_id' AND sequence_no = '$arseq'");
+                }
+            }
+
+            $paytotal = 0;
+            foreach ($_POST['form_line'] as $code => $cdata) {
+                    $thispay  = trim($cdata['pay']);
+                    $thisadj  = trim($cdata['adj']);
+                    $thisins  = trim($cdata['ins']);
+                    $thiscodetype = trim($cdata['code_type']);
+                    $reason   = strip_escape_custom($cdata['reason']);
+
+                  // Get the adjustment reason type.  Possible values are:
+                  // 1 = Charge adjustment
+                  // 2 = Coinsurance
+                  // 3 = Deductible
+                  // 4 = Other pt resp
+                  // 5 = Comment
+                    $reason_type = '1';
+                if ($reason) {
+                    $tmp = sqlQuery("SELECT option_value FROM list_options WHERE " .
+                    "list_id = 'adjreason' AND activity = 1 AND " .
+                    "option_id = '" . add_escape_custom($reason) . "'");
+                    if (empty($tmp['option_value'])) {
+                              // This should not happen but if it does, apply old logic.
+                        if (preg_match("/To copay/", $reason)) {
+                            $reason_type = 2;
+                        }
+                        else if (preg_match("/To ded'ble/", $reason)) {
+                            $reason_type = 3;
+                        }
+                                $info_msg .= xl("No adjustment reason type found for") . " \"$reason\". ";
+                    }
+                    else {
+                                $reason_type = $tmp['option_value'];
+                    }
+                }
+
+                    if (! $thisins) $thisins = 0;
+
+                if ($thispay) {
+                    arPostPayment($patient_id, $encounter_id, $session_id,
+                    $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
+                    $paytotal += $thispay;
+                }
+
+                  // Be sure to record adjustment reasons, even for zero adjustments if
+                  // they happen to be comments.
+                if ($thisadj || ($reason && $reason_type == 5)) {
+                  // "To copay" and "To ded'ble" need to become a comment in a zero
+                  // adjustment, formatted just like sl_eob_process.php.
+                    if ($reason_type == '2') {
+                        $reason = $_POST['form_insurance'] . " coins: $thisadj";
+                        $thisadj = 0;
+                    }
+                    else if ($reason_type == '3') {
+                        $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
+                        $thisadj = 0;
+                    }
+                    else if ($reason_type == '4') {
+                        $reason = $_POST['form_insurance'] . " ptresp: $thisadj $reason";
+                        $thisadj = 0;
+                    }
+                    else if ($reason_type == '5') {
+                        $reason = $_POST['form_insurance'] . " note: $thisadj $reason";
+                        $thisadj = 0;
+                    }
+                    else {
+                      // An adjustment reason including "Ins" is assumed to be assigned by
+                      // insurance, and in that case we identify which one by appending
+                      // Ins1, Ins2 or Ins3.
+                        if (strpos(strtolower($reason), 'ins') !== false)
+                        $reason .= ' ' . $_POST['form_insurance'];
+                    }
+                    arPostAdjustment($patient_id, $encounter_id, $session_id,
+                    $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
+                }
+            }
+
+          // Maintain which insurances are marked as finished.
+
+            $form_done = 0 + $_POST['form_done'];
+            $form_stmt_count = 0 + $_POST['form_stmt_count'];
+            sqlStatement("UPDATE form_encounter " .
+              "SET last_level_closed = $form_done, " .
+              "stmt_count = $form_stmt_count WHERE " .
+              "pid = '$patient_id' AND encounter = '$encounter_id'");
+
+            if ($_POST['form_secondary']) {
+                    arSetupSecondary($patient_id, $encounter_id, $debug);
+            }
+            echo "<script language='JavaScript'>\n";
+            echo " if (opener.document.forms[0] !== undefined) {\n";
+            echo "   if (opener.document.forms[0].form_amount) {\n";
+            echo "     var tmp = opener.document.forms[0].form_amount.value - $paytotal;\n";
+            echo "     opener.document.forms[0].form_amount.value = Number(tmp).toFixed(2);\n";
+            echo "   }\n";
+            echo " }\n";
+        } else {
+            echo "<script language='JavaScript'>\n";
+        }
+            if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+            if (! $debug) echo " window.close();\n";
+            echo "</script></body></html>\n";
+            exit();
+    }
 
     // Get invoice charge details.
     $codes = ar_get_invoice_summary($patient_id, $encounter_id, true);
 
-  $pdrow = sqlQuery("select billing_note " .
+    $pdrow = sqlQuery("select billing_note " .
     "from patient_data where pid = '$patient_id' limit 1");
 ?>
 <center>

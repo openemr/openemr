@@ -75,11 +75,11 @@ class ModuleconfigController extends AbstractActionController
     {
     //SOECIFY HOOKS DETAILS OF A MODULE IN AN ARRAY, WITH MODULE NAME AS KEY
     //SHOULD SPECIFY THE CONTROLLER AND ITS ACTION IN THE PATH, INCLUDING INDEX ACTION
-        $hooks	=  array(
+        $hooks  =  array(
                 '0' => array(
-                        'name' 	=> "send_to_hie",
-                        'title'	=> "Send To HIE",
-                        'path'	=> "encountermanager",
+                        'name'  => "send_to_hie",
+                        'title' => "Send To HIE",
+                        'path'  => "encountermanager",
                     ),
                );
     

@@ -158,7 +158,7 @@ function show_date_fun(){
                 <td>
                  <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
                 <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-		<input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
+        <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
                 <input type="button" class="viewCCD_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
                 <div id="ccd_send_result" style="display:none" >
                  <span class="text" id="ccd_send_message"></span>
@@ -502,7 +502,7 @@ $(document).ready(function(){
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
 
-	$(".generateCCR").click(
+    $(".generateCCR").click(
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
@@ -510,15 +510,15 @@ $(document).ready(function(){
                                 return false;
                         }
                 }
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'generate';
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'generate';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
-		top.restoreSession();
-		ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
+        top.restoreSession();
+        ccr_form.setAttribute("target", "_blank");
+        $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
-	});
+    });
         $(".generateCCR_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');
@@ -554,17 +554,17 @@ $(document).ready(function(){
                 top.restoreSession();
                 $("#ccr_form").submit();
         });
-	$(".viewCCD").click(
-	function() {
-		var ccrAction = document.getElementsByName('ccrAction');
-		ccrAction[0].value = 'viewccd';
+    $(".viewCCD").click(
+    function() {
+        var ccrAction = document.getElementsByName('ccrAction');
+        ccrAction[0].value = 'viewccd';
                 var raw = document.getElementsByName('raw');
                 raw[0].value = 'no';
-		top.restoreSession();
+        top.restoreSession();
                 ccr_form.setAttribute("target", "_blank");
-		$("#ccr_form").submit();
+        $("#ccr_form").submit();
                 ccr_form.setAttribute("target", "");
-	});
+    });
         $(".viewCCD_raw").click(
         function() {
                 var ccrAction = document.getElementsByName('ccrAction');

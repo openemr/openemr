@@ -41,7 +41,7 @@ class AMC_314g_1_2_14_Numerator implements AmcFilterIF
                 $check = sqlQuery('select count(id) as count from ccda where pid = ? and (view = 1 or emr_transfer = 1) and user_id is null and updated_date >= ? and updated_date <= ?',array($patient->id,$beginDate,$endDate));
                 if($check['count'] > 0)
                     return true;
-                else
+        else
                     return false;
                     
     }

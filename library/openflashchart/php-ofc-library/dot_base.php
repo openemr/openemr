@@ -11,22 +11,22 @@ class dot_base
      * @param $value integer
      */
     
-     public function __construct($type, $value=null)
-     {
+    public function __construct($type, $value=null)
+    {
         $this->type = $type;
         if( isset( $value ) )
-            $this->value( $value );
-        }
+          $this->value( $value );
+    }
     
     /**
      * For line charts that only require a Y position
      * for each point.
      * @param $value as integer, the Y position
      */
-        function value( $value )
-        {
-            $this->value = $value;
-        }
+    function value( $value )
+    {
+        $this->value = $value;
+    }
     
     /**
      * For scatter charts that require an X and Y position for
@@ -35,58 +35,58 @@ class dot_base
      * @param $x as integer
      * @param $y as integer
      */
-        function position( $x, $y )
-        {
-            $this->x = $x;
-            $this->y = $y;
-        }
+    function position( $x, $y )
+    {
+        $this->x = $x;
+        $this->y = $y;
+    }
     
     /**
      * @param $colour is a string, HEX colour, e.g. '#FF0000' red
      */
-        function colour($colour)
-        {
-            $this->colour = $colour;
-            return $this;
-        }
+    function colour($colour)
+    {
+        $this->colour = $colour;
+        return $this;
+    }
     
     /**
      * The tooltip for this dot.
      */
-        function tooltip( $tip )
-        {
-            $this->tip = $tip;
-            return $this;
-        }
+    function tooltip( $tip )
+    {
+        $this->tip = $tip;
+        return $this;
+    }
     
     /**
      * @param $size is an integer. Size of the dot.
      */
-        function size($size)
-        {
-            $tmp = 'dot-size';
-            $this->$tmp = $size;
-            return $this;
-        }
+    function size($size)
+    {
+        $tmp = 'dot-size';
+        $this->$tmp = $size;
+        return $this;
+    }
     
     /**
      * a private method
      */
-        function type( $type )
-        {
-            $this->type = $type;
-            return $this;
-        }
+    function type( $type )
+    {
+        $this->type = $type;
+        return $this;
+    }
     
     /**
      * @param $size is an integer. The size of the hollow 'halo' around the dot that masks the line.
      */
-        function halo_size( $size )
-        {
-            $tmp = 'halo-size';
-            $this->$tmp = $size;
-            return $this;
-        }
+    function halo_size( $size )
+    {
+        $tmp = 'halo-size';
+        $this->$tmp = $size;
+        return $this;
+    }
     
     /**
      * @param $do as string. One of three options (examples):
@@ -97,11 +97,11 @@ class dot_base
      *  will call the JS function "hello_world(index)". It passes in the index of the
      *  point.
      */
-        function on_click( $do )
-        {
-            $tmp = 'on-click';
-            $this->$tmp = $do;
-        }
+    function on_click( $do )
+    {
+        $tmp = 'on-click';
+        $this->$tmp = $do;
+    }
 }
 
 /**

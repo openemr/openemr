@@ -39,60 +39,60 @@
  if ($patdata['squad'] && ! acl_check('squads', $patdata['squad']))
   $thisauth = 0;
 
-if (!$thisauth) {
-    echo "<html>\n<body>\n";
-    echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
-}
-
- $alertmsg = ""; // anything here pops up in an alert box
- $endjs = "";    // holds javascript to write at the end
-
- // If the Save button was clicked...
-if ($_POST['form_save']) {
-    $form_pid = $_POST['form_pid'];
-    $form_pelist = $_POST['form_pelist'];
-  // $pattern = '|/(\d+),(\d+),([YN])|';
-    $pattern = '|/(\d+),(\d+)|';
-
-    preg_match_all($pattern, $form_pelist, $matches);
-    $numsets = count($matches[1]);
-
-    $query = "DELETE FROM issue_encounter WHERE pid = ?";
-    sqlQuery($query, array($form_pid));
-    for ($i = 0; $i < $numsets; ++$i) {
-        $list_id   = $matches[1][$i];
-        $encounter = $matches[2][$i];
-        $query = "INSERT INTO issue_encounter ( " .
-        "pid, list_id, encounter" .
-        ") VALUES ( " .
-        " ?, ?, ?" .
-        ")";
-        sqlQuery($query, array($form_pid, $list_id, $encounter));
+ if (!$thisauth) {
+     echo "<html>\n<body>\n";
+     echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
+     echo "</body>\n</html>\n";
+     exit();
     }
 
-    echo "<html><body>"
-    ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
-    . "<script language='JavaScript'>\n";
-    if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
-    echo " var myboss = opener ? opener : parent;\n";
-    echo " myboss.location.reload();\n";
-    echo " window.close();\n";
-    echo "</script></body></html>\n";
-    exit();
-}
+    $alertmsg = ""; // anything here pops up in an alert box
+    $endjs = "";    // holds javascript to write at the end
+
+ // If the Save button was clicked...
+    if ($_POST['form_save']) {
+        $form_pid = $_POST['form_pid'];
+        $form_pelist = $_POST['form_pelist'];
+          // $pattern = '|/(\d+),(\d+),([YN])|';
+        $pattern = '|/(\d+),(\d+)|';
+
+        preg_match_all($pattern, $form_pelist, $matches);
+        $numsets = count($matches[1]);
+
+        $query = "DELETE FROM issue_encounter WHERE pid = ?";
+        sqlQuery($query, array($form_pid));
+        for ($i = 0; $i < $numsets; ++$i) {
+            $list_id   = $matches[1][$i];
+            $encounter = $matches[2][$i];
+            $query = "INSERT INTO issue_encounter ( " .
+            "pid, list_id, encounter" .
+            ") VALUES ( " .
+            " ?, ?, ?" .
+            ")";
+            sqlQuery($query, array($form_pid, $list_id, $encounter));
+        }
+
+        echo "<html><body>"
+        ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+        . "<script language='JavaScript'>\n";
+        if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
+        echo " var myboss = opener ? opener : parent;\n";
+        echo " myboss.location.reload();\n";
+        echo " window.close();\n";
+        echo "</script></body></html>\n";
+        exit();
+    }
 
  // get problems
- $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
-  "ORDER BY type, date", array($pid));
+    $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? " .
+    "ORDER BY type, date", array($pid));
 
  // get encounters
- $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
-  "ORDER BY date DESC", array($pid));
+    $eres = sqlStatement("SELECT * FROM form_encounter WHERE pid = ? " .
+    "ORDER BY date DESC", array($pid));
 
  // get problem/encounter relations
- $peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
+    $peres = sqlStatement("SELECT * FROM issue_encounter WHERE pid = ?", array($pid));
 ?>
 <html>
 <head>

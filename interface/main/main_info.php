@@ -31,21 +31,21 @@ require_once("../globals.php");
 <!-- The DOCTYPE is set above to XHTML to put IE into Sttrict Mode so we can get a viewport width -->
 <script type='text/javascript' language='JavaScript'>
 function GetInnerX () {
-	var x;
-	if (self.innerHeight) // all except Explorer
-	{
-		x = self.innerWidth;
-	}
-	else if (document.documentElement && document.documentElement.clientHeight)
-		// Explorer 6 Strict Mode
-	{
-		x = document.documentElement.clientWidth;
-	}
-	else if (document.body) // other Explorers
-	{
-		x = document.body.clientWidth;
-	}
-	return x;
+    var x;
+    if (self.innerHeight) // all except Explorer
+    {
+        x = self.innerWidth;
+    }
+    else if (document.documentElement && document.documentElement.clientHeight)
+        // Explorer 6 Strict Mode
+    {
+        x = document.documentElement.clientWidth;
+    }
+    else if (document.body) // other Explorers
+    {
+        x = document.body.clientWidth;
+    }
+    return x;
 }
 
 var x = GetInnerX();

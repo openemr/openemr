@@ -59,7 +59,7 @@ class C_FormReviewOfSystems extends Controller {
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling(	date("Ymd"), 	'CPT4', 	$row['code'],	$row['code_text'],  $_SESSION['pid'], 	$_SESSION['userauthorized'], 	$_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
+                addBilling( date("Ymd"),    'CPT4',     $row['code'],   $row['code_text'],  $_SESSION['pid'],   $_SESSION['userauthorized'],    $_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
             }
 
         }

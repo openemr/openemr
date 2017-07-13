@@ -11,10 +11,10 @@
       <td><input type='text' name='filter_def' size='8' value='<?php echo htmlspecialchars($_POST['filter_def'],ENT_QUOTES); ?>' />
         <span class="text"><?php echo htmlspecialchars(xl('(% matches any string, _ matches any character)'),ENT_NOQUOTES); ?></span></td>
     </tr>
-    <tr>	
+    <tr>    
       <td><?php echo htmlspecialchars(xl('Select Language').":",ENT_NOQUOTES); ?></td>
       <td>
-	<select name='language_select'>
+    <select name='language_select'>
             <?php
           // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
@@ -221,10 +221,10 @@ if ($_POST['edit']){
     if ($isResults) {
             echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . htmlspecialchars(xl('Load Definitions'),ENT_NOQUOTES) . '"></td></tr>');
                 ?>
-	        <INPUT TYPE="hidden" name="filter_cons" value="<?php echo htmlspecialchars($_POST['filter_cons'],ENT_QUOTES); ?>">
-	        <INPUT TYPE="hidden" name="filter_def" value="<?php echo htmlspecialchars($_POST['filter_def'],ENT_QUOTES); ?>">
-	        <INPUT TYPE="hidden" name="language_select" value="<?php echo htmlspecialchars($_POST['language_select'],ENT_QUOTES); ?>">
-	        <?php
+            <INPUT TYPE="hidden" name="filter_cons" value="<?php echo htmlspecialchars($_POST['filter_cons'],ENT_QUOTES); ?>">
+            <INPUT TYPE="hidden" name="filter_def" value="<?php echo htmlspecialchars($_POST['filter_def'],ENT_QUOTES); ?>">
+            <INPUT TYPE="hidden" name="language_select" value="<?php echo htmlspecialchars($_POST['language_select'],ENT_QUOTES); ?>">
+            <?php
     }
     else {
         echo htmlspecialchars(xl('No Results Found For Search'),ENT_NOQUOTES);

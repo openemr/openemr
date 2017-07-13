@@ -203,14 +203,14 @@ function transmit(){
         <tr class="text">
             <th colspan="5" align="center"><?php echo htmlspecialchars(xl("Generate Username And Password For")." ".$row['fname'],ENT_QUOTES);?></th>
         </tr>
-	<?php
+    <?php
     if($portalsite == 'off'){
     ?>
     <tr class="text">
         <td><?php echo htmlspecialchars(xl('Provider Id').':',ENT_QUOTES);?></td>
         <td><span><?php echo htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_QUOTES);?></span></td>
     </tr>
-	<?php
+    <?php
     }
     ?>
         <tr class="text">

@@ -292,7 +292,7 @@ if ($_POST['form_get_hl7']==='true') {
     #report_parameters_daterange {
         visibility: visible;
         display: inline;
-		margin-bottom: 10px;
+        margin-bottom: 10px;
     }
     #report_results table {
        margin-top: 0px;
@@ -300,13 +300,13 @@ if ($_POST['form_get_hl7']==='true') {
 }
 /* specifically exclude some from the screen */
 @media screen {
-	#report_parameters_daterange {
-		visibility: hidden;
-		display: none;
-	}
-	#report_results {
-		width: 100%;
-	}
+    #report_parameters_daterange {
+        visibility: hidden;
+        display: none;
+    }
+    #report_results {
+        width: 100%;
+    }
 }
 </style>
 </head>

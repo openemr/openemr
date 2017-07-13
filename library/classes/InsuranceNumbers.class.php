@@ -30,7 +30,7 @@ class InsuranceNumbers extends ORDataObject{
          * Constructor sets all Insurance attributes to their default value
          */
 
-    function __construct ($id = "", $prefix = "")
+    function __construct($id = "", $prefix = "")
     {
             $this->id = $id;
             $this->_table = "insurance_numbers";

@@ -129,60 +129,60 @@
 <table>
  <tr>
   <td width='640px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
-				<?php echo xlt('Facility'); ?>:
-			</td>
-			<td>
-			<?php dropdown_facility(($form_facility), 'form_facility', true); ?>
-			</td>
-			<td class='label_custom'>
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
+                <?php echo xlt('Facility'); ?>:
+            </td>
+            <td>
+            <?php dropdown_facility(($form_facility), 'form_facility', true); ?>
+            </td>
+            <td class='label_custom'>
                 <?php echo xlt('From'); ?>:
-			</td>
-			<td>
-			   <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+            </td>
+            <td>
+               <input type='text' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
          class='datepicker'
-				 title='<?php echo xla('yyyy-mm-dd') ?>'>
-			</td>
-			<td class='label_custom'>
+                 title='<?php echo xla('yyyy-mm-dd') ?>'>
+            </td>
+            <td class='label_custom'>
                 <?php echo xlt('To'); ?>:
-			</td>
-			<td>
-			   <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+            </td>
+            <td>
+               <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
          class='datepicker'
-				 title='<?php echo xla('yyyy-mm-dd') ?>'>
-			</td>
-		</tr>
-	</table>
+                 title='<?php echo xla('yyyy-mm-dd') ?>'>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php echo xlt('Submit'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php echo xlt('Print'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -276,7 +276,7 @@ else {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 </form>

@@ -44,8 +44,8 @@ td { font-size:10pt; }
   if (len==undefined && chk.checked==1) 
   {
     if(!str)
-	  str = chk.value;
-	else  
+      str = chk.value;
+    else  
     str = "#"+chk.value;
   }
   else
@@ -54,15 +54,15 @@ td { font-size:10pt; }
    {
     if(chk[pr].checked == 1)
     {
-	 if(!str)
-	  str = chk[pr].value;
-	 else 
+     if(!str)
+      str = chk[pr].value;
+     else 
       str = str+"#"+chk[pr].value;
-	}
+    }
    }
   }
   if(!str)
-	alert('<?php echo xl("Select Drug");?>');
+    alert('<?php echo xl("Select Drug");?>');
   if (opener.closed || ! opener.set_related)
    alert("<?php echo xl('The destination form was closed')?>");
   else
@@ -163,7 +163,7 @@ function check_search_str()
         {
         ?>
         <script language='JavaScript'>
-    	 alert("<?php echo xl('Search string does not match with list in database');
+         alert("<?php echo xl('Search string does not match with list in database');
             echo '\n';
             echo xl('Please enter new search string');?>");
         document.theform.search_term.value=" ";

@@ -97,76 +97,76 @@ function getTemplateList($dir)
 <script>
 var currentEdit = "";
 var tedit = function(docname) {
-	currentEdit = docname;
-	getDocument(docname, 'get', '')
-	return false;
-	};
+    currentEdit = docname;
+    getDocument(docname, 'get', '')
+    return false;
+    };
 
 var tsave = function() {
-	var makrup = $('#templatecontent').summernote('code');
-	getDocument(currentEdit, 'save', makrup)
-	};
+    var makrup = $('#templatecontent').summernote('code');
+    getDocument(currentEdit, 'save', makrup)
+    };
 var tdelete = function(docname) {
-	var delok = confirm("<?php echo xls('You are about to delete template');
+    var delok = confirm("<?php echo xls('You are about to delete template');
 ?>: "+docname+"\n<?php echo xls('Is this Okay?'); ?>");
-	if(delok === true) getDocument(docname, 'delete', '')
-	return false;
-	};
+    if(delok === true) getDocument(docname, 'delete', '')
+    return false;
+    };
  function getDocument(docname, mode, content){
-		var liburl = 'import_template.php';
-			$.ajax({
-				type: "POST",
-				url: liburl,
-				data: {docid: docname, mode: mode,content: content},
-				beforeSend: function(xhr){
-					console.log("Please wait..."+content);
-				},
-				error: function(qXHR, textStatus, errorThrow){
-					console.log("There was an error");
-				},
-				success: function(templateHtml, textStatus, jqXHR){
-					if(mode == 'get'){
-						//console.log("File get..."+templateHtml);
-						$('#templatecontent').summernote('destroy');
-						$('#templatecontent').empty().append(templateHtml);
-						$('#popeditor').modal({backdrop: "static"});
-						$('#templatecontent').summernote({
-					       // height: 200,
-							focus: true,
-				   			placeholder: '',
-				   			toolbar: [
-				   			    ['style', ['bold', 'italic', 'underline', 'clear']],
-				   			    ['fontsize', ['fontsize']],
-				   			    ['color', ['color']],
-				   			    ['para', ['ul', 'ol', 'paragraph']],
-				   			    ['insert', ['link','picture', 'video', 'hr']],
-				   			    ['view', ['fullscreen', 'codeview']],
-				   			 	['insert', ['nugget']],
-				   			 	['edit',['undo','redo']]
-				   			 	],
-				   			    nugget: {
-				   			        list: [
-					   			        '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
-				   			            '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
-				   			            '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
-				   			        ],
-				   			        label: 'Tags / Directives',
-				   			    	tooltip: 'Insert Tag or Directive at current cursor location.'
-				   			    },
-				   			 options:{'label': 'Tags/Directives',
-					   			    'tooltip': 'Insert Tag or Directive'}
-				   			});
-						}
-					else if(mode == 'save'){
-						$('#templatecontent').summernote('destroy');
-						location.reload();
-					}
-					else if(mode == 'delete'){
-						location.reload();
-					}
-				}
-			});
-	}
+        var liburl = 'import_template.php';
+            $.ajax({
+                type: "POST",
+                url: liburl,
+                data: {docid: docname, mode: mode,content: content},
+                beforeSend: function(xhr){
+                    console.log("Please wait..."+content);
+                },
+                error: function(qXHR, textStatus, errorThrow){
+                    console.log("There was an error");
+                },
+                success: function(templateHtml, textStatus, jqXHR){
+                    if(mode == 'get'){
+                        //console.log("File get..."+templateHtml);
+                        $('#templatecontent').summernote('destroy');
+                        $('#templatecontent').empty().append(templateHtml);
+                        $('#popeditor').modal({backdrop: "static"});
+                        $('#templatecontent').summernote({
+                           // height: 200,
+                            focus: true,
+                            placeholder: '',
+                            toolbar: [
+                                ['style', ['bold', 'italic', 'underline', 'clear']],
+                                ['fontsize', ['fontsize']],
+                                ['color', ['color']],
+                                ['para', ['ul', 'ol', 'paragraph']],
+                                ['insert', ['link','picture', 'video', 'hr']],
+                                ['view', ['fullscreen', 'codeview']],
+                                ['insert', ['nugget']],
+                                ['edit',['undo','redo']]
+                                ],
+                                nugget: {
+                                    list: [
+                                        '{TextInput}', '{smTextInput}', '{CheckMark}', '{ynRadioGroup}', '{DOS}','{ReferringDOC}', '{PatientID}',
+                                        '{PatientName}', '{PatientSex}', '{PatientDOB}', '{PatientPhone}', '{PatientSignature}', '{Address}', '{City}', '{State}', '{Zip}',
+                                        '{AdminSignature}', '{Medications}', '{ProblemList}', '{Allergies}', '{ChiefComplaint}'
+                                    ],
+                                    label: 'Tags / Directives',
+                                    tooltip: 'Insert Tag or Directive at current cursor location.'
+                                },
+                             options:{'label': 'Tags/Directives',
+                                    'tooltip': 'Insert Tag or Directive'}
+                            });
+                        }
+                    else if(mode == 'save'){
+                        $('#templatecontent').summernote('destroy');
+                        location.reload();
+                    }
+                    else if(mode == 'delete'){
+                        location.reload();
+                    }
+                }
+            });
+    }
 </script>
 <style>
 .modal.modal-wide .modal-dialog {
@@ -231,14 +231,14 @@ foreach($dirlist as $file) {
 ?>
 <script>
 $(document).ready(function(){
-	$("#popeditor").on("show.bs.modal", function() {
-		  var height = $(window).height() - 200;
-		  $(this).find(".modal-body").css("max-height", height);
-		});
-	$("#sel_pt").change(function(){
-		$("#edit_form").submit();
-	});
-	$("#ptstatus").text($("#sel_pt").find(":selected").text())
+    $("#popeditor").on("show.bs.modal", function() {
+          var height = $(window).height() - 200;
+          $(this).find(".modal-body").css("max-height", height);
+        });
+    $("#sel_pt").change(function(){
+        $("#edit_form").submit();
+    });
+    $("#ptstatus").text($("#sel_pt").find(":selected").text())
 });
 </script>
 </div>

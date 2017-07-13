@@ -22,7 +22,7 @@ if(sqlNumRows($res)>0)
             <th><?php echo htmlspecialchars( xl('End Date'),ENT_NOQUOTES); ?></th>
             <th><?php echo htmlspecialchars( xl('Referrer'),ENT_NOQUOTES); ?></th>
         </tr>
-  		<?php
+        <?php
         $even=false;
         while ($row = sqlFetchArray($res)) {
             if ($even) {

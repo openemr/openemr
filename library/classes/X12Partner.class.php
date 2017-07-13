@@ -9,7 +9,7 @@ class X12Partner extends ORDataObject{
 
     var $id;
     var $name;
-    var	$id_number;
+    var $id_number;
     var $x12_isa01; //
     var $x12_isa02; //
     var $x12_isa03; //
@@ -31,7 +31,7 @@ class X12Partner extends ORDataObject{
      * Constructor sets all Insurance attributes to their default value
      */
 
-    function __construct ($id = "", $prefix = "")
+    function __construct($id = "", $prefix = "")
     {
         parent::__construct();
         $this->id = $id;

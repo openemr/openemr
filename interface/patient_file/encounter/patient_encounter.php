@@ -42,12 +42,12 @@ if (isset($_GET["set_encounter"])) {
 </HEAD>
 <frameset rows="60%,40%" cols="*">
   <frameset rows="*" cols="*,200">
-	<frame src="forms.php" name="Forms" scrolling="auto">
-	<frame src="new_form.php" name="New Form" scrolling="auto">
+    <frame src="forms.php" name="Forms" scrolling="auto">
+    <frame src="new_form.php" name="New Form" scrolling="auto">
   </frameset>
 
   <frameset rows="*" cols="200,400,*">
-	    <frame src="coding.php" name="Codesets" scrolling="auto">
+        <frame src="coding.php" name="Codesets" scrolling="auto">
             <frame src="blank.php" name="Codes" scrolling="auto">
             <frame src="diagnosis.php" name="Diagnosis" scrolling="auto">
   </frameset>
@@ -81,8 +81,8 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 </TITLE>
 </HEAD>
 <frameset rows="60%,40%" cols="*">
-	<frame src="<?php echo "$rootdir/forms/newpatient/new.php?autoloaded=1&calenc=".$_GET["calenc"].""; ?>" name="New" scrolling="auto">
-	<frame src="<?php echo "$rootdir/patient_file/history/encounters.php";?>" name="Diagnosis" scrolling="auto">
+    <frame src="<?php echo "$rootdir/forms/newpatient/new.php?autoloaded=1&calenc=".$_GET["calenc"].""; ?>" name="New" scrolling="auto">
+    <frame src="<?php echo "$rootdir/patient_file/history/encounters.php";?>" name="Diagnosis" scrolling="auto">
 </frameset>
 <noframes><body bgcolor="#FFFFFF">
 </body></noframes>
@@ -104,14 +104,14 @@ if (isset($_GET["mode"])  && $_GET["mode"] == "new") {
 </HEAD>
 <frameset rows="60%,40%" cols="*">
   <frameset rows="*" cols="*,200">
-	<frame src="forms.php" name="Forms" scrolling="auto">
-	<frame src="new_form.php" name="New Form" scrolling="auto">
+    <frame src="forms.php" name="Forms" scrolling="auto">
+    <frame src="new_form.php" name="New Form" scrolling="auto">
   </frameset>
 
   <frameset rows="*" cols="200,400,*">
-	<frame src="coding.php" name="Codesets" scrolling="auto">
-	<frame src="blank.php" name="Codes" scrolling="auto">
-	<frame src="diagnosis.php" name="Diagnosis" scrolling="auto">
+    <frame src="coding.php" name="Codesets" scrolling="auto">
+    <frame src="blank.php" name="Codes" scrolling="auto">
+    <frame src="diagnosis.php" name="Diagnosis" scrolling="auto">
   </frameset>
 
 </frameset>

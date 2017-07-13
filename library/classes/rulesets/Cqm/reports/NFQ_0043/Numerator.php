@@ -15,8 +15,8 @@ class NFQ_0043_Numerator implements CqmFilterIF
     
     public function test( CqmPatient $patient, $beginDate, $endDate )
     {
-        $vac_medication 	= implode(',',Codes::lookup(Medication::PNEUMOCOCCAL_VAC,'CVX'));
-        $vac_procedure 		= implode(',',Codes::lookup(Procedure::PNEUMOCOCCAL_VACCINE,'SNOMED'));
+        $vac_medication     = implode(',',Codes::lookup(Medication::PNEUMOCOCCAL_VAC,'CVX'));
+        $vac_procedure      = implode(',',Codes::lookup(Procedure::PNEUMOCOCCAL_VACCINE,'SNOMED'));
         
         $query = "select count(*) cnt from form_encounter fe ".
                "INNER JOIN procedure_order po on po.patient_id = fe.pid ".

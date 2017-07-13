@@ -111,9 +111,9 @@ if ($_POST['form_action']=='Process') {
         }
 
         switch ($_POST['process_type']):
-        case $choices[1]: // Email
-            $and=where_or_and ($and);
-            $sql.=" $and patient_data.email IS NOT NULL ";
+            case $choices[1]: // Email
+                $and=where_or_and ($and);
+                $sql.=" $and patient_data.email IS NOT NULL ";
             break;
         endswitch;
 
@@ -127,11 +127,11 @@ if ($_POST['form_action']=='Process') {
         if (sqlNumRows($res)==0){
     ?>
         <html>
-	<head>
+    <head>
     <title><?php echo xlt('BatchCom'); ?></title>
-	<?php html_header_show();?>
-	<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-	<link rel="stylesheet" href="batchcom.css" type="text/css">
+    <?php html_header_show();?>
+    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <link rel="stylesheet" href="batchcom.css" type="text/css">
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
@@ -149,28 +149,28 @@ if ($_POST['form_action']=='Process') {
     });
     </script>
 
-	</head>
-	<body class="body_top">
-	<!-- larry's sms/email notification -->
-	<span class="title"><?php include_once("batch_navigation.php");?></span>
-	<!--- end of larry's insert -->
-	<span class="title"><?php xl('Batch Communication Tool','e')?></span>
-	<br><br>
-	<div class="text">
+    </head>
+    <body class="body_top">
+    <!-- larry's sms/email notification -->
+    <span class="title"><?php include_once("batch_navigation.php");?></span>
+    <!--- end of larry's insert -->
+    <span class="title"><?php xl('Batch Communication Tool','e')?></span>
+    <br><br>
+    <div class="text">
         <?php
             echo (xl('No results found, please try again.','','<br>'));
         ?> </div></body></html> <?php
         //if results
         } else {
             switch ($_POST['process_type']):
-            case $choices[0]: // CSV File
-                require_once ('batchCSV.php');
+                case $choices[0]: // CSV File
+                    require_once ('batchCSV.php');
                 break;
-            case $choices[1]: // Email
-                require_once ('batchEmail.php');
+                case $choices[1]: // Email
+                    require_once ('batchEmail.php');
                 break;
-            case $choices[2]: // Phone list
-                require_once ('batchPhoneList.php');
+                case $choices[2]: // Phone list
+                    require_once ('batchPhoneList.php');
                 break;
             endswitch;
         }

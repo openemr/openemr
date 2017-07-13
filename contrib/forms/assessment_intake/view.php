@@ -121,250 +121,250 @@ $result = SqlFetchArray($res); ?>
 <b><u>Assessment of Currently Known Risk Factors:</u></b><br><br>
 <b>Suicide:</b><br><input type=checkbox name='risk_suicide_na' <?php if ($obj{"risk_suicide_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<b>Behaviors:</b>&nbsp;
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_suicide_nk' <?php if ($obj{"risk_suicide_nk"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <b>Behaviors:</b>&nbsp;
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_suicide_nk' <?php if ($obj{"risk_suicide_nk"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Known</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_suicide_io' <?php if ($obj{"risk_suicide_io"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_suicide_io' <?php if ($obj{"risk_suicide_io"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Ideation only</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_suicide_plan' <?php if ($obj{"risk_suicide_plan"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_suicide_plan' <?php if ($obj{"risk_suicide_plan"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Plan</b><br>
-	<img src="../../../images/space.gif" width="100" height="1">
-	<input type=checkbox name='risk_suicide_iwom' <?php if ($obj{"risk_suicide_iwom"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="100" height="1">
+    <input type=checkbox name='risk_suicide_iwom' <?php if ($obj{"risk_suicide_iwom"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Intent without means</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_suicide_iwm' <?php if ($obj{"risk_suicide_iwm"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_suicide_iwm' <?php if ($obj{"risk_suicide_iwm"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Intent with means</b><br>
 <br>
 <b>Homocide:</b><br><input type=checkbox name='risk_homocide_na' <?php if ($obj{"risk_homocide_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<b>Behaviors:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_homocide_nk' <?php if ($obj{"risk_homocide_nk"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <b>Behaviors:</b>
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_homocide_nk' <?php if ($obj{"risk_homocide_nk"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Known</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_homocide_io' <?php if ($obj{"risk_homocide_io"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_homocide_io' <?php if ($obj{"risk_homocide_io"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Ideation only</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_homocide_plan' <?php if ($obj{"risk_homocide_plan"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_homocide_plan' <?php if ($obj{"risk_homocide_plan"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Plan</b><br>
-	<img src="../../../images/space.gif" width="100" height="1">
-	<input type=checkbox name='risk_homocide_iwom' <?php if ($obj{"risk_homocide_iwom"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="100" height="1">
+    <input type=checkbox name='risk_homocide_iwom' <?php if ($obj{"risk_homocide_iwom"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Intent without means</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_homocide_iwm' <?php if ($obj{"risk_homocide_iwm"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_homocide_iwm' <?php if ($obj{"risk_homocide_iwm"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Intent with means</b><br>
 <br>	
 <b>Compliance with treatment:</b><br><input type=checkbox name='risk_compliance_na' <?php if ($obj{"risk_compliance_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_compliance_fc' <?php if ($obj{"risk_compliance_fc"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_compliance_fc' <?php if ($obj{"risk_compliance_fc"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Full compliance</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_compliance_mc' <?php if ($obj{"risk_compliance_mc"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_compliance_mc' <?php if ($obj{"risk_compliance_mc"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Minimal compliance</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_compliance_moc' <?php if ($obj{"risk_compliance_moc"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_compliance_moc' <?php if ($obj{"risk_compliance_moc"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Moderate compliance</b><br>
-	<img src="../../../images/space.gif" width="100" height="1">
-	<input type=checkbox name='risk_compliance_var' <?php if ($obj{"risk_compliance_var"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="100" height="1">
+    <input type=checkbox name='risk_compliance_var' <?php if ($obj{"risk_compliance_var"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Variable</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_compliance_no' <?php if ($obj{"risk_compliance_no"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_compliance_no' <?php if ($obj{"risk_compliance_no"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Little or no compliance</b><br>
 <br>	
 <b>Substance Abuse:</b><br><input type=checkbox name='risk_substance_na' <?php if ($obj{"risk_substance_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_substance_none' <?php if ($obj{"risk_substance_none"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_substance_none' <?php if ($obj{"risk_substance_none"} == "on") {echo "checked";
 };?>  >&nbsp;<b>None/normal use:</b><br>
     <textarea cols=100 rows=1 wrap=virtual name="risk_normal_use" ><?php echo stripslashes($obj{"risk_normal_use"});?></textarea><br>
-	<input type=checkbox name='risk_substance_ou' <?php if ($obj{"risk_substance_ou"} == "on") {echo "checked";
+    <input type=checkbox name='risk_substance_ou' <?php if ($obj{"risk_substance_ou"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Overuse</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_substance_dp' <?php if ($obj{"risk_substance_dp"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_substance_dp' <?php if ($obj{"risk_substance_dp"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Dependence</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_substance_ur' <?php if ($obj{"risk_substance_ur"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_substance_ur' <?php if ($obj{"risk_substance_ur"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Unstable remission of abuse</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_substance_ab' <?php if ($obj{"risk_substance_ab"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_substance_ab' <?php if ($obj{"risk_substance_ab"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Abuse</b><br>
 <br>	
 <b>Current physical or sexual abuse:</b><br><input type=checkbox name='risk_sexual_na' <?php if ($obj{"risk_sexual_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_sexual_y' <?php if ($obj{"risk_sexual_y"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_sexual_y' <?php if ($obj{"risk_sexual_y"} == "on") {echo "checked";
 };?>>&nbsp;<b>Yes</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_sexual_n' <?php if ($obj{"risk_sexual_n"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_sexual_n' <?php if ($obj{"risk_sexual_n"} == "on") {echo "checked";
 };?>>&nbsp;<b>No</b><br>
-	<b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_sexual_ry' <?php if ($obj{"risk_sexual_ry"} == "on") {echo "checked";
+    <b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_sexual_ry' <?php if ($obj{"risk_sexual_ry"} == "on") {echo "checked";
 };?>>&nbsp;<b>Yes</b>
-   	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_sexual_rn' <?php if ($obj{"risk_sexual_rn"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_sexual_rn' <?php if ($obj{"risk_sexual_rn"} == "on") {echo "checked";
 };?>>&nbsp;<b>No</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_sexual_cv' <?php if ($obj{"risk_sexual_cv"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_sexual_cv' <?php if ($obj{"risk_sexual_cv"} == "on") {echo "checked";
 };?>>&nbsp;<b>victum</b>
-	&nbsp;<input type=checkbox name='risk_sexual_cp' <?php if ($obj{"risk_sexual_cp"} == "on") {echo "checked";
+    &nbsp;<input type=checkbox name='risk_sexual_cp' <?php if ($obj{"risk_sexual_cp"} == "on") {echo "checked";
 };?>>&nbsp;<b>perpetrator</b><br>
-	<input type=checkbox name='risk_sexual_b' <?php if ($obj{"risk_sexual_b"} == "on") {echo "checked";
+    <input type=checkbox name='risk_sexual_b' <?php if ($obj{"risk_sexual_b"} == "on") {echo "checked";
 };?>>&nbsp;<b>Both</b>&nbsp;
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_sexual_nf' <?php if ($obj{"risk_sexual_nf"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_sexual_nf' <?php if ($obj{"risk_sexual_nf"} == "on") {echo "checked";
 };?>>&nbsp;<b>neither, but abuse exists in family</b>&nbsp;<br>
 <br>
 <b>Current child/elder abuse:</b><br><input type=checkbox name='risk_neglect_na' <?php if ($obj{"risk_neglect_na"} == "on") {echo "checked";
 };?>  >&nbsp;<b>Not Assessed</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_neglect_y' <?php if ($obj{"risk_neglect_y"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_neglect_y' <?php if ($obj{"risk_neglect_y"} == "on") {echo "checked";
 };?>>&nbsp;<b>Yes</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_neglect_n' <?php if ($obj{"risk_neglect_n"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_neglect_n' <?php if ($obj{"risk_neglect_n"} == "on") {echo "checked";
 };?>>&nbsp;<b>No</b><br>
-	<b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_neglect_ry' <?php if ($obj{"risk_neglect_ry"} == "on") {echo "checked";
+    <b>Legally reportable?</b>&nbsp;<input type=checkbox name='risk_neglect_ry' <?php if ($obj{"risk_neglect_ry"} == "on") {echo "checked";
 };?>>&nbsp;<b>Yes</b>
-   	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_neglect_rn' <?php if ($obj{"risk_neglect_rn"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_neglect_rn' <?php if ($obj{"risk_neglect_rn"} == "on") {echo "checked";
 };?>>&nbsp;<b>No</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_neglect_cv' <?php if ($obj{"risk_neglect_cv"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <b>If yes, client is </b>&nbsp;<input type=checkbox name='risk_neglect_cv' <?php if ($obj{"risk_neglect_cv"} == "on") {echo "checked";
 };?>>&nbsp;<b>victum</b>
-	&nbsp;<input type=checkbox name='risk_neglect_cp' <?php if ($obj{"risk_neglect_cp"} == "on") {echo "checked";
+    &nbsp;<input type=checkbox name='risk_neglect_cp' <?php if ($obj{"risk_neglect_cp"} == "on") {echo "checked";
 };?>>&nbsp;<b>perpetrator</b><br>
-	<input type=checkbox name='risk_neglect_cb' <?php if ($obj{"risk_neglect_cb"} == "on") {echo "checked";
+    <input type=checkbox name='risk_neglect_cb' <?php if ($obj{"risk_neglect_cb"} == "on") {echo "checked";
 };?>>&nbsp;<b>Both</b>&nbsp;
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_neglect_cn' <?php if ($obj{"risk_neglect_cn"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_neglect_cn' <?php if ($obj{"risk_neglect_cn"} == "on") {echo "checked";
 };?>>&nbsp;<b>neither, but abuse exists in family</b>&nbsp;<br>
 <br>
 
-	<b>If risk exists:</b>&nbsp;client&nbsp;<input type=checkbox name='risk_exists_c' <?php if ($obj{"risk_exists_c"} == "on") {echo "checked";
+    <b>If risk exists:</b>&nbsp;client&nbsp;<input type=checkbox name='risk_exists_c' <?php if ($obj{"risk_exists_c"} == "on") {echo "checked";
 };?>><b>can</b>&nbsp;
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_exists_cn' <?php if ($obj{"risk_exists_cn"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_exists_cn' <?php if ($obj{"risk_exists_cn"} == "on") {echo "checked";
 };?>>&nbsp;<b>cannot</b>&nbsp;
-	<b>meaningfully agree to a contract not to harm</b><br>
-	<input type=checkbox name='risk_exists_s' <?php if ($obj{"risk_exists_s"} == "on") {echo "checked";
+    <b>meaningfully agree to a contract not to harm</b><br>
+    <input type=checkbox name='risk_exists_s' <?php if ($obj{"risk_exists_s"} == "on") {echo "checked";
 };?>>&nbsp;<b>self</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_exists_o' <?php if ($obj{"risk_exists_o"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_exists_o' <?php if ($obj{"risk_exists_o"} == "on") {echo "checked";
 };?>>&nbsp;<b>others</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='risk_exists_b' <?php if ($obj{"risk_exists_b"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='risk_exists_b' <?php if ($obj{"risk_exists_b"} == "on") {echo "checked";
 };?>>&nbsp;<b>both</b><br><br>
-	
+    
     <b>Risk to community (criminal):</b><br>
     <textarea cols=100 rows=3 wrap=virtual name="risk_community" ><?php echo stripslashes($obj{"risk_community"});?></textarea><br>
-	
+    
 <b><u>Assessment Recommendations:</u></b><br><br>
 
 <b>Outpatient Psychotherapy:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='recommendations_psy_i' <?php if ($obj{"recommendations_psy_i"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='recommendations_psy_i' <?php if ($obj{"recommendations_psy_i"} == "on") {echo "checked";
 };?>>&nbsp;<b>Individual</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='recommendations_psy_f' <?php if ($obj{"recommendations_psy_f"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='recommendations_psy_f' <?php if ($obj{"recommendations_psy_f"} == "on") {echo "checked";
 };?>>&nbsp;<b>Family</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='recommendations_psy_m' <?php if ($obj{"recommendations_psy_m"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='recommendations_psy_m' <?php if ($obj{"recommendations_psy_m"} == "on") {echo "checked";
 };?>>&nbsp;<b>Marital/relational</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type=checkbox name='recommendations_psy_o' <?php if ($obj{"recommendations_psy_o"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type=checkbox name='recommendations_psy_o' <?php if ($obj{"recommendations_psy_o"} == "on") {echo "checked";
 };?>>&nbsp;<b>Other</b><br>
     <textarea cols=100 rows=3 wrap=virtual name="recommendations_psy_notes" ><?php echo stripslashes($obj{"recommendations_psy_notes"});?></textarea><br>
 
 <b>Date report sent to referral source:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<input type="text" name='refer_date' value="<?php echo stripslashes($obj{"refer_date"});?>">
-	<img src="../../../images/space.gif" width="5" height="1">
-	<b>Parent/Guardian:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
+    <input type="text" name='refer_date' value="<?php echo stripslashes($obj{"refer_date"});?>">
+    <img src="../../../images/space.gif" width="5" height="1">
+    <b>Parent/Guardian:</b>
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type="text" name='parent' value="<?php echo stripslashes($obj{"parent"});?>">
 <br>
 
 <b>Level of supervision needed:</b>
-	<br>
-	<textarea cols=100 rows=1 wrap=virtual name="supervision_level" ><?php echo stripslashes($obj{"supervision_level"});?></textarea><br>
-	<b>Type of program:</b><br>
-	<textarea cols=100 rows=1 wrap=virtual name="supervision_type" ><?php echo stripslashes($obj{"supervision_type"});?></textarea><br>
+    <br>
+    <textarea cols=100 rows=1 wrap=virtual name="supervision_level" ><?php echo stripslashes($obj{"supervision_level"});?></textarea><br>
+    <b>Type of program:</b><br>
+    <textarea cols=100 rows=1 wrap=virtual name="supervision_type" ><?php echo stripslashes($obj{"supervision_type"});?></textarea><br>
 
 <b>Residential or long-term placement recommended:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
-	<textarea cols=100 rows=1 wrap=virtual name="supervision_res" ><?php echo stripslashes($obj{"supervision_res"});?></textarea><br>
-	<b>Support services needed:</b><br>
-	<textarea cols=100 rows=1 wrap=virtual name="supervision_services" ><?php echo stripslashes($obj{"supervision_services"});?></textarea><br>
-		
-	<input type=checkbox name='support_ps' <?php if ($obj{"support_ps"} == "on") {echo "checked";
+    <img src="../../../images/space.gif" width="5" height="1">
+    <textarea cols=100 rows=1 wrap=virtual name="supervision_res" ><?php echo stripslashes($obj{"supervision_res"});?></textarea><br>
+    <b>Support services needed:</b><br>
+    <textarea cols=100 rows=1 wrap=virtual name="supervision_services" ><?php echo stripslashes($obj{"supervision_services"});?></textarea><br>
+        
+    <input type=checkbox name='support_ps' <?php if ($obj{"support_ps"} == "on") {echo "checked";
 };?>>&nbsp;<b>Parenting skills/child management</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='support_cs' <?php if ($obj{"support_cs"} == "on") {echo "checked";
 };?>>&nbsp;<b>Communication skills</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='support_sm' <?php if ($obj{"support_sm"} == "on") {echo "checked";
 };?>>&nbsp;<b>Stress management</b><br>
 
-	<input type=checkbox name='support_a' <?php if ($obj{"support_a"} == "on") {echo "checked";
+    <input type=checkbox name='support_a' <?php if ($obj{"support_a"} == "on") {echo "checked";
 };?>>&nbsp;<b>Assertiveness</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='support_o' <?php if ($obj{"support_o"} == "on") {echo "checked";
 };?>>&nbsp;<b>Other</b><br>
-	<textarea cols=100 rows=1 wrap=virtual name="support_ol" ><?php echo stripslashes($obj{"support_ol"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=1 wrap=virtual name="support_ol" ><?php echo stripslashes($obj{"support_ol"});?></textarea><br><br>
+    
 <b>Legal Services:</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_op' <?php if ($obj{"legal_op"} == "on") {echo "checked";
 };?>>&nbsp;<b>Offender program</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_so' <?php if ($obj{"legal_so"} == "on") {echo "checked";
 };?>>&nbsp;<b>Sex Offender Groups</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_sa' <?php if ($obj{"legal_sa"} == "on") {echo "checked";
 };?>>&nbsp;<b>Substance abuse</b><br>
-	
-	<input type=checkbox name='legal_ve' <?php if ($obj{"legal_ve"} == "on") {echo "checked";
+    
+    <input type=checkbox name='legal_ve' <?php if ($obj{"legal_ve"} == "on") {echo "checked";
 };?>>&nbsp;<b>Victum empathy group</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type=checkbox name='legal_ad' <?php if ($obj{"legal_ad"} == "on") {echo "checked";
 };?>>&nbsp;<b>Referral to advocate</b>
-	<img src="../../../images/space.gif" width="5" height="1">
+    <img src="../../../images/space.gif" width="5" height="1">
     <input type="text" name='legal_adl' value="<?php echo stripslashes($obj{"legal_adl"});?>">
-	<img src="../../../images/space.gif" width="5" height="1"><br>
+    <img src="../../../images/space.gif" width="5" height="1"><br>
     <input type=checkbox name='legal_o' <?php if ($obj{"legal_o"} == "on") {echo "checked";
 };?>>&nbsp;<b>Other:</b>
-	
-	<br>
+    
+    <br>
 
     <b>Other:</b><br>
-	<textarea cols=100 rows=1 wrap=virtual name="legal_ol" ><?php echo stripslashes($obj{"legal_ol"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=1 wrap=virtual name="legal_ol" ><?php echo stripslashes($obj{"legal_ol"});?></textarea><br><br>
+    
 <b><u>Referrals for Continuing Services</u></b><br><br>
 
 <b>Psychiatric Evaluation Psychotropic Medications:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_pepm" ><?php echo stripslashes($obj{"referrals_pepm"});?></textarea><br><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_pepm" ><?php echo stripslashes($obj{"referrals_pepm"});?></textarea><br><br>
 
 <b>Medical Care:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_mc" ><?php echo stripslashes($obj{"referrals_mc"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_mc" ><?php echo stripslashes($obj{"referrals_mc"});?></textarea><br><br>
+    
 <b>Educational/vocational services:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_vt" ><?php echo stripslashes($obj{"referrals_vt"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_vt" ><?php echo stripslashes($obj{"referrals_vt"});?></textarea><br><br>
+    
 <b>Other:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_o" ><?php echo stripslashes($obj{"referrals_o"});?></textarea><br><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_o" ><?php echo stripslashes($obj{"referrals_o"});?></textarea><br><br>
 
 <b>Current use of resources/services from other community agencies:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_cu" ><?php echo stripslashes($obj{"referrals_cu"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_cu" ><?php echo stripslashes($obj{"referrals_cu"});?></textarea><br><br>
+    
 <b>Documents to be obtainded (Release of Information Required):</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ><?php echo stripslashes($obj{"referrals_docs"});?></textarea><br><br>
-	
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ><?php echo stripslashes($obj{"referrals_docs"});?></textarea><br><br>
+    
 <b>Other needed resources and services:</b><br>
-	<textarea cols=100 rows=2 wrap=virtual name="referrals_or" ><?php echo stripslashes($obj{"referrals_or"});?></textarea><br><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_or" ><?php echo stripslashes($obj{"referrals_or"});?></textarea><br><br>
 
 <?php /* From New */ ?>
 

@@ -139,7 +139,7 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                                                     <?php echo xlt('Submit'); ?>
                                                 </a>
                                                 <a href='' class="btn btn-default btn-refresh" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0', 'RTop', 'reports/daily_summary_report.php')">
-                                                   <?php echo xlt('Reset'); ?>
+                                                    <?php echo xlt('Reset'); ?>
                                                 </a>
                                             </div>
                                         </div>

@@ -79,20 +79,20 @@ function postcalendar_pntables()
         'catname'       => 'pc_catname',
         'catcolor'      => 'pc_catcolor',
         'catdesc'       => 'pc_catdesc',
-        'recurrtype'	=> 	'pc_recurrtype',
-        'recurrspec'	=>	'pc_recurrspec',
-        'recurrfreq'	=>	'pc_recurrfreq',
-        'duration'		=>	'pc_duration',
-        'limit'			=>	'pc_dailylimit'
+        'recurrtype'    =>  'pc_recurrtype',
+        'recurrspec'    =>  'pc_recurrspec',
+        'recurrfreq'    =>  'pc_recurrfreq',
+        'duration'      =>  'pc_duration',
+        'limit'         =>  'pc_dailylimit'
         );
     $pc_limit = $prefix . '_postcalendar_limits';
     $pntable['postcalendar_limits'] = $pc_limit;
     $pntable['postcalendar_limits_column'] = array(
-        'limitid'		=>	'pc_limitid',
-        'catid'         =>	'pc_catid',
-        'starttime'     =>	'pc_starttime',
-        'endtime'		=>	'pc_endtime',
-        'limit'		    => 	'pc_limit'
+        'limitid'       =>  'pc_limitid',
+        'catid'         =>  'pc_catid',
+        'starttime'     =>  'pc_starttime',
+        'endtime'       =>  'pc_endtime',
+        'limit'         =>  'pc_limit'
         );
     return $pntable;
 }

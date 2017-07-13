@@ -703,9 +703,9 @@ function checkEventCollision($edata)
                 $collisions[] = $event;
             }
             $festart = strtotime($event['startTime']);
-            $feend	 = strtotime($event['startTime'] + $event['duration']);
+            $feend   = strtotime($event['startTime'] + $event['duration']);
             $estart  = strtotime($stime);
-            $eend	 = strtotime($etime);
+            $eend    = strtotime($etime);
 
             //echo "festart = $festart feend = $feend estart = $estart eend = $eend<br />";
             if ($festart < $eend && $feend > $estart) {
@@ -777,12 +777,12 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //======================================================================
     if(!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
     if(!empty($s_category)) $sql .= "AND ($s_category) ";
-    if(!empty($s_topic)) 	$sql .= "AND ($s_topic) ";
+    if(!empty($s_topic))    $sql .= "AND ($s_topic) ";
     if(!empty($collide_etime) && !empty($collide_stime)) {
         $sql .= "AND NOT ((pc_endTime <= '$collide_stime') OR (pc_startTime >= '$collide_etime')) AND pc_endTime IS NOT NULL ";
     }
-    if(!empty($category))	$sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
-    if(!empty($topic))		$sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+    if(!empty($category))   $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
+    if(!empty($topic))      $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
   //======================================================================
   //  Search sort and limitation
   //======================================================================
@@ -1128,7 +1128,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
       // add event to the array if we passed the permissions check
       // this is the common information
 
-        $events[$i]['intervals'] 	=($tmp['duration']/60)/	$GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
+        $events[$i]['intervals']    =($tmp['duration']/60)/ $GLOBALS['day_calandar_interval'];//sets the number of rows this event should span
 
         $events[$i]['eid']         = $tmp['eid'];
         $events[$i]['uname']       = $tmp['uname'];

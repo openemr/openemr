@@ -34,29 +34,29 @@ if ($jobid) {
         die(xl("Cannot find postscript document reference in ") . $jfname);
     }
 }
-    else if ($_GET['scan']) {
-        $ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
-    }
-    else {
-        $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . $_GET['file'];
-    }
+else if ($_GET['scan']) {
+    $ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
+}
+else {
+    $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . $_GET['file'];
+}
 
-    if (!file_exists($ffname)) {
-        die(xl("Cannot find ") . $ffname);
-    }
+if (!file_exists($ffname)) {
+    die(xl("Cannot find ") . $ffname);
+}
 
-    if (!is_readable($ffname)) {
-        die(xl("I do not have permission to read ") . $ffname);
-    }
+if (!is_readable($ffname)) {
+    die(xl("I do not have permission to read ") . $ffname);
+}
 
     ob_start();
 
     $ext = substr($ffname, strrpos($ffname, '.'));
     if ($ext == '.ps')
         passthru("TMPDIR=/tmp ps2pdf '$ffname' -");
-    else if ($ext == '.pdf' || $ext == '.PDF')
+else if ($ext == '.pdf' || $ext == '.PDF')
         readfile($ffname);
-    else
+else
         passthru("tiff2pdf '$ffname'");
 
     header("Pragma: public");

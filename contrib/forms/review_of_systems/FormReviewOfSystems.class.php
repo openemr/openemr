@@ -270,126 +270,126 @@ class FormReviewOfSystems extends ORDataObject {
         //a is array
         //a_bottom is the textually identified rows of a checkbox group
 
-        $at[1]['constitutional_fever'] 	=  "Fever";
-        $at[1]['constitutional_chills'] 	=  "Chills";
-        $at[1]['constitutional_fatigue'] 	=  "Fatigue";
-        $at[1]['constitutional_weakness'] 	=  "Weakness";
+        $at[1]['constitutional_fever']  =  "Fever";
+        $at[1]['constitutional_chills']     =  "Chills";
+        $at[1]['constitutional_fatigue']    =  "Fatigue";
+        $at[1]['constitutional_weakness']   =  "Weakness";
 
-        $at[2]['constitutional_night_sweats'] 	=  "Night Sweats";
-        $at[2]['constitutional__unexplained_weight_loss'] 	=  "Unexplained Weight Loss";
-        $at[2]['constitutional_unexplained_weight_gain'] 	=  "Unexplained Weight Gain";
+        $at[2]['constitutional_night_sweats']   =  "Night Sweats";
+        $at[2]['constitutional__unexplained_weight_loss']   =  "Unexplained Weight Loss";
+        $at[2]['constitutional_unexplained_weight_gain']    =  "Unexplained Weight Gain";
 
         $a['Constitutional'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['heent_changes_in_vision'] 	=  "Changes in Vision";
-        $at[1]['heent_light_sensitivity'] 	=  "Light Sensitivity";
-        $at[1]['heent_changes_in_hearing'] 	=  "Changes in Hearing";
-        $at[1]['heent_ringing_in_ears'] 	=  "Ringing in Ears";
+        $at[1]['heent_changes_in_vision']   =  "Changes in Vision";
+        $at[1]['heent_light_sensitivity']   =  "Light Sensitivity";
+        $at[1]['heent_changes_in_hearing']  =  "Changes in Hearing";
+        $at[1]['heent_ringing_in_ears']     =  "Ringing in Ears";
 
-        $at[2]['heent_frequent_nose_bleeds'] 	=  "Frequent Nose Bleeds";
-        $at[2]['heent_pain_with_swallowing'] 	=  "Pain with Swallowing";
-        $at[2]['heent_difficulty_swallowing'] 	=  "Difficulty Swallowing";
+        $at[2]['heent_frequent_nose_bleeds']    =  "Frequent Nose Bleeds";
+        $at[2]['heent_pain_with_swallowing']    =  "Pain with Swallowing";
+        $at[2]['heent_difficulty_swallowing']   =  "Difficulty Swallowing";
 
         $a['HEENT'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['endocrine_frequent_thirst'] 	=  "Frequent Thirst";
-        $at[1]['endocrine_frequent_urination'] 	=  "Frequent Urination";
-        $at[1]['endocrine_heat_intolerance'] 	=  "Heat Intolerance";
-        $at[1]['endocrine_brittle_hair'] 	=  "Brittle Hair";
+        $at[1]['endocrine_frequent_thirst']     =  "Frequent Thirst";
+        $at[1]['endocrine_frequent_urination']  =  "Frequent Urination";
+        $at[1]['endocrine_heat_intolerance']    =  "Heat Intolerance";
+        $at[1]['endocrine_brittle_hair']    =  "Brittle Hair";
 
         $a['Enodcrine'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['respiratory_shortness_of_breath'] 	=  "Shortness Of Breath";
-        $at[1]['respiratory_difficulty_breathing'] 	=  "Difficulty Breathing";
-        $at[1]['respiratory_wheezing'] 	=  "Wheezing";
-        $at[1]['respiratory_coughing_up_blood'] 	=  "Coughing up Blood";
+        $at[1]['respiratory_shortness_of_breath']   =  "Shortness Of Breath";
+        $at[1]['respiratory_difficulty_breathing']  =  "Difficulty Breathing";
+        $at[1]['respiratory_wheezing']  =  "Wheezing";
+        $at[1]['respiratory_coughing_up_blood']     =  "Coughing up Blood";
 
         $a['Respiratory'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['cv_chest_pain'] 	=  "Chest Pain";
-        $at[1]['cv_palpitations'] 	=  "Palpitations";
-        $at[1]['cv_shortness_of_breath_with_exertion'] 	=  "Shortness of Breath with Exertion";
-        $at[1]['cv_swelling_in_ankles'] 	=  "Swelling in Ankles";
+        $at[1]['cv_chest_pain']     =  "Chest Pain";
+        $at[1]['cv_palpitations']   =  "Palpitations";
+        $at[1]['cv_shortness_of_breath_with_exertion']  =  "Shortness of Breath with Exertion";
+        $at[1]['cv_swelling_in_ankles']     =  "Swelling in Ankles";
 
         $a['CV'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['gi_frequent_heartburn'] 	=  "Frequent Heartburn";
-        $at[1]['gi_vomiting'] 	=  "Vomiting";
-        $at[1]['gi_diarrhea'] 	=  "Diarrhea";
-        $at[1]['gi_constipation'] 	=  "Constipation";
+        $at[1]['gi_frequent_heartburn']     =  "Frequent Heartburn";
+        $at[1]['gi_vomiting']   =  "Vomiting";
+        $at[1]['gi_diarrhea']   =  "Diarrhea";
+        $at[1]['gi_constipation']   =  "Constipation";
 
-        $at[2]['gi_unusually_dark_stools'] 	=  "Unusually Dark Stools";
-        $at[2]['gi_vomiting_blood'] 	=  "Vomiting Blood";
+        $at[2]['gi_unusually_dark_stools']  =  "Unusually Dark Stools";
+        $at[2]['gi_vomiting_blood']     =  "Vomiting Blood";
 
         $a['GI'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['gu_pain_with_urination'] 	=  "Pain with Urination";
-        $at[1]['gu_difficulty_urinating'] 	=  "Difficulty Urinating";
-        $at[1]['gu_frequent_nightime_urination'] 	=  "Frequent Nightime Urination";
+        $at[1]['gu_pain_with_urination']    =  "Pain with Urination";
+        $at[1]['gu_difficulty_urinating']   =  "Difficulty Urinating";
+        $at[1]['gu_frequent_nightime_urination']    =  "Frequent Nightime Urination";
 
-        $at["Women"]['gu_women_pelvic_pain'] 	=  "Pelvic Pain";
-        $at["Women"]['gu_women_leaking_of_urine'] 	=  "Leaking of Urine";
-        $at["Women"]['gu_women_nipple_discharge'] 	=  "Nipple Discharge";
-        $at["Women"]['gu_women_breast_pain'] 	=  "Breast Pain";
+        $at["Women"]['gu_women_pelvic_pain']    =  "Pelvic Pain";
+        $at["Women"]['gu_women_leaking_of_urine']   =  "Leaking of Urine";
+        $at["Women"]['gu_women_nipple_discharge']   =  "Nipple Discharge";
+        $at["Women"]['gu_women_breast_pain']    =  "Breast Pain";
 
-        $at["Men"]['gu_men_difficulty_attaining_erection'] 	=  "Difficulty Attaining Erection";
-        $at["Men"]['gu_men_testicular_pain'] 	=  "Testicular Pain";
+        $at["Men"]['gu_men_difficulty_attaining_erection']  =  "Difficulty Attaining Erection";
+        $at["Men"]['gu_men_testicular_pain']    =  "Testicular Pain";
 
         $a['GU'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['musculoskeletal_pain_in_joints'] 	=  "Pain in Joints";
-        $at[1]['musculoskeletal_swollen_joints'] 	=  "Swollen Joints";
-        $at[1]['musculoskeletal_muscle_pain'] 	=  "Muscle Pain";
+        $at[1]['musculoskeletal_pain_in_joints']    =  "Pain in Joints";
+        $at[1]['musculoskeletal_swollen_joints']    =  "Swollen Joints";
+        $at[1]['musculoskeletal_muscle_pain']   =  "Muscle Pain";
 
         $a['Musculoskeletal'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['skin_rash'] 	=  "Rash";
-        $at[1]['skin_hives'] 	=  "Hives";
-        $at[1]['skin_changing_moles'] 	=  "Changing Moles";
-        $at[1]['skin_sores_wont_heal'] 	=  "Sores that Won't Heal";
+        $at[1]['skin_rash']     =  "Rash";
+        $at[1]['skin_hives']    =  "Hives";
+        $at[1]['skin_changing_moles']   =  "Changing Moles";
+        $at[1]['skin_sores_wont_heal']  =  "Sores that Won't Heal";
 
         $a['Skin'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['neurological_seizures'] 	=  "Seizures";
-        $at[1]['neurological_loss_of_conciousness'] 	=  "Loss of Conciousness";
-        $at[1]['neurological_speech_difficulty'] 	=  "Speech Difficulty";
-        $at[1]['neurological_memory_loss'] 	=  "Memory Loss";
+        $at[1]['neurological_seizures']     =  "Seizures";
+        $at[1]['neurological_loss_of_conciousness']     =  "Loss of Conciousness";
+        $at[1]['neurological_speech_difficulty']    =  "Speech Difficulty";
+        $at[1]['neurological_memory_loss']  =  "Memory Loss";
 
-        $at[2]['neurological_numbness'] 	=  "Numbness";
-        $at[2]['neurological_confusion'] 	=  "Confusion";
+        $at[2]['neurological_numbness']     =  "Numbness";
+        $at[2]['neurological_confusion']    =  "Confusion";
 
         $a['Neurological'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['hematologic_easy_bruising'] 	=  "Easy Bruising";
-        $at[1]['hematologic_bleeding_gums'] 	=  "Bleeding Gums";
+        $at[1]['hematologic_easy_bruising']     =  "Easy Bruising";
+        $at[1]['hematologic_bleeding_gums']     =  "Bleeding Gums";
 
         $a['Hematologic'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at["When sexually active,<br> are you active with:"]['sexually_active_men'] 	=  "Men";
-        $at["When sexually active,<br> are you active with:"]['sexually_active_women'] 	=  "Women";
-        $at["When sexually active,<br> are you active with:"]['sexually_active_both'] 	=  "Both";
+        $at["When sexually active,<br> are you active with:"]['sexually_active_men']    =  "Men";
+        $at["When sexually active,<br> are you active with:"]['sexually_active_women']  =  "Women";
+        $at["When sexually active,<br> are you active with:"]['sexually_active_both']   =  "Both";
 
         $a['General'] = $at;
 
@@ -397,6 +397,6 @@ class FormReviewOfSystems extends ORDataObject {
     }
 
 
-}	// end of Form
+}   // end of Form
 
 ?>

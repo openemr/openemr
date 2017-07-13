@@ -205,7 +205,8 @@ function process_commands(&$string_to_process, &$camos_return_data)
   //file_put_contents('./logging',$string_to_process."\n\n*************\n\n",FILE_APPEND);//DEBUG
 
 function replace($pid, $enc, $content)
-{ //replace placeholders with values
+{
+ //replace placeholders with values
     $name= '';
     $fname = '';
     $mname = '';
@@ -244,7 +245,8 @@ function replace($pid, $enc, $content)
     return $ret;
 }
 function patient_age($birthday, $date)
-{ //calculate age from birthdate and a given later date
+{
+ //calculate age from birthdate and a given later date
     list($birth_year,$birth_month,$birth_day) = explode("-",$birthday);
     list($date_year,$date_month,$date_day) = explode("-",$date);
     $year_diff  = $date_year - $birth_year;

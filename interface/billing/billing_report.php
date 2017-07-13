@@ -491,21 +491,21 @@ if(!isset($_REQUEST['mode']))//default case
           </tr>
 
         <?php if ($daysheet) { ?>
-		  <tr>
+          <tr>
             <td>&nbsp;</td>
             <td><a onClick="javascript:return SubmitTheEndDayPrint();" href="#"
     class='link_submit'  ><?php echo '['.xlt('End Of Day Report').']' ?></a>
-	<?php if ($daysheet_total) { ?>
-	<span class=text><?php echo xlt('Totals'); ?> </span>
-	<input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') echo "checked";?>>
-	<?php } ?>
-	<?php if ($provider_run) { ?>
-	<span class=text><?php echo xlt('Provider'); ?> </span>
-	<input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') echo "checked";?>>
-	<?php } ?>
-	</td>
+    <?php if ($daysheet_total) { ?>
+    <span class=text><?php echo xlt('Totals'); ?> </span>
+    <input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') echo "checked";?>>
+    <?php } ?>
+    <?php if ($provider_run) { ?>
+    <span class=text><?php echo xlt('Provider'); ?> </span>
+    <input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') echo "checked";?>>
+    <?php } ?>
+    </td>
           </tr>
-		<?php } ?>
+        <?php } ?>
           <tr>
             <td>&nbsp;</td>
             <td>
@@ -796,7 +796,7 @@ if ($ret = getBillsBetween("%"))
             EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>]=new Array;
             CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>]=new Array;
             EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>]=new Array;
-			EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>]=new Array;
+            EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>]=new Array;
             <?php
             while($rowresult4 = sqlFetchArray($result4))
              {
@@ -807,7 +807,7 @@ if ($ret = getBillsBetween("%"))
 ?>][Count]='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
                 CalendarCategoryArray[<?php echo attr($iter['enc_pid']);
 ?>][Count]='<?php echo htmlspecialchars( xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
-				EncounterNoteArray[<?php echo attr($iter['enc_pid']);
+                EncounterNoteArray[<?php echo attr($iter['enc_pid']);
 ?>][Count]='<?php echo htmlspecialchars($rowresult4['billing_note'], ENT_QUOTES); ?>';
                 Count++;
             <?php
@@ -1169,12 +1169,12 @@ if ($alertmsg) {
 ?>
 $(document).ready(function() {
     $("#view-log-link").click( function() {
-		top.restoreSession();
+        top.restoreSession();
         dlgopen('customize_log.php', '_blank', 500, 400);
     });
 
     $('input[type="submit"]').click( function() {
-		top.restoreSession();
+        top.restoreSession();
         $(this).attr('data-clicked', true);
     });
 
@@ -1188,7 +1188,7 @@ $(document).ready(function() {
             $(this).removeAttr("target");
             return top.restoreSession();
         } else {
-			top.restoreSession();
+            top.restoreSession();
             var w = window.open('about:blank','Popup_Window','toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=0,width=400,height=300,left = 312,top = 234');
             this.target = 'Popup_Window';
         }

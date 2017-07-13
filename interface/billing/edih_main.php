@@ -68,7 +68,7 @@ require_once("$srcdir/edihistory/edih_archive.php");        //dirname(__FILE__) 
 require_once("$srcdir/edihistory/edih_271_html.php");          //dirname(__FILE__) . "/edihist/ibr_ack_read.php");
 require_once("$srcdir/edihistory/edih_277_html.php");
 require_once("$srcdir/edihistory/edih_278_html.php");
-require_once("$srcdir/edihistory/edih_835_html.php");			//dirname(__FILE__) . "/edihist/ibr_era_read.php");
+require_once("$srcdir/edihistory/edih_835_html.php");           //dirname(__FILE__) . "/edihist/ibr_era_read.php");
 require_once("$srcdir/edihistory/codes/edih_271_code_class.php");      //dirname(__FILE__) . "/edihist/ibr_code_arrays.php");
 require_once("$srcdir/edihistory/codes/edih_835_code_class.php"); //dirname(__FILE__) . "/edihist/ibr_status_code_arrays.php");
 require_once("$srcdir/edihistory/codes/edih_997_codes.php");

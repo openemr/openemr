@@ -37,7 +37,7 @@ class SoapController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     

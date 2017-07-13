@@ -32,7 +32,7 @@ class NFQ_0002_Exclusion implements CqmFilterIF
     {
        //Children who are taking antibiotics in the 30 days prior to the diagnosis of pharyngitis
         $antibiotics  = implode(',',Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS,'RXNORM'));
-        $pharyngitis_snomed_codes 	= $pharyngitis_icd9_codes = $pharyngitis_icd10_codes = array();
+        $pharyngitis_snomed_codes   = $pharyngitis_icd9_codes = $pharyngitis_icd10_codes = array();
         foreach(Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS,'SNOMED-CT') as $code){ $pharyngitis_snomed_codes[] = "SNOMED-CT:".$code;}
         foreach(Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS,'ICD9') as $code){ $pharyngitis_icd9_codes[] = "ICD9:".$code;}
         foreach(Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS,'ICD10') as $code){ $pharyngitis_icd10_codes[] = "ICD10:".$code;}

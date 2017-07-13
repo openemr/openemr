@@ -122,8 +122,8 @@ if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
         <br/>
         <span class='text'>
 <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes:'),ENT_NOQUOTES); ?>
-	    <b><?php echo $N;?></b><br>
-	    <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
+        <b><?php echo $N;?></b><br>
+        <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'>
         <?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
       </span>
 <?php } ?>
@@ -197,9 +197,9 @@ if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
 <?php } else { ?>
         <br/>
         <span class='text'>
-	    <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'),ENT_NOQUOTES).":"; ?>
-	    <b><?php echo $M;?></b><br>
-	    <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
+        <?php echo htmlspecialchars(xl('Displaying the following number of most recent notes'),ENT_NOQUOTES).":"; ?>
+        <b><?php echo $M;?></b><br>
+        <a href='pnotes_full.php?s=1' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES); ?></a>
         </span>
         <?php
 } ?>

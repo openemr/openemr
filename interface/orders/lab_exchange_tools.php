@@ -348,7 +348,7 @@ function formatPhone($phone)
                 return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
         elseif(strlen($phone) == 10)
                 return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
-        else
+    else
                 return $phone;
 }
 

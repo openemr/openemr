@@ -416,116 +416,116 @@ class FormHpTjePrimary extends ORDataObject {
         //a is array
         //a_bottom is the textually identified rows of a checkbox group
 
-        $at[1]['headache_facial_pain_frontal'] 	=  "Frontal";
-        $at[1]['headache_facial_pain_frontal_l'] 	=  "L";
-        $at[1]['headache_facial_pain_frontal_r'] 	=  "R";
-        $at[1]['headache_facial_pain_temporal'] 	=  "Temporal";
-        $at[1]['headache_facial_pain_temporal_l'] 	=  "L";
-        $at[1]['headache_facial_pain_temporal_r'] 	=  "R";
-        $at[1]['headache_facial_pain_retro_orbtal'] 	=  "Retro-Orbital";
-        $at[1]['headache_facial_pain_retro_orbtal_l'] 	=  "L";
-        $at[1]['headache_facial_pain_retro_orbtal_r'] 	=  "R";
-        $at[1]['headache_facial_pain_zygoma'] 		=  "Zygoma";
-        $at[1]['headache_facial_pain_zygoma_l'] 	=  "L";
-        $at[1]['headache_facial_pain_zygoma_r'] 	=  "R";
+        $at[1]['headache_facial_pain_frontal']  =  "Frontal";
+        $at[1]['headache_facial_pain_frontal_l']    =  "L";
+        $at[1]['headache_facial_pain_frontal_r']    =  "R";
+        $at[1]['headache_facial_pain_temporal']     =  "Temporal";
+        $at[1]['headache_facial_pain_temporal_l']   =  "L";
+        $at[1]['headache_facial_pain_temporal_r']   =  "R";
+        $at[1]['headache_facial_pain_retro_orbtal']     =  "Retro-Orbital";
+        $at[1]['headache_facial_pain_retro_orbtal_l']   =  "L";
+        $at[1]['headache_facial_pain_retro_orbtal_r']   =  "R";
+        $at[1]['headache_facial_pain_zygoma']       =  "Zygoma";
+        $at[1]['headache_facial_pain_zygoma_l']     =  "L";
+        $at[1]['headache_facial_pain_zygoma_r']     =  "R";
 
-        $at[2]['headache_facial_pain_crown'] 		=  "Crown";
-        $at[2]['headache_facial_pain_crown_l'] 	=  "L";
-        $at[2]['headache_facial_pain_crown_r'] 	=  "R";
-        $at[2]['headache_facial_pain_occipital'] 	=  "Occipital";
+        $at[2]['headache_facial_pain_crown']        =  "Crown";
+        $at[2]['headache_facial_pain_crown_l']  =  "L";
+        $at[2]['headache_facial_pain_crown_r']  =  "R";
+        $at[2]['headache_facial_pain_occipital']    =  "Occipital";
         $at[2]['headache_facial_pain_occipital_l'] =  "L";
         $at[2]['headache_facial_pain_occipital_r'] =  "R";
-        $at[2]['headache_facial_pain_mastoid'] 	=  "Mastoid";
-        $at[2]['headache_facial_pain_mastoid_l'] 	=  "L";
-        $at[2]['headache_facial_pain_mastoid_r'] 	=  "R";
-        $at[2]['headache_facial_pain_jaw_muscles']		=  "Jaw Muscles";
-        $at[2]['headache_facial_pain_jaw_muscles_l'] 	=  "L";
-        $at[2]['headache_facial_pain_jaw_muscles_r'] 	=  "R";
+        $at[2]['headache_facial_pain_mastoid']  =  "Mastoid";
+        $at[2]['headache_facial_pain_mastoid_l']    =  "L";
+        $at[2]['headache_facial_pain_mastoid_r']    =  "R";
+        $at[2]['headache_facial_pain_jaw_muscles']      =  "Jaw Muscles";
+        $at[2]['headache_facial_pain_jaw_muscles_l']    =  "L";
+        $at[2]['headache_facial_pain_jaw_muscles_r']    =  "R";
 
         $a_bottom = $this->_name_rows("headache_facial_pain",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['Headaches / Facial Pain'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['neck_pain_anterior'] 	=  "Anterior";
-        $at[1]['neck_pain_anterior_l'] 	=  "L";
-        $at[1]['neck_pain_anterior_r'] 	=  "R";
-        $at[1]['neck_pain_posterior'] 	=  "Posterior";
-        $at[1]['neck_pain_posterior_l'] 	=  "L";
-        $at[1]['neck_pain_posterior_r'] 	=  "R";
-        $at[1]['neck_pain_radiating_to_head'] 	=  "Radiating to Head";
-        $at[1]['neck_pain_radiating_to_head_l'] 	=  "L";
-        $at[1]['neck_pain_radiating_to_head_r'] 	=  "R";
+        $at[1]['neck_pain_anterior']    =  "Anterior";
+        $at[1]['neck_pain_anterior_l']  =  "L";
+        $at[1]['neck_pain_anterior_r']  =  "R";
+        $at[1]['neck_pain_posterior']   =  "Posterior";
+        $at[1]['neck_pain_posterior_l']     =  "L";
+        $at[1]['neck_pain_posterior_r']     =  "R";
+        $at[1]['neck_pain_radiating_to_head']   =  "Radiating to Head";
+        $at[1]['neck_pain_radiating_to_head_l']     =  "L";
+        $at[1]['neck_pain_radiating_to_head_r']     =  "R";
 
         $a_bottom = $this->_name_rows("neck_pain",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['Neck Pain'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['shoulder_back_or_chest_shoulder'] 	=  "Shoulder";
-        $at[1]['shoulder_back_or_chest_shoulder_l'] 	=  "L";
-        $at[1]['shoulder_back_or_chest_shoulder_r'] 	=  "R";
-        $at[1]['shoulder_back_or_chest_back_upper'] 	=  "Back/Upper";
-        $at[1]['shoulder_back_or_chest_back_upper_l'] 	=  "L";
-        $at[1]['shoulder_back_or_chest_back_upper_r'] 	=  "R";
-        $at[1]['shoulder_back_or_chest_back_lower'] 	=  "Back/Lower";
-        $at[1]['shoulder_back_or_chest_back_lower_l'] 	=  "L";
-        $at[1]['shoulder_back_or_chest_back_lower_r'] 	=  "R";
-        $at[1]['shoulder_back_or_chest_chest'] 	=  "Chest";
-        $at[1]['shoulder_back_or_chest_chest_l'] 	=  "L";
-        $at[1]['shoulder_back_or_chest_chest_r'] 	=  "R";
-        $at[1]['shoulder_back_or_radiating_to_arm_hand'] 	=  "Radiating to arm/hand";
-        $at[1]['shoulder_back_or_radiating_to_arm_hand_l'] 	=  "L";
-        $at[1]['shoulder_back_or_radiating_to_arm_hand_r'] 	=  "R";
+        $at[1]['shoulder_back_or_chest_shoulder']   =  "Shoulder";
+        $at[1]['shoulder_back_or_chest_shoulder_l']     =  "L";
+        $at[1]['shoulder_back_or_chest_shoulder_r']     =  "R";
+        $at[1]['shoulder_back_or_chest_back_upper']     =  "Back/Upper";
+        $at[1]['shoulder_back_or_chest_back_upper_l']   =  "L";
+        $at[1]['shoulder_back_or_chest_back_upper_r']   =  "R";
+        $at[1]['shoulder_back_or_chest_back_lower']     =  "Back/Lower";
+        $at[1]['shoulder_back_or_chest_back_lower_l']   =  "L";
+        $at[1]['shoulder_back_or_chest_back_lower_r']   =  "R";
+        $at[1]['shoulder_back_or_chest_chest']  =  "Chest";
+        $at[1]['shoulder_back_or_chest_chest_l']    =  "L";
+        $at[1]['shoulder_back_or_chest_chest_r']    =  "R";
+        $at[1]['shoulder_back_or_radiating_to_arm_hand']    =  "Radiating to arm/hand";
+        $at[1]['shoulder_back_or_radiating_to_arm_hand_l']  =  "L";
+        $at[1]['shoulder_back_or_radiating_to_arm_hand_r']  =  "R";
 
         $a_bottom = $this->_name_rows("shoulder_back_or_chest",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['Shoulder, Back or Chest Pain'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['ear_symptoms_pain'] 	=  "Pain";
-        $at[1]['ear_symptoms_pain_l'] 	=  "L";
-        $at[1]['ear_symptoms_pain_r'] 	=  "R";
-        $at[1]['ear_symptoms_tinnitus'] 	=  "Tinnitus";
-        $at[1]['ear_symptoms_tinnitus_l'] 	=  "L";
-        $at[1]['ear_symptoms_tinnitus_r'] 	=  "R";
-        $at[1]['ear_symptoms_stuffiness'] 	=  "Stuffiness";
-        $at[1]['ear_symptoms_stuffiness_l'] 	=  "L";
-        $at[1]['ear_symptoms_stuffiness_r'] 	=  "R";
-        $at[1]['ear_symptoms_hearing_loss'] 	=  "Hearing Loss";
-        $at[1]['ear_symptoms_hearing_loss_l'] 	=  "L";
-        $at[1]['ear_symptoms_hearing_loss_r'] 	=  "R";
+        $at[1]['ear_symptoms_pain']     =  "Pain";
+        $at[1]['ear_symptoms_pain_l']   =  "L";
+        $at[1]['ear_symptoms_pain_r']   =  "R";
+        $at[1]['ear_symptoms_tinnitus']     =  "Tinnitus";
+        $at[1]['ear_symptoms_tinnitus_l']   =  "L";
+        $at[1]['ear_symptoms_tinnitus_r']   =  "R";
+        $at[1]['ear_symptoms_stuffiness']   =  "Stuffiness";
+        $at[1]['ear_symptoms_stuffiness_l']     =  "L";
+        $at[1]['ear_symptoms_stuffiness_r']     =  "R";
+        $at[1]['ear_symptoms_hearing_loss']     =  "Hearing Loss";
+        $at[1]['ear_symptoms_hearing_loss_l']   =  "L";
+        $at[1]['ear_symptoms_hearing_loss_r']   =  "R";
 
         $a_bottom = $this->_name_rows("ear_symptoms",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['Ear Symptoms'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['eye_symptoms_pain'] 	=  "Pain";
-        $at[1]['eye_symptoms_pain_l'] 	=  "L";
-        $at[1]['eye_symptoms_pain_r'] 	=  "R";
-        $at[1]['eye_symptoms_burning'] 	=  "Burning";
-        $at[1]['eye_symptoms_burning_l'] 	=  "L";
-        $at[1]['eye_symptoms_burning_r'] 	=  "R";
-        $at[1]['eye_symptoms_tearing'] 	=  "Tearing";
-        $at[1]['eye_symptoms_tearing_l'] 	=  "L";
-        $at[1]['eye_symptoms_tearing_r'] 	=  "R";
-        $at[1]['eye_symptoms_change_in_vision'] 	=  "Change in Vision";
-        $at[1]['eye_symptoms_change_in_vision_l'] 	=  "L";
-        $at[1]['eye_symptoms_change_in_vision_r'] 	=  "R";
-        $at[1]['eye_symptoms_bluriness'] 	=  "Bluriness";
-        $at[1]['eye_symptoms_bluriness_l'] 	=  "L";
-        $at[1]['eye_symptoms_bluriness_r'] 	=  "R";
+        $at[1]['eye_symptoms_pain']     =  "Pain";
+        $at[1]['eye_symptoms_pain_l']   =  "L";
+        $at[1]['eye_symptoms_pain_r']   =  "R";
+        $at[1]['eye_symptoms_burning']  =  "Burning";
+        $at[1]['eye_symptoms_burning_l']    =  "L";
+        $at[1]['eye_symptoms_burning_r']    =  "R";
+        $at[1]['eye_symptoms_tearing']  =  "Tearing";
+        $at[1]['eye_symptoms_tearing_l']    =  "L";
+        $at[1]['eye_symptoms_tearing_r']    =  "R";
+        $at[1]['eye_symptoms_change_in_vision']     =  "Change in Vision";
+        $at[1]['eye_symptoms_change_in_vision_l']   =  "L";
+        $at[1]['eye_symptoms_change_in_vision_r']   =  "R";
+        $at[1]['eye_symptoms_bluriness']    =  "Bluriness";
+        $at[1]['eye_symptoms_bluriness_l']  =  "L";
+        $at[1]['eye_symptoms_bluriness_r']  =  "R";
 
         $a_bottom = $this->_name_rows("eye_symptoms",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['Eye Symptoms'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['teeth_sore'] 	=  "Sore";
-        $at[1]['teeth_mobile'] 	=  "Mobile";
-        $at[1]['teeth_fractured'] 	=  "Fractured";
-        $at[1]['teeth_avulsed'] 	=  "Avulsed";
+        $at[1]['teeth_sore']    =  "Sore";
+        $at[1]['teeth_mobile']  =  "Mobile";
+        $at[1]['teeth_fractured']   =  "Fractured";
+        $at[1]['teeth_avulsed']     =  "Avulsed";
         //special actions are included for teeth in the template
 
         $a_bottom = $this->_name_rows("teeth",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
@@ -535,170 +535,170 @@ class FormHpTjePrimary extends ORDataObject {
 
         $at = array();
         $a_bottom = array();
-        $at[1]['tmj_pain_l'] 	=  "L";
-        $at[1]['tmp_pain_r'] 	=  "R";
+        $at[1]['tmj_pain_l']    =  "L";
+        $at[1]['tmp_pain_r']    =  "R";
 
         $a_bottom = $this->_name_rows("tmj_pain",array("onset","intensity","duration","frequency","quality of pain","aggravation","occurance"));
         $a['TMJ Pain'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['tmj_clicking_crepitation_clicking'] 	=  "Clicking";
-        $at[1]['tmj_clicking_crepitation_clicking_l'] 	=  "L";
-        $at[1]['tmj_clicking_crepitation_clicking_r'] 	=  "R";
-        $at[1]['tmj_clicking_crepitation_crepitation'] 	=  "Crepitation";
-        $at[1]['tmj_clicking_crepitation_crepitation_l'] 	=  "L";
-        $at[1]['tmj_clicking_crepitation_crepitation_r'] 	=  "R";
+        $at[1]['tmj_clicking_crepitation_clicking']     =  "Clicking";
+        $at[1]['tmj_clicking_crepitation_clicking_l']   =  "L";
+        $at[1]['tmj_clicking_crepitation_clicking_r']   =  "R";
+        $at[1]['tmj_clicking_crepitation_crepitation']  =  "Crepitation";
+        $at[1]['tmj_clicking_crepitation_crepitation_l']    =  "L";
+        $at[1]['tmj_clicking_crepitation_crepitation_r']    =  "R";
 
         $a_bottom = $this->_name_rows("tmj_clicking_crepitation",array("onset","intensity","frequency","aggravation"));
         $a['TMJ Clicking / Crepitation'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['tmj_catching_locking_catching'] 	=  "Catching";
-        $at[1]['tmj_catching_locking_catching_l'] 	=  "L";
-        $at[1]['tmj_catching_locking_catching_r'] 	=  "R";
-        $at[1]['tmj_catching_locking_locking_closed'] 	=  "Locking Closed";
-        $at[1]['tmj_catching_locking_locking_closed_l'] 	=  "L";
-        $at[1]['tmj_catching_locking_locking_closed_r'] 	=  "R";
-        $at[1]['tmj_catching_locking_locking_open'] 	=  "Locking Open";
-        $at[1]['tmj_catching_locking_locking_open_l'] 	=  "L";
-        $at[1]['tmj_catching_locking_locking_open_r'] 	=  "R";
+        $at[1]['tmj_catching_locking_catching']     =  "Catching";
+        $at[1]['tmj_catching_locking_catching_l']   =  "L";
+        $at[1]['tmj_catching_locking_catching_r']   =  "R";
+        $at[1]['tmj_catching_locking_locking_closed']   =  "Locking Closed";
+        $at[1]['tmj_catching_locking_locking_closed_l']     =  "L";
+        $at[1]['tmj_catching_locking_locking_closed_r']     =  "R";
+        $at[1]['tmj_catching_locking_locking_open']     =  "Locking Open";
+        $at[1]['tmj_catching_locking_locking_open_l']   =  "L";
+        $at[1]['tmj_catching_locking_locking_open_r']   =  "R";
 
         $a_bottom = $this->_name_rows("tmj_catching_locking",array("onset","intensity","frequency","aggravation"));
         $a['TMJ Catching / Locking'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['tmj_chewing_swallowing_difficult'] 	=  "Difficult";
-        $at[1]['tmj_chewing_swallowing_painful'] 	=  "Painful";
+        $at[1]['tmj_chewing_swallowing_difficult']  =  "Difficult";
+        $at[1]['tmj_chewing_swallowing_painful']    =  "Painful";
 
         $a_bottom = $this->_name_rows("tmj_chewing_swallowing",array("onset","intensity"));
         $a['TMJ Chewing / Swallowing'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['sinus_pain'] 	=  "Pain";
-        $at[1]['sinus_pressure'] 	=  "Pressure";
-        $at[1]['sinus_drainage'] 	=  "Drainage";
-        $at[1]['sinus_infection'] 	=  "Infection";
+        $at[1]['sinus_pain']    =  "Pain";
+        $at[1]['sinus_pressure']    =  "Pressure";
+        $at[1]['sinus_drainage']    =  "Drainage";
+        $at[1]['sinus_infection']   =  "Infection";
 
         $a_bottom = $this->_name_rows("sinus",array("onset"));
         $a['Sinus'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['migraine_headache_aura'] 	=  "Aura";
-        $at[1]['migraine_headache_nausea'] 	=  "Nausea";
-        $at[1]['migraine_headache_relieved_by_vascular_drugs'] 	=  "Relieved by Vascular Drugs";
-        $at[1]['migraine_headache_vertigo'] 	=  "Vertigo";
+        $at[1]['migraine_headache_aura']    =  "Aura";
+        $at[1]['migraine_headache_nausea']  =  "Nausea";
+        $at[1]['migraine_headache_relieved_by_vascular_drugs']  =  "Relieved by Vascular Drugs";
+        $at[1]['migraine_headache_vertigo']     =  "Vertigo";
 
         $a_bottom = $this->_name_rows("migraine_headache",array("onset","intensity","duration","frequency","aggravation"));
         $a['Migraine Headache'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['dizziness_loss_of_balance'] 	=  "Loss of Balance";
-        $at[1]['dizziness_vertigo'] 	=  "Vertigo";
-        $at[1]['dizziness_spatial_distortion'] 	=  "Spatial Distortion";
-        $at[1]['dizziness_syncope'] 	=  "Syncope";
-        $at[1]['dizziness_nausea'] 	=  "Nausea";
+        $at[1]['dizziness_loss_of_balance']     =  "Loss of Balance";
+        $at[1]['dizziness_vertigo']     =  "Vertigo";
+        $at[1]['dizziness_spatial_distortion']  =  "Spatial Distortion";
+        $at[1]['dizziness_syncope']     =  "Syncope";
+        $at[1]['dizziness_nausea']  =  "Nausea";
 
         $a_bottom = $this->_name_rows("dizziness",array("onset","intensity","duration","frequency","aggravation"));
         $a['Dizziness'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['neuralgia_tic_doloreau'] 	=  "Tic Doloreau";
-        $at[1]['neuralgia_tic_doloreau_l'] 	=  "L";
-        $at[1]['neuralgia_tic_doloreau_r'] 	=  "R";
-        $at[1]['neuralgia_parasthesis'] 	=  "Parasthesis";
-        $at[1]['neuralgia_parasthesis_l'] 	=  "L";
-        $at[1]['neuralgia_parasthesis_r'] 	=  "R";
-        $at[1]['neuralgia_numbness'] 	=  "Numbness";
-        $at[1]['neuralgia_numbness_l'] 	=  "L";
-        $at[1]['neuralgia_numbness_r'] 	=  "R";
+        $at[1]['neuralgia_tic_doloreau']    =  "Tic Doloreau";
+        $at[1]['neuralgia_tic_doloreau_l']  =  "L";
+        $at[1]['neuralgia_tic_doloreau_r']  =  "R";
+        $at[1]['neuralgia_parasthesis']     =  "Parasthesis";
+        $at[1]['neuralgia_parasthesis_l']   =  "L";
+        $at[1]['neuralgia_parasthesis_r']   =  "R";
+        $at[1]['neuralgia_numbness']    =  "Numbness";
+        $at[1]['neuralgia_numbness_l']  =  "L";
+        $at[1]['neuralgia_numbness_r']  =  "R";
 
-        $at[2]['neuralgia_cold_spots'] 	=  "\"Cold Spots\"";
-        $at[2]['neuralgia_cold_spots_l'] 	=  "L";
-        $at[2]['neuralgia_cold_spots_r'] 	=  "R";
-        $at[2]['neuralgia_burning_tungue_lips_mouth'] 	=  "Burning Lips/Tongue/Mouth";
-        $at[2]['neuralgia_burning_tungue_lips_mouth_l'] 	=  "L";
-        $at[2]['neuralgia_burning_tungue_lips_mouth_r'] 	=  "R";
-        $at[2]['neuralgia_hyperalgesia'] 	=  "Hyperalgesia";
-        $at[2]['neuralgia_hyperalgesia_l'] 	=  "L";
-        $at[2]['neuralgia_hyperalgesia_r'] 	=  "R";
+        $at[2]['neuralgia_cold_spots']  =  "\"Cold Spots\"";
+        $at[2]['neuralgia_cold_spots_l']    =  "L";
+        $at[2]['neuralgia_cold_spots_r']    =  "R";
+        $at[2]['neuralgia_burning_tungue_lips_mouth']   =  "Burning Lips/Tongue/Mouth";
+        $at[2]['neuralgia_burning_tungue_lips_mouth_l']     =  "L";
+        $at[2]['neuralgia_burning_tungue_lips_mouth_r']     =  "R";
+        $at[2]['neuralgia_hyperalgesia']    =  "Hyperalgesia";
+        $at[2]['neuralgia_hyperalgesia_l']  =  "L";
+        $at[2]['neuralgia_hyperalgesia_r']  =  "R";
 
         $a_bottom = $this->_name_rows("neuralgia",array("onset","intensity","duration","frequency","aggravation"));
         $a['Neuralgia'] = array_merge($at, $a_bottom);
 
         $at = array();
         $a_bottom = array();
-        $at[1]['history_digenerative_joint_disease'] 	=  "Degenerative Joint Disease";
-        $at[1]['history_rheumatoid_arthritis'] 	=  "Rheumatoid Arthritis";
-        $at[1]['history_psioratic_arthritis'] 	=  "Psioratic Arthiritis";
+        $at[1]['history_digenerative_joint_disease']    =  "Degenerative Joint Disease";
+        $at[1]['history_rheumatoid_arthritis']  =  "Rheumatoid Arthritis";
+        $at[1]['history_psioratic_arthritis']   =  "Psioratic Arthiritis";
 
-        $at[2]['history_lupus_erythmatosis'] 	=  "Lupus Erythmatosis";
-        $at[2]['history_scleroderma'] 	=  "Scleroderma";
-        $at[2]['history_other'] 	=  "Other";
+        $at[2]['history_lupus_erythmatosis']    =  "Lupus Erythmatosis";
+        $at[2]['history_scleroderma']   =  "Scleroderma";
+        $at[2]['history_other']     =  "Other";
 
         $a['History'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['precipitating_factors_direct_trauma'] 	=  "Direct Trauma";
-        $at[1]['precipitating_factors_airbag'] 	=  "Airbag";
-        $at[1]['precipitating_factors_whiplash'] 	=  "Whiplash";
-        $at[1]['precipitating_factors_biting_on_foreign_object'] 	=  "Biting on Foreign Object";
+        $at[1]['precipitating_factors_direct_trauma']   =  "Direct Trauma";
+        $at[1]['precipitating_factors_airbag']  =  "Airbag";
+        $at[1]['precipitating_factors_whiplash']    =  "Whiplash";
+        $at[1]['precipitating_factors_biting_on_foreign_object']    =  "Biting on Foreign Object";
 
-        $at[2]['precipitating_factors_intubation'] 	=  "Intubation";
-        $at[2]['precipitating_factors_forced_hypertranslation'] 	=  "Forced Hypertranslation";
-        $at[2]['precipitating_factors_medication'] 	=  "Medication (Phenothiazines,etc.)";
-        $at[2]['precipitating_factors_other'] 	=  "Other";
+        $at[2]['precipitating_factors_intubation']  =  "Intubation";
+        $at[2]['precipitating_factors_forced_hypertranslation']     =  "Forced Hypertranslation";
+        $at[2]['precipitating_factors_medication']  =  "Medication (Phenothiazines,etc.)";
+        $at[2]['precipitating_factors_other']   =  "Other";
 
         $a['Precipitating Factors'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['predisposing_factors_previous_injury_problem'] 	=  "Previous Injury/Problem";
-        $at[1]['predisposing_factors_ligament_laxity'] 	=  "Ligament Laxity";
-        $at[1]['predisposing_factors_deep_bite'] 	=  "Deep Bite";
-        $at[1]['predisposing_factors_midline_division'] 	=  "Midline Division";
+        $at[1]['predisposing_factors_previous_injury_problem']  =  "Previous Injury/Problem";
+        $at[1]['predisposing_factors_ligament_laxity']  =  "Ligament Laxity";
+        $at[1]['predisposing_factors_deep_bite']    =  "Deep Bite";
+        $at[1]['predisposing_factors_midline_division']     =  "Midline Division";
 
-        $at[2]['predisposing_factors_loss_of_posterior_support'] 	=  "Loss of Posterior Support";
-        $at[2]['predisposing_factors_mandibular_retrusion'] 	=  "Mandibular Retrusion";
-        $at[2]['predisposing_factors_occlusal_alterations'] 	=  "Occlusal Alterations";
-        $at[2]['predisposing_factors_clenching_bruxing'] 	=  "Clenching/Bruxing";
+        $at[2]['predisposing_factors_loss_of_posterior_support']    =  "Loss of Posterior Support";
+        $at[2]['predisposing_factors_mandibular_retrusion']     =  "Mandibular Retrusion";
+        $at[2]['predisposing_factors_occlusal_alterations']     =  "Occlusal Alterations";
+        $at[2]['predisposing_factors_clenching_bruxing']    =  "Clenching/Bruxing";
 
         $a['Predisposing Factors'] = $at;
 
         $at = array();
         $a_bottom = array();
-        $at[1]['perpetuating_factors_previous_injury_problem'] 	=  "Previous Injury/Problem";
-        $at[1]['perpetuating_factors_ligament_laxity'] 	=  "Ligament Laxity";
-        $at[1]['perpetuating_factors_deep_bite'] 	=  "Deep Bite";
-        $at[1]['perpetuating_factors_midline_division'] 	=  "Midline Division";
+        $at[1]['perpetuating_factors_previous_injury_problem']  =  "Previous Injury/Problem";
+        $at[1]['perpetuating_factors_ligament_laxity']  =  "Ligament Laxity";
+        $at[1]['perpetuating_factors_deep_bite']    =  "Deep Bite";
+        $at[1]['perpetuating_factors_midline_division']     =  "Midline Division";
 
-        $at[2]['perpetuating_factors_loss_of_posterior_support'] 	=  "Loss of Posterior Support";
-        $at[2]['perpetuating_factors_mandibular_retrusion'] 	=  "Mandibular Retrusion";
-        $at[2]['perpetuating_factors_occlusal_alterations'] 	=  "Occlusal Alterations";
-        $at[2]['perpetuating_factors_clenching_bruxing'] 	=  "Clenching/Bruxing";
+        $at[2]['perpetuating_factors_loss_of_posterior_support']    =  "Loss of Posterior Support";
+        $at[2]['perpetuating_factors_mandibular_retrusion']     =  "Mandibular Retrusion";
+        $at[2]['perpetuating_factors_occlusal_alterations']     =  "Occlusal Alterations";
+        $at[2]['perpetuating_factors_clenching_bruxing']    =  "Clenching/Bruxing";
 
         $a['Perpetuating Factors'] = $at;
 
         return $a;
     }
 
-    function _name_rows ($name,$row_array)
+    function _name_rows($name,$row_array)
     {
         $a = array();
         foreach ($row_array as $row) {
             switch(strtolower($row)) {
                 case "onset":
-                    $a["Onset"][$name . '_onset_precipitated_by_accident'] 		=  "Precipitated By Accident";
-                    $a["Onset"][$name . '_onset_aggravated_by_accident'] 	=  "Aggravated By Accident";
-                    $a["Onset"][$name . '_onset_pre_existing'] 	=  "Pre-existing";
-                    $a["Onset"][$name . '_onset_other'] 	=  "Other";
+                    $a["Onset"][$name . '_onset_precipitated_by_accident']      =  "Precipitated By Accident";
+                    $a["Onset"][$name . '_onset_aggravated_by_accident']    =  "Aggravated By Accident";
+                    $a["Onset"][$name . '_onset_pre_existing']  =  "Pre-existing";
+                    $a["Onset"][$name . '_onset_other']     =  "Other";
                     break;
                 case "intensity":
                     $a["Intensity"][$name . '_intensity_mild'] =  "Mild";
@@ -743,6 +743,6 @@ class FormHpTjePrimary extends ORDataObject {
         return $a;
     }
 
-}	// end of Form
+}   // end of Form
 
 ?>

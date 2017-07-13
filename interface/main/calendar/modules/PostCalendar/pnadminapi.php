@@ -262,7 +262,8 @@ function postcalendar_adminapi_buildAMPMSelect($args)
 }
 
 function postcalendar_adminapi_waiting($args)
-{   $output = new pnHTML();
+{
+    $output = new pnHTML();
     $output = "waiting<br />";
     return $output->GetOutput();
 }

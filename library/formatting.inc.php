@@ -128,7 +128,8 @@ function DateFormatRead($mode='legacy')
 }
 
 function DateToYYYYMMDD($DateValue)
-{//With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
+{
+//With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
  //But in database the date can be stored only in the yyyy-mm-dd format.
  //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
     if(trim($DateValue)=='')

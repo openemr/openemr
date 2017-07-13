@@ -473,10 +473,10 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
        prev(w_count);
       }
       var tot_res = res_array.length/w_count;
-	  if(tot_res > 0){
-		document.getElementById('alert_msg').innerHTML='<?php echo xla('Showing result');
+      if(tot_res > 0){
+        document.getElementById('alert_msg').innerHTML='<?php echo xla('Showing result');
 ?> '+cur_res+' <?php echo xla('of');?> '+tot_res;
-	  }
+      }
     }
 
   }

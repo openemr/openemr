@@ -415,7 +415,7 @@ class HTML_TreeNode
         $this->isDynamic     = true;
         $this->ensureVisible = false;
         $this->linkTarget    = null;
-        $this->id 			 = null;
+        $this->id            = null;
 
         $this->parent        = null;
         $this->events        = $events;

@@ -238,15 +238,15 @@ $(document).ready(function() {
 <table>
  <tr>
   <td width='630px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
-				<?php xl('Facility','e'); ?>:
-			</td>
-			<td>
-				<?php
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
+                <?php xl('Facility','e'); ?>:
+            </td>
+            <td>
+                <?php
                  // Build a drop-down list of facilities.
                  //
                  $query = "SELECT id, name FROM facility ORDER BY name";
@@ -264,56 +264,56 @@ $(document).ready(function() {
                  echo ">-- " . xl('Unspecified') . " --\n";
                  echo "   </select>\n";
                 ?>
-			</td>
-			<td class='label_custom'>
+            </td>
+            <td class='label_custom'>
                 <?php xl('DOS','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
-				title='Date of appointments mm/dd/yyyy' >
-			</td>
-			<td class='label_custom'>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>'
+                title='Date of appointments mm/dd/yyyy' >
+            </td>
+            <td class='label_custom'>
                 <?php xl('To','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
-				title='Optional end date mm/dd/yyyy' >
-			</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>
-			   <input type='checkbox' name='form_details'
-				value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
-			</td>
-		</tr>
-	</table>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>'
+                title='Optional end date mm/dd/yyyy' >
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>
+               <input type='checkbox' name='form_details'
+                value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php xl('Submit','e'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php xl('Submit','e'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php xl('Print','e'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php xl('Print','e'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -537,7 +537,7 @@ if ($res) {
 </div> <!-- end the apptenc_report_results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
 <?php } ?>
 

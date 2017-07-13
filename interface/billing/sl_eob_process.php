@@ -65,11 +65,11 @@ function writeDetailLine(
 ) {
     global $last_ptname, $last_invnumber, $last_code;
     if ($ptname == $last_ptname) $ptname = '&nbsp;';
-        else $last_ptname = $ptname;
+    else $last_ptname = $ptname;
     if ($invnumber == $last_invnumber) $invnumber = '&nbsp;';
-        else $last_invnumber = $invnumber;
+    else $last_invnumber = $invnumber;
     if ($code == $last_code) $code = '&nbsp;';
-        else $last_code = $code;
+    else $last_code = $code;
     if ($amount ) $amount  = sprintf("%.2f", $amount );
     if ($balance) $balance = sprintf("%.2f", $balance);
     $dline =
@@ -89,7 +89,7 @@ function writeDetailLine(
     // charge item.
     //
 function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
-    {
+{
     global $invoice_total;
     // $prev['total'] = 0.00; // to accumulate total charges
     ksort($prev['dtl']);
@@ -110,7 +110,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
     // This is called back by parse_era() once per claim.
     //
 function era_callback_check(&$out)
-    {
+{
     global $InsertionId;//last inserted ID of
     global $StringToEcho,$debug;
 

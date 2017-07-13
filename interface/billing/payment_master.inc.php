@@ -145,74 +145,74 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
  {//New entry or edit in edit screen comes here.
 ?>
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
-	  <tr height="5">
-		<td colspan="14" align="left" ></td>
-	  </tr>
-	  <tr>
-		<td colspan="14" align="left">&nbsp;<font class='title'>
-		<?php
+    <table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+      <tr height="5">
+        <td colspan="14" align="left" ></td>
+      </tr>
+      <tr>
+        <td colspan="14" align="left">&nbsp;<font class='title'>
+        <?php
         if($_REQUEST['ParentPage']=='new_payment')//This case comes when the Finish Payments is pressed from the New Payment screen.
           {
             ?>
-			<?php echo htmlspecialchars( xl('Confirm Payment'), ENT_QUOTES) ?>
-		<?php
+            <?php echo htmlspecialchars( xl('Confirm Payment'), ENT_QUOTES) ?>
+        <?php
         }
         elseif($screen=='new_payment')
           {
             ?>
-			<?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?>
-		<?php
+            <?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?>
+        <?php
         }
         else
           {
             ?>
-			<?php echo htmlspecialchars( xl('Edit Payment'), ENT_QUOTES) ?>
-		<?php
+            <?php echo htmlspecialchars( xl('Edit Payment'), ENT_QUOTES) ?>
+        <?php
         }
             ?>
-		</font></td>
-	  </tr>
-	  <tr height="20">
-	    <td align="left" width="5" ></td>
-		<td align="left" width="110" ></td>
-		<td align="left" width="128"></td>
-		<td align="left" width="25"></td>
-		<td align="left" width="5"></td>
-	    <td align="left" width="85"></td>
-	    <td align="left" width="128"></td>
-	    <td align="left" width="25"></td>
-	    <td align="left" width="5"></td>
-	    <td align="left" width="113"></td>
-	    <td align="left" width="125"></td>
-	    <td align="left" width="5"></td>
-	    <td align="left" width="93"></td>
-	    <td align="left" width="152"></td>
-	    </tr>
-	  <tr>
-	    <td align="left" class='text'></td>
-		<td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
-		<td align="left" class="text" ><input type='text' size='9' class='datepicker' name='check_date' id='check_date' class="class1 text "  value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
-		<td> </td>
-		<td></td>
-	    <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
-	    <td align="left" class="text"><input type='text' size='9' class='datepicker' name='post_to_date' id='post_to_date' class="class1 text "   value="<?php echo $screen=='new_payment'?htmlspecialchars(oeFormatShortDate(date('Y-m-d'))):htmlspecialchars(oeFormatShortDate($PostToDate));?>" /></td>
-	    <td> </td>
-	    <td></td>
-	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
-	    <td align="left">
-			<?php
+        </font></td>
+      </tr>
+      <tr height="20">
+        <td align="left" width="5" ></td>
+        <td align="left" width="110" ></td>
+        <td align="left" width="128"></td>
+        <td align="left" width="25"></td>
+        <td align="left" width="5"></td>
+        <td align="left" width="85"></td>
+        <td align="left" width="128"></td>
+        <td align="left" width="25"></td>
+        <td align="left" width="5"></td>
+        <td align="left" width="113"></td>
+        <td align="left" width="125"></td>
+        <td align="left" width="5"></td>
+        <td align="left" width="93"></td>
+        <td align="left" width="152"></td>
+        </tr>
+      <tr>
+        <td align="left" class='text'></td>
+        <td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text" ><input type='text' size='9' class='datepicker' name='check_date' id='check_date' class="class1 text "  value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
+        <td> </td>
+        <td></td>
+        <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><input type='text' size='9' class='datepicker' name='post_to_date' id='post_to_date' class="class1 text "   value="<?php echo $screen=='new_payment'?htmlspecialchars(oeFormatShortDate(date('Y-m-d'))):htmlspecialchars(oeFormatShortDate($PostToDate));?>" /></td>
+        <td> </td>
+        <td></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
+        <td align="left">
+            <?php
                 if($PaymentMethod=='' && $screen=='edit_payment')
                     $blankValue=' ';
-                else
+            else
                     $blankValue='';
             echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method","$blankValue","class1 text",'CheckVisible("yes")');
             ?>
-	  </td>
-	    <td></td>
-	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
-	    <td>
-		<?php
+      </td>
+        <td></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
+        <td>
+        <?php
         if($PaymentMethod=='check_payment' || $PaymentMethod=='bank_draft' || $CheckNumber!='' || $screen=='new_payment')
          {
             $CheckDisplay='';
@@ -224,105 +224,105 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
             $CheckDivDisplay='';
         }
         ?>
-		<input type="text" name="check_number"  style="width:140px;<?php echo $CheckDisplay;
+        <input type="text" name="check_number"  style="width:140px;<?php echo $CheckDisplay;
 ?>"  autocomplete="off"  value="<?php echo htmlspecialchars($CheckNumber);?>"  onKeyUp="ConvertToUpperCase(this)"  id="check_number"  class="text "   />
-		<div  id="div_check_number" class="text"  style="border:1px solid black; width:140px;<?php echo $CheckDivDisplay;?>">&nbsp;</div>
-	   </td>
-	   </tr>
-	  <tr height="1">
-		<td colspan="14" align="left" ></td>
-	  </tr>
-	  <tr>
-	    <td align="left" class="text"></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
-		<td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount"  onchange="ValidateNumeric(this);<?php echo $screen=='new_payment'?'FillUnappliedAmount();':'FillAmount();';
+        <div  id="div_check_number" class="text"  style="border:1px solid black; width:140px;<?php echo $CheckDivDisplay;?>">&nbsp;</div>
+       </td>
+       </tr>
+      <tr height="1">
+        <td colspan="14" align="left" ></td>
+      </tr>
+      <tr>
+        <td align="left" class="text"></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
+        <td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount"  onchange="ValidateNumeric(this);<?php echo $screen=='new_payment'?'FillUnappliedAmount();':'FillAmount();';
 ?>"  value="<?php echo $screen=='new_payment'?htmlspecialchars('0.00'):htmlspecialchars($PayTotal);?>"  style="text-align:right"    class="class1 text "   /></td>
-	    <td align="left" ></td>
-	    <td align="left" ></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php
+        <td align="left" ></td>
+        <td align="left" ></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
+        <td align="left"><?php
                 if($PaymentType=='' && $screen=='edit_payment')
                     $blankValue=' ';
-                else
+        else
                     $blankValue='';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity","$blankValue","class1 text",'PayingEntityAction()');
             ?>
-		</td>
-	    <td align="left" ></td>
-	    <td align="left" ></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
-		<td align="left"><?php
+        </td>
+        <td align="left" ></td>
+        <td align="left" ></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
+        <td align="left"><?php
                 if($AdjustmentCode=='' && $screen=='edit_payment')
                     $blankValue=' ';
-                else
+        else
                     $blankValue='';
             echo generate_list_payment_category("adjustment_code", "payment_adjustment_code", "$AdjustmentCode",
             "Payment Category","$blankValue","class1 text",'FilterSelection(this)',"$PaymentType","$screen");
             ?>
-	   </td>
-	    <td align="left" ></td>
-	    <td align="left" ></td>
-	    <td align="left" ></td>
-	    </tr>
-	  <tr height="1">
-		<td colspan="14" align="left" ></td>
-	  </tr>
-	  <tr>
-	    <td align="left" class="text"></td>
-		<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
-		<td align="left" colspan="5"><input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);
+       </td>
+        <td align="left" ></td>
+        <td align="left" ></td>
+        <td align="left" ></td>
+        </tr>
+      <tr height="1">
+        <td colspan="14" align="left" ></td>
+      </tr>
+      <tr>
+        <td align="left" class="text"></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+        <td align="left" colspan="5"><input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);
 ?>" /><input name='type_code'  id='type_code' class="text "  style="width:369px"   onKeyDown="PreventIt(event)"  value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
-		<!-- onKeyUp="ajaxFunction(event,'non','edit_payment.php');" -->
-		 <div id='ajax_div_insurance_section'>
-		  <div id='ajax_div_insurance_error'>
-		  </div>
-		  <div id="ajax_div_insurance" style="display:none;"></div>
-		  </div>
-		 </div>
-				</td>
-		<td align="left" colspan="5"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:55px; height:17px;"><?php echo htmlspecialchars($TypeCode);?></div></td>
-	    <td align="left" ></td>
-	    <td align="left" ></td>
-	    </tr>
-	  <tr>
-	    <td align="left" class='text'></td>
-		<td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
-		<td align="left"><input type='text' size='9' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="class1 text " value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"    />	   </td>
-		<td> </td>
-		<td></td>
-	    <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
-	    <td colspan="6" align="left"><input type="text" name="description"  id="description"   onKeyDown="PreventIt(event)"   value="<?php echo htmlspecialchars($Description);?>"   style="width:396px" class="text "   /></td>
-	    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));
+        <!-- onKeyUp="ajaxFunction(event,'non','edit_payment.php');" -->
+         <div id='ajax_div_insurance_section'>
+          <div id='ajax_div_insurance_error'>
+          </div>
+          <div id="ajax_div_insurance" style="display:none;"></div>
+          </div>
+         </div>
+                </td>
+        <td align="left" colspan="5"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:55px; height:17px;"><?php echo htmlspecialchars($TypeCode);?></div></td>
+        <td align="left" ></td>
+        <td align="left" ></td>
+        </tr>
+      <tr>
+        <td align="left" class='text'></td>
+        <td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
+        <td align="left"><input type='text' size='9' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="class1 text " value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"    />       </td>
+        <td> </td>
+        <td></td>
+        <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
+        <td colspan="6" align="left"><input type="text" name="description"  id="description"   onKeyDown="PreventIt(event)"   value="<?php echo htmlspecialchars($Description);?>"   style="width:396px" class="text "   /></td>
+        <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));
 ?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/><input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-		<td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
-	    </tr>
-	<?php
+        <td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+        </tr>
+    <?php
     if($screen=='new_payment')
      {
     ?>
-	  <tr>
-		<td colspan="14" align="center" class="text" id="TdContainingButtons">
-		<table border="0" cellspacing="0" cellpadding="0" width="280">
-		  <tr height="5">
-			<td ></td>
-			<td></td>
-			<td></td>
-		  </tr>
-		  <tr>
-			<td width="100"><a href="#" onClick="javascript:return SavePayment();" class="css_button"><span><?php echo htmlspecialchars( xl('Save Changes'), ENT_QUOTES);?></span></a></td>
-		    <td width="110"><a href="#" onClick="javascript:ResetForm()" class="css_button"><span><?php echo htmlspecialchars( xl('Cancel Changes'), ENT_QUOTES);?></span></a></td>
-		    <td width="70"><a href="#" class="css_button" onClick="javascript:OpenEOBEntry();"><span><?php echo htmlspecialchars( xl('Allocate'), ENT_QUOTES);?></span></a></td>
-		  </tr>
-		</table>		</td>
-	  </tr>
-	<?php
+      <tr>
+        <td colspan="14" align="center" class="text" id="TdContainingButtons">
+        <table border="0" cellspacing="0" cellpadding="0" width="280">
+          <tr height="5">
+            <td ></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td width="100"><a href="#" onClick="javascript:return SavePayment();" class="css_button"><span><?php echo htmlspecialchars( xl('Save Changes'), ENT_QUOTES);?></span></a></td>
+            <td width="110"><a href="#" onClick="javascript:ResetForm()" class="css_button"><span><?php echo htmlspecialchars( xl('Cancel Changes'), ENT_QUOTES);?></span></a></td>
+            <td width="70"><a href="#" class="css_button" onClick="javascript:OpenEOBEntry();"><span><?php echo htmlspecialchars( xl('Allocate'), ENT_QUOTES);?></span></a></td>
+          </tr>
+        </table>        </td>
+      </tr>
+    <?php
     }
     ?>
-	  <tr height="5">
-		<td colspan="14" align="left" ></td>
-	  </tr>
-	</table>
-	</td></tr></table>
+      <tr height="5">
+        <td colspan="14" align="left" ></td>
+      </tr>
+    </table>
+    </td></tr></table>
 <?php
 }//if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
 //================================================================================================
@@ -332,124 +332,124 @@ if($screen=='new_payment' && $payment_id*1>0)
  {//After saving from the New Payment screen,all values are  showed as labels.The date picker images are also removed.
 ?>
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td align="left">
-	<table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
-	  <tr height="5">
-		<td colspan="13" align="left" ></td>
-	  </tr>
-	  <tr>
-		<td colspan="13" align="left" >
+    <table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
+      <tr height="5">
+        <td colspan="13" align="left" ></td>
+      </tr>
+      <tr>
+        <td colspan="13" align="left" >
 
-			<table width="969" border="0"  cellspacing="0" cellpadding="0" align="left">
-				  <tr>
-					<td colspan="13" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?></font></td>
-				  </tr>
-				  <tr height="20">
-					<td align="left" width="5" ></td>
-					<td align="left" width="106" ></td>
-					<td align="left" width="128"></td>
-					<td align="left" width="5"></td>
-					<td align="left" width="84"></td>
-					<td align="left" width="128"></td>
-					<td align="left" width="5"></td>
-					<td align="left" width="113"></td>
-					<td align="left" width="135"></td>
-					<td align="left" width="5"></td>
-					<td align="left" width="92"></td>
-					<td align="left" width="158"></td>
-					<td align="left" width="5"></td>
-				  </tr>
-				  <tr>
-					<td align="left" class='text'></td>
-					<td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));
+            <table width="969" border="0"  cellspacing="0" cellpadding="0" align="left">
+                  <tr>
+                    <td colspan="13" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?></font></td>
+                  </tr>
+                  <tr height="20">
+                    <td align="left" width="5" ></td>
+                    <td align="left" width="106" ></td>
+                    <td align="left" width="128"></td>
+                    <td align="left" width="5"></td>
+                    <td align="left" width="84"></td>
+                    <td align="left" width="128"></td>
+                    <td align="left" width="5"></td>
+                    <td align="left" width="113"></td>
+                    <td align="left" width="135"></td>
+                    <td align="left" width="5"></td>
+                    <td align="left" width="92"></td>
+                    <td align="left" width="158"></td>
+                    <td align="left" width="5"></td>
+                  </tr>
+                  <tr>
+                    <td align="left" class='text'></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));
 ?><input type="hidden" name="check_date" value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
-					<td></td>
-					<td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($PostToDate));
+                    <td></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($PostToDate));
 ?><input type="hidden" name="post_to_date" value="<?php echo htmlspecialchars(oeFormatShortDate($PostToDate));?>"/></td>
-					<td></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php
+                    <td></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_method';
                                 generate_print_field($frow, $PaymentMethod);
                     ?><input type="hidden" name="payment_method" value="<?php echo htmlspecialchars($PaymentMethod);?>"/></td>
-					<td></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
-					<td class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($CheckNumber);
+                    <td></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
+                    <td class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($CheckNumber);
 ?><input type="hidden" name="check_number" value="<?php echo htmlspecialchars($CheckNumber);?>"/></td>
-					<td class="text"></td>
-				  </tr>
-				  <tr height="1">
-					<td colspan="13" align="left" ></td>
-				  </tr>
-				  <tr>
-					<td align="left" class="text"></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($PayTotal);
+                    <td class="text"></td>
+                  </tr>
+                  <tr height="1">
+                    <td colspan="13" align="left" ></td>
+                  </tr>
+                  <tr>
+                    <td align="left" class="text"></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($PayTotal);
 ?><input type="hidden" name="payment_amount" value="<?php echo htmlspecialchars($PayTotal);?>"/></td>
-					<td align="left" ></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php
+                    <td align="left" ></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_type';
                                 generate_print_field($frow, $PaymentType);
                     ?><input type="hidden" name="type_name" id="type_name" value="<?php echo htmlspecialchars($PaymentType);?>"/></td>
-					<td align="left" ></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php
+                    <td align="left" ></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_adjustment_code';
                                 generate_print_field($frow, $AdjustmentCode);
                     ?><input type="hidden" name="adjustment_code" value="<?php echo htmlspecialchars($AdjustmentCode);?>"/></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-				  </tr>
-				  <tr height="1">
-					<td colspan="13" align="left" ></td>
-				  </tr>
-				  <tr>
-					<td align="left" class="text"></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
-					<td colspan="4" align="left" class="text bottom left top right"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  >&nbsp;<?php echo htmlspecialchars($div_after_save);?>&nbsp;</div></td>
-					<td align="left"></td>
-					<td align="left" ><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:55px"><?php echo htmlspecialchars($TypeCode);
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                  </tr>
+                  <tr height="1">
+                    <td colspan="13" align="left" ></td>
+                  </tr>
+                  <tr>
+                    <td align="left" class="text"></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+                    <td colspan="4" align="left" class="text bottom left top right"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  >&nbsp;<?php echo htmlspecialchars($div_after_save);?>&nbsp;</div></td>
+                    <td align="left"></td>
+                    <td align="left" ><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:55px"><?php echo htmlspecialchars($TypeCode);
 ?></div><input type="hidden" name="type_code" value="<?php echo htmlspecialchars($TypeCode);?>"/></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-					<td align="left" ></td>
-				  </tr>
-				  <tr height="1">
-					<td colspan="13" align="left" ></td>
-				  </tr>
-				  <tr>
-					<td align="left" class='text'></td>
-					<td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
-					<td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));
-?><input type="hidden" name="deposit_date" value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"/>	   </td>
-					<td></td>
-					<td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
-					<td colspan="4" align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($Description);
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                    <td align="left" ></td>
+                  </tr>
+                  <tr height="1">
+                    <td colspan="13" align="left" ></td>
+                  </tr>
+                  <tr>
+                    <td align="left" class='text'></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));
+?><input type="hidden" name="deposit_date" value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"/>       </td>
+                    <td></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
+                    <td colspan="4" align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($Description);
 ?><input type="hidden" name="description" value="<?php echo htmlspecialchars($Description);?>"/></td>
-					<td align="left" class='text'></td>
-					<td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));
+                    <td align="left" class='text'></td>
+                    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));
 ?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/>
  <input name="HidCurrentPostedAmount"  id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-					<td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
-					<td align="left" class="text"></td>
-				  </tr>
-				  <tr height="5">
-					<td colspan="13" align="left"></td>
-				  </tr>
-			</table>
-		</td>
-	  </tr>
-	</table>
-	</td></tr></table>
+                    <td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+                    <td align="left" class="text"></td>
+                  </tr>
+                  <tr height="5">
+                    <td colspan="13" align="left"></td>
+                  </tr>
+            </table>
+        </td>
+      </tr>
+    </table>
+    </td></tr></table>
 <?php
 }//if($screen=='new_payment' && $payment_id*1>0)
 //================================================================================================

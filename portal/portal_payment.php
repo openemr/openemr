@@ -328,15 +328,15 @@ function goHome(){
      window.location.replace("./patient/onsiteactivityviews");
 }
 function notifyPatient(){
-	var pid = <?php echo attr($pid);?>;
-	var note = $('#pop_receipt').text();
+    var pid = <?php echo attr($pid);?>;
+    var note = $('#pop_receipt').text();
     var formURL = './messaging/handle_note.php';
     $.ajax({
         url: formURL,
         type: "POST",
         data: {'task':'add', 'pid':pid, 'inputBody':note, 'title':'Bill/Collect', 'sendto':'-patient-','noteid':'0'},
         success: function(data, textStatus, jqXHR) {
-        	alert('Receipt sent to patient via Messages.')
+            alert('Receipt sent to patient via Messages.')
         },
         error: function(jqXHR, status, error) {
             console.log(status + ": " + error);
@@ -353,9 +353,9 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
         <p>
         <h2><?php echo xlt('Receipt for Payment'); ?></h2>
         <p><?php echo text($frow['name'])?>
-		<br><?php echo text($frow['street'])?>
-		<br><?php echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_code'] )?>
-		<br><?php echo htmlentities($frow['phone'])?>
+        <br><?php echo text($frow['street'])?>
+        <br><?php echo text( $frow['city'] . ', ' . $frow['state'] ) . ' ' . text( $frow['postal_code'] )?>
+        <br><?php echo htmlentities($frow['phone'])?>
         <p>
         <div style="text-align: center; margin: auto;">
             <table border='0' cellspacing='8'
@@ -774,11 +774,11 @@ $('#paySubmit').click( function(e) {
         url: liburl,
         data: $("#payfrm").serialize()+extra,
         beforeSend: function(xhr){
-        	if( validateCC() !== true) return false;
-        	if( $('#pin').val() == "" || $('#ccname').val() == "" || $('#ccyear').val() == "" || $('#ccmonth').val() == ""){
-            	 alert("<?php echo addslashes( xl('Invalid Credit Card Values: Please correct')) ?>")
-            	 return false;
-        	}
+            if( validateCC() !== true) return false;
+            if( $('#pin').val() == "" || $('#ccname').val() == "" || $('#ccyear').val() == "" || $('#ccmonth').val() == ""){
+                 alert("<?php echo addslashes( xl('Invalid Credit Card Values: Please correct')) ?>")
+                 return false;
+            }
             if( validate() != true){
                 flag = 1;
                 alert("<?php echo addslashes( xl('Validation error: Fix and resubmit. This popup info is preserved!')) ?>")
@@ -790,7 +790,7 @@ $('#paySubmit').click( function(e) {
             console.log("There was an error:"+errorThrow);
         },
         success: function(templateHtml, textStatus, jqXHR){
-        	alert("<?php echo addslashes( xl('Payment successfully sent for authorization. You will be notified when payment is posted. Until payment is accepted and you are notified, you may resubmit this payment at anytime with new amounts or different credit card. Thank you')) ?>")
+            alert("<?php echo addslashes( xl('Payment successfully sent for authorization. You will be notified when payment is posted. Until payment is accepted and you are notified, you may resubmit this payment at anytime with new amounts or different credit card. Thank you')) ?>")
             window.location.reload(false);
         }
     });
@@ -1163,7 +1163,7 @@ else{
                             <strong><?php echo xlt('Card Number');?>:  </strong><span id="ccn"><?php
                             if( isset( $_SESSION['authUserID'] ) )
                                 echo $ccdata["cc_number"] . "</span><br>";
-                                else
+                            else
                                     echo "**********  ".substr($ccdata["cc_number"],-4) . "</span><br>";
                                     ?>
                             <strong><?php echo xlt('Exp Date');?>:  </strong><span id="ed"><?php echo attr($ccdata["month"])."/".attr($ccdata["year"])?></span><br>
@@ -1175,7 +1175,7 @@ else{
 <?php
     if( ! isset( $_SESSION['authUserID'] ) )
         echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
-    else
+else
         echo "<button type='submit' class='btn btn-danger' form='payfrm'>" . xlt('Post Payment') . "</button>";
     ?>
  &nbsp;
@@ -1228,7 +1228,7 @@ if (typeof jsondata !== 'undefined') {
                                     <div class="row">
                                         <div class="col-md-4">
                                             <select name="month" id="ccmonth" class="form-control">
-                                            	<option value=""><?php echo xlt('Select Month'); ?></option>
+                                                <option value=""><?php echo xlt('Select Month'); ?></option>
                                                 <option value="01"><?php echo xlt('January'); ?></option>
                                                 <option value="02"><?php echo xlt('February'); ?></option>
                                                 <option value="03"><?php echo xlt('March'); ?></option>
@@ -1245,7 +1245,7 @@ if (typeof jsondata !== 'undefined') {
                                         </div>
                                         <div class="col-md-3">
                                             <select name="year" id="ccyear" class="form-control">
-                                            	<option value=""><?php echo xlt('Select Year'); ?></option>
+                                                <option value=""><?php echo xlt('Select Year'); ?></option>
                                                 <option value="2017">2017</option>
                                                 <option value="2018">2018</option>
                                                 <option value="2019">2019</option>
@@ -1307,7 +1307,7 @@ function validateCC() {
          return false;
     }
     else{
-		return true;
+        return true;
     }
 }
 </script>

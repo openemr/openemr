@@ -57,7 +57,7 @@ class Module
     {
         return array(
             'factories' => array(
-                'Installer\Model\InstModuleTable' =>  function($sm) {
+                'Installer\Model\InstModuleTable' =>  function ($sm) {
                     $tableGateway = $sm->get('InstModuleTableGateway');
                     $table = new InstModuleTable($tableGateway);
                     return $table;

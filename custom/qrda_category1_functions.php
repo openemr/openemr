@@ -45,7 +45,7 @@ function mainQrdaCatOneGenerate($xml, $patient_id, $rule_id, $provider_id)
     
     //Main Header Function
 function getHeaderQRDA1($xml, $patient_id, $provider_id)
-    {
+{
     global $mainQrdaRaceCodeArr, $mainEthiCodeArr, $from_date, $to_date;
         
     //Patient Info
@@ -272,7 +272,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     
     //Component Function
 function getComponentQRDA1($xml, $patient_id, $rule_id)
-    {
+{
     //Component Open
     $xml->open_mainComponent();
         
@@ -297,7 +297,7 @@ function getComponentQRDA1($xml, $patient_id, $rule_id)
     
     //Patient Data
 function getQRDACat1PatientData($xml, $patient_id)
-    {
+{
     $xml->open_loopComponent();
     $xml->open_section();
         
@@ -357,7 +357,7 @@ function getQRDACat1PatientData($xml, $patient_id)
     
     //Immunization
 function getAllImmunization($xml, $patient_id)
-    {
+{
     global $from_date, $to_date;
     $medArr = allImmuPat($patient_id, $from_date, $to_date);
         
@@ -889,7 +889,7 @@ function getAllActiveMedications($xml, $patient_id)
     
     //Medical problems
 function getAllMedicalProbs($xml, $patient_id)
-    {
+{
     global $from_date, $to_date;
     $diagArr = allListsPat('medical_problem', $patient_id, $from_date, $to_date);
         
@@ -985,7 +985,7 @@ function getAllMedicalProbs($xml, $patient_id)
     
     //Encounters function
 function getAllPatientEncounters($xml, $patient_id)
-    {
+{
     global $encCheckUniqId, $from_date, $to_date,$EncounterCptCodes;
     $encArr = allEncPat($patient_id, $from_date, $to_date);
         
@@ -1075,7 +1075,7 @@ function getAllPatientEncounters($xml, $patient_id)
     
     //Patient Data Sub Function for Payer Data
 function payerQRDA($xml, $patient_id)
-    {
+{
     global $mainQrdaPayerCodeSendArr, $from_date, $to_date;
         
     //Insurance getting
@@ -1113,7 +1113,7 @@ function payerQRDA($xml, $patient_id)
     
     //Reporting Parameters function
 function getReportingParam($xml)
-    {
+{
     global $from_date, $to_date;
         
     $xml->open_loopComponent();
@@ -1162,7 +1162,7 @@ function getReportingParam($xml)
     
     //Measure Section
 function getMeasureSection($xml, $rule_id)
-    {
+{
     global $preDefinedUniqIDRules;
         
     $xml->open_loopComponent();
@@ -1277,7 +1277,7 @@ function getMeasureSection($xml, $rule_id)
     
     //Download QRDA Category I
 function downloadQRDACat1($xml, $patient_id, $rule_id)
-    {
+{
     //Patient Info
     if($patient_id != ""){
         $patientRow = getPatData($patient_id);
@@ -1300,7 +1300,7 @@ function downloadQRDACat1($xml, $patient_id, $rule_id)
     
     //Patient History Info
 function patCharactersticQRDA($xml, $patient_id)
-    {
+{
 
     //Patient History
     $patHist = patientQRDAHistory($patient_id);

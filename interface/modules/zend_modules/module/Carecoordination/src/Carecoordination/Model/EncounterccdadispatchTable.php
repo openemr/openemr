@@ -418,41 +418,41 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getInformationRecipient($pid,$encounter,$recipients,$params)
     {
         $information_recipient  = '';
-        $field_name				= array();
-        $details 	= $this->getDetails('hie_recipient_id');
+        $field_name             = array();
+        $details    = $this->getDetails('hie_recipient_id');
         
         $appTable   = new ApplicationTable();
         
         if($recipients == 'hie'){
-            $details['fname']	= 'MyHealth';
-            $details['lname']	= '';
+            $details['fname']   = 'MyHealth';
+            $details['lname']   = '';
             $details['organization'] = '';
         }
         else if($recipients == 'emr_direct'){
-            $query			= "select fname, lname, organization, street, city, state, zip, phonew1 from users where email = ?";
-            $field_name[] 	= $params;
+            $query          = "select fname, lname, organization, street, city, state, zip, phonew1 from users where email = ?";
+            $field_name[]   = $params;
         }
         else if($recipients == 'patient'){
-            $query			= "select fname, lname from patient_data WHERE pid = ?";
-            $field_name[] 	= $params;
+            $query          = "select fname, lname from patient_data WHERE pid = ?";
+            $field_name[]   = $params;
         }
         else{
             if(!$params) $params = $_SESSION['authUserID'];
-            $query			= "select fname, lname, organization, street, city, state, zip, phonew1 from users where id = ?";
-            $field_name[] 	= $params;
+            $query          = "select fname, lname, organization, street, city, state, zip, phonew1 from users where id = ?";
+            $field_name[]   = $params;
         }
         
         if($recipients != 'hie'){
             $res        = $appTable->zQuery($query, $field_name);
-            $result	 	= $res->current();
-            $details['fname'] 		= $result['fname'];
-            $details['lname'] 		= $result['lname'];
-            $details['organization']	= $result['organization'];
-            $details['street']		= $result['street'];
-            $details['city']		= $result['city'];
-            $details['state']		= $result['state'];
-            $details['zip']			= $result['zip'];
-            $details['phonew1']		= $result['phonew1'];
+            $result     = $res->current();
+            $details['fname']       = $result['fname'];
+            $details['lname']       = $result['lname'];
+            $details['organization']    = $result['organization'];
+            $details['street']      = $result['street'];
+            $details['city']        = $result['city'];
+            $details['state']       = $result['state'];
+            $details['zip']         = $result['zip'];
+            $details['phonew1']     = $result['phonew1'];
         }
         
         $information_recipient = "<information_recipient>
@@ -578,30 +578,30 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $get_code_details = explode(':',$single_code);
     
                 if($get_code_details[0] == 'RXNORM'){
-                    $code_rx 			= $get_code_details[1];
+                    $code_rx            = $get_code_details[1];
                     $code_text_rx = lookup_code_descriptions($single_code);
                 }
                 else if($get_code_details[0] == 'SNOMED'){
-                    $code_snomed 	  = $get_code_details[1];
+                    $code_snomed      = $get_code_details[1];
                     $code_text_snomed = lookup_code_descriptions($row['code']);
                 }
                 else{
-                    $code 			= $get_code_details[1];
-                    $code_text 	= lookup_code_descriptions($single_code);
+                    $code           = $get_code_details[1];
+                    $code_text  = lookup_code_descriptions($single_code);
                 }
                         
                 $active = $status_table = '';
                         
                 if($row['enddate']){
-                    $active 			= 'completed';
+                    $active             = 'completed';
                     $allergy_status = 'completed';
                     $status_table = 'Resolved';
                     $status_code  = '73425007';
                 }
                 else{
-                    $active 			= 'completed';
+                    $active             = 'completed';
                     $allergy_status = 'active';
-                    $status_table 	= 'Active';
+                    $status_table   = 'Active';
                     $status_code  = '55561003';
                 }
                             
@@ -668,11 +668,11 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     
                     if($row['active'] > 0)
                         $active = 'active';
-                    else
+            else
                         $active = 'completed';
                     
             if($row['date_added']) {
-                $start_date 					= str_replace('-','',$row['date_added']);
+                $start_date                     = str_replace('-','',$row['date_added']);
                 $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['date_added'],$GLOBALS['date_display_format'],'yyyy-mm-dd');
                 ;
             }
@@ -742,22 +742,22 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $end_date       = str_replace('-','',$row['enddate']);
                     
                 $status = $status_table = '';
-                $start_date	    = $start_date ? $start_date : '0';
-                $end_date	    	= $end_date ? $end_date : '0';
+                $start_date     = $start_date ? $start_date : '0';
+                $end_date           = $end_date ? $end_date : '0';
                 
                 //Active - 55561003 	Completed - 73425007
                 if($end_date){
                     $status         = 'completed';
-                    $status_table 	= 'Resolved';
+                    $status_table   = 'Resolved';
                     $status_code    = '73425007';
                 }
                 else{
-                    $status 				= 'active';
-                    $status_table 	= 'Active';
+                    $status                 = 'active';
+                    $status_table   = 'Active';
                     $status_code    = '55561003';
                 }
                 
-                $observation    	= $row['observation'];
+                $observation        = $row['observation'];
                 $observation_code = explode(':',$row['observation_code']);
                 $observation_code = $observation_code[1];
                     
@@ -787,7 +787,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getImmunization($pid, $encounter)
     {
         $immunizations = '';
-        $query 	    = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
+        $query      = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
             DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
             u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
             f.name, f.phone, SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS route_code
@@ -976,7 +976,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $wherCon = '';
         if($encounter) $wherCon = "AND fe.encounter = $encounter";
         $results = "";
-        $query 	 = "SELECT fe.date, fe.encounter,fe.reason,
+        $query   = "SELECT fe.date, fe.encounter,fe.reason,
 	    f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone,
 	    u.fname, u.mname, u.lname, u.npi, u.street, u.city, u.state, u.zip, u.phonew1, cat.pc_catname, lo.title, lo.codes AS physician_type_code,
 	    SUBSTRING(ll.diagnosis, LENGTH('SNOMED-CT:')+1, LENGTH(ll.diagnosis)) AS encounter_diagnosis, ll.title, ll.begdate, ll.enddate
@@ -998,12 +998,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $encounter_reason = "<encounter_reason>".htmlspecialchars($this->date_format(substr($row['date'], 0, 10))." - ".$row['reason'],ENT_QUOTES)."</encounter_reason>";
             }
             $codes = "";
-            $query_procedures 	= "SELECT c.code, c.code_text FROM billing AS b
+            $query_procedures   = "SELECT c.code, c.code_text FROM billing AS b
                 JOIN code_types AS ct ON ct.ct_key = ?
                 JOIN codes AS c ON c.code = b.code AND c.code_type = ct.ct_id
                 WHERE b.pid = ? AND b.code_type = ? AND activity = 1 AND b.encounter = ?";
             $appTable_procedures= new ApplicationTable();
-            $res_procedures 	= $appTable_procedures->zQuery($query_procedures, array('CPT4', $pid, 'CPT4', $row['encounter']));
+            $res_procedures     = $appTable_procedures->zQuery($query_procedures, array('CPT4', $pid, 'CPT4', $row['encounter']));
             foreach($res_procedures as $row_procedures){
                 $codes .= "
         <procedures>
@@ -1598,14 +1598,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         );
     
         $snomeds_status = array(
-            'currenttobacco'	=> 'completed',
+            'currenttobacco'    => 'completed',
             'quittobacco'     => 'completed',
             'nevertobacco'    => 'completed',
             'not_applicabletobacco' => 'completed'
         );
 
         $snomeds = array(
-            '1'	=> '449868002',
+            '1' => '449868002',
             '2' => '428041000124106',
             '3' => '8517006',
             '4' => '266919005',
@@ -1613,13 +1613,13 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         );
         
         $alcohol_status = array(
-            'currentalcohol'	=> 'completed',
+            'currentalcohol'    => 'completed',
             'quitalcohol'     => 'completed',
             'neveralcohol'    => 'completed'
         );
         
         $alcohol_status_codes = array(
-            'currentalcohol'	=> '11',
+            'currentalcohol'    => '11',
             'quitalcohol'     => '22',
             'neveralcohol'    => '33'
         );
@@ -1732,7 +1732,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     
     public function getRepresentedOrganization()
     {
-        $query 		= "select * from facility where primary_business_entity = 1";
+        $query      = "select * from facility where primary_business_entity = 1";
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array($pid));
         
@@ -2089,8 +2089,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function logCCDA($pid, $encounter, $content, $time, $status, $user_id, $view = 0, $transfer = 0,$emr_transfer = 0)
     {
         $content    = base64_decode($content);
-        $file_path	= '';
-        $couch_id	= array();
+        $file_path  = '';
+        $couch_id   = array();
         if($GLOBALS['document_storage_method']==1){
             $data = array(
                 'data'      => base64_encode($content),
@@ -2102,8 +2102,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $couch_id = \Documents\Plugin\Documents::saveCouchDocument($couch, $data);
         }
         else{
-            $file_path 	= $GLOBALS['OE_SITE_DIR'].'/documents/'.$pid.'/CCDA';
-            $file_name	= $pid."_".$encounter."_".$time.".xml";
+            $file_path  = $GLOBALS['OE_SITE_DIR'].'/documents/'.$pid.'/CCDA';
+            $file_name  = $pid."_".$encounter."_".$time.".xml";
             if(!is_dir($file_path)){
                 mkdir($file_path, 0777, true);
             }
@@ -2166,18 +2166,18 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function generate_code($code_text)
     {
         $encrypted  = sha1($code_text);
-        $code 	    = '';
+        $code       = '';
         for($i = 0; $i <= strlen($encrypted); ){
             $code  .= $encrypted[$i];
-            $i 	    = $i+2;
+            $i      = $i+2;
         }
         $encrypted  = $code;
-        $code 	    = '';
+        $code       = '';
         for($i = 0; $i <= strlen($encrypted); ){
             $code  .= $encrypted[$i];
-            $i 	    = $i+2;
+            $i      = $i+2;
         }
-        $code 	    = strtoupper(substr($code, 0, 6));
+        $code       = strtoupper(substr($code, 0, 6));
         return $code;
     }
     

@@ -32,15 +32,15 @@ class ImmunizationForm extends Form
         
      // Codes
         $this->add(array(
-                'name' 			=> 'codes',
-                'type'  		=> 'Zend\Form\Element\Select',
-                'attributes' 		=> array(
+                'name'          => 'codes',
+                'type'          => 'Zend\Form\Element\Select',
+                'attributes'        => array(
                                         'multiple'      => 'multiple',
                                         'size'          => '3',
-                        'class' 	=> 'select',
-                        'style' 	=> 'width:150px',
-                        'editable' 	=> 'false',
-                        'id' 		=> 'codes'
+                        'class'     => 'select',
+                        'style'     => 'width:150px',
+                        'editable'  => 'false',
+                        'id'        => 'codes'
                 ),
                 'options' => array(
                         'value_options' => array(
@@ -64,8 +64,8 @@ class ImmunizationForm extends Form
                         'name' => 'to_date',
                         'type' => 'Date',
                         'attributes' => array(
-                                        'id' 		=> 'to_date',
-                                        'placeholder' 	=> 'To Date',
+                                        'id'        => 'to_date',
+                                        'placeholder'   => 'To Date',
                                         'class'         => 'date_field',
                                         'value'         => date('Y-m-d'),
                                         'style'         => 'width: 42%;cursor:not-allowed;',

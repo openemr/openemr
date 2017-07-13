@@ -105,45 +105,45 @@ if (!empty($ptrow)) {
 <table>
  <tr>
   <td width='200px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
                 <?php echo xlt('Patient ID'); ?>:
-			</td>
-			<td>
-			   <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
-				title='<?php echo xla('Patient ID'); ?>' />
-			</td>
-		</tr>
-	</table>
+            </td>
+            <td>
+               <input type='text' name='form_patient_id' size='10' maxlength='31' value='<?php echo attr($form_patient_id) ?>'
+                title='<?php echo xla('Patient ID'); ?>' />
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php echo xlt('Submit'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
+                    <?php if ($_POST['form_refresh'] || !empty($ptrow) ) { ?>
             <a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                        <span>
+                            <?php echo xlt('Print'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -182,9 +182,9 @@ if (!empty($ptrow)) {
 if (!empty($row['ct_location'])) {
     echo generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$row['ct_location']);
 }
-    else if (!empty($row['ct_userid'])) {
-      echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
-    }
+else if (!empty($row['ct_userid'])) {
+    echo text($row['lname']) . ', ' . text($row['fname']) . ' ' . text($row['mname']);
+}
     ?>
     </td>
    </tr>
@@ -197,7 +197,7 @@ if (!empty($row['ct_location'])) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 

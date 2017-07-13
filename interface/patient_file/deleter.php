@@ -45,7 +45,7 @@ require_once($GLOBALS['srcdir'].'/sl_eob.inc.php');
  // specified WHERE clause.
  //
 function row_delete($table, $where)
- {
+{
     $tres = sqlStatement("SELECT * FROM $table WHERE $where");
     $count = 0;
     while ($trow = sqlFetchArray($tres)) {
@@ -72,7 +72,7 @@ function row_delete($table, $where)
  // specified SET and WHERE clauses.
  //
 function row_modify($table, $set, $where)
- {
+{
     if (sqlQuery("SELECT * FROM $table WHERE $where")) {
         newEvent("deactivate", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $where");
         $query = "UPDATE $table SET $set WHERE $where";
@@ -188,12 +188,12 @@ document.deletefrm.submit();
 }
 // Java script function for closing the popup
 function popup_close() {
-	if(parent.$==undefined) {
-	  	window.close();
-	 }
-	 else {
-	  	parent.$.fn.fancybox.close();
-	 }
+    if(parent.$==undefined) {
+        window.close();
+     }
+     else {
+        parent.$.fn.fancybox.close();
+     }
 }
 </script>
 </head>

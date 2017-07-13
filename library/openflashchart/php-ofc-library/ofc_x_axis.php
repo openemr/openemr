@@ -46,7 +46,7 @@ class x_axis
     function set_tick_height( $height )
     {
         $tmp = 'tick-height';
-        $this->$tmp      		= $height;
+        $this->$tmp             = $height;
     }
     
     function tick_height( $height )
@@ -103,7 +103,7 @@ class x_axis
     function set_3d( $val )
     {
         $tmp = '3d';
-        $this->$tmp				= $val;
+        $this->$tmp             = $val;
     }
     
     /**

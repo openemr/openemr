@@ -618,7 +618,7 @@ function pnVarCleanFromInput()
  * @access private
  * @param any variables or arrays to be stripslashed
  */
-function pnStripslashes (&$value)
+function pnStripslashes(&$value)
 {
     if(!is_array($value)) {
         $value = stripslashes($value);

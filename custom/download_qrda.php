@@ -54,133 +54,133 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/jquery-ui-1.8.5.custom.min.js"></script>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/js/common.js"></script>
 <script language="JavaScript">
-	var reportID = '<?php echo attr($report_id); ?>';
-	var provider_id = '<?php echo attr($provider_id);?>';
-	var zipFileArray = new Array();
-	var failureMessage = "";
-	$(document).ready(function(){
-		$("#checkAll").change(function() {
-			var checked =  ( $("#checkAll").attr("checked") ) ? true : false;
-			$("#thisForm input:checkbox").each(function() {
-				$(this).attr("checked", checked);
-			});
-		});
-	});
+    var reportID = '<?php echo attr($report_id); ?>';
+    var provider_id = '<?php echo attr($provider_id);?>';
+    var zipFileArray = new Array();
+    var failureMessage = "";
+    $(document).ready(function(){
+        $("#checkAll").change(function() {
+            var checked =  ( $("#checkAll").attr("checked") ) ? true : false;
+            $("#thisForm input:checkbox").each(function() {
+                $(this).attr("checked", checked);
+            });
+        });
+    });
 
-	function downloadSelected() {
-		zipFileArray.length = 0;
-		var criteriaArray = new Array();
-		$("#thisForm input:checkbox:checked").each(function() {
-			if ( $(this).attr("id") == "checkAll")
-				return;
-			criteriaArray.push($(this).attr("id"));
-		});
-		if ( criteriaArray.length == 0 ) {
-			alert("<?php echo xls('Please select at least one criteria to download');?>");
-			return false;
-		}
-		for( var i=0 ; i < criteriaArray.length ; i++) {
-			var checkBoxCounterArray = criteriaArray[i].split("check");
-			var ruleID = $("#text" + checkBoxCounterArray[1]).val();
-			//console.log(ruleID);
-			var lastOne = ( ( i + 1 ) == criteriaArray.length ) ? 1 : 0;
-			downloadXML(checkBoxCounterArray[1],lastOne,ruleID);
-		}
-	}
+    function downloadSelected() {
+        zipFileArray.length = 0;
+        var criteriaArray = new Array();
+        $("#thisForm input:checkbox:checked").each(function() {
+            if ( $(this).attr("id") == "checkAll")
+                return;
+            criteriaArray.push($(this).attr("id"));
+        });
+        if ( criteriaArray.length == 0 ) {
+            alert("<?php echo xls('Please select at least one criteria to download');?>");
+            return false;
+        }
+        for( var i=0 ; i < criteriaArray.length ; i++) {
+            var checkBoxCounterArray = criteriaArray[i].split("check");
+            var ruleID = $("#text" + checkBoxCounterArray[1]).val();
+            //console.log(ruleID);
+            var lastOne = ( ( i + 1 ) == criteriaArray.length ) ? 1 : 0;
+            downloadXML(checkBoxCounterArray[1],lastOne,ruleID);
+        }
+    }
 
-	function downloadXML(counter,lastOne) {
-		$("#download" + counter).css("display","none");
-		$("#spin" + counter).css("display","inline");
-		$.ajax({
-			type : "POST",
-			url: "ajax_download.php",
-			data : {
-				reportID: reportID,
-				counter: counter,
-				ruleID: $("#text" + counter).val(),
-				provider_id: provider_id
-			},
-			context: document.body,
-			success :
-		 function(data){
-			// Check if download is complete
-			var status = data.substr(0, 8);
-			if ( status == "FAILURE:") {
-				data = data.substr(8);
-				//console.log(data);
-				failureMessage += data + "\n";
-			} else {
-				zipFileArray.push(data);
-				$("#checkmark" + counter).css("display","inline");
-			}
-			$("#download" + counter).css("display","inline");
-			$("#spin" + counter).css("display","none");
-			if ( lastOne == 1 ) {
-				if ( zipFileArray.length ) {
-					var zipFiles = zipFileArray.join(",");
-					//console.log(zipFiles);
-					window.location = 'ajax_download.php?fileName=' + zipFiles;
-					zipFileArray.length = 0;
-				}
-				if ( failureMessage ) {
-					console.log(failureMessage);
-					alert(failureMessage);
-				}
-				failureMessage = "";
-			}
-		 }
-		});
-	}
+    function downloadXML(counter,lastOne) {
+        $("#download" + counter).css("display","none");
+        $("#spin" + counter).css("display","inline");
+        $.ajax({
+            type : "POST",
+            url: "ajax_download.php",
+            data : {
+                reportID: reportID,
+                counter: counter,
+                ruleID: $("#text" + counter).val(),
+                provider_id: provider_id
+            },
+            context: document.body,
+            success :
+         function(data){
+            // Check if download is complete
+            var status = data.substr(0, 8);
+            if ( status == "FAILURE:") {
+                data = data.substr(8);
+                //console.log(data);
+                failureMessage += data + "\n";
+            } else {
+                zipFileArray.push(data);
+                $("#checkmark" + counter).css("display","inline");
+            }
+            $("#download" + counter).css("display","inline");
+            $("#spin" + counter).css("display","none");
+            if ( lastOne == 1 ) {
+                if ( zipFileArray.length ) {
+                    var zipFiles = zipFileArray.join(",");
+                    //console.log(zipFiles);
+                    window.location = 'ajax_download.php?fileName=' + zipFiles;
+                    zipFileArray.length = 0;
+                }
+                if ( failureMessage ) {
+                    console.log(failureMessage);
+                    alert(failureMessage);
+                }
+                failureMessage = "";
+            }
+         }
+        });
+    }
 
-	function closeMe() {
-		window.close();
-	}
+    function closeMe() {
+        window.close();
+    }
 </script>
 <style>
-	.downloadIcon:hover {
-		cursor: hand;
-	}
-	.multiDownload {
+    .downloadIcon:hover {
+        cursor: hand;
+    }
+    .multiDownload {
 
-	}
+    }
 </style>
 </head>
 
 <body class="body_top">
 <form id="thisForm" name="thisForm">
 <table>
-	<tr>
-		<td><span class="title"><?php echo xlt("Generate/Download QRDA I - 2014"); ?>&nbsp;</span></td>
-		<td>
-			<a class="css_button multiDownload" href="#" onclick="downloadSelected();"><span><?php echo xlt("Download"); ?></span></a>
-			<a class="css_button" href="#" onclick="closeMe();"><span><?php echo xlt("Close"); ?></span></a>
-		</td>
-	</tr>
+    <tr>
+        <td><span class="title"><?php echo xlt("Generate/Download QRDA I - 2014"); ?>&nbsp;</span></td>
+        <td>
+            <a class="css_button multiDownload" href="#" onclick="downloadSelected();"><span><?php echo xlt("Download"); ?></span></a>
+            <a class="css_button" href="#" onclick="closeMe();"><span><?php echo xlt("Close"); ?></span></a>
+        </td>
+    </tr>
 </table>
 <br/>
 <div id="report_results" style="width:95%">
 <table class="oemr_list text">
-	<thead>
-		<th scope="col" class="multiDownload">
-			<input type="checkbox" name="checkAll" id="checkAll"/>
-			<div style="display:none" id=downloadAll>
-				<img class='downloadIcon' src='<?php echo $GLOBALS['webroot'];?>/images/downbtn.gif' onclick=downloadAllXML(); />
-			</div>
-			<div style='display:none' id=spinAll>;
-				<img src='<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif'/>
-			</div>
-		</th>
-		<th scope="col">
+    <thead>
+        <th scope="col" class="multiDownload">
+            <input type="checkbox" name="checkAll" id="checkAll"/>
+            <div style="display:none" id=downloadAll>
+                <img class='downloadIcon' src='<?php echo $GLOBALS['webroot'];?>/images/downbtn.gif' onclick=downloadAllXML(); />
+            </div>
+            <div style='display:none' id=spinAll>;
+                <img src='<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif'/>
+            </div>
+        </th>
+        <th scope="col">
             <?php echo xlt('Title'); ?>
-		</th>
+        </th>
 
-		<th scope="col">
+        <th scope="col">
             <?php echo xlt('Download'); ?>
-		</th>
-		<th scope="col">&nbsp;&nbsp;&nbsp;</th>
-	</thead>
-	<tbody>
-		<?php
+        </th>
+        <th scope="col">&nbsp;&nbsp;&nbsp;</th>
+    </thead>
+    <tbody>
+        <?php
             $counter = 0;
         foreach ($dataSheet as $row) {
             if (isset($row['is_main']) || isset($row['is_sub'])) {
@@ -230,7 +230,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                 $counter++;
             }
         } ?>
-	</tbody>
+    </tbody>
 </table>
 </div>
 

@@ -56,41 +56,41 @@ if ($form_patient == '' ) $form_pid = '';
 <style>
 
 @media print {
-	.title {
-		visibility: hidden;
-	}
+    .title {
+        visibility: hidden;
+    }
     .pagebreak {
         page-break-after: always;
         border: none;
         visibility: hidden;
     }
 
-	#superbill_description {
-		visibility: hidden;
-	}
+    #superbill_description {
+        visibility: hidden;
+    }
 
-	#report_parameters {
-		visibility: hidden;
-	}
+    #report_parameters {
+        visibility: hidden;
+    }
     #superbill_results {
        margin-top: -30px;
     }
 }
 
 @media screen {
-	.title {
-		visibility: visible;
-	}
-	#superbill_description {
-		visibility: visible;
-	}
+    .title {
+        visibility: visible;
+    }
+    #superbill_description {
+        visibility: visible;
+    }
     .pagebreak {
         width: 100%;
         border: 2px dashed black;
     }
-	#report_parameters {
-		visibility: visible;
-	}
+    #report_parameters {
+        visibility: visible;
+    }
 }
 #superbill_description {
    margin: 10px;
@@ -199,63 +199,63 @@ if ($form_patient == '' ) $form_pid = '';
 <table>
  <tr>
   <td width='650px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
                 <?php echo xlt('Start Date'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
-				title='yyyy-mm-dd'>
-			</td>
-			<td class='label_custom'>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
+                title='yyyy-mm-dd'>
+            </td>
+            <td class='label_custom'>
                 <?php echo xlt('End Date'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
-				title='yyyy-mm-dd'>
-			</td>
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
+                title='yyyy-mm-dd'>
+            </td>
 
-			<td>
-			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
-			</td>
-			<td>
-			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select');
+            <td>
+            &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
+            </td>
+            <td>
+            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select');
 ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
-			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
-			</td>
-			</tr>
-			<tr><td>
-		</tr>
-	</table>
+            <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
+            </td>
+            </tr>
+            <tr><td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php echo xlt('Submit'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php echo xlt('Print'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -283,7 +283,7 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 <?php
     }
         $sqlBindArray = array();
-        $res_query = 	"select * from forms where " .
+        $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
                 array_push($sqlBindArray,$startdate,$enddate);

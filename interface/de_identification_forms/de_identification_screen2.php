@@ -79,19 +79,19 @@ if($deIdentificationStatus == 0)
 <title>De Identification</title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
-	href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
-	type='text/css'>
+    href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
+    type='text/css'>
 <script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 <style type="text/css">
 .style1 {
-	text-align: center;
+    text-align: center;
 }
 </style>
 </head>
 <body class="body_top">
 <strong>De Identification</strong>
 <form name="De Identification1" id="De Identification1" method="post"><br />
-	<?php
+    <?php
 
     $query = "SELECT count(*) as count FROM metadata_de_identification";
     $res = sqlStatement($query);
@@ -151,48 +151,48 @@ if($deIdentificationStatus == 0)
                     if($no_of_items <= 1)
                     {
                         ?>
-	<table>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table class="de_identification_status_message" align="center">
-	<tr valign="top">
+    <table>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table class="de_identification_status_message" align="center">
+    <tr valign="top">
 
-		<td>&nbsp;</td>
-		<td rowspan="3"><br>
-		<?php echo xl('No Patient record found for given Selection criteria');
+        <td>&nbsp;</td>
+        <td rowspan="3"><br>
+        <?php echo xl('No Patient record found for given Selection criteria');
         echo "</br></br>";
         echo xl('Please start new De Identification process');
-        echo "</br>";	?> </br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table align="center">
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
+        echo "</br>";   ?> </br>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table align="center">
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
 
-		<?php
+        <?php
                     }
                     else
-                    {	//delete old de_identified_data.xls file
+                    {   //delete old de_identified_data.xls file
                         $timestamp=0;
                         $query = "select now() as timestamp";
                         $res = sqlStatement($query);
@@ -207,43 +207,43 @@ if($deIdentificationStatus == 0)
                         $query = "select * from de_identified_data into outfile '$de_identified_file' ";
                         $res = sqlStatement($query);
                         ?>
-	<table>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table class="de_identification_status_message" align="center">
-	<tr valign="top">
-		<td>&nbsp;</td>
-		<td rowspan="3"><br>
-		<?php echo xl('De Identification Process is ongoing');
+    <table>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table class="de_identification_status_message" align="center">
+    <tr valign="top">
+        <td>&nbsp;</td>
+        <td rowspan="3"><br>
+        <?php echo xl('De Identification Process is ongoing');
         echo "</br></br>";
         echo xl('Please visit De Identification screen after some time');
-        echo "</br>";	?> </br>
-		</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-	<table align="center">
-	<tr>
-		<td>&nbsp;</td>
-		<td>&nbsp;</td>
-	</tr>
-	</table>
-		<?php
+        echo "</br>";   ?> </br>
+        </td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+    <table align="center">
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </table>
+        <?php
                     }
                 }
             }

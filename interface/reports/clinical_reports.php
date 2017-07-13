@@ -51,12 +51,12 @@ function add_date($givendate,$day=0,$mth=0,$yr=0)
     $facility = isset($_POST['facility']) ? $_POST['facility'] : '';
     if($_POST['date_from'] != "")
         $sql_date_from = $_POST['date_from'];
-    else
+else
         $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
 
     if($_POST['date_to'] != "")
         $sql_date_to = $_POST['date_to'];
-    else
+else
         $sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
 
 
@@ -93,7 +93,7 @@ function add_date($givendate,$day=0,$mth=0,$yr=0)
   win.printLogSetup(document.getElementById('printbutton'));
  });
 
-	   function toggle(id) {
+       function toggle(id) {
                 var tr = document.getElementById(id);
                 if (tr==null) { return; }
                 var bExpand = tr.style.display == '';
@@ -104,12 +104,12 @@ function add_date($givendate,$day=0,$mth=0,$yr=0)
                 if (img!=null) {
                    var bExpand = img.src.indexOf(sPlus) >= 0;
                         if (!bExpand)
-                       	img.src = "../pic/blue-up-arrow.gif";
+                        img.src = "../pic/blue-up-arrow.gif";
                         else
                         img.src = "../pic/blue-down-arrow.gif";
                 }
             }
-	   function Toggle_trGrpHeader2(t_id,i_id) {
+       function Toggle_trGrpHeader2(t_id,i_id) {
                 var img=i_id;
                 changeimage(img, 'blue-down-arrow.gif', 'blue-up-arrow.gif');
                 var id1=t_id;
@@ -148,98 +148,98 @@ function sel_procedure(e) {
 /* specifically include & exclude from printing */
 @media print {
 #report_parameters {
-	visibility: hidden;
-	display: none;
+    visibility: hidden;
+    display: none;
 }
 #report_parameters_daterange {
-	visibility: visible;
-	display: inline;
+    visibility: visible;
+    display: inline;
 }
 #report_results table {
-	margin-top: 0px;
+    margin-top: 0px;
 }
 }
 
 /* specifically exclude some from the screen */
 @media screen {
 #report_parameters_daterange {
-	visibility: hidden;
-	display: none;
+    visibility: hidden;
+    display: none;
 }
 }
 .optional_area_service_codes {
-	<?php
+    <?php
     if($type != 'Service Codes' || $type == '')
     {
     ?>
-	display: none;
-	<?php
+    display: none;
+    <?php
     }
     ?>
 }
 </style>
 <script language="javascript" type="text/javascript">
-	function checkType() {
-		if($('#type').val() == 'Service Codes')
-		{
-			$('.optional_area_service_codes').css("display", "inline");
-		}
-		else
-		{
-			$('.optional_area_service_codes').css("display", "none");
-		}
-	}
+    function checkType() {
+        if($('#type').val() == 'Service Codes')
+        {
+            $('.optional_area_service_codes').css("display", "inline");
+        }
+        else
+        {
+            $('.optional_area_service_codes').css("display", "none");
+        }
+    }
 
-	function submitForm() {
-		var d_from = new String($('#date_from').val());
-		var d_to = new String($('#date_to').val());
+    function submitForm() {
+        var d_from = new String($('#date_from').val());
+        var d_to = new String($('#date_to').val());
 
-		var d_from_arr = d_from.split('-');
-		var d_to_arr = d_to.split('-');
+        var d_from_arr = d_from.split('-');
+        var d_to_arr = d_to.split('-');
 
-		var dt_from = new Date(d_from_arr[0], d_from_arr[1], d_from_arr[2]);
-		var dt_to = new Date(d_to_arr[0], d_to_arr[1], d_to_arr[2]);
+        var dt_from = new Date(d_from_arr[0], d_from_arr[1], d_from_arr[2]);
+        var dt_to = new Date(d_to_arr[0], d_to_arr[1], d_to_arr[2]);
 
-		var mili_from = dt_from.getTime();
-		var mili_to = dt_to.getTime();
-		var diff = mili_to - mili_from;
+        var mili_from = dt_from.getTime();
+        var mili_to = dt_to.getTime();
+        var diff = mili_to - mili_from;
 
-		$('#date_error').css("display", "none");
+        $('#date_error').css("display", "none");
 
-		if(diff < 0) //negative
-		{
-			$('#date_error').css("display", "inline");
-		}
-		else
-		{
-			$("#form_refresh").attr("value","true");
-			$("#theform").submit();
-		}
-	}
+        if(diff < 0) //negative
+        {
+            $('#date_error').css("display", "inline");
+        }
+        else
+        {
+            $("#form_refresh").attr("value","true");
+            $("#theform").submit();
+        }
+    }
 
-	$(document).ready(function() {
-		$(".numeric_only").keydown(function(event) {
-			//alert(event.keyCode);
-			// Allow only backspace and delete
-			if ( event.keyCode == 46 || event.keyCode == 8 ) {
-				// let it happen, don't do anything
-			}
-			else {
-				if(!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57)))
-				{
-					event.preventDefault();
-				}
-			}
-		});
+    $(document).ready(function() {
+        $(".numeric_only").keydown(function(event) {
+            //alert(event.keyCode);
+            // Allow only backspace and delete
+            if ( event.keyCode == 46 || event.keyCode == 8 ) {
+                // let it happen, don't do anything
+            }
+            else {
+                if(!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57)))
+                {
+                    event.preventDefault();
+                }
+            }
+        });
 
-		$('.datetimepicker').datetimepicker({
-			<?php $datetimepicker_timepicker = true; ?>
-			<?php $datetimepicker_showseconds = true; ?>
-			<?php $datetimepicker_formatInput = false; ?>
-			<?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-			<?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-		});
-	});
+        $('.datetimepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = true; ?>
+            <?php $datetimepicker_showseconds = true; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        });
+    });
 </script>
 </head>
 <body class="body_top">
@@ -254,96 +254,96 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <div id="report_parameters_daterange"> <?php echo htmlspecialchars(date("d F Y", strtotime($sql_date_from)),ENT_NOQUOTES) .
       " &nbsp; to &nbsp; ". htmlspecialchars(date("d F Y", strtotime($sql_date_to)),ENT_NOQUOTES); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php'>
-	<div id="report_parameters">
-		<input type='hidden' name='form_refresh' id='form_refresh' value=''/>
-		<table>
-		      <tr>
-			<td width='740px'><div style='float:left'>
-		 		<table class='text'>
-					<tr>
-						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
-						<td width="250"> <?php dropdown_facility($facility,'facility',false); ?> </td>
-						<td class='label_custom' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' class='datetimepicker' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
-					</tr>
-					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
-						<td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES);
+    <div id="report_parameters">
+        <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+        <table>
+              <tr>
+            <td width='740px'><div style='float:left'>
+                <table class='text'>
+                    <tr>
+                        <td class='label_custom' width="100"><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES); ?>: </td>
+                        <td width="250"> <?php dropdown_facility($facility,'facility',false); ?> </td>
+                        <td class='label_custom' width="100"><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>: </td>
+                        <td><input type='text' class='datetimepicker' name='date_from' id="date_from" size='18' value='<?php echo htmlspecialchars($sql_date_from,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+                    </tr>
+                    <tr>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Patient ID'),ENT_NOQUOTES); ?>:</td>
+                        <td><input name='patient_id' class="numeric_only" type='text' id="patient_id" title='<?php echo htmlspecialchars(xl('Optional numeric patient ID'),ENT_QUOTES);
 ?>' value='<?php echo htmlspecialchars($patient_id,ENT_QUOTES); ?>' size='10' maxlength='20' /></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
-						<td><input type='text' class='datetimepicker' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
-					</tr>
-					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
-						<td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>
-							<input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES);
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>: </td>
+                        <td><input type='text' class='datetimepicker' name='date_to' id="date_to" size='18' value='<?php echo htmlspecialchars($sql_date_to,ENT_QUOTES); ?>' title='yyyy-mm-dd H:m:s'></td>
+                    </tr>
+                    <tr>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Age Range'),ENT_NOQUOTES); ?>:</td>
+                        <td><?php echo htmlspecialchars(xl('From'),ENT_NOQUOTES); ?>
+                            <input name='age_from' class="numeric_only" type='text' id="age_from" value="<?php echo htmlspecialchars($age_from,ENT_QUOTES);
 ?>" size='3' maxlength='3' /> <?php echo htmlspecialchars(xl('To'),ENT_NOQUOTES); ?>
-							<input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_diagnosis' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES);
+                            <input name='age_to' class="numeric_only" type='text' id="age_to" value="<?php echo htmlspecialchars($age_to,ENT_QUOTES); ?>" size='3' maxlength='3' /></td>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Problem DX'),ENT_NOQUOTES); ?>:</td>
+                        <td><input type='text' name='form_diagnosis' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_diagnosis,ENT_QUOTES);
 ?>' onclick='sel_diagnosis(this)' title='<?php echo htmlspecialchars(xl('Click to select or change diagnoses'),ENT_QUOTES); ?>' readonly /></td>
-                                               	<td>&nbsp;</td>
+                                                <td>&nbsp;</td>
 <!-- Visolve -->
-					</tr>
-					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
-						<td><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_drug_name,ENT_QUOTES);
+                    </tr>
+                    <tr>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?>:</td>
+                        <td><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Drug'),ENT_NOQUOTES); ?>:</td>
+                        <td><input type='text' name='form_drug_name' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_drug_name,ENT_QUOTES);
 ?>' title='<?php echo htmlspecialchars(xl('Optional drug name, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
-					</tr>
-					<tr>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
-						<td><?php echo generate_select_list('race', 'race', $sql_race, 'Select Race', 'Unassigned', '', ''); ?></td>
-             			<td class='label_custom'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
+                    </tr>
+                    <tr>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES); ?>:</td>
+                        <td><?php echo generate_select_list('race', 'race', $sql_race, 'Select Race', 'Unassigned', '', ''); ?></td>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES); ?>:</td>
                         <td><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
-						<td><input type='text' name='form_immunization' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_immunization,ENT_QUOTES);
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Immunization'),ENT_NOQUOTES); ?>:</td>
+                        <td><input type='text' name='form_immunization' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_immunization,ENT_QUOTES);
 ?>' title='<?php echo htmlspecialchars(xl('Optional immunization name or code, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
-					</tr>
-					<tr>
-						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
-						<td width='100'><input type='text' name='form_lab_results' size='13' maxlength='250' value='<?php echo htmlspecialchars($form_lab_results,ENT_QUOTES);
+                    </tr>
+                    <tr>
+                        <td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Lab Result'),ENT_NOQUOTES); ?>:</td>
+                        <td width='100'><input type='text' name='form_lab_results' size='13' maxlength='250' value='<?php echo htmlspecialchars($form_lab_results,ENT_QUOTES);
 ?>' title='<?php echo htmlspecialchars(xl('Result, use % as a wildcard'),ENT_QUOTES); ?>' /></td>
 
-						<td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
-						<td><select name="type" id="type" onChange="checkType();">
-							<option> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
-							<option value="Procedure" <?php if($type == 'Procedure') { echo "selected";
+                        <td class='label_custom' width='100'><?php echo htmlspecialchars(xl('Option'),ENT_NOQUOTES); ?>:</td>
+                        <td><select name="type" id="type" onChange="checkType();">
+                            <option> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
+                            <option value="Procedure" <?php if($type == 'Procedure') { echo "selected";
 } ?>><?php echo htmlspecialchars(xl('Procedure'),ENT_NOQUOTES); ?></option>
-							<option value="Medical History" <?php if($type == 'Medical History') { echo "selected";
+                            <option value="Medical History" <?php if($type == 'Medical History') { echo "selected";
 } ?>><?php echo htmlspecialchars(xl('Medical History'),ENT_NOQUOTES); ?></option>
-							<option value="Service Codes" <?php if($type == 'Service Codes') { echo "selected";
+                            <option value="Service Codes" <?php if($type == 'Service Codes') { echo "selected";
 } ?>><?php echo htmlspecialchars(xl('Service Codes'),ENT_NOQUOTES); ?></option>
-						   </select>
-						</td>
-						<td class='label_custom'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
+                           </select>
+                        </td>
+                        <td class='label_custom'><?php echo htmlspecialchars(xl('Communication'),ENT_NOQUOTES); ?>:</td>
                         <td>
-							<select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
-								<option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
-								<?php foreach($comarr as $comkey => $comvalue){ ?>
-								<option value="<?php echo attr($comkey);
+                            <select name="communication" id="communication" title="<?php echo htmlspecialchars(xl('Select Communication Preferences'),ENT_NOQUOTES); ?>">
+                                <option value=""> <?php echo htmlspecialchars(xl('Select'),ENT_NOQUOTES); ?></option>
+                                <?php foreach($comarr as $comkey => $comvalue){ ?>
+                                <option value="<?php echo attr($comkey);
 ?>" <?php if($communication == $comkey){ echo "selected";
 }?>><?php echo text($comvalue); ?></option>
-								<?php } ?>
-							</select>
-						</td>
-					</tr>
-				</table>
-				<table>
-					<tr class="optional_area_service_codes">
-					<td width='100'>&nbsp;</td>
-					<td width='100'>&nbsp;</td>
-					<td width='195'>&nbsp;</td>
-					<td class='label_custom' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
+                                <?php } ?>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <table>
+                    <tr class="optional_area_service_codes">
+                    <td width='100'>&nbsp;</td>
+                    <td width='100'>&nbsp;</td>
+                    <td width='195'>&nbsp;</td>
+                    <td class='label_custom' width='76'><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES); ?>:</td>
                                         <td> <input type='text' name='form_service_codes' size='10' maxlength='250' value='<?php echo htmlspecialchars($form_service_codes,ENT_QUOTES);
 ?>' onclick='sel_procedure(this)' title='<?php echo htmlspecialchars(xl('Click to select or change service codes'),ENT_QUOTES); ?>' readonly />&nbsp;</td>
                                         </tr>
-				</table>
-				<table class='text'>
-					<tr>
-						<!-- Sort by Start -->
+                </table>
+                <table class='text'>
+                    <tr>
+                        <!-- Sort by Start -->
                                                  <td class='label_custom' width='63'><?php echo htmlspecialchars(xl('Sort By'),ENT_NOQUOTES); ?>:</td>
                                                  <td>
                                                    <input type='checkbox' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) echo ' checked'; ?>>
@@ -369,29 +369,29 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                     <?php echo xlt('Communication'); ?>
                                                </td>
                                         </tr>
-				<!-- Sort by ends -->
-					</tr>
-					<tr>
-						<td colspan=3><span id="date_error" style="color: #F00; font-siz: 11px; display: none;"><?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'),ENT_NOQUOTES); ?></span>&nbsp;</td>
-					</tr>
-				</table>
-				</div></td>
-				<td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
-					<tr>
-						<td><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
-									<?php echo htmlspecialchars(xl('Submit'),ENT_NOQUOTES); ?>
-									</span> </a>
-									<?php if ($_POST['form_refresh']) { ?>
-									<a href='#' class='css_button' id='printbutton'> <span>
-									<?php echo xlt('Print'); ?>
-									</span> </a>
-									<?php } ?>
-							</div></td>
-					</tr>
-				</table></td>
-			</tr>
-		</table>
-	</div>
+                <!-- Sort by ends -->
+                    </tr>
+                    <tr>
+                        <td colspan=3><span id="date_error" style="color: #F00; font-siz: 11px; display: none;"><?php echo htmlspecialchars(xl('From Date Cannot be Greater than To Date.'),ENT_NOQUOTES); ?></span>&nbsp;</td>
+                    </tr>
+                </table>
+                </div></td>
+                <td height="100%" valign='middle' width="175"><table style='border-left:1px solid; width:100%; height:100%'>
+                    <tr>
+                        <td><div style='margin-left:15px'> <a href='#' class='css_button' onclick='submitForm();'> <span>
+                                    <?php echo htmlspecialchars(xl('Submit'),ENT_NOQUOTES); ?>
+                                    </span> </a>
+                                    <?php if ($_POST['form_refresh']) { ?>
+                                    <a href='#' class='css_button' id='printbutton'> <span>
+                                    <?php echo xlt('Print'); ?>
+                                    </span> </a>
+                                    <?php } ?>
+                            </div></td>
+                    </tr>
+                </table></td>
+            </tr>
+        </table>
+    </div>
 <!-- end of parameters -->
 <?php
 // SQL scripts for the various searches
@@ -406,12 +406,12 @@ if ($_POST['form_refresh'])
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true)	{
+    if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true)  {
         $sqlstmt=$sqlstmt.",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
     }
-    if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true)	{
+    if(strlen($form_drug_name) > 0 || $_POST['form_drug'] == true)  {
 
         $sqlstmt=$sqlstmt.",r.id as id, r.date_modified AS prescriptions_date_modified, r.dosage as dosage, r.route as route, r.interval as hinterval, r.refills as refills, r.drug as drug,
         r.form as hform, r.size as size, r.unit as hunit, d.name as name, d.ndc_number as ndc_number,r.quantity as quantity";
@@ -648,71 +648,71 @@ if ($_POST['form_refresh'])
         $smoke_codes_arr = getSmokeCodes();
     ?>
     <br>
-	<div id = "report_results">
+    <div id = "report_results">
 
-	<?php $pidarr = array();
+    <?php $pidarr = array();
     while ($row = sqlFetchArray($result)) { ?>
-	<table width=90% align="center" cellpadding="5" cellspacing="0" style="font-family:tahoma;color:black;" border="0">
-		<tr bgcolor = "#CCCCCC" style="font-size:15px;">
-			<td><b><?php echo htmlspecialchars(xl('Summary of'),ENT_NOQUOTES);
+    <table width=90% align="center" cellpadding="5" cellspacing="0" style="font-family:tahoma;color:black;" border="0">
+        <tr bgcolor = "#CCCCCC" style="font-size:15px;">
+            <td><b><?php echo htmlspecialchars(xl('Summary of'),ENT_NOQUOTES);
             echo " ";
 ?> <?php echo htmlspecialchars($row['patient_name'],ENT_NOQUOTES); ?></b></td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td align="center">
-			<span onclick="javascript:Toggle_trGrpHeader2(<?php echo $row_id;
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td align="center">
+            <span onclick="javascript:Toggle_trGrpHeader2(<?php echo $row_id;
 ?>,<?php echo $img_id;
 ?>);"><img src="../pic/blue-down-arrow.gif" id="<?php echo $img_id;
 $img_id++;
 ?>" title="<?php echo htmlspecialchars( xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
-			</td></tr>
-			<table width="100%" align="center" id = "<?php echo $row_id;
+            </td></tr>
+            <table width="100%" align="center" id = "<?php echo $row_id;
             $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
-				<tr bgcolor="#C3FDB8" align="left">
-				<td width="15%"><b><?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?></b></td>
-				<td width="5%"><b><?php echo htmlspecialchars(xl('PID'),ENT_NOQUOTES);?></b></td>
-				<td width="5%"><b><?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES);?></b></td>
-				<td width="10%"><b><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?></b></td>
-				<td width="15%"><b><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES);?></b></td>
-				<td width="15%"><b><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES);?></b></td>
-				<td width="15%" <?php if(strlen($communication) == 0 || $_POST['communication_check'] == true){ ?> colspan=5 <?php } ?>><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
-				<?php if(strlen($communication) > 0 || ($_POST['communication_check'] == true)){ ?>
-				<td colspan=4><b><?php echo xlt('Communication');?></b></td>
-				<?php } ?>
-				</tr>
-				<tr bgcolor="#FFFFFF">
-				<td><?php echo htmlspecialchars($row['patient_name'],ENT_NOQUOTES); ?>&nbsp;</td>
-				<td> <?php echo htmlspecialchars($row['patient_id'],ENT_NOQUOTES); ?>&nbsp;</td>
-				<td> <?php echo htmlspecialchars($row['patient_age'],ENT_NOQUOTES); ?>&nbsp;</td>
+                <tr bgcolor="#C3FDB8" align="left">
+                <td width="15%"><b><?php echo htmlspecialchars(xl('Patient Name'),ENT_NOQUOTES); ?></b></td>
+                <td width="5%"><b><?php echo htmlspecialchars(xl('PID'),ENT_NOQUOTES);?></b></td>
+                <td width="5%"><b><?php echo htmlspecialchars(xl('Age'),ENT_NOQUOTES);?></b></td>
+                <td width="10%"><b><?php echo htmlspecialchars(xl('Gender'),ENT_NOQUOTES); ?></b></td>
+                <td width="15%"><b><?php echo htmlspecialchars(xl('Race'),ENT_NOQUOTES);?></b></td>
+                <td width="15%"><b><?php echo htmlspecialchars(xl('Ethnicity'),ENT_NOQUOTES);?></b></td>
+                <td width="15%" <?php if(strlen($communication) == 0 || $_POST['communication_check'] == true){ ?> colspan=5 <?php } ?>><b><?php echo htmlspecialchars(xl('Provider'),ENT_NOQUOTES);?></b></td>
+                <?php if(strlen($communication) > 0 || ($_POST['communication_check'] == true)){ ?>
+                <td colspan=4><b><?php echo xlt('Communication');?></b></td>
+                <?php } ?>
+                </tr>
+                <tr bgcolor="#FFFFFF">
+                <td><?php echo htmlspecialchars($row['patient_name'],ENT_NOQUOTES); ?>&nbsp;</td>
+                <td> <?php echo htmlspecialchars($row['patient_id'],ENT_NOQUOTES); ?>&nbsp;</td>
+                <td> <?php echo htmlspecialchars($row['patient_age'],ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $row['patient_sex']),ENT_NOQUOTES); ?>&nbsp;</td>
-				<td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'race'), $row['patient_race']),ENT_NOQUOTES); ?>&nbsp;</td>
+                <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'race'), $row['patient_race']),ENT_NOQUOTES); ?>&nbsp;</td>
                                <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'ethnicity'), $row['patient_ethinic']),ENT_NOQUOTES); ?>&nbsp;</td>
                                <td <?php if(strlen($communication) == 0 || ($_POST['communication_check'] == true)){ ?> colspan=5 <?php } ?>> <?php echo htmlspecialchars($row['users_provider'],ENT_NOQUOTES); ?>&nbsp;</td>
 
-							    <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
-							    		<td colspan=4><?php echo text($row['communications']); ?></td>
-							   	<?php }  ?>
-				</tr>
+                                <?php if(strlen($communication) > 0 || $_POST['communication_check'] == true){ ?>
+                                        <td colspan=4><?php echo text($row['communications']); ?></td>
+                                <?php }  ?>
+                </tr>
 <!-- Diagnosis Report Start-->
-				<?php
+                <?php
                 if(strlen($form_diagnosis) > 0 || $_POST['form_diagnosis_allergy'] == true || $_POST['form_diagnosis_medprb'] == true)
                 {
                 ?>
-	                	<tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=12><b><?php echo "#";
+                        <tr bgcolor="#C3FDB8" align= "left">
+                <td colspan=12><b><?php echo "#";
                 echo htmlspecialchars(xl('Diagnosis Report'),ENT_NOQUOTES);?></b></td>
-				</tr>
-				<tr bgcolor="#C3FDB8" align= "left">
-				<td><b><?php echo htmlspecialchars(xl('Diagnosis Date'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Diagnosis'),ENT_NOQUOTES);?></b></td>
-				<td colspan=10><b><?php echo htmlspecialchars(xl('Diagnosis Name'),ENT_NOQUOTES);?></b></td>
-				</tr>
-                        	<tr bgcolor="#FFFFFF">
-				<td><?php echo htmlspecialchars($row['lists_date'],ENT_NOQUOTES); ?>&nbsp;</td>
-				<td><?php echo htmlspecialchars($row['lists_diagnosis'],ENT_NOQUOTES); ?>&nbsp;</td>
+                </tr>
+                <tr bgcolor="#C3FDB8" align= "left">
+                <td><b><?php echo htmlspecialchars(xl('Diagnosis Date'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Diagnosis'),ENT_NOQUOTES);?></b></td>
+                <td colspan=10><b><?php echo htmlspecialchars(xl('Diagnosis Name'),ENT_NOQUOTES);?></b></td>
+                </tr>
+                            <tr bgcolor="#FFFFFF">
+                <td><?php echo htmlspecialchars($row['lists_date'],ENT_NOQUOTES); ?>&nbsp;</td>
+                <td><?php echo htmlspecialchars($row['lists_diagnosis'],ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td colspan=10><?php echo htmlspecialchars($row['lists_title'],ENT_NOQUOTES); ?>&nbsp;</td>
-				</tr>
-	<?php } ?>
+                </tr>
+    <?php } ?>
 <!-- Diagnosis Report End-->
 
 <!-- Prescription Report Start-->
@@ -721,7 +721,7 @@ $img_id++;
             {
                 ?>
                     <tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=12><b><?php echo "#";
+                <td colspan=12><b><?php echo "#";
                 echo htmlspecialchars(xl('Prescription Report'),ENT_NOQUOTES);?><b></td></tr>
                         <tr bgcolor="#C3FDB8" align= "left">
                     <td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
@@ -744,40 +744,40 @@ $img_id++;
                     $rx_units =   generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['hunit']);
                     ?>
              <td> <?php echo htmlspecialchars(oeFormatShortDate($row['prescriptions_date_modified']),ENT_NOQUOTES); ?>&nbsp;</td>
-				<td><?php echo htmlspecialchars($row['drug'],ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($rx_route,ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($row['dosage'],ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($rx_form,ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($rx_interval,ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($row['size'],ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($rx_units,ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($row['refills'],ENT_NOQUOTES); ?></td>
-				<td><?php echo htmlspecialchars($row['quantity'],ENT_NOQUOTES); ?></td>
-				<td colspan="2"><?php echo htmlspecialchars($row['ndc_number'],ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($row['drug'],ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($rx_route,ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($row['dosage'],ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($rx_form,ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($rx_interval,ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($row['size'],ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($rx_units,ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($row['refills'],ENT_NOQUOTES); ?></td>
+                <td><?php echo htmlspecialchars($row['quantity'],ENT_NOQUOTES); ?></td>
+                <td colspan="2"><?php echo htmlspecialchars($row['ndc_number'],ENT_NOQUOTES); ?></td>
                     </tr>
-				<?php } ?>
+                <?php } ?>
 <!-- Prescription Report End-->
 
 <!-- Lab Results Report Start-->
-				<?php
+                <?php
                 if(strlen($form_lab_results) > 0 || $_POST['lab_results'] == true)
                 {
                 ?>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=12><b><?php echo "#";
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td colspan=12><b><?php echo "#";
                 echo htmlspecialchars(xl('Lab Results Report'),ENT_NOQUOTES);?><b></td></tr>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Unit'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Result'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Range'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Abnormal'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Comments'),ENT_NOQUOTES);?></b></td>
-				<td colspan=5><b><?php echo htmlspecialchars(xl('Document ID'),ENT_NOQUOTES);?></b></td>
-				</tr>
-                        	<tr bgcolor="#FFFFFF">
-				<td> <?php echo htmlspecialchars(oeFormatShortDate($row['procedure_result_date']),ENT_NOQUOTES); ?>&nbsp;</td>
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Facility'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Unit'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Result'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Range'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Abnormal'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Comments'),ENT_NOQUOTES);?></b></td>
+                <td colspan=5><b><?php echo htmlspecialchars(xl('Document ID'),ENT_NOQUOTES);?></b></td>
+                </tr>
+                            <tr bgcolor="#FFFFFF">
+                <td> <?php echo htmlspecialchars(oeFormatShortDate($row['procedure_result_date']),ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td> <?php echo htmlspecialchars($row['procedure_result_facility'],ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td> <?php echo htmlspecialchars(generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$row['procedure_result_units']),ENT_NOQUOTES); ?>&nbsp;</td>
                                  <td> <?php echo htmlspecialchars($row['procedure_result_result'],ENT_NOQUOTES); ?>&nbsp;</td>
@@ -786,30 +786,30 @@ $img_id++;
                                  <td> <?php echo htmlspecialchars($row['procedure_result_comments'],ENT_NOQUOTES); ?>&nbsp;</td>
                                  <td colspan=5> <?php echo htmlspecialchars($row['procedure_result_document_id'],ENT_NOQUOTES); ?>&nbsp;</td>
                         </tr>
-				<?php } ?>
+                <?php } ?>
 <!-- Lab Results End-->
 
 <!-- Procedures Report Start-->
-				<?php
+                <?php
                 if ( $type == 'Procedure')
                 {
                 ?>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=12><b><?php echo "#";
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td colspan=12><b><?php echo "#";
                 echo htmlspecialchars(xl('Procedure Report'),ENT_NOQUOTES);?><b></td></tr>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Standard Name'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Procedure'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Encounter'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Priority'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Instruction'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Activity'),ENT_NOQUOTES);?></b></td>
-				<td colspan=3><b><?php echo htmlspecialchars(xl('Control ID'),ENT_NOQUOTES);?></b></td>
-				</tr>
-                        	<tr bgcolor="#FFFFFF">
-				<?php
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Standard Name'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Procedure'),ENT_NOQUOTES); ?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Encounter'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Priority'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Status'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Instruction'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Activity'),ENT_NOQUOTES);?></b></td>
+                <td colspan=3><b><?php echo htmlspecialchars(xl('Control ID'),ENT_NOQUOTES);?></b></td>
+                </tr>
+                            <tr bgcolor="#FFFFFF">
+                <?php
                                     $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
                                     $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
                                     ?>
@@ -824,39 +824,39 @@ $img_id++;
                                   <td> <?php echo htmlspecialchars($row['procedure_order_activity'],ENT_NOQUOTES); ?>&nbsp;</td>
                                   <td colspan=3> <?php echo htmlspecialchars($row['procedure_order_control_id'],ENT_NOQUOTES); ?>&nbsp;</td>
 
-                         	  </tr>
-			<?php } ?>
+                              </tr>
+            <?php } ?>
 <!-- Procedure Report End-->
 
 <!-- Medical History Report Start-->
-				<?php
+                <?php
                 if ( $type == 'Medical History')
                 {
                 ?>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=12><b><?php echo "#";
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td colspan=12><b><?php echo "#";
                 echo htmlspecialchars(xl('Medical History'),ENT_NOQUOTES);?><b></td></tr>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td><b><?php echo htmlspecialchars(xl('History Date'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Tobacco'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Alcohol'),ENT_NOQUOTES);?></b></td>
-				<td colspan=8><b><?php echo htmlspecialchars(xl('Recreational Drugs'),ENT_NOQUOTES);?></b></td>
-				</tr>
-                        	<tr bgcolor="#FFFFFF">
-				<?php
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td><b><?php echo htmlspecialchars(xl('History Date'),ENT_NOQUOTES); ?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Tobacco'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Alcohol'),ENT_NOQUOTES);?></b></td>
+                <td colspan=8><b><?php echo htmlspecialchars(xl('Recreational Drugs'),ENT_NOQUOTES);?></b></td>
+                </tr>
+                            <tr bgcolor="#FFFFFF">
+                <?php
                     $tmp_t = explode('|', $row['history_data_tobacco']);
                     $tmp_a = explode('|', $row['history_data_alcohol']);
                     $tmp_d = explode('|', $row['history_data_recreational_drugs']);
                                         $his_tobac =  generate_display_field(array('data_type'=>'1','list_id'=>'smoking_status'), $tmp_t[3]) ;
                 ?>
-				<td> <?php echo htmlspecialchars(oeFormatShortDate($row['history_data_date']),ENT_NOQUOTES); ?>&nbsp;</td>
+                <td> <?php echo htmlspecialchars(oeFormatShortDate($row['history_data_date']),ENT_NOQUOTES); ?>&nbsp;</td>
                                 <td> <?php
                                 //Added on 6-jun-2k14(regarding displaying smoking code descriptions)
                                 if(!empty($smoke_codes_arr[$tmp_t[3]])){
                                     $his_tobac.= " ( ".$smoke_codes_arr[$tmp_t[3]]." )";
                                 }
                                 echo htmlspecialchars($his_tobac,ENT_NOQUOTES); ?>&nbsp;</td>
-				<?php
+                <?php
                     if ($tmp_a[1] == "currentalcohol") $res = xl('Current Alcohol');
                     if ($tmp_a[1] == "quitalcohol") $res = xl('Quit Alcohol');
                     if ($tmp_a[1] == "neveralcohol") $res = xl('Never Alcohol');
@@ -870,52 +870,52 @@ $img_id++;
                                          if ($tmp_d[1] == "not_applicablerecreational_drugs") $resd = xl('N/A');
                                     ?>
                                   <td colspan=8> <?php echo htmlspecialchars($resd,ENT_NOQUOTES); ?>&nbsp;</td>
-		                  </tr>
+                          </tr>
                     <?php } ?>
 <!-- Medical History Report End-->
 
 <!-- Service Codes Report Start-->
-				<?php
+                <?php
                 if ( $type == 'Service Codes') {
                 ?>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td colspan=11><b><?php echo "#";
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td colspan=11><b><?php echo "#";
                 echo htmlspecialchars(xl('Service Codes'),ENT_NOQUOTES);?><b></td></tr>
-                        	<tr bgcolor="#C3FDB8" align= "left">
-				<td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES);?></b></td>
-				<td><b><?php echo htmlspecialchars(xl('Encounter ID'),ENT_NOQUOTES);?></b></td>
-				<td colspan=8><b><?php echo htmlspecialchars(xl('Code Text'),ENT_NOQUOTES);?></b></td></tr>
-	                        <tr bgcolor="#FFFFFF">
-				<td><?php echo htmlspecialchars(oeFormatShortDate($row['date']),ENT_NOQUOTES); ?>&nbsp;</td>
-			        <td><?php echo htmlspecialchars($row['code'],ENT_NOQUOTES); ?>&nbsp;</td>
-                		<td><?php echo htmlspecialchars($row['encounter'],ENT_NOQUOTES); ?>&nbsp;</td>
-				<td colspan=8><?php echo htmlspecialchars($row['code_text'],ENT_NOQUOTES); ?>&nbsp;</td>
-	                        </tr>
-				<?php } ?>
+                            <tr bgcolor="#C3FDB8" align= "left">
+                <td><b><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Code'),ENT_NOQUOTES);?></b></td>
+                <td><b><?php echo htmlspecialchars(xl('Encounter ID'),ENT_NOQUOTES);?></b></td>
+                <td colspan=8><b><?php echo htmlspecialchars(xl('Code Text'),ENT_NOQUOTES);?></b></td></tr>
+                            <tr bgcolor="#FFFFFF">
+                <td><?php echo htmlspecialchars(oeFormatShortDate($row['date']),ENT_NOQUOTES); ?>&nbsp;</td>
+                    <td><?php echo htmlspecialchars($row['code'],ENT_NOQUOTES); ?>&nbsp;</td>
+                        <td><?php echo htmlspecialchars($row['encounter'],ENT_NOQUOTES); ?>&nbsp;</td>
+                <td colspan=8><?php echo htmlspecialchars($row['code_text'],ENT_NOQUOTES); ?>&nbsp;</td>
+                            </tr>
+                <?php } ?>
 <!-- Service Codes Report End-->
 
 <!-- Immunization Report Start-->
-				<?php
+                <?php
                 if(strlen($form_immunization) > 0){?>
-					<tr bgcolor="#C3FDB8" align= "left">
-						<td colspan=12><b><?php echo "#";
+                    <tr bgcolor="#C3FDB8" align= "left">
+                        <td colspan=12><b><?php echo "#";
                         echo htmlspecialchars(xl('Immunization Report'),ENT_NOQUOTES);?></b></td>
-					</tr>
-					<tr bgcolor="#C3FDB8" align= "left">
-						<td><b><?php echo htmlspecialchars(xl('Immunization Date'),ENT_NOQUOTES);?></b></td>
-						<td><b><?php echo htmlspecialchars(xl('CVX Code'),ENT_NOQUOTES);?></b></td>
-						<td><b><?php echo htmlspecialchars(xl('Vaccine'),ENT_NOQUOTES);?></b></td>
-						<td><b><?php echo htmlspecialchars(xl('Amount'),ENT_NOQUOTES);?></b></td>
-						<td><b><?php echo htmlspecialchars(xl('Administered Site'),ENT_NOQUOTES);?></b></td>
-						<td colspan="7"><b><?php echo htmlspecialchars(xl('Notes'),ENT_NOQUOTES);?></b></td>
-					</tr>
-					<tr bgcolor="#FFFFFF">
-						<td><?php echo htmlspecialchars($row['imm_date'],ENT_NOQUOTES); ?>&nbsp;</td>
-						<td><?php echo htmlspecialchars($row['cvx_code'],ENT_NOQUOTES); ?>&nbsp;</td>
-						<td><?php echo htmlspecialchars($row['imm_code_short'],ENT_NOQUOTES)." (".htmlspecialchars($row['imm_code']).")"; ?>&nbsp;</td>
-						<td>
-					    <?php
+                    </tr>
+                    <tr bgcolor="#C3FDB8" align= "left">
+                        <td><b><?php echo htmlspecialchars(xl('Immunization Date'),ENT_NOQUOTES);?></b></td>
+                        <td><b><?php echo htmlspecialchars(xl('CVX Code'),ENT_NOQUOTES);?></b></td>
+                        <td><b><?php echo htmlspecialchars(xl('Vaccine'),ENT_NOQUOTES);?></b></td>
+                        <td><b><?php echo htmlspecialchars(xl('Amount'),ENT_NOQUOTES);?></b></td>
+                        <td><b><?php echo htmlspecialchars(xl('Administered Site'),ENT_NOQUOTES);?></b></td>
+                        <td colspan="7"><b><?php echo htmlspecialchars(xl('Notes'),ENT_NOQUOTES);?></b></td>
+                    </tr>
+                    <tr bgcolor="#FFFFFF">
+                        <td><?php echo htmlspecialchars($row['imm_date'],ENT_NOQUOTES); ?>&nbsp;</td>
+                        <td><?php echo htmlspecialchars($row['cvx_code'],ENT_NOQUOTES); ?>&nbsp;</td>
+                        <td><?php echo htmlspecialchars($row['imm_code_short'],ENT_NOQUOTES)." (".htmlspecialchars($row['imm_code']).")"; ?>&nbsp;</td>
+                        <td>
+                        <?php
                         if ($row["amount_administered"] > 0) {
                             echo htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']) , ENT_NOQUOTES);
                         }else{
@@ -923,17 +923,17 @@ $img_id++;
                         }
                         ?>
 
-					  </td>
+                      </td>
 
-					  <td>
+                      <td>
                         <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_body_site'), $row['administration_site']); ?>
-					  </td>
+                      </td>
 
-					  <td colspan="7">
+                      <td colspan="7">
                         <?php echo htmlspecialchars($row['notes']); ?>
-					  </td>
-					</tr>
-			<?php } ?>
+                      </td>
+                    </tr>
+            <?php } ?>
 <!-- Immunization Report End-->
                      </table>
             <?php }  //while loop end ?>

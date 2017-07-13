@@ -43,15 +43,15 @@ class pcSmarty extends Smarty
         unset($pcModInfo);
         
         // setup up pcSmarty configs
-        $this->compile_check    = 	true;
-        $this->force_compile    = 	false;
-        $this->debugging        = 	false;
+        $this->compile_check    =   true;
+        $this->force_compile    =   false;
+        $this->debugging        =   false;
         $this->template_dir     =   "modules/$pcDir/pntemplates";
         array_push($this->plugins_dir,"modules/$pcDir/pnincludes/Smarty/plugins");
         array_push($this->plugins_dir,"modules/$pcDir/plugins");
         $this->compile_dir      =   "modules/$pcDir/pntemplates/compiled";
         $this->cache_dir        =   "modules/$pcDir/pntemplates/cache";
-        $this->caching  		= 	_SETTING_USE_CACHE;
+        $this->caching          =   _SETTING_USE_CACHE;
         $this->cache_lifetime   =   _SETTING_CACHE_LIFETIME;
         $this->left_delimiter   =   '[-';
         $this->right_delimiter  =   '-]';
@@ -60,9 +60,9 @@ class pcSmarty extends Smarty
         //	checks for safe mode
         //	i think it's safe to say we can do this automagically now
         //============================================================
-        $safe_mode  	= ini_get('safe_mode');
+        $safe_mode      = ini_get('safe_mode');
         $safe_mode_gid  = ini_get('safe_mode_gid');
-        $open_basedir 	= ini_get('open_basedir');
+        $open_basedir   = ini_get('open_basedir');
 
         $use_safe_mode = ((bool)$safe_mode || (bool)$safe_mode_gid || !empty($open_basedir));
         if($use_safe_mode) {

@@ -85,9 +85,9 @@ else $logtop = 0;
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
              <div style='margin-left:15px'>
                <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
                <span>

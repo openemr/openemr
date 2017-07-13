@@ -166,41 +166,41 @@ if ($_POST['formaction']=="generate") {
         <head>
         <style>
         body {
-	 font-family: sans-serif;
-	 font-weight: normal;
-	 font-size: 12pt;
-	 background: white;
-	 color: black;
-	}	
-	.paddingdiv {
-	 width: 524pt;
-	 padding: 0pt;
-	 margin-top: 50pt;
-	}
-	.navigate {
-	 margin-top: 2.5em;
-	}	
-	@media print {
-	 .navigate {
-	  display: none;
-	 }	
-	}	
-	</style>	
-	<title><?php xl('Letter','e'); ?></title>
-	</head>
+     font-family: sans-serif;
+     font-weight: normal;
+     font-size: 12pt;
+     background: white;
+     color: black;
+    }   
+    .paddingdiv {
+     width: 524pt;
+     padding: 0pt;
+     margin-top: 50pt;
+    }
+    .navigate {
+     margin-top: 2.5em;
+    }   
+    @media print {
+     .navigate {
+      display: none;
+     }  
+    }   
+    </style>    
+    <title><?php xl('Letter','e'); ?></title>
+    </head>
         <body>
-	<div class='paddingdiv'>
-	<?php echo $cpstring; ?>
+    <div class='paddingdiv'>
+    <?php echo $cpstring; ?>
         <div class="navigate">
-	<a href="<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved';
+    <a href="<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved';
 ?>">(<?php xl('Back','e'); ?>)</a>
-	</div>
-	<script language='JavaScript'>
-	window.print();
-	</script>
-	</body>
-	</div>
-	<?php
+    </div>
+    <script language='JavaScript'>
+    window.print();
+    </script>
+    </body>
+    </div>
+    <?php
     exit;
     }
 }

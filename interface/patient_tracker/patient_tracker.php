@@ -497,7 +497,7 @@ foreach ( $appointments as $appointment ) {
         }
      # end total time in practice
         ?>
-		<?php echo text($appointment['pc_time']); ?>
+        <?php echo text($appointment['pc_time']); ?>
      </td>
         <td class="detail" align="center">
         <?php
@@ -519,14 +519,14 @@ foreach ( $appointments as $appointment ) {
             <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
          <td class="detail" align="center">
             <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
-		     <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
             <?php } else { ?>
-		     <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
             <?php } ?>
-		 </td>
+         </td>
             <?php } else {  echo "  <td>"; }?>
             <?php } ?>
-		 </tr>
+         </tr>
         <?php
 } //end for
 ?>
@@ -558,8 +558,8 @@ if (!is_null($_POST['form_patient_name'])) {
 
 <script type="text/javascript">
   $(document).ready(function() {
-	  $('#settings').css("display","none");
-	  refreshbegin('1');
+      $('#settings').css("display","none");
+      refreshbegin('1');
 
     $('.js-blink-infinite').each(function() {
       // set up blinking text
@@ -598,12 +598,12 @@ if (!is_null($_POST['form_patient_name'])) {
   });
 
   $('#setting_cog').click(function () {
-	  $(this).css("display","none");
-	  $('#settings').css("display","inline");
+      $(this).css("display","none");
+      $('#settings').css("display","inline");
   });
 
   $('#refreshme').click(function () {
-	  refreshme();
+      refreshme();
   });
 </script>
 <!-- form used to open a new top level window when a patient row is clicked -->

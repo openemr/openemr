@@ -6,19 +6,19 @@ class Handler_HL7v2 {
 
     var $parser;
 
-    function Handler_HL7v2 ($parser)
+    function Handler_HL7v2($parser)
     {
         $this->parser = &$parser;
     }
 
-    function Type ()
+    function Type()
     {
         return false;
     }
 
     //----- Internal methods
 
-    function _StripToNumeric ($string)
+    function _StripToNumeric($string)
     {
         $target = '';
         for ($pos=0; $pos<strlen($string); $pos++) {

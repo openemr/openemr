@@ -97,7 +97,7 @@ function checkAll(bx) {
 // this is automatically called by swfobject.embedSWF()
 //------------------------------------------------------
 function open_flash_chart_data(){
-	return JSON.stringify(data);
+    return JSON.stringify(data);
 }
 //------------------------------------------------------
 
@@ -247,9 +247,9 @@ if($value_select){
             $query  = sqlStatement($spell,array($this_value,$pid));
             while($myrow = sqlFetchArray($query)){
 
-                $value_array[0][$value_count] 	= $myrow['result'];
-                $date_array[$value_count]	= $myrow['date_collected'];
-                $the_item =	$myrow['result_text'];
+                $value_array[0][$value_count]   = $myrow['result'];
+                $date_array[$value_count]   = $myrow['date_collected'];
+                $the_item = $myrow['result_text'];
                 echo "<tr>";
                 echo "<td class='list_item'>" . text($myrow['result_text']) . "</td>";
 
@@ -267,7 +267,7 @@ if($value_select){
                     }
                     echo text($myrow['result']) . "&nbsp;&nbsp;</td>";
                 }
-                echo "<td class='list_item'>" . text($myrow['range']) 		. "</td>";
+                echo "<td class='list_item'>" . text($myrow['range'])       . "</td>";
 
                 // echo "<td class='list_item'>" . generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) . "</td>";
                 echo "<td class='list_item'>" . text($myrow['units']) . "</td>";
@@ -293,44 +293,44 @@ if($value_select){
                 echo "</td></tr>";
             }
             ?>
-			<script type="text/javascript">
-			// prepare to plot the stuff
-			top.restoreSession();
-			function get_my_graph<?php echo attr($item_graph) ?>(){
-				var thedates = JSON.stringify(<?php echo json_encode($date_array); ?>);
-				var thevalues =  JSON.stringify(<?php echo json_encode($value_array); ?>);
-				var theitem = JSON.stringify(<?php echo json_encode(array($the_item)); ?>);
-				var thetitle = JSON.stringify(<?php echo json_encode($the_item); ?>);
-				var checkboxfake = JSON.stringify(<?php echo json_encode(array(0)); ?>);
+            <script type="text/javascript">
+            // prepare to plot the stuff
+            top.restoreSession();
+            function get_my_graph<?php echo attr($item_graph) ?>(){
+                var thedates = JSON.stringify(<?php echo json_encode($date_array); ?>);
+                var thevalues =  JSON.stringify(<?php echo json_encode($value_array); ?>);
+                var theitem = JSON.stringify(<?php echo json_encode(array($the_item)); ?>);
+                var thetitle = JSON.stringify(<?php echo json_encode($the_item); ?>);
+                var checkboxfake = JSON.stringify(<?php echo json_encode(array(0)); ?>);
 
-				$.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
-						type: 'POST',
-						data: { dates:  thedates,
-								values: thevalues,
-								track:  thetitle,
-								items:  theitem,
-								thecheckboxes: checkboxfake
-							},
-						dataType: "json",
-						success: function(returnData){
-						// ofc will look after a variable named "ofc"
-						// inside of the flashvar
-						// However, we need to set both
-						// data and flashvars.ofc
-							data=returnData;
-							flashvars.ofc = returnData;
-							// call ofc with proper falshchart
-							swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf',
-							"graph_item_<?php echo $item_graph ?>", "650", "200", "9.0.0","",flashvars);
-						},
-							error: function (XMLHttpRequest, textStatus, errorThrown) {
-							alert(XMLHttpRequest.responseText);
-						}
-				}); // end ajax query
-			}
-			//------------------------------------------------------------------------
-			</script>
-			<?php
+                $.ajax({ url: '<?php echo $web_root; ?>/library/openflashchart/graph_track_anything.php',
+                        type: 'POST',
+                        data: { dates:  thedates,
+                                values: thevalues,
+                                track:  thetitle,
+                                items:  theitem,
+                                thecheckboxes: checkboxfake
+                            },
+                        dataType: "json",
+                        success: function(returnData){
+                        // ofc will look after a variable named "ofc"
+                        // inside of the flashvar
+                        // However, we need to set both
+                        // data and flashvars.ofc
+                            data=returnData;
+                            flashvars.ofc = returnData;
+                            // call ofc with proper falshchart
+                            swfobject.embedSWF('<?php echo $web_root; ?>/library/openflashchart/open-flash-chart.swf',
+                            "graph_item_<?php echo $item_graph ?>", "650", "200", "9.0.0","",flashvars);
+                        },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseText);
+                        }
+                }); // end ajax query
+            }
+            //------------------------------------------------------------------------
+            </script>
+            <?php
             echo "<tr><td colspan='9'  class='list_spacer'><hr></td></tr>";
             $item_graph++;
         }
@@ -351,18 +351,18 @@ if($value_select){
             $query  = sqlStatement($spell,array($this_value,$pid));
 
             while($myrow = sqlFetchArray($query)){
-                $value_matrix[$i][procedure_result_id] 	= $myrow['procedure_result_id'];
-                $value_matrix[$i][result_code] 			= $myrow['result_code'];
-                $value_matrix[$i][result_text] 			= $myrow['result_text'];
-                $value_matrix[$i][result] 				= $myrow['result'];
+                $value_matrix[$i][procedure_result_id]  = $myrow['procedure_result_id'];
+                $value_matrix[$i][result_code]          = $myrow['result_code'];
+                $value_matrix[$i][result_text]          = $myrow['result_text'];
+                $value_matrix[$i][result]               = $myrow['result'];
                 // $value_matrix[$i][units] 				= generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$myrow['units']) ;
-                $value_matrix[$i][units] 				= $myrow['units'];
-                $value_matrix[$i][range] 				= $myrow['range'];
-                $value_matrix[$i][abnormal] 			= $myrow['abnormal'];
-                $value_matrix[$i][review_status] 		= $myrow['review_status'];
-                $value_matrix[$i][encounter_id] 		= $myrow['encounter_id'];
-                $value_matrix[$i][date_collected] 		= $myrow['date_collected'];
-                $datelist[] 							= $myrow['date_collected'];
+                $value_matrix[$i][units]                = $myrow['units'];
+                $value_matrix[$i][range]                = $myrow['range'];
+                $value_matrix[$i][abnormal]             = $myrow['abnormal'];
+                $value_matrix[$i][review_status]        = $myrow['review_status'];
+                $value_matrix[$i][encounter_id]         = $myrow['encounter_id'];
+                $value_matrix[$i][date_collected]       = $myrow['date_collected'];
+                $datelist[]                             = $myrow['date_collected'];
                 $i++;
             }
         }

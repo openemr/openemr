@@ -177,26 +177,26 @@ if (! $sale_id) {
  // printing HTML is much faster and easier if the browser's page setup is
  // configured properly.
  //
-if (false) { // if PDF output is desired
-    $pdf = new Cezpdf($dconfig['paper_size']);
-    $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
-    $pdf->selectFont('Helvetica');
-    $pdf->ezSetDy(20); // dunno why we have to do this...
-    $pdf->ezText($header_text, 7, array('justification'=>'center'));
-    if(!empty($dconfig['logo'])) {
-        $pdf->ezSetDy(-5); // add space (move down) before the image
-        $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-        $pdf->ezSetDy(8);  // reduce space (move up) after the image
+ if (false) { // if PDF output is desired
+     $pdf = new Cezpdf($dconfig['paper_size']);
+     $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+     $pdf->selectFont('Helvetica');
+     $pdf->ezSetDy(20); // dunno why we have to do this...
+     $pdf->ezText($header_text, 7, array('justification'=>'center'));
+     if(!empty($dconfig['logo'])) {
+         $pdf->ezSetDy(-5); // add space (move down) before the image
+         $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+         $pdf->ezSetDy(8);  // reduce space (move up) after the image
+        }
+        $pdf->ezText($label_text, 9, array('justification'=>'center'));
+        $pdf->ezStream();
     }
-    $pdf->ezText($label_text, 9, array('justification'=>'center'));
-    $pdf->ezStream();
-}
-else { // HTML output
-?>
-<html>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
+    else { // HTML output
+        ?>
+    <html>
+        <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <head>
-<?php html_header_show();?>
+    <?php html_header_show();?>
 <style type="text/css">
 body {
  font-family: sans-serif;
@@ -220,7 +220,7 @@ body {
  padding-top: 2pt;
 }
 </style>
-<title><?php echo xlt('Prescription Label') ; ?></title>
+    <title><?php echo xlt('Prescription Label') ; ?></title>
 </head>
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
@@ -241,5 +241,5 @@ win.printLogPrint(window);
 </body>
 </html>
 <?php
-}
+    }
 ?>

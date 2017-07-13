@@ -45,9 +45,9 @@ function getDisclosureByDate($pid,$limit)
 <br>
 <table width='100%'>
 <tr style='border-bottom:2px solid #000;' class='text'>
-	<td valign='top' class='text'><b><?php  echo xlt('Type'); ?></b></td>
-	<td valign='top' class='text'><b><?php  echo xlt('Provider'); ?></b></td>
-	<td valign='top' class='text'><b><?php  echo xlt('Summary'); ?></b></td>
+    <td valign='top' class='text'><b><?php  echo xlt('Type'); ?></b></td>
+    <td valign='top' class='text'><b><?php  echo xlt('Provider'); ?></b></td>
+    <td valign='top' class='text'><b><?php  echo xlt('Summary'); ?></b></td>
 </tr>
 <?php
 //display all the disclosures for the day, as well as others from previous dates, up to a certain number, $N
@@ -86,7 +86,7 @@ if ($result != null){
 <?php
 if ( $has_disclosure == 0 ) //If there are no disclosures recorded
 { ?>
-	<span class='text'>
+    <span class='text'>
 <?php
   echo xlt("There are no disclosures recorded for this patient.");
 if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
@@ -97,17 +97,17 @@ if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
     echo "</a>.";
 }
 ?>
-	</span>
+    </span>
 <?php
 } else
 {
 ?>
-	<br />
-	<span class='text'> <?php
+    <br />
+    <span class='text'> <?php
     echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'),ENT_NOQUOTES);
 ?><b><?php echo " ".htmlspecialchars($N,ENT_NOQUOTES);?></b><br>
-	<a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES);?></a>
-	</span><?php
+    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES);?></a>
+    </span><?php
 } ?>
 <br />
 <br />

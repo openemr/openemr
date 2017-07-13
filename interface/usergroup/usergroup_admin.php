@@ -379,17 +379,17 @@ $(document).ready(function(){
     tabbify();
 
     // special size for
-	$(".iframe_medium").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 450,
-		'frameWidth' : 660
-	});
+    $(".iframe_medium").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 450,
+        'frameWidth' : 660
+    });
 
-	$(function(){
-		// add drag and drop functionality to fancybox
-		$("#fancy_outer").easydrag();
-	});
+    $(function(){
+        // add drag and drop functionality to fancybox
+        $("#fancy_outer").easydrag();
+    });
 });
 
 </script>
@@ -409,14 +409,14 @@ function authorized_clicked() {
 <div>
     <div>
        <table>
-	  <tr >
-		<td><b><?php xl('User / Groups','e'); ?></b></td>
-		<td><a href="usergroup_admin_add.php" class="iframe_medium css_button"><span><?php xl('Add User','e'); ?></span></a>
-		</td>
-		<td><a href="facility_user.php" class="css_button"><span><?php xl('View Facility Specific User Information','e'); ?></span></a>
-		</td>
-	  </tr>
-	</table>
+      <tr >
+        <td><b><?php xl('User / Groups','e'); ?></b></td>
+        <td><a href="usergroup_admin_add.php" class="iframe_medium css_button"><span><?php xl('Add User','e'); ?></span></a>
+        </td>
+        <td><a href="facility_user.php" class="css_button"><span><?php xl('View Facility Specific User Information','e'); ?></span></a>
+        </td>
+      </tr>
+    </table>
     </div>
     <div style="width:650px;">
         <div>
@@ -436,13 +436,13 @@ if ($show_message == 1){
 
 ?>
 <table cellpadding="1" cellspacing="0" class="showborder">
-	<tbody><tr height="22" class="showborder_head">
-		<th width="180px"><b><?php xl('Username','e'); ?></b></th>
-		<th width="270px"><b><?php xl('Real Name','e'); ?></b></th>
-		<th width="320px"><b><span class="bold"><?php xl('Additional Info','e'); ?></span></b></th>
-		<th><b><?php xl('Authorized','e'); ?>?</b></th>
+    <tbody><tr height="22" class="showborder_head">
+        <th width="180px"><b><?php xl('Username','e'); ?></b></th>
+        <th width="270px"><b><?php xl('Real Name','e'); ?></b></th>
+        <th width="320px"><b><span class="bold"><?php xl('Additional Info','e'); ?></span></b></th>
+        <th><b><?php xl('Authorized','e'); ?>?</b></th>
 
-		<?php
+        <?php
         $query = "SELECT * FROM users WHERE username != '' ";
         if (!$form_inactive) $query .= "AND active = '1' ";
         $query .= "ORDER BY username";
@@ -466,7 +466,7 @@ if ($show_message == 1){
             print "</tr>\n";
         }
 ?>
-	</tbody></table>
+    </tbody></table>
 <?php
 if (empty($GLOBALS['disable_non_default_groups'])) {
     $res = sqlStatement("select * from groups order by name");

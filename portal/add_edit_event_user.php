@@ -63,12 +63,12 @@ global $ignoreAuth;
  $date          = $_GET['date'];        // this and below only for new events
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
- $patientid		= $_GET['patid'];
+ $patientid     = $_GET['patid'];
  //
 
  if ($date)
   $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
- else
+else
   $date = date("Y-m-d");
  //
  $starttimem = '00';
@@ -560,10 +560,10 @@ if ($_POST['form_action'] == "save") {
     }
 
 }
- else if ($_POST['form_action'] == "delete") {
-        // =======================================
-        //  multi providers case
-        // =======================================
+else if ($_POST['form_action'] == "delete") {
+      // =======================================
+      //  multi providers case
+      // =======================================
     if ($GLOBALS['select_multi_providers']) {
          // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
@@ -578,14 +578,14 @@ if ($_POST['form_action'] == "save") {
     } else {
         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = '$eid'");
     }
-    }
+}
 
-    if ($_POST['form_action'] != "") {
-     // Leave
-        $_SESSION['whereto'] = 'appointmentpanel';
-        header('Location:./home.php');
-        exit();
-    }
+if ($_POST['form_action'] != "") {
+ // Leave
+    $_SESSION['whereto'] = 'appointmentpanel';
+    header('Location:./home.php');
+    exit();
+}
  // If we get this far then we are displaying the form.
 
     $statuses = array(
@@ -701,7 +701,7 @@ if ($_POST['form_action'] == "save") {
   </td>
   <td></td>
   <td width='1%' nowrap>
-  	<b><?php xl('Date','e'); ?>:</b>
+    <b><?php xl('Date','e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
@@ -779,7 +779,7 @@ while ($urow = sqlFetchArray($ures)) {
    <b><?php xl('Reason','e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' colspan='4' nowrap>
-	<input class="form-control input-md" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext,ENT_QUOTES) ?>' title='<?php xl('Optional information about this event','e');?>' />
+    <input class="form-control input-md" type='text' size='40' name='form_comments' style='width:100%' value='<?php echo htmlspecialchars($hometext,ENT_QUOTES) ?>' title='<?php xl('Optional information about this event','e');?>' />
   </td>
  </tr>
 </table>
@@ -885,9 +885,9 @@ while ($crow = sqlFetchArray($cres)) {
  function categoryChanged() {
     var value = '5';
 
-	document.getElementById("form_patient").disabled=false;
-	//document.getElementById("form_apptstatus").disabled=false;
-	//document.getElementById("form_prefcat").disabled=false;
+    document.getElementById("form_patient").disabled=false;
+    //document.getElementById("form_apptstatus").disabled=false;
+    //document.getElementById("form_prefcat").disabled=false;
 
  }
 
@@ -988,11 +988,11 @@ while ($crow = sqlFetchArray($cres)) {
  // f.form_category.value='2';
   if (f.form_patient.value=='Click to select' && (!(
          f.form_category.value=='2' || f.form_category.value=='8' || f.form_category.value=='3' || f.form_category.value=='4' || f.form_category.value=='11'
-	 || f.form_category.value=='10'))) {
+     || f.form_category.value=='10'))) {
    alert('Please select a patient.');
    return false;
   } else if (f.form_category.value=='10') {
-	unsetpatient();
+    unsetpatient();
   }
   var form_action = document.getElementById('form_action');
   form_action.value="save";

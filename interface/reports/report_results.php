@@ -56,7 +56,7 @@ require_once "$srcdir/report_database.inc";
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
     $( document ).ready(function(){
-	    $('.datepicker').datetimepicker({
+        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = true; ?>
             <?php $datetimepicker_formatInput = false; ?>
@@ -109,9 +109,9 @@ require_once "$srcdir/report_database.inc";
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                    <tr>
                       <td class='label_custom'>
@@ -134,29 +134,29 @@ require_once "$srcdir/report_database.inc";
                                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
-	</table>
-	</div>
+    </table>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo htmlspecialchars( xl('Search'), ENT_NOQUOTES); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
+                    <span>
+                        <?php echo htmlspecialchars( xl('Search'), ENT_NOQUOTES); ?>
+                    </span>
+                    </a>
                                         <a id='refresh_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
                                         <span>
                                                 <?php echo htmlspecialchars( xl('Refresh'), ENT_NOQUOTES); ?>
                                         </span>
                                         </a>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>

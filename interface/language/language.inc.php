@@ -10,7 +10,7 @@ if (!$thisauth) {
     exit();
 }
 
-function check_pattern ($data,$pat)
+function check_pattern($data,$pat)
 {
     if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) { return true ;
     } else { return false; }

@@ -811,7 +811,7 @@ if ($_REQUEST['dispensed']) {
                                                             $ODMPDD||$ODMPDN||$OSMPDD||$OSMPDN||$BPDD||$BPDN||
                                                             $LENS_MATERIAL||$LENS_TREATMENTS)
                                                         {
-                                                    $detailed = '1';
+                                                          $detailed = '1';
                                                     ?><i class="fa fa-minus-square-o"></i><?php
                                                 } else {
                                                     $detailed ='0';

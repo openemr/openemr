@@ -41,11 +41,11 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 	*/
     function non_reported_codes()
     {
-        $query 	    = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
+        $query      = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query);
         
-        $codes 	    = array();
+        $codes      = array();
         foreach($result as $row){
             $codes[] = $row;
         }
@@ -63,7 +63,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         global $pid;
         $appTable   = new ApplicationTable();
         
-        $sqlSelctProvider 		= "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
+        $sqlSelctProvider       = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
         $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, array($encounter, $pid));
         foreach($resultSelctProvider as $resultSelctProvider_row){
             $provider = $resultSelctProvider_row['provider_id'];
@@ -169,7 +169,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = $provider_selected;
         }
         
-        $query 		.= " AND fe.date >= ? AND fe.date <= ?";
+        $query      .= " AND fe.date >= ? AND fe.date <= ?";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
         
@@ -182,7 +182,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             return count($records);
         }
         
-        $query 	    .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($start).",".\Application\Plugin\CommonPlugin::escapeLimit($end);
+        $query      .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($start).",".\Application\Plugin\CommonPlugin::escapeLimit($end);
         
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, $query_string);
@@ -270,7 +270,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             $query_string[] = $provider_selected;
         }
         
-        $query 		.= " AND fe.date >= ? AND fe.date <= ?";
+        $query      .= " AND fe.date >= ? AND fe.date <= ?";
         $query_string[] = $fromDate;
         $query_string[] = $toDate;
         
@@ -281,8 +281,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         
         $D="\r";
         $nowdate    = date('YmdHis');
-        $now 	      = date('YmdGi');
-        $now1 	    = date('Y-m-d G:i');
+        $now          = date('YmdGi');
+        $now1       = date('Y-m-d G:i');
         $filename   = "syn_sur_". $now . ".hl7";
     
         foreach($result as $r) {
@@ -494,8 +494,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 	*/
     public function convert_to_yyyymmdd($date)
     {
-        $date 	= str_replace('/','-',$date);
-        $arr 	= explode('-',$date);
+        $date   = str_replace('/','-',$date);
+        $arr    = explode('-',$date);
         $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
         return $formatted_date;
     }
@@ -512,10 +512,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         if(!$date) return;
         $format = $format ? $format : 'm/d/y';
-        $temp 	= explode(' ',$date); //split using space and consider the first portion, incase of date with time
-        $date 	= $temp[0];
-        $date 	= str_replace('/','-',$date);
-        $arr 	= explode('-',$date);
+        $temp   = explode(' ',$date); //split using space and consider the first portion, incase of date with time
+        $date   = $temp[0];
+        $date   = str_replace('/','-',$date);
+        $arr    = explode('-',$date);
         
         if($format == 'm/d/y'){
             $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];

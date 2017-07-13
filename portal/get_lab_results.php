@@ -47,10 +47,10 @@
       "WHERE po.patient_id = ? AND $where " .
       "ORDER BY $orderby", array($pid));
 
-if(sqlNumRows($res)>0)
+  if(sqlNumRows($res)>0)
     {
-    ?>
-    <table class="table table-striped table-condensed table-bordered">
+        ?>
+      <table class="table table-striped table-condensed table-bordered">
         <tr class="header">
             <th><?php echo xlt('Order Date'); ?></th>
             <th><?php echo xlt('Order Name'); ?></th>
@@ -124,9 +124,9 @@ if(sqlNumRows($res)>0)
         }
 
         echo "</table>";
-}
-else
+    }
+    else
     {
-    echo xlt("No Results");
-}
+        echo xlt("No Results");
+    }
 ?>

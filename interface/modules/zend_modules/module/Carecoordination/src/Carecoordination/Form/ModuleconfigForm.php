@@ -29,7 +29,7 @@ class ModuleconfigForm extends Form
 {
     public function __construct(AdapterInterface $dbAdapter)
     {
-        $this->application 	= new ApplicationTable;
+        $this->application  = new ApplicationTable;
         parent::__construct('configuration');
         $this->setAttribute('method', 'post');
         
@@ -37,13 +37,13 @@ class ModuleconfigForm extends Form
 		* Automatic SignOff settings
 		*/
         $this->add(array(
-                'name' 		=> 'hie_auto_sign_off_id',
-                'attributes' 	=> array(
-                        'type'  	=> 'text',
-                        'id'    	=> 'hie_auto_sign_off_id'
+                'name'      => 'hie_auto_sign_off_id',
+                'attributes'    => array(
+                        'type'      => 'text',
+                        'id'        => 'hie_auto_sign_off_id'
                     ),
                 'options' => array(
-                        'label' 	=> \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
+                        'label'     => \Application\Listener\Listener::z_xlt('Auto Sign-Off [days]'),
                     ),
             ));
         
@@ -53,13 +53,13 @@ class ModuleconfigForm extends Form
         $this->add(array(
             'type' => 'Zend\Form\Element\Checkbox',
                 'name' => 'hie_auto_send_id',
-                'attributes' 	=> array(
-                        'id'    	=> 'hie_auto_send_id'
+                'attributes'    => array(
+                        'id'        => 'hie_auto_send_id'
                     ),
                 'options' => array(
-                        'label' 		=> \Application\Listener\Listener::z_xlt('Auto Send'),
-                'checked_value' 	=> 'yes',
-                        'unchecked_value' 	=> 'no'
+                        'label'         => \Application\Listener\Listener::z_xlt('Auto Send'),
+                'checked_value'     => 'yes',
+                        'unchecked_value'   => 'no'
                     ),
             ));
         
@@ -67,17 +67,17 @@ class ModuleconfigForm extends Form
 		* Author settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_author_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_author_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_author_fname'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_author_fname'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Author'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Author'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
@@ -86,17 +86,17 @@ class ModuleconfigForm extends Form
 		* Data Enterer settings
 		*/
         $this->add(array(
-                'name' 		=> 'hie_data_enterer_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'      => 'hie_data_enterer_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_data_enterer_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_data_enterer_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Data Enterer'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Data Enterer'),
                     'value_options' => $this->getUsersList(),
                 ),
             ));
@@ -105,17 +105,17 @@ class ModuleconfigForm extends Form
 		* Informant settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_informant_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_informant_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_informant_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_informant_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Informant'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Informant'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
@@ -124,7 +124,7 @@ class ModuleconfigForm extends Form
 		* Personal Informant settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_personal_informant_id',
+                'name'  => 'hie_personal_informant_id',
                 'attributes'=> array(
                         'type'  => 'text',
                         'id'    => 'hie_personal_informant_id'
@@ -138,17 +138,17 @@ class ModuleconfigForm extends Form
 		* Custodian settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_custodian_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_custodian_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_custodian_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_custodian_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Custodian'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Custodian'),
                     'value_options' => $this->getFacilities(),
                 ),
             ));
@@ -157,17 +157,17 @@ class ModuleconfigForm extends Form
 		* Legal Authenticator settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_legal_authenticator_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_legal_authenticator_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_legal_authenticator_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_legal_authenticator_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Legal Authenticator'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Legal Authenticator'),
                     'value_options' => $this->getUsers(),
                 ),
             ));
@@ -176,17 +176,17 @@ class ModuleconfigForm extends Form
 		* Authenticator settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_authenticator_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_authenticator_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_authenticator_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_authenticator_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Authenticator'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Authenticator'),
                     'value_options' => $this->getUsers(),
                 ),
             ));
@@ -195,17 +195,17 @@ class ModuleconfigForm extends Form
 		* Primary Care Provider settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_primary_care_provider_id',
-                'type'  	=> 'Zend\Form\Element\Select',
+                'name'  => 'hie_primary_care_provider_id',
+                'type'      => 'Zend\Form\Element\Select',
                 'attributes'=> array(
-                    'class' 	=> '',
-                    'data-options' 	=> 'required:true',
-                    'editable' 	=> 'false',
-                    'required' 	=> 'required',
-                    'id' 		=> 'hie_primary_care_provider_id'
+                    'class'     => '',
+                    'data-options'  => 'required:true',
+                    'editable'  => 'false',
+                    'required'  => 'required',
+                    'id'        => 'hie_primary_care_provider_id'
                 ),
                 'options' => array(
-                    'label' 	=> \Application\Listener\Listener::z_xlt('Primary Care Provider'),
+                    'label'     => \Application\Listener\Listener::z_xlt('Primary Care Provider'),
                     'value_options' => $this->getProviders(),
                 ),
             ));
@@ -214,7 +214,7 @@ class ModuleconfigForm extends Form
 		* MIRTH IP settings
 		*/
         $this->add(array(
-                'name' 	=> 'hie_mirth_ip',
+                'name'  => 'hie_mirth_ip',
                 'attributes'=> array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_ip'
@@ -228,7 +228,7 @@ class ModuleconfigForm extends Form
 		* MIRTH Client ID
 		*/
         $this->add(array(
-                'name' 	=> 'hie_mirth_clientid',
+                'name'  => 'hie_mirth_clientid',
                 'attributes'=> array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_clientid'
@@ -242,7 +242,7 @@ class ModuleconfigForm extends Form
 		* MIRTH Username
 		*/
         $this->add(array(
-                'name' 	=> 'hie_mirth_username',
+                'name'  => 'hie_mirth_username',
                 'attributes'=> array(
                         'type'  => 'text',
                         'id'    => 'hie_mirth_username'
@@ -256,7 +256,7 @@ class ModuleconfigForm extends Form
 		* MIRTH Password
 		*/
         $this->add(array(
-                'name' 	=> 'hie_mirth_password',
+                'name'  => 'hie_mirth_password',
                 'attributes'=> array(
                         'type'  => 'password',
                         'id'    => 'hie_mirth_password'

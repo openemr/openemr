@@ -150,65 +150,65 @@ function gnrtCCR($ccr,$raw="no",$requested_by="")
         return;
     }
 
-            else if ($raw == "hybrid") {
+    else if ($raw == "hybrid") {
         // send a file that contains a hybrid file of the raw xml and the xsl stylesheet
         createHybridXML($ccr);
-            }
+    }
 
-            else if ($raw == "pure") {
-            // send a zip file that contains a separate xml data file and xsl stylesheet
-                if (! (class_exists('ZipArchive')) ) {
-                                displayError(xl("ERROR: Missing ZipArchive PHP Module"));
-                    return;
-                }
-                $tempDir = $GLOBALS['temporary_files_dir'];
-                $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
-                if (file_exists($zipName)) {
-                    unlink($zipName);
-                }
-                $zip = new ZipArchive();
-                if (!($zip)) {
-                    displayError(xl("ERROR: Unable to Create Zip Archive."));
-                    return;
-                }
-                if ( $zip->open($zipName, ZIPARCHIVE::CREATE) ) {
-                    $zip->addFile("stylesheet/ccr.xsl", "stylesheet/ccr.xsl");
-                    $xmlName = $tempDir . "/" . getReportFilename() . "-ccr.xml";
-                    if (file_exists($xmlName)) {
-                        unlink($xmlName);
-                    }
-                    $ccr->save($xmlName);
-                    $zip->addFile($xmlName, basename($xmlName) );
-                    $zip->close();
-                    header("Pragma: public");
-                    header("Expires: 0");
-                    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-                    header("Content-Type: application/force-download");
-                    header("Content-Length: " . filesize($zipName));
-                    header("Content-Disposition: attachment; filename=" . basename($zipName) . ";");
-                    header("Content-Description: File Transfer");
-                    readfile($zipName);
-                    unlink($zipName);
-                    unlink($xmlName);
-                    exit(0);
-                }
-                else {
-                    displayError(xl("ERROR: Unable to Create Zip Archive."));
-                    return;
-                }
+    else if ($raw == "pure") {
+    // send a zip file that contains a separate xml data file and xsl stylesheet
+        if (! (class_exists('ZipArchive')) ) {
+                        displayError(xl("ERROR: Missing ZipArchive PHP Module"));
+            return;
+        }
+        $tempDir = $GLOBALS['temporary_files_dir'];
+        $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
+        if (file_exists($zipName)) {
+            unlink($zipName);
+        }
+        $zip = new ZipArchive();
+        if (!($zip)) {
+            displayError(xl("ERROR: Unable to Create Zip Archive."));
+            return;
+        }
+        if ( $zip->open($zipName, ZIPARCHIVE::CREATE) ) {
+            $zip->addFile("stylesheet/ccr.xsl", "stylesheet/ccr.xsl");
+            $xmlName = $tempDir . "/" . getReportFilename() . "-ccr.xml";
+            if (file_exists($xmlName)) {
+                unlink($xmlName);
             }
+            $ccr->save($xmlName);
+            $zip->addFile($xmlName, basename($xmlName) );
+            $zip->close();
+            header("Pragma: public");
+            header("Expires: 0");
+            header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+            header("Content-Type: application/force-download");
+            header("Content-Length: " . filesize($zipName));
+            header("Content-Disposition: attachment; filename=" . basename($zipName) . ";");
+            header("Content-Description: File Transfer");
+            readfile($zipName);
+            unlink($zipName);
+            unlink($xmlName);
+            exit(0);
+        }
+        else {
+            displayError(xl("ERROR: Unable to Create Zip Archive."));
+            return;
+        }
+    }
 
-            else if (substr($raw,0,4)=="send") {
-                $recipient = trim(stripslashes(substr($raw,5)));
-                $result=transmitCCD($ccr,$recipient,$requested_by,"CCR");
-                echo htmlspecialchars($result,ENT_NOQUOTES);
-                return;
-            }
+    else if (substr($raw,0,4)=="send") {
+        $recipient = trim(stripslashes(substr($raw,5)));
+        $result=transmitCCD($ccr,$recipient,$requested_by,"CCR");
+        echo htmlspecialchars($result,ENT_NOQUOTES);
+        return;
+    }
 
-            else {
-                header("Content-type: application/xml");
-                    echo $ccr->saveXml();
-            }
+    else {
+        header("Content-type: application/xml");
+        echo $ccr->saveXml();
+    }
         
 }
     

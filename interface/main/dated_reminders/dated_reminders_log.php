@@ -105,7 +105,7 @@ if($_GET){
                         echo '$("select option").removeAttr("selected");';
                     }
                     ?>
-                	return false;
+                    return false;
                }
              )
           return false;

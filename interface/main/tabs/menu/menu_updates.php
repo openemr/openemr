@@ -37,13 +37,13 @@ function update_modules_menu(&$menu_list)
                     $acl_section = strtolower($modulerow['mod_directory']);
                     if (!zh_acl_check($_SESSION['authUserID'],$acl_section)) continue;
                     $modulePath = "";
-                    $added 		= "";
+                    $added      = "";
             if($modulerow['type'] == 0) {
                     $modulePath = $GLOBALS['customModDir'];
-                    $added		= "";
+                    $added      = "";
             }
             else{
-                    $added		= "index";
+                    $added      = "index";
                     $modulePath = $GLOBALS['zendModDir'];
             }
 

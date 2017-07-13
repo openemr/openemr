@@ -101,7 +101,7 @@ if (isset($_POST["mode"]))
         "', user_id = '"     . trim($user_id                  )  .
         "', closed = '"      . trim($closed                   )  .
         "', reference = '"   . trim(formData('check_number'   )) .
-        "', check_date = '"  . trim($check_date					) .
+        "', check_date = '"  . trim($check_date                 ) .
         "', deposit_date = '" . trim($deposit_date            )  .
         "', pay_total = '"    . trim(formData('payment_amount')) .
         "', modified_time = '" . trim($modified_time            )  .
@@ -157,7 +157,7 @@ if (isset($_POST["mode"]))
                      {
                         sqlStatement("update ar_activity set "    .
                         "   post_user = '" . trim($user_id            )  .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . trim(formData("Payment$CountRow"   ))  .
                         "', account_code = '" . "$AccountCode"  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -182,10 +182,10 @@ if (isset($_POST["mode"]))
                         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
                         "', reason_code = '"   . trim(formData("ReasonCode$CountRow"   )) .
-                        "', post_time = '"  . trim($created_time					) .
+                        "', post_time = '"  . trim($created_time                    ) .
                         "', post_user = '" . trim($user_id            )  .
                         "', session_id = '"    . trim(formData('payment_id')) .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . trim(formData("Payment$CountRow"   ))  .
                         "', adj_amount = '"    . 0 .
                         "', account_code = '" . "$AccountCode"  .
@@ -227,7 +227,7 @@ if (isset($_POST["mode"]))
                      {
                         sqlStatement("update ar_activity set "    .
                         "   post_user = '" . trim($user_id            )  .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', adj_amount = '"    . trim(formData("AdjAmount$CountRow"   )) .
                         "', memo = '" . "$AdjustString"  .
                         "', account_code = '" . "$AccountCode"  .
@@ -251,10 +251,10 @@ if (isset($_POST["mode"]))
                         "', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
                         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
-                        "', post_time = '"  . trim($created_time					) .
+                        "', post_time = '"  . trim($created_time                    ) .
                         "', post_user = '" . trim($user_id            )  .
                         "', session_id = '"    . trim(formData('payment_id')) .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . 0  .
                         "', adj_amount = '"    . trim(formData("AdjAmount$CountRow"   )) .
                         "', memo = '" . "$AdjustString"  .
@@ -288,7 +288,7 @@ if (isset($_POST["mode"]))
                      {
                         sqlStatement("update ar_activity set "    .
                         "   post_user = '" . trim($user_id            )  .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', memo = '"    . "Deductible $".trim(formData("Deductible$CountRow"   )) .
                         "', account_code = '" . "Deduct"  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -311,10 +311,10 @@ if (isset($_POST["mode"]))
                         "', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
                         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
-                        "', post_time = '"  . trim($created_time					) .
+                        "', post_time = '"  . trim($created_time                    ) .
                         "', post_user = '" . trim($user_id            )  .
                         "', session_id = '"    . trim(formData('payment_id')) .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . 0  .
                         "', adj_amount = '"    . 0 .
                         "', memo = '"    . "Deductible $".trim(formData("Deductible$CountRow"   )) .
@@ -347,7 +347,7 @@ if (isset($_POST["mode"]))
                      {
                         sqlStatement("update ar_activity set "    .
                         "   post_user = '" . trim($user_id            )  .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . trim(formData("Takeback$CountRow"   ))*-1  .
                         "', account_code = '" . "Takeback"  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -370,10 +370,10 @@ if (isset($_POST["mode"]))
                         "', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
                         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
-                        "', post_time = '"  . trim($created_time					) .
+                        "', post_time = '"  . trim($created_time                    ) .
                         "', post_user = '" . trim($user_id            )  .
                         "', session_id = '"    . trim(formData('payment_id')) .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . trim(formData("Takeback$CountRow"   ))*-1  .
                         "', adj_amount = '"    . 0 .
                         "', account_code = '" . "Takeback"  .
@@ -405,7 +405,7 @@ if (isset($_POST["mode"]))
                      {
                         sqlStatement("update ar_activity set "    .
                         "   post_user = '" . trim($user_id            )  .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', follow_up = '"    . "y" .
                         "', follow_up_note = '"    . trim(formData("FollowUpReason$CountRow"   )) .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
@@ -428,10 +428,10 @@ if (isset($_POST["mode"]))
                         "', code = '"      . trim(formData("HiddenCode$CountRow"   ))  .
                         "', modifier = '"      . trim(formData("HiddenModifier$CountRow"   ))  .
                         "', payer_type = '"   . trim(formData("HiddenIns$CountRow"   )) .
-                        "', post_time = '"  . trim($created_time					) .
+                        "', post_time = '"  . trim($created_time                    ) .
                         "', post_user = '" . trim($user_id            )  .
                         "', session_id = '"    . trim(formData('payment_id')) .
-                        "', modified_time = '"  . trim($created_time					) .
+                        "', modified_time = '"  . trim($created_time                    ) .
                         "', pay_amount = '" . 0  .
                         "', adj_amount = '"    . 0 .
                         "', follow_up = '"    . "y" .
@@ -512,100 +512,100 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 <script LANGUAGE="javascript" TYPE="text/javascript">
 function ModifyPayments()
  {//Used while modifying the allocation
- 	if(!FormValidations())//FormValidations contains the form checks
-	 {
-	  return false;
-	 }
-	if(CompletlyBlankAbove())//The distribution rows already in the database are checked.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('None of the Top Distribution Row Can be Completly Blank.'), ENT_QUOTES);
+    if(!FormValidations())//FormValidations contains the form checks
+     {
+      return false;
+     }
+    if(CompletlyBlankAbove())//The distribution rows already in the database are checked.
+     {
+      alert("<?php echo htmlspecialchars( xl('None of the Top Distribution Row Can be Completly Blank.'), ENT_QUOTES);
         echo htmlspecialchars('\n');echo htmlspecialchars( xl('Use Delete Option to Remove.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
- 	if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-	 {
-	  return false;
-	 }
- 	if(CompletlyBlankBelow())//The newly added distribution rows are checked.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Fill any of the Below Row.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
-	PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-	if(PostValue==1)
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Cannot Modify Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
-	if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify Payments?'), ENT_QUOTES) ?>"))
-	 {
-		document.getElementById('mode').value='ModifyPayments';
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 return false;
+      return false;
+     }
+    if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+     {
+      return false;
+     }
+    if(CompletlyBlankBelow())//The newly added distribution rows are checked.
+     {
+      alert("<?php echo htmlspecialchars( xl('Fill any of the Below Row.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if(PostValue==1)
+     {
+      alert("<?php echo htmlspecialchars( xl('Cannot Modify Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify Payments?'), ENT_QUOTES) ?>"))
+     {
+        document.getElementById('mode').value='ModifyPayments';
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     return false;
  }
 function FinishPayments()
  {
- 	if(!FormValidations())//FormValidations contains the form checks
-	 {
-	  return false;
-	 }
- 	if(CompletlyBlankAbove())//The distribution rows already in the database are checked.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('None of the Top Distribution Row Can be Completly Blank.'), ENT_QUOTES);
+    if(!FormValidations())//FormValidations contains the form checks
+     {
+      return false;
+     }
+    if(CompletlyBlankAbove())//The distribution rows already in the database are checked.
+     {
+      alert("<?php echo htmlspecialchars( xl('None of the Top Distribution Row Can be Completly Blank.'), ENT_QUOTES);
         echo htmlspecialchars('\n');echo htmlspecialchars( xl('Use Delete Option to Remove.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
- 	if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
-	 {
-	  return false;
-	 }
- 	if(CompletlyBlankBelow())//The newly added distribution rows are checked.
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Fill any of the Below Row.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
- 	PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
-	if(PostValue==1)
-	 {
-	  alert("<?php echo htmlspecialchars( xl('Cannot Modify Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
-	  return false;
-	 }
-	if(PostValue==2)
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify and Finish Payments?'), ENT_QUOTES) ?>"))
-		 {
-			UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
-			if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount + '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
-			 {
-				document.getElementById('mode').value='FinishPayments';
-				document.getElementById('global_amount').value='yes';
-				top.restoreSession();
-				document.forms[0].submit();
-			 }
-			else
-			 {
-				document.getElementById('mode').value='FinishPayments';
-				top.restoreSession();
-				document.forms[0].submit();
-			 }
-		 }
-		else
-		 return false;
-	 }
-	else
-	 {
-		if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify and Finish Payments?'), ENT_QUOTES) ?>"))
-		 {
-			document.getElementById('mode').value='FinishPayments';
-			top.restoreSession();
-			document.forms[0].submit();
-		 }
-		else
-		 return false;
-	 }
+      return false;
+     }
+    if(!CheckPayingEntityAndDistributionPostFor())//Ensures that Insurance payment is distributed under Ins1,Ins2,Ins3 and Patient paymentat under Pat.
+     {
+      return false;
+     }
+    if(CompletlyBlankBelow())//The newly added distribution rows are checked.
+     {
+      alert("<?php echo htmlspecialchars( xl('Fill any of the Below Row.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    PostValue=CheckUnappliedAmount();//Decides TdUnappliedAmount >0, or <0 or =0
+    if(PostValue==1)
+     {
+      alert("<?php echo htmlspecialchars( xl('Cannot Modify Payments.Undistributed is Negative.'), ENT_QUOTES) ?>")
+      return false;
+     }
+    if(PostValue==2)
+     {
+        if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify and Finish Payments?'), ENT_QUOTES) ?>"))
+         {
+            UnappliedAmount=document.getElementById('TdUnappliedAmount').innerHTML*1;
+            if(confirm("<?php echo htmlspecialchars( xl('Undistributed is'), ENT_QUOTES) ?>" + ' ' + UnappliedAmount + '.' + "<?php echo htmlspecialchars('\n');echo htmlspecialchars( xl('Would you like the balance amount to apply to Global Account?'), ENT_QUOTES) ?>"))
+             {
+                document.getElementById('mode').value='FinishPayments';
+                document.getElementById('global_amount').value='yes';
+                top.restoreSession();
+                document.forms[0].submit();
+             }
+            else
+             {
+                document.getElementById('mode').value='FinishPayments';
+                top.restoreSession();
+                document.forms[0].submit();
+             }
+         }
+        else
+         return false;
+     }
+    else
+     {
+        if(confirm("<?php echo htmlspecialchars( xl('Would you like to Modify and Finish Payments?'), ENT_QUOTES) ?>"))
+         {
+            document.getElementById('mode').value='FinishPayments';
+            top.restoreSession();
+            document.forms[0].submit();
+         }
+        else
+         return false;
+     }
 
  }
 function CompletlyBlankAbove()
@@ -615,9 +615,9 @@ function CompletlyBlankAbove()
   for(RowCount=1;RowCount<=CountIndexAbove;RowCount++)
    {
    if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
-	{
-	 return true;
-	}
+    {
+     return true;
+    }
    }
   return false;
  }
@@ -631,11 +631,11 @@ function CompletlyBlankBelow()
   for(RowCount=CountIndexAbove+1;RowCount<=CountIndexAbove+CountIndexBelow;RowCount++)
    {
    if(document.getElementById('Allowed'+RowCount).value=='' && document.getElementById('Payment'+RowCount).value=='' && document.getElementById('AdjAmount'+RowCount).value=='' && document.getElementById('Deductible'+RowCount).value=='' && document.getElementById('Takeback'+RowCount).value=='' && document.getElementById('FollowUp'+RowCount).checked==false)
-	{
+    {
 
-	}
-	else
-	 return false;
+    }
+    else
+     return false;
    }
   return true;
  }
@@ -645,12 +645,12 @@ function OnloadAction()
   if(after_value=='Delete')
    {
     alert("<?php echo htmlspecialchars( xl('Successfully Deleted'), ENT_QUOTES) ?>")
-	return true;
+    return true;
    }
   if(after_value=='Modify' || after_value=='Finish')
    {
     alert("<?php echo htmlspecialchars( xl('Successfully Modified'), ENT_QUOTES) ?>")
-	return true;
+    return true;
    }
   after_value=document.getElementById('after_value').value;
   payment_id=document.getElementById('payment_id').value;
@@ -659,31 +659,31 @@ function OnloadAction()
    }
   else if(after_value=='new_payment')
    {
-	if(document.getElementById('TablePatientPortion'))
-	 {
-		document.getElementById('TablePatientPortion').style.display='none';
-	 }
-	if(confirm("<?php echo htmlspecialchars( xl('Successfully Saved.Would you like to Distribute?'), ENT_QUOTES) ?>"))
-	 {
-		if(document.getElementById('TablePatientPortion'))
-		 {
-			document.getElementById('TablePatientPortion').style.display='';
-		 }
-	 }
+    if(document.getElementById('TablePatientPortion'))
+     {
+        document.getElementById('TablePatientPortion').style.display='none';
+     }
+    if(confirm("<?php echo htmlspecialchars( xl('Successfully Saved.Would you like to Distribute?'), ENT_QUOTES) ?>"))
+     {
+        if(document.getElementById('TablePatientPortion'))
+         {
+            document.getElementById('TablePatientPortion').style.display='';
+         }
+     }
    }
 
  }
 function DeletePaymentDistribution(DeleteId)
  {//Confirms deletion of payment distribution.
-	if(confirm("<?php echo htmlspecialchars( xl('Would you like to Delete Payment Distribution?'), ENT_QUOTES) ?>"))
-	 {
-		document.getElementById('mode').value='DeletePaymentDistribution';
-		document.getElementById('DeletePaymentDistributionId').value=DeleteId;
-		top.restoreSession();
-		document.forms[0].submit();
-	 }
-	else
-	 return false;
+    if(confirm("<?php echo htmlspecialchars( xl('Would you like to Delete Payment Distribution?'), ENT_QUOTES) ?>"))
+     {
+        document.getElementById('mode').value='DeletePaymentDistribution';
+        document.getElementById('DeletePaymentDistributionId').value=DeleteId;
+        top.restoreSession();
+        document.forms[0].submit();
+     }
+    else
+     return false;
  }
 //========================================================================================
 
@@ -710,26 +710,26 @@ document.onclick=HideTheAjaxDivs;
 .left{border-left:1px solid black;}
 .right{border-right:1px solid black;}
 #ajax_div_insurance {
-	position: absolute;
-	z-index:10;
-	/*
-	left: 20px;
-	top: 300px;
-	*/
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    /*
+    left: 20px;
+    top: 300px;
+    */
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 #ajax_div_patient {
-	position: absolute;
-	z-index:10;
-	/*
-	left: 20px;
-	top: 300px;
-	*/
-	background-color: #FBFDD0;
-	border: 1px solid #ccc;
-	padding: 10px;
+    position: absolute;
+    z-index:10;
+    /*
+    left: 20px;
+    top: 300px;
+    */
+    background-color: #FBFDD0;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 </style>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
@@ -794,7 +794,7 @@ if($payment_id*1>0)
 <?php
 }
 ?>
-	</td>
+    </td>
   </tr>
 </table>
 
@@ -806,7 +806,7 @@ if($payment_id*1>0)
     ?>
 
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
-	<table width="1004" border="0" cellspacing="0" cellpadding="0">
+    <table width="1004" border="0" cellspacing="0" cellpadding="0">
 
          <tr>
            <td colspan="13" align="left" >
@@ -864,24 +864,24 @@ if($payment_id*1>0)
                             ?>
                             <table width="1004"  border="0" cellpadding="0" cellspacing="0" align="center" id="TableDistributePortion">
                               <tr class="text" bgcolor="#dddddd">
-						    <td width="25" class="left top" >&nbsp;</td>
-						    <td width="144" class="left top" ><?php echo htmlspecialchars( xl('Patient Name'), ENT_QUOTES) ?></td>
-							<td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
-							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
-							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
-							<td width="65" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
-							<td width="50" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
-							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
-							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed(c)'), ENT_QUOTES) ?></td><!-- (c) means it is calculated.Not stored one. -->
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
-							<td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('Takeback'), ENT_QUOTES) ?></td>
-							<td width="60" class="left top" ><?php echo htmlspecialchars( xl('MSP Code'), ENT_QUOTES) ?></td>
-							<td width="40" class="left top" ><?php echo htmlspecialchars( xl('Resn'), ENT_QUOTES) ?></td>
-							<td width="110" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
-						  </tr>
+                            <td width="25" class="left top" >&nbsp;</td>
+                            <td width="144" class="left top" ><?php echo htmlspecialchars( xl('Patient Name'), ENT_QUOTES) ?></td>
+                            <td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
+                            <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
+                            <td width="50" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
+                            <td width="65" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
+                            <td width="50" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
+                            <td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
+                            <td width="40" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed(c)'), ENT_QUOTES) ?></td><!-- (c) means it is calculated.Not stored one. -->
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
+                            <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Takeback'), ENT_QUOTES) ?></td>
+                            <td width="60" class="left top" ><?php echo htmlspecialchars( xl('MSP Code'), ENT_QUOTES) ?></td>
+                            <td width="40" class="left top" ><?php echo htmlspecialchars( xl('Resn'), ENT_QUOTES) ?></td>
+                            <td width="110" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
+                          </tr>
                             <?php
                             }
                             while ($RowSearch = sqlFetchArray($ResultSearch))
@@ -1083,22 +1083,22 @@ if($payment_id*1>0)
                                  $takebacktot=$takebacktot+$TakebackDB;
                                  $allowedtot=$allowedtot+$AllowedDB;
                             ?>
-						  <tr class="text"  bgcolor='<?php echo $bgcolor;
+                          <tr class="text"  bgcolor='<?php echo $bgcolor;
 ?>' id="trCharges<?php echo $CountIndex; ?>">
-						    <td align="left" class="<?php echo $StringClass;
+                            <td align="left" class="<?php echo $StringClass;
 ?>" ><a href="#" onClick="javascript:return DeletePaymentDistribution('<?php echo  htmlspecialchars($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier.'_'.$Codetype); ?>');" ><img src="../pic/Delete.gif" border="0"/></a></td>
-						    <td align="left" class="<?php echo $StringClass;
+                            <td align="left" class="<?php echo $StringClass;
 ?>" ><?php echo htmlspecialchars($NameDB);
 ?><input name="HiddenPId<?php echo $CountIndex;
 ?>" value="<?php echo htmlspecialchars($PId); ?>" type="hidden"/></td>
-							<td align="left" class="<?php echo $StringClass;
+                            <td align="left" class="<?php echo $StringClass;
 ?>" ><input name="HiddenIns<?php echo $CountIndex;
 ?>" id="HiddenIns<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars($Ins);
 ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient",'','','ActionOnInsPat("'.$CountIndex.'")'); ?></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
-							<td align="right" class="<?php echo $StringClass;
+                            <td align="right" class="<?php echo $StringClass;
 ?>" ><input name="HiddenEncounter<?php echo $CountIndex;
 ?>" value="<?php echo htmlspecialchars($Encounter);
 ?>" type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
@@ -1110,23 +1110,23 @@ if($payment_id*1>0)
 ?>" type="hidden"/><?php echo htmlspecialchars($Codetype."-".$Code.$ModifierString);
 ?><input name="HiddenModifier<?php echo $CountIndex;
 ?>" value="<?php echo htmlspecialchars($Modifier); ?>" type="hidden"/></td>
-							<td align="right" class="<?php echo $StringClass;
+                            <td align="right" class="<?php echo $StringClass;
 ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex;
 ?>" id="HiddenChargeAmount<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars($Fee);
 ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>
-							<td align="right" class="<?php echo $StringClass;
+                            <td align="right" class="<?php echo $StringClass;
 ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex;
 ?>" id="HiddenCopayAmount<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars($Copay);
 ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
-							<td align="right"   id="RemainderTd<?php echo $CountIndex;
+                            <td align="right"   id="RemainderTd<?php echo $CountIndex;
 ?>"  class="<?php echo $StringClass;
 ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>
-							<input name="HiddenRemainderTd<?php echo $CountIndex;
+                            <input name="HiddenRemainderTd<?php echo $CountIndex;
 ?>" id="HiddenRemainderTd<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars(round($RemainderJS,2)); ?>" type="hidden"/>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><input  name="Allowed<?php echo $CountIndex;
 ?>" id="Allowed<?php echo $CountIndex;
 ?>"  onKeyDown="PreventIt(event)"  autocomplete="off"  value="<?php echo htmlspecialchars($AllowedDB);
@@ -1135,54 +1135,54 @@ if($payment_id*1>0)
 ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><input   type="text"  name="Payment<?php echo $CountIndex;
 ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo $CountIndex;
 ?>" value="<?php echo htmlspecialchars($PaymentDB);
 ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex;
 ?>);UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'Payment','paymenttotal');RestoreValues(<?php echo $CountIndex; ?>)"  style="width:60px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><input  name="AdjAmount<?php echo $CountIndex;
 ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="AdjAmount<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars($AdjAmountDB);
 ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex;
 ?>);UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><input  name="Deductible<?php echo $CountIndex;
 ?>"  id="Deductible<?php echo $CountIndex;
 ?>"  onKeyDown="PreventIt(event)"  onChange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'Deductible','deductibletotal');"  value="<?php echo htmlspecialchars($DeductibleDB); ?>"   autocomplete="off"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?>" ><input  name="Takeback<?php echo $CountIndex;
 ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"   id="Takeback<?php echo $CountIndex;
 ?>"   value="<?php echo htmlspecialchars($TakebackDB);
 ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex;
 ?>);UpdateTotalValues(1,<?php echo $TotalRows;
 ?>,'Takeback','takebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-							<td align="left" class="<?php echo $StringClass;
+                            <td align="left" class="<?php echo $StringClass;
 ?>" ><input name="HiddenReasonCode<?php echo $CountIndex;
 ?>" id="HiddenReasonCode<?php echo $CountIndex;
 ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB);
 ?>" type="hidden"/><?php echo generate_select_list( "ReasonCode$CountIndex", "msp_remit_codes", "$ReasonCodeDB", "MSP Code" ); ?></td>
-							<td align="center" class="<?php echo $StringClass;
+                            <td align="center" class="<?php echo $StringClass;
 ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex;
 ?>"  name="FollowUp<?php echo $CountIndex;
 ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex;
 ?>)" <?php echo $FollowUpDB=='y' ? ' checked ' : ''; ?> /></td>
-							<td class="<?php echo $StringClass;
+                            <td class="<?php echo $StringClass;
 ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex;
 ?>"    name="FollowUpReason<?php echo $CountIndex;
 ?>"  <?php echo $FollowUpDB=='y' ? '' : ' readonly ';
 ?>  type="text"  value="<?php echo htmlspecialchars($FollowUpReasonDB); ?>"    style="width:110px;font-size:12px" /></td>
-						  </tr>
-						<?php
+                          </tr>
+                        <?php
 
 
                             }//while ($RowSearch = sqlFetchArray($ResultSearch))
                         ?>
-						<?php
+                        <?php
                         }//if(sqlNumRows($ResultSearch)>0)
 
                     }while ($RowSearchSub = sqlFetchArray($ResultSearchSub));
@@ -1199,27 +1199,27 @@ if($payment_id*1>0)
                         <td  align="center">&nbsp;</td>
                         <td  align="center">&nbsp;</td>
                       </tr>
-						</table>
-						<?php
+                        </table>
+                        <?php
                     }
                         ?>
-						<?php
+                        <?php
 
                         echo '<br/>';
 
                 }//if($RowSearchSub = sqlFetchArray($ResultSearchSub))
-                ?>		    </td>
-		  </tr>
-		  <tr>
-		    <td colspan="13" align="left" >
-				<?php
+                ?>          </td>
+          </tr>
+          <tr>
+            <td colspan="13" align="left" >
+                <?php
                 require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                 ?>
-			</td>
-	      </tr>
-		  <tr>
-			<td colspan="13" align="left" >
-				<table border="0" cellspacing="0" cellpadding="0" width="217" align="center">
+            </td>
+          </tr>
+          <tr>
+            <td colspan="13" align="left" >
+                <table border="0" cellspacing="0" cellpadding="0" width="217" align="center">
                  <tr height="5">
                    <td ></td>
                    <td ></td>
@@ -1231,14 +1231,14 @@ if($payment_id*1>0)
                    <td width="107"><a href="#" onClick="javascript:return FinishPayments();"  class="css_button"><span><?php echo htmlspecialchars( xl('Finish Payments'), ENT_QUOTES);?></span></a>
                    </td>
                  </tr>
-				</table>
+                </table>
 
-		<?php
+        <?php
 }//if($payment_id*1>0)
-        ?>		</td>
-	  </tr>
-	</table>
-	</td></tr></table>
+        ?>      </td>
+      </tr>
+    </table>
+    </td></tr></table>
 
 <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo htmlspecialchars($hidden_patient_code);?>"/>
 <input type='hidden' name='mode' id='mode' value='' />

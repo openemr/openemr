@@ -148,13 +148,13 @@ class Userforms extends UserAudit{
             else
               call_user_func($formdir . "_report", $pid, $form_encounter, $N, $form_id);
             $out=ob_get_clean();
-            ?>	<table>
+            ?>  <table>
             <tr class=text>
-		    <th><?php echo htmlspecialchars($formdir,ENT_QUOTES);?></th>
-		</tr>
-		</table>
-		    <?php echo $out;?>
-	    <?php
+            <th><?php echo htmlspecialchars($formdir,ENT_QUOTES);?></th>
+        </tr>
+        </table>
+            <?php echo $out;?>
+        <?php
         }
     }
 
@@ -173,10 +173,10 @@ class Userforms extends UserAudit{
               include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
         }
         ?>
-	    <tr class=text>
-		<td></td>
-		<td>
-	    <?php
+        <tr class=text>
+        <td></td>
+        <td>
+        <?php
         $irow = sqlQuery("SELECT type, title, comments, diagnosis FROM lists WHERE id =? ",array($val));
         $diagnosis = $irow['diagnosis'];
 
@@ -184,63 +184,63 @@ class Userforms extends UserAudit{
         {
             $disptype = $ISSUE_TYPES[$irow['type']][0];
         ?>
-		<div class='issue_type' style='font-weight: bold;'><?php echo htmlspecialchars($disptype,ENT_QUOTES);?>:</div>
-		<?php
+        <div class='issue_type' style='font-weight: bold;'><?php echo htmlspecialchars($disptype,ENT_QUOTES);?>:</div>
+        <?php
         $prevIssueType = $irow['type'];
         }
         ?>
-	    <div class='text issue'>
-	    <span class='issue_title'><?php echo htmlspecialchars($irow['title'],ENT_QUOTES);?>:</span>
-	    <span class='issue_comments'><?php echo htmlspecialchars($irow['comments'],ENT_QUOTES);?></span>
-	    <?php
+        <div class='text issue'>
+        <span class='issue_title'><?php echo htmlspecialchars($irow['title'],ENT_QUOTES);?>:</span>
+        <span class='issue_comments'><?php echo htmlspecialchars($irow['comments'],ENT_QUOTES);?></span>
+        <?php
         if ($diagnosis)
         {
         ?>
-		<div class='text issue_diag'>
-		<span class='bold'>[<?php echo htmlspecialchars(xl('Diagnosis'),ENT_QUOTES);?>]</span><br>
-		<?php
+        <div class='text issue_diag'>
+        <span class='bold'>[<?php echo htmlspecialchars(xl('Diagnosis'),ENT_QUOTES);?>]</span><br>
+        <?php
         $dcodes = explode(";", $diagnosis);
         foreach ($dcodes as $dcode)
         {
             ?>
-		    <span class='italic'><?php echo htmlspecialchars($dcode,ENT_QUOTES);?></span>:
-		    <?php
+            <span class='italic'><?php echo htmlspecialchars($dcode,ENT_QUOTES);?></span>:
+            <?php
             echo htmlspecialchars(lookup_code_descriptions($dcode),ENT_QUOTES);
             ?>
-		    <br>
-		    <?php
+            <br>
+            <?php
         }
         ?>
-		</div>
-		<?php
+        </div>
+        <?php
         }
         if ($irow['type'] == 'ippf_gcac')
         {
         ?>
-		<table>
-		<?php
+        <table>
+        <?php
         display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = ?",array($rowid)));
         ?>
 
-		</table>
-		<?php
+        </table>
+        <?php
         }
         else if ($irow['type'] == 'contraceptive')
         {
         ?>
-		<table>
-		    <?php
+        <table>
+            <?php
             display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = ?",array($rowid)));
         ?>
-		</table>
-		<?php
+        </table>
+        <?php
         }
         ?>
-	    </div>
-	    <?php
+        </div>
+        <?php
         ?>
-		</td>
-	    <?php
+        </td>
+        <?php
 
     }
 
@@ -261,12 +261,12 @@ class Userforms extends UserAudit{
             ?>
             <table>
             <tr><td><h6><?php echo htmlspecialchars(xl('Patient Data').":",ENT_QUOTES);?></h6></td></tr>
-	    <?php
+        <?php
         display_layout_rows('DEM', $result1, $result2);
         ?>
-	    </table>
-	    </div>
-	    <?php
+        </table>
+        </div>
+        <?php
         }
         elseif ($val == "history")
         {
@@ -278,11 +278,11 @@ class Userforms extends UserAudit{
             ?>
             <table>
             <tr><td><h6><?php echo htmlspecialchars(xl('History Data').":",ENT_QUOTES);?></h6></td></tr>
-		<?php
+        <?php
         display_layout_rows('HIS', $result1);
         ?>
-		</table>
-		</div>
+        </table>
+        </div>
         <?php
         }
         elseif ($val == "insurance")
@@ -291,20 +291,20 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text insurance'>";
             <h6><?php echo htmlspecialchars(xl('Insurance Data').":",ENT_QUOTES);?></h6>
-	    <br><span class=bold><?php echo htmlspecialchars(xl('Primary Insurance Data').":",ENT_QUOTES);?></span><br>
-	    <?php
+        <br><span class=bold><?php echo htmlspecialchars(xl('Primary Insurance Data').":",ENT_QUOTES);?></span><br>
+        <?php
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
         ?>
-	    <span class=bold><?php echo htmlspecialchars(xl('Secondary Insurance Data').":",ENT_QUOTES);?></span><br>
-	    <?php
+        <span class=bold><?php echo htmlspecialchars(xl('Secondary Insurance Data').":",ENT_QUOTES);?></span><br>
+        <?php
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
         ?>
-	    <span class=bold><?php echo htmlspecialchars(xl('Tertiary Insurance Data').":",ENT_QUOTES);?></span><br>
-	    <?php
+        <span class=bold><?php echo htmlspecialchars(xl('Tertiary Insurance Data').":",ENT_QUOTES);?></span><br>
+        <?php
         printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
         ?>
-	    </div>
-	    <?php
+        </div>
+        <?php
         }
         elseif ($val == "billing")
         {
@@ -312,14 +312,14 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text billing'>
             <h6><?php echo htmlspecialchars(xl('Billing Information').":",ENT_QUOTES);?></h6>
-	    <?php
+        <?php
         if (count($ar['newpatient']) > 0) {
             $billings = array();
         ?>
-		<table>
-		<tr><td width='400' class='bold'><?php echo htmlspecialchars(xl('Code'),ENT_QUOTES);
+        <table>
+        <tr><td width='400' class='bold'><?php echo htmlspecialchars(xl('Code'),ENT_QUOTES);
 ?></td><td class='bold'><?php echo htmlspecialchars(xl('Fee'),ENT_QUOTES);?></td></tr>
-		<?php
+        <?php
         $total = 0.00;
         $copays = 0.00;
         foreach ($ar['newpatient'] as $be) {
@@ -328,19 +328,19 @@ class Userforms extends UserAudit{
             $billings[] = $billing;
             foreach ($billing as $b) {
             ?>
-			<tr>
-			<td class=text>
-			<?php
+            <tr>
+            <td class=text>
+            <?php
             echo htmlspecialchars($b['code_type'],ENT_QUOTES) . ":\t" .htmlspecialchars( $b['code'],ENT_QUOTES) . "&nbsp;". htmlspecialchars($b['modifier'],ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars($b['code_text'],ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             ?>
-			</td>
-			<td class=text>
-			<?php
+            </td>
+            <td class=text>
+            <?php
             echo htmlspecialchars(oeFormatMoney($b['fee']),ENT_QUOTES);
             ?>
-			</td>
-			</tr>
-			<?php
+            </td>
+            </tr>
+            <?php
             $total += $b['fee'];
             if ($b['code_type'] == "COPAY") {
                 $copays += $b['fee'];
@@ -367,19 +367,19 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text immunizations'>
             <h6><?php echo htmlspecialchars(xl('Patient Immunization').":",ENT_QUOTES);?></h6>
-		<?php
+        <?php
         $sql = "select i1.immunization_id as immunization_id, if(i1.administered_date,concat(i1.administered_date,' - ') ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 where i1.patient_id = ? order by administered_date desc";
         $result = sqlStatement($sql,array($pid));
         while ($row=sqlFetchArray($result)) {
             echo htmlspecialchars($row{'immunization_data'},ENT_QUOTES);
             echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
             ?>
-		      <br>
-		    <?php
+              <br>
+            <?php
         }
         ?>
-		</div>
-		<?php
+        </div>
+        <?php
 
         }
         elseif ($val == "batchcom")
@@ -388,19 +388,19 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text transactions'>
             <h6><?php htmlspecialchars(xl('Patient Communication sent').":",ENT_QUOTES);?></h6>
-	    <?php
+        <?php
         $sql="SELECT concat( 'Messsage Type: ', batchcom.msg_type, ', Message Subject: ', batchcom.msg_subject, ', Sent on:', batchcom.msg_date_sent ) AS batchcom_data, batchcom.msg_text, concat( users.fname, users.lname ) AS user_name FROM `batchcom` JOIN `users` ON users.id = batchcom.sent_by WHERE batchcom.patient_id=?";
         $result = sqlStatement($sql,array($pid));
         while ($row=sqlFetchArray($result)) {
             echo htmlspecialchars($row{'batchcom_data'}.", ".xl('By').": ".$row{'user_name'},ENT_QUOTES);
         ?>
-		<br><?php echo htmlspecialchars(xl('Text'),ENT_QUOTES);
+        <br><?php echo htmlspecialchars(xl('Text'),ENT_QUOTES);
 ?>:<br><?php echo htmlspecialchars($row{'msg_txt'},ENT_QUOTES);?><br>
-		<?php
+        <?php
         }
         ?>
-	    </div>
-	    <?php
+        </div>
+        <?php
         }
         elseif ($val == "notes")
         {
@@ -408,11 +408,11 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text notes'>
             <h6><?php echo htmlspecialchars(xl('Patient Notes').":",ENT_QUOTES);?></h6>
-	    <?php
+        <?php
         printPatientNotes($pid);
         ?>
-	    </div>
-	    <?php
+        </div>
+        <?php
         }
         elseif ($val == "transactions")
         {
@@ -420,11 +420,11 @@ class Userforms extends UserAudit{
             <hr />
             <div class='text transactions'>
             <h6><?php echo htmlspecialchars(xl('Patient Transactions').":",ENT_QUOTES);?></h6>
-	    <?php
+        <?php
         printPatientTransactions($pid);
         ?>
-	    </div>
-	    <?php
+        </div>
+        <?php
         }
     }
 

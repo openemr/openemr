@@ -29,12 +29,12 @@ require_once(dirname(__FILE__) . "/../globals.php");
 require_once(dirname(__FILE__) . "/../../library/parse_patient_xml.php");
 
 $patient_data = array(
-    'sex'			 			=> 'Sex',
-    'pubpid' 				=> 'External ID',
-    'street' 				=> 'Street',
-    'city' 					=> 'City',
-    'state'					=> 'State',
-    'postal_code'		=> 'Postal Code',
+    'sex'                       => 'Sex',
+    'pubpid'                => 'External ID',
+    'street'                => 'Street',
+    'city'                  => 'City',
+    'state'                 => 'State',
+    'postal_code'       => 'Postal Code',
 );
 
 if($_POST["setval"] == 'approve'){
@@ -42,31 +42,31 @@ if($_POST["setval"] == 'approve'){
     $query = "UPDATE audit_master SET approval_status = '2' WHERE id=?";
     sqlQuery($query,array($_REQUEST['amid']));
     ?>
-	<html>
-		<head>
-			<title><?php echo xlt('CCR Review and Approve');?></title>
-			<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
-		</head>
-		<body class="body_top" >
-			<center><?php echo xlt('Approved Successfully'); ?></center>
-		</body>
-	</html>
-	<?php
+    <html>
+        <head>
+            <title><?php echo xlt('CCR Review and Approve');?></title>
+            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+        </head>
+        <body class="body_top" >
+            <center><?php echo xlt('Approved Successfully'); ?></center>
+        </body>
+    </html>
+    <?php
     exit;
 }elseif($_POST["setval"] == 'discard'){
     $query = "UPDATE audit_master SET approval_status = '3' WHERE id=?";
     sqlQuery($query,array($_REQUEST['amid']));
     ?>
-	<html>
-		<head>
-			<title><?php echo xlt('CCR Review and Approve');?></title>
-			<link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
-		</head>
-		<body class="body_top" >
-			<center><?php echo xlt('Discarded'); ?></center>
-		</body>
-	</html>
-	<?php
+    <html>
+        <head>
+            <title><?php echo xlt('CCR Review and Approve');?></title>
+            <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css" >
+        </head>
+        <body class="body_top" >
+            <center><?php echo xlt('Discarded'); ?></center>
+        </body>
+    </html>
+    <?php
     exit;
 }
 
@@ -78,37 +78,37 @@ if($_POST["setval"] == 'approve'){
 <style>
 
 table {
-	color: #000;
-	font: .85em/1.6em "Trebuchet MS",Verdana,sans-serif;
-	border-collapse: collapse;
-	margin: 0 auto;
-	border: 1px solid #CCC;
+    color: #000;
+    font: .85em/1.6em "Trebuchet MS",Verdana,sans-serif;
+    border-collapse: collapse;
+    margin: 0 auto;
+    border: 1px solid #CCC;
 }
 
 tbody th,td {
-	border-left: 0;
-	padding: 8px;
+    border-left: 0;
+    padding: 8px;
 }
 
 tbody {
-	background: #D4D4D4;
+    background: #D4D4D4;
 }
 
 table table tbody tr {
-	background: #EEEEEE;
+    background: #EEEEEE;
 }
 
 .alternate{
-	background-color: #C4C4C4;
+    background-color: #C4C4C4;
 }
 
 </style>
 <script type="text/javascript" >
 
 function submit_form(val){
-	document.getElementById('setval').value = val;
+    document.getElementById('setval').value = val;
   top.restoreSession();
-	document.forms['approveform'].submit();
+    document.forms['approveform'].submit();
 }
 
 </script>
@@ -118,71 +118,71 @@ function submit_form(val){
 <p><b><?php echo xlt('CCR Patient Review');?></b></p>
 </center>
 <form method="post" name="approveform" "onsubmit='return top.restoreSession()'" >
-	<table border="0" width="90%;" >
-		<tr>
-			<td>
-				<u><?php echo xlt('Demographics'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+    <table border="0" width="90%;" >
+        <tr>
+            <td>
+                <u><?php echo xlt('Demographics'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_pd = sqlStatement("SELECT ad.id as adid, table_name, field_name, field_value FROM audit_master am JOIN audit_details ad ON ad.audit_master_id = am.id
                                 WHERE am.id = ? AND ad.table_name = 'patient_data' ORDER BY ad.id",array($_REQUEST['amid']));
                             $i = 0;
-                        while($res_pd = sqlFetchArray($query_pd)){
-                            if($res_pd['field_name'] != 'lname' && $res_pd['field_name'] != 'fname' && $res_pd['field_name'] != 'DOB'){
-                                $i++;
-                                $query_oldpd = sqlQuery("SELECT ".$res_pd['field_name']." AS val FROM patient_data WHERE pid = ?",array($_REQUEST['pid']));
-                                if($res_pd['field_name'] == 'sex'){
-                                    echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
+                            while($res_pd = sqlFetchArray($query_pd)){
+                                if($res_pd['field_name'] != 'lname' && $res_pd['field_name'] != 'fname' && $res_pd['field_name'] != 'DOB'){
+                                    $i++;
+                                    $query_oldpd = sqlQuery("SELECT ".$res_pd['field_name']." AS val FROM patient_data WHERE pid = ?",array($_REQUEST['pid']));
+                                    if($res_pd['field_name'] == 'sex'){
+                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
                                         "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' style='width:150px;' >" .
-                                    "<option value='Male' " . ($res_pd['field_value'] == 'Male' ? 'selected' : '' ) . " >" . xlt('Male') . "</option>" .
+                                        "<option value='Male' " . ($res_pd['field_value'] == 'Male' ? 'selected' : '' ) . " >" . xlt('Male') . "</option>" .
                                         "<option value='Female' ".($res_pd['field_value'] == 'Female' ? 'selected' : '' )." >".xlt('Female')."</option></select>" .
-                                    "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
+                                        "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
                                         "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel'>" .
-                                    "<option value='ignore' >" . xlt('Ignore') . "</option> " .
-                                    "<option value='update' >" . xlt('Update') . "</option></select></td>";
-                                }else{
-                                    echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
-                                        "<td><input type='text' name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' value='" . attr($res_pd['field_value']) . "' >" .
-                                    "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
-                                        "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel' >" .
-                                    "<option value='ignore' >" . xlt('Ignore') . "</option><option value='update' >" . xlt('Update') . "</option></select></td>";
-                                }
-                                if($i%2 == 0){
-                                    if($i%4 == 2){
-                                        echo "</tr><tr class='alternate' >";
+                                        "<option value='ignore' >" . xlt('Ignore') . "</option> " .
+                                        "<option value='update' >" . xlt('Update') . "</option></select></td>";
                                     }else{
-                                        echo "</tr><tr>";
+                                        echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
+                                        "<td><input type='text' name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' value='" . attr($res_pd['field_value']) . "' >" .
+                                        "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
+                                        "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel' >" .
+                                        "<option value='ignore' >" . xlt('Ignore') . "</option><option value='update' >" . xlt('Update') . "</option></select></td>";
                                     }
-                                }else{
-                                    echo "<td>&nbsp;&nbsp;&nbsp;</td>";
+                                    if($i%2 == 0){
+                                        if($i%4 == 2){
+                                            echo "</tr><tr class='alternate' >";
+                                        }else{
+                                            echo "</tr><tr>";
+                                        }
+                                    }else{
+                                        echo "<td>&nbsp;&nbsp;&nbsp;</td>";
+                                    }
                                 }
                             }
-                        }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<u><?php echo xlt('Problems'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <u><?php echo xlt('Problems'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_existing_prob = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'medical_problem'",array($_REQUEST['pid']));
                             $result = array();
                         while($res_existing_prob = sqlFetchArray($query_existing_prob)){
@@ -239,25 +239,25 @@ function submit_form(val){
                             "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
                         }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<u><?php echo xlt('Allergy'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <u><?php echo xlt('Allergy'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_existing_alerts = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'allergy'",array($_REQUEST['pid']));
                             $result = array();
                         while($res_existing_alerts = sqlFetchArray($query_existing_alerts)){
@@ -290,25 +290,25 @@ function submit_form(val){
                                 "<input type='hidden' name='lists2-type[]' value='" . attr($val['type']) . "' ></tr>";
                         }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<u><?php echo xlt('Medications'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <u><?php echo xlt('Medications'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_existing_medications = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ?",array($_REQUEST['pid']));
                             $result = array();
                         while($res_existing_medications = sqlFetchArray($query_existing_medications)){
@@ -345,25 +345,25 @@ function submit_form(val){
                                 "<td>" . xlt('Refills') . "</td><td><input type='text' name='prescriptions-refills[]' value='" . attr($val['refills']) . "' ></td></tr>";
                         }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<u><?php echo xlt('Immunizations'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <u><?php echo xlt('Immunizations'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_existing_immunizations = sqlStatement("SELECT * FROM immunizations WHERE patient_id = ? AND added_erroneously = 0",array($_REQUEST['pid']));
                             $result = array();
                         while($res_existing_immunizations = sqlFetchArray($query_existing_immunizations)){
@@ -384,67 +384,67 @@ function submit_form(val){
                             "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
                         }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				&nbsp;
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<u><?php echo xlt('Lab Results'); ?></u>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<table border="0" width="95%" >
-					<tr>
-						<?php
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <u><?php echo xlt('Lab Results'); ?></u>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" width="95%" >
+                    <tr>
+                        <?php
                             $query_existing_lab_results = sqlStatement("SELECT * FROM procedure_order AS po LEFT JOIN procedure_order_code AS poc
                                 ON poc.procedure_order_id = po.procedure_order_id LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
                                 LEFT JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id WHERE patient_id = ?",array($_REQUEST['pid']));
                             $result = array();
-                        while($res_existing_lab_results = sqlFetchArray($query_existing_lab_results)){
-                            array_push($result,$res_existing_lab_results);
-                        }
+                            while($res_existing_lab_results = sqlFetchArray($query_existing_lab_results)){
+                                array_push($result,$res_existing_lab_results);
+                            }
                             $aud_res = createAuditArray($_REQUEST['amid'],'procedure_result,procedure_type');
-                        while($res_existing_lab_results = array_shift($result)){
-                            echo "<tr><td>" . xlt('Name') . "</td>" .
+                            while($res_existing_lab_results = array_shift($result)){
+                                echo "<tr><td>" . xlt('Name') . "</td>" .
                                 "<td>" . text($res_existing_lab_results['result_text']) . "</td>" .
                                 "<td>" . xlt('Date') . "</td><td>" . text($res_existing_lab_results['date_ordered']) . "</td>" .
                                 "<td>" . xlt('Result') . "</td><td>" . text($res_existing_lab_results['result']) . "</td>" .
                                 "<td>" . xlt('Abnormal') . "</td><td>" . text($res_existing_lab_results['abnormal']) . "</td>" .
                                 "<td>&nbsp;</td></tr>";
-                        }
-                        foreach($aud_res['procedure_result,procedure_type'] as $key=>$val){
-                            echo "<tr><td>" . xlt('Name') . "</td>" .
+                            }
+                            foreach($aud_res['procedure_result,procedure_type'] as $key=>$val){
+                                echo "<tr><td>" . xlt('Name') . "</td>" .
                                 "<td><input type='text' name='procedure_type-name[]' value='" . attr($val['name']) . "' ></td>" .
                                 "<td>" . xlt('Date') . "</td><td><input type='text' name='procedure_result-date[]' value='" . attr($val['date']) . "' ></td>" .
                                 "<td>" . xlt('Result') . "</td><td><input type='text' name='procedure_result-result[]' value='" . attr($val['result']) . "' ></td>" .
                                 "<td>" . xlt('Abnormal') . "</td><td><input type='text' name='procedure_result-abnormal[]' value='" . attr($val['abnormal']) . "' ></td>" .
                                 "<td><select name='procedure_result-sel[]'><option value='ignore' >" . xlt('Ignore') . "</option>" .
-                            "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
-                        }
+                                "<option value='insert' >" . xlt('Insert') . "</option></select></td></tr>";
+                            }
                         ?>
-					</tr>
-				</table>
-			</td>
-		</tr>
-		<tr>
-			<td align="center" >
-				<input type="button" name="approve" value="<?php echo xlt('Approve'); ?>" onclick="top.restoreSession();submit_form('approve');" >
-				<input type="button" name="discard" value="<?php echo xlt('Discard'); ?>" onclick="top.restoreSession();submit_form('discard');" >
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" >
+                <input type="button" name="approve" value="<?php echo xlt('Approve'); ?>" onclick="top.restoreSession();submit_form('approve');" >
+                <input type="button" name="discard" value="<?php echo xlt('Discard'); ?>" onclick="top.restoreSession();submit_form('discard');" >
         <?php
         $aud_res = createAuditArray($_REQUEST['amid'],'documents');
         ?>
         <input type="hidden" name="doc_id" id="doc_id" value="<?php echo $aud_res['documents']['']['id']; ?>" >
-				<input type="hidden" name="setval" id="setval" value="" >
-			</td>
-		</tr>
-	</table>
+                <input type="hidden" name="setval" id="setval" value="" >
+            </td>
+        </tr>
+    </table>
 </form>
 </body>
 </html>

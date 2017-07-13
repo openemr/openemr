@@ -33,7 +33,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
   </tr>
   <tr>
         <td>
-        	<a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') );
+            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') );
 ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>
         </td>
   </tr>        
@@ -61,24 +61,24 @@ require_once("$phpgacl_location/gacl_api.class.php");
         <?php $index++; ?>
         <tr height="22">
                 <td><?php echo out( xl($rule->get_rule()) );?></td>
-				<td>&nbsp;</td>
-				<?php if ($rule->active_alert_flag() == "1"){  ?>
-                	<td><input type="checkbox" name="active[<?php echo $index ?>]" checked="yes"></td>
+                <td>&nbsp;</td>
+                <?php if ($rule->active_alert_flag() == "1"){  ?>
+                    <td><input type="checkbox" name="active[<?php echo $index ?>]" checked="yes"></td>
                 <?php }else {?>
-                	<td><input type="checkbox" name="active[<?php echo $index ?>]" ></td>
-				<?php } ?>                
-				<td>&nbsp;</td>
+                    <td><input type="checkbox" name="active[<?php echo $index ?>]" ></td>
+                <?php } ?>                
+                <td>&nbsp;</td>
                 <?php if ($rule->passive_alert_flag() == "1"){ ?>
-                	<td><input type="checkbox" name="passive[<?php echo $index ?>]]" checked="yes"></td>
+                    <td><input type="checkbox" name="passive[<?php echo $index ?>]]" checked="yes"></td>
                 <?php }else {?>
-	                <td><input type="checkbox" name="passive[<?php echo $index ?>]]"></td>
-				<?php } ?>                
-				<td>&nbsp;</td>
+                    <td><input type="checkbox" name="passive[<?php echo $index ?>]]"></td>
+                <?php } ?>                
+                <td>&nbsp;</td>
                 <?php if ($rule->patient_reminder_flag() == "1"){ ?>
-                	<td><input type="checkbox" name="reminder[<?php echo $index ?>]]" checked="yes"></td>
+                    <td><input type="checkbox" name="reminder[<?php echo $index ?>]]" checked="yes"></td>
                 <?php }else {?>
-	                <td><input type="checkbox" name="reminder[<?php echo $index ?>]]"></td>
-				<?php } ?>               
+                    <td><input type="checkbox" name="reminder[<?php echo $index ?>]]"></td>
+                <?php } ?>               
                  <td>&nbsp;</td>
                  <td>
                         <?php //Place the ACO selector here
@@ -105,9 +105,9 @@ require_once("$phpgacl_location/gacl_api.class.php");
                         echo "</select>";
                         ?>
                  </td> 
-                <td><input style="display:none" name="id[<?php echo $index ?>]]" value=<?php echo out($rule->get_id()); ?> /></td>								
+                <td><input style="display:none" name="id[<?php echo $index ?>]]" value=<?php echo out($rule->get_id()); ?> /></td>                              
         </tr>
-		<?php }?>
+        <?php }?>
 </table>
 </form>
 

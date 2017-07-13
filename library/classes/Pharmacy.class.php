@@ -53,7 +53,7 @@ class Pharmacy extends ORDataObject{
     {
         return $this->id;
     }
-    function set_form_id ($id = "")
+    function set_form_id($id = "")
     {
         if (!empty($id)) {
             $this->populate($id);
@@ -201,7 +201,7 @@ class Pharmacy extends ORDataObject{
         return ($pharmacy_array);
     }
 
-    function pharmacies_factory ($city = "", $sort = "ORDER BY name")
+    function pharmacies_factory($city = "", $sort = "ORDER BY name")
     {
         if (empty($city)) {
              $city= "";

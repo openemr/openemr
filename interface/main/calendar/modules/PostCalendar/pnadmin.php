@@ -45,11 +45,14 @@ function postcalendar_admin_main()
     return postcalendar_admin_modifyconfig();
 }
 function postcalendar_admin_listapproved()
-{ return postcalendar_admin_showlist('',_EVENT_APPROVED,'listapproved',_PC_APPROVED_ADMIN); }
+{
+    return postcalendar_admin_showlist('',_EVENT_APPROVED,'listapproved',_PC_APPROVED_ADMIN); }
 function postcalendar_admin_listhidden()
-{ return postcalendar_admin_showlist('',_EVENT_HIDDEN,'listhidden',_PC_HIDDEN_ADMIN); }
+{
+    return postcalendar_admin_showlist('',_EVENT_HIDDEN,'listhidden',_PC_HIDDEN_ADMIN); }
 function postcalendar_admin_listqueued()
-{ return postcalendar_admin_showlist('',_EVENT_QUEUED,'listqueued',_PC_QUEUED_ADMIN); }
+{
+    return postcalendar_admin_showlist('',_EVENT_QUEUED,'listqueued',_PC_QUEUED_ADMIN); }
 function postcalendar_admin_showlist($e='',$type,$function,$title,$msg='')
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
@@ -282,7 +285,8 @@ function postcalendar_admin_deleteevents()
 }
 
 function postcalendar_admin_edit($args)
-{ return postcalendar_admin_submit($args); }
+{
+    return postcalendar_admin_submit($args); }
 function postcalendar_admin_submit($args)
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
@@ -302,48 +306,48 @@ function postcalendar_admin_submit($args)
     $day    = substr($Date,6,2);
     
     // basic event information
-    $event_subject  	= pnVarCleanFromInput('event_subject');
-    $event_desc 		= pnVarCleanFromInput('event_desc');
-    $event_sharing  	= pnVarCleanFromInput('event_sharing');
-    $event_category 	= pnVarCleanFromInput('event_category');
-    $event_topic 		= pnVarCleanFromInput('event_topic');
+    $event_subject      = pnVarCleanFromInput('event_subject');
+    $event_desc         = pnVarCleanFromInput('event_desc');
+    $event_sharing      = pnVarCleanFromInput('event_sharing');
+    $event_category     = pnVarCleanFromInput('event_category');
+    $event_topic        = pnVarCleanFromInput('event_topic');
     
     // event start information
-    $event_startmonth 	= pnVarCleanFromInput('event_startmonth');
-    $event_startday 	= pnVarCleanFromInput('event_startday');
-    $event_startyear 	= pnVarCleanFromInput('event_startyear');
-    $event_starttimeh	= pnVarCleanFromInput('event_starttimeh');
-    $event_starttimem 	= pnVarCleanFromInput('event_starttimem');
-    $event_startampm 	= pnVarCleanFromInput('event_startampm');
+    $event_startmonth   = pnVarCleanFromInput('event_startmonth');
+    $event_startday     = pnVarCleanFromInput('event_startday');
+    $event_startyear    = pnVarCleanFromInput('event_startyear');
+    $event_starttimeh   = pnVarCleanFromInput('event_starttimeh');
+    $event_starttimem   = pnVarCleanFromInput('event_starttimem');
+    $event_startampm    = pnVarCleanFromInput('event_startampm');
     
     // event end information
-    $event_endmonth 	= pnVarCleanFromInput('event_endmonth');
-    $event_endday 		= pnVarCleanFromInput('event_endday');
-    $event_endyear  	= pnVarCleanFromInput('event_endyear');
-    $event_endtype  	= pnVarCleanFromInput('event_endtype');
-    $event_dur_hours 	= pnVarCleanFromInput('event_dur_hours');
+    $event_endmonth     = pnVarCleanFromInput('event_endmonth');
+    $event_endday       = pnVarCleanFromInput('event_endday');
+    $event_endyear      = pnVarCleanFromInput('event_endyear');
+    $event_endtype      = pnVarCleanFromInput('event_endtype');
+    $event_dur_hours    = pnVarCleanFromInput('event_dur_hours');
     $event_dur_minutes  = pnVarCleanFromInput('event_dur_minutes');
-    $event_duration 	= (60*60*$event_dur_hours) + (60*$event_dur_minutes);
-    $event_allday 		= pnVarCleanFromInput('event_allday');
+    $event_duration     = (60*60*$event_dur_hours) + (60*$event_dur_minutes);
+    $event_allday       = pnVarCleanFromInput('event_allday');
     
     // location data
-    $event_location 	= pnVarCleanFromInput('event_location');
-    $event_street1  	= pnVarCleanFromInput('event_street1');
-    $event_street2  	= pnVarCleanFromInput('event_street2');
-    $event_city 		= pnVarCleanFromInput('event_city');
-    $event_state 		= pnVarCleanFromInput('event_state');
-    $event_postal 		= pnVarCleanFromInput('event_postal');
+    $event_location     = pnVarCleanFromInput('event_location');
+    $event_street1      = pnVarCleanFromInput('event_street1');
+    $event_street2      = pnVarCleanFromInput('event_street2');
+    $event_city         = pnVarCleanFromInput('event_city');
+    $event_state        = pnVarCleanFromInput('event_state');
+    $event_postal       = pnVarCleanFromInput('event_postal');
     $event_location_info = serialize(compact('event_location', 'event_street1', 'event_street2',
                                              'event_city', 'event_state', 'event_postal'));
     // contact data
-    $event_contname 	= pnVarCleanFromInput('event_contname');
-    $event_conttel  	= pnVarCleanFromInput('event_conttel');
-    $event_contemail 	= pnVarCleanFromInput('event_contemail');
-    $event_website  	= pnVarCleanFromInput('event_website');
-    $event_fee  		= pnVarCleanFromInput('event_fee');
+    $event_contname     = pnVarCleanFromInput('event_contname');
+    $event_conttel      = pnVarCleanFromInput('event_conttel');
+    $event_contemail    = pnVarCleanFromInput('event_contemail');
+    $event_website      = pnVarCleanFromInput('event_website');
+    $event_fee          = pnVarCleanFromInput('event_fee');
     
     // event repeating data
-    $event_repeat 		= pnVarCleanFromInput('event_repeat');
+    $event_repeat       = pnVarCleanFromInput('event_repeat');
     $event_repeat_freq  = pnVarCleanFromInput('event_repeat_freq');
     $event_repeat_freq_type = pnVarCleanFromInput('event_repeat_freq_type');
     $event_repeat_on_num = pnVarCleanFromInput('event_repeat_on_num');
@@ -764,16 +768,16 @@ function postcalendar_admin_resetDefaults()
     pnModSetVar(__POSTCALENDAR__, 'pcDisplayTopics',            '0');
     pnModSetVar(__POSTCALENDAR__, 'pcAllowDirectSubmit',        '0');
     pnModSetVar(__POSTCALENDAR__, 'pcListHowManyEvents',        '15');
-    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',        	'15');
-    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',        	'0');
+    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',            '15');
+    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',            '0');
     pnModSetVar(__POSTCALENDAR__, 'pcAllowUserCalendar',        '1');
-    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',        	'%Y-%m-%d');
-    pnModSetVar(__POSTCALENDAR__, 'pcTemplate',         		'default');
-    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',         		'1');
-    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',         	'3600');
-    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',         		'month');
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',         		'0');
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',         		pnConfigGetVar('adminmail'));
+    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',          '%Y-%m-%d');
+    pnModSetVar(__POSTCALENDAR__, 'pcTemplate',                 'default');
+    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',                 '1');
+    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',            '3600');
+    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',              'month');
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',              '0');
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',              pnConfigGetVar('adminmail'));
 
     $tpl = new pcSmarty();
     $tpl->clear_all_cache();
@@ -808,14 +812,14 @@ function postcalendar_admin_updateconfig()
     if(!isset($pcTemplate))              { $pcTemplate='default'; }
     if(!isset($pcAllowSiteWide))         { $pcAllowSiteWide='0'; }
     if(!isset($pcAllowUserCalendar))     { $pcAllowUserCalendar='0'; }
-    if(!isset($pcUseCache))         	 { $pcUseCache='0'; }
-    if(!isset($pcDefaultView))         	 { $pcDefaultView='month'; }
+    if(!isset($pcUseCache))              { $pcUseCache='0'; }
+    if(!isset($pcDefaultView))           { $pcDefaultView='month'; }
     if(empty($pcCacheLifetime))          { $pcCacheLifetime='3600'; }
     if(empty($pcDayHighlightColor))      { $pcDayHighlightColor='#EEEEEE'; }
     if(empty($pcListHowManyEvents))      { $pcListHowManyEvents='15'; }
-    if(empty($pcEventDateFormat))		 { $pcEventDateFormat='%Y-%m-%d'; }
+    if(empty($pcEventDateFormat))        { $pcEventDateFormat='%Y-%m-%d'; }
     if(empty($pcTimeIncrement))          { $pcTimeIncrement='15'; }
-    if(empty($pcNotifyAdmin))		 	 { $pcNotifyAdmin='0'; }
+    if(empty($pcNotifyAdmin))            { $pcNotifyAdmin='0'; }
     if(empty($pcNotifyEmail))            { $pcNotifyEmail=pnConfigGetVar('adminmail'); }
 
     // delete the old vars - we're doing this because PostNuke variable
@@ -841,25 +845,25 @@ function postcalendar_admin_updateconfig()
     pnModDelVar(__POSTCALENDAR__, 'pcNotifyEmail');
 
     // set the new variables
-    pnModSetVar(__POSTCALENDAR__, 'pcTime24Hours',  		 $pcTime24Hours);
+    pnModSetVar(__POSTCALENDAR__, 'pcTime24Hours',           $pcTime24Hours);
     pnModSetVar(__POSTCALENDAR__, 'pcEventsOpenInNewWindow', $pcEventsOpenInNewWindow);
     pnModSetVar(__POSTCALENDAR__, 'pcUseInternationalDates', $pcUseInternationalDates);
-    pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek',		 $pcFirstDayOfWeek);
-    pnModSetVar(__POSTCALENDAR__, 'pcDayHighlightColor',	 $pcDayHighlightColor);
-    pnModSetVar(__POSTCALENDAR__, 'pcUsePopups',			 $pcUsePopups);
-    pnModSetVar(__POSTCALENDAR__, 'pcAllowDirectSubmit',	 $pcAllowDirectSubmit);
-    pnModSetVar(__POSTCALENDAR__, 'pcListHowManyEvents',	 $pcListHowManyEvents);
-    pnModSetVar(__POSTCALENDAR__, 'pcDisplayTopics',		 $pcDisplayTopics);
-    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',  	 $pcEventDateFormat);
-    pnModSetVar(__POSTCALENDAR__, 'pcTemplate', 			 $pcTemplate);
-    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',		 $pcAllowSiteWide);
-    pnModSetVar(__POSTCALENDAR__, 'pcAllowUserCalendar',	 $pcAllowUserCalendar);
-    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',		 $pcTimeIncrement);
-    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',		 	 $pcDefaultView);
-    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',		 		 $pcUseCache);
-    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',		 $pcCacheLifetime);
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',		 	 $pcNotifyAdmin);
-    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',		 	 $pcNotifyEmail);
+    pnModSetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek',        $pcFirstDayOfWeek);
+    pnModSetVar(__POSTCALENDAR__, 'pcDayHighlightColor',     $pcDayHighlightColor);
+    pnModSetVar(__POSTCALENDAR__, 'pcUsePopups',             $pcUsePopups);
+    pnModSetVar(__POSTCALENDAR__, 'pcAllowDirectSubmit',     $pcAllowDirectSubmit);
+    pnModSetVar(__POSTCALENDAR__, 'pcListHowManyEvents',     $pcListHowManyEvents);
+    pnModSetVar(__POSTCALENDAR__, 'pcDisplayTopics',         $pcDisplayTopics);
+    pnModSetVar(__POSTCALENDAR__, 'pcEventDateFormat',       $pcEventDateFormat);
+    pnModSetVar(__POSTCALENDAR__, 'pcTemplate',              $pcTemplate);
+    pnModSetVar(__POSTCALENDAR__, 'pcAllowSiteWide',         $pcAllowSiteWide);
+    pnModSetVar(__POSTCALENDAR__, 'pcAllowUserCalendar',     $pcAllowUserCalendar);
+    pnModSetVar(__POSTCALENDAR__, 'pcTimeIncrement',         $pcTimeIncrement);
+    pnModSetVar(__POSTCALENDAR__, 'pcDefaultView',           $pcDefaultView);
+    pnModSetVar(__POSTCALENDAR__, 'pcUseCache',              $pcUseCache);
+    pnModSetVar(__POSTCALENDAR__, 'pcCacheLifetime',         $pcCacheLifetime);
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyAdmin',           $pcNotifyAdmin);
+    pnModSetVar(__POSTCALENDAR__, 'pcNotifyEmail',           $pcNotifyEmail);
 
     $tpl = new pcSmarty();
     $tpl->clear_all_cache();
@@ -1325,8 +1329,8 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('OfTheMonthTitle',     _PC_OF_THE_MONTH);
     $tpl->assign('EndDateTitle',        _PC_END_DATE);
     $tpl->assign('NoEndDateTitle',      _PC_NO_END);
-    $tpl->assign('REP_CAT_TITLE',	_PC_REP_CAT_TITLE);
-    $tpl->assign('NEW_CAT_TITLE',	_PC_NEW_CAT_TITLE);
+    $tpl->assign('REP_CAT_TITLE',   _PC_REP_CAT_TITLE);
+    $tpl->assign('NEW_CAT_TITLE',   _PC_NEW_CAT_TITLE);
     $tpl->assign('InputNoRepeat', 'event_repeat');
     $tpl->assign('ValueNoRepeat', '0');
     $tpl->assign('SelectedNoRepeat', (int) $event_repeat==0 ? 'checked':'');
@@ -1367,18 +1371,18 @@ function postcalendar_admin_categories($msg='',$e='',$args)
     $tpl->assign('SelectedRepeatOn', (int) $event_repeat==2 ? 'checked':'');
    
     // All Day START
-    $tpl->assign('InputAllDay', 	'end_all_day');
-    $tpl->assign('ValueAllDay', 	'1');
-    $tpl->assign('ValueAllDayNo', 	'0');
-    $tpl->assign('ALL_DAY_CAT_TITLE',	_PC_ALL_DAY_CAT_TITLE);
-    $tpl->assign('ALL_DAY_CAT_YES',	_PC_ALL_DAY_CAT_YES);
-    $tpl->assign('ALL_DAY_CAT_NO',	_PC_ALL_DAY_CAT_NO);
+    $tpl->assign('InputAllDay',     'end_all_day');
+    $tpl->assign('ValueAllDay',     '1');
+    $tpl->assign('ValueAllDayNo',   '0');
+    $tpl->assign('ALL_DAY_CAT_TITLE',   _PC_ALL_DAY_CAT_TITLE);
+    $tpl->assign('ALL_DAY_CAT_YES', _PC_ALL_DAY_CAT_YES);
+    $tpl->assign('ALL_DAY_CAT_NO',  _PC_ALL_DAY_CAT_NO);
     
  //ALL Day End
 // End date gather date start	    
 
     $tpl->assign('InputEndDateFreq','end_date_freq');
-    $tpl->assign('InputEndOn', 	'end_date_flag');
+    $tpl->assign('InputEndOn',  'end_date_flag');
     $tpl->assign('InputEndDateFreqType', 'end_date_type');
     $tpl->assign('ValueNoEnd', '0');
     $tpl->assign('ValueEnd', '1');
@@ -1514,7 +1518,7 @@ function postcalendar_adminmenu($upgraded=false)
     $cacheText    = _PC_CLEAR_CACHE;
     $cacheText    = _PC_CLEAR_CACHE;
     $systemText   = _PC_TEST_SYSTEM;
-    $limitsText	  = _PC_CAT_LIMITS;
+    $limitsText   = _PC_CAT_LIMITS;
 
     // check for upgrade
     $upgrade = '';
@@ -1967,9 +1971,9 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     //  Setup titles for smarty
     //===============================================================
 
-    $tpl->assign('_PC_LIMIT_TITLE', 	_PC_LIMIT_TITLE);
-    $tpl->assign('StartTimeTitle',		_PC_LIMIT_START_TIME);
-    $tpl->assign('EndTimeTile', 	_PC_LIMIT_END_TIME);
+    $tpl->assign('_PC_LIMIT_TITLE',     _PC_LIMIT_TITLE);
+    $tpl->assign('StartTimeTitle',      _PC_LIMIT_START_TIME);
+    $tpl->assign('EndTimeTile',     _PC_LIMIT_END_TIME);
     $tpl->assign('LimitHoursTitle',_PC_TIMED_DURATION_HOURS);
     $tpl->assign('LimitMinutesTitle',_PC_TIMED_DURATION_MINUTES);
 
@@ -1978,22 +1982,22 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
     //============================================================
     $tpl->assign('mer_title', 'mer');
     $mer = array('am','pm');
-    $tpl->assign_by_ref('mer',		$mer);
-    $tpl->assign('starttimeh',		'starttimeh');
-    $tpl->assign('starttimem',		'starttimem');
-    $tpl->assign('endtimeh',		'endtimeh');
-    $tpl->assign('endtimem',		'endtimem');
-    $tpl->assign('InputLimit',		'limit');
-    $tpl->assign('LimitTitle',		_PC_LIMIT_TITLE);
-    $tpl->assign('_PC_NEW_LIMIT_TITLE',	_PC_NEW_LIMIT_TITLE);
-    $tpl->assign('_PC_CAT_DELETE',		_PC_CAT_DELETE);
-    $tpl->assign('EndTimeTitle',	_PC_LIMIT_END_TIME);
+    $tpl->assign_by_ref('mer',      $mer);
+    $tpl->assign('starttimeh',      'starttimeh');
+    $tpl->assign('starttimem',      'starttimem');
+    $tpl->assign('endtimeh',        'endtimeh');
+    $tpl->assign('endtimem',        'endtimem');
+    $tpl->assign('InputLimit',      'limit');
+    $tpl->assign('LimitTitle',      _PC_LIMIT_TITLE);
+    $tpl->assign('_PC_NEW_LIMIT_TITLE', _PC_NEW_LIMIT_TITLE);
+    $tpl->assign('_PC_CAT_DELETE',      _PC_CAT_DELETE);
+    $tpl->assign('EndTimeTitle',    _PC_LIMIT_END_TIME);
         
     $hour_array =array('00','01','02','03','04','05','06','07','08','09','10','11','12',
                         '13','14','15','16','17','18','19','21','21','22','23');
     $min_array = array('00','05','10','15','20','25','30','35','40','45','50','55');
-    $tpl->assign_by_ref('hour_array',	$hour_array);
-    $tpl->assign_by_ref('min_array',	$min_array);
+    $tpl->assign_by_ref('hour_array',   $hour_array);
+    $tpl->assign_by_ref('min_array',    $min_array);
     
     $categories =   pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
     // create translations of category names if applicable

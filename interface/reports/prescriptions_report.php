@@ -120,76 +120,76 @@ use OpenEMR\Core\Header;
 <table>
  <tr>
   <td width='640px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='control-label'>
-				<?php xl('Facility','e'); ?>:
-			</td>
-			<td>
-			<?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
-			</td>
-			<td class='control-label'>
+    <table class='text'>
+        <tr>
+            <td class='control-label'>
+                <?php xl('Facility','e'); ?>:
+            </td>
+            <td>
+            <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
+            </td>
+            <td class='control-label'>
                 <?php xl('From','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
-			</td>
-			<td class='control-label'>
+            </td>
+            <td>
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
+            </td>
+            <td class='control-label'>
                 <?php xl('To','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
-			</td>
-		</tr>
-		<tr>
-			<td class='control-label'>
+            </td>
+            <td>
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
+            </td>
+        </tr>
+        <tr>
+            <td class='control-label'>
                 <?php xl('Patient ID','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
-				title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
-			</td>
-			<td class='control-label'>
+            </td>
+            <td>
+               <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
+                title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
+            </td>
+            <td class='control-label'>
                 <?php xl('Drug','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
-				title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
-			</td>
-			<td class='control-label'>
+            </td>
+            <td>
+               <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
+                title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
+            </td>
+            <td class='control-label'>
                 <?php xl('Lot','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='form-control' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
-				title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
-			</td>
-		</tr>
-	</table>
+            </td>
+            <td>
+               <input type='text' class='form-control' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
+                title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
        <div class="text-center">
-				<div class="btn-group" role="group">
-					<a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-						<?php echo xlt('Submit'); ?>
-					</a>
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='btn btn-default btn-print' id='printbutton'>
-							<?php echo xlt('Print'); ?>
-					</a>
-					<?php } ?>
-				</div>
+                <div class="btn-group" role="group">
+                    <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                        <?php echo xlt('Submit'); ?>
+                    </a>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                            <?php echo xlt('Print'); ?>
+                    </a>
+                    <?php } ?>
+                </div>
        </div>
-			</td>
-		</tr>
-	</table>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -342,7 +342,7 @@ if ($_POST['form_refresh']) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
 <?php } ?>
 </form>

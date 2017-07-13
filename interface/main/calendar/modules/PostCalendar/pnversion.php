@@ -36,9 +36,9 @@ $modversion['official']         = 0;
 $modversion['author']           = 'The PostCalendar Team & Pennington Firm';
 $modversion['contact']          = 'http://www.pennfirm.com';
 $modversion['admin']            = 1;
-$modversion['securityschema']   = array('PostCalendar::Event' 	 => 'Event Title::Event ID',
+$modversion['securityschema']   = array('PostCalendar::Event'    => 'Event Title::Event ID',
                                         'PostCalendar::Category' => 'Category Name::Category ID',
-                                        'PostCalendar::Topic' 	 => 'Topic Name::Topic ID',
-                                        'PostCalendar::User' 	 => 'User Name::User ID',
-                                        'PostCalendar::' 	 	 => '::');
+                                        'PostCalendar::Topic'    => 'Topic Name::Topic ID',
+                                        'PostCalendar::User'     => 'User Name::User ID',
+                                        'PostCalendar::'         => '::');
 ?>

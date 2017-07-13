@@ -86,7 +86,7 @@ class pie
 {
     public function __construct()
     {
-        $this->type      		= 'pie';
+        $this->type             = 'pie';
     }
     
     function set_colours( $colours )

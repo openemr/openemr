@@ -106,7 +106,7 @@ if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
  * @param string $msg_str  the log message
  * @return int             number of characters written
  */
-function csv_edihist_log ( $msg_str )
+function csv_edihist_log( $msg_str )
 {
     //
     //$dir = dirname(__FILE__).DS.'log';
@@ -1065,7 +1065,7 @@ function edih_csv_order($csvdata)
  * @param string $str_val   the telephone number
  * @return string           the telephone number with dashes
  */
-function edih_format_telephone ($str_val)
+function edih_format_telephone($str_val)
 {
     $strtel = (string)$str_val;
     $strtel = preg_replace('/\D/', '', $strtel);
@@ -1087,7 +1087,7 @@ function edih_format_telephone ($str_val)
  * @param string $pref      if 'US' (default) anything else means YYYY-MM-DD
  * @return string           the date with slashes
  */
-function edih_format_date ($str_val, $pref = "Y-m-d")
+function edih_format_date($str_val, $pref = "Y-m-d")
 {
     $strdt = (string)$str_val;
     $strdt = preg_replace('/\D/', '', $strdt);
@@ -1117,7 +1117,7 @@ function edih_format_date ($str_val, $pref = "Y-m-d")
  * @param string $str_val   the amount string
  * @return string           the telephone number with dashes
  */
-function edih_format_money ($str_val)
+function edih_format_money($str_val)
 {
     //
     if ($str_val || $str_val === '0') {
@@ -1135,7 +1135,7 @@ function edih_format_money ($str_val)
  * @param string $str_val   the amount string
  * @return string           the value as a percentage
  */
-function edih_format_percent ($str_val)
+function edih_format_percent($str_val)
 {
     $val = (float)$str_val;
     if (is_float($val)) {
@@ -1334,7 +1334,7 @@ function csv_convert_bytes($bytes)
  * @param array
  * @return bool   false if arrayis multidimensional
  */
-function csv_singlerecord_test ( $array )
+function csv_singlerecord_test( $array )
 {
     // the two versions of count() are compared
     // if the array has a sub-array, count recursive is greater
@@ -1938,7 +1938,7 @@ function csv_pid_enctr_parse( $pid_enctr )
             $enc = ( strlen($pval) ) >= ENCOUNTER_MIN_DIGIT_LENGTH ? $pval : '';
             $pid = '';
         }
-    } elseif (	preg_match('/\D/', $pval, $match2, PREG_OFFSET_CAPTURE) ) {
+    } elseif (  preg_match('/\D/', $pval, $match2, PREG_OFFSET_CAPTURE) ) {
         $inv_split = (count($match2)) ? preg_split('/\D/', $pval, 2, PREG_SPLIT_NO_EMPTY) : false;
         if ($inv_split) {
             $pid = $inv_split[0];

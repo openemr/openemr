@@ -3956,7 +3956,8 @@ function report_header($pid,$direction='shell')
  *  @return outputs directly to screen
  */
 function start_your_engines($FIELDS)
-{//pass an assoc array of fields with terms in it and search them
+{
+//pass an assoc array of fields with terms in it and search them
     global $pid;
     global $codes_found;
     global $PMSFH;

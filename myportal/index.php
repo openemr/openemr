@@ -67,7 +67,7 @@ for($i=1;$i<=5;$i++){//some times php is continuing without getting the return v
 <head>
 <script type="text/javascript">
  function getshansubmit(){
-	document.forms[0].submit();
+    document.forms[0].submit();
  }
  
 </script>
@@ -81,7 +81,7 @@ for($i=1;$i<=5;$i++){//some times php is continuing without getting the return v
     <input type="hidden" name="uname" value="<?php echo htmlspecialchars($row['fname']." ".$row['lname'],ENT_QUOTES);?>">
     <input type="hidden" name="pass" value="<?php echo htmlspecialchars($GLOBALS['portal_offsite_password'],ENT_QUOTES);?>">
     <input type="hidden" name="randkey" value="<?php echo htmlspecialchars($randkey,ENT_QUOTES);?>">
-	  <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pass,ENT_QUOTES);?>">
+      <input type="hidden" name="pwd" value="<?php echo htmlspecialchars($pass,ENT_QUOTES);?>">
     </form>
 </body>
 </html>

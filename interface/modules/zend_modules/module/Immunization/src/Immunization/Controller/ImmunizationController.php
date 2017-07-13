@@ -37,7 +37,7 @@ class ImmunizationController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /**
@@ -176,7 +176,7 @@ class ImmunizationController extends AbstractActionController
     */
     public function reportAction()
     {
-        $request    = 	$this->getRequest();
+        $request    =   $this->getRequest();
         $data       = $request->getPost();
         if(isset($data['hl7button'])){
             $form_code        =   isset($data['codes']) ? $data['codes'] : array();

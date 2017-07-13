@@ -23,13 +23,13 @@
 
 class eRxSOAP {
 
-    const ACTION_ALLERGIES		= 'allergies';
-    const ACTION_MEDICATIONS	= 'medications';
+    const ACTION_ALLERGIES      = 'allergies';
+    const ACTION_MEDICATIONS    = 'medications';
 
-    const FLAG_PRESCRIPTION_PRESS	= '1';
-    const FLAG_PRESCRIPTION_IMPORT	= '2';
-    const FLAG_ALLERGY_PRESS		= '3';
-    const FLAG_ALLERGY_IMPORT		= '4';
+    const FLAG_PRESCRIPTION_PRESS   = '1';
+    const FLAG_PRESCRIPTION_IMPORT  = '2';
+    const FLAG_ALLERGY_PRESS        = '3';
+    const FLAG_ALLERGY_IMPORT       = '4';
 
     private $globals;
     private $store;
@@ -48,17 +48,17 @@ class eRxSOAP {
      */
     static public function htmlFixXmlToArray($xml)
     {
-        $xmltoarray = new xmltoarray_parser_htmlfix();					//create instance of class
+        $xmltoarray = new xmltoarray_parser_htmlfix();                  //create instance of class
 
-        $xmltoarray->xmlparser_setoption(XML_OPTION_SKIP_WHITE, 1);		//set options same as xml_parser_set_option
+        $xmltoarray->xmlparser_setoption(XML_OPTION_SKIP_WHITE, 1);     //set options same as xml_parser_set_option
         $xmltoarray->xmlparser_setoption(XML_OPTION_CASE_FOLDING, 0);
 
-        $xmltoarray->xmlparser_fix_into_struct(base64_decode($xml));	//fixes html values for XML
+        $xmltoarray->xmlparser_fix_into_struct(base64_decode($xml));    //fixes html values for XML
 
-        $array = $xmltoarray->createArray();							//creates an array with fixed html values
+        $array = $xmltoarray->createArray();                            //creates an array with fixed html values
 
         foreach($array as $key => $value) {
-            $array[$key] = $xmltoarray->fix_html_entities($value);		//returns proper html values
+            $array[$key] = $xmltoarray->fix_html_entities($value);      //returns proper html values
         }
 
         if(array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet']))
@@ -348,9 +348,9 @@ class eRxSOAP {
         $credentials = $this->getGlobals()->getCredentials();
 
         $this->soapSettings['credentials'] = array(
-            'PartnerName'	=> $credentials['0'],
-            'Name'			=> $credentials['1'],
-            'Password'		=> $credentials['2'],
+            'PartnerName'   => $credentials['0'],
+            'Name'          => $credentials['1'],
+            'Password'      => $credentials['2'],
         );
 
         return $this;
@@ -363,8 +363,8 @@ class eRxSOAP {
     public function initializeAccountRequest()
     {
         $this->soapSettings['accountRequest'] = array(
-            'AccountId'	=> $this->getGlobals()->getAccountId(),
-            'SiteId'	=> $this->getSiteId(),
+            'AccountId' => $this->getGlobals()->getAccountId(),
+            'SiteId'    => $this->getSiteId(),
         );
 
         return $this;
@@ -379,8 +379,8 @@ class eRxSOAP {
         $userDetails = $this->getAuthUserDetails();
 
         $this->soapSettings['patientInformationRequester'] = array(
-            'UserId'	=> $userDetails['id'],
-            'UserType'	=> 'D',
+            'UserId'    => $userDetails['id'],
+            'UserType'  => 'D',
         );
 
         return $this;
@@ -441,11 +441,11 @@ class eRxSOAP {
         $this->soapSettings['patientRequest']['PatientId'] = $this->getPatientId();
 
         $this->soapSettings['prescriptionHistoryRequest'] = array(
-            'StartHistory'				=> '2011-01-01T00:00:00.000',
-            'EndHistory'				=> date('Y-m-d').'T23:59:59.000',
-            'PrescriptionStatus'		=> 'C',
-            'PrescriptionSubStatus'		=> '%',
-            'PrescriptionArchiveStatus'	=> 'N',
+            'StartHistory'              => '2011-01-01T00:00:00.000',
+            'EndHistory'                => date('Y-m-d').'T23:59:59.000',
+            'PrescriptionStatus'        => 'C',
+            'PrescriptionSubStatus'     => '%',
+            'PrescriptionArchiveStatus' => 'N',
         );
 
         $this->soapSettings['patientIdType'] = '';

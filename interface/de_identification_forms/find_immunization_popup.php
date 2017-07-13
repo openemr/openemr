@@ -41,8 +41,8 @@ td { font-size:10pt; }
   if (len==undefined && chk.checked==1) 
   {
     if(!str)
-	  str = chk.value;
-	else  
+      str = chk.value;
+    else  
     str = "#"+chk.value;
   }
   else
@@ -51,15 +51,15 @@ td { font-size:10pt; }
    {
     if(chk[pr].checked == 1)
     {
-	 if(!str)
-	  str = chk[pr].value;
-	 else 
+     if(!str)
+      str = chk[pr].value;
+     else 
       str = str+"#"+chk[pr].value;
-	}
+    }
    }
   }
   if(!str)
-	alert('<?php echo xl("Select Immunizations");?>');
+    alert('<?php echo xl("Select Immunizations");?>');
   if (opener.closed || ! opener.set_related)
    alert("<?php echo xl('The destination form was closed');?>");
   else
@@ -175,7 +175,7 @@ if ($row = sqlFetchArray($res))
         $itercode = addslashes($row['option_id']);
         $itertext = addslashes(ucfirst(strtolower(trim($row['title']))));
         ?>
-	   <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext;
+       <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext;
 ?>" > <?php echo $itercode."    ".$itertext."</br>";
     }
 }

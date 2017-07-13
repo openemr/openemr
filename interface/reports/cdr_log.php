@@ -107,9 +107,9 @@ $(document).ready(function() {
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                    <tr>
                       <td class='label_custom'>
@@ -132,24 +132,24 @@ $(document).ready(function() {
                                 title='<?php echo xla('yyyy-mm-dd hh:mm:ss'); ?>'>
                         </td>
                 </tr>
-	</table>
-	</div>
+    </table>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
-					<span>
-						<?php echo xlt('Search'); ?>
-					</span>
-					</a>
-				</div>
-			</td>
-		</tr>
-	</table>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a id='search_button' href='#' class='css_button' onclick='top.restoreSession(); $("#theform").submit()'>
+                    <span>
+                        <?php echo xlt('Search'); ?>
+                    </span>
+                    </a>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>

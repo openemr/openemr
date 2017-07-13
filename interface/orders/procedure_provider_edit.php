@@ -139,7 +139,7 @@ while ($org_row = sqlFetchArray($org_res)) {
  <tr>
   <td nowrap><b><?php echo xlt('Name'); ?>:</b></td>
   <td>
-	<select name='form_name' id='form_name' class='inputtext' style='width:150px'>
+    <select name='form_name' id='form_name' class='inputtext' style='width:150px'>
             <?php echo $optionsStr; ?>
     </select>
   </td>
