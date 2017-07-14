@@ -53,7 +53,7 @@ If a community member engages in unacceptable behavior, the community organizers
 
 ## 6. Reporting Guidelines
 
-If you are subject to or witness unacceptable behavior, or have any other concerns, please notify a community organizer as soon as possible. info@open-emr.org.
+If you are subject to or witness unacceptable behavior, or have any other concerns, please notify a community organizer as soon as possible. This can be done by sending a direct message to "admins" on the community forums found at https://community.open-emr.org/.
 
 
 
