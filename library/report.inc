@@ -108,38 +108,38 @@ subscriber_employer_country => xl('Subscriber Employer Country') . ": "
 
 function getPatientReport($pid)
 {
-	$sql = "select * from patient_data where pid='$pid' order by date ASC";
-	$res = sqlStatement("$sql");
-	while($list = sqlFetchArray($res))
-	{
-		while(list($key, $value) = each($list))
-		{
-			if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-			{
-				$ret[$key]['title'] = $key;
-				$ret[$key]['content'] = $value;
-				$ret[$key]['date'] = $list['date'];
-			}
-		}
-	}
-	return $ret;
+    $sql = "select * from patient_data where pid='$pid' order by date ASC";
+    $res = sqlStatement("$sql");
+    while($list = sqlFetchArray($res))
+    {
+        while(list($key, $value) = each($list))
+        {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
+            {
+                $ret[$key]['title'] = $key;
+                $ret[$key]['content'] = $value;
+                $ret[$key]['date'] = $list['date'];
+            }
+        }
+    }
+    return $ret;
 }
 
 function getHistoryReport($pid)
 {
         $sql = "select * from history_data where pid='$pid' order by date ASC";
         $res = sqlStatement("$sql");
-        while($list = sqlFetchArray($res))
+    while($list = sqlFetchArray($res))
         {
-                while(list($key, $value) = each($list))
-                {
-                        if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-                        {
-                                $ret[$key]['content'] = $value;
-                                $ret[$key]['date'] = $list['date'];
-                        }
-                }
+        while(list($key, $value) = each($list))
+        {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
+            {
+                $ret[$key]['content'] = $value;
+                $ret[$key]['date'] = $list['date'];
+            }
         }
+    }
         return $ret;
 }
 
@@ -147,17 +147,17 @@ function getInsuranceReport($pid, $type = "primary")
 {
         $sql = "select * from insurance_data where pid='$pid' and type='$type' order by date ASC";
         $res = sqlStatement("$sql");
-        while($list = sqlFetchArray($res))
+    while($list = sqlFetchArray($res))
         {
-                while(list($key, $value) = each($list))
-                {
-                        if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-                        {
-                                $ret[$key]['content'] = $value;
-                                $ret[$key]['date'] = $list['date'];
-                        }
-                }
+        while(list($key, $value) = each($list))
+        {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
+            {
+                $ret[$key]['content'] = $value;
+                $ret[$key]['date'] = $list['date'];
+            }
         }
+    }
         return $ret;
 }
 
@@ -165,17 +165,17 @@ function getEmployerReport($pid)
 {
         $sql = "select * from employer_data where pid='$pid' order by date ASC";
         $res = sqlStatement("$sql");
-        while($list = sqlFetchArray($res))
+    while($list = sqlFetchArray($res))
         {
-                while(list($key, $value) = each($list))
-                {
-                        if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-                        {
-                                $ret[$key]['content'] = $value;
-                                $ret[$key]['date'] = $list['date'];
-                        }
-                }
+        while(list($key, $value) = each($list))
+        {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
+            {
+                $ret[$key]['content'] = $value;
+                $ret[$key]['date'] = $list['date'];
+            }
         }
+    }
         return $ret;
 }
 
@@ -183,97 +183,104 @@ function getListsReport($pid)
 {
         $sql = "select * from lists where id='$id' order by date ASC";
         $res = sqlStatement("$sql");
-        while($list = sqlFetchArray($res))
+    while($list = sqlFetchArray($res))
         {
-                while(list($key, $value) = each($list))
-                {
-                        if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
-                        {
-                                $ret[$key]['content'] = $value;
-                                $ret[$key]['date'] = $list['date'];
-                        }
-                }
+        while(list($key, $value) = each($list))
+        {
+            if ($ret[$key]['content'] != $value && $ret[$key]['date'] < $list['date'])
+            {
+                $ret[$key]['content'] = $value;
+                $ret[$key]['date'] = $list['date'];
+            }
         }
+    }
         return $ret;
 }
 
-function printListData($pid, $list_type, $list_activity = "%") {
-	$res = sqlStatement("select * from lists where pid='$pid' and type='$list_type' and activity like '$list_activity' order by date");
-	while($result = sqlFetchArray($res)) {
-		print "<span class=bold>" . $result{"title"} . ":</span><span class=text> " . $result{"comments"} . "</span><br>\n";
-	}
+function printListData($pid, $list_type, $list_activity = "%")
+{
+    $res = sqlStatement("select * from lists where pid='$pid' and type='$list_type' and activity like '$list_activity' order by date");
+    while($result = sqlFetchArray($res)) {
+        print "<span class=bold>" . $result{"title"} . ":</span><span class=text> " . $result{"comments"} . "</span><br>\n";
+    }
 }
 
-function printPatientNotes($pid) {
+function printPatientNotes($pid)
+{
   // exclude ALL deleted notes
-  $res = sqlStatement("select * from pnotes where pid = '$pid' and deleted != 1 and activity = 1 order by date");
-  while($result = sqlFetchArray($res)) {
-    print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) .
-      ":</span><span class=text> " .
-      stripslashes(oeFormatPatientNote($result['body'])) . "</span><br>\n";
-  }
+    $res = sqlStatement("select * from pnotes where pid = '$pid' and deleted != 1 and activity = 1 order by date");
+    while($result = sqlFetchArray($res)) {
+        print "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) .
+        ":</span><span class=text> " .
+        stripslashes(oeFormatPatientNote($result['body'])) . "</span><br>\n";
+    }
 }
 
 // Get the current value for a layout based transaction field.
 //
-function lbt_current_value($frow, $formid) {
-  $formname = $frow['form_id'];
-  $field_id = $frow['field_id'];
-  $currvalue = '';
-  if ($formid) {
-    $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
-      "form_id = ? AND field_id = ?", array($formid, $field_id) );
-    if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
-  }
-  return $currvalue;
+function lbt_current_value($frow, $formid)
+{
+    $formname = $frow['form_id'];
+    $field_id = $frow['field_id'];
+    $currvalue = '';
+    if ($formid) {
+        $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
+        "form_id = ? AND field_id = ?", array($formid, $field_id) );
+        if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+    }
+    return $currvalue;
 }
 
 // Display a particular transaction.
 //
-function lbt_report($id, $formname) {
-  $arr = array();
-  $fres = sqlStatement("SELECT * FROM layout_options " .
+function lbt_report($id, $formname)
+{
+    $arr = array();
+    $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
     "ORDER BY group_name, seq", array($formname));
-  while ($frow = sqlFetchArray($fres)) {
-    $field_id  = $frow['field_id'];
-    $currvalue = lbt_current_value($frow, $id);
-    // For brevity, skip fields without a value.
-    if ($currvalue === '') continue;
-    $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
-  }
-  echo "<table>\n";
-  display_layout_rows($formname, $arr);
-  echo "</table>\n";
+    while ($frow = sqlFetchArray($fres)) {
+        $field_id  = $frow['field_id'];
+        $currvalue = lbt_current_value($frow, $id);
+        // For brevity, skip fields without a value.
+        if ($currvalue === '') continue;
+        $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
+    }
+    echo "<table>\n";
+    display_layout_rows($formname, $arr);
+    echo "</table>\n";
 }
 
 // Display all transactions for the specified patient.
 //
-function printPatientTransactions($pid) {
-	$res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", array($pid));
-	while($row = sqlFetchArray($res)) {
-    echo "<p><span class='bold'>" .
-      text(oeFormatSDFT(strtotime($row['date']))) .
-      " (" .
-      generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $row['title']) .
-      ")</span><br />\n";
-    lbt_report($row['id'], $row['title']);
-    echo "</p>\n";
-	}
+function printPatientTransactions($pid)
+{
+    $res = sqlStatement("SELECT * FROM transactions WHERE pid = ? ORDER BY date", array($pid));
+    while($row = sqlFetchArray($res)) {
+        echo "<p><span class='bold'>" .
+        text(oeFormatSDFT(strtotime($row['date']))) .
+        " (" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'transactions'), $row['title']) .
+        ")</span><br />\n";
+        lbt_report($row['id'], $row['title']);
+        echo "</p>\n";
+    }
 }
 
-function printPatientBilling($pid) {
-  $res = sqlStatement("select * from billing where pid='$pid' order by date");
-  while($result = sqlFetchArray($res)) {
-    echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
-    echo "<span class=text>(".$result{"code_type"}.") ";
-    echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
-    echo " - ". wordwrap(htmlspecialchars($result['code_text']), 70, "\n", true)."</span>";
-    echo "<br>\n";
-	}
+function printPatientBilling($pid)
+{
+    $res = sqlStatement("select * from billing where pid='$pid' order by date");
+    while($result = sqlFetchArray($res)) {
+        echo "<span class=bold>" . oeFormatSDFT(strtotime($result{"date"})) . " : </span>";
+        echo "<span class=text>(".$result{"code_type"}.") ";
+        echo $result['code_type'] == 'COPAY' ? oeFormatMoney($result['code']) : $result['code'];
+        echo " - ". wordwrap(htmlspecialchars($result['code_text']), 70, "\n", true)."</span>";
+        echo "<br>\n";
+    }
 }
 
-function getPatientBillingEncounter($pid, $encounter) {
+function getPatientBillingEncounter($pid, $encounter)
+{
   /*******************************************************************
 	$sql = "SELECT billing.*, u.id, u.fname, u.mname, u.lname, " .
     "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
@@ -282,11 +289,11 @@ function getPatientBillingEncounter($pid, $encounter) {
     "encounter = '" . add_escape_custom($encounter) .
     "' AND activity='1' ORDER BY date";
   *******************************************************************/
-  $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
+    $erow = sqlQuery("SELECT provider_id FROM form_encounter WHERE " .
     "pid = '$pid' AND encounter = '$encounter' " .
     "ORDER BY id DESC LIMIT 1");
-  $inv_provider = $erow['provider_id'] + 0;
-	$sql = "SELECT b.*, u.id, u.fname, u.mname, u.lname, " .
+    $inv_provider = $erow['provider_id'] + 0;
+    $sql = "SELECT b.*, u.id, u.fname, u.mname, u.lname, " .
     "CONCAT(u.fname,' ', u.lname) AS provider_name, u.federaltaxid " .
     "FROM billing AS b " .
     "LEFT JOIN users AS u ON " .
@@ -296,15 +303,16 @@ function getPatientBillingEncounter($pid, $encounter) {
     "encounter = '" . add_escape_custom($encounter) .
     "' AND activity = '1' ORDER BY date";
   /******************************************************************/
-	$res = sqlStatement($sql);
-	$billings = array();
-	while($result = sqlFetchArray($res)) {
-		$billings[] = $result;
-	}
-	return $billings;
+    $res = sqlStatement($sql);
+    $billings = array();
+    while($result = sqlFetchArray($res)) {
+        $billings[] = $result;
+    }
+    return $billings;
 }
 
-function printPatientForms($pid, $cols) {
+function printPatientForms($pid, $cols)
+{
     //this function takes a $pid
     $inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid' AND deleted=0");
     while($result = sqlFetchArray($inclookupres)) {
@@ -360,173 +368,181 @@ function printPatientForms($pid, $cols) {
     }
 }
 
-function getRecHistoryData ($pid) {
-	//data is returned as a multi-level array:
-	//column name->dates->values
-	//$return{"lname"}[0..n]{"date"}
-	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
+function getRecHistoryData($pid)
+{
+    //data is returned as a multi-level array:
+    //column name->dates->values
+    //$return{"lname"}[0..n]{"date"}
+    //$return{"lname"}[0..n]{"value"}
+    $res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
 
-	while($result = sqlFetchArray($res)) {
-		foreach ($result as $key => $val) {
-			if ($key == "pid" || $key == "date" || $key == "id") {
-				next;
-			} else {
-				$curdate = $result{"date"};
-				if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
-					$arcount{$key}++;
-					$retar{$key}[$arcount{$key}]{"value"} = $val;
-					$retar{$key}[$arcount{$key}]{"date"} = $curdate;
-				}
-			}
-		}
-	}
-	return $retar;
+    while($result = sqlFetchArray($res)) {
+        foreach ($result as $key => $val) {
+            if ($key == "pid" || $key == "date" || $key == "id") {
+                next;
+            } else {
+                $curdate = $result{"date"};
+                if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
+                    $arcount{$key}++;
+                    $retar{$key}[$arcount{$key}]{"value"} = $val;
+                    $retar{$key}[$arcount{$key}]{"date"} = $curdate;
+                }
+            }
+        }
+    }
+    return $retar;
 }
 
-function getRecEmployerData ($pid) {
-	//data is returned as a multi-level array:
-	//column name->dates->values
-	//$return{"lname"}[0..n]{"date"}
-	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
+function getRecEmployerData($pid)
+{
+    //data is returned as a multi-level array:
+    //column name->dates->values
+    //$return{"lname"}[0..n]{"date"}
+    //$return{"lname"}[0..n]{"value"}
+    $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
 
-	while($result = sqlFetchArray($res)) {
-		foreach ($result as $key => $val) {
-			if ($key == "pid" || $key == "date" || $key == "id") {
-				next;
-			} else {
-				$curdate = $result{"date"};
-				if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
-					$arcount{$key}++;
-					$retar{$key}[$arcount{$key}]{"value"} = $val;
-					$retar{$key}[$arcount{$key}]{"date"} = $curdate;
-				}
-			}
-		}
-	}
-	return $retar;
+    while($result = sqlFetchArray($res)) {
+        foreach ($result as $key => $val) {
+            if ($key == "pid" || $key == "date" || $key == "id") {
+                next;
+            } else {
+                $curdate = $result{"date"};
+                if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
+                    $arcount{$key}++;
+                    $retar{$key}[$arcount{$key}]{"value"} = $val;
+                    $retar{$key}[$arcount{$key}]{"date"} = $curdate;
+                }
+            }
+        }
+    }
+    return $retar;
 }
 
-function getRecPatientData ($pid) {
-	//data is returned as a multi-level array:
-	//column name->dates->values
-	//$return{"lname"}[0..n]{"date"}
-	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
+function getRecPatientData($pid)
+{
+    //data is returned as a multi-level array:
+    //column name->dates->values
+    //$return{"lname"}[0..n]{"date"}
+    //$return{"lname"}[0..n]{"value"}
+    $res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
 
-	while($result = sqlFetchArray($res)) {
-		foreach ($result as $key => $val) {
-			if ($key == "pid" || $key == "date" || $key == "id") {
-				next;
-			} else {
-				$curdate = $result{"date"};
-				if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
-					$arcount{$key}++;
-					$retar{$key}[$arcount{$key}]{"value"} = $val;
-					$retar{$key}[$arcount{$key}]{"date"} = $curdate;
-				}
-			}
-		}
-	}
-	return $retar;
+    while($result = sqlFetchArray($res)) {
+        foreach ($result as $key => $val) {
+            if ($key == "pid" || $key == "date" || $key == "id") {
+                next;
+            } else {
+                $curdate = $result{"date"};
+                if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
+                    $arcount{$key}++;
+                    $retar{$key}[$arcount{$key}]{"value"} = $val;
+                    $retar{$key}[$arcount{$key}]{"date"} = $curdate;
+                }
+            }
+        }
+    }
+    return $retar;
 }
 
-function getRecInsuranceData ($pid, $ins_type) {
-	//data is returned as a multi-level array:
-	//column name->dates->values
-	//$return{"lname"}[0..n]{"date"}
-	//$return{"lname"}[0..n]{"value"}
-	$res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
+function getRecInsuranceData($pid, $ins_type)
+{
+    //data is returned as a multi-level array:
+    //column name->dates->values
+    //$return{"lname"}[0..n]{"date"}
+    //$return{"lname"}[0..n]{"value"}
+    $res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
 
-	while($result = sqlFetchArray($res)) {
-		foreach ($result as $key => $val) {
-			if ($key == "pid" || $key == "date" || $key == "id") {
-				next;
-			} else {
-				$curdate = $result{"date"};
-				if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
-					$arcount{$key}++;
-					$retar{$key}[$arcount{$key}]{"value"} = $val;
-					$retar{$key}[$arcount{$key}]{"date"} = $curdate;
-				}
-			}
-		}
-	}
-	return $retar;
+    while($result = sqlFetchArray($res)) {
+        foreach ($result as $key => $val) {
+            if ($key == "pid" || $key == "date" || $key == "id") {
+                next;
+            } else {
+                $curdate = $result{"date"};
+                if (($retar{$key}[$arcount{$key}]{"value"} != $val)) {
+                    $arcount{$key}++;
+                    $retar{$key}[$arcount{$key}]{"value"} = $val;
+                    $retar{$key}[$arcount{$key}]{"date"} = $curdate;
+                }
+            }
+        }
+    }
+    return $retar;
 }
 
-function printRecData($data_array, $recres, $N) {
-	//this function generates a formatted history of all changes to the data
-	//it is a multi-level recursive function that exhaustively displays all of
-	//the changes, with dates, of any data in the database under the given
-	//argument restrictions.
-	//$data_array is an array with table_column_name => "display name"
-	//$recres is the return from getRecPatientData for example
-	//$N is the number of items to display in one row
-	print "<table><tr>\n";
-	$count = 0;
-	foreach ($data_array as $akey => $aval) {
-		if ($count == $N) {
-			print "</tr><tr>\n";
-			$count = 0;
-		}
-		print "<td valign=top><span class=bold>$aval</span><br><span class=text>";
-		printData($recres, $akey, "<br>", "Y-m-d");
-		print "</span></td>\n";
-		$count++;
-	}
-	print "</tr></table>\n";
+function printRecData($data_array, $recres, $N)
+{
+    //this function generates a formatted history of all changes to the data
+    //it is a multi-level recursive function that exhaustively displays all of
+    //the changes, with dates, of any data in the database under the given
+    //argument restrictions.
+    //$data_array is an array with table_column_name => "display name"
+    //$recres is the return from getRecPatientData for example
+    //$N is the number of items to display in one row
+    print "<table><tr>\n";
+    $count = 0;
+    foreach ($data_array as $akey => $aval) {
+        if ($count == $N) {
+            print "</tr><tr>\n";
+            $count = 0;
+        }
+        print "<td valign=top><span class=bold>$aval</span><br><span class=text>";
+        printData($recres, $akey, "<br>", "Y-m-d");
+        print "</span></td>\n";
+        $count++;
+    }
+    print "</tr></table>\n";
 }
 
-function printData ($retar, $key, $sep, $date_format) {
-	//$retar{$key}
-	if (@array_key_exists($key,$retar)) {
-		$length = sizeof($retar{$key});
-		for ($iter = $length;$iter>=1;$iter--) {
-			if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
-				print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
-			}
-		}
-	}
+function printData($retar, $key, $sep, $date_format)
+{
+    //$retar{$key}
+    if (@array_key_exists($key,$retar)) {
+        $length = sizeof($retar{$key});
+        for ($iter = $length;$iter>=1;$iter--) {
+            if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
+                print $retar{$key}[$iter]{"value"} . " (" . oeFormatSDFT(strtotime($retar{$key}[$iter]{"date"})) . ")$sep";
+            }
+        }
+    }
 }
 
-function printRecDataOne($data_array, $recres, $N) {
-	//this function is like printRecData except it will only print out those elements that
-	//have values. when they do have values, this function will only print out the most recent
-	//value of each element.
-	//this may be considered a compressed data viewer.
-	//this function generates a formatted history of all changes to the data
-	//$data_array is an array with table_column_name => "display name"
-	//$recres is the return from getRecPatientData for example
-	//$N is the number of items to display in one row
-	print "<table><tr>\n";
-	$count = 0;
-	foreach ($data_array as $akey => $aval) {
-		if (sizeof($recres{$akey})>0 && ($recres{$akey}[1]{"value"}!="0000-00-00 00:00:00")) {
-			if ($count == $N) {
-				print "</tr><tr>\n";
-				$count = 0;
-			}
-			print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
-			printDataOne($recres, $akey, "<br>", "Y-m-d");
-			print "</span></td>\n";
-			$count++;
-		}
-	}
-	print "</tr></table>\n";
+function printRecDataOne($data_array, $recres, $N)
+{
+    //this function is like printRecData except it will only print out those elements that
+    //have values. when they do have values, this function will only print out the most recent
+    //value of each element.
+    //this may be considered a compressed data viewer.
+    //this function generates a formatted history of all changes to the data
+    //$data_array is an array with table_column_name => "display name"
+    //$recres is the return from getRecPatientData for example
+    //$N is the number of items to display in one row
+    print "<table><tr>\n";
+    $count = 0;
+    foreach ($data_array as $akey => $aval) {
+        if (sizeof($recres{$akey})>0 && ($recres{$akey}[1]{"value"}!="0000-00-00 00:00:00")) {
+            if ($count == $N) {
+                print "</tr><tr>\n";
+                $count = 0;
+            }
+            print "<td valign=top><span class=bold>" . text($aval) . "</span><br><span class=text>";
+            printDataOne($recres, $akey, "<br>", "Y-m-d");
+            print "</span></td>\n";
+            $count++;
+        }
+    }
+    print "</tr></table>\n";
 }
 
-function printDataOne ($retar, $key, $sep, $date_format) {
-	//this function supports the printRecDataOne function above
-	if (@array_key_exists($key,$retar)) {
-		$length = sizeof($retar{$key});
-		if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
-      $tmp = $retar{$key}[$length]{"value"};
-      if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
-			print text($tmp) . $sep;
-		}
-	}
+function printDataOne($retar, $key, $sep, $date_format)
+{
+    //this function supports the printRecDataOne function above
+    if (@array_key_exists($key,$retar)) {
+        $length = sizeof($retar{$key});
+        if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
+            $tmp = $retar{$key}[$length]{"value"};
+            if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
+            print text($tmp) . $sep;
+        }
+    }
 }
 
 ?>

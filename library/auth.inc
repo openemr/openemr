@@ -53,7 +53,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
 //If password expiration option is enabled call authCheckExpired() to check whether login user password is expired or not
 
     if($GLOBALS['password_expiration_days'] != 0){
-    	if(authCheckExpired($_POST['authUser']))
+        if(authCheckExpired($_POST['authUser']))
         {
             authLoginScreen();
         }
@@ -117,7 +117,7 @@ if (!isset($_SESSION["last_update"])) {
 
 //----------THINGS WE DO IF WE STILL LIKE YOU
 
-function authCheckSession ()
+function authCheckSession()
 {
     if (isset($_SESSION['authId'])) {
          // If active directory was used, check a different session variable (as there is no password in database).
@@ -155,22 +155,22 @@ function authCheckSession ()
     }
 }
 
-function authCloseSession ()
+function authCloseSession()
 {
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
-  global $incoming_site_id;
-  $incoming_site_id = $_SESSION['site_id'];
-  ob_start();
-  session_unset();
-  session_destroy();
-  unset($_COOKIE[session_name()]);
+    global $incoming_site_id;
+    $incoming_site_id = $_SESSION['site_id'];
+    ob_start();
+    session_unset();
+    session_destroy();
+    unset($_COOKIE[session_name()]);
 }
 
 function authLoginScreen($timed_out = false)
 {
   // See comment in authCloseSession().
-  global $incoming_site_id;
+    global $incoming_site_id;
 ?>
 <script>
  // Find the top level window for this instance of OpenEMR, set a flag indicating
@@ -195,26 +195,26 @@ function authLoginScreen($timed_out = false)
 // If so, deactivate the user
 function authCheckExpired($user)
 {
-  $result = sqlStatement("select pwd_expiration_date from users where username = ?",array($user));
-  if($row = sqlFetchArray($result))
-  {
-    $pwd_expires = $row['pwd_expiration_date'];
-  }
-  $current_date = date("Y-m-d");
-  if($pwd_expires != "0000-00-00")
-  {
-    $grace_time1 = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ."days"));
-  }
-  if(($grace_time1 != "") && strtotime($current_date) > strtotime($grace_time1))
-  {
-    sqlStatement("update users set active=0 where username = ?",array($user));
-    $_SESSION['loginfailure'] = 1;
-    return true;
-  }
-  return false;
+    $result = sqlStatement("select pwd_expiration_date from users where username = ?",array($user));
+    if($row = sqlFetchArray($result))
+    {
+        $pwd_expires = $row['pwd_expiration_date'];
+    }
+    $current_date = date("Y-m-d");
+    if($pwd_expires != "0000-00-00")
+    {
+        $grace_time1 = date("Y-m-d", strtotime($pwd_expires . "+".$GLOBALS['password_grace_time'] ."days"));
+    }
+    if(($grace_time1 != "") && strtotime($current_date) > strtotime($grace_time1))
+    {
+        sqlStatement("update users set active=0 where username = ?",array($user));
+        $_SESSION['loginfailure'] = 1;
+        return true;
+    }
+    return false;
 }
 
-function getUserList ($cols = '*', $limit = 'all', $start = '0')
+function getUserList($cols = '*', $limit = 'all', $start = '0')
 {
     if ($limit = "all")
         $rez = sqlStatement("select $cols from users where username != '' order by date DESC");
@@ -225,7 +225,7 @@ function getUserList ($cols = '*', $limit = 'all', $start = '0')
     return $tbl;
 }
 
-function getProviderList ($cols = '*', $limit= 'all', $start = '0')
+function getProviderList($cols = '*', $limit= 'all', $start = '0')
 {
     if ($limit = "all")
         $rez = sqlStatement("select $cols from groups order by date DESC");
@@ -236,12 +236,12 @@ function getProviderList ($cols = '*', $limit= 'all', $start = '0')
     return $tbl;
 }
 
-function addGroup ($groupname)
+function addGroup($groupname)
 {
     return sqlInsert("insert into groups (name) values (?)", array($groupname));
 }
 
-function delGroup ($group_id)
+function delGroup($group_id)
 {
     return sqlQuery("delete from groups where id = ? limit 0,1", array($group_id));
 }
@@ -254,7 +254,8 @@ function delGroup ($group_id)
 //
 //*************************************************************/
 
-function validateGroupStatus ($user_to_be_checked, $group_user) {
+function validateGroupStatus($user_to_be_checked, $group_user)
+{
     if (isset($user_to_be_checked) && isset($group_user)) {
         if ($user_to_be_checked == $group_user) {
 
@@ -283,8 +284,8 @@ function validateGroupStatus ($user_to_be_checked, $group_user) {
             $usergGroups[] = $row[0];
         }
         foreach ($usertbcGroups as $group) {
-              if(in_array($group,$usergGroups)) {
-              return true;
+            if(in_array($group,$usergGroups)) {
+                return true;
             }
         }
 
@@ -307,11 +308,11 @@ function UpdatePasswordHistory($userid,$pwd)
     }
     if (($pwd != $previous_pwd1) && ($pwd != $previous_pwd2) && ($pwd != $previous_pwd3)) {
         sqlStatement("update users set pwd_history2=?, pwd_history1=?,password=? where id=?",array($previous_pwd2,$previous_pwd1,$pwd,$userid));
-	if($GLOBALS['password_expiration_days'] != 0){
-	$exp_days=$GLOBALS['password_expiration_days'];
-        $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-        sqlStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$userid));
-	}
+        if($GLOBALS['password_expiration_days'] != 0){
+            $exp_days=$GLOBALS['password_expiration_days'];
+            $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
+            sqlStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$userid));
+        }
         return true;
     }
     else {
