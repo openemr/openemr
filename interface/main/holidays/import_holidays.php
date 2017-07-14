@@ -131,7 +131,7 @@ if ($saved){
                         <a href="#" onclick='window.open("import_holidays.php?download_file=1")'><?php echo text($csv_file_data['date']);?></a>
                     <?php }else{
                         echo htmlspecialchars(xl('File not found'));
-                    }?>
+}?>
                 </td>
             </tr>
 

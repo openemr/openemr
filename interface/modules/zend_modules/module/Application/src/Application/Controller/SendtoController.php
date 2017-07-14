@@ -33,7 +33,7 @@ class SendtoController extends AbstractActionController
     
     public function __construct()
     {
-        $this->listenerObject	= new Listener;
+        $this->listenerObject   = new Listener;
     }
     
     /*
@@ -70,7 +70,8 @@ class SendtoController extends AbstractActionController
     /*
     * 
     */
-    public function ajaxAction(){
+    public function ajaxAction()
+    {
         $ajax_mode  = $this->getRequest()->getPost('ajax_mode', null);
         $encounter  = $GLOBALS['encounter'];
         $pid        = $GLOBALS['pid'];
@@ -121,7 +122,7 @@ class SendtoController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getSendtoTable()
@@ -135,7 +136,7 @@ class SendtoController extends AbstractActionController
     
     /**
     * Table Gateway
-    * 
+    *
     * @return type
     */
     public function getApplicationTable()

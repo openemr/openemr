@@ -22,16 +22,16 @@ class AMC_304f_Numerator implements AmcFilterIF
 
         while ($res = sqlFetchArray($amcResults)) {
         
-          if (empty($res['date_completed'])) {
-            // Records requested but not given
-            return false;
-          }
+            if (empty($res['date_completed'])) {
+                // Records requested but not given
+                return false;
+            }
 
-          $businessDaysDifference = businessDaysDifference(date("Y-m-d",strtotime($res['date_created'])),date("Y-m-d",strtotime($res['date_completed'])));
-          if ($businessDaysDifference > 3) {
-            // Records not given within 3 business days of request
-            return false;
-          }
+            $businessDaysDifference = businessDaysDifference(date("Y-m-d",strtotime($res['date_created'])),date("Y-m-d",strtotime($res['date_completed'])));
+            if ($businessDaysDifference > 3) {
+                // Records not given within 3 business days of request
+                return false;
+            }
 
         }
 

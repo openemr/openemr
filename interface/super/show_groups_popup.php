@@ -54,7 +54,7 @@ while ($row = sqlFetchArray($res)) {
     $gname = preg_replace("/^\d+/", "", $row['group_name']);
     $xlgname = "";
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-      $xlgname = "<span class='translation'>>>&nbsp; " . xl($gname) . "</span>";
+        $xlgname = "<span class='translation'>>>&nbsp; " . xl($gname) . "</span>";
     }
     echo "<li id='".$row['group_name']."' class='oneresult'> $gname $xlgname </li>";
 }

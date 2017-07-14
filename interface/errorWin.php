@@ -7,8 +7,8 @@ nMilliSeconds = 1000 * 60 * .1;
 setTimeout('windowClose(nMilliSeconds);', nMilliSeconds);
 
 function windowClose(nMilliSeconds) {
-	window.opener.location.replace("./goo.php");
-	window.close();
+    window.opener.location.replace("./goo.php");
+    window.close();
 }
 
 

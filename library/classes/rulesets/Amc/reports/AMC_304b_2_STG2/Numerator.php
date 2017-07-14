@@ -34,10 +34,10 @@ class AMC_304b_2_STG2_Numerator implements AmcFilterIF
         $eprescribe = amcCollect('e_prescribe_amc',$patient->id,'prescriptions',$patient->object['id']);
         $checkformulary = amcCollect('e_prescribe_chk_formulary_amc',$patient->id,'prescriptions',$patient->object['id']);
         if ( !(empty($eprescribe)) && !(empty($checkformulary)) ) {
-          return true;
+            return true;
         }
         else {
-          return false;
+            return false;
         }
     }
 }

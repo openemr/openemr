@@ -1,11 +1,11 @@
 <?php
 /**
- * Reusable data entries for new Box 14 and Box 15 date qualifiers that are part of 
+ * Reusable data entries for new Box 14 and Box 15 date qualifiers that are part of
  * HCFA 1500 02/12 format
- * 
- * For details on format refer to: 
+ *
+ * For details on format refer to:
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
- * 
+ *
  * @package OpenEMR
  * @author  Kevin Yeh <kevin.y@integralemr.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
@@ -28,23 +28,24 @@ function generateDateQualifierSelect($name,$options,$obj)
 
 }
 
-function genProviderSelect($selname, $toptext, $default=0, $disabled=false) {
-  $query = "SELECT id, lname, fname FROM users WHERE " .
+function genProviderSelect($selname, $toptext, $default=0, $disabled=false)
+{
+    $query = "SELECT id, lname, fname FROM users WHERE " .
     "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' " .
     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
     "ORDER BY lname, fname";
-  $res = sqlStatement($query);
-  echo "<select name='" . attr($selname) . "'";
-  if ($disabled) echo " disabled";
-  echo ">";
-  echo "<option value=''>" . text($toptext);
-  while ($row = sqlFetchArray($res)) {
-    $provid = $row['id'];
-    echo "<option value='" . attr($provid) . "'";
-    if ($provid == $default) echo " selected";
-    echo ">" . text($row['lname'] . ", " . $row['fname']);
-  }
-  echo "</select>\n";
+    $res = sqlStatement($query);
+    echo "<select name='" . attr($selname) . "'";
+    if ($disabled) echo " disabled";
+    echo ">";
+    echo "<option value=''>" . text($toptext);
+    while ($row = sqlFetchArray($res)) {
+        $provid = $row['id'];
+        echo "<option value='" . attr($provid) . "'";
+        if ($provid == $default) echo " selected";
+        echo ">" . text($row['lname'] . ", " . $row['fname']);
+    }
+    echo "</select>\n";
 }
 
 $box_14_qualifier_options=array(array(xl("Onset of Current Symptoms or Illness"),"431"),

@@ -63,99 +63,99 @@ var accOpts = {
 
     //add change event callback
     change: function(e, ui) {
-	var parm = 'db=' + $(ui.newContent).attr('id');
-	var inst_dets_id = '#' + $(ui.newContent).attr('id') + "_install_details";
-	var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
-	var inst_load_id = '#' + $(ui.newContent).attr('id') + "_inst_loading";
-	var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-	top.restoreSession()
-  	$(inst_load_id).show();
-  	$(stg_load_id).show();
+    var parm = 'db=' + $(ui.newContent).attr('id');
+    var inst_dets_id = '#' + $(ui.newContent).attr('id') + "_install_details";
+    var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
+    var inst_load_id = '#' + $(ui.newContent).attr('id') + "_inst_loading";
+    var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
+    top.restoreSession()
+    $(inst_load_id).show();
+    $(stg_load_id).show();
         $.ajax({
             url: 'list_installed.php',
             data: parm,
-	    cache: false,
+        cache: false,
             success: function(data) {
                 $(inst_dets_id).html(data);
             }
         });
-	$.ajax({
-  	    url: 'list_staged.php',
-	    data: parm,
+    $.ajax({
+        url: 'list_staged.php',
+        data: parm,
             cache: false,
-	    success: function(data) {
-  	        $(stg_load_id).hide();
-  	        $(stg_dets_id).html(data);
-    		$("#" + $(ui.newContent).attr('id') + "_instrmsg").hover(
-      		    function() {
-		        var dlg = "#" + $(ui.newContent).attr('id') + "_dialog";
-			$(dlg).dialog('open');
-			$(dlg).load($(ui.newContent).attr('id').toLowerCase() + '_howto.php');
-      		    },
-      		    function() {
-      		    }
-    		);
-    		$("#" + $(ui.newContent).attr('id') + "_unsupportedmsg").hover(
-      		    function() {
-          		$(this).append('<div class="tooltip"><p><?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?></p></div>');
-      		    },
-      		    function() {
-          		$("div.tooltip").remove();
-      		    }
-    		);
-    		$("#" + $(ui.newContent).attr('id') + "_dirmsg").hover(
-      		    function() {
-          		$(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
-      		    },
-      		    function() {
-          		$("div.tooltip").remove();
-      		    }
-    		);
-    		$("#" + $(ui.newContent).attr('id') + "_msg").hover(
-      		    function() {
-          		$(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
-      		    },
-      		    function() {
-          		$("div.tooltip").remove();
-      		    }
-    		);
-    		$("#" + $(ui.newContent).attr('id') + "_install_button").click(
-		    function(e){
-			$(this).attr("disabled", "disabled");
-			var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-  			$(stg_load_id).show();
-			var thisInterval;
-      		        var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version');
-			var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
-			$activeAccordionSection = $("#accordion").accordion('option', 'active');
+        success: function(data) {
+            $(stg_load_id).hide();
+            $(stg_dets_id).html(data);
+            $("#" + $(ui.newContent).attr('id') + "_instrmsg").hover(
+                function() {
+                var dlg = "#" + $(ui.newContent).attr('id') + "_dialog";
+            $(dlg).dialog('open');
+            $(dlg).load($(ui.newContent).attr('id').toLowerCase() + '_howto.php');
+                },
+                function() {
+                }
+            );
+            $("#" + $(ui.newContent).attr('id') + "_unsupportedmsg").hover(
+                function() {
+                $(this).append('<div class="tooltip"><p><?php echo xla("OpenEMR does not recognize the incoming file in the contrib directory. This is most likely because you need to configure the release in the supported_external_dataloads table in the MySQL database."); ?></p></div>');
+                },
+                function() {
+                $("div.tooltip").remove();
+                }
+            );
+            $("#" + $(ui.newContent).attr('id') + "_dirmsg").hover(
+                function() {
+                $(this).append('<div class="tooltip"><p><?php echo xla("Please create the following directory before proceeding"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
+                },
+                function() {
+                $("div.tooltip").remove();
+                }
+            );
+            $("#" + $(ui.newContent).attr('id') + "_msg").hover(
+                function() {
+                $(this).append('<div class="tooltip"><p><?php echo xla("Please place your install files in following directory"); ?>' + ': contrib/' + $(ui.newContent).attr('id').toLowerCase() + '</p></div>');
+                },
+                function() {
+                $("div.tooltip").remove();
+                }
+            );
+            $("#" + $(ui.newContent).attr('id') + "_install_button").click(
+            function(e){
+            $(this).attr("disabled", "disabled");
+            var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
+            $(stg_load_id).show();
+            var thisInterval;
+                    var parm = 'db=' + $(ui.newContent).attr('id') + '&newInstall=' + (($(this).val() === 'INSTALL') ? 1 : 0) + '&file_checksum=' + $(this).attr('file_checksum') + '&file_revision_date=' + $(this).attr('file_revision_date') + '&version=' + $(this).attr('version');
+            var stg_dets_id = '#' + $(ui.newContent).attr('id') + "_stage_details";
+            $activeAccordionSection = $("#accordion").accordion('option', 'active');
 
-      		        $.ajax({
-  			    url: 'standard_tables_manage.php',
-			    data: parm,
-            		    cache: false,
-			    success: function(data) {
-				var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
-  				$(stg_load_id).hide();
-				var $dialog=$('<div class=stg id="response_dialog"></div>').dialog({
-      				    buttons: { "Close": function() { $(this).dialog("close"); } },
-                		    close: function(event,ui){$(this).remove ();},
-                		    autoOpen:false,
-                		    resizable:'false',
-                		    modal:true,
-                		    show:'blind',
-                		    hide:{effect:'blind',duration:300}
-            		        });
-            			$dialog.dialog('open');
-				$("#response_dialog").html(data);
-    				$("#accordion").accordion("activate", 0);
-    				$("#accordion").accordion("activate", <?php echo $activeAccordionSection; ?>);
-  			    }
-      		        });
-		    }
-		);
-      		return false;
-	    }
-	});
+                    $.ajax({
+                url: 'standard_tables_manage.php',
+                data: parm,
+                        cache: false,
+                success: function(data) {
+                var stg_load_id = '#' + $(ui.newContent).attr('id') + "_stg_loading";
+                $(stg_load_id).hide();
+                var $dialog=$('<div class=stg id="response_dialog"></div>').dialog({
+                        buttons: { "Close": function() { $(this).dialog("close"); } },
+                            close: function(event,ui){$(this).remove ();},
+                            autoOpen:false,
+                            resizable:'false',
+                            modal:true,
+                            show:'blind',
+                            hide:{effect:'blind',duration:300}
+                            });
+                        $dialog.dialog('open');
+                $("#response_dialog").html(data);
+                    $("#accordion").accordion("activate", 0);
+                    $("#accordion").accordion("activate", <?php echo $activeAccordionSection; ?>);
+                }
+                    });
+            }
+        );
+            return false;
+        }
+    });
     }
 };
 
@@ -253,12 +253,12 @@ div.tooltip p {
 <body class="body_top">
 <h4><?php echo xlt("External Database Import Utility"); ?></h4>
 <div id="accordion">
-	<h3><a href="#"><?php echo xlt("Overview"); ?></a></h3>
-	<div id="overivew" class="stg">
-	  <div class="overview"><?php echo xlt("This page allows you to review each of the supported external dataloads that you can install and upgrade. Each section below can be expanded by clicking on the section header to review the status of the particular database of interest."); ?>
-		<div class="error_msg"><?php echo xlt("NOTE: Importing external data can take more than an hour depending on your hardware configuration. For example, one of the RxNorm data tables contain in excess of 6 million rows."); ?></div>
-	  </div>
-	</div>
+    <h3><a href="#"><?php echo xlt("Overview"); ?></a></h3>
+    <div id="overivew" class="stg">
+      <div class="overview"><?php echo xlt("This page allows you to review each of the supported external dataloads that you can install and upgrade. Each section below can be expanded by clicking on the section header to review the status of the particular database of interest."); ?>
+        <div class="error_msg"><?php echo xlt("NOTE: Importing external data can take more than an hour depending on your hardware configuration. For example, one of the RxNorm data tables contain in excess of 6 million rows."); ?></div>
+      </div>
+    </div>
 <?php
 //
 // setup the divs for each supported external dataload
@@ -275,18 +275,18 @@ foreach ($db_list as $db) {
             <div class="inst_dets">
                 <div class="inst_hdr"><?php echo xlt("Installed Release"); ?></div>
                 <hr>
-   		<div id="<?php echo attr($db); ?>_install_details">
-			<div id='<?php echo attr($db); ?>_inst_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
-		</div>
+        <div id="<?php echo attr($db); ?>_install_details">
+            <div id='<?php echo attr($db); ?>_inst_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+        </div>
             </div>
         </div>
         <div class="wrpr">
-	    <div class="stg_dets">
-	        <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
-	        <hr>
-		<div id="<?php echo attr($db); ?>_stage_details"></div>
-		<div id='<?php echo attr($db); ?>_stg_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
-	    </div>
+        <div class="stg_dets">
+            <div class="stg_hdr" id="<?php echo attr($db); ?>_stg_hdr"><?php echo xlt("Staged Releases"); ?></div>
+            <hr>
+        <div id="<?php echo attr($db); ?>_stage_details"></div>
+        <div id='<?php echo attr($db); ?>_stg_loading' style='margin:10px;display:none;'><img src='../pic/ajax-loader.gif'/></div>
+        </div>
           </div>
     </div>
 <?php

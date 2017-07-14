@@ -16,24 +16,24 @@
  */
 /* */
 
-	session_start();
-	if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
-		$pid = $_SESSION['pid'];
-		$ignoreAuth = true;
-		 GlobalConfig::$PORTAL = true;
-		 require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
-	}
-	else {
-		session_destroy();
-		GlobalConfig::$PORTAL = false;
-		$ignoreAuth = false;
-		require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
-		if ( ! isset($_SESSION['authUserID']) ){
-			$landingpage = "index.php";
-			header('Location: '.$landingpage);
-			exit;
-		}
-	}
+    session_start();
+if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+    $pid = $_SESSION['pid'];
+    $ignoreAuth = true;
+    GlobalConfig::$PORTAL = true;
+    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+}
+else {
+    session_destroy();
+    GlobalConfig::$PORTAL = false;
+    $ignoreAuth = false;
+    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+    if ( ! isset($_SESSION['authUserID']) ){
+        $landingpage = "index.php";
+        header('Location: '.$landingpage);
+        exit;
+    }
+}
 
 require_once 'verysimple/Phreeze/ConnectionSetting.php';
 require_once ( "verysimple/HTTP/RequestUtil.php" );
@@ -69,9 +69,10 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * functions for php 5.2 compatibility
  */
 if( ! function_exists( 'lcfirst' ) ){
-	function lcfirst( $string ){
-		return substr_replace( $string, strtolower( substr( $string, 0, 1 ) ), 0, 1 );
-	}
+    function lcfirst( $string )
+    {
+        return substr_replace( $string, strtolower( substr( $string, 0, 1 ) ), 0, 1 );
+    }
 }
 
 // if Multibyte support is specified then we need to check if multibyte functions are available

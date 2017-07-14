@@ -35,34 +35,37 @@ if ($portalsite != "off" && $portalsite != "on") $portalsite = "off";
 
  $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . add_escape_custom($portalsite) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?",array($pid));
 
-function generatePassword($length=6, $strength=1) {
-	$consonants = 'bdghjmnpqrstvzacefiklowxy';
-	$numbers = '0234561789';
-	$specials = '@#$%';
+function generatePassword($length=6, $strength=1)
+{
+    $consonants = 'bdghjmnpqrstvzacefiklowxy';
+    $numbers = '0234561789';
+    $specials = '@#$%';
 
 
-	$password = '';
-	$alt = time() % 2;
-	for ($i = 0; $i < $length/3; $i++) {
-		if ($alt == 1) {
-			$password .= $consonants[(rand() % strlen($consonants))].$numbers[(rand() % strlen($numbers))].$specials[(rand() % strlen($specials))];
-			$alt = 0;
-		} else {
-			$password .= $numbers[(rand() % strlen($numbers))].$specials[(rand() % strlen($specials))].$consonants[(rand() % strlen($consonants))];
-			$alt = 1;
-		}
-	}
-	return $password;
+    $password = '';
+    $alt = time() % 2;
+    for ($i = 0; $i < $length/3; $i++) {
+        if ($alt == 1) {
+            $password .= $consonants[(rand() % strlen($consonants))].$numbers[(rand() % strlen($numbers))].$specials[(rand() % strlen($specials))];
+            $alt = 0;
+        } else {
+            $password .= $numbers[(rand() % strlen($numbers))].$specials[(rand() % strlen($specials))].$consonants[(rand() % strlen($consonants))];
+            $alt = 1;
+        }
+    }
+    return $password;
 }
 
-function validEmail($email){
+function validEmail($email)
+{
     if(preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-    return true;
+        return true;
     }
     return false;
 }
 
-function messageCreate($uname,$pass,$site){
+function messageCreate($uname,$pass,$site)
+{
     $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>";
     if ($site == "on") {
         if ($GLOBALS['portal_onsite_enable']) {
@@ -76,11 +79,11 @@ function messageCreate($uname,$pass,$site){
         $message .= "<br>";
     } // $site == "off"
     else {
-	$offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  htmlspecialchars($GLOBALS['portal_offsite_address_patient_link'],ENT_QUOTES) : htmlspecialchars("https://mydocsportal.com",ENT_QUOTES);
+        $offsite_portal_patient_link = $GLOBALS['portal_offsite_address_patient_link'] ?  htmlspecialchars($GLOBALS['portal_offsite_address_patient_link'],ENT_QUOTES) : htmlspecialchars("https://mydocsportal.com",ENT_QUOTES);
         $message .= "<a href='" . $offsite_portal_patient_link . "'>" .
                     $offsite_portal_patient_link . "</a><br><br>";
-	$message .= htmlspecialchars(xl("Provider Id"),ENT_NOQUOTES) . ": " .
-		    htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_NOQUOTES) . "<br><br>";
+        $message .= htmlspecialchars(xl("Provider Id"),ENT_NOQUOTES) . ": " .
+            htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_NOQUOTES) . "<br><br>";
     }
 
         $message .= htmlspecialchars(xl("User Name"),ENT_NOQUOTES) . ": " .
@@ -90,7 +93,8 @@ function messageCreate($uname,$pass,$site){
     return $message;
 }
 
-function emailLogin($patient_id,$message){
+function emailLogin($patient_id,$message)
+{
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
         return false;
@@ -124,7 +128,8 @@ function emailLogin($patient_id,$message){
     }
 }
 
-function displayLogin($patient_id,$message,$emailFlag){
+function displayLogin($patient_id,$message,$emailFlag)
+{
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ($emailFlag) {
         $message = "<br><br>" .
@@ -158,10 +163,10 @@ if(isset($_REQUEST['form_save']) && $_REQUEST['form_save']=='SUBMIT'){
     }
     array_push($query_parameters,$pid);
     if(sqlNumRows($res)){
-    sqlStatement("UPDATE patient_access_" . add_escape_custom($portalsite) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?",$query_parameters);
+        sqlStatement("UPDATE patient_access_" . add_escape_custom($portalsite) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0 " . $salt_clause . " WHERE pid=?",$query_parameters);
     }
     else{
-    sqlStatement("INSERT INTO patient_access_" . add_escape_custom($portalsite) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?",$query_parameters);
+        sqlStatement("INSERT INTO patient_access_" . add_escape_custom($portalsite) . "site SET portal_username=?,portal_pwd=?,portal_pwd_status=0" . $salt_clause . " ,pid=?",$query_parameters);
     }
 
     // Create the message
@@ -198,19 +203,20 @@ function transmit(){
         <tr class="text">
             <th colspan="5" align="center"><?php echo htmlspecialchars(xl("Generate Username And Password For")." ".$row['fname'],ENT_QUOTES);?></th>
         </tr>
-	<?php
-		if($portalsite == 'off'){
-	?>
-        <tr class="text">
-            <td><?php echo htmlspecialchars(xl('Provider Id').':',ENT_QUOTES);?></td>
-            <td><span><?php echo htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_QUOTES);?></span></td>
-        </tr>
-	<?php
-		}
-	?>
+    <?php
+    if($portalsite == 'off'){
+    ?>
+    <tr class="text">
+    <td><?php echo htmlspecialchars(xl('Provider Id').':',ENT_QUOTES);?></td>
+    <td><span><?php echo htmlspecialchars($GLOBALS['portal_offsite_providerid'],ENT_QUOTES);?></span></td>
+    </tr>
+    <?php
+    }
+    ?>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('User Name').':',ENT_QUOTES);?></td>
-            <td><input type="text" name="uname" value="<?php if($row['portal_username']) echo htmlspecialchars($row['portal_username'],ENT_QUOTES); else echo htmlspecialchars($row['fname'].$row['id'],ENT_QUOTES);?>" size="10" readonly></td>
+            <td><input type="text" name="uname" value="<?php if($row['portal_username']) echo htmlspecialchars($row['portal_username'],ENT_QUOTES);
+            else echo htmlspecialchars($row['fname'].$row['id'],ENT_QUOTES);?>" size="10" readonly></td>
         </tr>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('Password').':',ENT_QUOTES);?></td>

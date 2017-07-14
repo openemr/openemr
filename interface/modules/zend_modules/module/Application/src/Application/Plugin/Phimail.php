@@ -27,38 +27,38 @@ require_once($GLOBALS['srcdir'].'/direct_message_check.inc');
 
 class Phimail extends AbstractPlugin
 {
-  protected $application;
+    protected $application;
   /**
-  * 
-  * Application Table Object 
+  *
+  * Application Table Object
   * Listener Oblect
   * @param type $sm Service Manager
   */
-  public function __construct($sm)
-  {
-    $sm->get('Zend\Db\Adapter\Adapter');
-    $this->application    = new ApplicationTable();
-    $this->listenerObject = new Listener;
+    public function __construct($sm)
+    {
+        $sm->get('Zend\Db\Adapter\Adapter');
+        $this->application    = new ApplicationTable();
+        $this->listenerObject = new Listener;
     
-  }
+    }
 
-  public function phimail_connect($err)
-  {
-    return phimail_connect($err);
-  }
+    public function phimail_connect($err)
+    {
+        return phimail_connect($err);
+    }
   
-  public function phimail_write($fp,$text)
-  {
-    phimail_write($fp,$text);
-  }
+    public function phimail_write($fp,$text)
+    {
+        phimail_write($fp,$text);
+    }
   
-  public function phimail_write_expect_OK($fp,$text)
-  {
-    return phimail_write_expect_OK($fp,$text);
-  }
+    public function phimail_write_expect_OK($fp,$text)
+    {
+        return phimail_write_expect_OK($fp,$text);
+    }
   
-  public function phimail_close($fp)
-  {
-    phimail_close($fp);
-  }
+    public function phimail_close($fp)
+    {
+        phimail_close($fp);
+    }
 }

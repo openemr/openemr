@@ -15,7 +15,7 @@ require_once(dirname(__FILE__) . "/common/compatibility/Checker.php");
 
 $response = OpenEMR\Checker::checkPhpVersion();
 if ($response !== true) {
-  die($response);
+    die($response);
 }
 
 // Disable PHP timeout.  This will not work in safe mode.
@@ -48,11 +48,11 @@ $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (! $dh) die("Cannot read $sqldir");
 while (false !== ($sfname = readdir($dh))) {
-  if (substr($sfname, 0, 1) == '.') continue;
-  if (preg_match('/^(\d+)_(\d+)_(\d+)-to-\d+_\d+_\d+_upgrade.sql$/', $sfname, $matches)) {
-    $version = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
-    $versions[$version] = $sfname;
-  }
+    if (substr($sfname, 0, 1) == '.') continue;
+    if (preg_match('/^(\d+)_(\d+)_(\d+)-to-\d+_\d+_\d+_upgrade.sql$/', $sfname, $matches)) {
+        $version = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
+        $versions[$version] = $sfname;
+    }
 }
 closedir($dh);
 ksort($versions);
@@ -70,62 +70,62 @@ ksort($versions);
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
-  $form_old_version = $_POST['form_old_version'];
+    $form_old_version = $_POST['form_old_version'];
 
-  foreach ($versions as $version => $filename) {
-    if (strcmp($version, $form_old_version) < 0) continue;
-    upgradeFromSqlFile($filename);
-  }
-
-  if (!empty($GLOBALS['ippf_specific'])) {
-    // Upgrade custom stuff for IPPF.
-    upgradeFromSqlFile('ippf_upgrade.sql');
-  }
-
-  if ( (!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0) ) {
-    // This release contains a patch file, so process it.
-    upgradeFromSqlFile('patch.sql');
-  }
-
-  flush();
-
-  echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
-  require_once("library/globals.inc.php");
-  foreach ($GLOBALS_METADATA as $grpname => $grparr) {
-    foreach ($grparr as $fldid => $fldarr) {
-      list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-      if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
-        $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
-        if (empty($row['count'])) {
-          sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
-            "VALUES ( '$fldid', '0', '$flddef' )");
-        }
-      }
+    foreach ($versions as $version => $filename) {
+        if (strcmp($version, $form_old_version) < 0) continue;
+        upgradeFromSqlFile($filename);
     }
-  }
 
-  echo "<font color='green'>Updating Access Controls...</font><br />\n";
-  require("acl_upgrade.php");
-  echo "<br />\n";
+    if (!empty($GLOBALS['ippf_specific'])) {
+        // Upgrade custom stuff for IPPF.
+        upgradeFromSqlFile('ippf_upgrade.sql');
+    }
 
-  $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
-  $line = "Updating version indicators";
+    if ( (!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0) ) {
+        // This release contains a patch file, so process it.
+        upgradeFromSqlFile('patch.sql');
+    }
 
-  if ($canRealPatchBeApplied) {
-      $line = $line . ". Patch was also installed, updating version patch indicator";
-  }
+    flush();
 
-  echo "<font color='green'>" . $line . "...</font><br />\n";
-  $result = $versionService->update($desiredVersion);
+    echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
+    require_once("library/globals.inc.php");
+    foreach ($GLOBALS_METADATA as $grpname => $grparr) {
+        foreach ($grparr as $fldid => $fldarr) {
+            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
+            if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
+                $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
+                if (empty($row['count'])) {
+                    sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .
+                    "VALUES ( '$fldid', '0', '$flddef' )");
+                }
+            }
+        }
+    }
 
-  if (!$result) {
-      echo "<font color='red'>Version could not be updated</font><br />\n";
-      exit();
-  }
+    echo "<font color='green'>Updating Access Controls...</font><br />\n";
+    require("acl_upgrade.php");
+    echo "<br />\n";
 
-  echo "<p><font color='green'>Database and Access Control upgrade finished.</font></p>\n";
-  echo "</body></html>\n";
-  exit();
+    $canRealPatchBeApplied = $versionService->canRealPatchBeApplied($desiredVersion);
+    $line = "Updating version indicators";
+
+    if ($canRealPatchBeApplied) {
+        $line = $line . ". Patch was also installed, updating version patch indicator";
+    }
+
+    echo "<font color='green'>" . $line . "...</font><br />\n";
+    $result = $versionService->update($desiredVersion);
+
+    if (!$result) {
+        echo "<font color='red'>Version could not be updated</font><br />\n";
+        exit();
+    }
+
+    echo "<p><font color='green'>Database and Access Control upgrade finished.</font></p>\n";
+    echo "</body></html>\n";
+    exit();
 }
 
 ?>
@@ -135,10 +135,10 @@ if (!empty($_POST['form_submit'])) {
 <select name='form_old_version'>
 <?php
 foreach ($versions as $version => $filename) {
-  echo " <option value='$version'";
+    echo " <option value='$version'";
   // Defaulting to most recent version, which is now 5.0.0.
-  if ($version === '5.0.0') echo " selected";
-  echo ">$version</option>\n";
+    if ($version === '5.0.0') echo " selected";
+    echo ">$version</option>\n";
 }
 ?>
 </select>

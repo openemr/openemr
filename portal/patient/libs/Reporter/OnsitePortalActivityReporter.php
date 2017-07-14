@@ -40,26 +40,26 @@ require_once("verysimple/Phreeze/Reporter.php");
 class OnsitePortalActivityReporter extends Reporter
 {
 
-	// the properties in this class must match the columns returned by GetCustomQuery().
-	// 'CustomFieldExample' is an example that is not part of the `onsite_portal_activity` table
-	public $CustomFieldExample;
+    // the properties in this class must match the columns returned by GetCustomQuery().
+    // 'CustomFieldExample' is an example that is not part of the `onsite_portal_activity` table
+    public $CustomFieldExample;
 
-	public $Id;
-	public $Date;
-	public $PatientId;
-	public $Activity;
-	public $RequireAudit;
-	public $PendingAction;
-	public $ActionTaken;
-	public $Status;
-	public $Narrative;
-	public $TableAction;
-	public $TableArgs;
-	public $ActionUser;
-	public $ActionTakenTime;
-	public $Checksum;
+    public $Id;
+    public $Date;
+    public $PatientId;
+    public $Activity;
+    public $RequireAudit;
+    public $PendingAction;
+    public $ActionTaken;
+    public $Status;
+    public $Narrative;
+    public $TableAction;
+    public $TableArgs;
+    public $ActionUser;
+    public $ActionTakenTime;
+    public $Checksum;
 
-	/*
+    /*
 	* GetCustomQuery returns a fully formed SQL statement.  The result columns
 	* must match with the properties of this reporter object.
 	*
@@ -67,9 +67,9 @@ class OnsitePortalActivityReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomQuery($criteria)
-	{
-		$sql = "select
+    static function GetCustomQuery($criteria)
+    {
+        $sql = "select
 			'custom value here...' as CustomFieldExample
 			,`onsite_portal_activity`.`id` as Id
 			,`onsite_portal_activity`.`date` as Date
@@ -87,15 +87,15 @@ class OnsitePortalActivityReporter extends Reporter
 			,`onsite_portal_activity`.`checksum` as Checksum
 		from `onsite_portal_activity`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
-		$sql .= $criteria->GetOrder();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
+        $sql .= $criteria->GetOrder();
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	/*
+    /*
 	* GetCustomCountQuery returns a fully formed SQL statement that will count
 	* the results.  This query must return the correct number of results that
 	* GetCustomQuery would, given the same criteria
@@ -104,16 +104,16 @@ class OnsitePortalActivityReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomCountQuery($criteria)
-	{
-		$sql = "select count(1) as counter from `onsite_portal_activity`";
+    static function GetCustomCountQuery($criteria)
+    {
+        $sql = "select count(1) as counter from `onsite_portal_activity`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
 
-		return $sql;
-	}
+        return $sql;
+    }
 }
 
 ?>

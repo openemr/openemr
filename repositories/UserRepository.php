@@ -32,7 +32,8 @@ class UserRepository extends EntityRepository {
      *
      * @return user.
      */
-    public function getCurrentlyLoggedInUser() {
+    public function getCurrentlyLoggedInUser()
+    {
         $results = $this->_em->getRepository($this->_entityName)->findOneBy(array("username" => $_SESSION["authUser"]));
         return $results;
     }
@@ -42,7 +43,8 @@ class UserRepository extends EntityRepository {
      *
      * @return user.
      */
-    public function getUser($userId) {
+    public function getUser($userId)
+    {
         $results = $this->_em->getRepository($this->_entityName)->findOneBy(array("id" => $userId));
         return $results;
     }
@@ -52,7 +54,8 @@ class UserRepository extends EntityRepository {
      *
      * @return users
      */
-    public function getActiveUsers() {
+    public function getActiveUsers()
+    {
         $criteria = Criteria::create();
         $criteria->where(Criteria::expr()->neq("username", ""));
         $criteria->andWhere(Criteria::expr()->eq("active", 1));

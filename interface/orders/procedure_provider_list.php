@@ -92,23 +92,23 @@ function doedclick_edit(ppid) {
                    </tr>
                    </thead>
                    <tbody>
-                   <?php
-                   while ($row = sqlFetchArray($res)) {
-                       if (acl_check('admin', 'practice' )) {
-                           $trTitle = xl('Edit') . ' ' . $row['name'];
-                           echo " <tr class='detail' style='cursor:pointer' " .
+                    <?php
+                    while ($row = sqlFetchArray($res)) {
+                        if (acl_check('admin', 'practice' )) {
+                            $trTitle = xl('Edit') . ' ' . $row['name'];
+                            echo " <tr class='detail' style='cursor:pointer' " .
                                "onclick='doedclick_edit(" . $row['ppid'] . ")' title='" . attr($trTitle) . "'>\n";
-                       }
-                       else {
-                           $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
-                           echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
-                       }
-                       echo "  <td>" . text($row['name']    ) . "</td>\n";
-                       echo "  <td>" . text($row['npi']     ) . "</td>\n";
-                       echo "  <td>" . text($row['protocol']) . "</td>\n";
-                       echo " </tr>\n";
-                   }
-                   ?>
+                        }
+                        else {
+                            $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
+                            echo " <tr class='detail $bgclass' title='" . attr($trTitle) . "'>\n";
+                        }
+                        echo "  <td>" . text($row['name']    ) . "</td>\n";
+                        echo "  <td>" . text($row['npi']     ) . "</td>\n";
+                        echo "  <td>" . text($row['protocol']) . "</td>\n";
+                        echo " </tr>\n";
+                    }
+                    ?>
                    </tbody>
                </table>
        </div>

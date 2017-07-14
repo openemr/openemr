@@ -6,7 +6,8 @@
   // as published by the Free Software Foundation; either version 2
   // of the License, or (at your option) any later version.
 
-function parse_era_2100(&$out, $cb) {
+function parse_era_2100(&$out, $cb)
+{
     if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
 
         // Production date is posted with adjustments, so make sure it exists.
@@ -60,10 +61,11 @@ function parse_era_2100(&$out, $cb) {
     }
 }
 
-function parse_era($filename, $cb) {
-  $delimiter1 = '~';
-  $delimiter2 = '|';
-  $delimiter3 = '^';
+function parse_era($filename, $cb)
+{
+    $delimiter1 = '~';
+    $delimiter2 = '|';
+    $delimiter3 = '^';
 
     $infh = fopen($filename, 'r');
     if (! $infh) return "ERA input file open failed";
@@ -75,17 +77,17 @@ function parse_era($filename, $cb) {
     $segid = '';
 
     while (true) {
-    if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+        if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
         $tpos = strpos($buffer, $delimiter1);
         if ($tpos === false) break;
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
 
     // If this is the ISA segment then figure out what the delimiters are.
-    if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
-      $delimiter2 = substr($inline, 3, 1);
-      $delimiter3 = substr($inline, -1);
-    }
+        if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+              $delimiter2 = substr($inline, 3, 1);
+              $delimiter3 = substr($inline, -1);
+        }
 
         $seg = explode($delimiter2, $inline);
         $segid = $seg[0];
@@ -347,17 +349,17 @@ function parse_era($filename, $cb) {
             $i = count($out['svc']);
             $out['svc'][$i] = array();
       // It seems some payers append the modifier with no separator!
-      if (strlen($svc[1]) == 7 && empty($svc[2])) {
-        $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
-        $out['svc'][$i]['mod']  = substr($svc[1], 5);
-      } else {
-        $out['svc'][$i]['code'] = $svc[1];
-        $out['svc'][$i]['mod']  = $svc[2] ? $svc[2] . ':' : '';
-        $out['svc'][$i]['mod']  .= $svc[3] ? $svc[3] . ':' : '';
-        $out['svc'][$i]['mod']  .= $svc[4] ? $svc[4] . ':' : '';
-        $out['svc'][$i]['mod']  .= $svc[5] ? $svc[5] . ':' : '';
-        $out['svc'][$i]['mod'] = preg_replace('/:$/','',$out['svc'][$i]['mod']);
-      }
+            if (strlen($svc[1]) == 7 && empty($svc[2])) {
+                    $out['svc'][$i]['code'] = substr($svc[1], 0, 5);
+                    $out['svc'][$i]['mod']  = substr($svc[1], 5);
+            } else {
+                    $out['svc'][$i]['code'] = $svc[1];
+                    $out['svc'][$i]['mod']  = $svc[2] ? $svc[2] . ':' : '';
+                    $out['svc'][$i]['mod']  .= $svc[3] ? $svc[3] . ':' : '';
+                    $out['svc'][$i]['mod']  .= $svc[4] ? $svc[4] . ':' : '';
+                    $out['svc'][$i]['mod']  .= $svc[5] ? $svc[5] . ':' : '';
+                    $out['svc'][$i]['mod'] = preg_replace('/:$/','',$out['svc'][$i]['mod']);
+            }
             $out['svc'][$i]['chg']  = $seg[2];
             $out['svc'][$i]['paid'] = $seg[3];
             $out['svc'][$i]['adj']  = array();
@@ -375,11 +377,11 @@ function parse_era($filename, $cb) {
             $i = count($out['svc']) - 1;
             for ($k = 2; $k < 20; $k += 3) {
                 if (!$seg[$k]) break;
-        if ($seg[1] == 'CO' && $seg[$k+1] < 0) {
-          $out['warnings'] .= "Negative Contractual Obligation adjustment " .
-            "seems wrong. Inverting, but should be checked!\n";
-          $seg[$k+1] = 0 - $seg[$k+1];
-        }
+                if ($seg[1] == 'CO' && $seg[$k+1] < 0) {
+                          $out['warnings'] .= "Negative Contractual Obligation adjustment " .
+                    "seems wrong. Inverting, but should be checked!\n";
+                          $seg[$k+1] = 0 - $seg[$k+1];
+                }
                 $j = count($out['svc'][$i]['adj']);
                 $out['svc'][$i]['adj'][$j] = array();
                 $out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
@@ -396,9 +398,9 @@ function parse_era($filename, $cb) {
             $i = count($out['svc']) - 1;
             $out['svc'][$i]['allowed'] = $seg[2]; // report this amount as a note
         }
-    else if ($segid == 'AMT' && $out['loopid'] == '2110') {
-      $out['warnings'] .= "$inline at service level ignored.\n";
-    }
+        else if ($segid == 'AMT' && $out['loopid'] == '2110') {
+              $out['warnings'] .= "$inline at service level ignored.\n";
+        }
         else if ($segid == 'LQ' && $seg[1] == 'HE' && $out['loopid'] == '2110') {
             $i = count($out['svc']) - 1;
             $out['svc'][$i]['remark'] = $seg[2];
@@ -449,10 +451,11 @@ function parse_era($filename, $cb) {
     return '';
 }
 //for getting the check details and provider details
-function parse_era_for_check($filename) {
-  $delimiter1 = '~';
-  $delimiter2 = '|';
-  $delimiter3 = '^';
+function parse_era_for_check($filename)
+{
+    $delimiter1 = '~';
+    $delimiter2 = '|';
+    $delimiter3 = '^';
 
     $infh = fopen($filename, 'r');
     if (! $infh) return "ERA input file open failed";
@@ -465,17 +468,17 @@ function parse_era_for_check($filename) {
     $check_count=0;
     while (true) {
     
-    if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+        if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
         $tpos = strpos($buffer, $delimiter1);
         if ($tpos === false) break;
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
 
     // If this is the ISA segment then figure out what the delimiters are.
-    if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
-      $delimiter2 = substr($inline, 3, 1);
-      $delimiter3 = substr($inline, -1);
-    }
+        if ($segid === '' && substr($inline, 0, 3) === 'ISA') {
+              $delimiter2 = substr($inline, 3, 1);
+              $delimiter3 = substr($inline, -1);
+        }
 
         $seg = explode($delimiter2, $inline);
         $segid = $seg[0];
@@ -484,7 +487,7 @@ function parse_era_for_check($filename) {
             
         }
         else if ($segid == 'BPR') {
-        ++$check_count;
+            ++$check_count;
             //if ($out['loopid']) return 'Unexpected BPR segment';
             $out['check_amount'.$check_count] = trim($seg[2]);
             $out['check_date'.$check_count] = trim($seg[16]); // yyyymmdd
@@ -517,5 +520,5 @@ function parse_era_for_check($filename) {
 
     if ($segid != 'IEA') return 'Premature end of ERA file';
     return '';
-    }
+}
 ?>

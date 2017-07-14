@@ -72,15 +72,16 @@ function load_menu($menu_set)
     }
     foreach($parent_not_found as $row)
     {
-            if(isset($entries[$row->parent]))
+        if(isset($entries[$row->parent]))
             {
-                $parent=$entries[$row->parent];;
-                array_push($parent->children,$row);
-            }
-            else
+            $parent=$entries[$row->parent];
+            ;
+            array_push($parent->children,$row);
+        }
+        else
             {
-                array_push($parent_not_found2,$row);
-            }
+            array_push($parent_not_found2,$row);
+        }
         
     }
     return json_decode(json_encode($retval));

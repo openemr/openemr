@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Top-level API and helper functions for the ESign module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

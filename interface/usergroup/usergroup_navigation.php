@@ -55,7 +55,7 @@ include_once("../../library/acl.inc");
  title="Access Control List Administration"><?php xl('ACL','e');?></a>&nbsp;
 </td>
 <?php } ?>
-	
+    
 <?php if (acl_check('admin', 'calendar')) { ?>
 <td valign="middle" nowrap>
 &nbsp;<a class=menu target=Main href="../main/calendar/index.php?module=PostCalendar&type=admin&func=modifyconfig"

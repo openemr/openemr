@@ -51,7 +51,7 @@ class Helper
         $typeObj = new $type( $subType );
         if ( $typeObj instanceof ClinicalType ) {
             if ( $beginDate == null ) {
-               $beginDate = $patient->dob;
+                $beginDate = $patient->dob;
             }
             if ( $endDate == null ) {
                 $endDate = date( "Y-m-d" );

@@ -12,9 +12,10 @@ require_once("../../custom/code_types.inc.php");
 
 // Format dollars for display.
 //
-function bucks($amount) {
-  if (empty($amount)) return '';
-  return oeFormatMoney($amount);
+function bucks($amount)
+{
+    if (empty($amount)) return '';
+    return oeFormatMoney($amount);
 }
 
 $filter = $_REQUEST['filter'] + 0;
@@ -89,145 +90,145 @@ table.mymaintable td, table.mymaintable th {
 <table>
  <tr>
   <td width='280px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td>
-			   <select name='filter' class='form-control'>
-				<option value='0'><?php xl('All','e'); ?></option>
-			<?php
-			foreach ($code_types as $key => $value) {
-			  echo "<option value='" . $value['id'] . "'";
-			  if ($value['id'] == $filter) echo " selected";
-			  echo ">$key</option>\n";
-			}
-			?>
-			   </select>
-			</td>
-			<td>
+    <table class='text'>
+        <tr>
+            <td>
+               <select name='filter' class='form-control'>
+                <option value='0'><?php xl('All','e'); ?></option>
+            <?php
+            foreach ($code_types as $key => $value) {
+                echo "<option value='" . $value['id'] . "'";
+                if ($value['id'] == $filter) echo " selected";
+                echo ">$key</option>\n";
+            }
+            ?>
+               </select>
+            </td>
+            <td>
         <div class="checkbox">
-			    <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-			    <?php xl('Include Uncategorized','e'); ?></label>
+                <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
+                <?php xl('Include Uncategorized','e'); ?></label>
         </div>
-			</td>
-		</tr>
-	</table>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
-					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-						  <?php echo xlt('Submit'); ?>
-					  </a>
-					  <?php if ($_POST['form_refresh']) { ?>
-					    <a href='#' class='btn btn-default btn-print' id='printbutton'>
-							  <?php echo xlt('Print'); ?>
-					    </a>
-					  <?php } ?>
+                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                      </a>
+                        <?php if ($_POST['form_refresh']) { ?>
+                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <?php echo xlt('Print'); ?>
+                        </a>
+                        <?php } ?>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
 </div> <!-- end of parameters -->
 
 <?php
-    if ($_POST['form_refresh']) {
+if ($_POST['form_refresh']) {
 ?>
 
 <div id="report_results">
 
 
 <table width='98%' id='mymaintable' class='mymaintable'>
- <thead style='display:table-header-group'>
-  <tr bgcolor="#dddddd">
-   <th class='bold'><?php xl('Category'   ,'e'); ?></th>
-   <th class='bold'><?php xl('Type'       ,'e'); ?></th>
-   <th class='bold'><?php xl('Code'       ,'e'); ?></th>
-   <th class='bold'><?php xl('Mod'        ,'e'); ?></th>
-   <th class='bold'><?php xl('Units'      ,'e'); ?></th>
-   <th class='bold'><?php xl('Description','e'); ?></th>
+<thead style='display:table-header-group'>
+<tr bgcolor="#dddddd">
+<th class='bold'><?php xl('Category'   ,'e'); ?></th>
+<th class='bold'><?php xl('Type'       ,'e'); ?></th>
+<th class='bold'><?php xl('Code'       ,'e'); ?></th>
+<th class='bold'><?php xl('Mod'        ,'e'); ?></th>
+<th class='bold'><?php xl('Units'      ,'e'); ?></th>
+<th class='bold'><?php xl('Description','e'); ?></th>
 <?php if (related_codes_are_used()) { ?>
    <th class='bold'><?php xl('Related'    ,'e'); ?></th>
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
-		     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
+     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
 while ($prow = sqlFetchArray($pres)) {
-  // Added 5-09 by BM - Translate label if applicable
-  echo "   <th class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</th>\n";
+// Added 5-09 by BM - Translate label if applicable
+    echo "   <th class='bold' align='right' nowrap>" . xl_list_label($prow['title']) . "</th>\n";
 }
 ?>
-  </tr>
- </thead>
- <tbody>
+</tr>
+</thead>
+<tbody>
 <?php
 $res = sqlStatement("SELECT c.*, lo.title FROM codes AS c " .
-  "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
-  "AND lo.option_id = c.superbill AND lo.activity = 1 " .
-  "WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier");
+"LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
+"AND lo.option_id = c.superbill AND lo.activity = 1 " .
+"WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier");
 
 $last_category = '';
 $irow = 0;
 while ($row = sqlFetchArray($res)) {
-  $category = $row['title'] ? $row['title'] : 'Uncategorized';
-  $disp_category = '&nbsp';
-  if ($category !== $last_category) {
-    $last_category = $category;
-    $disp_category = $category;
-    ++$irow;
-  }
-  foreach ($code_types as $key => $value) {
-    if ($value['id'] == $row['code_type']) {
-      break;
+    $category = $row['title'] ? $row['title'] : 'Uncategorized';
+    $disp_category = '&nbsp';
+    if ($category !== $last_category) {
+        $last_category = $category;
+        $disp_category = $category;
+        ++$irow;
     }
-  }
-  $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
-  echo "  <tr bgcolor='$bgcolor'>\n";
-  // Added 5-09 by BM - Translate label if applicable
-  echo "   <td class='text'>" . xl_list_label($disp_category) . "</td>\n";
-  echo "   <td class='text'>$key</td>\n";
-  echo "   <td class='text'>" . $row['code'] . "</td>\n";
-  echo "   <td class='text'>" . $row['modifier'] . "</td>\n";
-  echo "   <td class='text'>" . $row['units'] . "</td>\n";
-  echo "   <td class='text'>" . $row['code_text'] . "</td>\n";
-
-  if (related_codes_are_used()) {
-    // Show related codes.
-    echo "   <td class='text'>";
-    $arel = explode(';', $row['related_code']);
-    foreach ($arel as $tmp) {
-      list($reltype, $relcode) = explode(':', $tmp);
-      $reltype = $code_types[$reltype]['id'];
-      $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-        "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
-      echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
+    foreach ($code_types as $key => $value) {
+        if ($value['id'] == $row['code_type']) {
+            break;
+        }
     }
-    echo "</td>\n";
-  }
+    $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
+    echo "  <tr bgcolor='$bgcolor'>\n";
+// Added 5-09 by BM - Translate label if applicable
+    echo "   <td class='text'>" . xl_list_label($disp_category) . "</td>\n";
+    echo "   <td class='text'>$key</td>\n";
+    echo "   <td class='text'>" . $row['code'] . "</td>\n";
+    echo "   <td class='text'>" . $row['modifier'] . "</td>\n";
+    echo "   <td class='text'>" . $row['units'] . "</td>\n";
+    echo "   <td class='text'>" . $row['code_text'] . "</td>\n";
 
-  $pres = sqlStatement("SELECT p.pr_price " .
+    if (related_codes_are_used()) {
+        // Show related codes.
+        echo "   <td class='text'>";
+        $arel = explode(';', $row['related_code']);
+        foreach ($arel as $tmp) {
+            list($reltype, $relcode) = explode(':', $tmp);
+            $reltype = $code_types[$reltype]['id'];
+            $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
+            "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
+            echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
+        }
+        echo "</td>\n";
+    }
+
+    $pres = sqlStatement("SELECT p.pr_price " .
     "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
     "p.pr_id = '" . $row['id'] . "' AND p.pr_selector = '' " .
     "AND p.pr_level = lo.option_id " .
     "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq");
-  while ($prow = sqlFetchArray($pres)) {
-    echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
-  }
-  echo "  </tr>\n";
+    while ($prow = sqlFetchArray($pres)) {
+        echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
+    }
+    echo "  </tr>\n";
 }
 ?>
- </tbody>
+</tbody>
 </table>
 
 <?php } // end of submit logic ?>

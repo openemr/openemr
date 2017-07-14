@@ -2,10 +2,10 @@
 
 namespace ESign;
 
-/** 
-* Allows routing to the correct controller and method using the 
+/**
+* Allows routing to the correct controller and method using the
 * request string
-* 
+*
 * Copyright (C) 2013 OEMR 501c3 www.oemr.org
 *
 * LICENSE: This program is free software; you can redistribute it and/or

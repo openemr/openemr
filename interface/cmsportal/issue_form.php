@@ -111,54 +111,54 @@ $issueid = empty($_REQUEST['issueid']) ? 0 : intval($_REQUEST['issueid']);
 $form_type = empty($_REQUEST['form_type']) ? '' : $_REQUEST['form_type'];
 
 if ($_POST['bn_save']) {
-  $ptid = intval($_POST['ptid']);
-  $sets = "date = NOW()";
-  foreach ($issue_layout as $frow) {
-    $key = $frow['field_id'];
-    $value = get_layout_form_value($frow);
-    if ($frow['data_type'] == 4) {
-      // Dates require some special handling.
-      $value = fixDate($value, '');
-      if (empty($value)) {
-        $value = "NULL";
-      }
-      else {
-        $value = "'$value'";
-      }
+    $ptid = intval($_POST['ptid']);
+    $sets = "date = NOW()";
+    foreach ($issue_layout as $frow) {
+        $key = $frow['field_id'];
+        $value = get_layout_form_value($frow);
+        if ($frow['data_type'] == 4) {
+            // Dates require some special handling.
+            $value = fixDate($value, '');
+            if (empty($value)) {
+                $value = "NULL";
+            }
+            else {
+                $value = "'$value'";
+            }
+        }
+        else {
+            $value = "'" . add_escape_custom($value) . "'";
+        }
+        $sets .= ", `$key` = $value";
+    }
+    if (empty($issueid)) {
+        $sql = "INSERT INTO lists SET " .
+        "pid = '" . add_escape_custom($ptid) . "', activity = 1, " .
+        "user = '" . add_escape_custom($_SESSION['authUser']) . "', " .
+        "groupname = '" . add_escape_custom($_SESSION['authProvider']) . "', $sets";
+        $issueid = sqlInsert($sql);
     }
     else {
-      $value = "'" . add_escape_custom($value) . "'";
+        $sql = "UPDATE lists SET $sets WHERE id = '" . add_escape_custom($issueid) . "'";
+        sqlStatement($sql);
     }
-    $sets .= ", `$key` = $value";
-  }
-  if (empty($issueid)) {
-    $sql = "INSERT INTO lists SET " .
-      "pid = '" . add_escape_custom($ptid) . "', activity = 1, " .
-      "user = '" . add_escape_custom($_SESSION['authUser']) . "', " .
-      "groupname = '" . add_escape_custom($_SESSION['authProvider']) . "', $sets";
-    $issueid = sqlInsert($sql);
-  }
-  else {
-    $sql = "UPDATE lists SET $sets WHERE id = '" . add_escape_custom($issueid) . "'";
-    sqlStatement($sql);
-  }
   // Finally, delete the request from the portal.
-  $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
-  if ($result['errmsg']) {
-    die(text($result['errmsg']));
-  }
-  echo "<html><body><script language='JavaScript'>\n";
-  echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
-  echo "document.location.href = 'list_requests.php';\n";
-  echo "</script></body></html>\n";
-  exit();
+    $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
+    echo "<html><body><script language='JavaScript'>\n";
+    echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
+    echo "document.location.href = 'list_requests.php';\n";
+    echo "</script></body></html>\n";
+    exit();
 }
 
 // Get the portal request data.
 if (!$postid) die(xlt('Request ID is missing!'));
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
-  die(text($result['errmsg']));
+    die(text($result['errmsg']));
 }
 // If user changed issue type, it will have submitted the form to override it.
 if ($form_type) $result['fields']['type'] = $form_type;
@@ -244,11 +244,11 @@ $ires = sqlStatement("SELECT id, title, begdate " .
   "AND enddate IS NULL ORDER BY enddate, title",
   array($ptid, $result['fields']['type']));
 while ($irow = sqlFetchArray($ires)) {
-  echo " <option value='" . attr($irow['id']) . "'";
-  if ($irow['id'] == $issueid) echo " selected";
-  echo ">" . text($irow['title']);
-  if (!empty($irow['begdate'])) echo " (" . text($irow['begdate']) . ")";
-  echo "</option>\n";
+    echo " <option value='" . attr($irow['id']) . "'";
+    if ($irow['id'] == $issueid) echo " selected";
+    echo ">" . text($irow['title']);
+    if (!empty($irow['begdate'])) echo " (" . text($irow['begdate']) . ")";
+    echo "</option>\n";
 }
 ?>
 </select>
@@ -266,27 +266,27 @@ $irow = array();
 if (!empty($issueid)) $irow = getListById($issueid);
 
 foreach ($issue_layout as $lorow) {
-  $data_type  = $lorow['data_type'];
-  $field_id   = $lorow['field_id'];
+    $data_type  = $lorow['data_type'];
+    $field_id   = $lorow['field_id'];
 
-  $list_id = $lorow['list_id'];
-  $field_title = $lorow['title'];
+    $list_id = $lorow['list_id'];
+    $field_title = $lorow['title'];
 
-  $currvalue  = '';
-  if (isset($irow[$field_id])) $currvalue = $irow[$field_id];
+    $currvalue  = '';
+    if (isset($irow[$field_id])) $currvalue = $irow[$field_id];
 
-  $newvalue = '';
-  if (isset($result['fields'][$field_id])) $newvalue = trim($result['fields'][$field_id]);
+    $newvalue = '';
+    if (isset($result['fields'][$field_id])) $newvalue = trim($result['fields'][$field_id]);
 
-  echo " <tr class='detail'>\n";
-  echo "  <td class='bold'>" . text($field_title) . "</td>\n";
-  echo "  <td>";
-  echo generate_display_field($lorow, $currvalue);
-  echo "</td>\n";
-  echo "  <td>";
-  generate_form_field($lorow, $newvalue);
-  echo "</td>\n";
-  echo " </tr>\n";
+    echo " <tr class='detail'>\n";
+    echo "  <td class='bold'>" . text($field_title) . "</td>\n";
+    echo "  <td>";
+    echo generate_display_field($lorow, $currvalue);
+    echo "</td>\n";
+    echo "  <td>";
+    generate_form_field($lorow, $newvalue);
+    echo "</td>\n";
+    echo " </tr>\n";
 }
 ?>
 

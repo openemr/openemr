@@ -120,19 +120,20 @@ $rule = $viewBean->rule ?>
     
     
     <div class="section text">
-	<p class="header"><?php echo out( xl( 'Target/Action Groups' ) ); ?></p>
-	<?php $groupId = 0; foreach ( $rule->groups as $group ) { $groupId = $group->groupId; ?>
-		<div class="group">
-        <!--                      -->
-        <!-- rule target criteria -->
-        <!--                      -->
+    <p class="header"><?php echo out( xl( 'Target/Action Groups' ) ); ?></p>
+    <?php $groupId = 0;
+    foreach ( $rule->groups as $group ) { $groupId = $group->groupId; ?>
+            <div class="group">
+            <!--                      -->
+            <!-- rule target criteria -->
+            <!--                      -->
         
-        <?php $targets = $group->ruleTargets; if ( $targets ) { ?>
+            <?php $targets = $group->ruleTargets; if ( $targets ) { ?>
         <div class="section text">
             <p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
-            	<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId ); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-            		(<?php echo out( xl( 'add' ) ); ?>)
-            	</a>
+                <a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId ); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
+                    (<?php echo out( xl( 'add' ) ); ?>)
+                </a>
             </p>
             <p>
                 <?php if ( $targets->criteria ) { ?>
@@ -173,10 +174,10 @@ $rule = $viewBean->rule ?>
         </div>
         <?php } ?>
     
-        <!--              -->
-        <!-- rule actions -->
-        <!--              -->
-        <?php $actions = $group->ruleActions; if ( $actions ) { ?>
+            <!--              -->
+            <!-- rule actions -->
+            <!--              -->
+            <?php $actions = $group->ruleActions; if ( $actions ) { ?>
         <div class="section text">
             <p class="header"><?php echo out( xl( 'Actions' ) ); ?>
                 <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo out( $group->groupId );?>" class="action_link" onclick="top.restoreSession()">
@@ -209,25 +210,25 @@ $rule = $viewBean->rule ?>
             </p>
         </div>
         <?php } ?>
-    	</div>
-    <?php } // iteration over groups ?>
-    	<div class="group">
-    		<?php $nextGroupId = $groupId + 1; ?>
-    		<div class="section text">
-        		<p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
-        			<a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
-        				(<?php echo out( xl( 'add' ) ); ?>)
-        			</a>
-        		</p>
-    		</div>
-    		<div class="section text">
-        		<p class="header"><?php echo out( xl( 'Actions' ) ); ?>
+            </div>
+        <?php } // iteration over groups ?>
+        <div class="group">
+            <?php $nextGroupId = $groupId + 1; ?>
+            <div class="section text">
+                <p class="header"><?php echo out( xl( 'Clinical targets' ) ); ?> 
+                    <a href="index.php?action=edit!add_criteria&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
+                        (<?php echo out( xl( 'add' ) ); ?>)
+                    </a>
+                </p>
+            </div>
+            <div class="section text">
+                <p class="header"><?php echo out( xl( 'Actions' ) ); ?>
                     <a href="index.php?action=edit!add_action&id=<?php echo out( $rule->id ); ?>&group_id=<?php echo $nextGroupId; ?>" class="action_link" onclick="top.restoreSession()">
                         (<?php echo out( xl( 'add' ) ); ?>)
                     </a>
                 </p>
             </div>
-    	</div>
+        </div>
     
     </div>
 

@@ -101,19 +101,19 @@ $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
 for ($i=1;$i < count($argv); $i++) {
-  $indexandvalue = explode("=",$argv[$i]);
-  $index = $indexandvalue[0];
-  $value = $indexandvalue[1];
-  $installSettings[$index] = $value;
+    $indexandvalue = explode("=",$argv[$i]);
+    $index = $indexandvalue[0];
+    $value = $indexandvalue[1];
+    $installSettings[$index] = $value;
 }
 
 // Convert BLANK settings to empty
 $tempInstallSettings = array();
 foreach ($installSettings as $setting => $value) {
-  if ($value == "BLANK") {
-    $value = '';
-  }
-  $tempInstallSettings[$setting] = $value;
+    if ($value == "BLANK") {
+        $value = '';
+    }
+    $tempInstallSettings[$setting] = $value;
 }
 $installSettings = $tempInstallSettings;
 
@@ -122,11 +122,11 @@ $installSettings = $tempInstallSettings;
 $installer = new Installer( $installSettings );
 if ( ! $installer->quick_install() ) {
   // Failed, report error
-  echo "ERROR: " . $installer->error_message . "\n";
+    echo "ERROR: " . $installer->error_message . "\n";
 }
 else {
   // Successful
-  echo $installer->debug_message . "\n";
+    echo $installer->debug_message . "\n";
 }
 
 ?>

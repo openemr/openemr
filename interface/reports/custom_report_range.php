@@ -58,41 +58,41 @@ if ($form_patient == '' ) $form_pid = '';
 <style>
 
 @media print {
-	.title {
-		visibility: hidden;
-	}
+    .title {
+        visibility: hidden;
+    }
     .pagebreak {
         page-break-after: always;
         border: none;
         visibility: hidden;
     }
 
-	#superbill_description {
-		visibility: hidden;
-	}
+    #superbill_description {
+        visibility: hidden;
+    }
 
-	#report_parameters {
-		visibility: hidden;
-	}
+    #report_parameters {
+        visibility: hidden;
+    }
     #superbill_results {
        margin-top: -30px;
     }
 }
 
 @media screen {
-	.title {
-		visibility: visible;
-	}
-	#superbill_description {
-		visibility: visible;
-	}
+    .title {
+        visibility: visible;
+    }
+    #superbill_description {
+        visibility: visible;
+    }
     .pagebreak {
         width: 100%;
         border: 2px dashed black;
     }
-	#report_parameters {
-		visibility: visible;
-	}
+    #report_parameters {
+        visibility: visible;
+    }
 }
 #superbill_description {
    margin: 10px;
@@ -162,11 +162,11 @@ if ($form_patient == '' ) $form_pid = '';
   win.printLogSetup(document.getElementById('printbutton'));
 
   $('.datepicker').datetimepicker({
-   <?php $datetimepicker_timepicker = false; ?>
-   <?php $datetimepicker_showseconds = false; ?>
-   <?php $datetimepicker_formatInput = false; ?>
-   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-   <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    <?php $datetimepicker_timepicker = false; ?>
+    <?php $datetimepicker_showseconds = false; ?>
+    <?php $datetimepicker_formatInput = false; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
 
@@ -200,62 +200,62 @@ if ($form_patient == '' ) $form_pid = '';
 <table>
  <tr>
   <td width='650px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='label_custom'>
-			   <?php echo xlt('Start Date'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
-				title='yyyy-mm-dd'>
-			</td>
-			<td class='label_custom'>
-			   <?php echo xlt('End Date'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
-				title='yyyy-mm-dd'>
-			</td>
+    <table class='text'>
+        <tr>
+            <td class='label_custom'>
+                <?php echo xlt('Start Date'); ?>:
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='start' id="form_from_date" size='10' value='<?php echo attr($startdate) ?>'
+                title='yyyy-mm-dd'>
+            </td>
+            <td class='label_custom'>
+                <?php echo xlt('End Date'); ?>:
+            </td>
+            <td>
+               <input type='text' class='datepicker' name='end' id="form_to_date" size='10' value='<?php echo attr($enddate) ?>'
+                title='yyyy-mm-dd'>
+            </td>
 
-			<td>
-			&nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
-			</td>
-			<td>
-			<input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
-			<input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
-			</td>
-			</tr>
-			<tr><td>
-		</tr>
-	</table>
+            <td>
+            &nbsp;&nbsp;<span class='text'><?php echo xlt('Patient'); ?>: </span>
+            </td>
+            <td>
+            <input type='text' size='20' name='form_patient' style='width:100%;cursor:pointer;cursor:hand' value='<?php echo attr($form_patient) ? attr($form_patient) : xla('Click To Select'); ?>' onclick='sel_patient()' title='<?php echo xla('Click to select patient'); ?>' />
+            <input type='hidden' name='form_pid' value='<?php echo attr($form_pid); ?>' />
+            </td>
+            </tr>
+            <tr><td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div style='margin-left:15px'>
-					<a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-					<span>
-						<?php echo xlt('Submit'); ?>
-					</span>
-					</a>
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div style='margin-left:15px'>
+                    <a href='#' class='css_button' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                    <span>
+                        <?php echo xlt('Submit'); ?>
+                    </span>
+                    </a>
 
-					<?php if ($_POST['form_refresh']) { ?>
-					<a href='#' class='css_button' id='printbutton'>
-						<span>
-							<?php echo xlt('Print'); ?>
-						</span>
-					</a>
-					<?php } ?>
-				</div>
-			</td>
-		</tr>
-	</table>
+                    <?php if ($_POST['form_refresh']) { ?>
+                    <a href='#' class='css_button' id='printbutton'>
+                        <span>
+                            <?php echo xlt('Print'); ?>
+                        </span>
+                    </a>
+                    <?php } ?>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -276,112 +276,113 @@ if( !(empty($_POST['start']) || empty($_POST['end']))) {
 
 </p>
 <?php
-		$sqlBindArray = array();
-		$res_query = 	"select * from forms where " .
+        $sqlBindArray = array();
+        $res_query =    "select * from forms where " .
                         "form_name = 'New Patient Encounter' and " .
                         "date between ? and ? " ;
                 array_push($sqlBindArray,$startdate,$enddate);
-		if($form_pid) {
-		$res_query.= " and pid=? ";
-		array_push($sqlBindArray,$form_pid);
-		}
+if($form_pid) {
+    $res_query.= " and pid=? ";
+    array_push($sqlBindArray,$form_pid);
+}
         $res_query.=     " order by date DESC" ;
-		$res =sqlStatement($res_query,$sqlBindArray);
+        $res =sqlStatement($res_query,$sqlBindArray);
 
-    while($result = sqlFetchArray($res)) {
-        if ($result{"form_name"} == "New Patient Encounter") {
-            $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
-			$pids[] = $result{"pid"};
-        }
+while($result = sqlFetchArray($res)) {
+    if ($result{"form_name"} == "New Patient Encounter") {
+        $newpatient[] = $result{"form_id"}.":".$result{"encounter"};
+        $pids[] = $result{"pid"};
     }
+}
     $N = 6;
 
-    function postToGet($newpatient, $pids) {
-        $getstring="";
-        $serialnewpatient = serialize($newpatient);
-        $serialpids = serialize($pids);
-        $getstring = "newpatient=".urlencode($serialnewpatient)."&pids=".urlencode($serialpids);
+function postToGet($newpatient, $pids)
+{
+    $getstring="";
+    $serialnewpatient = serialize($newpatient);
+    $serialpids = serialize($pids);
+    $getstring = "newpatient=".urlencode($serialnewpatient)."&pids=".urlencode($serialpids);
 
-        return $getstring;
-    }
+    return $getstring;
+}
 
     $iCounter = 0;
-    if(empty($newpatient)){ $newpatient = array(); }
-    foreach($newpatient as $patient){
-        /*
-        $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
-        while($result = sqlFetchArray($inclookupres)) {
-            include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
-        }
-        */
-
-        print "<div id='superbill_patientdata'>";
-        print "<h1>".xlt('Patient Data').":</h1>";
-        printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
-        print "</div>";
-
-        print "<div id='superbill_insurancedata'>";
-        print "<h1>".xlt('Insurance Data').":</h1>";
-        print "<h2>".xlt('Primary').":</h2>";
-        printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"primary"), $N);
-        print "<h2>".xlt('Secondary').":</h2>";
-        printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"secondary"), $N);
-        print "<h2>".xlt('Tertiary').":</h2>";
-        printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"tertiary"), $N);
-        print "</div>";
-
-        print "<div id='superbill_billingdata'>";
-        print "<h1>".xlt('Billing Information').":</h1>";
-        if (count($patient) > 0) {
-            $billings = array();
-            echo "<table width='100%'>";
-            echo "<tr>";
-            echo "<td class='bold' width='10%'>".xlt('Date')."</td>";
-            echo "<td class='bold' width='20%'>".xlt('Provider')."</td>";
-            echo "<td class='bold' width='40%'>".xlt('Code')."</td>";
-            echo "<td class='bold' width='10%'>".xlt('Fee')."</td></tr>\n";
-            $total = 0.00;
-            $copays = 0.00;
-            //foreach ($patient as $be) {
-
-                $ta = explode(":",$patient);
-                $billing = getPatientBillingEncounter($pids[$iCounter],$ta[1]);
-
-                $billings[] = $billing;
-                foreach ($billing as $b) {
-                    // grab the date to reformat it in the output
-                    $bdate = strtotime($b['date']);
-
-                    echo "<tr>\n";
-                    echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
-                    echo "<td class='text'>" . text($b['provider_name']) . "</td>";
-                    echo "<td class='text'>";
-                    echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-                    echo "</td>\n";
-                    echo "<td class='text'>";
-                    echo oeFormatMoney($b['fee']);
-                    echo "</td>\n";
-                    echo "</tr>\n";
-                    $total += $b['fee'];
-                }
-            // Calculate the copay for the encounter
-            $copays = getPatientCopay($pids[$iCounter],$ta[1]);
-            //}
-            echo "<tr><td>&nbsp;</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Copay Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
-            echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
-            echo "</table>";
-            echo "<pre>";
-            //print_r($billings);
-            echo "</pre>";
-        }
-        echo "</div>";
-
-        ++$iCounter;
-        print "<br/><br/>".xlt('Physician Signature').":  _______________________________________________";
-        print "<hr class='pagebreak' />";
+if(empty($newpatient)){ $newpatient = array(); }
+foreach($newpatient as $patient){
+    /*
+    $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
+    while($result = sqlFetchArray($inclookupres)) {
+        include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     }
+    */
+
+    print "<div id='superbill_patientdata'>";
+    print "<h1>".xlt('Patient Data').":</h1>";
+    printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
+    print "</div>";
+
+    print "<div id='superbill_insurancedata'>";
+    print "<h1>".xlt('Insurance Data').":</h1>";
+    print "<h2>".xlt('Primary').":</h2>";
+    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"primary"), $N);
+    print "<h2>".xlt('Secondary').":</h2>";
+    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"secondary"), $N);
+    print "<h2>".xlt('Tertiary').":</h2>";
+    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter],"tertiary"), $N);
+    print "</div>";
+
+    print "<div id='superbill_billingdata'>";
+    print "<h1>".xlt('Billing Information').":</h1>";
+    if (count($patient) > 0) {
+        $billings = array();
+        echo "<table width='100%'>";
+        echo "<tr>";
+        echo "<td class='bold' width='10%'>".xlt('Date')."</td>";
+        echo "<td class='bold' width='20%'>".xlt('Provider')."</td>";
+        echo "<td class='bold' width='40%'>".xlt('Code')."</td>";
+        echo "<td class='bold' width='10%'>".xlt('Fee')."</td></tr>\n";
+        $total = 0.00;
+        $copays = 0.00;
+        //foreach ($patient as $be) {
+
+            $ta = explode(":",$patient);
+            $billing = getPatientBillingEncounter($pids[$iCounter],$ta[1]);
+
+            $billings[] = $billing;
+        foreach ($billing as $b) {
+            // grab the date to reformat it in the output
+            $bdate = strtotime($b['date']);
+
+            echo "<tr>\n";
+            echo "<td class='text' style='font-size: 0.8em'>" . oeFormatShortDate(date("Y-m-d",$bdate)) . "<BR>" . date("h:i a", $bdate) . "</td>";
+            echo "<td class='text'>" . text($b['provider_name']) . "</td>";
+            echo "<td class='text'>";
+            echo text($b['code_type']) . ":\t" . text($b['code']) . "&nbsp;". text($b['modifier']) . "&nbsp;&nbsp;&nbsp;" . text($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            echo "</td>\n";
+            echo "<td class='text'>";
+            echo oeFormatMoney($b['fee']);
+            echo "</td>\n";
+            echo "</tr>\n";
+            $total += $b['fee'];
+        }
+        // Calculate the copay for the encounter
+        $copays = getPatientCopay($pids[$iCounter],$ta[1]);
+        //}
+        echo "<tr><td>&nbsp;</td></tr>";
+        echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Sub-Total')."</td><td class='text'>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
+        echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Copay Paid')."</td><td class='text'>" . oeFormatMoney(abs($copays)) . "</td></tr>";
+        echo "<tr><td class='bold' colspan=3 style='text-align:right'>".xlt('Total')."</td><td class='text'>" . oeFormatMoney($total) . "</td></tr>";
+        echo "</table>";
+        echo "<pre>";
+        //print_r($billings);
+        echo "</pre>";
+    }
+    echo "</div>";
+
+    ++$iCounter;
+    print "<br/><br/>".xlt('Physician Signature').":  _______________________________________________";
+    print "<hr class='pagebreak' />";
+}
 }
     ?>
 </div>

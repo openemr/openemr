@@ -4,7 +4,7 @@ namespace ESign;
 
 /**
  * Implementation of the SignableIF interface for the Encounter
- * module. 
+ * module.
  *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
@@ -40,11 +40,11 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
     }
     
     /**
-     * Implementatinon of getData() for encounters. 
-     * 
+     * Implementatinon of getData() for encounters.
+     *
      * We get all forms under the encounter, and then get all the data
      * from the individual form tables.
-     * 
+     *
      * @see \ESign\SignableIF::getData()
      */
     public function getData()

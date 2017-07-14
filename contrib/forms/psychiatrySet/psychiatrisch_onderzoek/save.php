@@ -12,7 +12,7 @@ include_once("$srcdir/forms.inc");
 
 foreach ($_POST as $k => $var)
 {
-  $_POST[$k] = add_escape_custom($var);
+    $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 
@@ -22,17 +22,17 @@ if( $_GET["mode"] == "new" )
 {
     if( $_GET["id"] != '' )
     {
-      echo "lalala 1";
-      $_GET["id"] = '0';
-      $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );
+        echo "lalala 1";
+        $_GET["id"] = '0';
+        $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );
       // add new form ???
-    addForm( $encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized );
+        addForm( $encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized );
       
     } else
     {
-      echo "lalala 2";
+        echo "lalala 2";
       
-      $_POST['autosave_flag'] = 0;
+        $_POST['autosave_flag'] = 0;
      /// $newid = formUpdate( "form_psychiatrisch_onderzoek", $_POST, $_GET["saveid"], $userauthorized );
     }
     
@@ -41,7 +41,7 @@ if( $_GET["mode"] == "new" )
 } elseif( $_GET["mode"] == "update" )
 {
 
-  $strSql = "UPDATE form_psychiatrisch_onderzoek
+    $strSql = "UPDATE form_psychiatrisch_onderzoek
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 
                 datum_onderzoek='".$_POST["datum_onderzoek"]."',
@@ -56,7 +56,7 @@ if( $_GET["mode"] == "new" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$_GET["id"].";";
 
-  sqlQuery( $strSql );
+    sqlQuery( $strSql );
 
 }
 

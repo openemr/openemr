@@ -38,9 +38,9 @@ $db_patient = cron_getAlertpatientData($TYPE);
 echo "<br>Total ".count($db_patient)." Records Found\n";
 for($p=0;$p<count($db_patient);$p++)
 {
-	$prow =$db_patient[$p];
-	//my_print_r($prow);
-	/*
+    $prow =$db_patient[$p];
+    //my_print_r($prow);
+    /*
 	if($prow['pc_eventDate'] < $check_date)
 	{
 		$app_date = date("Y-m-d")." ".$prow['pc_startTime'];
@@ -48,42 +48,42 @@ for($p=0;$p<count($db_patient);$p++)
 		$app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
 	}
 	*/
-	$app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
-	$app_time = strtotime($app_date);
-	
-	$app_time_hour = round($app_time/3600);
-	$curr_total_hour = round(time()/3600);
-	
-	$remaining_app_hour = round($app_time_hour - $curr_total_hour);
-	$remain_hour = round($remaining_app_hour - $EMAIL_NOTIFICATION_HOUR);
-	
-	$strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
-	$strMsg .= "\nSEND NOTIFICATION BEFORE:".$EMAIL_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
-	
-	if($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME)
-	{
-		// insert entry in notification_log table
-		cron_InsertNotificationLogEntry($TYPE,$prow,$db_email_msg);
+    $app_date = $prow['pc_eventDate']." ".$prow['pc_startTime'];
+    $app_time = strtotime($app_date);
+    
+    $app_time_hour = round($app_time/3600);
+    $curr_total_hour = round(time()/3600);
+    
+    $remaining_app_hour = round($app_time_hour - $curr_total_hour);
+    $remain_hour = round($remaining_app_hour - $EMAIL_NOTIFICATION_HOUR);
+    
+    $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
+    $strMsg .= "\nSEND NOTIFICATION BEFORE:".$EMAIL_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
+    
+    if($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME)
+    {
+        // insert entry in notification_log table
+        cron_InsertNotificationLogEntry($TYPE,$prow,$db_email_msg);
 
-		//set message 
-		$db_email_msg['message'] = cron_setmessage( $prow, $db_email_msg );
-		
-		// send mail to patinet
-		cron_SendMail( $prow['email'], $db_email_msg['email_subject'],
-				$db_email_msg['message'], $db_email_msg['email_sender'] );
-		
-		//update entry >> pc_sendalertemail='Yes'
-		cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
-		
-		$strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
-		$strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
-	}
-	
-	WriteLog( $strMsg );
+        //set message
+        $db_email_msg['message'] = cron_setmessage( $prow, $db_email_msg );
+        
+        // send mail to patinet
+        cron_SendMail( $prow['email'], $db_email_msg['email_subject'],
+                $db_email_msg['message'], $db_email_msg['email_sender'] );
+        
+        //update entry >> pc_sendalertemail='Yes'
+        cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
+        
+        $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
+        $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];
+    }
+    
+    WriteLog( $strMsg );
 
-	// larry :: get notification data again - since was updated by cron_updateentry 
-	// todo :: instead fix not to modify the template aka $db_email_msg
-	$db_email_msg = cron_getNotificationData($TYPE);
+    // larry :: get notification data again - since was updated by cron_updateentry
+    // todo :: instead fix not to modify the template aka $db_email_msg
+    $db_email_msg = cron_getNotificationData($TYPE);
 }
 
 sqlClose();
@@ -94,7 +94,7 @@ sqlClose();
 <title>Conrjob - Email Notification</title>
 </head>
 <body>
-	<center>
-	</center>
+    <center>
+    </center>
 </body>
 </html>

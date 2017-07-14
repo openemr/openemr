@@ -4,7 +4,7 @@
  * @package Smarty
  * @subpackage plugins
  * amcCollect() version for smarty templates
- * 
+ *
  * Copyright (C) 2011 Brady Miller <brady.g.miller@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@
  * Type:     function<br>
  * Name:     amcCollect<br>
  * Purpose:  amcCollect in OpenEMR - Smarty templates<br>
- * 
+ *
  * @param array
  * @param Smarty
  */
@@ -29,12 +29,12 @@ require_once(dirname(__FILE__) . '/../../amc.php');
 
 function smarty_function_amcCollect($params, &$smarty)
 {
-	$amc_id = $params['amc_id'];
+    $amc_id = $params['amc_id'];
         $patient_id = $params['patient_id'];
         $object_category = $params['object_category'];
         $object_id = $params['object_id'];
 
-	$returnArray = amcCollect($amc_id,$patient_id,$object_category,$object_id);
+    $returnArray = amcCollect($amc_id,$patient_id,$object_category,$object_id);
         $smarty->assign('amcCollectReturn', $returnArray);
 }
 

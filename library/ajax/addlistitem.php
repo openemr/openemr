@@ -32,8 +32,8 @@ $exists_title = sqlQuery("SELECT * FROM list_options WHERE ".
                     " and title = '" . trim($title) . "' AND activity = 1"
                     );
 if ($exists_title) {
-	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit;
+    echo json_encode(array("error"=> xl('Record already exist') ));
+    exit;
 }
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
@@ -41,8 +41,8 @@ $exists_id = sqlQuery("SELECT * FROM list_options WHERE ".
                     " and option_id = '" . trim($option_id) . "' AND activity = 1"
                     );
 if ($exists_id) {
-	echo json_encode(array("error"=> xl('Record already exist') ));
-	exit;
+    echo json_encode(array("error"=> xl('Record already exist') ));
+    exit;
 }
 
 // determine the sequential order of the new item,
@@ -76,10 +76,10 @@ while ($lrow = sqlFetchArray($lres)) {
 
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-     echo '"title":"' . xl($lrow['title']) .'"}';
+        echo '"title":"' . xl($lrow['title']) .'"}';
     }
     else {
-     echo '"title":"'.$lrow['title'].'"}';
+        echo '"title":"'.$lrow['title'].'"}';
     }
 }
 echo "]}";

@@ -22,250 +22,256 @@
 require_once($GLOBALS["srcdir"] . "/acl.inc");
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-function getListItem($listid, $value) {
-  $lrow = sqlQuery("SELECT title FROM list_options " .
+function getListItem($listid, $value)
+{
+    $lrow = sqlQuery("SELECT title FROM list_options " .
     "WHERE list_id = ? AND option_id = ? AND activity = 1",
     array($listid, $value));
-  $tmp = xl_list_label($lrow['title']);
-  if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
-  return $tmp;
+    $tmp = xl_list_label($lrow['title']);
+    if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
+    return $tmp;
 }
 
-function myCellText($s) {
-  $s = trim($s);
-  if ($s === '') return '&nbsp;';
-  return text($s);
+function myCellText($s)
+{
+    $s = trim($s);
+    if ($s === '') return '&nbsp;';
+    return text($s);
 }
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
 // Either way, returns the corresponding key which is a small integer.
-function storeNote($s) {
-  global $aNotes;
-  $key = array_search($s, $aNotes);
-  if ($key !== FALSE) return $key;
-  $key = count($aNotes);
-  $aNotes[$key] = $s;
-  return $key;
+function storeNote($s)
+{
+    global $aNotes;
+    $key = array_search($s, $aNotes);
+    if ($key !== false) return $key;
+    $key = count($aNotes);
+    $aNotes[$key] = $s;
+    return $key;
 }
 
 // Display a single row of output including order, report and result information.
 //
-function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false) {
-  $lab_id         = empty($row['lab_id'             ]) ? 0 : ($row['lab_id'             ] + 0);
-  $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id'      ] + 0);
-  $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
-  $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
-  $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
-  $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
-  $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
-  $date_report_suf = empty($row['date_report_tz' ]) ? '' : (' ' . $row['date_report_tz' ]);
-  $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
-  $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
-  $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
-  $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status'];
-  $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
+function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted=false)
+{
+    $lab_id         = empty($row['lab_id'             ]) ? 0 : ($row['lab_id'             ] + 0);
+    $order_type_id  = empty($row['order_type_id'      ]) ? 0 : ($row['order_type_id'      ] + 0);
+    $order_seq      = empty($row['procedure_order_seq']) ? 0 : ($row['procedure_order_seq'] + 0);
+    $report_id      = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
+    $procedure_code = empty($row['procedure_code'  ]) ? '' : $row['procedure_code'];
+    $procedure_name = empty($row['procedure_name'  ]) ? '' : $row['procedure_name'];
+    $date_report    = empty($row['date_report'     ]) ? '' : substr($row['date_report'], 0, 16);
+    $date_report_suf = empty($row['date_report_tz' ]) ? '' : (' ' . $row['date_report_tz' ]);
+    $date_collected = empty($row['date_collected'  ]) ? '' : substr($row['date_collected'], 0, 16);
+    $date_collected_suf = empty($row['date_collected_tz' ]) ? '' : (' ' . $row['date_collected_tz' ]);
+    $specimen_num   = empty($row['specimen_num'    ]) ? '' : $row['specimen_num'];
+    $report_status  = empty($row['report_status'   ]) ? '' : $row['report_status'];
+    $review_status  = empty($row['review_status'   ]) ? 'received' : $row['review_status'];
 
-  $report_noteid = '';
-  if ($report_id && !isset($ctx['seen_report_ids'][$report_id])) {
-    $ctx['seen_report_ids'][$report_id] = true;
-    if ($review_status != 'reviewed') {
-      if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
-      $ctx['sign_list'] .= $report_id;
+    $report_noteid = '';
+    if ($report_id && !isset($ctx['seen_report_ids'][$report_id])) {
+        $ctx['seen_report_ids'][$report_id] = true;
+        if ($review_status != 'reviewed') {
+            if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
+            $ctx['sign_list'] .= $report_id;
+        }
+        // Allowing for multiple report notes separated by newlines.
+        if (!empty($row['report_notes'])) {
+            $notes = explode("\n", $row['report_notes']);
+            foreach ($notes as $note) {
+                if ($note === '') continue;
+                if ($report_noteid) $report_noteid .= ', ';
+                $report_noteid .= 1 + storeNote($note);
+            }
+        }
     }
-    // Allowing for multiple report notes separated by newlines.
-    if (!empty($row['report_notes'])) {
-      $notes = explode("\n", $row['report_notes']);
-      foreach ($notes as $note) {
-        if ($note === '') continue;
-        if ($report_noteid) $report_noteid .= ', ';
-        $report_noteid .= 1 + storeNote($note);
-      }
-    }
-  }
   // allow for 0 to be displayed as a result value
-  if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
-    $result_result = '';
-  } else {
-    $result_result = $rrow['result'];
-  }
-  $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];
-  $result_text      = empty($rrow['result_text'     ]) ? '' : $rrow['result_text'];
-  $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
-  $result_units     = empty($rrow['units'           ]) ? '' : $rrow['units'];
-  $result_facility  = empty($rrow['facility'        ]) ? '' : $rrow['facility'];
-  $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
-  $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
-  $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
-  $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
+    if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
+        $result_result = '';
+    } else {
+        $result_result = $rrow['result'];
+    }
+    $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];
+    $result_text      = empty($rrow['result_text'     ]) ? '' : $rrow['result_text'];
+    $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
+    $result_units     = empty($rrow['units'           ]) ? '' : $rrow['units'];
+    $result_facility  = empty($rrow['facility'        ]) ? '' : $rrow['facility'];
+    $result_comments  = empty($rrow['comments'        ]) ? '' : $rrow['comments'];
+    $result_range     = empty($rrow['range'           ]) ? '' : $rrow['range'];
+    $result_status    = empty($rrow['result_status'   ]) ? '' : $rrow['result_status'];
+    $result_document_id = empty($rrow['document_id'   ]) ? '' : $rrow['document_id'];
 
   // Someone changed the delimiter in result comments from \n to \r.
   // Have to make sure results are consistent with those before that change.
-  $result_comments = str_replace("\r", "\n", $result_comments);
+    $result_comments = str_replace("\r", "\n", $result_comments);
 
-  if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
-    // If the first line of comments is not empty, then it is actually a long textual
-    // result value with lines delimited by "~" characters.
-    $result_comments = str_replace("~", "\n", substr($result_comments, 0, $i)) .
-      substr($result_comments, $i);
-  }
-  $result_comments = trim($result_comments);
+    if ($i = strpos($result_comments, "\n")) { // "=" is not a mistake!
+        // If the first line of comments is not empty, then it is actually a long textual
+        // result value with lines delimited by "~" characters.
+        $result_comments = str_replace("~", "\n", substr($result_comments, 0, $i)) .
+        substr($result_comments, $i);
+    }
+    $result_comments = trim($result_comments);
 
-  $result_noteid = '';
-  if (!empty($result_comments)) {
-    $result_noteid = 1 + storeNote($result_comments);
-  }
-  if ($priors_omitted) {
-    if ($result_noteid) $result_noteid .= ', ';
-    $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
-    $ctx['priors_omitted'] = true;
-  }
+    $result_noteid = '';
+    if (!empty($result_comments)) {
+        $result_noteid = 1 + storeNote($result_comments);
+    }
+    if ($priors_omitted) {
+        if ($result_noteid) $result_noteid .= ', ';
+        $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
+        $ctx['priors_omitted'] = true;
+    }
 
   // If a performing organization is provided, make a note for it also.
-  $result_facility = trim(str_replace("\r", "\n", $result_facility));
-  if ($result_facility) {
-    if ($result_noteid) $result_noteid .= ', ';
-    $result_noteid .= 1 + storeNote(xl('Performing organization') . ":\n" . $result_facility);
-  }
-
-  if ($ctx['lastpcid'] != $order_seq) {
-    ++$ctx['encount'];
-  }
-  $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
-
-  echo " <tr class='detail' bgcolor='$bgcolor'>\n";
-
-  if ($ctx['lastpcid'] != $order_seq) {
-    $ctx['lastprid'] = -1; // force report fields on first line of each procedure
-    $tmp = text("$procedure_code: $procedure_name");
-    // Get the LOINC code if one exists in the compendium for this order type.
-    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-      $trow = sqlQuery("SELECT standard_code FROM procedure_type WHERE " .
-        "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
-        "ORDER BY procedure_type_id LIMIT 1",
-        array($lab_id, $procedure_code));
-      if (!empty($trow['standard_code'])) {
-        $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
-          "\")'>$tmp</a>";
-      }
+    $result_facility = trim(str_replace("\r", "\n", $result_facility));
+    if ($result_facility) {
+        if ($result_noteid) $result_noteid .= ', ';
+        $result_noteid .= 1 + storeNote(xl('Performing organization') . ":\n" . $result_facility);
     }
-    echo "  <td>$tmp</td>\n";
-  }
-  else {
-    echo "  <td style='background-color:transparent'>&nbsp;</td>";
-  }
+
+    if ($ctx['lastpcid'] != $order_seq) {
+        ++$ctx['encount'];
+    }
+    $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
+
+    echo " <tr class='detail' bgcolor='$bgcolor'>\n";
+
+    if ($ctx['lastpcid'] != $order_seq) {
+        $ctx['lastprid'] = -1; // force report fields on first line of each procedure
+        $tmp = text("$procedure_code: $procedure_name");
+        // Get the LOINC code if one exists in the compendium for this order type.
+        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+            $trow = sqlQuery("SELECT standard_code FROM procedure_type WHERE " .
+            "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
+            "ORDER BY procedure_type_id LIMIT 1",
+            array($lab_id, $procedure_code));
+            if (!empty($trow['standard_code'])) {
+                  $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
+                    "\")'>$tmp</a>";
+            }
+        }
+        echo "  <td>$tmp</td>\n";
+    }
+    else {
+        echo "  <td style='background-color:transparent'>&nbsp;</td>";
+    }
 
   // If this starts a new report or a new order, generate the report fields.
-  if ($report_id != $ctx['lastprid']) {
-    echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
-    echo "</td>\n";
+    if ($report_id != $ctx['lastprid']) {
+        echo "  <td>";
+        echo myCellText(oeFormatShortDate(substr($date_report, 0, 10)) . substr($date_report, 10) . $date_report_suf);
+        echo "</td>\n";
 
-    echo "  <td>";
-    echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10) . $date_collected_suf);
-    echo "</td>\n";
+        echo "  <td>";
+        echo myCellText(oeFormatShortDate(substr($date_collected, 0, 10)) . substr($date_collected, 10) . $date_collected_suf);
+        echo "</td>\n";
 
-    echo "  <td>";
-    echo myCellText($specimen_num);
-    echo "</td>\n";
+        echo "  <td>";
+        echo myCellText($specimen_num);
+        echo "</td>\n";
 
-    echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";
-    echo myCellText(getListItem('proc_rep_status', $report_status));
-    if ($row['review_status'] == 'reviewed') {
-      echo " &#x2713;"; // unicode check mark character
-    }
-    echo "</td>\n";
+        echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";
+        echo myCellText(getListItem('proc_rep_status', $report_status));
+        if ($row['review_status'] == 'reviewed') {
+            echo " &#x2713;"; // unicode check mark character
+        }
+        echo "</td>\n";
 
-    echo "  <td align='center'>";
-    echo myCellText($report_noteid);
-    echo "</td>\n";
-  }
-  else {
-    echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
-  }
-
-  if ($result_code !== '' || $result_document_id) {
-    $tmp = myCellText($result_code);
-    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
-      $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
-        "\")'>$tmp</a>";
-    }
-    echo "  <td>$tmp</td>\n";
-    echo "  <td>";
-    echo myCellText($result_text);
-    echo "</td>\n";
-    echo "  <td>";
-    $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
-    if ($result_abnormal && strtolower($result_abnormal) != 'no') {
-      echo "<b><font color='red'>$tmp</font></b>";
+        echo "  <td align='center'>";
+        echo myCellText($report_noteid);
+        echo "</td>\n";
     }
     else {
-      echo $tmp;
+        echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
     }
-    echo "</td>\n";
-    //
-    if ($result_document_id) {
-      $d = new Document($result_document_id);
-      echo "  <td colspan='3'>";
-      if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-        echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
-        echo "&retrieve&patient_id=$patient_id&document_id=$result_document_id' ";
-        echo "onclick='top.restoreSession()'>";
-      }
-      echo $d->get_url_file();
-      if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-        echo "</a>";
-      }
-      echo "</td>\n";
-      $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?",array($result_document_id));
-      if(!empty($narrative_notes)){
-      	$nnotes = explode("\n",$narrative_notes['notes']);
-      	$narrative_note_list = '';
-      	foreach($nnotes as $nnote){
-      		if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
-      		$narrative_note_list .= $nnote;
-      	}
 
-      	if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', '; $result_noteid .= 1 + storeNote($narrative_note_list);}
-      }
+    if ($result_code !== '' || $result_document_id) {
+        $tmp = myCellText($result_code);
+        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
+            $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
+            "\")'>$tmp</a>";
+        }
+        echo "  <td>$tmp</td>\n";
+        echo "  <td>";
+        echo myCellText($result_text);
+        echo "</td>\n";
+        echo "  <td>";
+        $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
+        if ($result_abnormal && strtolower($result_abnormal) != 'no') {
+            echo "<b><font color='red'>$tmp</font></b>";
+        }
+        else {
+            echo $tmp;
+        }
+        echo "</td>\n";
+        //
+        if ($result_document_id) {
+            $d = new Document($result_document_id);
+            echo "  <td colspan='3'>";
+            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+                echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
+                echo "&retrieve&patient_id=$patient_id&document_id=$result_document_id' ";
+                echo "onclick='top.restoreSession()'>";
+            }
+            echo $d->get_url_file();
+            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+                echo "</a>";
+            }
+            echo "</td>\n";
+            $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?",array($result_document_id));
+            if(!empty($narrative_notes)){
+                $nnotes = explode("\n",$narrative_notes['notes']);
+                $narrative_note_list = '';
+                foreach($nnotes as $nnote){
+                    if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
+                    $narrative_note_list .= $nnote;
+                }
 
+                if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', ';
+                    $result_noteid .= 1 + storeNote($narrative_note_list);}
+            }
+
+        }
+        else {
+            echo "  <td>";
+            echo myCellText($result_result);
+            echo "</td>\n";
+            echo "  <td>";
+            echo myCellText($result_range);
+            echo "</td>\n";
+            echo "  <td>";
+            // Units comes from the lab so might not match anything in the proc_unit list,
+            // but in that case the call will return the same value.
+            echo myCellText(getListItemTitle('proc_unit', $result_units));
+            echo "</td>\n";
+        }
+        echo "  <td align='center'>";
+        echo myCellText($result_noteid);
+        echo "</td>\n";
     }
     else {
-      echo "  <td>";
-      echo myCellText($result_result);
-      echo "</td>\n";
-      echo "  <td>";
-      echo myCellText($result_range);
-      echo "</td>\n";
-      echo "  <td>";
-      // Units comes from the lab so might not match anything in the proc_unit list,
-      // but in that case the call will return the same value.
-      echo myCellText(getListItemTitle('proc_unit', $result_units));
-      echo "</td>\n";
+        echo "  <td colspan='7' style='background-color:transparent'>&nbsp;</td>\n";
     }
-    echo "  <td align='center'>";
-    echo myCellText($result_noteid);
-    echo "</td>\n";
-  }
-  else {
-    echo "  <td colspan='7' style='background-color:transparent'>&nbsp;</td>\n";
-  }
 
-  echo " </tr>\n";
+    echo " </tr>\n";
 
-  $ctx['lastpcid'] = $order_seq;
-  $ctx['lastprid'] = $report_id;
-  ++$ctx['lino'];
+    $ctx['lastpcid'] = $order_seq;
+    $ctx['lastprid'] = $report_id;
+    ++$ctx['lino'];
 }
 
-function generate_order_report($orderid, $input_form=false, $genstyles=true, $finals_only=false) {
-  global $aNotes;
+function generate_order_report($orderid, $input_form=false, $genstyles=true, $finals_only=false)
+{
+    global $aNotes;
 
   // Check authorization.
-  $thisauth = acl_check('patients', 'med');
-  if (!$thisauth) return xl('Not authorized');
+    $thisauth = acl_check('patients', 'med');
+    if (!$thisauth) return xl('Not authorized');
 
-  $orow = sqlQuery("SELECT " .
+    $orow = sqlQuery("SELECT " .
     "po.procedure_order_id, po.date_ordered, po.control_id, " .
     "po.order_status, po.specimen_type, po.patient_id, " .
     "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, pd.language, " .
@@ -280,8 +286,8 @@ function generate_order_report($orderid, $input_form=false, $genstyles=true, $fi
     "WHERE po.procedure_order_id = ?",
     array($orderid));
 
-  $patient_id = $orow['patient_id'];
-  $language = $orow['language'];
+    $patient_id = $orow['patient_id'];
+    $language = $orow['language'];
 ?>
 
 <?php if ($genstyles) { ?>
@@ -391,19 +397,19 @@ function educlick(codetype, codevalue) {
   <td class="td-label" width='5%' nowrap><?php echo xlt('Order ID'); ?></td>
   <td width='45%'>
 <?php
-  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo "   <a href='" . $GLOBALS['webroot'];
     echo "/interface/orders/order_manifest.php?orderid=";
     echo attr($orow['procedure_order_id']);
     echo "' target='_blank' onclick='top.restoreSession()'>";
-  }
+}
   echo myCellText($orow['procedure_order_id']);
-  if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo "</a>\n";
-  }
-  if ($orow['control_id']) {
+}
+if ($orow['control_id']) {
     echo myCellText(' ' . xl('Lab') . ': ' . $orow['control_id']);
-  }
+}
 ?>
   </td>
  </tr>
@@ -486,77 +492,77 @@ function educlick(codetype, codevalue) {
     'seen_report_ids' => array(),
   );
 
-  while ($row = sqlFetchArray($res)) {
+while ($row = sqlFetchArray($res)) {
     $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
 
     $query = "SELECT " .
-      "ps.result_code, ps.result_text, ps.abnormal, ps.result, ps.range, " .
-      "ps.result_status, ps.facility, ps.units, ps.comments, ps.document_id, ps.date " .
-      "FROM procedure_result AS ps " .
-      "WHERE ps.procedure_report_id = ? " .
-      "ORDER BY ps.procedure_result_id";
+    "ps.result_code, ps.result_text, ps.abnormal, ps.result, ps.range, " .
+    "ps.result_status, ps.facility, ps.units, ps.comments, ps.document_id, ps.date " .
+    "FROM procedure_result AS ps " .
+    "WHERE ps.procedure_report_id = ? " .
+    "ORDER BY ps.procedure_result_id";
 
     $rres = sqlStatement($query, array($report_id));
 
     if ($finals_only) {
       // We are consolidating reports.
-      if (sqlNumRows($rres)) {
-        $rrowsets = array();
-        // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
-        // the value being an array of the corresponding result rows. This caters to multiple
-        // occurrences of the same result code in the same report.
-        while ($rrow = sqlFetchArray($rres)) {
-          $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
-          $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
-          if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
-          $rrowsets[$key][] = $rrow;
+        if (sqlNumRows($rres)) {
+            $rrowsets = array();
+            // First pass creates a $rrowsets[$key] for each unique result code in *this* report, with
+            // the value being an array of the corresponding result rows. This caters to multiple
+            // occurrences of the same result code in the same report.
+            while ($rrow = sqlFetchArray($rres)) {
+                $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
+                $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
+                if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
+                $rrowsets[$key][] = $rrow;
+            }
+            // Second pass builds onto the array of final results for *all* reports, where each final
+            // result for a given result code is its *array* of result rows from *one* of the reports.
+            foreach ($rrowsets as $key => $rrowset) {
+                // When two reports have the same date, use the result date to decide which is "latest".
+                if (isset($finals[$key]) &&
+                $row['date_report'] == $finals[$key][0]['date_report'] &&
+                !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
+                $rrow['date'] < $finals[$key][1]['date'])
+                {
+                    $finals[$key][2] = true; // see comment below
+                    continue;
+                }
+                // $finals[$key][2] indicates if there are multiple results for this result code.
+                $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+            }
         }
-        // Second pass builds onto the array of final results for *all* reports, where each final
-        // result for a given result code is its *array* of result rows from *one* of the reports.
-        foreach ($rrowsets as $key => $rrowset) {
-          // When two reports have the same date, use the result date to decide which is "latest".
-          if (isset($finals[$key]) &&
-            $row['date_report'] == $finals[$key][0]['date_report'] &&
-            !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-            $rrow['date'] < $finals[$key][1]['date'])
-          {
-            $finals[$key][2] = true; // see comment below
-            continue;
-          }
-          // $finals[$key][2] indicates if there are multiple results for this result code.
-          $finals[$key] = array($row, $rrowset, isset($finals[$key]));
+        else {
+            // We have no results for this report.
+            $key = sprintf('%05d/', $row['procedure_order_seq']);
+            $finals[$key] = array($row, array($empty_results), false);
         }
-      }
-      else {
-        // We have no results for this report.
-        $key = sprintf('%05d/', $row['procedure_order_seq']);
-        $finals[$key] = array($row, array($empty_results), false);
-      }
     }
     else {
       // We are showing all results for all reports.
-      if (sqlNumRows($rres)) {
-        while ($rrow = sqlFetchArray($rres)) {
-          generate_result_row($ctx, $row, $rrow, false);
+        if (sqlNumRows($rres)) {
+            while ($rrow = sqlFetchArray($rres)) {
+                generate_result_row($ctx, $row, $rrow, false);
+            }
         }
-      }
-      else {
-        generate_result_row($ctx, $row, $empty_results, false);
-      }
+        else {
+            generate_result_row($ctx, $row, $empty_results, false);
+        }
     }
-  }
+}
 
-  if ($finals_only) {
+if ($finals_only) {
     // The sort here was removed because $finals is already ordered by procedure_result_id
     // within procedure_order_seq which is probably desirable.  Sorting by result code defeats
     // the sequencing of results chosen by the sender.
     // ksort($finals);
     foreach ($finals as $final) {
-      foreach ($final[1] as $rrow) {
-        generate_result_row($ctx, $final[0], $rrow, $final[2]);
-      }
+        foreach ($final[1] as $rrow) {
+            generate_result_row($ctx, $final[0], $rrow, $final[2]);
+        }
     }
-  }
+}
 
 ?>
 
@@ -567,20 +573,20 @@ function educlick(codetype, codevalue) {
  <tr>
   <td style='border-width:0px;'>
 <?php
-  if (!empty($aNotes)) {
+if (!empty($aNotes)) {
     echo "<table cellpadding='3' cellspacing='0'>\n";
     echo " <tr bgcolor='#cccccc'>\n";
     echo "  <th align='center' colspan='2'>" . xlt('Notes') . "</th>\n";
     echo " </tr>\n";
     foreach ($aNotes as $key => $value) {
-      echo " <tr>\n";
-      echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
+        echo " <tr>\n";
+        echo "  <td valign='top'>" . ($key + 1) . "</td>\n";
       // <pre> tag because white space and a fixed font are often used to line things up.
-      echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
-      echo " </tr>\n";
+        echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
+        echo " </tr>\n";
     }
     echo "</table>\n";
-  }
+}
 ?>
   </td>
   <td style='border-width:0px;' align='right' valign='top'>
@@ -603,12 +609,12 @@ function educlick(codetype, codevalue) {
     title='<?php echo xla('Mark these reports as reviewed'); ?>' />
 <?php
   // If this is a portal patient, sending them a copy is an option.
-  if ($GLOBALS['gbl_portal_cms_enable'] && $orow['cmsportal_login'] !== '') {
+if ($GLOBALS['gbl_portal_cms_enable'] && $orow['cmsportal_login'] !== '') {
     echo "&nbsp;";
     echo "<input type='checkbox' name='form_send_to_portal' value='" .
-         attr($orow['cmsportal_login']) . "' checked />\n";
+     attr($orow['cmsportal_login']) . "' checked />\n";
     echo xlt('Send to portal');
-  }
+}
 ?>
 <?php } ?>
 <?php if ($input_form) { ?>

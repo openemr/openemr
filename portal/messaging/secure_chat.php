@@ -232,7 +232,7 @@ abstract class Controller
     }
     public function getIsFullScreen()
     {
-    	return IS_FULLSCREEN;
+        return IS_FULLSCREEN;
     }
     public function getModel()
     {
@@ -256,7 +256,8 @@ namespace SMA_Msg;
 use SMA_Common;
 class Model extends SMA_Common\Model
 {
-    public function getAuthUsers(){
+    public function getAuthUsers()
+    {
         $response = sqlStatementNoLog( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
         $resultpd = array ();
         while( $row = sqlFetchArray($response) ){
@@ -379,7 +380,7 @@ class Controller extends SMA_Common\Controller
 
         if(IS_PORTAL)
             $senderid = IS_PORTAL;
-            else
+        else
                 $senderid = IS_DASHBOARD;
 
         $result = array('success' => false);
@@ -406,11 +407,11 @@ class Controller extends SMA_Common\Controller
 
     private function _parseAdminCommand($message)
     {
-        if (strpos($message,'/clear') !== FALSE) {
+        if (strpos($message,'/clear') !== false) {
             $this->getModel()->removeMessages();
             return true;
         }
-        if (strpos($message,'/online') !== FALSE) {
+        if (strpos($message,'/online') !== false) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {
@@ -559,23 +560,23 @@ $msgApp = new Controller();
             recip_id: 0
         };
         $scope.options =  {
-	        height: 200,
-			focus: true,
-   			placeholder: 'Start typing your message...',
-   			//direction: 'rtl',
-   			toolbar: [
-   			    ['style', ['bold', 'italic', 'underline', 'clear']],
-   			    ['fontsize', ['fontsize']],
-   			    ['color', ['color']],
-   			    ['para', ['ul', 'ol', 'paragraph']],
-   			    ['insert', ['link','picture', 'video', 'hr']],
-   			    ['view', ['fullscreen', 'codeview']]
-   			]
-		};
+            height: 200,
+            focus: true,
+            placeholder: 'Start typing your message...',
+            //direction: 'rtl',
+            toolbar: [
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link','picture', 'video', 'hr']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        };
        $scope.checkAll = function() {
-    	   $scope.pusers = [];
-    	   $scope.pusers = $scope.chatusers.map(function(item) { return item.recip_id; });
-    	   $scope.getAuthUsers();
+           $scope.pusers = [];
+           $scope.pusers = $scope.chatusers.map(function(item) { return item.recip_id; });
+           $scope.getAuthUsers();
          };
         $scope.uncheckAll = function() {
               $scope.pusers = [];
@@ -583,8 +584,8 @@ $msgApp = new Controller();
          };
         $scope.makeCurrent = function(sel) {
              if( !sel.me ){
-            	$scope.pusers.splice(0, $scope.pusers.length);
-             	$scope.pusers.push(sel.sender_id);
+                $scope.pusers.splice(0, $scope.pusers.length);
+                $scope.pusers.push(sel.sender_id);
              }
         };
         $scope.pageTitleNotificator = {
@@ -719,7 +720,7 @@ $msgApp = new Controller();
             });
         };
         $scope.getAuthUsers = function() {
-        	$scope.chatusers = [];
+            $scope.chatusers = [];
             return $http.post($scope.urlGetAuthUsers, {}).success(function(data) {
                 $scope.chatusers = data;
             });
@@ -742,10 +743,10 @@ $msgApp = new Controller();
             $scope.pidMessages = window.setInterval($scope.listMessages, 6000);
             $scope.pidPingServer = window.setInterval($scope.pingServer, 10000);
             $scope.getAuthUsers();
-        	$("#popeditor").on("show.bs.modal", function() {
-      		  var height = $(window).height() - 200;
-      		  $(this).find(".modal-body").css("max-height", height);
-      		});
+            $("#popeditor").on("show.bs.modal", function() {
+              var height = $(window).height() - 200;
+              $(this).find(".modal-body").css("max-height", height);
+            });
         };
 
         $scope.scrollDown = function() {

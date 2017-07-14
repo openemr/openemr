@@ -30,18 +30,18 @@ require_once($GLOBALS['srcdir'].'/csv_like_join.php');
 <?php
 
 if (isset($ISSUE_TYPES['football_injury'])) {
-  if ($ISSUE_TYPES['football_injury']) {
-    // Most of the logic for the "football injury" issue type comes from this
-    // included script.  We might eventually refine this approach to support
-    // a plug-in architecture for custom issue types.
-    require_once($GLOBALS['srcdir'].'/football_injury.inc.php');
-  }
+    if ($ISSUE_TYPES['football_injury']) {
+        // Most of the logic for the "football injury" issue type comes from this
+        // included script.  We might eventually refine this approach to support
+        // a plug-in architecture for custom issue types.
+        require_once($GLOBALS['srcdir'].'/football_injury.inc.php');
+    }
 }
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
-  if ($ISSUE_TYPES['ippf_gcac']) {
-    // Similarly for IPPF issues.
-    require_once($GLOBALS['srcdir'].'/ippf_issues.inc.php');
-  }
+    if ($ISSUE_TYPES['ippf_gcac']) {
+        // Similarly for IPPF issues.
+        require_once($GLOBALS['srcdir'].'/ippf_issues.inc.php');
+    }
 }
 
 $issue = $_REQUEST['issue'];
@@ -55,177 +55,186 @@ $thisenc = 0 + (empty($_REQUEST['thisenc']) ? 0 : $_REQUEST['thisenc']);
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
 if ($thistype && !$issue && !acl_check_issue($thistype, '', array('write', 'addonly'))) {
-  die(xlt("Add is not authorized!"));
+    die(xlt("Add is not authorized!"));
 }
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
   die(xlt("Not authorized for this squad!"));
 
-function QuotedOrNull($fld) {
-  if ($fld) return "'".add_escape_custom($fld)."'";
-  return "NULL";
+function QuotedOrNull($fld)
+{
+    if ($fld) return "'".add_escape_custom($fld)."'";
+    return "NULL";
 }
 
 // Do not use this function since quotes are added in query escaping mechanism
 // Only keeping since used in the football injury code football_injury.inc.php that is included.
 // If start using this function, then incorporate the add_escape_custom() function into it
-function rbvalue($rbname) {
-  $tmp = $_POST[$rbname];
-  if (! $tmp) $tmp = '0';
-  return "'$tmp'";
+function rbvalue($rbname)
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) $tmp = '0';
+    return "'$tmp'";
 }
 
-function cbvalue($cbname) {
-  return $_POST[$cbname] ? '1' : '0';
+function cbvalue($cbname)
+{
+    return $_POST[$cbname] ? '1' : '0';
 }
 
-function invalue($inname) {
-  return (int) trim($_POST[$inname]);
+function invalue($inname)
+{
+    return (int) trim($_POST[$inname]);
 }
 
 // Do not use this function since quotes are added in query escaping mechanism
 // Only keeping since used in the football injury code football_injury.inc.php that is included.
 // If start using this function, then incorporate the add_escape_custom() function into it
-function txvalue($txname) {
-  return "'" . trim($_POST[$txname]) . "'";
+function txvalue($txname)
+{
+    return "'" . trim($_POST[$txname]) . "'";
 }
 
-function rbinput($name, $value, $desc, $colname) {
-  global $irow;
-  $ret  = "<input type='radio' name='".attr($name)."' value='".attr($value)."'";
-  if ($irow[$colname] == $value) $ret .= " checked";
-  $ret .= " />".text($desc);
-  return $ret;
+function rbinput($name, $value, $desc, $colname)
+{
+    global $irow;
+    $ret  = "<input type='radio' name='".attr($name)."' value='".attr($value)."'";
+    if ($irow[$colname] == $value) $ret .= " checked";
+    $ret .= " />".text($desc);
+    return $ret;
 }
 
-function rbcell($name, $value, $desc, $colname) {
- return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
+function rbcell($name, $value, $desc, $colname)
+{
+    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
 }
 
 // Given an issue type as a string, compute its index.
-function issueTypeIndex($tstr) {
-  global $ISSUE_TYPES;
-  $i = 0;
-  foreach ($ISSUE_TYPES as $key => $value) {
-    if ($key == $tstr) break;
-    ++$i;
-  }
-  return $i;
+function issueTypeIndex($tstr)
+{
+    global $ISSUE_TYPES;
+    $i = 0;
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $tstr) break;
+        ++$i;
+    }
+    return $i;
 }
 
-function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
+function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
+{
 ///////////////////////////////////////////////////////////////////////
 // Active Issue Code Recycle Function authored by epsdky (2014-2015) //
 ///////////////////////////////////////////////////////////////////////
 
-  $modeIssueTypes = array();
-  $issueTypeIdx2 = array();
-  $idx2 = 0;
+    $modeIssueTypes = array();
+    $issueTypeIdx2 = array();
+    $idx2 = 0;
 
-  foreach ($ISSUE_TYPES2 as $issueTypeX => $isJunk) {
+    foreach ($ISSUE_TYPES2 as $issueTypeX => $isJunk) {
 
-    $modeIssueTypes[$idx2] = $issueTypeX;
-    $issueTypeIdx2[$issueTypeX] = $idx2;
-    ++$idx2;
-
-  }
-
-  $pe2 = array($thispid2);
-  $qs2 = str_repeat('?, ', count($modeIssueTypes) - 1) . '?';
-  $sqlParameters2 = array_merge($pe2, $modeIssueTypes);
-
-  $codeList2 = array();
-
-  $issueCodes2 = sqlStatement("SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)", $sqlParameters2);
-
-  while ($issueCodesRow2 = sqlFetchArray($issueCodes2)) {
-
-    if ($issueCodesRow2['diagnosis'] != "") {
-
-      $someCodes2 = explode(";", $issueCodesRow2['diagnosis']);
-      $codeList2 = array_merge($codeList2, $someCodes2);
+        $modeIssueTypes[$idx2] = $issueTypeX;
+        $issueTypeIdx2[$issueTypeX] = $idx2;
+        ++$idx2;
 
     }
 
-  }
+    $pe2 = array($thispid2);
+    $qs2 = str_repeat('?, ', count($modeIssueTypes) - 1) . '?';
+    $sqlParameters2 = array_merge($pe2, $modeIssueTypes);
 
-  if ($codeList2) {
+    $codeList2 = array();
 
-    $codeList2 = array_unique($codeList2);
-    sort($codeList2);
+    $issueCodes2 = sqlStatement("SELECT diagnosis FROM lists WHERE pid = ? AND enddate is NULL AND type IN ($qs2)", $sqlParameters2);
 
-  }
+    while ($issueCodesRow2 = sqlFetchArray($issueCodes2)) {
 
-  $memberCodes = array();
-  $memberCodes[0] = array();
-  $memberCodes[1] = array();
-  $memberCodes[2] = array();
+        if ($issueCodesRow2['diagnosis'] != "") {
 
-  $allowedCodes2 = array();
-  $allowedCodes2[0] = collect_codetypes("medical_problem");
-  $allowedCodes2[1] = collect_codetypes("diagnosis");
-  $allowedCodes2[2] = collect_codetypes("drug");
+            $someCodes2 = explode(";", $issueCodesRow2['diagnosis']);
+            $codeList2 = array_merge($codeList2, $someCodes2);
+
+        }
+
+    }
+
+    if ($codeList2) {
+
+        $codeList2 = array_unique($codeList2);
+        sort($codeList2);
+
+    }
+
+    $memberCodes = array();
+    $memberCodes[0] = array();
+    $memberCodes[1] = array();
+    $memberCodes[2] = array();
+
+    $allowedCodes2 = array();
+    $allowedCodes2[0] = collect_codetypes("medical_problem");
+    $allowedCodes2[1] = collect_codetypes("diagnosis");
+    $allowedCodes2[2] = collect_codetypes("drug");
 
   // Test membership of codes to each code type set
-  foreach ($allowedCodes2 as $akey1 => $allowCodes2) {
+    foreach ($allowedCodes2 as $akey1 => $allowCodes2) {
 
-    foreach ($codeList2 as $listCode2) {
+        foreach ($codeList2 as $listCode2) {
 
-      list($codeTyX,) = explode(":", $listCode2);
+            list($codeTyX,) = explode(":", $listCode2);
 
-      if (in_array($codeTyX, $allowCodes2)) {
+            if (in_array($codeTyX, $allowCodes2)) {
 
-        array_push($memberCodes[$akey1], $listCode2);
+                array_push($memberCodes[$akey1], $listCode2);
 
-      }
+            }
+
+        }
 
     }
-
-  }
 
   // output sets of display options
-  $displayCodeSets[0] = $memberCodes[0]; // medical_problem
-  $displayCodeSets[1] = array_merge($memberCodes[1], $memberCodes[2]);  // allergy
-  $displayCodeSets[2] = array_merge($memberCodes[2], $memberCodes[1]);  // medication
-  $displayCodeSets[3] = $memberCodes[1];  // default
+    $displayCodeSets[0] = $memberCodes[0]; // medical_problem
+    $displayCodeSets[1] = array_merge($memberCodes[1], $memberCodes[2]);  // allergy
+    $displayCodeSets[2] = array_merge($memberCodes[2], $memberCodes[1]);  // medication
+    $displayCodeSets[3] = $memberCodes[1];  // default
 
-  echo "var listBoxOptionSets = new Array();\n\n";
+    echo "var listBoxOptionSets = new Array();\n\n";
 
-  foreach ($displayCodeSets as $akey => $displayCodeSet) {
+    foreach ($displayCodeSets as $akey => $displayCodeSet) {
 
-    echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
+        echo "listBoxOptionSets[" . attr($akey) . "] = new Array();\n";
 
-    if ($displayCodeSet) {
+        if ($displayCodeSet) {
 
-      foreach ($displayCodeSet as $dispCode2) {
+            foreach ($displayCodeSet as $dispCode2) {
 
-        $codeDesc2 = lookup_code_descriptions($dispCode2);
-        echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option('" . attr($dispCode2) . " (" . attr(trim($codeDesc2)) . ") ' ,'" . attr($dispCode2) . "' , false, false);\n";
+                $codeDesc2 = lookup_code_descriptions($dispCode2);
+                echo "listBoxOptionSets[" . attr($akey) . "][listBoxOptionSets[" . attr($akey) . "].length] = new Option('" . attr($dispCode2) . " (" . attr(trim($codeDesc2)) . ") ' ,'" . attr($dispCode2) . "' , false, false);\n";
 
-      }
+            }
+
+        }
 
     }
 
-  }
-
   // map issues to a set of display options
-  $modeIndexMapping = array();
+    $modeIndexMapping = array();
 
-  foreach ($modeIssueTypes as $akey2 => $isJunk) $modeIndexMapping[$akey2] = 3;
+    foreach ($modeIssueTypes as $akey2 => $isJunk) $modeIndexMapping[$akey2] = 3;
 
-  if (array_key_exists("medical_problem", $issueTypeIdx2))
+    if (array_key_exists("medical_problem", $issueTypeIdx2))
     $modeIndexMapping[$issueTypeIdx2['medical_problem']] = 0;
-  if (array_key_exists("allergy", $issueTypeIdx2))
+    if (array_key_exists("allergy", $issueTypeIdx2))
     $modeIndexMapping[$issueTypeIdx2['allergy']] = 1;
-  if (array_key_exists("medication", $issueTypeIdx2))
+    if (array_key_exists("medication", $issueTypeIdx2))
     $modeIndexMapping[$issueTypeIdx2['medication']] = 2;
 
-  echo "\nvar listBoxOptions2 = new Array();\n\n";
+    echo "\nvar listBoxOptions2 = new Array();\n\n";
 
-  foreach ($modeIssueTypes as $akey2 => $isJunk) {
-    echo "listBoxOptions2[" . attr($akey2) . "] = listBoxOptionSets[" . attr($modeIndexMapping[$akey2]) . "];\n";
-  }
+    foreach ($modeIssueTypes as $akey2 => $isJunk) {
+        echo "listBoxOptions2[" . attr($akey2) . "] = listBoxOptionSets[" . attr($modeIndexMapping[$akey2]) . "];\n";
+    }
 ///////////////////////////////////////////////////////////////////////
 // End of Active Issue Code Recycle Function main code block         //
 ///////////////////////////////////////////////////////////////////////
@@ -235,143 +244,143 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2) {
 //
 if ($_POST['form_save']) {
 
-  $i = 0;
-  $text_type = "unknown";
-  foreach ($ISSUE_TYPES as $key => $value) {
-   if ($i++ == $_POST['form_type']) $text_type = $key;
-  }
-
-  $form_begin = fixDate($_POST['form_begin'], '');
-  $form_end   = fixDate($_POST['form_end'], '');
-
-  if ($text_type == 'football_injury') {
-    $form_injury_part = $_POST['form_injury_part'];
-    $form_injury_type = $_POST['form_injury_type'];
-  }
-  else {
-    $form_injury_part = $_POST['form_medical_system'];
-    $form_injury_type = $_POST['form_medical_type'];
-  }
-
-  if ($issue) {
-
-   $query = "UPDATE lists SET " .
-    "type = '"        . add_escape_custom($text_type)                  . "', " .
-    "title = '"       . add_escape_custom($_POST['form_title'])        . "', " .
-    "comments = '"    . add_escape_custom($_POST['form_comments'])     . "', " .
-    "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
-    "enddate = "      . QuotedOrNull($form_end)     . ", "  .
-    "returndate = "   . QuotedOrNull($form_return)  . ", "  .
-    "diagnosis = '"   . add_escape_custom($_POST['form_diagnosis'])    . "', " .
-    "occurrence = '"  . add_escape_custom($_POST['form_occur'])        . "', " .
-    "classification = '" . add_escape_custom($_POST['form_classification']) . "', " .
-    "reinjury_id = '" . add_escape_custom($_POST['form_reinjury_id'])  . "', " .
-    "referredby = '"  . add_escape_custom($_POST['form_referredby'])   . "', " .
-    "injury_grade = '" . add_escape_custom($_POST['form_injury_grade']) . "', " .
-    "injury_part = '" . add_escape_custom($form_injury_part)           . "', " .
-    "injury_type = '" . add_escape_custom($form_injury_type)           . "', " .
-    "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
-    "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
-    "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
-    "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
-    "erx_uploaded = '0', " .
-    "modifydate = NOW() " .
-    "WHERE id = '" . add_escape_custom($issue) . "'";
-    sqlStatement($query);
-    if ($text_type == "medication" && enddate != '') {
-      sqlStatement('UPDATE prescriptions SET '
-        . 'medication = 0 where patient_id = ? '
-        . " and upper(trim(drug)) = ? "
-        . ' and medication = 1', array($thispid,strtoupper($_POST['form_title'])) );
+    $i = 0;
+    $text_type = "unknown";
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($i++ == $_POST['form_type']) $text_type = $key;
     }
 
-  } else {
+    $form_begin = fixDate($_POST['form_begin'], '');
+    $form_end   = fixDate($_POST['form_end'], '');
 
-   $issue = sqlInsert("INSERT INTO lists ( " .
-    "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
-    "diagnosis, occurrence, classification, referredby, user, groupname, " .
-    "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
-    "reaction, severity_al " .
-    ") VALUES ( " .
-    "NOW(), " .
-    "'" . add_escape_custom($thispid) . "', " .
-    "'" . add_escape_custom($text_type)                 . "', " .
-    "'" . add_escape_custom($_POST['form_title'])       . "', " .
-    "1, "                            .
-    "'" . add_escape_custom($_POST['form_comments'])    . "', " .
-    QuotedOrNull($form_begin)        . ", "  .
-    QuotedOrNull($form_end)        . ", "  .
-    QuotedOrNull($form_return)       . ", "  .
-    "'" . add_escape_custom($_POST['form_diagnosis'])   . "', " .
-    "'" . add_escape_custom($_POST['form_occur'])       . "', " .
-    "'" . add_escape_custom($_POST['form_classification']) . "', " .
-    "'" . add_escape_custom($_POST['form_referredby'])  . "', " .
-    "'" . add_escape_custom($$_SESSION['authUser'])     . "', " .
-    "'" . add_escape_custom($$_SESSION['authProvider']) . "', " .
-    "'" . add_escape_custom($_POST['form_outcome'])     . "', " .
-    "'" . add_escape_custom($_POST['form_destination']) . "', " .
-    "'" . add_escape_custom($_POST['form_reinjury_id']) . "', " .
-    "'" . add_escape_custom($_POST['form_injury_grade']) . "', " .
-    "'" . add_escape_custom($form_injury_part)          . "', " .
-    "'" . add_escape_custom($form_injury_type)          . "', " .
-    "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
-    "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
-   ")");
+    if ($text_type == 'football_injury') {
+        $form_injury_part = $_POST['form_injury_part'];
+        $form_injury_type = $_POST['form_injury_type'];
+    }
+    else {
+        $form_injury_part = $_POST['form_medical_system'];
+        $form_injury_type = $_POST['form_medical_type'];
+    }
 
-  }
+    if ($issue) {
+
+        $query = "UPDATE lists SET " .
+        "type = '"        . add_escape_custom($text_type)                  . "', " .
+        "title = '"       . add_escape_custom($_POST['form_title'])        . "', " .
+        "comments = '"    . add_escape_custom($_POST['form_comments'])     . "', " .
+        "begdate = "      . QuotedOrNull($form_begin)   . ", "  .
+        "enddate = "      . QuotedOrNull($form_end)     . ", "  .
+        "returndate = "   . QuotedOrNull($form_return)  . ", "  .
+        "diagnosis = '"   . add_escape_custom($_POST['form_diagnosis'])    . "', " .
+        "occurrence = '"  . add_escape_custom($_POST['form_occur'])        . "', " .
+        "classification = '" . add_escape_custom($_POST['form_classification']) . "', " .
+        "reinjury_id = '" . add_escape_custom($_POST['form_reinjury_id'])  . "', " .
+        "referredby = '"  . add_escape_custom($_POST['form_referredby'])   . "', " .
+        "injury_grade = '" . add_escape_custom($_POST['form_injury_grade']) . "', " .
+        "injury_part = '" . add_escape_custom($form_injury_part)           . "', " .
+        "injury_type = '" . add_escape_custom($form_injury_type)           . "', " .
+        "outcome = '"     . add_escape_custom($_POST['form_outcome'])      . "', " .
+        "destination = '" . add_escape_custom($_POST['form_destination'])   . "', " .
+        "reaction ='"     . add_escape_custom($_POST['form_reaction'])     . "', " .
+        "severity_al ='"     . add_escape_custom($_POST['form_severity_id'])     . "', " .
+        "erx_uploaded = '0', " .
+        "modifydate = NOW() " .
+        "WHERE id = '" . add_escape_custom($issue) . "'";
+        sqlStatement($query);
+        if ($text_type == "medication" && enddate != '') {
+            sqlStatement('UPDATE prescriptions SET '
+            . 'medication = 0 where patient_id = ? '
+            . " and upper(trim(drug)) = ? "
+            . ' and medication = 1', array($thispid,strtoupper($_POST['form_title'])) );
+        }
+
+    } else {
+
+        $issue = sqlInsert("INSERT INTO lists ( " .
+        "date, pid, type, title, activity, comments, begdate, enddate, returndate, " .
+        "diagnosis, occurrence, classification, referredby, user, groupname, " .
+        "outcome, destination, reinjury_id, injury_grade, injury_part, injury_type, " .
+        "reaction, severity_al " .
+        ") VALUES ( " .
+        "NOW(), " .
+        "'" . add_escape_custom($thispid) . "', " .
+        "'" . add_escape_custom($text_type)                 . "', " .
+        "'" . add_escape_custom($_POST['form_title'])       . "', " .
+        "1, "                            .
+        "'" . add_escape_custom($_POST['form_comments'])    . "', " .
+        QuotedOrNull($form_begin)        . ", "  .
+        QuotedOrNull($form_end)        . ", "  .
+        QuotedOrNull($form_return)       . ", "  .
+        "'" . add_escape_custom($_POST['form_diagnosis'])   . "', " .
+        "'" . add_escape_custom($_POST['form_occur'])       . "', " .
+        "'" . add_escape_custom($_POST['form_classification']) . "', " .
+        "'" . add_escape_custom($_POST['form_referredby'])  . "', " .
+        "'" . add_escape_custom($$_SESSION['authUser'])     . "', " .
+        "'" . add_escape_custom($$_SESSION['authProvider']) . "', " .
+        "'" . add_escape_custom($_POST['form_outcome'])     . "', " .
+        "'" . add_escape_custom($_POST['form_destination']) . "', " .
+        "'" . add_escape_custom($_POST['form_reinjury_id']) . "', " .
+        "'" . add_escape_custom($_POST['form_injury_grade']) . "', " .
+        "'" . add_escape_custom($form_injury_part)          . "', " .
+        "'" . add_escape_custom($form_injury_type)          . "', " .
+        "'" . add_escape_custom($_POST['form_reaction'])         . "', " .
+        "'" . add_escape_custom($_POST['form_severity_id'])         . "' " .
+        ")");
+
+    }
 
   // For record/reporting purposes, place entry in lists_touch table.
-  setListTouch($thispid,$text_type);
+    setListTouch($thispid,$text_type);
 
-  if ($text_type == 'football_injury') issue_football_injury_save($issue);
-  if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
-  if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
+    if ($text_type == 'football_injury') issue_football_injury_save($issue);
+    if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
+    if ($text_type == 'contraceptive'  ) issue_ippf_con_save($issue);
 
   // If requested, link the issue to a specified encounter.
-  if ($thisenc) {
-    $query = "INSERT INTO issue_encounter ( " .
-      "pid, list_id, encounter " .
-      ") VALUES ( ?,?,? )";
-    sqlStatement($query, array($thispid,$issue,$thisenc));
-  }
+    if ($thisenc) {
+        $query = "INSERT INTO issue_encounter ( " .
+        "pid, list_id, encounter " .
+        ") VALUES ( ?,?,? )";
+        sqlStatement($query, array($thispid,$issue,$thisenc));
+    }
 
-  $tmp_title = addslashes($ISSUE_TYPES[$text_type][2] . ": $form_begin " .
+    $tmp_title = addslashes($ISSUE_TYPES[$text_type][2] . ": $form_begin " .
     substr($_POST['form_title'], 0, 40));
 
   // Close this window and redisplay the updated list of issues.
   //
-  echo "<html><body><script language='JavaScript'>\n";
-  if ($info_msg) echo " alert('$info_msg');\n";
+    echo "<html><body><script language='JavaScript'>\n";
+    if ($info_msg) echo " alert('$info_msg');\n";
 
-  echo " var myboss = opener ? opener : parent;\n";
-  echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
-  echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
-  echo " else myboss.location.reload();\n";
-  echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
-  echo " else window.close();\n";
+    echo " var myboss = opener ? opener : parent;\n";
+    echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
+    echo " else if (myboss.reloadIssues) myboss.reloadIssues();\n";
+    echo " else myboss.location.reload();\n";
+    echo " if (parent.$ && parent.$.fancybox) parent.$.fancybox.close();\n";
+    echo " else window.close();\n";
 
-  echo "</script></body></html>\n";
-  exit();
+    echo "</script></body></html>\n";
+    exit();
 }
 
 $irow = array();
 if ($issue) {
-  $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
-  if (!acl_check_issue($irow['type'], '', 'write')) {
-    die(xlt("Edit is not authorized!"));
-  }
+    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
+    if (!acl_check_issue($irow['type'], '', 'write')) {
+        die(xlt("Edit is not authorized!"));
+    }
 }
 else if ($thistype) {
-  $irow['type'] = $thistype;
+    $irow['type'] = $thistype;
 }
 
 $type_index = 0;
 
 if (!empty($irow['type'])) {
-  foreach ($ISSUE_TYPES as $key => $value) {
-    if ($key == $irow['type']) break;
-    ++$type_index;
-  }
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $irow['type']) break;
+        ++$type_index;
+    }
 }
 ?>
 <html>
@@ -412,18 +421,18 @@ div.section {
  var aopts   = new Array(); // Option objects
 <?php
  $i = 0;
- foreach ($ISSUE_TYPES as $key => $value) {
-  echo " aitypes[$i] = " . attr($value[3]) . ";\n";
-  echo " aopts[$i] = new Array();\n";
-  $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1",array($key."_issue_list"));
-  while($res = sqlFetchArray($qry)){
-    echo " aopts[$i][aopts[$i].length] = new Option('".attr(xl_list_label(trim($res['title'])))."', '".attr(trim($res['option_id']))."', false, false);\n";
-    if ($res['codes']) {
-      echo " aopts[$i][aopts[$i].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
+foreach ($ISSUE_TYPES as $key => $value) {
+    echo " aitypes[$i] = " . attr($value[3]) . ";\n";
+    echo " aopts[$i] = new Array();\n";
+    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1",array($key."_issue_list"));
+    while($res = sqlFetchArray($qry)){
+        echo " aopts[$i][aopts[$i].length] = new Option('".attr(xl_list_label(trim($res['title'])))."', '".attr(trim($res['option_id']))."', false, false);\n";
+        if ($res['codes']) {
+            echo " aopts[$i][aopts[$i].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
+        }
     }
-  }
-  ++$i;
- }
+    ++$i;
+}
 
 ///////////
 ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
@@ -492,15 +501,15 @@ ActiveIssueCodeRecycleFn($thispid, $ISSUE_TYPES);
   document.getElementById('row_referredby'    ).style.display = (f.form_referredby.value) ? '' : comdisp;
 
 <?php
-  if ($ISSUE_TYPES['football_injury']) {
+if ($ISSUE_TYPES['football_injury']) {
     // Generate more of these for football injury fields.
     issue_football_injury_newtype();
-  }
-  if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
+}
+if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
     // Generate more of these for gcac and contraceptive fields.
     if (empty($issue) || $irow['type'] == 'ippf_gcac'    ) issue_ippf_gcac_newtype();
     if (empty($issue) || $irow['type'] == 'contraceptive') issue_ippf_con_newtype();
-  }
+}
 ?>
  }
 
@@ -578,17 +587,17 @@ function sel_diagnosis() {
 <?php
 $url = '../encounter/find_code_popup.php?codetype=';
 if($irow['type'] == 'medical_problem') {
-  $url .= collect_codetypes("medical_problem", "csv");
+    $url .= collect_codetypes("medical_problem", "csv");
 }
 else {
-  $url .= collect_codetypes("diagnosis","csv");
-  $tmp  = collect_codetypes("drug","csv");
-  if($irow['type'] == 'allergy') {
-    if ($tmp) $url .= ",$tmp";
-  }
-  else if($irow['type'] == 'medication') {
-    if ($tmp) $url .= ",$tmp&default=$tmp";
-  }
+    $url .= collect_codetypes("diagnosis","csv");
+    $tmp  = collect_codetypes("drug","csv");
+    if($irow['type'] == 'allergy') {
+        if ($tmp) $url .= ",$tmp";
+    }
+    else if($irow['type'] == 'medication') {
+        if ($tmp) $url .= ",$tmp&default=$tmp";
+    }
 }
 ?>
  dlgopen('<?php echo $url; ?>', '_blank', 700, 500);
@@ -647,20 +656,20 @@ $(document).ready(function() {
   <td>
 <?php
  $index = 0;
- foreach ($ISSUE_TYPES as $key => $value) {
-  if ($issue || $thistype) {
-    if ($index == $type_index) {
-      echo text($value[1]);
-      echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
+foreach ($ISSUE_TYPES as $key => $value) {
+    if ($issue || $thistype) {
+        if ($index == $type_index) {
+            echo text($value[1]);
+            echo "<input type='hidden' name='form_type' value='".attr($index)."'>\n";
+        }
+    } else {
+        echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
+        if ($index == $type_index) echo " checked";
+        if (!acl_check_issue($key, '', array('write','addonly'))) echo " disabled";
+        echo " />" . text($value[1]) . "&nbsp;\n";
     }
-  } else {
-    echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
-    if ($index == $type_index) echo " checked";
-    if (!acl_check_issue($key, '', array('write','addonly'))) echo " disabled";
-    echo " />" . text($value[1]) . "&nbsp;\n";
-  }
-  ++$index;
- }
+    ++$index;
+}
 ?>
   </td>
  </tr>
@@ -742,10 +751,10 @@ $(document).ready(function() {
  <tr id='row_occurrence'>
   <td valign='top' nowrap><b><?php echo xlt('Occurrence'); ?>:</b></td>
   <td>
-   <?php
+    <?php
     // Modified 6/2009 by BM to incorporate the occurrence items into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'occur','list_id'=>'occurrence','empty_title'=>'SKIP'), $irow['occurrence']);
-   ?>
+    ?>
   </td>
  </tr>
 
@@ -755,11 +764,11 @@ $(document).ready(function() {
   <td>
    <select name='form_classification'>
 <?php
- foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
-  echo "   <option value='".attr($key)."'";
-  if ($key == $irow['classification']) echo " selected";
-  echo ">".text($value)."\n";
- }
+foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
+    echo "   <option value='".attr($key)."'";
+    if ($key == $irow['classification']) echo " selected";
+    echo ">".text($value)."\n";
+}
 ?>
    </select>
   </td>
@@ -771,15 +780,15 @@ $(document).ready(function() {
     <td><?php
         $severity=$irow['severity_al'];
         generate_form_field(array('data_type'=>1,'field_id'=>'severity_id','list_id'=>'severity_ccda','empty_title'=>'SKIP'), $severity);
-      ?>
+        ?>
     </td>
   </tr>
   <tr id='row_reaction'>
    <td valign='top' nowrap><b><?php echo xlt('Reaction'); ?>:</b></td>
    <td>
-     <?php
+        <?php
         echo generate_select_list('form_reaction', 'reaction', $irow['reaction'], '', '', '', '');
-     ?>
+        ?>
    </td>
   </tr>
  <!-- End of reaction -->
@@ -802,9 +811,9 @@ $(document).ready(function() {
  <tr<?php if ($GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
   <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
   <td>
-   <?php
+    <?php
     echo generate_select_list('form_outcome', 'outcome', $irow['outcome'], '', '', '', 'outcomeClicked(this);');
-   ?>
+    ?>
   </td>
  </tr>
 
@@ -815,10 +824,10 @@ $(document).ready(function() {
    <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
     style='width:100%' title='GP, Secondary care specialist, etc.' />
 <?php } else { // leave this here for now, please -- Rod ?>
-   <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-   <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+    <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+    <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
+    <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
+    <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
 <?php } ?>
   </td>
  </tr>
@@ -826,15 +835,15 @@ $(document).ready(function() {
 </table>
 
 <?php
-  if ($ISSUE_TYPES['football_injury']) {
+if ($ISSUE_TYPES['football_injury']) {
     issue_football_injury_form($issue);
-  }
-  if ($ISSUE_TYPES['ippf_gcac']) {
+}
+if ($ISSUE_TYPES['ippf_gcac']) {
     if (empty($issue) || $irow['type'] == 'ippf_gcac')
-      issue_ippf_gcac_form($issue, $thispid);
+    issue_ippf_gcac_form($issue, $thispid);
     if (empty($issue) || $irow['type'] == 'contraceptive')
-      issue_ippf_con_form($issue, $thispid);
-  }
+    issue_ippf_con_form($issue, $thispid);
+}
 ?>
 
 <center>

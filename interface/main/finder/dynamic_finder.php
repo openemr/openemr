@@ -20,16 +20,16 @@ $coljson = "";
 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
   "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 while ($row = sqlFetchArray($res)) {
-  $colname = $row['option_id'];
-  $title = xl_list_label($row['title']);
-  $header .= "   <th>";
-  $header .= text($title);
-  $header .= "</th>\n";
-  $header0 .= "   <td align='center'><input type='text' size='10' ";
-  $header0 .= "value='' class='search_init' /></td>\n";
-  if ($coljson) $coljson .= ", ";
-  $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
-  ++$colcount;
+    $colname = $row['option_id'];
+    $title = xl_list_label($row['title']);
+    $header .= "   <th>";
+    $header .= text($title);
+    $header .= "</th>\n";
+    $header0 .= "   <td align='center'><input type='text' size='10' ";
+    $header0 .= "value='' class='search_init' /></td>\n";
+    if ($coljson) $coljson .= ", ";
+    $coljson .= "{\"sName\": \"" . addcslashes($colname, "\t\r\n\"\\") . "\"}";
+    ++$colcount;
 }
 ?>
 <html>
@@ -66,21 +66,21 @@ $(document).ready(function() {
   "columns": [ <?php echo $coljson; ?> ],
   "lengthMenu": [ 10, 25, 50, 100 ],
   "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
-  <?php // Bring in the translations ?>
-  <?php $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) ; ?>
-  <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+    <?php // Bring in the translations ?>
+    <?php $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) ; ?>
+    <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
  } );
 
  // This puts our custom HTML into the table header.
  $("div.mytopdiv").html("<form name='myform'><input type='checkbox' name='form_new_window' value='1'<?php
-  if (!empty($GLOBALS['gbl_pt_list_new_window'])) echo ' checked'; ?> /><?php
+    if (!empty($GLOBALS['gbl_pt_list_new_window'])) echo ' checked'; ?> /><?php
   echo xlt('Open in New Window'); ?></form>");
 
  // This is to support column-specific search fields.
  // Borrowed from the multi_filter.html example.
  $("thead input").keyup(function () {
   // Filter on the column (the index) of this element
-	oTable.fnFilter( this.value, $("thead input").index(this) );
+    oTable.fnFilter( this.value, $("thead input").index(this) );
  });
 
  // OnClick handler for the rows

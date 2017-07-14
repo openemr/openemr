@@ -24,7 +24,7 @@ echo "var s = document.forms[0].form_copy_sn_visit;\n";
 echo "s.options.length = 0;\n";
 
 while ($row = sqlFetchArray($res)) {
-  echo "s.options[s.options.length] = new Option(" .
+    echo "s.options[s.options.length] = new Option(" .
     "'" . substr($row['date'], 0, 10) . " " .
     addslashes(strtr(substr($row['reason'], 0, 40), "\r\n", "  ")) . "', " .
     "'" . $row['encounter'] . "'" .

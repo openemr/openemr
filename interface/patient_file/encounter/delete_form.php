@@ -44,7 +44,7 @@ if ($_POST['confirm']) {
     // set the deleted flag of the indicated form
     $sql = "update forms set deleted=1 where id= ?";
     if ($_POST['id'] != "*" && $_POST['id'] != '') sqlInsert($sql, array($_POST['id']));
-    // log the event   
+    // log the event
     newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form ".$_POST['formname']." deleted from Encounter ".$_POST['encounter']);
 
     // redirect back to the encounter

@@ -11,8 +11,8 @@
  * @version 1.0
  */
 class UrlWriterMode {
-	const WEB = "WEB";
-	const JOOMLA = "JOOMLA";
-	const MOBILE = "MOBILE";
+    const WEB = "WEB";
+    const JOOMLA = "JOOMLA";
+    const MOBILE = "MOBILE";
 }
 ?>

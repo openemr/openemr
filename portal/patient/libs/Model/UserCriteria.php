@@ -38,16 +38,16 @@ require_once("DAO/UserCriteriaDAO.php");
 class UserCriteria extends UserCriteriaDAO
 {
 
-	/**
-	 * GetFieldFromProp returns the DB column for a given class property
-	 *
-	 * If any fields that are not part of the table need to be supported
-	 * by this Criteria class, they can be added inside the switch statement
-	 * in this method
-	 *
-	 * @see Criteria::GetFieldFromProp()
-	 */
-	/*
+    /**
+     * GetFieldFromProp returns the DB column for a given class property
+     *
+     * If any fields that are not part of the table need to be supported
+     * by this Criteria class, they can be added inside the switch statement
+     * in this method
+     *
+     * @see Criteria::GetFieldFromProp()
+     */
+    /*
 	public function GetFieldFromProp($propname)
 	{
 		switch($propname)
@@ -62,14 +62,14 @@ class UserCriteria extends UserCriteriaDAO
 	}
 	*/
 
-	/**
-	 * For custom query logic, you may override OnPrepare and set the $this->_where to whatever
-	 * sql code is necessary.  If you choose to manually set _where then Phreeze will not touch
-	 * your where clause at all and so any of the standard property names will be ignored
-	 *
-	 * @see Criteria::OnPrepare()
-	 */
-	/*
+    /**
+     * For custom query logic, you may override OnPrepare and set the $this->_where to whatever
+     * sql code is necessary.  If you choose to manually set _where then Phreeze will not touch
+     * your where clause at all and so any of the standard property names will be ignored
+     *
+     * @see Criteria::OnPrepare()
+     */
+    /*
 	function OnPrepare()
 	{
 		if ($this->MyCustomField == "special value")

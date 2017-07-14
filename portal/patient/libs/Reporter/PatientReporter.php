@@ -40,103 +40,103 @@ require_once("verysimple/Phreeze/Reporter.php");
 class PatientReporter extends Reporter
 {
 
-	// the properties in this class must match the columns returned by GetCustomQuery().
-	// 'CustomFieldExample' is an example that is not part of the `patient_data` table
-	public $CustomFieldExample;
+    // the properties in this class must match the columns returned by GetCustomQuery().
+    // 'CustomFieldExample' is an example that is not part of the `patient_data` table
+    public $CustomFieldExample;
 
-	public $Id;
-	public $Title;
-	public $Language;
-	public $Financial;
-	public $Fname;
-	public $Lname;
-	public $Mname;
-	public $Dob;
-	public $Street;
-	public $PostalCode;
-	public $City;
-	public $State;
-	public $CountryCode;
-	public $DriversLicense;
-	public $Ss;
-	public $Occupation;
-	public $PhoneHome;
-	public $PhoneBiz;
-	public $PhoneContact;
-	public $PhoneCell;
-	public $PharmacyId;
-	public $Status;
-	public $ContactRelationship;
-	public $Date;
-	public $Sex;
-	public $Referrer;
-	public $Referrerid;
-	public $Providerid;
-	public $RefProviderid;
-	public $Email;
-	public $EmailDirect;
-	public $Ethnoracial;
-	public $Race;
-	public $Ethnicity;
-	public $Religion;
-	public $Interpretter;
-	public $Migrantseasonal;
-	public $FamilySize;
-	public $MonthlyIncome;
-	public $BillingNote;
-	public $Homeless;
-	public $FinancialReview;
-	public $Pubpid;
-	public $Pid;
-	public $Genericname1;
-	public $Genericval1;
-	public $Genericname2;
-	public $Genericval2;
-	public $HipaaMail;
-	public $HipaaVoice;
-	public $HipaaNotice;
-	public $HipaaMessage;
-	public $HipaaAllowsms;
-	public $HipaaAllowemail;
-	public $Squad;
-	public $Fitness;
-	public $ReferralSource;
-	public $Usertext1;
-	public $Usertext2;
-	public $Usertext3;
-	public $Usertext4;
-	public $Usertext5;
-	public $Usertext6;
-	public $Usertext7;
-	public $Usertext8;
-	public $Userlist1;
-	public $Userlist2;
-	public $Userlist3;
-	public $Userlist4;
-	public $Userlist5;
-	public $Userlist6;
-	public $Userlist7;
-	public $Pricelevel;
-	public $Regdate;
-	public $Contrastart;
-	public $CompletedAd;
-	public $AdReviewed;
-	public $Vfc;
-	public $Mothersname;
-	public $Guardiansname;
-	public $AllowImmRegUse;
-	public $AllowImmInfoShare;
-	public $AllowHealthInfoEx;
-	public $AllowPatientPortal;
-	public $DeceasedDate;
-	public $DeceasedReason;
-	public $SoapImportStatus;
-	public $CmsportalLogin;
-	public $CareTeam;
-	public $County;
-	public $Industry;
+    public $Id;
+    public $Title;
+    public $Language;
+    public $Financial;
+    public $Fname;
+    public $Lname;
+    public $Mname;
+    public $Dob;
+    public $Street;
+    public $PostalCode;
+    public $City;
+    public $State;
+    public $CountryCode;
+    public $DriversLicense;
+    public $Ss;
+    public $Occupation;
+    public $PhoneHome;
+    public $PhoneBiz;
+    public $PhoneContact;
+    public $PhoneCell;
+    public $PharmacyId;
+    public $Status;
+    public $ContactRelationship;
+    public $Date;
+    public $Sex;
+    public $Referrer;
+    public $Referrerid;
+    public $Providerid;
+    public $RefProviderid;
+    public $Email;
+    public $EmailDirect;
+    public $Ethnoracial;
+    public $Race;
+    public $Ethnicity;
+    public $Religion;
+    public $Interpretter;
+    public $Migrantseasonal;
+    public $FamilySize;
+    public $MonthlyIncome;
+    public $BillingNote;
+    public $Homeless;
+    public $FinancialReview;
+    public $Pubpid;
+    public $Pid;
+    public $Genericname1;
+    public $Genericval1;
+    public $Genericname2;
+    public $Genericval2;
+    public $HipaaMail;
+    public $HipaaVoice;
+    public $HipaaNotice;
+    public $HipaaMessage;
+    public $HipaaAllowsms;
+    public $HipaaAllowemail;
+    public $Squad;
+    public $Fitness;
+    public $ReferralSource;
+    public $Usertext1;
+    public $Usertext2;
+    public $Usertext3;
+    public $Usertext4;
+    public $Usertext5;
+    public $Usertext6;
+    public $Usertext7;
+    public $Usertext8;
+    public $Userlist1;
+    public $Userlist2;
+    public $Userlist3;
+    public $Userlist4;
+    public $Userlist5;
+    public $Userlist6;
+    public $Userlist7;
+    public $Pricelevel;
+    public $Regdate;
+    public $Contrastart;
+    public $CompletedAd;
+    public $AdReviewed;
+    public $Vfc;
+    public $Mothersname;
+    public $Guardiansname;
+    public $AllowImmRegUse;
+    public $AllowImmInfoShare;
+    public $AllowHealthInfoEx;
+    public $AllowPatientPortal;
+    public $DeceasedDate;
+    public $DeceasedReason;
+    public $SoapImportStatus;
+    public $CmsportalLogin;
+    public $CareTeam;
+    public $County;
+    public $Industry;
 
-	/*
+    /*
 	* GetCustomQuery returns a fully formed SQL statement.  The result columns
 	* must match with the properties of this reporter object.
 	*
@@ -144,9 +144,9 @@ class PatientReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomQuery($criteria)
-	{
-		$sql = "select
+    static function GetCustomQuery($criteria)
+    {
+        $sql = "select
 			'custom value here...' as CustomFieldExample
 			,`patient_data`.`id` as Id
 			,`patient_data`.`title` as Title
@@ -241,15 +241,15 @@ class PatientReporter extends Reporter
 			,`patient_data`.`industry` as Industry
 		from `patient_data`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
-		$sql .= $criteria->GetOrder();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
+        $sql .= $criteria->GetOrder();
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	/*
+    /*
 	* GetCustomCountQuery returns a fully formed SQL statement that will count
 	* the results.  This query must return the correct number of results that
 	* GetCustomQuery would, given the same criteria
@@ -258,16 +258,16 @@ class PatientReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomCountQuery($criteria)
-	{
-		$sql = "select count(1) as counter from `patient_data`";
+    static function GetCustomCountQuery($criteria)
+    {
+        $sql = "select count(1) as counter from `patient_data`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
 
-		return $sql;
-	}
+        return $sql;
+    }
 }
 
 ?>

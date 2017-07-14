@@ -75,19 +75,21 @@ rsort($datapoints);
 
 
 // convert to applicable weight units from the globals.php setting
-function unitsWt($wt) {
+function unitsWt($wt)
+{
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-	return (number_format(($wt*0.45359237),2,'.','').xl('kg','',' '));
+        return (number_format(($wt*0.45359237),2,'.','').xl('kg','',' '));
     }
     else {
-	//keep US units
+    //keep US units
         return $wt.xl('lb','',' ');
     }
 }
 
 // convert to applicable weight units from the globals.php setting
-function unitsDist($dist) {
+function unitsDist($dist)
+{
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
         return (number_format(($dist*2.54),2,'.','').xl('cm','',' '));
@@ -127,10 +129,10 @@ if ($charttype == 'birth') {
     $HC_dot_y =  764;     //Head circumference starts here - at 11 inches
     $HC_delta_y = 60.00;  //calculated pixels per inch for head circumference
 
-	$WT_y = 1127; //start here to draw wt and height graph at bottom of Head circumference chart
-	$WT_delta_y = 12.96;
-	$HT_x = 1187; //start here to draw wt and height graph at bottom of Head circumference chart
-	$HT_delta_x = 24.32;
+    $WT_y = 1127; //start here to draw wt and height graph at bottom of Head circumference chart
+    $WT_delta_y = 12.96;
+    $HT_x = 1187; //start here to draw wt and height graph at bottom of Head circumference chart
+    $HT_delta_x = 24.32;
 
     if (preg_match('/^male/i', $patient_data['sex'])) {
         $chart = "birth-24mos_boys_HC.png";
@@ -150,8 +152,8 @@ if ($charttype == 'birth') {
     $ageOffset = 0;
     $heightOffset = 15; // Substract 15 because the graph starts at 15 inches
     $weightOffset = 3;  // graph starts at 3 lbs
-	$WToffset = 0; //for wt and ht table at bottom half of HC graph
-	$HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
+    $WToffset = 0; //for wt and ht table at bottom half of HC graph
+    $HToffset = 18; // starting inch for wt and ht table at bottom half of HC graph
 
     // pixel positions and offsets for data table
     $datatable_x = 370;
@@ -239,7 +241,8 @@ else {
 $cssWidth = 524;
 $cssHeight = 668;
 
-function cssHeader() {
+function cssHeader()
+{
     global $cssWidth, $cssHeight;
 
     ?>
@@ -273,11 +276,11 @@ function cssHeader() {
         div.label_custom {
             font-size: 7pt;
         }
-	div.DoNotPrint {
-	    position: absolute;
-	    top: 2pt;
-	    left: 200pt;
-	}
+    div.DoNotPrint {
+        position: absolute;
+        top: 2pt;
+        left: 200pt;
+    }
         img {
             margin: 0;
             padding: 0;
@@ -287,26 +290,26 @@ function cssHeader() {
             height: <?php echo $cssHeight; ?>pt;
         }
         @media print {
-	    div.DoNotPrint {
-	        display: none;
-	    }
-	}
+        div.DoNotPrint {
+            display: none;
+        }
+    }
     </style>
     <SCRIPT LANGUAGE="JavaScript">
-        function FormSetup()	{
-	    changeStyle('page1')
-	}
-	function changeStyle(css_title) {
-	    var i, link_tag ;
-	    for (i = 0, link_tag = document.getElementsByTagName("link") ; i < link_tag.length ; i++ ) {
-	        if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].title) {
-		    link_tag[i].disabled = true ;
-	    	    if (link_tag[i].title == css_title) {
-	    	        link_tag[i].disabled = false ;
-	    	    }
-	    	}
-	    }
-	}
+        function FormSetup()    {
+        changeStyle('page1')
+    }
+    function changeStyle(css_title) {
+        var i, link_tag ;
+        for (i = 0, link_tag = document.getElementsByTagName("link") ; i < link_tag.length ; i++ ) {
+            if ((link_tag[i].rel.indexOf( "stylesheet" ) != -1) && link_tag[i].title) {
+            link_tag[i].disabled = true ;
+                if (link_tag[i].title == css_title) {
+                    link_tag[i].disabled = false ;
+                }
+            }
+        }
+    }
   function pagePrint(title) {
     changeStyle(title);
     var win = top.printLogPrint ? top : opener.top;
@@ -331,20 +334,22 @@ function cssHeader() {
     <?php
 }
 
-function cssFooter() {
+function cssFooter()
+{
     ?>
     </body>
     </html>
     <?php
 }
 
-function cssPage($image1,$image2) {
+function cssPage($image1,$image2)
+{
     ?>
     <div class='paddingdiv' id='page1'>
         <img class='background' src='<?php echo $image1; ?>' />
     </div>
     <div class='paddingdiv' id='page2'>
-	<img class='background' src='<?php echo $image2; ?>' />
+    <img class='background' src='<?php echo $image2; ?>' />
     </div>
     <?php
 }
@@ -352,7 +357,8 @@ function cssPage($image1,$image2) {
 // Convert a point from above settings for gd into a
 // a format (pt) to use for css html document
 //  return - Array(Xcoord,Ycoord,page)
-function convertpoint($coord) {
+function convertpoint($coord)
+{
     global $cssWidth, $cssHeight;
 
     //manual offsets to help line up output
@@ -370,8 +376,8 @@ function convertpoint($coord) {
 
     if ($Xcoord > 1000) {
         //on second page so subtract 1000 from x
-	$Xcoord = $Xcoord - 1000;
-	$page = "page2";
+        $Xcoord = $Xcoord - 1000;
+        $page = "page2";
     }
     else {
         $page = "page1";
@@ -384,7 +390,7 @@ function convertpoint($coord) {
     $Ycoord = number_format($Ycoord,1,'.','');
 
     //return point
-    return(Array($Xcoord,$Ycoord,$page));
+    return(array($Xcoord,$Ycoord,$page));
 }
 
 
@@ -394,9 +400,9 @@ if ($_GET['html'] == 1) {
     cssPage($chartCss1,$chartCss2);
 
     //output name
-    $point = convertpoint(Array($name_x,$name_y));
+    $point = convertpoint(array($name_x,$name_y));
     echo("<div id='" . $point[2]  . "' class='name' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $name  . "</div>\n");
-    $point = convertpoint(Array($name_x1,$name_y1));
+    $point = convertpoint(array($name_x1,$name_y1));
     echo("<div id='" . $point[2]  . "' class='name' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $name  . "</div>\n");
 
     // counter to limit the number of data points plotted
@@ -432,33 +438,33 @@ if ($_GET['html'] == 1) {
 
         // Draw Height dot
         $y1 = $dot_y1 - $delta_y1 * ($height - $heightOffset);
-        $point = convertpoint(Array($x,$y1));
+        $point = convertpoint(array($x,$y1));
         echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
 
         // Draw Weight bullseye
         $y2 = $dot_y2 - $delta_y2 * ($weight - $weightOffset);
-	$point = convertpoint(Array($x,$y2));
-	echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='redbox.gif' /></div>\n");
+        $point = convertpoint(array($x,$y2));
+        echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='redbox.gif' /></div>\n");
 
         if ($charttype == "birth") {
             // Draw Head circumference
             $HC_x = $HC_dot_x + $HC_delta_x * $age;
             $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
-            $point = convertpoint(Array($HC_x,$HC_y));
-	    echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='bluedot.gif' /></div>\n");
+            $point = convertpoint(array($HC_x,$HC_y));
+            echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='bluedot.gif' /></div>\n");
             // Draw Wt and Ht graph at the bottom half
-			$WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
-			$HT = $HT_x + $HT_delta_x * ($height - $HToffset);
-			$point = convertpoint(Array($HT,$WT));
-		echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
-		}
+            $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
+            $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+            $point = convertpoint(array($HT,$WT));
+            echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
+        }
         else if ($charttype == "2-20") {
             // Draw BMI
             $bmi = $weight/$height/$height*703;
             $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
             $bmi_y = $bmi_dot_y - $bmi_delta_y * ($bmi - 10);
-	    $point = convertpoint(Array($bmi_x,$bmi_y));
-	    echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='bluedot.gif' /></div>\n");
+            $point = convertpoint(array($bmi_x,$bmi_y));
+            echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='bluedot.gif' /></div>\n");
         }
 
         // fill in data tables
@@ -467,61 +473,61 @@ if ($_GET['html'] == 1) {
 
         //birth to 24 mos chart has 8 rows to fill.
         if ($count < 8 && $charttype == "birth") {
-	    $point = convertpoint(Array($datatable_x,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
-            $point = convertpoint(Array($datatable_x+$datatable_age_offset,$datatable_y));
+            $point = convertpoint(array($datatable_x,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_age_offset,$datatable_y));
             echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
-            $point = convertpoint(Array($datatable_x+$datatable_weight_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
-            $point = convertpoint(Array($datatable_x+$datatable_height_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
-            $point = convertpoint(Array($datatable_x+$datatable_hc_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($head_circ) . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_weight_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_hc_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($head_circ) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
 
         // 2 to 20 year-old chart has 7 rows to fill.
         if ($count < 7  && $charttype == "2-20") {
-	    $point = convertpoint(Array($datatable_x,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
-	    $point = convertpoint(Array($datatable_x+$datatable_age_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
-	    $point = convertpoint(Array($datatable_x+$datatable_weight_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
-	    $point = convertpoint(Array($datatable_x+$datatable_height_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
-	    $point = convertpoint(Array($datatable_x+$datatable_bmi_offset,$datatable_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            $point = convertpoint(array($datatable_x,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_age_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_weight_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
+            $point = convertpoint(array($datatable_x+$datatable_bmi_offset,$datatable_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
 
         // Head Circumference chart has 5 rows to fill in
         if ($count < 5 && $charttype == "birth") {
-	    $point = convertpoint(Array($datatable2_x,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
-	    $point = convertpoint(Array($datatable2_x+$datatable2_age_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
-            $point = convertpoint(Array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
-            $point = convertpoint(Array($datatable2_x+$datatable2_height_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
-            $point = convertpoint(Array($datatable2_x+$datatable2_hc_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($head_circ) . "</div>\n");
+            $point = convertpoint(array($datatable2_x,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_age_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_hc_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($head_circ) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
         // BMI chart has 14 rows to fill in.
         if ($count < 14 && $charttype == "2-20") {
-	    $point = convertpoint(Array($datatable2_x,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
-            $point = convertpoint(Array($datatable2_x+$datatable2_age_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
-	    $point = convertpoint(Array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
-	    $point = convertpoint(Array($datatable2_x+$datatable2_height_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
-	    $point = convertpoint(Array($datatable2_x+$datatable2_bmi_offset,$datatable2_y));
-	    echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            $point = convertpoint(array($datatable2_x,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $datestr . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_age_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . $ageinYMD . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_weight_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsWt($weight) . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
+            $point = convertpoint(array($datatable2_x+$datatable2_bmi_offset,$datatable2_y));
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
@@ -590,10 +596,10 @@ foreach ($datapoints as $data) {
         $HC_x = $HC_dot_x + $HC_delta_x * $age;
         $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
         imagefilledellipse($im, $HC_x, $HC_y, 10, 10, $color1);
-		// Draw Wt and Ht graph at the bottom half
-		$WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
-		$HT = $HT_x + $HT_delta_x * ($height - $HToffset);
-		imagefilledellipse($im, $HT, $WT, 10, 10, $color);
+        // Draw Wt and Ht graph at the bottom half
+        $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
+        $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
+        imagefilledellipse($im, $HT, $WT, 10, 10, $color);
     }
     else if ($charttype == "2-20") {
         // Draw BMI

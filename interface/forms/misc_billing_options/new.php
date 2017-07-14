@@ -20,7 +20,7 @@ require_once("$srcdir/api.inc");
 require_once("date_qualifier_options.php");
 
 if (! $encounter) { // comes from globals.php
-  die(xlt("Internal error: we do not seem to be in an encounter!"));
+    die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
 //only one misc billing form so grab if exists
@@ -56,11 +56,11 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
         $(".save").click(function() { top.restoreSession(); document.my_form.submit(); });
         $(".dontsave").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/encounter_top.php";?>'; });
         $('.datepicker').datetimepicker({
-          <?php $datetimepicker_timepicker = false; ?>
-          <?php $datetimepicker_showseconds = false; ?>
-          <?php $datetimepicker_formatInput = false; ?>
-          <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-          <?php // can add any additional javascript settings to datetimepicker here;
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here;
                 // need to prepend first setting with a comma ?>
         });
       });
@@ -81,23 +81,29 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
       <input type="entry" size="2" name="medicaid_referral_code" id="box10d" value="<?php echo attr($obj{"medicaid_referral_code"}); ?>" >
       <label for="box10depsdt"><?php echo xlt('EPSDT:'); ?></label>
       <input type="checkbox" name="epsdt_flag" id="box10depsdt" value="1" <?php if ($obj['epsdt_flag'] == "1") echo "checked"; ?> ><br><br>
-      <label for="onset_date"><?php echo xlt('Box 14. Onset Date:'); $onset_date = $obj{"onset_date"}; ?></label>
+      <label for="onset_date"><?php echo xlt('Box 14. Onset Date:');
+        $onset_date = $obj{"onset_date"}; ?></label>
       <input type="text" size="10" class='datepicker' name='onset_date' id='onset_date' value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
-      <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:'); $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
+      <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:');
+        $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
       <input type="text" size="10" class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
       <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?><br><br>
-      <label for="off_work_from"><?php echo xlt('Box 16. Date unable to work from:'); $off_work_from = $obj{"off_work_from"}; ?></label>
+      <label for="off_work_from"><?php echo xlt('Box 16. Date unable to work from:');
+        $off_work_from = $obj{"off_work_from"}; ?></label>
       <input type="text" size="10" class='datepicker' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="off_work_to"><?php echo xlt('Box 16. Date unable to work to:'); $off_work_to = $obj{"off_work_to"}; ?></label>
+      <label for="off_work_to"><?php echo xlt('Box 16. Date unable to work to:');
+        $off_work_to = $obj{"off_work_to"}; ?></label>
       <input type="text" size="10" class='datepicker' name='off_work_to' id='off_work_to' value='<?php echo attr($off_work_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
       <label for="provider_id"><?php echo xlt('Box 17. Provider:'); ?></label>
-      <?php  genProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?>
+        <?php  genProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj{"provider_id"}); ?>
       <label for="provider_qualifier_code"><?php echo xlt('Box 17. Provider Qualifier:'); ?></label>
-      <?php  echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?><br><br>
-      <label for="hospitalization_date_from"><?php echo xlt('Box 18. Hospitalization date from:'); $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?></label>
+        <?php  echo generate_select_list('provider_qualifier_code', 'provider_qualifier_code', $obj{"provider_qualifier_code"}, 'Provider Qualifier Code'); ?><br><br>
+      <label for="hospitalization_date_from"><?php echo xlt('Box 18. Hospitalization date from:');
+        $hospitalization_date_from = $obj{"hospitalization_date_from"}; ?></label>
       <input type="text" size="10" class='datepicker' name='hospitalization_date_from' id='hospitalization_date_from' value='<?php echo attr($hospitalization_date_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="hospitalization_date_to"><?php echo xlt('Box 18. Hospitalization date to:'); $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?></label>
+      <label for="hospitalization_date_to"><?php echo xlt('Box 18. Hospitalization date to:');
+        $hospitalization_date_to = $obj{"hospitalization_date_to"}; ?></label>
       <input type="text" size="10" class='datepicker' name='hospitalization_date_to' id='hospitalization_date_to' value='<?php echo attr($hospitalization_date_to); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' ><br><br>
       <label for="outside_lab"><?php echo xlt('Box 20. Is Outside Lab used?'); ?></label>
       <input type="checkbox" name="outside_lab" id="outside_labe" value="1" <?php if ($obj['outside_lab'] == "1") echo "checked";?> >

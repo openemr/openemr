@@ -25,33 +25,33 @@
 require_once("../interface/globals.php");
 
 if($_POST['mode'] == 'get'){
-	echo file_get_contents($_POST['docid']);
-	exit;
+    echo file_get_contents($_POST['docid']);
+    exit;
 }
 else if($_POST['mode'] == 'save'){
-	file_put_contents($_POST['docid'], $_POST['content']);
-	exit(true);
+    file_put_contents($_POST['docid'], $_POST['content']);
+    exit(true);
 }
 else if($_POST['mode'] == 'delete'){
-	unlink($_POST['docid']);
-	exit(true);
+    unlink($_POST['docid']);
+    exit(true);
 }
 // so it is an import
 if(!isset($_POST['up_dir'])){
-	define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
+    define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
 }
 else {
-	if($_POST['up_dir'] > 0)
-		define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/'. $_POST['up_dir'] . '/');
-	else
-		define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
+    if($_POST['up_dir'] > 0)
+        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/'. $_POST['up_dir'] . '/');
+    else
+        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
 }
 
 if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];
 
     if ($tplFile["error"] !== UPLOAD_ERR_OK) {
-    	header( "refresh:2;url= import_template_ui.php" );
+        header( "refresh:2;url= import_template_ui.php" );
         echo "<p>". xlt("An error occurred: Missing file to upload: Use back button!") . "</p>";
         exit;
     }

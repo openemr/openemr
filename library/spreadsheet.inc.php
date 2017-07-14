@@ -20,27 +20,31 @@ $celltypes = array(
 );
 
 // encode a string from a form field for database writing.
-function form2db($fldval) {
- $fldval = trim($fldval);
- $fldval = strip_escape_custom($fldval);
- return $fldval;
+function form2db($fldval)
+{
+    $fldval = trim($fldval);
+    $fldval = strip_escape_custom($fldval);
+    return $fldval;
 }
 
 // encode a plain string for database writing.
-function real2db($fldval) {
- return addslashes($fldval);
+function real2db($fldval)
+{
+    return addslashes($fldval);
 }
 
 // Get the actual string from a form field.
-function form2real($fldval) {
- $fldval = trim($fldval);
- $fldval = strip_escape_custom($fldval);
- return $fldval;
+function form2real($fldval)
+{
+    $fldval = trim($fldval);
+    $fldval = strip_escape_custom($fldval);
+    return $fldval;
 }
 
 // encode a plain string for html display.
-function real2form($fldval) {
- return htmlspecialchars($fldval, ENT_QUOTES);
+function real2form($fldval)
+{
+    return htmlspecialchars($fldval, ENT_QUOTES);
 }
 
 if (empty($spreadsheet_title)) $spreadsheet_title = 'Injury Log';
@@ -66,21 +70,21 @@ $start_date = '';
 $form_completed = '0';
 
 if (!$popup && !$encounter) { // $encounter comes from globals.php
- die("Internal error: we do not seem to be in an encounter!");
+    die("Internal error: we do not seem to be in an encounter!");
 }
 
 // Get the name of the template selected by the dropdown, if any;
 // or if we are loading a form then it comes from that.
 $template_name = '';
 if ($tempid) {
-  $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
+    $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
     "id = $tempid AND rownbr = -1 AND colnbr = -1");
-  $template_name = $trow['value'];
+    $template_name = $trow['value'];
 }
 else if ($formid) {
-  $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
+    $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
     "id = $formid AND rownbr = -1 AND colnbr = -1");
-  list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
+    list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
 }
 
 if (!$start_date) $start_date = form2real($_POST['form_start_date']);
@@ -94,119 +98,119 @@ $num_used_cols = 0;
 if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
 
   // The form data determines how many rows and columns are now used.
-  $cells = $_POST['cell'];
-  for ($i = 0; $i < count($cells); ++$i) {
-    $row = $cells[$i];
-    for ($j = 0; $j < count($row); ++$j) {
-      if (substr($row[$j], 0, 1)) {
-        if ($i >= $num_used_rows) $num_used_rows = $i + 1;
-        if ($j >= $num_used_cols) $num_used_cols = $j + 1;
-      }
-    }
-  }
-
-  if ($_POST['bn_save_form']) {
-    $form_completed = $_POST['form_completed'] ? '1' : '0';
-
-    // If updating an existing form...
-    if ($formid) {
-      sqlStatement("UPDATE form_$spreadsheet_form_name SET "      .
-        "value = '$form_completed|$start_date|$template_name' " .
-        "WHERE id = '$formid' AND rownbr = -1 AND colnbr = -1");
-      sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
-        "id = '$formid' AND rownbr >= 0 AND colnbr >= 0");
-    }
-    // If adding a new form...
-    else {
-      $tmprow = sqlQuery("SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
-        array($thisenc));
-      $thispid = $tmprow['pid'];
-      sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
-      $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
-      $formid = $tmprow['maxid'] + 1;
-      if ($formid <= 0) $formid = 1;
-      sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-        "id, rownbr, colnbr, datatype, value " .
-        ") VALUES ( " .
-        "$formid, -1, -1, 0, " .
-        "'$form_completed|$start_date|$template_name' " .
-        ")");
-      sqlStatement("UNLOCK TABLES");
-      addForm($thisenc, $spreadsheet_title, $formid, "$spreadsheet_form_name",
-        $thispid, $userauthorized);
-    }
-    $saveid = $formid;
-  }
-  else { // saving a template
-    // The rule is, we can update the original name, or insert a new name
-    // which must not match any existing template name.
-    $new_template_name = form2real($_POST['form_new_template_name']);
-    if ($new_template_name != $template_name) {
-      $trow = sqlQuery("SELECT id FROM form_$spreadsheet_form_name WHERE " .
-        "id < 0 AND rownbr = -1 AND colnbr = -1 AND value = '" .
-        real2db($new_template_name) . "'");
-      if ($trow['id']) {
-        $alertmsg = "Template \"" . real2form($new_template_name) .
-          "\" already exists!";
-      }
-      else {
-        $tempid = 0; // to force insert of new template
-        $template_name = $new_template_name;
-      }
-    }
-    if (!$alertmsg) {
-      // If updating an existing template...
-      if ($tempid) {
-        sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
-          "id = '$tempid' AND rownbr >= 0 AND colnbr >= 0");
-      }
-      // If adding a new template...
-      else {
-        sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
-        $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
-        $tempid = $tmprow['minid'] - 1;
-        if ($tempid >= 0) $tempid = -1;
-        sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-          "id, rownbr, colnbr, datatype, value " .
-          ") VALUES ( " .
-          "$tempid, -1, -1, 0, " .
-          "'" . real2db($template_name) . "' " .
-          ")");
-        sqlStatement("UNLOCK TABLES");
-      }
-      $saveid = $tempid;
-    }
-  }
-
-  if (!$alertmsg) {
-    // Finally, save the table cells.
-    for ($i = 0; $i < $num_used_rows; ++$i) {
-      for ($j = 0; $j < $num_used_cols; ++$j) {
-        $tmp = $cells[$i][$j];
-        $celltype = substr($tmp, 0, 1) + 0;
-        $cellvalue = form2db(substr($tmp, 1));
-        if ($celltype) {
-          sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
-            "id, rownbr, colnbr, datatype, value " .
-            ") VALUES ( " .
-            "$saveid, $i, $j, $celltype, '$cellvalue' )");
+    $cells = $_POST['cell'];
+    for ($i = 0; $i < count($cells); ++$i) {
+        $row = $cells[$i];
+        for ($j = 0; $j < count($row); ++$j) {
+            if (substr($row[$j], 0, 1)) {
+                if ($i >= $num_used_rows) $num_used_rows = $i + 1;
+                if ($j >= $num_used_cols) $num_used_cols = $j + 1;
+            }
         }
-      }
     }
-  }
+
+    if ($_POST['bn_save_form']) {
+        $form_completed = $_POST['form_completed'] ? '1' : '0';
+
+        // If updating an existing form...
+        if ($formid) {
+            sqlStatement("UPDATE form_$spreadsheet_form_name SET "      .
+            "value = '$form_completed|$start_date|$template_name' " .
+            "WHERE id = '$formid' AND rownbr = -1 AND colnbr = -1");
+            sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
+              "id = '$formid' AND rownbr >= 0 AND colnbr >= 0");
+        }
+        // If adding a new form...
+        else {
+            $tmprow = sqlQuery("SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
+            array($thisenc));
+            $thispid = $tmprow['pid'];
+            sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
+            $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
+            $formid = $tmprow['maxid'] + 1;
+            if ($formid <= 0) $formid = 1;
+            sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
+              "id, rownbr, colnbr, datatype, value " .
+              ") VALUES ( " .
+              "$formid, -1, -1, 0, " .
+              "'$form_completed|$start_date|$template_name' " .
+              ")");
+            sqlStatement("UNLOCK TABLES");
+            addForm($thisenc, $spreadsheet_title, $formid, "$spreadsheet_form_name",
+              $thispid, $userauthorized);
+        }
+        $saveid = $formid;
+    }
+    else { // saving a template
+        // The rule is, we can update the original name, or insert a new name
+        // which must not match any existing template name.
+        $new_template_name = form2real($_POST['form_new_template_name']);
+        if ($new_template_name != $template_name) {
+            $trow = sqlQuery("SELECT id FROM form_$spreadsheet_form_name WHERE " .
+            "id < 0 AND rownbr = -1 AND colnbr = -1 AND value = '" .
+            real2db($new_template_name) . "'");
+            if ($trow['id']) {
+                  $alertmsg = "Template \"" . real2form($new_template_name) .
+                    "\" already exists!";
+            }
+            else {
+                  $tempid = 0; // to force insert of new template
+                  $template_name = $new_template_name;
+            }
+        }
+        if (!$alertmsg) {
+            // If updating an existing template...
+            if ($tempid) {
+                sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
+                "id = '$tempid' AND rownbr >= 0 AND colnbr >= 0");
+            }
+            // If adding a new template...
+            else {
+                sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
+                $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
+                $tempid = $tmprow['minid'] - 1;
+                if ($tempid >= 0) $tempid = -1;
+                sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
+                "id, rownbr, colnbr, datatype, value " .
+                ") VALUES ( " .
+                "$tempid, -1, -1, 0, " .
+                "'" . real2db($template_name) . "' " .
+                ")");
+                sqlStatement("UNLOCK TABLES");
+            }
+            $saveid = $tempid;
+        }
+    }
+
+    if (!$alertmsg) {
+        // Finally, save the table cells.
+        for ($i = 0; $i < $num_used_rows; ++$i) {
+            for ($j = 0; $j < $num_used_cols; ++$j) {
+                $tmp = $cells[$i][$j];
+                $celltype = substr($tmp, 0, 1) + 0;
+                $cellvalue = form2db(substr($tmp, 1));
+                if ($celltype) {
+                    sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
+                    "id, rownbr, colnbr, datatype, value " .
+                    ") VALUES ( " .
+                    "$saveid, $i, $j, $celltype, '$cellvalue' )");
+                }
+            }
+        }
+    }
 }
 else if ($_POST['bn_delete_template'] && $tempid) {
-  sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
+    sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
     "id = '$tempid'");
-  $tempid = 0;
-  $template_name = '';
+    $tempid = 0;
+    $template_name = '';
 }
 
 if ($_POST['bn_save_form'] && !$alertmsg && !$popup) {
-  formHeader("Redirecting....");
-  formJump();
-  formFooter();
-  exit;
+    formHeader("Redirecting....");
+    formJump();
+    formFooter();
+    exit;
 }
 
 // If we get here then we are displaying a spreadsheet, either a template or
@@ -220,21 +224,21 @@ $dres = false;
 
 # If we are reloading a form, get it.
 if ($formid) {
-  $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
+    $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
     "id = '$formid' ORDER BY rownbr, colnbr");
-  $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+    $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
     "FROM form_$spreadsheet_form_name WHERE id = '$formid'");
-  $num_used_rows = $tmprow['rowmax'] + 1;
-  $num_used_cols = $tmprow['colmax'] + 1;
+    $num_used_rows = $tmprow['rowmax'] + 1;
+    $num_used_cols = $tmprow['colmax'] + 1;
 }
 # Otherwise if we are editing a template, get it.
 else if ($tempid) {
-  $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
+    $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
     "id = '$tempid' ORDER BY rownbr, colnbr");
-  $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
+    $tmprow = sqlQuery("SELECT MAX(rownbr) AS rowmax, MAX(colnbr) AS colmax " .
     "FROM form_$spreadsheet_form_name WHERE id = '$tempid'");
-  $num_used_rows = $tmprow['rowmax'] + 1;
-  $num_used_cols = $tmprow['colmax'] + 1;
+    $num_used_rows = $tmprow['rowmax'] + 1;
+    $num_used_cols = $tmprow['colmax'] + 1;
 }
 
 // Virtual rows and columns are those available when in Edit Structure mode,
@@ -423,11 +427,11 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
    x = "<select class='selgen' onchange='newptp(this)'>";
    x += "<option value=''>-- Select --</option>";
 <?php
-  foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
+foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
     echo "   x += \"<option value='$key'\";\n";
     echo "   if (dflt == '$key') x += ' selected';\n";
     echo "   x += '>$value</option>';\n";
-  }
+}
 ?>
    x += "</select>";
    s = s1 + x + s.substring(j + 1);
@@ -538,14 +542,15 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 </head>
 
 <body class="body_top">
-<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid&thisenc=$thisenc"; if ($popup) echo '&popup=1'; ?>"
+<form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid&thisenc=$thisenc";
+if ($popup) echo '&popup=1'; ?>"
  onsubmit="return top.restoreSession()">
 <center>
 
 <table border='0' cellpadding='5' cellspacing='0' style='margin:8pt'>
  <tr bgcolor='#ddddff'>
   <td>
-   <?php xl('Start Date','e'); ?>:
+    <?php xl('Start Date','e'); ?>:
    <input type='text' name='form_start_date' id='form_start_date'
     size='10' value='<?php echo $start_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'
@@ -556,32 +561,32 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
     title='Click here to choose a date'>
 <?php } ?>
    &nbsp;
-   <?php xl('Template:','e') ?>
+    <?php xl('Template:','e') ?>
    <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) echo ' disabled'; ?>>
     <option value='0'>-- Select --</option>
 <?php
- while ($trow = sqlFetchArray($tres)) {
-  echo "    <option value='" . $trow['id'] . "'";
-  if ($tempid && $tempid == $trow['id'] ||
-      $formid && $template_name == $trow['value'])
-  {
-    echo " selected";
-  }
-  echo ">" . $trow['value'] . "</option>\n";
- }
+while ($trow = sqlFetchArray($tres)) {
+    echo "    <option value='" . $trow['id'] . "'";
+    if ($tempid && $tempid == $trow['id'] ||
+    $formid && $template_name == $trow['value'])
+    {
+        echo " selected";
+    }
+    echo ">" . $trow['value'] . "</option>\n";
+}
 ?>
    </select>
    &nbsp;
    <input type='checkbox' name='form_edit_template'
     onclick='editChanged()'
     title='<?php xl("If you want to change data types, or add rows or columns","e") ?>' />
-   <?php xl('Edit Structure','e') ?>
+    <?php xl('Edit Structure','e') ?>
 <?php if ($formid) { ?>
    &nbsp;
    <input type='checkbox' name='form_completed'
     title='<?php xl("If all data for all columns are complete for this form","e") ?>'
     <?php if ($form_completed) echo 'checked '; ?>/>
-   <?php xl('Completed','e') ?>
+    <?php xl('Completed','e') ?>
 <?php } ?>
   </td>
  </tr>
@@ -593,77 +598,77 @@ if ($dres) $drow = sqlFetchArray($dres);
 $typeprompts = array('unused','static','checkbox','text');
 
 for ($i = 0; $i < $num_virtual_rows; ++$i) {
-  echo " <tr>\n";
-  for ($j = 0; $j < $num_virtual_cols; ++$j) {
+    echo " <tr>\n";
+    for ($j = 0; $j < $num_virtual_cols; ++$j) {
 
-    // Match up with the database for cell type and value.
-    $celltype = '0';
-    $cellvalue = '';
-    if ($dres) {
-      while ($drow && $drow['rownbr'] < $i)
-        $drow = sqlFetchArray($dres);
-      while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j)
-        $drow = sqlFetchArray($dres);
-      if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
-        $celltype = $drow['datatype'];
-        $cellvalue = real2form($drow['value']);
-        $cellstatic = addslashes($drow['value']);
-      }
+        // Match up with the database for cell type and value.
+        $celltype = '0';
+        $cellvalue = '';
+        if ($dres) {
+            while ($drow && $drow['rownbr'] < $i)
+            $drow = sqlFetchArray($dres);
+            while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j)
+            $drow = sqlFetchArray($dres);
+            if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
+                $celltype = $drow['datatype'];
+                $cellvalue = real2form($drow['value']);
+                $cellstatic = addslashes($drow['value']);
+            }
+        }
+
+        echo "  <td id='td_${i}_${j}' valign='top'";
+        if ($i >= $num_used_rows || $j >= $num_used_cols)
+        echo " style='display:none'";
+        echo ">";
+
+        /*****************************************************************
+      echo "<span id='div_${i}_${j}' ";
+      echo "style='float:right;cursor:pointer;display:none' ";
+      echo "onclick='newType($i,$j)'>[";
+      echo $typeprompts[$celltype];
+      echo "]</span>";
+        *****************************************************************/
+        echo "<div class='seldiv'>";
+        echo "<select id='sel_${i}_${j}' class='seltype' style='display:none' " .
+        "onchange='newType($i,$j)'>";
+        foreach ($celltypes as $key => $value) {
+            echo "<option value='$key'";
+            if ($key == $celltype) echo " selected";
+            echo ">$value</option>";
+        }
+        echo "</select>";
+        echo "</div>";
+        /****************************************************************/
+
+        echo "<span id='vis_${i}_${j}'>"; // new //
+
+        echo "<input type='hidden' name='cell[$i][$j]' value='$celltype$cellvalue' />";
+        if ($celltype == '1') {
+            // So we don't have to write a PHP version of genStatic():
+            echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
+        }
+        else if ($celltype == '2') {
+            echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
+            if ($cellvalue) echo " checked";
+            echo " />";
+        }
+        else if ($celltype == '3') {
+            echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
+            echo " value='$cellvalue'";
+            echo " size='12' />";
+        }
+        else if ($celltype == '4') {
+            echo "<textarea rows='3' cols='25' wrap='virtual' class='intext' " .
+            "onchange='longChange(this,$i,$j)'>";
+            echo $cellvalue;
+            echo "</textarea>";
+        }
+
+        echo "</span>"; // new //
+
+        echo "</td>\n";
     }
-
-    echo "  <td id='td_${i}_${j}' valign='top'";
-    if ($i >= $num_used_rows || $j >= $num_used_cols)
-      echo " style='display:none'";
-    echo ">";
-
-    /*****************************************************************
-    echo "<span id='div_${i}_${j}' ";
-    echo "style='float:right;cursor:pointer;display:none' ";
-    echo "onclick='newType($i,$j)'>[";
-    echo $typeprompts[$celltype];
-    echo "]</span>";
-    *****************************************************************/
-    echo "<div class='seldiv'>";
-    echo "<select id='sel_${i}_${j}' class='seltype' style='display:none' " .
-      "onchange='newType($i,$j)'>";
-    foreach ($celltypes as $key => $value) {
-      echo "<option value='$key'";
-      if ($key == $celltype) echo " selected";
-      echo ">$value</option>";
-    }
-    echo "</select>";
-    echo "</div>";
-    /****************************************************************/
-
-    echo "<span id='vis_${i}_${j}'>"; // new //
-
-    echo "<input type='hidden' name='cell[$i][$j]' value='$celltype$cellvalue' />";
-    if ($celltype == '1') {
-      // So we don't have to write a PHP version of genStatic():
-      echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
-    }
-    else if ($celltype == '2') {
-      echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
-      if ($cellvalue) echo " checked";
-      echo " />";
-    }
-    else if ($celltype == '3') {
-      echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
-      echo " value='$cellvalue'";
-      echo " size='12' />";
-    }
-    else if ($celltype == '4') {
-      echo "<textarea rows='3' cols='25' wrap='virtual' class='intext' " .
-        "onchange='longChange(this,$i,$j)'>";
-      echo $cellvalue;
-      echo "</textarea>";
-    }
-
-    echo "</span>"; // new //
-
-    echo "</td>\n";
-  }
-  echo " </tr>\n";
+    echo " </tr>\n";
 }
 ?>
 </table>

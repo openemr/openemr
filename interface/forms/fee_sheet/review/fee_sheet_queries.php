@@ -1,8 +1,8 @@
 <?php
 /**
- * library of functions useful for searching and updating fee sheet related 
+ * library of functions useful for searching and updating fee sheet related
  * information
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -32,10 +32,10 @@ require_once("code_check.php");
  * associated with the given encounter.  Each diagnoses which has a
  * corresponding entry in the problem list, but isn't already associated gets
  * flagged. (update to issue_encounter table)
- * 
+ *
  * If the $create parameter is true, any diagnosis which doesn't have a
  * corresponding problem list entry has one created.
- * 
+ *
  * @param int   $pid        the ID of the patient
  * @param int   $encounter  the encounter ID
  * @param array $diags      a list of diagnoses
@@ -52,14 +52,18 @@ function update_issues($pid,$encounter,$diags)
     $sqlUpdateIssueDescription="UPDATE lists SET title=?, modifydate=NOW() WHERE id=? AND TITLE!=?";
     
     $sqlFindProblem = "SELECT id, title FROM lists WHERE ";
-    $sqlFindProblem.= " ( (`begdate` IS NULL) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) AND " ; array_push($lists_params,$target_date);
-    $sqlFindProblem.= " ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) ) ";            array_push($lists_params,$target_date);
-    $sqlFindProblem.= "  AND pid=? AND diagnosis like ? ";                                                              array_push($lists_params,$pid);
+    $sqlFindProblem.= " ( (`begdate` IS NULL) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) AND " ;
+    array_push($lists_params,$target_date);
+    $sqlFindProblem.= " ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) ) ";
+    array_push($lists_params,$target_date);
+    $sqlFindProblem.= "  AND pid=? AND diagnosis like ? ";
+    array_push($lists_params,$pid);
     array_push($lists_params,"");
 
     $idx_diagnosis=count($lists_params)-1;
     
-    $sqlFindIssueEncounter= "SELECT encounter FROM issue_encounter WHERE pid=? AND encounter=? AND list_id=?";array_push($encounter_params,$pid,$encounter);
+    $sqlFindIssueEncounter= "SELECT encounter FROM issue_encounter WHERE pid=? AND encounter=? AND list_id=?";
+    array_push($encounter_params,$pid,$encounter);
     array_push($encounter_params,"");
     
     $sqlCreateIssueEncounter = " INSERT into issue_encounter(pid,list_id,encounter)values (?,?,?) ";
@@ -126,7 +130,7 @@ function update_issues($pid,$encounter,$diags)
     if($list_touched)
     {
         // If the list was touched at any point by this code, then flag it in the DB.
-       setListTouch($pid,'medical_problem');
+        setListTouch($pid,'medical_problem');
     }
 }
 
@@ -136,7 +140,7 @@ function update_issues($pid,$encounter,$diags)
  * this function checks for billing table entries corresponding to the given
  * list of diagnoses.  It creates an entry for any diagnosis not already listed
  * on the fee sheet for the given encounter.
- * 
+ *
  * @param int   $req_pid             the ID of the patient
  * @param int   $req_encounter       the encounter ID
  * @param array $diags               a list of diagnoses
@@ -187,8 +191,8 @@ function create_diags($req_pid,$req_encounter,$diags)
  *
  * this function checks for billing table entries corresponding to the given
  * list of procedures.  It creates an entry for any procedure not already listed
- * on the fee sheet for the given encounter 
- * 
+ * on the fee sheet for the given encounter
+ *
  * @param int   $req_pid             the ID of the patient
  * @param int   $req_encounter       the encounter ID
  * @param array $procs               a list of procedures
@@ -222,11 +226,11 @@ function create_procs($req_pid,$req_encounter,$procs)
 
 /**
  * retrieve the diagnoses from the given patient's problem list
- * 
+ *
  * All the problems are included, but problems which have been
  * flagged as part of the given encounter are marked as such and
  * also sorted earlier in the list.
- * 
+ *
  * @param int   $pid             the ID of the patient
  * @param int   $encounter       the encounter ID
  * @return array - returns an array of the diagnoses
@@ -269,9 +273,9 @@ function issue_diagnoses($pid,$encounter)
 
 /**
  * retrieve the most common diagnoses
- * 
+ *
  * queries the billing table for the most frequently used diagnosis codes.
- * 
+ *
  * @param int   $limit               the max number of rows to return
  * @return array - returns an array of the diagnoses
  */
@@ -297,13 +301,13 @@ function common_diagnoses($limit=10)
 
 /**
  * retrieve the entries for the specified encounter's fee sheet
- * 
- * 
+ *
+ *
  * @param int   $pid             the ID of the patient
  * @param int   $encounter       the encounter ID
  * @param array &$diagnoses      return by reference of all the diagnoses
  * @param array &$procedures     return by reference of all the procedures
- *  
+ *
  */
 function fee_sheet_items($pid,$encounter, &$diagnoses,&$procedures)
 {
@@ -339,7 +343,7 @@ function fee_sheet_items($pid,$encounter, &$diagnoses,&$procedures)
 /**
  * retrieve the details of the specified patient's encounters, except for the
  * current (specified by $encounter)
- * 
+ *
  * @param int   $pid             the ID of the patient
  * @param int   $encounter       the encounter ID
  */
@@ -361,9 +365,9 @@ function select_encounters($pid,$encounter)
 
 /**
  * Update the justify field for the given billing entry
- * 
- * 
- * 
+ *
+ *
+ *
  * @param int   $pid                the ID of the patient
  * @param int   $enc                the encounter ID
  * @param array $diags              the list of justification codes

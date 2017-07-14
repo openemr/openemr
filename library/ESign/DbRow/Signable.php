@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * Abstract implementation of SignableIF which represents a signable row
  * in the database.
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -64,10 +64,10 @@ abstract class DbRow_Signable implements SignableIF
     
     /**
      * Get the hash of the last signature of type LOCK.
-     * 
+     *
      * This is used for comparison with a current hash to
      * verify data integrity.
-     * 
+     *
      * @return sha1|empty string
      */
     protected function getLastLockHash()

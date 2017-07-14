@@ -4,7 +4,7 @@
 
 include_once("../../globals.php");
 ?>
-	
+    
 <HTML>
 <head>
 <?php html_header_show();?>

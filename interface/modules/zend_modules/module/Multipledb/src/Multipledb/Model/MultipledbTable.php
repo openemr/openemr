@@ -56,18 +56,20 @@ class MultipledbTable
         return $rsArray;
     }
 
-    public function checknamespace($namespace){
+    public function checknamespace($namespace)
+    {
         $rowset = $this->tableGateway->select(array('namespace' => $namespace));
         $count = $rowset->count();
 
-        if($count AND $_SESSION['multiple_edit_id'] == 0){
+        if($count and $_SESSION['multiple_edit_id'] == 0){
             return 1;
         }else{
             return 0;
         }
     }
 
-    public function storeMultipledb($id = 0,$db = array()){
+    public function storeMultipledb($id = 0,$db = array())
+    {
 
         if($db['password']){
             $db['password'] = my_encrypt($db['password']);
@@ -83,11 +85,13 @@ class MultipledbTable
 
     }
 
-    public function deleteMultidbById($id){
+    public function deleteMultidbById($id)
+    {
         $this->tableGateway->delete(array('id' => (int)$id));
     }
 
-    public function getMultipledbById($id){
+    public function getMultipledbById($id)
+    {
 
         $rowset = $this->tableGateway->select(array('id' => $id));
         $row = $rowset->current();
@@ -100,7 +104,8 @@ class MultipledbTable
     }
 
 
-    public function randomSafeKey() {
+    public function randomSafeKey()
+    {
         $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890$%&#@(){}[]<>~=?.*+-!';
         $pass = array(); //remember to declare $pass as an array
         $alphaLength = strlen($alphabet) - 1; //put the length -1 in cache

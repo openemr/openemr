@@ -83,10 +83,10 @@ function goRepeaterServices(){
 
 function isEncounterLocked( encounterId ) {
     <?php if ( $esignApi->lockEncounters() ) { ?>
-	// If encounter locking is enabled, make a syncronous call (async=false) to check the
-	// DB to see if the encounter is locked.
-	// Call restore session, just in case
-	top.restoreSession();
+    // If encounter locking is enabled, make a syncronous call (async=false) to check the
+    // DB to see if the encounter is locked.
+    // Call restore session, just in case
+    top.restoreSession();
     $.ajax({
         type: 'POST',
         url: '<?php echo $GLOBALS['webroot']?>/interface/esign/index.php?module=encounter&method=esign_is_encounter_locked',
@@ -96,12 +96,12 @@ function isEncounterLocked( encounterId ) {
         },
         dataType: 'json',
         async:false
-	});
-	return encounter_locked;
-	<?php } else { ?>
-	// If encounter locking isn't enabled then always return false
-	return false;
-	<?php } ?>
+    });
+    return encounter_locked;
+    <?php } else { ?>
+    // If encounter locking isn't enabled then always return false
+    return false;
+    <?php } ?>
 }
 var webroot_url="<?php echo $web_root; ?>";
 </script>
@@ -178,15 +178,15 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters','notes','','write')
 <iframe name="timeout" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="timeout_iframe.php"></iframe>
 <?php // mdsupport - app settings
     $disp_mainBox = '';
-    if (isset($_SESSION['app1'])) {
-    	$rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-    			array('apps', $_SESSION['app1']));
-    	if ($rs['app_url'] != "main/main_screen.php") {
-    		echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
+if (isset($_SESSION['app1'])) {
+    $rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+        array('apps', $_SESSION['app1']));
+    if ($rs['app_url'] != "main/main_screen.php") {
+        echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';
-    		$disp_mainBox = 'style="display: none;"';
-    	}
+        $disp_mainBox = 'style="display: none;"';
     }
+}
 ?>
 <div id="mainBox" <?php echo $disp_mainBox ?>>
     <div id="dialogDiv"></div>

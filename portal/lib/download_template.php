@@ -123,7 +123,7 @@ function doSubs($s)
     $groupLevel = 0;
     $groupCount = 0;
     
-    while (($keyLocation = strpos($s, '{', $nextLocation)) !== FALSE) {
+    while (($keyLocation = strpos($s, '{', $nextLocation)) !== false) {
         $nextLocation = $keyLocation + 1;
         
         if (keySearch($s, '{PatientSignature}')) {
@@ -261,7 +261,7 @@ function doSubs($s)
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
         } // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
-else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[1];
             $fieldid = $matches[2];
             $keyLength = 3 + strlen($formname) + strlen($fieldid);
@@ -289,7 +289,7 @@ else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)
             }
             $s = keyReplace($s, dataFixup($data, $title));
         } // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
-else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
+        else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[1];
             $fieldid = $matches[2];
             $keyLength = 3 + strlen($formname) + strlen($fieldid);

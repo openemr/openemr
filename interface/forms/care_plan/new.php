@@ -50,7 +50,7 @@ $check_res = $formid ? $check_res : array();
 $sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
 $result = sqlStatement($sql1, array('Plan_of_Care_Type'));
 foreach($result as $value):
-  $care_plan_type[] = $value;
+    $care_plan_type[] = $value;
 endforeach;
 ?>
 <html>
@@ -175,7 +175,7 @@ endforeach;
                           <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="care_plan_type">
                             <option value=""></option>
                             <?php foreach($care_plan_type as $value):
-                              $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                                $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                             ?>
                             <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                             <?php endforeach;?>
@@ -188,10 +188,10 @@ endforeach;
                     <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>">
                 </tr>
                 <?php
-            }
-        } else {
-            ?>
-            <tr class="tb_row" id="tb_row_1">
+                }
+            } else {
+                ?>
+                <tr class="tb_row" id="tb_row_1">
                 <td align="left" class="forms"><?php echo xlt('Code'); ?>:</td>
                 <td class="forms">
                     <input type="text" id="code_1" name="code[]" style="width:210px" class="code" value="<?php echo text($obj{"code"}); ?>" onclick='sel_code(this.parentElement.parentElement.id);'><br>
@@ -211,19 +211,19 @@ endforeach;
                   <select name="care_plan_type[]" id="care_plan_type_1" class="care_plan_type">
                     <option value=""></option>
                     <?php foreach($care_plan_type as $value):
-                      $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
+                        $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                     ?>
                     <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
                     <?php endforeach;?>
-                  </select>
-                </td>
-                <td>
+                      </select>
+                    </td>
+                    <td>
                     <img src='../../pic/add.png' onclick="duplicateRow(this.parentElement.parentElement);" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to duplicate the row'); ?>'>
                     <img src='../../pic/remove.png' onclick="deleteRow(this.parentElement.parentElement.id);" align='absbottom' width='24' height='22' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to delete the row'); ?>'>
-                </td>
-            <input type="hidden" name="count[]" id="count_1" class="count" value="1">
-        </tr>
-    <?php }
+                    </td>
+                <input type="hidden" name="count[]" id="count_1" class="count" value="1">
+            </tr>
+            <?php }
     ?>
 
     <tr>

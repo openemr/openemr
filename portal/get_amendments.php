@@ -31,28 +31,28 @@ $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM a
 $res = sqlStatement($query, array($pid) );
 if ( sqlNumRows($res) > 0 ) { ?>
 
-	<table class="table table-striped">
-		<tr class="header">
-			<th><?php echo xlt('Date'); ?></th>
-			<th><?php echo xlt('Requested By'); ?></th>
-			<th><?php echo xlt('Description'); ?></th>
-			<th><?php echo xlt('Status'); ?></th>
-		</tr>
-	<?php
-  		$even = false;
-  		while ($row = sqlFetchArray($res)) {
+    <table class="table table-striped">
+        <tr class="header">
+            <th><?php echo xlt('Date'); ?></th>
+            <th><?php echo xlt('Requested By'); ?></th>
+            <th><?php echo xlt('Description'); ?></th>
+            <th><?php echo xlt('Status'); ?></th>
+        </tr>
+    <?php
+        $even = false;
+    while ($row = sqlFetchArray($res)) {
 
-			echo "<tr class='".$class."'>";
-			echo "<td>".text($row['amendment_date'])."</td>";
-			echo "<td>".text($row['AmendmentBy'])."</td>";
-			echo "<td>".text($row['amendment_desc'])."</td>";
-			echo "<td>".text($row['AmendmentStatus'])."</td>";
-			echo "</tr>";
-  		}
-		echo "</table>";
-  	}
-	else
-	{
-		echo xlt("No Results");
-	}
+        echo "<tr class='".$class."'>";
+        echo "<td>".text($row['amendment_date'])."</td>";
+        echo "<td>".text($row['AmendmentBy'])."</td>";
+        echo "<td>".text($row['amendment_desc'])."</td>";
+        echo "<td>".text($row['AmendmentStatus'])."</td>";
+        echo "</tr>";
+    }
+        echo "</table>";
+}
+else
+{
+    echo xlt("No Results");
+}
 ?>

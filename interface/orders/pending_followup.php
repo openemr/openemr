@@ -13,44 +13,45 @@ require_once("../../custom/code_types.inc.php");
 
 $facilityService = new \services\FacilityService();
 
-function thisLineItem($row, $codetype, $code) {
-  global $code_types;
+function thisLineItem($row, $codetype, $code)
+{
+    global $code_types;
 
-  $provname = $row['provider_lname'];
-  if (!empty($row['provider_fname'])) {
-    $provname .= ', ' . $row['provider_fname'];
-    if (!empty($row['provider_mname'])) {
-      $provname .= ' ' . $row['provider_mname'];
+    $provname = $row['provider_lname'];
+    if (!empty($row['provider_fname'])) {
+        $provname .= ', ' . $row['provider_fname'];
+        if (!empty($row['provider_mname'])) {
+            $provname .= ' ' . $row['provider_mname'];
+        }
     }
-  }
 
-  $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
+    $crow = sqlQuery("SELECT code_text FROM codes WHERE " .
     "code_type = '" . $code_types[$codetype]['id'] . "' AND " .
     "code = '$code' LIMIT 1");
-  $code_text = $crow['code_text'];
+    $code_text = $crow['code_text'];
 
-  if ($_POST['form_csvexport']) {
-    echo '"' . addslashes($row['patient_name'  ]) . '",';
-    echo '"' . addslashes($row['pubpid'        ]) . '",';
-    echo '"' . addslashes($row['date_ordered'  ]) . '",';
-    echo '"' . addslashes($row['procedure_name']) . '",';
-    echo '"' . addslashes($provname             ) . '",';
-    echo '"' . addslashes($code                 ) . '",';
-    echo '"' . addslashes($code_text            ) . '"' . "\n";
-  }
-  else {
-?>
- <tr>
-  <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
-  <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
-  <td class="detail"><?php echo $row['date_ordered'  ]; ?></td>
-  <td class="detail"><?php echo $row['procedure_name']; ?></td>
-  <td class="detail"><?php echo $provname;              ?></td>
-  <td class="detail"><?php echo $code;                  ?></td>
-  <td class="detail"><?php echo $code_text;             ?></td>
+    if ($_POST['form_csvexport']) {
+        echo '"' . addslashes($row['patient_name'  ]) . '",';
+        echo '"' . addslashes($row['pubpid'        ]) . '",';
+        echo '"' . addslashes($row['date_ordered'  ]) . '",';
+        echo '"' . addslashes($row['procedure_name']) . '",';
+        echo '"' . addslashes($provname             ) . '",';
+        echo '"' . addslashes($code                 ) . '",';
+        echo '"' . addslashes($code_text            ) . '"' . "\n";
+    }
+    else {
+    ?>
+   <tr>
+    <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
+    <td class="detail"><?php echo $row['pubpid'        ]; ?></td>
+    <td class="detail"><?php echo $row['date_ordered'  ]; ?></td>
+    <td class="detail"><?php echo $row['procedure_name']; ?></td>
+    <td class="detail"><?php echo $provname;              ?></td>
+    <td class="detail"><?php echo $code;                  ?></td>
+    <td class="detail"><?php echo $code_text;             ?></td>
  </tr>
 <?php
-  } // End not csv export
+    } // End not csv export
 }
 
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
@@ -60,20 +61,20 @@ $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
-  header("Pragma: public");
-  header("Expires: 0");
-  header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-  header("Content-Type: application/force-download");
-  header("Content-Disposition: attachment; filename=pending_followup.csv");
-  header("Content-Description: File Transfer");
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=pending_followup.csv");
+    header("Content-Description: File Transfer");
   // CSV headers:
-  echo '"' . xl('Patient') . '",';
-  echo '"' . xl('ID') . '",';
-  echo '"' . xl('Ordered') . '",';
-  echo '"' . xl('Procedure') . '",';
-  echo '"' . xl('Provider') . '",';
-  echo '"' . xl('Code') . '",';
-  echo '"' . xl('Service') . '"' . "\n";
+    echo '"' . xl('Patient') . '",';
+    echo '"' . xl('ID') . '",';
+    echo '"' . xl('Ordered') . '",';
+    echo '"' . xl('Procedure') . '",';
+    echo '"' . xl('Provider') . '",';
+    echo '"' . xl('Code') . '",';
+    echo '"' . xl('Service') . '"' . "\n";
 }
 else { // not export
 ?>
@@ -109,12 +110,12 @@ else { // not export
   $fres = $facilityService->getAll();
   echo "   <select name='form_facility'>\n";
   echo "    <option value=''>-- All Facilities --\n";
-  foreach($fres as $frow) {
+foreach($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
     if ($facid == $form_facility) echo " selected";
     echo ">" . $frow['name'] . "\n";
-  }
+}
   echo "   </select>\n";
 ?>
    &nbsp;<?xl('From:','e')?>
@@ -161,10 +162,10 @@ else { // not export
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-  $from_date = $form_from_date;
-  $to_date   = $form_to_date;
+    $from_date = $form_from_date;
+    $to_date   = $form_to_date;
 
-  $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
+    $query = "SELECT po.patient_id, po.encounter_id, po.date_ordered, " .
     "pd.pubpid, " .
     "CONCAT(pd.lname, ', ', pd.fname, ' ', pd.mname) AS patient_name, " .
     "pto.name AS procedure_name, " .
@@ -184,37 +185,37 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "WHERE " .
     "po.date_ordered >= '$from_date' AND po.date_ordered <= '$to_date'";
 
-  if ($form_facility) {
-    $query .= " AND fe.facility_id = '$form_facility'";
-  }
-  $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
+    if ($form_facility) {
+        $query .= " AND fe.facility_id = '$form_facility'";
+    }
+    $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
-  $res = sqlStatement($query);
-  while ($row = sqlFetchArray($res)) {
-    $patient_id = $row['patient_id'];
-    $date_ordered = $row['date_ordered'];
+    $res = sqlStatement($query);
+    while ($row = sqlFetchArray($res)) {
+        $patient_id = $row['patient_id'];
+        $date_ordered = $row['date_ordered'];
 
-    $relcodes = explode(';', $row['related_code']);
-    foreach ($relcodes as $codestring) {
-      if ($codestring === '') continue;
-      list($codetype, $code) = explode(':', $codestring);
+        $relcodes = explode(';', $row['related_code']);
+        foreach ($relcodes as $codestring) {
+            if ($codestring === '') continue;
+            list($codetype, $code) = explode(':', $codestring);
 
-      $brow = sqlQuery("SELECT count(*) AS count " .
-        "FROM billing AS b, form_encounter AS fe WHERE " .
-        "b.pid = '$patient_id' AND " .
-        "b.code_type = '$codetype' AND " .
-        "b.code = '$code' AND " .
-        "b.activity = 1 AND " .
-        "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
-        "fe.date >= '$date_ordered 00:00:00'");
+            $brow = sqlQuery("SELECT count(*) AS count " .
+            "FROM billing AS b, form_encounter AS fe WHERE " .
+            "b.pid = '$patient_id' AND " .
+            "b.code_type = '$codetype' AND " .
+            "b.code = '$code' AND " .
+            "b.activity = 1 AND " .
+            "fe.pid = b.pid AND fe.encounter = b.encounter AND " .
+            "fe.date >= '$date_ordered 00:00:00'");
 
-      // If there was such a service, then this followup is not pending.
-      if (!empty($brow['count'])) continue;
+            // If there was such a service, then this followup is not pending.
+            if (!empty($brow['count'])) continue;
 
-      thisLineItem($row, $codetype, $code);
+            thisLineItem($row, $codetype, $code);
+        }
     }
-  }
 
 } // end report generation
 

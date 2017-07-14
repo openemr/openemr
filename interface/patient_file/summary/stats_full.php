@@ -19,19 +19,19 @@ require_once($GLOBALS['srcdir'].'/options.inc.php');
 // Check if user has permission for any issue type.
 $auth = false;
 foreach ($ISSUE_TYPES as $type => $dummy) {
-  if (acl_check_issue($type)) {
-    $auth = true;
-    break;
-  }
+    if (acl_check_issue($type)) {
+        $auth = true;
+        break;
+    }
 }
 if ($auth) {
-  $tmp = getPatientData($pid, "squad");
-  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
-    die(xlt('Not authorized'));
-  }
+    $tmp = getPatientData($pid, "squad");
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        die(xlt('Not authorized'));
+    }
 }
 else {
-  die(xlt('Not authorized'));
+    die(xlt('Not authorized'));
 }
 
  // Collect parameter(s)
@@ -113,36 +113,36 @@ $encount = 0;
 $lasttype = "";
 $first = 1; // flag for first section
 foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-  if (!acl_check_issue($focustype)) continue;
+    if (!acl_check_issue($focustype)) continue;
 
-  if ($category) {
-    // Only show this category
-    if ($focustype != $category) continue;
-  }
+    if ($category) {
+        // Only show this category
+        if ($focustype != $category) continue;
+    }
 
-  if ($first) {
-    $first = 0;
-  }
-  else {
-    echo "</table>";
-  }
-
-  // Show header
-  $disptype = $focustitles[0];
-  if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
-    if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
-      echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
-        xlt('Add') . "</span></a>\n";
+    if ($first) {
+        $first = 0;
     }
     else {
-      echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" .
-        attr($focustype)  . "\")'><span>" . xlt('Add') . "</span></a>\n";
+        echo "</table>";
     }
-  }
-  echo "  <span class='title'>" . text($disptype) . "</span>\n";
+
+  // Show header
+    $disptype = $focustitles[0];
+    if (acl_check_issue($focustype, '', array('write', 'addonly'))) {
+        if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
+            echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
+            xlt('Add') . "</span></a>\n";
+        }
+        else {
+            echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" .
+            attr($focustype)  . "\")'><span>" . xlt('Add') . "</span></a>\n";
+        }
+    }
+    echo "  <span class='title'>" . text($disptype) . "</span>\n";
   // echo " <table style='margin-bottom:1em;text-align:center'>";
-  echo " <table style='margin-bottom:1em;'>";
-  ?>
+    echo " <table style='margin-bottom:1em;'>";
+    ?>
   <tr class='head'>
     <th style='text-align:left'><?php echo xlt('Title'); ?></th>
     <th style='text-align:left'><?php echo xlt('Begin'); ?></th>
@@ -158,97 +158,97 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     <th style='text-align:left'><?php echo xlt('Comments'); ?></th>
     <th><?php echo xlt('Enc'); ?></th>
     </tr>
-  <?php
+    <?php
 
   // collect issues
-  $condition = '';
-  if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
-   $condition .= "and erx_uploaded != '1' ";
-  $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
-   "ORDER BY begdate", array($pid,$focustype) );
+    $condition = '';
+    if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
+    $condition .= "and erx_uploaded != '1' ";
+    $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
+    "ORDER BY begdate", array($pid,$focustype) );
 
   // if no issues (will place a 'None' text vs. toggle algorithm here)
-  if (sqlNumRows($pres) < 1) {
-    if ( getListTouch($pid,$focustype) ) {
-      // Data entry has happened to this type, so can display an explicit None.
-      echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
-    }
-    else {
-      // Data entry has not happened to this type, so can show the none selection option.
-      echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
-        attr($focustype) . "' value='none'";
-      if (!acl_check_issue($focustype, '', 'write')) echo " disabled";
-      echo " /><b>" . xlt("None") . "</b></td></tr>";
-    }
-  }
-
-  // display issues
-  while ($row = sqlFetchArray($pres)) {
-
-    $rowid = $row['id'];
-
-    $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
-
-    $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-      "list_id = ?", array($rowid) );
-
-    // encount is used to toggle the color of the table-row output below
-    ++$encount;
-    $bgclass = (($encount & 1) ? "bg1" : "bg2");
-
-    $colorstyle = empty($row['enddate']) ? "style='color:red'" : "";
-
-    // look up the diag codes
-    $codetext = "";
-    if ($row['diagnosis'] != "") {
-        $diags = explode(";", $row['diagnosis']);
-        foreach ($diags as $diag) {
-            $codedesc = lookup_code_descriptions($diag);
-            list($codetype, $code) = explode(':', $diag);
-            if ($codetext) $codetext .= "<br />";
-            $codetext .= "<a href='javascript:educlick(\"$codetype\",\"$code\")' $colorstyle>" .
-              text($diag . " (" . $codedesc . ")") . "</a>";
+    if (sqlNumRows($pres) < 1) {
+        if ( getListTouch($pid,$focustype) ) {
+            // Data entry has happened to this type, so can display an explicit None.
+            echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
+        }
+        else {
+              // Data entry has not happened to this type, so can show the none selection option.
+              echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
+            attr($focustype) . "' value='none'";
+              if (!acl_check_issue($focustype, '', 'write')) echo " disabled";
+              echo " /><b>" . xlt("None") . "</b></td></tr>";
         }
     }
 
-    // calculate the status
-    if ($row['outcome'] == "1" && $row['enddate'] != NULL) {
-      // Resolved
-      $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
-    }
-    else if($row['enddate'] == NULL) {
-      $statusCompute = xlt("Active");
-    }
-    else {
-      $statusCompute = xlt("Inactive");
-    }
-    $click_class='statrow';
-    if($row['erx_source']==1 && $focustype=='allergy') $click_class='';
-    elseif($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
+  // display issues
+    while ($row = sqlFetchArray($pres)) {
 
-    echo " <tr class='$bgclass detail' $colorstyle>\n";
-    echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";
-    echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
-    echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
-    // both codetext and statusCompute have already been escaped above with htmlspecialchars)
-    echo "  <td>" . $codetext . "</td>\n";
-    echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
-    echo "  <td class='nowrap'>";
-    echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
-    echo "</td>\n";
-    if ($focustype == "allergy") {
-      echo "  <td>";
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
-      echo "</td>\n";
+        $rowid = $row['id'];
+
+        $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
+
+        $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
+        "list_id = ?", array($rowid) );
+
+        // encount is used to toggle the color of the table-row output below
+        ++$encount;
+        $bgclass = (($encount & 1) ? "bg1" : "bg2");
+
+        $colorstyle = empty($row['enddate']) ? "style='color:red'" : "";
+
+        // look up the diag codes
+        $codetext = "";
+        if ($row['diagnosis'] != "") {
+              $diags = explode(";", $row['diagnosis']);
+            foreach ($diags as $diag) {
+                $codedesc = lookup_code_descriptions($diag);
+                list($codetype, $code) = explode(':', $diag);
+                if ($codetext) $codetext .= "<br />";
+                $codetext .= "<a href='javascript:educlick(\"$codetype\",\"$code\")' $colorstyle>" .
+                  text($diag . " (" . $codedesc . ")") . "</a>";
+            }
+        }
+
+        // calculate the status
+        if ($row['outcome'] == "1" && $row['enddate'] != null) {
+              // Resolved
+              $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
+        }
+        else if($row['enddate'] == null) {
+              $statusCompute = xlt("Active");
+        }
+        else {
+              $statusCompute = xlt("Inactive");
+        }
+        $click_class='statrow';
+        if($row['erx_source']==1 && $focustype=='allergy') $click_class='';
+        elseif($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
+
+        echo " <tr class='$bgclass detail' $colorstyle>\n";
+        echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";
+        echo "  <td>" . text($row['begdate']) . "&nbsp;</td>\n";
+        echo "  <td>" . text($row['enddate']) . "&nbsp;</td>\n";
+        // both codetext and statusCompute have already been escaped above with htmlspecialchars)
+        echo "  <td>" . $codetext . "</td>\n";
+        echo "  <td>" . $statusCompute . "&nbsp;</td>\n";
+        echo "  <td class='nowrap'>";
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'occurrence'), $row['occurrence']);
+        echo "</td>\n";
+        if ($focustype == "allergy") {
+              echo "  <td>";
+                echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
+              echo "</td>\n";
+        }
+        echo "  <td>" . text($row['referredby']) . "</td>\n";
+        echo "  <td>" . text($row['modifydate']) . "</td>\n";
+        echo "  <td>" . text($row['comments']) . "</td>\n";
+        echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";
+        echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
+        echo "  </td>";
+        echo " </tr>\n";
     }
-    echo "  <td>" . text($row['referredby']) . "</td>\n";
-    echo "  <td>" . text($row['modifydate']) . "</td>\n";
-    echo "  <td>" . text($row['comments']) . "</td>\n";
-    echo "  <td id='e_$rowid' class='noclick center' title='" . xla('View related encounters') . "'>";
-    echo "  <input type='button' value='" . attr($ierow['count']) . "' class='editenc' id='" . attr($rowid) . "' />";
-    echo "  </td>";
-    echo " </tr>\n";
-  }
 }
 echo "</table>";
 ?>

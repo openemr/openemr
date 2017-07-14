@@ -71,32 +71,48 @@ function submitform() {
     var valid = submitme(1, undefined, 'user_form', collectvalidation);
     if (!valid) return;
 
-	top.restoreSession();
-	var flag=0;
+    top.restoreSession();
+    var flag=0;
     <?php if(!$GLOBALS['use_active_directory']){ ?>
-	if(document.forms[0].clearPass.value!="")
-	{
-		//Checking for the strong password if the 'secure password' feature is enabled
-		if(document.forms[0].secure_pwd.value == 1)
-		{
+    if(document.forms[0].clearPass.value!="")
+    {
+        //Checking for the strong password if the 'secure password' feature is enabled
+        if(document.forms[0].secure_pwd.value == 1)
+        {
                     var pwdresult = passwordvalidate(document.forms[0].clearPass.value);
                     if(pwdresult == 0) {
                             flag=1;
-                            alert("<?php echo xl('The password must be at least eight characters, and should'); echo '\n'; echo xl('contain at least three of the four following items:'); echo '\n'; echo xl('A number'); echo '\n'; echo xl('A lowercase letter'); echo '\n'; echo xl('An uppercase letter'); echo '\n'; echo xl('A special character');echo '('; echo xl('not a letter or number'); echo ').'; echo '\n'; echo xl('For example:'); echo ' healthCare@09'; ?>");
+                            alert("<?php echo xl('The password must be at least eight characters, and should');
+                            echo '\n';
+                            echo xl('contain at least three of the four following items:');
+                            echo '\n';
+                            echo xl('A number');
+                            echo '\n';
+                            echo xl('A lowercase letter');
+                            echo '\n';
+                            echo xl('An uppercase letter');
+                            echo '\n';
+                            echo xl('A special character');
+                            echo '(';
+                            echo xl('not a letter or number');
+                            echo ').';
+                            echo '\n';
+                            echo xl('For example:');
+                            echo ' healthCare@09'; ?>");
                             return false;
                     }
-		}
+        }
 
-	}//If pwd null ends here
+    }//If pwd null ends here
     <?php } ?>
-	//Request to reset the user password if the user was deactived once the password expired.
-	if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
-		if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
-		{
-			flag=1;
-			document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
-		}
-	}
+    //Request to reset the user password if the user was deactived once the password expired.
+    if((document.forms[0].pwd_expires.value != 0) && (document.forms[0].clearPass.value == "")) {
+        if((document.forms[0].user_type.value != "Emergency Login") && (document.forms[0].pre_active.value == 0) && (document.forms[0].active.checked == 1) && (document.forms[0].grace_time.value != "") && (document.forms[0].current_date.value) > (document.forms[0].grace_time.value))
+        {
+            flag=1;
+            document.getElementById('error_message').innerHTML="<?php xl('Please reset the password.','e') ?>";
+        }
+    }
 
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);
@@ -107,49 +123,49 @@ function submitform() {
     }
   }
 
-	  <?php if($GLOBALS['erx_enable']){ ?>
-	alertMsg='';
-	f=document.forms[0];
-	for(i=0;i<f.length;i++){
-	  if(f[i].type=='text' && f[i].value)
-	  {
-	    if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,35);
-	      alertMsg += checkUsername(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'taxid')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkFederalEin(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'state_license_number')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'npi')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,10);
-	      alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
-	    }
-	    else if(f[i].name == 'drugid')
-	    {
-	      alertMsg += checkLength(f[i].name,f[i].value,30);
-	      alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
-	    }
-	  }
-	}
-	if(alertMsg)
-	{
-	  alert(alertMsg);
-	  return false;
-	}
-	<?php } ?>
-	if(flag == 0){
+        <?php if($GLOBALS['erx_enable']){ ?>
+    alertMsg='';
+    f=document.forms[0];
+    for(i=0;i<f.length;i++){
+      if(f[i].type=='text' && f[i].value)
+      {
+        if(f[i].name == 'fname' || f[i].name == 'mname' || f[i].name == 'lname')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,35);
+          alertMsg += checkUsername(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'taxid')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkFederalEin(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'state_license_number')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkStateLicenseNumber(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'npi')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,10);
+          alertMsg += checkTaxNpiDea(f[i].name,f[i].value);
+        }
+        else if(f[i].name == 'drugid')
+        {
+          alertMsg += checkLength(f[i].name,f[i].value,30);
+          alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+        }
+      }
+    }
+    if(alertMsg)
+    {
+      alert(alertMsg);
+      return false;
+    }
+    <?php } ?>
+    if(flag == 0){
                     document.forms[0].submit();
                     parent.$.fn.fancybox.close();
-	}
+    }
 }
 //Getting the list of selected item in ACL
 function getSelected(opt) {
@@ -185,7 +201,7 @@ function authorized_clicked() {
 <span class="title"><?php xl('Edit User','e'); ?></span>&nbsp;
 </td><td>
     <a class="css_button" name='form_save' id='form_save' href='#' onclick='return submitform()'> <span><?php xl('Save','e');?></span> </a>
-	<a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
+    <a class="css_button" id='cancel' href='#'><span><?php xl('Cancel','e');?></span></a>
 </td></tr>
 </table>
 <br>
@@ -204,7 +220,7 @@ $password_exp=$iter["pwd_expiration_date"];
 if($password_exp != "0000-00-00")
   {
     $grace_time1 = date("Y-m-d", strtotime($password_exp . "+".$GLOBALS['password_grace_time'] ."days"));
-  }
+}
 ?>
 <input type=hidden name="current_date" value="<?php echo strtotime($current_date); ?>" >
 <input type=hidden name="grace_time" value="<?php echo strtotime($grace_time1); ?>" >
@@ -213,10 +229,10 @@ if($password_exp != "0000-00-00")
 $acl_name=acl_get_group_titles($iter["username"]);
 $bg_name='';
 $bg_count=count($acl_name);
-   for($i=0;$i<$bg_count;$i++){
-      if($acl_name[$i] == "Emergency Login")
-       $bg_name=$acl_name[$i];
-      }
+for($i=0;$i<$bg_count;$i++){
+    if($acl_name[$i] == "Emergency Login")
+    $bg_name=$acl_name[$i];
+}
 ?>
 <input type=hidden name="user_type" value="<?php echo $bg_name; ?>" >
 
@@ -242,11 +258,11 @@ $bg_count=count($acl_name);
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
 <td colspan="2"><span class=text><?php xl('Provider','e'); ?>:
  <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
-  if ($iter["authorized"]) echo " checked"; ?> />
+    if ($iter["authorized"]) echo " checked"; ?> />
  &nbsp;&nbsp;<span class='text'><?php xl('Calendar','e'); ?>:
  <input type="checkbox" name="calendar"<?php
-  if ($iter["calendar"]) echo " checked";
-  if (!$iter["authorized"]) echo " disabled"; ?> />
+    if ($iter["calendar"]) echo " checked";
+    if (!$iter["authorized"]) echo " disabled"; ?> />
  &nbsp;&nbsp;<span class='text'><?php xl('Active','e'); ?>:
  <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
 </TD>
@@ -264,13 +280,13 @@ $bg_count=count($acl_name);
 <?php
 $fres = $facilityService->getAllBillingLocations();
 if ($fres) {
-for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++)
+    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++)
                 $result[$iter2] = $fres[$iter2];
-foreach($result as $iter2) {
-?>
-  <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
+    foreach($result as $iter2) {
+        ?>
+          <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
 <?php
-}
+    }
 }
 ?>
 </select></td>
@@ -288,13 +304,13 @@ foreach($result as $iter2) {
   foreach($userFacilities as $uf)
     $ufid[] = $uf['id'];
   $fres = $facilityService->getAllServiceLocations();
-  if ($fres) {
+if ($fres) {
     foreach($fres as $frow):
 ?>
    <option <?php echo in_array($frow['id'], $ufid) || $frow['id'] == $iter['facility_id'] ? "selected" : null ?>
       value="<?php echo $frow['id'] ?>"><?php echo htmlspecialchars($frow['name']) ?></option>
 <?php
-  endforeach;
+endforeach;
 }
 ?>
   </select>
@@ -312,12 +328,12 @@ foreach($result as $iter2) {
 <td class='text'><?php xl('See Authorizations','e'); ?>: </td>
 <td><select name="see_auth" style="width:150px;" >
 <?php
- foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
- {
-  echo " <option value='$key'";
-  if ($key == $iter['see_auth']) echo " selected";
-  echo ">$value</option>\n";
- }
+foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
+{
+    echo " <option value='$key'";
+    if ($key == $iter['see_auth']) echo " selected";
+    echo ">$value</option>\n";
+}
 ?>
 </select></td>
 </tr>
@@ -337,7 +353,7 @@ foreach($result as $iter2) {
 <td><input type="text" name="state_license_number" style="width:150px;"  value="<?php echo $iter["state_license_number"]?>"></td>
 <td class='text'><?php xl('NewCrop eRX Role','e'); ?>:</td>
 <td>
-  <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'',xl('Select Role'),'','','',array('style'=>'width:150px')); ?>
+    <?php echo generate_select_list("erxrole", "newcrop_erx_role", $iter['newcrop_user_role'],'',xl('Select Role'),'','','',array('style'=>'width:150px')); ?>
 </td>
 </tr>
 
@@ -372,25 +388,25 @@ echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
 
 <?php
  // Collect the access control group of user
- if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
+if (isset($phpgacl_location) && acl_check('admin', 'acl')) {
 ?>
-  <tr>
-  <td class='text'><?php xl('Access Control','e'); ?>:</td>
-  <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" >
-  <?php
-   $list_acl_groups = acl_get_group_title_list();
-   $username_acl_groups = acl_get_group_titles($iter["username"]);
-   foreach ($list_acl_groups as $value) {
+ <tr>
+<td class='text'><?php xl('Access Control','e'); ?>:</td>
+ <td><select id="access_group_id" name="access_group[]" multiple style="width:150px;" >
+<?php
+  $list_acl_groups = acl_get_group_title_list();
+  $username_acl_groups = acl_get_group_titles($iter["username"]);
+foreach ($list_acl_groups as $value) {
     if (($username_acl_groups) && in_array($value,$username_acl_groups)) {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
+        // Modified 6-2009 by BM - Translate group name if applicable
+        echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
     }
     else {
-     // Modified 6-2009 by BM - Translate group name if applicable
-     echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
+        // Modified 6-2009 by BM - Translate group name if applicable
+        echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
-   }
-  ?>
+}
+    ?>
   </select></td>
   <td><span class=text><?php xl('Additional Info','e'); ?>:</span></td>
   <td><textarea style="width:150px;" name="comments" wrap=auto rows=4 cols=25><?php echo $iter["info"];?></textarea></td>
@@ -406,7 +422,7 @@ Display red alert if entered password matched one of last three passwords/Displa
   </td>
   </tr>
 <?php
- }
+}
 ?>
 </table>
 
@@ -419,8 +435,8 @@ Display red alert if entered password matched one of last three passwords/Displa
 <script language="JavaScript">
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
 });
 </script>

@@ -29,7 +29,7 @@ $disabled = "disabled";
 
 // If we are allowed to change encounter dates...
 if (acl_check('encounters', 'date_a')) {
-  $disabled = "";
+    $disabled = "";
 }
 
 $viewmode = true;

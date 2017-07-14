@@ -43,9 +43,9 @@ use OpenEMR\Core\Header;
     <script type="text/javascript" language="JavaScript">
         function validate(f) {
             if (f.form_adreviewed.value == "") {
-	              alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
-	              f.form_adreviewed.focus();
-	              return false;
+                  alert("<?php echo xls('Please enter a date for Last Reviewed.'); ?>");
+                  f.form_adreviewed.focus();
+                  return false;
             }
             return true;
         }
@@ -110,11 +110,11 @@ use OpenEMR\Core\Header;
                                  "FROM documents " .
                                  "INNER JOIN categories_to_documents " .
                                  "ON categories_to_documents.document_id=documents.id " .
-	                               "WHERE categories_to_documents.category_id=? " .
-	                               "AND documents.foreign_id=? " .
+                                   "WHERE categories_to_documents.category_id=? " .
+                                   "AND documents.foreign_id=? " .
                                 "ORDER BY documents.date DESC";
                         $resNew2 = sqlStatement($query, array($categoryId, $pid));
-	                      $counterFlag = false; //flag used to check for empty categories
+                          $counterFlag = false; //flag used to check for empty categories
                         while ($myrows4 = sqlFetchArray($resNew2)) {
                             $dateTimeDoc = $myrows4['date'];
                             $idDoc = $myrows4['id'];
@@ -124,13 +124,13 @@ use OpenEMR\Core\Header;
                                 <?php echo text(xl_document_category($nameDoc)); ?>
                             </a>
                             <?php echo text($dateTimeDoc);
-		                        $counterFlag = true;
+                                $counterFlag = true;
                         }
-	                      // if no associated docs with category then show it's empty
-	                      if (!$counterFlag) {
+                          // if no associated docs with category then show it's empty
+                        if (!$counterFlag) {
                             ?>
-	                          <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
-	                      <?php }
+                            <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
+                            <?php }
                     }
                 }
                 ?>

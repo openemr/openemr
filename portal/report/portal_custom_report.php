@@ -29,13 +29,13 @@ $landingpage = "../index.php?site=".$_SESSION['site_id'];
 
 // kick out if patient not authenticated
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
-	$pid = $_SESSION['pid'];
-	$user = $_SESSION['sessionUser'];
+    $pid = $_SESSION['pid'];
+    $user = $_SESSION['sessionUser'];
 }
 else {
-	session_destroy();
-	header('Location: '.$landingpage.'&w');
-	exit;
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit;
 }
 $ignoreAuth = true;
 global $ignoreAuth;
@@ -58,7 +58,7 @@ require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
-  require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
 
 // For those who care that this is the patient report.
@@ -67,15 +67,15 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-  require_once("$srcdir/html2pdf/vendor/autoload.php");
-  $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
+    require_once("$srcdir/html2pdf/vendor/autoload.php");
+    $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
                        $GLOBALS['pdf_size'],
                        $GLOBALS['pdf_language'],
                        true, // default unicode setting is true
                        'UTF-8', // default encoding setting is UTF-8
                        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
           );
-  ob_start();
+    ob_start();
 }
 
 // get various authorization levels
@@ -98,38 +98,40 @@ $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
 
-function getContent() {
-  global $web_root, $webserver_root;
-  $content = ob_get_clean();
+function getContent()
+{
+    global $web_root, $webserver_root;
+    $content = ob_get_clean();
   // Fix a nasty html2pdf bug - it ignores document root!
-  $i = 0;
-  $wrlen = strlen($web_root);
-  $wsrlen = strlen($webserver_root);
-  while (true) {
-    $i = stripos($content, " src='/", $i + 1);
-    if ($i === false) break;
-    if (substr($content, $i+6, $wrlen) === $web_root &&
+    $i = 0;
+    $wrlen = strlen($web_root);
+    $wsrlen = strlen($webserver_root);
+    while (true) {
+        $i = stripos($content, " src='/", $i + 1);
+        if ($i === false) break;
+        if (substr($content, $i+6, $wrlen) === $web_root &&
         substr($content, $i+6, $wsrlen) !== $webserver_root)
-    {
-      $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+        {
+            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+        }
     }
-  }
-  return $content;
+    return $content;
 }
 
-function postToGet($arin) {
-  $getstring="";
-  foreach ($arin as $key => $val) {
-    if (is_array($val)) {
-      foreach ($val as $k => $v) {
-        $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
-      }
+function postToGet($arin)
+{
+    $getstring="";
+    foreach ($arin as $key => $val) {
+        if (is_array($val)) {
+            foreach ($val as $k => $v) {
+                $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
+            }
+        }
+        else {
+            $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
+        }
     }
-    else {
-      $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
-    }
-  }
-  return $getstring;
+    return $getstring;
 }
 ?>
 
@@ -469,9 +471,9 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
        prev(w_count);
       }
       var tot_res = res_array.length/w_count;
-	  if(tot_res > 0){
-		document.getElementById('alert_msg').innerHTML='<?php echo xla('Showing result');?> '+cur_res+' <?php echo xla('of');?> '+tot_res;
-	  }
+      if(tot_res > 0){
+        document.getElementById('alert_msg').innerHTML='<?php echo xla('Showing result');?> '+cur_res+' <?php echo xla('of');?> '+tot_res;
+      }
     }
 
   }
@@ -490,30 +492,30 @@ if ($printable) {
   $titleres = getPatientData($pid, "fname,lname,providerID");
   $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
   *******************************************************************/
-  $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-  if ($_SESSION['pc_facility']) {
-    $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
-  } else {
-    $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-  }
+    $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    if ($_SESSION['pc_facility']) {
+        $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+    } else {
+        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+    }
   /******************************************************************/
-  $db = $GLOBALS['adodb']['db'];
-  $results = $db->Execute($sql);
-  $facility = array();
-  if (!$results->EOF) {
-    $facility = $results->fields;
-  }
+    $db = $GLOBALS['adodb']['db'];
+    $results = $db->Execute($sql);
+    $facility = array();
+    if (!$results->EOF) {
+        $facility = $results->fields;
+    }
   // Setup Headers and Footers for html2PDF only Download
   // in HTML view it's just one line at the top of page 1
-  echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
-  echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+    echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+    echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
 
   // Use logo if it exists as 'practice_logo.gif' in the site dir
   // old code used the global custom dir which is no longer a valid
-   $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-   if (file_exists($practice_logo)) {
+    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+    if (file_exists($practice_logo)) {
         echo "<img src='$practice_logo' align='left'><br />\n";
-     }
+    }
 ?>
 <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
@@ -600,10 +602,10 @@ else { // not printable
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
 while($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
-  $formdir = $result['formdir'];
-  if (substr($formdir,0,3) == 'LBF')
+    $formdir = $result['formdir'];
+    if (substr($formdir,0,3) == 'LBF')
     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-  else
+    else
     include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
 }
 
@@ -735,25 +737,25 @@ foreach ($ar as $key => $val) {
                    " where i1.patient_id = '$pid' and i1.added_erroneously = 0 ".
                    " order by administered_date desc";
                 $result = sqlStatement($sql);
-                while ($row=sqlFetchArray($result)) {
-                  // Figure out which name to use (ie. from cvx list or from the custom list)
-                  if ($GLOBALS['use_custom_immun_list']) {
+            while ($row=sqlFetchArray($result)) {
+              // Figure out which name to use (ie. from cvx list or from the custom list)
+                if ($GLOBALS['use_custom_immun_list']) {
                      $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-                  }
-                  else {
-                     if (!empty($row['code_text_short'])) {
-                        $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
-                     }
-                     else {
-                        $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-                     }
-                  }
-                  echo $row['administered_date'] . " - " . $vaccine_display;
-                  if ($row['immunization_note']) {
-                     echo " - " . $row['immunization_note'];
-                  }
-                  echo "<br>\n";
                 }
+                else {
+                    if (!empty($row['code_text_short'])) {
+                        $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                    }
+                    else {
+                         $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                    }
+                }
+                echo $row['administered_date'] . " - " . $vaccine_display;
+                if ($row['immunization_note']) {
+                     echo " - " . $row['immunization_note'];
+                }
+                echo "<br>\n";
+            }
                 echo "</div>\n";
             //}
 
@@ -824,88 +826,88 @@ foreach ($ar as $key => $val) {
 
                 $url_file = $d->get_url_filepath();
                 if($couch_docid && $couch_revid){
-                  $url_file = $d->get_couch_url($pid,$encounter);
+                    $url_file = $d->get_couch_url($pid,$encounter);
                 }
                 // Collect filename and path
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
                 for ($i=0;$i<$d->get_path_depth();$i++) {
-                  $from_pathname_array[] = array_pop($from_all);
+                    $from_pathname_array[] = array_pop($from_all);
                 }
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/",$from_pathname_array);
 
                 if($couch_docid && $couch_revid) {
-                  $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-                  $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+                    $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
+                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
                 else {
-                  $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
+                    $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
                     '/documents/' . $from_pathname . '/' . $from_filename;
-                  $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
 
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
-                  if ($PDF_OUTPUT) {
-                    // OK to link to the image file because it will be accessed by the
-                    // HTML2PDF parser and not the browser.
-                    $from_rel = $web_root . substr($from_file, strlen($webserver_root));
-                    echo "<img src='$from_rel'";
-                    // Flag images with excessive width for possible stylesheet action.
-                    $asize = getimagesize($from_file);
-                    if ($asize[0] > 750) echo " class='bigimage'";
-                    echo " /><br><br>";
-                  }
-                  else {
-                    echo "<img src='" . $GLOBALS['webroot'] .
-                      "/controller.php?document&retrieve&patient_id=&document_id=" .
-                      $document_id . "&as_file=false'><br><br>";
-                  }
+                    if ($PDF_OUTPUT) {
+                        // OK to link to the image file because it will be accessed by the
+                        // HTML2PDF parser and not the browser.
+                        $from_rel = $web_root . substr($from_file, strlen($webserver_root));
+                        echo "<img src='$from_rel'";
+                        // Flag images with excessive width for possible stylesheet action.
+                        $asize = getimagesize($from_file);
+                        if ($asize[0] > 750) echo " class='bigimage'";
+                        echo " /><br><br>";
+                    }
+                    else {
+                        echo "<img src='" . $GLOBALS['webroot'] .
+                        "/controller.php?document&retrieve&patient_id=&document_id=" .
+                        $document_id . "&as_file=false'><br><br>";
+                    }
                 }
                 else {
 
           // Most clinic documents are expected to be PDFs, and in that happy case
           // we can avoid the lengthy image conversion process.
-          if ($PDF_OUTPUT && $extension == ".pdf") {
-            // HTML to PDF conversion will fail if there are open tags.
-            echo "</div></div>\n";
-            $content = getContent();
-            // $pdf->setDefaultFont('Arial');
-            $pdf->writeHTML($content, false);
-            $pagecount = $pdf->pdf->setSourceFile($from_file);
-            for($i = 0; $i < $pagecount; ++$i){
-              $pdf->pdf->AddPage();
-              $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
-              $pdf->pdf->useTemplate($itpl);
-            }
-            // Make sure whatever follows is on a new page.
-            $pdf->pdf->AddPage();
-            // Resume output buffering and the above-closed tags.
-            ob_start();
-            echo "<div><div class='text documents'>\n";
-          }
-          else {
-            if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
-            if (is_file($to_file)) {
-              if ($PDF_OUTPUT) {
-                // OK to link to the image file because it will be accessed by the
-                // HTML2PDF parser and not the browser.
-                echo "<img src='$to_file'><br><br>";
-              }
-              else {
-                echo "<img src='" . $GLOBALS['webroot'] .
-                  "/controller.php?document&retrieve&patient_id=&document_id=" .
-                  $document_id . "&as_file=false&original_file=false'><br><br>";
-              }
-            } else {
-              echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
-                xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
-              if($couch_docid && $couch_revid) {
-                unlink($from_file);
-              }
-            }
-          }
+                    if ($PDF_OUTPUT && $extension == ".pdf") {
+                                // HTML to PDF conversion will fail if there are open tags.
+                                echo "</div></div>\n";
+                                $content = getContent();
+                                // $pdf->setDefaultFont('Arial');
+                                $pdf->writeHTML($content, false);
+                                $pagecount = $pdf->pdf->setSourceFile($from_file);
+                        for($i = 0; $i < $pagecount; ++$i){
+                            $pdf->pdf->AddPage();
+                            $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
+                            $pdf->pdf->useTemplate($itpl);
+                        }
+                                // Make sure whatever follows is on a new page.
+                                $pdf->pdf->AddPage();
+                                // Resume output buffering and the above-closed tags.
+                                ob_start();
+                                echo "<div><div class='text documents'>\n";
+                    }
+                    else {
+                                if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
+                        if (is_file($to_file)) {
+                            if ($PDF_OUTPUT) {
+                                // OK to link to the image file because it will be accessed by the
+                                // HTML2PDF parser and not the browser.
+                                echo "<img src='$to_file'><br><br>";
+                            }
+                            else {
+                                echo "<img src='" . $GLOBALS['webroot'] .
+                                  "/controller.php?document&retrieve&patient_id=&document_id=" .
+                                  $document_id . "&as_file=false&original_file=false'><br><br>";
+                            }
+                        } else {
+                            echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
+                              xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
+                            if($couch_docid && $couch_revid) {
+                                unlink($from_file);
+                            }
+                        }
+                    }
                 } // end if-else
             } // end Documents loop
             echo "</div>";
@@ -914,19 +916,19 @@ foreach ($ar as $key => $val) {
         // Procedures is an array of checkboxes whose values are procedure order IDs.
         //
         else if ($key == "procedures") {
-          if ($auth_med) {
-            echo "<hr />";
-            echo "<div class='text documents'>";
-            foreach($val as $valkey => $poid) {
-              echo "<h1>" . xlt('Procedure Order') . ":</h1>";
-              echo "<br />\n";
-              // Need to move the inline styles from this function to the stylesheet, but until
-              // then we do it just for PDFs to avoid breaking anything.
-              generate_order_report($poid, false, !$PDF_OUTPUT);
-              echo "<br />\n";
+            if ($auth_med) {
+                echo "<hr />";
+                echo "<div class='text documents'>";
+                foreach($val as $valkey => $poid) {
+                    echo "<h1>" . xlt('Procedure Order') . ":</h1>";
+                    echo "<br />\n";
+                    // Need to move the inline styles from this function to the stylesheet, but until
+                    // then we do it just for PDFs to avoid breaking anything.
+                    generate_order_report($poid, false, !$PDF_OUTPUT);
+                    echo "<br />\n";
+                }
+                echo "</div>";
             }
-            echo "</div>";
-          }
         }
 
         else if (strpos($key, "issue_") === 0) {
@@ -1064,32 +1066,32 @@ if ($printable)
 
 <?php
 if ($PDF_OUTPUT) {
-  $content = getContent();
+    $content = getContent();
   // $pdf->setDefaultFont('Arial');
-  $pdf->writeHTML($content, false);
-  if ($PDF_OUTPUT == 1) {
-    $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
-  }
-  else {
-    // This is the case of writing the PDF as a message to the CMS portal.
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $contents = $pdf->Output('', true);
-    echo "<html><head>\n";
-    echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
-    echo "</head><body class='body_top'>\n";
-    $result = cms_portal_call(array(
-      'action'   => 'putmessage',
-      'user'     => $ptdata['cmsportal_login'],
-      'title'    => xl('Your Clinical Report'),
-      'message'  => xl('Please see the attached PDF.'),
-      'filename' => 'report.pdf',
-      'mimetype' => 'application/pdf',
-      'contents' => base64_encode($contents),
-    ));
-    if ($result['errmsg']) die(text($result['errmsg']));
-    echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
-    echo "</body></html>\n";
-  }
+    $pdf->writeHTML($content, false);
+    if ($PDF_OUTPUT == 1) {
+        $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
+    }
+    else {
+        // This is the case of writing the PDF as a message to the CMS portal.
+        $ptdata = getPatientData($pid, 'cmsportal_login');
+        $contents = $pdf->Output('', true);
+        echo "<html><head>\n";
+        echo "<link rel='stylesheet' href='$css_header' type='text/css'>\n";
+        echo "</head><body class='body_top'>\n";
+        $result = cms_portal_call(array(
+        'action'   => 'putmessage',
+        'user'     => $ptdata['cmsportal_login'],
+        'title'    => xl('Your Clinical Report'),
+        'message'  => xl('Please see the attached PDF.'),
+        'filename' => 'report.pdf',
+        'mimetype' => 'application/pdf',
+        'contents' => base64_encode($contents),
+        ));
+        if ($result['errmsg']) die(text($result['errmsg']));
+        echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
+        echo "</body></html>\n";
+    }
 }
 else {
 ?>

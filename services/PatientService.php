@@ -27,15 +27,17 @@ class PatientService {
   /**
    * Default constructor.
    */
-  public function __construct() {
-  }
+    public function __construct()
+    {
+    }
 
   /**
    * @param $pid unique patient id
    * @return recordset
    */
-  public static function getChartTrackerInformationActivity($pid) {
-    $sql = "SELECT ct.ct_when,
+    public static function getChartTrackerInformationActivity($pid)
+    {
+        $sql = "SELECT ct.ct_when,
                    ct.ct_userid,
                    ct.ct_location,
                    u.username,
@@ -46,14 +48,15 @@ class PatientService {
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-    return sqlStatement($sql, array($pid));
-  }
+        return sqlStatement($sql, array($pid));
+    }
 
   /**
    * @return recordset
    */
-  public static function getChartTrackerInformation() {
-    $sql = "SELECT ct.ct_when,
+    public static function getChartTrackerInformation()
+    {
+        $sql = "SELECT ct.ct_when,
                    u.username,
                    u.fname AS ufname,
                    u.mname AS umname,
@@ -68,7 +71,7 @@ class PatientService {
             LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid
             WHERE ct.ct_userid != 0
             ORDER BY p.pubpid";
-    return sqlStatement($sql);
-  }
+        return sqlStatement($sql);
+    }
 
 }

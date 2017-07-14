@@ -41,36 +41,43 @@ class Rule {
      */
     var $groups;
 
-    function __construct( $id='', $title='', $ruleTypes=array() ) {
+    function __construct( $id='', $title='', $ruleTypes=array() )
+    {
         $this->id = $id;
         $this->title = $title;
         $this->ruleTypes = $ruleTypes;
     }
 
-    function getTitle() {
+    function getTitle()
+    {
         return $this->title;
     }
 
-    function setDeveloper($s) {
+    function setDeveloper($s)
+    {
         $this->developer = $s;
     }
     
-    function setFunding($s) {
+    function setFunding($s)
+    {
         $this->funding_source = $s;
     }
 
-    function setRelease($s) {
+    function setRelease($s)
+    {
         $this->release = $s;
     }
 
-    function setWeb_ref($s) {
+    function setWeb_ref($s)
+    {
         $this->web_ref = $s;
     }
 
     /**
      * @param RuleType $ruleType
      */
-    function addRuleType( $ruleType ) {
+    function addRuleType( $ruleType )
+    {
         if ( !$this->hasRuleType($ruleType) ) {
             array_push($this->ruleTypes, $ruleType->code );
         }
@@ -81,7 +88,8 @@ class Rule {
      * @param RuleType $ruleType
      * @return boolean
      */
-    function hasRuleType( $ruleType ) {
+    function hasRuleType( $ruleType )
+    {
         foreach( $this->ruleTypes as $type) {
             if ( $type == $ruleType->code ) {
                 return true;
@@ -90,42 +98,50 @@ class Rule {
         return false;
     }
 
-    function isActiveAlert() {
+    function isActiveAlert()
+    {
         return $this->hasRuleType( RuleType::from(RuleType::ActiveAlert) );
     }
 
-    function isPassiveAlert() {
+    function isPassiveAlert()
+    {
         return $this->hasRuleType( RuleType::from(RuleType::PassiveAlert) );
     }
 
-    function isCqm() {
+    function isCqm()
+    {
         return $this->hasRuleType( RuleType::from(RuleType::CQM) );
     }
 
-    function isAmc() {
+    function isAmc()
+    {
         return $this->hasRuleType( RuleType::from(RuleType::AMC) );
     }
 
-    function isReminder() {
+    function isReminder()
+    {
         return $this->hasRuleType( RuleType::from(RuleType::PatientReminder) );
     }
 
     /**
      * @param ReminderIntervals $reminderIntervals
      */
-    function setReminderIntervals( $reminderIntervals ) {
+    function setReminderIntervals( $reminderIntervals )
+    {
         $this->reminderIntervals = $reminderIntervals;
     }
 
     /**
      *
-     * @param RuleFilters $ruleFilters 
+     * @param RuleFilters $ruleFilters
      */
-    function setRuleFilters( $ruleFilters ) {
+    function setRuleFilters( $ruleFilters )
+    {
         $this->filters = $ruleFilters;
     }
     
-    function setGroups( array $groups ) {
+    function setGroups( array $groups )
+    {
         $this->groups = $groups;
     }
 
@@ -133,22 +149,26 @@ class Rule {
      *
      * @param RuleTargets $ruleTargets
      */
-    function setRuleTargets( $ruleTargets ) {
+    function setRuleTargets( $ruleTargets )
+    {
         $this->targets = $ruleTargets;
     }
 
     /**
      * @param RuleActions $actions
      */
-    function setRuleActions( $actions ) {
+    function setRuleActions( $actions )
+    {
         $this->actions = $actions;
     }
 
-    function isEditable() {
+    function isEditable()
+    {
         return true;
     }
 
-    function getRuleTypeLabels() {
+    function getRuleTypeLabels()
+    {
         $labels = array();
         foreach( $this->ruleTypes as $ruleType ) {
             array_push( $labels, RuleType::from($ruleType)->lbl );

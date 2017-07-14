@@ -40,68 +40,68 @@ require_once("verysimple/Phreeze/Reporter.php");
 class UserReporter extends Reporter
 {
 
-	// the properties in this class must match the columns returned by GetCustomQuery().
-	// 'CustomFieldExample' is an example that is not part of the `users` table
-	public $CustomFieldExample;
+    // the properties in this class must match the columns returned by GetCustomQuery().
+    // 'CustomFieldExample' is an example that is not part of the `users` table
+    public $CustomFieldExample;
 
-	public $Id;
-	public $Username;
-	public $Password;
-	public $Authorized;
-	public $Info;
-	public $Source;
-	public $Fname;
-	public $Mname;
-	public $Lname;
-	public $Federaltaxid;
-	public $Federaldrugid;
-	public $Upin;
-	public $Facility;
-	public $FacilityId;
-	public $SeeAuth;
-	public $Active;
-	public $Npi;
-	public $Title;
-	public $Specialty;
-	public $Billname;
-	public $Email;
-	public $EmailDirect;
-	public $EserUrl;
-	public $Assistant;
-	public $Organization;
-	public $Valedictory;
-	public $Street;
-	public $Streetb;
-	public $City;
-	public $State;
-	public $Zip;
-	public $Street2;
-	public $Streetb2;
-	public $City2;
-	public $State2;
-	public $Zip2;
-	public $Phone;
-	public $Fax;
-	public $Phonew1;
-	public $Phonew2;
-	public $Phonecell;
-	public $Notes;
-	public $CalUi;
-	public $Taxonomy;
-	public $SsiRelayhealth;
-	public $Calendar;
-	public $AbookType;
-	public $PwdExpirationDate;
-	public $PwdHistory1;
-	public $PwdHistory2;
-	public $DefaultWarehouse;
-	public $Irnpool;
-	public $StateLicenseNumber;
-	public $NewcropUserRole;
-	public $Cpoe;
-	public $PhysicianType;
+    public $Id;
+    public $Username;
+    public $Password;
+    public $Authorized;
+    public $Info;
+    public $Source;
+    public $Fname;
+    public $Mname;
+    public $Lname;
+    public $Federaltaxid;
+    public $Federaldrugid;
+    public $Upin;
+    public $Facility;
+    public $FacilityId;
+    public $SeeAuth;
+    public $Active;
+    public $Npi;
+    public $Title;
+    public $Specialty;
+    public $Billname;
+    public $Email;
+    public $EmailDirect;
+    public $EserUrl;
+    public $Assistant;
+    public $Organization;
+    public $Valedictory;
+    public $Street;
+    public $Streetb;
+    public $City;
+    public $State;
+    public $Zip;
+    public $Street2;
+    public $Streetb2;
+    public $City2;
+    public $State2;
+    public $Zip2;
+    public $Phone;
+    public $Fax;
+    public $Phonew1;
+    public $Phonew2;
+    public $Phonecell;
+    public $Notes;
+    public $CalUi;
+    public $Taxonomy;
+    public $SsiRelayhealth;
+    public $Calendar;
+    public $AbookType;
+    public $PwdExpirationDate;
+    public $PwdHistory1;
+    public $PwdHistory2;
+    public $DefaultWarehouse;
+    public $Irnpool;
+    public $StateLicenseNumber;
+    public $NewcropUserRole;
+    public $Cpoe;
+    public $PhysicianType;
 
-	/*
+    /*
 	* GetCustomQuery returns a fully formed SQL statement.  The result columns
 	* must match with the properties of this reporter object.
 	*
@@ -109,9 +109,9 @@ class UserReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomQuery($criteria)
-	{
-		$sql = "select
+    static function GetCustomQuery($criteria)
+    {
+        $sql = "select
 			'custom value here...' as CustomFieldExample
 			,`users`.`id` as Id
 			,`users`.`username` as Username
@@ -170,15 +170,15 @@ class UserReporter extends Reporter
 			,`users`.`physician_type` as PhysicianType
 		from `users`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
-		$sql .= $criteria->GetOrder();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
+        $sql .= $criteria->GetOrder();
 
-		return $sql;
-	}
+        return $sql;
+    }
 
-	/*
+    /*
 	* GetCustomCountQuery returns a fully formed SQL statement that will count
 	* the results.  This query must return the correct number of results that
 	* GetCustomQuery would, given the same criteria
@@ -187,16 +187,16 @@ class UserReporter extends Reporter
 	* @param Criteria $criteria
 	* @return string SQL statement
 	*/
-	static function GetCustomCountQuery($criteria)
-	{
-		$sql = "select count(1) as counter from `users`";
+    static function GetCustomCountQuery($criteria)
+    {
+        $sql = "select count(1) as counter from `users`";
 
-		// the criteria can be used or you can write your own custom logic.
-		// be sure to escape any user input with $criteria->Escape()
-		$sql .= $criteria->GetWhere();
+        // the criteria can be used or you can write your own custom logic.
+        // be sure to escape any user input with $criteria->Escape()
+        $sql .= $criteria->GetWhere();
 
-		return $sql;
-	}
+        return $sql;
+    }
 }
 
 ?>

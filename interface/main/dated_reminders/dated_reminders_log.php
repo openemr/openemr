@@ -34,9 +34,9 @@
   /*
     -------------------  HANDLE POST ---------------------
   */
-  if($_GET){
+if($_GET){
     if(!$isAdmin){
-      if(empty($_GET['sentBy']) and empty($_GET['sentTo']))
+        if(empty($_GET['sentBy']) and empty($_GET['sentTo']))
         $_GET['sentTo'] = array(intval($_SESSION['authId']));
     }
     echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
@@ -57,18 +57,18 @@
     $remindersArray = array();
     $TempRemindersArray = logRemindersArray();
     foreach($TempRemindersArray as $RA){
-      $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
-      $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
-      $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
-      $remindersArray[$RA['messageID']]['message'] = $RA['message'];
-      $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
-      $remindersArray[$RA['messageID']]['sDate'] = $RA['sDate'];
-      $remindersArray[$RA['messageID']]['pDate'] = $RA['pDate'];
-      $remindersArray[$RA['messageID']]['processedByName'] = $RA['processedByName'];
-      $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName'];
+        $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
+        $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
+        $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
+        $remindersArray[$RA['messageID']]['message'] = $RA['message'];
+        $remindersArray[$RA['messageID']]['dDate'] = $RA['dDate'];
+        $remindersArray[$RA['messageID']]['sDate'] = $RA['sDate'];
+        $remindersArray[$RA['messageID']]['pDate'] = $RA['pDate'];
+        $remindersArray[$RA['messageID']]['processedByName'] = $RA['processedByName'];
+        $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName'];
     }
     foreach($remindersArray as $RA){
-      echo '<tr class="heading">
+        echo '<tr class="heading">
               <td>',text($RA['messageID']),'</td>
               <td>',text($RA['sDate']),'</td>
               <td>',text($RA['fromName']),'</td>
@@ -83,7 +83,7 @@
     echo '</tbody></table>';
 
     die;
-  }
+}
 ?>
 <html>
   <head>
@@ -100,23 +100,23 @@
           $.get("dated_reminders_log.php?"+$("#logForm").serialize(),
                function(data) {
                   $("#resultsDiv").html(data);
-                  <?php
+                    <?php
                     if(!$isAdmin){
-                      echo '$("select option").removeAttr("selected");';
+                        echo '$("select option").removeAttr("selected");';
                     }
-                  ?>
-                	return false;
+                    ?>
+                    return false;
                }
              )
           return false;
         })
 
         $('.datepicker').datetimepicker({
-          <?php $datetimepicker_timepicker = false; ?>
-          <?php $datetimepicker_showseconds = false; ?>
-          <?php $datetimepicker_formatInput = false; ?>
-          <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
       })
     </script>
@@ -129,16 +129,17 @@
 <?php
   $allUsers = array();
   $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
-  for($i=0; $uRow=sqlFetchArray($uSQL); $i++){ $allUsers[] = $uRow; }
+for($i=0; $uRow=sqlFetchArray($uSQL);
+$i++){ $allUsers[] = $uRow; }
 ?>
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">
       <h1><?php echo xlt('Dated Message Log') ?></h1>
       <h2><?php echo xlt('filters') ?> :</h2>
       <blockquote><?php echo xlt('Date The Message Was Sent') ?><br />
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <?php echo xlt('Start Date') ?> : <input id="sd" type="text" class='datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   &nbsp;&nbsp;&nbsp;
+        <?php echo xlt('Start Date') ?> : <input id="sd" type="text" class='datepicker' name="sd" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   &nbsp;&nbsp;&nbsp;
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
-      <?php echo xlt('End Date') ?> : <input id="ed" type="text" class='datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   <br /><br />
+        <?php echo xlt('End Date') ?> : <input id="ed" type="text" class='datepicker' name="ed" value="" title='<?php echo xla('yyyy-mm-dd'); ?>' />   <br /><br />
 <!----------------------------------------------------------------------------------------------------------------------------------------------------->
       </blockquote>
       <table style="width:100%">
@@ -147,22 +148,22 @@
             <?php echo xlt('Sent By, Leave Blank For All') ?> : <br />
             <select style="width:100%;" id="sentBy" name="sentBy[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-              <?php
+                <?php
                 if($isAdmin)
                   foreach($allUsers as $user)
                     echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
-              ?>
+                ?>
             </select>
           </td>
           <td style="width:50%">
             <?php echo xlt('Sent To, Leave Blank For All') ?> : <br />
             <select style="width:100%" id="sentTo" name="sentTo[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
-              <?php
+                <?php
                 if($isAdmin)
                   foreach($allUsers as $user)
                     echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
-              ?>
+                ?>
             </select>
           </td>
         </tr>

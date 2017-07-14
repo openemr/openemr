@@ -20,15 +20,16 @@
 include_once("../globals.php");
 
 if ($GLOBALS['full_new_patient_form']) {
-  require("new_comprehensive.php");
-  exit;
+    require("new_comprehensive.php");
+    exit;
 }
 
 // For a layout field return 0=unused, 1=optional, 2=mandatory.
-function getLayoutUOR($form_id, $field_id) {
-  $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
+function getLayoutUOR($form_id, $field_id)
+{
+    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
     "form_id = '$form_id' AND field_id = '$field_id' LIMIT 1");
-  return 0 + $crow['uor'];
+    return 0 + $crow['uor'];
 }
 
 // Determine if the registration date should be requested.
@@ -88,18 +89,18 @@ $form_regdate   = $_POST['regdate'  ] ? trim($_POST['regdate'  ]) : date('Y-m-d'
 
 $(document).ready(function(){
     $('.datepicker').datetimepicker({
-      <?php $datetimepicker_timepicker = false; ?>
-      <?php $datetimepicker_showseconds = false; ?>
-      <?php $datetimepicker_formatInput = false; ?>
-      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
-      <?php $datetimepicker_timepicker = true; ?>
-      <?php $datetimepicker_showseconds = false; ?>
-      <?php $datetimepicker_formatInput = false; ?>
-      <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-      <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+        <?php $datetimepicker_timepicker = true; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
 
@@ -134,9 +135,9 @@ $(document).ready(function(){
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'titles' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . $orow['option_id'] . "'";
-  if ($orow['option_id'] == $form_title) echo " selected";
-  echo ">" . $orow['title'] . "</option>\n";
+    echo "    <option value='" . $orow['option_id'] . "'";
+    if ($orow['option_id'] == $form_title) echo " selected";
+    echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
    </select>
@@ -182,9 +183,9 @@ while ($orow = sqlFetchArray($ores)) {
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'sex' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . $orow['option_id'] . "'";
-  if ($orow['option_id'] == $form_sex) echo " selected";
-  echo ">" . $orow['title'] . "</option>\n";
+    echo "    <option value='" . $orow['option_id'] . "'";
+    if ($orow['option_id'] == $form_sex) echo " selected";
+    echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
    </select>
@@ -203,9 +204,9 @@ while ($orow = sqlFetchArray($ores)) {
 $ores = sqlStatement("SELECT option_id, title FROM list_options " .
   "WHERE list_id = 'refsource' AND activity = 1 ORDER BY seq");
 while ($orow = sqlFetchArray($ores)) {
-  echo "    <option value='" . $orow['option_id'] . "'";
-  if ($orow['option_id'] == $form_refsource) echo " selected";
-  echo ">" . $orow['title'] . "</option>\n";
+    echo "    <option value='" . $orow['option_id'] . "'";
+    if ($orow['option_id'] == $form_refsource) echo " selected";
+    echo ">" . $orow['title'] . "</option>\n";
 }
 ?>
    </select>
@@ -260,7 +261,7 @@ while ($orow = sqlFetchArray($ores)) {
 <script language="Javascript">
 <?php
 if ($form_pubpid) {
-  echo "alert('" . xl('This patient ID is already in use!') . "');\n";
+    echo "alert('" . xl('This patient ID is already in use!') . "');\n";
 }
 ?>
 </script>

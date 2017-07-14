@@ -29,7 +29,8 @@ class Therapy_groups_participants{
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    public function getParticipants($groupId, $onlyActive=false){
+    public function getParticipants($groupId, $onlyActive=false)
+    {
 
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
         $sql .= "JOIN " . self::PATIENT_TABLE . " AS p ON gp.pid = p.pid ";
@@ -48,10 +49,11 @@ class Therapy_groups_participants{
         return $groupParticipants;
     }
 
-    public function updateParticipant(array $participant, $patientId ,$groupId){
+    public function updateParticipant(array $participant, $patientId ,$groupId)
+    {
 
         if(empty($participant['group_patient_end'])){
-            $participant['group_patient_end'] = NULL;
+            $participant['group_patient_end'] = null;
         }
 
         $sql = "UPDATE " . self::TABLE . " SET ";
@@ -66,14 +68,16 @@ class Therapy_groups_participants{
         return !$result ? false :true;
     }
 
-    public function removeParticipant($groupId,$pid){
+    public function removeParticipant($groupId,$pid)
+    {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";
         $result = sqlStatement($sql, array($groupId, $pid));
         return !$result ? false :true;
     }
 
-    public function isAlreadyRegistered($pid, $groupId){
+    public function isAlreadyRegistered($pid, $groupId)
+    {
 
         $sql = "SELECT COUNT(*) AS count FROM " . self::TABLE . " WHERE pid = ? AND group_id = ?";
 
@@ -83,7 +87,8 @@ class Therapy_groups_participants{
         return($count['count'] > 0) ? true : false;
     }
 
-    public function saveParticipant($participantData){
+    public function saveParticipant($participantData)
+    {
            // print_r($participantData);die;
         $sql = "INSERT INTO " .self::TABLE . " VALUES(?,?,?,?,?,?);";
         $data[] = $participantData['group_id'];

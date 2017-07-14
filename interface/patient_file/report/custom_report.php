@@ -36,7 +36,7 @@ require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'].'/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 if ($GLOBALS['gbl_portal_cms_enable']) {
-  require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
 }
 require_once("$srcdir/appointments.inc.php");
 
@@ -71,10 +71,10 @@ if ($PDF_OUTPUT) {
  // TODO: can have this selected as setting in globals after we have more experience with this to fully support internationalization. Don't think this is issue here.
        $pdf->setDefaultFont('dejavusans'); // see config_fonts.php/config_lang2fonts.php for OTL font declarations for different languages/fonts. Important for auto font select getting right font for lanaguage.
        $pdf->autoScriptToLang = true; // will sense font based on language used in html i.e if hebrew text is sent the proper font will be selected. IMPORTANT: this affects performance.
-        if ($_SESSION['language_direction'] == 'rtl') {
-            $pdf->SetDirectionality('rtl'); // direction from html will still be honored.
-        }
-  ob_start();
+    if ($_SESSION['language_direction'] == 'rtl') {
+        $pdf->SetDirectionality('rtl'); // direction from html will still be honored.
+    }
+    ob_start();
 } // end pdf conditional.
 
 // get various authorization levels
@@ -97,38 +97,40 @@ $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
 
-function getContent() {
-  global $web_root, $webserver_root;
-  $content = ob_get_clean();
+function getContent()
+{
+    global $web_root, $webserver_root;
+    $content = ob_get_clean();
   // Fix a nasty mPDF bug - it ignores document root!
-  $i = 0;
-  $wrlen = strlen($web_root);
-  $wsrlen = strlen($webserver_root);
-  while (true) {
-    $i = stripos($content, " src='/", $i + 1);
-    if ($i === false) break;
-    if (substr($content, $i+6, $wrlen) === $web_root &&
+    $i = 0;
+    $wrlen = strlen($web_root);
+    $wsrlen = strlen($webserver_root);
+    while (true) {
+        $i = stripos($content, " src='/", $i + 1);
+        if ($i === false) break;
+        if (substr($content, $i+6, $wrlen) === $web_root &&
         substr($content, $i+6, $wsrlen) !== $webserver_root)
-    {
-      $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+        {
+            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
+        }
     }
-  }
-  return $content;
+    return $content;
 }
 
-function postToGet($arin) {
-  $getstring="";
-  foreach ($arin as $key => $val) {
-    if (is_array($val)) {
-      foreach ($val as $k => $v) {
-        $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
-      }
+function postToGet($arin)
+{
+    $getstring="";
+    foreach ($arin as $key => $val) {
+        if (is_array($val)) {
+            foreach ($val as $k => $v) {
+                $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
+            }
+        }
+        else {
+            $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
+        }
     }
-    else {
-      $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
-    }
-  }
-  return $getstring;
+    return $getstring;
 }
 ?>
 
@@ -193,18 +195,18 @@ if ($printable) {
   $titleres = getPatientData($pid, "fname,lname,providerID");
   $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
   *******************************************************************/
-  $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-  $facility = null;
-  if ($_SESSION['pc_facility']) {
-    $facility = $facilityService->getById($_SESSION['pc_facility']);
-  } else {
-    $facility = $facilityService->getPrimaryBillingLocation();
-  }
+    $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+    $facility = null;
+    if ($_SESSION['pc_facility']) {
+        $facility = $facilityService->getById($_SESSION['pc_facility']);
+    } else {
+        $facility = $facilityService->getPrimaryBillingLocation();
+    }
   /******************************************************************/
   // Setup Headers and Footers for mPDF only Download
   // in HTML view it's just one line at the top of page 1
-  echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
-  echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+    echo '<page_header style="text-align:right;" class="custom-tag"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+    echo '<page_footer style="text-align:right;" class="custom-tag">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
         
         // Use logo if it exists as 'practice_logo.gif' in the site dir
         // old code used the global custom dir which is no longer a valid
@@ -280,13 +282,13 @@ else { // not printable
         }
         //echo json_encode(json_encode($array_key_id));
         if(sizeof($form_id_arr)>0){
-          $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','",$form_id_arr)."') AND formdir IN ( '".implode("','",$form_dir_arr)."')";
-          $arr = sqlStatement($query);
-          echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
-          while($res_forms_ids = sqlFetchArray($arr)){
-            echo "<option value='".attr($res_forms_ids['formdir'])."' selected>".text($res_forms_ids['form_name'])."</option>";
-          }
-          echo "</select>";
+            $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','",$form_id_arr)."') AND formdir IN ( '".implode("','",$form_dir_arr)."')";
+            $arr = sqlStatement($query);
+            echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
+            while($res_forms_ids = sqlFetchArray($arr)){
+                echo "<option value='".attr($res_forms_ids['formdir'])."' selected>".text($res_forms_ids['form_name'])."</option>";
+            }
+            echo "</select>";
         }
         ?>
       </td>
@@ -305,10 +307,10 @@ else { // not printable
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
 while($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
-  $formdir = $result['formdir'];
-  if (substr($formdir,0,3) == 'LBF')
+    $formdir = $result['formdir'];
+    if (substr($formdir,0,3) == 'LBF')
     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-  else
+    else
     include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
 }
 
@@ -480,22 +482,22 @@ foreach ($ar as $key => $val) {
                 $result = sqlStatement($sql);
                 while ($row=sqlFetchArray($result)) {
                   // Figure out which name to use (ie. from cvx list or from the custom list)
-                  if ($GLOBALS['use_custom_immun_list']) {
-                     $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-                  }
-                  else {
-                     if (!empty($row['code_text_short'])) {
-                        $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
-                     }
-                     else {
-                        $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-                     }
-                  }
-                  echo $row['administered_date'] . " - " . $vaccine_display;
-                  if ($row['immunization_note']) {
-                     echo " - " . $row['immunization_note'];
-                  }
-                  echo "<br>\n";
+                    if ($GLOBALS['use_custom_immun_list']) {
+                         $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                    }
+                    else {
+                        if (!empty($row['code_text_short'])) {
+                            $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                        }
+                        else {
+                            $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
+                        }
+                    }
+                    echo $row['administered_date'] . " - " . $vaccine_display;
+                    if ($row['immunization_note']) {
+                         echo " - " . $row['immunization_note'];
+                    }
+                    echo "<br>\n";
                 }
                 echo "</div>\n";
             }
@@ -571,49 +573,49 @@ foreach ($ar as $key => $val) {
 
                 $url_file = $d->get_url_filepath();
                 if($couch_docid && $couch_revid){
-                  $url_file = $d->get_couch_url($pid,$encounter);
+                    $url_file = $d->get_couch_url($pid,$encounter);
                 }
                 // Collect filename and path
                 $from_all = explode("/",$url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
                 for ($i=0;$i<$d->get_path_depth();$i++) {
-                  $from_pathname_array[] = array_pop($from_all);
+                    $from_pathname_array[] = array_pop($from_all);
                 }
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/",$from_pathname_array);
 
                 if($couch_docid && $couch_revid) {
-                  $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-                  $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+                    $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
+                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
                 else {
-                  $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
+                    $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
                     '/documents/' . $from_pathname . '/' . $from_filename;
-                  $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
+                    $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
                 }
 
                 if ($extension != ".pdf") {
-                  $image_data = getimagesize($from_file);
-                  $extension = image_type_to_extension($image_data[2]);
+                    $image_data = getimagesize($from_file);
+                    $extension = image_type_to_extension($image_data[2]);
                 }
 
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
-                  if ($PDF_OUTPUT) {
-                    // OK to link to the image file because it will be accessed by the
-                    // mPDF parser and not the browser.
-                    $from_rel = $web_root . substr($from_file, strlen($webserver_root));
-                    echo "<img src='$from_rel'";
-                    // Flag images with excessive width for possible stylesheet action.
-                    $asize = getimagesize($from_file);
-                    if ($asize[0] > 750) echo " class='bigimage'";
-                    echo " /><br><br>";
-                  }
-                  else {
-                    echo "<img src='" . $GLOBALS['webroot'] .
-                      "/controller.php?document&retrieve&patient_id=&document_id=" .
-                      $document_id . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
-                  }
+                    if ($PDF_OUTPUT) {
+                        // OK to link to the image file because it will be accessed by the
+                        // mPDF parser and not the browser.
+                        $from_rel = $web_root . substr($from_file, strlen($webserver_root));
+                        echo "<img src='$from_rel'";
+                        // Flag images with excessive width for possible stylesheet action.
+                        $asize = getimagesize($from_file);
+                        if ($asize[0] > 750) echo " class='bigimage'";
+                        echo " /><br><br>";
+                    }
+                    else {
+                        echo "<img src='" . $GLOBALS['webroot'] .
+                        "/controller.php?document&retrieve&patient_id=&document_id=" .
+                        $document_id . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br><br>";
+                    }
                 }
                 else {
                         // Most clinic documents are expected to be PDFs, and in that happy case
@@ -662,19 +664,19 @@ foreach ($ar as $key => $val) {
         }
         // Procedures is an array of checkboxes whose values are procedure order IDs.
         else if ($key == "procedures") {
-          if ($auth_med) {
-            echo "<hr />";
-            echo "<div class='text documents'>";
-            foreach($val as $valkey => $poid) {
-              echo "<h1>" . xlt('Procedure Order') . ":</h1>";
-              echo "<br />\n";
-              // Need to move the inline styles from this function to the stylesheet, but until
-              // then we do it just for PDFs to avoid breaking anything.
-              generate_order_report($poid, false, !$PDF_OUTPUT);
-              echo "<br />\n";
+            if ($auth_med) {
+                echo "<hr />";
+                echo "<div class='text documents'>";
+                foreach($val as $valkey => $poid) {
+                    echo "<h1>" . xlt('Procedure Order') . ":</h1>";
+                    echo "<br />\n";
+                    // Need to move the inline styles from this function to the stylesheet, but until
+                    // then we do it just for PDFs to avoid breaking anything.
+                    generate_order_report($poid, false, !$PDF_OUTPUT);
+                    echo "<br />\n";
+                }
+                echo "</div>";
             }
-            echo "</div>";
-          }
         }
 
         else if (strpos($key, "issue_") === 0) {
@@ -804,7 +806,7 @@ foreach ($ar as $key => $val) {
 } // end $ar loop
 
 if ($printable && ! $PDF_OUTPUT) {// Patched out of pdf 04/20/2017 sjpadgett
-  echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
+    echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
 }
 ?>
 
@@ -865,10 +867,10 @@ else {
 <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
 <script type="text/javascript">
 var xl_string = <?php echo json_encode( array(
-	'spcl_chars' => xla('Special characters are not allowed').'.',
-	'not_found'  => xla('No results found').'.',
-	'results'    => xla('Showing result'),
-	'literal_of' => xla('of'),
+    'spcl_chars' => xla('Special characters are not allowed').'.',
+    'not_found'  => xla('No results found').'.',
+    'results'    => xla('Showing result'),
+    'literal_of' => xla('of'),
 ));
 ?>;
 </script>

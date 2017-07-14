@@ -4,17 +4,17 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 foreach ($_POST as $k => $var) {
-$_POST[$k] = add_escape_custom($var);
-echo "$var\n";
+    $_POST[$k] = add_escape_custom($var);
+    echo "$var\n";
 }
 if ($encounter == "")
 $encounter = date("Ymd");
 if ($_GET["mode"] == "new"){
-$newid = formSubmit("form_assessment_intake", $_POST, $_GET["id"], $userauthorized);
-print 'formSubmitt';  /*debugging */
-addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
+    $newid = formSubmit("form_assessment_intake", $_POST, $_GET["id"], $userauthorized);
+    print 'formSubmitt';  /*debugging */
+    addForm($encounter, "Assessment and Intake", $newid, "assessment_intake", $pid, $userauthorized);
 }elseif ($_GET["mode"] == "update") {
-sqlInsert("update form_assessment_intake set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), 
+    sqlInsert("update form_assessment_intake set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), 
 dcn='".$_POST["dcn"]."', 
 location='".$_POST["location"]."',
 time_in='".$_POST["time_in"]."',

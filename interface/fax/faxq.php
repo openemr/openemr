@@ -26,17 +26,17 @@
 
  if ($GLOBALS['enable_hylafax']) {
   // Get the recvq entries, parse and sort by filename.
-  $statlines = array();
-  exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
-  foreach ($statlines as $line) {
-   // This gets pagecount, sender, time, filename.  We are expecting the
-   // string to start with "-rw-rw-" so as to exclude faxes not yet fully
-   // received, for which permissions are "-rw----".
-   if (preg_match('/^-r\S\Sr\S\S\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
-    $mlines[$matches[4]] = $matches;
-   }
-  }
-  ksort($mlines);
+     $statlines = array();
+     exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
+     foreach ($statlines as $line) {
+         // This gets pagecount, sender, time, filename.  We are expecting the
+         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
+         // received, for which permissions are "-rw----".
+         if (preg_match('/^-r\S\Sr\S\S\s+(\d+)\s+\S+\s+(.+)\s+(\S+)\s+(\S+)\s*$/', $line, $matches)) {
+             $mlines[$matches[4]] = $matches;
+            }
+        }
+        ksort($mlines);
 
   // Get the doneq entries, parse and sort by job ID
   /* for example:
@@ -45,31 +45,31 @@
   153  124 D nobody 6158896439    1:1   4:12
   154  124 F nobody 6153551807    0:1   4:12         No carrier detected
   */
-  $donelines = array();
-  exec("faxstat -s -d -l -h " . $GLOBALS['hylafax_server'], $donelines);
-  foreach ($donelines as $line) {
-   // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
-   if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
-    $dlines[$matches[1]] = $matches;
-   }
-  }
-  ksort($dlines);
- }
+        $donelines = array();
+        exec("faxstat -s -d -l -h " . $GLOBALS['hylafax_server'], $donelines);
+        foreach ($donelines as $line) {
+               // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
+            if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
+                $dlines[$matches[1]] = $matches;
+            }
+        }
+        ksort($dlines);
+    }
 
- $scandir = $GLOBALS['scanner_output_directory'];
- if ($scandir && $GLOBALS['enable_scanner']) {
-  // Get the directory entries, parse and sort by date and time.
-  $dh = opendir($scandir);
-  if (! $dh) die("Cannot read $scandir");
-  while (false !== ($sfname = readdir($dh))) {
-   if (substr($sfname, 0, 1) == '.') continue;
-   $tmp = stat("$scandir/$sfname");
-   $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
-   $slines[$tmp[9] . $tmp[1]] = $tmp; // key is file mod time and inode number
-  }
-  closedir($dh);
-  ksort($slines);
- }
+    $scandir = $GLOBALS['scanner_output_directory'];
+    if ($scandir && $GLOBALS['enable_scanner']) {
+        // Get the directory entries, parse and sort by date and time.
+        $dh = opendir($scandir);
+        if (! $dh) die("Cannot read $scandir");
+        while (false !== ($sfname = readdir($dh))) {
+            if (substr($sfname, 0, 1) == '.') continue;
+            $tmp = stat("$scandir/$sfname");
+            $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
+            $slines[$tmp[9] . $tmp[1]] = $tmp; // key is file mod time and inode number
+        }
+        closedir($dh);
+        ksort($slines);
+    }
 
 ?>
 <html>
@@ -178,25 +178,25 @@ function dosdclick(sfname) {
  id='bigtable' width='100%' height='100%'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-   <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #cc0000; border-right: 2px solid #000000; border-bottom: 2px solid transparent;'
-   <?php } else { ?>
+    <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
-   <?php } ?>
+    <?php } ?>
    onclick='tabclick("faxin")'><?php xl('Faxes In','e'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
-   <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
-   <?php } else { ?>
+    <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
-   <?php } ?>
+    <?php } ?>
    onclick='tabclick("faxout")'><?php xl('Faxes Out','e'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
-   <?php if ($GLOBALS['enable_scanner']) { ?>
+    <?php if ($GLOBALS['enable_scanner']) { ?>
    style='color: #777777; border-bottom: 2px solid #000000; cursor: pointer;'
-   <?php } else { ?>
+    <?php } else { ?>
    style='color: #cc0000; border-bottom: 2px solid transparent; display:none;'
-   <?php } ?>
+    <?php } ?>
    onclick='tabclick("scanin")'><?php xl('Scanner In','e'); ?></td>
  </tr>
  <tr>
@@ -215,21 +215,21 @@ function dosdclick(sfname) {
 <?php
 
  $encount = 0;
- foreach ($mlines as $matches) {
-  ++$encount;
-  $ffname = $matches[4];
-  $ffbase = basename("/$ffname", '.tif');
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-  echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-  echo "     <td onclick='dodclick(\"$ffname\")'>";
-  echo "<a href='fax_view.php?file=$ffname' onclick='return false'>$ffbase</a></td>\n";
-  echo "     <td onclick='domclick(\"$ffname\")'>";
-  echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
-  echo "     <td>" . htmlentities($matches[3]) . "</td>\n";
-  echo "     <td>" . htmlentities($matches[2]) . "</td>\n";
-  echo "     <td align='right'>" . htmlentities($matches[1]) . "</td>\n";
-  echo "    </tr>\n";
- }
+foreach ($mlines as $matches) {
+    ++$encount;
+    $ffname = $matches[4];
+    $ffbase = basename("/$ffname", '.tif');
+    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo "     <td onclick='dodclick(\"$ffname\")'>";
+    echo "<a href='fax_view.php?file=$ffname' onclick='return false'>$ffbase</a></td>\n";
+    echo "     <td onclick='domclick(\"$ffname\")'>";
+    echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
+    echo "     <td>" . htmlentities($matches[3]) . "</td>\n";
+    echo "     <td>" . htmlentities($matches[2]) . "</td>\n";
+    echo "     <td align='right'>" . htmlentities($matches[1]) . "</td>\n";
+    echo "    </tr>\n";
+}
 ?>
    </table>
 
@@ -245,29 +245,29 @@ function dosdclick(sfname) {
     </tr>
 <?php
  $encount = 0;
- foreach ($dlines as $matches) {
-  ++$encount;
-  $jobid = $matches[1];
-  $ffstatus = $faxstats[$matches[3]];
-  $fftts = '';
-  $ffstatend = trim($matches[8]);
-  if (preg_match('/^(\d+:\d+)\s*(.*)$/', $ffstatend, $tmp)) {
-   $fftts = $tmp[1];
-   $ffstatend = $tmp[2];
-  }
-  if ($ffstatend) $ffstatus .= ': ' . $ffstatend;
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-  echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-  echo "     <td onclick='dojclick(\"$jobid\")'>" .
-       "<a href='fax_view.php?jid=$jobid' onclick='return false'>" .
-       "$jobid</a></td>\n";
-  echo "     <td>" . htmlentities($matches[5]) . "</td>\n";
-  echo "     <td>" . htmlentities($matches[6]) . "</td>\n";
-  echo "     <td>" . htmlentities($matches[7]) . "</td>\n";
-  echo "     <td>" . htmlentities($fftts)      . "</td>\n";
-  echo "     <td>" . htmlentities($ffstatus)   . "</td>\n";
-  echo "    </tr>\n";
- }
+foreach ($dlines as $matches) {
+    ++$encount;
+    $jobid = $matches[1];
+    $ffstatus = $faxstats[$matches[3]];
+    $fftts = '';
+    $ffstatend = trim($matches[8]);
+    if (preg_match('/^(\d+:\d+)\s*(.*)$/', $ffstatend, $tmp)) {
+        $fftts = $tmp[1];
+        $ffstatend = $tmp[2];
+    }
+    if ($ffstatend) $ffstatus .= ': ' . $ffstatend;
+    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo "     <td onclick='dojclick(\"$jobid\")'>" .
+     "<a href='fax_view.php?jid=$jobid' onclick='return false'>" .
+     "$jobid</a></td>\n";
+    echo "     <td>" . htmlentities($matches[5]) . "</td>\n";
+    echo "     <td>" . htmlentities($matches[6]) . "</td>\n";
+    echo "     <td>" . htmlentities($matches[7]) . "</td>\n";
+    echo "     <td>" . htmlentities($fftts)      . "</td>\n";
+    echo "     <td>" . htmlentities($ffstatus)   . "</td>\n";
+    echo "    </tr>\n";
+}
 ?>
    </table>
 
@@ -280,21 +280,21 @@ function dosdclick(sfname) {
     </tr>
 <?php
  $encount = 0;
- foreach ($slines as $sline) {
-  ++$encount;
-  $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
-  $sfname = $sline[0]; // filename
-  $sfdate = date('Y-m-d H:i', $sline[9]);
-  echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
-  echo "     <td onclick='dosvclick(\"$sfname\")'>" .
-       "<a href='fax_view.php?scan=$sfname' onclick='return false'>" .
-       "$sfname</a></td>\n";
-  echo "     <td onclick='dosdclick(\"$sfname\")'>";
-  echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
-  echo "     <td>$sfdate</td>\n";
-  echo "     <td align='right'>" . $sline[7] . "</td>\n";
-  echo "    </tr>\n";
- }
+foreach ($slines as $sline) {
+    ++$encount;
+    $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
+    $sfname = $sline[0]; // filename
+    $sfdate = date('Y-m-d H:i', $sline[9]);
+    echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
+    echo "     <td onclick='dosvclick(\"$sfname\")'>" .
+     "<a href='fax_view.php?scan=$sfname' onclick='return false'>" .
+     "$sfname</a></td>\n";
+    echo "     <td onclick='dosdclick(\"$sfname\")'>";
+    echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
+    echo "     <td>$sfdate</td>\n";
+    echo "     <td align='right'>" . $sline[7] . "</td>\n";
+    echo "    </tr>\n";
+}
 ?>
    </table>
 

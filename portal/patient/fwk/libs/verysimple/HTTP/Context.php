@@ -15,43 +15,46 @@
  * @version 1.0
  */
 class Context {
-	public $GUID;
-	
-	/**
-	 * Constructor initializes the session
-	 */
-	public function __construct() {
-		if (session_id () == '') {
-			@session_start ();
-		}
-	}
-	
-	/**
-	 * Returns a persisted object or value
-	 *
-	 * @param
-	 *        	var
-	 * @param
-	 *        	default value (default = null)
-	 * @return value of var (or default)
-	 */
-	public function Get($var, $default = null) {
-		return (isset ( $_SESSION [$this->GUID . "_" . $var] )) ? unserialize ( $_SESSION [$this->GUID . "_" . $var] ) : null;
-	}
-	
-	/**
-	 * Persists an object or value
-	 *
-	 * @access public
-	 * @param
-	 *        	var
-	 * @param
-	 *        	value
-	 * @return object || null
-	 */
-	public function Set($var, $val) {
-		$_SESSION [$this->GUID . "_" . $var] = serialize ( $val );
-	}
+    public $GUID;
+    
+    /**
+     * Constructor initializes the session
+     */
+    public function __construct()
+    {
+        if (session_id () == '') {
+            @session_start ();
+        }
+    }
+    
+    /**
+     * Returns a persisted object or value
+     *
+     * @param
+     *          var
+     * @param
+     *          default value (default = null)
+     * @return value of var (or default)
+     */
+    public function Get($var, $default = null)
+    {
+        return (isset ( $_SESSION [$this->GUID . "_" . $var] )) ? unserialize ( $_SESSION [$this->GUID . "_" . $var] ) : null;
+    }
+    
+    /**
+     * Persists an object or value
+     *
+     * @access public
+     * @param
+     *          var
+     * @param
+     *          value
+     * @return object || null
+     */
+    public function Set($var, $val)
+    {
+        $_SESSION [$this->GUID . "_" . $var] = serialize ( $val );
+    }
 }
 
 ?>

@@ -18,7 +18,8 @@
 <?php
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
-function note_report( $pid, $encounter, $cols, $id) {
+function note_report( $pid, $encounter, $cols, $id)
+{
     $count = 0;
     $data = formFetch("form_note", $id);
     if ($data) {
@@ -34,7 +35,7 @@ function note_report( $pid, $encounter, $cols, $id) {
                 $value == "" ||
                 $value == "0000-00-00 00:00:00")
             {
-    	        continue;
+                continue;
             }
     
             if ($value == "on") { $value = "yes"; }
@@ -42,12 +43,12 @@ function note_report( $pid, $encounter, $cols, $id) {
             $key=ucwords(str_replace("_"," ",$key));
             print("<tr>\n");
             print("<tr>\n");
-	    if ($key == "Note Type") {
+            if ($key == "Note Type") {
                 print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
-	    }
-	    else {
-	        print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
-	    }
+            }
+            else {
+                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
+            }
             $count++;
             if ($count == $cols) {
                 $count = 0;

@@ -8,7 +8,8 @@
 //
 class NFQ_0024_Numerator3 implements CqmFilterIF
 {
-    public function getTitle() {
+    public function getTitle()
+    {
         return "Numerator 3";
     }
     

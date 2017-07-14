@@ -45,11 +45,11 @@ $assigned_to = '';
 $body        = '';
 $activity    = 0;
 if ($noteid) {
-  $nrow = getPnoteById($noteid, 'title,assigned_to,activity,body');
-  $title = $nrow['title'];
-  $assigned_to = $nrow['assigned_to'];
-  $activity = $nrow['activity'];
-  $body = $nrow['body'];
+    $nrow = getPnoteById($noteid, 'title,assigned_to,activity,body');
+    $title = $nrow['title'];
+    $assigned_to = $nrow['assigned_to'];
+    $activity = $nrow['activity'];
+    $body = $nrow['body'];
 }
 ?>
 <html>

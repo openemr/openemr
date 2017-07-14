@@ -40,14 +40,15 @@ abstract class C_AbstractClickmap extends Controller {
      * @param template_mod
      *  template module name, passed to Controller's initializer.
      */
-    function __construct($template_mod = "general") {
-    	parent::__construct();
-    	$returnurl = 'encounter_top.php';
-    	$this->template_mod = $template_mod;
-    	$this->template_dir = $GLOBALS['fileroot'] . "/interface/clickmap/template/";
-    	$this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
-    	$this->assign("FORM_ACTION", $GLOBALS['webroot']);
-    	$this->assign("STYLE", $GLOBALS['style']);
+    function __construct($template_mod = "general")
+    {
+        parent::__construct();
+        $returnurl = 'encounter_top.php';
+        $this->template_mod = $template_mod;
+        $this->template_dir = $GLOBALS['fileroot'] . "/interface/clickmap/template/";
+        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("FORM_ACTION", $GLOBALS['webroot']);
+        $this->assign("STYLE", $GLOBALS['style']);
     }
 
     /**
@@ -85,7 +86,8 @@ abstract class C_AbstractClickmap extends Controller {
     /**
      * @brief set up the passed in Model object to model the form.
      */
-    private function set_context( $model ) {
+    private function set_context( $model )
+    {
         $root = $GLOBALS['webroot'] . "/interface/clickmap";
         $model->saveAction = $GLOBALS['webroot'] . "/interface/forms/" . $model->getCode() . "/save.php";
         $model->template_dir = $root . "/template";
@@ -105,9 +107,10 @@ abstract class C_AbstractClickmap extends Controller {
      *
      * @return the result of smarty's fetch() operation.
      */
-    function default_action() {
+    function default_action()
+    {
         $model = $this->createModel();
-    	$this->assign("form", $model);
+        $this->assign("form", $model);
         $this->set_context($model);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
@@ -120,11 +123,12 @@ abstract class C_AbstractClickmap extends Controller {
      *
      * @return the result of smarty's fetch() operation.
      */
-    function view_action($form_id) {
+    function view_action($form_id)
+    {
         $model = $this->createModel($form_id);
-    	$this->assign("form",$model);
+        $this->assign("form",$model);
         $this->set_context($model);
-    	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     /**
@@ -135,18 +139,20 @@ abstract class C_AbstractClickmap extends Controller {
      *
      * @return the result of smarty's fetch() operation.
      */
-    function report_action($form_id) {
+    function report_action($form_id)
+    {
         $model = $this->createModel($form_id);
-    	$this->assign("form",$model);
+        $this->assign("form",$model);
         $this->set_context($model);
         $model->hideNav = "true";
-    	return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
      /**
      * @brief called to store the submitted form's contents to the database, adding the form to the encounter if necissary.
      */
-   function default_action_process() {
+    function default_action_process()
+    {
         if ($_POST['process'] != "true") {
             return;
         }

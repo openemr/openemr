@@ -58,34 +58,34 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 var target = opener.document.forms[0]['opt[<?php echo $opt_line_no; ?>][notes]'];
 
 $(document).ready(function () {
-	var jobj = {};
-	if (target.value.length) {
-		try {
-			jobj = JSON.parse(target.value);
-			$("#fm_props").find('input,select').each(function() {
-				var fm_prop = $(this).prop('name').slice(5);
-				if ((typeof(jobj[fm_prop]) !== 'undefined') && (fm_prop !== '')) {
-					$(this).val(jobj[fm_prop]);
-				}
-			});
-		}
-		catch (e) {
-			alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
-		}
-	}
+    var jobj = {};
+    if (target.value.length) {
+        try {
+            jobj = JSON.parse(target.value);
+            $("#fm_props").find('input,select').each(function() {
+                var fm_prop = $(this).prop('name').slice(5);
+                if ((typeof(jobj[fm_prop]) !== 'undefined') && (fm_prop !== '')) {
+                    $(this).val(jobj[fm_prop]);
+                }
+            });
+        }
+        catch (e) {
+            alert('<?php echo xls('Invalid data, will be ignored and replaced.'); ?>');
+        }
+    }
 });
 
 // Onclick handler for Submit button.
 function submitProps() {
-	var jobj = {};
-	$("#fm_props").find('input,select').each(function() {
-		var fm_prop = $(this).prop('name').slice(5);
-		if (($(this).val() !== '') && (fm_prop !== '')) {
-			jobj[fm_prop] = $(this).val();
-		}
-	});
-	target.value = ((Object.keys(jobj).length > 0) ? JSON.stringify(jobj) : '');
-	window.close();
+    var jobj = {};
+    $("#fm_props").find('input,select').each(function() {
+        var fm_prop = $(this).prop('name').slice(5);
+        if (($(this).val() !== '') && (fm_prop !== '')) {
+            jobj[fm_prop] = $(this).val();
+        }
+    });
+    target.value = ((Object.keys(jobj).length > 0) ? JSON.stringify(jobj) : '');
+    window.close();
 }
 
 </script>
@@ -101,17 +101,17 @@ function submitProps() {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Layout Columns'); ?>
+    <?php echo xlt('Layout Columns'); ?>
   </td>
   <td>
    <select name='form_columns'>
 <?php
   echo "<option value=''>" . xlt('Default') . " (4)</option>\n";
-  for ($cols = 2; $cols <= 10; ++$cols) {
-  	if ($cols != 4) {
-    	echo "<option value='$cols'>$cols</option>\n";
-	}
-  }
+for ($cols = 2; $cols <= 10; ++$cols) {
+    if ($cols != 4) {
+        echo "<option value='$cols'>$cols</option>\n";
+    }
+}
 ?>
    </select>
   </td>
@@ -119,16 +119,16 @@ function submitProps() {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Font Size'); ?>
+    <?php echo xlt('Font Size'); ?>
   </td>
   <td>
    <select name='form_size'>
 <?php
   echo "<option value=''>" . xlt('Default') . "</option>\n";
-  for ($size = 5; $size <= 15; ++$size) {
+for ($size = 5; $size <= 15; ++$size) {
     echo "<option value='$size'";
     echo ">$size</option>\n";
-  }
+}
 ?>
    </select>
   </td>
@@ -136,7 +136,7 @@ function submitProps() {
 
  <tr>
   <td valign='top' nowrap>
-   <?php echo xlt('Access Control'); ?>
+    <?php echo xlt('Access Control'); ?>
   </td>
   <td>
    <select name='form_aco'>
@@ -169,8 +169,8 @@ function submitProps() {
 <script language='JavaScript'>
 <?php
 if ($info_msg) {
-  echo " alert('".addslashes($info_msg)."');\n";
-  echo " window.close();\n";
+    echo " alert('".addslashes($info_msg)."');\n";
+    echo " window.close();\n";
 }
 ?>
 </script>

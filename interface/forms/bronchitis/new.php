@@ -13,22 +13,22 @@ $returnurl = 'encounter_top.php';
 
    function onset_check (form)   {
         
-	var d, s = "Today's date is: "; //Declare variables.
-	d = new Date(); //Create Date object.
-	s += (d.getMonth() + 1) + "-"; //Get month
-	s += d.getDate() + "-"; //Get day
-	s += d.getYear(); //Get year.
-	        
+    var d, s = "Today's date is: "; //Declare variables.
+    d = new Date(); //Create Date object.
+    s += (d.getMonth() + 1) + "-"; //Get month
+    s += d.getDate() + "-"; //Get day
+    s += d.getYear(); //Get year.
+            
     onset_str = form.bronchitis_date_of_illness.value;
     if (onset_str == "") {
     alert("No valid date into Onset of illness field!!! Enter date as YYYY-MM-DD");
     alert(d);
 
-	return;
+    return;
       }
     if (onset_str.length != 10) {
      alert("Your date should be 10 characters");
-	return;
+    return;
       }
     alert("OK, Bye!!!");
     return;

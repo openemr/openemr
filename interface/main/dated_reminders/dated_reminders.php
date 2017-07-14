@@ -42,23 +42,23 @@ require_once("$srcdir/dated_reminder_functions.php");
 // HANDEL AJAX TO MARK REMINDERS AS READ
 // Javascript will send a post
 // ----------------------------------------------------------------------------
-    if(isset($_POST['drR'])){
-        // set as processed
-          setReminderAsProcessed($_POST['drR']);
-        // ----- get updated data
-          $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
-        // ----- echo for ajax to use
-          echo getRemindersHTML($reminders,$today);
-        // stop any other output
-          exit;
-    }
+if(isset($_POST['drR'])){
+    // set as processed
+    setReminderAsProcessed($_POST['drR']);
+    // ----- get updated data
+    $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+    // ----- echo for ajax to use
+    echo getRemindersHTML($reminders,$today);
+    // stop any other output
+    exit;
+}
 //-----------------------------------------------------------------------------
 // END HANDEL AJAX TO MARK REMINDERS AS READ
 // ----------------------------------------------------------------------------
 
       $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
 
-      ?>
+        ?>
 
       <style type="text/css">
          div.dr{
@@ -147,10 +147,10 @@ require_once("$srcdir/dated_reminder_functions.php");
 
             function goPid(pid) {
               top.restoreSession();
-              <?php
+                <?php
                   echo "  top.RTop.location = '../../patient_file/summary/demographics.php' " .
                   "+ '?set_pid=' + pid;\n";
-              ?>
+                ?>
 }
       </script>
 

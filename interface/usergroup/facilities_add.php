@@ -39,7 +39,7 @@ else {
 // Old Browser comp trigger on js
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
-  	echo '
+    echo '
 <script type="text/javascript">
 <!--
 parent.$.fn.fancybox.close();
@@ -59,39 +59,39 @@ function submitform() {
     var valid = submitme(1, undefined, 'facility-add', collectvalidation);
     if (!valid) return;
 
-	<?php if($GLOBALS['erx_enable']){ ?>
-	alertMsg='';
-	f=document.forms[0];
-	for(i=0;i<f.length;i++){
-		if(f[i].type=='text' && f[i].value)
-		{
-			if(f[i].name == 'facility' || f[i].name == 'Washington')
-			{
-				alertMsg += checkLength(f[i].name,f[i].value,35);
-				alertMsg += checkFacilityName(f[i].name,f[i].value);
-			}
-			else if(f[i].name == 'street')
-			{
-				alertMsg += checkLength(f[i].name,f[i].value,35);
-				alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
-			}
-			else if(f[i].name == 'phone' || f[i].name == 'fax')
-			{
-				alertMsg += checkPhone(f[i].name,f[i].value);
-			}
-			else if(f[i].name == 'federal_ein')
-			{
-				alertMsg += checkLength(f[i].name,f[i].value,10);
-				alertMsg += checkFederalEin(f[i].name,f[i].value);
-			}
-		}
-	}
-	if(alertMsg)
-	{
-		alert(alertMsg);
-		return false;
-	}
-	<?php } ?>
+    <?php if($GLOBALS['erx_enable']){ ?>
+    alertMsg='';
+    f=document.forms[0];
+    for(i=0;i<f.length;i++){
+        if(f[i].type=='text' && f[i].value)
+        {
+            if(f[i].name == 'facility' || f[i].name == 'Washington')
+            {
+                alertMsg += checkLength(f[i].name,f[i].value,35);
+                alertMsg += checkFacilityName(f[i].name,f[i].value);
+            }
+            else if(f[i].name == 'street')
+            {
+                alertMsg += checkLength(f[i].name,f[i].value,35);
+                alertMsg += checkAlphaNumeric(f[i].name,f[i].value);
+            }
+            else if(f[i].name == 'phone' || f[i].name == 'fax')
+            {
+                alertMsg += checkPhone(f[i].name,f[i].value);
+            }
+            else if(f[i].name == 'federal_ein')
+            {
+                alertMsg += checkLength(f[i].name,f[i].value,10);
+                alertMsg += checkFederalEin(f[i].name,f[i].value);
+            }
+        }
+    }
+    if(alertMsg)
+    {
+        alert(alertMsg);
+        return false;
+    }
+    <?php } ?>
 
     top.restoreSession();
     document.forms[0].submit();
@@ -122,27 +122,27 @@ $(document).ready(function(){
     tabbify();
 
     // special size for
-	$(".large_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 600,
-		'frameWidth' : 1000
-	});
+    $(".large_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 600,
+        'frameWidth' : 1000
+    });
 
     // special size for
-	$(".medium_modal").fancybox( {
-		'overlayOpacity' : 0.0,
-		'showCloseButton' : true,
-		'frameHeight' : 260,
-		'frameWidth' : 510
-	});
+    $(".medium_modal").fancybox( {
+        'overlayOpacity' : 0.0,
+        'showCloseButton' : true,
+        'frameHeight' : 260,
+        'frameWidth' : 510
+    });
 
 });
 
 $(document).ready(function(){
     $("#cancel").click(function() {
-		  parent.$.fn.fancybox.close();
-	 });
+          parent.$.fn.fancybox.close();
+     });
 
     /**
      * add required/star sign to required form fields
@@ -156,20 +156,20 @@ $(document).ready(function(){
 var cp = new ColorPicker('window');
   // Runs when a color is clicked
 function pickColor(color) {
- 	document.getElementById('ncolor').value = color;
+    document.getElementById('ncolor').value = color;
 }
 var field;
 function pick(anchorname,target) {
-	var cp = new ColorPicker('window');
-  	field=target;
+    var cp = new ColorPicker('window');
+    field=target;
         cp.show(anchorname);
 }
 function displayAlert()
 {
-	if(document.getElementById('primary_business_entity').checked==false)
-	alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'));?>");
-	else if(document.getElementById('primary_business_entity').checked==true)
-	alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'));?>");
+    if(document.getElementById('primary_business_entity').checked==false)
+    alert("<?php echo addslashes(xl('Primary Business Entity tax id is used as account id for NewCrop ePrescription. Changing the facility will affect the working in NewCrop.'));?>");
+    else if(document.getElementById('primary_business_entity').checked==true)
+    alert("<?php echo addslashes(xl('Once the Primary Business Facility is set, it should not be changed. Changing the facility will affect the working in NewCrop ePrescription.'));?>");
 }
 </script>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
@@ -220,7 +220,7 @@ function displayAlert()
         <td><span class="text"><?php ($GLOBALS['simplified_demographics'] ? xl('Facility Code','e') : xl('Facility NPI','e')); ?>:
         </span></td><td><input type=entry size=20 name=facility_npi value=""></td>
         </tr>
-		<tr>
+        <tr>
         <td><span class="text"><?php xl('Website','e'); ?>: </span></td><td><input type=entry size=20 name=website value=""></td>
         <td>&nbsp;</td>
         <td><span class="text"><?php xl('Email','e'); ?>: </span></td><td><input type=entry size=20 name=email value=""></td>
@@ -236,13 +236,13 @@ function displayAlert()
           <td>&nbsp;</td>
           <td><span class='text'><?php echo htmlspecialchars(xl('Color'),ENT_QUOTES); ?>: </span></td> <td><input type=entry name=ncolor id=ncolor size=20 value=""><span>[<a href="javascript:void(0);" onClick="pick('pick','newcolor');return false;" NAME="pick" ID="pick"><?php echo htmlspecialchars(xl('Pick'),ENT_QUOTES); ?></a>]</span></td>
         </tr>
-   <?php
-   $disabled='';
-   $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-   if(sizeof($resPBE)>0)
-   $disabled='disabled';
-   ?>
-	 <tr>
+    <?php
+    $disabled='';
+    $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
+    if(sizeof($resPBE)>0)
+    $disabled='disabled';
+    ?>
+     <tr>
           <td><span class='text'><?php xl('Primary Business Entity','e'); ?>: </span></td>
           <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
@@ -285,9 +285,9 @@ function displayAlert()
 
 <script language="JavaScript">
 <?php
-  if ($alertmsg = trim($alertmsg)) {
+if ($alertmsg = trim($alertmsg)) {
     echo "alert('$alertmsg');\n";
-  }
+}
 ?>
 </script>
 

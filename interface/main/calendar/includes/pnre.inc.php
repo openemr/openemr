@@ -1,8 +1,9 @@
 <?php
 
-function pnSecAuthAction ($a,$b,$c,$d) {
+function pnSecAuthAction($a,$b,$c,$d)
+{
 //	echo "forcing auth to true";
-	return true;
+    return true;
 }
 
 /**
@@ -53,12 +54,12 @@ function pnSecConfirmAuthKey($preview = false)
 
     // Regenerate static part of key
     $partkey = pnSessionGetVar('rand') . strtolower($module);
-	if ((md5($partkey)) == $authid) {
+    if ((md5($partkey)) == $authid) {
         // Match - generate new random number for next key and leave happy
-		if (!$preview) {
-        srand((double)microtime()*1000000);
-        pnSessionSetVar('rand', rand());
-		}
+        if (!$preview) {
+            srand((double)microtime()*1000000);
+            pnSessionSetVar('rand', rand());
+        }
         return true;
     }
 

@@ -5,7 +5,7 @@ namespace ESign;
 /**
  * Contains all the methods for creation of ESign object
  * components for the Form module
- * 
+ *
  * Copyright (C) 2013 OEMR 501c3 www.oemr.org
  *
  * LICENSE: This program is free software; you can redistribute it and/or

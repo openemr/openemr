@@ -77,7 +77,7 @@ try{
         echo $rc;
         $logit->portalLog('chart document',$_SESSION['pid'],('document:'.$form_filename));
 
-    exit(0);
+        exit(0);
     };
 }
 catch(Exception $e){
@@ -85,7 +85,8 @@ catch(Exception $e){
     die(xlt("no signature in document"));
 }
 // not currently used but meant to be.
-function doc_toDoc( $htmlin ){
+function doc_toDoc( $htmlin )
+{
     header( "Content-type: application/vnd.oasis.opendocument.text" );
     header( "Content-Disposition: attachment;Filename=document_name.html" );
     echo "<html>";

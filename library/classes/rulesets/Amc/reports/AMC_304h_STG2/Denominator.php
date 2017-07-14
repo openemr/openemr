@@ -32,7 +32,7 @@ class AMC_304h_STG2_Denominator implements AmcFilterIF
     {
         //  (basically needs a encounter within the report dates,
         //   which are already filtered for, so all the objects are a positive)
-		return true;
+        return true;
     }
     
 }

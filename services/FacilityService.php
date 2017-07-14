@@ -73,7 +73,8 @@ class FacilityService
         return $this->get($args);
     }
 
-    public function getPrimaryBillingLocation() {
+    public function getPrimaryBillingLocation()
+    {
         return $this->get(array(
             "order" => "ORDER BY FAC.billing_location DESC, FAC.id DESC",
             "limit" => 1

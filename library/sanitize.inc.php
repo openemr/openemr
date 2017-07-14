@@ -14,30 +14,33 @@
 
 
 // If the label contains any illegal characters, then the script will die.
-function check_file_dir_name($label) {
-  if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
-    error_log("ERROR: The following variable contains invalid characters:" . $label);
-    die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
-  }
+function check_file_dir_name($label)
+{
+    if (empty($label) || preg_match('/[^A-Za-z0-9_.-]/', $label)) {
+        error_log("ERROR: The following variable contains invalid characters:" . $label);
+        die(xlt("ERROR: The following variable contains invalid characters").": ". attr($label));
+    }
 }
 
 // Convert all illegal characters to _
-function convert_safe_file_dir_name($label) {
-  return preg_replace('/[^A-Za-z0-9_.-]/','_',$label);
+function convert_safe_file_dir_name($label)
+{
+    return preg_replace('/[^A-Za-z0-9_.-]/','_',$label);
 }
 
 //Basename functionality for nonenglish languages (without this, basename function ommits nonenglish characters).
-function basename_international($path){
-  $parts = preg_split('~[\\\\/]~', $path);
-  foreach ($parts as $key => $value){
-    $encoded = urlencode($value);
-    $parts[$key] = $encoded;
-  }
-  $encoded_path = implode("/", $parts);
-  $encoded_file_name = basename($encoded_path);
-  $decoded_file_name = urldecode($encoded_file_name);
+function basename_international($path)
+{
+    $parts = preg_split('~[\\\\/]~', $path);
+    foreach ($parts as $key => $value){
+        $encoded = urlencode($value);
+        $parts[$key] = $encoded;
+    }
+    $encoded_path = implode("/", $parts);
+    $encoded_file_name = basename($encoded_path);
+    $decoded_file_name = urldecode($encoded_file_name);
 
-  return $decoded_file_name;
+    return $decoded_file_name;
 }
 
 
@@ -49,7 +52,8 @@ function basename_international($path){
 // Regarding the variable below. In the case of multiple file upload the isWhiteList function will run multiple
 // times, therefore, storing the white list in the variable below to prevent multiple requests from database.
 $white_list = null;
-function isWhiteFile($file){
+function isWhiteFile($file)
+{
     global $white_list;
     if(is_null($white_list)){
         $white_list = array();

@@ -35,7 +35,7 @@ class NFQ_0038_2014_PopulationCriteria implements CqmPopulationCrtiteriaFactory
     
     public function createNumerators()
     {
-       return new NFQ_0038_2014_Numerator();
+        return new NFQ_0038_2014_Numerator();
     }
     
     public function createDenominator()
@@ -48,7 +48,8 @@ class NFQ_0038_2014_PopulationCriteria implements CqmPopulationCrtiteriaFactory
         return new ExclusionsNone();
     }
     
-    public function createDenominatorException(){
-    	return new ExceptionsNone();
+    public function createDenominatorException()
+    {
+        return new ExceptionsNone();
     }
 }

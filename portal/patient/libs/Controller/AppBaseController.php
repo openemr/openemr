@@ -20,104 +20,104 @@ require_once (dirname( __FILE__ )."/../../../lib/appsql.class.php" );
 class AppBaseController extends Controller
 {
 
-	static $DEFAULT_PAGE_SIZE = 20;
+    static $DEFAULT_PAGE_SIZE = 20;
 
-	/**
-	 * Init is called by the base controller before the action method
-	 * is called.  This provided an oportunity to hook into the system
-	 * for all application actions.  This is a good place for authentication
-	 * code.
-	 */
-	protected function Init()
-	{
+    /**
+     * Init is called by the base controller before the action method
+     * is called.  This provided an oportunity to hook into the system
+     * for all application actions.  This is a good place for authentication
+     * code.
+     */
+    protected function Init()
+    {
 
-	/*	if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
+    /*	if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
 		{
 			require_once("App/SecureApp.php");
 			$this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
 		}*/
 
-	}
+    }
 
-	/**
-	 * Returns the number of records to return per page
-	 * when pagination is used
-	 */
-	protected function GetDefaultPageSize()
-	{
-		return self::$DEFAULT_PAGE_SIZE;
-	}
+    /**
+     * Returns the number of records to return per page
+     * when pagination is used
+     */
+    protected function GetDefaultPageSize()
+    {
+        return self::$DEFAULT_PAGE_SIZE;
+    }
 
-	/**
-	 * Returns the name of the JSONP callback function (if allowed)
-	 */
-	protected function JSONPCallback()
-	{
-		// TODO: uncomment to allow JSONP
-		// return RequestUtil::Get('callback','');
+    /**
+     * Returns the name of the JSONP callback function (if allowed)
+     */
+    protected function JSONPCallback()
+    {
+        // TODO: uncomment to allow JSONP
+        // return RequestUtil::Get('callback','');
 
-		return '';
-	}
+        return '';
+    }
 
-	/**
-	 * Return the default SimpleObject params used when rendering objects as JSON
-	 * @return array
-	 */
-	protected function SimpleObjectParams()
-	{
-		return array('camelCase'=>true);
-	}
+    /**
+     * Return the default SimpleObject params used when rendering objects as JSON
+     * @return array
+     */
+    protected function SimpleObjectParams()
+    {
+        return array('camelCase'=>true);
+    }
 
-	/**
-	 * Helper method to get values from stdClass without throwing errors
-	 * @param stdClass $json
-	 * @param string $prop
-	 * @param string $default
-	 */
-	protected function SafeGetVal($json, $prop, $default='')
-	{
-		return (property_exists($json,$prop))
-			? $json->$prop
-			: $default;
-	}
+    /**
+     * Helper method to get values from stdClass without throwing errors
+     * @param stdClass $json
+     * @param string $prop
+     * @param string $default
+     */
+    protected function SafeGetVal($json, $prop, $default='')
+    {
+        return (property_exists($json,$prop))
+            ? $json->$prop
+            : $default;
+    }
 
-	/**
-	 * Helper utility that calls RenderErrorJSON
-	 * @param Exception
-	 */
-	protected function RenderExceptionJSON(Exception $exception)
-	{
-		$this->RenderErrorJSON($exception->getMessage(),null,$exception);
-	}
+    /**
+     * Helper utility that calls RenderErrorJSON
+     * @param Exception
+     */
+    protected function RenderExceptionJSON(Exception $exception)
+    {
+        $this->RenderErrorJSON($exception->getMessage(),null,$exception);
+    }
 
-	/**
-	 * Output a Json error message to the browser
-	 * @param string $message
-	 * @param array key/value pairs where the key is the fieldname and the value is the error
-	 */
-	protected function RenderErrorJSON($message, $errors = null, $exception = null)
-	{
-		$err = new stdClass();
-		$err->success = false;
-		$err->message = $message;
-		$err->errors = array();
+    /**
+     * Output a Json error message to the browser
+     * @param string $message
+     * @param array key/value pairs where the key is the fieldname and the value is the error
+     */
+    protected function RenderErrorJSON($message, $errors = null, $exception = null)
+    {
+        $err = new stdClass();
+        $err->success = false;
+        $err->message = $message;
+        $err->errors = array();
 
-		if ($errors != null)
-		{
-			foreach ($errors as $key=>$val)
-			{
-				$err->errors[lcfirst($key)] = $val;
-			}
-		}
+        if ($errors != null)
+        {
+            foreach ($errors as $key=>$val)
+            {
+                $err->errors[lcfirst($key)] = $val;
+            }
+        }
 
-		if ($exception)
-		{
-			$err->stackTrace = explode("\n#", substr($exception->getTraceAsString(),1) );
-		}
+        if ($exception)
+        {
+            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(),1) );
+        }
 
-		@header('HTTP/1.1 401 Unauthorized');
-		$this->RenderJSON($err,RequestUtil::Get('callback'));
-	}
+        @header('HTTP/1.1 401 Unauthorized');
+        $this->RenderJSON($err,RequestUtil::Get('callback'));
+    }
 
 }
 ?>

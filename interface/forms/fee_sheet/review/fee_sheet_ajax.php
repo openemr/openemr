@@ -1,7 +1,7 @@
 <?php
 /**
  * Controller for fee sheet related AJAX requests
- * 
+ *
  * Copyright (C) 2013 Kevin Yeh <kevin.y@integralemr.com> and OEMR <www.oemr.org>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
@@ -47,8 +47,8 @@ if(isset($_REQUEST['task']))
 }
 if($task=='retrieve')
 {
-   $retval=array();
-   if($_REQUEST['mode']=='encounters')
+    $retval=array();
+    if($_REQUEST['mode']=='encounters')
     {
         $encounters=select_encounters($req_pid,$req_encounter);
         if(isset($_REQUEST['prev_encounter']))

@@ -28,13 +28,13 @@ require_once("portal.inc.php");
 $uploadid = $_REQUEST['id'];
 
 if (!empty($_REQUEST['messageid'])) {
-  $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));
+    $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));
 }
 else {
-  $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
+    $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
 }
 if ($result['errmsg']) {
-  die(text($result['errmsg']));
+    die(text($result['errmsg']));
 }
 
 $filesize = strlen($result['contents']);
@@ -50,4 +50,3 @@ header("Content-Length: $filesize");
 
 // With JSON-over-HTTP we would need to base64_decode the contents.
 echo $result['contents'];
-

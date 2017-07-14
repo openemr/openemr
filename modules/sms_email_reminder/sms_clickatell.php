@@ -2,8 +2,8 @@
 /**
  * CLICKATELL SMS API
  *
- * This class is meant to send SMS messages (with unicode support) via 
- * the Clickatell gateway and provides support to authenticate to this service, 
+ * This class is meant to send SMS messages (with unicode support) via
+ * the Clickatell gateway and provides support to authenticate to this service,
  * spending an vouchers and also query for the current account balance. This class
  * use the fopen or CURL module to communicate with the gateway via HTTP/S.
  *
@@ -120,7 +120,8 @@ class sms
     * @return object New SMS object.
     * @access public
     */
-    function sms () {
+    function sms()
+    {
         if ($this->use_ssl) {
             $this->base   = "http://api.clickatell.com/http";
             $this->base_s = "https://api.clickatell.com/http";
@@ -136,8 +137,9 @@ class sms
     * @return mixed  "OK" or script die
     * @access private
     */
-    function _auth() {
-    	$comm = sprintf ("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
+    function _auth()
+    {
+        $comm = sprintf ("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
         $this->session = $this->_parse_auth ($this->_execgw($comm));
     }
 
@@ -146,8 +148,9 @@ class sms
     * @return integer  number of SMS credits
     * @access public
     */
-    function getbalance() {
-    	$comm = sprintf ("%s/getbalance?session_id=%s", $this->base, $this->session);
+    function getbalance()
+    {
+        $comm = sprintf ("%s/getbalance?session_id=%s", $this->base, $this->session);
         return $this->_parse_getbalance ($this->_execgw($comm));
     }
 
@@ -159,51 +162,52 @@ class sms
     * @return mixed  "OK" or script die
     * @access public
     */
-    function send($to=null, $from=null, $text=null) {
+    function send($to=null, $from=null, $text=null)
+    {
 
-    	/* Check SMS credits balance */
-    	if ($this->getbalance() < $this->balace_limit) {
-    	    die ("You have reach the SMS credit limit!");
-    	};
+        /* Check SMS credits balance */
+        if ($this->getbalance() < $this->balace_limit) {
+            die ("You have reach the SMS credit limit!");
+        };
 
-    	/* Check SMS $text length */
+        /* Check SMS $text length */
         if ($this->unicode == true) {
             $this->_chk_mbstring();
             if (mb_strlen ($text) > 210) {
-        	    die ("Your unicode message is too long! (Current lenght=".mb_strlen ($text).")");
-        	}
-        	/* Does message need to be concatenate */
+                die ("Your unicode message is too long! (Current lenght=".mb_strlen ($text).")");
+            }
+            /* Does message need to be concatenate */
             if (mb_strlen ($text) > 70) {
                 $concat = "&concat=3";
-        	} else {
+            } else {
                 $concat = "";
             }
         } else {
             if (strlen ($text) > 459) {
-    	        die ("Your message is too long! (Current lenght=".strlen ($text).")");
-    	    }
-        	/* Does message need to be concatenate */
+                die ("Your message is too long! (Current lenght=".strlen ($text).")");
+            }
+            /* Does message need to be concatenate */
             if (strlen ($text) > 160) {
                 $concat = "&concat=3";
-        	} else {
+            } else {
                 $concat = "";
             }
         }
 
-    	/* Check $to and $from is not empty */
+        /* Check $to and $from is not empty */
         if (empty ($to)) {
-    	    die ("You not specify destination address (TO)!");
-    	}
+            die ("You not specify destination address (TO)!");
+        }
         if (empty ($from)) {
-    	    die ("You not specify source address (FROM)!");
-    	}
+            die ("You not specify source address (FROM)!");
+        }
 
-    	/* Reformat $to number */
+        /* Reformat $to number */
         $cleanup_chr = array ("+", " ", "(", ")", "\r", "\n", "\r\n");
         $to = str_replace($cleanup_chr, "", $to);
 
-    	/* Send SMS now */
-    	$comm = sprintf ("%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
+        /* Send SMS now */
+        $comm = sprintf ("%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
             $this->base,
             $this->session,
             rawurlencode($to),
@@ -222,7 +226,8 @@ class sms
     * @return mixed  Return encoded text of message.
     * @access public
     */
-    function encode_message ($text) {
+    function encode_message($text)
+    {
         if ($this->unicode != true) {
             //standard encoding
             return rawurlencode($text);
@@ -246,7 +251,8 @@ class sms
     * @return mixed  Return HEX value (with leading zero) of unicode character.
     * @access public
     */
-    function uniord($c) {
+    function uniord($c)
+    {
         $ud = 0;
         if (ord($c{0})>=0 && ord($c{0})<=127)
             $ud = ord($c{0});
@@ -271,7 +277,8 @@ class sms
     * @return mixed  Status code
     * @access public
     */
-    function token_pay ($token) {
+    function token_pay($token)
+    {
         $comm = sprintf ("%s/http/token_pay?session_id=%s&token=%s",
         $this->base,
         $this->session,
@@ -284,7 +291,8 @@ class sms
     * Execute gateway commands
     * @access private
     */
-    function _execgw($command) {
+    function _execgw($command)
+    {
         if ($this->sending_method == "curl")
             return $this->_curl($command);
         if ($this->sending_method == "fopen")
@@ -296,7 +304,8 @@ class sms
     * CURL sending method
     * @access private
     */
-    function _curl($command) {
+    function _curl($command)
+    {
         $this->_chk_curl();
         $ch = curl_init ($command);
         curl_setopt ($ch, CURLOPT_HEADER, 0);
@@ -315,7 +324,8 @@ class sms
     * fopen sending method
     * @access private
     */
-    function _fopen($command) {
+    function _fopen($command)
+    {
         $result = '';
         $handler = @fopen ($command, 'r');
         if ($handler) {
@@ -333,8 +343,9 @@ class sms
     * Parse authentication command response text
     * @access private
     */
-    function _parse_auth ($result) {
-    	$session = substr($result, 4);
+    function _parse_auth($result)
+    {
+        $session = substr($result, 4);
         $code = substr($result, 0, 2);
         if ($code!="OK") {
             die ("Error in SMS authorization! ($result)");
@@ -346,13 +357,14 @@ class sms
     * Parse send command response text
     * @access private
     */
-    function _parse_send ($result) {
-    	$code = substr($result, 0, 2);
-    	if ($code!="ID") {
-    	    die ("Error sending SMS! ($result)");
-    	} else {
-    	    $code = "OK";
-    	}
+    function _parse_send($result)
+    {
+        $code = substr($result, 0, 2);
+        if ($code!="ID") {
+            die ("Error sending SMS! ($result)");
+        } else {
+            $code = "OK";
+        }
         return $code;
     }
 
@@ -360,8 +372,9 @@ class sms
     * Parse getbalance command response text
     * @access private
     */
-    function _parse_getbalance ($result) {
-    	$result = substr($result, 8);
+    function _parse_getbalance($result)
+    {
+        $result = substr($result, 8);
         return (int)$result;
     }
 
@@ -369,7 +382,8 @@ class sms
     * Check for CURL PHP module
     * @access private
     */
-    function _chk_curl() {
+    function _chk_curl()
+    {
         if (!extension_loaded('curl')) {
             die ("This SMS API class can not work without CURL PHP module! Try using fopen sending method.");
         }
@@ -379,7 +393,8 @@ class sms
     * Check for Multibyte String Functions PHP module - mbstring
     * @access private
     */
-    function _chk_mbstring() {
+    function _chk_mbstring()
+    {
         if (!extension_loaded('mbstring')) {
             die ("Error. This SMS API class is setup to use Multibyte String Functions module - mbstring, but module not found. Please try to set unicode=false in class or install mbstring module into PHP.");
         }

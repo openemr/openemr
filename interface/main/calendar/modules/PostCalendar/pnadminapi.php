@@ -6,17 +6,17 @@
  *  PostCalendar::PostNuke Events Calendar Module
  *  Copyright (C) 2002  The PostCalendar Team
  *  http://postcalendar.tv
- *  
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -47,7 +47,7 @@ function postcalendar_adminapi_buildHourSelect($args)
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     
     $options = array();
-	if($time24hours) {
+    if($time24hours) {
         for($i = 0; $i < 24; $i++) {
             $sel = false;
             if($i == $hour) {
@@ -74,12 +74,12 @@ function postcalendar_adminapi_buildHourSelect($args)
 }
 function postcalendar_adminapi_getAdminListEvents($args)
 {
-	extract($args);
-	list($dbconn) = pnDBGetConn();
+    extract($args);
+    list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     $events_table = $pntable['postcalendar_events'];
     
-	$sql = "SELECT pc_eid,
+    $sql = "SELECT pc_eid,
                    pc_title, 
                    pc_time 
             FROM   $events_table
@@ -101,15 +101,15 @@ function postcalendar_adminapi_getAdminListEvents($args)
 
 function postcalendar_adminapi_buildAdminList($args)
 {
-	extract($args);
-	$output = new pnHTML();
-	$output->SetInputMode(_PNH_VERBATIMINPUT);
-	pnThemeLoad(pnUserGetTheme());
+    extract($args);
+    $output = new pnHTML();
+    $output->SetInputMode(_PNH_VERBATIMINPUT);
+    pnThemeLoad(pnUserGetTheme());
     // get the theme globals :: is there a better way to do this?
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5;
     global $textcolor1, $textcolor2;
-	
-	$formUrl = pnModUrl(__POSTCALENDAR__,'admin','adminevents');
+    
+    $formUrl = pnModUrl(__POSTCALENDAR__,'admin','adminevents');
     $output->FormStart($formUrl);
     $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
     $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr><td>');
@@ -121,47 +121,47 @@ function postcalendar_adminapi_buildAdminList($args)
     
     $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
     $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'">');
-        if(!$result || $result->EOF) {
-            $output->Text('<tr><td width="100%" bgcolor="'.$bgcolor1.'" align="center"><b>'._PC_NO_EVENTS.'</b></td></tr>');
-        } else {
-            $output->Text('<tr><td bgcolor="'.$bgcolor1.'" align="center"><b>'._PC_EVENTS.'</b></td></tr>');
-            $output->Text('<table border="0" cellpadding="2" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'">');
+    if(!$result || $result->EOF) {
+        $output->Text('<tr><td width="100%" bgcolor="'.$bgcolor1.'" align="center"><b>'._PC_NO_EVENTS.'</b></td></tr>');
+    } else {
+        $output->Text('<tr><td bgcolor="'.$bgcolor1.'" align="center"><b>'._PC_EVENTS.'</b></td></tr>');
+        $output->Text('<table border="0" cellpadding="2" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'">');
             
-			// build sorting urls
-            if(!isset($sdir)) { $sdir = 1; }
-			else { $sdir = $sdir ? 0 : 1; }
-			
-            $title_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'title','sdir'=>$sdir));
-            $time_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'time','sdir'=>$sdir));
-            $output->Text('<tr><td>select</td><td><a href="'.$title_sort_url.'">title</a></td><td><a href="'.$time_sort_url.'">timestamp</a><td></tr>');
-            // output the queued events
-            $count=0;
-            for(; !$result->EOF; $result->MoveNext()) {
-                list($eid,$title,$timestamp) = $result->fields;
-                $output->Text('<tr>');
-                    $output->Text('<td align="center" valign="top">');
-                        $output->FormCheckbox('pc_event_id[]', false, $eid);
-                    $output->Text('</td>');
-                    $output->Text('<td  align="left" valign="top" width="100%">');
-                        $output->URL(pnModURL(__POSTCALENDAR__,'admin','edit',array('pc_event_id'=>$eid)),
-						 			 pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title)));
-                    $output->Text('</td>');
-                    $output->Text('<td  align="left" valign="top" nowrap>');
-                        $output->Text($timestamp);
-                    $output->Text('</td>');
-                $output->Text('</tr>');
+        // build sorting urls
+        if(!isset($sdir)) { $sdir = 1; }
+        else { $sdir = $sdir ? 0 : 1; }
+            
+        $title_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'title','sdir'=>$sdir));
+        $time_sort_url = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset,'sort'=>'time','sdir'=>$sdir));
+        $output->Text('<tr><td>select</td><td><a href="'.$title_sort_url.'">title</a></td><td><a href="'.$time_sort_url.'">timestamp</a><td></tr>');
+        // output the queued events
+        $count=0;
+        for(; !$result->EOF; $result->MoveNext()) {
+            list($eid,$title,$timestamp) = $result->fields;
+            $output->Text('<tr>');
+                $output->Text('<td align="center" valign="top">');
+                    $output->FormCheckbox('pc_event_id[]', false, $eid);
+                $output->Text('</td>');
+                $output->Text('<td  align="left" valign="top" width="100%">');
+                    $output->URL(pnModURL(__POSTCALENDAR__,'admin','edit',array('pc_event_id'=>$eid)),
+                                 pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title)));
+                $output->Text('</td>');
+                $output->Text('<td  align="left" valign="top" nowrap>');
+                    $output->Text($timestamp);
+                $output->Text('</td>');
+            $output->Text('</tr>');
                 
-                $count++;
-            }
-            $output->Text('</table>');
+            $count++;
         }
+        $output->Text('</table>');
+    }
     $output->Text('</td></tr></table>');
     if($result->NumRows()) {
-    $output->Linebreak();
+        $output->Linebreak();
     
     // action to take?
-    $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
-    $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr>');
+        $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
+        $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr>');
         $output->Text('<td align="left" valign="middle">');
             
             $seldata[0]['id'] = _ADMIN_ACTION_VIEW;
@@ -184,36 +184,36 @@ function postcalendar_adminapi_buildAdminList($args)
             $output->FormHidden('thelist',$function);
             $output->FormSubmit(_PC_PERFORM_ACTION);
         $output->Text('</td>');
-    $output->Text('</tr></table>');
-    $output->Text('</td></tr></table>');
-    $output->Linebreak();
+        $output->Text('</tr></table>');
+        $output->Text('</td></tr></table>');
+        $output->Linebreak();
     
     // start previous next links
-    $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
-    $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr>');
-    if($offset > 1) {
-        $output->Text('<td align="left">');
-        $next_link = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset-$offset_increment,'sort'=>$sort,'sdir'=>$sdir));
-        $output->Text('<a href="'.$next_link.'"><< '._PC_PREV.' '.$offset_increment.'</a>');
-        $output->Text('</td>');
-    } else {
-        $output->Text('<td align="left"><< '._PC_PREV.'</td>');
-    }
-    if($result->NumRows() >= $offset_increment) {
-        $output->Text('<td align="right">');
-        $next_link = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset+$offset_increment,'sort'=>$sort,'sdir'=>$sdir));
-        $output->Text('<a href="'.$next_link.'">'._PC_NEXT.' '.$offset_increment.' >></a>');
-        $output->Text('</td>');
-    } else {
-        $output->Text('<td align="right">'._PC_NEXT.' >></td>');
-    }
-    $output->Text('</tr></table>');
+        $output->Text('<table border="0" cellpadding="1" cellspacing="0" width="100%" bgcolor="'.$bgcolor2.'"><tr><td>');
+        $output->Text('<table border="0" cellpadding="5" cellspacing="0" width="100%" bgcolor="'.$bgcolor1.'"><tr>');
+        if($offset > 1) {
+            $output->Text('<td align="left">');
+            $next_link = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset-$offset_increment,'sort'=>$sort,'sdir'=>$sdir));
+            $output->Text('<a href="'.$next_link.'"><< '._PC_PREV.' '.$offset_increment.'</a>');
+            $output->Text('</td>');
+        } else {
+            $output->Text('<td align="left"><< '._PC_PREV.'</td>');
+        }
+        if($result->NumRows() >= $offset_increment) {
+            $output->Text('<td align="right">');
+            $next_link = pnModUrl(__POSTCALENDAR__,'admin',$function,array('offset'=>$offset+$offset_increment,'sort'=>$sort,'sdir'=>$sdir));
+            $output->Text('<a href="'.$next_link.'">'._PC_NEXT.' '.$offset_increment.' >></a>');
+            $output->Text('</td>');
+        } else {
+            $output->Text('<td align="right">'._PC_NEXT.' >></td>');
+        }
+        $output->Text('</tr></table>');
     }
     $output->Text('</td></tr></table>');
     // end previous next links
     $output->FormEnd();
-	
-	return $output->GetOutput();
+    
+    return $output->GetOutput();
 }
 
 function postcalendar_adminapi_buildMinSelect($args)
@@ -262,7 +262,8 @@ function postcalendar_adminapi_buildAMPMSelect($args)
 }
 
 function postcalendar_adminapi_waiting($args)
-{   $output = new pnHTML();
+{
+    $output = new pnHTML();
     $output = "waiting<br />";
     return $output->GetOutput();
 }
@@ -334,7 +335,7 @@ function postcalendar_adminapi_addCategories($args)
     //print "sql is $sql \n";
     $result = $dbconn->Execute($sql);
     if($result === false) {
-    	print $dbconn->ErrorMsg();
+        print $dbconn->ErrorMsg();
         return false;
     }
     return true;
@@ -348,7 +349,7 @@ function postcalendar_adminapi_updateCategoryLimit($args)
     }
     list($dbconn) = pnDBGetConn();
     foreach($updates as $update) {
-    	$result = $dbconn->Execute($update);
+        $result = $dbconn->Execute($update);
         if($result === false) {
             return false;
         }
@@ -391,7 +392,7 @@ function postcalendar_adminapi_addCategoryLimit($args)
     
     $result = $dbconn->Execute($sql);
     if($result === false) {
-    	print $dbconn->ErrorMsg();
+        print $dbconn->ErrorMsg();
         return false;
     }
     return true;

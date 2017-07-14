@@ -43,7 +43,7 @@ require_once "$srcdir/report_database.inc";
  var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 
     $( document ).ready(function(){
-	    $('.datepicker').datetimepicker({
+        $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = true; ?>
             <?php $datetimepicker_formatInput = false; ?>
@@ -96,13 +96,13 @@ require_once "$srcdir/report_database.inc";
 <table>
  <tr>
   <td width='470px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
+    <table class='text'>
 
                    <tr>
                       <td class='control-label'>
-                         <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
                          <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_begin_date'], ENT_QUOTES); ?>'
@@ -113,7 +113,7 @@ require_once "$srcdir/report_database.inc";
 
                 <tr>
                         <td class='control-label'>
-                              <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                                <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                            <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_end_date'], ENT_QUOTES); ?>'
@@ -121,27 +121,27 @@ require_once "$srcdir/report_database.inc";
                                 title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
-	</table>
-	</div>
+    </table>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
             <a href='#' id='search_button' class='btn btn-default btn-search' onclick='top.restoreSession(); $("#theform").submit()'>
-              <?php echo xlt('Search'); ?>
+                <?php echo xlt('Search'); ?>
             </a>
             <a href='#' id='refresh_button' class='btn btn-default btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
-              <?php echo xlt('Refresh'); ?>
+                <?php echo xlt('Refresh'); ?>
             </a>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
@@ -157,15 +157,15 @@ require_once "$srcdir/report_database.inc";
 
  <thead>
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-   <?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>
   </th>
 
  </thead>
@@ -173,97 +173,97 @@ require_once "$srcdir/report_database.inc";
 <?php
 
  $res = listingReportDatabase($_POST['form_begin_date'],$_POST['form_end_date']);
- while ($row = sqlFetchArray($res)) {
+while ($row = sqlFetchArray($res)) {
 
   // Figure out the title and link
-  if ($row['type'] == "cqm") {
-    if (!$GLOBALS['enable_cqm']) continue;
-    $type_title = xl('Clinical Quality Measures (CQM)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "cqm_2011") {
-    if (!$GLOBALS['enable_cqm']) continue;
-    $type_title = xl('2011 Clinical Quality Measures (CQM)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "cqm_2014") {
-    if (!$GLOBALS['enable_cqm']) continue;
-    $type_title = xl('2014 Clinical Quality Measures (CQM)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('Automated Measure Calculations (AMC)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc_2011") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2011 Automated Measure Calculations (AMC)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc_2014") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2014 Automated Measure Calculations (AMC)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc_2014_stage1") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "amc_2014_stage2") {
-    if (!$GLOBALS['enable_amc']) continue;
-    $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "process_reminders") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Processing Patient Reminders');
-    $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-  }
-  else if ($row['type'] == "process_send_reminders") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Processing and Sending Patient Reminders');
-    $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
-  }
-  else if ($row['type'] == "passive_alert") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Passive Alerts)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "active_alert") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Active Alerts)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else if ($row['type'] == "patient_reminder") {
-    if (!$GLOBALS['enable_cdr']) continue;
-    $type_title = xl('Standard Measures (Patient Reminders)');
-    $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
-  }
-  else {
-    // Not identified, so give an unknown title
-    $type_title = xl('Unknown') . "-" . $row['type'];
-    $link="";
-  }
+    if ($row['type'] == "cqm") {
+        if (!$GLOBALS['enable_cqm']) continue;
+        $type_title = xl('Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "cqm_2011") {
+        if (!$GLOBALS['enable_cqm']) continue;
+        $type_title = xl('2011 Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "cqm_2014") {
+        if (!$GLOBALS['enable_cqm']) continue;
+        $type_title = xl('2014 Clinical Quality Measures (CQM)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "amc") {
+        if (!$GLOBALS['enable_amc']) continue;
+        $type_title = xl('Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "amc_2011") {
+        if (!$GLOBALS['enable_amc']) continue;
+        $type_title = xl('2011 Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "amc_2014") {
+        if (!$GLOBALS['enable_amc']) continue;
+        $type_title = xl('2014 Automated Measure Calculations (AMC)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "amc_2014_stage1") {
+        if (!$GLOBALS['enable_amc']) continue;
+        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage I');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "amc_2014_stage2") {
+        if (!$GLOBALS['enable_amc']) continue;
+        $type_title = xl('2014 Automated Measure Calculations (AMC) - Stage II');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "process_reminders") {
+        if (!$GLOBALS['enable_cdr']) continue;
+        $type_title = xl('Processing Patient Reminders');
+        $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
+    }
+    else if ($row['type'] == "process_send_reminders") {
+        if (!$GLOBALS['enable_cdr']) continue;
+        $type_title = xl('Processing and Sending Patient Reminders');
+        $link="../batchcom/batch_reminders.php?report_id=" . attr($row["report_id"]);
+    }
+    else if ($row['type'] == "passive_alert") {
+        if (!$GLOBALS['enable_cdr']) continue;
+        $type_title = xl('Standard Measures (Passive Alerts)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "active_alert") {
+        if (!$GLOBALS['enable_cdr']) continue;
+        $type_title = xl('Standard Measures (Active Alerts)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else if ($row['type'] == "patient_reminder") {
+        if (!$GLOBALS['enable_cdr']) continue;
+        $type_title = xl('Standard Measures (Patient Reminders)');
+        $link="cqm.php?report_id=" . attr($row["report_id"]) . "&back=list";
+    }
+    else {
+        // Not identified, so give an unknown title
+        $type_title = xl('Unknown') . "-" . $row['type'];
+        $link="";
+    }
 ?>
- <tr>
+<tr>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><a href='<?php echo $link; ?>' onclick='top.restoreSession()'><?php echo text($type_title); ?></a></td>
     <?php } else { ?>
       <td align='center'><?php echo text($type_title); ?></td>
     <?php } ?>
-    <td align='center'><?php echo text($row["date_report"]); ?></td>
+  <td align='center'><?php echo text($row["date_report"]); ?></td>
     <?php if ($row["progress"] == "complete") { ?>
       <td align='center'><?php echo xlt("Complete") . " (" . xlt("Processing Time") . ": " . text($row['report_time_processing']) . " " . xlt("Minutes") . ")"; ?></td>
     <?php } else { ?>
       <td align='center'><?php echo xlt("Pending") . " (" . text($row["progress_items"]) . " / " . text($row["total_items"]) . " " . xlt("Patients Processed") . ")"; ?></td>
     <?php } ?>
 
- </tr>
+</tr>
 
 <?php
- } // $row = sqlFetchArray($res) while
+} // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>

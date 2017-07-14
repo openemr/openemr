@@ -43,62 +43,62 @@ require_once("OnsiteDocumentMap.php");
  */
 class OnsiteDocumentDAO extends Phreezable
 {
-	/** @var int */
-	public $Id;
+    /** @var int */
+    public $Id;
 
-	/** @var int */
-	public $Pid;
+    /** @var int */
+    public $Pid;
 
-	/** @var int */
-	public $Facility;
+    /** @var int */
+    public $Facility;
 
-	/** @var int */
-	public $Provider;
+    /** @var int */
+    public $Provider;
 
-	/** @var int */
-	public $Encounter;
+    /** @var int */
+    public $Encounter;
 
-	/** @var timestamp */
-	public $CreateDate;
+    /** @var timestamp */
+    public $CreateDate;
 
-	/** @var string */
-	public $DocType;
+    /** @var string */
+    public $DocType;
 
-	/** @var int */
-	public $PatientSignedStatus;
+    /** @var int */
+    public $PatientSignedStatus;
 
-	/** @var date */
-	public $PatientSignedTime;
+    /** @var date */
+    public $PatientSignedTime;
 
-	/** @var date */
-	public $AuthorizeSignedTime;
+    /** @var date */
+    public $AuthorizeSignedTime;
 
-	/** @var int */
-	public $AcceptSignedStatus;
+    /** @var int */
+    public $AcceptSignedStatus;
 
-	/** @var string */
-	public $AuthorizingSignator;
+    /** @var string */
+    public $AuthorizingSignator;
 
-	/** @var date */
-	public $ReviewDate;
+    /** @var date */
+    public $ReviewDate;
 
-	/** @var string */
-	public $DenialReason;
+    /** @var string */
+    public $DenialReason;
 
-	/** @var string */
-	public $AuthorizedSignature;
+    /** @var string */
+    public $AuthorizedSignature;
 
-	/** @var string */
-	public $PatientSignature;
+    /** @var string */
+    public $PatientSignature;
 
-	/** @var blob */
-	public $FullDocument;
+    /** @var blob */
+    public $FullDocument;
 
-	/** @var string */
-	public $FileName;
+    /** @var string */
+    public $FileName;
 
-	/** @var string */
-	public $FilePath;
+    /** @var string */
+    public $FilePath;
 
 
 

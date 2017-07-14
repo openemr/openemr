@@ -29,9 +29,10 @@ require_once("$srcdir/patient.inc");
  $from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
  $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 
- function bucks($amt) {
-  return ($amt != 0.00) ? oeFormatMoney($amt) : '';
- }
+function bucks($amt)
+{
+    return ($amt != 0.00) ? oeFormatMoney($amt) : '';
+}
 ?>
 <html>
 <head>
@@ -113,76 +114,76 @@ require_once("$srcdir/patient.inc");
 <table>
  <tr>
   <td width='410px'>
-	<div style='float:left'>
+    <div style='float:left'>
 
-	<table class='text'>
-		<tr>
-			<td class='control-label'>
-			   <?php xl('From','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
-				title='yyyy-mm-dd'>
-			</td>
-			<td class='control-label'>
-			   <?php xl('To','e'); ?>:
-			</td>
-			<td>
-			   <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
-				title='yyyy-mm-dd'>
-			</td>
-		</tr>
-	</table>
+    <table class='text'>
+        <tr>
+            <td class='control-label'>
+                <?php xl('From','e'); ?>:
+            </td>
+            <td>
+               <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>'
+                title='yyyy-mm-dd'>
+            </td>
+            <td class='control-label'>
+                <?php xl('To','e'); ?>:
+            </td>
+            <td>
+               <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr($form_to_date) ?>'
+                title='yyyy-mm-dd'>
+            </td>
+        </tr>
+    </table>
 
-	</div>
+    </div>
 
   </td>
   <td align='left' valign='middle' height="100%">
-	<table style='border-left:1px solid; width:100%; height:100%' >
-		<tr>
-			<td>
-				<div class="text-center">
+    <table style='border-left:1px solid; width:100%; height:100%' >
+        <tr>
+            <td>
+                <div class="text-center">
           <div class="btn-group" role="group">
-					  <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
-						  <?php echo xlt('Submit'); ?>
-					  </a>
-					  <?php if ($_POST['form_refresh']) { ?>
-					    <a href='#' class='btn btn-default btn-print' id='printbutton'>
-							  <?php echo xlt('Print'); ?>
-					    </a>
-					  <?php } ?>
+                      <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
+                            <?php echo xlt('Submit'); ?>
+                      </a>
+                        <?php if ($_POST['form_refresh']) { ?>
+                        <a href='#' class='btn btn-default btn-print' id='printbutton'>
+                                <?php echo xlt('Print'); ?>
+                        </a>
+                        <?php } ?>
           </div>
-				</div>
-			</td>
-		</tr>
-	</table>
+                </div>
+            </td>
+        </tr>
+    </table>
   </td>
  </tr>
 </table>
 </div> <!-- end of parameters -->
 
 <?php
- if ($_POST['form_refresh'] || $_POST['form_orderby']) {
+if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 ?>
 <div id="report_results">
 <table>
- <thead>
-  <th> <?php xl('Time','e'); ?> </th>
-  <th> <?php xl('Patient','e'); ?> </th>
-  <th> <?php xl('ID','e'); ?> </th>
-  <th> <?php xl('Method','e'); ?> </th>
-  <th> <?php xl('Source','e'); ?> </th>
-  <th align='right'> <?php xl('Today','e'); ?> </th>
-  <th align='right'> <?php xl('Previous','e'); ?> </th>
-  <th align='right'> <?php xl('Total','e'); ?> </th>
- </thead>
- <tbody>
+<thead>
+<th> <?php xl('Time','e'); ?> </th>
+<th> <?php xl('Patient','e'); ?> </th>
+<th> <?php xl('ID','e'); ?> </th>
+<th> <?php xl('Method','e'); ?> </th>
+<th> <?php xl('Source','e'); ?> </th>
+<th align='right'> <?php xl('Today','e'); ?> </th>
+<th align='right'> <?php xl('Previous','e'); ?> </th>
+<th align='right'> <?php xl('Total','e'); ?> </th>
+</thead>
+<tbody>
 <?php
- if (true || $_POST['form_refresh']) {
-  $total1 = 0.00;
-  $total2 = 0.00;
+if (true || $_POST['form_refresh']) {
+    $total1 = 0.00;
+    $total2 = 0.00;
 
-  $query = "SELECT r.pid, r.dtime, " .
+    $query = "SELECT r.pid, r.dtime, " .
     "SUM(r.amount1) AS amount1, " .
     "SUM(r.amount2) AS amount2, " .
     "MAX(r.method) AS method, " .
@@ -198,76 +199,76 @@ require_once("$srcdir/patient.inc");
     "GROUP BY r.dtime, r.pid ORDER BY r.dtime, r.pid";
 
   // echo "<!-- $query -->\n"; // debugging
-  $res = sqlStatement($query);
+    $res = sqlStatement($query);
 
-  while ($row = sqlFetchArray($res)) {
-    // Make the timestamp URL-friendly.
-    $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
-?>
- <tr>
-  <td nowrap>
-   <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
-   <?php echo oeFormatShortDate(substr($row['dtime'], 0, 10)) . substr($row['dtime'], 10, 6); ?>
+    while ($row = sqlFetchArray($res)) {
+        // Make the timestamp URL-friendly.
+        $timestamp = preg_replace('/[^0-9]/', '', $row['dtime']);
+    ?>
+   <tr>
+    <td nowrap>
+     <a href="javascript:show_receipt(<?php echo $row['pid'] . ",'$timestamp'"; ?>)">
+        <?php echo oeFormatShortDate(substr($row['dtime'], 0, 10)) . substr($row['dtime'], 10, 6); ?>
    </a>
   </td>
   <td>
-   <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
+        <?php echo $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ?>
   </td>
   <td>
-   <?php echo $row['pubpid'] ?>
+        <?php echo $row['pubpid'] ?>
   </td>
   <td>
-   <?php echo $row['method'] ?>
+        <?php echo $row['method'] ?>
   </td>
   <td>
-   <?php echo $row['source'] ?>
+        <?php echo $row['source'] ?>
   </td>
   <td align='right'>
-   <?php echo bucks($row['amount1']) ?>
+        <?php echo bucks($row['amount1']) ?>
   </td>
   <td align='right'>
-   <?php echo bucks($row['amount2']) ?>
+        <?php echo bucks($row['amount2']) ?>
   </td>
   <td align='right'>
-   <?php echo bucks($row['amount1'] + $row['amount2']) ?>
+        <?php echo bucks($row['amount1'] + $row['amount2']) ?>
   </td>
  </tr>
 <?php
     $total1 += $row['amount1'];
     $total2 += $row['amount2'];
-  }
+    }
 ?>
 
- <tr>
-  <td colspan='8'>
-   &nbsp;
-  </td>
- </tr>
+<tr>
+ <td colspan='8'>
+  &nbsp;
+ </td>
+</tr>
 
- <tr class="report_totals">
-  <td colspan='5'>
-   <?php xl('Totals','e'); ?>
-  </td>
-  <td align='right'>
-   <?php echo bucks($total1) ?>
-  </td>
-  <td align='right'>
-   <?php echo bucks($total2) ?>
-  </td>
-  <td align='right'>
-   <?php echo bucks($total1 + $total2) ?>
-  </td>
- </tr>
+<tr class="report_totals">
+ <td colspan='5'>
+    <?php xl('Totals','e'); ?>
+ </td>
+ <td align='right'>
+    <?php echo bucks($total1) ?>
+ </td>
+ <td align='right'>
+    <?php echo bucks($total2) ?>
+ </td>
+ <td align='right'>
+    <?php echo bucks($total1 + $total2) ?>
+ </td>
+</tr>
 
 <?php
- }
+}
 ?>
 </tbody>
 </table>
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
- 	<?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
 </div>
 <?php } ?>
 

@@ -18,7 +18,7 @@
  * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
- 
+
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
