@@ -13,7 +13,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 // continue session
 session_start();
 
@@ -725,7 +724,7 @@ if ($_POST['form_action'] != "") {
    <b><?php xl('Patient','e'); ?>:</b>
   </td>
   <td style='padding:0px 5px 5px 0' nowrap>
-   <input class="form-control input-md" type='text' size='10' id='form_patient' name='form_patient'' value='<?php echo $patientname ?>' title='Patient' readonly />
+   <input class="form-control input-md" type='text' size='10' id='form_patient' name='form_patient' value='<?php echo $patientname ?>' title='Patient' readonly />
    <input type='hidden' name='form_pid' value='<?php echo $patientid ?>' />
   </td>
   <td nowrap>
@@ -752,8 +751,7 @@ while ($urow = sqlFetchArray($ures)) {
     if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) echo " selected";
     echo ">" . $urow['lname'];
     if ($urow['fname']) echo ", " . $urow['fname'];
-    echo "</option>
-";
+    echo "</option>\n";
 }
 ?>
 </select>
@@ -786,8 +784,7 @@ while ($urow = sqlFetchArray($ures)) {
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $catoptions = "";
- $prefcat_options = "    <option value='0'>-- None --</option>
-";
+ $prefcat_options = "    <option value='0'>-- None --</option>\n";
  $thisduration = 0;
 if ($eid) {
     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
@@ -795,10 +792,8 @@ if ($eid) {
 while ($crow = sqlFetchArray($cres)) {
     $duration = round($crow['pc_duration'] / 60);
     if ($crow['pc_end_all_day']) $duration = 1440;
-    echo " durations[" . $crow['pc_catid'] . "] = $duration
-";
-  // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "
-";
+    echo " durations[" . $crow['pc_catid'] . "] = $duration\n";
+  // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
     $catoptions .= "    <option value='" . $crow['pc_catid'] . "'";
     if ($eid) {
         if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
@@ -808,8 +803,7 @@ while ($crow = sqlFetchArray($cres)) {
             $thisduration = $duration;
         }
     }
-    $catoptions .= ">" . $crow['pc_catname'] . "</option>
-";
+    $catoptions .= ">" . $crow['pc_catname'] . "</option>\n";
 
   // This section is to build the list of preferred categories:
     if ($duration) {
@@ -817,8 +811,7 @@ while ($crow = sqlFetchArray($cres)) {
         if ($eid) {
             if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
         }
-        $prefcat_options .= ">" . $crow['pc_catname'] . "</option>
-";
+        $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
     }
 
 }
