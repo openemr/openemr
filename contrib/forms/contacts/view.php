@@ -79,4 +79,4 @@ $obj = formFetch("form_contacts", $_GET["id"]);
 </form>
 <?php
 formFooter();
-?> 
+?>

@@ -98,14 +98,10 @@ $query = "select t1.id, t1.content from ".mitigateSqlTableUpperCase("form_CAMOS"
 $statement = sqlStatement($query);
 while ($result = sqlFetchArray($statement)) {
     print "<input type=button value='" . xl('Edit') . "' onClick='show_edit(\"id_textarea_".$result['id']."\")'>";
-    print "<input type=checkbox name='ch_".$result['id']."'> ".$result['content']."<br/>
-";
-    print "<div id=id_textarea_".$result['id']." style='display:none'>
-";
-    print "<textarea name=textarea_".$result['id']." cols=$textarea_cols rows= $textarea_rows onFocus='content_focus()' onBlur='content_blur()' >".$result['content']."</textarea><br/>
-";
-    print "</div>
-";
+    print "<input type=checkbox name='ch_".$result['id']."'> ".$result['content']."<br/>";
+    print "<div id=id_textarea_".$result['id']." style='display:none'>";
+    print "<textarea name=textarea_".$result['id']." cols=$textarea_cols rows= $textarea_rows onFocus='content_focus()' onBlur='content_blur()' >".$result['content']."</textarea><br/>";
+    print "</div>";
 }
 
 
@@ -115,4 +111,4 @@ while ($result = sqlFetchArray($statement)) {
 <?php
 
 formFooter();
-?> 
+?>

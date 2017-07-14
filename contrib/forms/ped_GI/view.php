@@ -51,4 +51,4 @@ $obj = formFetch("form_ped_GI", $_GET["id"]);
 </form>
 <?php
 formFooter();
-?> 
+?>

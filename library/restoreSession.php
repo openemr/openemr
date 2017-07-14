@@ -32,9 +32,7 @@ function restoreSession() {
   var c = ca[i].split('=');
   if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
 <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
-   alert('Changing session ID from
-"' + c[1] + '" to
-"' + oemr_session_id + '"');
+   alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
 <?php } ?>
    document.cookie = oemr_session_name + '=' + oemr_session_id + '; path=<?php echo($web_root ? $web_root : '/');?>';
   }
@@ -92,4 +90,4 @@ function printLogPrint(elem) {
  );
 <?php } ?>
  return true;
-} 
+}

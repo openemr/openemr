@@ -252,5 +252,5 @@ if ($_POST['edit']){
     }
     echo ('</FORM></table>');
 }
-    
-?> 
+
+?>

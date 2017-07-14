@@ -187,4 +187,4 @@ stripslashes($obj{"ankle_diagnosis4"});?>" size="50"></td>
 </form>
 <?php
 formFooter();
-?> 
+?>

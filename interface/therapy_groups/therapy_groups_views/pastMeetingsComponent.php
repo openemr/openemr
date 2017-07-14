@@ -26,4 +26,4 @@
         //top.window.parent.left_nav.loadFrame2('nen1','RBot','forms/newGroupEncounter/new.php?autoloaded=1&calenc=')
 
     }
-</script> 
+</script>

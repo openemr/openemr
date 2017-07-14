@@ -78,4 +78,4 @@ $obj = formFetch("form_pain", $_GET["id"]);
 </form>
 <?php
 formFooter();
-?> 
+?>

@@ -39,4 +39,4 @@ $returnurl = 'encounter_top.php';
 </form>
 <?php
 formFooter();
-?> 
+?>

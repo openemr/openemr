@@ -511,4 +511,4 @@ stripslashes($obj{"diagnosis3_bronchitis_form"});?>" size="40"><br>
 </form>
 <?php
 formFooter();
-?> 
+?>

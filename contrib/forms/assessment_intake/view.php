@@ -381,6 +381,24 @@ $result = SqlFetchArray($res); ?>
 <b>Documents to be obtainded (Release of Information Required):</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ><?php echo stripslashes($obj{"referrals_docs"});?></textarea><br><br>
     
+<b>Other needed resources and services:</b><br>pic Medications:</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_pepm" ><?php echo stripslashes($obj{"referrals_pepm"});?></textarea><br><br>
+
+<b>Medical Care:</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_mc" ><?php echo stripslashes($obj{"referrals_mc"});?></textarea><br><br>
+    
+<b>Educational/vocational services:</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_vt" ><?php echo stripslashes($obj{"referrals_vt"});?></textarea><br><br>
+    
+<b>Other:</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_o" ><?php echo stripslashes($obj{"referrals_o"});?></textarea><br><br>
+
+<b>Current use of resources/services from other community agencies:</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_cu" ><?php echo stripslashes($obj{"referrals_cu"});?></textarea><br><br>
+    
+<b>Documents to be obtainded (Release of Information Required):</b><br>
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_docs" ><?php echo stripslashes($obj{"referrals_docs"});?></textarea><br><br>
+    
 <b>Other needed resources and services:</b><br>
     <textarea cols=100 rows=2 wrap=virtual name="referrals_or" ><?php echo stripslashes($obj{"referrals_or"});?></textarea><br><br>
 
@@ -395,3 +413,17 @@ $result = SqlFetchArray($res); ?>
 <?php
 formFooter();
 ?> 
+
+    <textarea cols=100 rows=2 wrap=virtual name="referrals_or" ><?php echo stripslashes($obj{"referrals_or"});?></textarea><br><br>
+
+<?php /* From New */ ?>
+
+<br>
+<a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>
+<br>
+<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+ onclick="top.restoreSession()">[Don't Save Changes]</a>
+</form>
+<?php
+formFooter();
+?>

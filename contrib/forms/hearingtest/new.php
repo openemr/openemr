@@ -68,4 +68,4 @@ formHeader("Form: hearingtest");
 </form>
 <?php
 formFooter();
-?> 
+?>

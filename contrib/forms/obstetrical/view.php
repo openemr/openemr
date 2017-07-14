@@ -86,4 +86,4 @@ $obj = formFetch("form_obstetrical", $_GET["id"]);
 </form>
 <?php
 formFooter();
-?> 
+?>

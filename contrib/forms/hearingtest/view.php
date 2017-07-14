@@ -73,4 +73,4 @@ $obj = formFetch("form_hearingtest", $_GET["id"]);
 </form>
 <?php
 formFooter();
-?> 
+?>

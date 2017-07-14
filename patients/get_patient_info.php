@@ -198,4 +198,4 @@ else { //problem with query
 
     require_once('summary_pat_portal.php');
 
-?> 
+?>
