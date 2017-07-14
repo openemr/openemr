@@ -120,25 +120,25 @@ function getEncounters($pid,$dateStart='',$dateEnd='',$encounterRuleType='')
         $where .= "form_encounter.pid = ? and form_encounter.date >= ? and form_encounter.date <= ?";
         array_push($arraySqlBind,$pid,$dateStart,$dateEnd);
     }
-        else if ($dateStart && !$dateEnd) {
-                $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
-                array_push($arraySqlBind,$pid,$dateStart);
-        }
-        else if (!$dateStart && $dateEnd) {
-                $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
-                array_push($arraySqlBind,$pid,$dateEnd);
-        }
-        else {
-                $where .= "form_encounter.pid = ?";
-                array_push($arraySqlBind,$pid);
-        }
+    else if ($dateStart && !$dateEnd) {
+        $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
+        array_push($arraySqlBind,$pid,$dateStart);
+    }
+    else if (!$dateStart && $dateEnd) {
+        $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
+        array_push($arraySqlBind,$pid,$dateEnd);
+    }
+    else {
+        $where .= "form_encounter.pid = ?";
+        array_push($arraySqlBind,$pid);
+    }
 
         $res = sqlStatement("SELECT distinct encounter FROM $from WHERE $where ORDER by date desc;", $arraySqlBind);
 
-        for($iter=0; $row=sqlFetchArray($res); $iter++)
+    for($iter=0; $row=sqlFetchArray($res); $iter++)
         {
-                $all[$iter] = $row;
-        }
+        $all[$iter] = $row;
+    }
         return $all;
 }
 

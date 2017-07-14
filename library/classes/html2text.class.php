@@ -236,8 +236,8 @@ class html2text
         '--',
         '-',
         '*',
-        '£',
-        'EUR',                                  // Euro sign. € ?
+        'â‚¬',
+        'EUR',                                  // Euro sign. â‚¬ ?
         '',                                     // Unknown/unhandled entities
         ' '                                     // Runs of spaces, post-handling
     );

@@ -29,7 +29,7 @@ case "$CI_JOB" in
   if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     cd $2
     echo "extension = ldap.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-    composer require "squizlabs/php_codesniffer=*"
+    composer require "squizlabs/php_codesniffer=3.0.*"
     ./vendor/bin/phpcs -p -n --extensions=php,inc --standard=ci/phpcs.xml --report-width=120 --report=summary --report=source --report=info .
   fi
   ;;

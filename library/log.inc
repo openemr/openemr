@@ -196,7 +196,7 @@ function sql_checksum_of_modified_row($statement)
         }
     }
      /* Identifying the id for update statements for calculating the checksum */
-       else if(strcasecmp($tokens[0],"UPDATE")==0){
+    else if(strcasecmp($tokens[0],"UPDATE")==0){
         $table = $tokens[1];
 
         $offset = 3;
@@ -221,94 +221,94 @@ function sql_checksum_of_modified_row($statement)
         else if ($table == "openemr_postcalendar_limits"){
             $id = "pc_limitid";
         }
-         else if($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map"){
+        else if($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map"){
             $id="acl_id";
-            }
-            else if($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map"){
-                $id="group_id";
-            }
-            else {
-                 $id = "id";
-            }
-
-         /* Identifying the primary key value for the updated record */
-            while ($offset < $total) {
-                /* There are 4 possible ways that the id=123 can be parsed:
-                 * ('id', '=', '123')
-                 * ('id=', '123')
-                 * ('id=123')
-                 * ('id', '=123')
-                 */
-                $rid = "";
-                   /*id=', '123'*/
-                if (($tokens[$offset] == "$id=") && ($offset + 1 < $total)) {
-                    $rid = $tokens[$offset+1];
-                    break;
-                }
-               /* 'id', '=', '123' */
-                else if ($tokens[$offset] == "$id" && $tokens[$offset+1] == "=" && ($offset+2 < $total)) {
-                    $rid = $tokens[$offset+2];
-                    break;
-                }
-                /*id=123*/
-                else if (strpos($tokens[$offset], "$id=") === 0) {
-                        $tid = substr($tokens[$offset], strlen($id)+1);
-                    if(is_numeric($tid))
-                     $rid=$tid;
-                     break;
-                }
-               /*'id', '=123' */
-                 else if($tokens[$offset] == "$id") {
-                       $tid = substr($tokens[$offset+1],1);
-                       if(is_numeric($tid))
-                        $rid=$tid;
-                       break;
-                    }
-                    $offset += 1;
-            }//while ($offset < $total)
-        }// else if ($tokens[0] == 'update' || $tokens[0] == 'UPDATE' )
-
-        if ($table == "" || $rid == "") {
-            return "";
-        }
-   /* Framing sql statements for calculating checksum */
-        if ($table == "form_physical_exam") {
-             $sql = "select * from $table where forms_id = $rid";
-        }
-        else if ($table == "claims"){
-             $sql = "select * from $table where patient_id = $rid";
-        }
-        else if ($table == "openemr_postcalendar_events") {
-            $sql = "select * from $table where pc_eid = $rid";
-        }
-        else if ($table == "lang_languages") {
-            $sql = "select * from $table where lang_id = $rid";
-        }
-        else if ($table == "openemr_postcalendar_categories" || $table == "openemr_postcalendar_topics"){
-            $sql = "select * from $table where pc_catid = $rid";
-        }
-        else if ($table == "openemr_postcalendar_limits"){
-               $sql = "select * from $table where pc_limitid = $rid";
-        }
-        else if ($table ==  "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map"){
-               $sql = "select * from $table where acl_id = $rid";
         }
         else if($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map"){
-             $sql = "select * from $table where group_id = $rid";
+            $id="group_id";
         }
         else {
-              $sql = "select * from $table where id = $rid";
+            $id = "id";
         }
+
+      /* Identifying the primary key value for the updated record */
+        while ($offset < $total) {
+            /* There are 4 possible ways that the id=123 can be parsed:
+            * ('id', '=', '123')
+            * ('id=', '123')
+            * ('id=123')
+            * ('id', '=123')
+            */
+            $rid = "";
+            /*id=', '123'*/
+            if (($tokens[$offset] == "$id=") && ($offset + 1 < $total)) {
+                $rid = $tokens[$offset+1];
+                break;
+            }
+             /* 'id', '=', '123' */
+            else if ($tokens[$offset] == "$id" && $tokens[$offset+1] == "=" && ($offset+2 < $total)) {
+                $rid = $tokens[$offset+2];
+                break;
+            }
+            /*id=123*/
+            else if (strpos($tokens[$offset], "$id=") === 0) {
+                    $tid = substr($tokens[$offset], strlen($id)+1);
+                if(is_numeric($tid))
+                 $rid=$tid;
+                 break;
+            }
+             /*'id', '=123' */
+            else if($tokens[$offset] == "$id") {
+                 $tid = substr($tokens[$offset+1],1);
+                 if(is_numeric($tid))
+                $rid=$tid;
+                 break;
+            }
+             $offset += 1;
+        }//while ($offset < $total)
+    }// else if ($tokens[0] == 'update' || $tokens[0] == 'UPDATE' )
+
+    if ($table == "" || $rid == "") {
+        return "";
+    }
+   /* Framing sql statements for calculating checksum */
+    if ($table == "form_physical_exam") {
+        $sql = "select * from $table where forms_id = $rid";
+    }
+    else if ($table == "claims"){
+        $sql = "select * from $table where patient_id = $rid";
+    }
+    else if ($table == "openemr_postcalendar_events") {
+        $sql = "select * from $table where pc_eid = $rid";
+    }
+    else if ($table == "lang_languages") {
+        $sql = "select * from $table where lang_id = $rid";
+    }
+    else if ($table == "openemr_postcalendar_categories" || $table == "openemr_postcalendar_topics"){
+        $sql = "select * from $table where pc_catid = $rid";
+    }
+    else if ($table == "openemr_postcalendar_limits"){
+        $sql = "select * from $table where pc_limitid = $rid";
+    }
+    else if ($table ==  "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map"){
+        $sql = "select * from $table where acl_id = $rid";
+    }
+    else if($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map"){
+        $sql = "select * from $table where group_id = $rid";
+    }
+    else {
+        $sql = "select * from $table where id = $rid";
+    }
     // When this function is working perfectly, can then shift to the
     // sqlQueryNoLog() function.
         $results = sqlQueryNoLogIgnoreError($sql);
         $column_values = "";
    /* Concatenating the column values for the row inserted/updated */
-        if (is_array($results)) {
-            foreach ($results as $field_name => $field) {
-                $column_values .= $field;
-            }
+    if (is_array($results)) {
+        foreach ($results as $field_name => $field) {
+            $column_values .= $field;
         }
+    }
     // ViCarePlus: As per NIST standard, the encryption algorithm SHA1 is used
 
     //error_log("COLUMN_VALUES: ".$column_values,0);

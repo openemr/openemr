@@ -20,7 +20,7 @@
  * @author  Ensoftek
  * @link    http://www.open-emr.org
  */
-// Generate and transmit permissible prescriptions electronically and queried for drug formulary.( AMC-2014:170.314(g)(1)/(2)–8 )
+// Generate and transmit permissible prescriptions electronically and queried for drug formulary.( AMC-2014:170.314(g)(1)/(2) 8 )
 
 class AMC_304b_1_STG2_Numerator implements AmcFilterIF
 {

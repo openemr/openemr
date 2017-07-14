@@ -133,7 +133,7 @@ if($_POST){
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
     if(isset($this_message['pid'])) $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
-    else $patientID = (isset($pid) ? $pid : 0);
+else $patientID = (isset($pid) ? $pid : 0);
     ?>
 <html>
   <head>
