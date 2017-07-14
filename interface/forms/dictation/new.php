@@ -1,8 +1,21 @@
-<!-- Form generated from formsWiz -->
 <?php
-
-
-
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress <cfapress>
+ * @author  bradymiller <bradymiller@users.sourceforge.net>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2013 bradymiller <bradymiller@users.sourceforge.net>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");

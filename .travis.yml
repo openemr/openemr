@@ -4,5 +4,9 @@ php:
       - '7.0'
       - '7.1'
 
+env:
+      - CI_JOB=lint_syntax
+      - CI_JOB=lint_style
+
 script:
-      - bash ci/lint.sh --dir ./
+      - bash ci/ci.sh --dir ./

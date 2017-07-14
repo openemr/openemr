@@ -25,7 +25,7 @@ class NFQ_0421_Numerator2 implements CqmFilterIF
                      "ON ( form_vitals.pid = form_encounter.pid ) " .
                      "LEFT JOIN `enc_category_map` " .
                      "ON (enc_category_map.main_cat_id = form_encounter.pc_catid) " .
-          			 "WHERE form_vitals.BMI IS NOT NULL " .
+                     "WHERE form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.BMI IS NOT NULL " .
                      "AND form_vitals.pid = ? AND form_vitals.BMI >= 18.5 AND form_vitals.BMI < 25 " .
                      "AND DATE( form_vitals.date ) >= DATE_ADD( form_encounter.date, INTERVAL -6 MONTH ) " .
@@ -39,7 +39,7 @@ class NFQ_0421_Numerator2 implements CqmFilterIF
             }
 
             // See if BMI has been recorded >=25kg/m2 6 months before, or simultanious to the encounter
-            // AND “Care goal: follow-up plan BMI management” OR “Communication provider to provider: dietary consultation order”
+            // AND 'Care goal: follow-up plan BMI management' OR 'Communication provider to provider: dietary consultation order'
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
                      "LEFT JOIN `form_encounter` " .

@@ -89,7 +89,7 @@
  *  out that extra spaces should be compressed--a problem addressed with
  *  Marcus Bointon's fixes but that I had not yet incorporated.
  *
- *	Thanks to Daniel Schledermann (http://www.typoconsult.dk/) for
+ *  Thanks to Daniel Schledermann (http://www.typoconsult.dk/) for
  *  suggesting a valuable fix with <a> tag handling.
  *
  *  Thanks to Wojciech Bajon (again!) for suggesting fixes and additions,
@@ -174,7 +174,7 @@ class html2text
         '/<th[^>]*>(.*?)<\/th>/ie',              // <th> and </th>
         '/&(nbsp|#160);/i',                      // Non-breaking space
         '/&(quot|rdquo|ldquo|#8220|#8221|#147|#148);/i',
-		                                         // Double quotes
+                                                 // Double quotes
         '/&(apos|rsquo|lsquo|#8216|#8217);/i',   // Single quotes
         '/&gt;/i',                               // Greater-than
         '/&lt;/i',                               // Less-than
@@ -236,8 +236,8 @@ class html2text
         '--',
         '-',
         '*',
-        '£',
-        'EUR',                                  // Euro sign. € ?
+        'Â£',                                    // Pound sign!
+        'EUR',                                  // Euro sign. â‚¬ ?
         '',                                     // Unknown/unhandled entities
         ' '                                     // Runs of spaces, post-handling
     );
@@ -390,11 +390,11 @@ class html2text
     function set_base_url( $url = '' )
     {
         if ( empty($url) ) {
-        	if ( !empty($_SERVER['HTTP_HOST']) ) {
-	            $this->url = 'http://' . $_SERVER['HTTP_HOST'];
-        	} else {
-	            $this->url = '';
-	        }
+            if ( !empty($_SERVER['HTTP_HOST']) ) {
+                $this->url = 'http://' . $_SERVER['HTTP_HOST'];
+            } else {
+                $this->url = '';
+            }
         } else {
             // Strip any trailing slashes for consistency (relative
             // URLs may already start with a slash like "/file.html")
@@ -443,7 +443,7 @@ class html2text
         // for PHP versions >= 4.0.2. Default width is 75
         // If width is 0 or less, don't wrap the text.
         if ( $this->width > 0 ) {
-        	$text = wordwrap($text, $this->width);
+            $text = wordwrap($text, $this->width);
         }
 
         $this->text = $text;
@@ -466,15 +466,15 @@ class html2text
      */
     function _build_link_list( $link, $display )
     {
-		if ( substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
+        if ( substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
              substr($link, 0, 7) == 'mailto:' ) {
             $this->_link_count++;
             $this->_link_list .= "[" . $this->_link_count . "] $link\n";
             $additional = ' [' . $this->_link_count . ']';
-		} elseif ( substr($link, 0, 11) == 'javascript:' ) {
-			// Don't count the link; ignore it
-			$additional = '';
-		// what about href="#anchor" ?
+        } elseif ( substr($link, 0, 11) == 'javascript:' ) {
+            // Don't count the link; ignore it
+            $additional = '';
+        // what about href="#anchor" ?
         } else {
             $this->_link_count++;
             $this->_link_list .= "[" . $this->_link_count . "] " . $this->url;
