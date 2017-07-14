@@ -1,25 +1,15 @@
 <?php
 /**
-* List procedure orders and reports, and fetch new reports and their results.
-*
-* Copyright (C) 2013-2016 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* as published by the Free Software Foundation; either version 2
-* of the License, or (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @author    Rod Roark <rod@sunsetsystems.com>
-*/
-
-
+ * List procedure orders and reports, and fetch new reports and their results.
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 
 require_once("../globals.php");
@@ -88,6 +78,8 @@ if ($_POST['form_xmit']) {
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
+<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
+
 <title><?php echo xlt('Procedure Orders and Reports'); ?></title>
 
 <style>
@@ -98,13 +90,10 @@ a, a:visited, a:hover { color:#0000cc; }
 
 </style>
 
-<style type="text/css">@import url(<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar_setup.js"></script>
-
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-<script type="text/javascript" src="../../library/textformat.js"></script>
+<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -143,6 +132,16 @@ function openPatient(pid) {
  top.restoreSession();
  document.location.href = "../patient_file/summary/demographics.php?set_pid=" + pid;
 }
+
+$(document).ready(function() {
+    $('.datepicker').datetimepicker({
+        <?php $datetimepicker_timepicker = false; ?>
+        <?php $datetimepicker_showseconds = false; ?>
+        <?php $datetimepicker_formatInput = false; ?>
+        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+    });
+});
 
 </script>
 
@@ -308,22 +307,16 @@ $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provi
  <tr>
   <td class='text' align='center'>
    &nbsp;<?php echo xlt('From'); ?>:
-   <input type='text' size='6' name='form_from_date' id='form_from_date'
+   <input type='text' size='9' name='form_from_date' id='form_from_date'
+    class='datepicker'
     value='<?php echo attr($form_from_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;<?php echo xlt('To'); ?>:
-   <input type='text' size='6' name='form_to_date' id='form_to_date'
+   <input type='text' size='9' name='form_to_date' id='form_to_date'
+    class='datepicker'
     value='<?php echo attr($form_to_date); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>'
-    onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
-   <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-    id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php echo xla('Click here to choose a date'); ?>' />
+    title='<?php echo xla('yyyy-mm-dd'); ?>' />
 
    &nbsp;
    <input type='checkbox' name='form_patient' value='1'
@@ -563,16 +556,6 @@ while ($row = sqlFetchArray($res)) {
 <input type='submit' name='form_xmit' value='<?php echo xla('Transmit Selected Orders'); ?>' />
 </p></center>
 <?php } ?>
-
-<script language='JavaScript'>
-
-// Initialize calendar widgets for "from" and "to" dates.
-Calendar.setup({inputField:'form_from_date', ifFormat:'%Y-%m-%d',
- button:'img_from_date'});
-Calendar.setup({inputField:'form_to_date', ifFormat:'%Y-%m-%d',
- button:'img_to_date'});
-
-</script>
 
 </form>
 </body>
