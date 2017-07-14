@@ -236,7 +236,7 @@ class html2text
         '--',
         '-',
         '*',
-        '€',
+        '£',                                    // Pound sign!
         'EUR',                                  // Euro sign. € ?
         '',                                     // Unknown/unhandled entities
         ' '                                     // Runs of spaces, post-handling
