@@ -62,7 +62,7 @@ class NFQ_0421_Numerator1 implements CqmFilterIF
             }
 
             // See if BMI has been recorded <22kg/m2 6 months before, or simultanious to the encounter
-            // AND �Care goal: follow-up plan BMI management� OR �Communication provider to provider: dietary consultation order�
+            // AND 'Care goal: follow-up plan BMI management' OR 'Communication provider to provider: dietary consultation order'
             $query = "SELECT form_vitals.BMI " .
                      "FROM `form_vitals` " .
                      "LEFT JOIN `form_encounter` " .
