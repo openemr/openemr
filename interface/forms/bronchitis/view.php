@@ -1,3 +1,18 @@
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  cfapress <cfapress>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2008 cfapress <cfapress>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
 <!-- Form created by Nikolai Vitsyn by 2004/01/23 -->
 <?php
 include_once("../../globals.php");
@@ -496,4 +511,4 @@ stripslashes($obj{"diagnosis3_bronchitis_form"});?>" size="40"><br>
 </form>
 <?php
 formFooter();
-?>
+?> 

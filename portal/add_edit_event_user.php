@@ -1,28 +1,16 @@
-
 <?php
 /**
  *
  * Modified from interface/main/calendar/add_edit_event.php for
  * the patient portal.
  *
- * Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
- *
  * @package OpenEMR
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (C) 2005-2006 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @link http://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 
@@ -764,7 +752,8 @@ while ($urow = sqlFetchArray($ures)) {
     if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) echo " selected";
     echo ">" . $urow['lname'];
     if ($urow['fname']) echo ", " . $urow['fname'];
-    echo "</option>\n";
+    echo "</option>
+";
 }
 ?>
 </select>
@@ -797,7 +786,8 @@ while ($urow = sqlFetchArray($ures)) {
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
  $catoptions = "";
- $prefcat_options = "    <option value='0'>-- None --</option>\n";
+ $prefcat_options = "    <option value='0'>-- None --</option>
+";
  $thisduration = 0;
 if ($eid) {
     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
@@ -805,8 +795,10 @@ if ($eid) {
 while ($crow = sqlFetchArray($cres)) {
     $duration = round($crow['pc_duration'] / 60);
     if ($crow['pc_end_all_day']) $duration = 1440;
-    echo " durations[" . $crow['pc_catid'] . "] = $duration\n";
-  // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
+    echo " durations[" . $crow['pc_catid'] . "] = $duration
+";
+  // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "
+";
     $catoptions .= "    <option value='" . $crow['pc_catid'] . "'";
     if ($eid) {
         if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
@@ -816,7 +808,8 @@ while ($crow = sqlFetchArray($cres)) {
             $thisduration = $duration;
         }
     }
-    $catoptions .= ">" . $crow['pc_catname'] . "</option>\n";
+    $catoptions .= ">" . $crow['pc_catname'] . "</option>
+";
 
   // This section is to build the list of preferred categories:
     if ($duration) {
@@ -824,7 +817,8 @@ while ($crow = sqlFetchArray($cres)) {
         if ($eid) {
             if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
         }
-        $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
+        $prefcat_options .= ">" . $crow['pc_catname'] . "</option>
+";
     }
 
 }
@@ -1026,4 +1020,4 @@ while ($crow = sqlFetchArray($cres)) {
 </script>
 
 </body>
-</html>
+</html> 

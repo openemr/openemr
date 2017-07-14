@@ -1,10 +1,29 @@
-    <?php
- // Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
- //
- // This program is free software; you can redistribute it and/or
- // modify it under the terms of the GNU General Public License
- // as published by the Free Software Foundation; either version 2
- // of the License, or (at your option) any later version.
+<?php
+/**
+ * Generated DocBlock
+ *
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
+ * @author  Oleg Sverdlov <olegsv@matrix.co.il>
+ * @author  Cassian LUP <cassi.lup@gmail.com>
+ * @author  Robert Down <robertdown@live.com>
+ * @author  Wakie87 <scott@npclinics.com.au>
+ * @author  amielboim <amielboim@gmail.com>
+ * @author  Brady Miller <brady.g.miller@gmail.com>
+ * @author  Kevin Yeh <kevinyeh@alum.mit.edu>
+ * @copyright Copyright (C) 2011 Cassian LUP <cassi.lup@gmail.com>
+ * @copyright Copyright (c) 2016 Oleg Sverdlov <olegsv@matrix.co.il>
+ * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
+ * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2016 Wakie87 <scott@npclinics.com.au>
+ * @copyright Copyright (c) 2016 amielboim <amielboim@gmail.com>
+ * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2013 Kevin Yeh <kevinyeh@alum.mit.edu>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+?>
+<?php
+
 
     //starting the PHP session (also regenerating the session id to avoid session fixation attacks)
         session_start();
@@ -16,30 +35,30 @@
     //
 
     //checking whether the request comes from index.php
-    if (!isset($_SESSION['itsme'])) {
-        session_destroy();
-        header('Location: '.$landingpage.'&w');
-        exit;
-    }
+if (!isset($_SESSION['itsme'])) {
+    session_destroy();
+    header('Location: '.$landingpage.'&w');
+    exit;
+}
     //
 
     //some validation
-    if (!isset($_POST['uname']) || empty($_POST['uname'])) {
-        session_destroy();
-        header('Location: '.$landingpage.'&w&c');
-        exit;
-    }
-    if (!isset($_POST['pass']) || empty($_POST['pass'])) {
-        session_destroy();
-        header('Location: '.$landingpage.'&w&c');
-        exit;
-    }
+if (!isset($_POST['uname']) || empty($_POST['uname'])) {
+    session_destroy();
+    header('Location: '.$landingpage.'&w&c');
+    exit;
+}
+if (!isset($_POST['pass']) || empty($_POST['pass'])) {
+    session_destroy();
+    header('Location: '.$landingpage.'&w&c');
+    exit;
+}
     //
 
     // set the language
-    if (!empty($_POST['languageChoice'])) {
-            $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
-    }
+if (!empty($_POST['languageChoice'])) {
+    $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
+}
     else if (empty($_SESSION['language_choice'])) {
             // just in case both are empty, then use english
             $_SESSION['language_choice'] = 1;
@@ -179,4 +198,4 @@
 
     require_once('summary_pat_portal.php');
 
-?>
+?> 

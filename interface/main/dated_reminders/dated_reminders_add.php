@@ -1,24 +1,12 @@
-  <?php
+<?php
 /**
  * Used for adding dated reminders.
- *
- * Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
- * Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- *
- * LICENSE: This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 3
- * of the License, or (at your option) any later version.
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://opensource.org/licenses/gpl-license.php>;.
  *
  * @package OpenEMR
  * @author  Craig Bezuidenhout <http://www.tajemo.co.za/>
  * @author Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2012 tajemo.co.za <http://www.tajemo.co.za/>
+ * @copyright Copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @link    http://www.open-emr.org
  */
 
@@ -62,85 +50,85 @@
   $max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
-  if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
-      $forwarding = true;
-      $this_message = getReminderById($_GET['mID']);
-    }
+if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
+    $forwarding = true;
+    $this_message = getReminderById($_GET['mID']);
+}
 
 // ---------------END FORWARDING MESSAGES ----------------
 
 
 
 // --- add reminders
-    if($_POST){
+if($_POST){
 // --- initialize $output as blank
-        $output = '';
+    $output = '';
  // ------ fills an array with all recipients
-        $sendTo = $_POST['sendTo'];
+    $sendTo = $_POST['sendTo'];
 
-      // for incase of data error, this allows the previously entered data to re-populate the boxes
-        $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');
-        $this_message['priority'] = (isset($_POST['priority']) ? $_POST['priority'] : '');
-        $this_message['dueDate'] = (isset($_POST['dueDate']) ? $_POST['dueDate'] : '');
+  // for incase of data error, this allows the previously entered data to re-populate the boxes
+    $this_message['message'] = (isset($_POST['message']) ? $_POST['message'] : '');
+    $this_message['priority'] = (isset($_POST['priority']) ? $_POST['priority'] : '');
+    $this_message['dueDate'] = (isset($_POST['dueDate']) ? $_POST['dueDate'] : '');
 
 
 // --------------------------------------------------------------------------------------------------------------------------
 // --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
-        if(
+    if(
 // ------- check sendTo is not empty
-        !empty($sendTo) and
+    !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-        isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$_POST['dueDate']) and
+    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$_POST['dueDate']) and
 // ------- check priority, only allow 1-3
-        isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
+    isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
-        isset($_POST['message']) and strlen($_POST['message']) <= $max_reminder_words and strlen($_POST['message']) > 0 and
+    isset($_POST['message']) and strlen($_POST['message']) <= $max_reminder_words and strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
-        isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
-        ){
-            $dueDate = $_POST['dueDate'];
-            $priority = intval($_POST['priority']);
-            $message = $_POST['message'];
-            $fromID = $_SESSION['authId'];
-            $patID = $_POST['PatientID'];
-            if(isset($_POST['sendSeperately']) and $_POST['sendSeperately']){
-                foreach($sendTo as $st){
-                    $ReminderSent = sendReminder(array($st),$fromID,$message,$dueDate,$patID,$priority);
-                }
+    isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
+    ){
+        $dueDate = $_POST['dueDate'];
+        $priority = intval($_POST['priority']);
+        $message = $_POST['message'];
+        $fromID = $_SESSION['authId'];
+        $patID = $_POST['PatientID'];
+        if(isset($_POST['sendSeperately']) and $_POST['sendSeperately']){
+            foreach($sendTo as $st){
+                $ReminderSent = sendReminder(array($st),$fromID,$message,$dueDate,$patID,$priority);
             }
-            else{
-  // -------- Send the reminder
-                $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
-            }
-// --------------------------------------------------------------------------------------------------------------------------
-            if(!$ReminderSent){
-                $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Please select a valid recipient').'</div> ';
-            }else{
-  // --------- echo javascript
-                echo '<html><body>'
-                  ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
-                  .'<script language="JavaScript">';
-  // ------------ 1) refresh parent window this updates if sent to self
-                echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
-  // ------------ 2) communicate with user
-                echo '   alert("'.addslashes(xl('Reminder Sent')).'");';
-  // ------------ 3) close this window
-                echo '  window.close();';
-                echo '</script></body></html>';
-  // --------- stop script from executing further
-                exit;
-            }
-// --------------------------------------------------------------------------------------------------------------------------
         }
+        else{
+      // -------- Send the reminder
+            $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
+        }
+// --------------------------------------------------------------------------------------------------------------------------
+        if(!$ReminderSent){
+            $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Please select a valid recipient').'</div> ';
+        }else{
+      // --------- echo javascript
+            echo '<html><body>'
+            ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
+            .'<script language="JavaScript">';
+      // ------------ 1) refresh parent window this updates if sent to self
+            echo '  if (opener && !opener.closed && opener.updateme) opener.updateme("new");';
+      // ------------ 2) communicate with user
+            echo '   alert("'.addslashes(xl('Reminder Sent')).'");';
+      // ------------ 3) close this window
+            echo '  window.close();';
+            echo '</script></body></html>';
+      // --------- stop script from executing further
+            exit;
+        }
+// --------------------------------------------------------------------------------------------------------------------------
+    }
 // --------------------------------------------------------------------------------------------------------------------------
 
-        else{
+    else{
 // ------- if POST error
-            $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Data Error').'</div> ';
-        }
-// ------- if any errors, communicate with the user
-        echo $output;
+        $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Data Error').'</div> ';
     }
+// ------- if any errors, communicate with the user
+    echo $output;
+}
     // end add reminders
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
