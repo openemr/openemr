@@ -11,13 +11,19 @@ fi
 
 #takes list of files/folders to sniff as its only argument(s)
 function sniff {
-    INI=$HOME/.phpenv/versions/$(phpenv version-name 2>&1 >/dev/null)/etc/php.ini || true
+    INI=$HOME/.phpenv/versions/$(phpenv version-name 2> /dev/null)/etc/php.ini
     if [ -f $INI ]; then
         grep -q "extension = ldap.so" $INI || echo "extension = ldap.so" >> $INI
     fi
-    composer global require "squizlabs/php_codesniffer=3.0.*"
-
-    composer global exec -- cd $DIR && phpcs -p -n --extensions=php,inc --report-width=120 $@
+    BIN_DIR=$HOME/.composer/vendor/bin
+    if [ -d $HOME/$XDG_CONFIG_HOME/composer ]; then
+        BIN_DIR="$HOME/$XDG_CONFIG_HOME/composer/vendor/bin"
+    fi
+    if [ -d $HOME/.config/composer ]; then
+        BIN_DIR="$HOME/.config/composer/vendor/bin"
+    fi
+    cd $DIR
+    $BIN_DIR/phpcs -p -n --extensions=php,inc --report-width=120 $@
 }
 
 if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
