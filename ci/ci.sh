@@ -17,8 +17,7 @@ function sniff {
     fi
     composer global require "squizlabs/php_codesniffer=3.0.*"
 
-    composer global exec -- cd $DIR && \
-        phpcs -p -n --extensions=php,inc --report-width=120 $@
+    composer global exec -- cd $DIR && phpcs -p -n --extensions=php,inc --report-width=120 $@
 }
 
 if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
