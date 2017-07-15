@@ -19,6 +19,15 @@
             <span style="float:left;"><a data-bind="click: viewPtFinder" href="#" class="btn btn-default btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
+            <div class="patientInfo" style="float: left">
+              <!-- ko if: patient -->
+                  <div data-bind="with: patient" class="patientPicture">
+                      <img data-bind="attr: {src: patient_picture()}"
+                           alt="<?php echo xla("Patient Photograph") ?>"
+                           onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
+                  </div>
+              <!-- /ko -->
+            </div>
             <div class="patientInfo">
                 <?php echo xlt("Patient"); ?>:
                 <!-- ko if: patient -->

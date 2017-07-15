@@ -1,13 +1,19 @@
 #!/bin/bash
 
 if [ -z "$1" ] || [ "$1" == "-h" ] || [ "$1" == "--help" ] ; then
-  printf "OpenEMR Parallel Linter\n\n"
-  printf "  Arguments\n"
+  printf "OpenEMR Continuous Integration\n\n"
+  printf "  Overview:\n"
+  printf "    This is the script that is ran by our Continuous Integration server found at\n"
+  printf "    https://travis-ci.org/openemr/openemr. Each time you push code to your Pull Request\n"
+  printf "    branch, this script will be ran on the server. You'll be able to see the state\n"
+  printf "    (green/yellow/red) right on the Github UI.\n\n"
+  printf "    In order to proactively test out these checks while you develop, please consult the\n"
+  printf "    following wiki page: http://www.open-emr.org/wiki/index.php/Continuous_Integration.\n\n"
+  printf "  Arguments:\n"
   printf "    -h, --help | Information on using this script\n"
   printf "    -d, --dir  | The codebase directory for OpenEMR\n"
   exit 0
 fi
-
 
 #takes list of files/folders to sniff as its only argument(s)
 function sniff {
