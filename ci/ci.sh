@@ -30,16 +30,16 @@ case "$CI_JOB" in
     cd $2
     echo "extension = ldap.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     composer global require "squizlabs/php_codesniffer=3.0.*"
-    ./vendor/bin/phpcs -p -n --extensions=php,inc --standard=ci/phpcs.xml --report-width=120 --report=summary --report=source --report=info .
+    composer global exec -- cd $2 && phpcs -p -n --extensions=php,inc --standard=ci/phpcs.xml --report-width=120 --report=summary --report=source --report=info .
   fi
   ;;
 "lint_style_new_code")
   if [ "$1" == "-d" ] || [ "$1" == "--dir" ] ; then
     cd $2
-    echo "extension = ldap.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    echo "extension = ldap.so" >> $HOME/.phpenv/versions/$(phpenv version-name)/etc/php.ini
     composer global require "squizlabs/php_codesniffer=3.0.*"
     MODIFIED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD |  tr "\n" " ")
-    ~/.config/composer/vendor/bin/phpcs -p -n --extensions=php,inc --standard=ci/phpcs_strict.xml --report-width=120 --report=summary --report=source --report=info $MODIFIED_FILES
+    composer global exec -- cd $2 && phpcs -p -n --extensions=php,inc --standard=ci/phpcs_strict.xml --report-width=120 --report=summary --report=source --report=info $MODIFIED_FILES
   fi
   ;;
 *)
