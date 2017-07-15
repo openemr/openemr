@@ -15,11 +15,13 @@ class C_Document extends Controller {
     var $_config;
         var $manual_set_owner=false; // allows manual setting of a document owner/service
     var $facilityService;
+    var $patientService;
 
     function __construct($template_mod = "general")
     {
         parent::__construct();
         $this->facilityService = new \services\FacilityService();
+        $this->patientService = new \services\PatientService();
         $this->documents = array();
         $this->template_mod = $template_mod;
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
@@ -418,10 +420,10 @@ class C_Document extends Controller {
      * Retrieve file from hard disk / CouchDB.
      * In case that file isn't download this function will return thumbnail image (if exist).
      * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
+     * @param (string) $context - given a special document scenario (e.g.: patient avatar, custom image viewer document, etc), the context can be set so that a switch statement can execute a custom strategy.
      * */
-    function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false,$show_original=false)
+    function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false,$show_original=false,$context="normal")
     {
-
         $encrypted = $_POST['encrypted'];
         $passphrase = $_POST['passphrase'];
         $doEncryption = false;
@@ -455,6 +457,13 @@ class C_Document extends Controller {
         }
         else if ($show_original == "false") {
             $show_original=false;
+        }
+
+        switch ($context) {
+            case "patient_picture":
+                $this->patientService->setPid($patient_id);
+                $document_id = $this->patientService->getPatientPictureDocumentId();
+                break;
         }
 
         $d = new Document($document_id);
