@@ -51,7 +51,7 @@ else if ($orderid) {
 }
 
 // Check authorization.
-if (!acl_check('patients','notes','',array('write','addonly') ))
+if (!acl_check('patients', 'notes', '', array('write','addonly') ))
     die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -321,8 +321,8 @@ if ($billing_note) {
 <br>
 <?php } ?>
 <ul class="tabNav">
-  <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo htmlspecialchars(xl('Inbox'),ENT_NOQUOTES); ?></a></li>
-  <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo htmlspecialchars(xl('Sent Items'),ENT_NOQUOTES); ?></a></li>
+  <li class="<?php echo $inbox; ?>" ><a onclick="show_div('inbox')" href="#"><?php echo htmlspecialchars(xl('Inbox'), ENT_NOQUOTES); ?></a></li>
+  <li class="<?php echo $outbox; ?>" ><a onclick="show_div('outbox')" href="#"><?php echo htmlspecialchars(xl('Sent Items'), ENT_NOQUOTES); ?></a></li>
 </ul>
 <div class='tabContainer' >
   <div id='inbox_div' <?php echo $inbox_style; ?> >
@@ -391,7 +391,7 @@ if ($result != "") {
             $body = htmlspecialchars( oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
             ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( oeFormatPatientNote($body), ENT_NOQUOTES));
         }
-        $body = preg_replace('/(\sto\s)-patient-(\))/','${1}'.$patientname.'${2}',$body);
+        $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
         if ( ($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
             $checked = "checked";
         } else {
@@ -412,7 +412,7 @@ if ($result != "") {
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
+        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
             "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
             htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";
@@ -544,7 +544,7 @@ if ($result_sent != "") {
             $body = htmlspecialchars( oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
             ' (' . htmlspecialchars( $iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars( oeFormatPatientNote($body), ENT_NOQUOTES));
         }
-        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/','${1}' . $patientname . '${2}', $body);
+        $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
         if (($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
             $checked = "checked";
         } else {
@@ -565,7 +565,7 @@ if ($result_sent != "") {
 
         // display, or not, a button to delete the note
         // if the user is an admin or if they are the author of the note, they can delete it
-        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin','super','','write'))) {
+        if (($iter['user'] == $_SESSION['authUser']) || (acl_check('admin', 'super', '', 'write'))) {
             echo " <a href='#' class='deletenote css_button_small' id='del" . htmlspecialchars( $row_note_id, ENT_QUOTES) .
             "' title='" . htmlspecialchars( xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
             htmlspecialchars( xl('Delete'), ENT_NOQUOTES) . "</span>\n";
@@ -717,7 +717,7 @@ $(document).ready(function(){
     }
 
     var DeleteNote = function(note) {
-        if (confirm("<?php echo htmlspecialchars( xl('Are you sure you want to delete this note?','','','\n '), ENT_QUOTES) .
+        if (confirm("<?php echo htmlspecialchars( xl('Are you sure you want to delete this note?', '', '', '\n '), ENT_QUOTES) .
         htmlspecialchars( xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
             top.restoreSession();
             // strip the 'del' part of the object's ID

@@ -8,32 +8,32 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-define ("INS_TYPE_OTHER_HCFA",1);
-define ("INS_TYPE_MEDICARE",2);
-define ("INS_TYPE_MEDICAID",3);
-define ("INS_TYPE_CHAMPUSVA",4);
-define ("INS_TYPE_CHAMPUS",5);
-define ("INS_TYPE_BCBS",6);
-define ("INS_TYPE_FECA",7);
-define ("INS_TYPE_SELF_PAY",8);
-define ("INS_TYPE_CENTRAL_CERTIFICATION",9);
-define ("INS_TYPE_OTHER_NON-FEDERAL_PROGRAMS",10);
-define ("INS_TYPE_PREFERRED_PROVIDER_ORGANIZATION",11);
-define ("INS_TYPE_POINT_OF_SERVICE",12);
-define ("INS_TYPE_EXCLUSIVE_PROVIDER_ORGANIZATION",13);
-define ("INS_TYPE_INDEMNITY_INSURANCE",14);
-define ("INS_TYPE_HMO_MEDICARE_RISK",15);
-define ("INS_TYPE_AUTOMOBILE_MEDICAL",16);
-define ("INS_TYPE_COMMERCIAL_INSURANCE",17);
-define ("INS_TYPE_DISABILITY",18);
-define ("INS_TYPE_HEALTH_MAINTENANCE_ORGANIZATION",19);
-define ("INS_TYPE_LIABILITY",20);
-define ("INS_TYPE_LIABILITY_MEDICAL",21);
-define ("INS_TYPE_OTHER_FEDERAL_PROGRAM",22);
-define ("INS_TYPE_TITLE_V",23);
-define ("INS_TYPE_VETERANS_ADMINISTRATION_PLAN",24);
-define ("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN",25);
-define ("INS_TYPE_MUTUALLY_DEFINED",26);
+define ("INS_TYPE_OTHER_HCFA", 1);
+define ("INS_TYPE_MEDICARE", 2);
+define ("INS_TYPE_MEDICAID", 3);
+define ("INS_TYPE_CHAMPUSVA", 4);
+define ("INS_TYPE_CHAMPUS", 5);
+define ("INS_TYPE_BCBS", 6);
+define ("INS_TYPE_FECA", 7);
+define ("INS_TYPE_SELF_PAY", 8);
+define ("INS_TYPE_CENTRAL_CERTIFICATION", 9);
+define ("INS_TYPE_OTHER_NON-FEDERAL_PROGRAMS", 10);
+define ("INS_TYPE_PREFERRED_PROVIDER_ORGANIZATION", 11);
+define ("INS_TYPE_POINT_OF_SERVICE", 12);
+define ("INS_TYPE_EXCLUSIVE_PROVIDER_ORGANIZATION", 13);
+define ("INS_TYPE_INDEMNITY_INSURANCE", 14);
+define ("INS_TYPE_HMO_MEDICARE_RISK", 15);
+define ("INS_TYPE_AUTOMOBILE_MEDICAL", 16);
+define ("INS_TYPE_COMMERCIAL_INSURANCE", 17);
+define ("INS_TYPE_DISABILITY", 18);
+define ("INS_TYPE_HEALTH_MAINTENANCE_ORGANIZATION", 19);
+define ("INS_TYPE_LIABILITY", 20);
+define ("INS_TYPE_LIABILITY_MEDICAL", 21);
+define ("INS_TYPE_OTHER_FEDERAL_PROGRAM", 22);
+define ("INS_TYPE_TITLE_V", 23);
+define ("INS_TYPE_VETERANS_ADMINISTRATION_PLAN", 24);
+define ("INS_TYPE_WORKERS_COMPENSATION_HEALTH_PLAN", 25);
+define ("INS_TYPE_MUTUALLY_DEFINED", 26);
 
 
 /**
@@ -266,7 +266,7 @@ class InsuranceCompany extends ORDataObject
             }
         }
         if ($found == false) {
-            $p = new PhoneNumber("",$this->id);
+            $p = new PhoneNumber("", $this->id);
             $p->set_type($type);
             $p->set_phone($num);
             $this->phone_numbers[] = $p;

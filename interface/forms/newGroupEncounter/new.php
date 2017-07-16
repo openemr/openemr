@@ -48,7 +48,7 @@ if (($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) ||
 }*/
 
 $viewmode = false;
-if(acl_check("groups","glog",false, 'write')){
+if(acl_check("groups", "glog", false, 'write')){
     require_once("common.php");
 }else{
     echo xlt("access not allowed");

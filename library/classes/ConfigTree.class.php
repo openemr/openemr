@@ -15,6 +15,6 @@ class ConfigTree extends Tree
     function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_table = "config";
-        parent::__construct($root,$root_type);
+        parent::__construct($root, $root_type);
     }
 }

@@ -21,7 +21,7 @@ class C_FormSOAP extends Controller
     function default_action()
     {
         $form = new FormSOAP();
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -35,7 +35,7 @@ class C_FormSOAP extends Controller
         }
         $dbconn = $GLOBALS['adodb']['db'];
 
-        $this->assign("data",$form);
+        $this->assign("data", $form);
 
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }

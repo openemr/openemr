@@ -76,7 +76,7 @@ function row_delete($table, $where)
 <head>
 <?php html_header_show(); ?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('EOB Posting - Invoice','e')?></title>
+<title><?php xl('EOB Posting - Invoice', 'e')?></title>
 <script language="JavaScript">
 
 // An insurance radio button is selected.
@@ -113,20 +113,20 @@ function validate(f) {
   var code = pfx.substring(pfx.indexOf('[')+1, pfxlen-1);
   if (f[pfx+'[pay]'].value || f[pfx+'[adj]'].value) {
    if (! f[pfx+'[date]'].value) {
-    alert('<?php xl('Date is missing for code ','e')?>' + code);
+    alert('<?php xl('Date is missing for code ', 'e')?>' + code);
     return false;
    }
   }
   if (f[pfx+'[pay]'].value && isNaN(parseFloat(f[pfx+'[pay]'].value))) {
-   alert('<?php xl('Payment value for code ','e') ?>' + code + '<?php xl(' is not a number','e') ?>');
+   alert('<?php xl('Payment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
    return false;
   }
   if (f[pfx+'[adj]'].value && isNaN(parseFloat(f[pfx+'[adj]'].value))) {
-   alert('<?php xl('Adjustment value for code ','e') ?>' + code + '<?php xl(' is not a number','e') ?>');
+   alert('<?php xl('Adjustment value for code ', 'e') ?>' + code + '<?php xl(' is not a number', 'e') ?>');
    return false;
   }
   if (f[pfx+'[adj]'].value && ! f[pfx+'[reason]'].value) {
-   alert('<?php xl('Please select an adjustment reason for code ','e') ?>' + code);
+   alert('<?php xl('Please select an adjustment reason for code ', 'e') ?>' + code);
    return false;
   }
   // TBD: validate the date format
@@ -215,7 +215,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
     if ($_POST['form_save'] || $_POST['form_cancel']) {
         if ($_POST['form_save']) {
             if ($debug) {
-                echo xl("This module is in test mode. The database will not be changed.",'','<p><b>',"</b><p>\n");
+                echo xl("This module is in test mode. The database will not be changed.", '', '<p><b>', "</b><p>\n");
             }
 
             $session_id = arGetSession($form_payer_id, $form_reference,
@@ -352,7 +352,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
 <table border='0' cellpadding='3'>
  <tr>
   <td>
-    <?php xl('Patient:','e')?>
+    <?php xl('Patient:', 'e')?>
   </td>
   <td>
 <?php
@@ -382,7 +382,7 @@ for ($i = 1; $i <= 3; ++$i) {
  </tr>
  <tr>
   <td>
-    <?php xl('Provider:','e')?>
+    <?php xl('Provider:', 'e')?>
   </td>
   <td>
     <?php
@@ -398,7 +398,7 @@ for ($i = 1; $i <= 3; ++$i) {
  </tr>
  <tr>
   <td>
-    <?php xl('Invoice:','e')?>
+    <?php xl('Invoice:', 'e')?>
   </td>
   <td>
 <?php
@@ -409,7 +409,7 @@ for ($i = 1; $i <= 3; ++$i) {
 
  <tr>
   <td>
-<?php xl('Svc Date:','e'); ?>
+<?php xl('Svc Date:', 'e'); ?>
   </td>
   <td>
 <?php
@@ -417,7 +417,7 @@ for ($i = 1; $i <= 3; ++$i) {
 ?>
   </td>
   <td colspan="2">
-    <?php xl('Done with:','e','',"&nbsp")?>;
+    <?php xl('Done with:', 'e', '', "&nbsp")?>;
 <?php
   // Write a checkbox for each insurance.  It is to be checked when
   // we no longer expect any payments from that company for the claim.
@@ -441,7 +441,7 @@ foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $v
 
  <tr>
   <td>
-    <?php xl('Last Bill Date:','e') ?>
+    <?php xl('Last Bill Date:', 'e') ?>
   </td>
   <td>
     <?php
@@ -449,15 +449,15 @@ foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $v
 ?>
   </td>
   <td colspan="2">
-    <?php xl('Now posting for:','e','',"&nbsp")?>;
+    <?php xl('Now posting for:', 'e', '', "&nbsp")?>;
 
 <?php
   // TBD: check the first not-done-with insurance, not always Ins1!
 ?>
-   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?php xl('Ins1','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?php xl('Ins2','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?php xl('Ins3','e')?>&nbsp;
-   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?php xl('Patient','e')?>
+   <input type='radio' name='form_insurance' value='Ins1' onclick='setins("Ins1")' checked /><?php xl('Ins1', 'e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins2' onclick='setins("Ins2")' /><?php xl('Ins2', 'e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Ins3' onclick='setins("Ins3")' /><?php xl('Ins3', 'e')?>&nbsp;
+   <input type='radio' name='form_insurance' value='Pt'   onclick='setins("Pt")'   /><?php xl('Patient', 'e')?>
 
 <?php
   // TBD: I think the following is unused and can be removed.
@@ -480,11 +480,11 @@ foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $v
   <td>
   </td>
   <td colspan="2">
-   <input type="checkbox" name="form_secondary" value="1"> <?php xl('Needs secondary billing','e')?>
+   <input type="checkbox" name="form_secondary" value="1"> <?php xl('Needs secondary billing', 'e')?>
    &nbsp;&nbsp;
-   <input type='submit' name='form_save' value='<?php xl('Save','e')?>'>
+   <input type='submit' name='form_save' value='<?php xl('Save', 'e')?>'>
    &nbsp;
-   <input type='button' value='<?php xl('Cancel','e')?>' onclick='window.close()'>
+   <input type='button' value='<?php xl('Cancel', 'e')?>' onclick='window.close()'>
   </td>
 <?php
     echo "<td>\n";
@@ -503,7 +503,7 @@ foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $v
 <?php if (!empty($pdrow['billing_note'])) { ?>
  <tr>
   <td>
-    <?php xl('Billing Note:','e')?>
+    <?php xl('Billing Note:', 'e')?>
   </td>
   <td colspan='3' style='color:red'>
     <?php echo $pdrow['billing_note'] ?>
@@ -520,32 +520,32 @@ foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $v
 
  <tr bgcolor="#cccccc">
   <td class="dehead">
-    <?php xl('Code','e')?>
+    <?php xl('Code', 'e')?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('Charge','e')?>
+    <?php xl('Charge', 'e')?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('Balance','e')?>&nbsp;
+    <?php xl('Balance', 'e')?>&nbsp;
   </td>
   <td class="dehead">
-    <?php xl('By/Source','e')?>
+    <?php xl('By/Source', 'e')?>
   </td>
   <td class="dehead">
-    <?php xl('Date','e')?>
+    <?php xl('Date', 'e')?>
   </td>
   <td class="dehead">
-    <?php xl('Pay','e')?>
+    <?php xl('Pay', 'e')?>
   </td>
   <td class="dehead">
-    <?php xl('Adjust','e')?>
+    <?php xl('Adjust', 'e')?>
   </td>
   <td class="dehead">
-    <?php xl('Reason','e')?>
+    <?php xl('Reason', 'e')?>
   </td>
 <?php if ($ALLOW_DELETE) { ?>
   <td class="dehead">
-    <?php xl('Del','e')?>
+    <?php xl('Del', 'e')?>
   </td>
 <?php } ?>
  </tr>

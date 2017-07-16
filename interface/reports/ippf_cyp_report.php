@@ -119,7 +119,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
@@ -150,7 +150,7 @@ else { // not export
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('CYP Report','e') ?></title>
+<title><?php xl('CYP Report', 'e') ?></title>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script language="JavaScript">
@@ -165,7 +165,7 @@ else { // not export
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?php xl('CYP Report','e')?></h2>
+<h2><?php xl('CYP Report', 'e')?></h2>
 
 <form method='post' action='ippf_cyp_report.php'>
 
@@ -193,19 +193,19 @@ while ($frow = sqlFetchArray($fres)) {
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;To:
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?>
+   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details', 'e') ?>
    &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
    &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV', 'e') ?>">
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
@@ -222,24 +222,24 @@ while ($frow = sqlFetchArray($fres)) {
 
  <tr bgcolor="#dddddd">
   <td class="dehead">
-    <?php xl('Item','e') ?>
+    <?php xl('Item', 'e') ?>
   </td>
 <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php xl('Date','e') ?>
+    <?php xl('Date', 'e') ?>
   </td>
   <td class="dehead">
-    <?php xl('Invoice','e') ?>
+    <?php xl('Invoice', 'e') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
-    <?php xl('Qty','e') ?>
+    <?php xl('Qty', 'e') ?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('CYP','e') ?>
+    <?php xl('CYP', 'e') ?>
   </td>
   <td class="dehead" align="right">
-    <?php xl('Result','e') ?>
+    <?php xl('Result', 'e') ?>
   </td>
  </tr>
 <?php
@@ -329,7 +329,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
  <tr bgcolor="#ffdddd">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php xl('Grand Total','e'); ?>
+        <?php xl('Grand Total', 'e'); ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $grandqty; ?>

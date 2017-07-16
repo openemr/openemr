@@ -32,7 +32,7 @@ class NFQ_0002_Numerator implements CqmFilterIF
     {
         
         //Group A Streptococcus Test Array
-        $strep_test_code = "'".implode("','",Codes::lookup(LabResult::STREPTOCOCCUS_TEST,'LOINC'))."'";
+        $strep_test_code = "'".implode("','", Codes::lookup(LabResult::STREPTOCOCCUS_TEST, 'LOINC'))."'";
         
         //Patients who were tested for Streptococcus A during the same encounter that the antibiotic was prescribed, Encounter category should be office visit.
         $query = "SELECT count(*) as cnt FROM form_encounter fe ".

@@ -33,7 +33,7 @@ class NFQ_0002_InitialPatientPopulation implements CqmFilterIF
         $age = $patient->calculateAgeOnDate( $beginDate );
         if (  $age >= 2 && $age < 18  ) {
             //Children 2-18 years of age who had an outpatient or emergency department (ED) visit with a diagnosis of pharyngitis during the measurement period and an antibiotic ordered on or three days after the visit
-            $antibiotics = implode(',',Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS,'RXNORM'));
+            $antibiotics = implode(',', Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS, 'RXNORM'));
             $query = "SELECT p.drug as drug FROM form_encounter fe ".
                      "INNER JOIN openemr_postcalendar_categories opc ON fe.pc_catid = opc.pc_catid ".
                      "INNER JOIN prescriptions p ON fe.pid = p.patient_id ".
@@ -42,7 +42,7 @@ class NFQ_0002_InitialPatientPopulation implements CqmFilterIF
             
             $check = sqlQuery( $query, array($patient->id, $beginDate, $endDate) );
             if ($check['drug'] != ""){
-                if(Helper::check(ClinicalType::DIAGNOSIS,Diagnosis::ACUTE_PHARYNGITIS,$patient,$beginDate,$endDate) || Helper::check(ClinicalType::DIAGNOSIS,Diagnosis::ACUTE_TONSILLITIS,$patient,$beginDate,$endDate))
+                if(Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate))
                     return true;
                 else
                     return false;

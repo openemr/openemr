@@ -265,12 +265,12 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
     if ($new_payer_id) {
         // Queue up the claim.
         if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type,$status, 5, '', 'hcfa','',$crossover);
+        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
     }
     else {
       // Just reopen the claim.
         if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '','','',$crossover);
+        updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
     }
 
     return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");

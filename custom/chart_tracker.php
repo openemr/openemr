@@ -122,7 +122,7 @@ if (!empty($row)) {
         $current_location = text( $user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when'] );
     }
     else if ($ct_location) {
-        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'),$ct_location);
+        $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
 
     echo " <tr>\n";

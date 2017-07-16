@@ -56,7 +56,7 @@ if (sqlNumRows ( $res ) > 0) {
         echo "<b>" . htmlspecialchars ( $dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES ) . "</b><br>";
         echo htmlspecialchars ( "$disphour:$dispmin " . $dispampm . " " . $row ['pc_catname'], ENT_NOQUOTES ) . "<br>";
         echo htmlspecialchars ( $row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES ) . "<br>";
-        echo htmlspecialchars ( "Status: " . $row ['pc_apptstatus'] , ENT_NOQUOTES );
+        echo htmlspecialchars ( "Status: " . $row ['pc_apptstatus'], ENT_NOQUOTES );
         echo "</a></p></td></tr>";
 
     }

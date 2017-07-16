@@ -84,8 +84,8 @@ $auth_notes    = acl_check('encounters', 'notes');
 $auth_coding_a = acl_check('encounters', 'coding_a');
 $auth_coding   = acl_check('encounters', 'coding');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
-$auth_med      = acl_check('patients'  , 'med');
-$auth_demo     = acl_check('patients'  , 'demo');
+$auth_med      = acl_check('patients', 'med');
+$auth_demo     = acl_check('patients', 'demo');
 
 $esignApi = new Api();
 
@@ -229,7 +229,7 @@ if ($printable) {
 <?php echo $facility['phone'] ?><br>
 
 <a href="javascript:window.close();"><span class='title'><?php echo $titleres['fname'] . " " . $titleres['lname']; ?></span></a><br>
-<span class='text'><?php xl('Generated on','e'); ?>: <?php echo oeFormatShortDate(); ?></span>
+<span class='text'><?php xl('Generated on', 'e'); ?>: <?php echo oeFormatShortDate(); ?></span>
 <?php echo "</td></tr></tbody></table></div>";?>
 
 <?php
@@ -238,11 +238,11 @@ else { // not printable
 ?>
 
 <a href="patient_report.php" onclick='top.restoreSession()'>
- <span class='title'><?php xl('Patient Report','e'); ?></span>
+ <span class='title'><?php xl('Patient Report', 'e'); ?></span>
  <span class='back'><?php echo $tback;?></span>
 </a><br><br>
 <a href="custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
- [<?php xl('Printable Version','e'); ?>]
+ [<?php xl('Printable Version', 'e'); ?>]
 </a><br>
 <div class="report_search_bar" style="width: 100%;" id="search_options">
   <table style="width: 100%;">
@@ -283,7 +283,7 @@ else { // not printable
         }
         //echo json_encode(json_encode($array_key_id));
         if(sizeof($form_id_arr)>0){
-            $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','",$form_id_arr)."') AND formdir IN ( '".implode("','",$form_dir_arr)."')";
+            $query = "SELECT DISTINCT(form_name),formdir FROM forms WHERE form_id IN ( '".implode("','", $form_id_arr)."') AND formdir IN ( '".implode("','", $form_dir_arr)."')";
             $arr = sqlStatement($query);
             echo "<select multiple size='4' style='width:300px;' id='forms_to_search' onchange='clear_last_visit();remove_mark_all();find_all();' >";
             while($res_forms_ids = sqlFetchArray($arr)){
@@ -309,7 +309,7 @@ $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$p
 while($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
-    if (substr($formdir,0,3) == 'LBF')
+    if (substr($formdir, 0, 3) == 'LBF')
     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
     else
     include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
@@ -322,7 +322,7 @@ foreach ($ar as $key => $val) {
 
     // These are the top checkboxes (demographics, allergies, etc.).
     //
-    if (stristr($key,"include_")) {
+    if (stristr($key, "include_")) {
 
         if($val == "recurring_days"){
 
@@ -399,11 +399,11 @@ foreach ($ar as $key => $val) {
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
             print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
             print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
             echo "</div>";
 
         } elseif ($val == "billing") {
@@ -418,8 +418,8 @@ foreach ($ar as $key => $val) {
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
-                    $ta = explode(":",$be);
-                    $billing = getPatientBillingEncounter($pid,$ta[1]);
+                    $ta = explode(":", $be);
+                    $billing = getPatientBillingEncounter($pid, $ta[1]);
                     $billings[] = $billing;
                     foreach ($billing as $b) {
                         echo "<tr>\n";
@@ -552,7 +552,7 @@ foreach ($ar as $key => $val) {
                 //  Extract the extension by the mime/type and not the file name extension
                 // -There is an exception. Need to manually see if it a pdf since
                 //  the image_type_to_extension() is not working to identify pdf.
-                $extension = strtolower(substr($fname, strrpos($fname,".")));
+                $extension = strtolower(substr($fname, strrpos($fname, ".")));
                 if ($extension != '.pdf') { // Will print pdf header within pdf import
                     echo "<h3>" . xl('Document') . " '" . $fname ."'</h3>";
                 }
@@ -574,17 +574,17 @@ foreach ($ar as $key => $val) {
 
                 $url_file = $d->get_url_filepath();
                 if($couch_docid && $couch_revid){
-                    $url_file = $d->get_couch_url($pid,$encounter);
+                    $url_file = $d->get_couch_url($pid, $encounter);
                 }
                 // Collect filename and path
-                $from_all = explode("/",$url_file);
+                $from_all = explode("/", $url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
                 for ($i=0;$i<$d->get_path_depth();$i++) {
                     $from_pathname_array[] = array_pop($from_all);
                 }
                 $from_pathname_array = array_reverse($from_pathname_array);
-                $from_pathname = implode("/",$from_pathname_array);
+                $from_pathname = implode("/", $from_pathname_array);
 
                 if($couch_docid && $couch_revid) {
                     $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
@@ -740,7 +740,7 @@ foreach ($ar as $key => $val) {
                 $form_encounter = $val;
                 preg_match('/^(.*)_(\d+)$/', $key, $res);
                 $form_id = $res[2];
-                $formres = getFormNameByFormdirAndFormid($res[1],$form_id);
+                $formres = getFormNameByFormdirAndFormid($res[1], $form_id);
                 $dateres = getEncounterDateByEncounter($form_encounter);
                 $formId = getFormIdByFormdirAndFormid($res[1], $form_id);
 
@@ -765,7 +765,7 @@ foreach ($ar as $key => $val) {
                 ?>
                 <div name="search_div" id="search_div_<?php echo attr($form_id)?>_<?php echo attr($res[1])?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                 <?php
-                if (substr($res[1],0,3) == 'LBF')
+                if (substr($res[1], 0, 3) == 'LBF')
                   call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);

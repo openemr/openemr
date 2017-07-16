@@ -23,7 +23,7 @@ $show_message=0;
 
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 $bg_count=count($access_group);
-$mail_id = explode(".",$SMTP_HOST);
+$mail_id = explode(".", $SMTP_HOST);
 for($i=0;$i<$bg_count;$i++){
     if(($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)){
         if(($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")){
@@ -47,50 +47,50 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
     if ($_POST["mode"] == "update") {
         if (isset($_POST["username"])) {
             // $tqvar = addslashes(trim($_POST["username"]));
-            $tqvar = trim(formData('username','P'));
+            $tqvar = trim(formData('username', 'P'));
             $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", array($_POST["id"])));
             sqlStatement("update users set username='$tqvar' where id= ? ", array($_POST["id"]));
             sqlStatement("update groups set user='$tqvar' where user= ?", array($user_data["username"]));
             //echo "query was: " ."update groups set user='$tqvar' where user='". $user_data["username"]  ."'" ;
         }
         if ($_POST["taxid"]) {
-            $tqvar = formData('taxid','P');
+            $tqvar = formData('taxid', 'P');
             sqlStatement("update users set federaltaxid='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["state_license_number"]) {
-            $tqvar = formData('state_license_number','P');
+            $tqvar = formData('state_license_number', 'P');
             sqlStatement("update users set state_license_number='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["drugid"]) {
-            $tqvar = formData('drugid','P');
+            $tqvar = formData('drugid', 'P');
             sqlStatement("update users set federaldrugid='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["upin"]) {
-            $tqvar = formData('upin','P');
+            $tqvar = formData('upin', 'P');
             sqlStatement("update users set upin='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["npi"]) {
-            $tqvar = formData('npi','P');
+            $tqvar = formData('npi', 'P');
             sqlStatement("update users set npi='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["taxonomy"]) {
-            $tqvar = formData('taxonomy','P');
+            $tqvar = formData('taxonomy', 'P');
             sqlStatement("update users set taxonomy = '$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["lname"]) {
-            $tqvar = formData('lname','P');
+            $tqvar = formData('lname', 'P');
             sqlStatement("update users set lname='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["job"]) {
-            $tqvar = formData('job','P');
+            $tqvar = formData('job', 'P');
             sqlStatement("update users set specialty='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["mname"]) {
-              $tqvar = formData('mname','P');
+              $tqvar = formData('mname', 'P');
               sqlStatement("update users set mname='$tqvar' where id= ? ", array($_POST["id"]));
         }
         if ($_POST["facility_id"]) {
-              $tqvar = formData('facility_id','P');
+              $tqvar = formData('facility_id', 'P');
               sqlStatement("update users set facility_id = '$tqvar' where id = ? ", array($_POST["id"]));
               //(CHEMED) Update facility name when changing the id
               sqlStatement("UPDATE users, facility SET users.facility = facility.name WHERE facility.id = '$tqvar' AND users.id = {$_POST["id"]}");
@@ -109,20 +109,20 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             }
         }
         if ($_POST["fname"]) {
-              $tqvar = formData('fname','P');
+              $tqvar = formData('fname', 'P');
               sqlStatement("update users set fname='$tqvar' where id= ? ", array($_POST["id"]));
         }
 
         if (isset($_POST['default_warehouse'])) {
             sqlStatement("UPDATE users SET default_warehouse = '" .
-            formData('default_warehouse','P') .
-            "' WHERE id = '" . formData('id','P') . "'");
+            formData('default_warehouse', 'P') .
+            "' WHERE id = '" . formData('id', 'P') . "'");
         }
 
         if (isset($_POST['irnpool'])) {
             sqlStatement("UPDATE users SET irnpool = '" .
-            formData('irnpool','P') .
-            "' WHERE id = '" . formData('id','P') . "'");
+            formData('irnpool', 'P') .
+            "' WHERE id = '" . formData('id', 'P') . "'");
         }
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
@@ -130,7 +130,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
               $clearAdminPass=$_POST['adminPass'];
               $clearUserPass=$_POST['clearPass'];
               $password_err_msg="";
-              $success=update_password($_SESSION['authId'],$_POST['id'],$clearAdminPass,$clearUserPass,$password_err_msg);
+              $success=update_password($_SESSION['authId'], $_POST['id'], $clearAdminPass, $clearUserPass, $password_err_msg);
             if(!$success)
               {
                 error_log($password_err_msg);
@@ -160,10 +160,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             }
         }
         if ($_POST["comments"]) {
-            $tqvar = formData('comments','P');
+            $tqvar = formData('comments', 'P');
             sqlStatement("update users set info = '$tqvar' where id = ? ", array($_POST["id"]));
         }
-        $erxrole = formData('erxrole','P');
+        $erxrole = formData('erxrole', 'P');
         sqlStatement("update users set newcrop_user_role = '$erxrole' where id = ? ", array($_POST["id"]));
 
         if ($_POST["physician_type"]) {
@@ -172,7 +172,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
         }
 
         if ($_POST["main_menu_role"]) {
-              $mainMenuRole = filter_input(INPUT_POST,'main_menu_role');
+              $mainMenuRole = filter_input(INPUT_POST, 'main_menu_role');
               sqlStatement("update `users` set `main_menu_role` = ? where `id` = ? ", array($mainMenuRole, $_POST["id"]));
         }
 
@@ -180,7 +180,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] =="user_admin") {
             // Set the access control group of user
             $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", array($_POST["id"])));
             set_user_aro($_POST['access_group'], $user_data["username"],
-            formData('fname','P'), formData('mname','P'), formData('lname','P'));
+            formData('fname', 'P'), formData('mname', 'P'), formData('lname', 'P'));
         }
     }
 }
@@ -265,7 +265,7 @@ if (isset($_POST["mode"])) {
 
 
         } else {
-            $alertmsg .= xl('User','','',' ') . trim(formData('rumple')) . xl('already exists.','',' ');
+            $alertmsg .= xl('User', '', '', ' ') . trim(formData('rumple')) . xl('already exists.', '', ' ');
         }
         if($_POST['access_group']){
             $bg_count=count($_POST['access_group']);
@@ -400,14 +400,14 @@ function authorized_clicked() {
     <div class="row">
         <div class="col-xs-12">
             <div class="btn-group">
-                <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User','e'); ?></a>
-                <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information','e'); ?></a>
+                <a href="usergroup_admin_add.php" class="iframe_medium btn btn-default btn-add"><?php xl('Add User', 'e'); ?></a>
+                <a href="facility_user.php" class="btn btn-default"><?php xl('View Facility Specific User Information', 'e'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>>
-                        <?php xl('Include inactive users','e'); ?>
+                        <?php xl('Include inactive users', 'e'); ?>
                     </label>
                 </div>
             </form>
@@ -428,10 +428,10 @@ function authorized_clicked() {
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th><?php xl('Username','e'); ?></th>
-                    <th><?php xl('Real Name','e'); ?></th>
-                    <th><?php xl('Additional Info','e'); ?></th>
-                    <th><?php xl('Authorized','e'); ?>?</th>
+                    <th><?php xl('Username', 'e'); ?></th>
+                    <th><?php xl('Real Name', 'e'); ?></th>
+                    <th><?php xl('Additional Info', 'e'); ?></th>
+                    <th><?php xl('Authorized', 'e'); ?>?</th>
                 </tr>
                 <tbody>
                     <?php
@@ -474,7 +474,7 @@ function authorized_clicked() {
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . $groupname . "</span><br>\n<span>" .
-                        substr($list,0,strlen($list)-2) . "</span><br>\n";
+                        substr($list, 0, strlen($list)-2) . "</span><br>\n";
                 }
             }
             ?>

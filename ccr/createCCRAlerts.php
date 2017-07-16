@@ -103,7 +103,7 @@ do {
     $e_Status = $ccr->createElement('Status');
     $e_EnvironmentalAgent->appendChild($e_Status);
 
-    $e_Text = $ccr->createElement('Text',$row['outcome']);
+    $e_Text = $ccr->createElement('Text', $row['outcome']);
     $e_Status->appendChild($e_Text);
     
     $e_EnvironmentalAgent->appendChild(sourceType($ccr, $sourceID));

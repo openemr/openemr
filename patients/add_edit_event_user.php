@@ -47,7 +47,7 @@ global $ignoreAuth;
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
-    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
+    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
     exit;
 }
 
@@ -196,109 +196,109 @@ if ($_POST['form_action'] == "save") {
   //the start date of the event will be set on the first monday after the day the event is scheduled
     if($_POST['form_repeat_type'] == 5)
     {
-        $exploded_date= explode("-",$event_date);
-        $edate = date("D",mktime(0,0,0,$exploded_date[1],$exploded_date[2],$exploded_date[0]));
+        $exploded_date= explode("-", $event_date);
+        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if($edate=="Tue") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+6,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
         }
         elseif($edate=="Wed") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+5,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
         }
         elseif($edate=="Thu") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+4,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
         }
         elseif($edate=="Fri") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+3,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
         }
         elseif($edate=="Sat") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+2,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
         }
         elseif($edate=="Sun") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+1,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     } elseif($_POST['form_repeat_type'] == 6)  {
-        $exploded_date= explode("-",$event_date);
-        $edate = date("D",mktime(0,0,0,$exploded_date[1],$exploded_date[2],$exploded_date[0]));
+        $exploded_date= explode("-", $event_date);
+        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if($edate=="Wed") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+6,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
         }
         elseif($edate=="Thu") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+5,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
         }
         elseif($edate=="Fri") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+4,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
         }
         elseif($edate=="Sat") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+3,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
         }
         elseif($edate=="Sun") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+2,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
         }
         elseif($edate=="Mon") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+1,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     } elseif($_POST['form_repeat_type'] == 7)  {
-        $exploded_date= explode("-",$event_date);
-        $edate = date("D",mktime(0,0,0,$exploded_date[1],$exploded_date[2],$exploded_date[0]));
+        $exploded_date= explode("-", $event_date);
+        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if($edate=="Thu") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+6,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
         }
         elseif($edate=="Fri") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+5,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
         }
         elseif($edate=="Sat") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+4,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
         }
         elseif($edate=="Sun") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+3,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
         }
         elseif($edate=="Mon") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+2,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
         }
         elseif($edate=="Tue") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+1,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     } elseif($_POST['form_repeat_type'] == 8)  {
-        $exploded_date= explode("-",$event_date);
-        $edate = date("D",mktime(0,0,0,$exploded_date[1],$exploded_date[2],$exploded_date[0]));
+        $exploded_date= explode("-", $event_date);
+        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if($edate=="Fri") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+6,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
         }
         elseif($edate=="Sat") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+5,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
         }
         elseif($edate=="Sun") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+4,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
         }
         elseif($edate=="Mon") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+3,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
         }
         elseif($edate=="Tue") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+2,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
         }
         elseif($edate=="Wed") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+1,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     } elseif($_POST['form_repeat_type'] == 9)  {
-        $exploded_date= explode("-",$event_date);
-        $edate = date("D",mktime(0,0,0,$exploded_date[1],$exploded_date[2],$exploded_date[0]));
+        $exploded_date= explode("-", $event_date);
+        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if($edate=="Sat") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+6,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
         }
         elseif($edate=="Sun") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+5,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
         }
         elseif($edate=="Mon") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+4,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
         }
         elseif($edate=="Tue") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+3,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
         }
         elseif($edate=="Wed") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+2,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
         }
         elseif($edate=="Thu") {
-            $event_date=date("Y-m-d",mktime(0,0,0,$exploded_date[1],$exploded_date[2]+1,$exploded_date[0]));
+            $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     }//if end
 /* =======================================================
@@ -670,7 +670,7 @@ if ($_POST['form_action'] != "") {
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event','e');?></title>
+<title><?php echo $eid ? "Edit" : "Add New" ?> <?php xl('Event', 'e');?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -929,14 +929,14 @@ while ($crow = sqlFetchArray($cres)) {
 
  <tr>
   <td width='1%' nowrap>
-   <b><?php xl('Category','e'); ?>:</b>
+   <b><?php xl('Category', 'e'); ?>:</b>
   </td>
   <td nowrap>
    <input type="text" id='form_category' name='form_category' value='Office Visit' readonly='readonly' style='width:100%'/>
   </td>
   <td></td>
   <td width='1%' nowrap>
-    <b><?php xl('Date','e'); ?>:</b>
+    <b><?php xl('Date', 'e'); ?>:</b>
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input type='text' size='10' name='form_date' readonly id='form_date' <?php echo $disabled ?>
@@ -947,32 +947,32 @@ while ($crow = sqlFetchArray($cres)) {
 
  <tr>
   <td nowrap>
-   <b><?php xl('Title','e'); ?>:</b>
+   <b><?php xl('Title', 'e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' name='form_title' value='<?php echo addslashes($row['pc_title']) ?>'
     style='width:100%'
-    title='<?php xl('Event title','e'); ?>' />
+    title='<?php xl('Event title', 'e'); ?>' />
   </td>
   <td nowrap>
   </td>
   <td width='1%' nowrap id='tdallday2'>
-    <?php xl('Time','e'); ?>
+    <?php xl('Time', 'e'); ?>
   </td>
   <td width='1%' nowrap id='tdallday3'>
    <input type='text' size='2' name='form_hour' value='<?php if(isset($eid)) { echo $starttimeh; } ?>'
-    title='<?php xl('Event start time','e'); ?>' readonly/> :
+    title='<?php xl('Event start time', 'e'); ?>' readonly/> :
    <input type='text' size='2' name='form_minute' value='<?php if(isset($eid)) { echo $starttimem; } ?>'
-    title='<?php xl('Event start time','e'); ?>' readonly/>&nbsp;
+    title='<?php xl('Event start time', 'e'); ?>' readonly/>&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM' disabled="disabled">
-    <option value='1'><?php xl('AM','e'); ?></option>
-    <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php xl('PM','e'); ?></option>
+    <option value='1'><?php xl('AM', 'e'); ?></option>
+    <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php xl('PM', 'e'); ?></option>
    </select>
   </td>
  </tr>
  <tr>
   <td nowrap>
-   <b><?php xl('Patient','e'); ?>:</b>
+   <b><?php xl('Patient', 'e'); ?>:</b>
   </td>
   <td nowrap>
    <input type='text' size='10' id='form_patient' name='form_patient' style='width:100%;' value='<?php echo $patientname ?>' title='Patient' readonly />
@@ -981,11 +981,11 @@ while ($crow = sqlFetchArray($cres)) {
   <td nowrap>
    &nbsp;
   </td>
-  <td nowrap id='tdallday4'><?php xl('duration','e'); ?>
+  <td nowrap id='tdallday4'><?php xl('duration', 'e'); ?>
   </td>
   <td nowrap id='tdallday5'>
-   <input type='text' size='4' name='form_duration' readonly value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes','e'); ?>' /> 
-    <?php xl('minutes','e'); ?>
+   <input type='text' size='4' name='form_duration' readonly value='<?php echo $thisduration ?>' title='<?php xl('Event duration in minutes', 'e'); ?>' /> 
+    <?php xl('minutes', 'e'); ?>
     
   </td>
  </tr>
@@ -997,7 +997,7 @@ while ($crow = sqlFetchArray($cres)) {
 
  <tr>
   <td nowrap>
-   <b><?php xl('Provider','e'); ?>:</b>
+   <b><?php xl('Provider', 'e'); ?>:</b>
   </td>
   <td nowrap>
     <?php
@@ -1022,16 +1022,16 @@ while ($crow = sqlFetchArray($cres)) {
   <td nowrap style='font-size:8pt'>
    
   </td>
-  <td><input type='button' value='<?php xl('Openings','e');?>' onclick='find_available()' /></td>
+  <td><input type='button' value='<?php xl('Openings', 'e');?>' onclick='find_available()' /></td>
   <td></td>
  </tr>
 
  <tr>
   <td nowrap>
-   <b><?php xl('Comments','e'); ?>:</b>
+   <b><?php xl('Comments', 'e'); ?>:</b>
   </td>
   <td colspan='4' nowrap>
-    <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event','e');?>' />
+    <input type='text' size='40' name='form_comments' style='width:100%' value='<?php echo $hometext ?>' title='<?php xl('Optional information about this event', 'e');?>' />
   </td>
  </tr>
 
@@ -1046,22 +1046,22 @@ while ($crow = sqlFetchArray($cres)) {
  <tr id='dob_row' style='display:none<?php //echo $dobstyle
     ?>'>
   <td colspan='4' nowrap style='display:none'>
-   <font color='white'><?php xl('DOB is missing, please enter if possible','e'); ?>:</font></b>
+   <font color='white'><?php xl('DOB is missing, please enter if possible', 'e'); ?>:</font></b>
   </td>
   <td nowrap>
-   <input type='text' size='10' name='form_dob' id='form_dob' style='display:none' title='<?php xl('yyyy-mm-dd date of birth','e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
+   <input type='text' size='10' name='form_dob' id='form_dob' style='display:none' title='<?php xl('yyyy-mm-dd date of birth', 'e');?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_dob' border='0' alt='[?]' style='cursor:pointer;cursor:hand;display:none'
-    title='<?php xl('Click here to choose a date','e');?>'>
+    title='<?php xl('Click here to choose a date', 'e');?>'>
   </td>
  </tr>
 
 </table>
 
 <p>
-<input type='button' name='form_save' value='<?php xl('Save','e');?>' onclick="validate()" />
+<input type='button' name='form_save' value='<?php xl('Save', 'e');?>' onclick="validate()" />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e');?>' onclick='parent.$.fn.fancybox.close()' />
+<input type='button' value='<?php xl('Cancel', 'e');?>' onclick='parent.$.fn.fancybox.close()' />
 </p>
 </center>
 </form>

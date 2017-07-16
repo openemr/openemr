@@ -60,7 +60,7 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     if (preg_replace("/[:space:]/", "", $ssn) != ""){
         if ($where != "") $where .= "AND ";
         // Change to xxx-xx-xxxx format.
-        $ss = substr($ssn,0,3)."-".substr($ssn,3,2)."-".substr($ssn,5);
+        $ss = substr($ssn, 0, 3)."-".substr($ssn, 3, 2)."-".substr($ssn, 5);
         $where .= "(ss = '".add_escape_custom($ssn)."' OR ss = '".add_escape_custom($ss)."' OR ss = '')";
     }
 

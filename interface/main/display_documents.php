@@ -103,7 +103,7 @@ $display_collapse_msg = "display:inline;";
         var todate = $("#" + toDate).val();
         if ( (frmdate.length > 0) && (todate.length > 0) ) {
             if ( DateCheckGreater(frmdate, todate, global_date_format) == false ){
-                alert("<?php xl('To date must be later than From date!','e'); ?>");
+                alert("<?php xl('To date must be later than From date!', 'e'); ?>");
                 return false;
             }
         }
@@ -188,16 +188,16 @@ $display_collapse_msg = "display:inline;";
     if ($form_from_doc_date) {
         $form_from_doc_date = DateToYYYYMMDD($form_from_doc_date);
         $date_filter = " DATE(d.date) >= ? ";
-                array_push($query_array,$form_from_doc_date);
+                array_push($query_array, $form_from_doc_date);
     }
     if ($form_to_doc_date) {
         $form_to_doc_date = DateToYYYYMMDD($form_to_doc_date);
         $date_filter .= " AND DATE(d.date) <= ? ";
-                array_push($query_array,$form_to_doc_date);
+                array_push($query_array, $form_to_doc_date);
     }
     // Get the category ID for lab reports.
     $query = "SELECT rght FROM categories WHERE name = ?";
-    $catIDRs = sqlQuery($query,array($GLOBALS['lab_results_category_name']));
+    $catIDRs = sqlQuery($query, array($GLOBALS['lab_results_category_name']));
     $catID = $catIDRs['rght'];
 
     $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
@@ -206,8 +206,8 @@ $display_collapse_msg = "display:inline;";
 		INNER JOIN categories_to_documents ctd ON d.id = ctd.document_id AND ctd.category_id = ?
 		LEFT JOIN notes n ON d.id = n.foreign_id
 		WHERE " . $date_filter . " GROUP BY d.id ORDER BY date DESC";
-        array_unshift($query_array,$catID);
-    $resultSet = sqlStatement($query,$query_array);
+        array_unshift($query_array, $catID);
+    $resultSet = sqlStatement($query, $query_array);
     ?>
 
     <table border="1" cellpadding=3 cellspacing=0>
@@ -226,7 +226,7 @@ $display_collapse_msg = "display:inline;";
             $notes = array();
             $note = '';
             if ( $row['docNotes'] ) {
-                $notes = explode("|",$row['docNotes']);
+                $notes = explode("|", $row['docNotes']);
                 $dates = explode("|", $row['docDates']);
             }
             for ( $i = 0 ; $i < count($notes) ; $i++ )

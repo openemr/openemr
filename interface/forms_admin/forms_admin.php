@@ -39,7 +39,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 </head>
 <body class="body_top">
-<span class="title"><?php xl('Forms Administration','e');?></span>
+<span class="title"><?php xl('Forms Administration', 'e');?></span>
 <br><br>
 <?php
 foreach($_POST as $key => $val) {
@@ -64,7 +64,7 @@ if ($err)
 ?>
 
 <?php //REGISTERED SECTION ?>
-<span class=bold><?php xl('Registered','e');?></span><br>
+<span class=bold><?php xl('Registered', 'e');?></span><br>
 <form method=POST action ='./forms_admin.php'>
 <i><?php echo xlt('click here to update priority, category, nickname and access control settings'); ?></i>
 <input type='submit' name='update' value='<?php echo xla('update'); ?>'><br>
@@ -197,7 +197,7 @@ foreach ( $inDir as $fname )
             <span class=text><?php echo xl($phpState); ?></span>
         </td>
         <td bgcolor="<?php echo $color?>" width="10%">
-            <span class=text><?php xl('n/a','e'); ?></span>
+            <span class=text><?php xl('n/a', 'e'); ?></span>
         </td>
     </tr>
     <?php

@@ -84,23 +84,23 @@ class DocumentsController extends AbstractActionController
 
                 // Read File Contents
                 $tmpfile    = fopen($file['tmp_name'], "r");
-                $filetext   = fread($tmpfile,$file['size']);
+                $filetext   = fread($tmpfile, $file['size']);
 
                 // Decrypt Encryped Files
                 if($encrypted_file == '1') {
-                        $plaintext  = \Documents\Plugin\Documents::decrypt($filetext,$encryption_key);
+                        $plaintext  = \Documents\Plugin\Documents::decrypt($filetext, $encryption_key);
                         fclose($tmpfile);
                         unlink($file['tmp_name']);
 
                         // Write new file contents
-                        $tmpfile = fopen($file['tmp_name'],"w+");
-                        fwrite($tmpfile,$plaintext);
+                        $tmpfile = fopen($file['tmp_name'], "w+");
+                        fwrite($tmpfile, $plaintext);
                         fclose($tmpfile);
                         $file['size'] = filesize($file['tmp_name']);
                 }
 
                 $ob     = new \Document();
-                $ret = $ob->createDocument($pid, $category_id, $file_name, $file['type'], $filetext,'', 1, 0);
+                $ret = $ob->createDocument($pid, $category_id, $file_name, $file['type'], $filetext, '', 1, 0);
             }
         }
     }
@@ -132,9 +132,9 @@ class DocumentsController extends AbstractActionController
         $skip_headers   = false;
         $contentType    = $result['mimetype'];
 
-        $document       = \Documents\Plugin\Documents::getDocument($documentId,$doEncryption,$encryptionKey);
+        $document       = \Documents\Plugin\Documents::getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds    = $this->getDocumentsTable()->getCategoryIDs(array('CCD','CCR','CCDA'));
-        if(in_array($result['category_id'],$categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
+        if(in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
             $xml          = simplexml_load_string($document);
             $xsl          = new \DomDocument;
 
@@ -157,8 +157,8 @@ class DocumentsController extends AbstractActionController
         }
 
         if($type=="inline" && !$doEncryption) {
-            if(in_array($result['mimetype'],$previewAvailableFiles)){
-                if(in_array($result['category_id'],$categoryIds) && $contentType == 'text/xml') {
+            if(in_array($result['mimetype'], $previewAvailableFiles)){
+                if(in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml') {
                     $contentType  = 'text/html';
                 }
             } else {
@@ -177,7 +177,7 @@ class DocumentsController extends AbstractActionController
             $response->setContent($document);
             $headers        = $response->getHeaders();
             $headers->clearHeaders()
-              ->addHeaderLine('Content-Type',$contentType)
+              ->addHeaderLine('Content-Type', $contentType)
               ->addHeaderLine('Content-Disposition', $type . '; filename="' . $result['name'] . '"')
               ->addHeaderLine('Content-Length', strlen($document));
             $response->setHeaders($headers);

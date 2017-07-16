@@ -80,7 +80,7 @@ class newpatient
                 $query=" select insd.*, ic.name as provider_name from insurance_data as insd " .
                 "left join insurance_companies as ic on ic.id = insd.provider " .
                 "where pid = ? and type =? order by date DESC limit 1 ";
-                array_unshift($data[1],$pid);
+                array_unshift($data[1], $pid);
             return array($query,$data[1]);
             break;
         // Entries pending  for approval demo and documents.
@@ -144,7 +144,7 @@ class newpatient
             
             case 'B5':
             //Existing appointments for a patient
-                array_unshift($data[1],$pid);
+                array_unshift($data[1], $pid);
                 $query="select pc_eid,pc_eventDate,pc_startTime,pc_endTime,fname,lname,name,pc_apptstatus from openemr_postcalendar_events AS c,
             users AS u,facility AS f WHERE pc_pid=? AND pc_aid=u.id AND pc_facility=f.id AND pc_apptstatus!=? order by pc_eventDate desc";
             return array($query,$data[1]);
@@ -152,7 +152,7 @@ class newpatient
             
             case 'B6':
             //Appointments pending for approval
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
                 $query="select am.id,am.approval_status,ad.audit_master_id,ad.field_name,ad.field_value,u.fname,u.lname,f.name from audit_master AS am,
             audit_details AS ad LEFT JOIN users AS u ON ad.field_value=u.id AND ad.field_name=? LEFT JOIN facility AS f ON ad.field_value=f.id AND
             ad.field_name=? WHERE am.pid=? AND am.id=ad.audit_master_id AND am.type='10' AND am.approval_status NOT IN ('2','4')
@@ -162,7 +162,7 @@ class newpatient
             
             case 'B7':
             //patient appointment history
-                array_unshift($data[1],$pid);
+                array_unshift($data[1], $pid);
                 $query="select pc_eid,pc_eventDate,pc_startTime,pc_endTime,fname,lname,name,pc_apptstatus from openemr_postcalendar_events AS c,
             users AS u,facility AS f WHERE pc_pid=? AND pc_aid=u.id AND pc_facility=f.id AND pc_apptstatus=? order by pc_eventDate desc";
             return array($query,$data[1]);
@@ -211,7 +211,7 @@ class newpatient
                 $query = "SELECT * FROM documents_legal_master AS dlm WHERE dlm_subcategory <> ? and dlm_effective_date <= now() AND
             dlm_effective_date<>? AND dlm_upload_type = '0' AND dlm_document_id Not IN (SELECT distinct(dld_master_docid) FROM documents_legal_detail WHERE
             dld_id IS NOT NULL AND dld_pid=?)";
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
             return array($query,$data[1]);
             break;
                         
@@ -219,7 +219,7 @@ class newpatient
                 $query = "SELECT * FROM documents_legal_master AS dlm LEFT OUTER JOIN documents_legal_detail as dld ON
             dlm_document_id=dld_master_docid WHERE dlm_subcategory <> ? and dlm_effective_date <= now() AND dlm_effective_date<>?
             AND dld_id IS NOT NULL AND dld_signed=? AND dld_pid=? ORDER BY dlm_effective_date DESC";
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
             return array($query,$data[1]);
             break;
                         
@@ -228,7 +228,7 @@ class newpatient
             JOIN form_encounter as fe ON encounter=dld_encounter WHERE dlm_subcategory = ? AND dlm_effective_date <= now() AND
             dlm_effective_date<>? AND dld_id IS NOT NULL AND dld_signed=? AND dld_signing_person=? AND dld_pid=?
             ORDER BY dlm_effective_date DESC";
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
             return array($query,$data[1]);
             break;
                         
@@ -237,7 +237,7 @@ class newpatient
             JOIN form_encounter as fe ON encounter=dld_encounter WHERE dlm_subcategory = ? and dlm_effective_date <= now() AND
             dlm_effective_date<>? AND dld_id IS NOT NULL AND dld_filename != '' AND dld_pid=? GROUP BY dld_encounter,dlm_document_id
             ORDER BY dld_id DESC";
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
             return array($query,$data[1]);
             break;
 
@@ -245,7 +245,7 @@ class newpatient
                 $query = "SELECT * FROM documents_legal_master AS dlm LEFT OUTER JOIN documents_legal_detail as dld ON
             dlm_document_id=dld_master_docid WHERE dlm_subcategory <> ? and dlm_effective_date <= now() AND dlm_effective_date<>?
             AND dld_id IS NOT NULL AND (dld_signed = ? OR dlm_upload_type = '1') AND dld_pid=? ORDER BY dlm_effective_date DESC";
-                array_push($data[1],$pid);
+                array_push($data[1], $pid);
             return array($query,$data[1]);
             break;
                         
@@ -263,7 +263,7 @@ class newpatient
             
             case 'F3':
             //signing
-                array_unshift($data[1],$pid);
+                array_unshift($data[1], $pid);
                 $query="select * from documents_legal_detail where dld_pid = ? and dld_signed='3' and dld_master_docid = ?";
             return array($query,$data[1]);
             break;
@@ -288,7 +288,7 @@ class newpatient
             
             case 'F10':
             //Documents ready to be signed and documents unsigned
-                array_unshift($data[1],$pid);
+                array_unshift($data[1], $pid);
                 $query="select * from documents_legal_detail where dld_pid=? and (dld_signed='2' or dld_signed='0') and dld_master_docid=?";
             return array($query,$data[1]);
             break;

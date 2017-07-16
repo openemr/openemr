@@ -74,7 +74,7 @@ function endDoctor(&$docrow)
 
     echo " <tr class='report_totals'>\n";
     echo "  <td colspan='5'>\n";
-    echo "   &nbsp;" . xl('Totals for','','',' ') . $docrow['docname'] . "\n";
+    echo "   &nbsp;" . xl('Totals for', '', '', ' ') . $docrow['docname'] . "\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;" . $docrow['encounters'] . "&nbsp;\n";
@@ -198,7 +198,7 @@ if ($_POST['form_refresh']) {
 }
 
 </style>
-<title><?php  xl('Appointments and Encounters','e'); ?></title>
+<title><?php  xl('Appointments and Encounters', 'e'); ?></title>
 
 <script LANGUAGE="JavaScript">
 
@@ -222,7 +222,7 @@ $(document).ready(function() {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Appointments and Encounters','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Appointments and Encounters', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -240,7 +240,7 @@ $(document).ready(function() {
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Facility','e'); ?>:
+                <?php xl('Facility', 'e'); ?>:
             </td>
             <td>
                 <?php
@@ -262,13 +262,13 @@ $(document).ready(function() {
                 ?>
             </td>
             <td class='control-label'>
-                <?php xl('DOS','e'); ?>:
+                <?php xl('DOS', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php  echo $form_from_date; ?>' >
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php  echo $form_to_date; ?>' >
@@ -279,7 +279,7 @@ $(document).ready(function() {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='form_details'
-                  value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details','e') ?></label>
+                  value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details', 'e') ?></label>
         </div>
             </td>
         </tr>
@@ -320,16 +320,16 @@ if ($_POST['form_refresh'] ) {
 <table id='mymaintable'>
 
 <thead>
-<th> &nbsp;<?php  xl('Practitioner','e'); ?> </th>
-<th> &nbsp;<?php  xl('Date/Appt','e'); ?> </th>
-<th> &nbsp;<?php  xl('Patient','e'); ?> </th>
-<th> &nbsp;<?php  xl('ID','e'); ?> </th>
-<th align='right'> <?php  xl('Chart','e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Encounter','e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Charges','e'); ?>&nbsp; </th>
-<th align='right'> <?php  xl('Copays','e'); ?>&nbsp; </th>
-<th> <?php  xl('Billed','e'); ?> </th>
-<th> &nbsp;<?php  xl('Error','e'); ?> </th>
+<th> &nbsp;<?php  xl('Practitioner', 'e'); ?> </th>
+<th> &nbsp;<?php  xl('Date/Appt', 'e'); ?> </th>
+<th> &nbsp;<?php  xl('Patient', 'e'); ?> </th>
+<th> &nbsp;<?php  xl('ID', 'e'); ?> </th>
+<th align='right'> <?php  xl('Chart', 'e'); ?>&nbsp; </th>
+<th align='right'> <?php  xl('Encounter', 'e'); ?>&nbsp; </th>
+<th align='right'> <?php  xl('Charges', 'e'); ?>&nbsp; </th>
+<th align='right'> <?php  xl('Copays', 'e'); ?>&nbsp; </th>
+<th> <?php  xl('Billed', 'e'); ?> </th>
+<th> &nbsp;<?php  xl('Error', 'e'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -399,7 +399,7 @@ if ($res) {
 
         } // end while
 
-        $copays -= getPatientCopay($patient_id,$encounter);
+        $copays -= getPatientCopay($patient_id, $encounter);
 
        // The following is removed, perhaps temporarily, because gcac reporting
        // no longer depends on gcac issues.  -- Rod 2009-08-11

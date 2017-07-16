@@ -625,7 +625,7 @@ break;
                         reset($scda);
                         while ( list($key, $val) = each($scda) ) {
                             if ($key == 0 && $val) {
-                                $svc01 = $cd27x->get_271_code('EB13',$val);
+                                $svc01 = $cd27x->get_271_code('EB13', $val);
                             } else {
                                 $svc01 .= ":".$val;
                             }
@@ -648,7 +648,7 @@ break;
                         reset($scda);
                         while ( list($key, $val) = each($scda) ) {
                             if ($key == 0 && $val) {
-                                $svc06 = $cd27x->get_271_code('EB13',$val)." ";
+                                $svc06 = $cd27x->get_271_code('EB13', $val)." ";
                             } else {
                                 $svc06 .= ":".$val;
                             }
@@ -903,7 +903,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $trn02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';  // trace number (= BPR11)
                 $trn03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';  // originator ID
                 $trn04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';  // originator supplemental ID
-                if ($trn03[0] == '1') { $trn03 = substr($trn03,1); } // originator ID is '1' prepended to EIN or TIN
+                if ($trn03[0] == '1') { $trn03 = substr($trn03, 1); } // originator ID is '1' prepended to EIN or TIN
                 // the html ID for the table
                 $tblid = ($trn02) ? $trn02 : "";
                 $capstr .= ($trn02) ? "Check No: ".$trn02 : "Payment Listing";

@@ -1,7 +1,7 @@
 <?php
 
-define("ROOT_TYPE_ID",1);
-define("ROOT_TYPE_NAME",2);
+define("ROOT_TYPE_ID", 1);
+define("ROOT_TYPE_NAME", 2);
 
 /**
  * class Tree
@@ -126,7 +126,7 @@ class Tree
             //merge recursive is used so that no keys are replaced in other words a key
             //with a specific value will not be replace but instead that value will be turned into an array
             //consisting of the previous value and the new value
-            $tree = array_merge_n($tree,$ar);
+            $tree = array_merge_n($tree, $ar);
 
             // add this node to the stack
             $right[] = $row['rght'];

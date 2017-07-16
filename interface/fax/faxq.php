@@ -78,7 +78,7 @@
 <?php html_header_show();?>
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Received Faxes','e'); ?></title>
+<title><?php xl('Received Faxes', 'e'); ?></title>
 
 <style>
 td {
@@ -183,21 +183,21 @@ function dosdclick(sfname) {
     <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
     <?php } ?>
-   onclick='tabclick("faxin")'><?php xl('Faxes In','e'); ?></td>
+   onclick='tabclick("faxin")'><?php xl('Faxes In', 'e'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
     <?php if ($GLOBALS['enable_hylafax']) { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer;'
     <?php } else { ?>
    style='color: #777777; border-right: 2px solid #000000; border-bottom: 2px solid #000000; cursor: pointer; display:none;'
     <?php } ?>
-   onclick='tabclick("faxout")'><?php xl('Faxes Out','e'); ?></td>
+   onclick='tabclick("faxout")'><?php xl('Faxes Out', 'e'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
     <?php if ($GLOBALS['enable_scanner']) { ?>
    style='color: #777777; border-bottom: 2px solid #000000; cursor: pointer;'
     <?php } else { ?>
    style='color: #cc0000; border-bottom: 2px solid transparent; display:none;'
     <?php } ?>
-   onclick='tabclick("scanin")'><?php xl('Scanner In','e'); ?></td>
+   onclick='tabclick("scanin")'><?php xl('Scanner In', 'e'); ?></td>
  </tr>
  <tr>
   <td colspan='3' style='padding: 5px;' valign='top'>
@@ -207,10 +207,10 @@ function dosdclick(sfname) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
     <?php if (!$GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
     <tr class='head'>
-     <td colspan='2' title='Click to view'><?php xl('Document','e'); ?></td>
-     <td><?php xl('Received','e'); ?></td>
-     <td><?php xl('From','e'); ?></td>
-     <td align='right'><?php xl('Pages','e'); ?></td>
+     <td colspan='2' title='Click to view'><?php xl('Document', 'e'); ?></td>
+     <td><?php xl('Received', 'e'); ?></td>
+     <td><?php xl('From', 'e'); ?></td>
+     <td align='right'><?php xl('Pages', 'e'); ?></td>
     </tr>
 <?php
 
@@ -224,7 +224,7 @@ foreach ($mlines as $matches) {
     echo "     <td onclick='dodclick(\"$ffname\")'>";
     echo "<a href='fax_view.php?file=$ffname' onclick='return false'>$ffbase</a></td>\n";
     echo "     <td onclick='domclick(\"$ffname\")'>";
-    echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?file=$ffname' onclick='return false'>" . xl('Dispatch', 'e') . "</a></td>\n";
     echo "     <td>" . htmlentities($matches[3]) . "</td>\n";
     echo "     <td>" . htmlentities($matches[2]) . "</td>\n";
     echo "     <td align='right'>" . htmlentities($matches[1]) . "</td>\n";
@@ -236,12 +236,12 @@ foreach ($mlines as $matches) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxout'
     style='display:none;'>
     <tr class='head'>
-     <td title='Click to view'><?php xl('Job ID','e'); ?></td>
-     <td><?php xl('To','e'); ?></td>
-     <td><?php xl('Pages','e'); ?></td>
-     <td><?php xl('Dials','e'); ?></td>
-     <td><?php xl('TTS','e'); ?></td>
-     <td><?php xl('Status','e'); ?></td>
+     <td title='Click to view'><?php xl('Job ID', 'e'); ?></td>
+     <td><?php xl('To', 'e'); ?></td>
+     <td><?php xl('Pages', 'e'); ?></td>
+     <td><?php xl('Dials', 'e'); ?></td>
+     <td><?php xl('TTS', 'e'); ?></td>
+     <td><?php xl('Status', 'e'); ?></td>
     </tr>
 <?php
  $encount = 0;
@@ -274,9 +274,9 @@ foreach ($dlines as $matches) {
    <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
     <?php if ($GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
     <tr class='head'>
-     <td colspan='2' title='Click to view'><?php xl('Filename','e'); ?></td>
-     <td><?php xl('Scanned','e'); ?></td>
-     <td align='right'><?php xl('Length','e'); ?></td>
+     <td colspan='2' title='Click to view'><?php xl('Filename', 'e'); ?></td>
+     <td><?php xl('Scanned', 'e'); ?></td>
+     <td align='right'><?php xl('Length', 'e'); ?></td>
     </tr>
 <?php
  $encount = 0;
@@ -290,7 +290,7 @@ foreach ($slines as $sline) {
      "<a href='fax_view.php?scan=$sfname' onclick='return false'>" .
      "$sfname</a></td>\n";
     echo "     <td onclick='dosdclick(\"$sfname\")'>";
-    echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>" . xl('Dispatch','e') . "</a></td>\n";
+    echo "<a href='fax_dispatch.php?scan=$sfname' onclick='return false'>" . xl('Dispatch', 'e') . "</a></td>\n";
     echo "     <td>$sfdate</td>\n";
     echo "     <td align='right'>" . $sline[7] . "</td>\n";
     echo "    </tr>\n";

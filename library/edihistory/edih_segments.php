@@ -205,7 +205,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
         if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
             $sar = explode($de, $seg);
             $nm101 = ( isset($sar[1]) ) ? $sar[1] : '';
-            if ( $loopid == 'Begin' || strcmp(substr($loopid,0,4), '2320') < 0 ) {
+            if ( $loopid == 'Begin' || strcmp(substr($loopid, 0, 4), '2320') < 0 ) {
                 if ($nm101 == '41') {
                     $loopid = '1000A';
                     $title = 'Submitter';
@@ -252,7 +252,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
                     $loopid = '2310F';
                     $title = 'Ambulance dropoff';
                 }
-            } elseif ( strcmp(substr($loopid,0,4), '2400')  < 0 ) {
+            } elseif ( strcmp(substr($loopid, 0, 4), '2400')  < 0 ) {
                 if ($nm101 == 'IL') {
                     $loopid = '2330A';
                     $title = 'Other Subscriber';
@@ -491,7 +491,7 @@ break;
             continue;
         }
         // for all the segments that do not begin loops
-        $prevseg = substr($seg, 0, strpos($seg,$de)+1);
+        $prevseg = substr($seg, 0, strpos($seg, $de)+1);
         $str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
         //
     }
@@ -881,7 +881,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
             continue;
         }
         // for all the segments that do not begin loops
-        $prevseg = substr($seg, 0, strpos($seg,$de));
+        $prevseg = substr($seg, 0, strpos($seg, $de));
         $str_html .= "<tr><td class='btloop'> -- </td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
         //
     }

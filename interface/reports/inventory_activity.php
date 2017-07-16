@@ -329,7 +329,7 @@ if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."))
 $form_action = $_POST['form_action'];
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_product  = $_POST['form_product'];
 
 if ($form_action == 'export') {

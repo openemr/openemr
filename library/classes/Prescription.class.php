@@ -191,7 +191,7 @@ class Prescription extends ORDataObject
         $this->active = 1;
 
         for($i=0;$i<21;$i++) {
-            $this->refills_array[$i] = sprintf("%02d",$i);
+            $this->refills_array[$i] = sprintf("%02d", $i);
         }
 
         if ($id != "") { $this->populate(); }
@@ -311,7 +311,7 @@ class Prescription extends ORDataObject
 
     function set_size($size)
     {
-        $this->size = preg_replace("/[^0-9\/\.\-]/", "",$size);
+        $this->size = preg_replace("/[^0-9\/\.\-]/", "", $size);
     }
     function get_size()
     {
@@ -450,39 +450,39 @@ class Prescription extends ORDataObject
 
     function get_start_date_y()
     {
-        $ymd = explode("-",$this->start_date);
+        $ymd = explode("-", $this->start_date);
         return $ymd[0];
     }
     function set_start_date_y($year)
     {
         if (is_numeric($year)) {
-            $ymd = explode("-",$this->start_date);
+            $ymd = explode("-", $this->start_date);
             $ymd[0] = $year;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }
     }
     function get_start_date_m()
     {
-        $ymd = explode("-",$this->start_date);
+        $ymd = explode("-", $this->start_date);
         return $ymd[1];
     }
     function set_start_date_m($month)
     {
         if (is_numeric($month)) {
-            $ymd = explode("-",$this->start_date);
+            $ymd = explode("-", $this->start_date);
             $ymd[1] = $month;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }
     }
     function get_start_date_d()
     {
-        $ymd = explode("-",$this->start_date);
+        $ymd = explode("-", $this->start_date);
         return $ymd[2];
     }
     function set_start_date_d($day)
     {
         if (is_numeric($day)) {
-            $ymd = explode("-",$this->start_date);
+            $ymd = explode("-", $this->start_date);
             $ymd[2] = $day;
             $this->start_date = $ymd[0] ."-" . $ymd[1] ."-" . $ymd[2];
         }

@@ -12,23 +12,23 @@ class Helper
 {
     public static function checkAllergy($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check( ClinicalType::ALLERGY, $subType, $patient, $beginDate, $endDate , $options );
+        return self::check( ClinicalType::ALLERGY, $subType, $patient, $beginDate, $endDate, $options );
     }
     
     public static function checkDiagActive($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         // TODO append options array
-        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate , array( Diagnosis::OPTION_STATE => Diagnosis::STATE_ACTIVE ) );
+        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_ACTIVE ) );
     }
     
     public static function checkDiagInactive($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate , array( Diagnosis::OPTION_STATE => Diagnosis::STATE_INACTIVE ) );
+        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_INACTIVE ) );
     }
     
     public static function checkDiagResolved($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate , array( Diagnosis::OPTION_STATE => Diagnosis::STATE_RESOLVED ) );
+        return self::check( ClinicalType::DIAGNOSIS, $subType, $patient, $beginDate, $endDate, array( Diagnosis::OPTION_STATE => Diagnosis::STATE_RESOLVED ) );
     }
     
     public static function checkEncounter($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
@@ -38,12 +38,12 @@ class Helper
     
     public static function checkLab($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check( ClinicalType::LAB_RESULT, $subType, $patient, $beginDate, $endDate , $options );
+        return self::check( ClinicalType::LAB_RESULT, $subType, $patient, $beginDate, $endDate, $options );
     }
     
     public static function checkMed($subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        return self::check( ClinicalType::MEDICATION, $subType, $patient, $beginDate, $endDate , $options );
+        return self::check( ClinicalType::MEDICATION, $subType, $patient, $beginDate, $endDate, $options );
     }
     
     public static function check($type, $subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)

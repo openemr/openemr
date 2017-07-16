@@ -23,7 +23,7 @@ class C_PatientFinder extends Controller
 
     function default_action($form_id = '', $form_name = '', $pid = '')
     {
-        return $this->find_action($form_id,$form_name,$pid);
+        return $this->find_action($form_id, $form_name, $pid);
     }
 
     /**
@@ -40,8 +40,8 @@ class C_PatientFinder extends Controller
         $pid = strip_escape_custom($pid);
 
         //prevent javascript injection, whitespace and semi-colons are the worry
-        $form_id = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS","",urldecode($form_id));
-        $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS","",urldecode($form_name));
+        $form_id = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_id));
+        $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_name));
         $this->assign('form_id', $form_id);
         $this->assign('form_name', $form_name);
         if(!empty($pid))
@@ -85,9 +85,9 @@ class C_PatientFinder extends Controller
         }
         else {
             //last and first at least
-            $result_array = $this->search_by_FullName($sql,$search_string);
+            $result_array = $this->search_by_FullName($sql, $search_string);
         }
-        $this->assign('search_string',$search_string);
+        $this->assign('search_string', $search_string);
         $this->assign('result_set', $result_array);
         $this->assign('ispub', $isPub);
         // we're done

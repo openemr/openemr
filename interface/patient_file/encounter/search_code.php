@@ -36,11 +36,11 @@ $code_type = $_GET['type'];
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo $code_type ?>">
 <input type="hidden" name="mode" value="search">
 
-<span class="title"><?php echo $code_type ?> <?php xl('Codes','e'); ?></span><br>
+<span class="title"><?php echo $code_type ?> <?php xl('Codes', 'e'); ?></span><br>
 
 <input type="textbox" id="text" name="text" size=15>
 
-<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search','e'); ?>'>
+<input type='submit' id="submitbtn" name="submitbtn" value='<?php xl('Search', 'e'); ?>'>
 <div id="searchspinner" style="display: inline; visibility:hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>

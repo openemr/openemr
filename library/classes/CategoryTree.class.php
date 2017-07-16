@@ -15,7 +15,7 @@ class CategoryTree extends Tree
     function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_table = "categories";
-        parent::__construct($root,$root_type);
+        parent::__construct($root, $root_type);
     }
 
     function _get_categories_array($patient_id, $user = '')

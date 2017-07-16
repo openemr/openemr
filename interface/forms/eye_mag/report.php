@@ -69,7 +69,7 @@ if (!$id) $id=$form_id;
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query,array($_SESSION['authUserID']));
+$result = sqlStatement($query, array($_SESSION['authUserID']));
 while ($prefs= sqlFetchArray($result))   {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
@@ -94,7 +94,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
   form_eye_mag.id=forms.form_id and
   forms.pid =form_eye_mag.pid and
   form_eye_mag.pid=? ";
-    $objQuery =sqlQuery($query,array($encounter,$pid));
+    $objQuery =sqlQuery($query, array($encounter,$pid));
     @extract($objQuery);
 
     $dated = new DateTime($encounter_date);
@@ -142,30 +142,30 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
         */
         ?>
       <div class="borderShadow">
-        <?php display_draw_section ("VISION",$encounter,$pid); ?>
+        <?php display_draw_section ("VISION", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("NEURO",$encounter,$pid); ?>
+        <?php display_draw_section ("NEURO", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("EXT",$encounter,$pid); ?>
+        <?php display_draw_section ("EXT", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("ANTSEG",$encounter,$pid); ?>
+        <?php display_draw_section ("ANTSEG", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("RETINA",$encounter,$pid); ?>
+        <?php display_draw_section ("RETINA", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("IMPPLAN",$encounter,$pid); ?>
+        <?php display_draw_section ("IMPPLAN", $encounter, $pid); ?>
     </div>
         <?php
     } else if ($choice == 'TEXT') {
         //just display HPI and A/P
-        narrative($pid, $encounter, $cols, $id,'TEXT');
+        narrative($pid, $encounter, $cols, $id, 'TEXT');
 
     } else if ($choice !="narrative") {
-        narrative($pid, $encounter, $cols, $id,'narrative');
+        narrative($pid, $encounter, $cols, $id, 'narrative');
         //return;
     }
 }
@@ -209,7 +209,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             forms.deleted != '1' and
             form_eye_mag.pid=? ";
 
-    $encounter_data =sqlQuery($query,array($encounter,$pid));
+    $encounter_data =sqlQuery($query, array($encounter,$pid));
     @extract($encounter_data);
     $providerID  =  getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
@@ -239,7 +239,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
   </style>
   <div>
     <?php
-    if (($cols =='Fax')||($cols=='Report')) echo report_header($pid,'PDF');
+    if (($cols =='Fax')||($cols=='Report')) echo report_header($pid, 'PDF');
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
         $facility = null;
@@ -395,7 +395,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   categories.id=categories_to_documents.category_id and
                   categories.name='Patient Photograph' and
                   documents.foreign_id=?";
-            $doc = sqlQuery($sql,array($pid));
+            $doc = sqlQuery($sql, array($pid));
             $document_id =$doc['document_id'];
             if (is_numeric($document_id)) {
 
@@ -405,17 +405,17 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 $couch_revid = $d->get_couch_revid();
                 $url_file = $d->get_url_filepath();
                 if($couch_docid && $couch_revid){
-                    $url_file = $d->get_couch_url($pid,$encounter);
+                    $url_file = $d->get_couch_url($pid, $encounter);
                 }
                 // Collect filename and path
-                $from_all = explode("/",$url_file);
+                $from_all = explode("/", $url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
                 for ($i=0;$i<$d->get_path_depth();$i++) {
                     $from_pathname_array[] = array_pop($from_all);
                 }
                 $from_pathname_array = array_reverse($from_pathname_array);
-                $from_pathname = implode("/",$from_pathname_array);
+                $from_pathname = implode("/", $from_pathname_array);
                 if($couch_docid && $couch_revid) {
                     $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
                 }
@@ -448,7 +448,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         $count_rx = '0';
 
         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
-                $wear = sqlStatement($query,array($pid,$form_id,$encounter));
+                $wear = sqlStatement($query, array($pid,$form_id,$encounter));
         while ($wearing = sqlFetchArray($wear))   {
             $count_rx++;
             ${"display_W_$count_rx"} = '';
@@ -1251,7 +1251,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
           </td>
           <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("EXT",$encounter,$pid);
+                display_draw_image ("EXT", $encounter, $pid);
                 ?>
           </td>
         </tr>
@@ -1343,7 +1343,7 @@ if ($ANTSEG_COMMENTS) { ?>
                 </td>
                 <td style="text-align:center;padding:1px;vertical-align:middle;">
                         <?php
-                        display_draw_image ("ANTSEG",$encounter,$pid);
+                        display_draw_image ("ANTSEG", $encounter, $pid);
                         ?>
                 </td>
               </tr>
@@ -1548,7 +1548,7 @@ if ($ANTSEG_COMMENTS) { ?>
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("NEURO",$encounter,$pid);
+                display_draw_image ("NEURO", $encounter, $pid);
                 ?>
             </td>
           </tr>
@@ -1622,7 +1622,7 @@ if ($ANTSEG_COMMENTS) { ?>
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("RETINA",$encounter,$pid);
+                display_draw_image ("RETINA", $encounter, $pid);
                 ?>
               </td>
             </tr>
@@ -1841,7 +1841,7 @@ if ($ANTSEG_COMMENTS) { ?>
                    *  Retrieve and Display the IMPPLAN_items for the Impression/Plan zone.
                    */
                   $query = "select * from form_".$form_folder."_impplan where form_id=? and pid=? order by IMPPLAN_order ASC";
-                  $result =  sqlStatement($query,array($form_id,$pid));
+                  $result =  sqlStatement($query, array($form_id,$pid));
                   $i='0';
                   $order   = array("\r\n", "\n", "\r","\v","\f","\x85","\u2028","\u2029");
                   $replace = "<br />";
@@ -1865,7 +1865,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
                     echo  '<div style="padding-left:15px;">';
                     $pattern = '/Code/';
-                    if (preg_match($pattern,$item['code']))  $item['code'] = '';
+                    if (preg_match($pattern, $item['code']))  $item['code'] = '';
                     if ($item['codetext'] > '')  {
                         echo $item['codetext']."<br />";
                     } else {
@@ -1883,7 +1883,7 @@ if ($ANTSEG_COMMENTS) { ?>
                     <br />
                     <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                         <?php
-                        $PLAN_items = explode('|',$PLAN);
+                        $PLAN_items = explode('|', $PLAN);
                         foreach ($PLAN_items as $item) {
                             echo  $item."<br />";
                         }
@@ -1901,7 +1901,7 @@ if ($ANTSEG_COMMENTS) { ?>
         </td>
         <td style="text-align:center;vertical-align:bottom;padding:1px;">
             <?php
-            display_draw_image ("IMPPLAN",$encounter,$pid);
+            display_draw_image ("IMPPLAN", $encounter, $pid);
 
             if ($PDF_OUTPUT) {
               //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
@@ -1950,7 +1950,7 @@ function display_draw_image($zone, $encounter, $pid)
 
         $couch_docid = $d->get_couch_docid();
         $couch_revid = $d->get_couch_revid();
-        $extension = substr($fname, strrpos($fname,"."));
+        $extension = substr($fname, strrpos($fname, "."));
         $notes = Note::notes_factory($d->get_id());
         if (!empty($notes)) echo "<table>";
         foreach ($notes as $note) {
@@ -1968,17 +1968,17 @@ function display_draw_image($zone, $encounter, $pid)
 
         $url_file = $d->get_url_filepath();
         if($couch_docid && $couch_revid){
-            $url_file = $d->get_couch_url($pid,$encounter);
+            $url_file = $d->get_couch_url($pid, $encounter);
         }
         // Collect filename and path
-        $from_all = explode("/",$url_file);
+        $from_all = explode("/", $url_file);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
         for ($i=0;$i<$d->get_path_depth();$i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
         $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/",$from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
 
         if($couch_docid && $couch_revid) {
             $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
@@ -2012,7 +2012,7 @@ function display_draw_image($zone, $encounter, $pid)
 
 function report_ACT($term)
 {
-    $term = nl2br(htmlspecialchars($term,ENT_NOQUOTES));
+    $term = nl2br(htmlspecialchars($term, ENT_NOQUOTES));
     return $term."&nbsp;";
 }
 ?>

@@ -62,7 +62,7 @@ if ($noteid) {
 
 <p><?php echo "<b>" .
   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .
-  "</b>" . htmlspecialchars( xl('for','',' ',' '), ENT_NOQUOTES) .
+  "</b>" . htmlspecialchars( xl('for', '', ' ', ' '), ENT_NOQUOTES) .
   "<b>" . htmlspecialchars( $ptname, ENT_NOQUOTES) . "</b>"; ?></p>
 
 <p><?php echo htmlspecialchars( xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( $assigned_to, ENT_NOQUOTES); ?></p>

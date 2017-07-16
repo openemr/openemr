@@ -57,7 +57,7 @@ class C_InsuranceNumbers extends Controller
         else {
             $this->insurance_numbers[0] = new InsuranceNumbers();
             $this->providers[0] = new Provider();
-            $this->assign("ERROR","A provider must be specified. Check the link you you came from or the URL and try again.");
+            $this->assign("ERROR", "A provider must be specified. Check the link you you came from or the URL and try again.");
         }
         $ic = new InsuranceCompany();
         $icompanies =  $ic->insurance_companies_factory();

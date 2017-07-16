@@ -98,7 +98,7 @@ class MultipledbController extends BaseController
                 $db[$key] = htmlentities($value, ENT_QUOTES | ENT_IGNORE, "UTF-8");
             }
 
-            $this->getMultipledbTable()->storeMultipledb($id,$db);
+            $this->getMultipledbTable()->storeMultipledb($id, $db);
         }
 
         // remove session data
@@ -165,12 +165,12 @@ class MultipledbController extends BaseController
     public function checkAcl($mode = null)
     {
         if($mode == 'view' or $mode == 'write'){
-            if(!acl_check('admin', 'multipledb',false,$mode)){
-                $this->redirect()->toRoute("multipledb",array("action"=>"error"));
+            if(!acl_check('admin', 'multipledb', false, $mode)){
+                $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         }else{
             if(!acl_check('admin', 'multipledb')){
-                $this->redirect()->toRoute("multipledb",array("action"=>"error"));
+                $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         }
     }

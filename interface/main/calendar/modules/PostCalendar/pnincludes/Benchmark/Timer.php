@@ -125,7 +125,7 @@ class Benchmark_Timer
                 $diff = '-';
             } else {
                 if (extension_loaded('bcmath')) {
-                    $diff  = bcsub($time,  $temp, 6);
+                    $diff  = bcsub($time, $temp, 6);
                     $total = bcadd($total, $diff, 6);
                 } else {
                     $diff  = $time - $temp;

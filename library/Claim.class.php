@@ -22,7 +22,7 @@ function cleanDate($date_field)
 {
       $cleandate = str_replace('-', '', substr($date_field, 0, 10));
 
-    if(substr_count($cleandate,'0')==8)
+    if(substr_count($cleandate, '0')==8)
       {
         $cleandate='';
     }
@@ -446,7 +446,7 @@ class Claim
         $adjtotal = 0;
         $date = '';
         foreach($this->invoice as $codekey => $codeval) {
-            if ($code && strcmp($codekey,$code) != 0) continue;
+            if ($code && strcmp($codekey, $code) != 0) continue;
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv (from ar_activity.payer_type) exists to
                 // indicate the payer level.
@@ -457,7 +457,7 @@ class Claim
             }
             $aarr = $this->payerAdjustments($ins, $codekey);
             foreach ($aarr as $a) {
-                if (strcmp($a[1],'PR') != 0) $adjtotal += $a[3];
+                if (strcmp($a[1], 'PR') != 0) $adjtotal += $a[3];
                 if (!$date) $date = $a[0];
             }
         }
@@ -655,7 +655,7 @@ class Claim
     function billingFacilityAssignment($ins = 0)
     {
         $tmp = strtoupper($this->payers[$ins]['data']['accept_assignment']);
-        if (strcmp($tmp,'FALSE') == 0) return '0';
+        if (strcmp($tmp, 'FALSE') == 0) return '0';
         return !empty($this->billing_facility['accepts_assignment']);
     }
 
@@ -761,16 +761,16 @@ class Claim
     function insuredRelationship($ins = 0)
     {
         $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
-        if (strcmp($tmp,'self'  ) == 0) return '18';
-        if (strcmp($tmp,'spouse') == 0) return '01';
-        if (strcmp($tmp,'child' ) == 0) return '19';
-        if (strcmp($tmp,'other' ) == 0) return 'G8';
+        if (strcmp($tmp, 'self'  ) == 0) return '18';
+        if (strcmp($tmp, 'spouse') == 0) return '01';
+        if (strcmp($tmp, 'child' ) == 0) return '19';
+        if (strcmp($tmp, 'other' ) == 0) return 'G8';
         return $tmp; // should not happen
     }
 
     function insuredTypeCode($ins = 0)
     {
-        if (strcmp($this->claimType($ins),'MB') == 0 && $this->payerSequence($ins) != 'P')
+        if (strcmp($this->claimType($ins), 'MB') == 0 && $this->payerSequence($ins) != 'P')
         return $this->payers[$ins]['data']['policy_type'];
         return '';
     }
@@ -780,7 +780,7 @@ class Claim
     function isSelfOfInsured($ins = 0)
     {
         $tmp = strtolower($this->payers[$ins]['data']['subscriber_relationship']);
-        return (strcmp($tmp,'self') == 0);
+        return (strcmp($tmp, 'self') == 0);
     }
 
     function planName($ins = 0)
@@ -1027,7 +1027,7 @@ class Claim
         // Split on the colon or space and clean each modifier
         $mods = array();
         $cln_mods = array();
-        $mods = preg_split("/[: ]/",trim($this->procs[$prockey]['modifier']));
+        $mods = preg_split("/[: ]/", trim($this->procs[$prockey]['modifier']));
         foreach ($mods as $mod) {
             array_push($cln_mods, x12clean($mod));
         }
@@ -1256,7 +1256,7 @@ class Claim
             $atmp = explode(':', $row['justify']);
             foreach ($atmp as $tmp) {
                 if (!empty($tmp)) {
-                    $code_data = explode('|',$tmp);
+                    $code_data = explode('|', $tmp);
 
                     // If there was a | in the code data, the the first part of the array is the type, and the second is the identifier
                     if (!empty($code_data[1])) {
@@ -1314,7 +1314,7 @@ class Claim
         $i = 0;
         foreach ($da as $value) {
             ++$i;
-            if (strcmp($value,$diag) == 0) return $i;
+            if (strcmp($value, $diag) == 0) return $i;
         }
         return '';
     }
@@ -1327,7 +1327,7 @@ class Claim
         $atmp = explode(':', $this->procs[$prockey]['justify']);
         foreach ($atmp as $tmp) {
             if (!empty($tmp)) {
-                $code_data = explode('|',$tmp);
+                $code_data = explode('|', $tmp);
                 if (!empty($code_data[1])) {
                     //Strip the prepended code type label
                     $diag = str_replace('.', '', $code_data[1]);
@@ -1339,7 +1339,7 @@ class Claim
                 $i = 0;
                 foreach ($da as $value) {
                     ++$i;
-                    if (strcmp($value,$diag) == 0) $dia[] = $i;
+                    if (strcmp($value, $diag) == 0) $dia[] = $i;
                 }
             }
         }
@@ -1379,7 +1379,7 @@ class Claim
         // A NPI MUST be a 10 digit number
         if($npi==='') return false;
         if(strlen($npi)!=10) return false;
-        if(!preg_match("/[0-9]*/",$npi)) return false;
+        if(!preg_match("/[0-9]*/", $npi)) return false;
         return true;
     }
     function providerNPIValid($prockey = -1)

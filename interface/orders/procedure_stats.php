@@ -86,7 +86,7 @@ while ($lrow = sqlFetchArray($lres)) {
 function getAge($dob, $asof = '')
 {
     if (empty($asof)) $asof = date('Y-m-d');
-    $a1 = explode('-', substr($dob , 0, 10));
+    $a1 = explode('-', substr($dob, 0, 10));
     $a2 = explode('-', substr($asof, 0, 10));
     $age = $a2[0] - $a1[0];
     if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) --$age;
@@ -302,7 +302,7 @@ $('.datepicker').datetimepicker({
 
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Rows','e'); ?>:
+<?php xl('Rows', 'e'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_by' title='Left column of report'>
@@ -316,17 +316,17 @@ foreach ($arr_by as $key => $value) {
  </select>
 </td>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Filters','e'); ?>:
+<?php xl('Filters', 'e'); ?>:
 </td>
 <td rowspan='2' colspan='2' class='detail'
  style='border-style:solid;border-width:1px;border-color:#cccccc'>
  <table>
   <tr>
    <td valign='top' class='detail' nowrap>
-    <?php xl('Sex','e'); ?>:
+    <?php xl('Sex', 'e'); ?>:
    </td>
    <td class='detail' valign='top'>
-  <select name='form_sexes' title='<?php xl('To filter by sex','e'); ?>'>
+  <select name='form_sexes' title='<?php xl('To filter by sex', 'e'); ?>'>
 <?php
 foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Only')) as $key => $value) {
     echo "       <option value='$key'";
@@ -339,7 +339,7 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
   </tr>
   <tr>
    <td valign='top' class='detail' nowrap>
-    <?php xl('Facility','e'); ?>:
+    <?php xl('Facility', 'e'); ?>:
    </td>
    <td valign='top' class='detail'>
     <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', false); ?>
@@ -347,10 +347,10 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
   </tr>
   <tr>
    <td colspan='2' class='detail' nowrap>
-    <?php xl('From','e'); ?>
+    <?php xl('From', 'e'); ?>
   <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
      title='Start date yyyy-mm-dd'>
-    <?php xl('To','e'); ?>
+    <?php xl('To', 'e'); ?>
   <input type='text' class='datepicker' name='form_to_date' id='form_to_date' size='10' value='<?php echo $to_date ?>'
      title='End date yyyy-mm-dd'>
    </td>
@@ -360,11 +360,11 @@ foreach (array(3 => xl('Men and Women'), 1 => xl('Women Only'), 2 => xl('Men Onl
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('Columns','e'); ?>:
+<?php xl('Columns', 'e'); ?>:
 </td>
 <td valign='top' class='detail'>
  <select name='form_show[]' size='4' multiple
-title='<?php xl('Hold down Ctrl to select multiple items','e'); ?>'>
+title='<?php xl('Hold down Ctrl to select multiple items', 'e'); ?>'>
 <?php
 foreach ($arr_show as $key => $value) {
     $title = $value['title'];
@@ -379,7 +379,7 @@ foreach ($arr_show as $key => $value) {
 </tr>
 <tr>
 <td valign='top' class='dehead' nowrap>
-<?php xl('To','e'); ?>:
+<?php xl('To', 'e'); ?>:
 </td>
 <td colspan='3' valign='top' class='detail' nowrap>
 <?php
@@ -391,8 +391,8 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 ?>
 </td>
 <td align='right' valign='top' class='detail' nowrap>
-<input type='submit' name='form_submit' value='<?php xl('Submit','e'); ?>'
-title='<?php xl('Click to generate the report','e'); ?>' />
+<input type='submit' name='form_submit' value='<?php xl('Submit', 'e'); ?>'
+title='<?php xl('Click to generate the report', 'e'); ?>' />
 </td>
 </tr>
 <tr>
@@ -499,7 +499,7 @@ if ($_POST['form_submit']) {
         }
         else if ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
-                genHeadCell(getListTitle($arr_show[$value]['list_id'],$key), true);
+                genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
             }
         }
         else if (!empty($arr_titles[$value])) {

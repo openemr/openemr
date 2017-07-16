@@ -38,13 +38,13 @@ foreach($events as $row) {
         $etitle = "";
     }
     if ($GLOBALS['portal_onsite_appt_modify']) {
-        echo "<a href='add_edit_event_user.php?date=" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) .
-        "&eid=" . htmlspecialchars($row['pc_eid'],ENT_QUOTES) .
-        "' class='edit_event iframe' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+        echo "<a href='add_edit_event_user.php?date=" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) .
+        "&eid=" . htmlspecialchars($row['pc_eid'], ENT_QUOTES) .
+        "' class='edit_event iframe' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
     }
-    echo "<b>" . htmlspecialchars($row['pc_eventDate'] . " (" . $dayname . ")" ,ENT_NOQUOTES) . "</b><br>";
-    echo htmlspecialchars("$disphour:$dispmin " . $dispampm . " " . $row['pc_catname'],ENT_NOQUOTES) . "<br>\n";
-    echo htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES);
+    echo "<b>" . htmlspecialchars($row['pc_eventDate'] . " (" . $dayname . ")", ENT_NOQUOTES) . "</b><br>";
+    echo htmlspecialchars("$disphour:$dispmin " . $dispampm . " " . $row['pc_catname'], ENT_NOQUOTES) . "<br>\n";
+    echo htmlspecialchars($row['ufname'] . " " . $row['ulname'], ENT_NOQUOTES);
     if ($GLOBALS['portal_onsite_appt_modify']) {
         echo "</a><br>\n";
     }
@@ -53,5 +53,5 @@ foreach($events as $row) {
     }
 }
 if ($resNotNull) {
-    if ( $count < 1 ) { echo "&nbsp;&nbsp;" . htmlspecialchars('No Appointments',ENT_NOQUOTES); }
+    if ( $count < 1 ) { echo "&nbsp;&nbsp;" . htmlspecialchars('No Appointments', ENT_NOQUOTES); }
 }

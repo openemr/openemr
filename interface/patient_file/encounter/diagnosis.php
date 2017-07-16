@@ -136,16 +136,16 @@ function validate(f) {
     }
    }
    if (!ndcok) {
-    alert('<?php xl('Format incorrect for NDC','e') ?> "' + ndc +
-     '", <?php xl('should be like nnnnn-nnnn-nn','e') ?>');
+    alert('<?php xl('Format incorrect for NDC', 'e') ?> "' + ndc +
+     '", <?php xl('should be like nnnnn-nnnn-nn', 'e') ?>');
     if (f[pfx+'[ndcnum]'].focus) f[pfx+'[ndcnum]'].focus();
     return false;
    }
    // Check for valid quantity.
    var qty = f[pfx+'[ndcqty]'].value - 0;
    if (isNaN(qty) || qty <= 0) {
-    alert('<?php xl('Quantity for NDC','e') ?> "' + ndc +
-     '" <?php xl('is not valid (decimal fractions are OK).','e') ?>');
+    alert('<?php xl('Quantity for NDC', 'e') ?> "' + ndc +
+     '" <?php xl('is not valid (decimal fractions are OK).', 'e') ?>');
     if (f[pfx+'[ndcqty]'].focus) f[pfx+'[ndcqty]'].focus();
     return false;
    }
@@ -203,17 +203,17 @@ if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
 ?>
 <?php if (!$GLOBALS['weight_loss_clinic']) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<input type="submit" name="justify" value="<?php xl('Justify/Save','e');?>">
+<input type="submit" name="justify" value="<?php xl('Justify/Save', 'e');?>">
 <?php } ?>
 </dt>
 </dl>
 
 <a href="cash_receipt.php?" class='link_submit' target='new' onclick='top.restoreSession()'>
-[<?php xl('Receipt','e'); ?>]
+[<?php xl('Receipt', 'e'); ?>]
 </a>
 <table border="0">
 <?php
-if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
     $billing_html = array();
     $total = 0.0;
     $ndclino = 0;
@@ -249,7 +249,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 ucwords(strtolower($iter{"code_text"})) . ' ' . oeFormatMoney($iter['fee']) .
                 "</a><span class=\"small\">";
             $total += $iter['fee'];
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if(!empty($j)) {

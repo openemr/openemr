@@ -74,7 +74,7 @@ class hcfa_info
     public function put()
     {
         // Override the default value for "strip" with put_hcfa to keep periods
-        put_hcfa($this->row,$this->column,$this->width,$this->info,'/#/');
+        put_hcfa($this->row, $this->column, $this->width, $this->info, '/#/');
     }
 }
 
@@ -122,7 +122,7 @@ function add_diagnosis(&$hcfa_entries, $number, $diag)
     $strip='/[.#]/';
     $diag = preg_replace($strip, '', strtoupper($diag));
     $row_pos=38+$row_num;
-    $hcfa_entries[]=new hcfa_info($row_pos,$col_pos,8,$diag);
+    $hcfa_entries[]=new hcfa_info($row_pos, $col_pos, 8, $diag);
 }
 
 /**
@@ -145,21 +145,21 @@ function process_diagnoses_02_12(&$claim, &$log)
         $icd_indicator='9';
     }
 
-    $hcfa_entries[]=new hcfa_info(37,42,1,$icd_indicator);
+    $hcfa_entries[]=new hcfa_info(37, 42, 1, $icd_indicator);
 
     // Box 22. Medicaid Resubmission Code and Original Ref. No.
-    $hcfa_entries[]=new hcfa_info(38,50,10,$claim->medicaidResubmissionCode());
-    $hcfa_entries[]=new hcfa_info(38,62,15,$claim->medicaidOriginalReference());
+    $hcfa_entries[]=new hcfa_info(38, 50, 10, $claim->medicaidResubmissionCode());
+    $hcfa_entries[]=new hcfa_info(38, 62, 15, $claim->medicaidOriginalReference());
 
     // Box 23. Prior Authorization Number
-    $hcfa_entries[]=new hcfa_info(40,50,28,$claim->priorAuth());
+    $hcfa_entries[]=new hcfa_info(40, 50, 28, $claim->priorAuth());
 
     $diag_count=0;
     foreach($diags as $diag)
     {
         if($diag_count<12)
         {
-            add_diagnosis($hcfa_entries,$diag_count,$diag);
+            add_diagnosis($hcfa_entries, $diag_count, $diag);
         }
         else
         {
@@ -169,7 +169,7 @@ function process_diagnoses_02_12(&$claim, &$log)
     }
 
     // Sort the entries to put them in the page base sequence.
-    usort($hcfa_entries,"cmp_hcfa_info");
+    usort($hcfa_entries, "cmp_hcfa_info");
 
     foreach($hcfa_entries as $hcfa_entry)
     {

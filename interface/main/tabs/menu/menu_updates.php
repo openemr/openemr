@@ -37,7 +37,7 @@ function update_modules_menu(&$menu_list)
 
             $module_hooks =  sqlStatement("SELECT msh.*,ms.obj_name,ms.menu_name,ms.path,m.mod_ui_name,m.type FROM modules_hooks_settings AS msh LEFT OUTER JOIN modules_settings AS ms ON
                                     obj_name=enabled_hooks AND ms.mod_id=msh.mod_id LEFT OUTER JOIN modules AS m ON m.mod_id=ms.mod_id
-                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id",array($modulerow['mod_id']));
+                                    WHERE m.mod_id = ? AND fld_type=3 AND mod_active=1 AND sql_run=1 AND attached_to='modules' ORDER BY m.mod_id", array($modulerow['mod_id']));
 
             $modulePath = "";
             $added      = "";
@@ -55,13 +55,13 @@ function update_modules_menu(&$menu_list)
             if (sqlNumRows($module_hooks) == 0) {
                 // module without hooks in module section
                 $acl_section = strtolower($modulerow['mod_directory']);
-                if (zh_acl_check($_SESSION['authUserID'],$acl_section) ?  "" : "1")continue;
+                if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1")continue;
                 $newEntry=new stdClass();
                 $newEntry->label=xlt($mod_nick_name);
                 $newEntry->url=$relative_link;
                 $newEntry->requirement=0;
                 $newEntry->target='mod';
-                array_push($menu_list->children,$newEntry);
+                array_push($menu_list->children, $newEntry);
             } else {
                 // module with hooks in module section
                 $newEntry=new stdClass();
@@ -72,7 +72,7 @@ function update_modules_menu(&$menu_list)
                 $jid = 0;
                 $modid = '';
                 while ($hookrow = sqlFetchArray($module_hooks)) {
-                    if (zh_acl_check($_SESSION['authUserID'],$hookrow['obj_name']) ?  "" : "1")continue;
+                    if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1")continue;
 
                     $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
                     $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
@@ -89,7 +89,7 @@ function update_modules_menu(&$menu_list)
                     }
                     $jid++;
                 }
-                array_push($menu_list->children,$newEntry);
+                array_push($menu_list->children, $newEntry);
             }
         }
     }
@@ -251,9 +251,9 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
                 {
                     $curSetting = $srcEntry->global_req[$globalIdx];
                     // ! at the start of the string means test the negation
-                    if (substr($curSetting,0,1) === '!')
+                    if (substr($curSetting, 0, 1) === '!')
                     {
-                        $curSetting = substr($curSetting,1);
+                        $curSetting = substr($curSetting, 1);
                         // If the global isn't set at all, or if it is false, then show it
                         if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting])
                         {
@@ -278,9 +278,9 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
             else
             {
                 // ! at the start of the string means test the negation
-                if (substr($srcEntry->global_req,0,1) === '!')
+                if (substr($srcEntry->global_req, 0, 1) === '!')
                 {
-                    $globalSetting=substr($srcEntry->global_req,1);
+                    $globalSetting=substr($srcEntry->global_req, 1);
                     // If the setting is both set and true, then skip this entry
                     if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting])
                     {
@@ -309,9 +309,9 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
                 {
                     $curSetting = $srcEntry->global_req_strict[$globalIdx];
                     // ! at the start of the string means test the negation
-                    if (substr($curSetting,0,1) === '!')
+                    if (substr($curSetting, 0, 1) === '!')
                     {
-                        $curSetting = substr($curSetting,1);
+                        $curSetting = substr($curSetting, 1);
                         // If the setting is both set and true, then do not show it
                         if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting])
                         {
@@ -336,9 +336,9 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
             else
             {
                 // ! at the start of the string means test the negation
-                if (substr($srcEntry->global_req_strict,0,1) === '!')
+                if (substr($srcEntry->global_req_strict, 0, 1) === '!')
                 {
-                    $globalSetting=substr($srcEntry->global_req_strict,1);
+                    $globalSetting=substr($srcEntry->global_req_strict, 1);
                     // If the setting is both set and true, then skip this entry
                     if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting])
                     {
@@ -360,7 +360,7 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
         {
             // Iterate through and check the child elements
             $checked_children=array();
-            menu_apply_restrictions($srcEntry->children,$checked_children);
+            menu_apply_restrictions($srcEntry->children, $checked_children);
             $srcEntry->children=$checked_children;
         }
 
@@ -375,7 +375,7 @@ function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
         if($includeEntry)
         {
 
-            array_push($menu_list_updated,$srcEntry);
+            array_push($menu_list_updated, $srcEntry);
         }
     }
 }

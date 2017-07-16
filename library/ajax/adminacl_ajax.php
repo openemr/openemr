@@ -38,7 +38,7 @@ if (!isset($phpgacl_location)) {
 
 //Display red alert if Emergency Login ACL is activated for a user.
 if($_POST["action"] == "add"){
-    if (in_array("Emergency Login",$_POST["selection"])) {
+    if (in_array("Emergency Login", $_POST["selection"])) {
         array_push($error, (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.') ));
     }
 }
@@ -80,13 +80,13 @@ if ($_POST["control"] == "membership") {
         }
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = getIDfromUser($_POST["name"]);
-        if (checkUserSetting("gacl_protect","1",$userNametoID) || ($_POST["name"] == "admin")) {
+        if (checkUserSetting("gacl_protect", "1", $userNametoID) || ($_POST["name"] == "admin")) {
              $gacl_protect = true;
         }
         else {
              $gacl_protect = false;
         }
-        if ($gacl_protect && in_array("Administrators",$_POST["selection"])) {
+        if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,
             // send soft error, then return data
             array_push($error, (xl('Not allowed to remove this user from the Administrators group') . "!"));
@@ -381,7 +381,7 @@ function aco_listings_xml($group, $return_value, $err)
     foreach ($list_aco_objects as $key => $value) {
         $counter = 0;
         foreach($list_aco_objects[$key] as $value2) {
-            if (!array_key_exists($key,$active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
+            if (!array_key_exists($key, $active_aco_objects) || !in_array($value2, $active_aco_objects[$key])) {
        
                 if ($counter == 0) {
                     $counter = $counter + 1;
@@ -393,7 +393,7 @@ function aco_listings_xml($group, $return_value, $err)
                     "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
     
                 }
-                $aco_id = $gacl->get_object_id($key, $value2,'ACO');
+                $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
                 $aco_data = $gacl->get_object_data($aco_id, 'ACO');
                 $aco_title = $aco_data[0][3];
                 $message .= "\t\t\t<aco>\n";
@@ -420,7 +420,7 @@ function aco_listings_xml($group, $return_value, $err)
          "\t\t\t<name>" . xl($aco_section_title) . "</name>\n";
      
         foreach($active_aco_objects[$key] as $value2) {
-            $aco_id = $gacl->get_object_id($key, $value2,'ACO');
+            $aco_id = $gacl->get_object_id($key, $value2, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $message .= "\t\t\t<aco>\n";

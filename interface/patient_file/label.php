@@ -40,7 +40,7 @@ $patdata = sqlQuery("SELECT " .
 // re-order the dates
 //
 
-$today = oeFormatShortDate($date='today');
+$today = oeFormatShortDate($date = 'today');
 $dob = oeFormatShortDate($patdata['DOB']);
 
 //get label type and number of labels on sheet

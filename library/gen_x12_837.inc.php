@@ -9,7 +9,7 @@
 require_once("Claim.class.php");
 function stripZipCode($zip)
 {
-    return preg_replace('/[-\s]*/','',$zip);
+    return preg_replace('/[-\s]*/', '', $zip);
 }
 function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 {
@@ -535,7 +535,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     ++$edicount;
     $out .= "CLM" .       // Loop 2300 Claim
     "*$pid-$encounter" .
-    "*"  . sprintf("%.2f",$clm_total_charges) . // Zirmed computes and replaces this
+    "*"  . sprintf("%.2f", $clm_total_charges) . // Zirmed computes and replaces this
     "*"  .
     "*"  .
     "*"  . sprintf('%02d', $claim->facilityPOS()) . ":" .
@@ -598,7 +598,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "~\n";
     }
 
-    if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->onsetDateValid() ) {
+    if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->onsetDateValid() ) {
         ++$edicount;
         $out .= "DTP" .     // Date of Hospitalization
         "*435" .
@@ -608,7 +608,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     }
   
   // above is for historical use of encounter onset date, now in misc_billing_options
-    if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->hospitalizedFromDateValid() ) {
+    if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedFromDateValid() ) {
         ++$edicount;
         $out .= "DTP" .     // Date of Admission
         "*435" .
@@ -618,7 +618,7 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     }
 
   // Segment DTP*096 (Discharge Date)
-    if (strcmp($claim->facilityPOS(),'21') == 0 && $claim->hospitalizedToDateValid() ) {
+    if (strcmp($claim->facilityPOS(), '21') == 0 && $claim->hospitalizedToDateValid() ) {
         ++$edicount;
         $out .= "DTP" .     // Date of Discharge
         "*96" .

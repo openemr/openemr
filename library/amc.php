@@ -214,18 +214,18 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 
         if ($amc_id == "send_sum_amc") {
             $sqlBindArray = array();
-            array_push($sqlBindArray,$patient['pid']);
+            array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date`>=? ";
-                array_push($sqlBindArray,$start);
+                array_push($sqlBindArray, $start);
             }
             if (!(empty($end))) {
                 $where .= " AND `date`<=? ";
-                array_push($sqlBindArray,$end);
+                array_push($sqlBindArray, $end);
             }
             $rez = sqlStatement("SELECT `id`, `date` FROM `transactions` WHERE `title` = 'LBTref' AND `pid` = ? $where ORDER BY `date` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
-                $amcCheck = amcCollect("send_sum_amc",$patient['pid'],"transactions",$res['id']);
+                $amcCheck = amcCollect("send_sum_amc", $patient['pid'], "transactions", $res['id']);
                 if (empty($amcCheck)) {
                     // Records have not been sent, so send this back
                     array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['id']));
@@ -235,14 +235,14 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 
         else if ($amc_id == "provide_rec_pat_amc") {
             $sqlBindArray = array();
-            array_push($sqlBindArray,$patient['pid']);
+            array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date_created`>=? ";
-                array_push($sqlBindArray,$start);
+                array_push($sqlBindArray, $start);
             }
             if (!(empty($end))) {
                 $where .= " AND `date_created`<=? ";
-                array_push($sqlBindArray,$end);
+                array_push($sqlBindArray, $end);
             }
             $rez = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`='provide_rec_pat_amc' AND `pid`=? AND (`date_completed` IS NULL OR `date_completed`='') $where ORDER BY `date_created` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
@@ -253,18 +253,18 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
 
         else if ($amc_id == "provide_sum_pat_amc") {
             $sqlBindArray = array();
-            array_push($sqlBindArray,$patient['pid']);
+            array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date`>=? ";
-                array_push($sqlBindArray,$start);
+                array_push($sqlBindArray, $start);
             }
             if (!(empty($end))) {
                 $where .= " AND `date`<=? ";
-                array_push($sqlBindArray,$end);
+                array_push($sqlBindArray, $end);
             }
             $rez = sqlStatement("SELECT `encounter`, `date` FROM `form_encounter` WHERE `pid`=? $where ORDER BY `date` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
-                $amcCheck = amcCollect("provide_sum_pat_amc",$patient['pid'],"form_encounter",$res['encounter']);
+                $amcCheck = amcCollect("provide_sum_pat_amc", $patient['pid'], "form_encounter", $res['encounter']);
                 if (empty($amcCheck)) {
                     // Records have not been given, so send this back
                     array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['encounter']));
@@ -278,7 +278,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
         }
 
         // process results
-        $results = array_merge($results,$tempResults);
+        $results = array_merge($results, $tempResults);
 
     }
 
@@ -341,7 +341,7 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
     foreach($holidays as $holiday){
         $time_stamp=strtotime($holiday);
         //If the holiday doesn't fall in weekend
-        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N",$time_stamp) != 6 && date("N",$time_stamp) != 7)
+        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7)
         $workingDays--;
     }
 

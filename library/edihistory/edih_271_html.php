@@ -355,7 +355,7 @@ function edih_271_transaction_html($obj271, $bht03)
                 $eb14 = "";
                 if (isset($sar[14])) {
                     if (strpos($sar[14], $ds)) {                                        // composite diagnosis pointer
-                        $eb14 = str_replace($ds, " | ",$sar[14]) ;
+                        $eb14 = str_replace($ds, " | ", $sar[14]) ;
                     } else {
                         $eb14 = $sar[14];
                     }

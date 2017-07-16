@@ -41,7 +41,7 @@ if (isset($_GET['iSortCol_0'])) {
                     $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             }
             else {
-                    $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol],array('patient_data')) . "` $sSortDir";
+                    $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
             }
         }
     }
@@ -61,7 +61,7 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
             "mname LIKE '$sSearch%' ";
         }
         else {
-            $where .= "`" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%' ";
+            $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
         }
     }
     if ($where) $where .= ")";
@@ -81,7 +81,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
             "mname LIKE '$sSearch%' )";
         }
         else {
-            $where .= " `" . escape_sql_column_name($colname,array('patient_data')) . "` LIKE '$sSearch%'";
+            $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'";
         }
     }
 }
@@ -97,7 +97,7 @@ foreach ($aColumns as $colname) {
         $sellist .= "lname, fname, mname";
     }
     else {
-        $sellist .= "`" . escape_sql_column_name($colname,array('patient_data')) . "`";
+        $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
     }
 }
 

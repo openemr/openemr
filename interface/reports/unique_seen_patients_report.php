@@ -68,7 +68,7 @@ else {
    }
 }
 </style>
-<title><?php xl('Front Office Receipts','e'); ?></title>
+<title><?php xl('Front Office Receipts', 'e'); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -121,7 +121,7 @@ $(document).ready(function() {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Unique Seen Patients','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Unique Seen Patients', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -141,14 +141,14 @@ $(document).ready(function() {
    <table class='text'>
        <tr>
            <td class='control-label'>
-                <?php xl('Visits From','e'); ?>:
+                <?php xl('Visits From', 'e'); ?>:
            </td>
            <td>
              <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
                title='yyyy-mm-dd'>
            </td>
            <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
            </td>
            <td>
              <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
@@ -191,14 +191,14 @@ $(document).ready(function() {
 <table>
 
 <thead>
-<th> <?php xl('Last Visit','e'); ?> </th>
-<th> <?php xl('Patient','e'); ?> </th>
-<th align='right'> <?php xl('Visits','e'); ?> </th>
-<th align='right'> <?php xl('Age','e'); ?> </th>
-<th> <?php xl('Sex','e'); ?> </th>
-<th> <?php xl('Race','e'); ?> </th>
-<th> <?php xl('Primary Insurance','e'); ?> </th>
-<th> <?php xl('Secondary Insurance','e'); ?> </th>
+<th> <?php xl('Last Visit', 'e'); ?> </th>
+<th> <?php xl('Patient', 'e'); ?> </th>
+<th align='right'> <?php xl('Visits', 'e'); ?> </th>
+<th align='right'> <?php xl('Age', 'e'); ?> </th>
+<th> <?php xl('Sex', 'e'); ?> </th>
+<th> <?php xl('Race', 'e'); ?> </th>
+<th> <?php xl('Primary Insurance', 'e'); ?> </th>
+<th> <?php xl('Secondary Insurance', 'e'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -239,9 +239,9 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
         if ($row['DOB']) {
             $dob = $row['DOB'];
             $tdy = $row['edate'];
-            $ageInMonths = (substr($tdy,0,4)*12) + substr($tdy,5,2) -
-                   (substr($dob,0,4)*12) - substr($dob,5,2);
-            $dayDiff = substr($tdy,8,2) - substr($dob,8,2);
+            $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
+                   (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
+            $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
             if ($dayDiff < 0) --$ageInMonths;
             $age = intval($ageInMonths/12);
         }
@@ -288,7 +288,7 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
     ?>
    <tr class='report_totals'>
     <td colspan='2'>
-        <?php xl('Total Number of Patients','e'); ?>
+        <?php xl('Total Number of Patients', 'e'); ?>
   </td>
   <td style="padding-left: 20px;">
         <?php echo $totalpts ?>

@@ -65,12 +65,12 @@ function load_fee_sheet_options($pricelevel)
         . " AND codes.code_type=code_types.ct_id"
         . " ORDER BY fso.fs_category,fso.fs_option";
     
-    $results=sqlStatement($sql,array($pricelevel));
+    $results=sqlStatement($sql, array($pricelevel));
 
     $retval=array();
     while($res=sqlFetchArray($results))
     {
-        $fso=new fee_sheet_option($res['code'],$res['code_type'],$res['code_text'],$res['pr_price'],$res['fs_category']);
+        $fso=new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
         $retval[]=$fso;
     }
     

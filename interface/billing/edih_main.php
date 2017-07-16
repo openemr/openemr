@@ -48,8 +48,8 @@ define('SITE_IN', 1);
 // Try to prevent search for too short encounter value
 if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) define("ENCOUNTER_MIN_DIGIT_LENGTH", 1);
 // these delimiters are hardcoded into OpenEMR batch files
-if (!defined("SEG_ELEM_DELIM")) define( "SEG_ELEM_DELIM" , "*");
-if (!defined("SEG_TERM_DELIM")) define( "SEG_TERM_DELIM" , "~");
+if (!defined("SEG_ELEM_DELIM")) define( "SEG_ELEM_DELIM", "*");
+if (!defined("SEG_TERM_DELIM")) define( "SEG_TERM_DELIM", "~");
 //clearinghouse practice
 if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
 //

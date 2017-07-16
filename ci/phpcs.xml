@@ -167,9 +167,9 @@
    <property name="equalsSpacing" value="1"/>
   </properties>
  </rule>
- <!-- <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint">
+ <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingAfterHint">
   <severity>0</severity>
- </rule> --><!-- FIXABLE -->
+ </rule>
 
  <!-- Method arguments with default values MUST go at the end of the argument list. -->
  <!--<rule ref="PEAR.Functions.ValidDefaultValue"/> SET AS WARNING-->
@@ -183,13 +183,13 @@
  <!-- When present, the abstract and final declarations MUST precede the visibility declaration.
       When present, the static declaration MUST come after the visibility declaration. -->
  <!-- checked in Methods/MethodDeclarationSniff -->
- <!--<rule ref="PSR2.Methods.MethodDeclaration"/>--><!--FIXABLE-->
+ <rule ref="PSR2.Methods.MethodDeclaration"/>
 
  <!-- 4.6 Method and Function Calls -->
 
  <!-- When making a method or function call, there MUST NOT be a space between the method or function name and the opening parenthesis, there MUST NOT be a space after the opening parenthesis, and there MUST NOT be a space before the closing parenthesis. In the argument list, there MUST NOT be a space before each comma, and there MUST be one space after each comma.
  Argument lists MAY be split across multiple lines, where each subsequent line is indented once. When doing so, the first item in the list MUST be on the next line, and there MUST be only one argument per line. -->
- <!-- <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/> --><!-- FIXABLE -->
+ <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>
  <!-- <rule ref="PSR2.Methods.FunctionCallSignature.SpaceAfterCloseBracket"> FIXABLE 
   <severity>0</severity>
  </rule>-->

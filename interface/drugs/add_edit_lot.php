@@ -100,7 +100,7 @@ if (!$drug_id) die(xlt('Drug ID missing!'));
 <head>
 <?php html_header_show();?>
 <title><?php echo $lot_id ? xlt("Edit") : xlt("Add New");
-xlt('Lot','e',' '); ?></title>
+xlt('Lot', 'e', ' '); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>

@@ -67,10 +67,10 @@ function smarty_function_pc_sort_events($params, &$smarty)
 
     $newArray = array();
     foreach($value as $date=>$events) {
-        usort($events,$function);
+        usort($events, $function);
         $newArray[$date] = array();
         $newArray[$date] = $events;
     }
     
-    $smarty->assign_by_ref($var,$newArray);
+    $smarty->assign_by_ref($var, $newArray);
 }

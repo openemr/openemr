@@ -126,7 +126,7 @@ function form_delete($formdir, $formid)
 {
     $formdir = ($formdir == 'newpatient') ? 'encounter' : $formdir;
     $formdir = ($formdir == 'newGroupEncounter') ? 'groups_encounter' : $formdir;
-    if (substr($formdir,0,3) == 'LBF') {
+    if (substr($formdir, 0, 3) == 'LBF') {
         row_delete("lbf_data", "form_id = '" . add_escape_custom($formid) . "'");
     }
     else if ($formdir == 'procedure_order') {
@@ -206,22 +206,22 @@ if ($_POST['form_submit']) {
 
     if ($patient) {
         if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) die("Not authorized!");
-        row_modify("billing"       , "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
-        row_modify("pnotes"        , "deleted = 1" , "pid = '" . add_escape_custom($patient) . "'");
+        row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
+        row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
        // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
-        row_delete("prescriptions"  , "patient_id = '" . add_escape_custom($patient) . "'");
-        row_delete("claims"         , "patient_id = '" . add_escape_custom($patient) . "'");
+        row_delete("prescriptions", "patient_id = '" . add_escape_custom($patient) . "'");
+        row_delete("claims", "patient_id = '" . add_escape_custom($patient) . "'");
         delete_drug_sales($patient);
-        row_delete("payments"       , "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("ar_activity"    , "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("payments", "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("ar_activity", "pid = '" . add_escape_custom($patient) . "'");
         row_delete("openemr_postcalendar_events", "pc_pid = '" . add_escape_custom($patient) . "'");
-        row_delete("immunizations"  , "patient_id = '" . add_escape_custom($patient) . "'");
+        row_delete("immunizations", "patient_id = '" . add_escape_custom($patient) . "'");
         row_delete("issue_encounter", "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("lists"          , "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("transactions"   , "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("employer_data"  , "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("history_data"   , "pid = '" . add_escape_custom($patient) . "'");
-        row_delete("insurance_data" , "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("lists", "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("transactions", "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("employer_data", "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("history_data", "pid = '" . add_escape_custom($patient) . "'");
+        row_delete("insurance_data", "pid = '" . add_escape_custom($patient) . "'");
 
         $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
         while ($row = sqlFetchArray($res)) {
@@ -329,7 +329,7 @@ if ($_POST['form_submit']) {
         }
     }
     else if ($billing) {
-        if (!acl_check('acct','disc')) die("Not authorized!");
+        if (!acl_check('acct', 'disc')) die("Not authorized!");
         list($patient_id, $encounter_id) = explode(".", $billing);
         sqlStatement("DELETE FROM ar_activity WHERE " .
         "pid = ? AND encounter = ? ", array($patient_id, $encounter_id) );

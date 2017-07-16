@@ -51,7 +51,7 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 }
 
  // Check authorization.
- if (!acl_check('patients', 'demo','','write'))
+ if (!acl_check('patients', 'demo', '', 'write'))
   die("Updating demographics is not authorized.");
 
 if ($_POST['form_import']) {

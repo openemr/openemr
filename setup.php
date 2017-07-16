@@ -35,7 +35,7 @@ require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php'
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
 //turn off PHP compatibility warnings
-ini_set("session.bug_compat_warn","off");
+ini_set("session.bug_compat_warn", "off");
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
 
@@ -80,7 +80,7 @@ if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
 
 // Die if site ID is empty or has invalid characters.
 if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
-  die("Site ID '".htmlspecialchars($site_id,ENT_NOQUOTES)."' contains invalid characters.");
+  die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
@@ -634,7 +634,7 @@ else {
         case 6:
             echo "<b>Step $state</b><br><br>\n";
             echo "Configuration of Apache web server...<br><br>\n";
-            echo "The \"".preg_replace("/${site_id}/","*",realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/","*",realpath($billingDirectory))."\" and \"".preg_replace("/${site_id}/","*",realpath($billingDirectory2))."\" directories contain patient information, and
+            echo "The \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\", \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\" and \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\" directories contain patient information, and
 it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br>
 &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br>
@@ -642,15 +642,15 @@ it is important to secure these directories. Additionally, some settings are req
 &nbsp;&nbsp;&lt;Directory \"".realpath(dirname(__FILE__))."/sites\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br>
-&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($docsDirectory))."\"&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($docsDirectory))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br>
-&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($billingDirectory))."\"&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br>
-&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/","*",realpath($billingDirectory2))."\"&gt;<br>
+&nbsp;&nbsp;&lt;Directory \"".preg_replace("/${site_id}/", "*", realpath($billingDirectory2))."\"&gt;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order deny,allow<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deny from all<br>
 &nbsp;&nbsp;&lt;/Directory&gt;<br><br>";

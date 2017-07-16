@@ -109,7 +109,7 @@ class Holidays_Storage
     public function import_holidays($file)
     {
         $data = array();
-        $handle = fopen($file,"r");
+        $handle = fopen($file, "r");
         $deleted = false;
         do {
             if ($data[0]) {
@@ -119,10 +119,10 @@ class Holidays_Storage
                 }
 
                 $row=array($data[0],$data[1]);
-                sqlInsert("INSERT INTO ".escape_table_name(self::TABLE_NAME) . "(date,description,source)"." VALUES (?,?,'csv')",$row);
+                sqlInsert("INSERT INTO ".escape_table_name(self::TABLE_NAME) . "(date,description,source)"." VALUES (?,?,'csv')", $row);
 
             }
-        } while ($data = fgetcsv($handle,1000,",","'"));
+        } while ($data = fgetcsv($handle, 1000, ",", "'"));
         return true;
     }
 

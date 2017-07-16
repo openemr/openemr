@@ -47,7 +47,7 @@ function update_password()
 <?php
 
 $ip=$_SERVER['REMOTE_ADDR'];
-$res = sqlStatement("select fname,lname,username from users where id=?",array($_SESSION["authId"]));
+$res = sqlStatement("select fname,lname,username from users where id=?", array($_SESSION["authId"]));
 $row = sqlFetchArray($res);
       $iter=$row;
 ?>
@@ -59,26 +59,26 @@ $row = sqlFetchArray($res);
 <input type=hidden name=secure_pwd value="<?php echo $GLOBALS['secure_password']; ?>">
 <TABLE>
 <TR>
-<TD><span class=text><?php xl('Full Name','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('Full Name', 'e'); ?>: </span></TD>
 <TD><span class=text><?php echo htmlspecialchars($iter["fname"] . " " . $iter["lname"], ENT_NOQUOTES); ?></span></td>
 </TR>
 
 <TR>
-<TD><span class=text><?php xl('Username','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('Username', 'e'); ?>: </span></TD>
 <TD><span class=text><?php echo $iter["username"]; ?></span></td>
 </TR>
 
 <TR>
-<TD><span class=text><?php xl('Current Password','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('Current Password', 'e'); ?>: </span></TD>
 <TD><input type=password name=curPass size=20 value="" autocomplete='off'></td>
 </TR>
 
 <TR>
-<TD><span class=text><?php xl('New Password','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('New Password', 'e'); ?>: </span></TD>
 <TD><input type=password name=newPass size=20 value="" autocomplete='off'></td>
 </TR>
 <TR>
-<TD><span class=text><?php xl('Repeat New Password','e'); ?>: </span></TD>
+<TD><span class=text><?php xl('Repeat New Password', 'e'); ?>: </span></TD>
 <TD><input type=password name=newPass2 size=20 value="" autocomplete='off'></td>
 </TR>
 

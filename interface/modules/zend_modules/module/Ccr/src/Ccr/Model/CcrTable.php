@@ -139,14 +139,14 @@ class CcrTable extends AbstractTableGateway
     
         if($audit_master_id_to_delete){
             $qry  = "DELETE from audit_details WHERE audit_master_id=?";
-            $appTable->zQuery($qry,array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, array($audit_master_id_to_delete));
       
             $qry  = "DELETE from audit_master WHERE id=?";
-            $appTable->zQuery($qry,array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
     
         $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?";
-        $result       = $appTable->zQuery($master_query,array(0,$approval_status,$ip_address,$type));
+        $result       = $appTable->zQuery($master_query, array(0,$approval_status,$ip_address,$type));
         $audit_master_id    = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = '';
@@ -164,7 +164,7 @@ class CcrTable extends AbstractTableGateway
         }
         $detail_query = substr($detail_query, 0, -1);
         $detail_query = $detail_query.';';
-        $appTable->zQuery($detail_query,$detail_query_array);
+        $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }
   
@@ -181,18 +181,18 @@ class CcrTable extends AbstractTableGateway
         $xml->loadXML($content);
         $xpath  = new DOMXpath($xml);
         $rootNamespace = $xml->lookupNamespaceUri($xml->namespaceURI);
-        $xpath->registerNamespace('x',$rootNamespace);
+        $xpath->registerNamespace('x', $rootNamespace);
         foreach($field_mapping as $skey=>$sval){
-            $path     = preg_replace("/\/([a-zA-Z])/","/x:$1",$skey);
+            $path     = preg_replace("/\/([a-zA-Z])/", "/x:$1", $skey);
             $elements = $xpath->query($path);
             if(!is_null($elements)){
                 $ele_cnt = 1;
                 foreach($elements as $element){
                     foreach($sval as $field => $innerpath){
-                        $ipath  = preg_replace(array("/^([a-zA-Z])/","/\/([a-zA-Z])/"),array("x:$1","/x:$1"),$innerpath);
+                        $ipath  = preg_replace(array("/^([a-zA-Z])/","/\/([a-zA-Z])/"), array("x:$1","/x:$1"), $innerpath);
                         $val    = $xpath->query($ipath, $element)->item(0)->textContent;
                         if($val){
-                            $field_details  = explode(':',$field);
+                            $field_details  = explode(':', $field);
                             $res[$field_details[0]][$ele_cnt][$field_details[1]] = $val;
                         }
                     }
@@ -212,15 +212,15 @@ class CcrTable extends AbstractTableGateway
     public function createAuditArray($am_id, $table_name)
     {
         $appTable     = new ApplicationTable();
-        if(strpos($table_name,',')){
-            $tables     = explode(',',$table_name);
+        if(strpos($table_name, ',')){
+            $tables     = explode(',', $table_name);
             $arr        = array($am_id);
             $table_qry  = "";
             for($i = 0 ; $i < count($tables) ; $i++){
                 $table_qry .= "?,";
                 array_unshift($arr, $tables[$i]);
             }
-            $table_qry  = substr($table_qry,0,-1);
+            $table_qry  = substr($table_qry, 0, -1);
             $query      = "SELECT * FROM audit_master am LEFT JOIN audit_details ad ON ad.audit_master_id = am.id AND ad.table_name IN ($table_qry) 
                     WHERE am.id = ? AND am.type = 11 AND am.approval_status = 1 ORDER BY ad.entry_identification,ad.field_name";
             $result     = $appTable->zQuery($query, $arr);
@@ -378,11 +378,11 @@ class CcrTable extends AbstractTableGateway
         $patient_data_fields = '';
         $patient_data_values = array();
         foreach($data as $key=>$val){
-            if(substr($key,-4) == '-sel'){
+            if(substr($key, -4) == '-sel'){
                 if(is_array($val)){
                     for($i=0;$i<count($val);$i++){
                         if($val[$i] == 'insert'){
-                            if(substr($key,0,-4) == 'lists1'){
+                            if(substr($key, 0, -4) == 'lists1'){
                                 if($data['lists1-activity'][$i] == 'Active'){
                                     $activity = 1;
                                 }
@@ -392,11 +392,11 @@ class CcrTable extends AbstractTableGateway
                                 $query = "INSERT INTO lists (pid, diagnosis, activity, title, date, type) VALUES (?,?,?,?,?,?)";
                                 $appTable->zQuery($query, array($data['pid'], $data['lists1-diagnosis'][$i], $activity, $data['lists1-title'][$i], \Application\Model\ApplicationTable::fixDate($data['lists1-date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), 'medical_problem'));
                             }
-                            elseif(substr($key,0,-4) == 'lists2'){
+                            elseif(substr($key, 0, -4) == 'lists2'){
                                 $query = "INSERT INTO lists (pid, date, type, title, diagnosis, reaction) VALUES (?,?,?,?,?,?)";
                                 $appTable->zQuery($query, array($data['pid'], \Application\Model\ApplicationTable::fixDate($data['lists2-date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), $data['lists2-type'][$i], $data['lists2-title'][$i], $data['lists2-diagnosis'][$i], $data['lists2-reaction'][$i]));
                             }
-                            elseif(substr($key,0,-4) == 'prescriptions'){
+                            elseif(substr($key, 0, -4) == 'prescriptions'){
                                 if($data['prescriptions-active'][$i] == 'Active'){
                                     $active = 1;
                                 }elseif($data['prescriptions-active'][$i] == 'Inactive'){
@@ -405,13 +405,13 @@ class CcrTable extends AbstractTableGateway
                                 $query = "INSERT INTO prescriptions (patient_id, date_added, active, drug, size, form, quantity) VALUES (?,?,?,?,?,?,?)";
                                 $appTable->zQuery($query, array($data['pid'], \Application\Model\ApplicationTable::fixDate($data['prescriptions-date_added'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']),$active, $data['prescriptions-drug'][$i], $data['prescriptions-size'][$i], $data['prescriptions-form'][$i],$data['prescriptions-quantity'][$i]));
                             }
-                            elseif(substr($key,0,-4) == 'immunizations'){
+                            elseif(substr($key, 0, -4) == 'immunizations'){
                                 $query = "INSERT INTO immunizations (patient_id, administered_date, note) VALUES (?,?,?)";
                                 $appTable->zQuery($query, array($data['pid'], \Application\Model\ApplicationTable::fixDate($data['immunizations-administered_date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), $data['immunizations-note'][$i]));
                             }
                         }
                         elseif($val[$i] == 'update'){
-                            if(substr($key,0,-4) == 'lists1'){
+                            if(substr($key, 0, -4) == 'lists1'){
                                 if($data['lists1-activity'][$i] == 'Active'){
                                     $activity = 1;
                                 }
@@ -425,20 +425,20 @@ class CcrTable extends AbstractTableGateway
                     }
                 }
                 else{
-                    if(substr($key,0,12) == 'patient_data'){
+                    if(substr($key, 0, 12) == 'patient_data'){
                         if($val == 'update'){
-                            $var_name = substr($key,0,-4);
-                            $field_name = substr($var_name,13);
+                            $var_name = substr($key, 0, -4);
+                            $field_name = substr($var_name, 13);
                             $patient_data_fields .= $field_name.'=?,';
-                            array_push($patient_data_values,$data[$var_name]);
+                            array_push($patient_data_values, $data[$var_name]);
                         }
                     }
                 }
             }
         }
         if(count($patient_data_values) > 0){
-            array_push($patient_data_values,$data['pid']);
-            $patient_data_fields = substr($patient_data_fields,0,-1);
+            array_push($patient_data_values, $data['pid']);
+            $patient_data_fields = substr($patient_data_fields, 0, -1);
             $query = "UPDATE patient_data SET $patient_data_fields WHERE pid=?";
             $appTable->zQuery($query, $patient_data_values);
         }
@@ -482,7 +482,7 @@ class CcrTable extends AbstractTableGateway
             foreach($resfield as $rowfield){
                 if($table == 'patient_data'){
                     if($rowfield['field_name'] == 'DOB'){
-                        $newdata['patient_data'][$rowfield['field_name']] = substr($rowfield['field_value'],0,10);
+                        $newdata['patient_data'][$rowfield['field_name']] = substr($rowfield['field_value'], 0, 10);
                     }
                     else{
                         $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
@@ -506,7 +506,7 @@ class CcrTable extends AbstractTableGateway
                 }
             }
             if($table == 'patient_data'){
-                updatePatientData($pid,$newdata['patient_data'],true);
+                updatePatientData($pid, $newdata['patient_data'], true);
             }
             elseif($table == 'lists1'){
                 $query_insert = "INSERT INTO lists(pid, diagnosis, activity, title, type, date) VALUES (?,?,?,?,?,?)";
@@ -552,6 +552,6 @@ class CcrTable extends AbstractTableGateway
     public function update_imported($document_id)
     {
         $appTable   = new ApplicationTable();
-        $appTable->zQuery("UPDATE documents SET imported = 1 WHERE id = ?",array($document_id));
+        $appTable->zQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($document_id));
     }
 }

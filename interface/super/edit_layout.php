@@ -105,7 +105,7 @@ function nextGroupOrder($order)
 // dropped if they contain any non-empty values.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
-    if (substr($layout_id,0,3) == 'LBF' || substr($layout_id,0,3) == 'LBT' || $layout_id == "FACUSR") return;
+    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") return;
 
     if      ($layout_id == "DEM") $tablename = "patient_data";
     else if ($layout_id == "HIS") $tablename = "history_data";
@@ -143,7 +143,7 @@ if (!$thisauth) die(xl('Not authorized'));
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
-$lbfonly = substr($layout_id,0,3) == 'LBF' ? "" : "style='display:none;'";
+$lbfonly = substr($layout_id, 0, 3) == 'LBF' ? "" : "style='display:none;'";
 
 // Handle the Form actions
 
@@ -545,7 +545,7 @@ function writeFieldLine($linedata)
             $sel = '';
             if ($linedata['list_id'] == $row['cl_list_item_long'])
             $sel = 'selected';
-            echo "<option value='".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."' ".$sel.">".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</option>";
+            echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."' ".$sel.">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
         echo "</select>";
     }
@@ -783,7 +783,7 @@ function writeFieldLine($linedata)
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
-<title><?php  xl('Layout Editor','e'); ?></title>
+<title><?php  xl('Layout Editor', 'e'); ?></title>
 
 <style>
 tr.head   { font-size:10pt; background-color:#cccccc; }
@@ -1026,7 +1026,7 @@ function myChangeCheck() {
 <input type="hidden" id="targetgroup" name="targetgroup" value="">
 <div class="menubar">
 <div>
-<b><?php xl('Edit layout','e'); ?>:</b>&nbsp;
+<b><?php xl('Edit layout', 'e'); ?>:</b>&nbsp;
 <select name='layout_id' id='layout_id'>
  <option value=''>-- <?php echo xl('Select') ?> --</option>
 <?php
@@ -1038,12 +1038,12 @@ foreach ($layouts as $key => $value) {
 ?>
 </select></div><div><p>
 <?php if ($layout_id) { ?>
-<input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group','e','\'','\''); ?>/>
+<input type='button' class='addgroup' id='addgroup' value=<?php xl('Add Group', 'e', '\'', '\''); ?>/>
 <span style="font-size:90%"> &nbsp;
-<input type='button' name='save' id='save' value='<?php xl('Save Changes','e'); ?>' /></span> &nbsp;&nbsp;
+<input type='button' name='save' id='save' value='<?php xl('Save Changes', 'e'); ?>' /></span> &nbsp;&nbsp;
 <?php xl('With selected:', 'e');?>
-<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete','e'); ?>' style="font-size:90%" disabled="disabled" />
-<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...','e'); ?>' style="font-size:90%" disabled="disabled" /></span>
+<input type='button' name='deletefields' id='deletefields' value='<?php xl('Delete', 'e'); ?>' style="font-size:90%" disabled="disabled" />
+<input type='button' name='movefields' id='movefields' value='<?php xl('Move to...', 'e'); ?>' style="font-size:90%" disabled="disabled" /></span>
 </p></div>
 </div>
 <div class="container">
@@ -1081,24 +1081,24 @@ while ($row = sqlFetchArray($res)) {
   <table>
   <thead>
    <tr class='head'>
-    <th><?php xl('Order','e'); ?></th>
-    <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-    <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-    <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
+    <th><?php xl('Order', 'e'); ?></th>
+    <th<?php echo " $lbfonly"; ?>><?php xl('Source', 'e'); ?></th>
+    <th><?php xl('ID', 'e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user', 'e', '\'', '\''); ?> >(?)</span></th>
+    <th><?php xl('Label', 'e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form', 'e', '\'', '\''); ?> >(?)</span></th>
     <?php // if not english and showing layout label translations, then show translation header for title
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
     } ?>        
-      <th><?php xl('UOR','e'); ?></th>
-      <th><?php xl('Data Type','e'); ?></th>
-      <th><?php xl('Size','e'); ?></th>
-      <th><?php xl('Max Size','e'); ?></th>
-      <th><?php xl('List','e'); ?></th>
-      <th><?php xl('Backup List','e'); ?></th>
-      <th><?php xl('Label Cols','e'); ?></th>
-      <th><?php xl('Data Cols','e'); ?></th>
-      <th><?php xl('Options','e'); ?></th>
-      <th><?php xl('Description','e'); ?></th>
+      <th><?php xl('UOR', 'e'); ?></th>
+      <th><?php xl('Data Type', 'e'); ?></th>
+      <th><?php xl('Size', 'e'); ?></th>
+      <th><?php xl('Max Size', 'e'); ?></th>
+      <th><?php xl('List', 'e'); ?></th>
+      <th><?php xl('Backup List', 'e'); ?></th>
+      <th><?php xl('Label Cols', 'e'); ?></th>
+      <th><?php xl('Data Cols', 'e'); ?></th>
+      <th><?php xl('Options', 'e'); ?></th>
+      <th><?php xl('Description', 'e'); ?></th>
         <?php // if not english and showing layout label translations, then show translation header for description
         if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
             echo "<th>" . xl('Translation')."<span class='help' title='" . xl('The translation of description in current language')."'>&nbsp;(?)</span></th>";
@@ -1127,34 +1127,34 @@ while ($row = sqlFetchArray($res)) {
 <!-- template DIV that appears when user chooses to rename an existing group -->
 <div id="renamegroupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="">
-<?php xl('Group Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
+<?php xl('Group Name', 'e'); ?>: <input type="textbox" size="20" maxlength="30" name="renamegroupname" id="renamegroupname">
 <br>
-<input type="button" class="saverenamegroup" value=<?php xl('Rename Group','e','\'','\''); ?>>
-<input type="button" class="cancelrenamegroup" value=<?php xl('Cancel','e','\'','\''); ?>>
+<input type="button" class="saverenamegroup" value=<?php xl('Rename Group', 'e', '\'', '\''); ?>>
+<input type="button" class="cancelrenamegroup" value=<?php xl('Cancel', 'e', '\'', '\''); ?>>
 </div>
 
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: lightgrey;">
 <span class='bold'>
-<?php xl('Group Name','e'); ?>: <input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
+<?php xl('Group Name', 'e'); ?>: <input type="textbox" size="20" maxlength="30" name="newgroupname" id="newgroupname">
 <br>
 <table style="border-collapse: collapse; margin-top: 5px;">
 <thead>
  <tr class='head'>
-  <th><?php xl('Order','e'); ?></th>
-  <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-  <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
-  <th><?php xl('UOR','e'); ?></th>
-  <th><?php xl('Data Type','e'); ?></th>
-  <th><?php xl('Size','e'); ?></th>
-  <th><?php xl('Max Size','e'); ?></th>
-  <th><?php xl('List','e'); ?></th>
-  <th><?php xl('Backup List','e'); ?></th>
-  <th><?php xl('Label Cols','e'); ?></th>
-  <th><?php xl('Data Cols','e'); ?></th>
-  <th><?php xl('Options','e'); ?></th>
-  <th><?php xl('Description','e'); ?></th>
+  <th><?php xl('Order', 'e'); ?></th>
+  <th<?php echo " $lbfonly"; ?>><?php xl('Source', 'e'); ?></th>
+  <th><?php xl('ID', 'e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user', 'e', '\'', '\''); ?> >(?)</span></th>
+  <th><?php xl('Label', 'e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form', 'e', '\'', '\''); ?> >(?)</span></th>
+  <th><?php xl('UOR', 'e'); ?></th>
+  <th><?php xl('Data Type', 'e'); ?></th>
+  <th><?php xl('Size', 'e'); ?></th>
+  <th><?php xl('Max Size', 'e'); ?></th>
+  <th><?php xl('List', 'e'); ?></th>
+  <th><?php xl('Backup List', 'e'); ?></th>
+  <th><?php xl('Label Cols', 'e'); ?></th>
+  <th><?php xl('Data Cols', 'e'); ?></th>
+  <th><?php xl('Options', 'e'); ?></th>
+  <th><?php xl('Description', 'e'); ?></th>
  </tr>
 </thead>
 <tbody>
@@ -1174,9 +1174,9 @@ foreach ($sources as $key => $value) {
 <td><input type="textbox" name="gnewtitle" id="gnewtitle" value="" size="20" maxlength="63"> </td>
 <td>
 <select name="gnewuor" id="gnewuor">
-<option value="0"><?php xl('Unused','e'); ?></option>
-<option value="1" selected><?php xl('Optional','e'); ?></option>
-<option value="2"><?php xl('Required','e'); ?></option>
+<option value="0"><?php xl('Unused', 'e'); ?></option>
+<option value="1" selected><?php xl('Optional', 'e'); ?></option>
+<option value="2"><?php xl('Required', 'e'); ?></option>
 </select>
 </td>
 <td align='center'>
@@ -1198,7 +1198,7 @@ foreach ($datatypes as $key=>$value) {
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while($row = sqlFetchArray($res)){
-            echo "<option value='".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</option>";
+            echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
         ?>
     </select>
@@ -1213,8 +1213,8 @@ foreach ($datatypes as $key=>$value) {
 </tbody>
 </table>
 <br>
-<input type="button" class="savenewgroup" value=<?php xl('Save New Group','e','\'','\''); ?>>
-<input type="button" class="cancelnewgroup" value=<?php xl('Cancel','e','\'','\''); ?>>
+<input type="button" class="savenewgroup" value=<?php xl('Save New Group', 'e', '\'', '\''); ?>>
+<input type="button" class="cancelnewgroup" value=<?php xl('Cancel', 'e', '\'', '\''); ?>>
 </span>
 </div>
 
@@ -1224,20 +1224,20 @@ foreach ($datatypes as $key=>$value) {
 <table style="border-collapse: collapse;">
  <thead>
   <tr class='head'>
-   <th><?php xl('Order','e'); ?></th>
-   <th<?php echo " $lbfonly"; ?>><?php xl('Source','e'); ?></th>
-   <th><?php xl('ID','e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user','e','\'','\''); ?> >(?)</span></th>
-   <th><?php xl('Label','e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form','e','\'','\''); ?> >(?)</span></th>
-   <th><?php xl('UOR','e'); ?></th>
-   <th><?php xl('Data Type','e'); ?></th>
-   <th><?php xl('Size','e'); ?></th>
-   <th><?php xl('Max Size','e'); ?></th>
-   <th><?php xl('List','e'); ?></th>
-   <th><?php xl('Backup List','e'); ?></th>
-   <th><?php xl('Label Cols','e'); ?></th>
-   <th><?php xl('Data Cols','e'); ?></th>
-   <th><?php xl('Options','e'); ?></th>
-   <th><?php xl('Description','e'); ?></th>
+   <th><?php xl('Order', 'e'); ?></th>
+   <th<?php echo " $lbfonly"; ?>><?php xl('Source', 'e'); ?></th>
+   <th><?php xl('ID', 'e'); ?>&nbsp;<span class="help" title=<?php xl('A unique value to identify this field, not visible to the user', 'e', '\'', '\''); ?> >(?)</span></th>
+   <th><?php xl('Label', 'e'); ?>&nbsp;<span class="help" title=<?php xl('The label that appears to the user on the form', 'e', '\'', '\''); ?> >(?)</span></th>
+   <th><?php xl('UOR', 'e'); ?></th>
+   <th><?php xl('Data Type', 'e'); ?></th>
+   <th><?php xl('Size', 'e'); ?></th>
+   <th><?php xl('Max Size', 'e'); ?></th>
+   <th><?php xl('List', 'e'); ?></th>
+   <th><?php xl('Backup List', 'e'); ?></th>
+   <th><?php xl('Label Cols', 'e'); ?></th>
+   <th><?php xl('Data Cols', 'e'); ?></th>
+   <th><?php xl('Options', 'e'); ?></th>
+   <th><?php xl('Description', 'e'); ?></th>
   </tr>
  </thead>
  <tbody>
@@ -1257,9 +1257,9 @@ foreach ($sources as $key => $value) {
    <td><input type="textbox" name="newtitle" id="newtitle" value="" size="20" maxlength="63"> </td>
    <td>
     <select name="newuor" id="newuor">
-     <option value="0"><?php xl('Unused','e'); ?></option>
-     <option value="1" selected><?php xl('Optional','e'); ?></option>
-     <option value="2"><?php xl('Required','e'); ?></option>
+     <option value="0"><?php xl('Unused', 'e'); ?></option>
+     <option value="1" selected><?php xl('Optional', 'e'); ?></option>
+     <option value="2"><?php xl('Required', 'e'); ?></option>
     </select>
    </td>
    <td align='center'>
@@ -1281,7 +1281,7 @@ foreach ($datatypes as $key=>$value) {
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while($row = sqlFetchArray($res)){
-            echo "<option value='".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'],ENT_QUOTES)."</option>";
+            echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
         ?>
        </select>
@@ -1295,8 +1295,8 @@ foreach ($datatypes as $key=>$value) {
   </tr>
   <tr>
    <td colspan="9">
-    <input type="button" class="savenewfield" value=<?php xl('Save New Field','e','\'','\''); ?>>
-    <input type="button" class="cancelnewfield" value=<?php xl('Cancel','e','\'','\''); ?>>
+    <input type="button" class="savenewfield" value=<?php xl('Save New Field', 'e', '\'', '\''); ?>>
+    <input type="button" class="cancelnewfield" value=<?php xl('Cancel', 'e', '\'', '\''); ?>>
    </td>
   </tr>
  </tbody>
@@ -1412,7 +1412,7 @@ $(document).ready(function(){
             return false;
         }
         if ($("#newgroupname").val().match(/^(\d+|\s+)/)) {
-            alert("<?php xl('Group names cannot start with numbers or spaces.','e'); ?>");
+            alert("<?php xl('Group names cannot start with numbers or spaces.', 'e'); ?>");
             return false;
         }
         var validname = $("#newgroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
@@ -1422,27 +1422,27 @@ $(document).ready(function(){
         
         // seq must be numeric and less than 999
         if (! IsNumeric($("#gnewseq").val(), 0, 999)) {
-            alert("<?php xl('Order must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('Order must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // length must be numeric and less than 999
         if (! IsNumeric($("#gnewlengthWidth").val(), 0, 999)) {
-            alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('Size must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // titlecols must be numeric and less than 100
         if (! IsNumeric($("#gnewtitlecols").val(), 0, 999)) {
-            alert("<?php xl('LabelCols must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('LabelCols must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // datacols must be numeric and less than 100
         if (! IsNumeric($("#gnewdatacols").val(), 0, 999)) {
-            alert("<?php xl('DataCols must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('DataCols must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // some fields cannot be blank
         if ($("#gnewtitle").val() == "") {
-            alert("<?php xl('Label cannot be blank','e'); ?>");
+            alert("<?php xl('Label cannot be blank', 'e'); ?>");
             return false;
         }
         // the id field can only have letters, numbers and underscores
@@ -1469,7 +1469,7 @@ $(document).ready(function(){
     var DeleteGroup = function(btnObj) {
         var parts = $(btnObj).attr("id");
         var groupname = parts.replace(/^\d+/, "");
-        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the entire group named','e','',' '); ?>'"+groupname+"'?")) {
+        if (confirm("<?php xl('WARNING', 'e', '', ' - ') . xl('This action cannot be undone.', 'e', '', '\n') . xl('Are you sure you wish to delete the entire group named', 'e', '', ' '); ?>'"+groupname+"'?")) {
             // submit the form to add a new field to a specific group
             $("#formaction").val("deletegroup");
             $("#deletegroupname").val(parts);
@@ -1517,7 +1517,7 @@ $(document).ready(function(){
         // the group name field can only have letters, numbers, spaces and underscores
         // AND it cannot start with a number
         if ($("#renamegroupname").val().match(/^\d+/)) {
-            alert("<?php xl('Group names cannot start with numbers.','e'); ?>");
+            alert("<?php xl('Group names cannot start with numbers.', 'e'); ?>");
             return false;
         }
         var validname = $("#renamegroupname").val().replace(/[^A-za-z0-9 ]/g, "_"); // match any non-word characters and replace them
@@ -1561,7 +1561,7 @@ $(document).ready(function(){
 
     var DeleteFields = function(btnObj) {
         if (!myChangeCheck()) return;
-        if (confirm("<?php xl('WARNING','e','',' - ') . xl('This action cannot be undone.','e','','\n') . xl('Are you sure you wish to delete the selected fields?','e'); ?>")) {
+        if (confirm("<?php xl('WARNING', 'e', '', ' - ') . xl('This action cannot be undone.', 'e', '', '\n') . xl('Are you sure you wish to delete the selected fields?', 'e'); ?>")) {
             var delim = "";
             $(".selectfield").each(function(i) {
                 // build a list of selected field names to be moved
@@ -1584,27 +1584,27 @@ $(document).ready(function(){
     
         // seq must be numeric and less than 999
         if (! IsNumeric($("#newseq").val(), 0, 999)) {
-            alert("<?php xl('Order must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('Order must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // length must be numeric and less than 999
         if (! IsNumeric($("#newlengthWidth").val(), 0, 999)) {
-            alert("<?php xl('Size must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('Size must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // titlecols must be numeric and less than 100
         if (! IsNumeric($("#newtitlecols").val(), 0, 999)) {
-            alert("<?php xl('LabelCols must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('LabelCols must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // datacols must be numeric and less than 100
         if (! IsNumeric($("#newdatacols").val(), 0, 999)) {
-            alert("<?php xl('DataCols must be a number between 1 and 999','e'); ?>");
+            alert("<?php xl('DataCols must be a number between 1 and 999', 'e'); ?>");
             return false;
         }
         // some fields cannot be blank
         if ($("#newtitle").val() == "") {
-            alert("<?php xl('Label cannot be blank','e'); ?>");
+            alert("<?php xl('Label cannot be blank', 'e'); ?>");
             return false;
         }
         // the id field can only have letters, numbers and underscores
@@ -1724,7 +1724,7 @@ function elemFromPart(part) {
 }
 
 function FieldIDClicked(elem) {
-<?php if (substr($layout_id,0,3) == 'LBF') { ?>
+<?php if (substr($layout_id, 0, 3) == 'LBF') { ?>
   fieldselectfield = elem;
   var srcval = elemFromPart('source').value;
   // If the field ID is for the local form, allow direct entry.

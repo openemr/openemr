@@ -39,15 +39,15 @@
         ?>
         <table class="class1">
           <tr class="header">
-            <th><?php echo htmlspecialchars( xl('Order Date'),ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Order Name'),ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Result Name'),ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Abnormal'),ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Value'),ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Range'),ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Units'),ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Result Status'),ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Report Status'),ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Order Date'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Order Name'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars( xl('Result Name'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Abnormal'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars( xl('Value'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars( xl('Range'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars( xl('Units'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars( xl('Result Status'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars( xl('Report Status'), ENT_NOQUOTES); ?></th>
           </tr>
         <?php
         $even=false;
@@ -93,17 +93,17 @@
                     $class="class1_odd";
                     $even=true;
                 }
-                    $date=explode('-',$row['date_ordered']);
+                    $date=explode('-', $row['date_ordered']);
                     echo "<tr class='".$class."'>";
-                    echo "<td>".htmlspecialchars($date[1]."/".$date[2]."/".$date[0],ENT_NOQUOTES)."</td>";
-                    echo "<td>".htmlspecialchars($row['procedure_name'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".htmlspecialchars($rrow['name'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_abnormal'),$rrow['abnormal'])."</td>";
-                    echo "<td>".htmlspecialchars($row['result'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".htmlspecialchars($rrow['pt2_range'],ENT_NOQUOTES)."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$rrow['pt2_units'])."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_status'),$rrow['result_status'])."</td>";
-                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_rep_status'),$row['report_status'])."</td>";
+                    echo "<td>".htmlspecialchars($date[1]."/".$date[2]."/".$date[0], ENT_NOQUOTES)."</td>";
+                    echo "<td>".htmlspecialchars($row['procedure_name'], ENT_NOQUOTES)."</td>";
+                        echo "<td>".htmlspecialchars($rrow['name'], ENT_NOQUOTES)."</td>";
+                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_abnormal'), $rrow['abnormal'])."</td>";
+                    echo "<td>".htmlspecialchars($row['result'], ENT_NOQUOTES)."</td>";
+                        echo "<td>".htmlspecialchars($rrow['pt2_range'], ENT_NOQUOTES)."</td>";
+                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'), $rrow['pt2_units'])."</td>";
+                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_status'), $rrow['result_status'])."</td>";
+                        echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_rep_status'), $row['report_status'])."</td>";
                     echo "</tr>";
 
             }
@@ -114,6 +114,6 @@
     }
     else
     {
-        echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
+        echo htmlspecialchars( xl("No Results"), ENT_NOQUOTES);
     }
 ?>

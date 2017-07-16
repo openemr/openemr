@@ -45,159 +45,159 @@ if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
     return;
 }
      // xl('Accounting')
- $gacl->add_object_section('Administration', 'admin'        , 10, 0, 'ACO');
+ $gacl->add_object_section('Administration', 'admin', 10, 0, 'ACO');
      // xl('Administration')
- $gacl->add_object_section('Encounters'    , 'encounters'    , 10, 0, 'ACO');
+ $gacl->add_object_section('Encounters', 'encounters', 10, 0, 'ACO');
      // xl('Encounters')
- $gacl->add_object_section('Lists'         , 'lists'         , 10, 0, 'ACO');
+ $gacl->add_object_section('Lists', 'lists', 10, 0, 'ACO');
      // xl('Lists')
- $gacl->add_object_section('Patients'      , 'patients'      , 10, 0, 'ACO');
+ $gacl->add_object_section('Patients', 'patients', 10, 0, 'ACO');
      // xl('Patients')
- $gacl->add_object_section('Squads'         , 'squads'         , 10, 0, 'ACO');
+ $gacl->add_object_section('Squads', 'squads', 10, 0, 'ACO');
      // xl('Squads')
- $gacl->add_object_section('Sensitivities'  , 'sensitivities'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Sensitivities', 'sensitivities', 10, 0, 'ACO');
      // xl('Sensitivities')
- $gacl->add_object_section('Placeholder'    , 'placeholder'    , 10, 0, 'ACO');
+ $gacl->add_object_section('Placeholder', 'placeholder', 10, 0, 'ACO');
      // xl('Placeholder')
- $gacl->add_object_section('Nation Notes'   , 'nationnotes'    , 10, 0, 'ACO');
+ $gacl->add_object_section('Nation Notes', 'nationnotes', 10, 0, 'ACO');
      // xl('Nation Notes')
- $gacl->add_object_section('Patient Portal' , 'patientportal'  , 10, 0, 'ACO');
+ $gacl->add_object_section('Patient Portal', 'patientportal', 10, 0, 'ACO');
      // xl('Patient Portal')
- $gacl->add_object_section('Menus','menus'  ,  10, 0, 'ACO');
+ $gacl->add_object_section('Menus', 'menus', 10, 0, 'ACO');
      // xl('Menus')
- $gacl->add_object_section('Groups','groups',  10, 0, 'ACO');
+ $gacl->add_object_section('Groups', 'groups', 10, 0, 'ACO');
      // xl('Groups')
 
 
 
  // Create Accounting ACOs.
  //
- $gacl->add_object('acct', 'Billing (write optional)'           , 'bill' , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Billing (write optional)', 'bill', 10, 0, 'ACO');
      // xl('Billing (write optional)')
- $gacl->add_object('acct', 'Price Discounting'                  , 'disc' , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Price Discounting', 'disc', 10, 0, 'ACO');
      // xl('Price Discounting')
- $gacl->add_object('acct', 'EOB Data Entry'                     , 'eob'  , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'EOB Data Entry', 'eob', 10, 0, 'ACO');
      // xl('EOB Data Entry')
- $gacl->add_object('acct', 'Financial Reporting - my encounters', 'rep'  , 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Financial Reporting - my encounters', 'rep', 10, 0, 'ACO');
      // xl('Financial Reporting - my encounters')
- $gacl->add_object('acct', 'Financial Reporting - anything'     , 'rep_a', 10, 0, 'ACO');
+ $gacl->add_object('acct', 'Financial Reporting - anything', 'rep_a', 10, 0, 'ACO');
      // xl('Financial Reporting - anything')
 
  // Create Administration ACOs.
  //
- $gacl->add_object('admin', 'Superuser'                       , 'super'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Superuser', 'super', 10, 0, 'ACO');
      // xl('Superuser')
- $gacl->add_object('admin', 'Calendar Settings'               , 'calendar' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Calendar Settings', 'calendar', 10, 0, 'ACO');
      // xl('Calendar Settings')
- $gacl->add_object('admin', 'Database Reporting'              , 'database' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Database Reporting', 'database', 10, 0, 'ACO');
      // xl('Database Reporting')
- $gacl->add_object('admin', 'Forms Administration'            , 'forms'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Forms Administration', 'forms', 10, 0, 'ACO');
      // xl('Forms Administration')
- $gacl->add_object('admin', 'Practice Settings'               , 'practice' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Practice Settings', 'practice', 10, 0, 'ACO');
      // xl('Practice Settings')
- $gacl->add_object('admin', 'Superbill Codes Administration'  , 'superbill', 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Superbill Codes Administration', 'superbill', 10, 0, 'ACO');
      // xl('Superbill Codes Administration')
- $gacl->add_object('admin', 'Users/Groups/Logs Administration', 'users'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Users/Groups/Logs Administration', 'users', 10, 0, 'ACO');
      // xl('Users/Groups/Logs Administration')
- $gacl->add_object('admin', 'Batch Communication Tool'        , 'batchcom' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Batch Communication Tool', 'batchcom', 10, 0, 'ACO');
      // xl('Batch Communication Tool')
- $gacl->add_object('admin', 'Language Interface Tool'         , 'language' , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Language Interface Tool', 'language', 10, 0, 'ACO');
      // xl('Language Interface Tool')
- $gacl->add_object('admin', 'Pharmacy Dispensary'             , 'drugs'    , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Pharmacy Dispensary', 'drugs', 10, 0, 'ACO');
      // xl('Pharmacy Dispensary')
- $gacl->add_object('admin', 'ACL Administration'              , 'acl'      , 10, 0, 'ACO');
+ $gacl->add_object('admin', 'ACL Administration', 'acl', 10, 0, 'ACO');
      // xl('ACL Administration')
- $gacl->add_object('admin', 'Multipledb'                      ,'multipledb', 10, 0, 'ACO');
+ $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
  // xl('Multipledb')
 
  // Create ACOs for encounters.
  //
- $gacl->add_object('encounters', 'Authorize - my encounters'                        , 'auth'    , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Authorize - my encounters', 'auth', 10, 0, 'ACO');
      // xl('Authorize - my encounters')
- $gacl->add_object('encounters', 'Authorize - any encounters'                       , 'auth_a'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Authorize - any encounters', 'auth_a', 10, 0, 'ACO');
      // xl('Authorize - any encounters')
- $gacl->add_object('encounters', 'Coding - my encounters (write,wsome optional)'    , 'coding'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Coding - my encounters (write,wsome optional)', 'coding', 10, 0, 'ACO');
      // xl('Coding - my encounters (write,wsome optional)')
- $gacl->add_object('encounters', 'Coding - any encounters (write,wsome optional)'   , 'coding_a', 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Coding - any encounters (write,wsome optional)', 'coding_a', 10, 0, 'ACO');
      // xl('Coding - any encounters (write,wsome optional)')
- $gacl->add_object('encounters', 'Notes - my encounters (write,addonly optional)'   , 'notes'   , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Notes - my encounters (write,addonly optional)', 'notes', 10, 0, 'ACO');
      // xl('Notes - my encounters (write,addonly optional)')
- $gacl->add_object('encounters', 'Notes - any encounters (write,addonly optional)'  , 'notes_a' , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Notes - any encounters (write,addonly optional)', 'notes_a', 10, 0, 'ACO');
      // xl('Notes - any encounters (write,addonly optional)')
- $gacl->add_object('encounters', 'Fix encounter dates - any encounters'             , 'date_a'  , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Fix encounter dates - any encounters', 'date_a', 10, 0, 'ACO');
      // xl('Fix encounter dates - any encounters')
- $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed' , 10, 0, 'ACO');
+ $gacl->add_object('encounters', 'Less-private information (write,addonly optional)', 'relaxed', 10, 0, 'ACO');
      // xl('Less-private information (write,addonly optional)')
 
  // Create ACOs for lists.
  //
- $gacl->add_object('lists', 'Default List (write,addonly optional)'        , 'default'  , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Default List (write,addonly optional)', 'default', 10, 0, 'ACO');
      // xl('Default List (write,addonly optional)')
- $gacl->add_object('lists', 'State List (write,addonly optional)'          , 'state'    , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'State List (write,addonly optional)', 'state', 10, 0, 'ACO');
      // xl('State List (write,addonly optional)')
- $gacl->add_object('lists', 'Country List (write,addonly optional)'        , 'country'  , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Country List (write,addonly optional)', 'country', 10, 0, 'ACO');
      // xl('Country List (write,addonly optional)')
- $gacl->add_object('lists', 'Language List (write,addonly optional)'       , 'language' , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Language List (write,addonly optional)', 'language', 10, 0, 'ACO');
      // xl('Language List (write,addonly optional)')
- $gacl->add_object('lists', 'Ethnicity-Race List (write,addonly optional)' , 'ethrace'  , 10, 0, 'ACO');
+ $gacl->add_object('lists', 'Ethnicity-Race List (write,addonly optional)', 'ethrace', 10, 0, 'ACO');
      // xl('Ethnicity-Race List (write,addonly optional)')
 
  // Create ACOs for patientportal.
  //
- $gacl->add_object('patientportal', 'Patient Portal' , 'portal'  , 10, 0, 'ACO');
+ $gacl->add_object('patientportal', 'Patient Portal', 'portal', 10, 0, 'ACO');
      // xl('Patient Portal')
 
  // Create ACOs for modules.
  //
- $gacl->add_object('menus', 'Modules' , 'modle'  , 10, 0, 'ACO');
+ $gacl->add_object('menus', 'Modules', 'modle', 10, 0, 'ACO');
      // xl('Modules')
 
  // Create ACOs for patients.
  //
- $gacl->add_object('patients', 'Appointments (write,wsome optional)'      , 'appt' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Appointments (write,wsome optional)', 'appt', 10, 0, 'ACO');
      // xl('Appointments (write,wsome optional)')
- $gacl->add_object('patients', 'Demographics (write,addonly optional)'    , 'demo' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Demographics (write,addonly optional)', 'demo', 10, 0, 'ACO');
      // xl('Demographics (write,addonly optional)')
- $gacl->add_object('patients', 'Medical/History (write,addonly optional)' , 'med'  , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Medical/History (write,addonly optional)', 'med', 10, 0, 'ACO');
      // xl('Medical/History (write,addonly optional)')
- $gacl->add_object('patients', 'Transactions (write optional)'            , 'trans', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Transactions (write optional)', 'trans', 10, 0, 'ACO');
      // xl('Transactions (write optional)')
- $gacl->add_object('patients', 'Documents (write,addonly optional)'       , 'docs' , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Documents (write,addonly optional)', 'docs', 10, 0, 'ACO');
      // xl('Documents (write,addonly optional)')
- $gacl->add_object('patients', 'Patient Notes (write,addonly optional)'   , 'notes', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Patient Notes (write,addonly optional)', 'notes', 10, 0, 'ACO');
      // xl('Patient Notes (write,addonly optional)')
- $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign'  , 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Sign Lab Results (write,addonly optional)', 'sign', 10, 0, 'ACO');
      // xl('Sign Lab Results (write,addonly optional)')
- $gacl->add_object('patients', 'Patient Reminders (write,addonly optional)','reminder', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Patient Reminders (write,addonly optional)', 'reminder', 10, 0, 'ACO');
      // xl('Patient Reminders (write,addonly optional)')
- $gacl->add_object('patients', 'Clinical Reminders/Alerts (write,addonly optional)','alert', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Clinical Reminders/Alerts (write,addonly optional)', 'alert', 10, 0, 'ACO');
      // xl('Clinical Reminders/Alerts (write,addonly optional)')
- $gacl->add_object('patients', 'Disclosures (write,addonly optional)','disclosure', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Disclosures (write,addonly optional)', 'disclosure', 10, 0, 'ACO');
      // xl('Disclosures (write,addonly optional)')
- $gacl->add_object('patients', 'Prescriptions (write,addonly optional)','rx', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Prescriptions (write,addonly optional)', 'rx', 10, 0, 'ACO');
      // xl('Prescriptions (write,addonly optional)')
- $gacl->add_object('patients', 'Amendments (write,addonly optional)','amendment', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Amendments (write,addonly optional)', 'amendment', 10, 0, 'ACO');
      // xl('Amendments (write,addonly optional)')
- $gacl->add_object('patients', 'Lab Results (write,addonly optional)','lab', 10, 0, 'ACO');
+ $gacl->add_object('patients', 'Lab Results (write,addonly optional)', 'lab', 10, 0, 'ACO');
      // xl('Lab Results (write,addonly optional)')
 
 
- $gacl->add_object('groups', 'View/Add/Update groups','gadd', 10, 0, 'ACO');
+ $gacl->add_object('groups', 'View/Add/Update groups', 'gadd', 10, 0, 'ACO');
  // xl('View/Add/Update groups')
- $gacl->add_object('groups', 'View/Create/Update groups appointment in calendar','gcalendar', 10, 0, 'ACO');
+ $gacl->add_object('groups', 'View/Create/Update groups appointment in calendar', 'gcalendar', 10, 0, 'ACO');
 // xl('View/Create/Update groups appointment in calendar')
- $gacl->add_object('groups', 'Group encounter log','glog', 10, 0, 'ACO');
+ $gacl->add_object('groups', 'Group encounter log', 'glog', 10, 0, 'ACO');
 // xl('Group encounter log')
- $gacl->add_object('groups', 'Group detailed log of appointment in patient record','gdlog', 10, 0, 'ACO');
+ $gacl->add_object('groups', 'Group detailed log of appointment in patient record', 'gdlog', 10, 0, 'ACO');
 // xl('Group detailed log of appointment in patient record')
- $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist','gm', 10, 0, 'ACO');
+ $gacl->add_object('groups', 'Send message from the permanent group therapist to the personal therapist', 'gm', 10, 0, 'ACO');
  // xl('Send message from the permanent group therapist to the personal therapist')
 
  // Create ACOs for sensitivities.
  //
  $gacl->add_object('sensitivities', 'Normal', 'normal', 10, 0, 'ACO');
      // xl('Normal')
- $gacl->add_object('sensitivities', 'High'  , 'high'  , 20, 0, 'ACO');
+ $gacl->add_object('sensitivities', 'High', 'high', 20, 0, 'ACO');
      // xl('High')
 
  // Create ACO for placeholder.
@@ -212,19 +212,19 @@ if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
 
  // Create ARO groups.
  //
- $users = $gacl->add_group('users', 'OpenEMR Users' , 0     , 'ARO');
+ $users = $gacl->add_group('users', 'OpenEMR Users', 0, 'ARO');
      // xl('OpenEMR Users')
  $admin = $gacl->add_group('admin', 'Administrators', $users, 'ARO');
      // xl('Administrators')
- $clin  = $gacl->add_group('clin' , 'Clinicians'    , $users, 'ARO');
+ $clin  = $gacl->add_group('clin', 'Clinicians', $users, 'ARO');
      // xl('Clinicians')
- $doc   = $gacl->add_group('doc'  , 'Physicians'    , $users, 'ARO');
+ $doc   = $gacl->add_group('doc', 'Physicians', $users, 'ARO');
      // xl('Physicians')
- $front = $gacl->add_group('front', 'Front Office'  , $users, 'ARO');
+ $front = $gacl->add_group('front', 'Front Office', $users, 'ARO');
      // xl('Front Office')
- $back  = $gacl->add_group('back' , 'Accounting'    , $users, 'ARO');
+ $back  = $gacl->add_group('back', 'Accounting', $users, 'ARO');
      // xl('Accounting')
-$breakglass  = $gacl->add_group('breakglass' , 'Emergency Login'    , $users, 'ARO');
+$breakglass  = $gacl->add_group('breakglass', 'Emergency Login', $users, 'ARO');
      // xl('Emergency Login')
 
 
@@ -243,7 +243,7 @@ if (isset($this) && isset($this->iuser)) {
     $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
 }
 else {
-    $gacl->add_object('users', 'Administrator', 'admin' ,10, 0, 'ARO');
+    $gacl->add_object('users', 'Administrator', 'admin', 10, 0, 'ARO');
     $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
 }
 

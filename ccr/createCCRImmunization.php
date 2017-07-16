@@ -49,7 +49,7 @@ do {
     $e_Status = $ccr->createElement('Status');
     $e_Immunization->appendChild($e_Status);
 
-    $e_Text = $ccr->createElement('Text','ACTIVE');
+    $e_Text = $ccr->createElement('Text', 'ACTIVE');
     $e_Status->appendChild($e_Text);
         
     $e_Immunization->appendChild(sourceType($ccr, $sourceID));
@@ -60,7 +60,7 @@ do {
     $e_ProductName = $ccr->createElement('ProductName');
     $e_Product->appendChild($e_ProductName);
 
-    $e_Text = $ccr->createElement('Text',$row['title']);
+    $e_Text = $ccr->createElement('Text', $row['title']);
     $e_ProductName->appendChild( $e_Text);
 
     $e_Directions = $ccr->createElement('Directions');
@@ -72,7 +72,7 @@ do {
     $e_Description = $ccr->createElement('Description');
     $e_Direction->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text',$row['note']);
+    $e_Text = $ccr->createElement('Text', $row['note']);
     $e_Description->appendChild($e_Text);
         
     $e_Code = $ccr->createElement('Code');

@@ -78,7 +78,7 @@ class SendtoController extends AbstractActionController
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);
-                $components = $this->getSendtoTable()->getCombinationFormComponents($encounter,$formId);
+                $components = $this->getSendtoTable()->getCombinationFormComponents($encounter, $formId);
                 echo $components;
                 break;
             case 'send_fax':

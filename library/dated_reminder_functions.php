@@ -43,8 +43,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
                             WHERE drl.to_id = ? 
                             AND dr.`message_processed` = 0
                             AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY) 
-                            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0,$alerts_to_show"
-                            , array($userID)
+                            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0,$alerts_to_show", array($userID)
                             );
         
 // --------- loop through the results
@@ -52,7 +51,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 // --------- need to run patient query seperately to allow for reminders not linked to a patient  
         $pRow = array();
         if($drRow['pid'] > 0){
-            $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($drRow['pid']));
+            $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", array($drRow['pid']));
             $pRow = sqlFetchArray($pSQL);
         }
                
@@ -103,8 +102,7 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
                             WHERE drl.to_id = ? 
                             AND dr.`message_processed` = 0
-                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY)"
-                      , array($userID)
+                            AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL $days_to_show DAY)", array($userID)
                       );
         
     $drRow=sqlFetchArray($drSQL);
@@ -129,8 +127,7 @@ function GetAllReminderCount($userID = false)
                             JOIN `users` u ON dr.dr_from_ID = u.id 
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
                             WHERE drl.to_id = ? 
-                            AND dr.`message_processed` = 0"
-                      , array($userID)
+                            AND dr.`message_processed` = 0", array($userID)
                       );
         
     $drRow=sqlFetchArray($drSQL);
@@ -253,7 +250,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 // ------- check sendTo is not empty 
            !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker 
-           preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$dueDate) and
+           preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $dueDate) and
 // ------- check priority, only allow 1-3 
            intval($priority) <= 3 and
 // ------- check message, only up to 255 characters
@@ -262,7 +259,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
            is_numeric($patID)
          ){
 // ------- check for valid recipient           
-             $cRow=sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?',array($sendDMTo)));
+             $cRow=sqlFetchArray(sqlStatement('SELECT count(id) FROM  `users` WHERE  `id` = ?', array($sendDMTo)));
         if($cRow == 0){
             return false;
         }
@@ -289,7 +286,7 @@ function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 function getPatName($patientID)
 {
     $patientID = intval($patientID);
-    $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($patientID));
+    $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", array($patientID));
     $pRow = sqlFetchArray($pSQL);
     return (empty($pRow) ? '' : $pRow['ptitle'].' '.$pRow['pfname'].' '.$pRow['pmname'].' '.$pRow['plname']);
 }
@@ -364,15 +361,14 @@ function logRemindersArray()
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id        
                             JOIN `users` u ON dr.dr_from_ID = u.id  
                             JOIN `users` tu ON drl.to_id = tu.id        
-                            $where"
-                            ,$input);
+                            $where", $input);
 // --------- loop through the results
     for($i=0; $drRow=sqlFetchArray($drSQL); $i++){
 // --------- need to run patient query seperately to allow for messages not linked to a patient  
-        $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?",array($drRow['pid']));
+        $pSQL = sqlStatement("SELECT pd.title ptitle, pd.fname pfname, pd.mname pmname, pd.lname plname FROM `patient_data` pd WHERE pd.pid = ?", array($drRow['pid']));
         $pRow = sqlFetchArray($pSQL);
            
-        $prSQL = sqlStatement("SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?",array($drRow['dr_processed_by']));
+        $prSQL = sqlStatement("SELECT u.fname pfname, u.mname pmname, u.lname plname FROM `users` u WHERE u.id = ?", array($drRow['dr_processed_by']));
         $prRow = sqlFetchArray($prSQL );
           
 // --------- fill the $reminders array 

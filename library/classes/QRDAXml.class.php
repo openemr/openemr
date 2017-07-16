@@ -36,7 +36,7 @@ class QRDAXml extends XmlWriterOemr
 
     function open_clinicaldocument()
     {
-        $this->push('ClinicalDocument',  array('xmlns'=>'urn:hl7-org:v3', 'xmlns:voc'=>'urn:hl7-org:v3/voc', 'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation'=>'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
+        $this->push('ClinicalDocument', array('xmlns'=>'urn:hl7-org:v3', 'xmlns:voc'=>'urn:hl7-org:v3/voc', 'xmlns:xsi'=>'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation'=>'urn:hl7-org:v3 http://xreg2.nist.gov:8080/hitspValidation/schema/','xmlns:sdtc' => 'urn:hl7-org:sdtc'));
     }
 
     function close_clinicaldocument()
@@ -308,32 +308,32 @@ class QRDAXml extends XmlWriterOemr
     function add_facilAddress($addrArr)
     {
 
-        $this->push('addr',array("use" => "WP"));
+        $this->push('addr', array("use" => "WP"));
         if($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
         else
-            $this->emptyelement('streetAddressLine',array("nullFlavor" => "UNK"));
+            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
         if($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
         else
-            $this->emptyelement('city',array("nullFlavor" => "UNK"));
+            $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
         if($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
         else
-            $this->emptyelement('state',array("nullFlavor" => "UNK"));
+            $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
 
         if($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
         else
-            $this->emptyelement('postalCode',array("nullFlavor" => "UNK"));
+            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
         if($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
         else
-            $this->emptyelement('country',array("nullFlavor" => "UNK"));
+            $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }
@@ -499,31 +499,31 @@ class QRDAXml extends XmlWriterOemr
 
     function add_patientAddress($addrArr)
     {
-        $this->push('addr',array('use' => 'WP'));
+        $this->push('addr', array('use' => 'WP'));
         if($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
         else
-            $this->emptyelement('streetAddressLine',array("nullFlavor" => "UNK"));
+            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
         if($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
         else
-            $this->emptyelement('city',array("nullFlavor" => "UNK"));
+            $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
         if($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
         else
-            $this->emptyelement('state',array("nullFlavor" => "UNK"));
+            $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
         if($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
         else
-            $this->emptyelement('postalCode',array("nullFlavor" => "UNK"));
+            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
         if($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
         else
-            $this->emptyelement('country',array("nullFlavor" => "UNK"));
+            $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }
@@ -540,31 +540,31 @@ class QRDAXml extends XmlWriterOemr
     function add_userAddress($addrArr)
     {
 
-        $this->push('addr',array('use' => 'WP'));
+        $this->push('addr', array('use' => 'WP'));
         if($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
         else
-            $this->emptyelement('streetAddressLine',array("nullFlavor" => "UNK"));
+            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
         if($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
         else
-            $this->emptyelement('city',array("nullFlavor" => "UNK"));
+            $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
         if($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
         else
-            $this->emptyelement('state',array("nullFlavor" => "UNK"));
+            $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
         if($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
         else
-            $this->emptyelement('postalCode',array("nullFlavor" => "UNK"));
+            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
         if($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
         else
-            $this->emptyelement('country',array("nullFlavor" => "UNK"));
+            $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }

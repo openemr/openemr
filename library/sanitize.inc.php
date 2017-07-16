@@ -25,7 +25,7 @@ function check_file_dir_name($label)
 // Convert all illegal characters to _
 function convert_safe_file_dir_name($label)
 {
-    return preg_replace('/[^A-Za-z0-9_.-]/','_',$label);
+    return preg_replace('/[^A-Za-z0-9_.-]/', '_', $label);
 }
 
 //Basename functionality for nonenglish languages (without this, basename function ommits nonenglish characters).
@@ -69,7 +69,7 @@ function isWhiteFile($file)
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
-        if(in_array($categoryType. '/*',  $white_list))return true;
+        if(in_array($categoryType. '/*', $white_list))return true;
     }
     return false;
 }

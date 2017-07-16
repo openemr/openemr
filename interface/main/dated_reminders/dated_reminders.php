@@ -46,9 +46,9 @@ if(isset($_POST['drR'])){
     // set as processed
     setReminderAsProcessed($_POST['drR']);
     // ----- get updated data
-    $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+    $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
     // ----- echo for ajax to use
-    echo getRemindersHTML($reminders,$today);
+    echo getRemindersHTML($reminders, $today);
     // stop any other output
     exit;
 }
@@ -56,7 +56,7 @@ if(isset($_POST['drR'])){
 // END HANDEL AJAX TO MARK REMINDERS AS READ
 // ----------------------------------------------------------------------------
 
-      $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+      $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
 
         ?>
 
@@ -163,7 +163,7 @@ if(isset($_POST['drR'])){
                         .'<p><a onclick="openAddScreen(0)" class="css_button_small" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
                         </td><td class="drHide drTD">';
 
-          $pdHTML .= getRemindersHTML($reminders,$today);
+          $pdHTML .= getRemindersHTML($reminders, $today);
           $pdHTML .= '</td></tr></table></div>';
           // print output
           echo $pdHTML;

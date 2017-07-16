@@ -52,7 +52,7 @@ use OpenEMR\Core\Header;
     $form_facility  = $_POST['form_facility'] ? $_POST['form_facility'] : '';
     $form_provider  = $_POST['form_users'] ? $_POST['form_users'] : '';
     $exclude_policy = $_POST['removedrows'] ? $_POST['removedrows'] : '';
-    $X12info        = $_POST['form_x12'] ? explode("|",$_POST['form_x12']) : '';
+    $X12info        = $_POST['form_x12'] ? explode("|", $_POST['form_x12']) : '';
 
     //Set up the sql variable binding array (this prevents sql-injection attacks)
     $sqlBindArray = array();
@@ -79,7 +79,7 @@ if($form_provider != "") {
 
 if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                         array_walk($arrayExplode, 'arrFormated');
-                        $exclude_policy = implode(",",$arrayExplode);
+                        $exclude_policy = implode(",", $arrayExplode);
                         $where .= " AND i.policy_number not in (".stripslashes($exclude_policy).")";
 }
 
@@ -147,7 +147,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
             $from_date,
             $to_date
         ));
-        print_elig($res,$X12info,$segTer,$compEleSep);
+        print_elig($res, $X12info, $segTer, $compEleSep);
         exit;
     }
 ?>
@@ -298,7 +298,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                                 <table class='text'>
                                     <tr>
                                         <td class='control-label'>
-                                            <?php xl('From','e'); ?>:
+                                            <?php xl('From', 'e'); ?>:
                                         </td>
                                         <td>
                                            <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
@@ -318,7 +318,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                                             <?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
                                         </td>
                                         <td>
-                                            <?php dropdown_facility($form_facility,'form_facility',false);  ?>
+                                            <?php dropdown_facility($form_facility, 'form_facility', false);  ?>
                                         </td>
                                         <td class='control-label'>
                                             <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
@@ -393,7 +393,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
         <?php
         if ($res){
-            show_elig($res,$X12info,$segTer,$compEleSep);
+            show_elig($res, $X12info, $segTer, $compEleSep);
         }
         ?>
     </body>

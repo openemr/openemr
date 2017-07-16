@@ -94,7 +94,7 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <td align="left">
     <table cellspacing="0" cellpadding="1" style="margin:0px 0px 0px 3px;">
 
-<?php if (acl_check('patients','demo','',array('write','addonly') )) { ?>
+<?php if (acl_check('patients', 'demo', '', array('write','addonly') )) { ?>
 <tr><td style="vertical-align:text-bottom;">
         <a href='' class="css_button_small" style="margin:0px;vertical-align:top;" id='new0' onClick=" return top.window.parent.left_nav.loadFrame2('new0','RTop','new/new.php')">
         <span><?php echo htmlspecialchars( xl('NEW PATIENT'), ENT_QUOTES); ?></span></a>
@@ -111,13 +111,13 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
 <?php } //end of acl_check('patients','demo','',array('write','addonly') if ?>
 
     <tr><td valign="baseline"><B>
-        <a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu','e'); ?></a></B>
+        <a class="text" style='vertical-align:text-bottom;' href="main_title.php" id='showMenuLink' onclick='javascript:showhideMenu();return false;'><?php xl('Hide Menu', 'e'); ?></a></B>
     </td></tr></table>
 
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;">
         <div style='margin-left:10px; float:left; display:none' id="current_patient_block">
-            <span class='text'><?php xl('Patient','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None','e'); ?></b></span>
+            <span class='text'><?php xl('Patient', 'e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_patient"><b><?php xl('None', 'e'); ?></b></span>
         </div>
 </td>
 <td style="margin:3px 0px 3px 0px;vertical-align:middle;" align="left">
@@ -127,20 +127,20 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         </div></td></tr>
     <tr><td valign="baseline" align="center">
         <div style='display:none' class='text' id="current_encounter_block" >
-            <span class='text'><?php xl('Selected Encounter','e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None','e'); ?></b></span>
+            <span class='text'><?php xl('Selected Encounter', 'e'); ?>:&nbsp;</span><span class='title_bar_top' id="current_encounter"><b><?php xl('None', 'e'); ?></b></span>
         </div></td></tr></table>
 </td>
 
 <td align="right">
     <table cellspacing="0" cellpadding="1" style="margin:0px 3px 0px 0px;"><tr>
-        <td align="right" class="text" style="vertical-align:text-bottom;"><a id="homeButton" href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home','e'); ?></a>
+        <td align="right" class="text" style="vertical-align:text-bottom;"><a id="homeButton" href='main_title.php' onclick="javascript:parent.left_nav.goHome();return false;" ><?php xl('Home', 'e'); ?></a>
         &nbsp;|&nbsp;
         <a  href=""  onclick="return bpopup()" ><?php echo xlt('About'); ?></a>&nbsp;
         <td align="right" style="vertical-align:top;"><a href="../logout.php" target="_top" class="css_button_small" style='float:right;' id="logout_link" onclick="top.restoreSession()" >
             <span><?php echo htmlspecialchars( xl('Logout'), ENT_QUOTES) ?></span></a></td>
     </tr><tr>
         <td colspan='2' valign="baseline" align='right'><B>
-            <span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"},ENT_NOQUOTES); ?></span></span></td>
+            <span class="text title_bar_top" title="<?php echo htmlspecialchars( xl('Authorization group') .': '.$_SESSION['authGroup'], ENT_QUOTES); ?>"><?php echo htmlspecialchars($res{"fname"}.' '.$res{"lname"}, ENT_NOQUOTES); ?></span></span></td>
         </tr></table>
 </td>
 </tr>

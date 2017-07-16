@@ -31,7 +31,7 @@
 <head>
 <?php html_header_show();?>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php xl('EOB Posting - Patient Note','e')?></title>
+<title><?php xl('EOB Posting - Patient Note', 'e')?></title>
 </head>
 <body>
 <?php
@@ -68,9 +68,9 @@ if ($_POST['form_save']) {
 </p>
 
 <p>&nbsp;</p>
-<input type='submit' name='form_save' value='<?php xl("Save","e")?>'>
+<input type='submit' name='form_save' value='<?php xl("Save", "e")?>'>
 &nbsp;
-<input type='button' value='<?php xl("Cancel","e")?>' onclick='window.close()'>
+<input type='button' value='<?php xl("Cancel", "e")?>' onclick='window.close()'>
 
 </form>
 </center>

@@ -50,7 +50,7 @@ if($task=='retrieve')
     $retval=array();
     if($_REQUEST['mode']=='encounters')
     {
-        $encounters=select_encounters($req_pid,$req_encounter);
+        $encounters=select_encounters($req_pid, $req_encounter);
         if(isset($_REQUEST['prev_encounter']))
         {
             $prev_enc=$_REQUEST['prev_encounter'];
@@ -64,14 +64,14 @@ if($task=='retrieve')
         }
         $issues=array();
         $procedures=array();
-        fee_sheet_items($req_pid,$prev_enc,$issues,$procedures);
+        fee_sheet_items($req_pid, $prev_enc, $issues, $procedures);
         $retval['prev_encounter']=$prev_enc;
         $retval['encounters']=$encounters;
         $retval['procedures']=$procedures;
     }
     if($_REQUEST['mode']=='issues')
     {
-        $issues=issue_diagnoses($req_pid,$req_encounter);
+        $issues=issue_diagnoses($req_pid, $req_encounter);
     }
     if($_REQUEST['mode']=='common')
     {
@@ -90,7 +90,7 @@ if($task=='add_diags')
     $diags=array();
     foreach($json_diags as $diag)
     {
-        $diags[]=new code_info($diag->{'code'},$diag->{'code_type'},$diag->{'description'});
+        $diags[]=new code_info($diag->{'code'}, $diag->{'code_type'}, $diag->{'description'});
     }
     $procs=array();
     if(isset($_REQUEST['procs']))
@@ -99,12 +99,12 @@ if($task=='add_diags')
     }
     foreach($json_procs as $proc)
     {
-        $procs[]=new procedure($proc->{'code'},$proc->{'code_type'},$proc->{'description'},$proc->{'fee'},$proc->{'justify'},$proc->{'modifiers'},$proc->{'units'},0);
+        $procs[]=new procedure($proc->{'code'}, $proc->{'code_type'}, $proc->{'description'}, $proc->{'fee'}, $proc->{'justify'}, $proc->{'modifiers'}, $proc->{'units'}, 0);
     }
     $database->StartTrans();
-    create_diags($req_pid,$req_encounter,$diags);
-    update_issues($req_pid,$req_encounter,$diags);
-    create_procs($req_pid,$req_encounter,$procs);
+    create_diags($req_pid, $req_encounter, $diags);
+    update_issues($req_pid, $req_encounter, $diags);
+    create_procs($req_pid, $req_encounter, $procs);
     $database->CompleteTrans();
     return;
 }

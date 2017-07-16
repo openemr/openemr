@@ -55,8 +55,8 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 
 <?php
   // collect the pertinent plans and rules
-  $plans_default = resolve_plans_sql('','0',true);
-  $rules_default = resolve_rules_sql('','0',true,'',$_SESSION['authUser']);
+  $plans_default = resolve_plans_sql('', '0', true);
+  $rules_default = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
 ?>
 
 <ul class="tabNav">
@@ -68,13 +68,13 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
 <div class="tabContainer">
   <div class="tab current text" style="height:auto;width:97%;">
     <?php
-      clinical_summary_widget($pid,"reminders-all",'','default',$_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', 'default', $_SESSION['authUser']);
     ?>
   </div>
 
   <div class="tab text" style="height:auto;width:97%;">
     <?php
-      clinical_summary_widget($pid,"reminders-all",'',"plans",$_SESSION['authUser']);
+      clinical_summary_widget($pid, "reminders-all", '', "plans", $_SESSION['authUser']);
     ?>
   </div>
 
@@ -92,7 +92,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
         <?php foreach ($plans_default as $plan) { ?>
             <?php
           //only show the plan if there are any rules in it that the user has access to
-            $plan_check = resolve_rules_sql('','0',true,$plan['id'],$_SESSION['authUser']);
+            $plan_check = resolve_rules_sql('', '0', true, $plan['id'], $_SESSION['authUser']);
             if (empty($plan_check)) {
                 continue;
             }
@@ -102,7 +102,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             <td align="center">
                 <?php
 
-                $patient_plan = collect_plan($plan['id'],$patient_id);
+                $patient_plan = collect_plan($plan['id'], $patient_id);
 
               // Set the patient specific setting for gui
                 if (empty($patient_plan)) {
@@ -155,7 +155,7 @@ else {
             <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
-                $patient_rule = collect_rule($rule['id'],$patient_id);
+                $patient_rule = collect_rule($rule['id'], $patient_id);
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";

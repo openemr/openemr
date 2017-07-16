@@ -21,8 +21,8 @@ class C_FormHpTje extends Controller
     function default_action()
     {
         $hptje_primary = new FormHpTjePrimary();
-        $this->assign("hptje_primary",$hptje_primary);
-        $this->assign("checks",$hptje_primary->_form_layout());
+        $this->assign("hptje_primary", $hptje_primary);
+        $this->assign("checks", $hptje_primary->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -35,9 +35,9 @@ class C_FormHpTje extends Controller
             $hptje_primary = new FormHpTjePrimary();
         }
 
-        $this->assign("hptje_primary",$hptje_primary);
-        $this->assign("checks",$hptje_primary->_form_layout());
-        $this->assign("VIEW",true);
+        $this->assign("hptje_primary", $hptje_primary);
+        $this->assign("checks", $hptje_primary->_form_layout());
+        $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

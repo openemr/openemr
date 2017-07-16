@@ -38,9 +38,9 @@ class ORDataObject
                         //DEBUG LINE - error_log("ORDataObject persist after strip: ".$val, 0);
                 }
 
-                if (in_array($field,$pkeys)  && empty($val)) {
+                if (in_array($field, $pkeys)  && empty($val)) {
                     $last_id = generate_id();
-                    call_user_func(array(&$this,"set_".$field),$last_id);
+                    call_user_func(array(&$this,"set_".$field), $last_id);
                     $val = $last_id;
                 }
 
@@ -57,8 +57,8 @@ class ORDataObject
             }
         }
 
-        if (strrpos($sql,",") == (strlen($sql) -1)) {
-                $sql = substr($sql,0,(strlen($sql) -1));
+        if (strrpos($sql, ",") == (strlen($sql) -1)) {
+                $sql = substr($sql, 0, (strlen($sql) -1));
         }
 
         //echo "<br>sql is: " . $sql . "<br /><br>";
@@ -78,7 +78,7 @@ class ORDataObject
 
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
-                        call_user_func(array(&$this,$func),$field);
+                        call_user_func(array(&$this,$func), $field);
 
                     }
                 }
@@ -96,7 +96,7 @@ class ORDataObject
 
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
-                        call_user_func(array(&$this,$func),$field);
+                        call_user_func(array(&$this,$func), $field);
 
                     }
                 }
@@ -129,14 +129,14 @@ class ORDataObject
                     if ($col->name == $field_name && $col->type == "enum") {
                         for($idx=0;$idx<count($col->enums);$idx++)
                                 {
-                            $col->enums[$idx]=str_replace("'","",$col->enums[$idx]);
+                            $col->enums[$idx]=str_replace("'", "", $col->enums[$idx]);
                         }
                         $enum = $col->enums;
                         //for future use
                         //$enum[$col->name] = $enum_types[1];
                     }
                 }
-                array_unshift($enum," ");
+                array_unshift($enum, " ");
 
                //keep indexing consistent whether or not a blank is present
                 if (!$blank) {

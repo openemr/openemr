@@ -68,9 +68,9 @@ if ($_POST['submit']) {
     echo "Connecting to MySQL Server...\n";
     flush();
     if ($server == "localhost")
-        $dbh = mysql_connect("$server","$root","$rootpass");
+        $dbh = mysql_connect("$server", "$root", "$rootpass");
     else
-        $dbh = mysql_connect("$server:$port","$root","$rootpass");
+        $dbh = mysql_connect("$server:$port", "$root", "$rootpass");
     if ($dbh == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
@@ -80,7 +80,7 @@ if ($_POST['submit']) {
         echo "OK.<br>\n";
     echo "Creating database...\n";
     flush();
-    if (mysql_query("create database $dbname",$dbh) == false) {
+    if (mysql_query("create database $dbname", $dbh) == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         break;
@@ -89,7 +89,7 @@ if ($_POST['submit']) {
         echo "OK.<br>\n";
     echo "Creating user with permissions for database...\n";
     flush();
-    if (mysql_query("GRANT ALL PRIVILEGES ON $dbname.* TO '$login'@'$loginhost' IDENTIFIED BY '$pass'",$dbh) == false) {
+    if (mysql_query("GRANT ALL PRIVILEGES ON $dbname.* TO '$login'@'$loginhost' IDENTIFIED BY '$pass'", $dbh) == false) {
         echo "ERROR when granting privileges to the specified user.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         echo "ERROR.\n";
@@ -104,9 +104,9 @@ else
     echo "Connecting to MySQL Server...\n";
 
 if ($server == "localhost")
-    $dbh = mysql_connect("$server","$login","$pass");
+    $dbh = mysql_connect("$server", "$login", "$pass");
 else
-    $dbh = mysql_connect("$server:$port","$login","$pass");
+    $dbh = mysql_connect("$server:$port", "$login", "$pass");
 
 if ($dbh == false) {
     echo "ERROR.  Check your login credentials.\n";
@@ -117,7 +117,7 @@ else
     echo "OK.<br>\n";
 echo "Opening database...";
 flush();
-if (mysql_select_db("$dbname",$dbh) == false) {
+if (mysql_select_db("$dbname", $dbh) == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     break;
@@ -127,7 +127,7 @@ else
     flush();
 if ($upgrade != 1) {
     echo "Creating initial tables...\n";
-    mysql_query("USE $dbname",$dbh);
+    mysql_query("USE $dbname", $dbh);
     flush();
     $fd = fopen($dumpfile, 'r');
     if ($fd == false) {
@@ -138,19 +138,19 @@ if ($upgrade != 1) {
     $query = "";
     $line = "";
     while (!feof ($fd)){
-        $line = fgets($fd,1024);
+        $line = fgets($fd, 1024);
         $line = rtrim($line);
-        if (substr($line,0,2) == "--") // Kill comments
+        if (substr($line, 0, 2) == "--") // Kill comments
             continue;
-        if (substr($line,0,1) == "#") // Kill comments
+        if (substr($line, 0, 1) == "#") // Kill comments
             continue;
         if ($line == "")
             continue;
         $query = $query.$line;      // Check for full query
-        $chr = substr($query,strlen($query)-1,1);
+        $chr = substr($query, strlen($query)-1, 1);
         if ($chr == ";") { // valid query, execute
-            $query = rtrim($query,";");
-            mysql_query("$query",$dbh);
+            $query = rtrim($query, ";");
+            mysql_query("$query", $dbh);
             $query = "";
         }
     }
@@ -198,12 +198,12 @@ if ($upgrade != 1) {
 
     $it_died = 0;   //fmg: variable keeps running track of any errors
 
-    fwrite($fd,$string) or $it_died++;
-    fwrite($fd,"\$host\t= '$host';\n") or $it_died++;
-    fwrite($fd,"\$port\t= '$port';\n") or $it_died++;
-    fwrite($fd,"\$login\t= '$login';\n") or $it_died++;
-    fwrite($fd,"\$pass\t= '$pass';\n") or $it_died++;
-    fwrite($fd,"\$dbase\t= '$dbname';\n") or $it_died++;
+    fwrite($fd, $string) or $it_died++;
+    fwrite($fd, "\$host\t= '$host';\n") or $it_died++;
+    fwrite($fd, "\$port\t= '$port';\n") or $it_died++;
+    fwrite($fd, "\$login\t= '$login';\n") or $it_died++;
+    fwrite($fd, "\$pass\t= '$pass';\n") or $it_died++;
+    fwrite($fd, "\$dbase\t= '$dbname';\n") or $it_died++;
 
 
     $string = '
@@ -226,7 +226,7 @@ $config = 1; /////////////
 ';
 ?><?php // done just for coloring
 
-fwrite($fd,$string) or $it_died++;
+fwrite($fd, $string) or $it_died++;
 
 //it's rather irresponsible to not report errors when writing this file.
 if ($it_died != 0) {
@@ -241,11 +241,11 @@ fclose($fd);
     $dn = dirname($d);
     $contents = file_get_contents($d.'/interface/globals.php');
     $contents = preg_replace('/\$webserver_root\s+=\s+[\"\'].*?[\"\'];/',
-        "\$webserver_root = '".$dn."/".$newname."';",$contents);
+        "\$webserver_root = '".$dn."/".$newname."';", $contents);
     $contents = preg_replace('/\$web_root\s+=\s+[\"\'].*?[\"\'];/',
-        "\$web_root = '/".$newname."';",$contents);
-    file_put_contents($d.'/interface/globals.php',$contents);
-  if (rename($d,$dn.'/'.$newname)) {
+        "\$web_root = '/".$newname."';", $contents);
+    file_put_contents($d.'/interface/globals.php', $contents);
+  if (rename($d, $dn.'/'.$newname)) {
       echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
     }
 }

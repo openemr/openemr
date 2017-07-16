@@ -21,8 +21,8 @@ class C_FormReviewOfSystems extends Controller
     function default_action()
     {
         $review_of_systems = new FormReviewOfSystems();
-        $this->assign("review_of_systems",$review_of_systems);
-        $this->assign("checks",$review_of_systems->_form_layout());
+        $this->assign("review_of_systems", $review_of_systems);
+        $this->assign("checks", $review_of_systems->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -34,9 +34,9 @@ class C_FormReviewOfSystems extends Controller
         else {
             $review_of_systems = new FormReviewOfSystems();
         }
-        $this->assign("VIEW",true);
-        $this->assign("review_of_systems",$review_of_systems);
-        $this->assign("checks",$review_of_systems->_form_layout());
+        $this->assign("VIEW", true);
+        $this->assign("review_of_systems", $review_of_systems);
+        $this->assign("checks", $review_of_systems->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -59,7 +59,7 @@ class C_FormReviewOfSystems extends Controller
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling( date("Ymd"),    'CPT4',     $row['code'],   $row['code_text'],  $_SESSION['pid'],   $_SESSION['userauthorized'],    $_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
+                addBilling( date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
 
         }

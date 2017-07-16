@@ -64,7 +64,7 @@ table.mymaintable td, table.mymaintable th {
 }
 </style>
 
-<title><?php xl('Services by Category','e'); ?></title>
+<title><?php xl('Services by Category', 'e'); ?></title>
 
 <script language="JavaScript">
 
@@ -80,7 +80,7 @@ table.mymaintable td, table.mymaintable th {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Services by Category','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Services by Category', 'e'); ?></span>
 
 <form method='post' action='services_by_category.php' name='theform' id='theform'>
 
@@ -97,7 +97,7 @@ table.mymaintable td, table.mymaintable th {
         <tr>
             <td>
                <select name='filter' class='form-control'>
-                <option value='0'><?php xl('All','e'); ?></option>
+                <option value='0'><?php xl('All', 'e'); ?></option>
             <?php
             foreach ($code_types as $key => $value) {
                 echo "<option value='" . $value['id'] . "'";
@@ -110,7 +110,7 @@ table.mymaintable td, table.mymaintable th {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-                <?php xl('Include Uncategorized','e'); ?></label>
+                <?php xl('Include Uncategorized', 'e'); ?></label>
         </div>
             </td>
         </tr>
@@ -153,14 +153,14 @@ if ($_POST['form_refresh']) {
 <table width='98%' id='mymaintable' class='mymaintable'>
 <thead style='display:table-header-group'>
 <tr bgcolor="#dddddd">
-<th class='bold'><?php xl('Category'   ,'e'); ?></th>
-<th class='bold'><?php xl('Type'       ,'e'); ?></th>
-<th class='bold'><?php xl('Code'       ,'e'); ?></th>
-<th class='bold'><?php xl('Mod'        ,'e'); ?></th>
-<th class='bold'><?php xl('Units'      ,'e'); ?></th>
-<th class='bold'><?php xl('Description','e'); ?></th>
+<th class='bold'><?php xl('Category', 'e'); ?></th>
+<th class='bold'><?php xl('Type', 'e'); ?></th>
+<th class='bold'><?php xl('Code', 'e'); ?></th>
+<th class='bold'><?php xl('Mod', 'e'); ?></th>
+<th class='bold'><?php xl('Units', 'e'); ?></th>
+<th class='bold'><?php xl('Description', 'e'); ?></th>
 <?php if (related_codes_are_used()) { ?>
-   <th class='bold'><?php xl('Related'    ,'e'); ?></th>
+   <th class='bold'><?php xl('Related', 'e'); ?></th>
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .

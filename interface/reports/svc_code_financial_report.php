@@ -48,7 +48,7 @@ $grand_total_amt_balance  = 0;
   if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-  $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+  $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
   $form_facility  = $_POST['form_facility'];
   $form_provider  = $_POST['form_provider'];
 
@@ -223,23 +223,23 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "INNER JOIN code_types AS ct ON ct.ct_key = b.code_type AND ct.ct_fee = '1' " .
     "WHERE b.code_type != 'COPAY' AND b.activity = 1 /* AND b.fee != 0 */ AND " .
     "fe.date >=  ? AND fe.date <= ?";
-    array_push($sqlBindArray,"$from_date 00:00:00","$to_date 23:59:59");
+    array_push($sqlBindArray, "$from_date 00:00:00", "$to_date 23:59:59");
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
     // If a provider was specified.
     if ($form_provider) {
         $query .= " AND b.provider_id = ?";
-        array_push($sqlBindArray,$form_provider);
+        array_push($sqlBindArray, $form_provider);
     }
     // If selected important codes
     if($_POST['form_details']) {
         $query .= " AND c.financial_reporting = '1'";
     }
     $query .= " GROUP BY b.code ORDER BY b.code, fe.date, fe.id ";
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
     $grand_total_units  = 0;
     $grand_total_amt_billed  = 0;
     $grand_total_amt_paid  = 0;

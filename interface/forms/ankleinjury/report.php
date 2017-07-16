@@ -18,7 +18,7 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             $key = str_replace("Ankle ", "", $key);
             $key = str_replace("Injuary", "Injury", $key);
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value</span></td>\n";

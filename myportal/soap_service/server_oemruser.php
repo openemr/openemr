@@ -35,7 +35,7 @@ class OEMRUser
 
     private function getPid($id)
     {
-        $row = sqlQuery("SELECT pid FROM audit_master WHERE id=? AND approval_status=1",array($id));
+        $row = sqlQuery("SELECT pid FROM audit_master WHERE id=? AND approval_status=1", array($id));
         return $row['pid'];
     }
     
@@ -208,7 +208,7 @@ class OEMRUser
             case 'E5':
             //list of approvals
                 $query="select * from audit_master where audit_master.id=?";
-                $row = sqlQuery($query,$data[1]);
+                $row = sqlQuery($query, $data[1]);
             return array("SELECT ad3.field_value AS dld_filename, dlm.dlm_document_id, CONCAT('am-',ad.audit_master_id) AS dld_id, dlm.dlm_document_name 
 						FROM audit_details ad JOIN audit_details ad2 ON ad2.table_name = 'documents_legal_detail' AND ad2.field_name = 'dld_signed' 
 						AND ad2.field_value = '0' AND ad2.audit_master_id = ad.audit_master_id JOIN audit_details ad3 ON ad3.table_name = 'documents_legal_detail' 

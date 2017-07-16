@@ -28,7 +28,7 @@ require_once("../../globals.php");
 require_once("functions.php");
 
 //Save only if has permission to edit
-$can_edit = acl_check("groups","gadd",false, 'write');
+$can_edit = acl_check("groups", "gadd", false, 'write');
 if(!$can_edit)
     formJump();
 
@@ -55,7 +55,7 @@ if($_GET['mode'] == 'new') {
     sqlInsert($sql_for_table_ftga, $sqlBindArray);
 
     //Database insertions for participants
-    participant_insertions($newid, $therapy_group, $group_encounter_data,$appt_data);
+    participant_insertions($newid, $therapy_group, $group_encounter_data, $appt_data);
 
 }
 //If editing a form
@@ -65,7 +65,7 @@ elseif ($_GET['mode'] == 'update'){
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_therapy_groups_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";
     $sqlBindArray = array();
-    array_push($sqlBindArray,  $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $id);
+    array_push($sqlBindArray, $_SESSION["authUser"], $_SESSION["authProvider"], $userauthorized, $id);
     sqlInsert($sql_for_form_tga, $sqlBindArray);
 
     //Delete from therapy_groups_participant_attendance table
@@ -73,7 +73,7 @@ elseif ($_GET['mode'] == 'update'){
     sqlStatement($sql_delete_from_table_tgpa, array($id));
 
     //Database insertions for participants
-    participant_insertions($id, $therapy_group, $group_encounter_data,$appt_data);
+    participant_insertions($id, $therapy_group, $group_encounter_data, $appt_data);
 
 }
 

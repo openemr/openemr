@@ -371,7 +371,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $request = $this->getRequest();
         $id      = $request->getQuery('id');
-        $arr     = explode("-",$id);
+        $arr     = explode("-", $id);
         $amid    = $arr[0];
         $pid     = $arr[1];
         $components = $this->getCarecoordinationTable()->getCCDAComponents(1);
@@ -460,7 +460,7 @@ class CarecoordinationController extends AbstractActionController
                         $temp .='<tr class="narr_tr">
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['drug_text']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['rate']." ".$val['rate_unit']." ".$val['route_display']." ".$val['dose']." ".$val['dose_unit']).'</td>
-                                                        <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                                        <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                                         <td>'.\Application\Listener\Listener::z_xlt($active).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['indication']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['note']).'</td>
@@ -483,7 +483,7 @@ class CarecoordinationController extends AbstractActionController
                         else{
                              $status = 'Active';
                         }
-                        $temp .='<li>'.$i.'. '.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).','.substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';
+                        $temp .='<li>'.$i.'. '.\Application\Plugin\CommonPlugin::escape($val['list_code_text']).','.substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2).', '.\Application\Listener\Listener::z_xlt('Status').' :'.\Application\Listener\Listener::z_xlt($status).'</li>';
                         $i++;
                     }
                     $temp .='</ul></div>';
@@ -504,7 +504,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach($immunizations_audit['immunization'] as $key => $val) {
                         $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['cvx_code_text']).'</td>
-                                                <td>'.$this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)).' '.substr($val['administered_date'],0,4).'</td>
+                                                <td>'.$this->getCarecoordinationTable()->getMonthString(substr($val['administered_date'], 4, 2)).' '.substr($val['administered_date'], 0, 4).'</td>
                                                 <td>'.\Application\Listener\Listener::z_xlt('Completed').'</td>
                                             </tr>';
                     }
@@ -525,7 +525,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach($procedure_audit['procedure'] as $key => $val) {
                         $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['code_text']).'</td>
-                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                             </tr>';
                     }
                     $temp .='</tbody></table></div>';
@@ -549,7 +549,7 @@ class CarecoordinationController extends AbstractActionController
                             $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['results_text']) . ($val['results_range'] != "-" ? "(" . \Application\Plugin\CommonPlugin::escape($val['results_range']) . ")" : "").'</td>
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['results_value']) . " " . \Application\Plugin\CommonPlugin::escape($val['results_unit']).'</td>
-                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                              </tr>';
                         }
                     }
@@ -570,7 +570,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach($care_plan_audit['care_plan'] as $key => $val) {
                         $temp .='<tr class="narr_tr">
                                             <td>'.\Application\Plugin\CommonPlugin::escape($val['code_text']).'</td>
-                                            <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                            <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                             </tr>';
                     }
                     $temp .='</tbody></table></div>';
@@ -585,7 +585,7 @@ class CarecoordinationController extends AbstractActionController
                                          <thead><tr class="narr_tr">
                                          <th class="narr_th" align="right">'.\Application\Listener\Listener::z_xlt('Date / Time').': </th>';
                     foreach($vitals_audit['vital_sign'] as $key => $val){
-                        $temp .= '<th class="narr_th">'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</th>';
+                        $temp .= '<th class="narr_th">'.\Application\Model\ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</th>';
                     }
                     $temp .= '</tr></thead><tbody>
                                          <tr class="narr_tr">
@@ -725,7 +725,7 @@ class CarecoordinationController extends AbstractActionController
                     foreach($functional_cognitive_status_audit['functional_cognitive_status'] as $key => $val) {
                         $temp .='<tr class="narr_tr">
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['description']).'</td>
-                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'],0,4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                                <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['date'], 0, 4) . "-" . substr($val['date'], 4, 2) . "-" . substr($val['date'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                                 <td>'.\Application\Listener\Listener::z_xlt('Active').'</td>
                                             </tr>';
                     }
@@ -739,7 +739,7 @@ class CarecoordinationController extends AbstractActionController
                 if(count($referral_audit)>0) {
                     $temp .='<div>';
                     foreach($referral_audit['referral'] as $key => $val) {
-                        $referal_data = explode("#$%^&*",$val['body']);
+                        $referal_data = explode("#$%^&*", $val['body']);
                         foreach($referal_data as $k => $v) {
                             $temp .='<p>'.\Application\Plugin\CommonPlugin::escape($v).'</p>';
                         }
@@ -771,7 +771,7 @@ class CarecoordinationController extends AbstractActionController
                     $temp .='<tr class="narr_tr">
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['drug_text']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['rate']." ".$val['rate_unit']." ".$val['route_display']." ".$val['dose']." ".$val['dose_unit']).'</td>
-                                                        <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['begdate'],0,4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
+                                                        <td>'.\Application\Model\ApplicationTable::fixDate(substr($val['begdate'], 0, 4) . "-" . substr($val['begdate'], 4, 2) . "-" . substr($val['begdate'], 6, 2), $this->date_format, 'yyyy-mm-dd').'</td>
                                                         <td>'.\Application\Listener\Listener::z_xlt($active).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['indication']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['note']).'</td>
@@ -782,7 +782,7 @@ class CarecoordinationController extends AbstractActionController
             case 'discharge_summary'  : $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
                                          $temp .='<div>';
                 foreach($discharge_summary_audit['discharge_summary'] as $key => $val) {
-                    $text = str_replace("#$%","<br>",\Application\Plugin\CommonPlugin::escape($val['text']));
+                    $text = str_replace("#$%", "<br>", \Application\Plugin\CommonPlugin::escape($val['text']));
                     $temp .=$text;
                 }
                                           $temp .='</div>';

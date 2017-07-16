@@ -79,7 +79,7 @@ function getUserInfo()
 }
 function getUsername($uID)
 {
-    $pi = getProviderInfo($uID,false);
+    $pi = getProviderInfo($uID, false);
     if (strlen($pi["username"]) > 0) {
         return $pi['username'];
     }
@@ -191,16 +191,16 @@ function pc_getDate($format = '%Y%m%d')
         // if we still don't have a date then calculate it
         $time = time();
         // check the jump menu
-        if(!isset($jumpday))   $jumpday = strftime('%d',$time);
-        if(!isset($jumpmonth)) $jumpmonth = strftime('%m',$time);
-        if(!isset($jumpyear))  $jumpyear = strftime('%Y',$time);
+        if(!isset($jumpday))   $jumpday = strftime('%d', $time);
+        if(!isset($jumpmonth)) $jumpmonth = strftime('%m', $time);
+        if(!isset($jumpyear))  $jumpyear = strftime('%Y', $time);
         // create the correct date string
         $Date = (int) "$jumpyear$jumpmonth$jumpday";
     }
-    $y = substr($Date,0,4);
-    $m = substr($Date,4,2);
-    $d = substr($Date,6,2);
-    return strftime($format,mktime(0,0,0,$m,$d,$y));
+    $y = substr($Date, 0, 4);
+    $m = substr($Date, 4, 2);
+    $d = substr($Date, 6, 2);
+    return strftime($format, mktime(0, 0, 0, $m, $d, $y));
 }
 
  /**

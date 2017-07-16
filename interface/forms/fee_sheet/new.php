@@ -202,7 +202,7 @@ function echoServiceLines()
                     echo "  <td class='billcell' align='right'>" .
                     "<input type='text' name='bill[$lino][price]' " .
                     "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
-                    if (acl_check('acct','disc'))
+                    if (acl_check('acct', 'disc'))
                     echo " style='text-align:right'";
                     else
                     echo " style='text-align:right;background-color:transparent' readonly";
@@ -370,7 +370,7 @@ function echoProductLines()
                 echo "  <td class='billcell' align='right'>" .
                 "<input type='text' name='prod[" . attr($lino) . "][price]' " .
                 "value='" . attr($price) . "' size='6' onchange='setSaveAndClose()'";
-                if (acl_check('acct','disc'))
+                if (acl_check('acct', 'disc'))
                 echo " style='text-align:right'";
                 else
                 echo " style='text-align:right;background-color:transparent' readonly";
@@ -806,7 +806,7 @@ echo "  <td colspan='" . attr($FEE_SHEET_COLUMNS) . "' align='center' nowrap>\n"
 //
 $numrows = 0;
 if ($_POST['bn_search'] && $_POST['search_term']) {
-    $res = main_code_set_search($search_type,$_POST['search_term']);
+    $res = main_code_set_search($search_type, $_POST['search_term']);
     if (!empty($res)) {
         $numrows = sqlNumRows($res);
     }
@@ -1137,7 +1137,7 @@ if ($_POST['newcodes'] && !$alertmsg) {
             $result = sqlQuery("SELECT dt.quantity, d.route " .
             "FROM drug_templates AS dt, drugs AS d WHERE " .
             "dt.drug_id = ? AND dt.selector = ? AND " .
-            "d.drug_id = dt.drug_id",array($newcode,$newsel));
+            "d.drug_id = dt.drug_id", array($newcode,$newsel));
             $units = max(1, intval($result['quantity']));
             // By default create a prescription if drug route is set.
             $rx = !empty($result['route']);

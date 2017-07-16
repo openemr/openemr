@@ -179,7 +179,7 @@ $(document).ready(function() {
  </thead>
  <tbody>  <!-- added for better print-ability -->
     <?php
-    $res = listingCDRReminderLog($_POST['form_begin_date'],$_POST['form_end_date']);
+    $res = listingCDRReminderLog($_POST['form_begin_date'], $_POST['form_end_date']);
 
     while ($row = sqlFetchArray($res)) {
         //Create category title
@@ -211,14 +211,14 @@ $(document).ready(function() {
          //list off all targets with rule information shown when hover
         foreach ($all_alerts as $targetInfo => $alert) {
             if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
-                $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-                $catAndTarget = explode(':',$targetInfo);
+                $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
+                $catAndTarget = explode(':', $targetInfo);
                 $category = $catAndTarget[0];
                 $target = $catAndTarget[1];
                 echo "<span title='" .attr($rule_title) . "'>" .
-                  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-                  ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-                  " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+                  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
+                  ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
+                  " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                   "<span><br>";
             }
             else { // $row['category'] == 'allergy_alert'
@@ -233,14 +233,14 @@ $(document).ready(function() {
          //list new targets with rule information shown when hover
             foreach ($new_alerts as $targetInfo => $alert) {
                 if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
-                    $rule_title = getListItemTitle("clinical_rules",$alert['rule_id']);
-                    $catAndTarget = explode(':',$targetInfo);
+                    $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
+                    $catAndTarget = explode(':', $targetInfo);
                     $category = $catAndTarget[0];
                     $target = $catAndTarget[1];
                     echo "<span title='" .attr($rule_title) . "'>" .
-                      generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-                      ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$target) .
-                      " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$alert['due_status']) . ")" .
+                      generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
+                      ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
+                      " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                       "<span><br>";
                 }
                 else { // $row['category'] == 'allergy_alert'

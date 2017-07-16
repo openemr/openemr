@@ -1365,7 +1365,7 @@ break;
                 $sepos = strpos($f_str, $dt, $sepos+1);
                 //
                 $segidx =  ($prskeys) ? substr_count($f_str, $dt, 0, $st_pos+2) + 1 : 0;
-                $srchstr = substr($f_str, $stpos+1,  $sepos-$stpos);
+                $srchstr = substr($f_str, $stpos+1, $sepos-$stpos);
             }
             // if we have a match, the $srchstr should have the desired segments
             if ($trace || $icn || $gsn || $stn) {

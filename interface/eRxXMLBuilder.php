@@ -260,9 +260,9 @@ class eRxXMLBuilder
             $document = $this->getDocument();
 
             $this->ncScript = $document->createElement('NCScript');
-            $this->ncScript->setAttribute('xmlns',            'http://secure.newcropaccounts.com/interfaceV7');
+            $this->ncScript->setAttribute('xmlns', 'http://secure.newcropaccounts.com/interfaceV7');
             $this->ncScript->setAttribute('xmlns:NCStandard', 'http://secure.newcropaccounts.com/interfaceV7:NCStandard');
-            $this->ncScript->setAttribute('xmlns:xsi',        'http://www.w3.org/2001/XMLSchema-instance');
+            $this->ncScript->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
 
             $document->appendChild($this->ncScript);
         }

@@ -44,7 +44,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
 
             if ($value == "on") { $value = "yes"; }
 
-            $key = ucwords(str_replace("_"," ",$key));
+            $key = ucwords(str_replace("_", " ", $key));
 
             //modified by BM 06-2009 for required translation
             if ($key == "Temp Method" || $key == "BMI Status") {
@@ -74,26 +74,26 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
             }
             elseif ($key == "Weight") {
-                $convValue = number_format($value*0.45359237,2);
+                $convValue = number_format($value*0.45359237, 2);
                 $vitals.="<td><div class='bold'>" . xl($key) . ": </div><div class='text'>";
                 // show appropriate units
                 $mode=$GLOBALS['us_weight_format'];
                 if ($GLOBALS['units_of_measurement'] == 2) {
-                    $vitals .=  $convValue . " " . xl('kg') . " (" . US_weight($value,$mode) . ")";
+                    $vitals .=  $convValue . " " . xl('kg') . " (" . US_weight($value, $mode) . ")";
                 }
                 elseif ($GLOBALS['units_of_measurement'] == 3) {
-                    $vitals .=  US_weight($value,$mode) ;
+                    $vitals .=  US_weight($value, $mode) ;
                 }
                 elseif ($GLOBALS['units_of_measurement'] == 4) {
                     $vitals .= $convValue . " " . xl('kg') ;
                 }
                 else { // = 1 or not set
-                    $vitals .= US_weight($value,$mode) . " (" . $convValue . " " . xl('kg')  . ")";
+                    $vitals .= US_weight($value, $mode) . " (" . $convValue . " " . xl('kg')  . ")";
                 }
                 $vitals.= "</div></td>";
             }
             elseif ($key == "Height" || $key == "Waist Circ"  || $key == "Head Circ") {
-                $convValue = round(number_format($value*2.54,2),1);
+                $convValue = round(number_format($value*2.54, 2), 1);
                 // show appropriate units
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('cm') . " (" . $value . " " . xl('in')  . ")</div></td>";
@@ -109,7 +109,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
                 }
             }
             elseif ($key == "Temperature") {
-                $convValue = number_format((($value-32)*0.5556),2);
+                $convValue = number_format((($value-32)*0.5556), 2);
                 // show appropriate units
                 if ($GLOBALS['units_of_measurement'] == 2) {
                     $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $convValue . " " . xl('C') . " (" . $value . " " . xl('F')  . ")</div></td>";
@@ -126,7 +126,7 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             }
 
             elseif ($key == "Pulse" || $key == "Respiration"  || $key == "Oxygen Saturation" || $key == "BMI") {
-                $value = number_format($value,0);
+                $value = number_format($value, 0);
                 if ($key == "Oxygen Saturation") {
                     $vitals .= "<td><div class='bold' style='display:inline-block'>" . xl($key) . ": </div><div class='text' style='display:inline-block'>" . $value . " " . xl('%') . "</div></td>";
                 }

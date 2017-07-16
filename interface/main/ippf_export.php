@@ -157,7 +157,7 @@ function exportEncounter($pid, $encounter, $date)
 {
   // Starting a new visit (encounter).
     OpenTag('IMS_eMRUpload_Visit');
-    Add('VisitDate' , xmlTime($date));
+    Add('VisitDate', xmlTime($date));
     Add('emrVisitId', $encounter);
 
   // Dump IPPF services.
@@ -177,10 +177,10 @@ function exportEncounter($pid, $encounter, $date)
                 // Starting a new service (IPPF code).
                 OpenTag('IMS_eMRUpload_Service');
                 Add('IppfServiceProductId', $code);
-                Add('Type'                , '0'); // 0=service, 1=product, 2=diagnosis, 3=referral
-                Add('IppfQuantity'        , $brow['units']);
-                Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
-                Add('Amount'              , $brow['fee']);
+                Add('Type', '0'); // 0=service, 1=product, 2=diagnosis, 3=referral
+                Add('IppfQuantity', $brow['units']);
+                Add('CurrID', "TBD"); // TBD: Currency e.g. USD
+                Add('Amount', $brow['fee']);
                 CloseTag('IMS_eMRUpload_Service');
             } // end foreach
         } // end if related code
@@ -194,10 +194,10 @@ function exportEncounter($pid, $encounter, $date)
     while ($prow = sqlFetchArray($pres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $prow['drug_id']);
-        Add('Type'                , '1'); // 0=service, 1=product, 2=diagnosis, 3=referral
-        Add('IppfQuantity'        , $prow['quantity']);
-        Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
-        Add('Amount'              , $prow['fee']);
+        Add('Type', '1'); // 0=service, 1=product, 2=diagnosis, 3=referral
+        Add('IppfQuantity', $prow['quantity']);
+        Add('CurrID', "TBD"); // TBD: Currency e.g. USD
+        Add('Amount', $prow['fee']);
         CloseTag('IMS_eMRUpload_Service');
     } // end while drug_sales row found
 
@@ -209,10 +209,10 @@ function exportEncounter($pid, $encounter, $date)
     while ($drow = sqlFetchArray($dres)) {
         OpenTag('IMS_eMRUpload_Service');
         Add('IppfServiceProductId', $drow['code']);
-        Add('Type'                , '2'); // 0=service, 1=product, 2=diagnosis, 3=referral
-        Add('IppfQuantity'        , '1');
-        Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
-        Add('Amount'              , '0');
+        Add('Type', '2'); // 0=service, 1=product, 2=diagnosis, 3=referral
+        Add('IppfQuantity', '1');
+        Add('CurrID', "TBD"); // TBD: Currency e.g. USD
+        Add('Amount', '0');
         CloseTag('IMS_eMRUpload_Service');
     } // end while billing row found
 
@@ -240,10 +240,10 @@ function exportEncounter($pid, $encounter, $date)
             if ($codetype !== 'IPPF') continue;
             OpenTag('IMS_eMRUpload_Service');
             Add('IppfServiceProductId', $code);
-            Add('Type'                , '3'); // 0=service, 1=product, 2=diagnosis, 3=referral
-            Add('IppfQuantity'        , '1');
-            Add('CurrID'              , "TBD"); // TBD: Currency e.g. USD
-            Add('Amount'              , '0');
+            Add('Type', '3'); // 0=service, 1=product, 2=diagnosis, 3=referral
+            Add('IppfQuantity', '1');
+            Add('CurrID', "TBD"); // TBD: Currency e.g. USD
+            Add('Amount', '0');
             CloseTag('IMS_eMRUpload_Service');
         } // end foreach
     } // end referral
@@ -273,11 +273,11 @@ function endClient($pid, &$encarray)
 
     while ($irow = sqlFetchArray($ires)) {
         OpenTag('IMS_eMRUpload_Issue');
-        Add('IssueType'     , substr($irow['type'], 0, 15)); // per email 2009-03-20
-        Add('emrIssueId'    , $irow['id']);
+        Add('IssueType', substr($irow['type'], 0, 15)); // per email 2009-03-20
+        Add('emrIssueId', $irow['id']);
         Add('IssueStartDate', xmlTime($irow['begdate'], 0));
-        Add('IssueEndDate'  , xmlTime($irow['enddate']));
-        Add('IssueTitle'    , $irow['title']);
+        Add('IssueEndDate', xmlTime($irow['enddate']));
+        Add('IssueTitle', $irow['title']);
         Add('IssueDiagnosis', $irow['diagnosis']);
         $form_id = ($irow['type'] == 'ippf_gcac') ? 'GCA' : 'CON';
         foreach ($irow as $key => $value) {
@@ -322,11 +322,11 @@ function endClient($pid, &$encarray)
         while ($frow = sqlFetchArray($fres)) {
               $form_id = $frow['form_id'];
               OpenTag('IMS_eMRUpload_Issue');
-              Add('IssueType'     , 'ippf_gcac');
-              Add('emrIssueId'    , 10000000 + $form_id);
+              Add('IssueType', 'ippf_gcac');
+              Add('emrIssueId', 10000000 + $form_id);
               Add('IssueStartDate', xmlTime($erow['date'], 0));
-              Add('IssueEndDate'  , xmlTime(''));
-              Add('IssueTitle'    , 'GCAC Visit Form');
+              Add('IssueEndDate', xmlTime(''));
+              Add('IssueTitle', 'GCAC Visit Form');
               Add('IssueDiagnosis', '');
               $gres = sqlStatement("SELECT field_id, field_value FROM lbf_data WHERE " .
               "form_id = '$form_id' ORDER BY field_id");
@@ -410,16 +410,16 @@ if (!empty($form_submit)) {
   // Dump info for the main facility.
     $facrow = $facilityService->getPrimaryBillingLocation();
     OpenTag('IMS_eMRUpload_Point');
-    Add('ServiceDeliveryPointName' , $facrow['name']);
+    Add('ServiceDeliveryPointName', $facrow['name']);
   // Add('EmrServiceDeliveryPointId', $facrow['id']);
     Add('EmrServiceDeliveryPointId', $facrow['facility_npi']);
-    Add('Channel'                  , '01');
-    Add('Latitude'                 , '222222'); // TBD: Add this to facility attributes
-    Add('Longitude'                , '433333'); // TBD: Add this to facility attributes
-    Add('Address'                  , $facrow['street']);
-    Add('Address2'                 , '');
-    Add('City'                     , $facrow['city']);
-    Add('PostCode'                 , $facrow['postal_code']);
+    Add('Channel', '01');
+    Add('Latitude', '222222'); // TBD: Add this to facility attributes
+    Add('Longitude', '433333'); // TBD: Add this to facility attributes
+    Add('Address', $facrow['street']);
+    Add('Address2', '');
+    Add('City', $facrow['city']);
+    Add('PostCode', $facrow['postal_code']);
 
     $query = "SELECT DISTINCT " .
     "fe.pid, " .
@@ -491,10 +491,10 @@ if (!empty($form_submit)) {
 
         // Starting a new client (patient).
         OpenTag('IMS_eMRUpload_Client');
-        Add('emrClientId'     , $row['pid']);
-        Add('RegisteredOn'    , xmlTime($row['regdate']));
-        Add('LastUpdated'     , xmlTime($row['last_update']));
-        Add('NewAcceptorDate' , xmlTime($row['contrastart']));
+        Add('emrClientId', $row['pid']);
+        Add('RegisteredOn', xmlTime($row['regdate']));
+        Add('LastUpdated', xmlTime($row['last_update']));
+        Add('NewAcceptorDate', xmlTime($row['contrastart']));
 
         // Get the current contraceptive method with greatest effectiveness.
         $methodid = '';
@@ -516,13 +516,13 @@ if (!empty($form_submit)) {
         }
         Add('CurrentMethod', $methodid);
 
-        Add('Dob'        , xmlTime($row['DOB']));
-        Add('DobType'    , "rel"); // rel=real, est=estimated
-        Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'],'npreg')); // number of pregnancies
-        Add('Children'   , 0 + getTextListValue($hrow['genobshist'],'nlc'));   // number of living children
-        Add('Abortions'  , 0 + getTextListValue($hrow['genabohist'],'nia'));   // number of induced abortions
-        Add('Education'  , $education);
-        Add('Demo5'      , Sex($row['sex']));
+        Add('Dob', xmlTime($row['DOB']));
+        Add('DobType', "rel"); // rel=real, est=estimated
+        Add('Pregnancies', 0 + getTextListValue($hrow['genobshist'], 'npreg')); // number of pregnancies
+        Add('Children', 0 + getTextListValue($hrow['genobshist'], 'nlc'));   // number of living children
+        Add('Abortions', 0 + getTextListValue($hrow['genabohist'], 'nia'));   // number of induced abortions
+        Add('Education', $education);
+        Add('Demo5', Sex($row['sex']));
 
         // Things included if they are present (July 2010)
         AddIfPresent('City', $row['city']);
@@ -606,7 +606,7 @@ if ($selmonth < 1) {
 
 <head>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Backup','e'); ?></title>
+<title><?php xl('Backup', 'e'); ?></title>
 </head>
 
 <body class="body_top">

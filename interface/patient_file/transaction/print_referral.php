@@ -124,11 +124,11 @@ fclose($fh);
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1), $s);
 $s = str_replace("{header2}", genFacilityTitle($TEMPLATE_LABELS['label_form2_title'], -1), $s);
 
-$s = str_replace("{fac_name}"        , $facrow['name']        , $s);
+$s = str_replace("{fac_name}", $facrow['name'], $s);
 $s = str_replace("{fac_facility_npi}", $facrow['facility_npi'], $s);
-$s = str_replace("{ref_id}"          , $trow['id']            , $s);
-$s = str_replace("{ref_pid}"         , $patient_id            , $s);
-$s = str_replace("{pt_age}"          , $patient_age           , $s);
+$s = str_replace("{ref_id}", $trow['id'], $s);
+$s = str_replace("{ref_pid}", $patient_id, $s);
+$s = str_replace("{pt_age}", $patient_age, $s);
 
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'LBTref' ORDER BY group_name, seq");

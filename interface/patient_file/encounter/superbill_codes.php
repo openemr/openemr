@@ -17,13 +17,13 @@ $text     = $_GET['text'];
 if (isset($mode)) {
     if ($mode == "add") {
         if (strtolower($type) == "copay") {
-            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,sprintf("%01.2f", 0 - $code));
+            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
         }
         elseif (strtolower($type) == "other") {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,sprintf("%01.2f", $fee));
+            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
         }
         else {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,$fee);
+            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
         }
     }
 }
@@ -44,7 +44,7 @@ if (isset($mode)) {
 <dt>
 
 <a href="superbill_custom_full.php" onclick="top.restoreSession()">
-<span class=title><?php xl('Superbill','e'); ?></span>
+<span class=title><?php xl('Superbill', 'e'); ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">

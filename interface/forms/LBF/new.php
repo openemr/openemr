@@ -202,7 +202,7 @@ if ($_POST['bn_save']) {
             else {
                 $query = "REPLACE INTO lbf_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
-                sqlStatement($query,array($value, $formid, $field_id));
+                sqlStatement($query, array($value, $formid, $field_id));
             }
         }
         else { // new form

@@ -41,7 +41,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         */
     function Execute($sql, $inputarr = false)
     {
-        $retval= parent::Execute($sql,$inputarr);
+        $retval= parent::Execute($sql, $inputarr);
         if ($retval === false) {
             $outcome = false;
           // Stash the error into last_mysql_error so it doesn't get clobbered when
@@ -57,7 +57,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         $GLOBALS['lastidado']=$this->Insert_ID();
-        auditSQLEvent($sql,$outcome,$inputarr);
+        auditSQLEvent($sql, $outcome, $inputarr);
         return $retval;
     }
 
@@ -72,7 +72,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         */
     function ExecuteNoLog($sql, $inputarr = false)
     {
-        return parent::Execute($sql,$inputarr);
+        return parent::Execute($sql, $inputarr);
     }
 
         /*
@@ -94,15 +94,15 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // post-nuke sets hasGenID to false
         if (!$this->hasGenID) return false;
 
-        $getnext = sprintf($this->_genIDSQL,$seqname);
+        $getnext = sprintf($this->_genIDSQL, $seqname);
         $holdtransOK = $this->_transOK; // save the current status
         $rs = @$this->ExecuteNoLog($getnext);
         if (!$rs) {
             if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
             $u = strtoupper($seqname);
-            $this->ExecuteNoLog(sprintf($this->_genSeqSQL,$seqname));
-            $cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seqname));
-            if (!$cnt) $this->ExecuteNoLog(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
+            $this->ExecuteNoLog(sprintf($this->_genSeqSQL, $seqname));
+            $cnt = $this->GetOne(sprintf($this->_genSeqCountSQL, $seqname));
+            if (!$cnt) $this->ExecuteNoLog(sprintf($this->_genSeq2SQL, $seqname, $startID-1));
             $rs = $this->ExecuteNoLog($getnext);
         }
 
@@ -234,10 +234,10 @@ function sqlStatementCdrEngine($statement, $binds = false)
     if (empty($binds)) $binds = false;
 
     if ($GLOBALS['audit_events_cdr']) {
-        return sqlStatement($statement,$binds);
+        return sqlStatement($statement, $binds);
     }
     else {
-        return sqlStatementNoLog($statement,$binds);
+        return sqlStatementNoLog($statement, $binds);
     }
 }
 
@@ -423,10 +423,10 @@ function sqlQueryCdrEngine($statement, $binds = false)
     if (empty($binds)) $binds = false;
 
     if ($GLOBALS['audit_events_cdr']) {
-        return sqlQuery($statement,$binds);
+        return sqlQuery($statement, $binds);
     }
     else {
-        return sqlQueryNoLog($statement,$binds);
+        return sqlQueryNoLog($statement, $binds);
     }
 }
 

@@ -91,18 +91,18 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                             $token++;
                             $in_token = false;
                         }
-                        $tokens[$token] .= substr($page,$pos,1);
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = true;
                         break;
 
                     case ">":
-                        $tokens[$token] .= substr($page,$pos,1);
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
                         $token++;
                         break;
 
                     default:
-                        $tokens[$token] .= substr($page,$pos,1);
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
                         break;
 

@@ -45,7 +45,7 @@ class C_InsuranceCompany extends Controller
     {
 
         if (!empty($sort)) {
-            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("",$sort));
+            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("", $sort));
         }
         else {
             $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());

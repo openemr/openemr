@@ -39,7 +39,7 @@ function diag_code_types($format = 'json', $sqlEscape = false)
                 $entry.= $sqlEscape ? add_escape_custom($key) : $key;
                 $entry.="'";
             }
-            array_push($diagCodes,$entry);
+            array_push($diagCodes, $entry);
         }
     }
     if($format=='json')
@@ -48,6 +48,6 @@ function diag_code_types($format = 'json', $sqlEscape = false)
     }
     if($format=='keylist')
     {
-        return implode(",",$diagCodes);
+        return implode(",", $diagCodes);
     }
 }

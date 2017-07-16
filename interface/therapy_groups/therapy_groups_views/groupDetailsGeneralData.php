@@ -26,9 +26,9 @@
 ?>
 
 
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $edit_encounter = acl_check("groups","glog",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $edit_encounter = acl_check("groups", "glog", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 
 <?php require 'header.php'; ?>

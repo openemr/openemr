@@ -229,7 +229,7 @@ function collectReportDatabase($report_id)
   // Convert data into an array
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array,array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
     }
 
     return $final_array;
@@ -255,7 +255,7 @@ function getStatusReportDatabase($report_id)
   // Place into an array for quick processing
     $final_array = array();
     while ($row = sqlFetchArray($res)) {
-        $final_array = array_merge($final_array,array($row['field_id']=>$row['field_value']));
+        $final_array = array_merge($final_array, array($row['field_id']=>$row['field_value']));
     }
 
     if ($final_array['progress'] == "complete") {
@@ -296,12 +296,12 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
     $dispTitle = "";
     $report_view = collectReportDatabase($report_id);
     $type_report = $report_view['type'];
-    $dataSheet = json_decode($report_view['data'],true);
+    $dataSheet = json_decode($report_view['data'], true);
     foreach ($dataSheet as $row) {
         if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (isset($row['is_main'])) {
                 // Store this
-                $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+                $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
             }
             if ( ($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label) ) {
                 // We have a hit, build on the $dispTitle created above
@@ -347,8 +347,8 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                     }
                 }
                 else { // isset($row['is_sub']
-                    $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
-                    $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
+                    $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
+                    $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
                 }
                 return $dispTitle;
             }
@@ -405,7 +405,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     }
     else if ($pass == "fail") {
         $exlPidArr = array();
-        $exludeResult = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,'exclude',$numerator_label,false,$sqllimit,$fstart);
+        $exludeResult = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, 'exclude', $numerator_label, false, $sqllimit, $fstart);
         foreach($exludeResult as $exlResArr){
             $exlPidArr[] = $exlResArr['pid'];
         }
@@ -416,11 +416,11 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
             $exlPids = implode(",", $exlPidArr);
             $sql_where .= " AND patient_data.pid NOT IN(" . add_escape_custom($exlPids) . ") ";
         }
-        array_push($sqlParameters,$pass_sql);
+        array_push($sqlParameters, $pass_sql);
     }
     else {
         $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
-        array_push($sqlParameters,$pass_sql);
+        array_push($sqlParameters, $pass_sql);
     }
 
     $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
@@ -428,11 +428,11 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     if ($sqllimit != "all") $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
 
     if ($count) {
-        $rez = sqlQueryCdrEngine($sql_query,$sqlParameters);
+        $rez = sqlQueryCdrEngine($sql_query, $sqlParameters);
         return $rez['total_listings'];
     }
     else {
-        $rez = sqlStatementCdrEngine($sql_query,$sqlParameters);
+        $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
         for($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $returnval[$iter]=$row;

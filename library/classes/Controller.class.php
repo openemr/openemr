@@ -48,9 +48,9 @@ class Controller extends Smarty
         }
 
         foreach($_POST as $varname => $var) {
-            $varname = preg_replace("/[^A-Za-z0-9_]/","",$varname);
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if (    (!(strpos("_",$varname) === 0)) && is_callable(array($obj,$func))       ) {
+            if (    (!(strpos("_", $varname) === 0)) && is_callable(array($obj,$func))       ) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
         //modified 01-2010 by BGM to centralize to formdata.inc.php
@@ -61,7 +61,7 @@ class Controller extends Smarty
         //DEBUG LINE - error_log("Controller populate after strip: ".$var, 0);
                 }
 
-                call_user_func_array(array(&$obj,$func),array($var, $_POST));
+                call_user_func_array(array(&$obj,$func), array($var, $_POST));
             }
         }
 
@@ -88,8 +88,8 @@ class Controller extends Smarty
             $_POST['process'] = "true";
         }
             $args = array_reverse(array_keys($qarray));
-            $c_name = preg_replace("/[^A-Za-z0-9_]/","",array_pop($args));
-            $parts = explode("_",$c_name);
+            $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
+            $parts = explode("_", $c_name);
             $name = "";
 
         foreach($parts as $p) {
@@ -97,10 +97,10 @@ class Controller extends Smarty
         }
 
             $c_name = $name;
-            $c_action = preg_replace("/[^A-Za-z0-9_]/","",array_pop($args));
+            $c_action = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
             $args = array_reverse($args);
 
-        if(!call_user_func(array("Controller","i_once"),$GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
+        if(!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
             echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
             exit;
         }
@@ -116,7 +116,7 @@ class Controller extends Smarty
             $args_array = array();
 
         foreach ($args as $arg) {
-            $arg = preg_replace("/[^A-Za-z0-9_]/","",$arg);
+            $arg = preg_replace("/[^A-Za-z0-9_]/", "", $arg);
             //this is a workaround because call user func does funny things with passing args if they have no assigned value
             //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
             if (empty($qarray[$arg]) && $qarray[$arg]!="0") {
@@ -134,19 +134,19 @@ class Controller extends Smarty
 
             if (is_callable(array(&$c_obj,$c_action . "_action_process"))) {
                 //echo "ca: " . $c_action . "_action_process";
-                $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"),$args_array);
+                $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"), $args_array);
                 if ($c_obj->_state == false) {
                     return $output;
                 }
             }
             //echo "ca: " . $c_action . "_action";
-            $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"),$args_array);
+            $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
 
         }
         else {
             if (is_callable(array(&$c_obj,$c_action . "_action"))) {
                 //echo "ca: " . $c_action . "_action";
-                $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"),$args_array);
+                $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
             }
             else {
                 echo "The action trying to be performed: " . $c_action ." does not exist controller: ". $name;
@@ -159,16 +159,16 @@ class Controller extends Smarty
 
     function _link($action = "default", $inlining = false)
     {
-         $url_parts = explode("&",$_SERVER['REQUEST_URI']);
+         $url_parts = explode("&", $_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);
          //print_r($url_parts);
 
-        if (strpos($url_parts[0],"=") === false) {
+        if (strpos($url_parts[0], "=") === false) {
             $inline_arg = $url_parts[0];
             $url_parts[0] = $action;
         }
         else {
-            array_unshift($url_parts,$action);
+            array_unshift($url_parts, $action);
         }
         if ($inlining) {
             $link .= "&" . $inline_arg;

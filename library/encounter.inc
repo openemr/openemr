@@ -14,7 +14,7 @@ function setencounter($enc)
     $attendant_id = $attendant_type == 'pid' ? $pid : $_SESSION['therapy_group'];
     if ($enc == "" ) {
         $enc = date("Ymd");
-        if (getFormByEncounter($attendant_id,$enc)) {
+        if (getFormByEncounter($attendant_id, $enc)) {
             //there is an encounter enterred for today
         } else {
             //addForm($enc, "New Patient Encounter", 0, $pid, 1);

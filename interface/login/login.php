@@ -172,7 +172,7 @@ if (count($emr_app)) {
                               echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
                         }
                         // collect default language id
-                        $res2 = sqlStatement("select * from lang_languages where lang_description = ?",array($GLOBALS['language_default']));
+                        $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
                         for ($iter = 0;$row = sqlFetchArray($res2);$iter++)
                             $result2[$iter] = $row;
                         if (count($result2) == 1) {

@@ -148,7 +148,7 @@ class FeeSheet
     public static function getAge($dob, $asof = '')
     {
         if (empty($asof)) $asof = date('Y-m-d');
-        $a1 = explode('-', substr($dob , 0, 10));
+        $a1 = explode('-', substr($dob, 0, 10));
         $a2 = explode('-', substr($asof, 0, 10));
         $age = $a2[0] - $a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) --$age;
@@ -879,9 +879,9 @@ class FeeSheet
                         $rxobj->set_drug_id($drug_id);
                         $rxobj->set_quantity($units);
                         $rxobj->set_per_refill($units);
-                        $rxobj->set_start_date_y(substr($this->visit_date,0,4));
-                        $rxobj->set_start_date_m(substr($this->visit_date,5,2));
-                        $rxobj->set_start_date_d(substr($this->visit_date,8,2));
+                        $rxobj->set_start_date_y(substr($this->visit_date, 0, 4));
+                        $rxobj->set_start_date_m(substr($this->visit_date, 5, 2));
+                        $rxobj->set_start_date_d(substr($this->visit_date, 8, 2));
                         $rxobj->set_date_added($this->visit_date);
                         // Remaining attributes are the drug and template defaults.
                         $rxobj->set_drug($drow['name']);

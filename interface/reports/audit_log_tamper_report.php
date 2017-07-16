@@ -223,7 +223,7 @@ if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' =
     foreach ($ret as $iter) {
         //translate comments
         $patterns = array ('/^success/','/^failure/','/ encounter/');
-        $replace = array ( xl('success'), xl('failure'), xl('encounter','',' '));
+        $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
 
         $dispCheck = false;
         $log_id = $iter['id'];

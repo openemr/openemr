@@ -3020,7 +3020,7 @@ $(document).ready(function() {
                                             <?php
                                             // This query is specific to the provider.
                                             $query  = "select seq from list_options where option_id=?";
-                                            $result = sqlStatement($query,array("Eye_defaults_$providerID"));
+                                            $result = sqlStatement($query, array("Eye_defaults_$providerID"));
 
                                             $list = sqlFetchArray($result);
                                             $SEQ = $list['seq'];
@@ -3041,7 +3041,7 @@ $(document).ready(function() {
                                                 $seq=$maxseq['maxseq'];
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES
                                             ('lists', ?, ?, ?, '1', '0', '', '', '')";
-                                                sqlStatement($query,array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
+                                                sqlStatement($query, array("Eye_defaults_$providerID","Eye Exam Defaults $providerNAME ",$seq));
                                                 $query = "INSERT INTO `list_options` (`list_id`, `option_id`, `title`,`notes`,`seq`) VALUES
                                             ('Eye_defaults_".$providerID."','RUL','normal lids and lashes','EXT','10'),
                                             ('Eye_defaults_".$providerID."','LUL','normal lids and lashes','EXT','20'),
@@ -3099,7 +3099,7 @@ $(document).ready(function() {
                                             }
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
-                                            $DEFAULT_data =sqlStatement($query,array("Eye_defaults_$providerID"));
+                                            $DEFAULT_data =sqlStatement($query, array("Eye_defaults_$providerID"));
                                             while ($row = sqlFetchArray($DEFAULT_data)) {
                                             //$row['notes'] is the clinical zone (EXT,ANTSEG,RETINA,NEURO)
                                             //$row['option_id'] is the field name

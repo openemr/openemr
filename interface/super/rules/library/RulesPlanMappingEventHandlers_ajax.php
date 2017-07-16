@@ -43,7 +43,7 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);
@@ -56,7 +56,7 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value);
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);
@@ -69,13 +69,13 @@ switch ($action) {
         $rules_list = array();
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'true');
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         $rules = getRulesNotInPlan($_GET["plan_id"]);
         foreach ($rules as $key => $value) {
             $rule_info = array('rule_id'=>$key, 'rule_title'=>$value, 'selected'=>'false');
-            array_push($rules_list,$rule_info);
+            array_push($rules_list, $rule_info);
         }
 
         echo json_encode($rules_list);

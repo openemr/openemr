@@ -43,7 +43,7 @@ function test_password_strength($pwd, &$errMsg)
         $reg_security=array("/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/");
         foreach($reg_security as $expr)
         {
-            if(preg_match($expr,$pwd))
+            if(preg_match($expr, $pwd))
             {
                 $features++;
             }
@@ -72,10 +72,10 @@ function test_password_strength($pwd, &$errMsg)
  */
 function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$errMsg, $create = false, $insert_sql = "", $new_username = null, &$newid = null)
 {
-    $userSQL="SELECT ".implode(",",array(COL_PWD,COL_SALT,COL_PWD_H1,COL_SALT_H1,COL_PWD_H2,COL_SALT_H2))
+    $userSQL="SELECT ".implode(",", array(COL_PWD,COL_SALT,COL_PWD_H1,COL_SALT_H1,COL_PWD_H2,COL_SALT_H2))
             ." FROM ".TBL_USERS_SECURE
             ." WHERE ".COL_ID."=?";
-    $userInfo=privQuery($userSQL,array($targetUser));
+    $userInfo=privQuery($userSQL, array($targetUser));
     
     // Verify the active user's password
     $changingOwnPassword = $activeUser==$targetUser;
@@ -88,7 +88,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             return false;
         }
         // If this user is changing his own password, then confirm that they have the current password correct
-        $hash_current = oemr_password_hash($currentPwd,$userInfo[COL_SALT]);
+        $hash_current = oemr_password_hash($currentPwd, $userInfo[COL_SALT]);
         if(($hash_current!=$userInfo[COL_PWD]))
         {
             $errMsg=xl("Incorrect password!");
@@ -108,11 +108,11 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             }
         }else {
 
-            $adminSQL=" SELECT ".implode(",",array(COL_PWD,COL_SALT))
+            $adminSQL=" SELECT ".implode(",", array(COL_PWD,COL_SALT))
                       ." FROM ".TBL_USERS_SECURE
                       ." WHERE ".COL_ID."=?";
-            $adminInfo=privQuery($adminSQL,array($activeUser));
-            $hash_admin = oemr_password_hash($currentPwd,$adminInfo[COL_SALT]);
+            $adminInfo=privQuery($adminSQL, array($activeUser));
+            $hash_admin = oemr_password_hash($currentPwd, $adminInfo[COL_SALT]);
             if($hash_admin!=$adminInfo[COL_PWD])
             {
                 $errMsg=xl("Incorrect password!");
@@ -136,7 +136,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         $errMsg=xl("Empty Password Not Allowed");
         return false;
     }
-    if(!test_password_strength($newPwd,$errMsg))
+    if(!test_password_strength($newPwd, $errMsg))
     {
         return false;
     }
@@ -148,12 +148,12 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         // In these cases don't worry about password history
         if($create)
         {
-            privStatement($insert_sql,array());
+            privStatement($insert_sql, array());
             $getUserID=  " SELECT ".COL_ID
                         ." FROM ".TBL_USERS
                         ." WHERE ".COL_UNM."=?";
-                $user_id=privQuery($getUserID,array($new_username));
-                initializePassword($new_username,$user_id[COL_ID],$newPwd);
+                $user_id=privQuery($getUserID, array($new_username));
+                initializePassword($new_username, $user_id[COL_ID], $newPwd);
                 $newid=$user_id[COL_ID];
         }
         else
@@ -161,14 +161,14 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
             $getUserNameSQL="SELECT ".COL_UNM
                 ." FROM ".TBL_USERS
                 ." WHERE ".COL_ID."=?";
-            $unm=privQuery($getUserNameSQL,array($targetUser));
+            $unm=privQuery($getUserNameSQL, array($targetUser));
             if($unm===false)
             {
                 $errMsg=xl("Unknown user id:".$targetUser);
                 return false;
             }
-            initializePassword($unm[COL_UNM],$targetUser,$newPwd);
-            purgeCompatabilityPassword($unm[COL_UNM],$targetUser);
+            initializePassword($unm[COL_UNM], $targetUser, $newPwd);
+            purgeCompatabilityPassword($unm[COL_UNM], $targetUser);
                 
         }
     }
@@ -185,9 +185,9 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         if($forbid_reuse)
         {
             // password reuse disallowed
-            $hash_current = oemr_password_hash($newPwd,$userInfo[COL_SALT]);
-            $hash_history1 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H1]);
-            $hash_history2 = oemr_password_hash($newPwd,$userInfo[COL_SALT_H2]);
+            $hash_current = oemr_password_hash($newPwd, $userInfo[COL_SALT]);
+            $hash_history1 = oemr_password_hash($newPwd, $userInfo[COL_SALT_H1]);
+            $hash_history2 = oemr_password_hash($newPwd, $userInfo[COL_SALT_H2]);
             if(($hash_current==$userInfo[COL_PWD])
                 ||($hash_history1==$userInfo[COL_PWD_H1])
                 || ($hash_history2==$userInfo[COL_PWD_H2]))
@@ -199,24 +199,24 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
         
         // Everything checks out at this point, so update the password record
         $newSalt = oemr_password_salt();
-        $newHash = oemr_password_hash($newPwd,$newSalt);
+        $newHash = oemr_password_hash($newPwd, $newSalt);
         $updateParams=array();
         $updateSQL= "UPDATE ".TBL_USERS_SECURE;
         $updateSQL.=" SET ".COL_PWD."=?,".COL_SALT."=?";
-        array_push($updateParams,$newHash);
-        array_push($updateParams,$newSalt);
+        array_push($updateParams, $newHash);
+        array_push($updateParams, $newSalt);
         if($forbid_reuse){
             $updateSQL.=",".COL_PWD_H1."=?".",".COL_SALT_H1."=?";
-            array_push($updateParams,$userInfo[COL_PWD]);
-            array_push($updateParams,$userInfo[COL_SALT]);
+            array_push($updateParams, $userInfo[COL_PWD]);
+            array_push($updateParams, $userInfo[COL_SALT]);
             $updateSQL.=",".COL_PWD_H2."=?".",".COL_SALT_H2."=?";
-            array_push($updateParams,$userInfo[COL_PWD_H1]);
-            array_push($updateParams,$userInfo[COL_SALT_H1]);
+            array_push($updateParams, $userInfo[COL_PWD_H1]);
+            array_push($updateParams, $userInfo[COL_SALT_H1]);
 
         }
         $updateSQL.=" WHERE ".COL_ID."=?";
-        array_push($updateParams,$targetUser);
-        privStatement($updateSQL,$updateParams);
+        array_push($updateParams, $targetUser);
+        privStatement($updateSQL, $updateParams);
         
         // If the user is changing their own password, we need to update the session
         if($changingOwnPassword)
@@ -228,7 +228,7 @@ function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$err
     if($GLOBALS['password_expiration_days'] != 0){
             $exp_days=$GLOBALS['password_expiration_days'];
             $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-            privStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$targetUser));
+            privStatement("update users set pwd_expiration_date=? where id=?", array($exp_date,$targetUser));
     }
     return true;
 }

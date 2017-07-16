@@ -431,7 +431,7 @@ document.onclick=HideTheAjaxDivs;
           </tr>
           <tr>
             <td align="right"></td>
-            <td align="left" class="text"><?php	echo generate_select_list("payment_date", "payment_date", "$PaymentDate", "Payment Date","","class4 text");?></td>
+            <td align="left" class="text"><?php	echo generate_select_list("payment_date", "payment_date", "$PaymentDate", "Payment Date", "", "class4 text");?></td>
             <td colspan="4">
                 <table  border="0" cellspacing="0" cellpadding="0">
                   <tr>
@@ -447,7 +447,7 @@ document.onclick=HideTheAjaxDivs;
         </td>
         <td class="text"></td>
         <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
-        <td align="left"><?php	echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method"," ","class1 text");?></td>
+        <td align="left"><?php	echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", " ", "class1 text");?></td>
         <td></td>
         <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
         <td><input type="text" name="check_number"   autocomplete="off"  value="<?php echo htmlspecialchars(formData('check_number'));?>"  id="check_number"  class=" class1 text "   /></td>
@@ -458,13 +458,13 @@ document.onclick=HideTheAjaxDivs;
         <td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount" onKeyUp="ValidateNumeric(this);"  value="<?php echo htmlspecialchars(formData('payment_amount'));?>"  style="text-align:right"    class="class1 text "   /></td>
         <td align="left" ></td>
         <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
-        <td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name","Paying Entity"," ","class1 text","SearchPayingEntityAction()");?>      </td>
+        <td align="left"><?php	echo generate_select_list("type_name", "payment_type", "$type_name", "Paying Entity", " ", "class1 text", "SearchPayingEntityAction()");?>      </td>
         <td align="left" ></td>
         <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
-        <td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code","Paying Category"," ","class1 text");?>           </td>
+        <td align="left"><?php	echo generate_select_list("adjustment_code", "payment_adjustment_code", "$adjustment_code", "Paying Category", " ", "class1 text");?>           </td>
             <td></td>
             <td align="left" class=" text " ><?php echo htmlspecialchars( xl('Pay Status'), ENT_QUOTES).':' ?></td>
-            <td align="left" ><?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus","Pay Status"," ","class1 text");?></td>
+            <td align="left" ><?php echo generate_select_list("PaymentStatus", "payment_status", "$PaymentStatus", "Pay Status", " ", "class1 text");?></td>
           </tr>
           <tr>
             <td align="right"></td>
@@ -486,7 +486,7 @@ document.onclick=HideTheAjaxDivs;
               </tr>
             </table>            </td>
             <td align="left" class="text"><?php echo htmlspecialchars( xl('Sort Result by'), ENT_QUOTES).':' ?></td>
-            <td align="left" class="text"><?php echo generate_select_list("PaymentSortBy", "payment_sort_by", "$PaymentSortBy","Sort Result by"," ","class1 text");?>            </td>
+            <td align="left" class="text"><?php echo generate_select_list("PaymentSortBy", "payment_sort_by", "$PaymentSortBy", "Sort Result by", " ", "class1 text");?>            </td>
             <td align="left" class="text"></td>
             <td align="left" class="text"><table  border="0" cellspacing="0" cellpadding="0">
                   <tr>
@@ -615,7 +615,7 @@ document.onclick=HideTheAjaxDivs;
                               $UndistributedAmount=$pay_total-$pay_amount-$global_amount;
                               echo $UndistributedAmount*1==0 ? htmlspecialchars( xl('Fully Paid'), ENT_QUOTES) : htmlspecialchars( xl('Unapplied'), ENT_QUOTES); ?></a></td>
                                 <td align="right" class="<?php echo $StringClass; ?>" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars($RowSearch['pay_total']); ?></a></td>
-                                <td align="right" class="<?php echo $StringClass; ?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount,2)); ?></a></td>
+                                <td align="right" class="<?php echo $StringClass; ?> right" ><a href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"  class='iframe medium_modal' ><?php echo htmlspecialchars(number_format($UndistributedAmount, 2)); ?></a></td>
                               </tr>
                                 <?php
                         }//while ($RowSearch = sqlFetchArray($ResultSearch))

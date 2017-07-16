@@ -141,7 +141,7 @@ function era_callback_check(&$out)
             $StringToEcho.="<td><input type='checkbox'  name='chk".$out['check_number'.$check_count]."' value='".$out['check_number'.$check_count]."'/></td>";
             $StringToEcho.="<td>".htmlspecialchars($out['check_number'.$check_count])."</td>";
             $StringToEcho.="<td>".htmlspecialchars($out['payee_name'.$check_count])."</td>";
-            $StringToEcho.="<td align='right'>".htmlspecialchars(number_format($out['check_amount'.$check_count],2))."</td>";
+            $StringToEcho.="<td align='right'>".htmlspecialchars(number_format($out['check_amount'.$check_count], 2))."</td>";
             $StringToEcho.="</tr>";
         }
         $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
@@ -154,13 +154,13 @@ function era_callback_check(&$out)
         for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
         {
             $chk_num=$out['check_number'.$check_count];
-            $chk_num=str_replace(' ','_',$chk_num);
+            $chk_num=str_replace(' ', '_', $chk_num);
             if(isset($_REQUEST['chk'.$chk_num]))
             {
                 $check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
                 $post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
                 $deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
-                $InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'],$out['check_number'.$check_count],$out['check_date'.$check_count],$out['check_amount'.$check_count],$post_to_date,$deposit_date,$debug);
+                $InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
 
 
             }
@@ -176,7 +176,7 @@ function era_callback(&$out)
 
     // Some heading information.
     $chk_123=$out['check_number'];
-    $chk_123=str_replace(' ','_',$chk_123);
+    $chk_123=str_replace(' ', '_', $chk_123);
     if(isset($_REQUEST['chk'.$chk_123])){
         if ($encount == 0) {
             writeMessageLine('#ffffff', 'infdetail',
@@ -247,10 +247,10 @@ function era_callback(&$out)
                             $code_value .= $svc['code'].'_'.$svc['mod'].'_'.$adj['group_code'].'_'.$adj['reason_code'].',';
                         }
                     }
-                    $code_value = substr($code_value,0,-1);
+                    $code_value = substr($code_value, 0, -1);
                     //We store the reason code to display it with description in the billing manager screen.
                     //process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
-                    updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel,3),7,0,$code_value);
+                    updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
             writeMessageLine($bgcolor, 'errdetail',
@@ -327,7 +327,7 @@ function era_callback(&$out)
                 $description = "CPT4:$codekey Added by $inslabel $production_date";
                 if (!$error && !$debug) {
                     arPostCharge($pid, $encounter, 0, $svc['chg'], 1, $service_date,
-                    $codekey, $description, $debug,'',$codetype);
+                    $codekey, $description, $debug, '', $codetype);
                     $invoice_total += $svc['chg'];
                 }
                 $class = $error ? 'errdetail' : 'newdetail';
@@ -370,8 +370,8 @@ function era_callback(&$out)
             // i.e. a payment reversal.
             if ($svc['paid']) {
                 if (!$error && !$debug) {
-                    arPostPayment($pid, $encounter,$InsertionId[$out['check_number']], $svc['paid'],//$InsertionId[$out['check_number']] gives the session id
-                    $codekey, substr($inslabel,3), $out['check_number'], $debug,'',$codetype);
+                    arPostPayment($pid, $encounter, $InsertionId[$out['check_number']], $svc['paid'], //$InsertionId[$out['check_number']] gives the session id
+                    $codekey, substr($inslabel, 3), $out['check_number'], $debug, '', $codetype);
                     $invoice_total -= $svc['paid'];
                 }
                 $description = "$inslabel/" . $out['check_number'] . ' payment';
@@ -412,8 +412,8 @@ function era_callback(&$out)
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
-                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey,//$InsertionId[$out['check_number']] gives the session id
-                        substr($inslabel,3), $reason, $debug, '', $codetype);
+                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey, //$InsertionId[$out['check_number']] gives the session id
+                        substr($inslabel, 3), $reason, $debug, '', $codetype);
                     }
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
@@ -421,8 +421,8 @@ function era_callback(&$out)
                 // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
-                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'],//$InsertionId[$out['check_number']] gives the session id
-                        $codekey, substr($inslabel,3),
+                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
+                        $codekey, substr($inslabel, 3),
                         "Adjust code " . $adj['reason_code'], $debug, '', $codetype);
                         $invoice_total -= $adj['amount'];
                     }
@@ -467,7 +467,7 @@ function era_callback(&$out)
             }
             // Check for secondary insurance.
             if ($primary && arGetPayerID($pid, $service_date, 2)) {
-                arSetupSecondary($pid, $encounter, $debug,$out['crossover']);
+                arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
 
                 if($out['crossover']<>1)
                 {
@@ -514,7 +514,7 @@ if (!$debug) {
  .errdetail { color:#dd0000; font-family:sans-serif; font-size:9pt; font-weight:normal }
  .infdetail { color:#0000ff; font-family:sans-serif; font-size:9pt; font-weight:normal }
 </style>
-<title><?php xl('EOB Posting - Electronic Remittances','e')?></title>
+<title><?php xl('EOB Posting - Electronic Remittances', 'e')?></title>
 <script language="JavaScript">
 </script>
 </head>

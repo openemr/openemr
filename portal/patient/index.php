@@ -40,7 +40,7 @@ catch (exception $ex)
     // render it as JSON, otherwise attempt to render a friendly HTML page
 
     $url = RequestUtil::GetCurrentURL();
-    $isApiRequest = (strpos($url,'api/') !== false);
+    $isApiRequest = (strpos($url, 'api/') !== false);
 
     if ($isApiRequest)
     {
@@ -54,9 +54,9 @@ catch (exception $ex)
     }
     else
     {
-        $gc->GetRenderEngine()->assign("message",$ex->getMessage());
-        $gc->GetRenderEngine()->assign("stacktrace",$ex->getTraceAsString());
-        $gc->GetRenderEngine()->assign("code",$ex->getCode());
+        $gc->GetRenderEngine()->assign("message", $ex->getMessage());
+        $gc->GetRenderEngine()->assign("stacktrace", $ex->getTraceAsString());
+        $gc->GetRenderEngine()->assign("code", $ex->getCode());
 
         try
         {

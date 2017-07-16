@@ -169,7 +169,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
   {
     $.ajax(
             {
@@ -236,13 +236,13 @@ function autosave( )
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/psychiatrisch_onderzoek/save.php?mode=new&saveid=<?php echo $psychiatrisch_onderzoek_id; ?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Examination','e'); ?></span><br><br>
+<span class="title"><?php xl('Psychiatric Examination', 'e'); ?></span><br><br>
 
 <table>
 <tr>
-<td><?php xl('Examination Date','e'); ?>:</td><td>
+<td><?php xl('Examination Date', 'e'); ?>:</td><td>
 <input type='text' class='datepicker' name='datum_onderzoek' id='datum_onderzoek' size='10' value='<?php echo $m_strEventDate ?>'
-          title='<?php xl('Examination Date','e'); ?>: yyyy-mm-dd'></input>
+          title='<?php xl('Examination Date', 'e'); ?>: yyyy-mm-dd'></input>
 
 
 <?php
@@ -251,21 +251,21 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
+<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('Intake Conclusion','e'); ?></span><br>
+<br><span class=text><?php xl('Intake Conclusion', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="conclusie_van_intake" id="conclusie_van_intake"><?php echo stripslashes($obj{"conclusie_van_intake"});?></textarea><br>
-<br><span class=text><?php xl('Medications','e'); ?></span><br>
+<br><span class=text><?php xl('Medications', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
 
-<br><span class=text><?php xl('History','e'); ?></span><br>
+<br><span class=text><?php xl('History', 'e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="anamnese" id="anamnese"><?php echo stripslashes($obj{"anamnese"});?></textarea><br>
 
-<br><span class=text><?php xl('Psychiatric Examination','e'); ?></span><br>
+<br><span class=text><?php xl('Psychiatric Examination', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="psychiatrisch_onderzoek" id="psychiatrisch_onderzoek"><?php echo stripslashes($obj{"psychiatrisch_onderzoek"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
+<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
 
 
@@ -279,9 +279,9 @@ function autosave( )
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save', 'e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

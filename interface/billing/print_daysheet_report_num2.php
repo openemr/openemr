@@ -458,25 +458,25 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                       print  "</span></td><td width=100><span class=text><center>" . text($iter{'provider_id'}). "</center>";
                       print  "</span></td><td width=100><span class=text><center>" . text($iter{'user'}). "</center>" ;
                       print  "</span></td><td width=100><span class=text>";
-                      print  "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d",strtotime($iter{"date"}))). "</center>";
+                      print  "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter{"date"}))). "</center>";
                       print  "</span></td>\n";
                 }
                 else
                 {
-                    if (date("Y-m-d",strtotime($iter{'bill_date'})) === '1969-12-31') {
+                    if (date("Y-m-d", strtotime($iter{'bill_date'})) === '1969-12-31') {
                         print "<td width=40><span class=text><center>" . text($iter{'units'}) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . text($iter{'fee'}) . "</center>";
                         if ($GLOBALS['language_default'] === 'English (Standard)'){
-                            print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter{'code_text'},0,38)))) . "</center>";
+                            print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter{'code_text'}, 0, 38)))) . "</center>";
                         }
                         else
                         {
-                            print "</span></td><td width=250><span class=text><center>" . text(substr($iter{'code_text'},0,38)) . "</center>";
+                            print "</span></td><td width=250><span class=text><center>" . text(substr($iter{'code_text'}, 0, 38)) . "</center>";
                         }
                         print "</span></td><td width=100><span class=text><center>" . text($iter{'provider_id'}) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . text($iter{'user'}) . "</center>" ;
                         print "</span></td><td width=100><span class=text><center>" . xlt("Not Billed"). "</center>";
-                        print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d",strtotime($iter{'date'}))). "</center>";
+                        print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter{'date'}))). "</center>";
                         print "</span></td><td width=100><span class=small><center>" . text($iter{'encounter'}). "</center>";
                         print "</span></td>\n";
                     }
@@ -486,16 +486,16 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             print "<td width=40><span class=text><center>" . text($iter{"units"}) . "</center>";
                             print "</span></td><td width=100><span class=text><center>" . text($iter{'fee'}) . "</center>";
                             if ($GLOBALS['language_default'] === 'English (Standard)'){
-                                  print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter{'code_text'},0,38)))) . "</center>";
+                                  print "</span></td><td width=250><span class=text><center>" . text(ucwords(strtolower(substr($iter{'code_text'}, 0, 38)))) . "</center>";
                             }
                             else
                             {
-                                  print "</span></td><td width=250><span class=text><center>" . text(substr($iter{'code_text'},0,38)) . "</center>";
+                                  print "</span></td><td width=250><span class=text><center>" . text(substr($iter{'code_text'}, 0, 38)) . "</center>";
                             }
                             print "</span></td><td width=100><span class=text><center>" . text($iter{'provider_id'}) . "</center>";
                             print "</span></td><td width=100><span class=text><center>" . text($iter{'user'}) . "</center>";
-                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d",strtotime($iter{'bill_date'}))) . "</center>";
-                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d",strtotime($iter{'date'}))). "</center>";
+                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter{'bill_date'}))) . "</center>";
+                            print "</span></td><td width=100><span class=small><center>" . text(date("Y-m-d", strtotime($iter{'date'}))). "</center>";
                             print "</span></td><td width=100><span class=small><center>" . text($iter{'encounter'}). "</center>";
                             print "</span></td>\n";
                         }
@@ -707,8 +707,8 @@ if ($us19_fee != 0 || $us19_inspay != 0 || $us19_insadj != 0 || $us19_patadj != 
 }
 
 if ($totals_only == 1) {
-    $from_date = oeFormatShortDate(substr($query_part_day,37,10));
-    $to_date = oeFormatShortDate(substr($query_part_day,63,10));
+    $from_date = oeFormatShortDate(substr($query_part_day, 37, 10));
+    $to_date = oeFormatShortDate(substr($query_part_day, 63, 10));
     print "<br><br>";
 ?><font size = 5 ><?php echo xlt('Totals for '). $from_date . ' ' . xlt('To') . ' ' . $to_date ?></font><?php
 }
@@ -718,11 +718,11 @@ for ($i=1 ; $i<$k; ) {
     print "<br><br>";
 
     Printf ("<td width=70><span class=text><b>". xlt("User "). "</center></b><center>".text($user_info[user][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' ."</center></b><center>"." %1\$.2f",text($user_info[fee][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f",text($user_info[insadj][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f",text($user_info[inspay][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f",text($user_info[patadj][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' ."</center></b><center>"."%1\$.2f",text($user_info[patpay][$i])). "</center>";
+    Printf ("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' ."</center></b><center>"." %1\$.2f", text($user_info[fee][$i])). "</center>";
+    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[insadj][$i])). "</center>";
+    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($user_info[inspay][$i])). "</center>";
+    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[patadj][$i])). "</center>";
+    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' ."</center></b><center>"."%1\$.2f", text($user_info[patpay][$i])). "</center>";
 
     $gtotal_fee = $gtotal_fee + $user_info[fee][$i];
     $gtotal_insadj = $gtotal_insadj + $user_info[insadj][$i];
@@ -738,11 +738,11 @@ print "<table border=1><tr>\n";
 print "<br><br>";
 
 Printf ("<td width=70><span class=text><b><center>". xlt("Grand Totals").' ');
-Printf ("<td width=140><span class=text><b><center>". xlt("Total Charges").' '."</center></b><center>"." %1\$.2f",text($gtotal_fee)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f",text($gtotal_insadj)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' ."</center></b><center>"."%1\$.2f",text($gtotal_inspay)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f",text($gtotal_patadj)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' . "</center></b><center>"."%1\$.2f",text($gtotal_patpay)). "</center>";
+Printf ("<td width=140><span class=text><b><center>". xlt("Total Charges").' '."</center></b><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
+Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_insadj)). "</center>";
+Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' ."</center></b><center>"."%1\$.2f", text($gtotal_inspay)). "</center>";
+Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
+Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments"). ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
 
 print "</br></td>";
 print "</table>";

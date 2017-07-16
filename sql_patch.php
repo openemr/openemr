@@ -97,7 +97,7 @@ $EMRversion = trim(preg_replace('/\s*\([^)]*\)/', '', $GLOBALS['openemr_version'
     echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']).'">',xlt('Log in'),'</a></p>';
 
     if(isset($_SERVER['HTTP_REFERER'])) {
-        $split = preg_split('/\//',$_SERVER['HTTP_REFERER']);
+        $split = preg_split('/\//', $_SERVER['HTTP_REFERER']);
         if($split[count($split) - 1] == 'admin.php')
         echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="admin.php">',xlt('Back to Admin Page'),'</a></p>';
     }

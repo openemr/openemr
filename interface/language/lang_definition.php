@@ -23,17 +23,17 @@
   <table>
     <form name='filterform' id='filterform' method='post' action='?m=definition' onsubmit="return top.restoreSession()">
     <tr>
-      <td><?php echo htmlspecialchars(xl('Filter for Constants','','',':'),ENT_NOQUOTES); ?></td>
-      <td><input type='text' name='filter_cons' size='8' value='<?php echo htmlspecialchars($_POST['filter_cons'],ENT_QUOTES); ?>' />
-        <span class="text"><?php echo htmlspecialchars(xl('(% matches any string, _ matches any character)'),ENT_NOQUOTES); ?></span></td>
+      <td><?php echo htmlspecialchars(xl('Filter for Constants', '', '', ':'), ENT_NOQUOTES); ?></td>
+      <td><input type='text' name='filter_cons' size='8' value='<?php echo htmlspecialchars($_POST['filter_cons'], ENT_QUOTES); ?>' />
+        <span class="text"><?php echo htmlspecialchars(xl('(% matches any string, _ matches any character)'), ENT_NOQUOTES); ?></span></td>
     </tr>
     <tr>
-      <td><?php echo htmlspecialchars(xl('Filter for Definitions','','',':'),ENT_NOQUOTES); ?></td>
-      <td><input type='text' name='filter_def' size='8' value='<?php echo htmlspecialchars($_POST['filter_def'],ENT_QUOTES); ?>' />
-        <span class="text"><?php echo htmlspecialchars(xl('(% matches any string, _ matches any character)'),ENT_NOQUOTES); ?></span></td>
+      <td><?php echo htmlspecialchars(xl('Filter for Definitions', '', '', ':'), ENT_NOQUOTES); ?></td>
+      <td><input type='text' name='filter_def' size='8' value='<?php echo htmlspecialchars($_POST['filter_def'], ENT_QUOTES); ?>' />
+        <span class="text"><?php echo htmlspecialchars(xl('(% matches any string, _ matches any character)'), ENT_NOQUOTES); ?></span></td>
     </tr>
     <tr>    
-      <td><?php echo htmlspecialchars(xl('Select Language').":",ENT_NOQUOTES); ?></td>
+      <td><?php echo htmlspecialchars(xl('Select Language').":", ENT_NOQUOTES); ?></td>
       <td>
     <select name='language_select'>
             <?php
@@ -59,10 +59,10 @@
             $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
             while ($row=SqlFetchArray($res)){
                 if ($tempLangID == $row['lang_id']) {
-                    echo "<option value='" . htmlspecialchars($row['lang_id'],ENT_QUOTES) . "' selected>" . htmlspecialchars($row['lang_description'],ENT_NOQUOTES) . "</option>";
+                    echo "<option value='" . htmlspecialchars($row['lang_id'], ENT_QUOTES) . "' selected>" . htmlspecialchars($row['lang_description'], ENT_NOQUOTES) . "</option>";
                 }
                 else {
-                      echo "<option value='" . htmlspecialchars($row['lang_id'],ENT_QUOTES) . "'>" . htmlspecialchars($row['lang_description'],ENT_NOQUOTES) . "</option>";
+                      echo "<option value='" . htmlspecialchars($row['lang_id'], ENT_QUOTES) . "'>" . htmlspecialchars($row['lang_description'], ENT_NOQUOTES) . "</option>";
                 }
             }
             ?>
@@ -70,7 +70,7 @@
       </td>
     </tr>
     <tr>
-      <td colspan=2><INPUT TYPE="submit" name="edit" value="<?php echo htmlspecialchars(xl('Search'),ENT_QUOTES); ?>"></td>
+      <td colspan=2><INPUT TYPE="submit" name="edit" value="<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>"></td>
     </tr>
     </form>
   </table>
@@ -141,12 +141,12 @@ if ($_POST['load']) {
             }
         }
     }
-    if ($go=='yes') echo htmlspecialchars(xl("New Definition set added"),ENT_NOQUOTES);
+    if ($go=='yes') echo htmlspecialchars(xl("New Definition set added"), ENT_NOQUOTES);
 }
 
 if ($_POST['edit']){
     if ($_POST['language_select'] == '') {
-         exit(htmlspecialchars(xl("Please select a language"),ENT_NOQUOTES));
+         exit(htmlspecialchars(xl("Please select a language"), ENT_NOQUOTES));
     }
     
     $lang_id = (int)formData('language_select');
@@ -172,7 +172,7 @@ if ($_POST['edit']){
         $lang_name = $row['lang_description'];
     }
     $sql .= ") ORDER BY lc.constant_name ".$case_insensitive_collation;
-    $res = SqlStatement($sql,$bind_sql_array);
+    $res = SqlStatement($sql, $bind_sql_array);
         
         $isResults = false; //flag to record whether there are any results
     echo ('<table><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
@@ -180,7 +180,7 @@ if ($_POST['edit']){
     if ($lang_id==1) {
         while ($row=SqlFetchArray($res)){
                 $isShow = false; //flag if passes the definition filter
-                $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'],ENT_NOQUOTES).'</td>';
+                $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'], ENT_NOQUOTES).'</td>';
             // if there is no definition
             if (empty($row['def_id'])){
                 $cons_name = "cons_id[" . $row['cons_id'] . "]";
@@ -192,7 +192,7 @@ if ($_POST['edit']){
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def) );
                     if (SqlFetchArray($res2)) $isShow = true;
             }
-            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name,ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'],ENT_QUOTES) . '">';
+            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name, ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'], ENT_QUOTES) . '">';
             $stringTemp .= '</td><td></td></tr>';
             if ($isShow) {
                 //definition filter passed, so show
@@ -200,7 +200,7 @@ if ($_POST['edit']){
                 $isResults = true;
             }
         }
-        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id,ENT_QUOTES).'">');
+        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id, ENT_QUOTES).'">');
     // english plus the other
     } else {
         while ($row=SqlFetchArray($res)){
@@ -210,13 +210,13 @@ if ($_POST['edit']){
                     continue;
             }
                 $isShow = false; //flag if passes the definition filter
-            $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'],ENT_NOQUOTES).'</td>';
+            $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'], ENT_NOQUOTES).'</td>';
             if ($row['definition']=='' or $row['definition']=='NULL') {
                 $def=" " ;
             } else {
                 $def=$row['definition'];
             }
-            $stringTemp .= '<td>'.htmlspecialchars($def,ENT_NOQUOTES).'</td>';
+            $stringTemp .= '<td>'.htmlspecialchars($def, ENT_NOQUOTES).'</td>';
             $row=SqlFetchArray($res); // jump one to get the second language selected
             if ($row['def_id']=='' or $row['def_id']=='NULL'){
                 $cons_name="cons_id[".$row['cons_id']."]";
@@ -229,7 +229,7 @@ if ($_POST['edit']){
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def) );
                     if (SqlFetchArray($res2)) $isShow = true;
             }
-            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.htmlspecialchars($cons_name,ENT_QUOTES).'" value="'.htmlspecialchars($row['definition'],ENT_QUOTES).'">';
+            $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.htmlspecialchars($cons_name, ENT_QUOTES).'" value="'.htmlspecialchars($row['definition'], ENT_QUOTES).'">';
             $stringTemp .='</td></tr>';
             if ($isShow) {
         //definition filter passed, so show
@@ -237,18 +237,18 @@ if ($_POST['edit']){
                 $isResults = true;
             }
         }
-        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id,ENT_QUOTES).'">');
+        echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id, ENT_QUOTES).'">');
     }
     if ($isResults) {
-            echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . htmlspecialchars(xl('Load Definitions'),ENT_NOQUOTES) . '"></td></tr>');
+            echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . htmlspecialchars(xl('Load Definitions'), ENT_NOQUOTES) . '"></td></tr>');
                 ?>
-            <INPUT TYPE="hidden" name="filter_cons" value="<?php echo htmlspecialchars($_POST['filter_cons'],ENT_QUOTES); ?>">
-            <INPUT TYPE="hidden" name="filter_def" value="<?php echo htmlspecialchars($_POST['filter_def'],ENT_QUOTES); ?>">
-            <INPUT TYPE="hidden" name="language_select" value="<?php echo htmlspecialchars($_POST['language_select'],ENT_QUOTES); ?>">
+            <INPUT TYPE="hidden" name="filter_cons" value="<?php echo htmlspecialchars($_POST['filter_cons'], ENT_QUOTES); ?>">
+            <INPUT TYPE="hidden" name="filter_def" value="<?php echo htmlspecialchars($_POST['filter_def'], ENT_QUOTES); ?>">
+            <INPUT TYPE="hidden" name="language_select" value="<?php echo htmlspecialchars($_POST['language_select'], ENT_QUOTES); ?>">
             <?php
     }
     else {
-        echo htmlspecialchars(xl('No Results Found For Search'),ENT_NOQUOTES);
+        echo htmlspecialchars(xl('No Results Found For Search'), ENT_NOQUOTES);
     }
     echo ('</FORM></table>');
 }

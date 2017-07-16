@@ -169,7 +169,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // if no issues (will place a 'None' text vs. toggle algorithm here)
     if (sqlNumRows($pres) < 1) {
-        if ( getListTouch($pid,$focustype) ) {
+        if ( getListTouch($pid, $focustype) ) {
             // Data entry has happened to this type, so can display an explicit None.
             echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
         }
@@ -275,7 +275,7 @@ $(document).ready(function(){
 
     $(".noneCheck").click(function() {
       top.restoreSession();
-      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo htmlspecialchars($pid,ENT_QUOTES); ?> });
+      $.post( "../../../library/ajax/lists_touch.php", { type: this.name, patient_id: <?php echo htmlspecialchars($pid, ENT_QUOTES); ?> });
       $(this).hide(); 
     });
 });

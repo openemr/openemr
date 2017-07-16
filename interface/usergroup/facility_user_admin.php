@@ -181,7 +181,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                 <?php
                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                        "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']) );
-                echo "<td><span class='text'>" . generate_form_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
+                echo "<td><span class='text'>" . generate_form_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                 ?>
     </td>
   </tr>

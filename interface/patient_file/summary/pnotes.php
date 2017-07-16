@@ -69,7 +69,7 @@ if (!$thisauth) {
 
 <div id='pnotes'>
 
-<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
+<?php if ( acl_check('patients', 'notes', '', array('write','addonly') )): ?>
 
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
@@ -142,7 +142,7 @@ if ($result != null) {
             echo "   <a ";
             echo "href='pnotes_full.php?active=1&$urlparms" .
             "' class='alert' onclick='top.restoreSession()'>";
-            echo htmlspecialchars( xl('Some notes were not displayed.','','',' '), ENT_NOQUOTES) .
+            echo htmlspecialchars( xl('Some notes were not displayed.', '', '', ' '), ENT_NOQUOTES) .
             htmlspecialchars( xl('Click here to view all.'), ENT_NOQUOTES) . "</a>\n";
             echo "  </td>\n";
             echo " </tr>\n";
@@ -188,7 +188,7 @@ $(document).ready(function(){
 });
 
 var EditNote = function(note) {
-<?php if ( acl_check('patients', 'notes','',array('write','addonly') )): ?>
+<?php if ( acl_check('patients', 'notes', '', array('write','addonly') )): ?>
     top.restoreSession();
     location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
 <?php else: ?>

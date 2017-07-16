@@ -4,7 +4,7 @@ require_once("$srcdir/billing.inc");
 
 if (isset($mode)) {
     if ($mode == "add") {
-        addBilling($encounter, $type, $code, strip_escape_custom($text),$pid, $userauthorized,$_SESSION['authUserID']);
+        addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID']);
     }
     elseif ($mode == "delete") {
         deleteBilling($id);
@@ -24,13 +24,13 @@ if (isset($mode)) {
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
 
-<span class=title><?php xl('Billing','e'); ?></span>
+<span class=title><?php xl('Billing', 'e'); ?></span>
 <font class=more><?php echo $tback;?></font></a>
 
 <table border=0 cellpadding=3 cellspacing=0>
 
 <?php
-if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
     $billing_html = array();
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
@@ -53,7 +53,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 "<td><a class='small' href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
                 $iter{"code"} . "</b> " . ucwords(strtolower($iter{"code_text"})) .
                 "</a><span class=\"small\">";
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if(!empty($j)) {

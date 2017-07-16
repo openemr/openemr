@@ -12,7 +12,7 @@ function evaluation_report($pid, $encounter, $cols, $id)
     while ($row = sqlFetchArray($results)) {
         $data2[] = $row['name'];
     }
-    $data = array_merge($data,$data2);
+    $data = array_merge($data, $data2);
     if ($data) {
         print "<table><tr>";
         foreach($data as $key => $value) {
@@ -23,7 +23,7 @@ function evaluation_report($pid, $encounter, $cols, $id)
                 $value = "yes";
             }
 
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             if (is_numeric($key)){
                 $key = "check";
             }

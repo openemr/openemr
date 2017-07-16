@@ -240,32 +240,32 @@ function getMails($owner, $dotype, $nsrch, $nfsrch)
     if($owner){
         if($dotype == "inbox"){
             if($nsrch && $nfsrch){
-                $result_notes = getPortalPatientNotes($owner,'','0',$nsrch);
-                $result_notifications = getPortalPatientNotifications($owner,'','0',$nfsrch);
-                $result = array_merge((array)$result_notes,(array)$result_notifications);
+                $result_notes = getPortalPatientNotes($owner, '', '0', $nsrch);
+                $result_notifications = getPortalPatientNotifications($owner, '', '0', $nfsrch);
+                $result = array_merge((array)$result_notes, (array)$result_notifications);
             }else{
                 $result_notes = getPortalPatientNotes($owner);
                 $result_notifications = getPortalPatientNotifications($owner);
-                $result = array_merge((array)$result_notes,(array)$result_notifications);
+                $result = array_merge((array)$result_notes, (array)$result_notifications);
                 //$result = $result_notes;
             }
             return $result;
         }elseif($dotype == "sent"){
             if($nsrch){
-                $result_sent_notes = getPortalPatientSentNotes($owner,'','0',$nsrch);
+                $result_sent_notes = getPortalPatientSentNotes($owner, '', '0', $nsrch);
             }else{
                 $result_sent_notes = getPortalPatientSentNotes($owner);
             }
             return $result_sent_notes;
         }elseif($dotype == "all"){
             $result = array();
-            $result_notes = getPortalPatientNotes($owner,'','0',"OR (p.deleted != 1 AND (p.owner = ?)) ");
+            $result_notes = getPortalPatientNotes($owner, '', '0', "OR (p.deleted != 1 AND (p.owner = ?)) ");
             $result_notifications = getPortalPatientNotifications($owner);
-            $result = array_merge((array)$result_notes,(array)$result_notifications);
+            $result = array_merge((array)$result_notes, (array)$result_notifications);
             return $result;
         }elseif($dotype == "deleted"){
             $result = array();
-            $result = getPortalPatientDeleted($owner,'','0',"OR (p.deleted = 1 AND (p.owner = ?)) ");
+            $result = getPortalPatientDeleted($owner, '', '0', "OR (p.deleted = 1 AND (p.owner = ?)) ");
             return $result;
         }
     }else{
@@ -278,7 +278,7 @@ function getMailDetails($id)
     if($owner){
         $result = getMailById($id);
         if($result['owner'] == $owner && $result['message_status'] == 'New'){
-            updatePortalMailMessageStatus($id,'Read');
+            updatePortalMailMessageStatus($id, 'Read');
         }
         return $result;
     }else{
@@ -289,7 +289,7 @@ function getMailDetails($id)
 function sendMail($owner, $note, $title = 'Unassigned', $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid)
 {
     if($owner){
-        addPortalMailboxMail($owner,$note,'1','1',$title,$to,'',$status,$noteid,$sid,$sn,$rid,$rn,$replyid);
+        addPortalMailboxMail($owner, $note, '1', '1', $title, $to, '', $status, $noteid, $sid, $sn, $rid, $rn, $replyid);
         return 1;
     }else{
         return 'failed';
@@ -298,6 +298,6 @@ function sendMail($owner, $note, $title = 'Unassigned', $to, $noteid, $sid, $sn,
 
 function updateStatus($id, $status)
 {
-        updatePortalMailMessageStatus($id,$status);
+        updatePortalMailMessageStatus($id, $status);
         return 1;
 }

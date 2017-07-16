@@ -24,9 +24,9 @@
  * @link    http://www.open-emr.org
  */
 ?>
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $edit_encounter = acl_check("groups","glog",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $edit_encounter = acl_check("groups", "glog", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
 <?php if($view || $edit) :?>
@@ -141,7 +141,7 @@
                                             <?php foreach ($participants as $i => $participant) : ?>
                                                 <tr>
                                                     <td>
-                                                        <input type="hidden" name="pid[]" value="<?php echo htmlspecialchars($participant['pid'],ENT_QUOTES); ?>" />
+                                                        <input type="hidden" name="pid[]" value="<?php echo htmlspecialchars($participant['pid'], ENT_QUOTES); ?>" />
                                                         <span><?php echo text($participant['lname']) .', ' . text($participant['fname']); ?></span>
                                                     </td>
                                                     <td><span><?php echo text($participant['pid']); ?></span></td>

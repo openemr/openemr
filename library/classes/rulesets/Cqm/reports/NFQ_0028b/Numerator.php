@@ -23,8 +23,8 @@ class NFQ_0028b_Numerator implements CqmFilterIF
             {
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
                 $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
-                $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
-                $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
+                $beginMinus24Months = strtotime( '-24 month', strtotime ( $date ) );
+                $beginMinus24Months = date( 'Y-m-d 00:00:00', $beginMinus24Months );
                 $smoke_cess = sqlQuery("SELECT * FROM `rule_patient_data` " .
                                        "WHERE `category`='act_cat_inter' AND `item`='act_tobacco' AND `complete`='YES' " .
                                        "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date) );

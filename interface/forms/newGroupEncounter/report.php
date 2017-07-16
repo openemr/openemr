@@ -37,7 +37,7 @@ function newGroupEncounter_report($group_id, $encounter, $cols, $id)
         if(acl_check('sensitivities', $result['sensitivity'])) {
             print "<span class=bold>" . xlt('Reason') . ": </span><span class=text>" . nl2br(text($result["reason"])) . "</span><br>\n";
             $counselors ='';
-            foreach (explode(',',$result["counselors"]) as $userId){
+            foreach (explode(',', $result["counselors"]) as $userId){
                 $counselors .= getUserNameById($userId) . ', ';
             }
             $counselors = rtrim($counselors, ", ");

@@ -131,7 +131,7 @@ function edih_997_errdata($obj997)
         }
         if (strncmp($seg, 'CTX'.$de, 4) == 0) {
             $sar = explode($de, $seg);
-            if (isset($sar[1]) && strpos($sar[1],'TRIG')) {
+            if (isset($sar[1]) && strpos($sar[1], 'TRIG')) {
                 // CTX*SITUATIONAL TRIGGER*
                 $diag['err'][$idx]['ctxid'] = (isset($sar[2])) ?  $sar[2] : '';
                 $diag['err'][$idx]['ctxpos'] = (isset($sar[3])) ?  $sar[3] : '';
@@ -236,15 +236,15 @@ function edih_997_err_report($err_array)
         //
         //$str_html .= "</p>".PHP_EOL;
         //
-        $str_html .= (isset($ak901)) ? "999/997 $ak901 ".edih_997_code_text('ak501',$ak901)."<br />" : "";
+        $str_html .= (isset($ak901)) ? "999/997 $ak901 ".edih_997_code_text('ak501', $ak901)."<br />" : "";
         $str_html .= (isset($ak902)) ? " Transactions: submitted $ak902" : " ";
         $str_html .= (isset($ak903)) ? " received $ak903" : "";
         $str_html .= (isset($ak904)) ? " accepted $ak904" : "";
-        $str_html .= (isset($ak905) && $ak905) ? "<br />$ak905 ".edih_997_code_text('ak502',$ak905)."<br />" : "";
-        $str_html .= (isset($ak906) && $ak906) ? $ak906." ".edih_997_code_text('ak502',$ak906)."<br />" : "";
-        $str_html .= (isset($ak907) && $ak907) ? $ak907." ".edih_997_code_text('ak502',$ak907)."<br />" : "";
-        $str_html .= (isset($ak908) && $ak908) ? $ak908." ".edih_997_code_text('ak502',$ak908)."<br />" : "";
-        $str_html .= (isset($ak909) && $ak909) ? $ak909." ".edih_997_code_text('ak502',$ak909)."<br />" : "";
+        $str_html .= (isset($ak905) && $ak905) ? "<br />$ak905 ".edih_997_code_text('ak502', $ak905)."<br />" : "";
+        $str_html .= (isset($ak906) && $ak906) ? $ak906." ".edih_997_code_text('ak502', $ak906)."<br />" : "";
+        $str_html .= (isset($ak907) && $ak907) ? $ak907." ".edih_997_code_text('ak502', $ak907)."<br />" : "";
+        $str_html .= (isset($ak908) && $ak908) ? $ak908." ".edih_997_code_text('ak502', $ak908)."<br />" : "";
+        $str_html .= (isset($ak909) && $ak909) ? $ak909." ".edih_997_code_text('ak502', $ak909)."<br />" : "";
         //
         $str_html .= "</p>".PHP_EOL;
     }
@@ -285,7 +285,7 @@ function edih_997_err_report($err_array)
         $str_html .= (isset($v['ik3segid'])) ? " Segment <em>ID</em> ".$v['ik3segid'] : "";
         $str_html .= (isset($v['ik3segpos'])) ? " <em>Position</em> ".$v['ik3segpos'] : "";
         $str_html .= (isset($v['ik3loop'])) ? " <em>Loop</em> ".$v['ik3loop'] : "";
-        $str_html .= (isset($v['ik3code'])) ? "<br /> <em>Code</em> ".$v['ik3code']." ".edih_997_code_text('ak304',$v['ik3code'])."<br />" : "<br />";
+        $str_html .= (isset($v['ik3code'])) ? "<br /> <em>Code</em> ".$v['ik3code']." ".edih_997_code_text('ak304', $v['ik3code'])."<br />" : "<br />";
         //
         $str_html .= (isset($v['ctxid'])) ? "Situational ".PHP_EOL."<em>Segment</em> ".$v['ctxid'] : "";
         $str_html .= (isset($v['ctxpos'])) ? " <em>Position</em> ".$v['ctxpos'] : "";
@@ -295,13 +295,13 @@ function edih_997_err_report($err_array)
         $str_html .= (isset($v['ik401'])) ?  "Data Element <em>element</em> ".$v['ik401'] : "";
         $str_html .= (isset($v['ik402'])) ?  " <em>ref</em> ".$v['ik402'] : "";
         $str_html .= (isset($v['ik404'])) ?  " <em>data</em> ".$v['ik404'] : "";
-        $str_html .= (isset($v['ik403'])) ? "<br /> <em>code</em> ".$v['ik403']." ".edih_997_code_text('ak403',$v['ik403'])."<br />" : "<br />";
+        $str_html .= (isset($v['ik403'])) ? "<br /> <em>code</em> ".$v['ik403']." ".edih_997_code_text('ak403', $v['ik403'])."<br />" : "<br />";
         //
-        $str_html .= (isset($v['ik501']) && $v['ik501']) ?  "<em>Status</em> ".$v['ik501']." ".edih_997_code_text('ak501',$v['ik501'])."<br />" : "";
-        $str_html .= (isset($v['ik502']) && $v['ik502']) ?  " <em>code</em> ".$v['ik502']." ".edih_997_code_text('ak502',$v['ik502'])."<br />" : "";
-        $str_html .= (isset($v['ik503']) && $v['ik503']) ?  " <em>code</em> ".$v['ik503']." ".edih_997_code_text('ak502',$v['ik503'])."<br />" : "";
-        $str_html .= (isset($v['ik504']) && $v['ik504']) ?  " <em>code</em> ".$v['ik504']." ".edih_997_code_text('ak502',$v['ik504'])."<br />" : "";
-        $str_html .= (isset($v['ik505']) && $v['ik505']) ?  " <em>code</em> ".$v['ik505']." ".edih_997_code_text('ak502',$v['ik505'])."<br />" : "";
+        $str_html .= (isset($v['ik501']) && $v['ik501']) ?  "<em>Status</em> ".$v['ik501']." ".edih_997_code_text('ak501', $v['ik501'])."<br />" : "";
+        $str_html .= (isset($v['ik502']) && $v['ik502']) ?  " <em>code</em> ".$v['ik502']." ".edih_997_code_text('ak502', $v['ik502'])."<br />" : "";
+        $str_html .= (isset($v['ik503']) && $v['ik503']) ?  " <em>code</em> ".$v['ik503']." ".edih_997_code_text('ak502', $v['ik503'])."<br />" : "";
+        $str_html .= (isset($v['ik504']) && $v['ik504']) ?  " <em>code</em> ".$v['ik504']." ".edih_997_code_text('ak502', $v['ik504'])."<br />" : "";
+        $str_html .= (isset($v['ik505']) && $v['ik505']) ?  " <em>code</em> ".$v['ik505']." ".edih_997_code_text('ak502', $v['ik505'])."<br />" : "";
         //
         $str_html .= "</p>".PHP_EOL;
     }

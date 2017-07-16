@@ -105,7 +105,7 @@ class Documents extends AbstractPlugin
         $id         = $couch[0];
         $rev        = $couch[1];
         if($id && $rev) {
-            $connection->putDocument($data,$id,$rev);
+            $connection->putDocument($data, $id, $rev);
             return $couch;
         } else {
             return false;

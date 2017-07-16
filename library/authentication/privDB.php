@@ -41,7 +41,7 @@
  */
 
 
-define("PRIV_DB","PRIV_DB");
+define("PRIV_DB", "PRIV_DB");
 function getPrivDB()
 {
     if(!isset($GLOBALS[PRIV_DB]))
@@ -90,7 +90,7 @@ function privStatement($sql, $params = null)
         exit;
     }
     return $recordset;
-    return sqlStatement($sql,$params);
+    return sqlStatement($sql, $params);
 }
 
 /**
@@ -104,7 +104,7 @@ function privStatement($sql, $params = null)
  */
 function privQuery($sql, $params = null)
 {
-    $recordset=privStatement($sql,$params);
+    $recordset=privStatement($sql, $params);
     if ($recordset->EOF)
     return false;
     $rez = $recordset->FetchRow();

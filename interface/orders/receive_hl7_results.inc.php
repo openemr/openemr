@@ -108,17 +108,17 @@ function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_
 
 function rhl7Text($s, $allow_newlines = false)
 {
-    $s = str_replace('\\S\\'  ,'^' , $s);
-    $s = str_replace('\\F\\'  ,'|' , $s);
-    $s = str_replace('\\R\\'  ,'~' , $s);
-    $s = str_replace('\\T\\'  ,'&' , $s);
-    $s = str_replace('\\X0d\\',"\r", $s);
-    $s = str_replace('\\E\\'  ,'\\', $s);
+    $s = str_replace('\\S\\', '^', $s);
+    $s = str_replace('\\F\\', '|', $s);
+    $s = str_replace('\\R\\', '~', $s);
+    $s = str_replace('\\T\\', '&', $s);
+    $s = str_replace('\\X0d\\', "\r", $s);
+    $s = str_replace('\\E\\', '\\', $s);
     if ($allow_newlines) {
-        $s = str_replace('\\.br\\',"\n", $s);
+        $s = str_replace('\\.br\\', "\n", $s);
     }
     else {
-        $s = str_replace('\\.br\\','~' , $s);
+        $s = str_replace('\\.br\\', '~', $s);
     }
     return $s;
 }

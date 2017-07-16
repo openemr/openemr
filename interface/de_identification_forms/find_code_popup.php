@@ -27,7 +27,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Code Finder','e'); ?></title>
+<title><?php xl('Code Finder', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -146,11 +146,11 @@ else {
     echo "   </select>&nbsp;&nbsp;\n";
 }
 ?>
-    <?php xl('Search for','e'); ?>
+    <?php xl('Search for', 'e'); ?>
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
-    title='<?php xl('Any part of the desired code or its description','e'); ?>' />
+    title='<?php xl('Any part of the desired code or its description', 'e'); ?>' />
    &nbsp;  
-   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search','e'); ?>' />   
+   <input type='submit' name='bn_search' id='bn_search' value='<?php xl('Search', 'e'); ?>' />   
    </b>
   </td>
  </tr>
@@ -228,13 +228,13 @@ else {
  </table>
 <center>
 </br>
- <input type='button' id='select_all' value='<?php xl('Select All','e'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='unselect_all' value='<?php xl('Unselect All','e'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='unselect_all' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='submit' value='<?php xl('Submit','e'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
+ <input type='button' id='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_diagonsis.chkbox);"/>
  
- <input type='button' id='cancel' value='<?php xl('Cancel','e'); ?>' onclick="window_close();"/>
+ <input type='button' id='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
  
 </center> 
 <?php } ?>

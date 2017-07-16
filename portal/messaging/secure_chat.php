@@ -53,7 +53,7 @@ if(isset($_REQUEST['fullscreen'])){
 }
 else define('IS_FULLSCREEN', false);
 
-define('CHAT_HISTORY',      '150');
+define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
 define('ADMIN_USERNAME_PREFIX', 'adm_');
 
@@ -272,7 +272,7 @@ class Model extends SMA_Common\Model
             $result[] = $row;
         }
 
-        return json_encode( array_merge($result,$resultpd) );
+        return json_encode( array_merge($result, $resultpd) );
     }
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
@@ -284,7 +284,7 @@ class Model extends SMA_Common\Model
             if(IS_PORTAL){
                 $u = json_decode( $row['recip_id'], true );
                 if(!is_array($u)) continue;
-                if( (in_array(C_USER,$u)) || $row['sender_id'] == C_USER ){
+                if( (in_array(C_USER, $u)) || $row['sender_id'] == C_USER ){
                      $result[] = $row; // only current patient messages
                 }
             }
@@ -408,11 +408,11 @@ class Controller extends SMA_Common\Controller
 
     private function _parseAdminCommand($message)
     {
-        if (strpos($message,'/clear') !== false) {
+        if (strpos($message, '/clear') !== false) {
             $this->getModel()->removeMessages();
             return true;
         }
-        if (strpos($message,'/online') !== false) {
+        if (strpos($message, '/online') !== false) {
             $online = $this->getModel()->getOnline(false);
             $ipArr = array();
             foreach ($online as $item) {
@@ -437,7 +437,7 @@ class Controller extends SMA_Common\Controller
     {
         $ip = $this->getServer('REMOTE_ADDR');
         $hash = $this->_getMyUniqueHash();
-        $user = $this->getRequest('username','No Username');
+        $user = $this->getRequest('username', 'No Username');
         if( $user == 'currentol' ){
             $onlines = $this->getModel()->getOnline(false);
             $this->setHeader(array('Content-Type' => 'application/json'));

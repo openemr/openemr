@@ -42,7 +42,7 @@ $result=sqlQuery($spell, array($pid) );
     
 if ( !$result ) //If there are no lab data recorded
 { ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No lab data documented."),ENT_NOQUOTES);
+  <span class='text'> <?php echo htmlspecialchars(xl("No lab data documented."), ENT_NOQUOTES);
 ?>
   </span> 
 <?php
@@ -50,7 +50,7 @@ if ( !$result ) //If there are no lab data recorded
 {
 ?> 
   <span class='text'><b>
-    <?php echo htmlspecialchars(xl('Most recent lab data:'),ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Most recent lab data:'), ENT_NOQUOTES); ?>
   </b>
   <br />
     <?php
@@ -60,7 +60,7 @@ if ( !$result ) //If there are no lab data recorded
   <br />
   </span><span class='text'>
   <br />
-  <a href='../summary/labdata.php' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all labdata.'),ENT_NOQUOTES);?></a>
+  <a href='../summary/labdata.php' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all labdata.'), ENT_NOQUOTES);?></a>
   </span><?php
 } ?>
 <br />

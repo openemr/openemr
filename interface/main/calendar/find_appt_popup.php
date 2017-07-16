@@ -34,7 +34,7 @@
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
  // check access controls
- if (!acl_check('patients','appt','',array('write','wsome') ))
+ if (!acl_check('patients', 'appt', '', array('write','wsome') ))
   die(xlt('Access not allowed'));
 
  // If the caller is updating an existing event, then get its ID so
@@ -193,8 +193,8 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 //////
     $is_holiday=false;
     $holidays_controller = new Holidays_Controller();
-    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
-    if(in_array($sdate,$holidays)){
+    $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
+    if(in_array($sdate, $holidays)){
         $is_holiday=true;
         $ckavail=true;
     }
@@ -389,7 +389,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
     $adate['minutes'] . ")'".
     " title='$atitle' alt='$atitle'".
     ">";
-    echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
     $anchor . date("g:i", $utime) . "</a> ";
 
     // If the duration is more than 1 slot, increment $i appropriately.
@@ -432,7 +432,7 @@ $(document).ready(function(){
 
 
 <?php if (!$ckavail) { ?>
-<?php if (acl_check('patients','appt','','write')) {
+<?php if (acl_check('patients', 'appt', '', 'write')) {
     if($is_holiday){?>
             if (confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
          opener.top.restoreSession();

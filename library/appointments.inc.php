@@ -186,13 +186,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rtype = $event_recurrspec['event_repeat_freq_type'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-',$event['pc_eventDate']);
+                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
         //        $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
                 $occurance = $event['pc_eventDate'];
 
                 while($occurance < $from_date) {
-                    $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurance);
                 }
 
                 while($occurance <= $stopDate) {
@@ -220,8 +220,8 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                     }
 
-                    $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurance);
 
                 }
 
@@ -237,21 +237,21 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 $rday  = $event_recurrspec['event_repeat_on_day'];
                 $exdate = $event_recurrspec['exdate'];
 
-                list($ny,$nm,$nd) = explode('-',$event['pc_eventDate']);
+                list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
 
                 if(isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1;
 
                 $occuranceYm = "$ny-$nm"; // YYYY-mm
-                $from_dateYm = substr($from_date,0,7); // YYYY-mm
-                $stopDateYm = substr($stopDate,0,7); // YYYY-mm
+                $from_dateYm = substr($from_date, 0, 7); // YYYY-mm
+                $stopDateYm = substr($stopDate, 0, 7); // YYYY-mm
 
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions below
                 // a problem with overflow will occur so it is set to 1 to avoid this (for rt2
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while($occuranceYm < $from_dateYm) {
-                    $occuranceYmX = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-                    list($ny,$nm,$nd) = explode('-',$occuranceYmX);
+                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
 
@@ -260,7 +260,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     // (YYYY-mm)-dd
                     $dnum = $rnum;
                     do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--,$rday,$nm,$ny,$format="%Y-%m-%d");
+                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while($occurance === -1);
 
                     if($occurance >= $from_date && $occurance <= $stopDate) {
@@ -292,8 +292,8 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
                     }
 
-                    $occuranceYmX = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-                    list($ny,$nm,$nd) = explode('-',$occuranceYmX);
+                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
 
                 }

@@ -213,7 +213,7 @@ $spell .= "AND forms.formdir = 'track_anything' AND forms.pid = ? ";
 $spell .= "GROUP BY id ";
 $spell .= "ORDER BY sortdate " . escape_sort_order($ASC_DESC);
 //---
-$query = sqlStatement($spell,array($the_procedure,$pid));
+$query = sqlStatement($spell, array($the_procedure,$pid));
 while($myrow = sqlFetchArray($query)){
     $the_track = $myrow["id"];
     $the_encounter = $myrow["encounter"];
@@ -400,7 +400,7 @@ if($fromencounter == 1) {
 if($fromencounter == 0) {
     echo "<td>&nbsp;&nbsp;&nbsp;<a href='../../patient_file/summary/demographics.php' ";
     echo " class='css_button' onclick='top.restoreSession()'>";
-    echo "<span>" . htmlspecialchars(xl('Back to Patient'),ENT_NOQUOTES) . "</span></a></td>";
+    echo "<span>" . htmlspecialchars(xl('Back to Patient'), ENT_NOQUOTES) . "</span></a></td>";
 }
 //---------------------------------------------
 echo "</tr></table>";

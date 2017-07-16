@@ -33,13 +33,13 @@ require_once("$srcdir/validation/LBF_Validation.php");
 $CPR = 4; // cells per row
 
 // Check authorization.
-if (acl_check('patients','med')) {
+if (acl_check('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    die(htmlspecialchars(xl("Not authorized for this squad."),ENT_NOQUOTES));
+    die(htmlspecialchars(xl("Not authorized for this squad."), ENT_NOQUOTES));
 }
-if ( !acl_check('patients','med','',array('write','addonly') ))
-  die(htmlspecialchars(xl("Not authorized"),ENT_NOQUOTES));
+if ( !acl_check('patients', 'med', '', array('write','addonly') ))
+  die(htmlspecialchars(xl("Not authorized"), ENT_NOQUOTES));
 ?>
 <html>
 <head>
@@ -244,7 +244,7 @@ div.tab {
                 <input type='hidden' name='mode' value='save'>
 
                 <div class="page-header">
-                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'),ENT_NOQUOTES); ?></h1>
+                    <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?>&nbsp;<small><?php echo htmlspecialchars(xl('History & Lifestyle'), ENT_NOQUOTES); ?></h1>
                 </div>
                 <div class="btn-group">
                     <button type="submit" class="btn btn-default btn-save"><?php echo xlt('Save'); ?></button>

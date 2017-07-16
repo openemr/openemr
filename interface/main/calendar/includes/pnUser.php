@@ -36,7 +36,7 @@
 /*
  * Data types for User Properties
  */
-define('_UDCONST_MANDATORY',-1); // indicates a cord field that can't be removed'
+define('_UDCONST_MANDATORY', -1); // indicates a cord field that can't be removed'
 define('_UDCONST_CORE', 0); // indicates a core field (HACK, to be removed?)
 define('_UDCONST_STRING', 1);
 define('_UDCONST_TEXT', 2);

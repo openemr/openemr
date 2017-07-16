@@ -24,7 +24,7 @@ if ($_POST['export']) {
                     $tmp = $result3['item'];
                     $tmp = "<item>$tmp</item>"."\n";
                     fwrite($temp, $tmp);
-                    $tmp = preg_replace(array("/\n/","/\r/"),array("\\\\n","\\\\r"),$result3['content']);
+                    $tmp = preg_replace(array("/\n/","/\r/"), array("\\\\n","\\\\r"), $result3['content']);
                     $tmp = "<content>$tmp</content>"."\n";
                     fwrite($temp, $tmp);
                 }
@@ -49,7 +49,7 @@ foreach($_FILES as $file) {
     $fname = $file['tmp_name'];
 //		echo "<p>tmp filename: ".$file['tmp_name']."</p>";
 }
-    $handle = @fopen($fname,"r");
+    $handle = @fopen($fname, "r");
 if ($handle === false) {
     echo "<h1>" . xl('Error opening uploaded file for reading') . "</h1>";
 } else {
@@ -62,7 +62,7 @@ if ($handle === false) {
     $content = '';
     while (!feof($handle)) {
         $buffer = fgets($handle);
-        if (preg_match('/<category>(.*?)<\/category>/',$buffer,$matches)) {
+        if (preg_match('/<category>(.*?)<\/category>/', $buffer, $matches)) {
 
             $category = add_escape_custom(trim($matches[1])); //trim in case someone edited by hand and added spaces
             $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_category")." where category like \"$category\"");
@@ -78,7 +78,7 @@ if ($handle === false) {
                 }
             }
         }
-        if (preg_match('/<subcategory>(.*?)<\/subcategory>/',$buffer,$matches)) {
+        if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
 
             $subcategory = add_escape_custom(trim($matches[1]));
             $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where subcategory " .
@@ -96,8 +96,8 @@ if ($handle === false) {
                 }
             }
         }
-        if ((preg_match('/<(item)>(.*?)<\/item>/',$buffer,$matches)) ||
-        (preg_match('/<(content)>(.*?)<\/content>/s',$buffer,$matches))) {
+        if ((preg_match('/<(item)>(.*?)<\/item>/', $buffer, $matches)) ||
+        (preg_match('/<(content)>(.*?)<\/content>/s', $buffer, $matches))) {
 
             $mode = $matches[1];
             $value = add_escape_custom(trim($matches[2]));
@@ -159,14 +159,14 @@ admin
 </head>
 <body>
 <p>
-<?php xl("Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.","e"); ?>
-<?php xl("This feature is very experimental and not fully tested. Use at your own risk!","e"); ?>
+<?php xl("Click 'export' to export your Category, Subcategory, Item, Content data to a text file. Any resemblance of this file to an XML file is purely coincidental. The opening and closing tags must be on the same line, they must be lowercase with no spaces. To import, browse for a file and click 'import'. If the data is completely different, it will merge with your existing data. If there are similar item names, The old one will be kept and the new one saved with a number added to the end.", "e"); ?>
+<?php xl("This feature is very experimental and not fully tested. Use at your own risk!", "e"); ?>
 </p>
 <form enctype="multipart/form-data" method="POST">
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-<?php xl('Send this file','e'); ?>: <input type="file" name="userfile"/>
-<input type="submit" name="import" value='<?php xl("Import","e"); ?>'/>
-<input type="submit" name="export" value='<?php xl("Export","e"); ?>'/>
+<?php xl('Send this file', 'e'); ?>: <input type="file" name="userfile"/>
+<input type="submit" name="import" value='<?php xl("Import", "e"); ?>'/>
+<input type="submit" name="export" value='<?php xl("Export", "e"); ?>'/>
 </form>
 </body>
 </html>

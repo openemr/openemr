@@ -90,16 +90,16 @@ class NumberToText
         //$number = abs($number); // make sure we have a +ve number
         if (substr($number, 0, 1) == "-") {
             $negative = true;
-            $number = substr($number,1); // abs()
+            $number = substr($number, 1); // abs()
         } else {
             $negative = false;
         }
 
         // get the integer and decimal parts
         //$int_o = $int = floor($number); // store into two vars
-        if ($pos = strpos($number,".")) {
-            $int_o = $int = substr($number,0,$pos);
-            $decimal_o = $decimal = substr($number,$pos + 1);
+        if ($pos = strpos($number, ".")) {
+            $int_o = $int = substr($number, 0, $pos);
+            $decimal_o = $decimal = substr($number, $pos + 1);
         } else {
             $int_o = $int = $number;
             $decimal_o = $decimal = 0;
@@ -155,8 +155,8 @@ class NumberToText
                 $text .= " ".N2T_AND." ";
             }
 
-            $cents = substr($decimal,0,2); // (0.)2342 -> 23
-            $decimal = substr($decimal,2); // (0.)2345.. -> 45..
+            $cents = substr($decimal, 0, 2); // (0.)2342 -> 23
+            $decimal = substr($decimal, 2); // (0.)2345.. -> 45..
 
             $text .= $this->n2t_convertthree($cents, false, true); // explicitly show "and" if there was an $int
         }
@@ -233,7 +233,7 @@ class NumberToText
 
     function getmicrotime()
     {
-        list($usec, $sec) = explode(" ",microtime());
+        list($usec, $sec) = explode(" ", microtime());
         return ((float)$usec + (float)$sec);
     }
 }

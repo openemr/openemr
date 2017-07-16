@@ -52,7 +52,7 @@ if (count($nameList) < 2) {
 *  If there are drugs to compare, collect the data
 *
 */
-$rxcui_list = implode("+",$nameList);
+$rxcui_list = implode("+", $nameList);
 $data = file_get_contents("https://rxnav.nlm.nih.gov/REST/interaction/list.json?rxcuis=".$rxcui_list);
 
 /*

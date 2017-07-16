@@ -98,7 +98,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments")
      {
         if (isset($_POST["HiddenEncounter$CountRow"]))
         {
-            DistributionInsert($CountRow,$created_time,$user_id);
+            DistributionInsert($CountRow, $created_time, $user_id);
         }
         else
         break;

@@ -37,7 +37,7 @@ class X12Partner extends ORDataObject
         parent::__construct();
         $this->id = $id;
         $this->_table = "x12_partners";
-        $this->processing_format_array = $this->_load_enum("processing_format",false);
+        $this->processing_format_array = $this->_load_enum("processing_format", false);
         $this->processing_format = $this->processing_format_array[0];
         //most recent x12 version mandated by HIPAA and CMS
         // $this->x12_version = "004010X098A1";

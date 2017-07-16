@@ -7,8 +7,8 @@ include_once("./content_parser.php");
 
 if ($_GET["mode"] == "delete") {
     foreach($_POST as $key => $val) {
-        if (substr($key,0,3) == 'ch_' and $val='on') {
-            $id = substr($key,3);
+        if (substr($key, 0, 3) == 'ch_' and $val='on') {
+            $id = substr($key, 3);
             if ($_POST['delete']) {
                 sqlInsert("delete from ".mitigateSqlTableUpperCase("form_CAMOS")." where id=$id");
                 sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id");
@@ -20,7 +20,7 @@ if ($_GET["mode"] == "delete") {
                 //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
                 //   version 4.0).
                 $content = strip_escape_custom( $_POST['textarea_'.${id}] );
-                $content = add_escape_custom( replace($pid,$encounter,$content) );
+                $content = add_escape_custom( replace($pid, $encounter, $content) );
                 sqlInsert("update ".mitigateSqlTableUpperCase("form_CAMOS")." set content='$content' where id=$id");
             }
         }

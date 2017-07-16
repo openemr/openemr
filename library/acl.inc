@@ -173,7 +173,7 @@ function acl_check($section, $value, $user = '', $return_value = '')
       // This will return all pertinent ACL's (including return_values and whether allow/deny)
       // Walk through them to assess for access
         $gacl_object = new gacl();
-        $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user,null,null,null,null,null,true);
+        $acl_results = $gacl_object->acl_query($section, $value, $GLOBALS['section_aro_value_global'], $user, null, null, null, null, null, true);
         if (empty($acl_results)) {
             return false; //deny access
         }
@@ -332,7 +332,7 @@ function aco_exist($section_name, $aco_name)
     if (isset ($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
-        $aco_id = $gacl->get_object_id($section_name,  $aco_name, 'ACO');
+        $aco_id = $gacl->get_object_id($section_name, $aco_name, 'ACO');
         if ($aco_id) {
             return true;
         }
@@ -474,7 +474,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
         require_once(dirname(__FILE__).'/user.inc');
         require_once(dirname(__FILE__).'/calendar.inc');
         $userNametoID = getIDfromUser($user_name);
-        if (checkUserSetting("gacl_protect","1",$userNametoID) || $user_name == "admin") {
+        if (checkUserSetting("gacl_protect", "1", $userNametoID) || $user_name == "admin") {
             $gacl_protect = true;
         }
         else {
@@ -715,11 +715,11 @@ function acl_remove_acos($acl_title, $return_value, $aco_id)
       //  removal of the acl.
         if (count($aco_id) == acl_count_acos($acl_title, $return_value)) {
             //1-get the filler-placeholder aco id
-            $filler_aco_id = $gacl->get_object_id('placeholder','filler','ACO');
+            $filler_aco_id = $gacl->get_object_id('placeholder', 'filler', 'ACO');
             //2-add filler-placeholder aco
             acl_add_acos($acl_title, $return_value, array($filler_aco_id));
             //3-ensure filler-placeholder aco is not to be deleted
-            $safeListaco = remove_element($_POST["selection"],$filler_aco_id);
+            $safeListaco = remove_element($_POST["selection"], $filler_aco_id);
             //4-prepare to safely delete the acos
             $aco_id = $safeListaco;
         }
@@ -766,7 +766,7 @@ function remove_element($arr, $val)
     $arr2 = array();
     foreach ($arr as $value){
         if ($value != $val) {
-            array_push($arr2,$value);
+            array_push($arr2, $value);
         }
     }
     return $arr2;
@@ -805,14 +805,14 @@ function zh_acl_check($user_id, $section_identifier)
                             ON usr. username =  garo.value
                         WHERE
                           garo.section_value = ? AND usr. id = ?";
-    $res_groups     = sqlStatement($sql_user_group,array('users',$user_id));
+    $res_groups     = sqlStatement($sql_user_group, array('users',$user_id));
 
     // Prepare the group queries with the placemakers and binding array for the IN part
     $groups_sql_param = array();
     $groupPlacemakers = "";
     $firstFlag = true;
     while($row = sqlFetchArray($res_groups)){
-        array_push($groups_sql_param,$row['group_id']);
+        array_push($groups_sql_param, $row['group_id']);
         if ($firstFlag) {
             $groupPlacemakers = "?";
             $firstFlag = false;
@@ -838,7 +838,7 @@ function zh_acl_check($user_id, $section_identifier)
     $count_group_allowed    = 0;
     $count_user_allowed     = 0;
 
-    $res_user_allowed       = sqlQuery($sql_user_acl,array($section_identifier,$user_id,1));
+    $res_user_allowed       = sqlQuery($sql_user_acl, array($section_identifier,$user_id,1));
     $count_user_allowed     = $res_user_allowed['count'];
 
     $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
@@ -871,7 +871,7 @@ function gen_aco_html_options($default = '')
         $aco_section_title = $aco_section_data[3];
         $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
         foreach($list_aco_objects[$seckey] as $acokey) {
-            $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
+            $aco_id = $gacl->get_object_id($seckey, $acokey, 'ACO');
             $aco_data = $gacl->get_object_data($aco_id, 'ACO');
             $aco_title = $aco_data[0][3];
             $optkey = "$seckey|$acokey";

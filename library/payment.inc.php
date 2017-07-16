@@ -39,7 +39,7 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
                 array($encounter,$patient_id));
         //the manipulation is done to insert the amount paid into payments table in correct order to show in front receipts report,
         //if the payment is for today's encounter it will be shown in the report under today field and otherwise shown as previous
-    $tmprowArray=explode(' ',$tmprow['date']);
+    $tmprowArray=explode(' ', $tmprow['date']);
     if(date('Y-m-d')==$tmprowArray[0])
     {
         if($amount1==0)
@@ -244,7 +244,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
                   $new_payer_id = arGetPayerID(trim(formData('hidden_patient_code' )), $date_of_service, $new_payer_type);
                 if($new_payer_id>0)
                    {
-                        arSetupSecondary(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow" )),0);
+                        arSetupSecondary(trim(formData('hidden_patient_code' )), trim(formData("HiddenEncounter$CountRow" )), 0);
                 }
                     //-----------------------------------
             }

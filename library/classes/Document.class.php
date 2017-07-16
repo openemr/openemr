@@ -187,7 +187,7 @@ class Document extends ORDataObject
     {
         $d = new Document();
         //strip url handler, for now we always assume file://
-        $filename = preg_replace("|^(.*)://|","",$url);
+        $filename = preg_replace("|^(.*)://|", "", $url);
 
         if (!file_exists($filename)) {
             die("An invalid URL was specified to crete a new document, this would only be caused if files are being deleted as you are working through the queue. '$filename'\n");
@@ -234,7 +234,7 @@ class Document extends ORDataObject
         . "ID: " . $this->id."\n"
         . "FID: " . $this->foreign_id."\n"
         . "type: " . $this->type . "\n"
-        . "type_array: " . print_r($this->type_array,true) . "\n"
+        . "type_array: " . print_r($this->type_array, true) . "\n"
         . "size: " . $this->size . "\n"
         . "date: " . $this->date . "\n"
         . "url: " . $this->url . "\n"
@@ -336,21 +336,21 @@ class Document extends ORDataObject
     */
     function get_url_filepath()
     {
-        return preg_replace("|^(.*)://|","",$this->url);
+        return preg_replace("|^(.*)://|", "", $this->url);
     }
     /**
     * get the url filename only
     */
     function get_url_file()
     {
-        return basename_international(preg_replace("|^(.*)://|","",$this->url));
+        return basename_international(preg_replace("|^(.*)://|", "", $this->url));
     }
     /**
     * get the url path only
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|","",$this->url)) ."/";
+        return dirname(preg_replace("|^(.*)://|", "", $this->url)) ."/";
     }
     function get_path_depth()
     {
@@ -426,7 +426,7 @@ class Document extends ORDataObject
 
     function get_ccr_type($doc_id)
     {
-        $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?",array($doc_id));
+        $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?", array($doc_id));
         return $type['name'];
     }
     function set_imported($imported)
@@ -439,7 +439,7 @@ class Document extends ORDataObject
     }
     function update_imported($doc_id)
     {
-        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?",array($doc_id));
+        sqlQuery("UPDATE documents SET imported = 1 WHERE id = ?", array($doc_id));
     }
     /*
 	*	Overridden function to stor current object state in the db.
@@ -497,8 +497,8 @@ class Document extends ORDataObject
         $content = $resp->data;
         $temp_url=$couch_url;
         $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $pid . '_' . $couch_url;
-        $f_CDB = fopen($temp_url,'w');
-        fwrite($f_CDB,base64_decode($content));
+        $f_CDB = fopen($temp_url, 'w');
+        fwrite($f_CDB, base64_decode($content));
         fclose($f_CDB);
         return $temp_url;
     }
@@ -647,13 +647,13 @@ class Document extends ORDataObject
             else if (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
-                $filepath = $repository . $higher_level_path . '/' . rand(1,10000)  . '/';
+                $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
                 ++$path_depth;
             }
             else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
-                $filepath = $repository . $patient_id . '/' . rand(1,10000)  . '/';
+                $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';
                 $path_depth = 2;
                 $patient_id = 0;
             }

@@ -47,7 +47,7 @@ abstract class C_AbstractClickmap extends Controller
         $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = $GLOBALS['fileroot'] . "/interface/clickmap/template/";
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
         $this->assign("FORM_ACTION", $GLOBALS['webroot']);
         $this->assign("STYLE", $GLOBALS['style']);
     }
@@ -127,7 +127,7 @@ abstract class C_AbstractClickmap extends Controller
     function view_action($form_id)
     {
         $model = $this->createModel($form_id);
-        $this->assign("form",$model);
+        $this->assign("form", $model);
         $this->set_context($model);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
@@ -143,7 +143,7 @@ abstract class C_AbstractClickmap extends Controller
     function report_action($form_id)
     {
         $model = $this->createModel($form_id);
-        $this->assign("form",$model);
+        $this->assign("form", $model);
         $this->set_context($model);
         $model->hideNav = "true";
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");

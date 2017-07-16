@@ -8,9 +8,9 @@
 
 require_once("../globals.php");
 
-$id = formData('id','G') + 0;
-$order = formData('order','G') + 0;
-$labid = formData('labid','G') + 0;
+$id = formData('id', 'G') + 0;
+$order = formData('order', 'G') + 0;
+$labid = formData('labid', 'G') + 0;
 
 echo "$('#con$id').html('<table width=\"100%\" cellspacing=\"0\">";
 

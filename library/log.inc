@@ -163,7 +163,7 @@ function sql_checksum_of_modified_row($statement)
 
     $tokens = preg_split("/[\s,(\'\"]+/", $statement);
     /* Identifying the id for insert/replace statements for calculating the checksum */
-    if((strcasecmp($tokens[0],"INSERT")==0) || (strcasecmp($tokens[0],"REPLACE")==0)){
+    if((strcasecmp($tokens[0], "INSERT")==0) || (strcasecmp($tokens[0], "REPLACE")==0)){
         $table = $tokens[2];
         $rid = generic_sql_insert_id();
     /* For handling the table that doesn't have auto-increment column */
@@ -177,15 +177,15 @@ function sql_checksum_of_modified_row($statement)
       /* To handle insert statements */
             if($tokens[3] == $id){
                 for($i=4;$i<count($tokens);$i++){
-                    if(strcasecmp($tokens[$i],"VALUES")==0){
+                    if(strcasecmp($tokens[$i], "VALUES")==0){
                              $rid=$tokens[$i+1];
                                 break;
                     }// if close
                 }//for close
             }//if close
     /* To handle replace statements */
-            else if(strcasecmp($tokens[3],"SET")==0){
-                if((strcasecmp($tokens[4],"ID")==0) || (strcasecmp($tokens[4],"`ID`")==0)){
+            else if(strcasecmp($tokens[3], "SET")==0){
+                if((strcasecmp($tokens[4], "ID")==0) || (strcasecmp($tokens[4], "`ID`")==0)){
                          $rid=$tokens[6];
                 }// if close
             }
@@ -196,7 +196,7 @@ function sql_checksum_of_modified_row($statement)
         }
     }
      /* Identifying the id for update statements for calculating the checksum */
-    else if(strcasecmp($tokens[0],"UPDATE")==0){
+    else if(strcasecmp($tokens[0], "UPDATE")==0){
         $table = $tokens[1];
 
         $offset = 3;
@@ -259,7 +259,7 @@ function sql_checksum_of_modified_row($statement)
             }
              /*'id', '=123' */
             else if($tokens[$offset] == "$id") {
-                 $tid = substr($tokens[$offset+1],1);
+                 $tid = substr($tokens[$offset+1], 1);
                  if(is_numeric($tid))
                 $rid=$tid;
                  break;
@@ -700,12 +700,12 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     foreach ($tables as $table => $value) {
         if (strpos($truncated_sql, $table) !== false) {
             $event = $value;
-            $category = eventCategoryFinder($comments, $event,$table);
+            $category = eventCategoryFinder($comments, $event, $table);
             break;
         }
         else if (strpos($truncated_sql, "form_") !== false) {
             $event = "patient-record";
-            $category = eventCategoryFinder($comments, $event,$table);
+            $category = eventCategoryFinder($comments, $event, $table);
              break;
         }
     }
@@ -945,23 +945,23 @@ function eventCategoryFinder($sql, $event, $table)
 {
     if($event == 'delete'){
         if(strpos($sql, "lists:") === 0){
-            $fieldValues    = explode("'",$sql);
-            if(in_array('medical_problem',$fieldValues) === true) return 'Problem List';
-            else if(in_array('medication',$fieldValues) === true) return 'Medication';
+            $fieldValues    = explode("'", $sql);
+            if(in_array('medical_problem', $fieldValues) === true) return 'Problem List';
+            else if(in_array('medication', $fieldValues) === true) return 'Medication';
             else if(in_array('allergy', $fieldValues) === true) return 'Allergy';
         }
     }
     if($table == 'lists' || $table == 'lists_touch'){
         $trimSQL        = stristr($sql, $table);
-        $fieldValues    = explode("'",$trimSQL);
-        if(in_array('medical_problem',$fieldValues) === true) return 'Problem List';
-        else if(in_array('medication',$fieldValues) === true) return 'Medication';
+        $fieldValues    = explode("'", $trimSQL);
+        if(in_array('medical_problem', $fieldValues) === true) return 'Problem List';
+        else if(in_array('medication', $fieldValues) === true) return 'Medication';
         else if(in_array('allergy', $fieldValues) === true) return 'Allergy';
     }
     else if($table == 'immunizations') return "Immunization";
     else if($table == 'form_vitals') return "Vitals";
     else if($table == 'history_data') return "Social and Family History";
-    else if($table == 'forms' || $table == 'form_encounter' || strpos($table,'form_') === 0) return "Encounter Form";
+    else if($table == 'forms' || $table == 'form_encounter' || strpos($table, 'form_') === 0) return "Encounter Form";
     else if($table == 'insurance_data') return "Patient Insurance";
     else if($table == 'patient_data' || $table == 'employer_data') return "Patient Demographics";
     else if($table == 'payments' || $table == "billing" || $table == "claims") return "Billing";
@@ -969,7 +969,7 @@ function eventCategoryFinder($sql, $event, $table)
     else if($table == 'prescriptions') return "Medication";
     else if($table == 'transactions'){
         $trimSQL        = stristr($sql, "transactions");
-        $fieldValues    = explode("'",$trimSQL);
+        $fieldValues    = explode("'", $trimSQL);
         if(in_array("LBTref", $fieldValues)) return "Referral";
         else return $event;
     }

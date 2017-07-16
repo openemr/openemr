@@ -41,7 +41,7 @@ if (isset($_GET['typeid'])) {
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script language="JavaScript">
 if (opener.closed || !opener.set_proc_type) {
- alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+ alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
 }
 else {
  opener.set_proc_type(<?php echo "$typeid, '$name'"; ?>);

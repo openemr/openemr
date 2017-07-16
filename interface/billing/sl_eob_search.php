@@ -173,7 +173,7 @@ function emailLogin($patient_id, $message)
 
     if ($_SESSION['pc_facility']) {
         $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+        $facility = sqlQuery($sql, array($_SESSION['pc_facility']));
     } else {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
         $facility = sqlQuery($sql);
@@ -196,7 +196,7 @@ function emailLogin($patient_id, $message)
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
-        error_log("EMAIL ERROR: ".$email_status,0);
+        error_log("EMAIL ERROR: ".$email_status, 0);
         return false;
     }
 }
@@ -281,10 +281,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         }
         $pdf2->WriteHTML($content);
         $temp_filename = $STMT_TEMP_FILE_PDF;
-        $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF,'F');
+        $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
-        $pdf->ezSetMargins(45,9,36,10);
+        $pdf->ezSetMargins(45, 9, 36, 10);
         $pdf->selectFont('Courier');
         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
         $countline=1;
@@ -350,7 +350,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     $inv_count = -1;
     foreach ($_POST['form_invpids'] as $key => $v) {
         if($_POST['form_cb'][$key]){
-            array_push($inv_pid,key($v));
+            array_push($inv_pid, key($v));
         }
     }
     $res = sqlStatement("SELECT " .
@@ -491,7 +491,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 }
                 $pvoice = array();
                 flush();
-                ftruncate($fhprint,0);
+                ftruncate($fhprint, 0);
             }
             else continue;
         }
@@ -531,7 +531,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
   <head>
     <?php html_header_show(); ?>
     <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-    <title><?php xl('EOB Posting - Search','e'); ?></title>
+    <title><?php xl('EOB Posting - Search', 'e'); ?></title>
     <script type="text/javascript" src="../../library/textformat.js"></script>
 
     <script language="JavaScript">
@@ -583,39 +583,39 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         ?>
 
         <td>
-            <?php xl('Source:','e'); ?>
+            <?php xl('Source:', 'e'); ?>
        </td>
        <td>
          <input type='text' name='form_source' size='10' value='<?php echo $_POST['form_source']; ?>'
-         title='<?php xl("A check number or claim number to identify the payment","e"); ?>'>
+         title='<?php xl("A check number or claim number to identify the payment", "e"); ?>'>
        </td>
        <td>
-            <?php xl('Pay Date:','e'); ?>
+            <?php xl('Pay Date:', 'e'); ?>
        </td>
        <td>
          <input type='text' name='form_paydate' size='10' value='<?php echo $_POST['form_paydate']; ?>'
          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl("Date of payment yyyy-mm-dd","e"); ?>'>
+         title='<?php xl("Date of payment yyyy-mm-dd", "e"); ?>'>
        </td>
 
        <td>
-            <?php xl('Deposit Date:','e'); ?>
+            <?php xl('Deposit Date:', 'e'); ?>
        </td>
        <td>
          <input type='text' name='form_deposit_date' size='10' value='<?php echo $_POST['form_deposit_date']; ?>'
          onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl("Date of bank deposit yyyy-mm-dd","e"); ?>'>
+         title='<?php xl("Date of bank deposit yyyy-mm-dd", "e"); ?>'>
        </td>
 
        <td>
-            <?php xl('Amount:','e'); ?>
+            <?php xl('Amount:', 'e'); ?>
        </td>
        <td>
          <input type='text' name='form_amount' size='10' value='<?php echo $_POST['form_amount']; ?>'
-         title='<?php xl("Paid amount that you will allocate","e"); ?>'>
+         title='<?php xl("Paid amount that you will allocate", "e"); ?>'>
        </td>
        <td align='right'>
-         <a href='sl_eob_help.php' target='_blank'><?php xl('Help','e'); ?></a>
+         <a href='sl_eob_help.php' target='_blank'><?php xl('Help', 'e'); ?></a>
        </td>
 
      </tr>
@@ -625,39 +625,39 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
 
      <tr bgcolor='#ddddff'>
       <td>
-        <?php xl('Name:','e'); ?>
+        <?php xl('Name:', 'e'); ?>
      </td>
      <td>
        <input type='text' name='form_name' size='10' value='<?php echo $_POST['form_name']; ?>'
-       title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"","e"); ?>'>
+       title='<?php xl("Any part of the patient name, or \"last,first\", or \"X-Y\"", "e"); ?>'>
      </td>
      <td>
-        <?php xl('Chart ID:','e'); ?>
+        <?php xl('Chart ID:', 'e'); ?>
      </td>
      <td>
        <input type='text' name='form_pid' size='10' value='<?php echo $_POST['form_pid']; ?>'
-       title='<?php xl("Patient chart ID","e"); ?>'>
+       title='<?php xl("Patient chart ID", "e"); ?>'>
      </td>
      <td>
-        <?php xl('Encounter:','e'); ?>
+        <?php xl('Encounter:', 'e'); ?>
      </td>
      <td>
        <input type='text' name='form_encounter' size='10' value='<?php echo $_POST['form_encounter']; ?>'
-       title='<?php xl("Encounter number","e"); ?>'>
+       title='<?php xl("Encounter number", "e"); ?>'>
      </td>
      <td>
-        <?php xl('Svc Date:','e'); ?>
+        <?php xl('Svc Date:', 'e'); ?>
      </td>
      <td>
        <input type='text' name='form_date' size='10' value='<?php echo $_POST['form_date']; ?>'
-       title='<?php xl("Date of service mm/dd/yyyy","e"); ?>'>
+       title='<?php xl("Date of service mm/dd/yyyy", "e"); ?>'>
      </td>
      <td>
-        <?php xl('To:','e'); ?>
+        <?php xl('To:', 'e'); ?>
      </td>
      <td>
        <input type='text' name='form_to_date' size='10' value='<?php echo $_POST['form_to_date']; ?>'
-       title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range","e"); ?>'>
+       title='<?php xl("Ending DOS mm/dd/yyyy if you wish to enter a range", "e"); ?>'>
      </td>
      <td>
        <select name='form_category'>
@@ -671,7 +671,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
       </select>
     </td>
     <td>
-     <input type='submit' name='form_search' value='<?php xl("Search","e"); ?>'>
+     <input type='submit' name='form_search' value='<?php xl("Search", "e"); ?>'>
    </td>
  </tr>
        <!-- Filter - only show those who have debt -->
@@ -687,7 +687,7 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
  <!-- Support for X12 835 upload -->
  <tr bgcolor='#ddddff'>
   <td colspan='12'>
-    <?php xl('Or upload ERA file:','e'); ?>
+    <?php xl('Or upload ERA file:', 'e'); ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
    <input name="form_erafile" type="file" />
  </td>
@@ -823,41 +823,41 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
  <tr bgcolor="#dddddd">
   <td class="id">
-        <?php xl('id','e');?>
+        <?php xl('id', 'e');?>
   </td>
   <td class="dehead">
-   &nbsp;<?php xl('Patient','e'); ?>
+   &nbsp;<?php xl('Patient', 'e'); ?>
  </td>
  <td class="dehead">
-   &nbsp;<?php xl('Invoice','e'); ?>
+   &nbsp;<?php xl('Invoice', 'e'); ?>
  </td>
  <td class="dehead">
-   &nbsp;<?php xl('Svc Date','e'); ?>
+   &nbsp;<?php xl('Svc Date', 'e'); ?>
  </td>
  <td class="dehead">
-   &nbsp;<?php xl('Last Stmt','e'); ?>
+   &nbsp;<?php xl('Last Stmt', 'e'); ?>
  </td>
  <td class="dehead" align="right">
-    <?php xl('Charge','e'); ?>&nbsp;
+    <?php xl('Charge', 'e'); ?>&nbsp;
  </td>
  <td class="dehead" align="right">
-    <?php xl('Adjust','e'); ?>&nbsp;
+    <?php xl('Adjust', 'e'); ?>&nbsp;
  </td>
  <td class="dehead" align="right">
-    <?php xl('Paid','e'); ?>&nbsp;
+    <?php xl('Paid', 'e'); ?>&nbsp;
  </td>
  <td class="dehead" align="right">
-    <?php xl('Balance','e'); ?>&nbsp;
+    <?php xl('Balance', 'e'); ?>&nbsp;
  </td>
  <td class="dehead" align="center">
-    <?php xl('Prv','e'); ?>
+    <?php xl('Prv', 'e'); ?>
  </td>
     <?php if (!$eracount) { ?>
  <td class="dehead" align="left">
-    <?php xl('Sel','e'); ?>
+    <?php xl('Sel', 'e'); ?>
  </td>
   <td class="dehead" align="center">
-    <?php xl('Email','e'); ?>
+    <?php xl('Email', 'e'); ?>
   </td>
 
     <?php } ?>
@@ -978,20 +978,20 @@ while ($row = sqlFetchArray($t_res)) {
 
 <p>
     <?php if ($eracount) { ?>
-  <input type='button' value='<?php xl('Process ERA File','e')?>' onclick='processERA()' /> &nbsp;
+  <input type='button' value='<?php xl('Process ERA File', 'e')?>' onclick='processERA()' /> &nbsp;
     <?php } else { ?>
-  <input type='button' value='<?php xl('Select All','e')?>' onclick='checkAll(true)' /> &nbsp;
-  <input type='button' value='<?php xl('Clear All','e')?>' onclick='checkAll(false)' /> &nbsp;
+  <input type='button' value='<?php xl('Select All', 'e')?>' onclick='checkAll(true)' /> &nbsp;
+  <input type='button' value='<?php xl('Clear All', 'e')?>' onclick='checkAll(false)' /> &nbsp;
     <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
-    <input type='submit' name='form_print' value='<?php xl('Print Selected Statements','e'); ?>' /> &nbsp;
-    <input type='submit' name='form_download' value='<?php xl('Download Selected Statements','e'); ?>' /> &nbsp;
+    <input type='submit' name='form_print' value='<?php xl('Print Selected Statements', 'e'); ?>' /> &nbsp;
+    <input type='submit' name='form_download' value='<?php xl('Download Selected Statements', 'e'); ?>' /> &nbsp;
     <?php } ?>
-  <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements','e'); ?>' /> &nbsp;
-  <input type='submit' name='form_email' value='<?php xl('Email Selected Statements','e'); ?>' /> &nbsp;
+  <input type='submit' name='form_pdf' value='<?php xl('PDF Download Selected Statements', 'e'); ?>' /> &nbsp;
+  <input type='submit' name='form_email' value='<?php xl('Email Selected Statements', 'e'); ?>' /> &nbsp;
 <?php if ($is_portal ){?>
-  <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal','e'); ?>' /> &nbsp;
+  <input type='submit' name='form_portalnotify' value='<?php xl('Notify via Patient Portal', 'e'); ?>' /> &nbsp;
     <?php } }?>
-  <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update','e'); ?>
+  <input type='checkbox' name='form_without' value='1' /> <?php xl('Without Update', 'e'); ?>
 </p>
 
 </form>

@@ -36,7 +36,7 @@ else if ($orderid) {
 }
 
 // Check authorization.
-if (!acl_check('patients','notes','',array('write','addonly') ))
+if (!acl_check('patients', 'notes', '', array('write','addonly') ))
     die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -388,7 +388,7 @@ $(document).ready(function(){
     }
 
     var DeleteNote = function(note) {
-        if (confirm("<?php echo htmlspecialchars( xl('Are you sure you want to delete this note?','','','\n ').xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
+        if (confirm("<?php echo htmlspecialchars( xl('Are you sure you want to delete this note?', '', '', '\n ').xl('This action CANNOT be undone.'), ENT_QUOTES); ?>")) {
             top.restoreSession();
             // strip the 'del' part of the object's ID
             $("#noteid").val(note.id.replace(/del/, ""));

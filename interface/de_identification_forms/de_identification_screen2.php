@@ -200,7 +200,7 @@ if($deIdentificationStatus == 0)
                         {
                             $timestamp = addslashes($row['timestamp']);
                         }
-                        $timestamp = str_replace(" ","_",$timestamp);
+                        $timestamp = str_replace(" ", "_", $timestamp);
                         $de_identified_file = $GLOBALS['temporary_files_dir']."/de_identified_data".$timestamp.".xls";
                         $query = "update de_identification_status set last_available_de_identified_data_file = '" . $de_identified_file . "'";
                         $res = sqlStatement($query);

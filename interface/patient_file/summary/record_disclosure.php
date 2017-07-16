@@ -85,16 +85,16 @@ $(document).ready(function() {
 <body class="body_top">
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
 <div style='float: left; margin-right: 5px'><?php if($editlid) {?><!--Edit the disclosures-->
-<span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'),ENT_NOQUOTES); ?></span><?php }
-else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'),ENT_NOQUOTES); ?></span><?php }?>
+<span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php }
+else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php }?>
 </div>
 <div><a onclick="return submitform()" class="css_button large_button"
     name='form_save' id='form_save' href='#'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'),ENT_NOQUOTES);?></span>
+    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span>
 </a></div>
 <div><a class="css_button large_button" id='cancel'
     href='disclosure_full.php' target='_parent' onclick='top.restoreSession()'> <span
-    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'),ENT_NOQUOTES);?></span>
+    class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span>
 </a></div>
 <br>
 <form NAME="disclosure_form" METHOD="POST" ACTION="disclosure_full.php" target='_parent' onsubmit='return top.restoreSession()'>
@@ -102,7 +102,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
 <table border=0 cellpadding=3 cellspacing=0 align='center'>
     <br>
     <tr>
-        <td><span class='text'><?php echo htmlspecialchars(xl('Date'),ENT_NOQUOTES); ?>:</span></td>
+        <td><span class='text'><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>:</span></td>
         <td><!--retrieve disclosures from extended_log table for modifications-->
         <?php
         if($editlid){
@@ -112,9 +112,9 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
             $disc_date=$dres{"date"};
                        $recipient_name=$dres{"recipient"};
             ?>
-            <input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid,ENT_QUOTES); ?>">
+            <input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid, ENT_QUOTES); ?>">
             <input type=hidden name=updatemode value="disclosure_update">
-            <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date,ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
+            <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date, ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
         }
         else {
             ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;
@@ -122,7 +122,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
             ?>
     </tr>
     <tr>
-        <td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'),ENT_NOQUOTES); ?>: </span></TD>
+        <td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'), ENT_NOQUOTES); ?>: </span></TD>
         <td><?php if($editlid)
         {
         //To incorporate the disclosure types  into the list_options listings
@@ -134,12 +134,12 @@ else{
         </td>
     </tr>
     <tr>
-        <td><span class=text><?php echo htmlspecialchars(xl('Recipient of the Disclosure'),ENT_NOQUOTES); ?>:
+        <td><span class=text><?php echo htmlspecialchars(xl('Recipient of the Disclosure'), ENT_NOQUOTES); ?>:
         </span></td>
         <td class='text'>
         <?php
         if($editlid){
-            ?> <input type=entry name=recipient_name size=20 value="<?php echo htmlspecialchars($recipient_name,ENT_QUOTES); ?>"></td>
+            ?> <input type=entry name=recipient_name size=20 value="<?php echo htmlspecialchars($recipient_name, ENT_QUOTES); ?>"></td>
             <?php
         }else
         {?>
@@ -150,12 +150,12 @@ else{
     </tr>
     <tr>
         <td>
-        <span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'),ENT_NOQUOTES); ?>:</span></td>
+        <span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'), ENT_NOQUOTES); ?>:</span></td>
         <?php if($editlid)
         {
         ?>
         <td>
-        <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description,ENT_NOQUOTES); ?></textarea>
+        <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
         <?php }
 else
 {?>

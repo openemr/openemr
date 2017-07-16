@@ -182,18 +182,18 @@ function getMails($pid, $dotype, $nsrch, $nfsrch)
     if($pid){
         if($dotype == "inbox"){
             if($nsrch && $nfsrch){
-                $result_notes = getPortalPatientNotes($pid,'','0',$nsrch);
-                $result_notifications = getPortalPatientNotifications($pid,'','0',$nfsrch);
-                $result = array_merge((array)$result_notes,(array)$result_notifications);
+                $result_notes = getPortalPatientNotes($pid, '', '0', $nsrch);
+                $result_notifications = getPortalPatientNotifications($pid, '', '0', $nfsrch);
+                $result = array_merge((array)$result_notes, (array)$result_notifications);
             }else{
                 $result_notes = getPortalPatientNotes($pid);
                 $result_notifications = getPortalPatientNotifications($pid);
-                $result = array_merge((array)$result_notes,(array)$result_notifications);
+                $result = array_merge((array)$result_notes, (array)$result_notifications);
             }
             return $result;
         }elseif($dotype == "sent"){
             if($nsrch){
-                $result_sent_notes = getPortalPatientSentNotes($pid,'','0',$nsrch);
+                $result_sent_notes = getPortalPatientSentNotes($pid, '', '0', $nsrch);
             }else{
                 $result_sent_notes = getPortalPatientSentNotes($pid);
             }
@@ -209,7 +209,7 @@ function getMailDetails($id)
     if($pid){
         $result = getPnoteById($id);
         if($result['assigned_to'] == '-patient-' && $result['message_status'] == 'New'){
-            updatePortalPnoteMessageStatus($id,'Read');
+            updatePortalPnoteMessageStatus($id, 'Read');
         }
         return $result;
     }else{
@@ -220,7 +220,7 @@ function getMailDetails($id)
 function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
 {
     if($pid){
-        addPortalMailboxPnote($pid,$note,'1','1',$title,$to,'','New',$noteid);
+        addPortalMailboxPnote($pid, $note, '1', '1', $title, $to, '', 'New', $noteid);
         return 1;
     }else{
         return 'failed';
@@ -231,7 +231,7 @@ function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
 function updateStatus($id, $status)
 {
     if($pid){
-        updatePortalPnoteMessageStatus($id,$status);
+        updatePortalPnoteMessageStatus($id, $status);
     }else{
         return 'failed';
     }

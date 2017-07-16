@@ -84,7 +84,7 @@ while ($file = sqlFetchArray($fres)) {
                 $x++;
             } while (file_exists($dest));
         }
-        file_put_contents($dest,$document);
+        file_put_contents($dest, $document);
     }
     else {
         echo xlt("Can't find file!")."<br />";
@@ -105,8 +105,8 @@ while ($file = sqlFetchArray($fres)) {
 
 function recursive_remove_directory($directory, $empty = false)
 {
-    if(substr($directory,-1) == '/') {
-        $directory = substr($directory,0,-1);
+    if(substr($directory, -1) == '/') {
+        $directory = substr($directory, 0, -1);
     }
     if(!file_exists($directory) || !is_dir($directory)) {
         return false;

@@ -35,7 +35,7 @@ class NFQ_0013_Exclusion implements CqmFilterIF
             return true;
         }
         
-        $procedure_code = implode(',',Codes::lookup(Procedure::DIALYSIS_SERVICE,'SNOMED'));
+        $procedure_code = implode(',', Codes::lookup(Procedure::DIALYSIS_SERVICE, 'SNOMED'));
         //Dialysis procedure exists exclude the patient
         $sql = "SELECT count(*) as cnt FROM procedure_order pr ".
                "INNER JOIN procedure_order_code prc ON pr.procedure_order_id = prc.procedure_order_id ".

@@ -22,14 +22,14 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 <html>
 <head>
 <title>
-<?php xl('Print Notes','e'); ?>
+<?php xl('Print Notes', 'e'); ?>
 </title>
 </head>
 <body>
-<?php xl('Choose print format for this encounter report.','e'); ?><br><br>
+<?php xl('Choose print format for this encounter report.', 'e'); ?><br><br>
 <form method=post name=choose_patients>
-<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
-<input type='submit' name='submit_html' value='<?php xl('Print (HTML)','e'); ?>'>
+<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
+<input type='submit' name='submit_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
 </form>
 </body>
 </html>
@@ -42,7 +42,7 @@ if (!$_POST['submit_pdf'] && !$_POST['submit_html'] && !($_GET['pid'] && $_GET['
 <head>
 
 <title>
-<?php xl('Print Notes','e'); ?>
+<?php xl('Print Notes', 'e'); ?>
 </title>
 
 <?php html_header_show();?>
@@ -75,29 +75,29 @@ $(document).ready(function(){
 
 <table>
 <tr><td>
-<span class='text'><?php xl('Start (yyyy-mm-dd): ','e') ?></span>
+<span class='text'><?php xl('Start (yyyy-mm-dd): ', 'e') ?></span>
 </td><td>
 <input type='text' size='10' name='start' id='start' value='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
 class='datepicker'
-title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
+title='<?php xl('yyyy-mm-dd last date of this event', 'e'); ?>' />
 </td></tr>
 <tr><td>
-<span class='text'><?php xl('End (yyyy-mm-dd): ','e') ?></span>
+<span class='text'><?php xl('End (yyyy-mm-dd): ', 'e') ?></span>
 </td><td>
 <input type='text' size='10' name='end' id='end' value ='<?php echo $_POST['end'] ? $_POST['end'] : date('Y-m-d') ?>'
 class='datepicker'
-title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
+title='<?php xl('yyyy-mm-dd last date of this event', 'e'); ?>' />
 </td></tr>
 <tr><td></td><td></td></tr>
-<tr><td><?php xl('Last Name','e'); ?>: </td><td>
+<tr><td><?php xl('Last Name', 'e'); ?>: </td><td>
 <input type='text' name='lname'/>
 </td></tr>
-<tr><td><?php xl('First Name','e'); ?>: </td><td>
+<tr><td><?php xl('First Name', 'e'); ?>: </td><td>
 <input type='text' name='fname'/>
 </td></tr>
 <tr><td>
-<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
-<input type='submit' name='submit_html' value='<?php xl('Print (HTML)','e'); ?>'>
+<input type='submit' name='submit_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
+<input type='submit' name='submit_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
 </td><td>
 </td></tr>
 </table>
@@ -109,7 +109,7 @@ title='<?php xl('yyyy-mm-dd last date of this event','e'); ?>' />
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
     // note we are cleaning input, trimming, and preparing the variables for database insert
     //  before sending through this function
-    $output = getFormData(formData("start","P",true),formData("end","P",true),formData("lname","P",true),formData("fname","P",true));
+    $output = getFormData(formData("start", "P", true), formData("end", "P", true), formData("lname", "P", true), formData("fname", "P", true));
     ksort($output);
     if ($_POST['submit_html']) { //print as html
 ?>
@@ -145,7 +145,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
      font-size: 130%;
     }
     </style>
-    <title><?php xl('Patient Notes','e'); ?></title>
+    <title><?php xl('Patient Notes', 'e'); ?></title>
     </head>
         <body>
     <div class='paddingdiv'>
@@ -175,7 +175,7 @@ foreach ($output as $datekey => $dailynote) {
             print "<span class='heading'>" . xl("Progress Notes") . "</span><br/>";
             print "<br/>";
             foreach($notecontents['exam'] as $examnote) {
-                print nl2br(replace($pid,$enc,$examnote)) . "<br/>";
+                print nl2br(replace($pid, $enc, $examnote)) . "<br/>";
             }
         }
         if (count($notecontents['prescriptions']) > 0) {
@@ -183,7 +183,7 @@ foreach ($output as $datekey => $dailynote) {
             print "<span class='heading'>" . xl("Prescriptions") . "</span><br/>";
             print "<br/>";
             foreach($notecontents['prescriptions'] as $rx) {
-                print nl2br(replace($pid,$enc,$rx)) . "<br/>";
+                print nl2br(replace($pid, $enc, $rx)) . "<br/>";
             }
         }
         if (count($notecontents['other']) > 0) {
@@ -193,7 +193,7 @@ foreach ($output as $datekey => $dailynote) {
             foreach($notecontents['other'] as $other => $othercat) {
                 print nl2br($other) . "<br/>";
                 foreach($othercat as $items) {
-                    print nl2br(replace($pid,$enc,$items)) . "<br/>";
+                    print nl2br(replace($pid, $enc, $items)) . "<br/>";
                 }
             }
         }
@@ -255,7 +255,7 @@ foreach ($output as $datekey => $dailynote) {
     else { // print as pdf
         $pdf = new Cezpdf();
         $pdf->selectFont('Helvetica');
-        $pdf->ezSetCmMargins(3,1,1,1);
+        $pdf->ezSetCmMargins(3, 1, 1, 1);
         $first = 1;
         foreach ($output as $datekey => $dailynote) {
             foreach ($dailynote as $note_id => $notecontents) {
@@ -268,41 +268,41 @@ foreach ($output as $datekey => $dailynote) {
                 else {
                     $first = 0;
                 }
-                $pdf->ezText(xl("Date").": ".$notecontents['date'],8);
-                $pdf->ezText(xl("Name").": ".$notecontents['name'],8);
-                        $pdf->ezText(xl("DOB").": ".$notecontents['dob'],8);
-                $pdf->ezText(xl("Claim")."# ".$notecontents['pubpid'],8);
+                $pdf->ezText(xl("Date").": ".$notecontents['date'], 8);
+                $pdf->ezText(xl("Name").": ".$notecontents['name'], 8);
+                        $pdf->ezText(xl("DOB").": ".$notecontents['dob'], 8);
+                $pdf->ezText(xl("Claim")."# ".$notecontents['pubpid'], 8);
 
-                $pdf->ezText("",8);
-                $pdf->ezText(xl("Chief Complaint").": ".$notecontents['reason'],8);
+                $pdf->ezText("", 8);
+                $pdf->ezText(xl("Chief Complaint").": ".$notecontents['reason'], 8);
                 if ($notecontents['vitals']) {
-                    $pdf->ezText("",8);
-                    $pdf->ezText($notecontents['vitals'],8);
+                    $pdf->ezText("", 8);
+                    $pdf->ezText($notecontents['vitals'], 8);
                 }
                 if (count($notecontents['exam']) > 0) {
-                    $pdf->ezText("",8);
-                    $pdf->ezText(xl("Progress Notes"),12);
-                    $pdf->ezText("",8);
+                    $pdf->ezText("", 8);
+                    $pdf->ezText(xl("Progress Notes"), 12);
+                    $pdf->ezText("", 8);
                     foreach($notecontents['exam'] as $examnote) {
-                        $pdf->ezText(replace($pid,$enc,$examnote));
+                        $pdf->ezText(replace($pid, $enc, $examnote));
                     }
                 }
                 if (count($notecontents['prescriptions']) > 0) {
-                    $pdf->ezText("",8);
-                    $pdf->ezText(xl("Prescriptions"),12);
-                    $pdf->ezText("",8);
+                    $pdf->ezText("", 8);
+                    $pdf->ezText(xl("Prescriptions"), 12);
+                    $pdf->ezText("", 8);
                     foreach($notecontents['prescriptions'] as $rx) {
-                        $pdf->ezText(replace($pid,$enc,$rx));
+                        $pdf->ezText(replace($pid, $enc, $rx));
                     }
                 }
                 if (count($notecontents['other']) > 0) {
-                    $pdf->ezText("",8);
-                    $pdf->ezText(xl("Other"),12);
-                    $pdf->ezText("",8);
+                    $pdf->ezText("", 8);
+                    $pdf->ezText(xl("Other"), 12);
+                    $pdf->ezText("", 8);
                     foreach($notecontents['other'] as $other => $othercat) {
-                        $pdf->ezText($other,8);
+                        $pdf->ezText($other, 8);
                         foreach($othercat as $items) {
-                            $pdf->ezText(replace($pid,$enc,$items),8);
+                            $pdf->ezText(replace($pid, $enc, $items), 8);
                         }
                     }
                 }
@@ -312,29 +312,29 @@ foreach ($output as $datekey => $dailynote) {
                         $tmp[$code]++;
                     }
                     if (count($tmp) > 0) {
-                        $pdf->ezText("",8);
-                        $pdf->ezText(xl("Coding"),12);
-                        $pdf->ezText("",8);
+                        $pdf->ezText("", 8);
+                        $pdf->ezText(xl("Coding"), 12);
+                        $pdf->ezText("", 8);
                         foreach($tmp as $code => $val) {
-                            $pdf->ezText($code,8);
+                            $pdf->ezText($code, 8);
                         }
                     }
                 }
                 if (count($notecontents['calories']) > 0) {
                     $sum = 0;
-                    $pdf->ezText("",8);
-                    $pdf->ezText(xl("Calories"),12);
-                    $pdf->ezText("",8);
+                    $pdf->ezText("", 8);
+                    $pdf->ezText(xl("Calories"), 12);
+                    $pdf->ezText("", 8);
                     foreach($notecontents['calories'] as $calories => $value) {
-                        $pdf->ezText($value['content'].' - '.$value['item'].' - '.$value['date'],8);
+                        $pdf->ezText($value['content'].' - '.$value['item'].' - '.$value['date'], 8);
                         $sum += $value['content'];
                     }
-                    $pdf->ezText("--------",8);
-                    $pdf->ezText($sum,8);
+                    $pdf->ezText("--------", 8);
+                    $pdf->ezText($sum, 8);
                 }
-                $pdf->ezText("",12);
-                $pdf->ezText("",12);
-                $pdf->ezText(xl("Digitally Signed"),12);
+                $pdf->ezText("", 12);
+                $pdf->ezText("", 12);
+                $pdf->ezText(xl("Digitally Signed"), 12);
 
                 $query = sqlStatement("select t2.id, t2.fname, t2.lname, t2.title from forms as t1 join users as t2 on " .
                 "(t1.user like t2.username) where t1.pid=$pid and t1.encounter=$encounter");
@@ -344,9 +344,9 @@ foreach ($output as $datekey => $dailynote) {
                 }
                 $path = $GLOBALS['fileroot']."/interface/forms/CAMOS";
                 if (file_exists($path."/sig".$user_id.".jpg")) {
-                        $pdf->ezImage($path."/sig".$user_id.".jpg",'','72','','left','');
+                        $pdf->ezImage($path."/sig".$user_id.".jpg", '', '72', '', 'left', '');
                 }
-                $pdf->ezText($name,12);
+                $pdf->ezText($name, 12);
             }
         }
         $pdf->ezStream();
@@ -415,15 +415,15 @@ function getFormData($start_date, $end_date, $lname, $fname)
                 $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['vitals'] = formatVitals($results2);
             }
         }
-        if (substr(strtolower($results1['form_name']),0,5) == 'camos') { // deal with camos
+        if (substr(strtolower($results1['form_name']), 0, 5) == 'camos') { // deal with camos
             $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from ".mitigateSqlTableUpperCase("form_CAMOS")." where id = " .
                     $results1['form_id']);
             if ($results2 = sqlFetchArray($query2)) {
                 if ($results2['category'] == 'exam') {
-                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['exam'],$results2['content']);
+                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['exam'], $results2['content']);
                 }
                 elseif ($results2['category'] == 'prescriptions') {
-                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['prescriptions'],preg_replace("/\n+/",' ',$results2['content']));
+                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['prescriptions'], preg_replace("/\n+/", ' ', $results2['content']));
                 }
                 elseif ($results2['category'] == 'communications') {
                     //do nothing
@@ -433,7 +433,7 @@ function getFormData($start_date, $end_date, $lname, $fname)
                         'item' => $results2['item'],
                         'content' => $results2['content'],
                         'date' => $results2['date']);
-                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['calories'],$values);
+                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['calories'], $values);
 
                 }
                 else {
@@ -441,7 +441,7 @@ function getFormData($start_date, $end_date, $lname, $fname)
                         $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']] = array();
                     }
                     array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']],
-                        preg_replace(array("/\n+/","/patientname/i"),array(' ',$results1['fname'].' '.$results1['lname']),$results2['content']));
+                        preg_replace(array("/\n+/","/patientname/i"), array(' ',$results1['fname'].' '.$results1['lname']), $results2['content']));
                 }
             }
         }

@@ -70,7 +70,7 @@ tr.selected {
 <span class="title"><?php echo xlt('List'); ?></span>&nbsp;
 <?php
     $query = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
-    $resultSet = sqlStatement($query,array($pid));
+    $resultSet = sqlStatement($query, array($pid));
 if ( sqlNumRows($resultSet)) { ?>
             <table cellspacing="0" cellpadding="0" style="width:100%">
                 <tr>

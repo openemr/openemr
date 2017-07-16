@@ -35,9 +35,9 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     $Date = postcalendar_getDate();
-    if(!isset($y)) $y = substr($Date,0,4);
-    if(!isset($m)) $m = substr($Date,4,2);
-    if(!isset($d)) $d = substr($Date,6,2);
+    if(!isset($y)) $y = substr($Date, 0, 4);
+    if(!isset($m)) $m = substr($Date, 4, 2);
+    if(!isset($d)) $d = substr($Date, 6, 2);
 
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
@@ -45,7 +45,7 @@ function smarty_function_pc_filter($args, &$smarty)
 
     if(!isset($viewtype)) { $viewtype = _SETTING_DEFAULT_VIEW; }
 
-    $types = explode(',',$type);
+    $types = explode(',', $type);
     $output = new pnHTML();
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
@@ -59,8 +59,8 @@ function smarty_function_pc_filter($args, &$smarty)
     //================================================================
     //	build the username filter pulldown
     //================================================================
-    if(in_array('user',$types)) {
-        @define('_PC_FORM_USERNAME',true);
+    if(in_array('user', $types)) {
+        @define('_PC_FORM_USERNAME', true);
         $sql = "SELECT DISTINCT users.username, users.lname, users.fname
 	 			FROM $pntable[postcalendar_events], users where users.id=pc_aid
 				ORDER BY pc_aid";
@@ -82,10 +82,10 @@ function smarty_function_pc_filter($args, &$smarty)
     //================================================================
     //	build the category filter pulldown
     //================================================================
-    if(in_array('category',$types)) {
-        @define('_PC_FORM_CATEGORY',true);
+    if(in_array('category', $types)) {
+        @define('_PC_FORM_CATEGORY', true);
         $category = pnVarCleanFromInput('pc_category');
-        $categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+        $categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
         $catoptions  = "<select name=\"pc_category\" class=\"$class\">";
         $catoptions .= "<option value=\"\" class=\"$class\">"._PC_FILTER_CATEGORY."</option>";
         foreach($categories as $c) {
@@ -97,10 +97,10 @@ function smarty_function_pc_filter($args, &$smarty)
     //================================================================
     //	build the topic filter pulldown
     //================================================================
-    if(in_array('topic',$types) && _SETTING_DISPLAY_TOPICS) {
-        @define('_PC_FORM_TOPIC',true);
+    if(in_array('topic', $types) && _SETTING_DISPLAY_TOPICS) {
+        @define('_PC_FORM_TOPIC', true);
         $topic = pnVarCleanFromInput('pc_topic');
-        $topics = pnModAPIFunc(__POSTCALENDAR__,'user','getTopics');
+        $topics = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getTopics');
         $topoptions  = "<select name=\"pc_topic\" class=\"$class\">";
         $topoptions .= "<option value=\"\" class=\"$class\">"._PC_FILTER_TOPIC."</option>";
         foreach($topics as $t) {
@@ -121,13 +121,13 @@ function smarty_function_pc_filter($args, &$smarty)
     
     if(isset($order)) {
         $newOrder = array();
-        $order = explode(',',$order);
+        $order = explode(',', $order);
         foreach($order as $tmp_order) {
-            array_push($newOrder,$orderArray[$tmp_order]);
+            array_push($newOrder, $orderArray[$tmp_order]);
         }
         foreach($orderArray as $key=>$old_order) {
-            if(!in_array($key,$newOrder)) {
-                array_push($newOrder,$orderArray[$old_order]);
+            if(!in_array($key, $newOrder)) {
+                array_push($newOrder, $orderArray[$old_order]);
             }
         }
         $order = $newOrder;
@@ -138,7 +138,7 @@ function smarty_function_pc_filter($args, &$smarty)
     foreach($order as $element) {
         echo $element;
     }
-    if(!in_array('user',$types)) {
-        echo $output->FormHidden('pc_username',$pc_username);
+    if(!in_array('user', $types)) {
+        echo $output->FormHidden('pc_username', $pc_username);
     }
 }

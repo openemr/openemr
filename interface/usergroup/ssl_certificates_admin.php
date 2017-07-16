@@ -185,8 +185,8 @@ function create_client_cert()
         return;
     }
 
-    if ($_POST["client_cert_user"]) {    $user = formData('client_cert_user','P',true);  }
-    if ($_POST["client_cert_email"]) {    $email = formData('client_cert_email','P',true);  }
+    if ($_POST["client_cert_user"]) {    $user = formData('client_cert_user', 'P', true);  }
+    if ($_POST["client_cert_email"]) {    $email = formData('client_cert_email', 'P', true);  }
     $opensslconf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $serial = 0;
     $data = create_user_certificate($user, $email, $serial,
@@ -247,18 +247,18 @@ function create_and_download_certificates()
     }
 
     /* Retrieve the certificate name settings from the form input */
-    if ($_POST["commonName"]) {    $commonName = formData('commonName','P',true);  }
-    if ($_POST["emailAddress"]) {    $emailAddress = formData('emailAddress','P',true);  }
-    if ($_POST["countryName"]) {    $countryName = formData('countryName','P',true);  }
-    if ($_POST["stateOrProvinceName"]) {    $stateOrProvinceName = formData('stateOrProvinceName','P',true);  }
-    if ($_POST["localityName"]) {    $localityName = formData('localityName','P',true);  }
-    if ($_POST["organizationName"]) {    $organizationName = formData('organizationName','P',true);  }
-    if ($_POST["organizationalUnitName"]) {    $organizationName = formData('organizationalUnitName','P',true);  }
-    if ($_POST["clientCertValidity"]) {    $clientCertValidity = formData('clientCertValidity','P',true);  }
+    if ($_POST["commonName"]) {    $commonName = formData('commonName', 'P', true);  }
+    if ($_POST["emailAddress"]) {    $emailAddress = formData('emailAddress', 'P', true);  }
+    if ($_POST["countryName"]) {    $countryName = formData('countryName', 'P', true);  }
+    if ($_POST["stateOrProvinceName"]) {    $stateOrProvinceName = formData('stateOrProvinceName', 'P', true);  }
+    if ($_POST["localityName"]) {    $localityName = formData('localityName', 'P', true);  }
+    if ($_POST["organizationName"]) {    $organizationName = formData('organizationName', 'P', true);  }
+    if ($_POST["organizationalUnitName"]) {    $organizationName = formData('organizationalUnitName', 'P', true);  }
+    if ($_POST["clientCertValidity"]) {    $clientCertValidity = formData('clientCertValidity', 'P', true);  }
 
 
     /* Create the Certficate Authority (CA) */
-    $arr = create_csr("OpenEMR CA for " . $commonName, $emailAddress, $countryName, $stateOrProvinceName,$localityName, $organizationName, $organizationalUnitName);
+    $arr = create_csr("OpenEMR CA for " . $commonName, $emailAddress, $countryName, $stateOrProvinceName, $localityName, $organizationName, $organizationalUnitName);
 
     if ($arr === false) {
         $error_msg .= xl('Error, unable to create the Certificate Authority certificate.', 'e');
@@ -635,7 +635,7 @@ else if ($_POST["mode"] == "download_certificates") {
     SSLCertificateKeyFile /path/to/Server.key<br>
     SSLCACertificateFile /path/to/CertificateAuthority.crt<br>
     <br>
-    <?php xl('Note','e'); ?>:
+    <?php xl('Note', 'e'); ?>:
     <ul>
       <li><?php xl('To Enable only HTTPS, perform the above changes and restart Apache server. If you want to configure client side certificates also, please configure them in the next section.', 'e'); ?></br>
     <li> <?php xl('To Disable HTTPS, comment the above lines in Apache configuration file and restart Apache server.', 'e'); ?>
@@ -694,7 +694,7 @@ else if ($_POST["mode"] == "download_certificates") {
         <?php xl('Provide absolute path of file', 'e'); ?> CertificateAuthority.crt</br>
             <?php xl('Set', 'e'); ?> 'certificate_authority_crt' <?php xl('to absolute path of file', 'e'); ?> 'CertificateAuthority.crt'</br>
      <br>
-    </br><?php xl('Note','e'); ?>:
+    </br><?php xl('Note', 'e'); ?>:
     <ul>
       <li><?php xl('To Enable Client side SSL certificates authentication, HTTPS should be enabled.', 'e'); ?>
       <li><?php xl('After performing above configurations, import the admin client certificate to the browser and restart Apache server (empty password).', 'e'); ?>

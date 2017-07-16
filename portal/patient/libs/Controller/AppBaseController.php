@@ -75,7 +75,7 @@ class AppBaseController extends Controller
      */
     protected function SafeGetVal($json, $prop, $default = '')
     {
-        return (property_exists($json,$prop))
+        return (property_exists($json, $prop))
             ? $json->$prop
             : $default;
     }
@@ -86,7 +86,7 @@ class AppBaseController extends Controller
      */
     protected function RenderExceptionJSON(Exception $exception)
     {
-        $this->RenderErrorJSON($exception->getMessage(),null,$exception);
+        $this->RenderErrorJSON($exception->getMessage(), null, $exception);
     }
 
     /**
@@ -111,10 +111,10 @@ class AppBaseController extends Controller
 
         if ($exception)
         {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(),1) );
+            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1) );
         }
 
         @header('HTTP/1.1 401 Unauthorized');
-        $this->RenderJSON($err,RequestUtil::Get('callback'));
+        $this->RenderJSON($err, RequestUtil::Get('callback'));
     }
 }

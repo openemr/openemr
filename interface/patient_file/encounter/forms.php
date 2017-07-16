@@ -27,7 +27,7 @@ if($attendant_type == 'gid'){
     $groupId = $therapy_group;
 }
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
-if($is_group && !acl_check("groups","glog",false, array('view','write'))){
+if($is_group && !acl_check("groups", "glog", false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
@@ -144,9 +144,9 @@ jQuery(document).ready( function($) {
             { amc_id: "patient_edu_amc",
               complete: true,
               mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              patient_id: <?php echo htmlspecialchars($pid, ENT_NOQUOTES); ?>,
               object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+              object_id: <?php echo htmlspecialchars($encounter, ENT_NOQUOTES); ?>
             }
         );
     });
@@ -163,9 +163,9 @@ jQuery(document).ready( function($) {
             { amc_id: "provide_sum_pat_amc",
               complete: true,
               mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              patient_id: <?php echo htmlspecialchars($pid, ENT_NOQUOTES); ?>,
               object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+              object_id: <?php echo htmlspecialchars($encounter, ENT_NOQUOTES); ?>
             }
         );
     });
@@ -190,9 +190,9 @@ jQuery(document).ready( function($) {
             { amc_id: "med_reconc_amc",
               complete: false,
               mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              patient_id: <?php echo htmlspecialchars($pid, ENT_NOQUOTES); ?>,
               object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+              object_id: <?php echo htmlspecialchars($encounter, ENT_NOQUOTES); ?>
             }
         );
     });
@@ -209,9 +209,9 @@ jQuery(document).ready( function($) {
             { amc_id: "med_reconc_amc",
               complete: true,
               mode: mode,
-              patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+              patient_id: <?php echo htmlspecialchars($pid, ENT_NOQUOTES); ?>,
               object_category: "form_encounter",
-              object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+              object_id: <?php echo htmlspecialchars($encounter, ENT_NOQUOTES); ?>
             }
         );
     });
@@ -227,9 +227,9 @@ jQuery(document).ready( function($) {
                 { amc_id: "med_reconc_amc",
                 complete: true,
                 mode: mode,
-                patient_id: <?php echo htmlspecialchars($pid,ENT_NOQUOTES); ?>,
+                patient_id: <?php echo htmlspecialchars($pid, ENT_NOQUOTES); ?>,
                 object_category: "form_encounter",
-                object_id: <?php echo htmlspecialchars($encounter,ENT_NOQUOTES); ?>
+                object_id: <?php echo htmlspecialchars($encounter, ENT_NOQUOTES); ?>
                 }
         );
     });
@@ -297,7 +297,7 @@ function expandcollapse(atr){
                 if (typeof(ele) != 'undefined' && ele != null)
                     ele.style.display = "block";
                 if (typeof(text) != 'undefined' && text != null)
-                    text.innerHTML = "<?php xl('Collapse','e'); ?>";
+                    text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
         }
     }
     else {
@@ -307,7 +307,7 @@ function expandcollapse(atr){
                 if (typeof(ele) != 'undefined' && ele != null)
                     ele.style.display = "none";
                 if (typeof(text) != 'undefined' && text != null)
-                    text.innerHTML = "<?php xl('Expand','e'); ?>";
+                    text.innerHTML = "<?php xl('Expand', 'e'); ?>";
         }
     }
 
@@ -318,11 +318,11 @@ function divtoggle(spanid, divid) {
     var text = document.getElementById(spanid);
     if(ele.style.display == "block") {
         ele.style.display = "none";
-        text.innerHTML = "<?php xl('Expand','e'); ?>";
+        text.innerHTML = "<?php xl('Expand', 'e'); ?>";
     }
     else {
         ele.style.display = "block";
-        text.innerHTML = "<?php xl('Collapse','e'); ?>";
+        text.innerHTML = "<?php xl('Collapse', 'e'); ?>";
     }
 }
 </script>
@@ -539,15 +539,15 @@ if (!empty($reg)) {
             $new_category = trim($entry['category']);
             $new_nickname = trim($entry['nickname']);
             if ($new_category == '') {
-                $new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);
+                $new_category = htmlspecialchars(xl('Miscellaneous'), ENT_QUOTES);
             }else{
-                $new_category = htmlspecialchars(xl($new_category),ENT_QUOTES);
+                $new_category = htmlspecialchars(xl($new_category), ENT_QUOTES);
             }
             if ($new_nickname != '') {$nickname = $new_nickname;}
             else {$nickname = $entry['name'];}
             if ($old_category != $new_category) {
                 $new_category_ = $new_category;
-                $new_category_ = str_replace(' ','_',$new_category_);
+                $new_category_ = str_replace(' ', '_', $new_category_);
                 if ($old_category != '') {$StringEcho.= "</table></div></li>";}
                 $StringEcho.= "<li class=\"encounter-form-category-li\"><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
                 $old_category = $new_category;
@@ -648,7 +648,7 @@ if($StringEcho){
 
 <?php
 $dateres = getEncounterDateByEncounter($encounter);
-$encounter_date = date("Y-m-d",strtotime($dateres["date"]));
+$encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 $providerIDres = getProviderIdOfEncounter($encounter);
 $providerNameRes = getProviderName($providerIDres);
 ?>
@@ -665,7 +665,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo htmlspecialchars( xl('for','',' ',' ') . $result['fname'] . " " . $result['lname'] );
+    echo htmlspecialchars( xl('for', '', ' ', ' ') . $result['fname'] . " " . $result['lname'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
@@ -681,7 +681,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
-    echo htmlspecialchars( xl('for ','',' ',' ') . $result['group_name'] );
+    echo htmlspecialchars( xl('for ', '', ' ', ' ') . $result['group_name'] );
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
@@ -705,8 +705,8 @@ if ( $esign->isButtonViewable() ) {
 <?php if (acl_check('admin', 'super')) { ?>
     <a href='toggledivs(this.id,this.id);' class='css_button' onclick='return deleteme()'><span><?php echo xl('Delete') ?></span></a>
 <?php } ?>
-&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All','e'); ?></a>
-&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All','e'); ?></a>
+&nbsp;&nbsp;&nbsp;<a href="#" onClick='expandcollapse("expand");' style="font-size:80%;"><?php xl('Expand All', 'e'); ?></a>
+&nbsp;&nbsp;&nbsp;<a  style="font-size:80%;" href="#" onClick='expandcollapse("collapse");'><?php xl('Collapse All', 'e'); ?></a>
 </div>
 </div>
 
@@ -829,7 +829,7 @@ if ( $esign->isButtonViewable() ) {
 <!-- Get the documents tagged to this encounter and display the links and notes as the tooltip -->
 <?php
 if($attendant_type == 'pid'){
-    $docs_list = getDocumentsByEncounter($pid,$_SESSION['encounter']);
+    $docs_list = getDocumentsByEncounter($pid, $_SESSION['encounter']);
 } else {
     // already doesn't exist document for therapy groups
     $docs_list = array();
@@ -845,11 +845,11 @@ foreach ($docs_list as $doc_iter) {
     // Get notes for this document.
     $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
-    $noteData = sqlQuery($queryString,array($doc_iter[id]));
+    $noteData = sqlQuery($queryString, array($doc_iter[id]));
     $note = '';
     if ( $noteData ) {
         $notes = array();
-        $notes = explode("|",$noteData['docNotes']);
+        $notes = explode("|", $noteData['docNotes']);
         $dates = explode("|", $noteData['docDates']);
         for ( $i = 0 ; $i < count($notes) ; $i++ )
             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
@@ -878,7 +878,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
 
         $aco_spec = false;
 
-        if (substr($formdir,0,3) == 'LBF') {
+        if (substr($formdir, 0, 3) == 'LBF') {
           // Skip LBF forms that we are not authorized to see.
             $lrow = sqlQuery("SELECT * FROM list_options WHERE " .
             "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
@@ -901,7 +901,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         }
 
         // $form_info = getFormInfoById($iter['id']);
-        if (strtolower(substr($iter['form_name'],0,5)) == 'camos') {
+        if (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') {
             //CAMOS generates links from report.php and these links should
             //be clickable without causing view.php to come up unexpectedly.
             //I feel that the JQuery code in this file leading to a click
@@ -917,7 +917,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
                   'id="'.$formdir.'~'.$iter['form_id'].'" class="text onerow">';
         }
 
-        $acl_groups = acl_check("groups","glog",false, 'write') ? true : false;
+        $acl_groups = acl_check("groups", "glog", false, 'write') ? true : false;
         $user = getNameFromUsername($iter['user']);
 
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
@@ -933,8 +933,8 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         if ($esign->isLocked()) {
                  echo "<a href=# class='css_button_small form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><span>" . xlt('Locked') . "</span></a>";
         } else {
-            if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write') and $is_group == 0)
-            or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) and $is_group and acl_check("groups","glog",false, 'write')))) {
+            if ((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0)
+            or (((!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and acl_check("groups", "glog", false, 'write')))) {
                 echo "<a class='css_button_small form-edit-button' id='form-edit-button-".attr($formdir)."-".attr($iter['id'])."' target='".
                     "_parent" .
                     "' href='$rootdir/patient_file/encounter/view_form.php?" .
@@ -944,8 +944,8 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
             }
         }
 
-        if ( ($esign->isButtonViewable() and $is_group == 0) or ($esign->isButtonViewable() and $is_group and acl_check("groups","glog",false, 'write'))) {
-            if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '' , 'write')) {
+        if ( ($esign->isButtonViewable() and $is_group == 0) or ($esign->isButtonViewable() and $is_group and acl_check("groups", "glog", false, 'write'))) {
+            if (!$aco_spec || acl_check($aco_spec[0], $aco_spec[1], '', 'write')) {
                 echo $esign->buttonHtml();
             }
         }
@@ -961,7 +961,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
                     "&pid=".$pid.
                     "' class='css_button_small' title='" . xl('Delete this form') . "' onclick='top.restoreSession()'><span>" . xl('Delete') . "</span></a>";
             } else {
-                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php xl('Delete','e'); ?></span></a><?php
+                ?><a href='javascript:;' class='css_button_small' style='color:gray'><span><?php xl('Delete', 'e'); ?></span></a><?php
             }
         }
 
@@ -985,7 +985,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         // Use the form's report.php for display.  Forms with names starting with LBF
         // are list-based forms sharing a single collection of code.
         //
-        if (substr($formdir,0,3) == 'LBF') {
+        if (substr($formdir, 0, 3) == 'LBF') {
             include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
 
             call_user_func("lbf_report", $attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);

@@ -32,7 +32,7 @@
 define('_PC_UPDATED', xl ('Your PostCalendar configuration has been updated.') );
 define('_PC_UPDATED_DEFAULTS', xl ('Your PostCalendar configuration has been reset to use defaults.') );
 define('_POSTCALENDAR', xl ('PostCalendar Administration') );
-define('_PC_ADMIN_GLOBAL_SETTINGS', xl ('PostCalendar Global Settings' , '', '<b>', '</b>') );
+define('_PC_ADMIN_GLOBAL_SETTINGS', xl ('PostCalendar Global Settings', '', '<b>', '</b>') );
 define('_PC_ADMIN_CATEGORY_SETTINGS', xl ('PostCalendar Category Settings', '', '<b>', '</b>') );
 define('_PC_APPROVED_ADMIN', xl ('Approved Events Administration') );
 define('_PC_HIDDEN_ADMIN', xl ('Hidden Events Administration') );
@@ -63,7 +63,7 @@ define('_PC_USE_JS_POPUPS', xl ('Show hovering event text on mouseover?') );
 define('_PC_ALLOW_DIRECT_SUBMIT', xl ('Allow submitted events to be made active instantly?') );
 define('_PC_ALLOW_SITEWIDE_SUBMIT', xl ('Allow users to publish Global Events') );
 define('_PC_ALLOW_USER_CALENDAR', xl ('Allow users to publish Personal Calendars') );
-define('_PC_SHOW_EVENTS_IN_YEAR',  xl ('Populate the year view with events?') . xl ('[not recommended]', '' , '<i>', '</i>') );
+define('_PC_SHOW_EVENTS_IN_YEAR', xl ('Populate the year view with events?') . xl ('[not recommended]', '', '<i>', '</i>') );
 define('_PC_NUM_COLS_IN_YEAR_VIEW', xl ('Number of columns in year view.') );
 define('_PC_UPGRADE_TABLES', xl ('Insert old events into tables') );
 define('_PC_LIST_HOW_MANY', xl ('Show how many events on admin pages?') );

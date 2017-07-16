@@ -335,7 +335,7 @@ function edih_835_accounting($segments, $delimiters)
                     $out['svc'][$j]['mod']  .= $svc[3] ? $svc[3] . ':' : '';
                     $out['svc'][$j]['mod']  .= $svc[4] ? $svc[4] . ':' : '';
                     $out['svc'][$j]['mod']  .= $svc[5] ? $svc[5] . ':' : '';
-                    $out['svc'][$j]['mod'] = preg_replace('/:$/','',$out['svc'][$j]['mod']);
+                    $out['svc'][$j]['mod'] = preg_replace('/:$/', '', $out['svc'][$j]['mod']);
                 }
                     $out['svc'][$j]['chg']  = $seg[2];
                     $out['svc'][$j]['paid'] = $seg[3];

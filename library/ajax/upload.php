@@ -38,6 +38,6 @@ if (!empty($_FILES)) {
     $size     = $_FILES['file']['size'];
     $owner    = $GLOBALS['userauthorized'];
 
-    addNewDocument($name,$type,$tmp_name,$error,$size,$owner,$patient_id,$category_id);
+    addNewDocument($name, $type, $tmp_name, $error, $size, $owner, $patient_id, $category_id);
 
 }

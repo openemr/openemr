@@ -1,5 +1,5 @@
 <?php
-@define('__POSTCALENDAR__','PostCalendar');
+@define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$
  *
@@ -49,7 +49,7 @@ function postcalendar_userapi_getLongDayName($args)
                          _CALLONGFIFTHDAY,
                          _CALLONGSIXTHDAY,
                          _CALLONGSEVENTHDAY);
-    return $pc_long_day[Date("w",$Date)];
+    return $pc_long_day[Date("w", $Date)];
 }
 
 /**
@@ -168,10 +168,10 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Let's just finish setting things up
         //=================================================================
-        $the_year   = substr($Date,0,4);
-        $the_month  = substr($Date,4,2);
-        $the_day    = substr($Date,6,2);
-        $last_day = Date_Calc::daysInMonth($the_month,$the_year);
+        $the_year   = substr($Date, 0, 4);
+        $the_month  = substr($Date, 4, 2);
+        $the_day    = substr($Date, 6, 2);
+        $last_day = Date_Calc::daysInMonth($the_month, $the_year);
 
         //=================================================================
         //  populate the template object with information for
@@ -202,9 +202,9 @@ function postcalendar_userapi_buildView($args)
         {
             case _IS_MONDAY:
                 $pc_array_pos = 1;
-                $first_day  = date('w',mktime(0,0,0,$the_month,0,$the_year));
-                $week_day   = date('w',mktime(0,0,0,$the_month,$the_day-1,$the_year));
-                $end_dow    = date('w',mktime(0,0,0,$the_month,$last_day,$the_year));
+                $first_day  = date('w', mktime(0, 0, 0, $the_month, 0, $the_year));
+                $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day-1, $the_year));
+                $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
                 if($end_dow != 0) {
                     $the_last_day = $last_day+(7-$end_dow);
                 } else {
@@ -213,9 +213,9 @@ function postcalendar_userapi_buildView($args)
                 break;
             case _IS_SATURDAY:
                 $pc_array_pos = 6;
-                $first_day  = date('w',mktime(0,0,0,$the_month,2,$the_year));
-                $week_day   = date('w',mktime(0,0,0,$the_month,$the_day+1,$the_year));
-                $end_dow    = date('w',mktime(0,0,0,$the_month,$last_day,$the_year));
+                $first_day  = date('w', mktime(0, 0, 0, $the_month, 2, $the_year));
+                $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day+1, $the_year));
+                $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
                 if($end_dow == 6) {
                     $the_last_day = $last_day+6;
                 } elseif($end_dow != 5) {
@@ -227,9 +227,9 @@ function postcalendar_userapi_buildView($args)
             case _IS_SUNDAY:
             default:
                 $pc_array_pos = 0;
-                $first_day  = date('w',mktime(0,0,0,$the_month,1,$the_year));
-                $week_day   = date('w',mktime(0,0,0,$the_month,$the_day,$the_year));
-                $end_dow    = date('w',mktime(0,0,0,$the_month,$last_day,$the_year));
+                $first_day  = date('w', mktime(0, 0, 0, $the_month, 1, $the_year));
+                $week_day   = date('w', mktime(0, 0, 0, $the_month, $the_day, $the_year));
+                $end_dow    = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
                 if($end_dow != 6) {
                     $the_last_day = $last_day+(6-$end_dow);
                 } else {
@@ -239,7 +239,7 @@ function postcalendar_userapi_buildView($args)
         }
 
         // passing the times array to the tpl the times array is for the days schedule
-        $tpl->assign_by_ref("times",$times);
+        $tpl->assign_by_ref("times", $times);
         // load the table width to the template
         // $tpl->assign("day_td_width",$GLOBALS['day_view_td_width']);
 
@@ -250,25 +250,25 @@ function postcalendar_userapi_buildView($args)
         //  seven day period, based on the day of the week the
         //  calendar is setup to run under (Sunday, Saturday, Monday)
         //=================================================================
-        $first_day_of_week = sprintf('%02d',$the_day-$week_day);
-        $week_first_day = date('m/d/Y',mktime(0,0,0,$the_month,$first_day_of_week,$the_year));
-        list($week_first_day_month, $week_first_day_date, $week_first_day_year) = explode('/',$week_first_day);
+        $first_day_of_week = sprintf('%02d', $the_day-$week_day);
+        $week_first_day = date('m/d/Y', mktime(0, 0, 0, $the_month, $first_day_of_week, $the_year));
+        list($week_first_day_month, $week_first_day_date, $week_first_day_year) = explode('/', $week_first_day);
         $week_first_day_month_name = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getmonthname',
-            array('Date'=>mktime(0,0,0,$week_first_day_month,$week_first_day_date,$week_first_day_year)));
-        $week_last_day = date('m/d/Y',mktime(0,0,0,$the_month,$first_day_of_week+6,$the_year));
-        list($week_last_day_month, $week_last_day_date, $week_last_day_year) = explode('/',$week_last_day);
+            array('Date'=>mktime(0, 0, 0, $week_first_day_month, $week_first_day_date, $week_first_day_year)));
+        $week_last_day = date('m/d/Y', mktime(0, 0, 0, $the_month, $first_day_of_week+6, $the_year));
+        list($week_last_day_month, $week_last_day_date, $week_last_day_year) = explode('/', $week_last_day);
         $week_last_day_month_name = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getmonthname',
-            array('Date'=>mktime(0,0,0,$week_last_day_month,$week_last_day_date,$week_last_day_year)));
+            array('Date'=>mktime(0, 0, 0, $week_last_day_month, $week_last_day_date, $week_last_day_year)));
 
-        $week_view_start = date('Y-m-d',mktime(0,0,0,$the_month,$first_day_of_week,$the_year));
-        $week_view_end = date('Y-m-d',mktime(0,0,0,$the_month,$first_day_of_week+6,$the_year));
+        $week_view_start = date('Y-m-d', mktime(0, 0, 0, $the_month, $first_day_of_week, $the_year));
+        $week_view_end = date('Y-m-d', mktime(0, 0, 0, $the_month, $first_day_of_week+6, $the_year));
 
         //=================================================================
         //  Setup some information so we know the actual month's dates
         //  also get today's date for later use and highlighting
         //=================================================================
-        $month_view_start = date('Y-m-d',mktime(0,0,0,$the_month,1,$the_year));
-        $month_view_end   = date('Y-m-t',mktime(0,0,0,$the_month,1,$the_year));
+        $month_view_start = date('Y-m-d', mktime(0, 0, 0, $the_month, 1, $the_year));
+        $month_view_end   = date('Y-m-t', mktime(0, 0, 0, $the_month, 1, $the_year));
         $today_date = postcalendar_today('%Y-%m-%d');
 
         //=================================================================
@@ -276,8 +276,8 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         switch($viewtype) {
             case 'day' :
-                $starting_date = date('m/d/Y',mktime(0,0,0,$the_month,$the_day,$the_year));
-                $ending_date   = date('m/d/Y',mktime(0,0,0,$the_month,$the_day,$the_year));
+                $starting_date = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_day, $the_year));
+                $ending_date   = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_day, $the_year));
                 break;
             case 'week' :
                 $starting_date = "$week_first_day_month/$week_first_day_date/$week_first_day_year";
@@ -288,13 +288,13 @@ function postcalendar_userapi_buildView($args)
                     '%Y-%m-%d');
                 break;
             case 'month' :
-                $starting_date = date('m/d/Y',mktime(0,0,0,$the_month,1-$first_day,$the_year));
-                $ending_date   = date('m/d/Y',mktime(0,0,0,$the_month,$the_last_day,$the_year));
+                $starting_date = date('m/d/Y', mktime(0, 0, 0, $the_month, 1-$first_day, $the_year));
+                $ending_date   = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_last_day, $the_year));
                 $calendarView  = Date_Calc::getCalendarMonth($the_month, $the_year, '%Y-%m-%d');
                 break;
             case 'year' :
-                $starting_date = date('m/d/Y',mktime(0,0,0,1,1,$the_year));
-                $ending_date   = date('m/d/Y',mktime(0,0,0,1,1,$the_year+1));
+                $starting_date = date('m/d/Y', mktime(0, 0, 0, 1, 1, $the_year));
+                $ending_date   = date('m/d/Y', mktime(0, 0, 0, 1, 1, $the_year+1));
                 $calendarView  = Date_Calc::getCalendarYear($the_year, '%Y-%m-%d');
                 break;
         }
@@ -324,15 +324,15 @@ function postcalendar_userapi_buildView($args)
             if(is_array($pc_username)){
                 foreach($pc_username as $uname) {
                     if (!empty($pc_username) && $provider['username'] == $uname) {
-                        array_push($single,$provider);
-                        array_push($provIDs,$provider['id']);
+                        array_push($single, $provider);
+                        array_push($provIDs, $provider['id']);
                     }
                 }
             }
             else {
                 if (!empty($pc_username) && $provider['username'] == $pc_username) {
-                    array_push($single,$provider);
-                    array_push($provIDs,$provider['id']);
+                    array_push($single, $provider);
+                    array_push($provIDs, $provider['id']);
                 }
             }
         }
@@ -359,7 +359,7 @@ function postcalendar_userapi_buildView($args)
             if($pc_array_pos >= $numDays) {
                 $pc_array_pos = 0;
             }
-            array_push($daynames,$pc_long_day_names[$pc_array_pos]);
+            array_push($daynames, $pc_long_day_names[$pc_array_pos]);
             $pc_array_pos++;
         }
         unset($numDays);
@@ -369,7 +369,7 @@ function postcalendar_userapi_buildView($args)
             if($pc_array_pos >= $numDays) {
                 $pc_array_pos = 0;
             }
-            array_push($sdaynames,$pc_short_day_names[$pc_array_pos]);
+            array_push($sdaynames, $pc_short_day_names[$pc_array_pos]);
             $pc_array_pos++;
         }
         unset($numDays);
@@ -377,10 +377,10 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Prepare some values for the template
         //=================================================================
-        $prev_month = Date_Calc::beginOfPrevMonth(1,$the_month,$the_year,'%Y%m%d');
-        $next_month = Date_Calc::beginOfNextMonth(1,$the_month,$the_year,'%Y%m%d');
+        $prev_month = Date_Calc::beginOfPrevMonth(1, $the_month, $the_year, '%Y%m%d');
+        $next_month = Date_Calc::beginOfNextMonth(1, $the_month, $the_year, '%Y%m%d');
 
-        $pc_prev = pnModURL(__POSTCALENDAR__,'user','view',
+        $pc_prev = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('tplview'=>$template_view,
             'viewtype'=>'month',
             'Date'=>$prev_month,
@@ -388,7 +388,7 @@ function postcalendar_userapi_buildView($args)
             'pc_category'=>$category,
             'pc_topic'=>$topic));
 
-        $pc_next = pnModURL(__POSTCALENDAR__,'user','view',
+        $pc_next = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('tplview'=>$template_view,
             'viewtype'=>'month',
             'Date'=>$next_month,
@@ -396,9 +396,9 @@ function postcalendar_userapi_buildView($args)
             'pc_category'=>$category,
             'pc_topic'=>$topic));
 
-        $prev_day = Date_Calc::prevDay($the_day,$the_month,$the_year,'%Y%m%d');
-        $next_day = Date_Calc::nextDay($the_day,$the_month,$the_year,'%Y%m%d');
-        $pc_prev_day = pnModURL(__POSTCALENDAR__,'user','view',
+        $prev_day = Date_Calc::prevDay($the_day, $the_month, $the_year, '%Y%m%d');
+        $next_day = Date_Calc::nextDay($the_day, $the_month, $the_year, '%Y%m%d');
+        $pc_prev_day = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('tplview'=>$template_view,
             'viewtype'=>'day',
             'Date'=>$prev_day,
@@ -406,7 +406,7 @@ function postcalendar_userapi_buildView($args)
             'pc_category'=>$category,
             'pc_topic'=>$topic));
 
-        $pc_next_day = pnModURL(__POSTCALENDAR__,'user','view',
+        $pc_next_day = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('tplview'=>$template_view,
             'viewtype'=>'day',
             'Date'=>$next_day,
@@ -414,30 +414,30 @@ function postcalendar_userapi_buildView($args)
             'pc_category'=>$category,
             'pc_topic'=>$topic));
 
-        $prev_week = date('Ymd',mktime(0,0,0,$week_first_day_month,$week_first_day_date-7,$week_first_day_year));
-        $next_week = date('Ymd',mktime(0,0,0,$week_last_day_month,$week_last_day_date+1,$week_last_day_year));
-        $pc_prev_week = pnModURL(__POSTCALENDAR__,'user','view',
+        $prev_week = date('Ymd', mktime(0, 0, 0, $week_first_day_month, $week_first_day_date-7, $week_first_day_year));
+        $next_week = date('Ymd', mktime(0, 0, 0, $week_last_day_month, $week_last_day_date+1, $week_last_day_year));
+        $pc_prev_week = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('viewtype'=>'week',
             'Date'=>$prev_week,
             'pc_username'=>$pc_username,
             'pc_category'=>$category,
             'pc_topic'=>$topic));
-        $pc_next_week = pnModURL(__POSTCALENDAR__,'user','view',
+        $pc_next_week = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('viewtype'=>'week',
             'Date'=>$next_week,
             'pc_username'=>$pc_username,
             'pc_category'=>$category,
             'pc_topic'=>$topic));
 
-        $prev_year = date('Ymd',mktime(0,0,0,1,1,$the_year-1));
-        $next_year = date('Ymd',mktime(0,0,0,1,1,$the_year+1));
-        $pc_prev_year = pnModURL(__POSTCALENDAR__,'user','view',
+        $prev_year = date('Ymd', mktime(0, 0, 0, 1, 1, $the_year-1));
+        $next_year = date('Ymd', mktime(0, 0, 0, 1, 1, $the_year+1));
+        $pc_prev_year = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('viewtype'=>'year',
             'Date'=>$prev_year,
             'pc_username'=>$pc_username,
             'pc_category'=>$category,
             'pc_topic'=>$topic));
-        $pc_next_year = pnModURL(__POSTCALENDAR__,'user','view',
+        $pc_next_year = pnModURL(__POSTCALENDAR__, 'user', 'view',
             array('viewtype'=>'year',
             'Date'=>$next_year,
             'pc_username'=>$pc_username,
@@ -447,10 +447,10 @@ function postcalendar_userapi_buildView($args)
         //=================================================================
         //  Populate the template
         //=================================================================
-        $all_categories = pnModAPIFunc(__POSTCALENDAR__,'user','getCategories');
+        $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
 
         if(isset($calendarView)) {
-            $tpl->assign_by_ref('CAL_FORMAT',$calendarView);
+            $tpl->assign_by_ref('CAL_FORMAT', $calendarView);
         }
         
         if ($viewtype == "week") {
@@ -465,44 +465,44 @@ function postcalendar_userapi_buildView($args)
                     }
                 }
             }
-            $tpl->assign("last_blocks",$last_blocks);
+            $tpl->assign("last_blocks", $last_blocks);
         }
 
-        $tpl->assign('STYLE',$GLOBALS['style']);
-        $tpl->assign('show_days',$show_days);
+        $tpl->assign('STYLE', $GLOBALS['style']);
+        $tpl->assign('show_days', $show_days);
 
         //$provinfo[count($provinfo) +1] = array("id" => "","lname" => "Other");
         $tpl->assign_by_ref('providers', $provinfo);
 
         if (pnVarCleanFromInput("show_days") != 1) {
-            $tpl->assign('showdaysurl',"index.php?" . $_SERVER['QUERY_STRING'] . "&show_days=1");
+            $tpl->assign('showdaysurl', "index.php?" . $_SERVER['QUERY_STRING'] . "&show_days=1");
         }
 
         $tpl->assign('interval', $GLOBALS['calendar_interval']);
-        $tpl->assign_by_ref('VIEW_TYPE',$viewtype);
-        $tpl->assign_by_ref('A_MONTH_NAMES',$pc_month_names);
-        $tpl->assign_by_ref('A_LONG_DAY_NAMES',$pc_long_day_names);
-        $tpl->assign_by_ref('A_SHORT_DAY_NAMES',$pc_short_day_names);
-        $tpl->assign_by_ref('S_LONG_DAY_NAMES',$daynames);
-        $tpl->assign_by_ref('S_SHORT_DAY_NAMES',$sdaynames);
-        $tpl->assign_by_ref('A_EVENTS',$eventsByDate);
-        $tpl->assign_by_ref('A_CATEGORY',$all_categories);
-        $tpl->assign_by_ref('PREV_MONTH_URL',$pc_prev);
-        $tpl->assign_by_ref('NEXT_MONTH_URL',$pc_next);
-        $tpl->assign_by_ref('PREV_DAY_URL',$pc_prev_day);
-        $tpl->assign_by_ref('NEXT_DAY_URL',$pc_next_day);
-        $tpl->assign_by_ref('PREV_WEEK_URL',$pc_prev_week);
-        $tpl->assign_by_ref('NEXT_WEEK_URL',$pc_next_week);
-        $tpl->assign_by_ref('PREV_YEAR_URL',$pc_prev_year);
-        $tpl->assign_by_ref('NEXT_YEAR_URL',$pc_next_year);
-        $tpl->assign_by_ref('WEEK_START_DATE',$week_view_start);
-        $tpl->assign_by_ref('WEEK_END_DATE',$week_view_end);
-        $tpl->assign_by_ref('MONTH_START_DATE',$month_view_start);
-        $tpl->assign_by_ref('MONTH_END_DATE',$month_view_end);
-        $tpl->assign_by_ref('TODAY_DATE',$today_date);
-        $tpl->assign_by_ref('DATE',$Date);
-        $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__,'user','submit'));
-        $tpl->assign_by_ref('intervals',$intervals);
+        $tpl->assign_by_ref('VIEW_TYPE', $viewtype);
+        $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
+        $tpl->assign_by_ref('A_LONG_DAY_NAMES', $pc_long_day_names);
+        $tpl->assign_by_ref('A_SHORT_DAY_NAMES', $pc_short_day_names);
+        $tpl->assign_by_ref('S_LONG_DAY_NAMES', $daynames);
+        $tpl->assign_by_ref('S_SHORT_DAY_NAMES', $sdaynames);
+        $tpl->assign_by_ref('A_EVENTS', $eventsByDate);
+        $tpl->assign_by_ref('A_CATEGORY', $all_categories);
+        $tpl->assign_by_ref('PREV_MONTH_URL', $pc_prev);
+        $tpl->assign_by_ref('NEXT_MONTH_URL', $pc_next);
+        $tpl->assign_by_ref('PREV_DAY_URL', $pc_prev_day);
+        $tpl->assign_by_ref('NEXT_DAY_URL', $pc_next_day);
+        $tpl->assign_by_ref('PREV_WEEK_URL', $pc_prev_week);
+        $tpl->assign_by_ref('NEXT_WEEK_URL', $pc_next_week);
+        $tpl->assign_by_ref('PREV_YEAR_URL', $pc_prev_year);
+        $tpl->assign_by_ref('NEXT_YEAR_URL', $pc_next_year);
+        $tpl->assign_by_ref('WEEK_START_DATE', $week_view_start);
+        $tpl->assign_by_ref('WEEK_END_DATE', $week_view_end);
+        $tpl->assign_by_ref('MONTH_START_DATE', $month_view_start);
+        $tpl->assign_by_ref('MONTH_END_DATE', $month_view_end);
+        $tpl->assign_by_ref('TODAY_DATE', $today_date);
+        $tpl->assign_by_ref('DATE', $Date);
+        $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__, 'user', 'submit'));
+        $tpl->assign_by_ref('intervals', $intervals);
     };
 
     //=================================================================
@@ -511,7 +511,7 @@ function postcalendar_userapi_buildView($args)
     $template = "$template_name/views/$viewtype/$template_view_load.html";
     if(!$print) {
             $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-            $output .= $tpl->fetch($template,$cacheid);    // cache id
+            $output .= $tpl->fetch($template, $cacheid);    // cache id
             $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
     } else {
             $theme = pnUserGetTheme();
@@ -522,7 +522,7 @@ function postcalendar_userapi_buildView($args)
             echo "</style>\n";
             echo "</head><body>\n";
             echo $output;
-            $tpl->display($template,$cacheid);
+            $tpl->display($template, $cacheid);
             echo postcalendar_footer();
             echo "\n</body></html>";
             session_write_close();
@@ -558,12 +558,12 @@ function postcalendar_userapi_eventPreview($args)
     $tpl = new pcSmarty();
     $tpl->caching = false;
     // add preceding zeros
-    $event_starttimeh   = sprintf('%02d',$event_starttimeh);
-    $event_starttimem   = sprintf('%02d',$event_starttimem);
-    $event_startday     = sprintf('%02d',$event_startday);
-    $event_startmonth   = sprintf('%02d',$event_startmonth);
-    $event_endday       = sprintf('%02d',$event_endday);
-    $event_endmonth     = sprintf('%02d',$event_endmonth);
+    $event_starttimeh   = sprintf('%02d', $event_starttimeh);
+    $event_starttimem   = sprintf('%02d', $event_starttimem);
+    $event_startday     = sprintf('%02d', $event_startday);
+    $event_startmonth   = sprintf('%02d', $event_startmonth);
+    $event_endday       = sprintf('%02d', $event_endday);
+    $event_endmonth     = sprintf('%02d', $event_endmonth);
 
     if(!(bool)_SETTING_TIME_24HOUR) {
         if($event_startampm == _PM_VAL) {
@@ -646,18 +646,18 @@ function postcalendar_userapi_eventPreview($args)
     if(!empty($event['location']) || !empty($event['street1']) ||
        !empty($event['street2']) || !empty($event['city']) ||
        !empty($event['state']) || !empty($event['postal'])) {
-        $tpl->assign('LOCATION_INFO',true);
+        $tpl->assign('LOCATION_INFO', true);
     } else {
-        $tpl->assign('LOCATION_INFO',false);
+        $tpl->assign('LOCATION_INFO', false);
     }
     if(!empty($event['contname']) || !empty($event['contemail']) ||
        !empty($event['conttel']) || !empty($event['website'])) {
-        $tpl->assign('CONTACT_INFO',true);
+        $tpl->assign('CONTACT_INFO', true);
     } else {
-        $tpl->assign('CONTACT_INFO',false);
+        $tpl->assign('CONTACT_INFO', false);
     }
-    $tpl->assign_by_ref('A_EVENT',$event);
-    $tpl->assign('STYLE',$GLOBALS['style']);
+    $tpl->assign_by_ref('A_EVENT', $event);
+    $tpl->assign('STYLE', $GLOBALS['style']);
     //=================================================================
     //  Parse the template
     //=================================================================
@@ -687,8 +687,8 @@ function checkEventCollision($edata)
     elseif ($event_startampm == 1 && $event_starttimeh == 12)
       $event_starttimeh -= 12;
 
-    $stime = date("H:i:00",strtotime($event_starttimeh.':'.$event_starttimem.':00'));
-    $etime = date("H:i:00",$event_duration + strtotime($stime));
+    $stime = date("H:i:00", strtotime($event_starttimeh.':'.$event_starttimem.':00'));
+    $etime = date("H:i:00", $event_duration + strtotime($stime));
     //echo "stime is: $stime, etime is: $etime sdate is: $sdate edate is: $edate<br />";
     $a = array('collideFlag' => true,'start'=>$edate,'end'=>$sdate, 'provider_id' => $event_userid, 'stime' => $stime, 'etime' => $etime);
     $eventsByDate =& postcalendar_userapi_pcGetEvents($a);
@@ -743,7 +743,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     $eventstatus = $event_status;
 
     if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
-    list($sy,$sm,$sd) = explode('-',$start);
+    list($sy,$sm,$sd) = explode('-', $start);
 
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -846,8 +846,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['eventDate']   = $tmp['eventDate'];
         $events[$i]['duration']    = $tmp['duration'];
         // there has to be a more intelligent way to do this
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
-        $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
+        @list($events[$i]['duration_hours'],$dmin) = @explode('.', ($tmp['duration']/60/60));
+        $events[$i]['duration_minutes'] = substr(sprintf('%.2f', '.' . 60*($dmin/100)), 2, 2);
         //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         $events[$i]['endDate']     = $tmp['endDate'];
         $events[$i]['startTime']   = $tmp['startTime'];
@@ -872,7 +872,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['provider_name'] = $tmp['provider_name'];
         $events[$i]['owner_name']  = $tmp['owner_name'];
         $events[$i]['patient_dob'] = $tmp['patient_dob'];
-        $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']),0,4);
+        $events[$i]['patient_age'] = date("Y") - substr(($tmp['patient_dob']), 0, 4);
         $events[$i]['facility']    = getfacility($tmp['facility']);
         $events[$i]['sharing']     = $tmp['sharing'];
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
@@ -898,13 +898,13 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
               $events[$i]['state']       = '';
               $events[$i]['postal']      = '';
         } else {
-              $display_type = substr($tmp['hometext'],0,6);
+              $display_type = substr($tmp['hometext'], 0, 6);
             if($display_type == ':text:') {
                 $prepFunction = 'pcVarPrepForDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'],6);
+                $tmp['hometext'] = substr($tmp['hometext'], 6);
             } elseif($display_type == ':html:') {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'],6);
+                $tmp['hometext'] = substr($tmp['hometext'], 6);
             } else {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
             }
@@ -974,7 +974,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // sanity check on eventstatus
     if((int)$eventstatus < -1 || (int)$eventstatus > 1) { $eventstatus = 1; }
     if(!isset($start)) { $start = Date_Calc::dateNow('%Y-%m-%d'); }
-    list($sy,$sm,$sd) = explode('-',$start);
+    list($sy,$sm,$sd) = explode('-', $start);
 
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -1138,8 +1138,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['eventDate']   = $tmp['eventDate'];
         $events[$i]['duration']    = $tmp['duration'];
         // there has to be a more intelligent way to do this
-        @list($events[$i]['duration_hours'],$dmin) = @explode('.',($tmp['duration']/60/60));
-        $events[$i]['duration_minutes'] = substr(sprintf('%.2f','.' . 60*($dmin/100)),2,2);
+        @list($events[$i]['duration_hours'],$dmin) = @explode('.', ($tmp['duration']/60/60));
+        $events[$i]['duration_minutes'] = substr(sprintf('%.2f', '.' . 60*($dmin/100)), 2, 2);
         //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
         $events[$i]['endDate']     = $tmp['endDate'];
         $events[$i]['startTime']   = $tmp['startTime'];
@@ -1186,13 +1186,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
               $events[$i]['state']       = '';
               $events[$i]['postal']      = '';
         } else {
-              $display_type = substr($tmp['hometext'],0,6);
+              $display_type = substr($tmp['hometext'], 0, 6);
             if($display_type == ':text:') {
                 $prepFunction = 'pcVarPrepForDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'],6);
+                $tmp['hometext'] = substr($tmp['hometext'], 6);
             } elseif($display_type == ':html:') {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
-                $tmp['hometext'] = substr($tmp['hometext'],6);
+                $tmp['hometext'] = substr($tmp['hometext'], 6);
             } else {
                 $prepFunction = 'pcVarPrepHTMLDisplay';
             }
@@ -1237,8 +1237,8 @@ function getBlockTime($time)
     }
     $ts = strtotime($time);
     $half = 0;
-    $minutes = date("i",$ts);
-    $hour = date("H",$ts);
+    $minutes = date("i", $ts);
+    $hour = date("H", $ts);
     if ($minutes >= 30)
         $half = 1;
     $blocknum = (($hour * 2) +$half);
@@ -1259,14 +1259,14 @@ function &postcalendar_userapi_pcGetEvents($args)
     extract($args);
     
     $date =postcalendar_getDate();
-    $cy = substr($date,0,4);
-    $cm = substr($date,4,2);
-    $cd = substr($date,6,2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
     if(isset($start) && isset($end)) {
         // parse start date
-        list($sm,$sd,$sy) = explode('/',$start);
+        list($sm,$sd,$sy) = explode('/', $start);
         // parse end date
-        list($em,$ed,$ey) = explode('/',$end);
+        list($em,$ed,$ey) = explode('/', $end);
 
         $s = (int) "$sy$sm$sd";
         if($s > $date) {
@@ -1274,8 +1274,8 @@ function &postcalendar_userapi_pcGetEvents($args)
             $cm = $sm;
             $cd = $sd;
         }
-        $start_date = Date_Calc::dateFormat($sd,$sm,$sy,'%Y-%m-%d');
-        $end_date = Date_Calc::dateFormat($ed,$em,$ey,'%Y-%m-%d');
+        $start_date = Date_Calc::dateFormat($sd, $sm, $sy, '%Y-%m-%d');
+        $end_date = Date_Calc::dateFormat($ed, $em, $ey, '%Y-%m-%d');
     } else {
         // missing start OR end date, set them to the current date
         $sm = $em = $cm;
@@ -1288,20 +1288,20 @@ function &postcalendar_userapi_pcGetEvents($args)
     
     if ($faFlag && !isset($events)) {
         $a = array('faFlag' => true,'start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, 'provider_id' => $provider_id, 'event_status' => $event_status);
-        $events = pnModAPIFunc(__POSTCALENDAR__,'user','<strong></strong>pcQueryEventsFA',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__, 'user', '<strong></strong>pcQueryEventsFA', $a);
     }
     elseif ($collideFlag && !isset($events)) {
         $a = array('collideFlag' => true,'start'=>$start_date,'end'=>$end_date, 'provider_id' => $provider_id, 'collide_stime' => $stime, 'collide_etime' => $etime);
-        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEventsFA',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEventsFA', $a);
     }
     elseif ($listappsFlag && !isset($events)) {
         $a = array('listappsFlag' => true,'start'=>$start_date,'end'=>$end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords);
-        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     }
     else if(!isset($events)) {
         if(!isset($s_keywords)) $s_keywords = '';
         $a = array('start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
-        $events = pnModAPIFunc(__POSTCALENDAR__,'user','pcQueryEvents',$a);
+        $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     }
 
     //==============================================================
@@ -1310,16 +1310,16 @@ function &postcalendar_userapi_pcGetEvents($args)
     //  used to build the calendar display.
     //==============================================================
     $days = array();
-    $sday = Date_Calc::dateToDays($sd,$sm,$sy);
-    $eday = Date_Calc::dateToDays($ed,$em,$ey);
+    $sday = Date_Calc::dateToDays($sd, $sm, $sy);
+    $eday = Date_Calc::dateToDays($ed, $em, $ey);
     for($cday = $sday; $cday <= $eday; $cday++) {
-        $d = Date_Calc::daysToDate($cday,'%d');
-        $m = Date_Calc::daysToDate($cday,'%m');
-        $y = Date_Calc::daysToDate($cday,'%Y');
-        $store_date = Date_Calc::dateFormat($d,$m,$y,'%Y-%m-%d');
+        $d = Date_Calc::daysToDate($cday, '%d');
+        $m = Date_Calc::daysToDate($cday, '%m');
+        $y = Date_Calc::daysToDate($cday, '%Y');
+        $store_date = Date_Calc::dateFormat($d, $m, $y, '%Y-%m-%d');
         $days[$store_date] = array();
     }
-    $days = calculateEvents($days,$events,$viewtype);
+    $days = calculateEvents($days, $events, $viewtype);
     return $days;
 }
 
@@ -1331,9 +1331,9 @@ function calculateEvents($days, $events, $viewtype)
 {
   //
     $date =postcalendar_getDate();
-    $cy = substr($date,0,4);
-    $cm = substr($date,4,2);
-    $cd = substr($date,6,2);
+    $cy = substr($date, 0, 4);
+    $cm = substr($date, 4, 2);
+    $cd = substr($date, 6, 2);
 
   // here the start_date value is set to whatever comes in
   // on postcalendar_getDate() which is not always the first
@@ -1372,10 +1372,10 @@ function calculateEvents($days, $events, $viewtype)
             case NO_REPEAT :
 
                 if(isset($days[$event['eventDate']])) {
-                    array_push($days[$event['eventDate']],$event);
+                    array_push($days[$event['eventDate']], $event);
                     if ($viewtype == "week") {
                         //echo "non repeating date eventdate: $eventD  startime:$eventS block #: " . getBlockTime($eventS) ."<br />";
-                        fillBlocks($eventD,$days);
+                        fillBlocks($eventD, $days);
                         //echo "for $eventD loading " . getBlockTime($eventS) . "<br /><br />";
                         $gbt = getBlockTime($eventS);
                         $days[$eventD]['blocks'][$gbt][$eventD][] = $event;
@@ -1400,7 +1400,7 @@ function calculateEvents($days, $events, $viewtype)
                 if($last_date > $event['endDate']) $stop = $event['endDate'];
                 else $stop = $last_date;
 
-                list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+                list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
 
                 $rfreq = $event_recurrspec['event_repeat_freq'];
@@ -1412,10 +1412,10 @@ function calculateEvents($days, $events, $viewtype)
                 $nm = $esM;
                 $ny = $esY;
                 $nd = $esD;
-                $occurance = Date_Calc::dateFormat($nd,$nm,$ny,'%Y-%m-%d');
+                $occurance = Date_Calc::dateFormat($nd, $nm, $ny, '%Y-%m-%d');
                 while($occurance < $start_date) {
-                    $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurance);
                 }
                 while($occurance <= $stop) {
                     if(isset($days[$occurance])) {
@@ -1432,7 +1432,7 @@ function calculateEvents($days, $events, $viewtype)
                         }
 
                         // push event into the days array
-                        if ($excluded == false) array_push($days[$occurance],$event);
+                        if ($excluded == false) array_push($days[$occurance], $event);
 
                         if ($viewtype == "week") {
                             fillBlocks($occurance, $days);
@@ -1444,8 +1444,8 @@ function calculateEvents($days, $events, $viewtype)
                             //echo "end printing blocks<br />";
                         }
                     }
-                    $occurance =& __increment($nd,$nm,$ny,$rfreq,$rtype);
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
+                    list($ny,$nm,$nd) = explode('-', $occurance);
                 }
               break;
 
@@ -1461,7 +1461,7 @@ function calculateEvents($days, $events, $viewtype)
                 if($last_date > $event['endDate']) $stop = $event['endDate'];
                 else $stop = $last_date;
 
-                list($esY,$esM,$esD) = explode('-',$event['eventDate']);
+                list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
@@ -1484,15 +1484,15 @@ function calculateEvents($days, $events, $viewtype)
 
                 // make us current
                 while($ny < $cy) {
-                    $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occurance);
                 }
 
                 // populate the event array
                 while($ny <= $cy) {
                     $dnum = $rnum; // get day event repeats on
                     do {
-                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--,$rday,$nm,$ny,$format="%Y-%m-%d");
+                        $occurance = Date_Calc::NWeekdayOfMonth($dnum--, $rday, $nm, $ny, $format = "%Y-%m-%d");
                     } while($occurance === -1);
 
                     if(isset($days[$occurance]) && $occurance <= $stop) {
@@ -1509,17 +1509,17 @@ function calculateEvents($days, $events, $viewtype)
                         }
 
                         // push event into the days array
-                        if ($excluded == false) array_push($days[$occurance],$event);
+                        if ($excluded == false) array_push($days[$occurance], $event);
 
                         if ($viewtype == "week") {
-                            fillBlocks($occurance,$days);
+                            fillBlocks($occurance, $days);
                             //echo "for $occurance loading " . getBlockTime($eventS) . "<br /><br />";
                             $gbt = getBlockTime($eventS);
                             $days[$occurance]['blocks'][$gbt][$occurance][] = $event;
                         }
                     }
-                    $occurance = date('Y-m-d',mktime(0,0,0,$nm+$rfreq,$nd,$ny));
-                    list($ny,$nm,$nd) = explode('-',$occurance);
+                    $occurance = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    list($ny,$nm,$nd) = explode('-', $occurance);
                 }
               break;
 

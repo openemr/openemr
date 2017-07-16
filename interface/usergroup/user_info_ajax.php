@@ -43,7 +43,7 @@ if($newPass!=$newPass2)
     exit;
 }
 $errMsg='';
-$success=update_password($_SESSION['authId'],$_SESSION['authId'],$curPass,$newPass,$errMsg);
+$success=update_password($_SESSION['authId'], $_SESSION['authId'], $curPass, $newPass, $errMsg);
 if($success)
 {
     echo xlt("Password change successful");

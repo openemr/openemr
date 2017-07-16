@@ -61,10 +61,10 @@ if ($_POST['embeddedScreen']) {
     $widgetButtonClass = '';
     $bodyClass = "summary_item small";
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink,
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink,
     $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
-      $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'",array($pid));
+      $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
 ?>
         <table>
 <?php
@@ -76,18 +76,18 @@ if (sqlNumRows($res) == 0) {
 <?php
 }
 while($row_currentMed=sqlFetchArray($res)) {
-    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'),htmlspecialchars($row_currentMed['unit'],ENT_NOQUOTES));
-    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'),htmlspecialchars($row_currentMed['form'],ENT_NOQUOTES));
-    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),htmlspecialchars($row_currentMed['route'],ENT_NOQUOTES));
-    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),htmlspecialchars($row_currentMed['interval'],ENT_NOQUOTES));
+    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), htmlspecialchars($row_currentMed['unit'], ENT_NOQUOTES));
+    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), htmlspecialchars($row_currentMed['form'], ENT_NOQUOTES));
+    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), htmlspecialchars($row_currentMed['route'], ENT_NOQUOTES));
+    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), htmlspecialchars($row_currentMed['interval'], ENT_NOQUOTES));
 ?>
   <tr class=text >
-<td><?php echo htmlspecialchars($row_currentMed['drug'],ENT_NOQUOTES);?></td>
+<td><?php echo htmlspecialchars($row_currentMed['drug'], ENT_NOQUOTES);?></td>
 <td><?php
         $unit='';
         if($row_currentMed['size'] > 0)
     $unit=$row_currentMed['size']." ".$runit." ";
-        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);
+        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);
 ?></td>
   </tr>
 <?php
@@ -132,15 +132,15 @@ while($row_currentMed=sqlFetchArray($res)) {
             $bodyClass = "summary_item small";
             $widgetAuth = acl_check_issue($key, '', array('write', 'addonly'));
             $fixedWidth = false;
-            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         } // end embeddedScreen
         else {
         ?>
             <tr class='issuetitle'>
             <td colspan='$numcols'>
-            <span class="text"><b><?php echo htmlspecialchars($arr[0],ENT_NOQUOTES); ?></b></span>
+            <span class="text"><b><?php echo htmlspecialchars($arr[0], ENT_NOQUOTES); ?></b></span>
             <a href="javascript:;" class="small" onclick="load_location('stats_full.php?active=all&category=" . $key . "')">
-            (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES); ?></b>)
+            (<b><?php echo htmlspecialchars(xl('Manage'), ENT_NOQUOTES); ?></b>)
             </a>
             </td>
             </tr>
@@ -148,7 +148,7 @@ while($row_currentMed=sqlFetchArray($res)) {
         }
         echo "<table>";
         if (sqlNumRows($pres) == 0) {
-            if ( getListTouch($pid,$key) ) {
+            if ( getListTouch($pid, $key) ) {
                 // Data entry has happened to this type, so can display an explicit None.
                 echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td></tr>\n";
             }
@@ -177,7 +177,7 @@ while($row_currentMed=sqlFetchArray($res)) {
                 echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars( $row['title'] . $reaction, ENT_NOQUOTES) . "</td>\n";
             }
             else {
-                echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+                echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
             }
 
             echo " </tr>\n";
@@ -219,9 +219,9 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
             echo "  <td colspan='$numcols'>&nbsp;&nbsp;";
             echo "<a class='link' href='javascript:;' ";
             echo "onclick='load_location(\"../../forms/$formname/new.php?popup=1&id=";
-            echo htmlspecialchars($row['id'],ENT_QUOTES) . "\")'>" .
-            htmlspecialchars($start_date,ENT_NOQUOTES) . " " .
-            htmlspecialchars($template_name,ENT_NOQUOTES) . "</a></td>\n";
+            echo htmlspecialchars($row['id'], ENT_QUOTES) . "\")'>" .
+            htmlspecialchars($start_date, ENT_NOQUOTES) . " " .
+            htmlspecialchars($template_name, ENT_NOQUOTES) . "</a></td>\n";
             echo " </tr>\n";
         }
     }
@@ -245,13 +245,13 @@ foreach (array('treatment_protocols','injury_log') as $formname) {
     $bodyClass = "summary_item small";
     $widgetAuth = true;
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
 else { ?>
 <td colspan='<?php echo $numcols ?>' valign='top'>
-<span class="text"><b><?php echo htmlspecialchars(xl('Immunizations', 'e'),ENT_NOQUOTES); ?></b></span>
+<span class="text"><b><?php echo htmlspecialchars(xl('Immunizations', 'e'), ENT_NOQUOTES); ?></b></span>
 <a href="javascript:;" class="small" onclick="javascript:load_location('immunizations.php')">
-    (<b><?php echo htmlspecialchars(xl('Manage'),ENT_NOQUOTES) ?></b>)
+    (<b><?php echo htmlspecialchars(xl('Manage'), ENT_NOQUOTES) ?></b>)
 </a>
 </td></tr>
 <tr><td>
@@ -278,8 +278,8 @@ if (sqlNumRows($result) == 0) {
 while ($row=sqlFetchArray($result)){
     echo "&nbsp;&nbsp;";
     echo "<a class='link'";
-    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".htmlspecialchars($row['id'],ENT_QUOTES) . "\")'>" .
-    htmlspecialchars($row{'immunization_data'},ENT_NOQUOTES);
+    echo "' href='javascript:;' onclick='javascript:load_location(\"immunizations.php?mode=edit&id=".htmlspecialchars($row['id'], ENT_QUOTES) . "\")'>" .
+    htmlspecialchars($row{'immunization_data'}, ENT_NOQUOTES);
 
     // Figure out which name to use (ie. from cvx list or from the custom list)
     if ($GLOBALS['use_custom_immun_list']) {
@@ -322,12 +322,12 @@ while ($row=sqlFetchArray($result)){
     $widgetButtonClass = '';
     $bodyClass = "summary_item small";
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
 ?>
 
 <?php
-$res=sqlStatement("select * from prescriptions where patient_id=? and active='1'",array($pid));
+$res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
 ?>
 <table>
 <?php
@@ -341,16 +341,16 @@ if(sqlNumRows($res)==0)
 }
 while($row_currentMed=sqlFetchArray($res))
 {
-    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'),$row_currentMed['unit']);
-    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'),$row_currentMed['form']);
-    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'),$row_currentMed['route']);
-    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'),$row_currentMed['interval']);
+    $runit=generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row_currentMed['unit']);
+    $rin=generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row_currentMed['form']);
+    $rroute=generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row_currentMed['route']);
+    $rint=generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row_currentMed['interval']);
     ?>
     <tr class=text >
         <td><?php echo $row_currentMed['drug'];?></td>
         <td><?php $unit='';
         if($row_currentMed['size']>0) $unit=$row_currentMed['size']." ".$runit." ";
-        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint,ENT_NOQUOTES);?></td>
+        echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);?></td>
     </tr>
 <?php
 }
@@ -381,10 +381,10 @@ while($row_currentMed=sqlFetchArray($res))
     $bodyClass = "summary_item small";
     $widgetAuth = true;
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
 }
 else { ?>
-    <span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'),ENT_NOQUOTES); ?></b></span>
+    <span class='text'><b><?php echo htmlspecialchars(xl('Prescriptions'), ENT_NOQUOTES); ?></b></span>
     </td></tr>
     </tr><td>
 <?php } ?>
@@ -416,7 +416,7 @@ if($erx_upload_complete == 1){
     $bodyClass = "summary_item small";
     $widgetAuth = true;
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
     $query_uploaded_old = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
     $query_uploaded_old .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     $query_uploaded_old .= "ORDER BY begdate";
@@ -431,7 +431,7 @@ if($erx_upload_complete == 1){
         else if ($row['enddate'] && !$row['returndate'])
         $rowclass = "noreturn";
         echo " <tr class='text $rowclass;'>\n";
-        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'],ENT_NOQUOTES) . "</td>\n";
+        echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
         echo " </tr>\n";
     }
     echo "</table>";

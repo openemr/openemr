@@ -60,8 +60,8 @@ for($p=0;$p<count($db_patient);$p++)
     //Get the apptDate and apptTime
     $p_date = $prow['pc_eventDate'];
     //Need to format date to m/d/Y for Maviq API
-    $pieces = explode("-",$p_date);
-    $appt_date = date("m/d/Y", mktime( 0,0,0,$pieces[1],$pieces[2],$pieces[0]));
+    $pieces = explode("-", $p_date);
+    $appt_date = date("m/d/Y", mktime( 0, 0, 0, $pieces[1], $pieces[2], $pieces[0]));
     $appt_time = $prow['pc_startTime'];
     //get the greeting
     $greeting = $fac_msg_map[$prow['pc_facility']];
@@ -95,10 +95,10 @@ for($p=0;$p<count($db_patient);$p++)
         $strMsg = "\n========================".$type." || ".date("Y-m-d H:i:s")."=========================";
         $strMsg .= "\nPhone reminder sent successfully: {$prow['fname']} | {$prow['lname']} |	| {$prow['phone_home']} | {$appt_date} | {$appt_time} ";
         // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($prow,$greeting,$phone_url);
+        cron_InsertNotificationLogEntry($prow, $greeting, $phone_url);
 
     //update entry >> pc_sendalertsms='Yes'
-        cron_updateentry($type,$prow['pid'],$prow['pc_eid']);
+        cron_updateentry($type, $prow['pid'], $prow['pc_eid']);
 
     }
 

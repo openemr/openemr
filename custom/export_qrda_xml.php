@@ -251,7 +251,7 @@ $form_provider = $_GET['form_provider'];
 $report_id = $_GET['report_id'];
 $report_view = collectReportDatabase($report_id);
 $target_date = $report_view['date_target'];
-$dataSheet = json_decode($report_view['data'],true);
+$dataSheet = json_decode($report_view['data'], true);
 
 //Needed array for Rule NQF#0024 Stratification
 $stratumCheckArr = array();
@@ -624,7 +624,7 @@ if(count($dataSheet) > 0){
         $xml->open_customTag('tbody');
         $xml->open_customTag('tr');
 
-        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
 
         if (!empty($row['cqm_pqri_code'])) {
             $tdTitle .= " " . htmlspecialchars( xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
@@ -681,9 +681,9 @@ if(count($dataSheet) > 0){
 
             //get Itemized Data
             if($cqmKey == "init_patients")
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey]);
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
             else
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey], $numerator_label);
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
             $fullPatArr = array();
             foreach($itemPatArr as $itemPatInfo){
                 $fullPatArr[] = $itemPatInfo['pid'];
@@ -775,7 +775,7 @@ if(count($dataSheet) > 0){
         //CQM Rules 2014 set, 0013 is 0018
         if($row['cqm_nqf_code'] == "0013") $row['cqm_nqf_code'] = "0018";
 
-        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id']);
+        $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
         if (!empty($row['cqm_pqri_code'])) {
             $tdTitle .= " " . text( xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
         }
@@ -914,9 +914,9 @@ if(count($dataSheet) > 0){
 
             //get Itemized Data
             if($cqmKey == "init_patients")
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey]);
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
             else
-                $itemPatArr = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$cqmItemizedArr[$cqmKey], $numerator_label);
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
 
             $fullPatArr = array();
             foreach($itemPatArr as $itemPatInfo){

@@ -198,11 +198,11 @@ function clickOptionsMigrate()
             if (preg_match('/^#/', $line_of_text)) continue;
             if ($line_of_text == "") continue;
             $parts = explode('::', $line_of_text);
-            $parts[0] = trim(str_replace("\r\n","",$parts[0]));
-            $parts[1] = trim(str_replace("\r\n","",$parts[1]));
+            $parts[0] = trim(str_replace("\r\n", "", $parts[0]));
+            $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
             if ($parts[0] != $prev) {
                 $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_"," ",$parts[0])).' Issue List') );
+                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_", " ", $parts[0])).' Issue List') );
                 $seq = 10;
             }
             $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
@@ -585,7 +585,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
         }
         else if (preg_match('/^#IfNotListOccupation/', $line)) {
-            if ( (listExists("Occupation")) || (!columnExists('patient_data','occupation')) ) {
+            if ( (listExists("Occupation")) || (!columnExists('patient_data', 'occupation')) ) {
                 $skipping = true;
             }
             else {
@@ -597,7 +597,7 @@ function upgradeFromSqlFile($filename)
             if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
         }
         else if (preg_match('/^#IfNotListReaction/', $line)) {
-            if ( (listExists("reaction")) || (!columnExists('lists','reaction')) ) {
+            if ( (listExists("reaction")) || (!columnExists('lists', 'reaction')) ) {
                 $skipping = true;
             }
             else {
@@ -663,7 +663,7 @@ function upgradeFromSqlFile($filename)
                 $skipping = false;
                 echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
                 foreach( $tables_list as $k=>$t ) {
-                    if (in_array($t,$tables_skip_migration)) {
+                    if (in_array($t, $tables_skip_migration)) {
                         printf( '<font color="green">Table %s was purposefully skipped and NOT migrated to InnoDB.</font><br />', $t );
                         continue;
                     }

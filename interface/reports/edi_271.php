@@ -138,9 +138,9 @@ if(isset($_FILES) && !empty($_FILES))
 
                                     if($segment != $segmentVal)
                                     {
-                                        eligibility_response_save($segmentVal,$x12PartnerId);
+                                        eligibility_response_save($segmentVal, $x12PartnerId);
 
-                                        eligibility_verification_save($segmentVal,$x12PartnerId,$patientId);
+                                        eligibility_verification_save($segmentVal, $x12PartnerId, $patientId);
                                     }
                                 }
 

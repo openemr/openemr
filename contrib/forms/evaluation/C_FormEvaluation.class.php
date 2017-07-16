@@ -21,8 +21,8 @@ class C_FormEvaluation extends Controller
     function default_action()
     {
         $evaluation = new FormEvaluation();
-        $this->assign("checks",$evaluation->_form_layout());
-        $this->assign("evaluation",$evaluation);
+        $this->assign("checks", $evaluation->_form_layout());
+        $this->assign("evaluation", $evaluation);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -34,9 +34,9 @@ class C_FormEvaluation extends Controller
         else {
             $evaluation = new FormEvaluation();
         }
-        $this->assign("VIEW",true);
-        $this->assign("checks",$evaluation->_form_layout());
-        $this->assign("evaluation",$evaluation);
+        $this->assign("VIEW", true);
+        $this->assign("checks", $evaluation->_form_layout());
+        $this->assign("evaluation", $evaluation);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -60,7 +60,7 @@ class C_FormEvaluation extends Controller
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling( date("Ymd"),    'CPT4',     $row['code'],   $row['code_text'],  $_SESSION['pid'],   $_SESSION['userauthorized'],    $_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
+                addBilling( date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
 
         }

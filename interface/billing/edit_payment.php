@@ -50,7 +50,7 @@ if (isset($_POST["mode"]))
     if ($_POST["mode"] == "DeletePaymentDistribution")
     {
         $DeletePaymentDistributionId=trim(formData('DeletePaymentDistributionId' ));
-        $DeletePaymentDistributionIdArray=explode('_',$DeletePaymentDistributionId);
+        $DeletePaymentDistributionIdArray=explode('_', $DeletePaymentDistributionId);
         $payment_id=$DeletePaymentDistributionIdArray[0];
         $PId=$DeletePaymentDistributionIdArray[1];
         $Encounter=$DeletePaymentDistributionIdArray[2];
@@ -462,7 +462,7 @@ if (isset($_POST["mode"]))
          {
             if (isset($_POST["HiddenEncounter$CountRow"]))
                {
-                DistributionInsert($CountRow,$created_time,$user_id);
+                DistributionInsert($CountRow, $created_time, $user_id);
             }
             else
                break;
@@ -888,7 +888,7 @@ if($payment_id*1>0)
                              {
                                 $CountIndex++;
                                 $CountIndexAbove++;
-                                $ServiceDateArray=explode(' ',$RowSearch['date']);
+                                $ServiceDateArray=explode(' ', $RowSearch['date']);
                                 $ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
                                                                 $Codetype=$RowSearch['code_type'];
                                 $Code=$RowSearch['code'];
@@ -1028,8 +1028,8 @@ if($payment_id*1>0)
 									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and  code='$Code' and modifier='$Modifier'  and (memo like 'Deductable%' OR memo like 'Deductible%')");
                                     $rowPayment = sqlFetchArray($resPayment);
                                     $DeductibleDB=$rowPayment['memo'];
-                                    $DeductibleDB=str_replace('Deductable $','',$DeductibleDB);
-                                    $DeductibleDB=str_replace('Deductible $','',$DeductibleDB);
+                                    $DeductibleDB=str_replace('Deductable $', '', $DeductibleDB);
+                                    $DeductibleDB=str_replace('Deductible $', '', $DeductibleDB);
 
                                     $resPayment = sqlStatement("SELECT  follow_up,follow_up_note from ar_activity where  session_id ='$payment_id' and
 									pid ='$PId' and  encounter  ='$Encounter' and code_type='$Codetype' and  code='$Code' and modifier='$Modifier'  and follow_up = 'y'");
@@ -1044,7 +1044,7 @@ if($payment_id*1>0)
 
                                 if($Ins==1)
                                      {
-                                    $AllowedDB=number_format($Fee-$AdjAmountDB,2);
+                                    $AllowedDB=number_format($Fee-$AdjAmountDB, 2);
                                 }
                                 else
                                      {
@@ -1086,14 +1086,14 @@ if($payment_id*1>0)
                           <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo $CountIndex; ?>">
                             <td align="left" class="<?php echo $StringClass; ?>" ><a href="#" onClick="javascript:return DeletePaymentDistribution('<?php echo  htmlspecialchars($payment_id.'_'.$PId.'_'.$Encounter.'_'.$Code.'_'.$Modifier.'_'.$Codetype); ?>');" ><img src="../pic/Delete.gif" border="0"/></a></td>
                             <td align="left" class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($NameDB); ?><input name="HiddenPId<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($PId); ?>" type="hidden"/></td>
-                            <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenIns<?php echo $CountIndex; ?>" id="HiddenIns<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient",'','','ActionOnInsPat("'.$CountIndex.'")'); ?></td>
+                            <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenIns<?php echo $CountIndex; ?>" id="HiddenIns<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', '', 'ActionOnInsPat("'.$CountIndex.'")'); ?></td>
                             <td class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
                             <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenEncounter<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Encounter); ?>" type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
                                                         <td class="<?php echo $StringClass; ?>" ><input name="HiddenCodetype<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Codetype); ?>" type="hidden"/><input name="HiddenCode<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Code); ?>" type="hidden"/><?php echo htmlspecialchars($Codetype."-".$Code.$ModifierString); ?><input name="HiddenModifier<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Modifier); ?>" type="hidden"/></td>
                             <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex; ?>" id="HiddenChargeAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Fee); ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>
-                            <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>" id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
-                            <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>
-                            <input name="HiddenRemainderTd<?php echo $CountIndex; ?>" id="HiddenRemainderTd<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars(round($RemainderJS,2)); ?>" type="hidden"/>
+                            <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>" id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay, 2)); ?></td>
+                            <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder, 2)); ?></td>
+                            <input name="HiddenRemainderTd<?php echo $CountIndex; ?>" id="HiddenRemainderTd<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars(round($RemainderJS, 2)); ?>" type="hidden"/>
                             <td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"  autocomplete="off"  value="<?php echo htmlspecialchars($AllowedDB); ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo $TotalRows; ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
                             <td class="<?php echo $StringClass; ?>" ><input   type="text"  name="Payment<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="Payment<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($PaymentDB); ?>"  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'Payment','paymenttotal');RestoreValues(<?php echo $CountIndex; ?>)"  style="width:60px;text-align:right; font-size:12px" /></td>
                             <td class="<?php echo $StringClass; ?>" ><input  name="AdjAmount<?php echo $CountIndex; ?>"  onKeyDown="PreventIt(event)"   autocomplete="off"  id="AdjAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($AdjAmountDB); ?>"   onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(1,<?php echo $TotalRows; ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)"  type="text"   style="width:70px;text-align:right; font-size:12px" /></td>
@@ -1117,11 +1117,11 @@ if($payment_id*1>0)
                         ?>
                      <tr class="text">
                         <td align="left" colspan="9">&nbsp;</td>
-                        <td class="left bottom" bgcolor="#6699FF" id="allowtotal" align="right" ><?php echo htmlspecialchars(number_format($allowedtot,2)); ?></td>
-                        <td class="left bottom" bgcolor="#6699FF" id="paymenttotal" align="right" ><?php echo htmlspecialchars(number_format($paymenttot,2)); ?></td>
-                        <td class="left bottom" bgcolor="#6699FF" id="AdjAmounttotal" align="right" ><?php echo htmlspecialchars(number_format($adjamttot,2)); ?></td>
-                        <td class="left bottom" bgcolor="#6699FF" id="deductibletotal" align="right"><?php echo htmlspecialchars(number_format($deductibletot,2)); ?></td>
-                        <td class="left bottom right" bgcolor="#6699FF" id="takebacktotal" align="right"><?php echo htmlspecialchars(number_format($takebacktot,2)); ?></td>
+                        <td class="left bottom" bgcolor="#6699FF" id="allowtotal" align="right" ><?php echo htmlspecialchars(number_format($allowedtot, 2)); ?></td>
+                        <td class="left bottom" bgcolor="#6699FF" id="paymenttotal" align="right" ><?php echo htmlspecialchars(number_format($paymenttot, 2)); ?></td>
+                        <td class="left bottom" bgcolor="#6699FF" id="AdjAmounttotal" align="right" ><?php echo htmlspecialchars(number_format($adjamttot, 2)); ?></td>
+                        <td class="left bottom" bgcolor="#6699FF" id="deductibletotal" align="right"><?php echo htmlspecialchars(number_format($deductibletot, 2)); ?></td>
+                        <td class="left bottom right" bgcolor="#6699FF" id="takebacktotal" align="right"><?php echo htmlspecialchars(number_format($takebacktot, 2)); ?></td>
                         <td  align="center">&nbsp;</td>
                         <td  align="center">&nbsp;</td>
                       </tr>

@@ -550,7 +550,7 @@ if ($popup) echo '&popup=1'; ?>"
 <table border='0' cellpadding='5' cellspacing='0' style='margin:8pt'>
  <tr bgcolor='#ddddff'>
   <td>
-    <?php xl('Start Date','e'); ?>:
+    <?php xl('Start Date', 'e'); ?>:
    <input type='text' name='form_start_date' id='form_start_date'
     size='10' value='<?php echo $start_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'
@@ -561,7 +561,7 @@ if ($popup) echo '&popup=1'; ?>"
     title='Click here to choose a date'>
 <?php } ?>
    &nbsp;
-    <?php xl('Template:','e') ?>
+    <?php xl('Template:', 'e') ?>
    <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) echo ' disabled'; ?>>
     <option value='0'>-- Select --</option>
 <?php
@@ -579,14 +579,14 @@ while ($trow = sqlFetchArray($tres)) {
    &nbsp;
    <input type='checkbox' name='form_edit_template'
     onclick='editChanged()'
-    title='<?php xl("If you want to change data types, or add rows or columns","e") ?>' />
-    <?php xl('Edit Structure','e') ?>
+    title='<?php xl("If you want to change data types, or add rows or columns", "e") ?>' />
+    <?php xl('Edit Structure', 'e') ?>
 <?php if ($formid) { ?>
    &nbsp;
    <input type='checkbox' name='form_completed'
-    title='<?php xl("If all data for all columns are complete for this form","e") ?>'
+    title='<?php xl("If all data for all columns are complete for this form", "e") ?>'
     <?php if ($form_completed) echo 'checked '; ?>/>
-    <?php xl('Completed','e') ?>
+    <?php xl('Completed', 'e') ?>
 <?php } ?>
   </td>
  </tr>

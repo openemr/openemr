@@ -109,7 +109,7 @@ $spell  = "SELECT * ";
 $spell .= "FROM patient_data ";
 $spell .= "WHERE id = ?";
 //---
-$myrow = sqlQuery($spell,array($pid));
+$myrow = sqlQuery($spell, array($pid));
     $lastname = $myrow["lname"];
     $firstname  = $myrow["fname"];
     $DOB  = $myrow["DOB"];
@@ -148,7 +148,7 @@ if(!$printable){
     $spell .= "AND procedure_result.result IS NOT NULL ";
     $spell .= "AND procedure_result.result != ''";
     $spell .= "ORDER BY procedure_result.result_code ASC ";
-    $query  = sqlStatement($spell,array($pid));
+    $query  = sqlStatement($spell, array($pid));
 
 
     // Select which items to view...
@@ -236,7 +236,7 @@ if($value_select){
 
             // get data from db
             $spell  = $main_spell;
-            $query  = sqlStatement($spell,array($this_value,$pid));
+            $query  = sqlStatement($spell, array($this_value,$pid));
             while($myrow = sqlFetchArray($query)){
 
                 $value_array[0][$value_count]   = $myrow['result'];
@@ -342,7 +342,7 @@ if($value_select){
         foreach($value_select as $this_value){
 
             $spell  = $main_spell;
-            $query  = sqlStatement($spell,array($this_value,$pid));
+            $query  = sqlStatement($spell, array($this_value,$pid));
 
             while($myrow = sqlFetchArray($query)){
                 $value_matrix[$i][procedure_result_id]  = $myrow['procedure_result_id'];
@@ -372,7 +372,7 @@ if($value_select){
             $result_code[$key] = $row['result_code'];
             $date_collected[$key] = $row['date_collected'];
         }
-        array_multisort(array_map('strtolower',$result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
+        array_multisort(array_map('strtolower', $result_code), SORT_ASC, $date_collected, SORT_DESC, $value_matrix);
 
         $cellcount = count($datelist);
         $itemcount = count($value_matrix);

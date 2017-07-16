@@ -50,7 +50,7 @@ if ( isset($_POST['mode'] )) {
             $created_time
         );
 
-        $amendment_id = sqlInsert($query,$sqlBindArray);
+        $amendment_id = sqlInsert($query, $sqlBindArray);
     } else {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
@@ -71,7 +71,7 @@ if ( isset($_POST['mode'] )) {
             $created_time,
             $_POST['amendment_id']
         );
-        sqlStatement($query,$sqlBindArray);
+        sqlStatement($query, $sqlBindArray);
     }
 
     // Insert into amendments_history
@@ -88,7 +88,7 @@ if ( isset($_POST['mode'] )) {
         $currentUser,
         $created_time
     );
-    sqlStatement($query,$sqlBindArray);
+    sqlStatement($query, $sqlBindArray);
     header("Location:add_edit_amendments.php?id=$amendment_id");
     exit;
 }
@@ -96,14 +96,14 @@ if ( isset($_POST['mode'] )) {
 $amendment_id = ( $amendment_id ) ? $amendment_id : $_REQUEST['id'];
 if ( $amendment_id ) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
-    $resultSet = sqlQuery($query,array($amendment_id));
+    $resultSet = sqlQuery($query, array($amendment_id));
     $amendment_date = $resultSet['amendment_date'];
     $amendment_status = $resultSet['amendment_status'];
     $amendment_by = $resultSet['amendment_by'];
     $amendment_desc = $resultSet['amendment_desc'];
 
     $query = "SELECT * FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE amendment_id = ? ";
-    $resultSet = sqlStatement($query,array($amendment_id));
+    $resultSet = sqlStatement($query, array($amendment_id));
 }
 // Check the ACL
 $haveAccess = acl_check('patients', 'trans');
@@ -213,7 +213,7 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Requested By'); ?></span></td>
             <td>
-                <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by,'Amendment Request By',' ','','','',$customAttributes); ?>
+                <?php echo generate_select_list("form_amendment_by", "amendment_from", $amendment_by, 'Amendment Request By', ' ', '', '', '', $customAttributes); ?>
             </td>
         </tr>
 
@@ -227,7 +227,7 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Request Status'); ?></span></td>
             <td>
-                <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status,'Amendment Status',' ','','','',$customAttributes); ?>
+                <?php echo generate_select_list("form_amendment_status", "amendment_status", $amendment_status, 'Amendment Status', ' ', '', '', '', $customAttributes); ?>
             </td>
         </tr>
 

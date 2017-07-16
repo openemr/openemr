@@ -319,7 +319,7 @@ while ($inrow = sqlFetchArray($inres)) {
 <p>
 &nbsp;
 <a href='#' id='printbutton'><?php echo xlt('Print'); ?></a>
-<?php if (acl_check('acct','disc')) { ?>
+<?php if (acl_check('acct', 'disc')) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href='#' onclick='return deleteme();'><?php echo xlt('Undo Checkout'); ?></a>
 <?php } ?>
@@ -455,7 +455,7 @@ if ($_POST['form_save']) {
   // date, with an optional suffix to ensure that it's unique.
   //
     if (! $form_encounter) {
-        $form_encounter = substr($dosdate,0,4) . substr($dosdate,5,2) . substr($dosdate,8,2);
+        $form_encounter = substr($dosdate, 0, 4) . substr($dosdate, 5, 2) . substr($dosdate, 8, 2);
         $tmp = '';
         while (true) {
             $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
@@ -795,15 +795,15 @@ while ($brow = sqlFetchArray($bres)) {
         $query = "SELECT taxrates, related_code FROM codes WHERE code_type = ? " .
         " AND " .
         "code = ? AND ";
-        array_push($sqlBindArray,$code_types[$code_type]['id'],$brow['code']);
+        array_push($sqlBindArray, $code_types[$code_type]['id'], $brow['code']);
         if ($brow['modifier']) {
             $query .= "modifier = ?";
-            array_push($sqlBindArray,$brow['modifier']);
+            array_push($sqlBindArray, $brow['modifier']);
         } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
         $query .= " LIMIT 1";
-        $tmp = sqlQuery($query,$sqlBindArray);
+        $tmp = sqlQuery($query, $sqlBindArray);
         $taxrates = $tmp['taxrates'];
         $related_code = $tmp['related_code'];
         markTaxes($taxrates);
@@ -834,7 +834,7 @@ while ($brow = sqlFetchArray($bres)) {
 
 // Process copays
 //
-$totalCopay = getPatientCopay($patient_id,$encounter);
+$totalCopay = getPatientCopay($patient_id, $encounter);
 if ($totalCopay < 0) {
     write_form_line("COPAY", "", "", "", "", $totalCopay, "", "");
 }
@@ -903,7 +903,7 @@ if ($inv_encounter) {
    <select name='form_method'>
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-    $bres1112 = sqlStatement($query1112,array('payment_method'));
+    $bres1112 = sqlStatement($query1112, array('payment_method'));
     while ($brow1112 = sqlFetchArray($bres1112))
      {
         if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')

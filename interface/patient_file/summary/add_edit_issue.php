@@ -330,7 +330,7 @@ if ($_POST['form_save']) {
     }
 
   // For record/reporting purposes, place entry in lists_touch table.
-    setListTouch($thispid,$text_type);
+    setListTouch($thispid, $text_type);
 
     if ($text_type == 'football_injury') issue_football_injury_save($issue);
     if ($text_type == 'ippf_gcac'      ) issue_ippf_gcac_save($issue);
@@ -424,7 +424,7 @@ div.section {
 foreach ($ISSUE_TYPES as $key => $value) {
     echo " aitypes[$i] = " . attr($value[3]) . ";\n";
     echo " aopts[$i] = new Array();\n";
-    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1",array($key."_issue_list"));
+    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1", array($key."_issue_list"));
     while($res = sqlFetchArray($qry)){
         echo " aopts[$i][aopts[$i].length] = new Option('".attr(xl_list_label(trim($res['title'])))."', '".attr(trim($res['option_id']))."', false, false);\n";
         if ($res['codes']) {
@@ -590,8 +590,8 @@ if($irow['type'] == 'medical_problem') {
     $url .= collect_codetypes("medical_problem", "csv");
 }
 else {
-    $url .= collect_codetypes("diagnosis","csv");
-    $tmp  = collect_codetypes("drug","csv");
+    $url .= collect_codetypes("diagnosis", "csv");
+    $tmp  = collect_codetypes("drug", "csv");
     if($irow['type'] == 'allergy') {
         if ($tmp) $url .= ",$tmp";
     }
@@ -824,10 +824,10 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
    <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
     style='width:100%' title='GP, Secondary care specialist, etc.' />
 <?php } else { // leave this here for now, please -- Rod ?>
-    <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+    <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
     <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-    <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-    <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+    <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
+    <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
 <?php } ?>
   </td>
  </tr>

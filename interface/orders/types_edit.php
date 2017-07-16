@@ -17,14 +17,14 @@ $info_msg = "";
 
 function QuotedOrNull($fld)
 {
-    $fld = formDataCore($fld,true);
+    $fld = formDataCore($fld, true);
     if ($fld) return "'$fld'";
     return "NULL";
 }
 
 function invalue($name)
 {
-    $fld = formData($name,"P",true);
+    $fld = formData($name, "P", true);
     return "'$fld'";
 }
 

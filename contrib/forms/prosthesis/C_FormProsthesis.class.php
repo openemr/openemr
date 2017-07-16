@@ -21,7 +21,7 @@ class C_FormProsthesis extends Controller
     function default_action()
     {
         $prosthesis = new FormProsthesis();
-        $this->assign("prosthesis",$prosthesis);
+        $this->assign("prosthesis", $prosthesis);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -33,8 +33,8 @@ class C_FormProsthesis extends Controller
         else {
             $prosthesis = new FormProsthesis();
         }
-        $this->assign("VIEW",true);
-        $this->assign("prosthesis",$prosthesis);
+        $this->assign("VIEW", true);
+        $this->assign("prosthesis", $prosthesis);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -59,7 +59,7 @@ class C_FormProsthesis extends Controller
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling( date("Ymd"),    'CPT4',     $row['code'],   $row['code_text'],  $_SESSION['pid'],   $_SESSION['userauthorized'],    $_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
+                addBilling( date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
 
         }

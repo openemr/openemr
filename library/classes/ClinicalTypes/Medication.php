@@ -65,14 +65,14 @@ class Medication extends ClinicalType
                 "AND administered_date <= ? ";
             $query.= "AND ( ";
             $count = 0;
-            array_push($sqlQueryBind,$patient->id,$beginDate,$endDate);
+            array_push($sqlQueryBind, $patient->id, $beginDate, $endDate);
             foreach( $listOptions as $option_id ) {
                 $query.= "cvx_code = ? ";
                 $count++;
                 if ( $count < count( $listOptions ) ) {
                     $query.= "OR ";
                 }
-                array_push($sqlQueryBind,$option_id);
+                array_push($sqlQueryBind, $option_id);
             }
             $query.= " ) ";
 

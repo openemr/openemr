@@ -63,7 +63,7 @@ for($p=0;$p<count($db_patient);$p++)
     if($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME)
     {
         // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($TYPE,$prow,$db_email_msg);
+        cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         //set message
         $db_email_msg['message'] = cron_setmessage( $prow, $db_email_msg );
@@ -73,7 +73,7 @@ for($p=0;$p<count($db_patient);$p++)
                 $db_email_msg['message'], $db_email_msg['email_sender'] );
         
         //update entry >> pc_sendalertemail='Yes'
-        cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
+        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
         
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['email'];
         $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];

@@ -44,7 +44,7 @@ $patdata = sqlQuery("SELECT " .
 
 
 $today = date('m/d/Y');
-$dob   = substr($patdata['DOB'],5,2) ."/". Substr($patdata['DOB'],8,2) ."/". Substr($patdata['DOB'],0,4);
+$dob   = substr($patdata['DOB'], 5, 2) ."/". Substr($patdata['DOB'], 8, 2) ."/". Substr($patdata['DOB'], 0, 4);
 
 
 
@@ -121,7 +121,7 @@ else
 //            ALLOCATE FPDF RESSOURCE
 // -------------------------------------------------- //
 
-$pdf = new eFPDF('P', 'mm',array(102,252)); // set the orentation, unit of measure and size of the page
+$pdf = new eFPDF('P', 'mm', array(102,252)); // set the orentation, unit of measure and size of the page
 $pdf->AddPage();
 
 // -------------------------------------------------- //
@@ -129,7 +129,7 @@ $pdf->AddPage();
 // -------------------------------------------------- //
 
 $data = Barcode::fpdf($pdf, $black, $x, $y, $angle, $type, array('code'=>$code), $width, $height);
-$pdf->SetFont('Arial','B',$fontSize);
+$pdf->SetFont('Arial', 'B', $fontSize);
 $pdf->SetTextColor(0, 0, 0);
 $len = $pdf->GetStringWidth($data['hri']);
 Barcode::rotate(-$len / 2, ($data['height'] / 2) + $fontSize + $marge, $angle, $xt, $yt);

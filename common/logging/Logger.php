@@ -190,7 +190,7 @@ class Logger
         if ($this->isLogLevelInDesiredHierarchy($type) && !empty($this->logFile)) {
             $logEntry = date("Y-m-d H:i:s") . " [" . $type . "] " . $this->classContext . " - " . $message;
 
-            file_put_contents($this->logFile, $logEntry.PHP_EOL , FILE_APPEND | LOCK_EX);
+            file_put_contents($this->logFile, $logEntry.PHP_EOL, FILE_APPEND | LOCK_EX);
 
             if ($type === "ERROR") {
                 error_log($message);

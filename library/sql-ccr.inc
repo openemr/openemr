@@ -521,7 +521,7 @@ function getReportFilename()
     where pid=?";
 
     $result = sqlQuery($sql, array($pid) );
-    $result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY",time());
+    $result_filename = $result['lname']."-".$result['fname']."-".$result['pid']."-".date("mdY", time());
 
     return $result_filename;
 }

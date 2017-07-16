@@ -49,7 +49,7 @@ if (!empty($patient_id)) {
 
 if ($mode == "simple") {
   // Collect the rules for the per patient rules selection tab
-    $rules_default = resolve_rules_sql('','0',true);
+    $rules_default = resolve_rules_sql('', '0', true);
 }
 
 ?>
@@ -119,7 +119,7 @@ $listnumber = 25;
 $sqlBindArray = array();
 if (!empty($patient_id)) {
     $add_sql = "AND a.pid=? ";
-    array_push($sqlBindArray,$patient_id);
+    array_push($sqlBindArray, $patient_id);
 }
 $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, b.fname, b.lname " .
   "FROM `patient_reminders` as a, `patient_data` as b " .
@@ -242,17 +242,17 @@ else {
         add_escape_custom($sortorder) . " " .
         "LIMIT " . add_escape_custom($begin) . ", " .
         add_escape_custom($listnumber);
-      $result = sqlStatement($sql,$sqlBindArray);
+      $result = sqlStatement($sql, $sqlBindArray);
 while ($myrow = sqlFetchArray($result)) { ?>
         <tr>
-          <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$myrow['category']) . " : " .
-            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$myrow['item']); ?></td>
+          <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $myrow['category']) . " : " .
+            generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $myrow['item']); ?></td>
           <td><?php echo htmlspecialchars($myrow['lname'].", ".$myrow['fname'], ENT_NOQUOTES); ?></td>
-          <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$myrow['due_status']); ?></td>
+          <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $myrow['due_status']); ?></td>
           <td><?php echo ($myrow['date_created']) ? htmlspecialchars($myrow['date_created'], ENT_NOQUOTES) : " "; ?></td>
           <td><?php echo ($myrow['hipaa_allowemail']=='YES') ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['hipaa_allowsms']=='YES') ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
-          <td><?php echo ($myrow['date_sent']) ? htmlspecialchars($myrow['date_sent'], ENT_NOQUOTES) : htmlspecialchars( xl("Not Sent Yet") , ENT_NOQUOTES); ?></td>
+          <td><?php echo ($myrow['date_sent']) ? htmlspecialchars($myrow['date_sent'], ENT_NOQUOTES) : htmlspecialchars( xl("Not Sent Yet"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['voice_status']==1) ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['email_status']==1) ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
           <td><?php echo ($myrow['sms_status']==1) ? htmlspecialchars( xl("YES"), ENT_NOQUOTES) : htmlspecialchars( xl("NO"), ENT_NOQUOTES); ?></td>
@@ -281,7 +281,7 @@ while ($myrow = sqlFetchArray($result)) { ?>
             <td style="border-right:1px solid black;"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $rule['id']); ?></td>
             <td align="center">
                 <?php
-                $patient_rule = collect_rule($rule['id'],$patient_id);
+                $patient_rule = collect_rule($rule['id'], $patient_id);
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";

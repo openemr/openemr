@@ -25,8 +25,8 @@
  */
 ?>
 
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
 <?php if($view || $edit) :?>

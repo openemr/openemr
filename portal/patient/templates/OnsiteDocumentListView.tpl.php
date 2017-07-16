@@ -22,7 +22,7 @@
  */
 
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Documents"));
-    $this->assign('nav','onsitedocuments');
+    $this->assign('nav', 'onsitedocuments');
 
     $pid = $this->cpid;
     $recid = $this->recid;

@@ -52,7 +52,7 @@ function AjaxDropDownCode()
 	  onkeydown=\"ProcessKeyForColoring(event,$CountIndex);PlaceValues(event,'&nbsp;','')\"   onclick=\"PutTheValuesClick('&nbsp;','')\">
 			<td colspan='3' align='center'><a id='anchor_insurance_code_$CountIndex' href='#'></a></td>
 	  </tr>";
-        $insurance_text_ajax=formData('insurance_text_ajax','',true);
+        $insurance_text_ajax=formData('insurance_text_ajax', '', true);
         $res = sqlStatement("SELECT insurance_companies.id,name,city,state,country FROM insurance_companies
 			left join addresses on insurance_companies.id=addresses.foreign_id  where name like '$insurance_text_ajax%' or  insurance_companies.id like '$insurance_text_ajax%' ORDER BY name");
         while ($row = sqlFetchArray($res))
@@ -73,8 +73,8 @@ function AjaxDropDownCode()
                 $Country=$row['country'];
                 $Address=$City.', '.$State.', '.$Country;
                 $StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
-		onkeydown='ProcessKeyForColoring(event,$CountIndex);PlaceValues(event,\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'
-			   onclick='PutTheValuesClick(\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")'>
+		onkeydown='ProcessKeyForColoring(event,$CountIndex);PlaceValues(event,\"".htmlspecialchars($Id, ENT_QUOTES)."\",\"".htmlspecialchars($Name, ENT_QUOTES)."\")'
+			   onclick='PutTheValuesClick(\"".htmlspecialchars($Id, ENT_QUOTES)."\",\"".htmlspecialchars($Name, ENT_QUOTES)."\")'>
 			<td><a id='anchor_insurance_code_$CountIndex' href='#'>".htmlspecialchars($Id)."</a></td>
 			<td><a href='#'>".htmlspecialchars($Name)."</a></td>
 		    <td><a href='#'>".htmlspecialchars($Address)."</a></td>
@@ -93,7 +93,7 @@ function AjaxDropDownCode()
         //PutTheValuesClickDistribute==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         if(isset($_REQUEST['patient_code']) && $_REQUEST['patient_code']!='')
          {
-            $patient_code=formData('patient_code','',true);
+            $patient_code=formData('patient_code', '', true);
             if(isset($_REQUEST['submit_or_simple_type']) && $_REQUEST['submit_or_simple_type']=='Simple')
              {
                 $StringToAppend="PutTheValuesClickPatient";
@@ -108,7 +108,7 @@ function AjaxDropDownCode()
         }
         elseif(isset($_REQUEST['insurance_text_ajax']) && $_REQUEST['insurance_text_ajax']!='')
          {
-            $patient_code=formData('insurance_text_ajax','',true);
+            $patient_code=formData('insurance_text_ajax', '', true);
             $StringToAppend="PutTheValuesClick";
             $StringToAppend2="PlaceValues";
             $patient_code_complete=$_REQUEST['insurance_text_ajax'];//we need the spaces here
@@ -150,7 +150,7 @@ function AjaxDropDownCode()
                 $Name=$lname.' '.$fname.' '.$mname;
                 $DOB=oeFormatShortDate($row['DOB']);
                 $StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
-		 onkeydown='ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,\"".htmlspecialchars($Id,ENT_QUOTES)."\",\"".htmlspecialchars($Name,ENT_QUOTES)."\")' onclick=\"$StringToAppend('".addslashes($Id)."','".htmlspecialchars(addslashes($Name),ENT_QUOTES)."')\">
+		 onkeydown='ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,\"".htmlspecialchars($Id, ENT_QUOTES)."\",\"".htmlspecialchars($Name, ENT_QUOTES)."\")' onclick=\"$StringToAppend('".addslashes($Id)."','".htmlspecialchars(addslashes($Name), ENT_QUOTES)."')\">
 			<td><a id='anchor_insurance_code_$CountIndex' href='#' >".htmlspecialchars($Id)."</a></td>
 			<td><a href='#'>".htmlspecialchars($lname)."</a></td>
 		    <td><a href='#'>".htmlspecialchars($fname)."</a></td>
@@ -169,7 +169,7 @@ function AjaxDropDownCode()
         //PutTheValuesClickEncounter==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         if(isset($_REQUEST['encounter_patient_code']))
          {
-            $patient_code=formData('encounter_patient_code','',true);
+            $patient_code=formData('encounter_patient_code', '', true);
             $StringToAppend="PutTheValuesClickEncounter";
             $StringToAppend2="PlaceValuesEncounter";
         }
@@ -200,11 +200,11 @@ function AjaxDropDownCode()
             }
                 $CountIndex++;
                 $Date=$row['date'];
-                $Date=explode(' ',$Date);
+                $Date=explode(' ', $Date);
                 $Date=oeFormatShortDate($Date[0]);
                 $Encounter=$row['encounter'];
                 $StringForAjax.="<tr class='text'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
-		 onkeydown=\"ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,'".htmlspecialchars($Encounter,ENT_QUOTES)."','".htmlspecialchars($Date,ENT_QUOTES)."')\"   onclick=\"$StringToAppend('".htmlspecialchars($Encounter,ENT_QUOTES)."','".htmlspecialchars($Date,ENT_QUOTES)."')\">
+		 onkeydown=\"ProcessKeyForColoring(event,$CountIndex);$StringToAppend2(event,'".htmlspecialchars($Encounter, ENT_QUOTES)."','".htmlspecialchars($Date, ENT_QUOTES)."')\"   onclick=\"$StringToAppend('".htmlspecialchars($Encounter, ENT_QUOTES)."','".htmlspecialchars($Date, ENT_QUOTES)."')\">
 			<td><a id='anchor_insurance_code_$CountIndex' href='#' >".htmlspecialchars($Encounter)."</a></td>
 			<td><a href='#'>".htmlspecialchars($Date)."</a></td>
   </tr>";

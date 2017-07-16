@@ -37,7 +37,7 @@ if (!(function_exists('xl'))) {
              $sql="SELECT * FROM lang_definitions JOIN lang_constants ON " .
             "lang_definitions.cons_id = lang_constants.cons_id WHERE " .
             "lang_id=? AND constant_name = ? LIMIT 1";
-             $res = sqlStatementNoLog($sql,array($lang_id,$constant));
+             $res = sqlStatementNoLog($sql, array($lang_id,$constant));
              $row = SqlFetchArray($res);
              $string = $row['definition'];
             if ($string == '') { $string = "$constant"; }
@@ -85,10 +85,10 @@ function xl_list_label($constant, $mode = 'r', $prepend = '', $append = '')
     if ($GLOBALS['translate_lists']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -108,10 +108,10 @@ function xl_layout_label($constant, $mode = 'r', $prepend = '', $append = '')
     if ($GLOBALS['translate_layout']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -132,10 +132,10 @@ function xl_gacl_group($constant, $mode = 'r', $prepend = '', $append = '')
     if ($GLOBALS['translate_gacl_groups']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -156,10 +156,10 @@ function xl_form_title($constant, $mode = 'r', $prepend = '', $append = '')
     if ($GLOBALS['translate_form_titles']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -181,10 +181,10 @@ function xl_document_category($constant, $mode = 'r', $prepend = '', $append = '
     if ($GLOBALS['translate_document_categories']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -206,10 +206,10 @@ function xl_appt_category($constant, $mode = 'r', $prepend = '', $append = '')
     if ($GLOBALS['translate_appt_categories']) {
         // TRANSLATE
         if ($mode == "e") {
-            xl($constant,$mode,$prepend,$append);
+            xl($constant, $mode, $prepend, $append);
         }
         else {
-            return xl($constant,$mode,$prepend,$append);
+            return xl($constant, $mode, $prepend, $append);
         }
     }
     else {
@@ -242,7 +242,7 @@ function getLanguageTitle($val)
     }
 
  // get language title
-    $res = sqlStatement("select lang_description from lang_languages where lang_id =?",array($lang_id));
+    $res = sqlStatement("select lang_description from lang_languages where lang_id =?", array($lang_id));
     for ($iter = 0;$row = sqlFetchArray($res);
     $iter++) $result[$iter] = $row;
     $languageTitle = $result[0]{"lang_description"};

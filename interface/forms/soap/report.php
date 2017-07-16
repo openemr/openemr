@@ -16,7 +16,7 @@ function soap_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
                                                                               //Updated by Sherwin 10/24/2016
             print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . nl2br(text($value)) . "</span></td>";
             $count++;

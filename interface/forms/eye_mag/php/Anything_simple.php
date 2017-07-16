@@ -42,12 +42,12 @@
     $category_name = $_REQUEST['category_name'];
 
     $query = "SELECT * FROM patient_data where pid=?";
-    $pat_data =  sqlQuery($query,array($pid));
+    $pat_data =  sqlQuery($query, array($pid));
 
     $providerID  =  getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
     $query = "SELECT * FROM users where id = ?";
-    $prov_data =  sqlQuery($query,array($providerID));
+    $prov_data =  sqlQuery($query, array($providerID));
 
     $query="select form_encounter.date as encounter_date, form_eye_mag.* from form_eye_mag ,forms,form_encounter
     where
@@ -56,7 +56,7 @@
     form_eye_mag.id=forms.form_id and
     forms.deleted != '1' and
     form_eye_mag.pid=? ";
-    $encounter_data =sqlQuery($query,array($encounter,$pid));
+    $encounter_data =sqlQuery($query, array($encounter,$pid));
     $dated = new DateTime($encounter_data['encounter_date']);
     $dated = $dated->format('Y-m-d');
     $visit_date = oeFormatShortDate($dated);
@@ -404,12 +404,12 @@
                             foreach ($reg as $entry) {
                                 $new_category = trim($entry['category']);
                                 $new_nickname = trim($entry['nickname']);
-                                if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'),ENT_QUOTES);}
+                                if ($new_category == '') {$new_category = htmlspecialchars(xl('Miscellaneous'), ENT_QUOTES);}
                                 if ($new_nickname != '') {$nickname = $new_nickname;}
                                 else {$nickname = $entry['name'];}
                                 if ($old_category != $new_category) { //new category, new menu section
                                     $new_category_ = $new_category;
-                                    $new_category_ = str_replace(' ','_',$new_category_);
+                                    $new_category_ = str_replace(' ', '_', $new_category_);
                                     if ($old_category != '') {
                                         $StringEcho.= "
                                                 </ul>
@@ -541,14 +541,14 @@
     <!-- END AnythingSlider -->
     <center>
         <?php
-        $output = menu_overhaul_left($pid,$encounter);
+        $output = menu_overhaul_left($pid, $encounter);
         echo $output;
         ?>
     </center>
     <?php
     if ($display=="fullscreen") {
        // this function is in php/".$form_name."_functions.php
-        $output = menu_overhaul_bottom($pid,$encounter);
+        $output = menu_overhaul_bottom($pid, $encounter);
         echo $output;
     }
     ?>

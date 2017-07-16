@@ -15,7 +15,7 @@
 //
 include_once("../../interface/globals.php");
 
-$q = formData("q","G",true);
+$q = formData("q", "G", true);
 if (!$q) return;
 $limit = $_GET['limit'];
 

@@ -17,12 +17,12 @@ class C_FormVitals extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/vitals/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
         $this->assign("STYLE", $GLOBALS['style']);
 
       // Options for units of measurement and things to omit.
-        $this->assign("units_of_measurement",$GLOBALS['units_of_measurement']);
-        $this->assign("gbl_vitals_options",$GLOBALS['gbl_vitals_options']);
+        $this->assign("units_of_measurement", $GLOBALS['units_of_measurement']);
+        $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
     }
 
     function default_action_old()
@@ -30,7 +30,7 @@ class C_FormVitals extends Controller
         //$vitals = array();
         //array_push($vitals, new FormVitals());
         $vitals = new FormVitals();
-        $this->assign("vitals",$vitals);
+        $this->assign("vitals", $vitals);
         $this->assign("results", $results);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
@@ -67,7 +67,7 @@ class C_FormVitals extends Controller
         $patient_dob=$patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
         $this->assign("patient_age", $patient_age);
-        $this->assign("patient_dob",$patient_dob);
+        $this->assign("patient_dob", $patient_dob);
 
         $i = 1;
         while($result && !$result->EOF)
@@ -93,10 +93,10 @@ class C_FormVitals extends Controller
             $result->MoveNext();
         }
 
-        $this->assign("vitals",$vitals);
+        $this->assign("vitals", $vitals);
         $this->assign("results", $results);
 
-        $this->assign("VIEW",true);
+        $this->assign("VIEW", true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

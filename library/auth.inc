@@ -45,7 +45,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
     $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']  );
 
-    if(!validate_user_password($_POST['authUser'],$clearPass,$_POST['authProvider']) ||  !verify_user_gacl_group($_POST['authUser']))
+    if(!validate_user_password($_POST['authUser'], $clearPass, $_POST['authProvider']) ||  !verify_user_gacl_group($_POST['authUser']))
     {
         $_SESSION['loginfailure'] = 1;
         authLoginScreen();
@@ -88,7 +88,7 @@ else
         //newEvent("view", $_SESSION['authUser'], $_SESSION['authProvider'], $_SERVER['REQUEST_URI']);
     }
     else {
-        newEvent("login",$_POST['authUser'], $_POST['authProvider'], 0, "insufficient data sent");
+        newEvent("login", $_POST['authUser'], $_POST['authProvider'], 0, "insufficient data sent");
         authLoginScreen();
     }
 }
@@ -132,15 +132,14 @@ function authCheckSession()
                 return false;
             }
         }
-        $authDB = privQuery("select ".implode(",",array(TBL_USERS.".".COL_ID,
+        $authDB = privQuery("select ".implode(",", array(TBL_USERS.".".COL_ID,
                                                         TBL_USERS.".".COL_UNM,
                                                         TBL_USERS_SECURE.".".COL_PWD,
                                                         TBL_USERS_SECURE.".".COL_ID))
-                . " FROM ". implode(",",array(TBL_USERS,TBL_USERS_SECURE))
+                . " FROM ". implode(",", array(TBL_USERS,TBL_USERS_SECURE))
                 . " WHERE ". TBL_USERS.".".COL_ID." = ? "
                 . " AND ". TBL_USERS.".".COL_UNM . "=" . TBL_USERS_SECURE.".".COL_UNM
-                . " AND ". TBL_USERS.".".COL_ACTIVE . "=1"
-                ,array($_SESSION['authId']));
+                . " AND ". TBL_USERS.".".COL_ACTIVE . "=1", array($_SESSION['authId']));
         if ($_SESSION['authUser'] == $authDB['username']
             && $_SESSION['authPass'] == $authDB['password'] )
         {
@@ -195,7 +194,7 @@ function authLoginScreen($timed_out = false)
 // If so, deactivate the user
 function authCheckExpired($user)
 {
-    $result = sqlStatement("select pwd_expiration_date from users where username = ?",array($user));
+    $result = sqlStatement("select pwd_expiration_date from users where username = ?", array($user));
     if($row = sqlFetchArray($result))
     {
         $pwd_expires = $row['pwd_expiration_date'];
@@ -207,7 +206,7 @@ function authCheckExpired($user)
     }
     if(($grace_time1 != "") && strtotime($current_date) > strtotime($grace_time1))
     {
-        sqlStatement("update users set active=0 where username = ?",array($user));
+        sqlStatement("update users set active=0 where username = ?", array($user));
         $_SESSION['loginfailure'] = 1;
         return true;
     }
@@ -284,7 +283,7 @@ function validateGroupStatus($user_to_be_checked, $group_user)
             $usergGroups[] = $row[0];
         }
         foreach ($usertbcGroups as $group) {
-            if(in_array($group,$usergGroups)) {
+            if(in_array($group, $usergGroups)) {
                 return true;
             }
         }
@@ -300,18 +299,18 @@ function validateGroupStatus($user_to_be_checked, $group_user)
 // Return true if successfull, false on failure
 function UpdatePasswordHistory($userid, $pwd)
 {
-    $result = sqlStatement("select password, pwd_history1, pwd_history2 from users where id = ?",array($userid));
+    $result = sqlStatement("select password, pwd_history1, pwd_history2 from users where id = ?", array($userid));
     if ($row = sqlFetchArray($result)) {
         $previous_pwd1=$row['password'];
         $previous_pwd2=$row['pwd_history1'];
         $previous_pwd3=$row['pwd_history2'];
     }
     if (($pwd != $previous_pwd1) && ($pwd != $previous_pwd2) && ($pwd != $previous_pwd3)) {
-        sqlStatement("update users set pwd_history2=?, pwd_history1=?,password=? where id=?",array($previous_pwd2,$previous_pwd1,$pwd,$userid));
+        sqlStatement("update users set pwd_history2=?, pwd_history1=?,password=? where id=?", array($previous_pwd2,$previous_pwd1,$pwd,$userid));
         if($GLOBALS['password_expiration_days'] != 0){
             $exp_days=$GLOBALS['password_expiration_days'];
             $exp_date = date('Y-m-d', strtotime("+$exp_days days"));
-            sqlStatement("update users set pwd_expiration_date=? where id=?",array($exp_date,$userid));
+            sqlStatement("update users set pwd_expiration_date=? where id=?", array($exp_date,$userid));
         }
         return true;
     }

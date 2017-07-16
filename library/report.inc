@@ -495,7 +495,7 @@ function printRecData($data_array, $recres, $N)
 function printData($retar, $key, $sep, $date_format)
 {
     //$retar{$key}
-    if (@array_key_exists($key,$retar)) {
+    if (@array_key_exists($key, $retar)) {
         $length = sizeof($retar{$key});
         for ($iter = $length;$iter>=1;$iter--) {
             if ($retar{$key}[$iter]{"value"} != "0000-00-00 00:00:00") {
@@ -535,7 +535,7 @@ function printRecDataOne($data_array, $recres, $N)
 function printDataOne($retar, $key, $sep, $date_format)
 {
     //this function supports the printRecDataOne function above
-    if (@array_key_exists($key,$retar)) {
+    if (@array_key_exists($key, $retar)) {
         $length = sizeof($retar{$key});
         if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
             $tmp = $retar{$key}[$length]{"value"};

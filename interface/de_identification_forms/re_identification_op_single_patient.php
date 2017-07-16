@@ -38,7 +38,7 @@ if($status == 0)
 ?>
 <html>
 <head>
-<title><?php xl('Re Identification','e'); ?></title>
+<title><?php xl('Re Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
     href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
@@ -53,12 +53,12 @@ if($status == 0)
 </style>
 </head>
 <body class="body_top">
-<strong><?php xl('Re Identification','e');  ?></strong>
+<strong><?php xl('Re Identification', 'e');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <form enctype="Re_identification_output" method="POST"><?php
-if ($_POST["re_id_code"]) {    $reIdCode = formData('re_id_code','P',true);  }
+if ($_POST["re_id_code"]) {    $reIdCode = formData('re_id_code', 'P', true);  }
 
 //to store input for re-idenitification
 $query = "DROP TABLE IF EXISTS temp_re_identification_code_table";
@@ -181,7 +181,7 @@ else if($status == 2)
         {
             $timestamp = addslashes($row['timestamp']);
         }
-        $timestamp = str_replace(" ","_",$timestamp);
+        $timestamp = str_replace(" ", "_", $timestamp);
         $filename = $GLOBALS['temporary_files_dir']."/re_identified_data".$timestamp.".xls";
         $query = "select * from re_identified_data into outfile '$filename' ";
         $res = sqlStatement($query);

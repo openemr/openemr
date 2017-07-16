@@ -70,7 +70,7 @@ function getInsuranceProvider($ins_id)
 {
 
     $sql = "select name from insurance_companies where id=?";
-    $row = sqlQuery($sql,array($ins_id));
+    $row = sqlQuery($sql, array($ins_id));
     return $row['name'];
 }
 
@@ -495,7 +495,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     // Debugging section above
 
     $sqlBindArray = array();
-    if(array_key_exists('last',$names) && $names['last'] == '') {
+    if(array_key_exists('last', $names) && $names['last'] == '') {
         // Do not search last name
         $where = "fname LIKE ? ";
         array_push($sqlBindArray, $names['first']);
@@ -503,7 +503,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
             $where .= "AND mname LIKE ? ";
             array_push($sqlBindArray, $names['middle']);
         }
-    } elseif(array_key_exists('first',$names) && $names['first'] == '') {
+    } elseif(array_key_exists('first', $names) && $names['first'] == '') {
         // Do not search first name or middle name
         $where = "lname LIKE ? ";
         array_push($sqlBindArray, $names['last']);
@@ -711,7 +711,7 @@ function getPatientPID($args)
     if ($pid == -1) $pid = "%";
     elseif (empty($pid)) $pid = "NULL";
 
-    if (strstr($pid,"%")) $command = "like";
+    if (strstr($pid, "%")) $command = "like";
 
     $sql="select $given from patient_data where pid $command '$pid' order by $orderby";
     if ($limit != "all") $sql .= " limit $start, $limit";
@@ -781,7 +781,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 //(CHEMED) Search by phone number
 function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $phone = preg_replace( "/[[:punct:]]/","", $phone );
+    $phone = preg_replace( "/[[:punct:]]/", "", $phone );
     $sqlBindArray = array();
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);
@@ -1270,10 +1270,10 @@ function newHistoryData($pid, $new = false)
 {
     $arraySqlBind = array();
     $sql = "insert into history_data set pid = ?, date = NOW()";
-    array_push($arraySqlBind,$pid);
+    array_push($arraySqlBind, $pid);
     if ($new) {
         while(list($key, $value) = each($new)) {
-            array_push($arraySqlBind,$value);
+            array_push($arraySqlBind, $value);
             $sql .= ", `$key` = ?";
         }
     }
@@ -1292,7 +1292,7 @@ function updateHistoryData($pid, $new)
         $arraySqlBind = array();
         $sql = "insert into history_data set `date` = NOW(), ";
     while(list($key, $value) = each($real)) {
-        array_push($arraySqlBind,$value);
+        array_push($arraySqlBind, $value);
         $sql .= "`$key` = ?, ";
     }
         $sql = substr($sql, 0, -2);
@@ -1309,9 +1309,9 @@ function getPatientAge($dobYMD, $nowYMD = null)
 {
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD,6,2);
-    $dobMonth = substr($dobYMD,4,2);
-    $dobYear = substr($dobYMD,0,4);
+    $dobDay = substr($dobYMD, 6, 2);
+    $dobMonth = substr($dobYMD, 4, 2);
+    $dobYear = substr($dobYMD, 0, 4);
 
     // set the 'now' date values
     if ($nowYMD == null) {
@@ -1320,9 +1320,9 @@ function getPatientAge($dobYMD, $nowYMD = null)
         $nowYear = date("Y");
     }
     else {
-        $nowDay = substr($nowYMD,6,2);
-        $nowMonth = substr($nowYMD,4,2);
-        $nowYear = substr($nowYMD,0,4);
+        $nowDay = substr($nowYMD, 6, 2);
+        $nowMonth = substr($nowYMD, 4, 2);
+        $nowYear = substr($nowYMD, 0, 4);
     }
 
     $dayDiff = $nowDay - $dobDay;
@@ -1362,9 +1362,9 @@ function parseAgeInfo($dob, $target)
     $dateDOB = preg_replace("/[-\s\/]/", "", $dob);
     ;
     // Prepare target (Y-M-D H:M:S)
-    $dateTarget = preg_replace("/[-\s\/]/","",$target);
+    $dateTarget = preg_replace("/[-\s\/]/", "", $target);
 
-    return getPatientAgeYMD($dateDOB,$dateTarget);
+    return getPatientAgeYMD($dateDOB, $dateTarget);
 }
 
 /**
@@ -1387,16 +1387,16 @@ function getPatientAgeYMD($dob, $date = null)
     }
     else {
         $datenow=preg_replace("/-/", "", $date);
-        $yearnow=substr($datenow,0,4);
-        $monthnow=substr($datenow,4,2);
-        $daynow=substr($datenow,6,2);
+        $yearnow=substr($datenow, 0, 4);
+        $monthnow=substr($datenow, 4, 2);
+        $daynow=substr($datenow, 6, 2);
         $datenow=$yearnow.$monthnow.$daynow;
     }
 
     $dob=preg_replace("/-/", "", $dob);
-    $dobyear=substr($dob,0,4);
-    $dobmonth=substr($dob,4,2);
-    $dobday=substr($dob,6,2);
+    $dobyear=substr($dob, 0, 4);
+    $dobmonth=substr($dob, 4, 2);
+    $dobday=substr($dob, 6, 2);
     $dob=$dobyear.$dobmonth.$dobday;
 
     //to compensate for 30, 31, 28, 29 days/month
@@ -1444,12 +1444,12 @@ function getPatientAgeYMD($dob, $date = null)
     $age_float = $age_year + $month_as_year_decimal;
 
     $age_in_months = $age_year * 12 + $months_since_birthday_float;
-    $age_in_months = round($age_in_months,2);  //round the months to xx.xx 2 floating points
-    $age = round($age_float,2);
+    $age_in_months = round($age_in_months, 2);  //round the months to xx.xx 2 floating points
+    $age = round($age_float, 2);
 
     // round the years to 2 floating points
     $ageinYMD = $age_year."y ".$months_since_birthday."m ".$days_since_dobday."d";
-    return compact('age','age_in_months','ageinYMD');
+    return compact('age', 'age_in_months', 'ageinYMD');
 }
 
 // Returns Age in days
@@ -1463,9 +1463,9 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
-    $dobDay = substr($dobYMD,6,2);
-    $dobMonth = substr($dobYMD,4,2);
-    $dobYear = substr($dobYMD,0,4);
+    $dobDay = substr($dobYMD, 6, 2);
+    $dobMonth = substr($dobYMD, 4, 2);
+    $dobYear = substr($dobYMD, 0, 4);
 
     // set the 'now' date values
     if ($nowYMD == null) {
@@ -1474,9 +1474,9 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
         $nowYear = date("Y");
     }
     else {
-        $nowDay = substr($nowYMD,6,2);
-        $nowMonth = substr($nowYMD,4,2);
-        $nowYear = substr($nowYMD,0,4);
+        $nowDay = substr($nowYMD, 6, 2);
+        $nowMonth = substr($nowYMD, 4, 2);
+        $nowYear = substr($nowYMD, 0, 4);
     }
 
     // do the date math
@@ -1498,7 +1498,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 {
     if($GLOBALS['age_display_format']=='1')
     {
-        $ageYMD=getPatientAgeYMD($dobYMD,$asOfYMD);
+        $ageYMD=getPatientAgeYMD($dobYMD, $asOfYMD);
         if(isset($GLOBALS['age_display_limit']) && $ageYMD['age']<=$GLOBALS['age_display_limit'])
         {
             return $ageYMD['ageinYMD'];
@@ -1515,7 +1515,7 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 }
 function dateToDB($date)
 {
-    $date=substr ($date,6,4)."-".substr ($date,3,2)."-".substr($date, 0,2);
+    $date=substr ($date, 6, 4)."-".substr ($date, 3, 2)."-".substr($date, 0, 2);
     return $date;
 }
 
@@ -1713,7 +1713,7 @@ function country_code($country_code = 0, $country_name = '')
 
 function DBToDate($date)
 {
-    $date=substr ($date,5,2)."/".substr ($date,8,2)."/".substr($date, 0,4);
+    $date=substr ($date, 5, 2)."/".substr ($date, 8, 2)."/".substr($date, 0, 4);
     return $date;
 }
 

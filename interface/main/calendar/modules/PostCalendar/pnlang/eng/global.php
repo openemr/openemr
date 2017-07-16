@@ -83,7 +83,7 @@ define('_CALWEDNESDAYSHORT', xl ('W{{Wednesday}}') );
 define('_CALTHURSDAYSHORT', xl ('T{{Thursday}}') );
 define('_CALFRIDAYSHORT', xl( 'F{{Friday}}') );
 define('_CALSATURDAYSHORT', xl ('S{{Saturday}}') );
-define('_CALSUNDAYSHORT',xl('S{{Sunday}}') );
+define('_CALSUNDAYSHORT', xl('S{{Sunday}}') );
 define('_CALSUNDAY', xl ('Sunday') );
 define('_CALMONDAY', xl ('Monday') );
 define('_CALTUESDAY', xl ('Tuesday') );

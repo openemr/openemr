@@ -22,8 +22,8 @@ use OpenEMR\Core\Header;
 
     <?php
     if ($_POST['form_yesno']) {
-        $form_yesno = filter_input(INPUT_POST,'form_yesno');
-        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST,'form_adreviewed'));
+        $form_yesno = filter_input(INPUT_POST, 'form_yesno');
+        $form_adreviewed = DateToYYYYMMDD(filter_input(INPUT_POST, 'form_adreviewed'));
         sqlQuery("UPDATE patient_data SET completed_ad = ?, ad_reviewed = ? where pid = ?", array($form_yesno,$form_adreviewed,$pid));
         // Close this window and refresh the calendar display.
         echo "</head><body>\n<script language='JavaScript'>\n";

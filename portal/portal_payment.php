@@ -61,8 +61,8 @@ $ccdata = array();
 $invdata = array();
 
 if( $edata ){
-    $ccdata = json_decode(aes256Decrypt($edata['checksum']),true);
-    $invdata = json_decode($edata['table_args'],true);
+    $ccdata = json_decode(aes256Decrypt($edata['checksum']), true);
+    $invdata = json_decode($edata['table_args'], true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 function bucks($amount)
@@ -370,7 +370,7 @@ echo '<htlm><head></head><body style="text-align: center; margin: auto;">';
                 </tr>
                 <tr>
                     <td><?php echo xlt('Paid Via'); ?>:</td>
-                    <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'),$payrow['method']); ?></td>
+                    <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'), $payrow['method']); ?></td>
                 </tr>
                 <tr>
                     <td><?php echo xlt('Authorized Id'); ?>:</td>
@@ -1164,7 +1164,7 @@ else{
                             if( isset( $_SESSION['authUserID'] ) )
                                 echo $ccdata["cc_number"] . "</span><br>";
                             else
-                                    echo "**********  ".substr($ccdata["cc_number"],-4) . "</span><br>";
+                                    echo "**********  ".substr($ccdata["cc_number"], -4) . "</span><br>";
                                     ?>
                             <strong><?php echo xlt('Exp Date');?>:  </strong><span id="ed"><?php echo attr($ccdata["month"])."/".attr($ccdata["year"])?></span><br>
                             <strong><?php echo xlt('Charge Total');?>:  </strong><span id="ct"><?php echo attr($invdata["form_paytotal"])?></span><br>

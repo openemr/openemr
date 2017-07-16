@@ -101,7 +101,7 @@ $installSettings['development_translations'] = 'BLANK';
 
 // Collect parameters(if exist) for installation configuration settings
 for ($i=1;$i < count($argv); $i++) {
-    $indexandvalue = explode("=",$argv[$i]);
+    $indexandvalue = explode("=", $argv[$i]);
     $index = $indexandvalue[0];
     $value = $indexandvalue[1];
     $installSettings[$index] = $value;

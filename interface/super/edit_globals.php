@@ -52,9 +52,9 @@ function checkCreateCDB()
     if( !empty($GLOBALS['document_storage_method']) ) {
         // /documents/temp/ folder is required for CouchDB
         if(!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')){
-            $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/',0777,true);
+            $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/', 0777, true);
             if(!$directory_created){
-                echo htmlspecialchars( xl("Failed to create temporary folder. CouchDB will not work."),ENT_NOQUOTES);
+                echo htmlspecialchars( xl("Failed to create temporary folder. CouchDB will not work."), ENT_NOQUOTES);
             }
         }
         $couch = new CouchDB();
@@ -79,7 +79,7 @@ function updateBackgroundService($name, $active, $interval)
    //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
     $sql = 'UPDATE background_services SET active=?, '
     . 'next_run = next_run + INTERVAL (? - execute_interval) MINUTE, execute_interval=? WHERE name=?';
-    return sqlStatement($sql,array($active,$interval,$interval,$name));
+    return sqlStatement($sql, array($active,$interval,$interval,$name));
 }
 
 /**
@@ -144,7 +144,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
                     list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
                     $label = "global:".$fldid;
                     $fldvalue = trim($_POST["form_$i"]);
-                    setUserSetting($label,$fldvalue,$_SESSION['authId'],false);
+                    setUserSetting($label, $fldvalue, $_SESSION['authId'], false);
                     if ( $_POST["toggle_$i"] == "YES" ) {
                         removeUserSetting($label);
                     }
@@ -182,8 +182,8 @@ if (array_key_exists('form_download', $_POST) && $_POST['form_download']) {
     }
     if(array_key_exists('status', $response) && $response['status'] == "1") {//WEBSERVICE RETURNED VALUE SUCCESSFULLY
         $tmpfilename  = realpath(sys_get_temp_dir())."/".date('YmdHis').".zip";
-        $fp           = fopen($tmpfilename,"wb");
-        fwrite($fp,base64_decode($response['value']));
+        $fp           = fopen($tmpfilename, "wb");
+        fwrite($fp, base64_decode($response['value']));
         fclose($fp);
         $practice_filename    = $response['file_name'];//practicename.zip
         ob_clean();
@@ -232,7 +232,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
    */
 
   // Get all the globals from DB
-    $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index',false,true );
+    $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true );
 
     $i = 0;
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
@@ -277,7 +277,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                       // Need to force enable_auditlog_encryption off if the php mcrypt module
                       // is not installed.
                     if ( $force_off_enable_auditlog_encryption && ($fldid  == "enable_auditlog_encryption") ) {
-                          error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed",0);
+                          error_log("OPENEMR ERROR: UNABLE to support auditlog encryption since the php mcrypt module is not installed", 0);
                           $fldvalue=0;
                     }
                       // special treatment for some vars
@@ -299,7 +299,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
     }
     checkCreateCDB();
     checkBackgroundServices();
-    handleAltServices('ccdaservice','ccda_alt_service_enable', 1);
+    handleAltServices('ccdaservice', 'ccda_alt_service_enable', 1);
   
   // July 1, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
   // If Audit Logging status has changed, log it.
@@ -450,7 +450,7 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 $userSetting = "";
                 $settingDefault = "checked='checked'";
                 if ($userMode) {
-                           $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?",array($_SESSION['authId'],"global:".$fldid));
+                           $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", array($_SESSION['authId'],"global:".$fldid));
                            $userSetting = $userSettingArray['setting_value'];
                            $globalValue = $fldvalue;
                     if (!empty($userSettingArray)) {

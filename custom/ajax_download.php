@@ -38,7 +38,7 @@ $fileName = ( isset($_GET['fileName']) ) ? $_GET['fileName'] : "";
 $provider_id = $_POST['provider_id'];
 
 if ( $fileName ) {
-    $fileList = explode(",",$fileName);
+    $fileList = explode(",", $fileName);
     //if ( strpos($fileName,",") !== FALSE ) {
     if ( count($fileList) > 1 ) {
         // Multiple files, zip them together
@@ -51,7 +51,7 @@ if ( $fileName ) {
         }
         foreach ( $fileList as $eachFile ) {
                         check_file_dir_name($eachFile);
-            $zip->addFile($qrda_file_path.$eachFile,$eachFile);
+            $zip->addFile($qrda_file_path.$eachFile, $eachFile);
         }
         $zip->close();
         foreach ( $fileList as $eachFile ) {
@@ -74,7 +74,7 @@ if ( $fileName ) {
 }
 
 $report_view = collectReportDatabase($reportID);
-$dataSheet = json_decode($report_view['data'],true);
+$dataSheet = json_decode($report_view['data'], true);
 $target_date = $report_view['date_target'];
 
 $criteriaPatients = getCombinePatients($dataSheet, $reportID);
@@ -104,7 +104,7 @@ if ( count($patients) ) {
     }
     foreach ( $files as $eachFile ) {
         $filePath = $qrda_file_path . $eachFile;
-        $zip->addFile($filePath,$eachFile);
+        $zip->addFile($filePath, $eachFile);
     }
     $zip->close();
     //Deleting the files after closing the zip

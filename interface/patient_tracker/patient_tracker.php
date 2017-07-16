@@ -217,7 +217,7 @@ else {
                     ?>
                 </td>
                 <td class='label_custom'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                     <select id="form_apptcat" name="form_apptcat">
@@ -369,7 +369,7 @@ foreach ( $appointments as $appointment ) {
 
         # Collect appt date and set up squashed date for use below
         $date_appt = $appointment['pc_eventDate'];
-        $date_squash = str_replace("-","",$date_appt);
+        $date_squash = str_replace("-", "", $date_appt);
 
         # Collect variables and do some processing
         $docname  = $chk_prov[$appointment['uprovider_id']];
@@ -396,7 +396,7 @@ foreach ( $appointments as $appointment ) {
     if ( is_checkout($status) && ($GLOBALS['checkout_roll_off'] > 0) ) {
         $to_time = strtotime($newend);
         $from_time = strtotime($datetime);
-        $display_check_out = round(abs($from_time - $to_time) / 60,0);
+        $display_check_out = round(abs($from_time - $to_time) / 60, 0);
         if ( $display_check_out >= $GLOBALS['checkout_roll_off'] ) continue;
     }
 ?>
@@ -436,7 +436,7 @@ foreach ( $appointments as $appointment ) {
             <?php } else { ?>
            <a href=""  onclick="return bpopup(<?php echo attr($tracker_id); # calls popup for patient tracker status?>)">
             <?php } ?>
-    <?php echo text(getListItemTitle("apptstat",$status)); # drop down list for appointment status?>
+    <?php echo text(getListItemTitle("apptstat", $status)); # drop down list for appointment status?>
      </a>
 
      </td>
@@ -455,7 +455,7 @@ else
        $yestime = '1';
 }
 
-    $timecheck = round(abs($to_time - $from_time) / 60,0);
+    $timecheck = round(abs($to_time - $from_time) / 60, 0);
 if ($timecheck >= $statalert && ($statalert != '0')) { # Determine if the time in status limit has been reached.
     echo "<td align='center' class='js-blink-infinite'>	"; # and if so blink
 }
@@ -490,7 +490,7 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
           $from_time = strtotime($newarrive);
           $to_time = strtotime(date("Y-m-d H:i:s"));
     }
-     $timecheck2 = round(abs($to_time - $from_time) / 60,0);
+     $timecheck2 = round(abs($to_time - $from_time) / 60, 0);
     if (strtotime($newarrive) != '' && ($timecheck2 >=1)) {
           echo text($timecheck2 . ' ' .($timecheck2 >=2 ? xl('minutes'): xl('minute')));
     }

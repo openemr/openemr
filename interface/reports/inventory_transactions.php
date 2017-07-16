@@ -137,7 +137,7 @@ if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."),
 $form_action = $_POST['form_action'];
 
 $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
 $encount = 0;
@@ -267,7 +267,7 @@ foreach (array(
        title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
      <td class='label_custom'>
-        <?php xl('To','e'); ?>:
+        <?php xl('To', 'e'); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_to_date' id="form_to_date" size='10'

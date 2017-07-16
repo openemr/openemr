@@ -66,7 +66,7 @@ if (file_exists($practice_logo)) {
 <a href="javascript:window.close();"><font class=title><?php print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td><?php xl('Generated on','e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
+<tr><td><?php xl('Generated on', 'e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
 $encounter . "' and pid='$pid'"))
@@ -76,7 +76,7 @@ $encounter . "' and pid='$pid'"))
 
 }
 ?>
-<tr><td><?php xl('Date Of Service','e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
+<tr><td><?php xl('Date Of Service', 'e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
 </table>
 <br><br>
 <?php
@@ -125,7 +125,7 @@ foreach ($ar as $key => $val) {
   }
   ****/
 
-    if (stristr($key,"include_")) {
+    if (stristr($key, "include_")) {
       //print "include: $val<br>\n";
 
         if ($val == "demographics") {
@@ -146,11 +146,11 @@ foreach ($ar as $key => $val) {
         } elseif ($val == "insurance") {
 
             print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
             print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
             print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
 
         } elseif ($val == "billing") {
 
@@ -162,8 +162,8 @@ foreach ($ar as $key => $val) {
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
-                    $ta = explode(":",$be);
-                    $billing = getPatientBillingEncounter($pid,$ta[1]);
+                    $ta = explode(":", $be);
+                    $billing = getPatientBillingEncounter($pid, $ta[1]);
                     $billings[] = $billing;
                     foreach ($billing as $b) {
                         echo "<tr>\n";
@@ -237,7 +237,7 @@ foreach ($ar as $key => $val) {
                 if (!is_numeric($document_id)) continue;
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
-                $extension = substr($fname, strrpos($fname,"."));
+                $extension = substr($fname, strrpos($fname, "."));
                 echo "Document '" . $fname ."'<br>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
@@ -323,7 +323,7 @@ foreach ($ar as $key => $val) {
 ?>
 <table border="1" cellpadding=5>
 <?php
-if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
     $billing_html = array();
         $total = 0.0;
     $copay = 0.0;
@@ -362,7 +362,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 ."</td><td>" . oeFormatMoney($iter['fee']) . "</td></tr>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $total += $iter['fee'];
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if(!empty($j)) {
@@ -384,7 +384,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 
     $billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . oeFormatMoney($total) . "</td></tr>\n";
 ?>
-<tr><td><?php xl('code type','e'); ?></td><td><?php xl('code','e'); ?></td><td><?php xl('description','e'); ?></td><td><?php xl('fee','e'); ?></td></tr>
+<tr><td><?php xl('code type', 'e'); ?></td><td><?php xl('code', 'e'); ?></td><td><?php xl('description', 'e'); ?></td><td><?php xl('fee', 'e'); ?></td></tr>
 <?php
     $key = "ICD9";
 $val = $billing_html[$key];

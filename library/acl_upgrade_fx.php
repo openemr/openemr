@@ -155,7 +155,7 @@ function addObjectSectionAcl($name, $title)
         echo "The '$title' object section already exist.</BR>";
     }
     else {
-        $tmp_boolean = $gacl->add_object_section($title , $name, 10, 0, 'ACO');
+        $tmp_boolean = $gacl->add_object_section($title, $name, 10, 0, 'ACO');
         if ($tmp_boolean) {
             echo "The '$title' object section has been successfully added.</BR>";
         }

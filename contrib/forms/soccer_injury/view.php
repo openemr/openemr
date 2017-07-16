@@ -234,9 +234,9 @@ if ($formid) {
         <?php echo rbcell('gameplay', '4', '4th Quarter', 'sigametime') ?>
     </tr>
     <tr>
-        <?php echo rbcell('gameplay', '5', 'Warm Up'   , 'sigametime') ?>
+        <?php echo rbcell('gameplay', '5', 'Warm Up', 'sigametime') ?>
         <?php echo rbcell('gameplay', '6', 'Extra Time', 'sigametime') ?>
-        <?php echo rbcell('gameplay', '7', 'Cool Down' , 'sigametime') ?>
+        <?php echo rbcell('gameplay', '7', 'Cool Down', 'sigametime') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>
@@ -248,9 +248,9 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('gameplay', '11', 'Warm Up'       , 'sigametime') ?>
+        <?php echo rbcell('gameplay', '11', 'Warm Up', 'sigametime') ?>
         <?php echo rbcell('gameplay', '12', 'During Session', 'sigametime') ?>
-        <?php echo rbcell('gameplay', '13', 'Cool Down'     , 'sigametime') ?>
+        <?php echo rbcell('gameplay', '13', 'Cool Down', 'sigametime') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>
@@ -266,14 +266,14 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('activity', '1', 'Tackling'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '2', 'Tackled'     , 'simechanism') ?>
-        <?php echo rbcell('activity', '3', 'Collision'   , 'simechanism') ?>
-        <?php echo rbcell('activity', '4', 'Kicked'      , 'simechanism') ?>
+        <?php echo rbcell('activity', '1', 'Tackling', 'simechanism') ?>
+        <?php echo rbcell('activity', '2', 'Tackled', 'simechanism') ?>
+        <?php echo rbcell('activity', '3', 'Collision', 'simechanism') ?>
+        <?php echo rbcell('activity', '4', 'Kicked', 'simechanism') ?>
     </tr>
     <tr>
         <?php echo rbcell('activity', '5', 'Use of Elbow', 'simechanism') ?>
-        <?php echo rbcell('activity', '6', 'Hit by Ball' , 'simechanism') ?>
+        <?php echo rbcell('activity', '6', 'Hit by Ball', 'simechanism') ?>
      <td colspan='2' nowrap>
         <?php echo rbinput('activity', '7', 'Other:', 'simechanism') ?>
       <input type='text' name='activity_other' size='10'
@@ -290,22 +290,22 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('activity', '11', 'Passing'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '12', 'Shooting'   , 'simechanism') ?>
-        <?php echo rbcell('activity', '13', 'Running'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '14', 'Dribbling'  , 'simechanism') ?>
+        <?php echo rbcell('activity', '11', 'Passing', 'simechanism') ?>
+        <?php echo rbcell('activity', '12', 'Shooting', 'simechanism') ?>
+        <?php echo rbcell('activity', '13', 'Running', 'simechanism') ?>
+        <?php echo rbcell('activity', '14', 'Dribbling', 'simechanism') ?>
     </tr>
     <tr>
-        <?php echo rbcell('activity', '15', 'Heading'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '16', 'Jumping'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '17', 'Landing'    , 'simechanism') ?>
-        <?php echo rbcell('activity', '18', 'Fall'       , 'simechanism') ?>
+        <?php echo rbcell('activity', '15', 'Heading', 'simechanism') ?>
+        <?php echo rbcell('activity', '16', 'Jumping', 'simechanism') ?>
+        <?php echo rbcell('activity', '17', 'Landing', 'simechanism') ?>
+        <?php echo rbcell('activity', '18', 'Fall', 'simechanism') ?>
     </tr>
     <tr>
-        <?php echo rbcell('activity', '19', 'Stretching'   , 'simechanism') ?>
+        <?php echo rbcell('activity', '19', 'Stretching', 'simechanism') ?>
         <?php echo rbcell('activity', '20', 'Twist/Turning', 'simechanism') ?>
-        <?php echo rbcell('activity', '21', 'Throwing'     , 'simechanism') ?>
-        <?php echo rbcell('activity', '22', 'Diving'       , 'simechanism') ?>
+        <?php echo rbcell('activity', '21', 'Throwing', 'simechanism') ?>
+        <?php echo rbcell('activity', '22', 'Diving', 'simechanism') ?>
     </tr>
     <tr>
      <td colspan='4' nowrap>
@@ -328,15 +328,15 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('surface', '1', 'Pitch'      , 'sisurface') ?>
-        <?php echo rbcell('surface', '2', 'Training'   , 'sisurface') ?>
-        <?php echo rbcell('surface', '3', 'Artificial' , 'sisurface') ?>
+        <?php echo rbcell('surface', '1', 'Pitch', 'sisurface') ?>
+        <?php echo rbcell('surface', '2', 'Training', 'sisurface') ?>
+        <?php echo rbcell('surface', '3', 'Artificial', 'sisurface') ?>
         <?php echo rbcell('surface', '4', 'All Weather', 'sisurface') ?>
     </tr>
     <tr>
-        <?php echo rbcell('surface', '5', 'Indoor'     , 'sisurface') ?>
-        <?php echo rbcell('surface', '6', 'Gym'        , 'sisurface') ?>
-        <?php echo rbcell('surface', '7', 'Other'      , 'sisurface') ?>
+        <?php echo rbcell('surface', '5', 'Indoor', 'sisurface') ?>
+        <?php echo rbcell('surface', '6', 'Gym', 'sisurface') ?>
+        <?php echo rbcell('surface', '7', 'Other', 'sisurface') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>
@@ -348,19 +348,19 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('position', '1', 'Defender'        , 'siposition') ?>
+        <?php echo rbcell('position', '1', 'Defender', 'siposition') ?>
         <?php echo rbcell('position', '2', 'Midfield Offense', 'siposition') ?>
         <?php echo rbcell('position', '3', 'Midfield Defense', 'siposition') ?>
-        <?php echo rbcell('position', '4', 'Wing Back'       , 'siposition') ?>
+        <?php echo rbcell('position', '4', 'Wing Back', 'siposition') ?>
     </tr>
     <tr>
-        <?php echo rbcell('position', '5', 'Forward'         , 'siposition') ?>
-        <?php echo rbcell('position', '6', 'Striker'         , 'siposition') ?>
-        <?php echo rbcell('position', '7', 'Goal Keeper'     , 'siposition') ?>
-        <?php echo rbcell('position', '8', 'Starting Lineup' , 'siposition') ?>
+        <?php echo rbcell('position', '5', 'Forward', 'siposition') ?>
+        <?php echo rbcell('position', '6', 'Striker', 'siposition') ?>
+        <?php echo rbcell('position', '7', 'Goal Keeper', 'siposition') ?>
+        <?php echo rbcell('position', '8', 'Starting Lineup', 'siposition') ?>
     </tr>
     <tr>
-        <?php echo rbcell('position', '9', 'Substitute'      , 'siposition') ?>
+        <?php echo rbcell('position', '9', 'Substitute', 'siposition') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
@@ -374,10 +374,10 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('footwear', '1', 'Molded Cleat'     , 'sifootwear') ?>
+        <?php echo rbcell('footwear', '1', 'Molded Cleat', 'sifootwear') ?>
         <?php echo rbcell('footwear', '2', 'Detachable Cleats', 'sifootwear') ?>
-        <?php echo rbcell('footwear', '3', 'Indoor Shoes'     , 'sifootwear') ?>
-        <?php echo rbcell('footwear', '4', 'Turf Shoes'       , 'sifootwear') ?>
+        <?php echo rbcell('footwear', '3', 'Indoor Shoes', 'sifootwear') ?>
+        <?php echo rbcell('footwear', '4', 'Turf Shoes', 'sifootwear') ?>
     </tr>
    </table>
   </td>
@@ -388,14 +388,14 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo cbcell('equip_1', 'Shin Pads'      , 'siequip_1') ?>
-        <?php echo cbcell('equip_2', 'Gloves'         , 'siequip_2') ?>
+        <?php echo cbcell('equip_1', 'Shin Pads', 'siequip_1') ?>
+        <?php echo cbcell('equip_2', 'Gloves', 'siequip_2') ?>
         <?php echo cbcell('equip_3', 'Ankle Strapping', 'siequip_3') ?>
-        <?php echo cbcell('equip_4', 'Knee Strapping' , 'siequip_4') ?>
+        <?php echo cbcell('equip_4', 'Knee Strapping', 'siequip_4') ?>
     </tr>
     <tr>
-        <?php echo cbcell('equip_5', 'Bracing'        , 'siequip_5') ?>
-        <?php echo cbcell('equip_6', 'Synthetic Cast' , 'siequip_6') ?>
+        <?php echo cbcell('equip_5', 'Bracing', 'siequip_5') ?>
+        <?php echo cbcell('equip_6', 'Synthetic Cast', 'siequip_6') ?>
      <td width='25%'>&nbsp;</td>
      <td width='25%'>&nbsp;</td>
     </tr>
@@ -408,9 +408,9 @@ if ($formid) {
   <td nowrap>
    <table width='100%'>
     <tr>
-        <?php echo rbcell('side', '1', 'Left'          , 'siside') ?>
-        <?php echo rbcell('side', '2', 'Right'         , 'siside') ?>
-        <?php echo rbcell('side', '3', 'Bilateral'     , 'siside') ?>
+        <?php echo rbcell('side', '1', 'Left', 'siside') ?>
+        <?php echo rbcell('side', '2', 'Right', 'siside') ?>
+        <?php echo rbcell('side', '3', 'Bilateral', 'siside') ?>
         <?php echo rbcell('side', '4', 'Not Applicable', 'siside') ?>
     </tr>
    </table>
@@ -427,8 +427,8 @@ if ($formid) {
    <table width='100%'>
     <tr>
         <?php echo rbcell('removed', '1', 'Immediately', 'siremoved') ?>
-        <?php echo rbcell('removed', '2', 'Later'      , 'siremoved') ?>
-        <?php echo rbcell('removed', '3', 'Not at All' , 'siremoved') ?>
+        <?php echo rbcell('removed', '2', 'Later', 'siremoved') ?>
+        <?php echo rbcell('removed', '3', 'Not at All', 'siremoved') ?>
      <td width='25%'>&nbsp;</td>
     </tr>
    </table>
@@ -441,18 +441,18 @@ if ($formid) {
    <table width='100%'>
     <tr>
         <?php echo cbcell('treat_1', 'Hospital A&amp;E Dept', 'sitreat_1') ?>
-        <?php echo cbcell('treat_2', 'General Practitioner' , 'sitreat_2') ?>
-        <?php echo cbcell('treat_3', 'Physiotherapist'      , 'sitreat_3') ?>
-        <?php echo cbcell('treat_4', 'Nurse'                , 'sitreat_4') ?>
+        <?php echo cbcell('treat_2', 'General Practitioner', 'sitreat_2') ?>
+        <?php echo cbcell('treat_3', 'Physiotherapist', 'sitreat_3') ?>
+        <?php echo cbcell('treat_4', 'Nurse', 'sitreat_4') ?>
     </tr>
     <tr>
-        <?php echo cbcell('treat_5', 'Hospital Specialist'  , 'sitreat_5') ?>
-        <?php echo cbcell('treat_6', 'Osteopath'            , 'sitreat_6') ?>
-        <?php echo cbcell('treat_7', 'Chiropractor'         , 'sitreat_7') ?>
-        <?php echo cbcell('treat_8', 'Sports Massage Th'    , 'sitreat_8') ?>
+        <?php echo cbcell('treat_5', 'Hospital Specialist', 'sitreat_5') ?>
+        <?php echo cbcell('treat_6', 'Osteopath', 'sitreat_6') ?>
+        <?php echo cbcell('treat_7', 'Chiropractor', 'sitreat_7') ?>
+        <?php echo cbcell('treat_8', 'Sports Massage Th', 'sitreat_8') ?>
     </tr>
     <tr>
-        <?php echo cbcell('treat_9', 'Sports Physician'     , 'sitreat_9') ?>
+        <?php echo cbcell('treat_9', 'Sports Physician', 'sitreat_9') ?>
      <td colspan='3' nowrap>
         <?php echo cbinput('treat_10', 'sitreat_10') ?>Other:
       <input type='text' name='treat_other' size='10'

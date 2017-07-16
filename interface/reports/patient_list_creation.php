@@ -35,9 +35,9 @@ use OpenEMR\Core\Header;
 function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 {
     $cd = strtotime($givendate);
-    $newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),
-    date('i',$cd), date('s',$cd), date('m',$cd)+$mth,
-    date('d',$cd)+$day, date('Y',$cd)+$yr));
+    $newdate = date('Y-m-d H:i:s', mktime(date('h', $cd),
+    date('i', $cd), date('s', $cd), date('m', $cd)+$mth,
+    date('d', $cd)+$day, date('Y', $cd)+$yr));
     return $newdate;
 }
     if($_POST['date_from'] != "")
@@ -48,7 +48,7 @@ else
     if($_POST['date_to'] != "")
         $sql_date_to = $_POST['date_to'];
 else
-        $sql_date_to = fixDate($_POST['date_to']  , add_date(date('Y-m-d H:i:s')));
+        $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
 
     //echo "<pre>";print_r($_POST);
     $patient_id = trim($_POST["patient_id"]);
@@ -492,13 +492,13 @@ break;
                 if($_REQUEST['sortby'] =="communications"){
                     $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_REQUEST['sortorder']).", communications ".escape_sort_order($_REQUEST['sortorder']);
                 }else{
-                    $odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'],$sort,true)." ".escape_sort_order($_REQUEST['sortorder']);
+                    $odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'], $sort, true)." ".escape_sort_order($_REQUEST['sortorder']);
                 }
             }
 
             $sqlstmt=$sqlstmt." ".$whr_stmt." ".$odrstmt;
             //echo $sqlstmt."<hr>";
-            $result = sqlStatement($sqlstmt,$sqlBindArray);
+            $result = sqlStatement($sqlstmt, $sqlBindArray);
             //print_r($result);
             $row_id = 1.1;//given to each row to identify and toggle
             $img_id = 1.2;
@@ -610,8 +610,8 @@ break;
                         foreach($patFinalDataArr as $patKey => $labResInsideArr){?>
                                 <tr bgcolor = "#CCCCCC" >
                                                     <td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
-                                                    <td> <?php echo text($labResInsideArr['procedure_result_facility'],ENT_NOQUOTES); ?>&nbsp;</td>
-                                                    <td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'),$labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
+                                                    <td> <?php echo text($labResInsideArr['procedure_result_facility'], ENT_NOQUOTES); ?>&nbsp;</td>
+                                                    <td> <?php echo generate_display_field(array('data_type'=>'1','list_id'=>'proc_unit'), $labResInsideArr['procedure_result_units']); ?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_result']); ?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_range']); ?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_abnormal']); ?>&nbsp;</td>

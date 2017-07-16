@@ -45,14 +45,14 @@ function validate_user_password($username, &$password, $provider)
     }
     else
     {
-        $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
+        $getUserSecureSQL= " SELECT " . implode(",", array(COL_ID,COL_PWD,COL_SALT))
                         ." FROM ".TBL_USERS_SECURE
                         ." WHERE BINARY ".COL_UNM."=?";
                         // Use binary keyword to require case sensitive username match
-        $userSecure=privQuery($getUserSecureSQL,array($username));
+        $userSecure=privQuery($getUserSecureSQL, array($username));
         if(is_array($userSecure))
         {
-            $phash=oemr_password_hash($password,$userSecure[COL_SALT]);
+            $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
             if($phash!=$userSecure[COL_PWD])
             {
 
@@ -65,7 +65,7 @@ function validate_user_password($username, &$password, $provider)
             if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
             {
                 $getUserSQL="select username,id, password from users where BINARY username = ?";
-                $userInfo = privQuery($getUserSQL,array($username));
+                $userInfo = privQuery($getUserSQL, array($username));
                 if($userInfo===false)
                 {
                     return false;
@@ -85,8 +85,8 @@ function validate_user_password($username, &$password, $provider)
                 }
                 if($valid)
                 {
-                    $phash=initializePassword($username,$userInfo['id'],$password);
-                    purgeCompatabilityPassword($username,$userInfo['id']);
+                    $phash=initializePassword($username, $userInfo['id'], $password);
+                    purgeCompatabilityPassword($username, $userInfo['id']);
                     $_SESSION['relogin'] = 1;
                 }
                 else
@@ -100,7 +100,7 @@ function validate_user_password($username, &$password, $provider)
     $getUserSQL="select id, authorized, see_auth".
                         ", active ".
                         " from users where BINARY username = ?";
-    $userInfo = privQuery($getUserSQL,array($username));
+    $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
         newEvent( 'login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
@@ -111,7 +111,7 @@ function validate_user_password($username, &$password, $provider)
     $password='';
     if($valid)
     {
-        if ($authGroup = privQuery("select * from groups where user=? and name=?",array($username,$provider)))
+        if ($authGroup = privQuery("select * from groups where user=? and name=?", array($username,$provider)))
         {
             $_SESSION['authUser'] = $username;
             $_SESSION['authPass'] = $phash;

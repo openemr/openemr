@@ -93,14 +93,14 @@ class CcrController extends AbstractActionController
         if($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
             $category_details          = $this->getCcrTable()->fetch_cat_id('CCR');
-            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
+            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
         }
         $doc_id     = $_REQUEST["document_id"];
         $content    = $this->getCcrTable()->getDocument($doc_id);
         if($request->getQuery('document_id')) {
             $replace    = array('<ccr:ContinuityOfCareRecord xsi:schemaLocation="urn:astm-org:CCR CCRV1.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ccr="urn:astm-org:CCR">','ccr:');
             $to_replace = array('<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">','');
-            $content    = str_replace($replace,$to_replace, $content);
+            $content    = str_replace($replace, $to_replace, $content);
             $content    = preg_replace('/BirthName/', 'CurrentName', $content, 2);
            
         }
@@ -163,7 +163,7 @@ class CcrController extends AbstractActionController
         );
         if(!empty($content)){
             $var = array();
-            $res = $this->getCcrTable()->parseXmlStream($content,$field_mapping);
+            $res = $this->getCcrTable()->parseXmlStream($content, $field_mapping);
             $var = array(
                 'approval_status' => 1,
                 'type' => 11,
@@ -172,7 +172,7 @@ class CcrController extends AbstractActionController
             foreach($res as $sections=>$details){
                 foreach($details as $cnt=>$vals){
                     foreach($vals as $key=>$val){
-                        if(array_key_exists('#Type',$res[$sections][$cnt])){
+                        if(array_key_exists('#Type', $res[$sections][$cnt])){
                             if($key == 'postal_code'){
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;
                             }
@@ -180,7 +180,7 @@ class CcrController extends AbstractActionController
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
                             }
                             elseif($key == 'abname'){
-                                $values = explode(' ',$val);
+                                $values = explode(' ', $val);
                                 if($values[0]){
                                     $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                                 }
@@ -203,8 +203,8 @@ class CcrController extends AbstractActionController
                                 }
                             }
                             if($sections == 'lists2' && $key == 'type'){
-                                if(strpos($val,"-")){
-                                    $vals = explode("-",$val);
+                                if(strpos($val, "-")){
+                                    $vals = explode("-", $val);
                                     $val = $vals[0];
                                 }
                                 else{
@@ -223,7 +223,7 @@ class CcrController extends AbstractActionController
                             $var['entry_identification_array'][$sections][$cnt] = $cnt;
                         }
                     }
-                    if(array_key_exists('#Type',$var['field_name_value_array']['misc_address_book'][$cnt])){
+                    if(array_key_exists('#Type', $var['field_name_value_array']['misc_address_book'][$cnt])){
                         unset($var['field_name_value_array']['misc_address_book'][$cnt]['#Type']);
                     }
                 }
@@ -263,11 +263,11 @@ class CcrController extends AbstractActionController
         
         if($request->getPost('setval') == 'approve'){
             $this->getCcrTable()->insertApprovedData($_REQUEST);
-            return $this->redirect()->toRoute('ccr',array('action'=>'index'));
+            return $this->redirect()->toRoute('ccr', array('action'=>'index'));
         }
         else if($request->getPost('setval') == 'discard'){
             $this->getCcrTable()->discardCCRData(array('audit_master_id' => $audit_master_id));
-            return $this->redirect()->toRoute('ccr',array('action'=>'index'));
+            return $this->redirect()->toRoute('ccr', array('action'=>'index'));
         }
         
         $demographics       = $this->getCcrTable()->getDemographics(array('audit_master_id' => $audit_master_id));

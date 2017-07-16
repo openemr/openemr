@@ -40,7 +40,7 @@ $pid = $_GET['pid'];
 
 if ($pid == "") {
     // no pid? no graph for you.
-    echo "<p>" . xl('Missing PID.','','',' ') .  xl('Please close this window.') . "</p>";
+    echo "<p>" . xl('Missing PID.', '', '', ' ') .  xl('Please close this window.') . "</p>";
     exit;
 }
 
@@ -79,11 +79,11 @@ function unitsWt($wt)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($wt*0.45359237),2,'.','').xl('kg','',' '));
+        return (number_format(($wt*0.45359237), 2, '.', '').xl('kg', '', ' '));
     }
     else {
     //keep US units
-        return $wt.xl('lb','',' ');
+        return $wt.xl('lb', '', ' ');
     }
 }
 
@@ -92,11 +92,11 @@ function unitsDist($dist)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($dist*2.54),2,'.','').xl('cm','',' '));
+        return (number_format(($dist*2.54), 2, '.', '').xl('cm', '', ' '));
     }
     else {
         //keep US units
-        return $dist.xl('in','',' ');
+        return $dist.xl('in', '', ' ');
     }
 }
 
@@ -316,17 +316,17 @@ function cssHeader()
     win.printLogPrint(window);
   }
     </SCRIPT>
-    <title><?php xl('Growth Chart','e'); ?></title>
+    <title><?php xl('Growth Chart', 'e'); ?></title>
     </head>
     <body Onload="FormSetup()">
     <div class="DoNotPrint">
         <table>
             <tr>
                 <td>
-                    <input type="button" value="<?php xl('View Page 1','e'); ?>" onclick="javascript:changeStyle('page1')" class="button">
-                    <input type="button" value="<?php xl('View Page 2','e'); ?>" onclick="javascript:changeStyle('page2')" class="button">
-                    <input type="button" value="<?php xl('Print Page 1','e'); ?>" onclick="javascript:pagePrint('page1')" class="button">
-                    <input type="button" value="<?php xl('Print Page 2','e'); ?>" onclick="javascript:pagePrint('page2')" class="button">
+                    <input type="button" value="<?php xl('View Page 1', 'e'); ?>" onclick="javascript:changeStyle('page1')" class="button">
+                    <input type="button" value="<?php xl('View Page 2', 'e'); ?>" onclick="javascript:changeStyle('page2')" class="button">
+                    <input type="button" value="<?php xl('Print Page 1', 'e'); ?>" onclick="javascript:pagePrint('page1')" class="button">
+                    <input type="button" value="<?php xl('Print Page 2', 'e'); ?>" onclick="javascript:pagePrint('page2')" class="button">
                 </td>
             </tr>
         </table>
@@ -385,9 +385,9 @@ function convertpoint($coord)
 
     //calculate conversion to pt (decrease number of decimals)
     $Xcoord = ($cssWidth*$Xcoord)/1000;
-    $Xcoord = number_format($Xcoord,1,'.','');
+    $Xcoord = number_format($Xcoord, 1, '.', '');
     $Ycoord = ($cssHeight*$Ycoord)/1294;
-    $Ycoord = number_format($Ycoord,1,'.','');
+    $Ycoord = number_format($Ycoord, 1, '.', '');
 
     //return point
     return(array($Xcoord,$Ycoord,$page));
@@ -397,7 +397,7 @@ function convertpoint($coord)
 if ($_GET['html'] == 1) {
     //build the html css page if selected
     cssHeader();
-    cssPage($chartCss1,$chartCss2);
+    cssPage($chartCss1, $chartCss2);
 
     //output name
     $point = convertpoint(array($name_x,$name_y));
@@ -469,7 +469,7 @@ if ($_GET['html'] == 1) {
 
         // fill in data tables
 
-        $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
+        $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
 
         //birth to 24 mos chart has 8 rows to fill.
         if ($count < 8 && $charttype == "birth") {
@@ -497,7 +497,7 @@ if ($_GET['html'] == 1) {
             $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
             echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
             $point = convertpoint(array($datatable_x+$datatable_bmi_offset,$datatable_y));
-            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi, 0, 5) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
 
@@ -527,7 +527,7 @@ if ($_GET['html'] == 1) {
             $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
             echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
             $point = convertpoint(array($datatable2_x+$datatable2_bmi_offset,$datatable2_y));
-            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi, 0, 5) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
@@ -611,7 +611,7 @@ foreach ($datapoints as $data) {
 
     // fill in data tables
 
-    $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
+    $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
 
     //birth to 24 mos chart has 8 rows to fill.
     if ($count < 8 && $charttype == "birth") {
@@ -629,7 +629,7 @@ foreach ($datapoints as $data) {
         imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
         imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
         imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi,0,5), $color);
+        imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi, 0, 5), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
 
@@ -649,7 +649,7 @@ foreach ($datapoints as $data) {
         imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi,0,5), $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi, 0, 5), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
     }
 
@@ -658,22 +658,22 @@ foreach ($datapoints as $data) {
 
 if ($_GET['pdf'] == 1) {
     $pdf = new Cezpdf("LETTER");
-    $pdf->ezSetMargins(0,0,0,0);
+    $pdf->ezSetMargins(0, 0, 0, 0);
 
     // we start with one large image, break it into two pages
-    $page1 = imagecreate((imagesx($im)/2),imagesy($im));
-    $page2 = imagecreate((imagesx($im)/2),imagesy($im));
-    imagecopy($page1, $im, 0,0, 0,0,(imagesx($im)/2),imagesy($im));
-    imagecopy($page2, $im, 0,0, (imagesx($im)/2),0,imagesx($im),imagesy($im));
+    $page1 = imagecreate((imagesx($im)/2), imagesy($im));
+    $page2 = imagecreate((imagesx($im)/2), imagesy($im));
+    imagecopy($page1, $im, 0, 0, 0, 0, (imagesx($im)/2), imagesy($im));
+    imagecopy($page2, $im, 0, 0, (imagesx($im)/2), 0, imagesx($im), imagesy($im));
     imagedestroy($im);
 
     // each page is built
     $tmpfilename = tempnam("/tmp", "oemr");
-    imagepng($page1,$tmpfilename);
+    imagepng($page1, $tmpfilename);
     imagedestroy($page1);
     $pdf->ezImage($tmpfilename);
     $pdf->ezNewPage();
-    imagepng($page2,$tmpfilename);
+    imagepng($page2, $tmpfilename);
     imagedestroy($page2);
     $pdf->ezImage($tmpfilename);
 

@@ -63,7 +63,7 @@ if (!empty($_FILES["tplFile"])) {
     while (file_exists(UPLOAD_DIR . $name)) {
         $i = rand(0, 128);
         $newname = $parts["filename"] . "-" . $i . "." . $parts["extension"].".replaced";
-        rename(UPLOAD_DIR .$name,UPLOAD_DIR .$newname);
+        rename(UPLOAD_DIR .$name, UPLOAD_DIR .$newname);
     }
 
     // preserve file from temporary directory

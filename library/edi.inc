@@ -37,7 +37,7 @@ function create_ISA($row, $X12info, $segTer, $compEleSep)
 
     $ISA[1] = "00";                                 // Author Info Qualifier
 
-    $ISA[2] = str_pad("0000000",10," ");        // Author Information
+    $ISA[2] = str_pad("0000000", 10, " ");        // Author Information
 
     $ISA[3] = "00";                                 //   Security Information Qualifier
                                                 //   MEDI-CAL NOTE: For Leased-Line & Dial-Up use '01',
@@ -45,29 +45,29 @@ function create_ISA($row, $X12info, $segTer, $compEleSep)
                                                 //   '00' No Security Information Present
                                                 //   (No Meaningful Information in I04)
 
-    $ISA[4] = str_pad("0000000000",10," ");         // Security Information
+    $ISA[4] = str_pad("0000000000", 10, " ");         // Security Information
 
-    $ISA[5] = str_pad("ZZ",2," ");              // Interchange ID Qualifier
+    $ISA[5] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
 
-    $ISA[6] = str_pad($X12info[2],15," ");      // INTERCHANGE SENDER ID
+    $ISA[6] = str_pad($X12info[2], 15, " ");      // INTERCHANGE SENDER ID
 
-    $ISA[7] = str_pad("ZZ",2," ");              // Interchange ID Qualifier
+    $ISA[7] = str_pad("ZZ", 2, " ");              // Interchange ID Qualifier
 
-    $ISA[8] = str_pad($X12info[3],15," ");      // INTERCHANGE RECEIVER ID
+    $ISA[8] = str_pad($X12info[3], 15, " ");      // INTERCHANGE RECEIVER ID
 
-    $ISA[9] = str_pad(date('ymd'),6," ");       // Interchange Date (YYMMDD)
+    $ISA[9] = str_pad(date('ymd'), 6, " ");       // Interchange Date (YYMMDD)
 
-    $ISA[10] = str_pad(date('Hi'),4," ");       // Interchange Time (HHMM)
+    $ISA[10] = str_pad(date('Hi'), 4, " ");       // Interchange Time (HHMM)
 
     $ISA[11] = "^";                                 // Interchange Control Standards Identifier
 
-    $ISA[12] = str_pad("00501",5," ");          // Interchange Control Version Number
+    $ISA[12] = str_pad("00501", 5, " ");          // Interchange Control Version Number
 
-    $ISA[13] = str_pad("000000001",9," ");      // INTERCHANGE CONTROL NUMBER
+    $ISA[13] = str_pad("000000001", 9, " ");      // INTERCHANGE CONTROL NUMBER
 
-    $ISA[14] = str_pad("1",1," ");              // Acknowledgment Request [0= not requested, 1= requested]
+    $ISA[14] = str_pad("1", 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
 
-    $ISA[15] =  str_pad("P",1," ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
+    $ISA[15] =  str_pad("P", 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
 
     $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
 
@@ -150,9 +150,9 @@ function create_BHT($row, $X12info, $segTer, $compEleSep)
                                             //when using Real Time transactions.
                                             //For BATCH this can be used for optional information.
 
-    $BHT[4] = str_pad(date('Ymd'),8," ");           // Date Transaction Set Created
+    $BHT[4] = str_pad(date('Ymd'), 8, " ");           // Date Transaction Set Created
 
-    $BHT[5] = str_pad(date('Hi'),4," ");            // Time Transaction Set Created no space after and 1300 is plenty
+    $BHT[5] = str_pad(date('Hi'), 4, " ");            // Time Transaction Set Created no space after and 1300 is plenty
 
     $BHT['Created'] = implode('*', $BHT);           // Data Element Separator
 
@@ -462,26 +462,26 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
         if($nHlCounter == 1)
         {
             // create ISA
-            $PATEDI    = create_ISA($row,$X12info,$segTer,$compEleSep);
+            $PATEDI    = create_ISA($row, $X12info, $segTer, $compEleSep);
 
             // create GS
-            $PATEDI   .= create_GS($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_GS($row, $X12info, $segTer, $compEleSep);
 
             // create ST
-            $PATEDI   .= create_ST($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_ST($row, $X12info, $segTer, $compEleSep);
 
             // create BHT
-            $PATEDI   .= create_BHT($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_BHT($row, $X12info, $segTer, $compEleSep);
 
             // For Payer Segment
 
-            $PATEDI  .= create_HL($row,1,$X12info,$segTer,$compEleSep);
-            $PATEDI  .= create_NM1($row,'PR',$X12info,$segTer,$compEleSep);
+            $PATEDI  .= create_HL($row, 1, $X12info, $segTer, $compEleSep);
+            $PATEDI  .= create_NM1($row, 'PR', $X12info, $segTer, $compEleSep);
 
             // For Provider Segment
 
-            $PATEDI  .= create_HL($row,2,$X12info,$segTer,$compEleSep);
-            $PATEDI  .= create_NM1($row,'FA',$X12info,$segTer,$compEleSep);
+            $PATEDI  .= create_HL($row, 2, $X12info, $segTer, $compEleSep);
+            $PATEDI  .= create_NM1($row, 'FA', $X12info, $segTer, $compEleSep);
 
             $nHlCounter = $nHlCounter + 2;
             $segmentcount = 7; // segement counts - start from ST
@@ -489,12 +489,12 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
 
         // For Subscriber Segment
 
-        $PATEDI  .= create_HL($row,$nHlCounter,$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_NM1($row,'IL',$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_DMG($row,$X12info,$segTer,$compEleSep);
+        $PATEDI  .= create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_NM1($row, 'IL', $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_DMG($row, $X12info, $segTer, $compEleSep);
 
-        $PATEDI  .= create_DTP($row,'291',$X12info,$segTer,$compEleSep);
-        $PATEDI  .= create_EQ($row,$X12info,$segTer,$compEleSep);
+        $PATEDI  .= create_DTP($row, '291', $X12info, $segTer, $compEleSep);
+        $PATEDI  .= create_EQ($row, $X12info, $segTer, $compEleSep);
 
         $segmentcount   = $segmentcount + 7;
         $nHlCounter     = $nHlCounter + 1;
@@ -506,9 +506,9 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
         if($rowCount == sqlNumRows($res))
         {
             $segmentcount = $segmentcount + 1;
-            $PATEDI   .= create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep);
-            $PATEDI   .= create_GE($row,$X12info,$segTer,$compEleSep);
-            $PATEDI   .= create_IEA($row,$X12info,$segTer,$compEleSep);
+            $PATEDI   .= create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
+            $PATEDI   .= create_GE($row, $X12info, $segTer, $compEleSep);
+            $PATEDI   .= create_IEA($row, $X12info, $segTer, $compEleSep);
         }
     }
 
@@ -796,6 +796,6 @@ function getUsernames()
 function arrFormated(&$item, $key)
 {
     $item = strstr($item, '_');
-    $item = substr($item,1,strlen($item)-1);
+    $item = substr($item, 1, strlen($item)-1);
     $item = "'".$item;
 }

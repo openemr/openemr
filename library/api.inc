@@ -32,10 +32,10 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
     $sql = "insert into " . escape_table_name($tableName) . " set " .  $attendant_type . "='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
     foreach ($values as $key => $value)
-    if (strpos($key,"openemr_net_cpt") === 0) {
+    if (strpos($key, "openemr_net_cpt") === 0) {
         //code to auto add cpt code
         if (!empty($value)) {
-            $code_array = explode(" ",$value,2);
+            $code_array = explode(" ", $value, 2);
 
             addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
         }
@@ -43,15 +43,15 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
     }
         //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
 
-    elseif (strpos($key,"diagnosis") == (strlen($key) -10) && !(strpos($key,"diagnosis")=== false )) {
+    elseif (strpos($key, "diagnosis") == (strlen($key) -10) && !(strpos($key, "diagnosis")=== false )) {
         //icd auto add ICD9-CM
         if (!empty($value)) {
-            $code_array = explode(" ",$value,2);
+            $code_array = explode(" ", $value, 2);
             addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
         }
     }
     else {
-        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
+        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
     }
     $sql = substr($sql, 0, -1);
     return sqlInsert($sql);
@@ -62,7 +62,7 @@ function formUpdate($tableName, $values, $id, $authorized = "0")
 {
     $sql = "update " . escape_table_name($tableName) . " set pid ='".add_escape_custom($_SESSION['pid'])."',groupname='".add_escape_custom($_SESSION['authProvider'])."',user='".add_escape_custom($_SESSION['authUser'])."',authorized='".add_escape_custom($authorized)."',activity=1, date = NOW(),";
     foreach ($values as $key => $value)
-        $sql .= " " . escape_sql_column_name($key,array($tableName)) . " = '" . add_escape_custom($value) . "',";
+        $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
 
     $sql = substr($sql, 0, -1);
     $sql .= " where id='".add_escape_custom($id)."'";

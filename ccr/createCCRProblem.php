@@ -68,7 +68,7 @@ do {
     $e_Code = $ccr->createElement('Code');
     $e_Description->appendChild($e_Code);
 
-    $e_Value = $ccr->createElement('Value',$row['diagnosis']);
+    $e_Value = $ccr->createElement('Value', $row['diagnosis']);
     $e_Code->appendChild($e_Value);
     
     $e_Value = $ccr->createElement('CodingSystem', 'ICD9-CM');
@@ -89,7 +89,7 @@ do {
     $e_Actor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_Actor);
         
-    $e_ActorID = $ccr->createElement('ActorID',$uuid);
+    $e_ActorID = $ccr->createElement('ActorID', $uuid);
     $e_Actor->appendChild($e_ActorID);
     
     $e_Problem->appendChild($e_Source);
@@ -125,7 +125,7 @@ do {
     $e_Description = $ccr->createElement('Description' );
     $e_HealthStatus->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text',$row['reason']);
+    $e_Text = $ccr->createElement('Text', $row['reason']);
     $e_Description->appendChild($e_Text);
     
     $e_HealthStatus->appendChild(sourceType($ccr, $sourceID));

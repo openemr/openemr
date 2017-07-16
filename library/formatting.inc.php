@@ -143,7 +143,7 @@ function DateToYYYYMMDD($DateValue)
     }
     else if($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2)
      {
-        $DateValueArray=explode('/',$DateValue);
+        $DateValueArray=explode('/', $DateValue);
         if($GLOBALS['date_display_format']==1)
         {
             return $DateValueArray[2].'-'.$DateValueArray[0].'-'.$DateValueArray[1];
@@ -168,14 +168,14 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
   // Strip any dashes from the dates.
     $dobYMD = preg_replace('/-/', '', $dobYMD);
     $nowYMD = preg_replace('/-/', '', $nowYMD);
-    $dobDay   = substr($dobYMD,6,2);
-    $dobMonth = substr($dobYMD,4,2);
-    $dobYear  = substr($dobYMD,0,4);
+    $dobDay   = substr($dobYMD, 6, 2);
+    $dobMonth = substr($dobYMD, 4, 2);
+    $dobYear  = substr($dobYMD, 0, 4);
 
     if ($nowYMD) {
-        $nowDay   = substr($nowYMD,6,2);
-        $nowMonth = substr($nowYMD,4,2);
-        $nowYear  = substr($nowYMD,0,4);
+        $nowDay   = substr($nowYMD, 6, 2);
+        $nowMonth = substr($nowYMD, 4, 2);
+        $nowYear  = substr($nowYMD, 0, 4);
     }
     else {
         $nowDay   = date("d");

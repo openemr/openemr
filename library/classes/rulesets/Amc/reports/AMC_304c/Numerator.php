@@ -19,11 +19,11 @@ class AMC_304c_Numerator implements AmcFilterIF
     {
         // have demographics recorded as structured data
         //  Need preferred language, gender, race, ethnicity, date of birth.
-        if ( (exist_database_item($patient->id,'patient_data','language' ,'','','ge',1)) &&
-             (exist_database_item($patient->id,'patient_data','sex'      ,'','','ge',1)) &&
-             (exist_database_item($patient->id,'patient_data','race'     ,'','','ge',1)) &&
-             (exist_database_item($patient->id,'patient_data','ethnicity','','','ge',1)) &&
-             (exist_database_item($patient->id,'patient_data','DOB'      ,'','','ge',1)) )
+        if ( (exist_database_item($patient->id, 'patient_data', 'language', '', '', 'ge', 1)) &&
+             (exist_database_item($patient->id, 'patient_data', 'sex', '', '', 'ge', 1)) &&
+             (exist_database_item($patient->id, 'patient_data', 'race', '', '', 'ge', 1)) &&
+             (exist_database_item($patient->id, 'patient_data', 'ethnicity', '', '', 'ge', 1)) &&
+             (exist_database_item($patient->id, 'patient_data', 'DOB', '', '', 'ge', 1)) )
         {
             return true;
         }

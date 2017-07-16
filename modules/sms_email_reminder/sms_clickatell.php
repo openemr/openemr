@@ -309,8 +309,8 @@ class sms
         $this->_chk_curl();
         $ch = curl_init ($command);
         curl_setopt ($ch, CURLOPT_HEADER, 0);
-        curl_setopt ($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER,0);
+        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
         if ($this->curl_use_proxy) {
             curl_setopt ($ch, CURLOPT_PROXY, $this->curl_proxy);
             curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
@@ -329,7 +329,7 @@ class sms
         $result = '';
         $handler = @fopen ($command, 'r');
         if ($handler) {
-            while ($line = @fgets($handler,1024)) {
+            while ($line = @fgets($handler, 1024)) {
                 $result .= $line;
             }
             fclose ($handler);

@@ -115,8 +115,8 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
         if ($current_report_id) {
             // Comments and notes will be combined into one comments field.
             $form_comments = oresRawData("form_comments", $lino);
-            $form_comments = str_replace("\n"  ,'~' , $form_comments);
-            $form_comments = str_replace("\r"  ,''  , $form_comments);
+            $form_comments = str_replace("\n", '~', $form_comments);
+            $form_comments = str_replace("\r", '', $form_comments);
             $form_notes = oresRawData("form_notes", $lino);
             if ($form_notes !== '') {
                 $form_comments .= "\n" . $form_notes;
@@ -151,7 +151,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
-<title><?php  xl('Procedure Results','e'); ?></title>
+<title><?php  xl('Procedure Results', 'e'); ?></title>
 
 <style>
 
@@ -269,7 +269,7 @@ function extShow(lino, show) {
 function prDateRequired(rlino) {
  var f = document.forms[0];
  if (f['form_date_report['+rlino+']'].value.length < 10) {
-  alert('<?php xl('Missing report date','e') ?>');
+  alert('<?php xl('Missing report date', 'e') ?>');
   if (f['form_date_report['+rlino+']'].focus)
    f['form_date_report['+rlino+']'].focus();
   return false;
@@ -324,8 +324,8 @@ $(document).ready(function() {
   <td class='text'>
 <?php
 if ($form_batch) {
-    $form_from_date = formData('form_from_date','P',true);
-    $form_to_date   = formData('form_to_date','P',true);
+    $form_from_date = formData('form_from_date', 'P', true);
+    $form_to_date   = formData('form_to_date', 'P', true);
     if (empty($form_to_date)) $form_to_date = $form_from_date;
     $form_proc_type = formData('form_proc_type') + 0;
     if (!$form_proc_type) $form_proc_type = -1;
@@ -336,32 +336,32 @@ if ($form_batch) {
         $form_proc_type_desc = $ptrow['name'];
     }
 ?>
-    <?php xl('Procedure','e'); ?>:
+    <?php xl('Procedure', 'e'); ?>:
    <input type='text' size='30' name='form_proc_type_desc'
     value='<?php echo addslashes($form_proc_type_desc) ?>'
     onclick='sel_proc_type()' onfocus='this.blur()'
-    title='<?php xl('Click to select the desired procedure','e'); ?>'
+    title='<?php xl('Click to select the desired procedure', 'e'); ?>'
     style='cursor:pointer;cursor:hand' readonly />
    <input type='hidden' name='form_proc_type' value='<?php echo $form_proc_type ?>' />
 
-   &nbsp;<?php xl('From','e'); ?>:
+   &nbsp;<?php xl('From', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_from_date' id='form_from_date'
     value='<?php echo $form_from_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 
-   &nbsp;<?php xl('To','e'); ?>:
+   &nbsp;<?php xl('To', 'e'); ?>:
    <input type='text' size='10' class='datepicker' name='form_to_date' id='form_to_date'
     value='<?php echo $form_to_date ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 
    &nbsp;
 <?php
 } // end header for batch option
 ?>
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed','e') ?>
+<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed', 'e') ?>
    &nbsp;-->
-   <input type='submit' name='form_refresh' value=<?php xl('Refresh','e'); ?>>
+   <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
   </td>
  </tr>
 </table>
@@ -372,25 +372,25 @@ if ($form_batch) {
 
  <tr class='head'>
   <td colspan='2'><?php echo $form_batch ? xl('Patient') : xl('Order'); ?></td>
-  <td colspan='4'><?php xl('Report','e'); ?></td>
-  <td colspan='7'><?php xl('Results and','e'); ?> <span class='reccolor''>
-    <?php  xl('Recommendations','e'); ?></span></td>
+  <td colspan='4'><?php xl('Report', 'e'); ?></td>
+  <td colspan='7'><?php xl('Results and', 'e'); ?> <span class='reccolor''>
+    <?php  xl('Recommendations', 'e'); ?></span></td>
  </tr>
 
  <tr class='head'>
   <td><?php echo $form_batch ? xl('Name') : xl('Date'); ?></td>
   <td><?php echo $form_batch ? xl('ID') : xl('Procedure Name'); ?></td>
-  <td><?php xl('Reported','e'); ?></td>
-  <td><?php xl('Ext Time Collected','e'); ?></td>
-  <td><?php xl('Specimen','e'); ?></td>
-  <td><?php xl('Status','e'); ?></td>
-  <td><?php xl('Code','e'); ?></td>
-  <td><?php xl('Name','e'); ?></td>
-  <td><?php xl('Abn','e'); ?></td>
-  <td><?php xl('Value','e'); ?></td>
+  <td><?php xl('Reported', 'e'); ?></td>
+  <td><?php xl('Ext Time Collected', 'e'); ?></td>
+  <td><?php xl('Specimen', 'e'); ?></td>
+  <td><?php xl('Status', 'e'); ?></td>
+  <td><?php xl('Code', 'e'); ?></td>
+  <td><?php xl('Name', 'e'); ?></td>
+  <td><?php xl('Abn', 'e'); ?></td>
+  <td><?php xl('Value', 'e'); ?></td>
   <td><?php xl('Units', 'e'); ?></td>
-  <td><?php xl('Range','e'); ?></td>
-  <td><?php xl('?','e'); ?></td>
+  <td><?php xl('Range', 'e'); ?></td>
+  <td><?php xl('?', 'e'); ?></td>
  </tr>
 
 <?php
@@ -465,7 +465,7 @@ while ($row = sqlFetchArray($res)) {
         if ($review_status == "received") continue;
     }
 
-    $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'",array($order_id)));
+    $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
   // skip the procedure that has been deleted from the encounter form
     if($query_test['deleted']==1) continue;
 
@@ -724,14 +724,14 @@ if ($form_review) {
     if ($reviewauth) {
         ?>
      <center><p>
-         <input type='submit' name='form_submit' value='<?php xl('Sign Results','e'); ?>' />
+         <input type='submit' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' />
      </p></center>
     <?php
     }
     else {
         ?>
      <center><p>
-         <input type='button' name='form_submit' value='<?php xl('Sign Results','e'); ?>' onclick="alert('<?php xl('Not authorized','e') ?>');" />
+         <input type='button' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' onclick="alert('<?php xl('Not authorized', 'e') ?>');" />
      </p></center>
     <?php
     }
@@ -739,7 +739,7 @@ if ($form_review) {
 else {
 ?>
  <center><p>
-  <input type='submit' name='form_submit' value='<?php xl('Save','e'); ?>' />
+  <input type='submit' name='form_submit' value='<?php xl('Save', 'e'); ?>' />
  </p></center>
 <?php
 }

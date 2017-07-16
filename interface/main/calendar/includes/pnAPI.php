@@ -94,14 +94,14 @@ define('_PNPERMS_UNREGISTERED', '0');
  * Core version informations - should be upgraded on each release for
  * better control on config settings
  */
-define('_PN_VERSION_NUM',       "0.7.2.6-Phoenix");
-define('_PN_VERSION_ID',        "PostNuke");
-define('_PN_VERSION_SUB',       "Phoenix");
+define('_PN_VERSION_NUM', "0.7.2.6-Phoenix");
+define('_PN_VERSION_ID', "PostNuke");
+define('_PN_VERSION_SUB', "Phoenix");
 
 /*
  * Fake module for config vars
  */
-define('_PN_CONFIG_MODULE',     '/PNConfig');
+define('_PN_CONFIG_MODULE', '/PNConfig');
 
 /*
  *
@@ -623,7 +623,7 @@ function pnStripslashes(&$value)
     if(!is_array($value)) {
         $value = stripslashes($value);
     } else {
-        array_walk($value,'pnStripslashes');
+        array_walk($value, 'pnStripslashes');
     }
 }
 
@@ -736,8 +736,7 @@ function pnVarPrepHTMLDisplay()
         $ourvar = preg_replace_callback('/\022([^\024]*)\024/',
             function ($matches) {
                 return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            }
-        , $ourvar);
+            }, $ourvar);
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
@@ -917,7 +916,7 @@ function pnVarValidate($var, $type, $args = 0)
                 }
             }
             $regexp = '/^(?:[^\s\000-\037\177\(\)<>@,;:\\"\[\]]\.?)+@(?:[^\s\000-\037\177\(\)<>@,;:\\\"\[\]]\.?)+\.[a-z]{2,6}$/Ui';
-            if(preg_match($regexp,$var)) {
+            if(preg_match($regexp, $var)) {
                 return true;
             } else {
                 return false;
@@ -1192,9 +1191,9 @@ function pnMail($to, $subject, $message, $headers, $debug = 0)
         case 'rus':
             if (!empty($headers)) $headers .= "\n";
             $headers .= "Content-Type: text/plain; charset=koi8-r";
-            $subject = convert_cyr_string($subject,"w","k");
-            $message = convert_cyr_string($message,"w","k");
-            $headers = convert_cyr_string($headers,"w","k");
+            $subject = convert_cyr_string($subject, "w", "k");
+            $message = convert_cyr_string($message, "w", "k");
+            $headers = convert_cyr_string($headers, "w", "k");
             break;
     }
     
@@ -1320,7 +1319,7 @@ function pnSecureInput()
                         (preg_match("/<[^>]*img*\"?[^>]*>/i", $secvalue))
                         ) {
 
-                        pnMailHackAttempt(__FILE__,__LINE__,'pnSecurity Alert','Intrusion detection.');
+                        pnMailHackAttempt(__FILE__, __LINE__, 'pnSecurity Alert', 'Intrusion detection.');
                         //Header("Location: index.php");
                 }
             }
@@ -1337,8 +1336,8 @@ function pnSecureInput()
 function pnPhpVersionCheck($vercheck)
 {
 
-    $minver = str_replace(".","", $vercheck);
-    $curver = str_replace(".","", phpversion());
+    $minver = str_replace(".", "", $vercheck);
+    $curver = str_replace(".", "", phpversion());
 
     if($curver >= $minver){
         return true;

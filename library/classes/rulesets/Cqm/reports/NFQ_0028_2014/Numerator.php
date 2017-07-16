@@ -39,16 +39,16 @@ class NFQ_0028_2014_Numerator implements CqmFilterIF
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
                 $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
                 $date = date("Y-m-d H:i:s", strtotime('+1 days', strtotime($date)));
-                $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
-                $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
+                $beginMinus24Months = strtotime( '-24 month', strtotime ( $date ) );
+                $beginMinus24Months = date( 'Y-m-d 00:00:00', $beginMinus24Months );
                 // this is basically a check to see if the patient is an reported as an active smoker on their last encounter
                 if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date ) ) {
                     //return true;
                     // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
                     $date = date("Y-m-d H:i:s", strtotime('+1 days', strtotime($date)));
                     $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
-                    $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
-                    $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
+                    $beginMinus24Months = strtotime( '-24 month', strtotime ( $date ) );
+                    $beginMinus24Months = date( 'Y-m-d 00:00:00', $beginMinus24Months );
                     $smoke_cess = sqlQuery("SELECT * FROM `rule_patient_data` " .
                                            "WHERE `category`='act_cat_inter' AND `item`='act_tobacco' AND `complete`='YES' " .
                                            "AND `pid`=? AND `date`>=? AND `date`<=?", array($patient->id,$beginMinus24Months,$date) );

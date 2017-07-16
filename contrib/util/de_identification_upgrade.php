@@ -120,17 +120,17 @@ function upgradeFromSqlFile_de($filename)
 
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
-if (! $dh) die( xl("Cannot read","e")." ".$sqldir);
+if (! $dh) die( xl("Cannot read", "e")." ".$sqldir);
 closedir($dh);
 ?>
 <html>
 <head>
-<title><?php xl('OpenEMR Database Upgrade','e'); ?></title>
+<title><?php xl('OpenEMR Database Upgrade', 'e'); ?></title>
 <link rel='STYLESHEET' href='../../interface/themes/style_sky_blue.css'>
 </head>
 <body> <br>
 <center>
-<span class='title'><?php xl('OpenEMR Database Upgrade for De-identification','e'); ?></span>
+<span class='title'><?php xl('OpenEMR Database Upgrade for De-identification', 'e'); ?></span>
 <br>
 </center>
 <?php
@@ -207,29 +207,29 @@ function form_validate()
 }
 else
 {
-    xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process','e');?></p></br>
+    xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process', 'e');?></p></br>
         <table class="de_id_upgrade_login" align="center">
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
     <tr valign="top">
         <td>&nbsp;</td>
-        <td><?php xl('Enter Database root Username','e'); ?></td>
+        <td><?php xl('Enter Database root Username', 'e'); ?></td>
         <td>:</td>
         <td> <input type='text' size='20' name='root_user_name' id='root_user_name'
-            value= "" title="<?php xl('Enter Database root Username','e'); ?>" /> </td>
+            value= "" title="<?php xl('Enter Database root Username', 'e'); ?>" /> </td>
         <td>&nbsp;</td>
     </tr>
     <tr valign="top">
         <td>&nbsp;</td>
-        <td><?php xl('Enter Database root Password','e'); ?></td>
+        <td><?php xl('Enter Database root Password', 'e'); ?></td>
         <td>:</td>
         <td><input type='password' size='20' name='root_user_pass' id='root_user_pass'
-            value= "" title="<?php xl('Enter Database root Password','e'); ?>" /> </td>
+            value= "" title="<?php xl('Enter Database root Password', 'e'); ?>" /> </td>
         <td>&nbsp;</td>
     </tr>
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>
 
     </table>
-<p><input type='submit' name='form_submit' value="<?php xl('Upgrade Database','e');?>"  /></p>
+<p><input type='submit' name='form_submit' value="<?php xl('Upgrade Database', 'e');?>"  /></p>
 <?php } ?>
 </form>
 </center>

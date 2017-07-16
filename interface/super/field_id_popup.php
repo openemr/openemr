@@ -109,13 +109,13 @@ function gen_sel_row($row)
     echo '"' . gsr_fixup($row, 'data_type'     ) . '",';
     echo '"' . gsr_fixup($row, 'uor'           ) . '",';
     echo '"' . gsr_fixup($row, 'fld_length', 20) . '",';
-    echo '"' . gsr_fixup($row, 'max_length',  0) . '",';
+    echo '"' . gsr_fixup($row, 'max_length', 0) . '",';
     echo '"' . gsr_fixup($row, 'list_id'       ) . '",';
-    echo '"' . gsr_fixup($row, 'titlecols' ,  1) . '",';
-    echo '"' . gsr_fixup($row, 'datacols'  ,  3) . '",';
+    echo '"' . gsr_fixup($row, 'titlecols', 1) . '",';
+    echo '"' . gsr_fixup($row, 'datacols', 3) . '",';
     echo '"' . gsr_fixup($row, 'edit_options'  ) . '",';
     echo '"' . gsr_fixup($row, 'description'   ) . '",';
-    echo '"' . gsr_fixup($row, 'fld_rows'  ,  0) . '"';
+    echo '"' . gsr_fixup($row, 'fld_rows', 0) . '"';
     echo ")'>";
     echo "<td>" . text($row['field_id']) . "</td>";
     echo "<td>" . text($row['title'   ]) . "</td>";

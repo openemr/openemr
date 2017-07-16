@@ -93,9 +93,9 @@ if(!empty($_SESSION['pidList']) and $form_fill == 2)
 }
 else if ($form_fill == 1)
 {
-    array_push($pid_list,$pid); //get from active PID
+    array_push($pid_list, $pid); //get from active PID
 } else {
-    array_push($pid_list,''); // empty element for blank form
+    array_push($pid_list, ''); // empty element for blank form
 }
 
 // This file is optional. You can create it to customize how the printed
@@ -442,7 +442,7 @@ foreach ($pid_list as $pid) {
                 }
             } else {
                 // IPPF wants a visit date box with the current date in it.
-                $html .= xl('Visit date','r');
+                $html .= xl('Visit date', 'r');
                 $html .= ":<br />\n";
                 if (!empty($encdata)) {
                     $html .= substr($encdata['date'], 0, 10);

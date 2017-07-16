@@ -70,7 +70,7 @@ if (!empty($_POST['execute_report_id'])) {
         $array_date = $target_date;
     }
 
-    test_rules_clinic_batch_method($provider,$rule_filter,$array_date,"report",$plan_filter,$organize_method,$options,$pat_prov_rel,'',$_POST['execute_report_id']);
+    test_rules_clinic_batch_method($provider, $rule_filter, $array_date, "report", $plan_filter, $organize_method, $options, $pat_prov_rel, '', $_POST['execute_report_id']);
 }
 else {
     echo "ERROR";

@@ -15,14 +15,14 @@ class C_FormPriorAuth extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/prior_auth/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
     function default_action()
     {
         $prior_auth = new FormPriorAuth();
-        $this->assign("prior_auth",$prior_auth);
+        $this->assign("prior_auth", $prior_auth);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -34,8 +34,8 @@ class C_FormPriorAuth extends Controller
         else {
             $prior_auth = new FormPriorAuth();
         }
-        $this->assign("VIEW",true);
-        $this->assign("prior_auth",$prior_auth);
+        $this->assign("VIEW", true);
+        $this->assign("prior_auth", $prior_auth);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

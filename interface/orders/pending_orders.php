@@ -65,7 +65,7 @@ function thisLineItem($row)
 if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
@@ -90,7 +90,7 @@ else { // not export
 <html>
 <head>
 
-<title><?php xl('Pending Orders','e') ?></title>
+<title><?php xl('Pending Orders', 'e') ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -116,7 +116,7 @@ else { // not export
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?php xl('Pending Orders','e')?></h2>
+<h2><?php xl('Pending Orders', 'e')?></h2>
 
 <form method='post' action='pending_orders.php'>
 
@@ -160,13 +160,13 @@ else { // not export
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
-  <td class="dehead"><?php xl('Patient','e'  ) ?></td>
-  <td class="dehead"><?php xl('ID','e'       ) ?></td>
-  <td class="dehead"><?php xl('Ordered','e'  ) ?></td>
-  <td class="dehead"><?php xl('From','e'     ) ?></td>
-  <td class="dehead"><?php xl('Provider','e' ) ?></td>
-  <td class="dehead"><?php xl('Priority','e' ) ?></td>
-  <td class="dehead"><?php xl('Status','e'   ) ?></td>
+  <td class="dehead"><?php xl('Patient', 'e'  ) ?></td>
+  <td class="dehead"><?php xl('ID', 'e'       ) ?></td>
+  <td class="dehead"><?php xl('Ordered', 'e'  ) ?></td>
+  <td class="dehead"><?php xl('From', 'e'     ) ?></td>
+  <td class="dehead"><?php xl('Provider', 'e' ) ?></td>
+  <td class="dehead"><?php xl('Priority', 'e' ) ?></td>
+  <td class="dehead"><?php xl('Status', 'e'   ) ?></td>
  </tr>
 <?php
 } // end not export

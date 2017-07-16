@@ -145,5 +145,5 @@ function server_logit($success, $text, $pid = 0, $event = "ccdaservice-manager")
     $event = isset($_SESSION['ptName']) ? ('Ccda Access: ' . $_SESSION['ptName']) : "Ccda Service Access";
     $where = isset($_SESSION['ptName']) ? "Portal Patient" : 'OpenEMR:  ' . $_SESSION['authUser'];
     
-    newEvent( $event, "Service_Manager", $where, $success, $text, $pid,'server','s2','s3' );
+    newEvent( $event, "Service_Manager", $where, $success, $text, $pid, 'server', 's2', 's3' );
 }

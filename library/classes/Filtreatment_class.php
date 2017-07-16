@@ -147,7 +147,7 @@ class Filtreatment
     function ft_validdate($str)
     {
         if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
-            $arr = explode("-",$str);     // splitting the array
+            $arr = explode("-", $str);     // splitting the array
             $yy = $arr[0];            // first element of the array is year
             $mm = $arr[1];            // second element is month
             $dd = $arr[2];            // third element is days
@@ -259,7 +259,7 @@ break;
 
             // cleanup the string
             case '2':
-                $value = preg_replace($regexfull,'',$value);
+                $value = preg_replace($regexfull, '', $value);
             break;
 
             // if $cv is not specified or it's wrong
@@ -299,7 +299,7 @@ break;
         * the conversion of entities to ASCII later.
         *
         */
-        $str = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u',"\\1;",$str);
+        $str = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "\\1;", $str);
 
         /*
         * Validate UTF16 two byte encoding (x00)
@@ -307,7 +307,7 @@ break;
         * Just as above, adds a semicolon if missing.
         *
         */
-        $str = preg_replace('#(&\#x*)([0-9A-F]+);*#iu',"\\1\\2;",$str);
+        $str = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "\\1\\2;", $str);
 
         /*
         * URL Decode
@@ -356,7 +356,7 @@ break;
         * But it doesn't seem to pose a problem.
         *
         */
-        $str = str_replace(array('<?php', '<?PHP', '<?', '?>'),  array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
+        $str = str_replace(array('<?php', '<?PHP', '<?', '?>'), array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
 
         /*
         * Compact any exploded words
@@ -381,7 +381,7 @@ break;
         * Remove disallowed Javascript in links or img tags
         */
         $str = preg_replace("#<a.+?href=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>.*?</a>#si", "", $str);
-            $str = preg_replace("#<img.+?src=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>#si","", $str);
+            $str = preg_replace("#<img.+?src=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>#si", "", $str);
         $str = preg_replace("#<(script|xss).*?\>#si", "", $str);
 
         /*
@@ -392,7 +392,7 @@ break;
         * but it's unlikely to be a problem.
         *
         */
-        $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU',"\\1>",$str);
+        $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU', "\\1>", $str);
 
         /*
         * Sanitize naughty HTML elements

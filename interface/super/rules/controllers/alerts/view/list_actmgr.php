@@ -90,7 +90,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                             $aco_section_data = $gacl_temp->get_section_data($section, 'ACO');
                             $aco_section_title = $aco_section_data[3];
                             foreach ($array_acos as $aco) {
-                                $aco_id = $gacl_temp->get_object_id($section, $aco,'ACO');
+                                $aco_id = $gacl_temp->get_object_id($section, $aco, 'ACO');
                                 $aco_data = $gacl_temp->get_object_data($aco_id, 'ACO');
                                 $aco_title = $aco_data[0][3];
                                 $select = '';

@@ -6,10 +6,10 @@
 // as published by the Free Software Foundation; either version 2
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**

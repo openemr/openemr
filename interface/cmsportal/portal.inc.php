@@ -33,9 +33,9 @@ function cms_portal_call($args)
     if (($phandle = curl_init($portal_url)) === false) {
         die(text(xl('Unable to access URL') . " '$portal_url'"));
     }
-    curl_setopt($phandle, CURLOPT_POST          , true);
+    curl_setopt($phandle, CURLOPT_POST, true);
     curl_setopt($phandle, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($phandle, CURLOPT_POSTFIELDS    , $args);
+    curl_setopt($phandle, CURLOPT_POSTFIELDS, $args);
     if (($presult = curl_exec($phandle)) === false) {
         die(text('curl_exec ' . xl('failed') . ': ' . curl_error($phandle)));
     }

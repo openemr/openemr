@@ -158,15 +158,15 @@ if ($popup) {
             $value = trim($_REQUEST[$field_id]);
             if ($field_id == 'pid') {
                 $where .= " AND $field_id = ?";
-                array_push($sqlBindArray,$value);
+                array_push($sqlBindArray, $value);
             }
             else if ($field_id == 'pubpid') {
                 $where .= " AND $field_id LIKE ?";
-                array_push($sqlBindArray,$value);
+                array_push($sqlBindArray, $value);
             }
             else {
                 $where .= " AND $field_id LIKE ?";
-                array_push($sqlBindArray,$value."%");
+                array_push($sqlBindArray, $value."%");
             }
             echo "<input type='hidden' name='" . htmlspecialchars( $field_id, ENT_QUOTES) .
             "' value='" . htmlspecialchars( $value, ENT_QUOTES) . "' />\n";
@@ -189,7 +189,7 @@ if ($popup) {
 
     $sql = "SELECT $given FROM patient_data " .
     "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
-    $rez = sqlStatement($sql,$sqlBindArray);
+    $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
     while ($row = sqlFetchArray($rez)) $result[] = $row;
     _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
@@ -211,15 +211,15 @@ else if ($from_page == "cdr_report") {
   // Collect patient listing from cdr report
     if ($print_patients) {
         // collect entire listing for printing
-        $result = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label);
+        $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label);
         $GLOBALS['PATIENT_INC_COUNT'] = count($result);
         $MAXSHOW = $GLOBALS['PATIENT_INC_COUNT'];
     }
     else {
         // collect the total listing count
-        $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label,true);
+        $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true);
         // then just collect applicable list for pagination
-        $result = collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass_id,$numerator_label,false,$sqllimit,$fstart);
+        $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, false, $sqllimit, $fstart);
     }
 }
 else {
@@ -313,7 +313,7 @@ if ($fend > $count) $fend = $count;
         }
         echo "</b>";
         echo " - ";
-        echo collectItemizedRuleDisplayTitle($report_id,$itemized_test_id,$numerator_label);
+        echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
         echo "</td>";
 } ?>
  </tr>
@@ -337,7 +337,7 @@ if ($fend > $count) $fend = $count;
 <th class="srDateNext">
 <?php
 $add_days = 90;
-if (!$popup && preg_match('/^(\d+)\s*(.*)/',$patient,$matches) > 0) {
+if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
     $add_days = $matches[1];
     $patient = $matches[2];
 }
@@ -381,7 +381,7 @@ if ($result) {
     foreach ($result as $iter) {
         echo "<tr class='oneresult' id='".htmlspecialchars( $iter['pid'], ENT_QUOTES)."'>";
         echo  "<td class='srName'>" . htmlspecialchars($iter['lname'] . ", " . $iter['fname']) . "</td>\n";
-        echo  "<td class='srGender'>" . text(getListItemTitle("sex",$iter['sex'])) . "</td>\n";
+        echo  "<td class='srGender'>" . text(getListItemTitle("sex", $iter['sex'])) . "</td>\n";
         //other phone number display setup for tooltip
         $phone_biz = '';
         if ($iter{"phone_biz"} != "") {

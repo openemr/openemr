@@ -168,7 +168,7 @@ if (isset($_POST["mode"]))
                     }
 
 
-                    $ServiceDateArray=explode(' ',$RowSearch['date']);
+                    $ServiceDateArray=explode(' ', $RowSearch['date']);
                     $ServiceDate=oeFormatShortDate($ServiceDateArray[0]);
                                         $Codetype=$RowSearch['code_type'];
                     $Code=$RowSearch['code'];
@@ -252,7 +252,7 @@ if (isset($_POST["mode"]))
                 ?>
               <tr class="text"  bgcolor='<?php echo $bgcolor; ?>' id="trCharges<?php echo $CountIndex; ?>">
                 <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenIns<?php echo $CountIndex; ?>" id="HiddenIns<?php echo $CountIndex; ?>" 
-                 value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient",'','','ActionOnInsPat("'.$CountIndex.'")');?></td>
+                 value="<?php echo htmlspecialchars($Ins); ?>" type="hidden"/><?php echo generate_select_list("payment_ins$CountIndex", "payment_ins", "$Ins", "Insurance/Patient", '', '', 'ActionOnInsPat("'.$CountIndex.'")');?></td>
                 <td class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars($ServiceDate); ?></td>
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenEncounter<?php echo $CountIndex; ?>" value="<?php echo htmlspecialchars($Encounter); ?>" 
                 type="hidden"/><?php echo htmlspecialchars($Encounter); ?></td>
@@ -262,10 +262,10 @@ if (isset($_POST["mode"]))
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenChargeAmount<?php echo $CountIndex; ?>"
                  id="HiddenChargeAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Fee); ?>" type="hidden"/><?php echo htmlspecialchars($Fee); ?></td>
                 <td align="right" class="<?php echo $StringClass; ?>" ><input name="HiddenCopayAmount<?php echo $CountIndex; ?>"
-                 id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay,2)); ?></td>
-                <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder,2)); ?></td>
+                 id="HiddenCopayAmount<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($Copay); ?>" type="hidden"/><?php echo htmlspecialchars(number_format($Copay, 2)); ?></td>
+                <td align="right"   id="RemainderTd<?php echo $CountIndex; ?>"  class="<?php echo $StringClass; ?>" ><?php echo htmlspecialchars(round($Remainder, 2)); ?></td>
                 <input name="HiddenRemainderTd<?php echo $CountIndex; ?>" id="HiddenRemainderTd<?php echo $CountIndex; ?>" 
-                 value="<?php echo htmlspecialchars(round($Remainder,2)); ?>" type="hidden"/>
+                 value="<?php echo htmlspecialchars(round($Remainder, 2)); ?>" type="hidden"/>
                 <td class="<?php echo $StringClass; ?>" ><input  name="Allowed<?php echo $CountIndex; ?>" id="Allowed<?php echo $CountIndex; ?>" 
                  onKeyDown="PreventIt(event)"  autocomplete="off"  
                  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Allowed','initialallowtotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Payment','initialpaymenttotal');UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'AdjAmount','initialAdjAmounttotal');RestoreValues(<?php echo $CountIndex; ?>)" 

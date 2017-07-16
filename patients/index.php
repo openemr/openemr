@@ -18,7 +18,7 @@
     //includes
     require_once('../interface/globals.php');
 
-    ini_set("error_log",E_ERROR || ~E_NOTICE);
+    ini_set("error_log", E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
 if ( !(isset($GLOBALS['portal_onsite_enable'])) || !($GLOBALS['portal_onsite_enable']) ) {
     echo htmlspecialchars( xl('Patient Portal is turned off'), ENT_NOQUOTES);
@@ -78,7 +78,7 @@ if (!(isset($_SESSION['password_update']))) {
         }
     }
     else {
-        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."' />\n";
+        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."' />\n";
     }
 }
     
@@ -228,16 +228,16 @@ if (!(isset($_SESSION['password_update']))) {
                     <td>
                         <select name=languageChoice size="1">
                             <?php
-                            echo "<option selected='selected' value='".htmlspecialchars($defaultLangID,ENT_QUOTES)."'>" . htmlspecialchars( xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
+                            echo "<option selected='selected' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."'>" . htmlspecialchars( xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
                                     if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
-                                    echo "<option value='".htmlspecialchars($iter['lang_id'],ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'],ENT_NOQUOTES)."</option>\n";
+                                    echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                 }
                                 else {
                                     if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
                                         if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
-                                        echo "<option value='".htmlspecialchars($iter['lang_id'],ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'],ENT_NOQUOTES)."</option>\n";
+                                        echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                     }
                                 }
                             }

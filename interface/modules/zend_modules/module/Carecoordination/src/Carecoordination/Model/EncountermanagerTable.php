@@ -113,8 +113,8 @@ class EncountermanagerTable extends AbstractTableGateway
 
     public function convert_to_yyyymmdd($date)
     {
-        $date = str_replace('/','-',$date);
-        $arr = explode('-',$date);
+        $date = str_replace('/', '-', $date);
+        $arr = explode('-', $date);
         $formatted_date = $arr[2]."-".$arr[0]."-".$arr[1];
         return $formatted_date;
     }
@@ -131,10 +131,10 @@ class EncountermanagerTable extends AbstractTableGateway
     {
         if(!$date) return;
         $format = $format ? $format : 'm/d/y';
-        $temp = explode(' ',$date); //split using space and consider the first portion, incase of date with time
+        $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
-        $date = str_replace('/','-',$date);
-        $arr = explode('-',$date);
+        $date = str_replace('/', '-', $date);
+        $arr = explode('-', $date);
 
         if($format == 'm/d/y'){
             $formatted_date = $arr[1]."/".$arr[2]."/".$arr[0];
@@ -182,7 +182,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $ccda_combination = $data['ccda_combination'];
         $recipients       = $data['recipients'];
         $xml_type         = $data['xml_type'];
-        $rec_arr          = explode(";",$recipients);
+        $rec_arr          = explode(";", $recipients);
         $d_Address        = '';
         foreach($rec_arr as $recipient) {
             $config_err = "Direct messaging is currently unavailable."." EC:";
@@ -191,19 +191,19 @@ class EncountermanagerTable extends AbstractTableGateway
             if ($fp===false) return("$config_err $err");
             $phimail_username = $GLOBALS['phimail_username'];
             $phimail_password = $GLOBALS['phimail_password'];
-            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
+            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
             if($ret!==true) return("$config_err 4");
-            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp,"TO $recipient\n");
+            $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "TO $recipient\n");
             if($ret!==true) {//return("Delivery is not allowed to the specified Direct Address.") ;
                 $d_Address.= ' '.$recipient;
                 continue;
             }
-            $ret=fgets($fp,1024); //ignore extra server data
+            $ret=fgets($fp, 1024); //ignore extra server data
             if($requested_by=="patient") {
                 $text_out = "Delivery of the attached clinical document was requested by the patient";
             }
             else {
-                if(strpos($ccda_combination,'|') !== false) {
+                if(strpos($ccda_combination, '|') !== false) {
                     $text_out = "Clinical documents are attached.";
                 }
                 else {
@@ -211,22 +211,22 @@ class EncountermanagerTable extends AbstractTableGateway
                 }
             }
             $text_len=strlen($text_out);
-            \Application\Plugin\Phimail::phimail_write($fp,"TEXT $text_len\n");
-            $ret=@fgets($fp,256);
+            \Application\Plugin\Phimail::phimail_write($fp, "TEXT $text_len\n");
+            $ret=@fgets($fp, 256);
             if($ret!="BEGIN\n") {
                 \Application\Plugin\Phimail::phimail_close($fp);
               //return("$config_err 5");
                 $d_Address.= ' '.$recipient;
                 continue;
             }
-            $ret=\Application\Plugin\Phimail::phimail_write_expect_OK($fp,$text_out);
+            $ret=\Application\Plugin\Phimail::phimail_write_expect_OK($fp, $text_out);
             if($ret!==true) {
               //return("$config_err 6");
                 $d_Address.= $recipient;
                 continue;
             }
             $elec_sent = array();
-            $arr = explode('|',$ccda_combination);
+            $arr = explode('|', $ccda_combination);
             foreach($arr as $value) {
                 $query  = "SELECT id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                 $result = $appTable->zQuery($query, array($value));
@@ -234,9 +234,9 @@ class EncountermanagerTable extends AbstractTableGateway
                     $ccda_id = $val['id'];
                 }
 
-                $refs = $appTable->zQuery("select t.id as trans_id from ccda c inner join transactions t on (t.pid = c.pid and t.date = c.updated_date) where c.pid = ? and c.emr_transfer = 1 and t.title = 'LBTref'",array($value));
+                $refs = $appTable->zQuery("select t.id as trans_id from ccda c inner join transactions t on (t.pid = c.pid and t.date = c.updated_date) where c.pid = ? and c.emr_transfer = 1 and t.title = 'LBTref'", array($value));
                 if($refs->count() == 0){
-                    $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1",array($value));
+                    $trans = $appTable->zQuery("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", array($value));
                     $trans_cur = $trans->current();
                     $trans_id  = $trans_cur['id'] ? $trans_cur['id'] : 0;
                 }
@@ -290,7 +290,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     $ccda     = simplexml_load_string($ccda_file);
                     $ccda_out = $ccda->saveXml();
                     $ccda_len = strlen($ccda_out);
-                    \Application\Plugin\Phimail::phimail_write($fp,"ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccda_len . $att_filename . "\n");
+                    \Application\Plugin\Phimail::phimail_write($fp, "ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccda_len . $att_filename . "\n");
                 }
                 else if(strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
                     $ccda_out = $ccda_file;
@@ -298,30 +298,30 @@ class EncountermanagerTable extends AbstractTableGateway
                     $add_type = (strtolower($xml_type) == 'html') ? 'TEXT' : 'RAW';
                     \Application\Plugin\Phimail::phimail_write($fp, "ADD " . $add_type . " " . $message_length . "" . $att_filename . "\n");
                 }
-                $ret=fgets($fp,256);
+                $ret=fgets($fp, 256);
                 if($ret!="BEGIN\n") {
                     \Application\Plugin\Phimail::phimail_close($fp);
                     //return("$config_err 7");
                     $d_Address.= ' '.$recipient;
                     continue;
                 }
-                $ret=\Application\Plugin\Phimail::phimail_write_expect_OK($fp,$ccda_out);
+                $ret=\Application\Plugin\Phimail::phimail_write_expect_OK($fp, $ccda_out);
             }
             if($ret!==true) {
 //              return("$config_err 8");
                 $d_Address.= ' '.$recipient;
                 continue;
             }
-            \Application\Plugin\Phimail::phimail_write($fp,"SEND\n");
-            $ret=fgets($fp,256);
+            \Application\Plugin\Phimail::phimail_write($fp, "SEND\n");
+            $ret=fgets($fp, 256);
         //"INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`) VALUES(?,?,?,?,NOW())"
             \Application\Plugin\Phimail::phimail_close($fp);
         }
         if($d_Address == '') {
 
             foreach ($elec_sent as $elec){
-                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_amc',?,'transactions',?,NOW(),NOW())",array($elec['pid'],$elec['map_id']));
-                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc',?,'transactions',?,NOW(),NOW())",array($elec['pid'],$elec['map_id']));
+                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'],$elec['map_id']));
+                $appTable->zQuery("INSERT into amc_misc_data(amc_id,pid,map_category,map_id,date_created,date_completed) values('send_sum_elec_amc',?,'transactions',?,NOW(),NOW())", array($elec['pid'],$elec['map_id']));
             }
 
             return("Successfully Sent");
@@ -337,7 +337,7 @@ class EncountermanagerTable extends AbstractTableGateway
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
 		    ORDER BY cc.id DESC LIMIT 1";
-        $res      = $appTable->zQuery($query,array($pid));
+        $res      = $appTable->zQuery($query, array($pid));
         $res_cur  = $res->current();
         return $res_cur;
     }
@@ -357,6 +357,6 @@ class EncountermanagerTable extends AbstractTableGateway
         $direct_address = $data['direct_address'];
         $appTable       = new ApplicationTable();
         $query          = "INSERT INTO users SET username = ? ,password = ? ,authorized = ?,fname = ?,lname = ?,email = ?,active = ?,abook_type = ?";
-        $appTable->zQuery($query,array('','',0,$fname,$lname,$direct_address,1,'emr_direct'));
+        $appTable->zQuery($query, array('','',0,$fname,$lname,$direct_address,1,'emr_direct'));
     }
 }

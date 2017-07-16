@@ -19,7 +19,7 @@ class AMC_304b_Numerator implements AmcFilterIF
     {
         // Need a prescription escribed.
         //  (so basically an amc element needs to exist)
-        $amcElement = amcCollect('e_prescribe_amc',$patient->id,'prescriptions',$patient->object['id']);
+        $amcElement = amcCollect('e_prescribe_amc', $patient->id, 'prescriptions', $patient->object['id']);
         if (!(empty($amcElement))) {
             return true;
         }

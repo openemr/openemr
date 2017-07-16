@@ -166,9 +166,9 @@ switch($task) {
         $form_message_status = $_POST['form_message_status'];
         $reply_to = $_POST['reply_to'];
         if ($task=="save")
-            updatePnoteMessageStatus($noteid,$form_message_status);
+            updatePnoteMessageStatus($noteid, $form_message_status);
         else
-            updatePnotePatient($noteid,$reply_to);
+            updatePnotePatient($noteid, $reply_to);
         $task = "edit";
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
@@ -333,8 +333,8 @@ if ($noteid) {
 <?php
 
 if ($noteid) {
-    $body = preg_replace('/(:\d{2}\s\()'.$result['pid'].'(\sto\s)/','${1}'.$patientname.'${2}',$body);
-    $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/','${1}'.xl('to').'${3}', $body);
+    $body = preg_replace('/(:\d{2}\s\()'.$result['pid'].'(\sto\s)/', '${1}'.$patientname.'${2}', $body);
+    $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}'.xl('to').'${3}', $body);
     $body = nl2br(htmlspecialchars( $body, ENT_NOQUOTES));
     echo "<div class='text' style='background-color:white; color: gray; border:1px solid #999; padding: 5px; width: 640px;'>".$body."</div>";
 }
@@ -506,7 +506,7 @@ break;
     }
     // Manage page numbering and display beneath the Messages table.
     $listnumber = 25;
-    $total = getPnotesByUser($active,$show_all,$_SESSION['authUser'],true);
+    $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
     if($begin == "" or $begin == 0) {
         $begin = 0;
     }
@@ -553,7 +553,7 @@ break;
         </tr>";
         // Display the Messages table body.
         $count = 0;
-        $result = getPnotesByUser($active,$show_all,$_SESSION['authUser'],false,$sortby,$sortorder,$begin,$listnumber);
+        $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
     while ($myrow = sqlFetchArray($result)) {
         $name = $myrow['user'];
         $name = $myrow['users_lname'];

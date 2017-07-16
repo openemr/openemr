@@ -21,8 +21,8 @@ require_once "version.php";
 // lack of context (this code is ran outside of the OpenEMR context).
 
 $webserver_root = dirname(__FILE__);
-if (stripos(PHP_OS,'WIN') === 0)
-  $webserver_root = str_replace("\\","/",$webserver_root);
+if (stripos(PHP_OS, 'WIN') === 0)
+  $webserver_root = str_replace("\\", "/", $webserver_root);
 $OE_SITES_BASE = "$webserver_root/sites";
 
 function sqlQuery($statement, $link)

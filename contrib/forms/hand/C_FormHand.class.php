@@ -19,14 +19,14 @@ class C_FormHand extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['form_exit_url']);
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
     function default_action()
     {
         $form = new FormHand();
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -39,7 +39,7 @@ class C_FormHand extends Controller
             $form = new FormHand();
         }
         $dbconn = $GLOBALS['adodb']['db'];
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

@@ -207,7 +207,7 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
                     $blankValue=' ';
             else
                     $blankValue='';
-            echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method","$blankValue","class1 text",'CheckVisible("yes")');
+            echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "class1 text", 'CheckVisible("yes")');
             ?>
       </td>
         <td></td>
@@ -244,7 +244,7 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
                     $blankValue=' ';
         else
                     $blankValue='';
-            echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity","$blankValue","class1 text",'PayingEntityAction()');
+            echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "class1 text", 'PayingEntityAction()');
             ?>
         </td>
         <td align="left" ></td>
@@ -256,7 +256,7 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         else
                     $blankValue='';
             echo generate_list_payment_category("adjustment_code", "payment_adjustment_code", "$AdjustmentCode",
-            "Payment Category","$blankValue","class1 text",'FilterSelection(this)',"$PaymentType","$screen");
+            "Payment Category", "$blankValue", "class1 text", 'FilterSelection(this)', "$PaymentType", "$screen");
             ?>
        </td>
         <td align="left" ></td>
@@ -290,8 +290,8 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         <td></td>
         <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
         <td colspan="6" align="left"><input type="text" name="description"  id="description"   onKeyDown="PreventIt(event)"   value="<?php echo htmlspecialchars($Description);?>"   style="width:396px" class="text "   /></td>
-        <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/><input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-        <td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+        <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/><input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
+        <td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?></div></td>
         </tr>
     <?php
     if($screen=='new_payment')
@@ -426,9 +426,9 @@ if($screen=='new_payment' && $payment_id*1>0)
                     <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
                     <td colspan="4" align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($Description);?><input type="hidden" name="description" value="<?php echo htmlspecialchars($Description);?>"/></td>
                     <td align="left" class='text'></td>
-                    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/>
+                    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/>
  <input name="HidCurrentPostedAmount"  id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-                    <td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+                    <td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?></div></td>
                     <td align="left" class="text"></td>
                   </tr>
                   <tr height="5">

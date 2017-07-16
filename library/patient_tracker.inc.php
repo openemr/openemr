@@ -257,7 +257,7 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
     if( $GLOBALS['drug_screen'] && !empty($status)  && is_checkin($status)) {
         $yearly_limit = $GLOBALS['maximum_drug_test_yearly'];
         $percentage = $GLOBALS['drug_testing_percentage'];
-        random_drug_test($tracker_id,$percentage,$yearly_limit);
+        random_drug_test($tracker_id, $percentage, $yearly_limit);
     }
   # Returning the tracker id that has been managed
     return $tracker_id;
@@ -336,7 +336,7 @@ function random_drug_test($tracker_id, $percentage, $yearly_limit)
         # get a count of the number of times the patient has been screened.
         if ($yearly_limit >0) {
             # check to see if screens are within the current year.
-            $lastyear = date("Y-m-d",strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));
+            $lastyear = date("Y-m-d", strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));
             $drug_test_count = sqlQuery("SELECT COUNT(*) from patient_tracker " .
                                  "WHERE drug_screen_completed = '1' AND apptdate >= ? AND pid =? ", array($lastyear,$Patient_id));
         }
@@ -350,7 +350,7 @@ function random_drug_test($tracker_id, $percentage, $yearly_limit)
           # Now do the randomization and set random_drug_test to the outcome.
 
              $drugtest = 0;
-             $testdrug = mt_rand(0,100);
+             $testdrug = mt_rand(0, 100);
             if ($testdrug <= $percentage) {
                 $drugtest = 1;
             }

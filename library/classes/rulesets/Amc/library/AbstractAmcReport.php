@@ -129,14 +129,14 @@ abstract class AbstractAmcReport implements RsReportIF
             else {
                 // Counting objects other than patients
                 //   First, collect the pertinent objects
-                $objects = $this->collectObjects($patient,$object_to_count,$tempBeginMeasurement,$this->_endMeasurement);
+                $objects = $this->collectObjects($patient, $object_to_count, $tempBeginMeasurement, $this->_endMeasurement);
                 //   Second, test each object
                 $objects_pass=array();
                 foreach ($objects as $object) {
                     $patient->object=$object;
                     if ( $denominator->test( $patient, $tempBeginMeasurement, $this->_endMeasurement ) ) {
                         $denominatorObjects++;
-                        array_push($objects_pass,$object);
+                        array_push($objects_pass, $object);
                     }
                 }
             }

@@ -569,7 +569,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $bodyClass = "notab";
                 $widgetAuth = false;
                 $fixedWidth = true;
-                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
 
                 </div>
 
@@ -677,7 +677,7 @@ else
     $widgetAuth = false;
 }
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
              $count = 0;
 ?>
             <div id='stats_div' style="display:none">

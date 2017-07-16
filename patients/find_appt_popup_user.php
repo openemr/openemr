@@ -37,7 +37,7 @@ $ignoreAuth = 1;
 
  // Exit if the modify calendar for portal flag is not set
 if (!($GLOBALS['portal_onsite_appt_modify'])) {
-    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'),ENT_NOQUOTES);
+    echo htmlspecialchars( xl('You are not authorized to schedule appointments.'), ENT_NOQUOTES);
     exit;
 }
 
@@ -252,7 +252,7 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Find Available Appointments','e'); ?></title>
+<title><?php xl('Find Available Appointments', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <!-- for the pop up calendar -->
@@ -268,7 +268,7 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 
  function setappt(year,mon,mday,hours,minutes) {
   if (opener.closed || ! opener.setappt)
-   alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+   alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
   else
    opener.setappt(year,mon,mday,hours,minutes);
   window.close();
@@ -340,7 +340,7 @@ form {
 <form method='post' name='theform' action='find_appt_popup.php?providerid=<?php echo $providerid ?>&catid=<?php echo $input_catid ?>'>
    <input type="hidden" name='bypatient' />
 
-    <?php xl('Start date:','e'); ?>
+    <?php xl('Start date:', 'e'); ?>
 
 
    <input type='text' name='startdate' id='startdate' size='10' value='<?php echo $sdate ?>'
@@ -348,14 +348,14 @@ form {
     
    <img src='../interface/pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
 
 
-    <?php xl('for','e'); ?>
+    <?php xl('for', 'e'); ?>
    <input type='text' name='searchdays' size='3' value='<?php echo $searchdays ?>'
     title='Number of days to search from the start date' />
-    <?php xl('days','e'); ?>&nbsp;
-   <input type='submit' value='<?php xl('Search','e'); ?>'>
+    <?php xl('days', 'e'); ?>&nbsp;
+   <input type='submit' value='<?php xl('Search', 'e'); ?>'>
 </div>
 
 <?php if (!empty($slots)) : ?>
@@ -363,8 +363,8 @@ form {
 <div id="searchResultsHeader">
 <table>
  <tr>
-  <th class="srDate"><?php xl ('Day','e'); ?></th>
-  <th class="srTimes"><?php xl ('Available Times','e'); ?></th>
+  <th class="srDate"><?php xl ('Day', 'e'); ?></th>
+  <th class="srTimes"><?php xl ('Available Times', 'e'); ?></th>
  </tr>
 </table>
 </div>
@@ -413,7 +413,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
     $adate['minutes'] . ")'".
     " title='$atitle' alt='$atitle'".
     ">";
-    echo (strlen(date('g',$utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
     $anchor . date("g:i", $utime) . "</a> ";
 
     // If category duration is more than 1 slot, increment $i appropriately.
@@ -424,7 +424,7 @@ if ($lastdate) {
     echo "</td>\n";
     echo " </tr>\n";
 } else {
-    echo " <tr><td colspan='2'> " . xl('No openings were found for this period.','e') . "</td></tr>\n";
+    echo " <tr><td colspan='2'> " . xl('No openings were found for this period.', 'e') . "</td></tr>\n";
 }
 ?>
 </table>

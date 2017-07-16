@@ -167,13 +167,13 @@ class ImmunizationTable extends AbstractTableGateway
         "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
         
         if($getCount){
-            $result     =   $this->applicationTable->zQuery($query,$query_data);
+            $result     =   $this->applicationTable->zQuery($query, $query_data);
             $resCount   =   $result->count();
             return $resCount;
         }
         
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
-        $result =   $this->applicationTable->zQuery($query,$query_data);
+        $result =   $this->applicationTable->zQuery($query, $query_data);
         return $result;
     }
   
@@ -187,7 +187,7 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
         return $res_cur['notes'];
@@ -224,10 +224,10 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
-        $codes            = explode(":",$res_cur['codes']);
+        $codes            = explode(":", $res_cur['codes']);
         return $codes[1];
     }
 }

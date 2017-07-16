@@ -15,14 +15,14 @@ class C_FormROS extends Controller
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/ros/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl");
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
     function default_action()
     {
         $ros = new FormROS();
-        $this->assign("form",$ros);
+        $this->assign("form", $ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -36,7 +36,7 @@ class C_FormROS extends Controller
             $ros = new FormROS();
         }
 
-        $this->assign("form",$ros);
+        $this->assign("form", $ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 

@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-require_once $this->_get_plugin_filepath('shared','make_timestamp');
+require_once $this->_get_plugin_filepath('shared', 'make_timestamp');
 function smarty_function_pc_date_format($args)
 {
     extract($args);
@@ -34,9 +34,9 @@ function smarty_function_pc_date_format($args)
         $format = _SETTING_DATE_FORMAT;
     }
     if(isset($date)) {
-        list($y,$m,$d) = explode('-',$date);
-        echo strftime($format,smarty_make_timestamp($date));
+        list($y,$m,$d) = explode('-', $date);
+        echo strftime($format, smarty_make_timestamp($date));
     } else {
-        echo strftime($format,time());
+        echo strftime($format, time());
     }
 }

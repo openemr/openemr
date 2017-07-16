@@ -68,7 +68,7 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
             //Create appt for each patient (if there is appointment connected to encounter)
             if(!empty($appt_data)){
                 $pc_eid = insert_patient_appt($pid, $therapy_group, $appt_data['pc_aid'], $appt_data['pc_eventDate'], $appt_data['pc_startTime'], $patient);
-                manage_tracker_status($appt_data['pc_eventDate'],$appt_data['pc_startTime'],$pc_eid,$pid,$appt_data['pc_aid'],$patient['status'],$appt_data['pc_room'],$encounter_id);
+                manage_tracker_status($appt_data['pc_eventDate'], $appt_data['pc_startTime'], $pc_eid, $pid, $appt_data['pc_aid'], $patient['status'], $appt_data['pc_room'], $encounter_id);
             }
 
         }
@@ -146,12 +146,12 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
         $enc_id = generate_id();
         $sqlBindArray = array();
         $user = (is_null($pc_aid)) ? $_SESSION["authId"] : $pc_aid;
-        array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, get_groups_cat_id() ,$user, $gid);
+        array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, get_groups_cat_id(), $user, $gid);
         $form_id = sqlInsert($insert_encounter_sql, $sqlBindArray);
 
         global $userauthorized;
 
-        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient",$pid, $userauthorized, $group_encounter_date,'','',null);
+        addForm($enc_id, "New Patient Encounter", $form_id, "newpatient", $pid, $userauthorized, $group_encounter_date, '', '', null);
 
         return $enc_id;
 

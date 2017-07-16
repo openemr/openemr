@@ -98,7 +98,7 @@ function create_crt($privkey, $csr, $cacert, $cakey)
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $config = array('config' => $opensslConf);
 
-    $cert = openssl_csr_sign($csr, $cacert ,$cakey, 3650, $config,rand(1000,9999));
+    $cert = openssl_csr_sign($csr, $cacert, $cakey, 3650, $config, rand(1000, 9999));
     return $cert;
 }
 

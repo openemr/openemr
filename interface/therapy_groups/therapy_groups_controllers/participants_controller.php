@@ -60,14 +60,14 @@ class ParticipantsController extends BaseController
                 );
                 //filter and sanitize all post data.
                 $participant = filter_var_array($patient, $filters);
-                $this->groupParticipantsModel->updateParticipant($participant,$patient['pid'], $_POST['group_id']);
+                $this->groupParticipantsModel->updateParticipant($participant, $patient['pid'], $_POST['group_id']);
                 unset($_GET['editParticipants']);
             }
         }
 
         if(isset($_GET['deleteParticipant'])){
 
-            $this->groupParticipantsModel->removeParticipant($_GET['group_id'],$_GET['pid']);
+            $this->groupParticipantsModel->removeParticipant($_GET['group_id'], $_GET['pid']);
         }
 
         $data['events'] = $this->groupEventsModel->getGroupEvents($groupId);

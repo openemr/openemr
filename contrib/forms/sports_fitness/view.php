@@ -227,8 +227,8 @@ if ($formid) {
     <tr>
      <td colspan='6' nowrap>
       B.F. Method Used:&nbsp;
-        <?php echo rbinput('form_method_body_fat', 'Caliper'    , 'Caliper'    , 'method_body_fat') ?>&nbsp;
-        <?php echo rbinput('form_method_body_fat', 'Electronic' , 'Electronic' , 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Caliper', 'Caliper', 'method_body_fat') ?>&nbsp;
+        <?php echo rbinput('form_method_body_fat', 'Electronic', 'Electronic', 'method_body_fat') ?>&nbsp;
         <?php echo rbinput('form_method_body_fat', 'Hydrostatic', 'Hydrostatic', 'method_body_fat') ?>
      </td>
     </tr>

@@ -31,7 +31,7 @@ function collectValidationPageRules($title, $active = true)
 
     if($active){
         $sql = sqlStatement("SELECT * " .
-            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?",array('page_validation',1,$title));
+            "FROM `list_options` WHERE list_id=? AND activity=?  AND title = ?", array('page_validation',1,$title));
     }
     else {
         $sql = sqlStatement("SELECT * " .
@@ -57,7 +57,7 @@ function validateUsingPageRules($fileNamePath)
 
     if($GLOBALS['webroot']!='')
     {
-        $path= str_replace($GLOBALS['webroot'], '',$fileNamePath);
+        $path= str_replace($GLOBALS['webroot'], '', $fileNamePath);
     }
     else{
         $path=$fileNamePath;

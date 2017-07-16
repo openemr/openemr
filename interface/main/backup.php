@@ -45,7 +45,7 @@ if (!function_exists('gzopen') && function_exists('gzopen64'))
 }
     
     
-if (!acl_check('admin', 'super')) die(xl('Not authorized','','','!'));
+if (!acl_check('admin', 'super')) die(xl('Not authorized', '', '', '!'));
 
 include_once("Archive/Tar.php");
 
@@ -120,7 +120,7 @@ if ($form_step == 104) {
 
 <head>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-<title><?php xl('Backup','e'); ?></title>
+<title><?php xl('Backup', 'e'); ?></title>
 </head>
 
 <body class="body_top">
@@ -274,7 +274,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     chdir($cur_dir);
    /* To log the backup event */
     if ($GLOBALS['audit_events_backup']){
-        newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0,"Backup is completed");
+        newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
     $auto_continue = true;
 }
@@ -527,7 +527,7 @@ if ($form_step == 301) {
     if (!file_exists($BACKUP_EVENTLOG_DIR))
     {
         mkdir($BACKUP_EVENTLOG_DIR);
-        chmod($BACKUP_EVENTLOG_DIR,0777);
+        chmod($BACKUP_EVENTLOG_DIR, 0777);
     }
 # Frame the Eventlog Backup File Name
     $BACKUP_EVENTLOG_FILE=$BACKUP_EVENTLOG_DIR.'/eventlog_'.$backuptime.'.sql';
@@ -657,10 +657,10 @@ function gz_compress_file($source)
 {
     $dest=$source.'.gz';
     $error=false;
-    if ($fp_in=fopen($source,'rb')) {
-        if ($fp_out=gzopen($dest,'wb')) {
+    if ($fp_in=fopen($source, 'rb')) {
+        if ($fp_out=gzopen($dest, 'wb')) {
             while(!feof($fp_in))
-            gzwrite($fp_out,fread($fp_in,1024*512));
+            gzwrite($fp_out, fread($fp_in, 1024*512));
             gzclose($fp_out);
             fclose($fp_in);
             unlink($source);

@@ -94,7 +94,7 @@ class CcdController extends AbstractActionController
         if($request->getQuery('document_id')) {
             $_REQUEST["document_id"] = $request->getQuery('document_id');
             $category_details          = \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->fetch_cat_id('CCD');
-            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'],$_REQUEST["document_id"]);
+            \Documents\Controller\DocumentsController::getDocumentsTable()->updateDocumentCategory($category_details[0]['id'], $_REQUEST["document_id"]);
         }
         $document_id                      =    $_REQUEST["document_id"];
         $xml_content                      =    \Carecoordination\Controller\CarecoordinationController::getCarecoordinationTable()->getDocument($document_id);
@@ -102,7 +102,7 @@ class CcdController extends AbstractActionController
         $xmltoarray                       =    new \Zend\Config\Reader\Xml();
         $array                            =    $xmltoarray->fromString((string) $xml_content);
         
-        $this->getCcdTable()->import($array,$document_id);
+        $this->getCcdTable()->import($array, $document_id);
         
         $view = new ViewModel();
         $view->setTerminal(true);

@@ -126,7 +126,7 @@ else { // not export
 <table border='0' cellspacing='5' cellpadding='1'>
  <tr>
   <td valign='top' class='detail' nowrap>
-    <?php xl('Facility','e'); ?>:
+    <?php xl('Facility', 'e'); ?>:
   </td>
   <td valign='top' class='detail'>
 <?php
@@ -145,15 +145,15 @@ foreach ($fres as $frow) {
 ?>
   </td>
   <td colspan='2' class='detail' nowrap>
-    <?php xl('Date','e'); ?>
+    <?php xl('Date', 'e'); ?>
    <input type='text' name='form_from_date' id='form_from_date' size='10' value='<?php echo $from_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='Report date yyyy-mm-dd' />
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>' />
+    title='<?php xl('Click here to choose a date', 'e'); ?>' />
   </td>
   <td valign='top' class='dehead' nowrap>
-    <?php xl('To','e'); ?>:
+    <?php xl('To', 'e'); ?>:
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
 <?php
@@ -165,8 +165,8 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 ?>
   </td>
   <td align='right' valign='top' class='detail' nowrap>
-   <input type='submit' name='form_submit' value='<?php xl('Submit','e'); ?>'
-    title='<?php xl('Click to generate the report','e'); ?>' />
+   <input type='submit' name='form_submit' value='<?php xl('Submit', 'e'); ?>'
+    title='<?php xl('Click to generate the report', 'e'); ?>' />
   </td>
  </tr>
  <tr>

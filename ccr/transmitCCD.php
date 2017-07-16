@@ -64,13 +64,13 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 
     $phimail_username = $GLOBALS['phimail_username'];
     $phimail_password = $GLOBALS['phimail_password'];
-    $ret = phimail_write_expect_OK($fp,"AUTH $phimail_username $phimail_password\n");
+    $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if($ret!==true) return("$config_err 4");
 
-    $ret = phimail_write_expect_OK($fp,"TO $recipient\n");
+    $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
     if($ret!==true) return( xl("Delivery is not allowed to the specified Direct Address.") );
 
-    $ret=fgets($fp,1024); //ignore extra server data
+    $ret=fgets($fp, 1024); //ignore extra server data
 
     if($requested_by=="patient")
     $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
@@ -80,29 +80,29 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
             ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
     $text_len=strlen($text_out);
-    phimail_write($fp,"TEXT $text_len\n");
-    $ret=@fgets($fp,256);
+    phimail_write($fp, "TEXT $text_len\n");
+    $ret=@fgets($fp, 256);
     if($ret!="BEGIN\n") {
         phimail_close($fp);
         return("$config_err 5");
     }
-    $ret=phimail_write_expect_OK($fp,$text_out);
+    $ret=phimail_write_expect_OK($fp, $text_out);
     if($ret!==true) return("$config_err 6");
 
     $ccd_out=$ccd->saveXml();
     $ccd_len=strlen($ccd_out);
 
-    phimail_write($fp,"ADD " . ($xml_type=="CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
-    $ret=fgets($fp,256);
+    phimail_write($fp, "ADD " . ($xml_type=="CCR" ? "CCR " : "CDA ") . $ccd_len . $att_filename . "\n");
+    $ret=fgets($fp, 256);
     if($ret!="BEGIN\n") {
         phimail_close($fp);
         return("$config_err 7");
     }
-    $ret=phimail_write_expect_OK($fp,$ccd_out);
+    $ret=phimail_write_expect_OK($fp, $ccd_out);
     if($ret!==true) return("$config_err 8");
 
-    phimail_write($fp,"SEND\n");
-    $ret=fgets($fp,256);
+    phimail_write($fp, "SEND\n");
+    $ret=fgets($fp, 256);
     phimail_close($fp);
 
     if($requested_by=="patient")  {
@@ -120,9 +120,9 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
         $reqID=$_SESSION['authUserID'];
     }
 
-    if(substr($ret,5)=="ERROR") {
+    if(substr($ret, 5)=="ERROR") {
         //log the failure
-        newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],0,$ret,$pid);
+        newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl("The message could not be sent at this time."));
     }
 
@@ -131,17 +131,17 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     * value $ret is of the form "QUEUED recipient message-id" which
     * is suitable for logging.
     */
-    $msg_id=explode(" ",trim($ret),4);
+    $msg_id=explode(" ", trim($ret), 4);
     if($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        newEvent("transmit-ccd",$reqBy,$_SESSION['authProvider'],0,$ret,$pid);
+        newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
         return( xl("There was a problem sending the message."));
     }
-    newEvent("transmit-".$xml_type,$reqBy,$_SESSION['authProvider'],1,$ret,$pid);
+    newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
     $adodb=$GLOBALS['adodb']['db'];
     $sql="INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
-    $res=@sqlStatementNoLog($sql,array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
+    $res=@sqlStatementNoLog($sql, array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
 
     return("SUCCESS");
 }

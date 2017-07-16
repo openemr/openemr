@@ -49,7 +49,7 @@ class EncountermanagerController extends AbstractActionController
         $status         = $request->getPost('form_status', null);
         
         if(!$pid && !$encounter && !$status){
-            $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d',strtotime(date('Ymd')) - (86400*7));
+            $fromDate       = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400*7));
             $toDate         = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
         
@@ -60,7 +60,7 @@ class EncountermanagerController extends AbstractActionController
         $select_all     = $request->getPost('form_select_all', 0);
         $end            = $current_page*$results;
         $start          = ($end - $results);
-        $new_search     = $request->getPost('form_new_search',null);
+        $new_search     = $request->getPost('form_new_search', null);
         $form_sl_no     = $request->getPost('form_sl_no', 0);
         
         $downloadccda       = $request->getPost('downloadccda') ? $request->getPost('downloadccda') : $request->getQuery()->downloadccda;
@@ -89,7 +89,7 @@ class EncountermanagerController extends AbstractActionController
                 $pids .= $combination[$i].'|';
             }
             $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;
-            $this->forward()->dispatch('encounterccdadispatch',array('action'       => 'index',
+            $this->forward()->dispatch('encounterccdadispatch', array('action'       => 'index',
                                                                    'pids'         => $pids,
                                                                    'view'         => 1,
                                                                    'downloadccda' => $downloadccda,
@@ -114,9 +114,9 @@ class EncountermanagerController extends AbstractActionController
                     );
         
         if($new_search) {
-            $count  = $this->getEncountermanagerTable()->getEncounters($params,1);
+            $count  = $this->getEncountermanagerTable()->getEncounters($params, 1);
         } else {
-            $count  = $request->getPost('form_count',$this->getEncountermanagerTable()->getEncounters($params,1));
+            $count  = $request->getPost('form_count', $this->getEncountermanagerTable()->getEncounters($params, 1));
         }
         $totalpages     = ceil($count/$results);
         

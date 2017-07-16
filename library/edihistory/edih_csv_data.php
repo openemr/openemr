@@ -78,7 +78,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $rej = (isset($csvfile['RejCt'])) ? $csvfile['RejCt'] : '';
                 //
                 $dt_str .= ($fn1) ? "<a class='$cls' href='edih_main.php?gtbl=file&fname=$fn1&ftype=$ft&fmt=seg'>$fn1</a>&nbsp;" : "";
-                $dt_str .= ($dte) ? " &nbsp;".substr($dte,0,4)."-".substr($dte,4,2)."-".substr($dte,6,2) : "";
+                $dt_str .= ($dte) ? " &nbsp;".substr($dte, 0, 4)."-".substr($dte, 4, 2)."-".substr($dte, 6, 2) : "";
                 $dt_str .= ($clmct) ? " &nbsp;<em>Claims</em> ".$clmct : "";
                 if ($ft == 'f997' || $ft == 'ta1') {
                     $dt_str .= ($typ) ? " &nbsp;".$typ : "";
@@ -112,7 +112,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
                             continue;
                         }
                     } elseif ($ft == 'f277') {
-                        if (substr_count($claim['Status'],'A1') || substr_count($claim['Status'],'A2') || substr_count($claim['Status'],'A5')) {
+                        if (substr_count($claim['Status'], 'A1') || substr_count($claim['Status'], 'A2') || substr_count($claim['Status'], 'A5')) {
                             continue;
                         }
                     } elseif (strpos('|f997|f999|f271', $ft) && $claim['Status'] == 'A') {
@@ -149,7 +149,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
                 $dte = (isset($claim['FileDate'])) ? $claim['FileDate'] : $dte;
                 
                 $dd_str .= ($ptn) ? $ptn."&nbsp; " : "";
-                $dd_str .= ($dte) ? " &nbsp;".substr($dte,0,4)."-".substr($dte,4,2)."-".substr($dte,6,2) : "";
+                $dd_str .= ($dte) ? " &nbsp;".substr($dte, 0, 4)."-".substr($dte, 4, 2)."-".substr($dte, 6, 2) : "";
                 if (strpos('|f277|f276|f270|f271|f278', $ft)) {
                     $dd_str .= ($sts) ? " &nbsp;$sts" : "";
                     $dd_str .= ($ins) ? " &nbsp;$ins" : "";

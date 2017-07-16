@@ -84,11 +84,11 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
       <label for="onset_date"><?php echo xlt('Box 14. Onset Date:');
         $onset_date = $obj{"onset_date"}; ?></label>
       <input type="text" size="10" class='datepicker' name='onset_date' id='onset_date' value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual",$box_14_qualifier_options,$obj); ?><br><br>
+      <label for="box_14_date_qual_box"><?php echo generateDateQualifierSelect("box_14_date_qual", $box_14_qualifier_options, $obj); ?><br><br>
       <label for="date_initial_treament"><?php echo xlt('Box 15. Other Date:');
         $date_initial_treatment = $obj{"date_initial_treatment"}; ?></label>
       <input type="text" size="10" class='datepicker' name='date_initial_treatment' id='date_initial_treatment' value='<?php echo attr($date_initial_treatment); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >
-      <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual",$box_15_qualifier_options,$obj); ?><br><br>
+      <label for="box_15_date_qual"><?php generateDateQualifierSelect("box_15_date_qual", $box_15_qualifier_options, $obj); ?><br><br>
       <label for="off_work_from"><?php echo xlt('Box 16. Date unable to work from:');
         $off_work_from = $obj{"off_work_from"}; ?></label>
       <input type="text" size="10" class='datepicker' name='off_work_from' id='off_work_from' value='<?php echo attr($off_work_from); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' >

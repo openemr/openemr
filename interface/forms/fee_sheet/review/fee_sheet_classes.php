@@ -37,10 +37,10 @@ class code_info
         $this->selected=$selected;
         // check if the code type is active and allowed to create medical problems from diagnosis elements
         $this->allowed_to_create_problem_from_diagnosis="FALSE";
-        if (check_code_set_filters($ct,array("active","problem"))) $this->allowed_to_create_problem_from_diagnosis="TRUE";
+        if (check_code_set_filters($ct, array("active","problem"))) $this->allowed_to_create_problem_from_diagnosis="TRUE";
         // check if the code type is active and allowed to create diagnosis elements from medical problems
         $this->allowed_to_create_diagnosis_from_problem="FALSE";
-        if (check_code_set_filters($ct,array("active","diag"))) $this->allowed_to_create_diagnosis_from_problem="TRUE";
+        if (check_code_set_filters($ct, array("active","diag"))) $this->allowed_to_create_diagnosis_from_problem="TRUE";
     }
     public $code;
     public $code_type;
@@ -66,7 +66,7 @@ class code_info
     }
     public function addArrayParams(&$arr)
     {
-        array_push($arr,$this->code_type,$this->code,$this->description);
+        array_push($arr, $this->code_type, $this->code, $this->description);
     }
 }
 
@@ -78,7 +78,7 @@ class procedure extends code_info
 {
     function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $selected = true)
     {
-        parent::__construct($c,$ct,$desc,$selected);
+        parent::__construct($c, $ct, $desc, $selected);
         $this->fee=$fee;
         $this->justify=$justify;
         $this->modifiers=$modifiers;
@@ -94,7 +94,7 @@ class procedure extends code_info
 
     public function addProcParameters(&$params)
     {
-        array_push($params,$this->modifiers,$this->units,$this->fee,$this->justify);
+        array_push($params, $this->modifiers, $this->units, $this->fee, $this->justify);
     }
 }
 

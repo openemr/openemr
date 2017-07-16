@@ -27,15 +27,15 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
     $searchparm = trim($_REQUEST['searchparm']);
 
     if ($searchby == "Last") {
-        $result = getPatientLnames("$searchparm","*");
+        $result = getPatientLnames("$searchparm", "*");
     } elseif ($searchby == "Phone") {                  //(CHEMED) Search by phone number
-        $result = getPatientPhone("$searchparm","*");
+        $result = getPatientPhone("$searchparm", "*");
     } elseif ($searchby == "ID") {
-        $result = getPatientId("$searchparm","*");
+        $result = getPatientId("$searchparm", "*");
     } elseif ($searchby == "DOB") {
-        $result = getPatientDOB("$searchparm","*");
+        $result = getPatientDOB("$searchparm", "*");
     } elseif ($searchby == "SSN") {
-        $result = getPatientSSN("$searchparm","*");
+        $result = getPatientSSN("$searchparm", "*");
     }
 }
 ?>

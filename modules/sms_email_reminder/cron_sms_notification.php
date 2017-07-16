@@ -97,10 +97,10 @@ for( $p=0; $p<count($db_patient); $p++ )
     if( $remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME )
     {
         // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($TYPE,$prow,$db_email_msg);
+        cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 
         //set message
-        $db_email_msg['message'] = cron_setmessage($prow,$db_email_msg);
+        $db_email_msg['message'] = cron_setmessage($prow, $db_email_msg);
         
         // send sms to patinet - if not in test mode
         if( $bTestRun == 0 )
@@ -116,7 +116,7 @@ for( $p=0; $p<count($db_patient); $p++ )
                     " \nmsg= ".$db_email_msg['message']."\n";
         
         //update entry >> pc_sendalertsms='Yes'
-        cron_updateentry($TYPE,$prow['pid'],$prow['pc_eid']);
+        cron_updateentry($TYPE, $prow['pid'], $prow['pc_eid']);
         
         $strMsg .= " || ALERT SENT SUCCESSFULLY TO ".$prow['phone_cell'];
         $strMsg .= "\n".$patient_info."\n".$smsgateway_info."\n".$data_info."\n".$db_email_msg['message'];

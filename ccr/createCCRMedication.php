@@ -49,7 +49,7 @@ do {
     $e_Status = $ccr->createElement('Status');
     $e_Medication->appendChild($e_Status);
 
-    $e_Text = $ccr->createElement('Text',$value['active']);
+    $e_Text = $ccr->createElement('Text', $value['active']);
     $e_Status->appendChild($e_Text);
 
     $e_Medication->appendChild(sourceType($ccr, $sourceID));
@@ -60,13 +60,13 @@ do {
     $e_ProductName = $ccr->createElement('ProductName');
     $e_Product->appendChild($e_ProductName);
 
-    $e_Text = $ccr->createElement('Text',$value['drug']);
+    $e_Text = $ccr->createElement('Text', $value['drug']);
     $e_ProductName->appendChild(clone $e_Text);
 
     $e_Code = $ccr->createElement('Code');
     $e_ProductName->appendChild($e_Code);
 
-    $e_Value = $ccr->createElement('Value',$value['rxnorm_drugcode']);
+    $e_Value = $ccr->createElement('Value', $value['rxnorm_drugcode']);
     $e_Code->appendChild($e_Value);
   
     $e_Value = $ccr->createElement('CodingSystem', 'RxNorm');

@@ -166,20 +166,20 @@ if ($ret = getBillsBetweenReport($code_type)) {
             printRecDataOne($employer_data_array, getRecEmployerData ($iter{"pid"}), $COLS);
 
             print "<font class=bold>" . xlt("Primary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"primary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"}, "primary"), $COLS);
 
             print "<font class=bold>" . xlt("Secondary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"secondary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"}, "secondary"), $COLS);
 
             print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertiary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"}, "tertiary"), $COLS);
         
             //==================================
             print "</td></tr><tr>\n";
             $old_pid = $iter{"pid"};
         
         }
-        print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d",strtotime($iter{"date"}))) . ")</span></td>\n";
+        print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d", strtotime($iter{"date"}))) . ")</span></td>\n";
         $res_count++;
         if ($res_count == $N) {
             print "</tr><tr>\n";

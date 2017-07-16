@@ -45,7 +45,7 @@ class C_Prescription extends Controller
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
         $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
-        $this->assign("CSS_HEADER",  $GLOBALS['css_header'] );
+        $this->assign("CSS_HEADER", $GLOBALS['css_header'] );
         $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
         $this->RxList = new RxList();
 
@@ -93,7 +93,7 @@ class C_Prescription extends Controller
 
     function default_action()
     {
-        $this->assign("prescription",$this->prescriptions[0]);
+        $this->assign("prescription", $this->prescriptions[0]);
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit.html");
     }
 
@@ -127,7 +127,7 @@ class C_Prescription extends Controller
             exit;
         }
         if (!empty($sort)) {
-            $this->assign("prescriptions", Prescription::prescriptions_factory($id,$sort));
+            $this->assign("prescriptions", Prescription::prescriptions_factory($id, $sort));
         }
         else {
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
@@ -146,7 +146,7 @@ class C_Prescription extends Controller
             exit;
         }
         if (!empty($sort)) {
-            $this->assign("prescriptions", Prescription::prescriptions_factory($id,$sort));
+            $this->assign("prescriptions", Prescription::prescriptions_factory($id, $sort));
         }
         else {
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
@@ -162,7 +162,7 @@ class C_Prescription extends Controller
             exit;
         }
         if (!empty($sort)) {
-            $this->assign("prescriptions", Prescription::prescriptions_factory($id,$sort));
+            $this->assign("prescriptions", Prescription::prescriptions_factory($id, $sort));
         }
         else {
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
@@ -277,14 +277,14 @@ class C_Prescription extends Controller
     {
         $this->providerid = $p->provider->id;
         //print header
-        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'],'','50','','center','');
+        $pdf->ezImage($GLOBALS['oer_config']['prescriptions']['logo'], '', '50', '', 'center', '');
         $pdf->ezColumnsStart(array('num'=>2, 'gap'=>10));
         $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
             add_escape_custom($p->provider->id) . "'");
-        $pdf->ezText($res['addr'],12);
+        $pdf->ezText($res['addr'], 12);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
-        $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>',12);
+        $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
     // A client had a bad experience with a patient misusing a DEA number, so
     // now the doctors write those in on printed prescriptions and only when
     // necessary.  If you need to change this back, then please make it a
@@ -320,31 +320,31 @@ class C_Prescription extends Controller
         if ($my_y < $pdf->y){
             $pdf->ezSetY($my_y);
         }
-        $pdf->ezText('',10);
+        $pdf->ezText('', 10);
         $pdf->setLineStyle(1);
         $pdf->ezColumnsStart(array('num'=>2));
-        $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-        $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>',6);
-        $pdf->ezText($p->patient->get_name_display(),10);
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin'], $pdf->y);
+        $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>', 6);
+        $pdf->ezText($p->patient->get_name_display(), 10);
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =". add_escape_custom($p->patient->id));
         $pdf->ezText($res['addr']);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
-        $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-        $pdf->ezText('<b>' . xl('Date of Birth') . '</b>',6);
-        $pdf->ezText($p->patient->date_of_birth,10);
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin'], $pdf->y);
+        $pdf->ezText('<b>' . xl('Date of Birth') . '</b>', 6);
+        $pdf->ezText($p->patient->date_of_birth, 10);
         $pdf->ezText('');
-        $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-        $pdf->ezText('<b>' . xl('Medical Record #') . '</b>',6);
-        $pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT),10);
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin'], $pdf->y);
+        $pdf->ezText('<b>' . xl('Medical Record #') . '</b>', 6);
+        $pdf->ezText(str_pad($p->patient->get_pubpid(), 10, "0", STR_PAD_LEFT), 10);
         $pdf->ezColumnsStop();
         if ($my_y < $pdf->y){
             $pdf->ezSetY($my_y);
         }
         $pdf->ezText('');
-        $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
-        $pdf->ezText('<b>' . xl('Prescriptions') . '</b>',6);
-        $pdf->ezText('',10);
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin'], $pdf->y);
+        $pdf->ezText('<b>' . xl('Prescriptions') . '</b>', 6);
+        $pdf->ezText('', 10);
     }
 
     function multiprintcss_header($p)
@@ -491,7 +491,7 @@ class C_Prescription extends Controller
         if($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax ) ) {
             $sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
             if (file_exists($sigfile)) {
-                $pdf->ezText( xl('Signature') . ": ",12);
+                $pdf->ezText( xl('Signature') . ": ", 12);
                 // $pdf->ezImage($sigfile, "", "", "none", "left");
                 $pdf->ezImage($sigfile, "", "", "none", "center");
                 $pdf->ezText( xl('Date') . ": " . date('Y-m-d'), 12);
@@ -511,7 +511,7 @@ class C_Prescription extends Controller
                 return;
             }
         }
-        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'),12);
+        $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________\n" . xl('Date') . ": " . date('Y-m-d'), 12);
     }
 
     function multiprintcss_footer()
@@ -568,7 +568,7 @@ class C_Prescription extends Controller
         $pdf->ez['leftMargin'] += $pdf->ez['leftMargin'];
         $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
         $d = $this->get_prescription_body_text($p);
-        if ( $pdf->ezText($d,10,array(),1) ) {
+        if ( $pdf->ezText($d, 10, array(), 1) ) {
             $pdf->ez['leftMargin'] -= $pdf->ez['leftMargin'];
             $pdf->ez['rightMargin'] -= $pdf->ez['rightMargin'];
             $this->multiprint_footer($pdf);
@@ -578,18 +578,18 @@ class C_Prescription extends Controller
             $pdf->ez['rightMargin'] += $pdf->ez['rightMargin'];
         }
         $my_y = $pdf->y;
-        $pdf->ezText($d,10);
+        $pdf->ezText($d, 10);
         if($this->pconfig['shading']) {
-            $pdf->setColor(.9,.9,.9);
-            $pdf->filledRectangle($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'],$my_y - $pdf->y);
-            $pdf->setColor(0,0,0);
+            $pdf->setColor(.9, .9, .9);
+            $pdf->filledRectangle($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin']-$pdf->ez['leftMargin'], $my_y - $pdf->y);
+            $pdf->setColor(0, 0, 0);
         }
         $pdf->ezSetY($my_y);
-        $pdf->ezText($d,10);
+        $pdf->ezText($d, 10);
         $pdf->ez['leftMargin'] = $GLOBALS['rx_left_margin'];
         $pdf->ez['rightMargin'] = $GLOBALS['rx_right_margin'];
         $pdf->ezText('');
-        $pdf->line($pdf->ez['leftMargin'],$pdf->y,$pdf->ez['pageWidth']-$pdf->ez['rightMargin'],$pdf->y);
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth']-$pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('');
     }
 
@@ -615,10 +615,7 @@ class C_Prescription extends Controller
             $this->function_argument_error();
         }
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin']
-            ,$GLOBALS['rx_bottom_margin']
-            ,$GLOBALS['rx_left_margin']
-            ,$GLOBALS['rx_right_margin']
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
         );
         $pdf->selectFont('Helvetica');
 
@@ -627,7 +624,7 @@ class C_Prescription extends Controller
 
         //print prescriptions body
         $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
         foreach ($ids as $id) {
             $p = new Prescription($id);
             // if ($print_header == true) {
@@ -664,7 +661,7 @@ class C_Prescription extends Controller
         $this->multiprintcss_preheader();
 
         $this->_state = false; // Added by Rod - see Controller.class.php
-        $ids = preg_split('/::/', substr($id,1,strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
+        $ids = preg_split('/::/', substr($id, 1, strlen($id) - 2), -1, PREG_SPLIT_NO_EMPTY);
 
         $on_this_page = 0;
         foreach ($ids as $id) {
@@ -712,12 +709,12 @@ class C_Prescription extends Controller
                 return $this->_print_prescription($p, $dummy);
                 break;
             case xl("Email"):
-                return $this->_email_prescription($p,$_POST['email_to']);
+                return $this->_email_prescription($p, $_POST['email_to']);
                 break;
             case xl("Fax"):
                 //this is intended to be the hook for the hylafax code we already have that hasn't worked its way into the tree yet.
                 //$this->assign("process_result","No fax server is currently setup.");
-                return $this->_fax_prescription($p,$_POST['fax_to']);
+                return $this->_fax_prescription($p, $_POST['fax_to']);
                 break;
             case xl("Auto Send"):
                 $pharmacy_id = $_POST['pharmacy_id'];
@@ -730,14 +727,14 @@ class C_Prescription extends Controller
                 elseif ($phar->get_transmit_method() == TRANSMIT_EMAIL) {
                     $email = $phar->get_email();
                     if (!empty($email)) {
-                        return $this->_email_prescription($p,$phar->get_email());
+                        return $this->_email_prescription($p, $phar->get_email());
                     }
                     //else print it
                 }
                 elseif ($phar->get_transmit_method() == TRANSMIT_FAX) {
                     $faxNum= $phar->get_fax();
                     if(!empty($faxNum)) {
-                        return $this->_fax_prescription ($p,$faxNum);
+                        return $this->_fax_prescription ($p, $faxNum);
                     }
                     // return $this->assign("process_result","No fax server is currently setup.");
                     // else default is printing,
@@ -755,10 +752,7 @@ class C_Prescription extends Controller
     function _print_prescription($p, & $toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin']
-            ,$GLOBALS['rx_bottom_margin']
-            ,$GLOBALS['rx_left_margin']
-            ,$GLOBALS['rx_right_margin']
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
         );
 
         $pdf->selectFont('Helvetica');
@@ -793,21 +787,18 @@ class C_Prescription extends Controller
     function _print_prescription_old($p, & $toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin']
-                      ,$GLOBALS['rx_bottom_margin']
-                          ,$GLOBALS['rx_left_margin']
-                      ,$GLOBALS['rx_right_margin']
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
                       );
         $pdf->selectFont('Helvetica');
         if(!empty($this->pconfig['logo'])) {
-            $pdf->ezImage($this->pconfig['logo'],"","","none","left");
+            $pdf->ezImage($this->pconfig['logo'], "", "", "none", "left");
         }
-        $pdf->ezText($p->get_prescription_display(),10);
+        $pdf->ezText($p->get_prescription_display(), 10);
         if($this->pconfig['use_signature']) {
-            $pdf->ezImage($this->pconfig['signature'],"","","none","left");
+            $pdf->ezImage($this->pconfig['signature'], "", "", "none", "left");
         }
         else{
-            $pdf->ezText("\n\n\n\nSignature:________________________________",10);
+            $pdf->ezText("\n\n\n\nSignature:________________________________", 10);
         }
         if(!empty($toFile))
         {
@@ -824,7 +815,7 @@ class C_Prescription extends Controller
     function _email_prescription($p, $email)
     {
         if (empty($email)) {
-            $this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
+            $this->assign("process_result", "Email could not be sent, the address supplied: '$email' was empty or invalid.");
             return;
         }
         $mail = new PHPMailer();
@@ -839,11 +830,11 @@ class C_Prescription extends Controller
         $mail->Subject = "Prescription for: " . $p->patient->get_name_display();
         $mail->AddAddress($email);
         if($mail->Send()) {
-            $this->assign("process_result","Email was successfully sent to: " . $email);
+            $this->assign("process_result", "Email was successfully sent to: " . $email);
             return;
         }
         else {
-            $this->assign("process_result","There has been a mail error sending to " . $_POST['email_to'] . " " . $mail->ErrorInfo);
+            $this->assign("process_result", "There has been a mail error sending to " . $_POST['email_to'] . " " . $mail->ErrorInfo);
             return;
         }
     }
@@ -865,11 +856,11 @@ class C_Prescription extends Controller
 
         if (is_array($list)) {
             $list = array_flip($list);
-            $this->assign("drug_options",$list);
-            $this->assign("drug_values",array_keys($list));
+            $this->assign("drug_options", $list);
+            $this->assign("drug_values", array_keys($list));
         }
         else {
-            $this->assign("NO_RESULTS","No results found for: " .$_POST['drug'] . "<br />");
+            $this->assign("NO_RESULTS", "No results found for: " .$_POST['drug'] . "<br />");
         }
         //print_r($_POST);
         //$this->assign("PROCESS","");
@@ -881,7 +872,7 @@ class C_Prescription extends Controller
     {
         $err = "Sent fax";
         //strip - ,(, ), and ws
-        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/","",$faxNum);
+        $faxNum = preg_replace("/(-*)(\(*)(\)*)(\s*)/", "", $faxNum);
         //validate the number
 
         if(!empty($faxNum) && is_numeric($faxNum))
@@ -908,7 +899,7 @@ class C_Prescription extends Controller
                 $p->get_patient_id() . "_fax_.pdf";
                 //print "filename is $fileName";
                 touch($fileName); // php bug
-                $handle = fopen($fileName,"w");
+                $handle = fopen($fileName, "w");
                 if(!$handle)
                 {
                     $err .= " Failed to open file $fileName to write fax to";
@@ -930,7 +921,7 @@ class C_Prescription extends Controller
         }
         if($err)
         {
-            $this->assign("process_result",$err);
+            $this->assign("process_result", $err);
         }
     }
 }

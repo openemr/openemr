@@ -69,7 +69,7 @@ class xmltoarray_parser_htmlfix
      */
     function xmlparser_fix_into_struct($xml)
     {
-        $trans_table = get_html_translation_table(HTML_ENTITIES,ENT_QUOTES);
+        $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = array();
         foreach($trans_table as $key=>$value) {
             if($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " "){
@@ -77,9 +77,9 @@ class xmltoarray_parser_htmlfix
             }
         }
         foreach($keys as $key=>$value){
-            $xml =  preg_replace("/".$key."/",$value,$xml);
+            $xml =  preg_replace("/".$key."/", $value, $xml);
         }
-        $xml =  str_replace("&","%and%",$xml);
+        $xml =  str_replace("&", "%and%", $xml);
         
         xml_parse_into_struct($this->parser, $xml, $this->values, $this->index);
         xml_parser_free($this->parser);
@@ -148,7 +148,7 @@ class xmltoarray_parser_htmlfix
      */
     function fix_html_entities($string)
     {
-        $string =  str_replace("%and%","&",$string);
+        $string =  str_replace("%and%", "&", $string);
         return $string;
     }
 }

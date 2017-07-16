@@ -90,8 +90,7 @@ class OnsiteDocumentController extends AppBaseController
             $filter = RequestUtil::Get('filter');
             if ($filter) $criteria->AddFilter(
                 new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
-						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath'
-                , '%'.$filter.'%')
+						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%'.$filter.'%')
             );
 
             // TODO: this is generic query filtering based only on criteria properties
@@ -125,8 +124,8 @@ class OnsiteDocumentController extends AppBaseController
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
-                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument',$criteria)->GetDataPage($page, $pagesize);
-                $output->rows = $onsitedocuments->ToObjectArray(true,$this->SimpleObjectParams());
+                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument', $criteria)->GetDataPage($page, $pagesize);
+                $output->rows = $onsitedocuments->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = $onsitedocuments->TotalResults;
                 $output->totalPages = $onsitedocuments->TotalPages;
                 $output->pageSize = $onsitedocuments->PageSize;
@@ -135,7 +134,7 @@ class OnsiteDocumentController extends AppBaseController
             else
             {
                 // return all results
-                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument',$criteria);
+                $onsitedocuments = $this->Phreezer->Query('OnsiteDocument', $criteria);
                 $output->rows = $onsitedocuments->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = count($output->rows);
                 $output->totalPages = 1;
@@ -172,7 +171,7 @@ class OnsiteDocumentController extends AppBaseController
         try
         {
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument',$pk);
+            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         }
         catch (Exception $ex)
@@ -207,14 +206,14 @@ class OnsiteDocumentController extends AppBaseController
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter');
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'createDate')));
+            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'createDate')));
             $onsitedocument->DocType = $this->SafeGetVal($json, 'docType');
             $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus');
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'patientSignedTime')));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'authorizeSignedTime')));
+            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'patientSignedTime')));
+            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'authorizeSignedTime')));
             $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus');
             $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator');
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'reviewDate')));
+            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'reviewDate')));
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason');
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature');
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature');
@@ -227,7 +226,7 @@ class OnsiteDocumentController extends AppBaseController
 
             if (count($errors) > 0)
             {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
             }
             else
             {
@@ -258,7 +257,7 @@ class OnsiteDocumentController extends AppBaseController
             }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument',$pk);
+            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
             // TODO: any fields that should not be updated by the user should be commented out
 
@@ -269,14 +268,14 @@ class OnsiteDocumentController extends AppBaseController
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
-            $onsitedocument->CreateDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'createDate', $onsitedocument->CreateDate)));
+            $onsitedocument->CreateDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'createDate', $onsitedocument->CreateDate)));
             $onsitedocument->DocType = $this->SafeGetVal($json, 'docType', $onsitedocument->DocType);
             $onsitedocument->PatientSignedStatus = $this->SafeGetVal($json, 'patientSignedStatus', $onsitedocument->PatientSignedStatus);
-            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'patientSignedTime', $onsitedocument->PatientSignedTime)));
-            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'authorizeSignedTime', $onsitedocument->AuthorizeSignedTime)));
+            $onsitedocument->PatientSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'patientSignedTime', $onsitedocument->PatientSignedTime)));
+            $onsitedocument->AuthorizeSignedTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'authorizeSignedTime', $onsitedocument->AuthorizeSignedTime)));
             $onsitedocument->AcceptSignedStatus = $this->SafeGetVal($json, 'acceptSignedStatus', $onsitedocument->AcceptSignedStatus);
             $onsitedocument->AuthorizingSignator = $this->SafeGetVal($json, 'authorizingSignator', $onsitedocument->AuthorizingSignator);
-            $onsitedocument->ReviewDate = date('Y-m-d H:i:s',strtotime($this->SafeGetVal($json, 'reviewDate', $onsitedocument->ReviewDate)));
+            $onsitedocument->ReviewDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'reviewDate', $onsitedocument->ReviewDate)));
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);
@@ -289,7 +288,7 @@ class OnsiteDocumentController extends AppBaseController
 
             if (count($errors) > 0)
             {
-                $this->RenderErrorJSON('Please check the form for errors',$errors);
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
             }
             else
             {
@@ -318,7 +317,7 @@ class OnsiteDocumentController extends AppBaseController
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
-            $onsitedocument = $this->Phreezer->Get('OnsiteDocument',$pk);
+            $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
             $onsitedocument->Delete();
 

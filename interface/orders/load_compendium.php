@@ -55,7 +55,7 @@ function getLabID($npi)
     return intval($lrow['ppid']);
 }
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized','','','!'));
+if (!acl_check('admin', 'super')) die(xlt('Not authorized', '', '', '!'));
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';

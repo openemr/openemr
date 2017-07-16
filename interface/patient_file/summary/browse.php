@@ -43,7 +43,7 @@ if (isset($_GET{set_pid})) {
     }
     $result = getPatientData($_GET{set_pid});
   // $result2 = getEmployerData($_GET{set_pid}); // not used!
-    $result3 = getInsuranceData($_GET{set_pid},$insurance);
+    $result3 = getInsuranceData($_GET{set_pid}, $insurance);
 ?>
 
 <script language=javascript>
@@ -118,7 +118,7 @@ function auto_populate_employer_address(){
 <td><span class=text>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']),$result3{subscriber_state});
+    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3{subscriber_state});
     ?>
 </span></td>
 </tr>
@@ -131,7 +131,7 @@ function auto_populate_employer_address(){
 <td><span class=text>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']),$result3{subscriber_country});
+    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3{subscriber_country});
     ?>
 </span></td>
 </tr>
@@ -188,7 +188,7 @@ function auto_populate_employer_address(){
 <td><span class=text>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']),$result3{subscriber_employer_state});
+    echo generate_display_field(array('data_type'=>$GLOBALS['state_data_type'],'list_id'=>$GLOBALS['state_list']), $result3{subscriber_employer_state});
     ?>
 </span></td>
 </tr>
@@ -197,7 +197,7 @@ function auto_populate_employer_address(){
 <td><span class=text>
     <?php
    //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']),$result3{subscriber_employer_country});
+    echo generate_display_field(array('data_type'=>$GLOBALS['country_data_type'],'list_id'=>$GLOBALS['country_list']), $result3{subscriber_employer_country});
     ?>
 </span></td>
 </tr>
@@ -206,7 +206,7 @@ function auto_populate_employer_address(){
 
 <tr>
 <td><span class=text><?php echo htmlspecialchars( xl('Subscriber Sex'), ENT_NOQUOTES); ?>:</span></td>
-<td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'),$result3{subscriber_sex}); ?></span></td>
+<td><span class=text><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $result3{subscriber_sex}); ?></span></td>
 </tr>
 </table>
 
@@ -235,7 +235,7 @@ $total=0;
 
 $findby = $_POST['findBy'];
 $patient = $_POST['patient'];
-if ($findby == "Last" && $result = getPatientLnames("$patient","*,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
+if ($findby == "Last" && $result = getPatientLnames("$patient", "*,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
     foreach ($result as $iter) {
 
         if ($total >= $M) {
@@ -269,7 +269,7 @@ if ($findby == "Last" && $result = getPatientLnames("$patient","*,DATE_FORMAT(DO
     }
 }
 
-if ($findby == "ID" && $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
+if ($findby == "ID" && $result = getPatientId("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
     foreach ($result as $iter) {
 
         if ($total >= $M) {
@@ -303,7 +303,7 @@ if ($findby == "ID" && $result = getPatientId("$patient","*, DATE_FORMAT(DOB,'%m
     }
 }
 
-if ($findby == "DOB" && $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
+if ($findby == "DOB" && $result = getPatientDOB("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
     foreach ($result as $iter) {
 
         if ($total >= $M) {
@@ -337,7 +337,7 @@ if ($findby == "DOB" && $result = getPatientDOB("$patient","*, DATE_FORMAT(DOB,'
     }
 }
 
-if ($findby == "SSN" && $result = getPatientSSN("$patient","*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
+if ($findby == "SSN" && $result = getPatientSSN("$patient", "*, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS") ) {
     foreach ($result as $iter) {
 
         if ($total >= $M) {

@@ -44,18 +44,18 @@ $form_folder = "eye_mag";
 require_once("php/".$form_folder."_functions.php");
 
 $query = "SELECT * FROM patient_data where pid=?";
-$pat_data =  sqlQuery($query,array($data['pid']));
+$pat_data =  sqlQuery($query, array($data['pid']));
 
 $providerID  =  getProviderIdOfEncounter($encounter);
 $providerNAME = getProviderName($providerID);
 $query = "SELECT * FROM users where id = ?";
-$prov_data =  sqlQuery($query,array($providerID));
+$prov_data =  sqlQuery($query, array($providerID));
 
 $practice_data = $facilityService->getPrimaryBusinessEntity();
 
 if (!$_REQUEST['pid']) $_REQUEST['pid'] = $_REQUEST['id'];
 $query = "SELECT * FROM patient_data where pid=?";
-$pat_data =  sqlQuery($query,array($_REQUEST['pid']));
+$pat_data =  sqlQuery($query, array($_REQUEST['pid']));
 
 if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
@@ -82,12 +82,12 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
     exit;
 } elseif ($_REQUEST['mode'] =="remove") {
     $query ="DELETE FROM form_eye_mag_dispense where id=?";
-    sqlStatement($query,array($_REQUEST['delete_id']));
+    sqlStatement($query, array($_REQUEST['delete_id']));
     echo xlt('Prescription successfully removed.');
     exit;
 } elseif ($_REQUEST['RXTYPE']) {  //store any changed fields
     $query ="UPDATE form_eye_mag_dispense set RXTYPE=? where id=?";
-    sqlStatement($query,array($_REQUEST['RXTYPE'],$_REQUEST['id']));
+    sqlStatement($query, array($_REQUEST['RXTYPE'],$_REQUEST['id']));
     exit;
 }
 
@@ -115,7 +115,7 @@ if ($_REQUEST['REFTYPE']) {
     if ($REFTYPE =="W") {
         //we have rx_number 1-5 to process...
         $query = "select * from form_eye_mag_wearing where ENCOUNTER=? and FORM_ID=? and PID=? and RX_NUMBER=?";
-        $wear = sqlStatement($query,array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
+        $wear = sqlStatement($query, array($encounter,$_REQUEST['form_id'],$_REQUEST['pid'],$_REQUEST['rx_number']));
         $wearing = sqlFetchArray($wear);
         $ODSPH = $wearing['ODSPH'];
         $ODAXIS = $wearing['ODAXIS'];
@@ -240,7 +240,7 @@ if ($_REQUEST['REFTYPE']) {
 if ($_REQUEST['dispensed']) {
 
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
-    $dispensed = sqlStatement($query,array($_REQUEST['pid']));
+    $dispensed = sqlStatement($query, array($_REQUEST['pid']));
     ?><html>
         <title><?php echo xlt('Rx Dispensed History'); ?></title>
         <head>
@@ -335,7 +335,7 @@ if ($_REQUEST['dispensed']) {
 
             </script>
         </head>
-            <?php echo report_header($pid,"web"); ?>
+            <?php echo report_header($pid, "web"); ?>
             <div class="row">
                 <div class="col-sm-2"></div>
                 <div class="col-sm-8" style="margin:5;text-align:center;">
@@ -362,7 +362,7 @@ if ($_REQUEST['dispensed']) {
                         if ($row['RXTYPE'] == "Progressive") $Progressive = "checked='checked'";
 
                         $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
-                        $row['date'] = oeFormatShortDate(date('Y-m-d',strtotime($row['date'])));
+                        $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));
                         ?>
                         <div id="RXID_<?php echo attr($row['id']); ?>" style="position:relative;text-align:center;width:80%;margin: 10 auto;">
                             <i class="pull-right fa fa-close"
@@ -725,7 +725,7 @@ if ($_REQUEST['dispensed']) {
             </script>
         </head>
         <body>
-            <?php echo report_header($pid,"web");
+            <?php echo report_header($pid, "web");
             $visit= getEncounterDateByEncounter($encounter);
             $visit_date = $visit['date'];
             ?>
@@ -859,7 +859,7 @@ if ($_REQUEST['dispensed']) {
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDD" name="BPDD" value="<?php echo attr($BPDD); ?>"></td>
                                             <td name="W_wide" rowspan="2" style="vertical-align:middle;"><input type="text" class="prism" id="BPDN" name="BPDN" value="<?php echo attr($BPDN); ?>"></td>
                                             <td colspan="2">   <?php
-                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL",'',' ','','restoreSession;submit_form();','',array('style'=>'width:120px'));
+                                                        echo generate_select_list("LENS_MATERIAL", "Eye_Lens_Material", "$LENS_MATERIAL", '', ' ', '', 'restoreSession;submit_form();', '', array('style'=>'width:120px'));
                                                                 ?>
                                                 </td>
                                         </tr>
@@ -875,7 +875,7 @@ if ($_REQUEST['dispensed']) {
                                         </tr>
                                         <tr style="text-align:left;vertical-align:top;">
                                             <td colspan="5" style="font-weight:bold;text-align:left;">
-                                                <?php  echo generate_lens_treatments($W,$LENS_TREATMENTS); ?>
+                                                <?php  echo generate_lens_treatments($W, $LENS_TREATMENTS); ?>
                                             </td>
                                         </tr>
                                         <tr class="dispense_data"><td colspan="9" class="center"><hr /></td></tr>

@@ -39,7 +39,7 @@ function temp_copy($filename, $type)
         }
     }
 
-    if(copy($filename,$GLOBALS['temporary_files_dir']."/".$type."/".basename($filename))) {
+    if(copy($filename, $GLOBALS['temporary_files_dir']."/".$type."/".basename($filename))) {
         return true;
     }
     else {
@@ -82,7 +82,7 @@ function rxnorm_import($is_windows_flag)
     // set paths
     $dirScripts = $GLOBALS['temporary_files_dir']."/RXNORM/scripts/mysql";
     $dir = $GLOBALS['temporary_files_dir']."/RXNORM/rrf";
-    $dir=str_replace('\\','/',$dir);
+    $dir=str_replace('\\', '/', $dir);
 
     $rx_info = array();
     $rx_info['rxnatomarchive'] = array('title' => "Archive Data", 'dir' => "$dir", 'origin' => "RXNATOMARCHIVE.RRF", 'filename' => "RXNATOMARCHIVE.RRF", 'table' => "rxnatomarchive", 'required' => 0);
@@ -109,7 +109,7 @@ function rxnorm_import($is_windows_flag)
     // Creating the structure for table and applying indexes
     //
 
-    $file_array=explode(";",$file_load);
+    $file_array=explode(";", $file_load);
     foreach($file_array as $val){
         if(trim($val)!='')
         {
@@ -117,7 +117,7 @@ function rxnorm_import($is_windows_flag)
         }
     }
 
-    $indexes_array=explode(";",$indexes_load);
+    $indexes_array=explode(";", $indexes_load);
 
     foreach($indexes_array as $val1){
         if(trim($val1)!='')
@@ -130,7 +130,7 @@ function rxnorm_import($is_windows_flag)
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("SET autocommit=0");
     sqlStatementNoLog("START TRANSACTION");
-    $data=explode(";",$data_load);
+    $data=explode(";", $data_load);
     foreach($data as $val)
     {
         foreach($rx_info as $key => $value)
@@ -139,8 +139,8 @@ function rxnorm_import($is_windows_flag)
             $replacement=$dir."/".$file_name;
 
             $pattern='/'.$file_name.'/';
-            if(strpos($val,$file_name) !== false) {
-                $val1 = str_replace($file_name,$replacement,$val);
+            if(strpos($val, $file_name) !== false) {
+                $val1 = str_replace($file_name, $replacement, $val);
                 if(trim($val1)!='') {
                     sqlStatementNoLog($val1);
                 }
@@ -198,7 +198,7 @@ function snomed_import($us_extension = false)
     $dir_snomed = $GLOBALS['temporary_files_dir']."/SNOMED/";
     $sub_path="Terminology/Content/";
     $dir=$dir_snomed;
-    $dir=str_replace('\\','/',$dir);
+    $dir=str_replace('\\', '/', $dir);
 
     // executing the create statement for tables, these are defined in snomed_capture.inc file
     // this is skipped if the US extension is being added
@@ -213,7 +213,7 @@ function snomed_import($us_extension = false)
     // reading the SNOMED directory and identifying the files to import and replacing the variables by originals values.
     if( is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
-            if ($filename != "." && $filename != ".." && !strpos($filename,"zip")) {
+            if ($filename != "." && $filename != ".." && !strpos($filename, "zip")) {
                 $path=$dir."".$filename."/".$sub_path;
                 if (!(is_dir($path))) {
                     $path=$dir."".$filename."/RF1Release/".$sub_path;
@@ -224,14 +224,14 @@ function snomed_import($us_extension = false)
                         $array_replace=array("#FILENAME#","#TABLE#");
                         if ($filename1 != "." && $filename1 != "..") {
                             $file_replace=$path.$filename1;
-                            if(strpos($filename1,"Concepts") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_concepts"),$load_script);
+                            if(strpos($filename1, "Concepts") !== false){
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_concepts"), $load_script);
                             }
-                            if(strpos($filename1,"Descriptions") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_descriptions"),$load_script);
+                            if(strpos($filename1, "Descriptions") !== false){
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_descriptions"), $load_script);
                             }
-                            if(strpos($filename1,"Relationships") !== false){
-                                $new_str=str_replace($array_replace,array($file_replace,"sct_relationships"),$load_script);
+                            if(strpos($filename1, "Relationships") !== false){
+                                $new_str=str_replace($array_replace, array($file_replace,"sct_relationships"), $load_script);
                             }
                             if($new_str!=''){
                                 sqlStatement($new_str);
@@ -254,7 +254,7 @@ function icd_import($type)
 
     // set up paths
     $dir_icd = $GLOBALS['temporary_files_dir']."/".$type."/";
-    $dir=str_replace('\\','/',$dir_icd);
+    $dir=str_replace('\\', '/', $dir_icd);
     $db_load = '';
     $db_update = '';
 
@@ -332,7 +332,7 @@ function icd_import($type)
     if( is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
         // bypass unwanted entries
-            if (!stripos($filename, ".txt") || stripos($filename,"diff") || stripos($filename, "addenda")) {
+            if (!stripos($filename, ".txt") || stripos($filename, "diff") || stripos($filename, "addenda")) {
                 continue;
             }
 
@@ -406,7 +406,7 @@ function icd_import($type)
 function valueset_import($type)
 {
     $dir_valueset = $GLOBALS['temporary_files_dir']."/".$type."/";
-        $dir = str_replace('\\','/',$dir_valueset);
+        $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
     sqlStatementNoLog("SET autocommit=0");
@@ -415,7 +415,7 @@ function valueset_import($type)
         while (false !== ($filename = readdir($handle))) {
             if(stripos($filename, ".xml")){
                     $abs_path = $dir.$filename;
-                    $xml  = simplexml_load_file($abs_path,null,null,'ns0',true);
+                    $xml  = simplexml_load_file($abs_path, null, null, 'ns0', true);
                 foreach($xml->DescribedValueSet as $vset){
                     $vset_attr = $vset->attributes();
                     $nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
@@ -423,7 +423,7 @@ function valueset_import($type)
                         foreach($nqf as $nqf_code){
                             foreach($cp->Concept as $con){
                                 $con_attr = $con->attributes();
-                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)",array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
+                                sqlStatementNoLog("INSERT INTO valueset values(?,?,?,?,?,?,?) on DUPLICATE KEY UPDATE code_system = values(code_system),description = values(description),valueset_name = values(valueset_name)", array($nqf_code,$con_attr->code,$con_attr->codeSystem,$con_attr->codeSystemName,$vset_attr->ID,$con_attr->displayName,$vset_attr->displayName));
                             }
                         }
                     }
@@ -500,14 +500,14 @@ function rmdir_recursive($dir)
 function handle_zip_file($mode, $file)
 {
         // 1. copy the file to temp directory
-    if (!temp_copy($file,$mode)) {
+    if (!temp_copy($file, $mode)) {
         echo htmlspecialchars( xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;
     }
 
         // 2. unarchive the file
-    if (!temp_unarchive($file,$mode)) {
+    if (!temp_unarchive($file, $mode)) {
         echo htmlspecialchars( xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;

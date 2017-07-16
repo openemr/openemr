@@ -85,7 +85,7 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 <?php if ($imauthorized) { ?>
 <span class='title'>
 <a href='authorizations_full.php' onclick='top.restoreSession()'>
-<?php echo htmlspecialchars(xl('Authorizations'),ENT_NOQUOTES); ?> <span class='more'><?php echo htmlspecialchars($tmore,ENT_NOQUOTES); ?></span></a>
+<?php echo htmlspecialchars(xl('Authorizations'), ENT_NOQUOTES); ?> <span class='more'><?php echo htmlspecialchars($tmore, ENT_NOQUOTES); ?></span></a>
 <?php
 }
 ?>
@@ -111,7 +111,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result1) {
             foreach ($result1 as $iter) {
                 $authorize{$iter{"pid"}}{"billing"} .= "<span class=text>" .
-                htmlspecialchars($iter{"code_text"} . " " . date("n/j/Y",strtotime($iter{"date"})),ENT_NOQUOTES) .
+                htmlspecialchars($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
                 "</span><br>\n";
             }
         }
@@ -126,7 +126,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result2) {
             foreach ($result2 as $iter) {
                 $authorize{$iter{"pid"}}{"transaction"} .= "<span class=text>" .
-                htmlspecialchars($iter{"title"} . ": " . (strterm($iter{"body"},25)) . " " . date("n/j/Y",strtotime($iter{"date"})),ENT_NOQUOTES) .
+                htmlspecialchars($iter{"title"} . ": " . (strterm($iter{"body"}, 25)) . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
                 "</span><br>\n";
             }
         }
@@ -142,7 +142,7 @@ if ($imauthorized && $see_auth > 1) {
             if ($result3) {
                 foreach ($result3 as $iter) {
                     $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" .
-                    htmlspecialchars((strterm($iter{"body"},25)) . " " . date("n/j/Y",strtotime($iter{"date"})),ENT_NOQUOTES) .
+                    htmlspecialchars((strterm($iter{"body"}, 25)) . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
                     "</span><br>\n";
                 }
             }
@@ -158,7 +158,7 @@ if ($imauthorized && $see_auth > 1) {
         if ($result4) {
             foreach ($result4 as $iter) {
                 $authorize{$iter{"pid"}}{"forms"} .= "<span class=text>" .
-                htmlspecialchars($iter{"form_name"} . " " . date("n/j/Y",strtotime($iter{"date"})),ENT_NOQUOTES) .
+                htmlspecialchars($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
                 "</span><br>\n";
             }
         }
@@ -183,7 +183,7 @@ if ($authorize) {
         if ($count >= $N) {
             print "<tr><td colspan='5' align='center'><a" .
             " href='authorizations_full.php?active=1' class='alert' onclick='top.restoreSession()'>" .
-            htmlspecialchars(xl('Some authorizations were not displayed. Click here to view all'),ENT_NOQUOTES) .
+            htmlspecialchars(xl('Some authorizations were not displayed. Click here to view all'), ENT_NOQUOTES) .
             "</a></td></tr>\n";
             break;
         }
@@ -192,13 +192,13 @@ if ($authorize) {
         // Clicking the patient name will load both frames for that patient,
         // as demographics.php takes care of loading the bottom frame.
         echo "<a href='$rootdir/patient_file/summary/demographics.php?set_pid=" .
-        htmlspecialchars($ppid,ENT_QUOTES) . "' target='RTop' onclick='top.restoreSession()'>";
+        htmlspecialchars($ppid, ENT_QUOTES) . "' target='RTop' onclick='top.restoreSession()'>";
 
-        echo "<span class='bold'>" . htmlspecialchars($name{"fname"},ENT_NOQUOTES) . " " .
-        htmlspecialchars($name{"lname"},ENT_NOQUOTES) . "</span></a><br>" .
+        echo "<span class='bold'>" . htmlspecialchars($name{"fname"}, ENT_NOQUOTES) . " " .
+        htmlspecialchars($name{"lname"}, ENT_NOQUOTES) . "</span></a><br>" .
         "<a class=link_submit href='authorizations.php?mode=authorize" .
-        "&pid=" . htmlspecialchars($ppid,ENT_QUOTES) . "' onclick='top.restoreSession()'>" .
-        htmlspecialchars(xl('Authorize'),ENT_NOQUOTES) . "</a></td>\n";
+        "&pid=" . htmlspecialchars($ppid, ENT_QUOTES) . "' onclick='top.restoreSession()'>" .
+        htmlspecialchars(xl('Authorize'), ENT_NOQUOTES) . "</a></td>\n";
 
         /****
       //Michael A Rowley MD 20041012.
@@ -213,15 +213,15 @@ if ($authorize) {
         $providerName = sqlFetchArray(sqlStatement(
         "select lname from users where id = ?", array($name['providerID']) ));
       
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Provider'),ENT_NOQUOTES).":</span><span class=text><br>" .
-          htmlspecialchars($providerName{"lname"},ENT_NOQUOTES) . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Billing'),ENT_NOQUOTES).":</span><span class=text><br>" .
+        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Provider'), ENT_NOQUOTES).":</span><span class=text><br>" .
+          htmlspecialchars($providerName{"lname"}, ENT_NOQUOTES) . "</td>\n";
+        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Billing'), ENT_NOQUOTES).":</span><span class=text><br>" .
           $patient{"billing"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Transactions'),ENT_NOQUOTES).":</span><span class=text><br>" .
+        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Transactions'), ENT_NOQUOTES).":</span><span class=text><br>" .
           $patient{"transaction"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Patient Notes'),ENT_NOQUOTES).":</span><span class=text><br>" .
+        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Patient Notes'), ENT_NOQUOTES).":</span><span class=text><br>" .
           $patient{"pnotes"} . "</td>\n";
-        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Encounter Forms'),ENT_NOQUOTES).":</span><span class=text><br>" .
+        echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Encounter Forms'), ENT_NOQUOTES).":</span><span class=text><br>" .
           $patient{"forms"} . "</td>\n";
         echo "</tr>\n";
 
@@ -257,7 +257,7 @@ var EditNote = function(note) {
     location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + parts[1] + "&set_pid=" + parts[0] + "&active=1";
 <?php else: ?>
     // no-op
-    alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'),ENT_QUOTES); ?>");
+    alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
 <?php endif; ?>
 }
 

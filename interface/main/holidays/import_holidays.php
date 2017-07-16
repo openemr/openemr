@@ -124,7 +124,7 @@ if ($saved){
                     <?php
                     if(!empty($csv_file_data)){?>
 
-                        <?php $path=explode("/",$holidays_controller->get_target_file());?>
+                        <?php $path=explode("/", $holidays_controller->get_target_file());?>
                         <?php $filename=$path[count($path)-1];?>
                         <?php unset($path[count($path)-1]);?>
 

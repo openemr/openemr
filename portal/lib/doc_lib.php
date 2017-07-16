@@ -62,7 +62,7 @@ try{
         header( 'Content-type: application/pdf' );
         header( 'Content-Disposition: attachment; filename=$form_filename' );
         $pdf->Output( $form_filename, 'D' );
-        $logit->portalLog('download document',$_SESSION['pid'],('document:'.$form_filename));
+        $logit->portalLog('download document', $_SESSION['pid'], ('document:'.$form_filename));
     }
     if( $dispose == 'view' ){
         Header( "Content-type: application/pdf" );
@@ -75,7 +75,7 @@ try{
         $rc = $d->createDocument( $GLOBALS['pid'], 29, $form_filename, 'application/pdf', $data );
         ob_clean();
         echo $rc;
-        $logit->portalLog('chart document',$_SESSION['pid'],('document:'.$form_filename));
+        $logit->portalLog('chart document', $_SESSION['pid'], ('document:'.$form_filename));
 
         exit(0);
     };

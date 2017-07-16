@@ -59,8 +59,8 @@ function dataFixup($data, $title = '')
     global $groupLevel, $groupCount, $itemSeparator;
     if ($data !== '') {
         // Replace some characters that can mess up XML without assuming XML content type.
-        $data = str_replace('&', '[and]'    , $data);
-        $data = str_replace('<', '[less]'   , $data);
+        $data = str_replace('&', '[and]', $data);
+        $data = str_replace('<', '[less]', $data);
         $data = str_replace('>', '[greater]', $data);
         // If in a group, include labels and separators.
         if ($groupLevel) {

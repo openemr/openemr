@@ -30,7 +30,7 @@ $result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FO
     
 if ( !$result ) //If there are no disclosures recorded
 { ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."),ENT_NOQUOTES);
+  <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."), ENT_NOQUOTES);
 ?>
   </span> 
 <?php
@@ -38,7 +38,7 @@ if ( !$result ) //If there are no disclosures recorded
 {
 ?> 
   <span class='text'><b>
-    <?php echo htmlspecialchars(xl('Most recent vitals from:')." ".$result['date'],ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Most recent vitals from:')." ".$result['date'], ENT_NOQUOTES); ?>
   </b></span>
   <br />
   <br />
@@ -46,7 +46,7 @@ if ( !$result ) //If there are no disclosures recorded
     call_user_func("vitals_report", '', '', 2, $result['id']);
     ?>  <span class='text'>
   <br />
-  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all vitals.'),ENT_NOQUOTES);?></a>
+  <a href='../encounter/trend_form.php?formname=vitals' onclick='top.restoreSession()'><?php echo htmlspecialchars(xl('Click here to view and graph all vitals.'), ENT_NOQUOTES);?></a>
   </span><?php
 } ?>
 <br />

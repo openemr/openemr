@@ -57,7 +57,7 @@ class InstallerController extends AbstractActionController
         foreach($result as $dataArray){
             $mod = new InstModule();
             $mod -> exchangeArray($dataArray);
-            array_push($allModules,$mod);
+            array_push($allModules, $mod);
         }
 
         return new ViewModel(array(
@@ -91,12 +91,12 @@ class InstallerController extends AbstractActionController
                 if (in_array($modName, $tmp['modules'], true)) {
                     $module_exist_in_config = true;
                 }
-                if($this -> getInstallerTable() -> register($request->getPost('mod_name'),$rel_path,0,$GLOBALS['zendModDir'])){
+                if($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path, 0, $GLOBALS['zendModDir'])){
                     //add the Module name in the application config file if not already present
                     $fileName = $GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['zendModDir']."/config/application.config.php";
                     $data = include  $fileName;
                     //TODO what if same name is already there for another module
-                    $data['modules'] = array_merge($data['modules'],array($request->getPost('mod_name')));
+                    $data['modules'] = array_merge($data['modules'], array($request->getPost('mod_name')));
                     //recreate the config file
                     if(is_writable ($fileName)){
                         if(!$module_exist_in_config){
@@ -112,7 +112,7 @@ class InstallerController extends AbstractActionController
                 }
             } else {
                 $rel_path = $request->getPost('mod_name')."/index.php";
-                if($this -> getInstallerTable() -> register($request->getPost('mod_name'),$rel_path)){
+                if($this -> getInstallerTable() -> register($request->getPost('mod_name'), $rel_path)){
                     $status = true;
                 }
             }
@@ -205,7 +205,7 @@ class InstallerController extends AbstractActionController
         if(count($postArr['hook_hanger']) > 0){
             foreach($postArr['hook_hanger'] as $hookId => $hooks) {
                 foreach($hooks as $hangerId => $hookHanger) {
-                    $this->getInstallerTable()->saveHooks($postArr['mod_id'],$hookId,$hangerId);
+                    $this->getInstallerTable()->saveHooks($postArr['mod_id'], $hookId, $hangerId);
                 }
             }
             $return[0]  = array('return' => 1,'msg' => $this->listenerObject->z_xlt("Saved Successfully"));
@@ -251,7 +251,7 @@ class InstallerController extends AbstractActionController
         //GET MODULE ACL SECTION FROM A FUNCTION IN CONFIGURATION MODEL CLASS
         $aclArray = $this->getInstallerTable()->getModuleAclSections($moduleDirectory);
         if(sizeof($aclArray)>0){
-            $this->getInstallerTable()->insertAclSections($aclArray,$moduleDirectory,$modId);
+            $this->getInstallerTable()->insertAclSections($aclArray, $moduleDirectory, $modId);
         } else {
             $this->getInstallerTable()->deleteACLSections($modId);
         }
@@ -273,7 +273,7 @@ class InstallerController extends AbstractActionController
         return new ViewModel(array(
           'mod_id'                  => $request->getPost('mod_id'),
           'TabSettings'             => $this->getInstallerTable()->getTabSettings($request->getPost('mod_id')),
-          'ACL'                     => $this->getInstallerTable()->getSettings('ACL',$request->getPost('mod_id')),
+          'ACL'                     => $this->getInstallerTable()->getSettings('ACL', $request->getPost('mod_id')),
           'OemrUserGroup'           => $this->getInstallerTable()->getOemrUserGroup(),
           'OemrUserGroupAroMap'     => $this->getInstallerTable()->getOemrUserGroupAroMap(),
           'ListActiveUsers'         => $this->getInstallerTable()->getActiveUsers(),

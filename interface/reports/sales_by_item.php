@@ -244,7 +244,7 @@ if($GLOBALS['sales_report_invoice'] == 1 ) {
 
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-  $form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+  $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
   $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
@@ -525,19 +525,19 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "LEFT JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill AND lo.activity = 1 " .
     "WHERE b.code_type != 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
     "fe.date >= ? AND fe.date <= ?";
-    array_push($sqlBindArray,$from_date,$to_date);
+    array_push($sqlBindArray, $from_date, $to_date);
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
     if ($form_provider) {
         $query .= " AND fe.provider_id = ?";
-        array_push($sqlBindArray,$form_provider);
+        array_push($sqlBindArray, $form_provider);
     }
     $query .= " ORDER BY lo.title, b.code, fe.date, fe.id";
     //
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         thisLineItem($row['pid'], $row['encounter'],
         $row['title'], $row['code'] . ' ' . $row['code_text'],
@@ -553,19 +553,19 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "fe.pid = s.pid AND fe.encounter = s.encounter AND " .
     "fe.date >= ? AND fe.date <= ? " .
     "WHERE s.fee != 0";
-    array_push($sqlBindArray,$from_date,$to_date);
+    array_push($sqlBindArray, $from_date, $to_date);
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
     if ($form_provider) {
         $query .= " AND fe.provider_id = ?";
-        array_push($sqlBindArray,$form_provider);
+        array_push($sqlBindArray, $form_provider);
     }
     $query .= " ORDER BY d.name, fe.date, fe.id";
     //
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         thisLineItem($row['pid'], $row['encounter'], xl('Products'), $row['name'],
         substr($row['date'], 0, 10), $row['quantity'], $row['fee'], $row['invoice_refno']);

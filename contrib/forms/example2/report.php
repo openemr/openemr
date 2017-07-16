@@ -28,7 +28,7 @@ function example_report($pid, $encounter, $cols, $id)
                 continue;
             }
 
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print("<tr>\n");
             print("<tr>\n");
             print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";

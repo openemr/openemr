@@ -41,7 +41,7 @@ $spell = "SELECT form_name, MAX(form_track_anything_results.track_timestamp) as 
 $result = sqlQuery($spell, array($pid, 'track_anything'));
 if ( !$result ) //If there are no disclosures recorded
 { ?>
-  <span class='text'> <?php echo htmlspecialchars(xl("No tracks have been documented."),ENT_NOQUOTES);
+  <span class='text'> <?php echo htmlspecialchars(xl("No tracks have been documented."), ENT_NOQUOTES);
 ?>
   </span> 
 <?php

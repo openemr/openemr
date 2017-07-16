@@ -124,7 +124,7 @@ class HTML_TreeMenu
             */
             case 'kriesing':
                 $className = strtolower(get_class($params['structure']->dataSourceClass));
-                $isXMLStruct = strpos($className,'_xml') !== false ? true : false;
+                $isXMLStruct = strpos($className, '_xml') !== false ? true : false;
 
                 // Get the entire tree, the $nodes are sorted like in the tree view
                 // from top to bottom, so we can easily put them in the nodes
@@ -152,7 +152,7 @@ class HTML_TreeMenu
                     foreach ( $aNode as $key=>$val ) {
                         if ( !is_array($val) ) {
                             // Dont get the recursive data in here! they are always arrays
-                            if ( substr($key,0,2) == 'on' ){  // get the events
+                            if ( substr($key, 0, 2) == 'on' ){  // get the events
                                 $events[$key] = $val;
                             }
 
@@ -165,7 +165,7 @@ class HTML_TreeMenu
                     $data['text'] = $aNode['text'] ? $aNode['text'] : $aNode['name'];
 
                     // Add the item to the proper node
-                    $thisNode = &$curNode[$aNode['level']]->addItem( new HTML_TreeNode( $data , $events ) );
+                    $thisNode = &$curNode[$aNode['level']]->addItem( new HTML_TreeNode( $data, $events ) );
                     $curNode[$aNode['level']+1] = &$thisNode;
                 }
                 break;

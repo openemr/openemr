@@ -12,7 +12,7 @@ function pic_array()
         while( $results = sqlFetchArray($query) ) {
             $tmp = $results['id'];
             if (isset($tmp)) {
-                array_push($pics,"<div name='Patient Photograph' class='patient_pic'><img src='".$GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".htmlspecialchars($_SESSION['pid'],ENT_QUOTES)."&document_id=".htmlspecialchars($tmp,ENT_QUOTES)."&as_file=false' alt='Patient Photograph'></div>\n");
+                array_push($pics, "<div name='Patient Photograph' class='patient_pic'><img src='".$GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".htmlspecialchars($_SESSION['pid'], ENT_QUOTES)."&document_id=".htmlspecialchars($tmp, ENT_QUOTES)."&as_file=false' alt='Patient Photograph'></div>\n");
             }
         }
     }

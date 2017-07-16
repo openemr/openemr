@@ -145,7 +145,7 @@ class Barcode
         $cos = cos($angle);
         $sin = sin($angle);
 
-        self::_rotate($columns * $mw / 2, $lines * $mh / 2, $cos, $sin , $x, $y);
+        self::_rotate($columns * $mw / 2, $lines * $mh / 2, $cos, $sin, $x, $y);
         $xi -=$x;
         $yi -=$y;
         for($y=0; $y<$lines; $y++){
@@ -197,8 +197,8 @@ class Barcode
             }
         }
         $color = array_values($color);
-        $pdf->SetDrawColor($color[0],$color[1],$color[2]);
-        $pdf->SetFillColor($color[0],$color[1],$color[2]);
+        $pdf->SetDrawColor($color[0], $color[1], $color[2]);
+        $pdf->SetFillColor($color[0], $color[1], $color[2]);
 
         $fn = function ($points) use ($pdf) {
             $op = 'f';
@@ -216,10 +216,10 @@ class Barcode
 
     private static function result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin)
     {
-        self::_rotate(0, 0, $cos, $sin , $x1, $y1);
-        self::_rotate($columns * $mw, 0, $cos, $sin , $x2, $y2);
-        self::_rotate($columns * $mw, $lines * $mh, $cos, $sin , $x3, $y3);
-        self::_rotate(0, $lines * $mh, $cos, $sin , $x4, $y4);
+        self::_rotate(0, 0, $cos, $sin, $x1, $y1);
+        self::_rotate($columns * $mw, 0, $cos, $sin, $x2, $y2);
+        self::_rotate($columns * $mw, $lines * $mh, $cos, $sin, $x3, $y3);
+        self::_rotate(0, $lines * $mh, $cos, $sin, $x4, $y4);
 
         return array(
             'width' => $columns * $mw,
@@ -1059,9 +1059,9 @@ class BarcodeDatamatrix
     }
     private static function patternShapeSpecial1(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1,  1, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  2, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1, 0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1, 1, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1, 2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[3], 0, $totalCols-2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[4], 0, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[5], 1, $totalCols-1, $totalRows, $totalCols);
@@ -1070,9 +1070,9 @@ class BarcodeDatamatrix
     }
     private static function patternShapeSpecial2(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3, 0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2, 0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1, 0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[3], 0, $totalCols-4, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[4], 0, $totalCols-3, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[5], 0, $totalCols-2, $totalRows, $totalCols);
@@ -1081,9 +1081,9 @@ class BarcodeDatamatrix
     }
     private static function patternShapeSpecial3(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1,  0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3, 0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2, 0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], $totalRows-1, 0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[3], 0, $totalCols-2, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[4], 0, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[5], 1, $totalCols-1, $totalRows, $totalCols);
@@ -1092,7 +1092,7 @@ class BarcodeDatamatrix
     }
     private static function patternShapeSpecial4(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
-        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
+        self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1, 0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[2], 0, $totalCols-3, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[3], 0, $totalCols-2, $totalRows, $totalCols);
@@ -1205,7 +1205,7 @@ class BarcodeDatamatrix
         }
 
         // Put the codewords into the matrix
-        self::next(0,$rowsLengthMatrice,$colsLengthMatrice, $codeWordsBits, $datamatrix, $assigned);
+        self::next(0, $rowsLengthMatrice, $colsLengthMatrice, $codeWordsBits, $datamatrix, $assigned);
 
         // Add the finder pattern
         $datamatrix = self::addFinderPattern($datamatrix, $rowsRegion, $colsRegion, $rowsRegionCW, $colsRegionCW);

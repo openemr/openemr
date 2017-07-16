@@ -63,13 +63,13 @@ class MapperController extends AbstractActionController
         $action     = $request->getPost('save');
         $tosave     = $request->getPost('tosave');
         
-        $components = explode('|***|',$tosave);
+        $components = explode('|***|', $tosave);
         foreach($components as $key => $value){
-            $sections       = explode('|**|',$value);
+            $sections       = explode('|**|', $value);
             $component_name     = array_shift($sections);
             
             foreach($sections as $key_1 => $value_1){
-                $forms      = explode('|*|',$value_1);
+                $forms      = explode('|*|', $value_1);
                 $section_name   = array_shift($forms);
                 
                 foreach($forms as $key_2 => $value_2){
@@ -80,13 +80,13 @@ class MapperController extends AbstractActionController
                     $form_table = '';
                     
                     if(substr($value_2, 0, 1) == 1){
-                        $form_dir   = preg_replace('/^1\|/','',$value_2);
+                        $form_dir   = preg_replace('/^1\|/', '', $value_2);
                         $form_type  = 1;
                     }
                     elseif(substr($value_2, 0, 1) == 2){
-                        $value_2    = preg_replace('/^2\|/','',$value_2);
+                        $value_2    = preg_replace('/^2\|/', '', $value_2);
                         if(strpos($value_2, '|')){
-                            $temp_1     = explode('|',$value_2);
+                            $temp_1     = explode('|', $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         }
@@ -96,9 +96,9 @@ class MapperController extends AbstractActionController
                         $form_type  = 2;
                     }
                     elseif(substr($value_2, 0, 1) == 3){
-                        $value_2 = preg_replace('/^3\|/','',$value_2);
+                        $value_2 = preg_replace('/^3\|/', '', $value_2);
                         if(strpos($value_2, '|')){
-                            $temp_1     = explode('|',$value_2);
+                            $temp_1     = explode('|', $value_2);
                             $form_table = $form_dir = $temp_1[0];
                             $sub_id     = $temp_1[1];
                         }
@@ -108,7 +108,7 @@ class MapperController extends AbstractActionController
                         $form_type = 1;
                     }
                     elseif(substr($value_2, 0, 1) == 4){
-                        $value_2    = preg_replace('/^4\|/','',$value_2);
+                        $value_2    = preg_replace('/^4\|/', '', $value_2);
                         $form_dir   = $value_2;
                         $form_type  = 3;
                     }
@@ -120,7 +120,7 @@ class MapperController extends AbstractActionController
             }
         }
         $this->getMapperTable()->updateExistingMappedFields(array($existing_id,1));
-        return $this->redirect()->toRoute('mapper',array('action'=>'index'));
+        return $this->redirect()->toRoute('mapper', array('action'=>'index'));
     }
     
     /**

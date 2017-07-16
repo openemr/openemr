@@ -54,7 +54,7 @@ else {
 <html>
 <head>
 
-<title><?php xl('Patient Insurance Distribution','e'); ?></title>
+<title><?php xl('Patient Insurance Distribution', 'e'); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 <script language="JavaScript">
@@ -108,7 +108,7 @@ else {
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Patient Insurance Distribution','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Patient Insurance Distribution', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -128,14 +128,14 @@ else {
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('From','e'); ?>:
+                <?php xl('From', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo $form_from_date ?>'
                 title='yyyy-mm-dd'>
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
@@ -180,11 +180,11 @@ else {
 <table>
 
  <thead>
-  <th align='left'> <?php xl('Primary Insurance','e'); ?> </th>
-  <th align='right'> <?php xl('Charges','e'); ?> </th>
-  <th align='right'> <?php xl('Visits','e'); ?> </th>
-  <th align='right'> <?php xl('Patients','e'); ?> </th>
-  <th align='right'> <?php xl('Pt %','e'); ?> </th>
+  <th align='left'> <?php xl('Primary Insurance', 'e'); ?> </th>
+  <th align='right'> <?php xl('Charges', 'e'); ?> </th>
+  <th align='right'> <?php xl('Visits', 'e'); ?> </th>
+  <th align='right'> <?php xl('Patients', 'e'); ?> </th>
+  <th align='right'> <?php xl('Pt %', 'e'); ?> </th>
  </thead>
  <tbody>
 <?php

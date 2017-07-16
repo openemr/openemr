@@ -200,13 +200,13 @@ if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
 
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_use_edate = $_POST['form_use_edate'];
 $form_facility  = $_POST['form_facility'];
 $form_report_by = $_POST['form_report_by'];
 $form_proc_codefull = trim($_POST['form_proc_codefull']);
 // Parse the code type and the code from <code_type>:<code>
-$tmp_code_array = explode(':',$form_proc_codefull);
+$tmp_code_array = explode(':', $form_proc_codefull);
 $form_proc_codetype = $tmp_code_array[0];
 $form_proc_code = $tmp_code_array[1];
 
@@ -280,7 +280,7 @@ function set_related(codetype, code, selector, codedesc) {
 
 // This invokes the find-code popup.
 function sel_procedure() {
- dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("procedure","csv")) ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
 }
 
 </script>
@@ -290,7 +290,7 @@ function sel_procedure() {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Receipts Summary','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Receipts Summary', 'e'); ?></span>
 
 <form method='post' action='receipts_by_method_report.php' id='theform'>
 
@@ -306,7 +306,7 @@ function sel_procedure() {
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Report by','e'); ?>
+                <?php xl('Report by', 'e'); ?>
             </td>
             <td>
                 <?php
@@ -328,7 +328,7 @@ function sel_procedure() {
             </td>
             <td>
                <input type='text' name='form_proc_codefull' class='form-control' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
-                title='<?php xl('Click to select optional procedure code','e'); ?>'
+                title='<?php xl('Click to select optional procedure code', 'e'); ?>'
                 <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
                                 <br>
           <div class="checkbox">
@@ -340,8 +340,8 @@ function sel_procedure() {
             <td>&nbsp;</td>
             <td>
                <select name='form_use_edate' class='form-control'>
-                <option value='0'><?php xl('Payment Date','e'); ?></option>
-                <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date','e'); ?></option>
+                <option value='0'><?php xl('Payment Date', 'e'); ?></option>
+                <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date', 'e'); ?></option>
                </select>
             </td>
             <td>
@@ -349,7 +349,7 @@ function sel_procedure() {
                 title='yyyy-mm-dd'>
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
@@ -396,13 +396,13 @@ if ($_POST['form_refresh']) {
 <thead>
 <tr bgcolor="#dddddd">
  <th>
-    <?php xl('Method','e') ?>
+    <?php xl('Method', 'e') ?>
  </th>
  <th>
-    <?php xl('Date','e') ?>
+    <?php xl('Date', 'e') ?>
  </th>
  <th>
-    <?php xl('Invoice','e') ?>
+    <?php xl('Invoice', 'e') ?>
  </th>
 <?php if ($showing_ppd) { ?>
   <th>
@@ -604,7 +604,7 @@ if ($_POST['form_refresh']) {
 ?>
  <tr bgcolor="#ffdddd">
   <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">
-    <?php xl('Grand Total','e') ?>
+    <?php xl('Grand Total', 'e') ?>
   </td>
   <td align="right">
     <?php bucks($grandadjtotal) ?>

@@ -138,8 +138,8 @@ if (isset($entryID)) {
 ?>
 <table cellspacing='0' cellpadding='0' border='0'>
 <tr>
-<td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$category) .
-" - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$item); ?></span>&nbsp;&nbsp;&nbsp;</td>
+<td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
+" - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="javascript:submitme();" class="css_button"><span><?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES);?></span></a></td>
 <td><a href="#" id="cancel" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES);?></span></a></td>
 </tr>

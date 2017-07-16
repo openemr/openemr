@@ -361,7 +361,7 @@ if ($_POST['form_refresh']) {
 <?php
 
 // Send the request for information
-$resultsArray = amcTrackingRequest($rule,$begin_date,$end_date,$provider);
+$resultsArray = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
 
 ?>
 
@@ -369,24 +369,24 @@ $resultsArray = amcTrackingRequest($rule,$begin_date,$end_date,$provider);
 foreach ($resultsArray as $result) {
     echo "<tr bgcolor='" . $bgcolor ."'>";
     echo "<td>" . htmlspecialchars($result['lname'].",".$result['fname'], ENT_NOQUOTES) . "</td>";
-    echo "<td>" . htmlspecialchars($result['pid'],ENT_NOQUOTES) . "</td>";
-    echo "<td>" . htmlspecialchars($result['date'],ENT_NOQUOTES) . "</td>";
+    echo "<td>" . htmlspecialchars($result['pid'], ENT_NOQUOTES) . "</td>";
+    echo "<td>" . htmlspecialchars($result['date'], ENT_NOQUOTES) . "</td>";
     if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
-        echo "<td>" . htmlspecialchars($result['id'],ENT_NOQUOTES) . "</td>";
+        echo "<td>" . htmlspecialchars($result['id'], ENT_NOQUOTES) . "</td>";
     }
     else { //$rule == "provide_rec_pat_amc"
         echo "<td>&nbsp</td>";
     }
 
     if ($rule == "send_sum_amc") {
-        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
-        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
+        echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
+        echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
     }
     else if ($rule == "provide_rec_pat_amc") {
-        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['date'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
+        echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['date'], ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
     }
     else { //$rule == "provide_sum_pat_amc"
-        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".htmlspecialchars($result['pid'],ENT_QUOTES)."\",\"".htmlspecialchars($result['id'],ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
+        echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars( xl('Yes'), ENT_NOQUOTES) . "</td>";
     }
         echo "</tr>";
 }

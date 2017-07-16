@@ -15,7 +15,7 @@ require_once("$srcdir/patient.inc");
 <html>
 <head>
 
-<title><?php xl('Charts Checked Out','e'); ?></title>
+<title><?php xl('Charts Checked Out', 'e'); ?></title>
 
 <?php Header::setupHeader(); ?>
 
@@ -49,7 +49,7 @@ require_once("$srcdir/patient.inc");
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Charts Checked Out','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Charts Checked Out', 'e'); ?></span>
 
 <div id="report_results">
 <br/>
@@ -80,10 +80,10 @@ while ($row = sqlFetchArray($res)) {
     if ( $data_ctr == 0 ) { ?>
     <table>
      <thead>
-          <th> <?php xl('Chart','e'); ?> </th>
-          <th> <?php xl('Patient','e'); ?> </th>
-          <th> <?php xl('Location','e'); ?> </th>
-          <th> <?php xl('As Of','e'); ?> </th>
+          <th> <?php xl('Chart', 'e'); ?> </th>
+          <th> <?php xl('Patient', 'e'); ?> </th>
+          <th> <?php xl('Location', 'e'); ?> </th>
+          <th> <?php xl('As Of', 'e'); ?> </th>
      </thead>
      <tbody>
         <?php  } ?>
@@ -108,7 +108,7 @@ $data_ctr++;
 } // end while
 
 if ( $data_ctr < 1 ) { ?>
-<span class='text'><?php xl('There are no charts checked out.','e'); ?></span>
+<span class='text'><?php xl('There are no charts checked out.', 'e'); ?></span>
 <?php
 }
 ?>

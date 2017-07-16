@@ -43,7 +43,7 @@ class MapperTable extends AbstractTableGateway
                         left join ccda_sections as sec on sec.ccda_components_id = com.ccda_components_id
                         where 1=1 ORDER BY sec.ccda_components_id, sec.ccda_sections_id";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array());
+        $row        = $appTable->zQuery($query, array());
         foreach($row as $result){
             $sections[] = $result;
         }
@@ -63,7 +63,7 @@ class MapperTable extends AbstractTableGateway
         
         $query      = "select name, directory, nickname from registry where state=? ORDER BY name";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array(1));
+        $row        = $appTable->zQuery($query, array(1));
         foreach($row as $result){
             $name       = $result['nickname'] ? $result['nickname'] : $result['name'];
             $directory  = "1|".$result['directory'];
@@ -85,7 +85,7 @@ class MapperTable extends AbstractTableGateway
         
         $query      = "select option_id, title from list_options where list_id = ? ORDER BY seq,title";
         $appTable   = new ApplicationTable();
-        $row        = $appTable->zQuery($query,array('lbfnames'));
+        $row        = $appTable->zQuery($query, array('lbfnames'));
         $count      = 0;
         foreach($row as $result){
             $lbf[$count][0]     = $result['title'];
@@ -115,7 +115,7 @@ class MapperTable extends AbstractTableGateway
         
         $query  = "SHOW TABLES LIKE 'form_%'";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array());
+        $res        = $appTable->zQuery($query, array());
         $count  = 0;
         foreach($res as $row){
             $table_name     = array_shift($row);
@@ -146,7 +146,7 @@ class MapperTable extends AbstractTableGateway
         
         $query      = "SELECT * FROM categories WHERE id != ? ORDER BY NAME ASC";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array(1));
+        $res        = $appTable->zQuery($query, array(1));
         foreach($res as $row){
             $document_categories[] = array($row['name'], '4|'.$row['id']);
         }
@@ -171,7 +171,7 @@ class MapperTable extends AbstractTableGateway
                             LEFT JOIN categories AS cat ON cat.id = tab1.form_dir
 			    WHERE tab1.deleted = ?";
         $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query,array('lbfnames',0));
+        $res            = $appTable->zQuery($query, array('lbfnames',0));
         
         $count      = 0;
         $class      = '';
@@ -223,7 +223,7 @@ class MapperTable extends AbstractTableGateway
     {
         $query      = "select max(id) as id from ccda_table_mapping where user_id=?";
         $appTable       = new ApplicationTable();
-        $res            = $appTable->zQuery($query,array(1));
+        $res            = $appTable->zQuery($query, array(1));
         foreach($res as $row){
             return $row['id'];
         }
@@ -242,7 +242,7 @@ class MapperTable extends AbstractTableGateway
         $appTable->zQuery($sql, $values);
         $query      = "select max(id) as id from ccda_table_mapping";
         $appTable   = new ApplicationTable();
-        $res        = $appTable->zQuery($query,array());
+        $res        = $appTable->zQuery($query, array());
         foreach($res as $row){
             return $row['id'];
         }

@@ -47,20 +47,20 @@ if($_REQUEST["ccr_ajax"] == "yes"){
             $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Revision Id: ".$couch_revid."\r\n";
             $log_content .= date('Y-m-d H:i:s')." ==> Failed to fetch document content from CouchDB.\r\n";
             $log_content .= date('Y-m-d H:i:s')." ==> Will try to download file from HardDisk if exists.\r\n\r\n";
-            $this->document_upload_download_log($d->get_foreign_id(),$log_content);
+            $this->document_upload_download_log($d->get_foreign_id(), $log_content);
             die(xlt("File retrieval from CouchDB failed"));
         }
         $content = base64_decode($content);
     }else{
-        $url = preg_replace("|^(.*)://|","",$url);
-        $from_all = explode("/",$url);
+        $url = preg_replace("|^(.*)://|", "", $url);
+        $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
         for ($i=0;$i<$d->get_path_depth();$i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
         $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/",$from_pathname_array);
+        $from_pathname = implode("/", $from_pathname_array);
         $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
         if (!file_exists($temp_url)) {
             echo xlt('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it') . '.' . $temp_url;
@@ -125,7 +125,7 @@ if($_REQUEST["ccr_ajax"] == "yes"){
     );
     if(!empty($content)){
         $var = array();
-        $res = parseXmlStream($content,$field_mapping);
+        $res = parseXmlStream($content, $field_mapping);
         $var = array(
         'approval_status' => 1,
         'type' => 11,
@@ -134,13 +134,13 @@ if($_REQUEST["ccr_ajax"] == "yes"){
         foreach($res as $sections=>$details){
             foreach($details as $cnt=>$vals){
                 foreach($vals as $key=>$val){
-                    if(array_key_exists('#Type',$res[$sections][$cnt])){
+                    if(array_key_exists('#Type', $res[$sections][$cnt])){
                         if($key == 'postal_code'){
                             $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;
                         }elseif($key == 'phone_contact'){
                               $var['field_name_value_array']['misc_address_book'][$cnt]['phone'] = $val;
                         }elseif($key == 'abname'){
-                              $values = explode(' ',$val);
+                              $values = explode(' ', $val);
                             if($values[0]){
                                 $var['field_name_value_array']['misc_address_book'][$cnt]['lname'] = $values[0];
                             }
@@ -160,8 +160,8 @@ if($_REQUEST["ccr_ajax"] == "yes"){
                             }
                         }
                         if($sections == 'lists2' && $key == 'type'){
-                            if(strpos($val,"-")){
-                                $vals = explode("-",$val);
+                            if(strpos($val, "-")){
+                                $vals = explode("-", $val);
                                 $val = $vals[0];
                             }else{
                                 $val = "";
@@ -178,7 +178,7 @@ if($_REQUEST["ccr_ajax"] == "yes"){
                             $var['entry_identification_array'][$sections][$cnt] = $cnt;
                     }
                 }
-                if(array_key_exists('#Type',$var['field_name_value_array']['misc_address_book'][$cnt])){
+                if(array_key_exists('#Type', $var['field_name_value_array']['misc_address_book'][$cnt])){
                       unset($var['field_name_value_array']['misc_address_book'][$cnt]['#Type']);
                 }
             }

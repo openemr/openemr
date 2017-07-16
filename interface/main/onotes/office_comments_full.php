@@ -37,7 +37,7 @@ if (isset($_POST['mode'])) {
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
-                $id = str_replace("act","",$var);
+                $id = str_replace("act", "", $var);
                 if ($val == "true") {
                     $result = $oNoteService->enableNoteById($id);
                 } elseif($val=="false") {

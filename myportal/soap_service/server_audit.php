@@ -59,38 +59,38 @@ class UserAudit extends UserMail
         if(UserService::valid($data_credentials)=='oemruser'){
             $audit_master_id = $var['audit_master_id'];
              $qry = "select * from audit_master WHERE id=? and approval_status=1 and type=1";
-             $result=sqlStatement($qry,array($audit_master_id));
+             $result=sqlStatement($qry, array($audit_master_id));
              $rowfield = sqlFetchArray($result);
             if($rowfield['pid']>0)
               {
                 $pid=$rowfield['pid'];
                 $qry = "DELETE from  patient_data WHERE pid=?";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE  from employer_data WHERE pid=?";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE  from history_data WHERE pid=?";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE  from insurance_data WHERE pid=?";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE from patient_access_offsite WHERE  pid=? ";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE from openemr_postcalendar_events WHERE  pc_pid=? ";// appointments approved, but patient denied case.
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "select * from documents_legal_master,documents_legal_detail   where dld_pid=? 
 				and dlm_document_id=dld_master_docid and  dlm_subcategory   not in (SELECT dlc_id FROM `documents_legal_categories` 
 				where dlc_category_name='Layout Signed' and dlc_category_type=2)";
-                $result=sqlStatement($qry,array($pid));
+                $result=sqlStatement($qry, array($pid));
                 while($row_sql=sqlFetchArray($result))
                 {
                     @unlink('../documents/'.$row_sql['dld_filepath'].$row_sql['dld_filename']);
                 }
                 $qry = "DELETE  from documents_legal_detail WHERE dld_pid=?";
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE from audit_details WHERE audit_master_id in 
 								(select id from audit_master WHERE pid=? )";//type and approval_status=1 is not called purposefully,so as to delete the appointments also
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
                 $qry = "DELETE from audit_master WHERE pid=?";//type and approval_status=1 is not called purposefully,so as to delete the appointments also
-                sqlStatement($qry,array($pid));
+                sqlStatement($qry, array($pid));
             }
         }
         else{
@@ -109,9 +109,9 @@ class UserAudit extends UserMail
             $approval_status=$var['approval_status'];
             $comments=$var['comments'];
             $user_id=$var['user_id'];
-            sqlStatement("UPDATE audit_master SET approval_status=?, comments=?,modified_time=NOW(),user_id=? WHERE id=? ",array($approval_status,$comments,$user_id,$audit_master_id));
-            $dld_pid = sqlQuery("SELECT pid from audit_master WHERE id=?",array($audit_master_id));
-            sqlStatement("UPDATE documents_legal_detail SET dld_signed=? WHERE dld_pid=? AND dld_signed=0",array($approval_status,$dld_pid['pid']));
+            sqlStatement("UPDATE audit_master SET approval_status=?, comments=?,modified_time=NOW(),user_id=? WHERE id=? ", array($approval_status,$comments,$user_id,$audit_master_id));
+            $dld_pid = sqlQuery("SELECT pid from audit_master WHERE id=?", array($audit_master_id));
+            sqlStatement("UPDATE documents_legal_detail SET dld_signed=? WHERE dld_pid=? AND dld_signed=0", array($approval_status,$dld_pid['pid']));
         }
         else{
             throw new SoapFault("Server", "credentials failed");
@@ -129,13 +129,13 @@ class UserAudit extends UserMail
                 $validtables = array("patient_data","employer_data","insurance_data","history_data","openemr_postcalendar_events","ar_session","documents_legal_master","documents_legal_detail","patient_access_offsite");
         if(UserService::valid($data_credentials)){
             $audit_master_id = $var['audit_master_id'];
-            $res = sqlStatement("SELECT DISTINCT ad.table_name,am.id,am.pid FROM audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.approval_status in ('1','4') and am.id=? ORDER BY ad.id",array($audit_master_id));
+            $res = sqlStatement("SELECT DISTINCT ad.table_name,am.id,am.pid FROM audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.approval_status in ('1','4') and am.id=? ORDER BY ad.id", array($audit_master_id));
             $tablecnt = sqlNumRows($res);
             while($row = sqlFetchArray($res)){
                 if($row['pid']){
                     $pid=$row['pid'];
                 }
-                 $resfield = sqlStatement("SELECT * FROM audit_details WHERE audit_master_id=? AND table_name=?",array($audit_master_id,$row['table_name']));
+                 $resfield = sqlStatement("SELECT * FROM audit_details WHERE audit_master_id=? AND table_name=?", array($audit_master_id,$row['table_name']));
                  $table = $row['table_name'];
                  $cnt = 0;
                 foreach($validtables as $value){//Update will execute if and only if all tables are validtables
@@ -193,19 +193,19 @@ class UserAudit extends UserMail
                     require_once("../../library/acl.inc");
                     require_once("../../library/patient.inc");
                     if($table=='patient_data'){
-                        $pdrow = sqlQuery("SELECT id from patient_data WHERE pid=?",array($pid));
+                        $pdrow = sqlQuery("SELECT id from patient_data WHERE pid=?", array($pid));
                         if($pdrow['id']){
                             $newdata['patient_data']['id'] = $pdrow['id'];
-                            updatePatientData($pid,$newdata['patient_data']);
+                            updatePatientData($pid, $newdata['patient_data']);
                         }else{
                             $prow = sqlQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
                             $pid = $prow['pid'];
                             $newdata['patient_data']['pubpid'] = $pid;
-                            updatePatientData($pid,$newdata['patient_data'],true);
+                            updatePatientData($pid, $newdata['patient_data'], true);
                         }
                     }
                     elseif($table=='employer_data'){
-                        updateEmployerData($pid,$newdata['employer_data']);
+                        updateEmployerData($pid, $newdata['employer_data']);
                     }
                     elseif($table=='insurance_data'){
                         for($i=1;$i<=3;$i++){
@@ -336,7 +336,7 @@ class UserAudit extends UserMail
                               "'" . add_escape_custom($newdata['patient_access_offsite']['portal_pwd']) . "', ".
                               "0)"
                             );
-                            sqlQuery("UPDATE audit_details SET field_value = ? WHERE id = ?",array($this->generatePassword(),$newdata['patient_access_offsite']['pass_id']));
+                            sqlQuery("UPDATE audit_details SET field_value = ? WHERE id = ?", array($this->generatePassword(),$newdata['patient_access_offsite']['pass_id']));
                         }
                     }
                 }
@@ -371,9 +371,9 @@ class UserAudit extends UserMail
              
             if($audit_master_id_to_delete){
                 $qry = "DELETE from audit_master WHERE id=?";
-                sqlStatement($qry,array($audit_master_id_to_delete));
+                sqlStatement($qry, array($audit_master_id_to_delete));
                 $qry = "DELETE from audit_details WHERE audit_master_id=?";
-                sqlStatement($qry,array($audit_master_id_to_delete));
+                sqlStatement($qry, array($audit_master_id_to_delete));
             }
             if((UserService::valid($data_credentials) == 'newpatient' || UserService::valid($data_credentials) == 'newpatienttoapprove') && $approval_status == 1){
                 $pid = 0;
@@ -383,7 +383,7 @@ class UserAudit extends UserMail
 		       approval_status = ?,
 		       ip_address = ?,
 		       type = ?";
-            $audit_master_id= sqlInsert($master_query,array($pid,$approval_status,$ip_address,$type));
+            $audit_master_id= sqlInsert($master_query, array($pid,$approval_status,$ip_address,$type));
             $detail_query="INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
             $detail_query_array='';
             foreach($table_name_array as $key=>$table_name)
@@ -403,7 +403,7 @@ class UserAudit extends UserMail
             }
             $detail_query = substr($detail_query, 0, -1);
             $detail_query=$detail_query.';';
-            sqlInsert($detail_query,$detail_query_array);
+            sqlInsert($detail_query, $detail_query_array);
             if($var['auto_update']==1)
             {
                 $var['audit_master_id'] = $audit_master_id;
@@ -435,7 +435,7 @@ class UserAudit extends UserMail
 		       approval_status = ?,
 		       ip_address = ?,
 		       type =?";
-             $audit_master_id= sqlInsert($master_query,array($pid,$approval_status,$ip_address,$type));
+             $audit_master_id= sqlInsert($master_query, array($pid,$approval_status,$ip_address,$type));
         }
         else
          {

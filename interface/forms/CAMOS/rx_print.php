@@ -81,22 +81,22 @@ if ($result = sqlFetchArray($query)) {
 if ($_POST['print_pdf'] || $_POST['print_html']) {
     $camos_content = array();
     foreach ($_POST as $key => $val) {
-        if (substr($key,0,3) == 'ch_') {
+        if (substr($key, 0, 3) == 'ch_') {
             $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" .
-            substr($key,3));
+            substr($key, 3));
             if ($result = sqlFetchArray($query)) {
 
                 if ($_POST['print_html']) { //do this change to formatting only for html output
-                            $content = preg_replace('|\n|','<br/>', text($result['content']));
-                            $content = preg_replace('|<br/><br/>|','<br/>', $content);
+                            $content = preg_replace('|\n|', '<br/>', text($result['content']));
+                            $content = preg_replace('|<br/><br/>|', '<br/>', $content);
                 } else {
                         $content = $result['content'];
                 }
-                  array_push($camos_content,$content);
+                  array_push($camos_content, $content);
             }
         }
-        if (substr($key,0,5) == 'chrx_') {
-            $rx = new Prescription(substr($key,5));
+        if (substr($key, 0, 5) == 'chrx_') {
+            $rx = new Prescription(substr($key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
             $content = ''
             . text($rx->drug) . ' '
@@ -112,7 +112,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             . 'refills:' . $rx->refills . '';
       //      . $rx->substitute_array[$rx->substitute]. ''
       //      . $rx->per_refill . '';
-            array_push($camos_content,$content);
+            array_push($camos_content, $content);
         }
     }
     if (!$_GET['letterhead']) { //OPTION print a prescription with css formatting
@@ -121,7 +121,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
   <head>
     <?php html_header_show();?>
 <title>
-    <?php xl('CAMOS','e'); ?>
+    <?php xl('CAMOS', 'e'); ?>
 </title>
 <link rel="stylesheet" type="text/css" href="./rx.css" />
 </head>
@@ -289,7 +289,7 @@ else {
 <?php
     }//end of printing to rx not letterhead
     elseif ($_GET['letterhead']) { //OPTION print to letterhead
-        $content = preg_replace('/PATIENTNAME/i',$patient_name,$camos_content[0]);
+        $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
         if($_POST['print_html']) { //print letterhead to html
         ?>
         <html>
@@ -316,7 +316,7 @@ else {
      }
     }
     </style>
-      <title><?php xl('Letter','e'); ?></title>
+      <title><?php xl('Letter', 'e'); ?></title>
     </head>
         <body>
     <div class='paddingdiv'>
@@ -365,29 +365,29 @@ elseif ($_GET['signer'] == 'doctor') {
         else { //print letterhead to pdf
             $pdf = new Cezpdf();
             $pdf->selectFont('Times-Bold');
-            $pdf->ezSetCmMargins(3,1,1,1);
-            $pdf->ezText($physician_name,12);
-            $pdf->ezText($practice_address,12);
-            $pdf->ezText($practice_city.', '.$practice_state.' '.$practice_zip,12);
-            $pdf->ezText($practice_phone . ' (' . xl('Voice') . ')',12);
-            $pdf->ezText($practice_phone . ' ('. xl('Fax') . ')',12);
-            $pdf->ezText('',12);
-            $pdf->ezText(date("l, F jS, Y"),12);
-            $pdf->ezText('',12);
+            $pdf->ezSetCmMargins(3, 1, 1, 1);
+            $pdf->ezText($physician_name, 12);
+            $pdf->ezText($practice_address, 12);
+            $pdf->ezText($practice_city.', '.$practice_state.' '.$practice_zip, 12);
+            $pdf->ezText($practice_phone . ' (' . xl('Voice') . ')', 12);
+            $pdf->ezText($practice_phone . ' ('. xl('Fax') . ')', 12);
+            $pdf->ezText('', 12);
+            $pdf->ezText(date("l, F jS, Y"), 12);
+            $pdf->ezText('', 12);
             $pdf->selectFont('Helvetica');
-            $pdf->ezText($content,10);
+            $pdf->ezText($content, 10);
             $pdf->selectFont('Times-Bold');
-            $pdf->ezText('',12);
-            $pdf->ezText('',12);
+            $pdf->ezText('', 12);
+            $pdf->ezText('', 12);
             if ($_GET['signer'] == 'patient') {
-                $pdf->ezText("__________________________________________________________________________________",12);
-                $pdf->ezText(xl("Print name, sign and date."),12);
+                $pdf->ezText("__________________________________________________________________________________", 12);
+                $pdf->ezText(xl("Print name, sign and date."), 12);
             }
             elseif ($_GET['signer'] == 'doctor') {
-                $pdf->ezText(xl('Sincerely,'),12);
-                $pdf->ezText('',12);
-                $pdf->ezText('',12);
-                $pdf->ezText($physician_name,12);
+                $pdf->ezText(xl('Sincerely,'), 12);
+                $pdf->ezText('', 12);
+                $pdf->ezText('', 12);
+                $pdf->ezText($physician_name, 12);
             }
             $pdf->ezStream();
         } //end of html vs pdf print
@@ -399,7 +399,7 @@ else { //OPTION selection of what to print
 <head>
 <?php html_header_show();?>
 <title>
-<?php xl('CAMOS','e'); ?>
+<?php xl('CAMOS', 'e'); ?>
 </title>
 <script type="text/javascript">
 //below init function just to demonstrate how to do it.
@@ -457,17 +457,17 @@ return count_turnoff;
 </script>
 <link rel="stylesheet" type="text/css" href="./rx.css" />
 </head>
-<h1><?php xl('Select CAMOS Entries for Printing','e'); ?></h1>
+<h1><?php xl('Select CAMOS Entries for Printing', 'e'); ?></h1>
 <form method=POST name='pick_items' target=_new>
-<input type=button name=cyclerx value='<?php xl('Cycle','e'); ?>' onClick='cycle()'><br/>
-<input type='button' value='<?php xl('Select All','e'); ?>' onClick='checkall()'>
-<input type='button' value='<?php xl('Unselect All','e'); ?>' onClick='uncheckall()'>
+<input type=button name=cyclerx value='<?php xl('Cycle', 'e'); ?>' onClick='cycle()'><br/>
+<input type='button' value='<?php xl('Select All', 'e'); ?>' onClick='checkall()'>
+<input type='button' value='<?php xl('Unselect All', 'e'); ?>' onClick='uncheckall()'>
 
 <?php if ($_GET['letterhead']) { ?>
-<input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<input type=submit name='print_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
 <?php } ?>
 
-<input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
+<input type=submit name='print_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
 <?php
 
 //check if an encounter is set
@@ -514,56 +514,56 @@ foreach($rxarray as $val) {
 ?>
 
 <?php if ($_GET['letterhead']) { ?>
-<input type=submit name='print_pdf' value='<?php xl('Print (PDF)','e'); ?>'>
+<input type=submit name='print_pdf' value='<?php xl('Print (PDF)', 'e'); ?>'>
 <?php } ?>
 
-<input type=submit name='print_html' value='<?php xl('Print (HTML)','e'); ?>'>
+<input type=submit name='print_html' value='<?php xl('Print (HTML)', 'e'); ?>'>
 </form>
-<h1><?php xl('Update User Information','e'); ?></h1>
+<h1><?php xl('Update User Information', 'e'); ?></h1>
 <form method=POST name='pick_items'>
 <table>
 <tr>
-<td> <?php xl('First Name','e'); ?>: </td>
-<td> <input type=text name=practice_fname value ='<?php echo htmlspecialchars($practice_fname,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('First Name', 'e'); ?>: </td>
+<td> <input type=text name=practice_fname value ='<?php echo htmlspecialchars($practice_fname, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Last Name','e'); ?>: </td>
-<td> <input type=text name=practice_lname value ='<?php echo htmlspecialchars($practice_lname,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Last Name', 'e'); ?>: </td>
+<td> <input type=text name=practice_lname value ='<?php echo htmlspecialchars($practice_lname, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Title','e'); ?>: </td>
-<td> <input type=text name=practice_title value ='<?php echo htmlspecialchars($practice_title,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Title', 'e'); ?>: </td>
+<td> <input type=text name=practice_title value ='<?php echo htmlspecialchars($practice_title, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Street Address','e'); ?>: </td>
-<td> <input type=text name=practice_address value ='<?php echo htmlspecialchars($practice_address,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Street Address', 'e'); ?>: </td>
+<td> <input type=text name=practice_address value ='<?php echo htmlspecialchars($practice_address, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('City','e'); ?>: </td>
-<td> <input type=text name=practice_city value ='<?php echo htmlspecialchars($practice_city,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('City', 'e'); ?>: </td>
+<td> <input type=text name=practice_city value ='<?php echo htmlspecialchars($practice_city, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('State','e'); ?>: </td>
-<td> <input type=text name=practice_state value ='<?php echo htmlspecialchars($practice_state,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('State', 'e'); ?>: </td>
+<td> <input type=text name=practice_state value ='<?php echo htmlspecialchars($practice_state, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Zip','e'); ?>: </td>
-<td> <input type=text name=practice_zip value ='<?php echo htmlspecialchars($practice_zip,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Zip', 'e'); ?>: </td>
+<td> <input type=text name=practice_zip value ='<?php echo htmlspecialchars($practice_zip, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Phone','e'); ?>: </td>
-<td> <input type=text name=practice_phone value ='<?php echo htmlspecialchars($practice_phone,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Phone', 'e'); ?>: </td>
+<td> <input type=text name=practice_phone value ='<?php echo htmlspecialchars($practice_phone, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('Fax','e'); ?>: </td>
-<td> <input type=text name=practice_fax value ='<?php echo htmlspecialchars($practice_fax,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('Fax', 'e'); ?>: </td>
+<td> <input type=text name=practice_fax value ='<?php echo htmlspecialchars($practice_fax, ENT_QUOTES); ?>'> </td>
 </tr>
 <tr>
-<td> <?php xl('DEA','e'); ?>: </td>
-<td> <input type=text name=practice_dea value ='<?php echo htmlspecialchars($practice_dea,ENT_QUOTES); ?>'> </td>
+<td> <?php xl('DEA', 'e'); ?>: </td>
+<td> <input type=text name=practice_dea value ='<?php echo htmlspecialchars($practice_dea, ENT_QUOTES); ?>'> </td>
 </tr>
 </table>
-<input type=submit name=update value='<?php xl('Update','e'); ?>'>
+<input type=submit name=update value='<?php xl('Update', 'e'); ?>'>
 </form>
 <?php
 } //end of else statement

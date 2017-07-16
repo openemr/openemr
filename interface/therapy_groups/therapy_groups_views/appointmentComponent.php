@@ -26,8 +26,8 @@
 ?>
 
 
-<?php $edit = acl_check("groups","gcalendar",false, 'write');?>
-<?php $view = acl_check("groups","gcalendar",false, 'view');?>
+<?php $edit = acl_check("groups", "gcalendar", false, 'write');?>
+<?php $view = acl_check("groups", "gcalendar", false, 'view');?>
 
 
 <?php if($view || $edit) :?>

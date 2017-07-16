@@ -80,13 +80,13 @@ else {
 
 
     $authorizedPortal=false; //flag
-    DEFINE("TBL_PAT_ACC_ON","patient_access_onsite");
-    DEFINE("COL_PID","pid");
-    DEFINE("COL_POR_PWD","portal_pwd");
-    DEFINE("COL_POR_USER","portal_username");
-    DEFINE("COL_POR_SALT","portal_salt");
-    DEFINE("COL_POR_PWD_STAT","portal_pwd_status");
-    $sql= "SELECT ".implode(",",array(COL_ID,COL_PID,COL_POR_PWD,COL_POR_SALT,COL_POR_PWD_STAT))
+    DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
+    DEFINE("COL_PID", "pid");
+    DEFINE("COL_POR_PWD", "portal_pwd");
+    DEFINE("COL_POR_USER", "portal_username");
+    DEFINE("COL_POR_SALT", "portal_salt");
+    DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
+    $sql= "SELECT ".implode(",", array(COL_ID,COL_PID,COL_POR_PWD,COL_POR_SALT,COL_POR_PWD_STAT))
           ." FROM ".TBL_PAT_ACC_ON
           ." WHERE ".COL_POR_USER."=?";
             $auth = privQuery($sql, array($_POST['uname']));
@@ -105,15 +105,15 @@ if(empty($auth[COL_POR_SALT]))
         exit;
     }
     $new_salt=oemr_password_salt();
-    $new_hash=oemr_password_hash($plain_code,$new_salt);
+    $new_hash=oemr_password_hash($plain_code, $new_salt);
     $sqlUpdatePwd= " UPDATE " . TBL_PAT_ACC_ON
       ." SET " .COL_POR_PWD."=?, "
       . COL_POR_SALT . "=? "
       ." WHERE ".COL_ID."=?";
-    privStatement($sqlUpdatePwd,array($new_hash,$new_salt,$auth[COL_ID]));
+    privStatement($sqlUpdatePwd, array($new_hash,$new_salt,$auth[COL_ID]));
 }
 else {
-    if(oemr_password_hash($plain_code,$auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
+    if(oemr_password_hash($plain_code, $auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
     {
         session_destroy();
         header('Location: '.$landingpage.'&w');
@@ -154,7 +154,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']) )) { // if query gets execute
             $code_new_confirm=$_POST['pass_new_confirm'];
         if(!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
             $new_salt=oemr_password_salt();
-            $new_hash=oemr_password_hash($code_new,$new_salt);
+            $new_hash=oemr_password_hash($code_new, $new_salt);
 
             // Update the password and continue (patient is authorized)
             privStatement("UPDATE ".TBL_PAT_ACC_ON

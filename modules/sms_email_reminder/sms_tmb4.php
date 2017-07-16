@@ -118,7 +118,7 @@ class sms
         
         /* Set cURL variables */
         curl_setopt($ch, CURLOPT_URL, "https://www.tm4b.com/client/api/http.php");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $request);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);

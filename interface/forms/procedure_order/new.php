@@ -71,7 +71,7 @@ function QuotedOrNull($fld)
 function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq'))
 {
     $output =  array();
-    $query = sqlStatement("SELECT ".implode(',',$fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
+    $query = sqlStatement("SELECT ".implode(',', $fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
     while($ll = sqlFetchArray($query)) {
         foreach($fieldnames as $val)
           $output[$ll['option_id']][$val] = $ll[$val];
@@ -330,7 +330,7 @@ function sel_related(varname) {
  // codetype is just to make things easier and avoid mistakes.
  // Might be nice to have a lab parameter for acceptable code types.
  // Also note the controlling script here runs from interface/patient_file/encounter/.
- dlgopen('find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+ dlgopen('find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>', '_blank', 500, 400);
 }
 
 var transmitting = false;
@@ -425,7 +425,7 @@ $(document).ready(function() {
             </div>
 
             <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Internal Time Collected','e'); ?></label>
+                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Internal Time Collected', 'e'); ?></label>
                 <div class="col-sm-8">
                     <input class='datetimepicker form-control'
                            type='text'
@@ -437,7 +437,7 @@ $(document).ready(function() {
             </div>
 
             <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Priority','e'); ?></label>
+                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Priority', 'e'); ?></label>
                 <div class="col-sm-8">
                     <?php
                     generate_form_field(array('data_type'=>1,'field_id'=>'order_priority',
@@ -447,7 +447,7 @@ $(document).ready(function() {
             </div>
 
             <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Status','e'); ?></label>
+                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Status', 'e'); ?></label>
                 <div class="col-sm-8">
                     <?php
                     generate_form_field(array('data_type'=>1,'field_id'=>'order_status',
@@ -457,7 +457,7 @@ $(document).ready(function() {
             </div>
 
             <div class="form-group">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('History Order','e'); ?></label>
+                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('History Order', 'e'); ?></label>
                 <div class="col-sm-8">
                     <?php
                         $historyOrderOpts = array(
@@ -465,13 +465,13 @@ $(document).ready(function() {
                             'field_id' => 'history_order',
                             'list_id' => 'boolean'
                         );
-                        generate_form_field($historyOrderOpts,  $row['history_order']); ?>
+                        generate_form_field($historyOrderOpts, $row['history_order']); ?>
                 </div>
             </div>
 
             <?php // Hide this for now with a hidden class as it does not yet do anything ?>
             <div class="form-group hidden">
-                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Patient Instructions','e'); ?></label>
+                <label for="form_data_ordered" class="control-label col-sm-4"><?php xl('Patient Instructions', 'e'); ?></label>
                 <div class="col-sm-8">
                     <textarea rows='3' cols='40' name='form_patient_instructions' wrap='virtual' class='form-control inputtext'>
                         <?php echo $row['patient_instructions'] ?>
@@ -482,7 +482,7 @@ $(document).ready(function() {
         </div>
         <div class="procedure-order-container col-md-7">
             <div class="form-group">
-                <label for="form_data_ordered" class="col-sm-12"><?php xl('Clinical History','e'); ?></label>
+                <label for="form_data_ordered" class="col-sm-12"><?php xl('Clinical History', 'e'); ?></label>
                 <div class="col-sm-12">
                     <textarea name="form_clinical_hx" id="" class="form-control"><?php echo attr($row['clinical_hx']);?></textarea>
                 </div>
@@ -554,8 +554,8 @@ $(document).ready(function() {
                                    value='<?php echo attr($oprow['procedure_name']) ?>'
                                    onclick="sel_proc_type(<?php echo $i; ?>)"
                                    onfocus='this.blur()'
-                                   title='<?php xla('Click to select the desired procedure','e'); ?>'
-                                   placeholder='<?php xla('Click to select the desired procedure','e'); ?>'
+                                   title='<?php xla('Click to select the desired procedure', 'e'); ?>'
+                                   placeholder='<?php xla('Click to select the desired procedure', 'e'); ?>'
                                    style='cursor:pointer;cursor:hand' class='form-control' readonly />
                             <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='<?php echo $ptid ?>' />
                         </td>
@@ -584,7 +584,7 @@ $(document).ready(function() {
                 ++$i;
             }
             ?>
-            <?php $procedure_order_type = getListOptions('order_type' , array('option_id', 'title')); ?>
+            <?php $procedure_order_type = getListOptions('order_type', array('option_id', 'title')); ?>
             <div class="row">
                 <div class="col-md-6 col-md-offset-6">
                     <div class="form-group">

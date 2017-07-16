@@ -15,7 +15,7 @@ function reviewofs_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
     
             //modified by BM 07-2009 for internationalization
             if ($key == "Additional Notes") {

@@ -199,7 +199,7 @@ function checkNum () {
  if(re.exec(str))
  {
  }else{
-  alert("<?php xl('Please enter a monetary amount using only numbers and a decimal point.','e'); ?>");
+  alert("<?php xl('Please enter a monetary amount using only numbers and a decimal point.', 'e'); ?>");
  }
 }
 
@@ -498,9 +498,9 @@ if (! $GLOBALS['simplified_demographics']) {
 
     $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
     $insurance_info = array();
-    $insurance_info[1] = getInsuranceData($pid,"primary");
-    $insurance_info[2] = getInsuranceData($pid,"secondary");
-    $insurance_info[3] = getInsuranceData($pid,"tertiary");
+    $insurance_info[1] = getInsuranceData($pid, "primary");
+    $insurance_info[2] = getInsuranceData($pid, "secondary");
+    $insurance_info[3] = getInsuranceData($pid, "tertiary");
 
     ?>
     <div class="section-header">

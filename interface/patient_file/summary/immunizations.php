@@ -83,14 +83,14 @@ if (isset($_GET['mode'])) {
                 trim($_GET['immunization_refusal_reason']),
                 trim($_GET['ordered_by_id'])
              );
-        $newid = sqlInsert($sql,$sqlBindArray);
+        $newid = sqlInsert($sql, $sqlBindArray);
         $administered_date=date('Y-m-d H:i');
         $education_date=date('Y-m-d');
         $immunization_id=$cvx_code=$manufacturer=$lot_number=$administered_by_id=$note=$id=$ordered_by_id="";
         $administered_by=$vis_date="";
         $newid = $_GET['id'] ? $_GET['id'] : $newid;
         if($GLOBALS['observation_results_immunization']) {
-            saveImmunizationObservationResults($newid,$_GET);
+            saveImmunizationObservationResults($newid, $_GET);
         }
 
     }
@@ -267,7 +267,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
                                               immunization_observation
                                             WHERE imo_im_id = ?
                                               AND imo_pid = ?";
-                $result2                = sqlQuery($sql2,array($val['imo_im_id'],$val['imo_pid']));
+                $result2                = sqlQuery($sql2, array($val['imo_im_id'],$val['imo_pid']));
             }
         }
     }
@@ -382,7 +382,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
                 <?php echo htmlspecialchars( xl('Immunization'), ENT_NOQUOTES); ?> (<?php echo htmlspecialchars( xl('CVX Code'), ENT_NOQUOTES); ?>)            </span>          </td>
           <td>
            <input type='text' size='10' name='cvx_code' id='cvx_code'
-            value='<?php echo htmlspecialchars($cvx_code,ENT_QUOTES); ?>' onclick='sel_cvxcode(this)'
+            value='<?php echo htmlspecialchars($cvx_code, ENT_QUOTES); ?>' onclick='sel_cvxcode(this)'
             title='<?php echo htmlspecialchars( xl('Click to select or change CVX code'), ENT_QUOTES); ?>'
             />
             <div id='cvx_description' style='display:inline; float:right; padding:3px; margin-left:3px; width:400px'>
@@ -408,7 +408,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
           <td align="right"><span class="text"><?php echo htmlspecialchars( xl('Amount Administered'), ENT_NOQUOTES); ?></span></td>
           <td class='text'>
             <input class='text' type='text' name="immuniz_amt_adminstrd" size="25" value="<?php echo htmlspecialchars( $immuniz_amt_adminstrd, ENT_QUOTES); ?>">
-            <?php echo generate_select_list("form_drug_units", "drug_units", $drugunitselecteditem,'Select Drug Unit',''); ?>
+            <?php echo generate_select_list("form_drug_units", "drug_units", $drugunitselecteditem, 'Select Drug Unit', ''); ?>
           </td>
         </tr>
         <tr>
@@ -487,7 +487,7 @@ var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QU
         <tr>
           <td align="right" class='text'><?php echo htmlspecialchars( xl('Administration Site'), ENT_NOQUOTES); ?></td>
           <td>
-            <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '','','',null,false,'proc_body_site');?>
+            <?php echo generate_select_list('immuniz_admin_ste', 'immunization_administered_site', $immuniz_admin_ste, 'Select Administration Site', ' ', '', '', '', null, false, 'proc_body_site');?>
           </td>
         </tr>
         <tr>
@@ -706,9 +706,9 @@ value="<?php if($id != 0 && $value['imo_criteria'] == 'vaccine_type') echo attr(
 
         <input type="button" name="save" id="save" value="<?php echo htmlspecialchars( xl('Save Immunization'), ENT_QUOTES); ?>">
 
-            <input type="button" name="print" id="print" value="<?php echo htmlspecialchars( xl('Print Record') . xl('PDF','',' (',')'), ENT_QUOTES); ?>">
+            <input type="button" name="print" id="print" value="<?php echo htmlspecialchars( xl('Print Record') . xl('PDF', '', ' (', ')'), ENT_QUOTES); ?>">
 
-        <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML','',' (',')'), ENT_QUOTES); ?>">
+        <input type="button" name="printHtml" id="printHtml" value="<?php echo htmlspecialchars( xl('Print Record') . xl('HTML', '', ' (', ')'), ENT_QUOTES); ?>">
 
             <input type="reset" name="clear" id="clear" value="<?php echo htmlspecialchars( xl('Clear'), ENT_QUOTES); ?>">          </td>
         </tr>
@@ -795,7 +795,7 @@ while($row = sqlFetchArray($result)) {
     }
     echo "<td>" . $del_tag_open . htmlspecialchars( $administered_date_summary, ENT_NOQUOTES) . $del_tag_close . "</td>";
     if ($row["amount_administered"] > 0) {
-        echo "<td>" . $del_tag_open . htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']) , ENT_NOQUOTES) . $del_tag_close . "</td>";
+        echo "<td>" . $del_tag_open . htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']), ENT_NOQUOTES) . $del_tag_close . "</td>";
     }
     else {
         echo "<td>&nbsp</td>";

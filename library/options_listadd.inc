@@ -22,8 +22,8 @@
  </div>
  <div style = 'text-align:center;'>
   <div style='margin:0.5em 0 0 0;'>
-   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php xl('Add','e'); ?>'>
-   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php xl('Cancel','e'); ?>'>
+   <input type='button' name='newlistitem_submit' id='newlistitem_submit' value='<?php xl('Add', 'e'); ?>'>
+   <input type='button' name='newlistitem_cancel' id='newlistitem_cancel' value='<?php xl('Cancel', 'e'); ?>'>
   </div>
  </div>
 </div>
@@ -41,12 +41,12 @@
     var state   = "\
 <ul style='list-style-type:none; margin:0; padding:0;'>\
  <li style='font-weight:bold; font-size:120%; text-align:center;'>\
-    <?php echo htmlspecialchars(xl('Enter new State'),ENT_NOQUOTES); ?></li>\
+    <?php echo htmlspecialchars(xl('Enter new State'), ENT_NOQUOTES); ?></li>\
  <li style='margin:0.5em 0 0 0; padding:0;'>\
-    <?php echo htmlspecialchars(xl('Full Name', '', '', ':'),ENT_NOQUOTES); ?>\
+    <?php echo htmlspecialchars(xl('Full Name', '', '', ':'), ENT_NOQUOTES); ?>\
   <input type='textbox' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50'><li>\
  <li style='margin:0.5em 0 0 0; padding:0;'>\
-    <?php echo htmlspecialchars(xl('Abbreviation', '', '', ':'),ENT_NOQUOTES); ?>\
+    <?php echo htmlspecialchars(xl('Abbreviation', '', '', ':'), ENT_NOQUOTES); ?>\
   <input type='textbox' name='newlistitem_abbr' id='newlistitem_abbr' size='10' maxlength='50'><li>\
 </ul>\
 "
@@ -111,12 +111,12 @@ $(document).ready(function(){
         //  Don't allow illegal characters (' and " for now) - still developing
     //   First, validate fields common to all forms
         if ($("#newlistitem_value").val().match(/^\d/)) {
-            alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'),ENT_QUOTES); ?>");
+            alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'), ENT_QUOTES); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
         if ($("#newlistitem_value").val().match(/[\'\"]/)) {
-            alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'),ENT_QUOTES); ?>");
+            alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'), ENT_QUOTES); ?>");
             $("#newlistitem_value").focus();
             return false;
         }
@@ -124,12 +124,12 @@ $(document).ready(function(){
         if (($("#newlistitem_listid").val() == "state") && (stateCustomFlag)) {
             // state forms specific validation
             if ($("#newlistitem_abbr").val().match(/^\d/)) {
-                alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'),ENT_QUOTES); ?>");
+                alert("<?php echo htmlspecialchars(xl('List items can not start with a number.'), ENT_QUOTES); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }
             if ($("#newlistitem_abbr").val().match(/[\'\"]/)) {
-                alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'),ENT_QUOTES); ?>");
+                alert("<?php echo htmlspecialchars(xl('List items contains illegal character(s).'), ENT_QUOTES); ?>");
                 $("#newlistitem_abbr").focus();
                 return false;
             }

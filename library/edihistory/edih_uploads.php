@@ -388,7 +388,7 @@ function edih_upload_files()
         }
         // verify that we have a usable name
         $fext = ( strpos($fa['name'], '.') ) ? pathinfo($fa['name'], PATHINFO_EXTENSION) : '';
-        if( $fext && preg_match('/'.$ext_types.'\?/i',$fext) ) {
+        if( $fext && preg_match('/'.$ext_types.'\?/i', $fext) ) {
             //$html_str .= 'Error: uploaded_file error for '.$fa['name'].' extension '.$fext.'<br />'. PHP_EOL;
             $f_ar['reject'][] = array('name'=>$fa['name'],'comment'=>'extension '.$fext);
             csv_edihist_log('edih_upload_files: _FILES error name '.$fa['name'].' extension '.$fext);
@@ -399,7 +399,7 @@ function edih_upload_files()
             // check for null byte in file name, linux hidden file, directory
             if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false ) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
-                $fname = preg_replace( "/[^a-zA-Z0-9_.-]/","_", $fa['name'] );
+                $fname = preg_replace( "/[^a-zA-Z0-9_.-]/", "_", $fa['name'] );
                 $f_ar['reject'][] = array('name'=>$fname,'comment'=>'null byte, hidden, invalid');
                 csv_edihist_log('edih_upload_files: null byte, hidden, invalid '.$fname);
                 unset($files[$uplkey][$idx]);
@@ -512,7 +512,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
     //
     if ( is_array($files_array) && count($files_array) ) {
         // we have some files
-        $p_ar = csv_parameters($type="ALL");
+        $p_ar = csv_parameters($type = "ALL");
         //
         $prc_htm .=  "<p><em>Received Files</em></p>".PHP_EOL;
         foreach ($files_array as $key=>$val) {

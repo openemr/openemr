@@ -74,7 +74,7 @@ function User_Id_Look($thisField)
 {
     if(!$thisField) return '';
     $ret = '';
-    $rlist= sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?",array($thisField));
+    $rlist= sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
     $rrow= sqlFetchArray($rlist);
     if($rrow) {
         $ret = $rrow{'lname'}.', '.$rrow{'fname'}.' '.$rrow{'mname'};
@@ -124,8 +124,8 @@ function PrintEncHeader($dt, $rsn, $dr)
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
     echo "<tr bgcolor='#FFFFFF'>";
-    if(strlen($rsn) > 50) $rsn = substr($rsn,0,50).'...';
-    echo "<td colspan='4'><span class='bold'>".xlt('Encounter Dt / Rsn'). ": </span><span class='detail'>".text(substr($dt,0,10))." / ".text($rsn)."</span></td>";
+    if(strlen($rsn) > 50) $rsn = substr($rsn, 0, 50).'...';
+    echo "<td colspan='4'><span class='bold'>".xlt('Encounter Dt / Rsn'). ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
     echo "<td colspan='5'><span class='bold'>" . xlt('Provider'). ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
     echo "</tr>\n";
     $orow++;
@@ -154,11 +154,11 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
         $print = "<tr bgcolor='" . attr($bgcolor) . "'>";
         $print .= "<td class='detail'>&nbsp;</td>";
-        $method = List_Look($pmt['payment_method'],'payment_method');
+        $method = List_Look($pmt['payment_method'], 'payment_method');
         $desc = $pmt['description'];
         $ref = $pmt['reference'];
         if($unassigned) {
-              $memo = List_Look($pmt['adjustment_code'],'payment_adjustment_code');
+              $memo = List_Look($pmt['adjustment_code'], 'payment_adjustment_code');
         } else {
               $memo = $pmt['memo'];
         }
@@ -179,13 +179,13 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
                                       text($description)."&nbsp;</td>";
         $payer = ($pmt['name'] == '') ? xl('Patient') : $pmt['name'];
         if($unassigned) {
-              $pmt_date = substr($pmt['post_to_date'],0,10);
+              $pmt_date = substr($pmt['post_to_date'], 0, 10);
         } else {
-              $pmt_date = substr($pmt['post_time'],0,10);
+              $pmt_date = substr($pmt['post_time'], 0, 10);
         }
         $print .= "<td class='detail'>".
         text($pmt_date)."&nbsp;/&nbsp;".text($payer)."</td>";
-        $type = List_Look($pmt['payment_type'],'payment_type');
+        $type = List_Look($pmt['payment_type'], 'payment_type');
         $print .= "<td class='detail'>".text($type)."&nbsp;</td>";
         if($unassigned) {
               $pmt_amt = $pmt['pay_total'] - $pmt['applied'];
@@ -251,24 +251,24 @@ if(!isset($_REQUEST['form_csvexport'])) { $_REQUEST['form_csvexport'] = ''; }
 if(!isset($_REQUEST['form_refresh'])) { $_REQUEST['form_refresh'] = ''; }
 if(!isset($_REQUEST['$form_dob'])) { $_REQUEST['$form_dob'] = ''; }
 
-if (substr($GLOBALS['ledger_begin_date'],0,1) == 'Y') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'],1,1);
-    $last_year = mktime(0,0,0,date('m'),date('d'),date('Y')-$ledger_time);
+if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
+    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+    $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y')-$ledger_time);
 }
-elseif (substr($GLOBALS['ledger_begin_date'],0,1) == 'M') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'],1,1);
-    $last_year = mktime(0,0,0,date('m')-$ledger_time ,date('d'),date('Y'));
+elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'M') {
+    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+    $last_year = mktime(0, 0, 0, date('m')-$ledger_time, date('d'), date('Y'));
 }
-elseif (substr($GLOBALS['ledger_begin_date'],0,1) == 'D') {
-    $ledger_time = substr($GLOBALS['ledger_begin_date'],1,1);
-    $last_year = mktime(0,0,0,date('m') ,date('d')-$ledger_time,date('Y'));
+elseif (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'D') {
+    $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
+    $last_year = mktime(0, 0, 0, date('m'), date('d')-$ledger_time, date('Y'));
 }
 
 $form_from_date = date('Y-m-d', $last_year);
 if($_REQUEST['form_from_date']) {
     $form_from_date = fixDate($_REQUEST['form_from_date'], $last_year);
 }
-$form_to_date   = fixDate($_REQUEST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_REQUEST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_REQUEST['form_facility'];
 $form_provider  = $_REQUEST['form_provider'];
 $form_patient   = $_REQUEST['form_patient'];
@@ -485,18 +485,18 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         "LEFT JOIN insurance_companies AS ins ON b.payer_id = ins.id ".
         "LEFT OUTER JOIN code_types AS c ON c.ct_key = b.code_type ".
         "WHERE fe.date >= ? AND fe.date <= ? AND fe.pid = ? ";
-    array_push($sqlBindArray,$from_date,$to_date,$form_pid);
+    array_push($sqlBindArray, $from_date, $to_date, $form_pid);
     if ($form_facility) {
         $query .= "AND fe.facility_id = ? ";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
     if ($form_provider) {
         $query .= "AND b.provider_id = ? ";
-        array_push($sqlBindArray,$form_provider);
+        array_push($sqlBindArray, $form_provider);
     }
     $query .= "AND c.ct_proc = '1' ";
     $query .= "AND activity > 0 ORDER BY fe.date, fe.id ";
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
 
     if ($_REQUEST['form_csvexport']) {
       // CSV headers:
@@ -628,13 +628,13 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $code_desc = $erow['code_text'];
-            if(strlen($code_desc) > 50) $code_desc = substr($code_desc,0,50).'...';
+            if(strlen($code_desc) > 50) $code_desc = substr($code_desc, 0, 50).'...';
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
             $print = "<tr bgcolor='". attr($bgcolor) ."'>";
             $print .= "<td class='detail'>".text($erow['code'])."</td>";
             $print .= "<td class='detail' colspan='2'>".text($code_desc)."</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
-            $bill = substr($erow['bill_date'],0,10);
+            $bill = substr($erow['bill_date'], 0, 10);
             if($bill == '') { $bill = 'unbilled'; }
             $print .= "<td class='detail'>".text($bill)."&nbsp;/&nbsp;".text($who)."</td>";
             $print .= "<td class='detail' style='text-align: right;'>". text($erow['units'])."</td>";
@@ -671,7 +671,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         if($hdr_printed) PrintEncFooter();
     }
     // This is the end of the encounter/charge loop -
-        $uac = GetAllUnapplied($form_pid,$from_date,$to_date);
+        $uac = GetAllUnapplied($form_pid, $from_date, $to_date);
     if(count($uac) > 0) {
         if($orow) {
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -693,12 +693,12 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
   <tr><td>&nbsp;</td></tr><br><br>
     <?php if($GLOBALS['print_next_appointment_on_ledger'] == 1) {
-                    $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+                    $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
                     # add one day to date so it will not get todays appointment
                     $current_date2 = date('Y-m-d', $next_day);
-                    $events = fetchNextXAppts($current_date2,$form_pid);
+                    $events = fetchNextXAppts($current_date2, $form_pid);
                     $next_appoint_date = oeFormatShortDate($events[0]['pc_eventDate']);
-                    $next_appoint_time = substr($events[0]['pc_startTime'],0,5);
+                    $next_appoint_time = substr($events[0]['pc_startTime'], 0, 5);
         if(strlen(umname) != 0 ) {
             $next_appoint_provider = $events[0]['ufname'] . ' ' . $events[0]['umname'] . ' ' .  $events[0]['ulname'];
         }

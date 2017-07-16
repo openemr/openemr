@@ -62,13 +62,13 @@ function bucks($amount)
 
   $form_proc_codefull = trim($_POST['form_proc_codefull']);
   // Parse the code type and the code from <code_type>:<code>
-  $tmp_code_array = explode(':',$form_proc_codefull);
+  $tmp_code_array = explode(':', $form_proc_codefull);
   $form_proc_codetype = $tmp_code_array[0];
   $form_proc_code = $tmp_code_array[1];
 
   $form_dx_codefull  = trim($_POST['form_dx_codefull']);
   // Parse the code type and the code from <code_type>:<code>
-  $tmp_code_array = explode(':',$form_dx_codefull);
+  $tmp_code_array = explode(':', $form_dx_codefull);
   $form_dx_codetype = $tmp_code_array[0];
   $form_dx_code = $tmp_code_array[1];
 
@@ -140,12 +140,12 @@ function set_related_target(codetype, code, selector, codedesc, target_element) 
 
 // This invokes the find-code (procedure/service codes) popup.
 function sel_procedure() {
- dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure","csv")) ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_proc_codefull&codetype=<?php echo attr(collect_codetypes("procedure", "csv")) ?>', '_blank', 500, 400);
 }
 
 // This invokes the find-code (diagnosis codes) popup.
 function sel_diagnosis() {
- dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>', '_blank', 500, 400);
+ dlgopen('../patient_file/encounter/find_code_popup.php?target_element=form_dx_codefull&codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>', '_blank', 500, 400);
 }
 
 </script>
@@ -368,20 +368,20 @@ if ($_POST['form_refresh']) {
         "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
         "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND " .
         "fe.date >= ? AND fe.date <= ?";
-        array_push($sqlBindArray,$form_from_date . " 00:00:00",$form_to_date . " 23:59:59");
+        array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59");
         // If a facility was specified.
         if ($form_facility) {
             $query .= " AND fe.facility_id = ?";
-            array_push($sqlBindArray,$form_facility);
+            array_push($sqlBindArray, $form_facility);
         }
         // If a doctor was specified.
         if ($form_doctor) {
             $query .= " AND fe.provider_id = ?";
-            array_push($sqlBindArray,$form_doctor);
+            array_push($sqlBindArray, $form_doctor);
         }
         /************************************************************/
         //
-        $res = sqlStatement($query,$sqlBindArray);
+        $res = sqlStatement($query, $sqlBindArray);
         while ($row = sqlFetchArray($res)) {
             $trans_id = $row['trans_id'];
             $thedate = substr($row['date'], 0, 10);
@@ -455,29 +455,29 @@ if ($_POST['form_refresh']) {
      "a.post_time >= ? AND a.post_time <= ? " .
      "OR fe.date >= ? AND fe.date <= ? " .
      "OR s.deposit_date >= ? AND s.deposit_date <= ? )";
-     array_push($sqlBindArray,$form_from_date . " 00:00:00",$form_to_date . " 23:59:59",$form_from_date . " 00:00:00",$form_to_date . " 23:59:59",$form_from_date,$form_to_date);
+     array_push($sqlBindArray, $form_from_date . " 00:00:00", $form_to_date . " 23:59:59", $form_from_date . " 00:00:00", $form_to_date . " 23:59:59", $form_from_date, $form_to_date);
     // If a procedure code was specified.
     // Support code type if it is in the ar_activity table. Note it is not always included, so
     // also support a blank code type in ar_activity table.
     if ($form_proc_codetype && $form_proc_code) {
         $query .= " AND (a.code_type = ? OR a.code_type = '') AND a.code = ?";
-        array_push($sqlBindArray,$form_proc_codetype,$form_proc_code);
+        array_push($sqlBindArray, $form_proc_codetype, $form_proc_code);
     }
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
-        array_push($sqlBindArray,$form_facility);
+        array_push($sqlBindArray, $form_facility);
     }
     // If a doctor was specified.
     if ($form_doctor) {
         $query .= " AND ( b.provider_id = ? OR " .
         "( ( b.provider_id IS NULL OR b.provider_id = 0 ) AND " .
         "fe.provider_id = ? ) )";
-        array_push($sqlBindArray,$form_doctor,$form_doctor);
+        array_push($sqlBindArray, $form_doctor, $form_doctor);
     }
     /**************************************************************/
     //
-    $res = sqlStatement($query,$sqlBindArray);
+    $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
         $trans_id = $row['trans_id'];
         $patient_id = $row['pid'];

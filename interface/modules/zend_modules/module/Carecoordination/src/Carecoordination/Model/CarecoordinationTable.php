@@ -249,7 +249,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
                 
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccda_data_array);
-        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status,$documentationOf);
+        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf);
     }
 
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf)
@@ -759,7 +759,7 @@ class CarecoordinationTable extends AbstractTableGateway
               $i = 1;
             foreach ($referral_data['text']['paragraph'] as $key => $value) {
                 if($value) {
-                    $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$value);
+                    $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ", $value);
                     $this->ccda_data_array['entry_identification_array']['referral'][$i]     = $i;
                     $i++;
                 }
@@ -769,7 +769,7 @@ class CarecoordinationTable extends AbstractTableGateway
         else {
             $i = count($this->ccda_data_array['field_name_value_array']['referral']) + 1;
             $this->ccda_data_array['field_name_value_array']['referral'][$i]['root'] = $referral_data['templateId']['root'];
-            $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ",$referral_data['text']['paragraph']);
+            $this->ccda_data_array['field_name_value_array']['referral'][$i]['body'] = preg_replace("/\s+/", " ", $referral_data['text']['paragraph']);
 
             $this->ccda_data_array['entry_identification_array']['referral'][$i]          = $i;
             unset($referral_data);
@@ -843,15 +843,15 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         $i = count($this->ccda_data_array['field_name_value_array']['discharge_summary']) + 1;
         $this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['root'] = $discharge_summary_data['templateId']['root'];
-                $text =  preg_replace("/\s+/", " ",$discharge_summary_data['text']['content']);
+                $text =  preg_replace("/\s+/", " ", $discharge_summary_data['text']['content']);
         for($j=0;$j<count($discharge_summary_data['text']['list']['item']);$j++) {
             if(is_array($discharge_summary_data['text']['list']['item'][$j])) {
                 for($k=0;$k<count($discharge_summary_data['text']['list']['item'][$j]['list']['item']);$k++) {
-                    $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
+                    $text .= "#$%". preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]['list']['item'][$k]);
                 }
             }
             else {
-                $text .= "#$%". preg_replace("/\s+/", " ",$discharge_summary_data['text']['list']['item'][$j]);
+                $text .= "#$%". preg_replace("/\s+/", " ", $discharge_summary_data['text']['list']['item'][$j]);
             }
         }
         $this->ccda_data_array['field_name_value_array']['discharge_summary'][$i]['text'] = $text;
@@ -1267,15 +1267,15 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_functional_cognitive_status = array();
         $arr_referral = array();
         
-        $p1_arr = explode("||",$data['problem1check']);
-        $p2_arr = explode('||',$data['problem2check']);
-        $p3_arr = explode('||',$data['problem3check']);
-        $a1_arr = explode("||",$data['allergy1check']);
-        $a2_arr = explode('||',$data['allergy2check']);
-        $a3_arr = explode('||',$data['allergy3check']);
-        $m1_arr = explode("||",$data['med1check']);
-        $m2_arr = explode('||',$data['med2check']);
-        $m3_arr = explode('||',$data['med3check']);
+        $p1_arr = explode("||", $data['problem1check']);
+        $p2_arr = explode('||', $data['problem2check']);
+        $p3_arr = explode('||', $data['problem3check']);
+        $a1_arr = explode("||", $data['allergy1check']);
+        $a2_arr = explode('||', $data['allergy2check']);
+        $a3_arr = explode('||', $data['allergy3check']);
+        $m1_arr = explode("||", $data['med1check']);
+        $m2_arr = explode('||', $data['med2check']);
+        $m3_arr = explode('||', $data['med3check']);
     
         foreach ($data as $key => $val) {
             if (substr($key, -4) == '-sel') {
@@ -1307,7 +1307,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_immunization['immunization'][$a]['represented_organization_tele'] = $data['immunization-represented_organization_tele'][$i];
                                 $a++;
                             }
-                            elseif(substr($key,0,-4) == 'lists3'){
+                            elseif(substr($key, 0, -4) == 'lists3'){
                                 $arr_prescriptions['lists3'][$b]['extension'] = $data['lists3-extension'][$i];
                                 $arr_prescriptions['lists3'][$b]['root'] = $data['lists3-root'][$i];
                                 $arr_prescriptions['lists3'][$b]['begdate'] = $data['lists3-date_added'][$i];
@@ -1336,7 +1336,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_prescriptions['lists3'][$b]['provider_root'] = $data['lists3-provider_root'][$i];
                                 $b++;
                             }
-                            elseif(substr($key,0,-4) == 'lists2'){
+                            elseif(substr($key, 0, -4) == 'lists2'){
                                 $arr_allergies['lists2'][$c]['extension'] = $data['lists2-extension'][$i];
                                 $arr_allergies['lists2'][$c]['begdate'] = $data['lists2-begdate'][$i];
                                 $arr_allergies['lists2'][$c]['enddate'] = $data['lists2-enddate'][$i];
@@ -1351,7 +1351,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_allergies['lists2'][$c]['resolved'] = $a3_arr[$i];
                                 $c++;
                             }
-                            else if(substr($key,0,-4) == 'lists1'){
+                            else if(substr($key, 0, -4) == 'lists1'){
                                 $arr_med_pblm['lists1'][$d]['extension'] = $data['lists1-extension'][$i];
                                 $arr_med_pblm['lists1'][$d]['root'] = $data['lists1-root'][$i];
                                 $arr_med_pblm['lists1'][$d]['begdate'] = $data['lists1-begdate'][$i];
@@ -1364,7 +1364,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_med_pblm['lists1'][$d]['resolved'] = $p3_arr[$i];
                                 $d++;
                             }
-                            else if(substr($key,0,-4) == 'vital_sign'){
+                            else if(substr($key, 0, -4) == 'vital_sign'){
                                 $arr_vitals['vitals'][$q]['extension'] = $data['vital_sign-extension'][$i];
                                 $arr_vitals['vitals'][$q]['date'] = $data['vital_sign-date'][$i];
                                 $arr_vitals['vitals'][$q]['temperature'] = $data['vital_sign-temp'][$i];
@@ -1378,7 +1378,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_vitals['vitals'][$q]['weight'] = $data['vital_sign-weight'][$i];
                                 $q++;
                             }
-                            else if(substr($key,0,-4) == 'social_history'){
+                            else if(substr($key, 0, -4) == 'social_history'){
                                 $tobacco = $data['social_history-tobacco_note'][$i]."|".
                                                         $data['social_history-tobacco_status'][$i] . "|" .
                                                         \Application\Model\ApplicationTable::fixDate($data['social_history-tobacco_date'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy') . "|" . $data['social_history-tobacco_snomed'][$i];
@@ -1403,7 +1403,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                     $alcohol,
                                                     date('Y-m-d H:i:s')));
                             }
-                            else if(substr($key,0,-4) == 'encounter'){
+                            else if(substr($key, 0, -4) == 'encounter'){
                                 $arr_encounter['encounter'][$k]['extension'] = $data['encounter-extension'][$i];
                                 $arr_encounter['encounter'][$k]['root'] = $data['encounter-root'][$i];
                                 $arr_encounter['encounter'][$k]['date'] = $data['encounter-date'][$i];
@@ -1429,7 +1429,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_encounter['encounter'][$k]['encounter_diagnosis_issue'] = $data['encounter-encounter_diagnosis_issue'][$i];
                                 $k++;
                             }
-                            else if(substr($key,0,-4) == 'procedure_result'){
+                            else if(substr($key, 0, -4) == 'procedure_result'){
                                 $arr_procedure_res['procedure_result'][$j]['proc_text'] = $data['procedure_result-proc_text'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['proc_code'] = $data['procedure_result-proc_code'][$i];
                                 $arr_procedure_res['procedure_result'][$j]['extension'] = $data['procedure_result-extension'][$i];
@@ -1442,7 +1442,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_procedure_res['procedure_result'][$j]['results_date'] = $data['procedure_result-result_date'][$i];
                                 $j++;
                             }
-                            else if(substr($key,0,-4) == 'procedure'){
+                            else if(substr($key, 0, -4) == 'procedure'){
 
                                 $arr_procedures['procedure'][$y]['extension'] = $data['procedures-extension'][$i];
                                 $arr_procedures['procedure'][$y]['root'] = $data['procedures-root'][$i];
@@ -1467,7 +1467,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_procedures['procedure'][$y]['represented_organization_country2'] = $data['procedures-represented_organization_country2'][$i];
                                 $y++;
                             }
-                            elseif(substr($key,0,-4) == 'care_plan') {
+                            elseif(substr($key, 0, -4) == 'care_plan') {
                                 $arr_care_plan['care_plan'][$e]['extension'] = $data['care_plan-extension'][$i];
                                 $arr_care_plan['care_plan'][$e]['root'] = $data['care_plan-root'][$i];
                                 $arr_care_plan['care_plan'][$e]['text'] = $data['care_plan-text'][$i];
@@ -1475,7 +1475,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $arr_care_plan['care_plan'][$e]['description'] = $data['care_plan-description'][$i];
                                 $e++;
                             }
-                            elseif(substr($key,0,-4) == 'functional_cognitive_status') {
+                            elseif(substr($key, 0, -4) == 'functional_cognitive_status') {
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['extension'] = $data['functional_cognitive_status-extension'][$i];
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['root'] = $data['functional_cognitive_status-root'][$i];
                                 $arr_functional_cognitive_status['functional_cognitive_status'][$f]['text'] = $data['functional_cognitive_status-text'][$i];
@@ -1538,7 +1538,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($query7, array((null),$data['pid'], $data['lists1-old-id-con'][$i]));
                                 }
                             }
-                            if(substr($key,0,-4) == 'lists1_exist'){
+                            if(substr($key, 0, -4) == 'lists1_exist'){
                                 if($p2_arr[$i] == 1) {
                                     $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query4, array(date('Y-m-d'),$data['pid'], $data['lists1_exist-list_id'][$i]));
@@ -1580,7 +1580,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                                    if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
+                                    if($severity_text) $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
                                 }
 
                                 $reaction_option_id = $this->getOptionId('Reaction', $data['lists2-reaction_text-con'][$i], '');
@@ -1605,7 +1605,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                                    if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
+                                    if($value['reaction_text']) $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
                                 }
                                 $q_upd_allergies = "UPDATE lists
                                     SET date=?,
@@ -1634,7 +1634,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($query5, array((null),$data['pid'], $data['lists2-list_id-con'][$i]));
                                 }
                             }
-                            if(substr($key,0,-4) == 'lists2_exist'){
+                            if(substr($key, 0, -4) == 'lists2_exist'){
                                 if($a2_arr[$i] == 1) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
                                     $appTable->zQuery($query5, array(date('Y-m-d'),$data['pid'], $data['lists2_exist-list_id'][$i]));
@@ -1782,7 +1782,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $appTable->zQuery($query6, array((null),'1',$data['pid'], $data['lists3-id-con'][$i]));
                                 }
                             }
-                            if(substr($key,0,-4) == 'lists3_exist'){
+                            if(substr($key, 0, -4) == 'lists3_exist'){
                                 if($m2_arr[$i] == 1) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
                                     $appTable->zQuery($query6, array(date('Y-m-d'),'-1',$data['pid'], $data['lists3_exist-id'][$i]));
@@ -1823,7 +1823,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $appTable->zQuery("UPDATE documents 
                        SET audit_master_approval_status=2 
                        WHERE audit_master_id=?", array($data['amid']));
-        $this->InsertReconcilation($data['pid'],$data['document_id']);
+        $this->InsertReconcilation($data['pid'], $data['document_id']);
         $this->InsertImmunization($arr_immunization['immunization'], $data['pid'], 1);
         $this->InsertPrescriptions($arr_prescriptions['lists3'], $data['pid'], 1);
         $this->InsertAllergies($arr_allergies['lists2'], $data['pid'], 1);
@@ -1842,7 +1842,7 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         $appTable = new ApplicationTable();
         $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
-        $docEnc   = $appTable->zQuery($query,array($doc_id,$pid));
+        $docEnc   = $appTable->zQuery($query, array($doc_id,$pid));
         
         if($docEnc->count() == 0){
             $enc = $appTable->zQuery("SELECT encounter
@@ -1857,12 +1857,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 $enc_id = $d_enc['encounter'];
             }
         }
-        $med_rec = $appTable->zQuery("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?",array($pid,$enc_id));
+        $med_rec = $appTable->zQuery("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?", array($pid,$enc_id));
         if($med_rec->count() == 0){
-            $appTable->zQuery("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())",array($pid,$enc_id));
+            $appTable->zQuery("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())", array($pid,$enc_id));
         }
         else{
-            $appTable->zQuery("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?",array($pid,$enc_id));
+            $appTable->zQuery("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?", array($pid,$enc_id));
         }
     }
     public function discardCCDAData($data)
@@ -3417,7 +3417,7 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-                if($severity_text) $appTable->zQuery($q_insert_units_option,array($severity_option_id,$severity_text));
+                if($severity_text) $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
             }
 
             $reaction_option_id = $this->getOptionId('Reaction', $value['reaction_text'], '');
@@ -3442,7 +3442,7 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-                if($value['reaction_text']) $appTable->zQuery($q_insert_units_option,array($reaction_option_id,$value['reaction_text']));
+                if($value['reaction_text']) $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$value['reaction_text']));
             }
 
             if ($res_q_sel_allergies->count() == 0) {

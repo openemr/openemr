@@ -64,7 +64,7 @@ function createCCR($action, $raw = "no", $requested_by = "")
         ${"labID{$res['id']}"} = getUuid();
     }
 
-       $ccr = new DOMDocument('1.0','UTF-8');
+       $ccr = new DOMDocument('1.0', 'UTF-8');
        $e_styleSheet = $ccr->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="stylesheet/ccr.xsl"');
        $ccr->appendChild($e_styleSheet);
 
@@ -127,11 +127,11 @@ function createCCR($action, $raw = "no", $requested_by = "")
        $e_ccr->appendChild($e_Actors);
        
     if ($action=="generate"){
-        gnrtCCR($ccr,$raw,$requested_by);
+        gnrtCCR($ccr, $raw, $requested_by);
     }
        
     if($action == "viewccd"){
-        viewCCD($ccr,$raw,$requested_by);
+        viewCCD($ccr, $raw, $requested_by);
     }
 }
     
@@ -198,10 +198,10 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
         }
     }
 
-    else if (substr($raw,0,4)=="send") {
-        $recipient = trim(stripslashes(substr($raw,5)));
-        $result=transmitCCD($ccr,$recipient,$requested_by,"CCR");
-        echo htmlspecialchars($result,ENT_NOQUOTES);
+    else if (substr($raw, 0, 4)=="send") {
+        $recipient = trim(stripslashes(substr($raw, 5)));
+        $result=transmitCCD($ccr, $recipient, $requested_by, "CCR");
+        echo htmlspecialchars($result, ENT_NOQUOTES);
         return;
     }
 
@@ -269,7 +269,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
             }
             $e_styleSheet = $ccd->createProcessingInstruction('xml-stylesheet',
             'type="text/xsl" href="stylesheet/cda.xsl"');
-            $ccd->insertBefore($e_styleSheet,$ccd->firstChild);
+            $ccd->insertBefore($e_styleSheet, $ccd->firstChild);
             $ccd->save($xmlName);
             $zip->addFile($xmlName, basename($xmlName) );
             $zip->close();
@@ -291,10 +291,10 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
         }
     }
 
-    if (substr($raw,0,4)=="send") {
-        $recipient = trim(stripslashes(substr($raw,5)));
-        $result=transmitCCD($ccd,$recipient,$requested_by);
-        echo htmlspecialchars($result,ENT_NOQUOTES);
+    if (substr($raw, 0, 4)=="send") {
+        $recipient = trim(stripslashes(substr($raw, 5)));
+        $result=transmitCCD($ccd, $recipient, $requested_by);
+        echo htmlspecialchars($result, ENT_NOQUOTES);
         return;
     }
 
@@ -317,7 +317,7 @@ function sourceType($ccr, $uuid)
     $e_Actor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_Actor);
         
-    $e_ActorID = $ccr->createElement('ActorID',$uuid);
+    $e_ActorID = $ccr->createElement('ActorID', $uuid);
     $e_Actor->appendChild($e_ActorID);
         
     return $e_Source;
@@ -346,21 +346,21 @@ function createHybridXML($ccr)
 ]>
 ';
     $replace_string = '<?xml-stylesheet type="text/xsl" href="stylesheet/ccr.xsl"?>';
-    $main_xml = str_replace($replace_string,$substitute_string,$main_xml);
+    $main_xml = str_replace($replace_string, $substitute_string, $main_xml);
 
     // remove redundant xml declaration from stylesheet
     $replace_string = '<?xml version="1.0" encoding="UTF-8"?>';
-    $main_stylesheet = str_replace($replace_string,'',$main_stylesheet);
+    $main_stylesheet = str_replace($replace_string, '', $main_stylesheet);
 
     // embed the stylesheet in the raw xml file
     $replace_string ='<ContinuityOfCareRecord xmlns="urn:astm-org:CCR">';
     $main_stylesheet = $replace_string.$main_stylesheet;
-    $main_xml = str_replace($replace_string,$main_stylesheet,$main_xml);
+    $main_xml = str_replace($replace_string, $main_stylesheet, $main_xml);
 
     // insert style1 id into the stylesheet parameter
     $substitute_string = 'xsl:stylesheet id="style1" exclude-result-prefixes';
     $replace_string = 'xsl:stylesheet exclude-result-prefixes';
-    $main_xml = str_replace($replace_string,$substitute_string,$main_xml);
+    $main_xml = str_replace($replace_string, $substitute_string, $main_xml);
 
     // prepare the filename to use
     //   LASTNAME-FIRSTNAME-PID-DATESTAMP-ccr.xml
@@ -375,14 +375,14 @@ function createHybridXML($ccr)
 if($_POST['ccrAction']) {
     $raw=$_POST['raw'];
   /* If transmit requested, fail fast if the recipient address fails basic validation */
-    if (substr($raw,0,4)=="send") {
-        $send_to = trim(stripslashes(substr($raw,5)));
+    if (substr($raw, 0, 4)=="send") {
+        $send_to = trim(stripslashes(substr($raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
             echo(htmlspecialchars( xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
-        createCCR($_POST['ccrAction'],$raw,$_POST['requested_by']);
+        createCCR($_POST['ccrAction'], $raw, $_POST['requested_by']);
     } else {
-        createCCR($_POST['ccrAction'],$raw);
+        createCCR($_POST['ccrAction'], $raw);
     }
 }

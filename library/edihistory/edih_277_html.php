@@ -433,7 +433,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                         reset($scda);
                         while ( list($key, $val) = each($scda) ) {
                             if ($key == 0 && $val) {
-                                $elem01 = $cd27x->get_271_code('EB13',$val);
+                                $elem01 = $cd27x->get_271_code('EB13', $val);
                             } else {
                                 $elem01 .= " ".$val;
                             }

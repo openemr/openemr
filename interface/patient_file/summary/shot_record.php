@@ -22,7 +22,7 @@ $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name "
 $res3 = getImmunizationList($pid, $_GET['sortby'], false);
 $data_array = convertToDataArray($res3);
 
-$title = xl('Shot Record as of:','','',' ') . date('m/d/Y h:i:s a');
+$title = xl('Shot Record as of:', '', '', ' ') . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") {
     printHTML($res, $res2, $data_array);
@@ -103,11 +103,11 @@ function printPDF($res, $res2, $data)
 {
 
     $pdf = new Cezpdf("LETTER");
-    $pdf->ezSetMargins(72,30,50,30);
+    $pdf->ezSetMargins(72, 30, 50, 30);
     $pdf->selectFont('Helvetica');
 
     $opts = array('justification' => "center");
-    $pdf->ezText($res['facility_address'] ,"",$opts);
+    $pdf->ezText($res['facility_address'], "", $opts);
 
     $pdf->ezText("\n" . $res2['patient_name'] . "\n" . xl('Date of Birth') . ": " . $res2['patient_DOB'] . "\n" . $res2['patient_address']);
     $pdf->ezText("\n");
@@ -115,7 +115,7 @@ function printPDF($res, $res2, $data)
     $opts = array('maxWidth' => 550, 'fontSize' => 8);
 
     $pdf->ezTable($data, "", $title, $opts);
-    $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________","",array('justification' => 'right'));
+    $pdf->ezText("\n\n\n\n" . xl('Signature') . ":________________________________", "", array('justification' => 'right'));
     $pdf->ezStream();
 }
 
@@ -198,7 +198,7 @@ function printHTML($res, $res2, $data)
       width: 100%;
     }
   </style>
-  <title><?php xl ('Shot Record','e'); ?></title>
+  <title><?php xl ('Shot Record', 'e'); ?></title>
   </head>
   <body>
 

@@ -68,7 +68,7 @@ class Therapy_Groups
         foreach($groupData as $key => $value){
             $sql .= $key . '=?,';
         }
-        $sql = substr($sql,0, -1);
+        $sql = substr($sql, 0, -1);
         $sql .= ' WHERE group_id = ?';
         array_push($groupData, $groupData['group_id']);
         $result = sqlStatement($sql, $groupData);

@@ -161,12 +161,12 @@ if ($formid) {
 <table border='0' width='98%'>
 
  <tr>
-  <td align='center' width='1%' nowrap><b><?php xl('WNL','e'); ?></b></td>
-  <td align='center' width='1%' nowrap><b><?php xl('ABN1','e'); ?></b></td>
-  <td align='left'   width='1%' nowrap><b><?php xl('System','e'); ?></b></td>
-  <td align='left'   width='1%' nowrap><b><?php xl('Specific','e'); ?></b></td>
-  <td align='left'   width='1%' nowrap><b><?php xl('Diagnosis','e'); ?></b></td>
-  <td align='left'  width='95%' nowrap><b><?php xl('Comments','e'); ?></b></td>
+  <td align='center' width='1%' nowrap><b><?php xl('WNL', 'e'); ?></b></td>
+  <td align='center' width='1%' nowrap><b><?php xl('ABN1', 'e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('System', 'e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('Specific', 'e'); ?></b></td>
+  <td align='left'   width='1%' nowrap><b><?php xl('Diagnosis', 'e'); ?></b></td>
+  <td align='left'  width='95%' nowrap><b><?php xl('Comments', 'e'); ?></b></td>
  </tr>
 
 <?php
@@ -197,9 +197,9 @@ foreach ($pelines as $sysname => $sysarray) {
 
 <p>
 <input type='hidden' name='form_refresh' value='' />
-<input type='submit' name='bn_save' value='<?php xl('Save','e'); ?>' />
+<input type='submit' name='bn_save' value='<?php xl('Save', 'e'); ?>' />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>'
+<input type='button' value='<?php xl('Cancel', 'e'); ?>'
  onclick="top.restoreSession();location='<?php echo "$rootdir/patient_file/encounter/$returnurl" ?>'" />
 </p>
 

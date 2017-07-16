@@ -6,8 +6,8 @@
  *
  */
 
-    $this->assign('title',xlt('Patient Portal'));
-    $this->assign('nav','home');
+    $this->assign('title', xlt('Patient Portal'));
+    $this->assign('nav', 'home');
 
     $this->display('_Header.tpl.php');
 ?>

@@ -451,7 +451,7 @@ $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
 $registry_form_name = array();
 while($result2 = sqlFetchArray($res2)) {
-    array_push($registry_form_name,trim($result2['name']));
+    array_push($registry_form_name, trim($result2['name']));
 }
 while($result = sqlFetchArray($res)) {
     if ($result{"form_name"} == "New Patient Encounter") {
@@ -483,7 +483,7 @@ while($result = sqlFetchArray($res)) {
         }
 
         echo $result{"reason"}.
-                " (" . date("Y-m-d",strtotime($result{"date"})) .
+                " (" . date("Y-m-d", strtotime($result{"date"})) .
                 ")\n";
         echo "<div class='encounter_forms'>\n";
     }
@@ -497,7 +497,7 @@ while($result = sqlFetchArray($res)) {
         foreach($registry_form_name as $var) {if ($var == $form_name) {$form_name_found_flag = 1;}}
         // if the form does not match precisely with any names in the registry, now see if any front partial matches
         // and change $form_name appropriately so it will print above in $toprint = $html_strings[$var]
-        if (!$form_name_found_flag) { foreach($registry_form_name as $var) {if (strpos($form_name,$var) == 0) {$form_name = $var;}}}
+        if (!$form_name_found_flag) { foreach($registry_form_name as $var) {if (strpos($form_name, $var) == 0) {$form_name = $var;}}}
 
         if (!is_array($html_strings[$form_name])) {$html_strings[$form_name] = array();}
         array_push($html_strings[$form_name], "<input type='checkbox' ".

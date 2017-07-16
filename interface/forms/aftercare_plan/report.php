@@ -35,7 +35,7 @@ function aftercare_plan_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>".xlt($key). ": </span><span class=text>".text($value)."</span></td>";
             $count++;
             if ($count == $cols) {

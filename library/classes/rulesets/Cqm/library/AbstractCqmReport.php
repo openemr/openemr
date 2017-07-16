@@ -39,7 +39,7 @@ abstract class AbstractCqmReport implements RsReportIF
         $this->_rowRule = $rowRule;
         $this->_ruleId = isset( $rowRule['id'] ) ? $rowRule['id'] : '';
         // Calculate measurement period
-        $tempDateArray = explode( "-",$dateTarget );
+        $tempDateArray = explode( "-", $dateTarget );
         $tempYear = $tempDateArray[0];
         $this->_beginMeasurement = $tempDateArray[0] . "-01-01 00:00:00";
         $this->_endMeasurement = $tempDateArray[0] . "-12-31 23:59:59";
@@ -180,7 +180,7 @@ abstract class AbstractCqmReport implements RsReportIF
 
                     $percentage = calculate_percentage( $pass_filt, $exclude_filt, $pass_targ );
                     $this->_resultsArray[]= new CqmResult( $this->_rowRule, $title, $populationCriteria->getTitle(),
-                        $totalPatients, $pass_filt, $exclude_filt, $pass_targ, $percentage, $initialPatientPopulation,$exceptionsPatientPopulation);
+                        $totalPatients, $pass_filt, $exclude_filt, $pass_targ, $percentage, $initialPatientPopulation, $exceptionsPatientPopulation);
                 }
             }
         }

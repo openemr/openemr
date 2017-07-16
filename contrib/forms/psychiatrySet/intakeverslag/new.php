@@ -112,7 +112,7 @@ $(document).ready(function(){
 
 function delete_autosave( )
 {
-  if( confirm("<?php xl('Are you sure you want to completely remove this form?','e'); ?>") )
+  if( confirm("<?php xl('Are you sure you want to completely remove this form?', 'e'); ?>") )
   {
     $.ajax(
             {
@@ -196,13 +196,13 @@ function autosave( )
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 <form method=post action="<?php echo $rootdir;?>/forms/intakeverslag/save.php?mode=new&saveid=<?php echo $intakeverslag_id; ?>" name="my_form">
-<span class="title"><?php xl('Psychiatric Intake','e'); ?></span><br><br>
+<span class="title"><?php xl('Psychiatric Intake', 'e'); ?></span><br><br>
 
 <table>
 <tr>
-<td><?php xl('Intake Date','e'); ?>:</td><td>
+<td><?php xl('Intake Date', 'e'); ?>:</td><td>
 <input type='text' class='datepicker' name='intakedatum' id='intakedatum' size='10' value='<?php echo $m_strEventDate ?>'
-          title='<?php xl('Intake Date','e'); ?>: yyyy-mm-dd'></input>
+          title='<?php xl('Intake Date', 'e'); ?>: yyyy-mm-dd'></input>
 
 
 <?php
@@ -211,49 +211,49 @@ function autosave( )
 </tr>
 </table>
 
-<br><span class=text><?php xl('Reason for Visit','e'); ?></span><br>
+<br><span class=text><?php xl('Reason for Visit', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="reden_van_aanmelding" id="reden_van_aanmelding"><?php echo stripslashes($obj{"reden_van_aanmelding"});?></textarea><br>
-<br><span class=text><?php xl('Problem List','e'); ?></span><br>
+<br><span class=text><?php xl('Problem List', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="klachten_probleemgebieden" id="klachten_probleemgebieden"><?php echo stripslashes($obj{"klachten_probleemgebieden"});?></textarea><br>
 
-<br><span class=text><?php xl('Psychiatric History','e'); ?></span><br>
+<br><span class=text><?php xl('Psychiatric History', 'e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="hulpverlening_onderzoek" id="hulpverlening_onderzoek"><?php echo stripslashes($obj{"hulpverlening_onderzoek"});?></textarea><br>
 
-<br><span class=text><?php xl('Treatment Goals','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Goals', 'e'); ?></span><br>
 <textarea cols=80 rows=10 wrap=virtual name="hulpvraag_en_doelen" id="hulpvraag_en_doelen"><?php echo stripslashes($obj{"hulpvraag_en_doelen"});?></textarea><br>
 
-<br><span class=text><?php xl('Specialty Systems','e'); ?></span><br>
+<br><span class=text><?php xl('Specialty Systems', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="bijzonderheden_systeem" id="bijzonderheden_systeem"><?php echo stripslashes($obj{"bijzonderheden_systeem"});?></textarea><br>
-<br><span class=text><?php xl('Work/ Education/ Hobbies','e'); ?></span><br>
+<br><span class=text><?php xl('Work/ Education/ Hobbies', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="werk_opleiding_vrije_tijdsbesteding" id="werk_opleiding_vrije_tijdsbesteding"><?php echo stripslashes($obj{"werk_opleiding_vrije_tijdsbesteding"});?></textarea><br>
-<br><span class=text><?php xl('Relation(s) / Children','e'); ?></span><br>
+<br><span class=text><?php xl('Relation(s) / Children', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="relatie_kinderen" id="relatie_kinderen"><?php echo stripslashes($obj{"relatie_kinderen"});?></textarea><br>
-<br><span class=text><?php xl('Somatic Context','e'); ?></span><br>
+<br><span class=text><?php xl('Somatic Context', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="somatische_context" id="somatische_context"><?php echo stripslashes($obj{"somatische_context"});?></textarea><br>
 
 <br>
 <table>
 <tr>
-<td align="right"  class=text><?php xl('Alcohol','e'); ?></td>
+<td align="right"  class=text><?php xl('Alcohol', 'e'); ?></td>
 <td><input type="text" name="alcohol" size="60" value="<?php echo stripslashes($obj{"alcohol"});?>" id="alcohol"></input></td>
 </tr><tr>
-<td align="right" class=text><?php xl('Drugs','e'); ?></td>
+<td align="right" class=text><?php xl('Drugs', 'e'); ?></td>
 <td><input type="text" name="drugs" size="60" value="<?php echo stripslashes($obj{"drugs"});?>" id="drugs"></input></td>
 </tr><tr>
-<td align="right" class=text><?php xl('Tobacco','e'); ?></td>
+<td align="right" class=text><?php xl('Tobacco', 'e'); ?></td>
 <td><input type="text" name="roken" size="60" value="<?php echo stripslashes($obj{"roken"});?>" id="roken"></input></td>
 </tr>
 </table>
 
-<br><span class=text><?php xl('Medications','e'); ?></span><br>
+<br><span class=text><?php xl('Medications', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="medicatie" id="medicatie"><?php echo stripslashes($obj{"medicatie"});?></textarea><br>
-<br><span class=text><?php xl('Family History','e'); ?></span><br>
+<br><span class=text><?php xl('Family History', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="familieanamnese" id="familieanamnese"><?php echo stripslashes($obj{"familieanamnese"});?></textarea><br>
-<br><span class=text><?php xl('Assessment','e'); ?></span><br>
+<br><span class=text><?php xl('Assessment', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="indruk_observaties" id="indruk_observaties"><?php echo stripslashes($obj{"indruk_observaties"});?></textarea><br>
-<br><span class=text><?php xl('Conclusions','e'); ?></span><br>
+<br><span class=text><?php xl('Conclusions', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="beschrijvende_conclusie" id="beschrijvende_conclusie"><?php echo stripslashes($obj{"beschrijvende_conclusie"});?></textarea><br>
-<br><span class=text><?php xl('Treatment Plan','e'); ?></span><br>
+<br><span class=text><?php xl('Treatment Plan', 'e'); ?></span><br>
 <textarea cols=80 rows=5 wrap=virtual name="behandelvoorstel" id="behandelvoorstel"><?php echo stripslashes($obj{"behandelvoorstel"});?></textarea><br>
 
 <table><tr>
@@ -265,9 +265,9 @@ function autosave( )
 </tr></table>
 
 <br><br>
-<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save','e'); ?>]</a>
+<a href="javascript:document.my_form.submit();" class="link_submit">[<?php xl('Save', 'e'); ?>]</a>
 <br>
-<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save','e'); ?>]</a>
+<a href="<?php echo "$rootdir/patient_file/encounter/$returnurl";?>" class="link_submit" onclick="delete_autosave();top.restoreSession()">[<?php xl('Don\'t Save', 'e'); ?>]</a>
 </form>
 
 <div id="timestamp"></div>

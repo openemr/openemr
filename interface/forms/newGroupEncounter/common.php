@@ -253,7 +253,7 @@ if ($facilities) {
         <td class='text'>
             <div id="ajaxdiv">
             <?php
-            billing_facility('billing_facility',$result['billing_facility']);
+            billing_facility('billing_facility', $result['billing_facility']);
             ?>
             </div>
         </td>
@@ -384,7 +384,7 @@ if (!$viewmode) { ?>
     " AND fe.date <= ? " .
     " AND " .
     "f.formdir = 'newGroupEncounter' AND f.form_id = fe.id AND f.deleted = 0 " .
-    "ORDER BY fe.encounter DESC LIMIT 1",array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
+    "ORDER BY fe.encounter DESC LIMIT 1", array($therapy_group,date('Y-m-d 00:00:00'),date('Y-m-d 23:59:59')));
 
 if (!empty($erow['encounter'])) {
     // If there is an encounter from today then present the duplicate visit dialog

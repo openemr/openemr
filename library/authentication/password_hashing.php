@@ -29,7 +29,7 @@
  * @link    http://www.open-emr.org
  */
 
-define("SALT_PREFIX_SHA1",'$SHA1$');
+define("SALT_PREFIX_SHA1", '$SHA1$');
 
 /**
  *
@@ -57,7 +57,7 @@ function oemr_password_salt()
 
     for($i=0; $i<$Salt_Length; $i++)
     {
-        $salt .= $Allowed_Chars[mt_rand(0,$Chars_Len)];
+        $salt .= $Allowed_Chars[mt_rand(0, $Chars_Len)];
     }
 
     // This is the preferred hashing mechanism
@@ -92,12 +92,12 @@ function oemr_password_salt()
 function oemr_password_hash($plaintext, $salt)
 {
     // if this is a SHA1 salt, the use prepended salt
-    if(strpos($salt,SALT_PREFIX_SHA1)===0)
+    if(strpos($salt, SALT_PREFIX_SHA1)===0)
     {
         return SALT_PREFIX_SHA1 . sha1($salt.$plaintext);
     }
     else { // Otherwise use PHP crypt()
-        $crypt_return = crypt($plaintext,$salt);
+        $crypt_return = crypt($plaintext, $salt);
         if ( ($crypt_return == '*0') || ($crypt_return == '*1') || (strlen($crypt_return) < 6) ) {
             // Error code returned by crypt or not hash, so die
             error_log("FATAL ERROR: crypt() function is not working correctly in OpenEMR");

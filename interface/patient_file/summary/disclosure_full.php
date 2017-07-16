@@ -41,12 +41,12 @@ if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
     if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update")
     {
         //update the recorded disclosure in the extended_log table.
-        updateRecordedDisclosure($dates,$event,$recipient_name,$disclosure_desc,$disclosure_id);
+        updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
     }
     else
     {
         //insert the disclosure records in the extended_log table.
-         recordDisclosure($dates,$event,$pid,$recipient_name,$disclosure_desc,$uname);
+         recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
 }
 if (isset($_GET['deletelid']))
@@ -139,7 +139,7 @@ if ($n>0){?>
             <a href='#' class='deletenote css_button_small'
             id='<?php echo text($iter{id}); ?>' onclick='top.restoreSession()'><span><?php echo xlt('Delete');?></span></a></td>
             <td class="text" valign='top'><?php echo text($iter{recipient});?>&nbsp;</td>
-            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type',$iter['event'])); ?>&nbsp;</td>
+            <td class='text' valign='top'><?php echo text(getListItemTitle('disclosure_type', $iter['event'])); ?>&nbsp;</td>
             <td class='text'><?php echo text($iter{date})." ".$description;?>&nbsp;</td>
             <td class='text'><?php echo text($iter{user_fullname});?></td>
         </tr>
@@ -194,7 +194,7 @@ $(document).ready(function()
 
         var DeleteNote = function(logevent)
         {
-        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?','','','\n ') . xl('This action CANNOT be undone.'),ENT_QUOTES); ?>"))
+        if (confirm("<?php echo htmlspecialchars(xl('Are you sure you want to delete this disclosure?', '', '', '\n ') . xl('This action CANNOT be undone.'), ENT_QUOTES); ?>"))
             {
                     top.restoreSession();
                         window.location.replace("disclosure_full.php?deletelid="+logevent.id)

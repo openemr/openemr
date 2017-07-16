@@ -335,7 +335,7 @@ function cron_setmessage($prow, $db_email_msg)
     $ENDTIME = $prow['pc_endTime'];
     $find_array = array("***NAME***","***PROVIDER***","***DATE***","***STARTTIME***","***ENDTIME***");
     $replare_array = array($NAME,$PROVIDER,$DATE,$STARTTIME,$ENDTIME);
-    $message = str_replace($find_array,$replare_array,$db_email_msg['message']);
+    $message = str_replace($find_array, $replare_array, $db_email_msg['message']);
     // larry :: debug
     //echo "DEBUG :2: msg=".$message."\n";
 

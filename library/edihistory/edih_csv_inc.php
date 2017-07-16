@@ -1074,7 +1074,7 @@ function edih_format_telephone($str_val)
         csv_edihist_log('edih_format_telephone: invalid argument: '.$str_val);
         return $str_val;
     } else {
-        $tel = substr($strtel,0,3) . "-" . substr($strtel,3,3) . "-" . substr($strtel,6);
+        $tel = substr($strtel, 0, 3) . "-" . substr($strtel, 3, 3) . "-" . substr($strtel, 6);
     }
     return $tel;
 }
@@ -1097,16 +1097,16 @@ function edih_format_date($str_val, $pref = "Y-m-d")
         $tdy = date('Ymd');
         if ($pref == "US") {
             // assume mmddyy
-            $strdt = substr($tdy,0,2).substr($strdt,-2).substr($strdt,0,4);
+            $strdt = substr($tdy, 0, 2).substr($strdt, -2).substr($strdt, 0, 4);
         } else {
             // assume yymmdd
-            $strdt = substr($tdy,0,2).$strdt;
+            $strdt = substr($tdy, 0, 2).$strdt;
         }
     }
     if ($pref == "US") {
-        $dt = substr($strdt,4,2) . "/" . substr($strdt,6) . "/" . substr($strdt,0,4);
+        $dt = substr($strdt, 4, 2) . "/" . substr($strdt, 6) . "/" . substr($strdt, 0, 4);
     } else {
-        $dt = substr($strdt,0,4) . "-" . substr($strdt,4,2) . "-" . substr($strdt,6);
+        $dt = substr($strdt, 0, 4) . "-" . substr($strdt, 4, 2) . "-" . substr($strdt, 6);
     }
     return $dt;
 }
@@ -1523,7 +1523,7 @@ function edih_csv_write($csv_data)
                     for ($i=0; $i<$ct; $i++) {
                         $csvrow[$i] = $row[$order_ar[$i]];
                     }
-                    $chrs += fputcsv ( $fh , $csvrow );
+                    $chrs += fputcsv ( $fh, $csvrow );
                     $rws++;
                 }
             } else {
@@ -1686,7 +1686,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 // check for a match
                 if (strpos($data[2], $e)) {
-                    $te = substr($data[2], strpos($data[2],'-')+1);
+                    $te = substr($data[2], strpos($data[2], '-')+1);
                     if (strcmp($te, $e) === 0) {
                         for ($i=0; $i<$hct;
                         $i++) { $val[$h_ar[$i]] = $data[$i]; }
@@ -1697,7 +1697,7 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
         } elseif ($srchtype == 'pid') {
             while (($data = fgetcsv($fh1, 1024, ',')) !== false) {
                 if (strpos($data[2], $p) !== false) {
-                    $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2],'-')) : '';
+                    $te = (strpos($data[2], '-')) ? substr($data[2], 0, strpos($data[2], '-')) : '';
                     if (strcmp($te, $p) === 0) {
                         for ($i=0; $i<$hct;
                         $i++) { $val[$h_ar[$i]] = $data[$i]; }

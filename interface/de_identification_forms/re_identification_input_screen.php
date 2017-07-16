@@ -24,7 +24,7 @@ require_once("$srcdir/options.inc.php");
 ?>
 <html>
 <head>
-<title><?php xl('Re Identification','e'); ?></title>
+<title><?php xl('Re Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
     href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
@@ -61,7 +61,7 @@ function download_file()
 </script>
 </head>
 <body class="body_top">
-<strong><?php xl('Re Identification','e');  ?></strong>
+<strong><?php xl('Re Identification', 'e');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 <form name="re_identification" enctype="Re_identification_ip_single_code"
@@ -151,9 +151,9 @@ function download_file()
                 ?>
         <center></br>
         </br>
-                <?php xl('Enter the Re Identification code','e'); ?> <input
+                <?php xl('Enter the Re Identification code', 'e'); ?> <input
         type='text' size='50' name='re_id_code' id='re_id_code'
-           title='<?php xl('Enter the Re Identification code','e'); ?>' /> </br>
+           title='<?php xl('Enter the Re Identification code', 'e'); ?>' /> </br>
         </br>
            <Input type="Submit" Name="Submit" Value=<?php echo xl("submit");?>></center>
             <?php

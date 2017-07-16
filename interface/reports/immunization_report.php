@@ -44,13 +44,13 @@ if (empty ($form_code) ) {
 } else {
     $query_codes = 'c.id in (';
     foreach( $form_code as $code ){ $query_codes .= $code . ","; }
-      $query_codes = substr($query_codes ,0,-1);
+      $query_codes = substr($query_codes, 0, -1);
       $query_codes .= ') and ';
 }
 
 function tr($a)
 {
-    return (str_replace(' ','^',$a));
+    return (str_replace(' ', '^', $a));
 }
 
 function format_cvx_code($cvx_code)
@@ -258,7 +258,7 @@ if ($_POST['form_get_hl7']==='true') {
 <html>
 <head>
 
-<title><?php xl('Immunization Registry','e'); ?></title>
+<title><?php xl('Immunization Registry', 'e'); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
@@ -311,7 +311,7 @@ if ($_POST['form_get_hl7']==='true') {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Immunization Registry','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Immunization Registry', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -329,7 +329,7 @@ onsubmit='return top.restoreSession()'>
       <table class='text'>
         <tr>
           <td class='control-label'>
-            <?php xl('Codes','e'); ?>:
+            <?php xl('Codes', 'e'); ?>:
           </td>
           <td>
 <?php
@@ -351,7 +351,7 @@ while ($crow = sqlFetchArray($cres)) {
 ?>
           </td>
           <td class='control-label'>
-            <?php xl('From','e'); ?>:
+            <?php xl('From', 'e'); ?>:
           </td>
           <td>
             <input type='text' name='form_from_date' id="form_from_date"
@@ -360,7 +360,7 @@ while ($crow = sqlFetchArray($cres)) {
             title='yyyy-mm-dd'>
           </td>
           <td class='control-label'>
-            <?php xl('To','e'); ?>:
+            <?php xl('To', 'e'); ?>:
           </td>
           <td>
             <input type='text' name='form_to_date' id="form_to_date"
@@ -415,11 +415,11 @@ if ($_POST['form_refresh']) {
 <div id="report_results">
 <table>
 <thead align="left">
-<th> <?php xl('Patient ID','e'); ?> </th>
-<th> <?php xl('Patient Name','e'); ?> </th>
-<th> <?php xl('Immunization Code','e'); ?> </th>
-<th> <?php xl('Immunization Title','e'); ?> </th>
-<th> <?php xl('Immunization Date','e'); ?> </th>
+<th> <?php xl('Patient ID', 'e'); ?> </th>
+<th> <?php xl('Patient Name', 'e'); ?> </th>
+<th> <?php xl('Immunization Code', 'e'); ?> </th>
+<th> <?php xl('Immunization Title', 'e'); ?> </th>
+<th> <?php xl('Immunization Date', 'e'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -453,7 +453,7 @@ while ($row = sqlFetchArray($res)) {
 ?>
 <tr class="report_totals">
  <td colspan='9'>
-    <?php xl('Total Number of Immunizations','e'); ?>
+    <?php xl('Total Number of Immunizations', 'e'); ?>
   :
     <?php echo $total ?>
  </td>

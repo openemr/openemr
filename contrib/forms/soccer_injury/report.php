@@ -149,17 +149,17 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
     echo "<table cellpadding='0' cellspacing='0'>\n";
     echo " <tr>\n";
 
-    si_report_item("Occurred" , substr($row['occdate'], 0, 10) . " " . substr($row['siinjtime'], 0, 5));
-    si_report_item("During"   , $arr_gameplay[$row['sigametime']]);
+    si_report_item("Occurred", substr($row['occdate'], 0, 10) . " " . substr($row['siinjtime'], 0, 5));
+    si_report_item("During", $arr_gameplay[$row['sigametime']]);
     si_report_item("Mechanism", $arr_activity[$row['simechanism']] . ' ' . $row['simech_other']);
-    si_report_item("Surface"  , $arr_surface[$row['sisurface']]);
-    si_report_item("Position" , $arr_position[$row['siposition']]);
-    si_report_item("Footwear" , $arr_footwear[$row['sifootwear']]);
+    si_report_item("Surface", $arr_surface[$row['sisurface']]);
+    si_report_item("Position", $arr_position[$row['siposition']]);
+    si_report_item("Footwear", $arr_footwear[$row['sifootwear']]);
     foreach ($arr_equip as $key => $value) {
         if ($row["siequip_$key"]) si_report_item("Equipment", $value);
     }
-    si_report_item("Side"     , $arr_side[$row['siside']]);
-    si_report_item("Removed"  , $arr_removed[$row['siremoved']]);
+    si_report_item("Side", $arr_side[$row['siside']]);
+    si_report_item("Removed", $arr_removed[$row['siremoved']]);
     foreach ($arr_treat as $key => $value) {
         if ($row["sitreat_$key"]) si_report_item("Treatment", $value);
     }

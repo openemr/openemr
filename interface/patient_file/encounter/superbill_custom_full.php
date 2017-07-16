@@ -147,7 +147,7 @@ if (isset($mode) && $thisauthwrite) {
         $code_type_name_external = $_POST['code_type_name_external'];
         $code_external = $_POST['code_external'];
         $code_id = $_POST['code_id'];
-        $results = return_code_information($code_type_name_external,$code_external,false); // only will return one item
+        $results = return_code_information($code_type_name_external, $code_external, false); // only will return one item
         while ($row = sqlFetchArray($results)) {
             $code         = $row['code'];
             $code_text    = $row['code_text'];
@@ -180,7 +180,7 @@ if (isset($mode) && $thisauthwrite) {
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
         $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
         $fee=json_encode($_POST['fee']);
-        $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?",array($code_type)));
+        $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
         $code_name='';
 
         if ($code_sql){
@@ -189,7 +189,7 @@ if (isset($mode) && $thisauthwrite) {
 
         $categorey_id= $_POST['form_superbill'];
         $categorey_sql=sqlFetchArray(sqlStatement("SELECT (title ) FROM list_options WHERE list_id='superbill'".
-            " AND option_id=?",array($categorey_id)));
+            " AND option_id=?", array($categorey_id)));
 
         $categorey_name='';
 
@@ -218,9 +218,9 @@ if (isset($_REQUEST['filter'])) {
     $filter_key = array();
     foreach ($_REQUEST['filter'] as $var) {
         $var = $var+0;
-        array_push($filter,$var);
+        array_push($filter, $var);
         $var_key = convert_type_id_to_key($var);
-        array_push($filter_key,$var_key);
+        array_push($filter_key, $var_key);
     }
 }
 $search = $_REQUEST['search'];
@@ -237,7 +237,7 @@ if (!empty($search_financial_reporting)) {
 }
 
 if (isset($_REQUEST['filter'])) {
-    $count = main_code_set_search($filter_key,$search,null,null,false,null,true,null,null,$filter_elements);
+    $count = main_code_set_search($filter_key, $search, null, null, false, null, true, null, null, $filter_elements);
 }
 
 if ($fstart >= $count) $fstart -= $pagesize;
@@ -415,7 +415,7 @@ if ($fend > $count) $fend = $count;
                                 <?php } ?>
                             <?php } ?>
                             <?php if ($value['external']) {
-                                array_push($external_sets,$key);
+                                array_push($external_sets, $key);
 } ?>
                         <?php } // end foreach ?>
 
@@ -573,7 +573,7 @@ if ($fend > $count) $fend = $count;
                         <?php
                         foreach ($code_types as $key => $value) {
                             echo "<option value='" . attr($value['id']) . "'";
-                            if (isset($filter) && in_array($value['id'],$filter)) echo " selected";
+                            if (isset($filter) && in_array($value['id'], $filter)) echo " selected";
                             echo ">" . xlt($value['label']) . "</option>\n";
                         }
                         ?>
@@ -635,7 +635,7 @@ if ($fend > $count) $fend = $count;
     <?php
 
     if (isset($_REQUEST['filter'])) {
-        $res = main_code_set_search($filter_key,$search,null,null,false,null,false,$fstart,($fend - $fstart),$filter_elements);
+        $res = main_code_set_search($filter_key, $search, null, null, false, null, false, $fstart, ($fend - $fstart), $filter_elements);
     }
 
     for ($i = 0; $row = sqlFetchArray($res);

@@ -245,11 +245,11 @@ if ($_POST['form_save']) {
         $fh = fopen($GLOBALS['OE_SITE_DIR'] . "/faxcover.txt", 'r');
         while (!feof($fh)) $cpstring .= fread($fh, 8192);
         fclose($fh);
-        $cpstring = str_replace('{CURRENT_DATE}'  , date('F j, Y'), $cpstring);
-        $cpstring = str_replace('{SENDER_NAME}'   , $form_from    , $cpstring);
-        $cpstring = str_replace('{RECIPIENT_NAME}', $form_to      , $cpstring);
-        $cpstring = str_replace('{RECIPIENT_FAX}' , $form_fax     , $cpstring);
-        $cpstring = str_replace('{MESSAGE}'       , $form_message , $cpstring);
+        $cpstring = str_replace('{CURRENT_DATE}', date('F j, Y'), $cpstring);
+        $cpstring = str_replace('{SENDER_NAME}', $form_from, $cpstring);
+        $cpstring = str_replace('{RECIPIENT_NAME}', $form_to, $cpstring);
+        $cpstring = str_replace('{RECIPIENT_FAX}', $form_fax, $cpstring);
+        $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
         $tmp0 = exec("cd $webserver_root/custom; " . $GLOBALS['hylafax_enscript'] .
@@ -367,7 +367,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 <html>
 <head>
 <?php if (function_exists(html_header_show)) html_header_show(); ?>
-<title><?php xl('Dispatch Received Document','e'); ?></title>
+<title><?php xl('Dispatch Received Document', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
 <style>
@@ -522,19 +522,19 @@ div.section {
 
 <body class="body_top" onunload='imclosing()'>
 
-<center><h2><?php xl('Dispatch Received Document','e'); ?></h2></center>
+<center><h2><?php xl('Dispatch Received Document', 'e'); ?></h2></center>
 
 <form method='post' name='theform'
  action='fax_dispatch.php?<?php echo ($mode == 'fax') ? 'file' : 'scan'; ?>=<?php echo $filename ?>' onsubmit='return validate()'>
 
 <p><input type='checkbox' name='form_cb_copy' value='1'
  onclick='return divclick(this,"div_copy");' />
-<b><?php xl('Copy Pages to Patient Chart','e'); ?></b></p>
+<b><?php xl('Copy Pages to Patient Chart', 'e'); ?></b></p>
 
 <div id='div_copy' class='section' style='display:none;'>
  <table>
   <tr>
-   <td class='itemtitle' width='1%' nowrap><?php xl('Patient','e'); ?></td>
+   <td class='itemtitle' width='1%' nowrap><?php xl('Patient', 'e'); ?></td>
    <td>
     <input type='text' size='10' name='form_patient' style='width:100%'
      value=' (<?php xl('Click to select'); ?>)' onclick='sel_patient()'
@@ -546,16 +546,16 @@ div.section {
    <td colspan='2' style='padding-top:0.5em;'>
     <input type='radio' name='form_cb_copy_type' value='1'
      onclick='return divclick(this,"div_copy_doc");' checked />
-    <b><?php xl('Patient Document','e'); ?></b>&nbsp;
+    <b><?php xl('Patient Document', 'e'); ?></b>&nbsp;
 <?php if ($using_scanned_notes) { ?>
     <input type='radio' name='form_cb_copy_type' value='2'
      onclick='return divclick(this,"div_copy_sn");' />
-    <b><?php xl('Scanned Encounter Note','e'); ?></b>
+    <b><?php xl('Scanned Encounter Note', 'e'); ?></b>
 <?php } ?>
     <div id='div_copy_doc' class='section' style='margin-top:0.5em;'>
      <table width='100%'>
       <tr>
-       <td class='itemtitle' nowrap><?php xl('Category','e'); ?></td>
+       <td class='itemtitle' nowrap><?php xl('Category', 'e'); ?></td>
        <td>
         <select name='form_category' style='width:100%'>
 <?php
@@ -568,7 +568,7 @@ foreach ($categories as $catkey => $catname) {
        </td>
       </tr>
       <tr>
-       <td class='itemtitle' nowrap><?php xl('Filename','e'); ?></td>
+       <td class='itemtitle' nowrap><?php xl('Filename', 'e'); ?></td>
        <td>
         <input type='text' size='10' name='form_filename' style='width:100%'
         value='<?php  echo "$filebase.pdf" ?>'
@@ -576,15 +576,15 @@ foreach ($categories as $catkey => $catname) {
        </td>
       </tr>
       <tr>
-       <td class='itemtitle' nowrap><?php xl('Document Date','e'); ?></td>
+       <td class='itemtitle' nowrap><?php xl('Document Date', 'e'); ?></td>
        <td>
         <input type='text' size='10' name='form_docdate' id='form_docdate'
         value='<?php echo date('Y-m-d'); ?>'
-        title='<?php xl('yyyy-mm-dd date associated with this document','e'); ?>'
+        title='<?php xl('yyyy-mm-dd date associated with this document', 'e'); ?>'
         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' />
         <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
         id='img_docdate' border='0' alt='[?]' style='cursor:pointer'
-        title='<?php xl('Click here to choose a date','e'); ?>' />
+        title='<?php xl('Click here to choose a date', 'e'); ?>' />
        </td>
       </tr>
      </table>
@@ -592,14 +592,14 @@ foreach ($categories as $catkey => $catname) {
     <div id='div_copy_sn' class='section' style='display:none;margin-top:0.5em;'>
      <table width='100%'>
       <tr>
-       <td class='itemtitle' width='1%' nowrap><?php xl('Visit Date','e'); ?></td>
+       <td class='itemtitle' width='1%' nowrap><?php xl('Visit Date', 'e'); ?></td>
        <td>
         <select name='form_copy_sn_visit' style='width:100%'>
         </select>
        </td>
       </tr>
       <tr>
-       <td class='itemtitle' width='1%' nowrap><?php xl('Comments','e'); ?></td>
+       <td class='itemtitle' width='1%' nowrap><?php xl('Comments', 'e'); ?></td>
        <td>
         <textarea name='form_copy_sn_comments' rows='3' cols='30' style='width:100%'
          title='Comments associated with this scanned note'
@@ -614,11 +614,11 @@ foreach ($categories as $catkey => $catname) {
    <td colspan='2' style='padding-top:0.5em;'>
     <input type='checkbox' name='form_cb_note' value='1'
      onclick='return divclick(this,"div_note");' />
-    <b><?php xl('Create Patient Note','e'); ?></b>
+    <b><?php xl('Create Patient Note', 'e'); ?></b>
     <div id='div_note' class='section' style='display:none;margin-top:0.5em;'>
      <table>
       <tr>
-       <td class='itemtitle' width='1%' nowrap><?php xl('Type','e'); ?></td>
+       <td class='itemtitle' width='1%' nowrap><?php xl('Type', 'e'); ?></td>
        <td>
         <?php
          // Added 6/2009 by BM to incorporate the patient notes into the list_options listings
@@ -638,12 +638,12 @@ while ($urow = sqlFetchArray($ures)) {
     echo "</option>\n";
 }
 ?>
-         <option value=''>** <?php  xl('Close','e'); ?> **</option>
+         <option value=''>** <?php  xl('Close', 'e'); ?> **</option>
         </select>
        </td>
       </tr>
       <tr>
-       <td class='itemtitle' nowrap><?php xl('Message','e'); ?></td>
+       <td class='itemtitle' nowrap><?php xl('Message', 'e'); ?></td>
        <td>
         <textarea name='form_note_message' rows='3' cols='30' style='width:100%'
          title='Your comments' /></textarea>
@@ -658,49 +658,49 @@ while ($urow = sqlFetchArray($ures)) {
 
 <p><input type='checkbox' name='form_cb_forward' value='1'
  onclick='return divclick(this,"div_forward");' />
-<b><?php xl('Forward Pages via Fax','e'); ?></b></p>
+<b><?php xl('Forward Pages via Fax', 'e'); ?></b></p>
 
 <div id='div_forward' class='section' style='display:none;'>
  <table>
   <tr>
-   <td class='itemtitle' width='1%' nowrap><?php xl('From','e'); ?></td>
+   <td class='itemtitle' width='1%' nowrap><?php xl('From', 'e'); ?></td>
    <td>
     <input type='text' size='10' name='form_from' style='width:100%'
      title='Type your name here' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php xl('To','e'); ?></td>
+   <td class='itemtitle' nowrap><?php xl('To', 'e'); ?></td>
    <td>
     <input type='text' size='10' name='form_to' style='width:100%'
      title='Type the recipient name here' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php xl('Fax','e'); ?></td>
+   <td class='itemtitle' nowrap><?php xl('Fax', 'e'); ?></td>
    <td>
     <input type='text' size='10' name='form_fax' style='width:100%'
      title='The fax phone number to send this to' />
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php xl('Message','e'); ?></td>
+   <td class='itemtitle' nowrap><?php xl('Message', 'e'); ?></td>
    <td>
     <textarea name='form_message' rows='3' cols='30' style='width:100%'
      title='Your comments to include with this message' /></textarea>
    </td>
   </tr>
   <tr>
-   <td class='itemtitle' nowrap><?php xl('Quality','e'); ?></td>
+   <td class='itemtitle' nowrap><?php xl('Quality', 'e'); ?></td>
    <td>
-    <input type='radio' name='form_finemode' value='' /><?php xl('Normal','e'); ?> &nbsp;
-    <input type='radio' name='form_finemode' value='1' checked /><?php xl('Fine','e'); ?> &nbsp;
+    <input type='radio' name='form_finemode' value='' /><?php xl('Normal', 'e'); ?> &nbsp;
+    <input type='radio' name='form_finemode' value='1' checked /><?php xl('Fine', 'e'); ?> &nbsp;
    </td>
   </tr>
  </table>
 </div><!-- end div_forward -->
 
-<p><b><?php xl('Delete Pages','e'); ?>:</b>&nbsp;
+<p><b><?php xl('Delete Pages', 'e'); ?>:</b>&nbsp;
 <input type='radio' name='form_cb_delete' value='2' />All&nbsp;
 <input type='radio' name='form_cb_delete' value='1' checked />Selected&nbsp;
 <input type='radio' name='form_cb_delete' value='0' />None
@@ -708,16 +708,16 @@ while ($urow = sqlFetchArray($ures)) {
 
 <center>
 <p>
-<input type='submit' name='form_save' value='<?php xl('OK','e'); ?>' />
+<input type='submit' name='form_save' value='<?php xl('OK', 'e'); ?>' />
 &nbsp; &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='window.close()' />
+<input type='button' value='<?php xl('Cancel', 'e'); ?>' onclick='window.close()' />
 &nbsp; &nbsp;
-<input type='button' value='<?php xl('Select All','e'); ?>' onclick='allCheckboxes(true)' />
+<input type='button' value='<?php xl('Select All', 'e'); ?>' onclick='allCheckboxes(true)' />
 &nbsp; &nbsp;
-<input type='button' value='<?php xl('Clear All','e'); ?>' onclick='allCheckboxes(false)' />
+<input type='button' value='<?php xl('Clear All', 'e'); ?>' onclick='allCheckboxes(false)' />
 </p>
 
-<p><br /><b><?php xl('Please select the desired pages to copy or forward:','e'); ?></b></p>
+<p><br /><b><?php xl('Please select the desired pages to copy or forward:', 'e'); ?></b></p>
 <table>
 
 <?php

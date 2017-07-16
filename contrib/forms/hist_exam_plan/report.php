@@ -27,7 +27,7 @@ function hist_exam_plan_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {

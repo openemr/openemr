@@ -38,23 +38,23 @@ $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM
   "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
-    array_push($sqlBindArray,$form_organization."%");
+    array_push($sqlBindArray, $form_organization."%");
 }
 if ($form_lname) {
     $query .= "AND u.lname LIKE ? ";
-    array_push($sqlBindArray,$form_lname."%");
+    array_push($sqlBindArray, $form_lname."%");
 }
 if ($form_fname) {
     $query .= "AND u.fname LIKE ? ";
-    array_push($sqlBindArray,$form_fname."%");
+    array_push($sqlBindArray, $form_fname."%");
 }
 if ($form_specialty) {
     $query .= "AND u.specialty LIKE ? ";
-    array_push($sqlBindArray,"%".$form_specialty."%");
+    array_push($sqlBindArray, "%".$form_specialty."%");
 }
 if ($form_abook_type) {
     $query .= "AND u.abook_type LIKE ? ";
-    array_push($sqlBindArray,$form_abook_type);
+    array_push($sqlBindArray, $form_abook_type);
 }
 if ($form_external) {
     $query .= "AND u.username = '' ";
@@ -67,7 +67,7 @@ if ($form_lname) {
     $query .= "ORDER BY u.organization, u.lname, u.fname";
 }
 $query .= " LIMIT 500";
-$res = sqlStatement($query,$sqlBindArray);
+$res = sqlStatement($query, $sqlBindArray);
 ?>
 <html>
 
@@ -156,7 +156,7 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";
-    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'),$row['ab_name']) . "</td>\n";
+    echo "  <td>" . generate_display_field(array('data_type'=>'1','list_id'=>'abook_type'), $row['ab_name']) . "</td>\n";
     echo "  <td>" . text($row['specialty']) . "</td>\n";
     echo "  <td>" . text($row['phonew1'])   . "</td>\n";
     echo "  <td>" . text($row['phonecell']) . "</td>\n";

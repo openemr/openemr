@@ -11,11 +11,11 @@ $content_type = "text/plain";
 $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/edi/";
 
 $fname = $_GET['key'];
-$fname = preg_replace("[/]","",$fname);
-$fname = preg_replace("[\.\.]","",$fname);
-$fname = preg_replace("[\\\\]","",$fname);
+$fname = preg_replace("[/]", "", $fname);
+$fname = preg_replace("[\.\.]", "", $fname);
+$fname = preg_replace("[\\\\]", "", $fname);
 
-if (strtolower(substr($fname,(strlen($fname)-4))) == ".pdf") {
+if (strtolower(substr($fname, (strlen($fname)-4))) == ".pdf") {
     $content_type = "application/pdf";
 }
 

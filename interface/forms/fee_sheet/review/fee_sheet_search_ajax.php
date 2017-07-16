@@ -58,6 +58,6 @@ else
 {
     $search_type_id=2;
 }
-$retval['codes']=diagnosis_search($search_type_id,$search_type,$search_query);
+$retval['codes']=diagnosis_search($search_type_id, $search_type, $search_query);
 
 echo json_encode($retval);

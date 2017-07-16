@@ -78,7 +78,7 @@ if($_POST){
 // ------- check sendTo is not empty
     !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$_POST['dueDate']) and
+    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $_POST['dueDate']) and
 // ------- check priority, only allow 1-3
     isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
@@ -93,12 +93,12 @@ if($_POST){
         $patID = $_POST['PatientID'];
         if(isset($_POST['sendSeperately']) and $_POST['sendSeperately']){
             foreach($sendTo as $st){
-                $ReminderSent = sendReminder(array($st),$fromID,$message,$dueDate,$patID,$priority);
+                $ReminderSent = sendReminder(array($st), $fromID, $message, $dueDate, $patID, $priority);
             }
         }
         else{
       // -------- Send the reminder
-            $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
+            $ReminderSent = sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority);
         }
 // --------------------------------------------------------------------------------------------------------------------------
         if(!$ReminderSent){
@@ -302,7 +302,7 @@ else $patientID = (isset($pid) ? $pid : 0);
               <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
                 <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php //
-                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
+                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
                 for($i=2; $uRow=sqlFetchArray($uSQL); $i++){
                     echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';
                 }

@@ -28,14 +28,14 @@ function addwhere($where, $colname, $value)
  // search parameters passed by our opener (ins_search.php).
 
  $where = '';
- $where = addwhere($where, 'i.name'  , $_REQUEST['form_name']  );
- $where = addwhere($where, 'i.attn'  , $_REQUEST['form_attn']  );
+ $where = addwhere($where, 'i.name', $_REQUEST['form_name']  );
+ $where = addwhere($where, 'i.attn', $_REQUEST['form_attn']  );
  $where = addwhere($where, 'i.cms_id', $_REQUEST['form_cms_id']);
- $where = addwhere($where, 'a.line1' , $_REQUEST['form_addr1'] );
- $where = addwhere($where, 'a.line2' , $_REQUEST['form_addr2'] );
- $where = addwhere($where, 'a.city'  , $_REQUEST['form_city']  );
- $where = addwhere($where, 'a.state' , $_REQUEST['form_state'] );
- $where = addwhere($where, 'a.zip'   , $_REQUEST['form_zip']   );
+ $where = addwhere($where, 'a.line1', $_REQUEST['form_addr1'] );
+ $where = addwhere($where, 'a.line2', $_REQUEST['form_addr2'] );
+ $where = addwhere($where, 'a.city', $_REQUEST['form_city']  );
+ $where = addwhere($where, 'a.state', $_REQUEST['form_state'] );
+ $where = addwhere($where, 'a.zip', $_REQUEST['form_zip']   );
 
  $phone_parts = array();
 
@@ -65,7 +65,7 @@ function addwhere($where, $colname, $value)
 ?>
 <html>
 <head>
-<title><?php xl('List Insurance Companies','e');?></title>
+<title><?php xl('List Insurance Companies', 'e');?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
@@ -91,14 +91,14 @@ td { font-size:10pt; }
 
 <table border='0' width='100%'>
  <tr>
-  <td><b><?php xl('Name','e');?></b>&nbsp;</td>
-  <td><b><?php xl('Attn','e');?></b>&nbsp;</td>
-  <td><b><?php xl('Address','e');?></b>&nbsp;</td>
+  <td><b><?php xl('Name', 'e');?></b>&nbsp;</td>
+  <td><b><?php xl('Attn', 'e');?></b>&nbsp;</td>
+  <td><b><?php xl('Address', 'e');?></b>&nbsp;</td>
   <td><b>&nbsp;</b>&nbsp;</td>
-  <td><b><?php xl('City','e');?></b>&nbsp;</td>
-  <td><b><?php xl('State','e');?></b>&nbsp;</td>
-  <td><b><?php xl('Zip','e');?></b>&nbsp;</td>
-  <td><b><?php xl('Phone','e');?></b></td>
+  <td><b><?php xl('City', 'e');?></b>&nbsp;</td>
+  <td><b><?php xl('State', 'e');?></b>&nbsp;</td>
+  <td><b><?php xl('Zip', 'e');?></b>&nbsp;</td>
+  <td><b><?php xl('Phone', 'e');?></b></td>
  </tr>
 
 <?php

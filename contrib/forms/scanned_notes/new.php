@@ -168,7 +168,7 @@ if ($formid && is_file($imagepath)) {
 }
 ?>
    <p>&nbsp;
-    <?php xl('Upload this file:','e') ?>
+    <?php xl('Upload this file:', 'e') ?>
    <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
    <input name="form_image" type="file" />
    <br />&nbsp;</p>

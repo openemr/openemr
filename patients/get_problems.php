@@ -17,10 +17,10 @@ if(sqlNumRows($res)>0)
     ?>
     <table class="class1">
         <tr class="header">
-        <th><?php echo htmlspecialchars( xl('Title'),ENT_NOQUOTES);?></th>
-        <th><?php echo htmlspecialchars( xl('Reported Date'),ENT_NOQUOTES);?></th>
-        <th><?php echo htmlspecialchars( xl('Start Date'),ENT_NOQUOTES);?></th>
-        <th><?php echo htmlspecialchars( xl('End Date'),ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars( xl('Reported Date'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars( xl('Start Date'), ENT_NOQUOTES);?></th>
+        <th><?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES);?></th>
         </tr>
     <?php
     $even=false;
@@ -33,16 +33,16 @@ if(sqlNumRows($res)>0)
             $even=true;
         }
         echo "<tr class='".$class."'>";
-        echo "<td>".htmlspecialchars($row['title'],ENT_NOQUOTES)."</td>";
-        echo "<td>".htmlspecialchars($row['date'],ENT_NOQUOTES)."</td>";
-        echo "<td>".htmlspecialchars($row['begdate'],ENT_NOQUOTES)."</td>";
-        echo "<td>".htmlspecialchars($row['enddate'],ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['title'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['date'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['begdate'], ENT_NOQUOTES)."</td>";
+        echo "<td>".htmlspecialchars($row['enddate'], ENT_NOQUOTES)."</td>";
         echo "</tr>";
     }
     echo "</table>";
 }
 else
 {
-    echo htmlspecialchars( xl("No Results"),ENT_NOQUOTES);
+    echo htmlspecialchars( xl("No Results"), ENT_NOQUOTES);
 }
 ?>

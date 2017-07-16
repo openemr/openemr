@@ -26,11 +26,11 @@
  */
 function smarty_function_pc_view_select($args)
 {
-    @define('_PC_FORM_TEMPLATE',true);
+    @define('_PC_FORM_TEMPLATE', true);
     $Date = postcalendar_getDate();
-    if(!isset($y)) $y = substr($Date,0,4);
-    if(!isset($m)) $m = substr($Date,4,2);
-    if(!isset($d)) $d = substr($Date,6,2);
+    if(!isset($y)) $y = substr($Date, 0, 4);
+    if(!isset($m)) $m = substr($Date, 4, 2);
+    if(!isset($d)) $d = substr($Date, 6, 2);
     
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
@@ -46,7 +46,7 @@ function smarty_function_pc_view_select($args)
     
     $hide_list = array('.','..','CVS','index.html');
     while($f=readdir($handle))
-    {   if(!in_array($f,$hide_list)) {
+    {   if(!in_array($f, $hide_list)) {
             $viewlist[] = $f;
     }
     }
@@ -58,7 +58,7 @@ function smarty_function_pc_view_select($args)
     $options = "<select id=\"tplview\" name=\"viewtype\" class=\"$args[class]\">";
     $selected = $tplview;
     for($t=0;$t<$tcount;$t++) {
-        $id = str_replace('.html','',$viewlist[$t]);
+        $id = str_replace('.html', '', $viewlist[$t]);
         $sel = $selected == $id ? 'selected' : '';
         $options .= "<option value=\"$id\" $sel class=\"$args[class]\">$id</option>";
     }

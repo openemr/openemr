@@ -64,7 +64,7 @@ class CcdTable extends AbstractTableGateway
 
         
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
-        $this->update_document_table($document_id,$audit_master_id,$audit_master_approval_status);
+        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status);
     }
     
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)

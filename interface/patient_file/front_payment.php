@@ -59,7 +59,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     global $var_index;
     $var_index++;
     $balance = bucks($charges - $ptpaid - $inspaid);
-    $balance = (round($duept,2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
+    $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_".attr($var_index)."' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
@@ -70,7 +70,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . htmlspecialchars(bucks($patcopay), ENT_QUOTES) . "</td>\n";
     echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . htmlspecialchars(bucks($copay), ENT_QUOTES) . "</td>\n";
     echo "  <td class='detail' align='center' id='balance_$var_index'>" . htmlspecialchars(bucks($balance), ENT_QUOTES) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . htmlspecialchars(bucks(round($duept,2)*1), ENT_QUOTES) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . htmlspecialchars(bucks(round($duept, 2)*1), ENT_QUOTES) . "</td>\n";
     echo "  <td class='detail' align='right'><input type='text' name='".attr($iname)."'  id='paying_".attr($var_index)."' " .
     " value='" .  '' . "' onchange='coloring();calctotal()'  autocomplete='off' " .
     "onkeyup='calctotal()'  style='width:50px'/></td>\n";
@@ -276,7 +276,7 @@ if ($_POST['form_save']) {
 
                               $Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
                               $Copay=0;
-                        if(round($Remainder,2)!=0 && $amount!=0)
+                        if(round($Remainder, 2)!=0 && $amount!=0)
                                {
                             if($amount-$Remainder >= 0)
                                                {
@@ -444,7 +444,7 @@ $(document).ready(function() {
  </tr>
  <tr>
   <td><?php echo xlt('Paid Via'); ?>:</td>
-  <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'),$payrow['method']); ?></td>
+  <td><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'payment_method'), $payrow['method']); ?></td>
  </tr>
  <tr>
   <td><?php echo xlt('Check/Ref Number'); ?>:</td>
@@ -479,7 +479,7 @@ if ($todaysenc && $todaysenc != $encounter) {
 
 <?php if (acl_check('admin', 'super')) { ?>
 &nbsp;
-<input type='button' value='<?php xl('Delete','e'); ?>' style='color:red' onclick='deleteme()' />
+<input type='button' value='<?php xl('Delete', 'e'); ?>' style='color:red' onclick='deleteme()' />
 <?php } ?>
 
 </div>
@@ -919,7 +919,7 @@ function make_insurance()
   <select name="form_method" id="form_method"  class="text" onChange='CheckVisible("yes")'>
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
-    $bres1112 = sqlStatement($query1112,array('payment_method'));
+    $bres1112 = sqlStatement($query1112, array('payment_method'));
     while ($brow1112 = sqlFetchArray($bres1112))
     {
         if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
@@ -1028,7 +1028,7 @@ function make_insurance()
     "AND fe.pid = b.pid AND fe.encounter = b.encounter " .
     "where fe.pid = ? " .
     "ORDER BY b.encounter";
-  $bres = sqlStatement($query,array($pid,$pid));
+  $bres = sqlStatement($query, array($pid,$pid));
   //
 while ($brow = sqlFetchArray($bres)) {
     $key = 0 - $brow['encounter'];
@@ -1049,15 +1049,15 @@ while ($brow = sqlFetchArray($bres)) {
         $query = "SELECT taxrates FROM codes WHERE " .
         "code_type = ? AND " .
         "code = ? AND ";
-        array_push($sql_array,$code_types[$brow['code_type']]['id'],$brow['code']);
+        array_push($sql_array, $code_types[$brow['code_type']]['id'], $brow['code']);
         if ($brow['modifier']) {
             $query .= "modifier = ?";
-            array_push($sql_array,$brow['modifier']);
+            array_push($sql_array, $brow['modifier']);
         } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
         $query .= " LIMIT 1";
-        $trow = sqlQuery($query,$sql_array);
+        $trow = sqlQuery($query, $sql_array);
         $encs[$key]['charges'] += calcTaxes($trow, $brow['fee']);
     }
 }
@@ -1072,7 +1072,7 @@ while ($brow = sqlFetchArray($bres)) {
     "where fe.pid = ? " .
     "ORDER BY s.encounter";
 
-  $dres = sqlStatement($query,array($pid,$pid));
+  $dres = sqlStatement($query, array($pid,$pid));
   //
 while ($drow = sqlFetchArray($dres)) {
     $key = 0 - $drow['encounter'];
@@ -1141,7 +1141,7 @@ foreach ($encs as $key => $value) {
  //------------------------------------------------------------------------------------
  //NumberOfInsurance
     $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
-			where pid = ? and provider>0 ",array($pid));
+			where pid = ? and provider>0 ", array($pid));
     $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
     $NumberOfInsurance=$RowNumberOfInsurance['NumberOfInsurance']*1;
  //------------------------------------------------------------------------------------
@@ -1149,16 +1149,16 @@ foreach ($encs as $key => $value) {
     if((($NumberOfInsurance==0 || $value['last_level_closed']==4 || $NumberOfInsurance== $value['last_level_closed'])))
     {//Patient balance
         $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
-        "pid = ? and encounter = ? AND activity = 1",array($pid,$enc));
+        "pid = ? and encounter = ? AND activity = 1", array($pid,$enc));
         $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
-        "pid = ? and encounter = ? ",array($pid,$enc));
+        "pid = ? and encounter = ? ", array($pid,$enc));
         $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
         "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-        "pid = ? and encounter = ? ",array($pid,$enc));
+        "pid = ? and encounter = ? ", array($pid,$enc));
         $duept= $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
     }
     echoLine("form_upay[$enc]", $dispdate, $value['charges'],
-    $dpayment_pat, ($dpayment + $dadjustment), $duept,$enc,$inscopay,$patcopay);
+    $dpayment_pat, ($dpayment + $dadjustment), $duept, $enc, $inscopay, $patcopay);
 }
 
 

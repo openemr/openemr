@@ -346,7 +346,7 @@ function getQRDACat1PatientData($xml, $patient_id)
     getAllLabTests($xml, $patient_id);
         
     //Interventions
-    getAllInterventionProcedures($xml,$patient_id);
+    getAllInterventionProcedures($xml, $patient_id);
         
     //Risk Category Assessment
     getAllRiskCatAssessment($xml, $patient_id);
@@ -475,7 +475,7 @@ function getAllPhysicalExams($xml, $patient_id)
     foreach($vitArr as $vitRow){
         //Entry open
         foreach($measures as $measure_key => $measure){
-            $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?",array($measure['code'],$xml->nqf_code));
+            $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($measure['code'],$xml->nqf_code));
             if(!empty($vset['valueset'])){
                 $xml->open_entry();
             
@@ -525,7 +525,7 @@ function getAllRiskCatAssessment($xml, $patient_id)
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("risk_category", $patient_id, $from_date, $to_date);
     foreach($procArr as $procRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?",array($procRow['procedure_code'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($procRow['procedure_code'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -574,7 +574,7 @@ function getAllProcedures($xml, $patient_id)
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("Procedure", $patient_id, $from_date, $to_date);
     foreach($procArr as $procRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($procRow['procedure_code'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -628,7 +628,7 @@ function getAllLabTests($xml, $patient_id)
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("laboratory_test", $patient_id, $from_date, $to_date);
     foreach($procArr as $procRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($procRow['procedure_code'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -674,7 +674,7 @@ function getAllInterventionProcedures($xml, $patient_id)
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("intervention", $patient_id, $from_date, $to_date);
     foreach($procArr as $procRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($procRow['procedure_code'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -723,7 +723,7 @@ function getAllOrderMedications($xml, $patient_id)
     $medArr = allOrderMedsPat($patient_id, $from_date, $to_date);
         
     foreach($medArr as $medRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($medRow['rxnorm_drugcode'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($medRow['rxnorm_drugcode'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -808,7 +808,7 @@ function getAllActiveMedications($xml, $patient_id)
     $medArr = allActiveMedsPat($patient_id, $from_date, $to_date);
     
     foreach($medArr as $medRow){
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ",array($medRow['rxnorm_drugcode'],$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($medRow['rxnorm_drugcode'],$xml->nqf_code));
         if(!empty($vset['valueset'])){
             //Entry open
             $xml->open_entry();
@@ -902,9 +902,9 @@ function getAllMedicalProbs($xml, $patient_id)
         }*/
             
         $diagDisp = explode(":", $diagExpArr[0]);
-        $diagDispCode = str_replace(".", "",$diagDisp[1]);
+        $diagDispCode = str_replace(".", "", $diagDisp[1]);
             
-        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?",array($diagDispCode,$xml->nqf_code));
+        $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($diagDispCode,$xml->nqf_code));
         if(!empty($vset['valueset'])){
             
             //Entry open
@@ -992,9 +992,9 @@ function getAllPatientEncounters($xml, $patient_id)
     foreach($encArr as $encRow){
             
         $encRow['encounter'];
-        $cpt_code = $EncounterCptCodes[str_replace(' ','_',strtolower($encRow['pc_catname']))];
+        $cpt_code = $EncounterCptCodes[str_replace(' ', '_', strtolower($encRow['pc_catname']))];
         $cpt_code = empty($cpt_code) ? '99201' : $cpt_code;
-        $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?",array('99201',$xml->nqf_code));
+        $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?", array('99201',$xml->nqf_code));
         foreach ($vset as $v){
             //Entry open
             $xml->open_entry();
@@ -1034,7 +1034,7 @@ function getAllPatientEncounters($xml, $patient_id)
     foreach($encArr as $encRow){
                 
         $encRow['encounter'];
-        $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?",array($encRow['procedure_code'],$xml->nqf_code));
+        $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?", array($encRow['procedure_code'],$xml->nqf_code));
         foreach ($vset as $v){
             //Entry open
             $xml->open_entry();
@@ -1303,12 +1303,12 @@ function patCharactersticQRDA($xml, $patient_id)
     //Patient History
     $patHist = patientQRDAHistory($patient_id);
         
-    $tobaccoArr = explode('|',$patHist['tobacco']);
+    $tobaccoArr = explode('|', $patHist['tobacco']);
         
-    $query = sqlQuery("select codes from list_options where list_id ='smoking_status' and option_id = ?",array($tobaccoArr[3]));
-    $tobacco = explode(':',$query['codes']);
+    $query = sqlQuery("select codes from list_options where list_id ='smoking_status' and option_id = ?", array($tobaccoArr[3]));
+    $tobacco = explode(':', $query['codes']);
     $tobacco_code = $tobacco[1];
-    $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?",array($tobacco_code,$xml->nqf_code));
+    $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($tobacco_code,$xml->nqf_code));
     if(!empty($vset['valueset'])){
         //Entry open
         $xml->open_entry();

@@ -41,7 +41,7 @@ function note_report($pid, $encounter, $cols, $id)
     
             if ($value == "on") { $value = "yes"; }
     
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print("<tr>\n");
             print("<tr>\n");
             if ($key == "Note Type") {

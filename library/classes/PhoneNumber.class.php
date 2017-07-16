@@ -8,11 +8,11 @@ This file was generated on %date% at %time%
 The original location of this file is /home/duhlman/uml-generated-code/prescription.php
 **************************************************************************/
 
-define("TYPE_HOME",1);
-define("TYPE_WORK",2);
-define("TYPE_CELL",3);
-define("TYPE_EMERGENCY",4);
-define("TYPE_FAX",5);
+define("TYPE_HOME", 1);
+define("TYPE_WORK", 2);
+define("TYPE_CELL", 3);
+define("TYPE_EMERGENCY", 4);
+define("TYPE_FAX", 5);
 
 
 /**
@@ -148,22 +148,22 @@ class PhoneNumber extends ORDataObject
     function set_phone($num)
     {
         if (strlen($num) == 10 && is_numeric($num)) {
-            $this->area_code = substr ($num,0,3);
-            $this->prefix = substr ($num,3,3);
-            $this->number = substr ($num,6,4);
+            $this->area_code = substr ($num, 0, 3);
+            $this->prefix = substr ($num, 3, 3);
+            $this->number = substr ($num, 6, 4);
         }
         elseif (strlen($num) == 12) {
-            $nums = explode("-",$num);
+            $nums = explode("-", $num);
             if (count($nums) == 3) {
                 $this->area_code = $nums[0];
                 $this->prefix = $nums[1];
                 $this->number = $nums[2];
             }
         }
-        elseif (strlen($num) == 14 && substr($num,0,1) == "(") {
-            $nums[0] = substr($num,1,3);
-            $nums[1] = substr($num,6,3);
-            $nums[2] = substr($num,10,4);
+        elseif (strlen($num) == 14 && substr($num, 0, 1) == "(") {
+            $nums[0] = substr($num, 1, 3);
+            $nums[1] = substr($num, 6, 3);
+            $nums[2] = substr($num, 10, 4);
 
             foreach ($nums as $n) {
                 if (!is_numeric($n)) {

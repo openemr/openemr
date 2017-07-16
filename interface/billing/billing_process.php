@@ -46,7 +46,7 @@ $bat_content  = '';
 $bat_gscount  = 0;
 $bat_stcount  = 0;
 $bat_time     = time();
-$bat_hhmm     = date('Hi' , $bat_time);
+$bat_hhmm     = date('Hi', $bat_time);
 $bat_yymmdd   = date('ymd', $bat_time);
 $bat_yyyymmdd = date('Ymd', $bat_time);
 // Minutes since 1/1/1970 00:00:00 GMT will be our interchange control number:
@@ -56,7 +56,7 @@ $bat_filename .= (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_h
 
 if (isset($_POST['bn_process_hcfa']) || isset($_POST['bn_process_hcfa_form']) ) {
     $pdf = new Cezpdf('LETTER');
-    $pdf->ezSetMargins(trim($_POST['top_margin'])+0,0,trim($_POST['left_margin'])+0,0);
+    $pdf->ezSetMargins(trim($_POST['top_margin'])+0, 0, trim($_POST['left_margin'])+0, 0);
     $pdf->selectFont('Courier');
 }
 
@@ -161,7 +161,7 @@ function process_form($ar)
     $claim_count = 0;
     foreach ($ar['claims'] as $claimid => $claim_array) {
 
-        $ta = explode("-",$claimid);
+        $ta = explode("-", $claimid);
         $patient_id = $ta[0];
         $encounter  = $ta[1];
         $payer_id   = substr($claim_array['payer'], 1);
@@ -250,7 +250,7 @@ function process_form($ar)
                     foreach ($alines as $tmplines) {
                         if ($claim_count++) $pdf->ezNewPage();
                         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
-                        $pdf->addPngFromFile("$hcfa_image", 0,0,612,792);
+                        $pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);
                         $pdf->ezText($tmplines, 12, array('justification' => 'left', 'leading' => 12));
                     }
                     if (!updateClaim(false, $patient_id, $encounter, -1, -1, 2, 2, $bat_filename)) {

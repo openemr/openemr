@@ -55,14 +55,14 @@ $N=3;
 //$has_variable is set to 1 if there are disclosures recorded.
 $has_disclosure=0;
 //retrieve all the disclosures.
-$result=getDisclosureByDate($pid,$N);
+$result=getDisclosureByDate($pid, $N);
 if ($result != null){
     $disclosure_count = 0;//number of disclosures so far displayed
     foreach ($result as $iter)
     {
         $has_disclosure = 1;
         $app_event=$iter{"event"};
-        $event=explode("-",$app_event);
+        $event=explode("-", $app_event);
         $description=nl2br(text($iter{"description"}));//for line breaks.
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
@@ -74,7 +74,7 @@ if ($result != null){
             echo "</td>";
             echo "<td>".text($iter['user_fullname'])."</td>";
             echo "<td  valign='top'class='text'>";
-            echo htmlspecialchars($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")",ENT_NOQUOTES);
+            echo htmlspecialchars($iter{"date"}." (".xl('Recipient').":".$iter{"recipient"}.")", ENT_NOQUOTES);
                     echo " ".$description;
             echo "</td>";
         echo "</tr>";
@@ -104,8 +104,8 @@ if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
 ?>
     <br />
     <span class='text'> <?php
-    echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'),ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N,ENT_NOQUOTES);?></b><br>
-    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'),ENT_NOQUOTES);?></a>
+    echo htmlspecialchars(xl('Displaying the following number of most recent disclosures:'), ENT_NOQUOTES);?><b><?php echo " ".htmlspecialchars($N, ENT_NOQUOTES);?></b><br>
+    <a href='disclosure_full.php'><?php echo htmlspecialchars(xl('Click here to view them all.'), ENT_NOQUOTES);?></a>
     </span><?php
 } ?>
 <br />

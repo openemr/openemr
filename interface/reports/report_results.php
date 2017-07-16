@@ -173,7 +173,7 @@ require_once "$srcdir/report_database.inc";
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = listingReportDatabase($_POST['form_begin_date'],$_POST['form_end_date']);
+ $res = listingReportDatabase($_POST['form_begin_date'], $_POST['form_end_date']);
 while ($row = sqlFetchArray($res)) {
 
   // Figure out the title and link

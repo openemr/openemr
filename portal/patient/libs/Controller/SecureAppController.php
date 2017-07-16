@@ -41,7 +41,7 @@ class SecureAppController extends AppBaseController
 
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','userpage');
+        $this->Assign('page', 'userpage');
         $this->Render("SecureApp");
     }
 
@@ -57,7 +57,7 @@ class SecureAppController extends AppBaseController
 
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','adminpage');
+        $this->Assign('page', 'adminpage');
         $this->Render("SecureApp");
     }
 
@@ -68,7 +68,7 @@ class SecureAppController extends AppBaseController
     {
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','login');
+        $this->Assign('page', 'login');
         $this->Render("SecureApp");
     }
 
@@ -89,7 +89,7 @@ class SecureAppController extends AppBaseController
         else
         {
             // login failed
-            $this->Redirect('SecureApp.LoginForm','Unknown username/password combination');
+            $this->Redirect('SecureApp.LoginForm', 'Unknown username/password combination');
         }
     }
 
@@ -99,6 +99,6 @@ class SecureAppController extends AppBaseController
     public function Logout()
     {
         $this->ClearCurrentUser();
-        $this->Redirect("SecureApp.LoginForm","You are now logged out");
+        $this->Redirect("SecureApp.LoginForm", "You are now logged out");
     }
 }

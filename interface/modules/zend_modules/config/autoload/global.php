@@ -52,7 +52,7 @@ if($GLOBALS['allow_multiple_databases']){
             // Create new factories using data from custom database
             $factories[$row['namespace']] = function ($serviceManager) use ($row) {
                 $adapterAbstractServiceFactory = new Zend\Db\Adapter\AdapterAbstractServiceFactory();
-                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager,'',$row['namespace']);
+                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
                 return $adapter;
             };
         }

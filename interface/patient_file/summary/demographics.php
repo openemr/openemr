@@ -35,7 +35,7 @@ if ($GLOBALS['enable_cdr']) {
     //CDR Engine stuff
     if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
       //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
-        $new_allergy_alerts = allergy_conflict($pid,'new',$_SESSION['authUser']);
+        $new_allergy_alerts = allergy_conflict($pid, 'new', $_SESSION['authUser']);
         if (!empty($new_allergy_alerts)) {
             $pop_warning = '<script type="text/javascript">alert(\'' . xls('WARNING - FOLLOWING ACTIVE MEDICATIONS ARE ALLERGIES') . ':\n';
             foreach ($new_allergy_alerts as $new_allergy_alert) {
@@ -47,20 +47,20 @@ if ($GLOBALS['enable_cdr']) {
     }
     if ((!isset($_SESSION['alert_notify_pid']) || ($_SESSION['alert_notify_pid'] != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
       // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
-        $active_reminders = active_alert_summary($pid,"reminders-due",'','default',$_SESSION['authUser'],true);
+        $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser'], true);
         if ($GLOBALS['enable_allergy_check']) {
-            $all_allergy_alerts = allergy_conflict($pid,'all',$_SESSION['authUser'],true);
+            $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser'], true);
         }
     }
 }
 
 function print_as_money($money)
 {
-    preg_match("/(\d*)\.?(\d*)/",$money,$moneymatches);
-    $tmp = wordwrap(strrev($moneymatches[1]),3,",",1);
+    preg_match("/(\d*)\.?(\d*)/", $money, $moneymatches);
+    $tmp = wordwrap(strrev($moneymatches[1]), 3, ",", 1);
     $ccheck = strrev($tmp);
     if ($ccheck[0] == ",") {
-        $tmp = substr($ccheck,1,strlen($ccheck)-1);
+        $tmp = substr($ccheck, 1, strlen($ccheck)-1);
     }
     if ($moneymatches[2] != "") {
         return "$ " . strrev($tmp) . "." . $moneymatches[2];
@@ -79,7 +79,7 @@ function pic_array($pid, $picture_directory)
                  "where categories.name like ? and documents.foreign_id = ?";
     if ($query = sqlStatement($sql_query, array($picture_directory,$pid))) {
         while( $results = sqlFetchArray($query) ) {
-            array_push($pics,$results['id']);
+            array_push($pics, $results['id']);
         }
     }
     return ($pics);
@@ -110,9 +110,9 @@ function image_widget($doc_id, $doc_catg)
         $docobj = new Document($doc_id);
         $image_file = $docobj->get_url_file();
         $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
-        $extension = substr($image_file, strrpos($image_file,"."));
+        $extension = substr($image_file, strrpos($image_file, "."));
         $viewable_types = array('.png','.jpg','.jpeg','.png','.bmp','.PNG','.JPG','.JPEG','.PNG','.BMP'); // image ext supported by fancybox viewer
-    if ( in_array($extension,$viewable_types) ) { // extention matches list
+    if ( in_array($extension, $viewable_types) ) { // extention matches list
         $to_url = "<td> <a href = $web_root" .
         "/controller.php?document&retrieve&patient_id=$pid&document_id=$doc_id&as_file=false&original_file=true&disable_exit=false&show_original=true" .
         "/tmp$extension" .  // Force image type URL for fancybo
@@ -165,7 +165,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 <script type="text/javascript" src="../../../library/js/fancybox/jquery.fancybox-1.2.6.js"></script>
 <script type="text/javascript" language="JavaScript">
 
- var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'],ENT_QUOTES); ?>';
+ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
  //////////
  function oldEvt(apptdate, eventid) {
   dlgopen('../../main/calendar/add_edit_event.php?date=' + apptdate + '&eid=' + eventid, '_blank', 775, 500);
@@ -182,7 +182,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
 
  // Process click on Delete link.
  function deleteme() {
-  dlgopen('../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 500, 450);
+  dlgopen('../deleter.php?patient=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 500, 450);
   return false;
  }
 
@@ -196,7 +196,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
  }
 
  function newEvt() {
-  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid,ENT_QUOTES); ?>', '_blank', 775, 500);
+  dlgopen('../../main/calendar/add_edit_event.php?patientid=<?php echo htmlspecialchars($pid, ENT_QUOTES); ?>', '_blank', 775, 500);
   return false;
  }
 
@@ -214,12 +214,12 @@ function sendimage(pid, what) {
 function toggleIndicator(target,div) {
 
     $mode = $(target).find(".indicator").text();
-    if ( $mode == "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" ) {
-        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'),ENT_QUOTES); ?>" );
+    if ( $mode == "<?php echo htmlspecialchars(xl('collapse'), ENT_QUOTES); ?>" ) {
+        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('expand'), ENT_QUOTES); ?>" );
         $("#"+div).hide();
     $.post( "../../../library/ajax/user_settings.php", { target: div, mode: 0 });
     } else {
-        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'),ENT_QUOTES); ?>" );
+        $(target).find(".indicator").text( "<?php echo htmlspecialchars(xl('collapse'), ENT_QUOTES); ?>" );
         $("#"+div).show();
     $.post( "../../../library/ajax/user_settings.php", { target: div, mode: 1 });
     }
@@ -230,7 +230,7 @@ $(document).ready(function(){
     <?php
     if($GLOBALS['erx_enable']){
         //$soap_status=sqlQuery("select soap_import_status from patient_data where pid=?",array($pid));
-        $soap_status=sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')",array($pid));
+        $soap_status=sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
         while($row_soapstatus=sqlFetchArray($soap_status)){
             //if($soap_status['soap_import_status']=='1' || $soap_status['soap_import_status']=='3'){ ?>
             top.restoreSession();
@@ -471,7 +471,7 @@ if ($thisauth) {
     }
 }
 if (!$thisauth) {
-    echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'),ENT_NOQUOTES) . ")</p>\n";
+    echo "<p>(" . htmlspecialchars(xl('Demographics not authorized'), ENT_NOQUOTES) . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -481,29 +481,29 @@ if ($thisauth): ?>
     <tr>
         <td>
             <span class='title'>
-                <?php echo htmlspecialchars(getPatientName($pid),ENT_NOQUOTES); ?>
+                <?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES); ?>
             </span>
         </td>
         <?php if (acl_check('admin', 'super') && $GLOBALS['allow_pat_delete']) : ?>
         <td style='padding-left:1em;' class="delete">
             <a class='css_button iframe'
-               href='../deleter.php?patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+               href='../deleter.php?patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
-                <span><?php echo htmlspecialchars(xl('Delete'),ENT_NOQUOTES);?></span>
+                <span><?php echo htmlspecialchars(xl('Delete'), ENT_NOQUOTES);?></span>
             </a>
         </td>
         <?php endif; // Allow PT delete
 if($GLOBALS['erx_enable']): ?>
         <td style="padding-left:1em;" class="erx">
             <a class="css_button" href="../../eRx.php?page=medentry" onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop MedEntry'),ENT_NOQUOTES);?></span>
+                <span><?php echo htmlspecialchars(xl('NewCrop MedEntry'), ENT_NOQUOTES);?></span>
             </a>
         </td>
         <td style="padding-left:1em;">
             <a class="css_button iframe1"
                href="../../soap_functions/soap_accountStatusDetails.php"
                onclick="top.restoreSession()">
-                <span><?php echo htmlspecialchars(xl('NewCrop Account Status'),ENT_NOQUOTES);?></span>
+                <span><?php echo htmlspecialchars(xl('NewCrop Account Status'), ENT_NOQUOTES);?></span>
             </a>
         </td>
         <td id='accountstatus'></td>
@@ -512,12 +512,12 @@ if($GLOBALS['erx_enable']): ?>
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
 if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
             ($GLOBALS['portal_onsite_two_enable'] && $GLOBALS['portal_onsite_two_address']) ):
-        $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+        $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
         if ($portalStatus['allow_patient_portal']=='YES'):
             $portalLogin = sqlQuery("SELECT pid FROM `patient_access_onsite` WHERE `pid`=?", array($pid));?>
                 <td style='padding-left:1em;'>
                     <a class='css_button iframe small_modal'
-                           href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+                           href='create_portallogin.php?portalsite=on&patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
                        onclick='top.restoreSession()'>
                             <?php $display = (empty($portalLogin)) ? xlt('Create Onsite Portal Credentials') : xlt('Reset Onsite Portal Credentials'); ?>
                             <span><?php echo $display; ?></span>
@@ -529,13 +529,13 @@ if( ($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
             endif; // allow patient portal
         endif; // Onsite Patient Portal
 if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
-    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?",array($pid));
+    $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
     if ($portalStatus['allow_patient_portal']=='YES'):
         $portalLogin = sqlQuery("SELECT pid FROM `patient_access_offsite` WHERE `pid`=?", array($pid));
         ?>
         <td style='padding-left:1em;'>
             <a class='css_button iframe small_modal'
-               href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid,ENT_QUOTES);?>'
+               href='create_portallogin.php?portalsite=off&patient=<?php echo htmlspecialchars($pid, ENT_QUOTES);?>'
                onclick='top.restoreSession()'>
                 <span>
                     <?php $text = (empty($portalLogin)) ? xlt('Create Offsite Portal Credentials') : xlt('Reset Offsite Portal Credentials'); ?>
@@ -590,21 +590,21 @@ if ($GLOBALS['patient_id_category_name']) {
   <tr>
       <td class="small" colspan='4'>
           <a href="../history/history.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('History'),ENT_NOQUOTES); ?></a>
+            <?php echo htmlspecialchars(xl('History'), ENT_NOQUOTES); ?></a>
           |
             <?php //note that we have temporarily removed report screen from the modal view ?>
           <a href="../report/patient_report.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Report'),ENT_NOQUOTES); ?></a>
+            <?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?></a>
           |
             <?php //note that we have temporarily removed document screen from the modal view ?>
           <a href="../../../controller.php?document&list&patient_id=<?php echo $pid;?>" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Documents'),ENT_NOQUOTES); ?></a>
+            <?php echo htmlspecialchars(xl('Documents'), ENT_NOQUOTES); ?></a>
           |
           <a href="../transaction/transactions.php" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Transactions'),ENT_NOQUOTES); ?></a>
+            <?php echo htmlspecialchars(xl('Transactions'), ENT_NOQUOTES); ?></a>
           |
           <a href="stats_full.php?active=all" onclick='top.restoreSession()'>
-            <?php echo htmlspecialchars(xl('Issues'),ENT_NOQUOTES); ?></a>
+            <?php echo htmlspecialchars(xl('Issues'), ENT_NOQUOTES); ?></a>
           |
           <a href="../../reports/pat_ledger.php?form=1&patient_id=<?php echo attr($pid);?>" onclick='top.restoreSession()'>
             <?php echo xlt('Ledger'); ?></a>
@@ -635,7 +635,7 @@ if ($GLOBALS['patient_id_category_name']) {
                 $added      = "index";
                 $modulePath     = $GLOBALS['zendModDir'];
             }
-            if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'],$modulerow['obj_name']))continue;
+            if(!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name']))continue;
 
             $relative_link  = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname   = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
@@ -819,7 +819,7 @@ if ( $insurance_count > 0 ) {
                     $ins_description  .= strcmp($enddate, 'Present') != 0 ? " (".xl('Old').")" : "";
                     ?>
                     <li <?php echo $first ? 'class="current"' : '' ?>><a href="#">
-                                <?php echo htmlspecialchars($ins_description,ENT_NOQUOTES); ?></a></li>
+                                <?php echo htmlspecialchars($ins_description, ENT_NOQUOTES); ?></a></li>
                                 <?php
                                 $first = false;
                 }
@@ -857,14 +857,14 @@ if ( $insurance_count > 0 ) {
                                 <tr>
                                  <td valign='top' colspan='3'>
                                   <span class='text'>
-                                    <?php if (strcmp($enddate, 'Present') != 0) echo htmlspecialchars(xl("Old"),ENT_NOQUOTES)." "; ?>
+                                    <?php if (strcmp($enddate, 'Present') != 0) echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." "; ?>
                                     <?php $tempinstype=ucfirst($instype);
-                                    echo htmlspecialchars(xl($tempinstype.' Insurance'),ENT_NOQUOTES); ?>
+                                    echo htmlspecialchars(xl($tempinstype.' Insurance'), ENT_NOQUOTES); ?>
                                     <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
-                                    <?php echo htmlspecialchars(xl('from','',' ',' ').$row['date'],ENT_NOQUOTES); ?>
+                                    <?php echo htmlspecialchars(xl('from', '', ' ', ' ').$row['date'], ENT_NOQUOTES); ?>
                                     <?php } ?>
-                                            <?php echo htmlspecialchars(xl('until','',' ',' '),ENT_NOQUOTES);
-                                            echo (strcmp($enddate, 'Present') != 0) ? $enddate : htmlspecialchars(xl('Present'),ENT_NOQUOTES); ?>:</span>
+                                            <?php echo htmlspecialchars(xl('until', '', ' ', ' '), ENT_NOQUOTES);
+                                            echo (strcmp($enddate, 'Present') != 0) ? $enddate : htmlspecialchars(xl('Present'), ENT_NOQUOTES); ?>:</span>
                                      </td>
                                     </tr>
                                     <tr>
@@ -872,60 +872,60 @@ if ( $insurance_count > 0 ) {
                                       <span class='text'>
                                         <?php
                                         if ($insco_name) {
-                                            echo htmlspecialchars($insco_name,ENT_NOQUOTES) . '<br>';
+                                            echo htmlspecialchars($insco_name, ENT_NOQUOTES) . '<br>';
                                             if (trim($adobj->get_line1())) {
-                                                echo htmlspecialchars($adobj->get_line1(),ENT_NOQUOTES) . '<br>';
-                                                echo htmlspecialchars($adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip(),ENT_NOQUOTES);
+                                                echo htmlspecialchars($adobj->get_line1(), ENT_NOQUOTES) . '<br>';
+                                                echo htmlspecialchars($adobj->get_city() . ', ' . $adobj->get_state() . ' ' . $adobj->get_zip(), ENT_NOQUOTES);
                                             }
                                         } else {
-                                            echo "<font color='red'><b>".htmlspecialchars(xl('Unassigned'),ENT_NOQUOTES)."</b></font>";
+                                            echo "<font color='red'><b>".htmlspecialchars(xl('Unassigned'), ENT_NOQUOTES)."</b></font>";
                                         }
                                         ?>
                                       <br>
-                                        <?php echo htmlspecialchars(xl('Policy Number'),ENT_NOQUOTES); ?>:
-                                        <?php echo htmlspecialchars($row['policy_number'],ENT_NOQUOTES) ?><br>
-                                        <?php echo htmlspecialchars(xl('Plan Name'),ENT_NOQUOTES); ?>:
-                                        <?php echo htmlspecialchars($row['plan_name'],ENT_NOQUOTES); ?><br>
-                                        <?php echo htmlspecialchars(xl('Group Number'),ENT_NOQUOTES); ?>:
-                                        <?php echo htmlspecialchars($row['group_number'],ENT_NOQUOTES); ?></span>
+                                        <?php echo htmlspecialchars(xl('Policy Number'), ENT_NOQUOTES); ?>:
+                                        <?php echo htmlspecialchars($row['policy_number'], ENT_NOQUOTES) ?><br>
+                                        <?php echo htmlspecialchars(xl('Plan Name'), ENT_NOQUOTES); ?>:
+                                        <?php echo htmlspecialchars($row['plan_name'], ENT_NOQUOTES); ?><br>
+                                        <?php echo htmlspecialchars(xl('Group Number'), ENT_NOQUOTES); ?>:
+                                        <?php echo htmlspecialchars($row['group_number'], ENT_NOQUOTES); ?></span>
                                      </td>
                                      <td valign='top'>
-                                        <span class='bold'><?php echo htmlspecialchars(xl('Subscriber'),ENT_NOQUOTES); ?>: </span><br>
-                                        <span class='text'><?php echo htmlspecialchars($row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname'],ENT_NOQUOTES); ?>
+                                        <span class='bold'><?php echo htmlspecialchars(xl('Subscriber'), ENT_NOQUOTES); ?>: </span><br>
+                                        <span class='text'><?php echo htmlspecialchars($row['subscriber_fname'] . ' ' . $row['subscriber_mname'] . ' ' . $row['subscriber_lname'], ENT_NOQUOTES); ?>
                                     <?php
                                     if ($row['subscriber_relationship'] != "") {
-                                        echo "(" . htmlspecialchars($row['subscriber_relationship'],ENT_NOQUOTES) . ")";
+                                        echo "(" . htmlspecialchars($row['subscriber_relationship'], ENT_NOQUOTES) . ")";
                                     }
                                     ?>
                                   <br>
-                                    <?php echo htmlspecialchars(xl('S.S.'),ENT_NOQUOTES); ?>:
-                                    <?php echo htmlspecialchars($row['subscriber_ss'],ENT_NOQUOTES); ?><br>
-                                    <?php echo htmlspecialchars(xl('D.O.B.'),ENT_NOQUOTES); ?>:
-                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo htmlspecialchars($row['subscriber_DOB'],ENT_NOQUOTES); ?><br>
-                                    <?php echo htmlspecialchars(xl('Phone'),ENT_NOQUOTES); ?>:
-                                    <?php echo htmlspecialchars($row['subscriber_phone'],ENT_NOQUOTES); ?>
+                                    <?php echo htmlspecialchars(xl('S.S.'), ENT_NOQUOTES); ?>:
+                                    <?php echo htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES); ?><br>
+                                    <?php echo htmlspecialchars(xl('D.O.B.'), ENT_NOQUOTES); ?>:
+                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES); ?><br>
+                                    <?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?>:
+                                    <?php echo htmlspecialchars($row['subscriber_phone'], ENT_NOQUOTES); ?>
                                   </span>
                                  </td>
                                  <td valign='top'>
-                                  <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'),ENT_NOQUOTES); ?>: </span><br>
-                                  <span class='text'><?php echo htmlspecialchars($row['subscriber_street'],ENT_NOQUOTES); ?><br>
-                                    <?php echo htmlspecialchars($row['subscriber_city'],ENT_NOQUOTES); ?>
+                                  <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'), ENT_NOQUOTES); ?>: </span><br>
+                                  <span class='text'><?php echo htmlspecialchars($row['subscriber_street'], ENT_NOQUOTES); ?><br>
+                                    <?php echo htmlspecialchars($row['subscriber_city'], ENT_NOQUOTES); ?>
                                     <?php if($row['subscriber_state'] != "") echo ", ";
-                                    echo htmlspecialchars($row['subscriber_state'],ENT_NOQUOTES); ?>
+                                    echo htmlspecialchars($row['subscriber_state'], ENT_NOQUOTES); ?>
                                     <?php if($row['subscriber_country'] != "") echo ", ";
-                                    echo htmlspecialchars($row['subscriber_country'],ENT_NOQUOTES); ?>
-                                    <?php echo " " . htmlspecialchars($row['subscriber_postal_code'],ENT_NOQUOTES); ?></span>
+                                    echo htmlspecialchars($row['subscriber_country'], ENT_NOQUOTES); ?>
+                                    <?php echo " " . htmlspecialchars($row['subscriber_postal_code'], ENT_NOQUOTES); ?></span>
 
                                 <?php if (trim($row['subscriber_employer'])) { ?>
-                                  <br><span class='bold'><?php echo htmlspecialchars(xl('Subscriber Employer'),ENT_NOQUOTES); ?>: </span><br>
-                                  <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'],ENT_NOQUOTES); ?><br>
-                                    <?php echo htmlspecialchars($row['subscriber_employer_street'],ENT_NOQUOTES); ?><br>
-                                    <?php echo htmlspecialchars($row['subscriber_employer_city'],ENT_NOQUOTES); ?>
+                                  <br><span class='bold'><?php echo htmlspecialchars(xl('Subscriber Employer'), ENT_NOQUOTES); ?>: </span><br>
+                                  <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'], ENT_NOQUOTES); ?><br>
+                                    <?php echo htmlspecialchars($row['subscriber_employer_street'], ENT_NOQUOTES); ?><br>
+                                    <?php echo htmlspecialchars($row['subscriber_employer_city'], ENT_NOQUOTES); ?>
                                     <?php if($row['subscriber_employer_city'] != "") echo ", ";
-                                    echo htmlspecialchars($row['subscriber_employer_state'],ENT_NOQUOTES); ?>
+                                    echo htmlspecialchars($row['subscriber_employer_state'], ENT_NOQUOTES); ?>
                                     <?php if($row['subscriber_employer_country'] != "") echo ", ";
-                                    echo htmlspecialchars($row['subscriber_employer_country'],ENT_NOQUOTES); ?>
-                                    <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'],ENT_NOQUOTES); ?>
+                                    echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
+                                    <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
                                   </span>
                             <?php } ?>
 
@@ -934,17 +934,17 @@ if ( $insurance_count > 0 ) {
                                 <tr>
                                  <td>
                                 <?php if ($row['copay'] != "") { ?>
-                                  <span class='bold'><?php echo htmlspecialchars(xl('CoPay'),ENT_NOQUOTES); ?>: </span>
-                                  <span class='text'><?php echo htmlspecialchars($row['copay'],ENT_NOQUOTES); ?></span>
+                                  <span class='bold'><?php echo htmlspecialchars(xl('CoPay'), ENT_NOQUOTES); ?>: </span>
+                                  <span class='text'><?php echo htmlspecialchars($row['copay'], ENT_NOQUOTES); ?></span>
                   <br />
                             <?php } ?>
-                                  <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'),ENT_NOQUOTES); ?>:</span>
+                                  <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
                                   <span class='text'><?php if($row['accept_assignment'] == "TRUE") echo xl("YES"); ?>
                                     <?php if($row['accept_assignment'] == "FALSE") echo xl("NO"); ?></span>
                                 <?php if (!empty($row['policy_type'])) { ?>
                   <br />
-                                  <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'),ENT_NOQUOTES); ?>: </span>
-                                  <span class='text'><?php echo htmlspecialchars($policy_types[$row['policy_type']],ENT_NOQUOTES); ?></span>
+                                  <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
+                                  <span class='text'><?php echo htmlspecialchars($policy_types[$row['policy_type']], ENT_NOQUOTES); ?></span>
                             <?php } ?>
                                  </td>
                                  <td valign='top'></td>
@@ -963,7 +963,7 @@ if ( $insurance_count > 0 ) {
 
                     // Display the eligibility information
                     echo "<div class='tab'>";
-                    show_eligibility_information($pid,true);
+                    show_eligibility_information($pid, true);
                     echo "</div>";
 
             ///////////////////////////////// END INSURANCE SECTION
@@ -1013,7 +1013,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $bodyClass = "notab";
                 $widgetAuth = acl_check('patients', 'reminder', '', 'write');
                 $fixedWidth = true;
-                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
                     <br/>
                     <div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>
                 </div>
@@ -1059,7 +1059,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $bodyClass = "summary_item small";
         $widgetAuth = acl_check('patients', 'amendment', '', 'write');
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
         $result = sqlStatement($sql, array($pid) );
 
@@ -1220,7 +1220,7 @@ if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
         $bodyClass = "notab-right";
         $widgetAuth = false;
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel ,
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
                 $widgetAuth, $fixedWidth);
 ?>
@@ -1252,7 +1252,7 @@ foreach ($photos as $photo_doc_id) {
         $bodyClass = "summary_item small";
         $widgetAuth = true;
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
           $counterFlag = false; //flag to record whether any categories contain ad records
           $query = "SELECT id FROM categories WHERE name='Advance Directive'";
           $myrow2 = sqlQuery($query);
@@ -1275,14 +1275,14 @@ foreach ($photos as $photo_doc_id) {
                 while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                     $dateTimeDoc = $myrows4['date'];
                 // remove time from datetime stamp
-                    $tempParse = explode(" ",$dateTimeDoc);
+                    $tempParse = explode(" ", $dateTimeDoc);
                     $dateDoc = $tempParse[0];
                     $idDoc = $myrows4['id'];
                     echo "<a href='$web_root/controller.php?document&retrieve&patient_id=" .
-                    htmlspecialchars($pid,ENT_QUOTES) . "&document_id=" .
-                    htmlspecialchars($idDoc,ENT_QUOTES) . "&as_file=true' onclick='top.restoreSession()'>" .
-                    htmlspecialchars(xl_document_category($nameDoc),ENT_NOQUOTES) . "</a> " .
-                    htmlspecialchars($dateDoc,ENT_NOQUOTES);
+                    htmlspecialchars($pid, ENT_QUOTES) . "&document_id=" .
+                    htmlspecialchars($idDoc, ENT_QUOTES) . "&as_file=true' onclick='top.restoreSession()'>" .
+                    htmlspecialchars(xl_document_category($nameDoc), ENT_NOQUOTES) . "</a> " .
+                    htmlspecialchars($dateDoc, ENT_NOQUOTES);
                     echo "<br>";
                     $limitCounter = $limitCounter + 1;
                     $counterFlag = true;
@@ -1290,13 +1290,13 @@ foreach ($photos as $photo_doc_id) {
             }
         }
         if (!$counterFlag) {
-            echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
+            echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
         } ?>
       </div>
     <?php  }  // close advanced dir block
 
     // Show Clinical Reminders for any user that has rules that are permitted.
-    $clin_rem_check = resolve_rules_sql('','0',true,'',$_SESSION['authUser']);
+    $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
     if (!empty($clin_rem_check) && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw'] &&
         acl_check('patients', 'alert'))
     {
@@ -1311,7 +1311,7 @@ foreach ($photos as $photo_doc_id) {
         $bodyClass = "summary_item small";
         $widgetAuth = acl_check('patients', 'alert', '', 'write');
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         echo "<br/>";
         echo "<div style='margin-left:10px' class='text'><image src='../../pic/ajax-loader.gif'/></div><br/>";
         echo "</div>";
@@ -1410,7 +1410,7 @@ foreach ($photos as $photo_doc_id) {
         $widgetAuth = $resNotNull // $resNotNull reflects state of query in fetchAppointments
         && (acl_check('patients', 'appt', '', 'write') || acl_check('patients', 'appt', '', 'addonly'));
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
         //
         $toggleSet = true;
@@ -1450,26 +1450,26 @@ foreach ($photos as $photo_doc_id) {
             //////
             echo "<div " . $apptStyle . ">";
             if(!in_array($row['pc_catid'], $therapyGroupCategories)){
-                echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+                echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'], ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
             } else {
-                echo "<span title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
+                echo "<span title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
             }
-            echo "<b>" . htmlspecialchars($row['pc_eventDate'],ENT_NOQUOTES) . ", ";
-            echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname),ENT_NOQUOTES)  . ")</b> ";
-            if ($row['pc_recurrtype']) echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"),ENT_QUOTES)."'>";
-            echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . "'>";
-            echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'],ENT_NOQUOTES) . " ) </span>";
-            echo htmlspecialchars(xl_appt_category($row['pc_catname']),ENT_NOQUOTES) . "\n";
+            echo "<b>" . htmlspecialchars($row['pc_eventDate'], ENT_NOQUOTES) . ", ";
+            echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname), ENT_NOQUOTES)  . ")</b> ";
+            if ($row['pc_recurrtype']) echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
+            echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . "'>";
+            echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'], ENT_NOQUOTES) . " ) </span>";
+            echo htmlspecialchars(xl_appt_category($row['pc_catname']), ENT_NOQUOTES) . "\n";
             if(in_array($row['pc_catid'], $therapyGroupCategories)) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
             if ($row['pc_hometext']) echo " <span style='color:green'> Com</span>";
-            echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'],ENT_NOQUOTES);
+            echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'], ENT_NOQUOTES);
             echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
             echo "</div>\n";
             //////
         }
         if ($resNotNull) { //////
             if ( $count < 1 ) {
-                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
+                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
             } else { //////
                 if($extraApptDate) echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
                 else echo "<div><hr></div>";
@@ -1560,7 +1560,7 @@ foreach ($photos as $photo_doc_id) {
         $bodyClass = "summary_item small";
         $widgetAuth = false; //no button
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $count = 0;
         while($row = sqlFetchArray($pres)) {
             $count++;
@@ -1575,15 +1575,15 @@ foreach ($photos as $photo_doc_id) {
             if ($row['pc_hometext'] != "") {
                 $etitle = xl('Comments').": ".($row['pc_hometext'])."\r\n".$etitle;
             }
-            echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']),ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'],ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle,ENT_QUOTES) . "'>";
-            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . $row['pc_eventDate'],ENT_NOQUOTES) . "</b>" . xlt("Status") .  "(";
-            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'),$row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
+            echo "<a href='javascript:oldEvt(" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) . ', ' . htmlspecialchars($row['pc_eid'], ENT_QUOTES) . ")' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
+            echo "<b>" . htmlspecialchars(xl($dayname) . ", " . $row['pc_eventDate'], ENT_NOQUOTES) . "</b>" . xlt("Status") .  "(";
+            echo " " .  generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . ")<br>";   // can't use special char parser on this
             echo htmlspecialchars("$disphour:$dispmin ") . xl($dispampm) . " ";
-            echo htmlspecialchars($row['fname'] . " " . $row['lname'],ENT_NOQUOTES) . "</a><br>\n";
+            echo htmlspecialchars($row['fname'] . " " . $row['lname'], ENT_NOQUOTES) . "</a><br>\n";
         }
         if (isset($pres) && $res != null) {
             if ( $count < 1 ) {
-                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'),ENT_NOQUOTES);
+                echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
             }
             echo "</div>";
         }

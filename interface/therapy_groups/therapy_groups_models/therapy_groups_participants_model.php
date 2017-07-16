@@ -43,7 +43,7 @@ class Therapy_groups_participants
             $binds[] = 10;
         }
         $groupParticipants = array();
-        $result = sqlStatement($sql,$binds);
+        $result = sqlStatement($sql, $binds);
         while($gp = sqlFetchArray($result)){
             $groupParticipants[] = $gp;
         }
@@ -61,7 +61,7 @@ class Therapy_groups_participants
         foreach($participant as $key => $value){
             $sql .= $key . '=?,';
         }
-        $sql = substr($sql,0, -1);
+        $sql = substr($sql, 0, -1);
         $sql .= ' WHERE pid = ? AND group_id = ?';
 
         $data = array_merge($participant, array($patientId, $groupId));

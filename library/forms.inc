@@ -35,10 +35,10 @@ function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_na
     global $attendant_type;
     $arraySqlBind = array();
     $sql = "select $cols from forms where encounter = ? ";
-    array_push($arraySqlBind,$encounter);
+    array_push($arraySqlBind, $encounter);
     if(!empty($name)){
         $sql .= "and form_name=? ";
-        array_push($arraySqlBind,$name);
+        array_push($arraySqlBind, $name);
     }
     if($attendant_type == 'pid'){
         $sql .= " and pid=? and therapy_group_id IS NULL ";
@@ -46,11 +46,11 @@ function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_na
     else{
         $sql .= " and therapy_group_id = ? and pid IS NULL ";
     }
-    array_push($arraySqlBind,$attendant_id);
+    array_push($arraySqlBind, $attendant_id);
   // This puts vitals first in the list, and newpatient last:
     $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
-    $res = sqlStatement($sql,$arraySqlBind);
+    $res = sqlStatement($sql, $arraySqlBind);
 
     for($iter=0; $row=sqlFetchArray($res); $iter++)
     {
@@ -88,11 +88,11 @@ function addForm(
     }
     else {
         $sql .= "?";
-                array_push($arraySqlBind,$date);
+                array_push($arraySqlBind, $date);
     }
     $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        array_push($arraySqlBind,$encounter,$form_name,$form_id,$pid,$user,$group,$authorized,$formdir,$therapy_group);
-    return sqlInsert($sql,$arraySqlBind);
+        array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
+    return sqlInsert($sql, $arraySqlBind);
 }
 
 function authorizeForm($id, $authorized = "1")
@@ -109,7 +109,7 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
         // Only collect certain type of encounters (list_options item from the rule_enc_types list that is mapped via enc_category_map table)
         $from = "form_encounter LEFT JOIN enc_category_map ON (form_encounter.pc_catid = enc_category_map.main_cat_id)";
         $where = "enc_category_map.rule_enc_id = ? and ";
-        array_push($arraySqlBind,$encounterRuleType);
+        array_push($arraySqlBind, $encounterRuleType);
     }
     else {
         // Collect all encounters
@@ -118,19 +118,19 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
 
     if ($dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ? and form_encounter.date <= ?";
-        array_push($arraySqlBind,$pid,$dateStart,$dateEnd);
+        array_push($arraySqlBind, $pid, $dateStart, $dateEnd);
     }
     else if ($dateStart && !$dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
-        array_push($arraySqlBind,$pid,$dateStart);
+        array_push($arraySqlBind, $pid, $dateStart);
     }
     else if (!$dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
-        array_push($arraySqlBind,$pid,$dateEnd);
+        array_push($arraySqlBind, $pid, $dateEnd);
     }
     else {
         $where .= "form_encounter.pid = ?";
-        array_push($arraySqlBind,$pid);
+        array_push($arraySqlBind, $pid);
     }
 
         $res = sqlStatement("SELECT distinct encounter FROM $from WHERE $where ORDER by date desc;", $arraySqlBind);
@@ -185,7 +185,7 @@ function getDocumentsByEncounter($patientID = null, $encounterID = null)
     if($currentPatient != "" && $currentEncounter != "") {
         $sql = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name,d.encounter_id FROM documents AS d, categories_to_documents AS cd,
 			categories AS c WHERE d.foreign_id = ? AND d.encounter_id=? AND cd.document_id = d.id AND c.id = cd.category_id ORDER BY d.docdate DESC, d.id DESC";
-        $res = sqlStatement($sql,array($currentPatient,$currentEncounter));
+        $res = sqlStatement($sql, array($currentPatient,$currentEncounter));
 
         while ( $row = sqlFetchArray($res) ) {
             $allDocuments[] = $row;

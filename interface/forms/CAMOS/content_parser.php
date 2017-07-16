@@ -41,7 +41,7 @@ function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", 
             $justify_trimmed[] = trim($temp_justify);
         }
         //format it
-        $justify_string = implode(":",$justify_trimmed).":";
+        $justify_string = implode(":", $justify_trimmed).":";
     }
     $code_type = formDataCore($code_type);
     $code = formDataCore($code);
@@ -71,9 +71,9 @@ function content_parser($input)
 //   $content = remove_comments($content);
 
    //reduce more than two empty lines to no more than two.
-    $content = preg_replace("/([^\n]\r[^\n]){2,}/","\r\r",$content);
-    $content = preg_replace("/([^\r]\n[^\r]){2,}/","\n\n",$content);
-    $content = preg_replace("/(\r\n){2,}/","\r\n\r\n",$content);
+    $content = preg_replace("/([^\n]\r[^\n]){2,}/", "\r\r", $content);
+    $content = preg_replace("/([^\r]\n[^\r]){2,}/", "\n\n", $content);
+    $content = preg_replace("/(\r\n){2,}/", "\r\n\r\n", $content);
 
 
     return $content;
@@ -82,7 +82,7 @@ function content_parser($input)
 // implement C style comments ie remove anything between /* and */
 function remove_comments($string_to_process)
 {
-    return preg_replace("/\/\*.*?\*\//s","",$string_to_process);
+    return preg_replace("/\/\*.*?\*\//s", "", $string_to_process);
 }
 
 //process commands embedded in C style comments where function name is first
@@ -95,9 +95,9 @@ function process_commands(&$string_to_process, &$camos_return_data)
   //to evaluating other functions in final string assembly.
     $replace_finished = false;
     while (!$replace_finished) {
-        if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//",$string_to_process, $matches)) {
+        if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//", $string_to_process, $matches)) {
             foreach($matches[0] as $val) {
-                $comm = preg_replace("/(\/\*)|(\*\/)/","",$val);
+                $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
                 $comm_array = explode('::', $comm); //array where first element is command and rest are args
                 $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
                 $replacement_text = '';
@@ -105,7 +105,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
                 $statement = sqlStatement($query);
                 if ($result = sqlFetchArray($statement)) {$replacement_text = $result['content'];}
                 $replacement_text = formDataCore($replacement_text);
-                $string_to_process = str_replace($val,$replacement_text,$string_to_process);
+                $string_to_process = str_replace($val, $replacement_text, $string_to_process);
             }
         }
         else {$replace_finished = true;}
@@ -115,22 +115,22 @@ function process_commands(&$string_to_process, &$camos_return_data)
   //I am going to implement with mysql date functions.
   //I am putting this before other functions just like replace function because it is replacing text
   //needs to be here.
-    if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
+    if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
         $statement = sqlStatement($query);
         if ($result = sqlFetchArray($statement)){
-            $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
+            $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
     }
-    if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//",$string_to_process, $matches)) {
+    if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
         $statement = sqlStatement($query);
         if ($result = sqlFetchArray($statement)){
-            $string_to_process = str_replace($to_replace,$result['date'],$string_to_process);
+            $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
     }
 
@@ -140,11 +140,11 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
     $command_array = array();  //to be filled with potential commands
     $matches= array();  //to be filled with potential commands
-    if (!preg_match_all("/\/\*.*?\*\//s",$string_to_process, $matches)) {return $return_value;}
+    if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {return $return_value;}
     $command_array = $matches[0];
     foreach($command_array as $val) {
         //process each command
-        $comm = preg_replace("/(\/\*)|(\*\/)/","",$val);
+        $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
         $comm_array = explode('::', $comm); //array where first element is command and rest are args
         //Here is where we process particular commands
         if (trim($comm_array[0])== 'billing') {
@@ -159,13 +159,13 @@ function process_commands(&$string_to_process, &$camos_return_data)
             if ($units == '') {
                 $units = 1;
             }
-            $fee = sprintf("%01.2f",trim(array_shift($comm_array)));
+            $fee = sprintf("%01.2f", trim(array_shift($comm_array)));
             //make default fee 0.00 if left blank
             if ($fee == '') {
-                $fee = sprintf("%01.2f",'0.00');
+                $fee = sprintf("%01.2f", '0.00');
             }
             //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
-            addBilling2($encounter, $type, $code, $text, $modifier,$units,$fee,$comm_array);
+            addBilling2($encounter, $type, $code, $text, $modifier, $units, $fee, $comm_array);
         }
         if (trim($comm_array[0])== 'appt') {
             array_shift($comm_array);
@@ -246,8 +246,8 @@ function replace($pid, $enc, $content)
 function patient_age($birthday, $date)
 {
  //calculate age from birthdate and a given later date
-    list($birth_year,$birth_month,$birth_day) = explode("-",$birthday);
-    list($date_year,$date_month,$date_day) = explode("-",$date);
+    list($birth_year,$birth_month,$birth_day) = explode("-", $birthday);
+    list($date_year,$date_month,$date_day) = explode("-", $date);
     $year_diff  = $date_year - $birth_year;
     $month_diff = $date_month - $birth_month;
     $day_diff   = $date_day - $birth_day;

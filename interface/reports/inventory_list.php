@@ -48,7 +48,7 @@ $res = sqlStatement("SELECT d.*, SUM(di.on_hand) AS on_hand " .
 <?php html_header_show(); ?>
 
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
-<title><?php  xl('Inventory List','e'); ?></title>
+<title><?php  xl('Inventory List', 'e'); ?></title>
 
 <style>
 /* specifically include & exclude from printing */
@@ -150,9 +150,9 @@ table.mymaintable td, table.mymaintable th {
 <table width='98%' id='mymaintable' class='mymaintable'>
  <thead style='display:table-header-group'>
   <tr class='head'>
-   <th><?php  xl('Name','e'); ?></th>
-   <th><?php  xl('NDC','e'); ?></th>
-   <th><?php  xl('Form','e'); ?></th>
+   <th><?php  xl('Name', 'e'); ?></th>
+   <th><?php  xl('NDC', 'e'); ?></th>
+   <th><?php  xl('Form', 'e'); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('QOH')); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('Reorder')); ?></th>
    <th align='right'><?php echo htmlspecialchars(xl('Avg Monthly')); ?></th>

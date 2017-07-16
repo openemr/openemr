@@ -28,7 +28,7 @@ if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalizati
     $_POST["hospitalization_date_to"] = "";}
 else {$_POST["is_hospitalized"] = "1";}
 
-$id = formData('id','G') + 0;
+$id = formData('id', 'G') + 0;
 
 $sets = "pid = {$_SESSION["pid"]},
   groupname = '" . $_SESSION["authProvider"] . "',

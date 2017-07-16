@@ -37,7 +37,7 @@ function stripslashes_deep($value)
 //Parses the search value part of the criteria and prepares for sql.
 function PrepareSearchItem($SearchItem)
 {
-    $SplitArray=explode(' like ',$SearchItem);
+    $SplitArray=explode(' like ', $SearchItem);
     if(isset($SplitArray[1]))
     {
         $SplitArray[1] = substr($SplitArray[1], 0, -1);
@@ -46,7 +46,7 @@ function PrepareSearchItem($SearchItem)
     }
     else
     {
-        $SplitArray=explode(' = ',$SearchItem);
+        $SplitArray=explode(' = ', $SearchItem);
         if(isset($SplitArray[1]))
          {
             $SplitArray[1] = substr($SplitArray[1], 0, -1);
@@ -64,7 +64,7 @@ function BuildArrayForReport($Query)
     $res = sqlStatement($Query);
     while($row=sqlFetchArray($res))
     {
-        $array_data[$row['id']]=htmlspecialchars($row['name'],ENT_QUOTES);
+        $array_data[$row['id']]=htmlspecialchars($row['name'], ENT_QUOTES);
     }
     return $array_data;
 }

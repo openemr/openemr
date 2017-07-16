@@ -16,7 +16,7 @@ function assessment_intake_report($pid, $encounter, $cols, $id)
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td><span class=bold>$key: </span><span class=text>$value</span></td>";
             $count++;
             if ($count == $cols) {

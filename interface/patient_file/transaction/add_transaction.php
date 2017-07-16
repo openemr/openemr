@@ -346,7 +346,7 @@ div.tab {
     <table class="text">
         <tr><td>
         <?php echo xlt('Transaction Type'); ?>:&nbsp;</td><td>
-    <?php echo generate_select_list('title','transactions',$form_id,'','','','titleChanged()'); ?>
+    <?php echo generate_select_list('title', 'transactions', $form_id, '', '', '', 'titleChanged()'); ?>
         </td></tr>
     </table>
 

@@ -85,7 +85,7 @@ function fetch_rule_txt($list_id, $option_id)
 }
 function fetch_reminders($pid, $appt_date)
 {
-    $rems = test_rules_clinic('','passive_alert',$appt_date,'reminders-due',$pid);
+    $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = array();
     $seq_cat = array();
     $seq_act = array();
@@ -205,7 +205,7 @@ function fetch_reminders($pid, $appt_date)
         <table class='text'>
             <tr>
                 <td class='control-label'><?php echo xlt('Facility'); ?>:</td>
-                <td><?php dropdown_facility($facility , 'form_facility'); ?>
+                <td><?php dropdown_facility($facility, 'form_facility'); ?>
                 </td>
                 <td class='control-label'><?php echo xlt('Provider'); ?>:</td>
                 <td><?php
@@ -249,7 +249,7 @@ function fetch_reminders($pid, $appt_date)
 
             <tr>
                 <td class='control-label'><?php echo xlt('Status'); # status code drop down creation ?>:</td>
-                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'),$_POST['form_apptstatus']);?></td>
+                <td><?php generate_form_field(array('data_type'=>1,'field_id'=>'apptstatus','list_id'=>'apptstat','empty_title'=>'All'), $_POST['form_apptstatus']);?></td>
                 <td><?php echo xlt('Category') #category drop down creation ?>:</td>
                 <td>
                                     <select id="form_apptcat" name="form_apptcat" class="form-control">
@@ -409,7 +409,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     if( isset($_POST['with_out_facility']) ){
         $with_out_facility = $_POST['with_out_facility'];
     }
-    $appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility,$form_apptcat );
+    $appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat );
 
     if ( $show_available_times ) {
         $availableSlots = getAvailableSlots( $from_date, $to_date, $provider, $facility );
@@ -421,7 +421,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     $totalAppontments = count($appointments);
 
     foreach ( $appointments as $appointment ) {
-                array_push($pid_list,$appointment['pid']);
+                array_push($pid_list, $appointment['pid']);
         $patient_id = $appointment['pid'];
         $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
 

@@ -54,7 +54,7 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
- if (!acl_check('patients','appt','',array('write','wsome') ))
+ if (!acl_check('patients', 'appt', '', array('write','wsome') ))
    die(xl('Access not allowed'));
 
 /* Things that might be passed by our opener. */
@@ -87,8 +87,8 @@ if (isset($_GET['starttimeh'])) {
 
     ?>
 
-<?php $g_edit = acl_check("groups","gcalendar",false, 'write');?>
-<?php $g_view = acl_check("groups","gcalendar",false, 'view');?>
+<?php $g_edit = acl_check("groups", "gcalendar", false, 'write');?>
+<?php $g_view = acl_check("groups", "gcalendar", false, 'view');?>
 
 
  <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
@@ -200,7 +200,7 @@ else {
         // Manage tracker status.
         // And auto-create a new encounter if appropriate.
         if (!empty($_POST['form_pid'])) {
-            if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date,$appttime,$_POST['form_pid'],$_GET['eid']))
+            if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && (is_checkin($_POST['form_apptstatus']) == '1') && !is_tracker_encounter_exist($event_date, $appttime, $_POST['form_pid'], $_GET['eid']))
             {
                 $encounter = todaysEncounterCheck($_POST['form_pid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false);
                 if($encounter){
@@ -214,14 +214,14 @@ else {
                     // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                     // temporary-eid-for-manage-tracker global instead.
                     $temp_eid = (isset($GLOBALS['temporary-eid-for-manage-tracker'])) ? $GLOBALS['temporary-eid-for-manage-tracker'] : $_GET['eid'];
-                    manage_tracker_status($event_date,$appttime,$temp_eid,$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room'],$encounter);
+                    manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
                 }
             }
             else
             {
                     # Capture the appt status and room number for patient tracker.
                 if (!empty($_GET['eid'])) {
-                    manage_tracker_status($event_date,$appttime,$_GET['eid'],$_POST['form_pid'],$_SESSION["authUser"],$_POST['form_apptstatus'],$_POST['form_room']);
+                    manage_tracker_status($event_date, $appttime, $_GET['eid'], $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room']);
                 }
             }
         }
@@ -247,7 +247,7 @@ else {
         $timestamp = strtotime($start_date);
         $day = date('w', $timestamp);
         //If the 'start date' is one of the set days
-        if(in_array(($day+1), explode(',',$recurrence))){
+        if(in_array(($day+1), explode(',', $recurrence))){
             return $start_date;
         }
         //else: (we need to change start date to first occurrence of one of the set days)
@@ -343,7 +343,7 @@ else {
                     array_push($days_every_week_arr, $i);
                 }
             }
-            $my_repeat_freq = implode(",",$days_every_week_arr);
+            $my_repeat_freq = implode(",", $days_every_week_arr);
             $my_repeat_type = 6;
             $event_date = fixDate(setEventDate($_POST['form_date'], $my_repeat_freq));
 
@@ -489,7 +489,7 @@ else {
                     $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                     foreach ($providers_current as $provider) {
                         // In case of a change in the middle of the event
-                        if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                        if  (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
                             // mod original event recur specs to end on this date
                             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
@@ -498,7 +498,7 @@ else {
                         // In case of a change in the event head
                         else {
                             sqlStatement("DELETE FROM openemr_postcalendar_events " .
-                            " WHERE pc_aid = ? AND pc_multiple=?" , array($provider, $row['pc_multiple']));
+                            " WHERE pc_aid = ? AND pc_multiple=?", array($provider, $row['pc_multiple']));
                         }
 
                     }
@@ -753,7 +753,7 @@ else {
                 $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
                 foreach ($providers_current as $provider) {
                     // In case of a change in the middle of the event
-                    if  (strcmp($_POST['event_start_date'],$_POST['selected_date'])!=0) {
+                    if  (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
                         // update the provider's original event
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_enddate = ? " .
@@ -1484,7 +1484,7 @@ else{
         </td>
         <td>
             <?php
-            billing_facility('billing_facility',$row['pc_billing_location']);
+            billing_facility('billing_facility', $row['pc_billing_location']);
             ?>
         </td>
     </tr>
@@ -1750,7 +1750,7 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
         {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
-            if (in_array($key, explode(',',$repeatfreq)) && isDaysEveryWeek($repeats)) echo " checked";
+            if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) echo " checked";
             echo " /><label>" . text($value) . "</label></div>\n";
         }
         ?>
@@ -1800,7 +1800,7 @@ if ($repeatexdate != "") {
 
     $exdates = explode(",", $repeatexdate);
     if(!empty($exdates)){
-        $exdates=array_slice($exdates,0,$max,true);
+        $exdates=array_slice($exdates, 0, $max, true);
     }
     foreach ($exdates as $exdate) {
         $tmptitle .= date("d M Y", strtotime($exdate))."\n";
@@ -1819,7 +1819,7 @@ if ($repeatexdate != "") {
      </td>
      <td colspan='4' nowrap>
         <?php
-        echo generate_select_list('form_room', 'patient_flow_board_rooms',$pcroom, xl('Room Number'));
+        echo generate_select_list('form_room', 'patient_flow_board_rooms', $pcroom, xl('Room Number'));
         ?>
      </td>
     </tr>
@@ -2071,8 +2071,8 @@ function SubmitForm() {
     $edate=$edate->format('Y-m-d');
     $is_holiday=false;
     $holidays_controller = new Holidays_Controller();
-    $holidays = $holidays_controller->get_holidays_by_date_range($sdate,$edate);
-    if(in_array($sdate,$holidays)){
+    $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
+    if(in_array($sdate, $holidays)){
         $is_holiday=true;
     }?>
     if (f.form_action.value != 'delete') {

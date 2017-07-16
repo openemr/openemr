@@ -47,16 +47,16 @@ $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
-if ($issue && !acl_check('patients','med','','write') ) die(xlt("Edit is not authorized!"));
-if ( !acl_check('patients','med','',array('write','addonly') )) die(xlt("Add is not authorized!"));
+if ($issue && !acl_check('patients', 'med', '', 'write') ) die(xlt("Edit is not authorized!"));
+if ( !acl_check('patients', 'med', '', array('write','addonly') )) die(xlt("Add is not authorized!"));
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
-$providerID   = findProvider($pid,$encounter);
+$providerID   = findProvider($pid, $encounter);
 if (!$_SESSION['providerID'] && $providerID)  ($_SESSION['providerID'] = $providerID);
 
 $irow = array();
 if ($issue) {
-    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?",array($issue));
+    $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", array($issue));
 } else if ($thistype) {
     $irow['type'] = $thistype;
     $irow['subtype'] = $subtype;
@@ -69,8 +69,8 @@ if (!empty($irow['type'])) {
 }
 $given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE";
 $query="SELECT $given from form_eye_mag where id=? and pid=?";
-$rres = sqlQuery($query,array($form_id,$pid));
-foreach (explode(',',$given) as $item) {
+$rres = sqlQuery($query, array($form_id,$pid));
+foreach (explode(',', $given) as $item) {
     $$item = $rres[$item];
 }
 
@@ -109,38 +109,38 @@ foreach (explode(',',$given) as $item) {
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medical_problem",$_SESSION['providerID']));
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                      $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medical_problem_issue_list"));
+                      $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("medical_problem_issue_list"));
                 }
             } elseif ($key =="Medication") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("medication",$_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("medication_issue_list"));
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("medication_issue_list"));
                 }
             } elseif ($key =="Surgery") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("surgery",$_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("surgery_issue_list"));
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("surgery_issue_list"));
                 }
             } elseif ($key =="Allergy") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and
             subtype = '' and pid in (select pid from form_encounter where provider_id =?
             and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", array("allergy",$_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
-                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'",array("allergy_issue_list"));
+                    $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", array("allergy_issue_list"));
                 }
             } elseif ($key == "POH") { // POH medical group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query,array($_SESSION['providerID']));
+                $qry = sqlStatement($query, array($_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
                 }
             } elseif ($key == "POS") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
-                $qry = sqlStatement($query,array($_SESSION['providerID']));
+                $qry = sqlStatement($query, array($_SESSION['providerID']));
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'surgery_issue_list' and subtype = 'eye'");
                 }
@@ -412,12 +412,12 @@ foreach (explode(',',$given) as $item) {
         if(($irow['type'] == 'PMH') ||($irow['type'] == 'POH'))
         {
             ?>
-          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem","csv")) ?>&search_term='+term, '_blank', 500, 400);
+          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+term, '_blank', 500, 400);
             <?php
         }
         else{
             ?>
-          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis","csv")) ?>&search_term='+term, '_blank', 500, 400);
+          dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+term, '_blank', 500, 400);
             <?php
         }
         ?>
@@ -762,10 +762,10 @@ foreach (explode(',',$given) as $item) {
              <input type='text' size='40' name='form_destination' value='<?php echo attr($irow['destination']) ?>'
               title='GP, Secondary care specialist, etc.' />
             <?php } else { // leave this here for now, please -- Rod ?>
-                <?php echo rbinput('form_destination', '1', 'GP'                 , 'destination') ?>&nbsp;
+                <?php echo rbinput('form_destination', '1', 'GP', 'destination') ?>&nbsp;
                 <?php echo rbinput('form_destination', '2', 'Secondary care spec', 'destination') ?>&nbsp;
-                <?php echo rbinput('form_destination', '3', 'GP via physio'      , 'destination') ?>&nbsp;
-                <?php echo rbinput('form_destination', '4', 'GP via podiatry'    , 'destination') ?>
+                <?php echo rbinput('form_destination', '3', 'GP via physio', 'destination') ?>&nbsp;
+                <?php echo rbinput('form_destination', '4', 'GP via podiatry', 'destination') ?>
             <?php } ?>
             </td>
           </tr>
@@ -831,7 +831,7 @@ foreach (explode(',',$given) as $item) {
                             $result2[$field_id]['resnote'] = htmlspecialchars( $result2[$field_id]['resnote'], ENT_QUOTES);
                             $result2[$field_id]['resdate'] = htmlspecialchars( $result2[$field_id]['resdate'], ENT_QUOTES);
                         } else if ($data_type == 2) {
-                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue,ENT_NOQUOTES));
+                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
                     }
                 ?>
@@ -1205,7 +1205,7 @@ foreach (explode(',',$given) as $item) {
        Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
         <?php
         $has_cal ="tobacco,coffee,alcohol,recreational_drugs,exercise_patterns";
-        foreach (explode(',',$has_cal) as $item) {
+        foreach (explode(',', $has_cal) as $item) {
             echo 'Calendar.setup({inputField:"date_'.$item.'", ifFormat:"%Y-%m-%d", button:"img_'.$item.'"});';
         } ?>
 

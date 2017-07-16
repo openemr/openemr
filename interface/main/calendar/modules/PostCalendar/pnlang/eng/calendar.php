@@ -34,7 +34,7 @@
 @define('_CALTHURSDAYSHORT', xl ('T{{Thursday}}') );
 @define('_CALFRIDAYSHORT', xl( 'F{{Friday}}') );
 @define('_CALSATURDAYSHORT', xl ('S{{Saturday}}') );
-@define('_CALSUNDAYSHORT',xl('S{{Sunday}}') );
+@define('_CALSUNDAYSHORT', xl('S{{Sunday}}') );
 @define('_PC_CALENDAR_BLOCK_PREV', xl ('Prev') );
 @define('_PC_CALENDAR_BLOCK_NEXT', xl ('Next') );
 @define('_PC_BLOCK_TOPIC_DISPLAY', xl ('Display topic in block?') );

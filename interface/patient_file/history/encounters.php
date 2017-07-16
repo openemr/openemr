@@ -38,7 +38,7 @@ if($GLOBALS['enable_group_therapy']) {
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
-if($is_group && !acl_check("groups","glog",false, array('view','write'))){
+if($is_group && !acl_check("groups", "glog", false, array('view','write'))){
     echo xlt("access not allowed");
     exit();
 }
@@ -62,8 +62,8 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
  $auth_coding_a = acl_check('encounters', 'coding_a');
  $auth_coding   = acl_check('encounters', 'coding');
  $auth_relaxed  = acl_check('encounters', 'relaxed');
- $auth_med      = acl_check('patients'  , 'med');
- $auth_demo     = acl_check('patients'  , 'demo');
+ $auth_med      = acl_check('patients', 'med');
+ $auth_demo     = acl_check('patients', 'demo');
 
  $tmp = getPatientData($pid, "squad");
  if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -90,7 +90,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 {
     global $ISSUE_TYPES, $auth_med;
 
-    $documents = getDocumentsByEncounter($pid,$encounter);
+    $documents = getDocumentsByEncounter($pid, $encounter);
     if ( count($documents) > 0 ) {
         foreach ( $documents as $documentrow) {
             if ($auth_med) {
@@ -108,7 +108,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 
             // Get the notes for this document and display as title for the link.
             $queryString = "SELECT date,note FROM notes WHERE foreign_id = ? ORDER BY date";
-            $noteResultSet = sqlStatement($queryString,array($documentrow['id']));
+            $noteResultSet = sqlStatement($queryString, array($documentrow['id']));
             $note = '';
             while ( $row = sqlFetchArray($noteResultSet)) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($row['date']))) . " : " . attr($row['note']) . "\n";
@@ -276,7 +276,7 @@ if(isset($_GET['pagesize']))
 }
 else
 {
-    if(array_key_exists('encounter_page_size',$GLOBALS))
+    if(array_key_exists('encounter_page_size', $GLOBALS))
     {
         $pagesize=$GLOBALS['encounter_page_size'];
     }
@@ -304,7 +304,7 @@ $getStringForPage="&pagesize=".attr($pagesize)."&pagestart=".attr($pagestart);
 
 <span style="float:right">
     <?php echo htmlspecialchars( xl('Results per page'), ENT_NOQUOTES); ?>:
-    <select id="selPagesize" billing="<?php echo htmlspecialchars($billing_view,ENT_QUOTES); ?>" issue="<?php echo htmlspecialchars($issue,ENT_QUOTES); ?>" pagestart="<?php echo htmlspecialchars($pagestart,ENT_QUOTES); ?>" >
+    <select id="selPagesize" billing="<?php echo htmlspecialchars($billing_view, ENT_QUOTES); ?>" issue="<?php echo htmlspecialchars($issue, ENT_QUOTES); ?>" pagestart="<?php echo htmlspecialchars($pagestart, ENT_QUOTES); ?>" >
 <?php
     $pagesizes=array(5,10,15,20,25,50,0);
 for($idx=0;$idx<count($pagesizes);$idx++)
@@ -354,7 +354,7 @@ for($idx=0;$idx<count($pagesizes);$idx++)
 <?php } ?>
 
 <?php if ($billing_view) { ?>
-  <th><?php echo xl('Code','e'); ?></th>
+  <th><?php echo xl('Code', 'e'); ?></th>
   <th class='right'><?php echo htmlspecialchars( xl('Chg'), ENT_NOQUOTES); ?></th>
   <th class='right'><?php echo htmlspecialchars( xl('Paid'), ENT_NOQUOTES); ?></th>
   <th class='right'><?php echo htmlspecialchars( xl('Adj'), ENT_NOQUOTES); ?></th>
@@ -423,7 +423,7 @@ $query = "SELECT fe.*, f.user, u.fname, u.mname, u.lname " . $from .
 
 $countQuery = "SELECT COUNT(*) as c " . $from;
 
-$countRes = sqlStatement($countQuery,$sqlBindArray);
+$countRes = sqlStatement($countQuery, $sqlBindArray);
 $count = sqlFetchArray($countRes);
 $numRes = $count['c'];
 
@@ -441,12 +441,12 @@ if(($upper>$numRes) || ($pagesize==0))
 
 if(($pagesize > 0) && ($pagestart>0))
 {
-    generatePageElement($pagestart-$pagesize,$pagesize,$billing_view,$issue,"&lArr;" . htmlspecialchars( xl("Prev"), ENT_NOQUOTES) . " ");
+    generatePageElement($pagestart-$pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars( xl("Prev"), ENT_NOQUOTES) . " ");
 }
 echo ($pagestart + 1)."-".$upper." " . htmlspecialchars( xl('of'), ENT_NOQUOTES) . " " .$numRes;
 if(($pagesize>0) && ($pagestart+$pagesize <= $numRes))
 {
-    generatePageElement($pagestart+$pagesize,$pagesize,$billing_view,$issue," " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
+    generatePageElement($pagestart+$pagesize, $pagesize, $billing_view, $issue, " " . htmlspecialchars( xl("Next"), ENT_NOQUOTES) . "&rArr;");
 }
 
 
@@ -499,7 +499,7 @@ while ($result4 = sqlFetchArray($res4)) {
           "'>\n";
 
         // show encounter date
-        echo "<td valign='top' title='" . htmlspecialchars(xl('View encounter','','',' ') .
+        echo "<td valign='top' title='" . htmlspecialchars(xl('View encounter', '', '', ' ') .
           "$pid.{$result4['encounter']}", ENT_QUOTES) . "'>" .
           htmlspecialchars(oeFormatShortDate($raw_encounter_date), ENT_NOQUOTES) . "</td>\n";
 
@@ -511,7 +511,7 @@ while ($result4 = sqlFetchArray($res4)) {
         echo "<div id='note_$feid'>";
         //echo "<div onclick='editNote($feid)' title='Click to edit' class='text billing_note_text'>";
         echo "<div id='$feid' title='". htmlspecialchars( xl('Click to edit'), ENT_QUOTES) . "' class='text billing_note_text'>";
-        echo $result4['billing_note'] ? nl2br(htmlspecialchars( $result4['billing_note'], ENT_NOQUOTES)) : htmlspecialchars( xl('Add','','[',']'), ENT_NOQUOTES);
+        echo $result4['billing_note'] ? nl2br(htmlspecialchars( $result4['billing_note'], ENT_NOQUOTES)) : htmlspecialchars( xl('Add', '', '[', ']'), ENT_NOQUOTES);
         echo "</div>";
         echo "</div>";
         echo "</td>\n";
@@ -547,7 +547,7 @@ while ($result4 = sqlFetchArray($res4)) {
         echo "<td>".$reason_string;
 
         //Display the documents tagged to this encounter
-        getDocListByEncID($result4['encounter'],$raw_encounter_date,$pid);
+        getDocListByEncID($result4['encounter'], $raw_encounter_date, $pid);
 
         echo "<div style='padding-left:10px;'>";
 
@@ -579,7 +579,7 @@ while ($result4 = sqlFetchArray($res4)) {
                 echo "<div class='encreport' style='padding-left:10px;'>";
           // Use the form's report.php for display.  Forms with names starting with LBF
           // are list-based forms sharing a single collection of code.
-                if (substr($formdir,0,3) == 'LBF') {
+                if (substr($formdir, 0, 3) == 'LBF') {
                     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
                     call_user_func("lbf_report", $pid, $result4['encounter'], 2, $enc['form_id'], $formdir);
                 }
@@ -617,7 +617,7 @@ while ($result4 = sqlFetchArray($res4)) {
             // for therapy group view
         } else {
             $counselors ='';
-            foreach (explode(',',$result4['counselors']) as $userId){
+            foreach (explode(',', $result4['counselors']) as $userId){
                 $counselors .= getUserNameById($userId) . ', ';
             }
             $counselors = rtrim($counselors, ", ");

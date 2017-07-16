@@ -29,7 +29,7 @@ function specialist_notes_report($pid, $encounter, $cols, $id)
                 $value = 'Yes';
             }
 
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {

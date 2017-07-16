@@ -155,7 +155,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                                     foreach ($l_arr as $layout_entry) {
                                         $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
                                                             "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user['id'],$facility['id'],$layout_entry['field_id']) );
-                                        echo "<td><span class='text'>" . generate_display_field($layout_entry,$entry_data['field_value']) . "&nbsp;</td>";
+                                        echo "<td><span class='text'>" . generate_display_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                                     }
                                     ?>
                 </tr>

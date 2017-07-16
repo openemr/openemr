@@ -100,7 +100,7 @@ class ApplicationTable extends AbstractTableGateway
     {
         $escaper = new \Zend\Escaper\Escaper('utf-8');
         $trace  = $e->getTraceAsString();
-        $nLast = strpos($trace , '[internal function]');
+        $nLast = strpos($trace, '[internal function]');
         $trace = substr($trace, 0, ($nLast - 3));
         $logMsg = '';
         do {
@@ -193,34 +193,34 @@ class ApplicationTable extends AbstractTableGateway
                             WHERE
                                 garo.section_value = ? AND usr. id = ?";
                                 
-        $res_groups     = $this->zQuery($sql_user_group,array('users',$user_id));
+        $res_groups     = $this->zQuery($sql_user_group, array('users',$user_id));
         $groups = array();
         foreach($res_groups as $row){
-            array_push($groups,$row['group_id']);
+            array_push($groups, $row['group_id']);
         }
-        $groups_str = implode(",",$groups);
+        $groups_str = implode(",", $groups);
         
         $count_user_denied      = 0;
         $count_user_allowed     = 0;
         $count_group_denied     = 0;
         $count_group_allowed    = 0;
         
-        $res_user_denied    = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,0));
+        $res_user_denied    = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,0));
         foreach($res_user_denied as $row){
             $count_user_denied  = $row['count'];
         }
         
-        $res_user_allowed   = $this->zQuery($sql_user_acl,array($section_identifier,$user_id,1));
+        $res_user_allowed   = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,1));
         foreach($res_user_allowed as $row){
             $count_user_allowed  = $row['count'];
         }
         
-        $res_group_denied   = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,0));
+        $res_group_denied   = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,0));
         foreach($res_group_denied as $row){
             $count_group_denied  = $row['count'];
         }
         
-        $res_group_allowed  = $this->zQuery($sql_group_acl,array($section_identifier,$groups_str,1));
+        $res_group_allowed  = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,1));
         foreach($res_group_allowed as $row){
             $count_group_allowed  = $row['count'];
         }
@@ -369,26 +369,26 @@ class ApplicationTable extends AbstractTableGateway
         
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
         
-        $temp   = explode(' ',$input_date); //split using space and consider the first portion, in case of date with time
+        $temp   = explode(' ', $input_date); //split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
         
         $output_format = \Application\Model\ApplicationTable::dateFormat($output_format);
         $input_format = \Application\Model\ApplicationTable::dateFormat($input_format);
         
-        preg_match("/[^ymd]/", $output_format,$date_seperator_output);
+        preg_match("/[^ymd]/", $output_format, $date_seperator_output);
         $seperator_output   = $date_seperator_output[0];
         $output_date_arr    = explode($seperator_output, $output_format);
         
-        preg_match("/[^ymd]/", $input_format,$date_seperator_input);
+        preg_match("/[^ymd]/", $input_format, $date_seperator_input);
         $seperator_input    = $date_seperator_input[0];
         $input_date_array   = explode($seperator_input, $input_format);
         
-        preg_match("/[^1234567890]/", $input_date,$date_seperator_input);
+        preg_match("/[^1234567890]/", $input_date, $date_seperator_input);
         $seperator_input    = $date_seperator_input[0];
         $input_date_arr     = explode($seperator_input, $input_date);
   
         foreach($output_date_arr as $key => $format) {
-            $index = array_search($format,$input_date_array);
+            $index = array_search($format, $input_date_array);
             $output_date_arr[$key] = $input_date_arr[$index];
         }
         

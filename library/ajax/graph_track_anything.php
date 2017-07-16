@@ -17,11 +17,11 @@
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 // get $_POSTed data
-$titleGraph       = json_decode($_POST['track'],true);
-$the_date_array   = json_decode($_POST['dates'],true);
-$the_value_array  = json_decode($_POST['values'],true);
-$the_item_names   = json_decode($_POST['items'],true);
-$the_checked_cols = json_decode($_POST['thecheckboxes'],true);
+$titleGraph       = json_decode($_POST['track'], true);
+$the_date_array   = json_decode($_POST['dates'], true);
+$the_value_array  = json_decode($_POST['values'], true);
+$the_item_names   = json_decode($_POST['items'], true);
+$the_checked_cols = json_decode($_POST['thecheckboxes'], true);
 // ++++++/end get POSTed data
 
 // check if something was sent
@@ -70,4 +70,4 @@ $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
-echo json_encode($graph_build,JSON_UNESCAPED_SLASHES);
+echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);

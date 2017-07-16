@@ -39,23 +39,23 @@ require_once("$webserver_root/custom/code_types.inc.php");
 function hl7Text($s)
 {
   // See http://www.interfaceware.com/hl7_escape_protocol.html:
-    $s = str_replace('\\', '\\E\\'  , $s);
-    $s = str_replace('^' , '\\S\\'  , $s);
-    $s = str_replace('|' , '\\F\\'  , $s);
-    $s = str_replace('~' , '\\R\\'  , $s);
-    $s = str_replace('&' , '\\T\\'  , $s);
+    $s = str_replace('\\', '\\E\\', $s);
+    $s = str_replace('^', '\\S\\', $s);
+    $s = str_replace('|', '\\F\\', $s);
+    $s = str_replace('~', '\\R\\', $s);
+    $s = str_replace('&', '\\T\\', $s);
     $s = str_replace("\r", '\\X0d\\', $s);
     return $s;
 }
 
 function hl7Zip($s)
 {
-    return hl7Text(preg_replace('/[-\s]*/','',$s));
+    return hl7Text(preg_replace('/[-\s]*/', '', $s));
 }
 
 function hl7Date($s)
 {
-    return preg_replace('/[^\d]/','',$s);
+    return preg_replace('/[^\d]/', '', $s);
 }
 
 function hl7Time($s)

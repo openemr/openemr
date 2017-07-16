@@ -27,7 +27,7 @@ $form_code_type = $_POST['form_code_type'];
 <html>
 <head>
 <?php html_header_show(); ?>
-<title><?php xl('Immunization','e'); ?></title>
+<title><?php xl('Immunization', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <style>
 td { font-size:10pt; }
@@ -124,11 +124,11 @@ function check_search_str()
  <tr>
   <td>
    <b>
-    <?php xl('Search for','e'); ?>
+    <?php xl('Search for', 'e'); ?>
    <input type='text' name='search_term' id='search_term' size='12' value='<?php echo $_REQUEST['search_term']; ?>'
-    title='<?php xl('Any part of the immunization id or immunization name','e'); ?>' />
+    title='<?php xl('Any part of the immunization id or immunization name', 'e'); ?>' />
    &nbsp;
-   <input type='submit' name='bn_search' value='<?php xl('Search','e'); ?>' />  
+   <input type='submit' name='bn_search' value='<?php xl('Search', 'e'); ?>' />  
    </b>
   </td>
  </tr>
@@ -184,13 +184,13 @@ if ($row = sqlFetchArray($res))
 </tr>
  </table>
 <center>
- <input type='button' name='select_all' value='<?php xl('Select All','e'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
+ <input type='button' name='select_all' value='<?php xl('Select All', 'e'); ?>' onclick="chkbox_select_all(document.select_immunization.chkbox);"/>
  
- <input type='button' name='select_none' value='<?php xl('Unselect All','e'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
+ <input type='button' name='select_none' value='<?php xl('Unselect All', 'e'); ?>' onclick="chkbox_select_none(document.select_immunization.chkbox);"/>
  
- <input type='button' name='submit' value='<?php xl('Submit','e'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
+ <input type='button' name='submit' value='<?php xl('Submit', 'e'); ?>' onclick="window_submit(document.select_immunization.chkbox);"/>
  
- <input type='button' name='cancel' value='<?php xl('Cancel','e'); ?>' onclick="window_close();"/>
+ <input type='button' name='cancel' value='<?php xl('Cancel', 'e'); ?>' onclick="window_close();"/>
  
  </center>
 <?php } ?>

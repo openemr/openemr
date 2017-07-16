@@ -40,7 +40,7 @@ if(count($menu_parsed)==0)
 
 menu_update_entries($menu_parsed);
 $menu_restrictions=array();
-menu_apply_restrictions($menu_parsed,$menu_restrictions);
+menu_apply_restrictions($menu_parsed, $menu_restrictions);
 ?>
 <script type="text/javascript">
 

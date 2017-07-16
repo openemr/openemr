@@ -45,7 +45,7 @@ class C_Pharmacy extends Controller
     {
 
         if (!empty($sort)) {
-            $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("",$sort));
+            $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("", $sort));
         }
         else {
             $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());

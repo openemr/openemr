@@ -191,7 +191,7 @@ class Installer
         $sql_results = ''; // information string which is returned
         foreach ($this->dumpfiles as $filename => $title) {
             $sql_results_temp = '';
-            $sql_results_temp = $this->load_file($filename,$title);
+            $sql_results_temp = $this->load_file($filename, $title);
             if ($sql_results_temp == false) return false;
             $sql_results .= $sql_results_temp;
         }
@@ -219,18 +219,18 @@ class Installer
         }
 
         while (!feof ($fd)){
-            $line = fgets($fd,1024);
+            $line = fgets($fd, 1024);
             $line = rtrim($line);
-            if (substr($line,0,2) == "--") // Kill comments
+            if (substr($line, 0, 2) == "--") // Kill comments
                     continue;
-            if (substr($line,0,1) == "#") // Kill comments
+            if (substr($line, 0, 1) == "#") // Kill comments
                     continue;
             if ($line == "")
                     continue;
             $query = $query.$line;          // Check for full query
-            $chr = substr($query,strlen($query)-1,1);
+            $chr = substr($query, strlen($query)-1, 1);
             if ($chr == ";") { // valid query, execute
-                    $query = rtrim($query,";");
+                    $query = rtrim($query, ";");
                 if ( ! $this->execute_sql( $query ) ){
                     return false;
                 }
@@ -274,7 +274,7 @@ class Installer
         }
         $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
         $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
-        $hash=oemr_password_hash($this->iuserpass,$salt);
+        $hash=oemr_password_hash($this->iuserpass, $salt);
         if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','$this->iufname',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
@@ -289,7 +289,7 @@ class Installer
             return false;
         }
         // Add the official openemr users (services)
-        if ($this->load_file($this->additional_users,"Additional Official Users") == false) return false;
+        if ($this->load_file($this->additional_users, "Additional Official Users") == false) return false;
 
         return true;
     }
@@ -328,16 +328,16 @@ class Installer
 
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
-        fwrite($fd,$string) or $it_died++;
-        fwrite($fd,"\$host\t= '$this->server';\n") or $it_died++;
-        fwrite($fd,"\$port\t= '$this->port';\n") or $it_died++;
-        fwrite($fd,"\$login\t= '$this->login';\n") or $it_died++;
-        fwrite($fd,"\$pass\t= '$this->pass';\n") or $it_died++;
-        fwrite($fd,"\$dbase\t= '$this->dbname';\n\n") or $it_died++;
-        fwrite($fd,"//Added ability to disable\n") or $it_died++;
-        fwrite($fd,"//utf8 encoding - bm 05-2009\n") or $it_died++;
-        fwrite($fd,"global \$disable_utf8_flag;\n") or $it_died++;
-        fwrite($fd,"\$disable_utf8_flag = false;\n") or $it_died++;
+        fwrite($fd, $string) or $it_died++;
+        fwrite($fd, "\$host\t= '$this->server';\n") or $it_died++;
+        fwrite($fd, "\$port\t= '$this->port';\n") or $it_died++;
+        fwrite($fd, "\$login\t= '$this->login';\n") or $it_died++;
+        fwrite($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
+        fwrite($fd, "\$dbase\t= '$this->dbname';\n\n") or $it_died++;
+        fwrite($fd, "//Added ability to disable\n") or $it_died++;
+        fwrite($fd, "//utf8 encoding - bm 05-2009\n") or $it_died++;
+        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
+        fwrite($fd, "\$disable_utf8_flag = false;\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -359,7 +359,7 @@ $config = 1; /////////////
 ';
     ?><?php // done just for coloring
 
-    fwrite($fd,$string) or $it_died++;
+    fwrite($fd, $string) or $it_died++;
     fclose($fd) or $it_died++;
 
     //it's rather irresponsible to not report errors when writing this file.
@@ -638,7 +638,7 @@ if ($it_died != 0) {
         " --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
-        $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
+        $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
         if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
 
         return $backup_file;

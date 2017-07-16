@@ -73,7 +73,7 @@ if (!$formid){
             $query = "INSERT INTO form_track_anything (procedure_type_id) VALUES (?)";
             $formid = sqlInsert($query, $myprocedureid);
             $spell = "SELECT name FROM form_track_anything_type WHERE track_anything_type_id = ?";
-            $myrow = sqlQuery($spell,array($myprocedureid));
+            $myrow = sqlQuery($spell, array($myprocedureid));
             $myprocedurename = $myrow["name"];
             $register_as = "Track: " . $myprocedurename;
             // adding Form
@@ -228,7 +228,7 @@ if ($formid){
     echo "<table border='1'>";
 
     $spell0 = "SELECT DISTINCT track_timestamp FROM form_track_anything_results WHERE track_anything_id = ? ORDER BY track_timestamp DESC";
-    $query = sqlStatement($spell0,array($formid));
+    $query = sqlStatement($spell0, array($formid));
     $main_counter=0; // this counts 'number of rows'  of old entries
 while($myrow = sqlFetchArray($query)){
     $thistime = $myrow['track_timestamp'];
@@ -239,7 +239,7 @@ while($myrow = sqlFetchArray($query)){
     $spell .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
     $spell .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
     $spell .= "ORDER BY form_track_anything_type.position ASC, the_name ASC ";
-    $query2  = sqlStatement($spell,array($formid ,$thistime));
+    $query2  = sqlStatement($spell, array($formid ,$thistime));
 
     // <table> heading line
     if ($shownameflag==1){
@@ -253,7 +253,7 @@ while($myrow = sqlFetchArray($query)){
     echo "<tr><td bgcolor=#eeeeec>";
     $main_counter++; // next row
     echo "<input type='text' class='datetimepicker' size='16' name='old_time[" . attr($main_counter) . "]' value='" . attr($thistime) . "'></td>";
-    $query2  = sqlStatement($spell,array($formid ,$thistime));
+    $query2  = sqlStatement($spell, array($formid ,$thistime));
 
     $counter = 0; // this counts columns
     while($myrow2 = sqlFetchArray($query2)){

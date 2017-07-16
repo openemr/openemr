@@ -76,7 +76,7 @@ function getCounselors($gid)
 function getParticipants($gid, $onlyActive = false)
 {
     $model = new Therapy_groups_participants();
-    $result = $model->getParticipants($gid,$onlyActive);
+    $result = $model->getParticipants($gid, $onlyActive);
     return $result;
 }
 

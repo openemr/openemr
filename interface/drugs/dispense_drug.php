@@ -27,7 +27,7 @@ function send_email($subject, $body)
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
     if(!$mail->Send()) {
-        error_log(xl('There has been a mail error sending to','','',' ') . $recipient .
+        error_log(xl('There has been a mail error sending to', '', '', ' ') . $recipient .
         " " . $mail->ErrorInfo);
     }
 }
@@ -151,15 +151,15 @@ if (! $sale_id) {
   ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
   $row['name'] . ' ' . $row['size'] . ' ' .
   generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-  xl('QTY','',' ',' ') . $row['quantity'] . "\n" .
-  xl('Take','','',' ') . $row['dosage'] . ' ' .
+  xl('QTY', '', ' ', ' ') . $row['quantity'] . "\n" .
+  xl('Take', '', '', ' ') . $row['dosage'] . ' ' .
   generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
   ($row['dosage'] > 1 ? 's ' : ' ') .
   generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
   ' ' .
   generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) .
-  "\n" . xl('Lot','','',' ') . $row['lot_number'] . xl('Exp','',' ',' ') . $row['expiration'] . "\n" .
-  xl('NDC','','',' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
+  "\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
+  xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
  // if ($row['refills']) {
  //  // Find out how many times this prescription has been filled/refilled.
@@ -177,7 +177,7 @@ if (! $sale_id) {
  //
  if (false) { // if PDF output is desired
      $pdf = new Cezpdf($dconfig['paper_size']);
-     $pdf->ezSetMargins($dconfig['top'],$dconfig['bottom'],$dconfig['left'],$dconfig['right']);
+     $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
      $pdf->selectFont('Helvetica');
      $pdf->ezSetDy(20); // dunno why we have to do this...
      $pdf->ezText($header_text, 7, array('justification'=>'center'));

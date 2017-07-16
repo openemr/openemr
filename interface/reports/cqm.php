@@ -53,7 +53,7 @@ if (!empty($report_id)) {
     $organize_method = $report_view['organize_mode'];
     $provider  = $report_view['provider'];
     $pat_prov_rel = $report_view['pat_prov_rel'];
-    $dataSheet = json_decode($report_view['data'],true);
+    $dataSheet = json_decode($report_view['data'], true);
 }
 else {
   // Collect report type parameter (standard, amc, cqm)
@@ -542,7 +542,7 @@ else {
                                (<?php echo htmlspecialchars( xl('Non-electronic'), ENT_NOQUOTES); ?>)
                         </td>
                         <td>
-                               <input <?php echo $dis_text; ?> type="text" id="labs_manual_entry" name="labs_manual_entry" class='form-control' value="<?php echo htmlspecialchars($labs_manual,ENT_QUOTES); ?>">
+                               <input <?php echo $dis_text; ?> type="text" id="labs_manual_entry" name="labs_manual_entry" class='form-control' value="<?php echo htmlspecialchars($labs_manual, ENT_QUOTES); ?>">
                         </td>
                   </tr>
                 <?php } ?>
@@ -694,7 +694,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         // as is in the cqm/amc rules.
         $main_pass_filter = $row['pass_filter'];
 
-        echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'),$row['id'])."</b>";
+        echo "<b>".generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id'])."</b>";
 
         $tempCqmAmcString = "";
         if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
@@ -734,8 +734,8 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
 
     }
     else { // isset($row['is_sub'])
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$row['action_category']);
-        echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$row['action_item']);
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
+        echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
     }
         echo "</td>";
 
@@ -830,7 +830,7 @@ else { // isset($row['is_plan'])
     }
     echo "<td class='detail' align='center'><b>";
     echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
-    echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'),$row['id']);
+    echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $row['id']);
     if (!empty($row['cqm_measure_group'])) {
         echo " (". htmlspecialchars( xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
     }

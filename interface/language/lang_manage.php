@@ -30,10 +30,10 @@ if ($_POST['check'] || $_POST['synchronize']){
     while ($row=SqlFetchArray($res)){
         $row_custom[] = $row['lang_description'];
     }
-    $custom_languages = array_diff(array_unique($row_custom),array_unique($row_main));
+    $custom_languages = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_languages as $var) {
         if ($var=='') continue;
-        echo htmlspecialchars(xl('Following is a new custom language:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR>";
+        echo htmlspecialchars(xl('Following is a new custom language:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR>";
         if (!$checkOnly) {
             // add the new language (first collect the language code)
             $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description=? ".$case_sensitive_collation." LIMIT 1";
@@ -41,7 +41,7 @@ if ($_POST['check'] || $_POST['synchronize']){
             $row = SqlFetchArray($res);
             $sql="INSERT INTO lang_languages SET lang_code=?, lang_description=?";
             SqlStatement($sql, array($row['lang_code'], $var) );
-            echo htmlspecialchars(xl('Synchronized new custom language:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR><BR>";
+            echo htmlspecialchars(xl('Synchronized new custom language:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
         $difference = 1;
     }
@@ -61,15 +61,15 @@ if ($_POST['check'] || $_POST['synchronize']){
     while ($row=SqlFetchArray($res)){
         $row_custom[] = $row['constant_name'];
     }
-    $custom_constants = array_diff(array_unique($row_custom),array_unique($row_main));
+    $custom_constants = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_constants as $var) {
         if ($var=='') continue;
-        echo htmlspecialchars(xl('Following is a new custom constant:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR>";
+        echo htmlspecialchars(xl('Following is a new custom constant:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR>";
         if (!$checkOnly) {
             // add the new constant
             $sql="INSERT INTO lang_constants SET constant_name=?";
             SqlStatement($sql, array($var) );
-            echo htmlspecialchars(xl('Synchronized new custom constant:'),ENT_NOQUOTES)." ".htmlspecialchars($var,ENT_NOQUOTES)."<BR><BR>";
+            echo htmlspecialchars(xl('Synchronized new custom constant:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
         $difference = 1;
     }
@@ -109,41 +109,41 @@ if ($_POST['check'] || $_POST['synchronize']){
             }
             else {
                 //definition is different
-                echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'),ENT_NOQUOTES).
-                " ".htmlspecialchars($row['lang_description'],ENT_NOQUOTES).
-                " ".htmlspecialchars($row['constant_name'],ENT_NOQUOTES).
-                " ".htmlspecialchars($row['definition'],ENT_NOQUOTES)."<BR>";
+                echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
+                " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
+                " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
+                " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR>";
                 if (!$checkOnly) {
                     //add new definition
                     $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
                     SqlStatement($sql, array($row['definition'], $def_id) );
-                    echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'),ENT_NOQUOTES).
-                    " ".htmlspecialchars($row['lang_description'],ENT_NOQUOTES).
-                    " ".htmlspecialchars($row['constant_name'],ENT_NOQUOTES).
-                    " ".htmlspecialchars($row['definition'],ENT_NOQUOTES)."<BR><BR>";
+                    echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
+                    " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
+                    " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
+                    " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR><BR>";
                 }
                 $difference = 1;
             }
         }
         else {
-            echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'),ENT_NOQUOTES).
-            " ".htmlspecialchars($row['lang_description'],ENT_NOQUOTES).
-            " ".htmlspecialchars($row['constant_name'],ENT_NOQUOTES).
-            " ".htmlspecialchars($row['definition'],ENT_NOQUOTES)."<BR>";
+            echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
+            " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
+            " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
+            " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR>";
             if (!$checkOnly) {
                 //add new definition
                 $sql = "INSERT INTO lang_definitions (cons_id,lang_id,definition) VALUES (?,?,?)";
                 SqlStatement($sql, array($constant_id, $language_id, $row['definition']) );
-                echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'),ENT_NOQUOTES).
-                " ".htmlspecialchars($row['lang_description'],ENT_NOQUOTES).
-                " ".htmlspecialchars($row['constant_name'],ENT_NOQUOTES).
-                " ".htmlspecialchars($row['definition'],ENT_NOQUOTES)."<BR><BR>";
+                echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
+                " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
+                " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
+                " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR><BR>";
             }
             $difference = 1;
         }
     }
     if (!$difference) {
-        echo htmlspecialchars(xl('The translation tables are synchronized.'),ENT_NOQUOTES);
+        echo htmlspecialchars(xl('The translation tables are synchronized.'), ENT_NOQUOTES);
     }
 }
 ?>
@@ -151,13 +151,13 @@ if ($_POST['check'] || $_POST['synchronize']){
 <TABLE>
 <FORM name="manage_form" METHOD=POST ACTION="?m=manage" onsubmit="return top.restoreSession()">
   <TR>
-    <TD><INPUT TYPE="submit" name="check" value="<?php echo htmlspecialchars(xl('Check'),ENT_QUOTES); ?>"></TD>
-    <TD class="text">(<?php echo htmlspecialchars(xl('Check for differences of translations with custom language table.'),ENT_NOQUOTES); ?>)</TD>  
+    <TD><INPUT TYPE="submit" name="check" value="<?php echo htmlspecialchars(xl('Check'), ENT_QUOTES); ?>"></TD>
+    <TD class="text">(<?php echo htmlspecialchars(xl('Check for differences of translations with custom language table.'), ENT_NOQUOTES); ?>)</TD>  
   </TR>
   <TR></TR>
   <TR>
-    <TD><INPUT TYPE="submit" name="synchronize" value="<?php echo htmlspecialchars(xl('Synchronize'),ENT_QUOTES); ?>"></TD>
-    <TD class="text">(<?php echo htmlspecialchars(xl('Synchronize translations with custom language table.'),ENT_NOQUOTES); ?>)</TD>
+    <TD><INPUT TYPE="submit" name="synchronize" value="<?php echo htmlspecialchars(xl('Synchronize'), ENT_QUOTES); ?>"></TD>
+    <TD class="text">(<?php echo htmlspecialchars(xl('Synchronize translations with custom language table.'), ENT_NOQUOTES); ?>)</TD>
   </TR>
 </FORM>
 </TABLE>	

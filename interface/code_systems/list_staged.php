@@ -109,53 +109,53 @@ if (is_dir($mainPATH)) {
             }
             $supported_file = 0;
             if ($db == 'RXNORM') {
-                if (preg_match("/RxNorm_full_([0-9]{8}).zip/",$file,$matches)) {
+                if (preg_match("/RxNorm_full_([0-9]{8}).zip/", $file, $matches)) {
 
             // Hard code the version RxNorm feed to be Standard
                     //  (if add different RxNorm types/versions/lanuages, then can use this)
             //
                     $version = "Standard";
-                    $date_release = substr($matches[1],4)."-".substr($matches[1],0,2)."-".substr($matches[1],2,-4);
+                    $date_release = substr($matches[1], 4)."-".substr($matches[1], 0, 2)."-".substr($matches[1], 2, -4);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
             }
             else if ($db == 'SNOMED') {
-                if (preg_match("/SnomedCT_INT_([0-9]{8}).zip/",$file,$matches)) {
+                if (preg_match("/SnomedCT_INT_([0-9]{8}).zip/", $file, $matches)) {
 
                     // Hard code the version SNOMED feed to be International:English
                     //  (if add different SNOMED types/versions/languages, then can use this)
                     //
                     $version = "International:English";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/SnomedCT_Release_INT_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/SnomedCT_Release_INT_([0-9]{8}).zip/", $file, $matches)) {
 
                     // Hard code the version SNOMED feed to be International:English
                     //  (if add different SNOMED types/versions/languages, then can use this)
                     //
                     $version = "International:English";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/SnomedCT_RF1Release_INT_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/SnomedCT_RF1Release_INT_([0-9]{8}).zip/", $file, $matches)) {
 
                     // Hard code the version SNOMED feed to be International:English
                     //  (if add different SNOMED types/versions/languages, then can use this)
                     //
                     $version = "International:English";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/SnomedCT_Release_US[0-9]*_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/SnomedCT_Release_US[0-9]*_([0-9]{8}).zip/", $file, $matches)) {
 
                     // This is the SNOMED US extension pack which can only be installed on top
                     // of a International SNOMED version.
@@ -164,42 +164,42 @@ if (is_dir($mainPATH)) {
                     // a complete SNOMED pacakge.
                     //
                     $version = "US Extension";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/sct1_National_US_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/sct1_National_US_([0-9]{8}).zip/", $file, $matches)) {
 
                     // This is the SNOMED US extension pack which can only be installed on top
                     // of a International SNOMED version.
                     // Hard code this version SNOMED feed to be US Extension
                     //
                     $version = "US Extension";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/SnomedCT_RF1Release_US[0-9]*_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/SnomedCT_RF1Release_US[0-9]*_([0-9]{8}).zip/", $file, $matches)) {
 
                     // This is the Complete SNOMED US extension package
                     // Hard code this version SNOMED feed to be Complete US Extension
                     //
                     $version = "Complete US Extension";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
-                else if (preg_match("/SnomedCT_Release-es_INT_([0-9]{8}).zip/",$file,$matches)) {
+                else if (preg_match("/SnomedCT_Release-es_INT_([0-9]{8}).zip/", $file, $matches)) {
 
                     // Hard code this SNOMED version feed to be International:Spanish
                     //
                     $version = "International:Spanish";
-                    $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                    $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
                 else {
@@ -226,16 +226,16 @@ if (is_dir($mainPATH)) {
                     $version = $sqlReturn['load_source'];
                     $date_release = $sqlReturn['load_release_date'];
                     $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$file, 'checksum'=>$file_checksum);
-                    array_push($revisions,$temp_date);
+                    array_push($revisions, $temp_date);
                     $supported_file = 1;
                 }
             }
             else if($db == 'CQM_VALUESET'){
-                if (preg_match("/ep_only_cms_([0-9]{8}).xml.zip/",$file,$matches)) {
+                if (preg_match("/ep_only_cms_([0-9]{8}).xml.zip/", $file, $matches)) {
                      $version = "Standard";
-                         $date_release = substr($matches[1],0,4)."-".substr($matches[1],4,-2)."-".substr($matches[1],6);
+                         $date_release = substr($matches[1], 0, 4)."-".substr($matches[1], 4, -2)."-".substr($matches[1], 6);
                          $temp_date = array('date'=>$date_release, 'version'=>$version, 'path'=>$mainPATH."/".$matches[0]);
-                         array_push($revisions,$temp_date);
+                         array_push($revisions, $temp_date);
                          $supported_file = 1;
                 }
             }

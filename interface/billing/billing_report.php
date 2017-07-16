@@ -865,7 +865,7 @@ if ($ret = getBillsBetween("%"))
                         if (strlen($row['provider']) > 0) {
                             // This preserves any existing insurance company selection, which is
                             // important when EOB posting has re-queued for secondary billing.
-                            $lhtml .= "<option value=\"" . attr(substr($row['type'],0,1).$row['id']) . "\"";
+                            $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1).$row['id']) . "\"";
                             if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
                                 $lhtml .= " selected";
                                 if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
@@ -953,11 +953,11 @@ if ($ret = getBillsBetween("%"))
                             htmlspecialchars( xl("This claim has been denied.Reason:-"), ENT_QUOTES);
                             if($crow['process_file'])
                              {
-                                $code_array=explode(',',$crow['process_file']);
+                                $code_array=explode(',', $crow['process_file']);
                                 foreach($code_array as $code_key => $code_value)
                                 {
                                     $lhtml .= "<br>\n&nbsp;&nbsp;&nbsp;";
-                                    $reason_array=explode('_',$code_value);
+                                    $reason_array=explode('_', $code_value);
                                     if(!isset($adjustment_reasons[$reason_array[3]]))
                                      {
                                         $lhtml .=htmlspecialchars( xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars( xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars( xl("the Denial code is"), ENT_QUOTES).' ['.text($reason_array[2]).' '.text($reason_array[3]).']';
@@ -1027,7 +1027,7 @@ if ($ret = getBillsBetween("%"))
         $justify = "";
 
         if ($iter['id'] && $code_types[$iter['code_type']]['just']) {
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
                 if(!empty($j)) {

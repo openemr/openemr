@@ -16,7 +16,7 @@ require_once("$srcdir/acl.inc");
 $auth_notes_a  = acl_check('encounters', 'notes_a');
 $auth_notes    = acl_check('encounters', 'notes');
 $auth_relaxed  = acl_check('encounters', 'relaxed');
-$auth_demo     = acl_check('patients'  , 'demo');
+$auth_demo     = acl_check('patients', 'demo');
 
 $tmp = getPatientData($pid, "squad");
 if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -49,15 +49,15 @@ if (!($auth_notes_a || $auth_notes || $auth_relaxed)) {
 
 <body class="body_bottom">
 
-<font class='title'><?php xl('Stength and Conditioning','e'); ?></font>
+<font class='title'><?php xl('Stength and Conditioning', 'e'); ?></font>
 
 <br>
 
 <table>
  <tr>
-  <td class='bold'><?php xl('Date','e');     ?></td>
-  <td class='bold'><?php xl('Reason','e');   ?></td>
-  <td class='bold'><?php xl('Provider','e'); ?></td>
+  <td class='bold'><?php xl('Date', 'e');     ?></td>
+  <td class='bold'><?php xl('Reason', 'e');   ?></td>
+  <td class='bold'><?php xl('Provider', 'e'); ?></td>
  </tr>
 
 <?php
