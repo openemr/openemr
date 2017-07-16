@@ -34,13 +34,16 @@ class NFQ_0002_Exclusion implements CqmFilterIF
         $antibiotics  = implode(',', Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS, 'RXNORM'));
         $pharyngitis_snomed_codes   = $pharyngitis_icd9_codes = $pharyngitis_icd10_codes = array();
         foreach (Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS, 'SNOMED-CT') as $code) {
-            $pharyngitis_snomed_codes[] = "SNOMED-CT:".$code;}
+            $pharyngitis_snomed_codes[] = "SNOMED-CT:".$code;
+        }
 
         foreach (Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS, 'ICD9') as $code) {
-            $pharyngitis_icd9_codes[] = "ICD9:".$code;}
+            $pharyngitis_icd9_codes[] = "ICD9:".$code;
+        }
 
         foreach (Codes::lookup(Diagnosis::ACUTE_PHARYNGITIS, 'ICD10') as $code) {
-            $pharyngitis_icd10_codes[] = "ICD10:".$code;}
+            $pharyngitis_icd10_codes[] = "ICD10:".$code;
+        }
     
         $pharyngitis_snomed_codes = "'".implode("','", $pharyngitis_snomed_codes)."'";
         $pharyngitis_icd9_codes   = "'".implode("','", $pharyngitis_icd9_codes)."'";
@@ -48,13 +51,16 @@ class NFQ_0002_Exclusion implements CqmFilterIF
         
         $tonsillitis_snomed_codes = $tonsillitis_icd9_codes = $tonsillitis_icd10_codes = array();
         foreach (Codes::lookup(Diagnosis::ACUTE_TONSILLITIS, 'SNOMED-CT') as $code) {
-            $tonsillitis_snomed_codes[] = "SNOMED-CT:".$code;}
+            $tonsillitis_snomed_codes[] = "SNOMED-CT:".$code;
+        }
 
         foreach (Codes::lookup(Diagnosis::ACUTE_TONSILLITIS, 'ICD9') as $code) {
-            $tonsillitis_icd9_codes[] = "ICD9:".$code;}
+            $tonsillitis_icd9_codes[] = "ICD9:".$code;
+        }
 
         foreach (Codes::lookup(Diagnosis::ACUTE_TONSILLITIS, 'ICD10') as $code) {
-            $tonsillitis_icd10_codes[] = "ICD10:".$code;}
+            $tonsillitis_icd10_codes[] = "ICD10:".$code;
+        }
 
         $tonsillitis_snomed_codes = "'".implode("','", $tonsillitis_snomed_codes)."'";
         $tonsillitis_icd9_codes   = "'".implode("','", $tonsillitis_icd9_codes)."'";

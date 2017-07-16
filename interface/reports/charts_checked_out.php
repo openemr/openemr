@@ -85,7 +85,8 @@ while ($row = sqlFetchArray($res)) {
           <th> <?php xl('As Of', 'e'); ?> </th>
      </thead>
      <tbody>
-        <?php  } ?>
+    <?php
+    } ?>
 
  <tr>
   <td>

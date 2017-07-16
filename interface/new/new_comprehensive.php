@@ -426,7 +426,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
  <tr>
   <td align='left' valign='top'>
 <?php if ($SHORT_FORM) {
-    echo "  <center>\n";} ?>
+    echo "  <center>\n";
+} ?>
 <?php
 
 function end_cell()
@@ -657,7 +658,8 @@ foreach ($insurancei as $iid => $iname) {
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) {
-        echo " style='display:none'";} ?>>
+        echo " style='display:none'";
+} ?>>
      <td class='required'><?php xl('Subscriber Employer (SE)', 'e'); ?><br><span style='font-weight:normal'>
       (<?php xl('if unemployed enter Student', 'e'); ?>,<br><?php xl('PT Student, or leave blank', 'e'); ?>): </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer
@@ -666,7 +668,8 @@ foreach ($insurancei as $iid => $iname) {
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) {
-        echo " style='display:none'";} ?>>
+        echo " style='display:none'";
+} ?>>
      <td><span class=required><?php xl('SE Address', 'e'); ?>: </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
       value="<?php echo $result3{"subscriber_employer_street"}?>"
@@ -674,7 +677,8 @@ foreach ($insurancei as $iid => $iname) {
     </tr>
 
     <tr<?php if ($GLOBALS['omit_employers']) {
-        echo " style='display:none'";} ?>>
+        echo " style='display:none'";
+} ?>>
      <td colspan="2">
       <table>
        <tr>
@@ -756,7 +760,8 @@ foreach ($insurancei as $iid => $iname) {
      <br />
        <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code', 'e') : xl('Postal Code', 'e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
        <span class='required'<?php if ($GLOBALS['omit_employers']) {
-            echo " style='display:none'";} ?>>
+            echo " style='display:none'";
+} ?>>
         <?php xl('Country', 'e'); ?>: </span>
         <?php
       // Modified 7/2009 by BM to incorporate data types
@@ -771,9 +776,11 @@ foreach ($insurancei as $iid => $iname) {
        <span class='required'><?php xl('Accept Assignment', 'e'); ?>: </span>
        <select name=i<?php echo $i?>accept_assignment>
        <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
-            echo "selected"; }?>><?php xl('YES', 'e'); ?></option>
+            echo "selected";
+}?>><?php xl('YES', 'e'); ?></option>
        <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
-            echo "selected"; }?>><?php xl('NO', 'e'); ?></option>
+            echo "selected";
+}?>><?php xl('NO', 'e'); ?></option>
      </select>
     </td>
    </tr>
@@ -788,7 +795,8 @@ foreach ($insurancei as $iid => $iname) {
 ?>
 
 <?php if (!$SHORT_FORM) {
-    echo "  <center>\n";} ?>
+    echo "  <center>\n";
+} ?>
 <br />
 <?php if ($WITH_SEARCH) { ?>
 <input type="button" id="search" value=<?php xl('Search', 'e', '\'', '\''); ?>

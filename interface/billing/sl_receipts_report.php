@@ -216,7 +216,8 @@ function sel_diagnosis() {
                <select name='form_use_edate' class='form-control'>
                 <option value='0'><?php echo xlt('Payment Date'); ?></option>
                 <option value='1'<?php if ($form_use_edate) {
-                    echo ' selected'; } ?>><?php echo xlt('Invoice Date'); ?></option>
+                    echo ' selected';
+} ?>><?php echo xlt('Invoice Date'); ?></option>
                </select>
             </td>
         </tr>
@@ -240,34 +241,40 @@ function sel_diagnosis() {
         <tr>
             <td class='control-label'>
                 <?php if (!$GLOBALS['simplified_demographics']) {
-                    echo '&nbsp;' . xlt('Procedure/Service') . ':';} ?>
+                    echo '&nbsp;' . xlt('Procedure/Service') . ':';
+} ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Optional procedure/service code'); ?>'
                 <?php if ($GLOBALS['simplified_demographics']) {
-                    echo "style='display:none'";} ?>>
+                    echo "style='display:none'";
+} ?>>
             </td>
 
             <td class='control-label'>
                 <?php if (!$GLOBALS['simplified_demographics']) {
-                    echo '&nbsp;' . xlt('Diagnosis') . ':';} ?>
+                    echo '&nbsp;' . xlt('Diagnosis') . ':';
+} ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
                 <?php if ($GLOBALS['simplified_demographics']) {
-                    echo "style='display:none'";} ?>>
+                    echo "style='display:none'";
+} ?>>
             </td>
 
             <td>
         <div class='checkbox'>
                 <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-                    echo " checked";} ?>><?php echo xlt('Details')?></label>
+                    echo " checked";
+} ?>><?php echo xlt('Details')?></label>
         </div>
         <div class='checkbox'>
                 <label><input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) {
-                    echo " checked";} ?>><?php echo xlt('Procedures')?></label>
+                    echo " checked";
+} ?>><?php echo xlt('Procedures')?></label>
         </div>
             </td>
         </tr>

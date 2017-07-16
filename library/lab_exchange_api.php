@@ -32,7 +32,7 @@ class LabExchangeClient
         echo "Path: {$path}\n";
 
         $encoded = "";
-        foreach ($vars as $key=>$value) {
+        foreach ($vars as $key => $value) {
             $encoded .= "$key=".urlencode($value)."&";
         }
 

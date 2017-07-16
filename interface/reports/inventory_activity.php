@@ -146,7 +146,8 @@ function thisLineItem(
   </td>
   <td class="detail" colspan='3'>
     <?php if ($_POST['form_details']) {
-        echo htmlspecialchars(xl('Total for')) . ' ';}
+        echo htmlspecialchars(xl('Total for')) . ' ';
+}
 
     echo htmlspecialchars($warehouse); ?>
   </td>
@@ -157,7 +158,8 @@ function thisLineItem(
   </td>
   <td class="detail" colspan='3'>
     <?php if ($_POST['form_details']) {
-        echo htmlspecialchars(xl('Total for')) . ' ';}
+        echo htmlspecialchars(xl('Total for')) . ' ';
+}
 
     echo htmlspecialchars($product); ?>
   </td>
@@ -462,7 +464,8 @@ table.mymaintable td, table.mymaintable th {
       <select name='form_by'>
        <option value='p'><?php echo htmlspecialchars(xl('Product')); ?></option>
        <option value='w'<?php if (!$product_first) {
-            echo ' selected';} ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
+            echo ' selected';
+} ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
       </select>
      </td>
      <td class='label_custom'>
@@ -520,7 +523,8 @@ echo "      </select>\n";
      </td>
      <td colspan='3' nowrap>
       <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-            echo " checked";} ?> />
+            echo " checked";
+} ?> />
      </td>
     </tr>
    </table>

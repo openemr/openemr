@@ -142,7 +142,7 @@ function beginReportDatabase($type, $fields, $report_id = null)
 
   // Set the fields tokens
     if (!empty($fields)) {
-        foreach ($fields as $key=>$value) {
+        foreach ($fields as $key => $value) {
             // skip the special tokens
             if (($key == "type") ||
              ($key == "data") ||

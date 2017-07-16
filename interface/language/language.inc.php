@@ -15,7 +15,8 @@ function check_pattern($data, $pat)
     if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) {
         return true ;
     } else {
-        return false; }
+        return false;
+    }
 }
 
 // Function to insert/modify items in the language log table, lang_custom

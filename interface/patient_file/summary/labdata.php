@@ -157,7 +157,8 @@ if (!$printable) {
         echo "<input type='checkbox' name='value_code[]' value=" . attr($myrow['value_code']) . " ";
         if ($value_select) {
             if (in_array($myrow['value_code'], $value_select)) {
-                echo "checked='checked' ";}
+                echo "checked='checked' ";
+            }
         }
 
         echo " /> " . text($myrow['value_code']) . "<br />";
@@ -181,13 +182,15 @@ if (!$printable) {
     echo "<td><input type='radio' name='mode' ";
     $mode = $_POST['mode'];
 if ($mode == 'list') {
-    echo "checked='checked' ";}
+    echo "checked='checked' ";
+}
 
     echo " value='list'> " . xlt('List') . "<br>";
 
     echo "<input type='radio' name='mode' ";
 if ($mode != 'list') {
-    echo "checked='checked' ";}
+    echo "checked='checked' ";
+}
 
     echo " value='matrix'> " . xlt('Matrix') . "<br>";
 
@@ -439,7 +442,8 @@ if ($value_select) {
             }
 
             if ($i == $itemcount) {
-                $a=false;}
+                $a=false;
+            }
         }
 
         echo "</table>";

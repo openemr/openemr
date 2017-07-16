@@ -42,7 +42,8 @@ function postcalendar_userapi_getLongDayName($args)
     extract($args);
     unset($args);
     if (!isset($Date)) {
-        return false; }
+        return false;
+    }
 
     $pc_long_day = array(_CALLONGFIRSTDAY,
                          _CALLONGSECONDDAY,
@@ -124,21 +125,24 @@ function postcalendar_userapi_buildView($args)
     //  get the current view
     //=================================================================
     if (!isset($viewtype)) {
-        $viewtype = 'month'; }
+        $viewtype = 'month';
+    }
 
     //=================================================================
     //  Find out what Template we're using
     //=================================================================
     $template_name = _SETTING_TEMPLATE;
     if (!isset($template_name)) {
-        $template_name = 'default'; }
+        $template_name = 'default';
+    }
 
     //=================================================================
     //  Find out what Template View to use
     //=================================================================
     $template_view = pnVarCleanFromInput('tplview');
     if (!isset($template_view)) {
-        $template_view = 'default'; }
+        $template_view = 'default';
+    }
 
     //=================================================================
     //  See if the template view exists
@@ -800,7 +804,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     }
 
     if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d'); }
+        $start = Date_Calc::dateNow('%Y-%m-%d');
+    }
 
     list($sy,$sm,$sd) = explode('-', $start);
 
@@ -880,7 +885,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     $events = array();
   // return an empty array if we don't have any results
     if (!isset($result)) {
-        return $events; }
+        return $events;
+    }
 
     for ($i=0; !$result->EOF; $result->MoveNext()) {
         // get the results from the query
@@ -1058,14 +1064,17 @@ function &postcalendar_userapi_pcQueryEvents($args)
     }
 
     if (!isset($eventstatus)) {
-        $eventstatus = 1; }
+        $eventstatus = 1;
+    }
 
   // sanity check on eventstatus
     if ((int)$eventstatus < -1 || (int)$eventstatus > 1) {
-        $eventstatus = 1; }
+        $eventstatus = 1;
+    }
 
     if (!isset($start)) {
-        $start = Date_Calc::dateNow('%Y-%m-%d'); }
+        $start = Date_Calc::dateNow('%Y-%m-%d');
+    }
 
     list($sy,$sm,$sd) = explode('-', $start);
 
@@ -1122,11 +1131,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
   //   AND a.pc_eventDate <= '$end' ";
 
     if (!empty($providerID)) {
-        $ruserid = $providerID; }
+        $ruserid = $providerID;
+    }
 
   // eliminate ruserid if we're trying to query by provider_id -- JRM
     if (!empty($provider_id)) {
-        unset($ruserid); }
+        unset($ruserid);
+    }
 
     if (isset($ruserid)) {
         // get all events for the specified username
@@ -1198,7 +1209,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $events = array();
   // return an empty array if we don't have any results
     if (!isset($result)) {
-        return $events; }
+        return $events;
+    }
 
     for ($i=0; !$result->EOF; $result->MoveNext()) {
         // WHY are we using an array for intermediate storage???  -- Rod

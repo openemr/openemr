@@ -209,13 +209,16 @@ class FormHand extends ORDataObject
     }
     function get_handedness_l()
     {
-        return $this->handedness == "Left" ? "CHECKED" : "";    }
+        return $this->handedness == "Left" ? "CHECKED" : "";
+    }
     function get_handedness_r()
     {
-        return $this->handedness == "Right" ? "CHECKED" : "";   }
+        return $this->handedness == "Right" ? "CHECKED" : "";
+    }
     function get_handedness_b()
     {
-        return $this->handedness == "Both" ? "CHECKED" : "";    }
+        return $this->handedness == "Both" ? "CHECKED" : "";
+    }
 
     // ----- notes -----
 

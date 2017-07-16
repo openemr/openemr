@@ -402,13 +402,16 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                         <td>
                             <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter' class='form-control'>
                             <option value='cqm' <?php if ($rule_filter == "cqm") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('All Clinical Quality Measures (CQM)'); ?></option>
                             <option value='cqm_2011' <?php if ($rule_filter == "cqm_2011") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('2011 Clinical Quality Measures (CQM)'); ?></option>
                             <option value='cqm_2014' <?php if ($rule_filter == "cqm_2014") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('2014 Clinical Quality Measures (CQM)'); ?></option>
                             </select>
                         </td>
@@ -429,13 +432,16 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                             <?php } ?>
 
                             <option value='amc_2011' <?php if ($rule_filter == "amc_2011") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php  echo xlt('2011 Automated Measure Calculations (AMC)'); ?></option>
                             <option value='amc_2014_stage1' <?php if ($rule_filter == "amc_2014_stage1") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage I'); ?></option>
                             <option value='amc_2014_stage2' <?php if ($rule_filter == "amc_2014_stage2") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('2014 Automated Measure Calculations (AMC) - Stage II'); ?></option>
                             </select>
                         </td>
@@ -450,13 +456,16 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                         <td>
                             <select <?php echo $dis_text; ?> id='form_rule_filter' name='form_rule_filter' class='form-control'>
                             <option value='passive_alert' <?php if ($rule_filter == "passive_alert") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('Passive Alert Rules'); ?></option>
                             <option value='active_alert' <?php if ($rule_filter == "active_alert") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('Active Alert Rules'); ?></option>
                             <option value='patient_reminder' <?php if ($rule_filter == "patient_reminder") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo xlt('Patient Reminder Rules'); ?></option>
                             </select>
                         </td>
@@ -475,18 +484,22 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
                                  <option value=''>-- <?php echo htmlspecialchars(xl('Ignore'), ENT_NOQUOTES); ?> --</option>
                                     <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
                                    <option value='cqm' <?php if ($plan_filter == "cqm") {
-                                        echo "selected";} ?>>
+                                        echo "selected";
+} ?>>
                                     <?php echo htmlspecialchars(xl('All Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                    <option value='cqm_2011' <?php if ($plan_filter == "cqm_2011") {
-                                        echo "selected";} ?>>
+                                        echo "selected";
+} ?>>
                                     <?php echo htmlspecialchars(xl('2011 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                    <option value='cqm_2014' <?php if ($plan_filter == "cqm_2014") {
-                                        echo "selected";} ?>>
+                                        echo "selected";
+} ?>>
                                     <?php echo htmlspecialchars(xl('2014 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                     <?php } ?>
                                     <?php if ($type_report == "standard") { ?>
                                    <option value='normal' <?php if ($plan_filter == "normal") {
-                                        echo "selected";} ?>>
+                                        echo "selected";
+} ?>>
                                     <?php echo htmlspecialchars(xl('Active Plans'), ENT_NOQUOTES); ?></option>
                                     <?php } ?>
                         </td>

@@ -135,7 +135,8 @@ if ($_GET) {
   $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
 for ($i=0; $uRow=sqlFetchArray($uSQL);
 $i++) {
-    $allUsers[] = $uRow; }
+    $allUsers[] = $uRow;
+}
 ?>
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">
       <h1><?php echo xlt('Dated Message Log') ?></h1>

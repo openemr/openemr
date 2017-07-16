@@ -122,7 +122,8 @@ function edih_835_csv_data($obj835)
         // ['ST'][$stky]['acct'][i]=>pid-enc$$ret_ar[$icn]['claim'][$cdx]['SvcDate'] =
         foreach ($env_ar['ST'] as $st) {
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             // the "files" table has a row for each payment trace
             //
@@ -156,7 +157,8 @@ function edih_835_csv_data($obj835)
                 }
 
                 if ($payer) {
-                    $ret_ar[$icn]['file'][$fdx]['Payer'] = $payer; }
+                    $ret_ar[$icn]['file'][$fdx]['Payer'] = $payer;
+                }
             } // end if ($n1pr)
             //
             //
@@ -189,7 +191,8 @@ function edih_835_csv_data($obj835)
                             $ret_ar[$icn]['claim'][$cdx]['SvcDate'] = '';
                             //
                             if ($sar[2]=='4' || $sar[2]=='22' || $sar[2]=='23') {
-                                $denied++; }
+                                $denied++;
+                            }
 
                             $loopid = "2100";
                             continue;
@@ -283,7 +286,8 @@ function edih_837_csv_data($obj837)
         foreach ($env_ar['ST'] as $st) {
             // claims should be in the correct ISA envelope
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             //
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
@@ -465,7 +469,8 @@ function edih_277_csv_data($obj277)
         foreach ($env_ar['ST'] as $st) {
             //
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             //
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
@@ -475,7 +480,8 @@ function edih_277_csv_data($obj277)
             $stn =  $st['stn'];
             //
             if ($tp == 'HR') {
-                $ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $clmct; }
+                $ret_ar[$icn]['file'][$fdx]['Claim_ct'] = $clmct;
+            }
 
             //
             //for($i=0; $i<$clmct; $i++) {
@@ -562,19 +568,23 @@ function edih_277_csv_data($obj277)
                             if (strncmp($seg, 'QTY'.$de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == '90') {
-                                    $ret_ar[$icn]['file'][$fdx]['Accept'] += $sar[2]; }
+                                    $ret_ar[$icn]['file'][$fdx]['Accept'] += $sar[2];
+                                }
 
                                 if ($sar[1] == 'AA') {
-                                    $ret_ar[$icn]['file'][$fdx]['Reject'] += $sar[2]; }
+                                    $ret_ar[$icn]['file'][$fdx]['Reject'] += $sar[2];
+                                }
                             }
 
                             if (strncmp($seg, 'AMT'.$de, 4) === 0) {
                                 $sar = explode($de, $seg);
                                 if ($sar[1] == 'YU') {
-                                    $ret_ar[$icn]['file'][$fdx]['AccAmt'] += $sar[2]; }
+                                    $ret_ar[$icn]['file'][$fdx]['AccAmt'] += $sar[2];
+                                }
 
                                 if ($sar[1] == 'YY') {
-                                    $ret_ar[$icn]['file'][$fdx]['RejAmt'] += $sar[2]; }
+                                    $ret_ar[$icn]['file'][$fdx]['RejAmt'] += $sar[2];
+                                }
                             }
 
                             continue;
@@ -747,7 +757,8 @@ function edih_278_csv_data($obj278)
         foreach ($env_ar['ST'] as $st) {
             //
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             //
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
@@ -772,16 +783,20 @@ function edih_278_csv_data($obj278)
                     $sar = explode($de, $seg);
                     if (isset($sar[2])) {
                         if ($sar[2] == '01') {
-                            $rqst = 'Cancel'; }
+                            $rqst = 'Cancel';
+                        }
 
                         if ($sar[2] == '13') {
-                            $rqst = 'Req'; }
+                            $rqst = 'Req';
+                        }
 
                         if ($sar[2] == '11') {
-                            $rqst = 'Rsp'; }
+                            $rqst = 'Rsp';
+                        }
 
                         if ($sar[2] == '36') {
-                            $rqst = 'Reply'; }
+                            $rqst = 'Reply';
+                        }
                     }
 
                     $loopid = 0;
@@ -1036,7 +1051,8 @@ function edih_997_csv_data($obj997)
         foreach ($env_ar['ST'] as $st) {
             //
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             //
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
@@ -1253,7 +1269,8 @@ function edih_271_csv_data($obj270)
         foreach ($env_ar['ST'] as $st) {
             //
             if ($st['icn'] != $icn) {
-                continue; }
+                continue;
+            }
 
             //
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);

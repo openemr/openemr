@@ -1025,7 +1025,8 @@ while ($row = sqlFetchArray($t_res)) {
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
         <?php if ($in_collections) {
-            echo "<b><font color='red'>IC</font></b>";} ?>
+            echo "<b><font color='red'>IC</font></b>";
+} ?>
         <?php if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
             echo(' PPt');
             echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");

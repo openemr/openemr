@@ -129,14 +129,16 @@ list($module,
 
 // Defaults for variables
 if (isset($catid)) {
-    pnVarCleanFromInput('catid'); }
+    pnVarCleanFromInput('catid');
+}
 
 // check requested module and set to start module if not present
 if (empty($name)) {
     $name = pnConfigGetVar('startpage');
     // fixed for the new style of loading modules and set start page for them [class007]
     if (empty($module)) {
-        $module = $name; }
+        $module = $name;
+    }
 }
 
 // get module information
@@ -145,10 +147,12 @@ $modinfo = pnModGetInfo(pnModGetIDFromName($module));
 if ($modinfo['type'] == 2) {
     // New-new style of loading modules
     if (empty($type)) {
-        $type = 'user'; }
+        $type = 'user';
+    }
 
     if (empty($func)) {
-        $func="main"; }
+        $func="main";
+    }
 
     // it should be $module not $name [class007]
     if (pnModAvailable($module)) {

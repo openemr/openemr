@@ -252,7 +252,8 @@ function set_related(codetype, code, selector, codedesc) {
 function sel_related(e) {
  current_sel_name = e.name;
  dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) {
-        echo '?codetype=REF'; } ?>', '_blank', 500, 400);
+        echo '?codetype=REF';
+} ?>', '_blank', 500, 400);
 }
 
 // Process click on Delete link.
@@ -308,7 +309,8 @@ function submitme() {
 }
 
 <?php if (function_exists($form_id . '_javascript')) {
-    call_user_func($form_id . '_javascript');} ?>
+    call_user_func($form_id . '_javascript');
+} ?>
 
 </script>
 

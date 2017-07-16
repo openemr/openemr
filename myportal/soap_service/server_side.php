@@ -420,7 +420,7 @@ class UserService extends Userforms
 
          $level = $doc->createElement("level");
          $root->appendChild($level);
-        foreach ($var as $key=>$value) {
+        foreach ($var as $key => $value) {
             $element = $doc->createElement("$key");
             $element->appendChild(
                 $doc->createTextNode($value)
@@ -605,7 +605,7 @@ class UserService extends Userforms
                 return UserService::function_return_to_xml($x);
             } elseif ($func=='newInsuranceData') {
                 $_POST=$var[0];
-                foreach ($var as $key=>$value) {
+                foreach ($var as $key => $value) {
                     if ($key>=3) {//first 3 need to be skipped.
                         $var[$key]=formData($value);
                     }
@@ -709,7 +709,7 @@ class UserService extends Userforms
     {
           $data_credentials=$var[0];
         if (UserService::valid($data_credentials)=='existingpatient' || UserService::valid($data_credentials)=='newpatient') {
-            foreach ($var[1] as $key=>$value) {
+            foreach ($var[1] as $key => $value) {
                 $eid=explode('_', $var[1][$key]);
                 if ($eid[0]=='calendar') {
                     sqlQuery("update openemr_postcalendar_events set pc_apptstatus='x' where pc_eid=?", array($eid[1]));
@@ -863,7 +863,7 @@ class UserService extends Userforms
     {
         if ($this->valid($data[0])) {
             $batch = $data[1];
-            foreach ($batch as $key=>$value) {
+            foreach ($batch as $key => $value) {
                 $batchkey=$value['batchkey'];
                 $case=$value['case'];
                 $param=$value['param'];
@@ -887,7 +887,7 @@ class UserService extends Userforms
     {
         if ($this->valid($data[0])) {
             $batch = $data[1];
-            foreach ($batch as $key=>$value) {
+            foreach ($batch as $key => $value) {
                 $batchkey=$value['batchkey'];
                 $function=$value['funcname'];
                 $param=$value['param'];
@@ -908,7 +908,7 @@ class UserService extends Userforms
     public function multiplecall($data)
     {
          $batch = $data[1];
-        foreach ($batch as $key=>$value) {
+        foreach ($batch as $key => $value) {
             $batchkey=$value['batchkey'];
             $function=$value['funcname'];
             $param=$value['param'];
@@ -997,7 +997,7 @@ class UserService extends Userforms
         while ($row = sqlFetchArray($sql_result_set)) {
             $level = $doc->createElement("level");
             $root->appendChild($level);
-            foreach ($row as $key=>$value) {
+            foreach ($row as $key => $value) {
                 $element = $doc->createElement("$key");
                 $element->appendChild(
                     $doc->createTextNode($value)
@@ -1017,7 +1017,7 @@ class UserService extends Userforms
         $doc->appendChild($root);
         $level = $doc->createElement("level");
         $root->appendChild($level);
-        foreach ($row as $key=>$value) {
+        foreach ($row as $key => $value) {
             $element = $doc->createElement("$key");
             $element->appendChild(
                 $doc->createTextNode($value)

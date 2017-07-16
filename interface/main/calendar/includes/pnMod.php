@@ -685,9 +685,9 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     if (!is_array($args)) {
         return false;
     } else {
-        foreach ($args as $k=>$v) {
+        foreach ($args as $k => $v) {
             if (is_array($v)) {
-                foreach ($v as $l=>$w) {
+                foreach ($v as $l => $w) {
                     $url .= "&$k" . "[$l]=$w";
                 }
             } else {

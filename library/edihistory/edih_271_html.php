@@ -506,20 +506,24 @@ function edih_271_transaction_html($obj271, $bht03)
             //
             if (strncmp('LS'.$de, $seg, 3) === 0) {
                 if ($loopid == '2110C') {
-                    $loopid = '2120C'; }
+                    $loopid = '2120C';
+                }
 
                 if ($loopid == '2110D') {
-                    $loopid = '2120D'; }
+                    $loopid = '2120D';
+                }
 
                 continue;
             }
 
             if (strncmp('LE'.$de, $seg, 3) === 0) {
                 if ($loopid == '2120C') {
-                    $loopid = '2100C'; }
+                    $loopid = '2100C';
+                }
 
                 if ($loopid == '2120D') {
-                    $loopid = '2100D'; }
+                    $loopid = '2100D';
+                }
 
                 continue;
             }
@@ -581,7 +585,8 @@ function edih_271_html($filename, $bht03 = '')
                 foreach ($env_ar['ST'] as $st) {
                     foreach ($env_ar['GS'] as $gs) {
                         if ($gs['icn'] != $st['icn']) {
-                            continue; }
+                            continue;
+                        }
 
                         if ($gs['gsn'] == $st['gsn']) {
                             $gs_date = edih_format_date($gs['date']);

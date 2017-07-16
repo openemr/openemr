@@ -38,7 +38,7 @@ function edih_upload_reindex(array $_files, $top = true)
     // from php documentation for $_FILES predefined variable
 
      $files = array();
-    foreach ($_files as $name=>$file) {
+    foreach ($_files as $name => $file) {
         if ($top) {
             $sub_name = $file['name'];
         } else {
@@ -144,9 +144,10 @@ function edih_upload_match_file($param_ar, $fidx)
     } elseif ($x12obj->edih_valid()) {
         if (is_array($param_ar) && count($param_ar)) {
             // csv_parameters("ALL");
-            foreach ($param_ar as $ky=>$par) {
+            foreach ($param_ar as $ky => $par) {
                 if (!isset($param_ar[$ky]['regex'])) {
-                    continue; }
+                    continue;
+                }
 
                 if (preg_match($param_ar[$ky]['regex'], $fn)) {
                     $ftype = $ky;
@@ -381,7 +382,7 @@ function edih_upload_files()
     //
     $f_ct = count($files[$uplkey]);
     //begin the check and processing loop
-    foreach ($files[$uplkey] as $idx=>$fa) {
+    foreach ($files[$uplkey] as $idx => $fa) {
         // basic php verification checks
         if ($fa['error'] !== UPLOAD_ERR_OK) {
             //$html_str .= "Error: [{$fa['name']}] " . edih_upload_err_message($fa['error']) . "<br />" . PHP_EOL;
@@ -468,7 +469,7 @@ function edih_upload_files()
             // expect fupl in form [type] = array(fn1, fn2, fn3, ...)
             if (is_array($f_upl) && count($f_upl)) {
                 // $tp is file type, fz is file name
-                foreach ($f_upl as $tp=>$fz) {
+                foreach ($f_upl as $tp => $fz) {
                     if ($tp == 'reject') {
                         if (isset($f_ar['reject']) && is_array($fz)) {
                             array_merge($f_ar['reject'], $fz);
@@ -543,7 +544,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
         $p_ar = csv_parameters($type = "ALL");
         //
         $prc_htm .=  "<p><em>Received Files</em></p>".PHP_EOL;
-        foreach ($files_array as $key=>$val) {
+        foreach ($files_array as $key => $val) {
             //
             $prc_htm .=  "<ul class='fupl'>".PHP_EOL;
             if (isset($p_ar[$key])) {
@@ -556,7 +557,7 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                     continue;
                 }
 
-                foreach ($val as $idx=>$nf) {
+                foreach ($val as $idx => $nf) {
                     // check if the file has already been stored
                     // a matching file name will not be replaced
                     $nfb = basename($nf);
@@ -577,20 +578,20 @@ function edih_sort_upload($files_array, $html_out = true, $err_only = true)
                 }
             } elseif ($key == 'reject') {
                 $prc_htm .= "<li><bd>Reject:</bd></li>".PHP_EOL;
-                foreach ($val as $idx=>$nf) {
+                foreach ($val as $idx => $nf) {
                     $prc_htm .= "<li>".$nf['name']."</li>".PHP_EOL;
                     $prc_htm .= "<li> --".$nf['comment']."</li>".PHP_EOL;
                 }
             } elseif ($key == 'remark') {
                 $rmk_htm .= "<p><bd>Remarks:</bd><br>".PHP_EOL;
-                foreach ($val as $idx=>$r) {
+                foreach ($val as $idx => $r) {
                     $rmk_htm .= $r."<br>".PHP_EOL;
                 }
 
                 $rmk_htm .= "</p>".PHP_EOL;
             } else {
                 $prc_htm .= "<li>$key type not stored</li>".PHP_EOL;
-                foreach ($val as $idx=>$nf) {
+                foreach ($val as $idx => $nf) {
                     $prc_htm .= "<li>".basename($nf)."</li>".PHP_EOL;
                 }
             }

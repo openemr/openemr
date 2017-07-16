@@ -141,7 +141,7 @@ class HTML_TreeMenu
                     // In an XML, all the attributes are saved in an array, but since they might be
                     // used as the parameters, we simply extract them here if we handle an XML-structure
                     if ($isXMLStruct && sizeof($aNode['attributes'])) {
-                        foreach ($aNode['attributes'] as $key=>$val) {
+                        foreach ($aNode['attributes'] as $key => $val) {
                             if (!$aNode[$key]) { // dont overwrite existing values
                                 $aNode[$key] = $val;
                             }
@@ -149,7 +149,7 @@ class HTML_TreeMenu
                     }
 
                     // Process all the data that are saved in $aNode and put them in the data and/or events array
-                    foreach ($aNode as $key=>$val) {
+                    foreach ($aNode as $key => $val) {
                         if (!is_array($val)) {
                             // Dont get the recursive data in here! they are always arrays
                             if (substr($key, 0, 2) == 'on') {  // get the events

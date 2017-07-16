@@ -30,7 +30,8 @@ class ModuleconfigController extends AbstractActionController
     protected $inputFilter;
 
     public function __construct()
-    {    }
+    {
+    }
 
     public function exchangeArray($data)
     {

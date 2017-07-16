@@ -134,9 +134,9 @@ if ($_REQUEST["ccr_ajax"] == "yes") {
         'type' => 11,
         'ip_address' => $_SERVER['REMOTE_ADDR'],
         );
-        foreach ($res as $sections=>$details) {
-            foreach ($details as $cnt=>$vals) {
-                foreach ($vals as $key=>$val) {
+        foreach ($res as $sections => $details) {
+            foreach ($details as $cnt => $vals) {
+                foreach ($vals as $key => $val) {
                     if (array_key_exists('#Type', $res[$sections][$cnt])) {
                         if ($key == 'postal_code') {
                             $var['field_name_value_array']['misc_address_book'][$cnt]['zip'] = $val;

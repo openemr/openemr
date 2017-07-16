@@ -174,8 +174,10 @@ $('.datepicker').datetimepicker({
                         </td>
                         <td>
                           <div class="checkbox">
-                           <label><input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) {
-                                echo ' checked';} ?>>
+                           <label><input type='checkbox' name='form_details'<?php
+                            if ($_POST['form_details']) {
+                                    echo ' checked';
+                            } ?>>
                             <?php echo xlt('Important Codes'); ?></label>
                           </div>
                         </td>
@@ -316,7 +318,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         if ($row['financial_reporting']) {
             $bgcolor = "#FFFFDD";
         } else {
-            $bgcolor = "#FFDDDD";  }
+            $bgcolor = "#FFDDDD";
+        }
 
         $print = "<tr bgcolor='$bgcolor'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
 
@@ -330,9 +333,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                                        $grand_total_amt_balance  += $row['Balance Amt'];
 
         if ($_POST['form_csvexport']) {
-            echo $csv; } else {
+            echo $csv;
+        } else {
             echo $print;
-            }
+        }
     }
 
     if (!$_POST['form_csvexport']) {
@@ -364,10 +368,10 @@ if (! $_POST['form_csvexport']) {
     }
 
     if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
-    <div class='text'>
-            <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
-    </div>
-        <?php } ?>
+        <div class='text'>
+        <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
+        </div><?php
+    } ?>
 </form>
 </body>
 

@@ -91,7 +91,8 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
         <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1']) {
             echo $tinylogocode1;
 } if ($GLOBALS['tiny_logo_2']) {
-    echo $tinylogocode2;} ?></span></div>
+    echo $tinylogocode2;
+} ?></span></div>
     </td>
 <?php } ?>
 

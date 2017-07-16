@@ -348,13 +348,13 @@ if ($exclude_policy != "") {
                                                         <option value=''>--<?php echo htmlspecialchars(xl('select'), ENT_NOQUOTES); ?>--</option>
                                                         <?php
                                                         if (isset($clearinghouses) && !empty($clearinghouses)) {
-                                                            foreach ($clearinghouses as $clearinghouse) : ?>
+                                                            foreach ($clearinghouses as $clearinghouse) { ?>
                                                                     <option value='<?php echo htmlspecialchars($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
                                                                         <?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
                                                                     ><?php echo htmlspecialchars($clearinghouse['name'], ENT_NOQUOTES); ?></option>
-                                                        <?php	endforeach;
+                                                            <?php
+                                                            }
                                                         }
-
                                                         ?>
                                                 </select>
                                                 <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars(xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
@@ -401,7 +401,8 @@ if ($exclude_policy != "") {
 
     <script language='JavaScript'>
         <?php if ($alertmsg) {
-            echo " alert('$alertmsg');\n"; } ?>
+            echo " alert('$alertmsg');\n";
+} ?>
     </script>
 
 </html>

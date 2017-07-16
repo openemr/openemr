@@ -57,7 +57,8 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
         <?php if ($_POST['form_details']) {
-            echo xl('Total for ');} echo display_desc($product) ?>
+            echo xl('Total for ');
+} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>
@@ -211,7 +212,8 @@ while ($frow = sqlFetchArray($fres)) {
     title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-        echo " checked";} ?>><?php xl('Details', 'e') ?>
+        echo " checked";
+} ?>><?php xl('Details', 'e') ?>
    &nbsp;
    <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
    &nbsp;
@@ -338,7 +340,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
         <?php if ($_POST['form_details']) {
-            echo xl('Total for ');} echo display_desc($product) ?>
+            echo xl('Total for ');
+} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>

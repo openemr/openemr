@@ -47,7 +47,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
     $str_html = '';
     $clm_html = '';
     //
-    foreach ($data_ar as $icn=>$csvdata) {
+    foreach ($data_ar as $icn => $csvdata) {
         if (array_key_exists('type', $csvdata)) {
             $ft = $csvdata['type'];
         } else {
@@ -62,7 +62,7 @@ function edih_csv_process_html($data_ar, $err_only = false)
         if (array_key_exists('file', $csvdata)) {
             //
             $fidx = 0;
-            foreach ($csvdata['file'] as $key=>$csvfile) {
+            foreach ($csvdata['file'] as $key => $csvfile) {
                 //
                 $oe = ( $fidx % 2 == 1 ) ? 'fodd' : 'feven';
                 $cls = (strpos('|f837|f270|f276|f278', $ft)) ? 'sub' : 'rsp';
@@ -181,7 +181,8 @@ function edih_csv_process_html($data_ar, $err_only = false)
         //
         if ($err_only) {
             if ($errct) {
-                $str_html .= $clm_html; }
+                $str_html .= $clm_html;
+            }
         } else {
             $str_html .= $clm_html;
         }
@@ -558,12 +559,14 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             $isok = (strcmp($data[$dtcol], $dte) > 0) ? false : $isok;
             //
             if ($isok) {
-                $csv_d[] = $data; }
+                $csv_d[] = $data;
+            }
         }
     } elseif ($is_period) {
         foreach ($csv_ar as $data) {
             if (strcmp($data[$dtcol], $dtpd2) > 0) {
-                $csv_d[] = $data; }
+                $csv_d[] = $data;
+            }
         }
     } else {
         $csv_d = &$csv_ar;
@@ -602,7 +605,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
                 $csv_html .= "<tr class='$bgc'>".PHP_EOL;
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'Date') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
@@ -636,7 +639,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $csv_html .= "<tr class='$bgc'>".PHP_EOL;
                 //
                 $rsp = $val['RspType'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'Date') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
@@ -665,7 +668,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
                 $csv_html .= "<tr class='$bgc'>".PHP_EOL;
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'Date') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
@@ -696,7 +699,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $csv_html .= "<tr class='$bgc'>".PHP_EOL;
                 // needed values for links
                 $fn = $val['FileName'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'CLM01') {
                         $csv_html .= "<td><a class='sub' href='edih_main.php?gtbl=claim&fname=$fn&ftype=$tp&pid=$v'>$v</a></td>".PHP_EOL;
                     } elseif ($k == 'SvcDate') {
@@ -719,7 +722,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 // needed values for links
                 $fn = $val['FileName'];
                 $pid = $val['CLM01'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'SvcDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
@@ -747,7 +750,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 $trc = $val['CLM01'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'SvcDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
@@ -775,7 +778,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
                 $trc = $val['CLM01'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'ReqDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'CLM01') {
@@ -801,7 +804,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'ReqDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
@@ -824,7 +827,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'RspDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
@@ -849,7 +852,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 // needed values for links
                 $fn = $val['FileName'];
                 $bht03 = $val['BHT03'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'FileDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'BHT03') {
@@ -875,7 +878,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
                 $fn = $val['FileName'];
                 $rsp = $val['RspType'];
                 $err = $val['err_seg'];
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'RspDate') {
                         $csv_html .= "<td>".substr($v, 0, 4).'-'.substr($v, 4, 2).'-'.substr($v, 6, 2)."</td>".PHP_EOL;
                     } elseif ($k == 'FileName') {
@@ -897,7 +900,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
             foreach ($csv_d as $val) {
                 $bgc = ($idx % 2 == 1 ) ? 'odd' : 'even';
                 $csv_html .= "<tr class='$bgc'>".PHP_EOL;
-                foreach ($val as $k=>$v) {
+                foreach ($val as $k => $v) {
                     if ($k == 'FileName') {
                         $csv_html .= "<td><a class='$cls' href='edih_main.php?gtbl=file&fname=$v&ftype=$tp&fmt=seg'>$v</a></td>".PHP_EOL;
                     } else {

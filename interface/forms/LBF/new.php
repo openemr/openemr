@@ -419,8 +419,10 @@ function validate(f) {
  return true;
 }
 
-<?php if (function_exists($formname . '_javascript')) {
-    call_user_func($formname . '_javascript');} ?>
+<?php
+if (function_exists($formname . '_javascript')) {
+    call_user_func($formname . '_javascript');
+} ?>
 
 </script>
 </head>
@@ -462,271 +464,271 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
 <div id="chart"></div>
 
 <?php
-  $shrow = getHistoryData($pid);
+$shrow = getHistoryData($pid);
 
-  $fres = sqlStatement("SELECT * FROM layout_options " .
-    "WHERE form_id = ? AND uor > 0 " .
-    "ORDER BY group_name, seq", array($formname));
-  $last_group = '';
-  $cell_count = 0;
-  $item_count = 0;
-  $display_style = 'block';
+$fres = sqlStatement("SELECT * FROM layout_options " .
+"WHERE form_id = ? AND uor > 0 " .
+"ORDER BY group_name, seq", array($formname));
+$last_group = '';
+$cell_count = 0;
+$item_count = 0;
+$display_style = 'block';
 
-  // This is an array keyed on forms.form_id for other occurrences of this
-  // form type.  The maximum number of such other occurrences to display is
-  // in list_options.option_value for this form's list item.  Values in this
-  // array are work areas for building the ending HTML for each displayed row.
-  //
-  $historical_ids = array();
+// This is an array keyed on forms.form_id for other occurrences of this
+// form type.  The maximum number of such other occurrences to display is
+// in list_options.option_value for this form's list item.  Values in this
+// array are work areas for building the ending HTML for each displayed row.
+//
+$historical_ids = array();
 
-  // True if any data items in this form can be graphed.
-  $form_is_graphable = false;
+// True if any data items in this form can be graphed.
+$form_is_graphable = false;
 
-  $condition_str = '';
+$condition_str = '';
 
-  while ($frow = sqlFetchArray($fres)) {
-      $this_group = $frow['group_name'];
-      $titlecols  = $frow['titlecols'];
-      $datacols   = $frow['datacols'];
-      $data_type  = $frow['data_type'];
-      $field_id   = $frow['field_id'];
-      $list_id    = $frow['list_id'];
-      $edit_options = $frow['edit_options'];
-      $source       = $frow['source'];
+while ($frow = sqlFetchArray($fres)) {
+    $this_group = $frow['group_name'];
+    $titlecols  = $frow['titlecols'];
+    $datacols   = $frow['datacols'];
+    $data_type  = $frow['data_type'];
+    $field_id   = $frow['field_id'];
+    $list_id    = $frow['list_id'];
+    $edit_options = $frow['edit_options'];
+    $source       = $frow['source'];
 
-      $graphable  = strpos($edit_options, 'G') !== false;
-      if ($graphable) {
-          $form_is_graphable = true;
-        }
+    $graphable  = strpos($edit_options, 'G') !== false;
+    if ($graphable) {
+        $form_is_graphable = true;
+    }
 
     // Accumulate skip conditions into a JavaScript string literal.
-        $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
-        foreach ($conditions as $condition) {
-            if (empty($condition['id'])) {
-                continue;
-            }
-
-            $andor = empty($condition['andor']) ? '' : $condition['andor'];
-            if ($condition_str) {
-                $condition_str .= ",\n";
-            }
-
-            $condition_str .= "{" .
-            "target:'"   . addslashes($field_id)              . "', " .
-            "id:'"       . addslashes($condition['id'])       . "', " .
-            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-            "operator:'" . addslashes($condition['operator']) . "', " .
-            "value:'"    . addslashes($condition['value'])    . "', " .
-            "andor:'"    . addslashes($andor)                 . "'}";
+    $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
+    foreach ($conditions as $condition) {
+        if (empty($condition['id'])) {
+            continue;
         }
 
-        $currvalue  = '';
-
-        if ($frow['edit_options'] == 'H') {
-              // This data comes from static history
-            if (isset($shrow[$field_id])) {
-                $currvalue = $shrow[$field_id];
-            }
-        } else {
-            if (!$formid && $portalres) {
-                // Copying CMS Portal form data into this field if appropriate.
-                $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
-            }
-
-            if ($currvalue === '') {
-                $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
-            }
-
-            if ($currvalue === false) {
-                continue; // column does not exist, should not happen
-            }
-
-              // Handle "P" edit option to default to the previous value of a form field.
-            if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== false) {
-                if ($source == 'F' && !$formid) {
-                    // Form attribute for new form, get value from most recent form instance.
-                    // Form attributes of existing forms are expected to have existing values.
-                    $tmp = sqlQuery(
-                        "SELECT encounter, form_id FROM forms WHERE " .
-                        "pid = ? AND formdir = ? AND deleted = 0 " .
-                        "ORDER BY date DESC LIMIT 1",
-                        array($pid, $formname)
-                    );
-                    if (!empty($tmp['encounter'])) {
-                                $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
-                    }
-                } else if ($source == 'E') {
-                    // Visit attribute, get most recent value as of this visit.
-                    // Even if the form already exists for this visit it may have a readonly value that only
-                    // exists in a previous visit and was created from a different form.
-                    $tmp = sqlQuery(
-                        "SELECT sa.field_value FROM form_encounter AS e1 " .
-                        "JOIN form_encounter AS e2 ON " .
-                        "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
-                        "JOIN shared_attributes AS sa ON " .
-                        "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
-                        "WHERE e1.pid = ? AND e1.encounter = ? " .
-                        "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
-                        array($field_id, $pid, $encounter)
-                    );
-                    if (isset($tmp['field_value'])) {
-                        $currvalue = $tmp['field_value'];
-                    }
-                }
-            } // End "P" option logic.
+        $andor = empty($condition['andor']) ? '' : $condition['andor'];
+        if ($condition_str) {
+            $condition_str .= ",\n";
         }
 
-    // Handle a data category (group) change.
-        if (strcmp($this_group, $last_group) != 0) {
-              end_group();
-              $group_seq  = 'lbf' . substr($this_group, 0, 1);
-              $group_name = substr($this_group, 1);
-              $last_group = $this_group;
+        $condition_str .= "{" .
+        "target:'"   . addslashes($field_id)              . "', " .
+        "id:'"       . addslashes($condition['id'])       . "', " .
+        "itemid:'"   . addslashes($condition['itemid'])   . "', " .
+        "operator:'" . addslashes($condition['operator']) . "', " .
+        "value:'"    . addslashes($condition['value'])    . "', " .
+        "andor:'"    . addslashes($andor)                 . "'}";
+    }
 
-              // If group name is blank, no checkbox or div.
-            if (strlen($this_group) > 1) {
-                echo "<div id='outerdiv_" . attr($group_seq) . "'>\n";
-                echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-                "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
-                if ($display_style == 'block') {
-                    echo " checked";
-                }
+    $currvalue  = '';
 
-                echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
-                echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
-            }
+    if ($frow['edit_options'] == 'H') {
+            // This data comes from static history
+        if (isset($shrow[$field_id])) {
+            $currvalue = $shrow[$field_id];
+        }
+    } else {
+        if (!$formid && $portalres) {
+            // Copying CMS Portal form data into this field if appropriate.
+            $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
+        }
 
-              // echo " <table border='0' cellpadding='0' width='100%'>\n";
-              echo " <table border='0' cellspacing='0' cellpadding='0' width='100%' class='lbfdata'>\n";
-              $display_style = 'none';
+        if ($currvalue === '') {
+            $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
+        }
 
-              // Initialize historical data array and write date headers.
-              $historical_ids = array();
-            if ($formhistory > 0) {
-                echo " <tr>";
-                echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
-                if (empty($is_lbf)) {
-                      // Including actual date per IPPF request 2012-08-23.
-                      echo oeFormatShortDate(substr($enrow['date'], 0, 10));
-                      echo ' (' . htmlspecialchars(xl('Current')) . ')';
-                }
+        if ($currvalue === false) {
+            continue; // column does not exist, should not happen
+        }
 
-                echo "&nbsp;</td>\n";
-                $hres = sqlStatement(
-                    "SELECT f.form_id, fe.date " .
-                    "FROM forms AS f, form_encounter AS fe WHERE " .
-                    "f.pid = ? AND f.formdir = ? AND " .
-                    "f.form_id != ? AND f.deleted = 0 AND " .
-                    "fe.pid = f.pid AND fe.encounter = f.encounter " .
-                    "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
-                    "LIMIT ?",
-                    array($pid, $formname, $formid, $formhistory)
+            // Handle "P" edit option to default to the previous value of a form field.
+        if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== false) {
+            if ($source == 'F' && !$formid) {
+                // Form attribute for new form, get value from most recent form instance.
+                // Form attributes of existing forms are expected to have existing values.
+                $tmp = sqlQuery(
+                    "SELECT encounter, form_id FROM forms WHERE " .
+                    "pid = ? AND formdir = ? AND deleted = 0 " .
+                    "ORDER BY date DESC LIMIT 1",
+                    array($pid, $formname)
                 );
-                // For some readings like vitals there may be multiple forms per encounter.
-                // We sort these sensibly, however only the encounter date is shown here;
-                // at some point we may wish to show also the data entry date/time.
-                while ($hrow = sqlFetchArray($hres)) {
-                          echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>&nbsp;" .
-                            text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
-                          $historical_ids[$hrow['form_id']] = '';
+                if (!empty($tmp['encounter'])) {
+                            $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
                 }
-
-                echo " </tr>";
+            } else if ($source == 'E') {
+                // Visit attribute, get most recent value as of this visit.
+                // Even if the form already exists for this visit it may have a readonly value that only
+                // exists in a previous visit and was created from a different form.
+                $tmp = sqlQuery(
+                    "SELECT sa.field_value FROM form_encounter AS e1 " .
+                    "JOIN form_encounter AS e2 ON " .
+                    "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
+                    "JOIN shared_attributes AS sa ON " .
+                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
+                    "WHERE e1.pid = ? AND e1.encounter = ? " .
+                    "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
+                    array($field_id, $pid, $encounter)
+                );
+                if (isset($tmp['field_value'])) {
+                    $currvalue = $tmp['field_value'];
+                }
             }
+        } // End "P" option logic.
+    }
+
+// Handle a data category (group) change.
+    if (strcmp($this_group, $last_group) != 0) {
+            end_group();
+            $group_seq  = 'lbf' . substr($this_group, 0, 1);
+            $group_name = substr($this_group, 1);
+            $last_group = $this_group;
+
+            // If group name is blank, no checkbox or div.
+        if (strlen($this_group) > 1) {
+            echo "<div id='outerdiv_" . attr($group_seq) . "'>\n";
+            echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
+            "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
+            if ($display_style == 'block') {
+                echo " checked";
+            }
+
+            echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
+            echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
         }
 
-    // Handle starting of a new row.
-        if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-              end_row();
-              echo " <tr>";
-              // Clear historical data string.
-            foreach ($historical_ids as $key => $dummy) {
-                $historical_ids[$key] = '';
-            }
-        }
+            // echo " <table border='0' cellpadding='0' width='100%'>\n";
+            echo " <table border='0' cellspacing='0' cellpadding='0' width='100%' class='lbfdata'>\n";
+            $display_style = 'none';
 
-        if ($item_count == 0 && $titlecols == 0) {
-            $titlecols = 1;
-        }
-
-    // First item is on the "left-border"
-        $leftborder = true;
-
-    // Handle starting of a new label cell.
-        if ($titlecols > 0) {
-              end_cell();
-              echo "<td valign='top' colspan='" . attr($titlecols) . "' nowrap";
-              echo " class='";
-              echo ($frow['uor'] == 2) ? "required" : "bold";
-            if ($graphable) {
-                echo " graph";
+            // Initialize historical data array and write date headers.
+            $historical_ids = array();
+        if ($formhistory > 0) {
+            echo " <tr>";
+            echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
+            if (empty($is_lbf)) {
+                    // Including actual date per IPPF request 2012-08-23.
+                    echo oeFormatShortDate(substr($enrow['date'], 0, 10));
+                    echo ' (' . htmlspecialchars(xl('Current')) . ')';
             }
 
-              echo "'";
-            if ($cell_count == 2) {
-                echo " style='padding-left:10pt'";
+            echo "&nbsp;</td>\n";
+            $hres = sqlStatement(
+                "SELECT f.form_id, fe.date " .
+                "FROM forms AS f, form_encounter AS fe WHERE " .
+                "f.pid = ? AND f.formdir = ? AND " .
+                "f.form_id != ? AND f.deleted = 0 AND " .
+                "fe.pid = f.pid AND fe.encounter = f.encounter " .
+                "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
+                "LIMIT ?",
+                array($pid, $formname, $formid, $formhistory)
+            );
+            // For some readings like vitals there may be multiple forms per encounter.
+            // We sort these sensibly, however only the encounter date is shown here;
+            // at some point we may wish to show also the data entry date/time.
+            while ($hrow = sqlFetchArray($hres)) {
+                        echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>&nbsp;" .
+                        text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
+                        $historical_ids[$hrow['form_id']] = '';
             }
 
-              // This ID is used by skip conditions and also show_graph().
-              echo " id='label_id_" . attr($field_id) . "'";
-              echo ">";
-
-            foreach ($historical_ids as $key => $dummy) {
-                $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' nowrap>";
-            }
-
-              $cell_count += $titlecols;
-        }
-
-        ++$item_count;
-
-        echo "<b>";
-        if ($frow['title']) {
-            echo text(xl_layout_label($frow['title']) . ":");
-        } else {
-            echo "&nbsp;";
-        }
-
-        echo "</b>";
-
-    // Note the labels are not repeated in the history columns.
-
-    // Handle starting of a new data cell.
-        if ($datacols > 0) {
-              end_cell();
-              echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
-              // This ID is used by skip conditions.
-              echo " id='value_id_" . attr($field_id) . "'";
-            if ($cell_count > 0) {
-                echo " style='padding-left:5pt'";
-            }
-
-              echo ">";
-
-            foreach ($historical_ids as $key => $dummy) {
-                $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text'>";
-            }
-
-              $cell_count += $datacols;
-        }
-
-        ++$item_count;
-
-    // Skip current-value fields for the display-only case.
-        if (empty($is_lbf)) {
-            if ($frow['edit_options'] == 'H') {
-                echo generate_display_field($frow, $currvalue);
-            } else {
-                generate_form_field($frow, $currvalue);
-            }
-        }
-
-    // Append to historical data of other dates for this item.
-        foreach ($historical_ids as $key => $dummy) {
-              $value = lbf_current_value($frow, $key, 0);
-              $historical_ids[$key] .= generate_display_field($frow, $value);
+            echo " </tr>";
         }
     }
+
+// Handle starting of a new row.
+    if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
+            end_row();
+            echo " <tr>";
+            // Clear historical data string.
+        foreach ($historical_ids as $key => $dummy) {
+            $historical_ids[$key] = '';
+        }
+    }
+
+    if ($item_count == 0 && $titlecols == 0) {
+        $titlecols = 1;
+    }
+
+// First item is on the "left-border"
+    $leftborder = true;
+
+// Handle starting of a new label cell.
+    if ($titlecols > 0) {
+            end_cell();
+            echo "<td valign='top' colspan='" . attr($titlecols) . "' nowrap";
+            echo " class='";
+            echo ($frow['uor'] == 2) ? "required" : "bold";
+        if ($graphable) {
+            echo " graph";
+        }
+
+            echo "'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
+
+            // This ID is used by skip conditions and also show_graph().
+            echo " id='label_id_" . attr($field_id) . "'";
+            echo ">";
+
+        foreach ($historical_ids as $key => $dummy) {
+            $historical_ids[$key] .= "<td valign='top' colspan='" . attr($titlecols) . "' class='text' nowrap>";
+        }
+
+            $cell_count += $titlecols;
+    }
+
+    ++$item_count;
+
+    echo "<b>";
+    if ($frow['title']) {
+        echo text(xl_layout_label($frow['title']) . ":");
+    } else {
+        echo "&nbsp;";
+    }
+
+    echo "</b>";
+
+// Note the labels are not repeated in the history columns.
+
+// Handle starting of a new data cell.
+    if ($datacols > 0) {
+            end_cell();
+            echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
+            // This ID is used by skip conditions.
+            echo " id='value_id_" . attr($field_id) . "'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt'";
+        }
+
+            echo ">";
+
+        foreach ($historical_ids as $key => $dummy) {
+            $historical_ids[$key] .= "<td valign='top' align='right' colspan='" . attr($datacols) . "' class='text'>";
+        }
+
+            $cell_count += $datacols;
+    }
+
+    ++$item_count;
+
+// Skip current-value fields for the display-only case.
+    if (empty($is_lbf)) {
+        if ($frow['edit_options'] == 'H') {
+            echo generate_display_field($frow, $currvalue);
+        } else {
+            generate_form_field($frow, $currvalue);
+        }
+    }
+
+// Append to historical data of other dates for this item.
+    foreach ($historical_ids as $key => $dummy) {
+            $value = lbf_current_value($frow, $key, 0);
+            $historical_ids[$key] .= generate_display_field($frow, $value);
+    }
+}
 
     end_group();
 ?>

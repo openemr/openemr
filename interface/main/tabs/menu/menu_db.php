@@ -21,7 +21,7 @@
 function menu_entry_to_object($row)
 {
     $retval=new stdClass();
-    foreach ($row as $key=>$value) {
+    foreach ($row as $key => $value) {
         $retval->$key=$value;
     }
 

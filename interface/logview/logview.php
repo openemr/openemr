@@ -276,7 +276,8 @@ if ($eventname=="disclosure") {
     echo " <option value=''>" . xl('All') . "</option>\n";
     echo "</option>\n";
 } else {
-    echo "<select name='type_event'>\n";}
+    echo "<select name='type_event'>\n";
+}
 
   echo " <option value=''>" . xl('All') . "</option>\n";
 for ($k=0; $k<$lcount; $k++) {
@@ -300,7 +301,8 @@ echo "</select>\n";
 $check_sum = formData('check_sum', 'G');
 ?>
 <input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') {
-    echo "checked";}  ?>"></input>
+    echo "checked";
+}  ?>"></input>
 </td>
 <td>
 <input type=hidden name="event" value=<?php echo $event ; ?>>
@@ -354,29 +356,32 @@ if ($eventname != "" && $type_event != "") {
 if (($eventname == "") && ($type_event != "")) {
     $tevent=$type_event;
 } else if ($type_event =="" && $eventname != "") {
-    $gev=$eventname;} else if ($eventname == "") {
-    $gev = "";} else {
-        $gev = $getevent;}
+    $gev=$eventname;
+} else if ($eventname == "") {
+    $gev = "";
+} else {
+        $gev = $getevent;
+}
 
-    if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
-        foreach ($ret as $iter) {
-            //translate comments
-            $patterns = array ('/^success/','/^failure/','/ encounter/');
-            $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
+if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'levent' =>$gev, 'tevent' =>$tevent,'direction' => $_GET['direction']))) {
+    foreach ($ret as $iter) {
+        //translate comments
+        $patterns = array ('/^success/','/^failure/','/ encounter/');
+        $replace = array ( xl('success'), xl('failure'), xl('encounter', '', ' '));
 
-            $log_id = $iter['id'];
-            $commentEncrStatus = "No";
-            $logEncryptData = logCommentEncryptData($log_id);
-            if (count($logEncryptData) > 0) {
-                $commentEncrStatus = $logEncryptData['encrypt'];
-            }
+        $log_id = $iter['id'];
+        $commentEncrStatus = "No";
+        $logEncryptData = logCommentEncryptData($log_id);
+        if (count($logEncryptData) > 0) {
+            $commentEncrStatus = $logEncryptData['encrypt'];
+        }
 
-            //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
-            if ($commentEncrStatus == "Yes") {
-                $trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
-            } else {
-                $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
-            }
+        //July 1, 2014: Ensoftek: Decrypt comment data if encrypted
+        if ($commentEncrStatus == "Yes") {
+            $trans_comments = preg_replace($patterns, $replace, aes256Decrypt($iter["comments"]));
+        } else {
+            $trans_comments = preg_replace($patterns, $replace, $iter["comments"]);
+        }
 
         ?>
        <TR class="oneresult">
@@ -395,17 +400,17 @@ if (($eventname == "") && ($type_event != "")) {
      </TR>
 
     <?php
-        }
     }
+}
 
-    if (($eventname=="disclosure") || ($gev == "")) {
-        $eventname="disclosure";
-        if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
-            foreach ($ret as $iter) {
-                $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
-                ?>
+if (($eventname=="disclosure") || ($gev == "")) {
+    $eventname="disclosure";
+    if ($ret = getEvents(array('sdate' => $get_sdate,'edate' => $get_edate, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => $_GET['sortby'], 'event' =>$eventname))) {
+        foreach ($ret as $iter) {
+            $comments=xl('Recipient Name').":".$iter["recipient"].";".xl('Disclosure Info').":".$iter["description"];
+            ?>
             <TR class="oneresult">
-                  <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10), ENT_NOQUOTES); ?></TD>
+              <TD class="text"><?php echo htmlspecialchars(oeFormatShortDate(substr($iter["date"], 0, 10)) . substr($iter["date"], 10), ENT_NOQUOTES); ?></TD>
           <TD class="text"><?php echo htmlspecialchars(xl($iter["event"]), ENT_NOQUOTES);?></TD>
           <TD class="text"><?php echo htmlspecialchars(xl($iter["category"]), ENT_NOQUOTES);?></TD>
           <TD class="text"><?php echo htmlspecialchars($iter["user"], ENT_NOQUOTES);?></TD>
@@ -419,9 +424,9 @@ if (($eventname == "") && ($type_event != "")) {
     <?php } ?>
      </TR>
     <?php
-            }
         }
     }
+}
 ?>
 </table>
 </div>

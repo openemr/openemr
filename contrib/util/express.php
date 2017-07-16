@@ -208,13 +208,7 @@ if ($upgrade != 1) {
         break;
     }
 
-    $string = "<?php
-
-//  OpenEMR
-//  MySQL Config
-//  Referenced from sql.inc
-
-";
+    $string = "<?php\n\n//  OpenEMR\n//  MySQL Config\n//  Referenced from sql.inc\n\n";
 
     $it_died = 0;   //fmg: variable keeps running track of any errors
 
@@ -226,36 +220,35 @@ if ($upgrade != 1) {
     fwrite($fd, "\$dbase\t= '$dbname';\n") or $it_died++;
 
 
-    $string = '
+    $string = '\n\n' .
+        '$sqlconf = array();\n' .
+        '$sqlconf["host"]= $host;\n' .
+        '$sqlconf["port"] = $port;\n' .
+        '$sqlconf["login"] = $login;\n' .
+        '$sqlconf["pass"] = $pass;\n' .
+        '$sqlconf["dbase"] = $dbase;\n' .
+        '//////////////////////////\n' .
+        '//////////////////////////\n' .
+        '//////////////////////////\n' .
+        '//////DO NOT TOUCH THIS///\n' .
+        '$config = 1; /////////////\n' .
+        '//////////////////////////\n' .
+        '//////////////////////////\n' .
+        '//////////////////////////\n' .
+        '?>';
+    ?>
+    <?php // done just for coloring
 
-$sqlconf = array();
-$sqlconf["host"]= $host;
-$sqlconf["port"] = $port;
-$sqlconf["login"] = $login;
-$sqlconf["pass"] = $pass;
-$sqlconf["dbase"] = $dbase;
-//////////////////////////
-//////////////////////////
-//////////////////////////
-//////DO NOT TOUCH THIS///
-$config = 1; /////////////
-//////////////////////////
-//////////////////////////
-//////////////////////////
-?>
-';
-?><?php // done just for coloring
+    fwrite($fd, $string) or $it_died++;
 
-fwrite($fd, $string) or $it_died++;
+    //it's rather irresponsible to not report errors when writing this file.
+    if ($it_died != 0) {
+            echo "ERROR. Couldn't write $it_died lines to config file '$conffile'.\n";
+            flush();
+            break;
+    }
 
-//it's rather irresponsible to not report errors when writing this file.
-if ($it_died != 0) {
-        echo "ERROR. Couldn't write $it_died lines to config file '$conffile'.\n";
-        flush();
-        break;
-}
-
-fclose($fd);
+    fclose($fd);
 
     //Now, use new name and fix globals.php and rename directory!!!
     $d = getcwd();
@@ -272,8 +265,8 @@ fclose($fd);
         $contents
     );
     file_put_contents($d.'/interface/globals.php', $contents);
-  if (rename($d, $dn.'/'.$newname)) {
-      echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
+    if (rename($d, $dn.'/'.$newname)) {
+        echo "<br/><a href='http://localhost/".$newname."'>click here</a>";
     }
 }
 ?>

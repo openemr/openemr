@@ -189,7 +189,8 @@ class Filtreatment
 
         // check for @ symbol and maximum allowed lengths
         if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) {
-            return false; }
+            return false;
+        }
 
         // split for sections
         $email_array = explode("@", $email);
@@ -205,7 +206,8 @@ class Filtreatment
         // verify if domain is IP. If not, it must be a valid domain name
             $domain_array = explode(".", $email_array[1]);
             if (sizeof($domain_array) < 2) {
-                return false; }
+                return false;
+            }
 
             for ($i = 0; $i < sizeof($domain_array); $i++) {
                 if (!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/", $domain_array[$i])) {

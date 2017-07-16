@@ -40,7 +40,9 @@ require_once("$srcdir/options.inc.php");
             <?php echo xlt('View Blank Referral Form'); ?></a>
     </div>
     <div class='text'>
-        <?php if ($result = getTransByPid($pid)) { ?>
+        <?php
+        if ($result = getTransByPid($pid)) {
+        ?>
 
             <table class="table table-striped">
             <thead>
@@ -100,13 +102,19 @@ require_once("$srcdir/options.inc.php");
                         <td><?php echo text($item['user']); ?></td>
                         <td><?php echo text($item['body']); ?></td>
                     </tr>
-                <?php } ?>
+                <?php
+                }
+                ?>
             </tbody>
             </table>
 
-        <?php } else { ?>
-            <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
-        <?php } ?>
+        <?php
+        } else {
+        ?>
+        <span class="text"><?php echo xlt('There are no transactions on file for this patient.'); ?></span>
+        <?php
+        }
+        ?>
     </div>
 </body>
 </html>

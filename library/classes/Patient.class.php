@@ -57,23 +57,30 @@ class Patient extends ORDataObject
     }
     function get_id()
     {
-        return $this->id; }
+        return $this->id;
+    }
     function get_pubpid()
     {
-        return $this->pubpid; }
+        return $this->pubpid;
+    }
     function get_lname()
     {
-        return $this->lname; }
+        return $this->lname;
+    }
     function get_name_display()
     {
-        return $this->fname . " " . $this->lname; }
+        return $this->fname . " " . $this->lname;
+    }
     function get_provider_id()
     {
-        return $this->provider->id; }
+        return $this->provider->id;
+    }
     function get_provider()
     {
-        return $this->provider; }
+        return $this->provider;
+    }
     function get_dob()
     {
-        return $this->date_of_birth; }
+        return $this->date_of_birth;
+    }
 } // end of Patient

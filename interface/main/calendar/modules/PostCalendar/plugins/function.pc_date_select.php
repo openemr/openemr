@@ -130,7 +130,7 @@ function smarty_function_pc_date_select($args)
             array_push($newOrder, $orderArray[$tmp_order]);
         }
 
-        foreach ($orderArray as $key=>$old_order) {
+        foreach ($orderArray as $key => $old_order) {
             if (!in_array($key, $newOrder)) {
                 array_push($newOrder, $orderArray[$old_order]);
             }

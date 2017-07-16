@@ -5,7 +5,8 @@ include_once('../../globals.php');
 if ($_POST['export']) {
     $temp = tmpfile();
     if ($temp === false) {
-        echo "<h1>" . xl("failed") . "</h1>";} else {
+        echo "<h1>" . xl("failed") . "</h1>";
+    } else {
         $query1 = "select id, category from ".mitigateSqlTableUpperCase("form_CAMOS_category");
         $statement1 = sqlStatement($query1);
         while ($result1 = sqlFetchArray($statement1)) {
@@ -40,7 +41,7 @@ if ($_POST['export']) {
     
         fpassthru($temp);
         fclose($temp);
-        }
+    }
 }
 
 if ($_POST['import']) {
@@ -123,7 +124,8 @@ if ($handle === false) {
                             sqlInsert($inner_query);
                             $inserted_duplicate = true;
                         } else {
-                            $postfix++;}
+                            $postfix++;
+                        }
                     }
                 } else {
                     $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
@@ -132,7 +134,8 @@ if ($handle === false) {
                 }
 
                 if ($postfix == 0) {
-                    $insert_value = $value;}
+                    $insert_value = $value;
+                }
 
                 $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where item like \"$insert_value\" " .
                 "and subcategory_id = $subcategory_id");

@@ -79,11 +79,13 @@ class GlobalConfig
 
     /** prevents external construction */
     private function __construct()
-    {}
+    {
+    }
 
     /** prevents external cloning */
     private function __clone()
-    {}
+    {
+    }
 
     /**
      * Initialize the GlobalConfig object

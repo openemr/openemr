@@ -512,7 +512,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
         $str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
         //
         if ($accordion) {
-            $str_html .= "</div>".PHP_EOL; }
+            $str_html .= "</div>".PHP_EOL;
+        }
     }
 
     return  $str_html;

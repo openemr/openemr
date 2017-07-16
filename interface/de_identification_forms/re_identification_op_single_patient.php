@@ -58,7 +58,8 @@ if ($status == 0) {
 
 <form enctype="Re_identification_output" method="POST"><?php
 if ($_POST["re_id_code"]) {
-    $reIdCode = formData('re_id_code', 'P', true);  }
+    $reIdCode = formData('re_id_code', 'P', true);
+}
 
 //to store input for re-idenitification
 $query = "DROP TABLE IF EXISTS temp_re_identification_code_table";

@@ -839,7 +839,8 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
  </tr>
 
  <tr<?php if ($GLOBALS['ippf_specific']) {
-        echo " style='display:none;'";} ?>>
+        echo " style='display:none;'";
+} ?>>
   <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
   <td>
     <?php
@@ -849,7 +850,8 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
  </tr>
 
  <tr<?php if ($GLOBALS['ippf_specific']) {
-        echo " style='display:none;'";} ?>>
+        echo " style='display:none;'";
+} ?>>
   <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
   <td>
 <?php if (true) { ?>

@@ -275,7 +275,8 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                         $result_noteid .= ', ';
                     }
 
-                    $result_noteid .= 1 + storeNote($narrative_note_list);}
+                    $result_noteid .= 1 + storeNote($narrative_note_list);
+                }
             }
         } else {
             echo "  <td>";

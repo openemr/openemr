@@ -459,7 +459,8 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 <html>
 <head>
 <?php if (function_exists('html_header_show')) {
-    html_header_show();} ?>
+    html_header_show();
+} ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />

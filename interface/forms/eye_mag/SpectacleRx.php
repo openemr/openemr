@@ -252,7 +252,8 @@ if ($_REQUEST['REFTYPE']) {
             }
 
             if (isset(${$row['Field']})) {
-                $fields[$row['Field']] = $$row['Field']};
+                $fields[$row['Field']] = $$row['Field'];
+            }
         }
 
         $fields['RXTYPE']=$RXTYPE;
@@ -555,7 +556,8 @@ if ($_REQUEST['dispensed']) {
                         <hr>
 
                         </div>
-                        <?php  } ?>
+                    <?php
+                    } ?>
                 </div>
                 <div class="col-sm-2"></div>
             </div>
@@ -999,12 +1001,14 @@ if ($_REQUEST['dispensed']) {
                                     style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;" />
                                     </span><br />
 
-                                <?php } ?>
+                            <?php
+                            } ?>
 
-                        <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
-                        if ($prov_data['suffix']) {
-                            echo ", ".$prov_data['suffix'];} ?><br />
-                                <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
+                            <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
+                            if ($prov_data['suffix']) {
+                                echo ", ".$prov_data['suffix'];
+                            } ?><br />
+                            <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
                             </td>
                         </tr>
                     </table>
@@ -1022,8 +1026,10 @@ if ($_REQUEST['dispensed']) {
                         });
                     });
                 });
-                <?php if (!$detailed) {
-                    echo "$('.header').trigger('click');"; } ?>
+                <?php
+                if (!$detailed) {
+                    echo "$('.header').trigger('click');";
+                } ?>
 
                 $("input[name$='PD']").blur(function() {
                                                                        //make it all caps

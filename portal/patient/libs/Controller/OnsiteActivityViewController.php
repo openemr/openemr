@@ -223,7 +223,8 @@ class OnsiteActivityViewController extends AppBaseController
             $json = json_decode(RequestUtil::GetBody());
 
             if (! $json) {
-                throw new Exception('The request body does not contain valid JSON');}
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
@@ -285,7 +286,8 @@ class OnsiteActivityViewController extends AppBaseController
             // issue a REST PUT request, however we have no way to know whether to insert or update.
             // if the record is not found, this exception will indicate that this is an insert request
             if (is_a($ex, 'NotFoundException')) {
-                return $this->Create();}
+                return $this->Create();
+            }
 
             $this->RenderExceptionJSON($ex);
         }

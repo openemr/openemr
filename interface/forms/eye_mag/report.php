@@ -1325,7 +1325,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     </span>
                   </td>
                 </tr>
-                    <?php } ?>
+                <?php
+                } ?>
             </table>
           </td>
           <td style="text-align:center;padding:1px;vertical-align:middle;">
@@ -1562,7 +1563,7 @@ if ($ANTSEG_COMMENTS) { ?>
                               <td class="middle"><?php echo xlt('Color Vision'); ?></td>
                               <td class="report_text left"><?php echo text($OSCOLOR); ?></td>
                             </tr>
-                                <?php
+                        <?php
                         }
 
                         if ($ODREDDESAT or $OSREDDESAT) { ?>
@@ -1570,7 +1571,8 @@ if ($ANTSEG_COMMENTS) { ?>
                                   <td class="report_text right"><?php echo text($ODREDDESAT); ?></td>
                                   <td class="middle"><span title="<?php xla('Variation in red color discrimination between the eyes (eg. OD=100, OS=75)'); ?>"><?php echo xlt('Red Desaturation'); ?></span></td>
                                   <td class="report_text left"><?php echo text($OSREDDESAT); ?></td>
-                                </tr><?php
+                          </tr>
+                        <?php
                         }
 
                         if ($ODCOINS or $OSCOINS) { ?>
@@ -1579,7 +1581,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                     <td class="middle"><span title="<?php echo xla('Variation in white (muscle) light brightness discrimination between the eyes (eg. OD=$1.00, OS=$0.75)'); ?>"><?php echo xlt('Coins'); ?></span></td>
                                     <td class="report_text left"><?php echo text($OSCOINS); ?></td>
                           </tr>
-                                    <?php
+                        <?php
                         }
 
                         if ($ODNPA or $OSNPA) { ?>
@@ -1588,14 +1590,16 @@ if ($ANTSEG_COMMENTS) { ?>
                                   <td class="middle"><span title="<?php echo xla('Near Point of Accomodation'); ?>"><?php echo xlt('NPA{{near point of accomodation}}'); ?></span></td>
                                   <td class="report_text left"><?php echo text($OSNPA); ?></td>
                           </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($ODNPC or $OSNPC) { ?>
                           <tr>
                                               <td class="right" style="font-weight:600;"><?php echo xlt('NPC{{near point of convergence}}'); ?>:&nbsp;</td>
                                               <td class="center" colspan="2" ><?php echo text($NPC); ?></td>
                           </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?>
                           <tr style="text-decoration:underline;">
@@ -1603,7 +1607,8 @@ if ($ANTSEG_COMMENTS) { ?>
                                     <td  class="middle"><?php echo xlt('Distance'); ?> </td>
                                     <td class="middle"> <?php echo xlt('Near'); ?></td>
                           </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($DACCDIST or $DACCNEAR) { ?>
                           <tr>
@@ -1611,7 +1616,8 @@ if ($ANTSEG_COMMENTS) { ?>
                                     <td class="center"><?php echo text($DACCDIST); ?></td>
                                     <td class="center"><?php echo text($DACCNEAR); ?></td>
                           </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($CACCDIST or $CACCNEAR) { ?>
                                    <tr>
@@ -1619,7 +1625,8 @@ if ($ANTSEG_COMMENTS) { ?>
                                             <td class="center"><?php echo text($CACCDIST); ?></td>
                                             <td class="center"><?php echo text($CACCNEAR); ?></td>
                                    </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($VERTFUSAMPS) { ?>
                                    <tr>
@@ -1631,14 +1638,16 @@ if ($ANTSEG_COMMENTS) { ?>
                                          <br />
                                        </td>
                                    </tr>
-                                <?php }
+                        <?php
+                        }
 
                         if ($STEREOPSIS) { ?>
                                    <tr>
                                      <td class="right" style="font-weight:600;"><?php echo xlt('Stereopsis'); ?>:&nbsp;</td>
                                      <td  class="center" colspan="2"><?php echo text($STEREOPSIS); ?></td>
                                    </tr>
-                                <?php }
+                        <?php
+                        }
                 }  ?>
               </table>
             </td>
@@ -1903,7 +1912,8 @@ if ($ANTSEG_COMMENTS) { ?>
                                   </table>
 
                                 </td>
-                                    <?php } ?>
+                                <?php
+                                } ?>
                             </tr>
                           </table>
                         <?php if ($NEURO_COMMENTS) { ?>

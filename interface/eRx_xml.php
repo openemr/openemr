@@ -139,7 +139,8 @@ function user_role($doc, $r)
     $userRole=sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
     if (!$userRole['newcrop_user_role']) {
         echo xl('Unauthorized access to ePrescription');
-        die;}
+        die;
+    }
 
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
     if ($userRole['newcrop_user_role'] == 'doctor') {
@@ -1002,7 +1003,7 @@ function erx_error_log($message)
 function stripStrings($str, $pattern)
 {
     $result = $str;
-    foreach ($pattern as $key=>$value) {
+    foreach ($pattern as $key => $value) {
         $result = preg_replace("/$key/", $value, $result);
     }
 

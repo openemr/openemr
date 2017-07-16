@@ -120,7 +120,8 @@ table.mymaintable td, table.mymaintable th {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) {
-                    echo " checked";} ?> />
+                    echo " checked";
+} ?> />
                 <?php xl('Include Uncategorized', 'e'); ?></label>
         </div>
             </td>

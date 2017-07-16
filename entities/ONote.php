@@ -40,7 +40,8 @@ class ONote
      * Default constructor.
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @Id

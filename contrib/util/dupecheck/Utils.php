@@ -37,10 +37,12 @@ function SQLQuote($strValue)
         /* It's a string */
 
         if (strlen($strValue) == 0) {
-            return "NULL"; }
+            return "NULL";
+        }
 
         if ($strValue == null) {
-            return "NULL"; }
+            return "NULL";
+        }
 
         /* remove any '\' values */
         $strValue = preg_replace("/\\\/", '', $strValue);
@@ -49,11 +51,14 @@ function SQLQuote($strValue)
         /* It's a number */
 
         if (is_null($strValue)) {
-            return "NULL"; }
+            return "NULL";
+        }
 
         if ($strValue == 0) {
-            return "0"; } else {
-            return $strValue; }
+            return "0";
+        } else {
+            return $strValue;
+        }
     }
 }
 

@@ -445,7 +445,8 @@ function authorized_clicked() {
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) {
-                            echo 'checked ';} ?>>
+                            echo 'checked ';
+} ?>>
                         <?php xl('Include inactive users', 'e'); ?>
                     </label>
                 </div>

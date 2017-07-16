@@ -341,7 +341,8 @@
 
                                 $class = "git";
                                 if ($category_id == $zone[0]['id']) {
-                                    $appends = "<i class='fa fa-arrow-down'></i>"; }
+                                    $appends = "<i class='fa fa-arrow-down'></i>";
+                                }
 
                                 if (count($documents['docs_in_zone'][$zone[0][value]]) >'0') {
                                     if ($zone[0][value] == $category_name) {
@@ -354,7 +355,8 @@
                                     if ($count!=1) {
                                         $s =xla('s{{suffix to make Document plural, ie. Documents}}');
                                     } else {
-                                        $s='';}
+                                        $s='';
+                                    }
 
                                     $response[$zone[0][value]] = '<a title="'.$count.' '.xla('Document'). $s.'"
 										class="'.$class.' "
@@ -383,7 +385,8 @@
                             if ($category_name == "OTHER") {
                                 $class='play';
                             } else {
-                                $class = "git"; }
+                                $class = "git";
+                            }
 
                             echo '<li><a title="'.xla('Other Documents').'"
 										class="'.$class.'"  style="'.$style.'"
@@ -429,31 +432,34 @@
                                 $new_category = trim($entry['category']);
                                 $new_nickname = trim($entry['nickname']);
                                 if ($new_category == '') {
-                                    $new_category = htmlspecialchars(xl('Miscellaneous'), ENT_QUOTES);}
+                                    $new_category = htmlspecialchars(xl('Miscellaneous'), ENT_QUOTES);
+                                }
 
                                 if ($new_nickname != '') {
-                                    $nickname = $new_nickname;} else {
-                                    $nickname = $entry['name'];}
+                                    $nickname = $new_nickname;
+                                } else {
+                                    $nickname = $entry['name'];
+                                }
 
-                                    if ($old_category != $new_category) { //new category, new menu section
-                                        $new_category_ = $new_category;
-                                        $new_category_ = str_replace(' ', '_', $new_category_);
-                                        if ($old_category != '') {
-                                            $StringEcho.= "
+                                if ($old_category != $new_category) { //new category, new menu section
+                                    $new_category_ = $new_category;
+                                    $new_category_ = str_replace(' ', '_', $new_category_);
+                                    if ($old_category != '') {
+                                        $StringEcho.= "
                                                 </ul>
                                             </li>
                                             <li class='dropdown'>
                                             ";
-                                        }
+                                    }
 
-                                        $StringEcho.= '
+                                    $StringEcho.= '
                                       <a class="dropdown-toggle" data-toggle="dropdown"
                                         id="menu_dropdown_'.attr($new_category_).'" role="button"
                                         aria-expanded="false">'.text($new_category).' </a>
                                         <ul class="dropdown-menu" role="menu">
                                         ';
-                                        $old_category = $new_category;
-                                    }
+                                    $old_category = $new_category;
+                                }
 
                                     $StringEcho.= "<li>
                                     <a target='RBot' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
@@ -511,7 +517,8 @@
                     $append ='';
                     if ($category_id == $zone['id']) {
                         $class="play";
-                        $append = "<i class='fa fa-arrow-down'></i>"; }
+                        $append = "<i class='fa fa-arrow-down'></i>";
+                    }
 
                     if ($zone['name'] == xl('Advance Directives') ||
                         $zone['name'] == xl('Durable Power of Attorney') ||
@@ -523,7 +530,8 @@
                         if ($count!=1) {
                             $s ="s";
                         } else {
-                            $s='';}
+                            $s='';
+                        }
 
                         $disabled='';
                         if ($count =='0') {

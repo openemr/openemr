@@ -1404,7 +1404,8 @@ class Claim
         // so that the more important diagnoses appear first.
         foreach ($this->diags as $diag) {
             if ($strip_periods) {
-                $diag = str_replace('.', '', $diag);}
+                $diag = str_replace('.', '', $diag);
+            }
 
             $da[$diag] = $diag;
         }

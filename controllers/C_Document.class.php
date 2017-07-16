@@ -745,7 +745,7 @@ class C_Document extends Controller
         is_array($_POST['files']) ? $files = $_POST['files']: $files = array();
 
         //loop through posted files
-        foreach ($files as $doc_id=> $file) {
+        foreach ($files as $doc_id => $file) {
             //only operate on files checked as active
             if (!$file['active']) {
                 continue;

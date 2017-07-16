@@ -502,7 +502,7 @@ function writeFieldLine($linedata)
     echo "<select name='fld[$fld_line_no][data_type]' id='fld[$fld_line_no][data_type]' onchange=NationNotesContext('".$fld_line_no."',this.value)>";
     echo "<option value=''></option>";
     global $datatypes;
-    foreach ($datatypes as $key=>$value) {
+    foreach ($datatypes as $key => $value) {
         if ($linedata['data_type'] == $key) {
             echo "<option value='$key' selected>$value</option>";
         } else {
@@ -805,7 +805,7 @@ function writeFieldLine($linedata)
     }
 
         $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
-    foreach ($validations as $key=>$value) {
+    foreach ($validations as $key => $value) {
         $extra_html .= "    <option value='$key'";
         if ($key == $linedata['validation']) {
             $extra_html .= " selected";
@@ -1106,7 +1106,8 @@ $firstgroup = true; // flag indicates it's the first group to be displayed
 while ($row = sqlFetchArray($res)) {
     if ($row['group_name'] != $prevgroup) {
         if ($firstgroup == false) {
-            echo "</tbody></table></div>\n"; }
+            echo "</tbody></table></div>\n";
+        }
 
         echo "<div id='".$row['group_name']."' class='group'>";
         echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
@@ -1238,7 +1239,7 @@ foreach ($sources as $key => $value) {
 <option value=''></option>
 <?php
 global $datatypes;
-foreach ($datatypes as $key=>$value) {
+foreach ($datatypes as $key => $value) {
     echo "<option value='$key'>$value</option>";
 }
 ?>
@@ -1321,7 +1322,7 @@ foreach ($sources as $key => $value) {
      <option value=''></option>
 <?php
 global $datatypes;
-foreach ($datatypes as $key=>$value) {
+foreach ($datatypes as $key => $value) {
     echo "     <option value='$key'>$value</option>\n";
 }
 ?>

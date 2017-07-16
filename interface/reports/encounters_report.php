@@ -288,12 +288,14 @@ $res = sqlStatement($query);
       <td>
         <div class="checkbox">
           <label><input type='checkbox' name='form_details'<?php  if ($form_details) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php echo xlt('Details'); ?></label>
         </div>
         <div class="checkbox">
           <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php  if ($form_new_patients) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php  echo xlt('New'); ?></label>
         </div>
       </td>
@@ -301,17 +303,20 @@ $res = sqlStatement($query);
       <td>
         <div class="checkbox">
           <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php  echo xlt('Forms Esigned'); ?></label>
         </div>
         <div class="checkbox">
           <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php  echo xlt('Encounter Esigned'); ?></label>
         </div>
         <div class="checkbox">
           <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php echo xlt('Not Esigned'); ?></label>
         </div>
       </td>
@@ -356,22 +361,26 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
     <?php if ($form_orderby == "doctor") {
-        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Provider'); ?> </a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
     <?php if ($form_orderby == "time") {
-        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Date'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
     <?php if ($form_orderby == "patient") {
-        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Patient'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
     <?php if ($form_orderby == "pubpid") {
-        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('ID'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
     <?php echo xlt('Status'); ?>
@@ -382,7 +391,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
     <?php if ($form_orderby == "encounter") {
-        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Encounter Number'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
     <?php echo xlt('Form'); ?>
@@ -544,6 +554,7 @@ if ($res) {
 
 <script language='JavaScript'>
 <?php if ($alertmsg) {
-    echo " alert('$alertmsg');\n"; } ?>
+    echo " alert('$alertmsg');\n";
+} ?>
 </script>
 </html>

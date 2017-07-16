@@ -336,14 +336,12 @@ $(document).ready(function(){
     // Initialize labdata
     $("#labdata_ps_expand").load("labdata_fragment.php");
 <?php
-  // Initialize for each applicable LBF form.
-  $gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
-    "list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
-  while ($gfrow = sqlFetchArray($gfres)) {
-?>
-    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");
-<?php
-    }
+// Initialize for each applicable LBF form.
+$gfres = sqlStatement("SELECT option_id FROM list_options WHERE " .
+"list_id = 'lbfnames' AND option_value > 0 AND activity = 1 ORDER BY seq, title");
+while ($gfrow = sqlFetchArray($gfres)) { ?>
+    $("#<?php echo $gfrow['option_id']; ?>_ps_expand").load("lbf_fragment.php?formname=<?php echo $gfrow['option_id']; ?>");<?php
+}
 ?>
 
     // fancy box
@@ -531,10 +529,10 @@ if (($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
                     </a>
                 </td>
                 <?php
-            else :
+        else :
                 $portalUserSetting = false;
-            endif; // allow patient portal
-        endif; // Onsite Patient Portal
+        endif; // allow patient portal
+endif; // Onsite Patient Portal
 if ($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']) :
     $portalStatus = sqlQuery("SELECT allow_patient_portal FROM patient_data WHERE pid=?", array($pid));
     if ($portalStatus['allow_patient_portal']=='YES') :
@@ -551,10 +549,10 @@ if ($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']) :
             </a>
                 </td>
             <?php
-            else :
+    else :
                 $portalUserSetting = false;
-            endif; // allow_patient_portal
-        endif; // portal_offsite_enable
+    endif; // allow_patient_portal
+endif; // portal_offsite_enable
 if (!($portalUserSetting)) : // Show that the patient has not authorized portal access ?>
             <td style='padding-left:1em;'>
                 <?php echo htmlspecialchars(xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
@@ -894,7 +892,8 @@ if ($insurance_count > 0) {
                                  <td valign='top' colspan='3'>
                                   <span class='text'>
                                     <?php if (strcmp($enddate, 'Present') != 0) {
-                                        echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." ";} ?>
+                                        echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." ";
+} ?>
                                     <?php $tempinstype=ucfirst($instype);
                                     echo htmlspecialchars(xl($tempinstype.' Insurance'), ENT_NOQUOTES); ?>
                                     <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
@@ -939,7 +938,8 @@ if ($insurance_count > 0) {
                                     <?php echo htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars(xl('D.O.B.'), ENT_NOQUOTES); ?>:
                                     <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
-                                        echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES);} ?><br>
+                                        echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES);
+} ?><br>
                                     <?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_phone'], ENT_NOQUOTES); ?>
                                   </span>
@@ -949,11 +949,13 @@ if ($insurance_count > 0) {
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_city'], ENT_NOQUOTES); ?>
                                     <?php if ($row['subscriber_state'] != "") {
-                                        echo ", ";}
+                                        echo ", ";
+}
 
                                     echo htmlspecialchars($row['subscriber_state'], ENT_NOQUOTES); ?>
                                     <?php if ($row['subscriber_country'] != "") {
-                                        echo ", ";}
+                                        echo ", ";
+}
 
                                     echo htmlspecialchars($row['subscriber_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_postal_code'], ENT_NOQUOTES); ?></span>
@@ -964,11 +966,13 @@ if ($insurance_count > 0) {
                                     <?php echo htmlspecialchars($row['subscriber_employer_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_city'], ENT_NOQUOTES); ?>
                                     <?php if ($row['subscriber_employer_city'] != "") {
-                                        echo ", ";}
+                                        echo ", ";
+}
 
                                     echo htmlspecialchars($row['subscriber_employer_state'], ENT_NOQUOTES); ?>
                                     <?php if ($row['subscriber_employer_country'] != "") {
-                                        echo ", ";}
+                                        echo ", ";
+}
 
                                     echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
@@ -986,9 +990,11 @@ if ($insurance_count > 0) {
                             <?php } ?>
                                   <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
                                   <span class='text'><?php if ($row['accept_assignment'] == "TRUE") {
-                                        echo xl("YES");} ?>
+                                        echo xl("YES");
+} ?>
                                     <?php if ($row['accept_assignment'] == "FALSE") {
-                                        echo xl("NO");} ?></span>
+                                        echo xl("NO");
+} ?></span>
                                 <?php if (!empty($row['policy_type'])) { ?>
                   <br />
                                   <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
@@ -1227,23 +1233,22 @@ if ($existVitals) {
 <?php } // end if ($vitals_is_registered && acl_check('patients', 'med')) ?>
 
 <?php
-  // This generates a section similar to Vitals for each LBF form that
-  // supports charting.  The form ID is used as the "widget label".
-  //
-  $gfres = sqlStatement("SELECT option_id, title, notes FROM list_options WHERE " .
+// This generates a section similar to Vitals for each LBF form that
+// supports charting.  The form ID is used as the "widget label".
+//
+$gfres = sqlStatement("SELECT option_id, title, notes FROM list_options WHERE " .
     "list_id = 'lbfnames' AND " .
     "option_value > 0 AND activity = 1 " .
     "ORDER BY seq, title");
-  while ($gfrow = sqlFetchArray($gfres)) {
-      $jobj = json_decode($gfrow['notes'], true);
-      $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
-      if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
-          continue;
-        }
-?>
+while ($gfrow = sqlFetchArray($gfres)) {
+    $jobj = json_decode($gfrow['notes'], true);
+    $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
+    if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+        continue;
+    } ?>
     <tr>
-     <td width='650px'>
-<?php // vitals expand collapse widget
+    <td width='650px'>
+    <?php // vitals expand collapse widget
     $vitals_form_id = $gfrow['option_id'];
     $widgetTitle = $gfrow['title'];
     $widgetLabel = $vitals_form_id;
@@ -1253,14 +1258,14 @@ if ($existVitals) {
     $linkMethod = "html";
     $bodyClass = "notab";
     $widgetAuth = false;
-if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
-  // check to see if any instances exist for this patient
-    $existVitals = sqlQuery(
-        "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
-        array($pid, $vitals_form_id)
-    );
-    $widgetAuth = $existVitals;
-}
+    if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
+        // check to see if any instances exist for this patient
+        $existVitals = sqlQuery(
+            "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
+            array($pid, $vitals_form_id)
+        );
+        $widgetAuth = $existVitals;
+    }
 
     $fixedWidth = true;
     expand_collapse_widget(
@@ -1273,8 +1278,7 @@ if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
         $bodyClass,
         $widgetAuth,
         $fixedWidth
-    );
-?>
+    ); ?>
        <br/>
        <div style='margin-left:10px' class='text'>
         <image src='../../pic/ajax-loader.gif'/>
@@ -1284,7 +1288,7 @@ if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
      </td>
     </tr>
 <?php
-    } // end while
+} // end while
 ?>
 
    </table>
@@ -1392,7 +1396,8 @@ foreach ($photos as $photo_doc_id) {
             echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
         } ?>
       </div>
-    <?php  }  // close advanced dir block
+    <?php
+    }  // close advanced dir block
 
     // Show Clinical Reminders for any user that has rules that are permitted.
     $clin_rem_check = resolve_rules_sql('', '0', true, '', $_SESSION['authUser']);
@@ -1788,8 +1793,8 @@ foreach ($photos as $photo_doc_id) {
       <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
       </div>
      </td>
-    </tr>
-        <?php  }  // end track_anything ?>
+    </tr><?php
+            }  // end track_anything ?>
     </table>
 
     </div> <!-- end right column div -->

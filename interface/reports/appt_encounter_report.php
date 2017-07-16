@@ -298,7 +298,8 @@ $(document).ready(function() {
         <div class="checkbox">
                 <label><input type='checkbox' name='form_details'
                   value='1'<?php if ($_POST['form_details']) {
-                        echo " checked";} ?>><?php xl('Details', 'e') ?></label>
+                        echo " checked";
+} ?>><?php xl('Details', 'e') ?></label>
         </div>
             </td>
         </tr>
@@ -584,7 +585,8 @@ if ($res) {
 </form>
 <script>
 <?php if ($alertmsg) {
-    echo " alert('$alertmsg');\n"; } ?>
+    echo " alert('$alertmsg');\n";
+} ?>
 </script>
 </body>
 

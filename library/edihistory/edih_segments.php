@@ -68,7 +68,7 @@ function edih_segments_text($segments, $delimiter)
     $loopid = " -- ";
     $idx = 0;
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         $idx++;
         //
         $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
@@ -118,7 +118,7 @@ function edih_837_text($segments, $delimiter, $err_seg = '')
     $stsegct = 0;
     $bterr = 'btseg';
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         $idx++;
         $title = '';
         $stsegct++;
@@ -393,7 +393,7 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
     }
 
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         $sar = array();
         $idx++;
         $stsegct++;
@@ -420,7 +420,8 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
             $loopid = 'Begin';
             // 2nd seg in transaction, ST may not be included if segments are transaction slice
             if ($stsegct < 2) {
-                $stsegct = 2; }
+                $stsegct = 2;
+            }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
             continue;
@@ -505,10 +506,12 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
         if (strncmp('III'.$de, $seg, 4) === 0 && $has_eb) {
             // the III segment begins a loop in 271 type, but not in 270
             if ($loopid = '2110C') {
-                $loopid = '2115C'; }
+                $loopid = '2115C';
+            }
 
             if ($loopid = '2100D') {
-                $loopid = '2115D'; }
+                $loopid = '2115D';
+            }
 
             if ($has_iii) {
                 $str_html .= "<tr><td class='btloop'></td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
@@ -569,7 +572,7 @@ function edih_835_text($segments, $delimiter, $err_seg = '')
     $lx_ct = 0;
     $idx = 0;
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         //$idx++;
         //
         if (strncmp('ST'.$de, $seg, 3) === 0) {
@@ -694,7 +697,7 @@ function edih_277_text($segments, $delimiter, $stpos = '')
     $stsegct = 0;
     //$idx = 0;
     //
-    foreach ($segments as $idx=>$seg) {
+    foreach ($segments as $idx => $seg) {
         //$idx++;
         $stsegct++;
         $key = ($stpos) ? $idx - $stpos : $idx;
@@ -882,7 +885,7 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
     }
 
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         $idx++;
         $stsegct++;
         $title = '';
@@ -907,7 +910,8 @@ function edih_278_text($segments, $delimiter, $err_seg = '')
             $loopid = 'Begin';
             // 2nd seg in transaction, ST may not be included if segments are transaction slice
             if ($stsegct < 2) {
-                $stsegct = 2; }
+                $stsegct = 2;
+            }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='$bterr'>$seg</td></tr>" .PHP_EOL;
             continue;
@@ -1017,7 +1021,7 @@ function edih_997_text($segments, $delimiter)
     //
     //echo 'edih_997_text() foreach segment count: '.count($segments).PHP_EOL;
     //
-    foreach ($segments as $key=>$seg) {
+    foreach ($segments as $key => $seg) {
         //
         //echo var_dump($seg).PHP_EOL;
         //

@@ -273,7 +273,7 @@ function edih_disp_file_process()
     // debug
     if (isset($_GET)) {
         $dbg_str = 'GET vars ';
-        foreach ($_GET as $k=>$v) {
+        foreach ($_GET as $k => $v) {
             $dbg_str .= $k.' '.$v.'  ';
         }
 
@@ -326,7 +326,8 @@ function edih_disp_file_process()
 
         // if false, no files in directory
         if (!$checkdir) {
-            continue; }
+            continue;
+        }
 
         //
         $upload_ar = csv_newfile_list($tp);
@@ -468,7 +469,8 @@ function edih_disp_x12trans()
     //$str_htm .= "qs $qs fmt $fmt fn $fn ft $ft icn $icn rsptype $rsptype clm01 $clm01 trace $trace bht03 $bht03 err $err summary $summary</p>".PHP_EOL;
     //
     if ($ft) {
-        $ft = csv_file_type($ft); }
+        $ft = csv_file_type($ft);
+    }
 
     //
     if ($qs == 'claim') {
@@ -886,10 +888,12 @@ function ibr_disp_997_message()
     $errval = '';
     $fname = filter_input(INPUT_GET, 'fv997', FILTER_DEFAULT);
     if (isset($_GET['aknum'])) {
-        $akval = filter_input(INPUT_GET, 'aknum', FILTER_DEFAULT); }
+        $akval = filter_input(INPUT_GET, 'aknum', FILTER_DEFAULT);
+    }
 
     if (isset($_GET['err997'])) {
-        $errval = filter_input(INPUT_GET, 'err997', FILTER_DEFAULT); }
+        $errval = filter_input(INPUT_GET, 'err997', FILTER_DEFAULT);
+    }
 
     if (!$fname) {
         $str_html = "Missing file name.<br />".PHP_EOL;

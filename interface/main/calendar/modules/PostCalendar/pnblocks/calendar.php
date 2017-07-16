@@ -379,22 +379,28 @@ function postcalendar_calendarblock_update($blockinfo)
          );
     // set up defaults if not defined
     if (!isset($vars['pcbshowcalendar'])) {
-        $vars['pcbshowcalendar']  = 0; }
+        $vars['pcbshowcalendar']  = 0;
+    }
 
     if (!isset($vars['pcbeventslimit'])) {
-        $vars['pcbeventslimit']   = 5; }
+        $vars['pcbeventslimit']   = 5;
+    }
 
     if (!isset($vars['pcbeventoverview'])) {
-        $vars['pcbeventoverview'] = 0; }
+        $vars['pcbeventoverview'] = 0;
+    }
 
     if (!isset($vars['pcbnextevents'])) {
-        $vars['pcbnextevents']    = 0; }
+        $vars['pcbnextevents']    = 0;
+    }
 
     if (!isset($vars['pcbeventsrange'])) {
-        $vars['pcbeventsrange']   = 6; }
+        $vars['pcbeventsrange']   = 6;
+    }
 
     if (!isset($vars['pcbshowsslinks'])) {
-        $vars['pcbshowsslinks']   = 0; }
+        $vars['pcbshowsslinks']   = 0;
+    }
     
     $tpl =& new pcSmarty();
     $tpl->clear_all_cache();

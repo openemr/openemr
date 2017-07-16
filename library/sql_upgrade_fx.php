@@ -713,7 +713,7 @@ function upgradeFromSqlFile($filename)
             } else {
                 $skipping = false;
                 echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
-                foreach ($tables_list as $k=>$t) {
+                foreach ($tables_list as $k => $t) {
                     if (in_array($t, $tables_skip_migration)) {
                         printf('<font color="green">Table %s was purposefully skipped and NOT migrated to InnoDB.</font><br />', $t);
                         continue;

@@ -341,19 +341,25 @@ if ($drug_id) {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) {
-        echo ' checked';} ?> />
+   <input type='checkbox' name='form_active' value='1'<?php
+    if ($row['active']) {
+            echo ' checked';
+    } ?> />
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Allow'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) {
-        echo ' checked';} ?> />
+   <input type='checkbox' name='form_allow_multiple' value='1'<?php
+    if ($row['allow_multiple']) {
+        echo ' checked';
+    } ?> />
     <?php echo xlt('Multiple Lots'); ?> &nbsp;
-   <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) {
-        echo ' checked';} ?> />
+   <input type='checkbox' name='form_allow_combining' value='1'<?php
+    if ($row['allow_combining']) {
+        echo ' checked';
+    } ?> />
     <?php echo xlt('Combining Lots'); ?>
   </td>
  </tr>
@@ -391,23 +397,23 @@ if ($drug_id) {
      <td valign='top' nowrap>&nbsp;</td>
      <td valign='top' nowrap><?php echo xlt('Global'); ?></td>
 <?php
-  // One column header per warehouse title.
-  $pwarr = array();
-  $pwres = sqlStatement(
-      "SELECT lo.option_id, lo.title, " .
-      "pw.pw_min_level, pw.pw_max_level " .
-      "FROM list_options AS lo " .
-      "LEFT JOIN product_warehouse AS pw ON " .
-      "pw.pw_drug_id = ? AND " .
-      "pw.pw_warehouse = lo.option_id WHERE " .
-      "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-      array($drug_id)
-  );
-  while ($pwrow = sqlFetchArray($pwres)) {
-      $pwarr[] = $pwrow;
-      echo "     <td valign='top' nowrap>" .
-      text($pwrow['title']) . "</td>\n";
-    }
+// One column header per warehouse title.
+$pwarr = array();
+$pwres = sqlStatement(
+    "SELECT lo.option_id, lo.title, " .
+    "pw.pw_min_level, pw.pw_max_level " .
+    "FROM list_options AS lo " .
+    "LEFT JOIN product_warehouse AS pw ON " .
+    "pw.pw_drug_id = ? AND " .
+    "pw.pw_warehouse = lo.option_id WHERE " .
+    "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
+    array($drug_id)
+);
+while ($pwrow = sqlFetchArray($pwres)) {
+    $pwarr[] = $pwrow;
+    echo "     <td valign='top' nowrap>" .
+    text($pwrow['title']) . "</td>\n";
+}
 ?>
     </tr>
     <tr>
@@ -516,26 +522,26 @@ foreach ($pwarr as $pwrow) {
      <td class='drugsonly'><b><?php echo xlt('Qty'); ?></b></td>
      <td class='drugsonly'><b><?php echo xlt('Refills'); ?></b></td>
 <?php
-  // Show a heading for each price level.  Also create an array of prices
-  // for new template lines.
-  $emptyPrices = array();
-  $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+// Show a heading for each price level.  Also create an array of prices
+// for new template lines.
+$emptyPrices = array();
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
-  while ($prow = sqlFetchArray($pres)) {
-      $emptyPrices[$prow['option_id']] = '';
-      echo "     <td><b>" .
-      generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
-      "</b></td>\n";
-    }
+while ($prow = sqlFetchArray($pres)) {
+    $emptyPrices[$prow['option_id']] = '';
+    echo "     <td><b>" .
+    generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
+    "</b></td>\n";
+}
 
-  // Show a heading for each tax rate.
-    $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+// Show a heading for each tax rate.
+$pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-    while ($prow = sqlFetchArray($pres)) {
-        echo "     <td><b>" .
-         generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
-         "</b></td>\n";
-    }
+while ($prow = sqlFetchArray($pres)) {
+    echo "     <td><b>" .
+        generate_display_field(array('data_type'=>'1','list_id'=>'taxrate'), $prow['option_id']) .
+        "</b></td>\n";
+}
 ?>
     </tr>
 <?php

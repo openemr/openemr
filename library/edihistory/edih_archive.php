@@ -71,7 +71,7 @@ function edih_archive_report($period = '')
 
     //
     $str_html .= "<h3>Report on edi files using archive date $strdt</h3>".PHP_EOL;
-    foreach ($params as $key=>$param) {
+    foreach ($params as $key => $param) {
         $old_ct = 0;
         $clm_ct = 0;
         $dir_ct = 0;
@@ -94,16 +94,19 @@ function edih_archive_report($period = '')
                 foreach ($dir_ar as $fn) {
                     if ($fn == 'README.txt') {
                         $dir_ct--;
-                        continue; }
+                        continue;
+                    }
 
                     if (substr($fn, 0, 1) == '.') {
                         $dir_ct--;
-                        continue; }
+                        continue;
+                    }
 
                     if (is_dir($fdir.DS.$fn)) {
                         $subdir_ct++;
                         $dir_ct--;
-                        continue; }
+                        continue;
+                    }
 
                     $dir_sz += filesize($fdir.DS.$fn);
                 }
@@ -115,13 +118,16 @@ function edih_archive_report($period = '')
                     foreach ($csv_ar as $row) {
                         // tally amount of claim transactions in the files
                         if ($tp == 'f837') {
-                            $clm_ct += $row['Claim_ct']; }
+                            $clm_ct += $row['Claim_ct'];
+                        }
 
                         if ($tp == 'f277') {
-                            $clm_ct += ($row['Accept'] + $row['Reject']); }
+                            $clm_ct += ($row['Accept'] + $row['Reject']);
+                        }
 
                         if ($tp == 'f835') {
-                            $clm_ct += $row['Claim_ct']; }
+                            $clm_ct += $row['Claim_ct'];
+                        }
 
                         // check for duplicates
                         // here assume that files with multiple rows are consecutive
@@ -129,7 +135,8 @@ function edih_archive_report($period = '')
                             $fntp = $row['FileName'];
                             // count files that would be archived
                             if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) {
-                                $old_ct++; }
+                                $old_ct++;
+                            }
 
                             $fntp_ct++;
                         }
@@ -181,7 +188,8 @@ function edih_archive_date($period)
     //
     $dtpd2 = '';
     if (!$period) {
-        return $dtpd2; }
+        return $dtpd2;
+    }
 
     $is_period = preg_match('/\d{1,2}(?=m)/', $period, $matches);
     //
@@ -410,7 +418,8 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
             csv_edihist_log("edih_archive_create_zip: now adding $ft files to archive");
             foreach ($fnz as $fz) {
                 if ($fz == '.' || $fz == '..') {
-                    continue; }
+                    continue;
+                }
 
                 if (is_file($fdir.DS.$fz) && is_readable($fdir.DS.$fz)) {
                     $isOK = $zip_obj->addFile($fdir.DS.$fz, $ft.DS.$fz);
@@ -455,10 +464,12 @@ function edih_archive_move_old($parameters, $filename_ar)
 {
     //
     if (!is_array($filename_ar) || !count($filename_ar)) {
-        return false; }
+        return false;
+    }
 
     if (!is_array($parameters) || !count($parameters)) {
-        return false; }
+        return false;
+    }
 
     //
     clearstatcache(true);
@@ -546,7 +557,8 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
     if (($fh = fopen($csv_arch_path, "rb")) !== false) {
         while (($data = fgetcsv($fh, 2048, ",")) !== false) {
             if (is_null($data)) {
-                continue; }
+                continue;
+            }
 
             if ($row) {
                 for ($i=0; $i<$ct; $i++) {
@@ -624,7 +636,8 @@ function edih_archive_csv_combine($filetype, $csvtype)
         if (count($hdrc1)) {
             $dbg_str = '';
             foreach ($hdrc1 as $h) {
-                $dbg_str .= $h.' '; }
+                $dbg_str .= $h.' ';
+            }
 
             csv_edihist_log("edih_archive_csv_combine: $csvtp car1 header $dbg_str");
         } else {
@@ -634,7 +647,8 @@ function edih_archive_csv_combine($filetype, $csvtype)
         if (count($hdrc2)) {
             $dbg_str = '';
             foreach ($hdrc2 as $h) {
-                $dbg_str .= $h.' '; }
+                $dbg_str .= $h.' ';
+            }
 
             csv_edihist_log("edih_archive_csv_combine: $csvtp car2 header $dbg_str");
         } else {
@@ -659,7 +673,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
                 }
 
                 // array_column() php v5.5
-                foreach ($car_cmb as $idx=>$row) {
+                foreach ($car_cmb as $idx => $row) {
                     $dup_ar[$idx] = $row[$ky];
                 }
 
@@ -675,7 +689,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
             } elseif ($csvtp == 'claims') {
                 $ct = count($hdr_ar);
                 $ftxt = $csvtp.' array'.PHP_EOL;
-                foreach ($car_cmb as $idx=>$row) {
+                foreach ($car_cmb as $idx => $row) {
                     $r_str = '';
                     for ($i=0; $i<$ct; $i++) {
                         $r_str .= $row[$hdr_ar[$i]];
@@ -784,11 +798,13 @@ function edih_archive_restore($archive_name)
     $tpstr = '';
     foreach ($arch_ar as $fa) {
         if ($fa == '.' || $fa == '..') {
-            continue; }
+            continue;
+        }
 
         if (is_dir($tmpdir.DS.$fa)) {
             if ($fa == 'csv') {
-                continue; }
+                continue;
+            }
 
             // if a /history/ftype dir exists
             if (is_dir($bdir.DS.$fa)) {
@@ -816,7 +832,8 @@ function edih_archive_restore($archive_name)
         $file_ar = scandir($tmpdir.DS.$ft);
         foreach ($file_ar as $fn) {
             if ($fn == '.' || $fn == '..') {
-                continue; }
+                continue;
+            }
 
             if (is_file($tmpdir.DS.$ft.DS.$fn)) {
                 $rn = rename($tmpdir.DS.$ft.DS.$fn, $bdir.DS.$ft.DS.$fn);
@@ -917,7 +934,8 @@ function edih_archive_undo()
     $arch_ar = scandir($tmpdir);
     foreach ($arch_ar as $fa) {
         if ($fa == "." && $fa == "..") {
-            continue; }
+            continue;
+        }
 
         if (is_dir($tmpdir.DS.$fa)) {
             if (in_array($fa, $types_ar)) {
@@ -1041,7 +1059,8 @@ function edih_archive_cleanup($archivename, $types_ar)
             $fn_ar = scandir($tmpdir.DS.$td);
             foreach ($fn_ar as $fn) {
                 if ($fn == '.' || $fn == '..') {
-                    continue; }
+                    continue;
+                }
 
                 if (is_file($tmpdir.DS.$td.DS.$fn)) {
                     $ul = unlink($tmpdir.DS.$td.DS.$fn);
@@ -1122,7 +1141,7 @@ function edih_archive_main($period)
     }
 
     //
-    foreach ($params as $k=>$p) {
+    foreach ($params as $k => $p) {
         //
         $ft = $p['type'];  // could be $k
         //
@@ -1134,7 +1153,8 @@ function edih_archive_main($period)
         $fdir = $p['directory'];
         $scan = scandir($fdir);
         if (!$scan || count($scan) < 3) {
-            continue; }
+            continue;
+        }
 
         //
         $files_csv = $p['files_csv'];
@@ -1173,7 +1193,8 @@ function edih_archive_main($period)
                 $fh = fopen($fn_claims_old, 'wb');
                 if ($fh) {
                     fputcsv($fh, $ch_ar);
-                    fclose($fh); }
+                    fclose($fh);
+                }
             } else {
                 csv_edihist_log("edih_archive_main: $ft claims csv does not exist");
                 continue;

@@ -575,7 +575,8 @@ if ($popup) {
     size='10' value='<?php echo $start_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'
     <?php if ($formid && $start_date) {
-        echo 'disabled ';} ?>/>
+        echo 'disabled ';
+} ?>/>
 <?php if (!$formid || !$start_date) { ?>
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_start_date' border='0' alt='[?]' style='cursor:pointer'
@@ -584,7 +585,8 @@ if ($popup) {
    &nbsp;
     <?php xl('Template:', 'e') ?>
    <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) {
-        echo ' disabled';} ?>>
+        echo ' disabled';
+} ?>>
     <option value='0'>-- Select --</option>
 <?php
 while ($trow = sqlFetchArray($tres)) {
@@ -608,7 +610,8 @@ while ($trow = sqlFetchArray($tres)) {
    <input type='checkbox' name='form_completed'
     title='<?php xl("If all data for all columns are complete for this form", "e") ?>'
     <?php if ($form_completed) {
-        echo 'checked ';} ?>/>
+        echo 'checked ';
+} ?>/>
     <?php xl('Completed', 'e') ?>
 <?php } ?>
   </td>

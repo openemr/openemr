@@ -37,7 +37,8 @@ class Version
      * Default constructor.
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @Column(name="v_major", type="integer", length=11, nullable=false, options={"default" : 0})

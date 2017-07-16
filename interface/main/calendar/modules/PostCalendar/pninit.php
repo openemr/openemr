@@ -480,10 +480,12 @@ function postcalendar_upgrade($oldversion)
                             $diff = Date_Calc::dateDiff($d, $m, $y, $d2, $m2, $y2);
                             // assuming $diff is going to be a multiple of 7
                             if ($diff > 0) {
-                                $diff/=7; }
+                                $diff/=7;
+                            }
 
                             if ($diff > REPEAT_ON_4TH) {
-                                $diff = REPEAT_ON_LAST; }
+                                $diff = REPEAT_ON_LAST;
+                            }
 
                             $recurrspec['event_repeat_on_num']      = $diff;
                             $recurrspec['event_repeat_on_day']      = $edow;
@@ -513,10 +515,12 @@ function postcalendar_upgrade($oldversion)
                             $diff = Date_Calc::dateDiff($d, $m, $y, $d2, $m2, $y2);
                             // assuming $diff is going to be a multiple of 7
                             if ($diff > 0) {
-                                $diff/=7; }
+                                $diff/=7;
+                            }
 
                             if ($diff > REPEAT_ON_4TH) {
-                                $diff = REPEAT_ON_LAST; }
+                                $diff = REPEAT_ON_LAST;
+                            }
 
                             $recurrspec['event_repeat_on_num']      = $diff;
                             $recurrspec['event_repeat_on_day']      = $edow;

@@ -89,7 +89,8 @@ if ($_FILES['form_erafile']['size']) {
 <html>
 <head>
 <?php if (function_exists('html_header_show')) {
-    html_header_show();} ?>
+    html_header_show();
+} ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">

@@ -261,7 +261,8 @@ if ($facilities) {
     foreach ($facilities as $iter) {
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
-            echo "selected";}?>><?php echo text($iter['name']); ?></option>
+            echo "selected";
+}?>><?php echo text($iter['name']); ?></option>
 <?php
     }
 }
@@ -344,7 +345,8 @@ echo ">" . xlt('None'). "</option>\n";
     </tr>
 
     <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
-        echo " style='visibility:hidden;'";} ?>>
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -374,7 +376,8 @@ echo ">" . xlt('None'). "</option>\n";
     </tr>
 
     <tr<?php if ($GLOBALS['ippf_specific']) {
-        echo " style='visibility:hidden;'";} ?>>
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'

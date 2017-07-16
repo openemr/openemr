@@ -9,10 +9,12 @@ $parameters = GetParameters();
 
 // establish some defaults
 if (! isset($parameters['sortby'])) {
-    $parameters['sortby'] = "name"; }
+    $parameters['sortby'] = "name";
+}
 
 if (! isset($parameters['limit'])) {
-    $parameters['limit'] = 100; }
+    $parameters['limit'] = 100;
+}
 
 if (! isset($parameters['match_name']) &&
     ! isset($parameters['match_dob']) &&
@@ -68,30 +70,38 @@ body {
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php if ($parameters['match_name']) {
-    echo "CHECKED";} ?>> 
+    echo "CHECKED";
+} ?>> 
 <label for="match_name">Name</label>
 <input type="checkbox" name="match_dob" id="match_dob" <?php if ($parameters['match_dob']) {
-    echo "CHECKED";} ?>> 
+    echo "CHECKED";
+} ?>> 
 <label for="match_dob">DOB</label>
 <input type="checkbox" name="match_sex" id="match_sex" <?php if ($parameters['match_sex']) {
-    echo "CHECKED";} ?>> 
+    echo "CHECKED";
+} ?>> 
 <label for="match_sex">Gender</label>
 <input type="checkbox" name="match_ssn" id="match_ssn" <?php if ($parameters['match_ssn']) {
-    echo "CHECKED";} ?>> 
+    echo "CHECKED";
+} ?>> 
 <label for="match_ssn">SSN</label>
 <br>
 Order results by:
 <input type='radio' name='sortby' value='name' id="name" <?php if ($parameters['sortby']=='name') {
-    echo "CHECKED";} ?>>
+    echo "CHECKED";
+} ?>>
 <label for="name">Name</label>
 <input type='radio' name='sortby' value='dob' id="dob" <?php if ($parameters['sortby']=='dob') {
-    echo "CHECKED";} ?>>
+    echo "CHECKED";
+} ?>>
 <label for="dob">DOB</label>
 <input type='radio' name='sortby' value='sex' id="sex" <?php if ($parameters['sortby']=='sex') {
-    echo "CHECKED";} ?>>
+    echo "CHECKED";
+} ?>>
 <label for="sex">Gender</label>
 <input type='radio' name='sortby' value='ssn' id="ssn" <?php if ($parameters['sortby']=='ssn') {
-    echo "CHECKED";} ?>>
+    echo "CHECKED";
+} ?>>
 <label for="ssn">SSN</label>
 <br>
 Limit search to first <input type='textbox' size='5' name='limit' id="limit" value='<?php echo $parameters['limit']; ?>'> records

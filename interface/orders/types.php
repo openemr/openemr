@@ -118,7 +118,8 @@ tr.oddrow {
 <script language="JavaScript">
 
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 
 <?php
 // Create array of IDs to pre-select, leaf to top.

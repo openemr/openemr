@@ -155,7 +155,8 @@ function generate_receipt($patient_id, $encounter = 0)
         } else if (isset($patdata['providerID'])) {
             $encprovider = $patdata['providerID'];
         } else {
-            $encprovider = -1; }
+            $encprovider = -1;
+        }
     }
 
     if ($encprovider) {
@@ -210,8 +211,10 @@ function generate_receipt($patient_id, $encounter = 0)
 <center>
 <?php
 if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
-    printProviderHeader($providerrow); } else {
-    printFacilityHeader($frow); }
+    printProviderHeader($providerrow);
+} else {
+    printFacilityHeader($frow);
+}
 ?>
 <?php
   echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));

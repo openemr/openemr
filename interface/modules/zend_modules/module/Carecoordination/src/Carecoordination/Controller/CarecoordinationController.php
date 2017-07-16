@@ -388,7 +388,7 @@ class CarecoordinationController extends AbstractActionController
         $components = array_diff($components, array('instructions' => 'Instructions'));
         
         $temp = '<table>';
-        foreach ($components as $key=>$value) {
+        foreach ($components as $key => $value) {
             $temp .='<tr class="se_in_9">
            <th colspan="1" id="expandCompDetails-'.\Application\Plugin\CommonPlugin::escape($key.$amid.$pid).'" class="expandCompDetails se_in_23" component="'.\Application\Plugin\CommonPlugin::escape($key).'" amid="'.\Application\Plugin\CommonPlugin::escape($amid).'" style="padding: 0px 5px!important;"></th>
            <th colspan="8" style="padding: 0px 0px!important;"><label>'.\Application\Plugin\CommonPlugin::escape($value).'</th> 

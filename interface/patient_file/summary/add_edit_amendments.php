@@ -224,7 +224,8 @@ $(document).ready(function() {
             if ($amendment_id) {
                 echo text($amendment_desc);
             } else {
-                echo ""; } ?></textarea></td>
+                echo "";
+            } ?></textarea></td>
         </tr>
 
         <tr>

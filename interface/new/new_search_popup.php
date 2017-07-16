@@ -174,7 +174,8 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
   </td>
   <td class='text' align='center'>
 <?php if ($message) {
-    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";} ?>
+    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";
+} ?>
   </td>
   <td class='text' align='right'>
 <?php

@@ -271,7 +271,8 @@ function &postcalendar_today($format = '%Y%m%d')
  */
 function postcalendar_adminapi_pageSetup()
 {
-    return postcalendar_userapi_pageSetup(); }
+    return postcalendar_userapi_pageSetup();
+}
 /**
  * postcalendar_userapi_pageSetup()
  *
@@ -283,11 +284,13 @@ function postcalendar_userapi_pageSetup()
     $output = '';
     // load the DHTML JavaScript code and insert it into the page
     if (_SETTING_USE_POPUPS) {
-        $output .= postcalendar_userapi_loadPopups(); }
+        $output .= postcalendar_userapi_loadPopups();
+    }
 
     // insert the js popup code into the page (find better code)
     if (_SETTING_OPEN_NEW_WINDOW) {
-        $output .= postcalendar_userapi_jsPopup(); }
+        $output .= postcalendar_userapi_jsPopup();
+    }
 
     return $output;
 }
@@ -410,7 +413,8 @@ EOF;
  */
 function postcalendar_adminapi_getmonthname($args)
 {
-    return postcalendar_userapi_getmonthname($args); }
+    return postcalendar_userapi_getmonthname($args);
+}
 /**
  * postcalendar_userapi_getmonthname()
  *
@@ -424,7 +428,8 @@ function postcalendar_userapi_getmonthname($args)
     extract($args);
     unset($args);
     if (!isset($Date)) {
-        return false; }
+        return false;
+    }
 
     $month_name = array('01' => _CALJAN, '02' => _CALFEB, '03' => _CALMAR,
                         '04' => _CALAPR, '05' => _CALMAY, '06' => _CALJUN,
@@ -437,7 +442,8 @@ function postcalendar_userapi_getmonthname($args)
  */
 function postcalendar_adminapi_buildTimeSelect($args)
 {
-    return postcalendar_userapi_buildTimeSelect($args); }
+    return postcalendar_userapi_buildTimeSelect($args);
+}
 function postcalendar_userapi_buildTimeSelect($args)
 {
     $inc = _SETTING_TIME_INCREMENT;
@@ -474,13 +480,15 @@ function postcalendar_userapi_buildTimeSelect($args)
  */
 function postcalendar_adminapi_buildMonthSelect($args)
 {
-    return postcalendar_userapi_buildMonthSelect($args); }
+    return postcalendar_userapi_buildMonthSelect($args);
+}
 function postcalendar_userapi_buildMonthSelect($args)
 {
     extract($args);
     unset($args);
     if (!isset($pc_month)) {
-        $pc_month = Date_Calc::getMonth(); }
+        $pc_month = Date_Calc::getMonth();
+    }
 
     // create the return object to be inserted into the form
     $output = array();
@@ -490,9 +498,12 @@ function postcalendar_userapi_buildMonthSelect($args)
 
     for ($c=0,$i=1; $i<=12; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false; } elseif ($i == $pc_month) {
-            $sel = true; } else {
-                $sel = false; }
+            $sel = $selected == $i ? true : false;
+        } elseif ($i == $pc_month) {
+            $sel = true;
+        } else {
+                $sel = false;
+        }
 
             $output[$c]['id']       = sprintf('%02d', $i);
             $output[$c]['selected'] = $sel;
@@ -507,13 +518,15 @@ function postcalendar_userapi_buildMonthSelect($args)
  */
 function postcalendar_adminapi_buildDaySelect($args)
 {
-    return postcalendar_userapi_buildDaySelect($args); }
+    return postcalendar_userapi_buildDaySelect($args);
+}
 function postcalendar_userapi_buildDaySelect($args)
 {
     extract($args);
     unset($args);
     if (!isset($pc_day)) {
-        $pc_day = Date_Calc::getDay(); }
+        $pc_day = Date_Calc::getDay();
+    }
 
     // create the return object to be inserted into the form
     $output = array();
@@ -523,9 +536,12 @@ function postcalendar_userapi_buildDaySelect($args)
 
     for ($c=0,$i=1; $i<=31; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false; } elseif ($i == $pc_day) {
-            $sel = true; } else {
-                $sel = false; }
+            $sel = $selected == $i ? true : false;
+        } elseif ($i == $pc_day) {
+            $sel = true;
+        } else {
+                $sel = false;
+        }
 
             $output[$c]['id']       = sprintf('%02d', $i);
             $output[$c]['selected'] = $sel;
@@ -540,13 +556,15 @@ function postcalendar_userapi_buildDaySelect($args)
  */
 function postcalendar_adminapi_buildYearSelect($args)
 {
-    return postcalendar_userapi_buildYearSelect($args); }
+    return postcalendar_userapi_buildYearSelect($args);
+}
 function postcalendar_userapi_buildYearSelect($args)
 {
     extract($args);
     unset($args);
     if (!isset($pc_year)) {
-        $pc_year = date('Y'); }
+        $pc_year = date('Y');
+    }
 
     // create the return object to be inserted into the form
     $output = array();
@@ -560,9 +578,12 @@ function postcalendar_userapi_buildYearSelect($args)
 
     for ($c=0,$i=$pc_start_year; $i<=$pc_end_year; $i++,$c++) {
         if ($selected) {
-            $sel = $selected == $i ? true : false; } elseif ($i == $pc_year) {
-            $sel = true; } else {
-                $sel = false; }
+            $sel = $selected == $i ? true : false;
+        } elseif ($i == $pc_year) {
+            $sel = true;
+        } else {
+                $sel = false;
+        }
 
             $output[$c]['id']       = sprintf('%04d', $i);
             $output[$c]['selected'] = $sel;
@@ -574,7 +595,8 @@ function postcalendar_userapi_buildYearSelect($args)
 
 function &postcalendar_adminapi_getCategories()
 {
-    return postcalendar_userapi_getCategories(); }
+    return postcalendar_userapi_getCategories();
+}
 function &postcalendar_userapi_getCategories()
 {
     list($dbconn) = pnDBGetConn();
@@ -588,10 +610,12 @@ function &postcalendar_userapi_getCategories()
     $result = $dbconn->Execute($sql);
 
     if ($dbconn->ErrorNo() != 0) {
-        return array(); }
+        return array();
+    }
 
     if (!isset($result)) {
-        return array(); }
+        return array();
+    }
 
     $categories = array();
     for ($i=0; !$result->EOF; $result->MoveNext()) {
@@ -634,7 +658,8 @@ function &postcalendar_userapi_getCategories()
 
 function &postcalendar_adminapi_getTopics()
 {
-    return postcalendar_userapi_getTopics(); }
+    return postcalendar_userapi_getTopics();
+}
 function &postcalendar_userapi_getTopics()
 {
     list($dbconn) = pnDBGetConn();
@@ -670,7 +695,8 @@ function &postcalendar_userapi_getTopics()
  */
 function postcalendar_adminapi_submitEvent($args)
 {
-    return postcalendar_userapi_submitEvent($args); }
+    return postcalendar_userapi_submitEvent($args);
+}
 /**
  *    postcalendar_userapi_submitEvent()
  *    submit an event
@@ -787,7 +813,8 @@ function postcalendar_userapi_submitEvent($args)
          );
 
     if (!isset($is_update)) {
-        $is_update = false; }
+        $is_update = false;
+    }
 
     if ($is_update) {
         $sql = "UPDATE $pntable[postcalendar_events]
@@ -889,7 +916,8 @@ function postcalendar_userapi_submitEvent($args)
 function pc_notify($eid, $is_update)
 {
     if (!(bool)_SETTING_NOTIFY_ADMIN) {
-        return true; }
+        return true;
+    }
 
     $subject = _PC_NOTIFY_SUBJECT;
 
@@ -1061,7 +1089,8 @@ function dtSecDur($date, $time, $dur)
  */
 function postcalendar_adminapi_buildSubmitForm($args)
 {
-    return postcalendar_userapi_buildSubmitForm($args, true); }
+    return postcalendar_userapi_buildSubmitForm($args, true);
+}
 /**
  *    postcalendar_userapi_buildSubmitForm()
  *    create event submit form
@@ -1070,7 +1099,8 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
 {
     $_SESSION['category'] = "";
     if (!PC_ACCESS_ADD) {
-        return _POSTCALENDARNOAUTH; }
+        return _POSTCALENDARNOAUTH;
+    }
 
     extract($args);
     unset($args);
@@ -1471,7 +1501,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY,_PC_EVERY_OTHER,_PC_EVERY_THIRD,_PC_EVERY_FOURTH);
     $keys = array(REPEAT_EVERY,REPEAT_EVERY_OTHER,REPEAT_EVERY_THIRD,REPEAT_EVERY_FOURTH);
     $repeat_freq = array();
-    foreach ($in as $k=>$v) {
+    foreach ($in as $k => $v) {
         array_push($repeat_freq, array('value'=>$keys[$k],
                                       'selected'=>($keys[$k]==$event_repeat_freq?'selected':''),
                                       'name'=>$v));
@@ -1488,7 +1518,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY_DAY,_PC_EVERY_WORKDAY,_PC_EVERY_WEEK,_PC_EVERY_MONTH,_PC_EVERY_YEAR);
     $keys = array(REPEAT_EVERY_DAY,REPEAT_EVERY_WORK_DAY,REPEAT_EVERY_WEEK,REPEAT_EVERY_MONTH,REPEAT_EVERY_YEAR);
     $repeat_freq_type = array();
-    foreach ($in as $k=>$v) {
+    foreach ($in as $k => $v) {
         array_push($repeat_freq_type, array('value'=>$keys[$k],
                                            'selected'=>($keys[$k]==$event_repeat_freq_type?'selected':''),
                                            'name'=>$v));
@@ -1505,7 +1535,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY_1ST,_PC_EVERY_2ND,_PC_EVERY_3RD,_PC_EVERY_4TH,_PC_EVERY_LAST);
     $keys = array(REPEAT_ON_1ST,REPEAT_ON_2ND,REPEAT_ON_3RD,REPEAT_ON_4TH,REPEAT_ON_LAST);
     $repeat_on_num = array();
-    foreach ($in as $k=>$v) {
+    foreach ($in as $k => $v) {
         array_push($repeat_on_num, array('value'=>$keys[$k],
                                         'selected'=>($keys[$k]==$event_repeat_on_num?'selected':''),
                                         'name'=>$v));
@@ -1518,7 +1548,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY_SUN,_PC_EVERY_MON,_PC_EVERY_TUE,_PC_EVERY_WED,_PC_EVERY_THU,_PC_EVERY_FRI,_PC_EVERY_SAT);
     $keys = array(REPEAT_ON_SUN,REPEAT_ON_MON,REPEAT_ON_TUE,REPEAT_ON_WED,REPEAT_ON_THU,REPEAT_ON_FRI,REPEAT_ON_SAT);
     $repeat_on_day = array();
-    foreach ($in as $k=>$v) {
+    foreach ($in as $k => $v) {
         array_push($repeat_on_day, array('value'=>$keys[$k],
                                         'selected'=>($keys[$k]==$event_repeat_on_day ? 'selected' : ''),
                                         'name'=>$v));
@@ -1531,7 +1561,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_OF_EVERY_MONTH,_PC_OF_EVERY_2MONTH,_PC_OF_EVERY_3MONTH,_PC_OF_EVERY_4MONTH,_PC_OF_EVERY_6MONTH,_PC_OF_EVERY_YEAR);
     $keys = array(REPEAT_ON_MONTH,REPEAT_ON_2MONTH,REPEAT_ON_3MONTH,REPEAT_ON_4MONTH,REPEAT_ON_6MONTH,REPEAT_ON_YEAR);
     $repeat_on_freq = array();
-    foreach ($in as $k=>$v) {
+    foreach ($in as $k => $v) {
         array_push($repeat_on_freq, array('value'=>$keys[$k],
                                          'selected'=>($keys[$k] == $event_repeat_on_freq ? 'selected' : ''),
                                          'name'=>$v));
@@ -1723,11 +1753,13 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
  */
 function postcalendar_adminapi_eventDetail($args)
 {
-    return postcalendar_userapi_eventDetail($args, true); }
+    return postcalendar_userapi_eventDetail($args, true);
+}
 function postcalendar_userapi_eventDetail($args, $admin = false)
 {
     if (!(bool)PC_ACCESS_READ) {
-        return _POSTCALENDARNOAUTH; }
+        return _POSTCALENDARNOAUTH;
+    }
 
     // get the theme globals :: is there a better way to do this?
     pnThemeLoad(pnUserGetTheme());
@@ -1781,7 +1813,8 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         // if the above is false, it's a private event for another user
         // we should not diplay this - so we just exit gracefully
         if ($event === false) {
-            return false; }
+            return false;
+        }
 
         //=================================================================
         //  get event's topic information
@@ -2101,7 +2134,8 @@ function pc_clean($s)
 
 function &postcalendar_adminapi_getCategoryLimits()
 {
-    return postcalendar_userapi_getCategoryLimits(); }
+    return postcalendar_userapi_getCategoryLimits();
+}
 function &postcalendar_userapi_getCategoryLimits()
 {
     list($dbconn) = pnDBGetConn();
@@ -2113,10 +2147,12 @@ function &postcalendar_userapi_getCategoryLimits()
     $result = $dbconn->Execute($sql);
 
     if ($dbconn->ErrorNo() != 0) {
-        return array(); }
+        return array();
+    }
 
     if (!isset($result)) {
-        return array(); }
+        return array();
+    }
 
     $limits = array();
     for ($i=0; !$result->EOF; $result->MoveNext()) {

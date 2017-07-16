@@ -52,7 +52,8 @@ function smarty_function_pc_filter($args, &$smarty)
     $pc_username = pnVarCleanFromInput('pc_username');
 
     if (!isset($viewtype)) {
-        $viewtype = _SETTING_DEFAULT_VIEW; }
+        $viewtype = _SETTING_DEFAULT_VIEW;
+    }
 
     $types = explode(',', $type);
     $output = new pnHTML();
@@ -62,7 +63,8 @@ function smarty_function_pc_filter($args, &$smarty)
     unset($modinfo);
     $pcTemplate = pnVarPrepForOS(_SETTING_TEMPLATE);
     if (empty($pcTemplate)) {
-        $pcTemplate = 'default'; }
+        $pcTemplate = 'default';
+    }
 
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
@@ -131,7 +133,8 @@ function smarty_function_pc_filter($args, &$smarty)
     //	build it in the correct order
     //================================================================
     if (!isset($label)) {
-        $label = _PC_TPL_VIEW_SUBMIT; }
+        $label = _PC_TPL_VIEW_SUBMIT;
+    }
 
     $submit = "<input type=\"submit\" valign=\"middle\" name=\"submit\" value=\"$label\" class=\"$class\" />";
     $orderArray = array('user'=>$useroptions, 'category'=>$catoptions, 'topic'=>$topoptions, 'jump'=>$submit);
@@ -143,7 +146,7 @@ function smarty_function_pc_filter($args, &$smarty)
             array_push($newOrder, $orderArray[$tmp_order]);
         }
 
-        foreach ($orderArray as $key=>$old_order) {
+        foreach ($orderArray as $key => $old_order) {
             if (!in_array($key, $newOrder)) {
                 array_push($newOrder, $orderArray[$old_order]);
             }

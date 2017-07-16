@@ -294,7 +294,8 @@ class AclController extends AbstractActionController
                 $class="";
                 echo '<li id="'.$category['parent_id']."-".$category['id'].'" value="'.$escapeHtml($category['name']).'" '.$escapeHtml($class).' ><div onclick="selectThis(\''.$escapeHtml($category['parent_id']).'-'.$escapeHtml($category['id']).'\');rebuild();" class="list">'.$escapeHtml($category['name'])."</div>";
                 if ($currLevel > $prevLevel) {
-                    $prevLevel = $currLevel; }
+                    $prevLevel = $currLevel;
+                }
 
                 $currLevel++;
                 $this->createTreeView($array, $categoryId, $currLevel, $prevLevel);

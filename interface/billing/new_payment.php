@@ -126,7 +126,8 @@ $payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
 <html>
 <head>
 <?php if (function_exists('html_header_show')) {
-    html_header_show();} ?>
+    html_header_show();
+} ?>
 
 
 

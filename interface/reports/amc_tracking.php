@@ -219,13 +219,16 @@ $provider  = trim($_POST['form_provider']);
                         <td>
                             <select name='form_rule' class='form-control'>
                             <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo htmlspecialchars(xl('Send Summaries with Referrals'), ENT_NOQUOTES); ?></option>
                             <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo htmlspecialchars(xl('Patient Requested Medical Records'), ENT_NOQUOTES); ?></option>
                             <option value='provide_sum_pat_amc' <?php if ($rule == "provide_sum_pat_amc") {
-                                echo "selected";} ?>>
+                                echo "selected";
+} ?>>
                             <?php echo htmlspecialchars(xl('Provide Records to Patient for Visit'), ENT_NOQUOTES); ?></option>
                             </select>
                         </td>

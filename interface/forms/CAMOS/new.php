@@ -42,13 +42,16 @@ $subcategory = str_replace($quote_search, $quote_replace, $_POST['change_subcate
 $item = str_replace($quote_search, $quote_replace, $_POST['change_item']);
 $content = str_replace($quote_search_content, $quote_replace_content, $_POST['textarea_content']);
 if ($_POST['hidden_category']) {
-    $preselect_category = $_POST['hidden_category'];}
+    $preselect_category = $_POST['hidden_category'];
+}
 
 if ($_POST['hidden_subcategory']) {
-    $preselect_subcategory = $_POST['hidden_subcategory'];}
+    $preselect_subcategory = $_POST['hidden_subcategory'];
+}
 
 if ($_POST['hidden_item']) {
-    $preselect_item = $_POST['hidden_item'];}
+    $preselect_item = $_POST['hidden_item'];
+}
 
 //handle changes to database
 if (substr($_POST['hidden_mode'], 0, 3) == 'add') {
@@ -207,7 +210,8 @@ if ($preselect_category == '' && !$out_of_encounter) {
         $preselect_subcategory = $result['subcategory'];
         $preselect_item = $result['item'];
     } else {
-        $preselect_mode = '';}
+        $preselect_mode = '';
+    }
 } else {
     $preselect_mode = 'by number';
 }
@@ -408,7 +412,8 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
     }
 
     if ($icd9_flag) {
-        echo "\";\n";}
+        echo "\";\n";
+    }
 }
 
 $query = "SELECT id, category FROM ".mitigateSqlTableUpperCase("form_CAMOS_category")." ORDER BY category";
@@ -560,13 +565,16 @@ if (1) { //we are hiding the clone buttons and still need 'search others' so thi
                 while ($result = sqlFetchArray($statement)) {
                     $code_type = $result['code_type'];
                     if ($code_type == 1) {
-                        $code_type = 'CPT4';}
+                        $code_type = 'CPT4';
+                    }
 
                     if ($code_type == 2) {
-                        $code_type = 'ICD9';}
+                        $code_type = 'ICD9';
+                    }
 
                     if ($code_type == 3) {
-                        $code_type = 'OTHER';}
+                        $code_type = 'OTHER';
+                    }
 
                     $code = $result['code'];
                     $code_text = $result['code_text'];
@@ -1285,16 +1293,19 @@ function searchName($string)
     $fname = '';
     $lname = '';
     if ($string == '') {
-        return $ret;}
+        return $ret;
+    }
 
     $split = preg_split('/\s+/', $string);
     $name1 = $split[1];
     $name2 = $split[0];
     if ($name1 != '') {
-        $name1 = "%".$name1."%";}
+        $name1 = "%".$name1."%";
+    }
 
     if ($name2 != '') {
-        $name1 = "%".$name2."%";}
+        $name1 = "%".$name2."%";
+    }
 
     $query = sqlStatement("select pid from patient_data where fname like '$name1' or fname like '$name2' or " .
     "lname like '$name1' or lname like '$name2' limit $limit");
@@ -1330,8 +1341,10 @@ function getMyPatientData($form_id, $show_phone_flag)
         $mname = $results['mname'];
         $lname = $results['lname'];
         if ($mname) {
-            $name = $fname.' '.$mname.' '.$lname;} else {
-            $name = $fname.' '.$lname;}
+            $name = $fname.' '.$mname.' '.$lname;
+        } else {
+            $name = $fname.' '.$lname;
+        }
 
             $dob = $results['DOB'];
             $enc_date = $results['date'];

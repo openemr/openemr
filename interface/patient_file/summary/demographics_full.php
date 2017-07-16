@@ -600,7 +600,8 @@ echo xlt($CapInstype); ?></a></li><?php
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
-                echo " style='display:none'";} ?>>
+                echo " style='display:none'";
+} ?>>
              <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><span style='font-weight:normal'>
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </span></td>
               <td class='required'>:</td>
@@ -610,7 +611,8 @@ echo xlt($CapInstype); ?></a></li><?php
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
-                echo " style='display:none'";} ?>>
+                echo " style='display:none'";
+} ?>>
              <td><span class=required><?php echo xlt('SE Address'); ?></span></td>
              <td class='required'>:</td>
              <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
@@ -619,7 +621,8 @@ echo xlt($CapInstype); ?></a></li><?php
             </tr>
 
             <tr<?php if ($GLOBALS['omit_employers']) {
-                echo " style='display:none'";} ?>>
+                echo " style='display:none'";
+} ?>>
              <td colspan="3">
               <table>
                <tr>
@@ -710,7 +713,8 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class=leftborder><span class=required><?php echo xlt('City'); ?></span></td>
                 <td class=required>:</td>
                 <td><input type=entry size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><span class='required'<?php if ($GLOBALS['omit_employers']) {
-                    echo " style='display:none'";} ?>><?php echo xlt('Country'); ?>: </span></td><td>
+                    echo " style='display:none'";
+} ?>><?php echo xlt('Country'); ?>: </span></td><td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
                     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
@@ -737,9 +741,11 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td colspan=2>
                     <select name=i<?php echo $i?>accept_assignment>
                      <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
-                            echo "selected"; }?>><?php echo xlt('YES'); ?></option>
+                            echo "selected";
+}?>><?php echo xlt('YES'); ?></option>
                      <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
-                            echo "selected"; }?>><?php echo xlt('NO'); ?></option>
+                            echo "selected";
+}?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>
                 <td></td><td></td>
@@ -772,7 +778,8 @@ foreach ($policy_types as $key => $value) {
 
       </div>
 
-    <?php } //end insurer for loop ?>
+    <?php
+    } //end insurer for loop ?>
 
    </div>
 </div>

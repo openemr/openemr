@@ -20,13 +20,17 @@ if (! $encounter) { // comes from globals.php
 
 if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "") {
     $_POST["is_unable_to_work"] = "0";
-    $_POST["off_work_to"] = "";} else {
-    $_POST["is_unable_to_work"] = "1";}
+    $_POST["off_work_to"] = "";
+} else {
+    $_POST["is_unable_to_work"] = "1";
+}
 
-    if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "") {
-        $_POST["is_hospitalized"] = "0";
-        $_POST["hospitalization_date_to"] = "";} else {
-        $_POST["is_hospitalized"] = "1";}
+if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "") {
+    $_POST["is_hospitalized"] = "0";
+    $_POST["hospitalization_date_to"] = "";
+} else {
+    $_POST["is_hospitalized"] = "1";
+}
 
         $id = formData('id', 'G') + 0;
 
@@ -61,12 +65,12 @@ if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "") {
   box_15_date_qual            = '" . formData("box_15_date_qual") . "',
   comments                    = '" . formData("comments") . "'";
 
-        if (empty($id)) {
-            $newid = sqlInsert("INSERT INTO form_misc_billing_options SET $sets");
-            addForm($encounter, "Misc Billing Options", $newid, "misc_billing_options", $pid, $userauthorized);
-        } else {
-            sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id");
-        }
+if (empty($id)) {
+    $newid = sqlInsert("INSERT INTO form_misc_billing_options SET $sets");
+    addForm($encounter, "Misc Billing Options", $newid, "misc_billing_options", $pid, $userauthorized);
+} else {
+    sqlStatement("UPDATE form_misc_billing_options SET $sets WHERE id = $id");
+}
 
         formHeader("Redirecting....");
         formJump();

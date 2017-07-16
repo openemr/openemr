@@ -25,7 +25,7 @@ function diag_code_types($format = 'json', $sqlEscape = false)
 {
     global $code_types;
     $diagCodes=array();
-    foreach ($code_types as $key=>$ct) {
+    foreach ($code_types as $key => $ct) {
         if ($ct['active'] && $ct['diag']) {
             if ($format=='json') {
                 $entry=array("key"=>$key,"id"=>$ct['id']);

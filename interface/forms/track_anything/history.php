@@ -153,12 +153,14 @@ echo "<form method='post' action='history.php' onsubmit='return top.restoreSessi
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
 if ($ASC_DESC == 'ASC') {
-    echo "checked='checked' "; }
+    echo "checked='checked' ";
+}
 
 echo " value='ASC'> " . xlt('ASC') . " &nbsp;";
 echo "<input type='radio' name='ASC_DESC' ";
 if ($ASC_DESC != 'ASC') {
-    echo "checked='checked' ";}
+    echo "checked='checked' ";
+}
 
 echo " value='DESC'> " . xlt('DESC');
 echo "</td>";
@@ -398,12 +400,14 @@ echo "<form method='post' action='history.php' onsubmit='return top.restoreSessi
 echo "<table><tr>";
 echo "<td class='menu'><input type='radio' name='ASC_DESC' ";
 if ($ASC_DESC == 'ASC') {
-    echo "checked='checked' "; }
+    echo "checked='checked' ";
+}
 
 echo " value='ASC'> " . xlt('ASC') . " &nbsp;";
 echo "<input type='radio' name='ASC_DESC' ";
 if ($ASC_DESC != 'ASC') {
-    echo "checked='checked' ";}
+    echo "checked='checked' ";
+}
 
 echo " value='DESC'> " . xlt('DESC');
 echo "</td>";

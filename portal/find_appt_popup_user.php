@@ -133,40 +133,40 @@ if ($_REQUEST['startdate'] && preg_match(
     $sdate = date("Y-m-d");
 }
 
- // Get an end date - actually the date after the end date.
- preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
- $edate = date(
-     "Y-m-d",
-     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
- );
+    // Get an end date - actually the date after the end date.
+    preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
+    $edate = date(
+        "Y-m-d",
+        mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+    );
 
- // compute starting time slot number and number of slots.
- $slotstime = strtotime("$sdate 00:00:00");
- $slotetime = strtotime("$edate 00:00:00");
- $slotbase  = (int) ($slotstime / $slotsecs);
- $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
+    // compute starting time slot number and number of slots.
+    $slotstime = strtotime("$sdate 00:00:00");
+    $slotetime = strtotime("$edate 00:00:00");
+    $slotbase  = (int) ($slotstime / $slotsecs);
+    $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) {
-     die("Invalid date range.");
+    if ($slotcount <= 0 || $slotcount > 100000) {
+        die("Invalid date range.");
     }
 
     $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
- // If we have a provider, search.
- //
+    // If we have a provider, search.
+    //
     if ($_REQUEST['providerid']) {
         $providerid = $_REQUEST['providerid'];
 
-     // Create and initialize the slot array. Values are bit-mapped:
-     //   bit 0 = in-office occurs here
-     //   bit 1 = out-of-office occurs here
-     //   bit 2 = reserved
-     // So, values may range from 0 to 7.
-     //
+    // Create and initialize the slot array. Values are bit-mapped:
+    //   bit 0 = in-office occurs here
+    //   bit 1 = out-of-office occurs here
+    //   bit 2 = reserved
+    // So, values may range from 0 to 7.
+    //
         $slots = array_pad(array(), $slotcount, 0);
 
-     // Note there is no need to sort the query results.
-   //  echo $sdate." -- ".$edate;
+    // Note there is no need to sort the query results.
+    //  echo $sdate." -- ".$edate;
         $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
         "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
         "FROM openemr_postcalendar_events " .
@@ -474,7 +474,8 @@ for ($i = 0; $i < $slotcount; ++$i) {
 
     $ampm = date('a', $utime);
     if ($ampmFlag != $ampm) {
-        echo "</div><div id='pm'>PM "; }
+        echo "</div><div id='pm'>PM ";
+    }
 
     $ampmFlag = $ampm;
 

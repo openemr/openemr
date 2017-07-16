@@ -181,7 +181,8 @@ function csv_log_manage($list = true)
     if ($list) {
         foreach ($lognames as $log) {
             if (!strpos($log, '_log_')) {
-                continue; }
+                continue;
+            }
 
             $list_ar[] = $log;
         }
@@ -196,7 +197,8 @@ function csv_log_manage($list = true)
         //
         foreach ($lognames as $log) {
             if ($log == '.' || $log == '..') {
-                continue; }
+                continue;
+            }
 
             //
             $pos1 = strrpos($log, '_');
@@ -208,7 +210,8 @@ function csv_log_manage($list = true)
                 if ($interval->format('%R%a') < -7) {
                     // older log files are put in zip archive
                     if (is_file($dir.DS.$log)) {
-                        $old_ar[] = $log; }
+                        $old_ar[] = $log;
+                    }
                 }
             }
         }
@@ -485,7 +488,7 @@ function csv_setup()
     if ($isOK) {
         $p_ar = csv_parameters('ALL');
         $old_csv = array('f837'=>'batch', 'f835'=>'era');
-        foreach ($p_ar as $key=>$val) {
+        foreach ($p_ar as $key => $val) {
             // rename existing csv files to old_filename
             if (is_dir($csv_dir)) {
                 if ($dh = opendir($csv_dir)) {
@@ -566,7 +569,7 @@ function csv_clear_tmpdir()
 
     $tmp_files = scandir($tmpdir);
     if (count($tmp_files) > 2) {
-        foreach ($tmp_files as $idx=>$tmpf) {
+        foreach ($tmp_files as $idx => $tmpf) {
             if ($tmpf == "." || $tmpf == "..") {
                 // can't delete . and ..
                 continue;
@@ -674,7 +677,7 @@ function csv_check_filepath($filename, $type = 'ALL')
         }
     } else {
         $p_ar = csv_parameters("ALL");
-        foreach ($p_ar as $tp=>$par) {
+        foreach ($p_ar as $tp => $par) {
             if (!$p_ar[$tp]['regex'] || !preg_match($p_ar[$tp]['regex'], $fn)) {
                 continue;
             } else {
@@ -685,7 +688,8 @@ function csv_check_filepath($filename, $type = 'ALL')
     }
 
     if (is_file($fp) && is_readable($fp)) {
-        $goodpath = realpath($fp); }
+        $goodpath = realpath($fp);
+    }
 
     //
     return $goodpath;
@@ -819,16 +823,20 @@ function csv_table_select_list($outtp = 'json')
     $idx = 0;
     foreach ($tbllist as $csvf) {
         if ($csvf == "." || $csvf == "..") {
-            continue; }
+            continue;
+        }
 
         if (strpos($csvf, 'old') === 0) {
-            continue; }
+            continue;
+        }
 
         if (filesize($csvdir.DS.$csvf) < 70) {
-            continue; }
+            continue;
+        }
 
         if (substr($csvf, -1) == '~') {
-            continue; }
+            continue;
+        }
 
         $finfo = pathinfo($csvdir.DS.$csvf);
         $fn = $finfo['filename'];
@@ -922,7 +930,8 @@ function csv_dirfile_list($type)
                     $dirfiles[] = $file;
                 } else {
                     if ($tp == 'f837' && $file == 'history') {
-                        continue; }
+                        continue;
+                    }
 
                     csv_edihist_log("csv_dirfile_list $type : not a file $file");
                 }
@@ -961,10 +970,11 @@ function csv_processed_files_list($type)
     $param = csv_parameters($tp);
     $hdr_ar = csv_table_header($tp, 'file');
     if (is_array($hdr_ar)) {
-        foreach ($hdr_ar as $k=>$hd) {
+        foreach ($hdr_ar as $k => $hd) {
             if ($hd == 'FileName') {
                 $csv_col = $k;
-                break; }
+                break;
+            }
         }
     }
 
@@ -1062,7 +1072,7 @@ function edih_errseg_parse($err_seg, $id = false)
     //'|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*segID*segPos*loopLS*elemPos:compositePos:repPos
     // revised: 123456789004*IK3*segID*segpos[*segID*segpos*segID*segpos]
     $ik = explode('*', $err_seg);
-    foreach ($ik as $i=>$k) {
+    foreach ($ik as $i => $k) {
         switch ((int)$i) {
             case 0:
                 $ret_ar['trace'] = $k;
@@ -1111,20 +1121,21 @@ function edih_csv_order($csvdata)
     $wrcsv = array();
     $order_ar = array();
     //
-    foreach ($csvdata as $icn=>$data) {
+    foreach ($csvdata as $icn => $data) {
         // [icn]['type']['file']['claim']
         $ft = $data['type'];
         $wrcsv[$icn]['type'] = $ft;
         //
-        foreach ($data as $key=>$val) {
+        foreach ($data as $key => $val) {
             if ($key == 'type') {
-                continue; }
+                continue;
+            }
 
             $order_ar[$icn][$key] = csv_table_header($ft, $key);
             $ct = count($order_ar[$icn][$key]);
-            foreach ($val as $k=>$rcrd) {
+            foreach ($val as $k => $rcrd) {
                 //
-                foreach ($order_ar[$icn][$key] as $ky=>$vl) {
+                foreach ($order_ar[$icn][$key] as $ky => $vl) {
                     $wrcsv[$icn][$key][$k][$ky] = $rcrd[$vl];
                 }
             }
@@ -1421,7 +1432,8 @@ function csv_convert_bytes($bytes)
 {
     $sizes = array('Bytes', 'KB', 'MB', 'GB', 'TB');
     if ($bytes == 0) {
-        return 'n/a'; }
+        return 'n/a';
+    }
 
     $i = floor(log($bytes) / log(1024));
     //$i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
@@ -1464,10 +1476,12 @@ function csv_array_bounds($array)
     $ret_ar = array();
     if (is_array($array) && count($array)) {
         if (reset($array) !== false) {
-            $ret_ar[0] = key($array); }
+            $ret_ar[0] = key($array);
+        }
 
         if (end($array) !== false) {
-            $ret_ar[1] = key($array); }
+            $ret_ar[1] = key($array);
+        }
     }
 
     return $ret_ar;
@@ -1510,7 +1524,8 @@ function csv_assoc_array($file_type, $csv_type)
     if (($fh = fopen($fp, "rb")) !== false) {
         while (($data = fgetcsv($fh, 2048, ",")) !== false) {
             if (is_null($data)) {
-                continue; }
+                continue;
+            }
 
             if ($row) {
                 for ($i=0; $i<$ct; $i++) {
@@ -1547,7 +1562,8 @@ function csv_array_flatten($array)
 {
     //
     if (!is_array($array)) {
-        return false;}
+        return false;
+    }
 
     $result = array();
     foreach ($array as $key => $value) {
@@ -1580,7 +1596,7 @@ function edih_csv_write($csv_data)
     }
 
     //
-    foreach ($csv_data as $icn=>$isa) {
+    foreach ($csv_data as $icn => $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
         $ft = ( isset($isa['type']) ) ? $isa['type'] : '';
         if (!$ft) {
@@ -1628,9 +1644,10 @@ function edih_csv_write($csv_data)
         }
 
         //
-        foreach ($isa as $key=>$data) {
+        foreach ($isa as $key => $data) {
             if ($key == 'type') {
-                continue; }
+                continue;
+            }
 
             // get the csv file path from parameters
             $fp = ($key == 'file') ? $param['files_csv'] : $param['claims_csv'];
@@ -1644,7 +1661,7 @@ function edih_csv_write($csv_data)
             if (is_resource($fh)) {
                 // to assure proper order of data in each row, the
                 // csv row is assembled by matching keys to the header row
-                foreach ($data as $ky=>$row) {
+                foreach ($data as $ky => $row) {
                     $csvrow = array();
                     for ($i=0; $i<$ct; $i++) {
                         $csvrow[$i] = $row[$order_ar[$i]];
@@ -1733,7 +1750,8 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
                     foreach ($rv as $c) {
                         // make sure we don't access a non-existing index
                         if ($c >= $dct) {
-                            continue; }
+                            continue;
+                        }
 
                         //
                         $ret_ar[$idx][] = $data[$c];
@@ -1742,7 +1760,8 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
 
                 $idx++;
                 if ($expect == '1') {
-                    break; }
+                    break;
+                }
             }
         }
 
@@ -1831,7 +1850,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
                     if (strcmp($te, $e) === 0) {
                         for ($i=0; $i<$hct;
                         $i++) {
-                            $val[$h_ar[$i]] = $data[$i]; }
+                            $val[$h_ar[$i]] = $data[$i];
+                        }
 
                         $ret_ar[] = $val;  // array_combine($h_ar, $data);
                     }
@@ -1844,7 +1864,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
                     if (strcmp($te, $p) === 0) {
                         for ($i=0; $i<$hct;
                         $i++) {
-                            $val[$h_ar[$i]] = $data[$i]; }
+                            $val[$h_ar[$i]] = $data[$i];
+                        }
 
                         $ret_ar[] = $val;  // $ret_ar[] = array_combine($h_ar, $data);
                     }
@@ -1856,7 +1877,8 @@ function csv_file_by_enctr($clm01, $filetype = 'f837')
                 if (strcmp($data[2], $pe) === 0) {
                     for ($i=0; $i<$hct;
                     $i++) {
-                        $val[$h_ar[$i]] = $data[$i]; }
+                        $val[$h_ar[$i]] = $data[$i];
+                    }
 
                     $ret_ar[] = $val;  // $ret_ar[] = array_combine($h_ar, $data);
                 }
@@ -2033,11 +2055,13 @@ function csv_denied_by_file($filetype, $filename, $trace = '')
                 if ($trace) {
                     if ($data[4] == $trace) {
                         if (!in_array($data[3], array('1', '2', '3', '19', '20', '21'))) {
-                            $ret_ar[] = $data; }
+                            $ret_ar[] = $data;
+                        }
                     }
                 } elseif ($data[5] == $filename) {
                     if (!in_array($data[3], array('1', '2', '3', '19', '20', '21'))) {
-                        $ret_ar[] = $data; }
+                        $ret_ar[] = $data;
+                    }
                 }
             }
         } elseif ($ft == 'f277') {

@@ -263,7 +263,7 @@ function edih_997_err_report($err_array)
     }
 
     //
-    foreach ($err_array['err'] as $k=>$v) {
+    foreach ($err_array['err'] as $k => $v) {
         //
         $ct = $k + 1;
         $icn = (isset($sub_icn)) ? $sub_icn : '';

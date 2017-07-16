@@ -228,9 +228,11 @@ if ($formid) {
   <td nowrap>
    <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo $siinjtime ?>' />&nbsp;
    <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') {
-        echo ' checked'; } ?> />am&nbsp;
+        echo ' checked';
+} ?> />am&nbsp;
    <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') {
-        echo ' checked'; } ?> />pm&nbsp;
+        echo ' checked';
+} ?> />pm&nbsp;
   </td>
  </tr>
 

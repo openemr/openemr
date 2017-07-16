@@ -110,7 +110,8 @@ form {
 
 <script language="JavaScript">
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 // This is called when forward or backward paging is done.
 //
 function submitList(offset) {
@@ -272,7 +273,8 @@ if ($popup) {
   </td>
   <td class='text' align='center'>
 <?php if ($message) {
-    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";} ?>
+    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";
+} ?>
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
@@ -410,7 +412,8 @@ if ($result) {
 
         $all_other_phones = $phone_biz.$phone_contact.$phone_cell;
         if ($all_other_phones == '') {
-            $all_other_phones = xl('No other phone numbers listed');}
+            $all_other_phones = xl('No other phone numbers listed');
+        }
 
         //end of phone number display setup, now display the phone number(s)
         echo "<td class='srPhone' title='".htmlspecialchars($all_other_phones, ENT_QUOTES)."'>" .
@@ -534,13 +537,16 @@ var SelectPatient = function (eObj) {
     objID = eObj.id;
     var parts = objID.split("~");
     <?php if (!$popup) {
-        echo "top.restoreSession();\n";} ?>
+        echo "top.restoreSession();\n";
+} ?>
     <?php if ($popup) {
-        echo "opener.";}
+        echo "opener.";
+}
 
     echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
     <?php if ($popup) {
-        echo "window.close();\n";} ?>
+        echo "window.close();\n";
+} ?>
     return true;
 }
 

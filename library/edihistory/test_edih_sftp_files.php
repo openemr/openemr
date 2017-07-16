@@ -54,7 +54,7 @@ function edih_upload_sftp()
     // we get the parameters here to send to ibr_upload_match_file()
     $param_ar = csv_parameters();
     //if ( class_exists('finfo') )
-    foreach ($fn_ar as $idx=>$fn) {
+    foreach ($fn_ar as $idx => $fn) {
         $fa = array();
         $fa['tmp_name'] = tempnam($sftp_dir.DS.$fn, 'x12_');
         $fa['name'] = $sftp_dir.DS.$fn;
@@ -115,7 +115,7 @@ function edih_upload_sftp()
             //
             // put them in the correct type array
             if (is_array($f_upl) && count($f_upl)) {
-                foreach ($f_upl as $tp=>$fz) {
+                foreach ($f_upl as $tp => $fz) {
                     if ($tp == 'reject') {
                         if (isset($f_ar['reject']) && is_array($fz)) {
                             array_merge($f_ar['reject'], $fz);
@@ -321,7 +321,7 @@ if (!$exitcd) {
                 $dir_from = $sftp_host[$pathmap[$actn]];
                 $dir_to = ($ldir.$sdir);
                 $full_list = $cn->rawlist($dir_from);
-                foreach ($full_list as $file_name=>$file_rec) {
+                foreach ($full_list as $file_name => $file_rec) {
                     if ($file_rec['type'] == NET_SFTP_TYPE_REGULAR) {
                         $dir_list[] = $file_name;
                     }

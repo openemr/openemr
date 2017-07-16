@@ -191,21 +191,24 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         $description = $method;
         if ($ref) {
             if ($description) {
-                $description .= ' - '; }
+                $description .= ' - ';
+            }
 
             $description .= $ref;
         }
 
         if ($desc) {
             if ($description) {
-                $description .= ': '; }
+                $description .= ': ';
+            }
 
             $description .= $desc;
         }
 
         if ($memo) {
             if ($description) {
-                $description .= ' '; }
+                $description .= ' ';
+            }
 
             $description .= '['.$memo.']';
         }
@@ -281,39 +284,50 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
 }
 if (!isset($_REQUEST['form_from_date'])) {
-    $_REQUEST['form_from_date'] = ''; }
+    $_REQUEST['form_from_date'] = '';
+}
 
 if (!isset($_REQUEST['form_to_date'])) {
-    $_REQUEST['form_to_date'] = ''; }
+    $_REQUEST['form_to_date'] = '';
+}
 
 if (!isset($_REQUEST['form_facility'])) {
-    $_REQUEST['form_facility'] = ''; }
+    $_REQUEST['form_facility'] = '';
+}
 
 if (!isset($_REQUEST['form_provider'])) {
-    $_REQUEST['form_provider'] = ''; }
+    $_REQUEST['form_provider'] = '';
+}
 
 if ($type_form=='0') {
     if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = ''; }
+        $_REQUEST['form_patient'] = '';
+    }
 
     if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = ''; }
+        $_REQUEST['form_pid'] = '';
+    }
 } else {
     if (!isset($_REQUEST['form_patient'])) {
-        $_REQUEST['form_patient'] = $pat_pid; }
+        $_REQUEST['form_patient'] = $pat_pid;
+    }
 
     if (!isset($_REQUEST['form_pid'])) {
-        $_REQUEST['form_pid'] = $pat_pid; }
+        $_REQUEST['form_pid'] = $pat_pid;
+    }
 }
 
 if (!isset($_REQUEST['form_csvexport'])) {
-    $_REQUEST['form_csvexport'] = ''; }
+    $_REQUEST['form_csvexport'] = '';
+}
 
 if (!isset($_REQUEST['form_refresh'])) {
-    $_REQUEST['form_refresh'] = ''; }
+    $_REQUEST['form_refresh'] = '';
+}
 
 if (!isset($_REQUEST['$form_dob'])) {
-    $_REQUEST['$form_dob'] = ''; }
+    $_REQUEST['$form_dob'] = '';
+}
 
 if (substr($GLOBALS['ledger_begin_date'], 0, 1) == 'Y') {
     $ledger_time = substr($GLOBALS['ledger_begin_date'], 1, 1);
@@ -609,9 +623,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
   </tr>
     <tr>
         <?php
-            $title = xl('All Providers');
+        $title = xl('All Providers');
         if ($form_provider) {
-            $title = xl('For Provider') . ': '.User_Id_Look($form_provider); }
+            $title = xl('For Provider') . ': '.User_Id_Look($form_provider);
+        }
         ?>
     <td class="title" ><?php echo text($title); ?></td>
     </tr>
@@ -726,7 +741,8 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
             $bill = substr($erow['bill_date'], 0, 10);
             if ($bill == '') {
-                $bill = 'unbilled'; }
+                $bill = 'unbilled';
+            }
 
             $print .= "<td class='detail'>".text($bill)."&nbsp;/&nbsp;".text($who)."</td>";
             $print .= "<td class='detail' style='text-align: right;'>". text($erow['units'])."</td>";
@@ -835,7 +851,9 @@ if (! $_REQUEST['form_csvexport']) {
     <div class='text'>
             <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
     </div>
-        <?php } ?>
+    <?php
+    }
+    ?>
 </form>
 </body>
 

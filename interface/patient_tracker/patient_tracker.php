@@ -425,7 +425,8 @@ foreach ($appointments as $appointment) {
     <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
             <?php if ($appt_enc != 0) {
-                echo text($appt_enc);} ?></a>
+                echo text($appt_enc);
+} ?></a>
          </td>
             <?php } ?>
      <td class="detail" align="center">
@@ -519,22 +520,27 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
             <?php if (text($appointment['random_drug_test']) == '1') {
                 echo xl('Yes');
 } else {
-    echo xl('No'); }?>
+    echo xl('No');
+}?>
          </td>
             <?php } else {
-    echo "  <td>"; }?>
+    echo "  <td>";
+}?>
             <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
          <td class="detail" align="center">
             <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
              <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") {
-                    echo "checked";}?>>
+                    echo "checked";
+}?>>
             <?php } else { ?>
              <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") {
-                    echo "checked";}?>>
+                    echo "checked";
+}?>>
             <?php } ?>
          </td>
             <?php } else {
-    echo "  <td>"; }?>
+    echo "  <td>";
+}?>
             <?php } ?>
          </tr>
         <?php

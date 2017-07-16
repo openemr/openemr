@@ -204,10 +204,12 @@ function authorized_clicked() {
 </tr>
 <tr>
 <td><span class="text"<?php if ($GLOBALS['disable_non_default_groups']) {
-    echo " style='display:none'";} ?>><?php xl('Groupname', 'e'); ?>: </span></td>
+    echo " style='display:none'";
+} ?>><?php xl('Groupname', 'e'); ?>: </span></td>
 <td>
 <select name=groupname<?php if ($GLOBALS['disable_non_default_groups']) {
-    echo " style='display:none'";} ?>>
+    echo " style='display:none'";
+} ?>>
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
@@ -366,7 +368,8 @@ foreach ($list_acl_groups as $value) {
 </tr>
 
 <tr<?php if ($GLOBALS['disable_non_default_groups']) {
-    echo " style='display:none'";} ?>>
+    echo " style='display:none'";
+} ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"
@@ -398,7 +401,8 @@ foreach ($result as $iter) {
 </tr>
 
 <tr <?php if ($GLOBALS['disable_non_default_groups']) {
-    echo " style='display:none'";} ?>>
+    echo " style='display:none'";
+} ?>>
 
 <td valign=top>
 <form name='new_group' method='post' action="usergroup_admin.php"

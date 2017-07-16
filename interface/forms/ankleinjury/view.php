@@ -36,7 +36,8 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 <span class=text>Date of Injury: </span><input type=entry name="ankle_date_of_injuary" value="<?php echo stripslashes($obj{"ankle_date_of_injuary"});?>" >
 <td align="right"><?php xl('Work related?', 'e');?>:</td>
 <td><input type=checkbox name="ankle_work_related" <?php if ($obj{"ankle_work_related"} == "on") {
-    echo "checked";}
+    echo "checked";
+}
 
 ;?>><span class=text></span><br></td>
 

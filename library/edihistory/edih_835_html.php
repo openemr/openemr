@@ -117,10 +117,12 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
             //
             $test_str = substr($seg, 0, 3);
             if ($test_str == 'SVC') {
-                break; }
+                break;
+            }
 
             if (!in_array($test_str, $chksegs, true)) {
-                continue; }
+                continue;
+            }
 
             //
             if (strncmp('CLP'.$de, $seg, 4) === 0) {
@@ -132,7 +134,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 //
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = '';
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
-                foreach ($sar as $k=>$v) {
+                foreach ($sar as $k => $v) {
                     switch ((int)$k) {
                         case 0:
                             break;
@@ -217,7 +219,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                     $nm109 = (isset($sar[9]) &&  $sar[9]) ? $sar[9] : "";
                     // complete table caption
                     if (isset($sar[1]) && $sar[1] == "QC") {
-                        $capstr .= " $name"; }
+                        $capstr .= " $name";
+                    }
 
                     //
                     if ($nm108) {
@@ -235,7 +238,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                     $sar = explode($de, $seg);
                     $cas_str = '';
                     // claim adjustment group;  expect CAS segment for each adjustment group
-                    foreach ($sar as $k=>$v) {
+                    foreach ($sar as $k => $v) {
                         switch ((int)$k) {
                             case 0:
                                 break;
@@ -439,7 +442,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 //
                 $per01_ar = array('CX'=>'Claims Dept','BL'=>'Technical Dept','IC'=>'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
-                foreach ($sar as $k=>$v) {
+                foreach ($sar as $k => $v) {
                     switch ((int)$k) {
                         case 0:
                             break;
@@ -569,7 +572,8 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $nm109 = (isset($sar[9]) &&  $sar[9]) ? $sar[9] : "";
                 // complete table caption
                 if (isset($sar[1]) && $sar[1] == "QC") {
-                    $capstr .= " $name"; }
+                    $capstr .= " $name";
+                }
 
                 //
 
@@ -630,7 +634,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $sar = explode($de, $seg);
                 //
                 $moa_str = 'Claim Level Remarks: ';
-                foreach ($sar as $k=>$v) {
+                foreach ($sar as $k => $v) {
                     switch ((int)$k) {
                         case 0:
                             break;
@@ -786,9 +790,10 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= $svc_html;
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>".PHP_EOL : "";
         if (count($cas_ar)) {
-            foreach ($cas_ar as $key=>$cas) {
+            foreach ($cas_ar as $key => $cas) {
                 if (!is_array($cas) && !count($cas)) {
-                    continue; }
+                    continue;
+                }
 
                 if ($key == '2100' && count($cas)) {
                     $cls = 'remc';
@@ -799,21 +804,22 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 }
 
                 $cg = '';
-                foreach ($cas as $ky=>$trp) {
+                foreach ($cas as $ky => $trp) {
                     //echo '==== cas_ar unwind cas as ky trp '.$ky.PHP_EOL;
                     //var_dump ($trp).PHP_EOL;
                     //
                     if (!is_array($trp) && !count($trp)) {
-                        continue; }
+                        continue;
+                    }
 
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
-                    foreach ($trp as  $tr) {
+                    foreach ($trp as $tr) {
                         // debug
                         //echo '==== cas_ar unwind trp as tr '.PHP_EOL;
                         //var_dump ($tr).PHP_EOL;
                         //
                         $cd = $cr = $ca = $cq = '';
-                        foreach ($tr as $k=>$c) {
+                        foreach ($tr as $k => $c) {
                             //echo '==== cas_ar unwind tr as k c '.$k.PHP_EOL;
                             //var_dump ($c).PHP_EOL;
                             //
@@ -1010,7 +1016,8 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $trn03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';  // originator ID
                 $trn04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';  // originator supplemental ID
                 if ($trn03[0] == '1') {
-                    $trn03 = substr($trn03, 1); } // originator ID is '1' prepended to EIN or TIN
+                    $trn03 = substr($trn03, 1);
+                } // originator ID is '1' prepended to EIN or TIN
                 // the html ID for the table
                 $tblid = ($trn02) ? $trn02 : "";
                 $capstr .= ($trn02) ? "Check No: ".$trn02 : "Payment Listing";
@@ -1162,7 +1169,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $sar = explode($de, $seg);
                 $per01_ar = array('CX'=>'Claims Dept','BL'=>'Technical Dept','IC'=>'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
-                foreach ($sar as $k=>$v) {
+                foreach ($sar as $k => $v) {
                     switch ((int)$k) {
                         case 0:
                             break;
@@ -1346,7 +1353,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $plbar = array_chunk($plbar, 2);
                 // reason code and amount
                 foreach ($plbar as $plb) {
-                    foreach ($plb as $k=>$p) {
+                    foreach ($plb as $k => $p) {
                         // PLB 3, 5, 7, 9, 11, 13
                         // composite element 'code:reference'
                         if ($k==0) {
@@ -1396,15 +1403,18 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $str_html .= $hdr_html;
                 if ($pmt_html) {
                     $str_html .= $pmt_html;
-                    $pmt_html = ""; }
+                    $pmt_html = "";
+                }
 
                 if ($src_html) {
                     $str_html .= $src_html;
-                    $src_html = ""; }
+                    $src_html = "";
+                }
 
                 if ($rcv_html) {
                     $str_html .= $rcv_html;
-                    $rcv_html = ""; }
+                    $rcv_html = "";
+                }
 
                 //
                 if (count($lx_ar)) {
@@ -1426,7 +1436,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     }
 
                     // append segments to html
-                    foreach ($lx_ar as $key=>$val) {
+                    foreach ($lx_ar as $key => $val) {
                         $str_html .= $val['lx'];
                         $str_html .= $val['clp'];
                     }
@@ -1487,7 +1497,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $loopid = '2110';
                 $sar = explode($de, $seg);
                 $pmtm = $pmts = 1;
-                foreach ($sar as $k=>$v) {
+                foreach ($sar as $k => $v) {
                     if ($k == 2) {
                         $svcfee = ($v) ? (float)$v : 0;
                     } elseif ($k == 3) {
@@ -1518,7 +1528,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 foreach ($sar1 as $cas) {
                     $cav = 0;
                     $cq = '';
-                    foreach ($cas as $k=>$v) {
+                    foreach ($cas as $k => $v) {
                         if ($k == 1) {
                             // monetary amount elem 3, 6, 9, 12, 15, 18
                             $cav = ($v) ?  $v : 0;
@@ -1633,7 +1643,8 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
             $trans_ar = array();
             foreach ($env_ar['ST'] as $st) {
                 if ($st['trace'] != $chk) {
-                    continue; }
+                    continue;
+                }
 
                 $trans_ar[] = $obj835->edih_x12_slice(array('trace'=>$chk));
             }

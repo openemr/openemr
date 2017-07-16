@@ -329,7 +329,7 @@ if (isset($this_message['pid'])) {
                                       <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
                                         <?php
                                         $optionTxt = '';
-                                        foreach ($dateRanges as $val=>$txt) {
+                                        foreach ($dateRanges as $val => $txt) {
                                             $optionTxt .= '<option value="'.attr($val).'">'.text($txt).'</option>';
                                         }
 

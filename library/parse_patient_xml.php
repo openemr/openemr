@@ -33,7 +33,7 @@ function parseXmlStream($content, $field_mapping)
     $xpath = new DOMXpath($xml);
     $rootNamespace = $xml->lookupNamespaceUri($xml->namespaceURI);
     $xpath->registerNamespace('x', $rootNamespace);
-    foreach ($field_mapping as $skey=>$sval) {
+    foreach ($field_mapping as $skey => $sval) {
         $path = preg_replace("/\/([a-zA-Z])/", "/x:$1", $skey);
         $elements = $xpath->query($path);
         if (!is_null($elements)) {
@@ -75,9 +75,9 @@ function insert_ccr_into_audit_data($var)
     $audit_master_id = sqlInsert($master_query, array(0,$approval_status,$ip_address,$type));
     $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
     $detail_query_array = '';
-    foreach ($field_name_value_array as $key=>$val) {
-        foreach ($field_name_value_array[$key] as $cnt=>$field_details) {
-            foreach ($field_details as $field_name=>$field_value) {
+    foreach ($field_name_value_array as $key => $val) {
+        foreach ($field_name_value_array[$key] as $cnt => $field_details) {
+            foreach ($field_details as $field_name => $field_value) {
                 $detail_query .= "(? ,? ,? ,? ,?),";
                 $detail_query_array[] = $key;
                 $detail_query_array[] = trim($field_name);
@@ -230,7 +230,7 @@ function insertApprovedData($data)
 {
     $patient_data_fields = '';
     $patient_data_values = array();
-    foreach ($data as $key=>$val) {
+    foreach ($data as $key => $val) {
         if (substr($key, -4) == '-sel') {
             if (is_array($val)) {
                 for ($i=0; $i<count($val); $i++) {

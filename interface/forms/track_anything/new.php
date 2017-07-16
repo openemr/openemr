@@ -29,7 +29,8 @@ if (! $encounter) { // comes from globals.php
 if (!$formid) {
     $formid = $_GET['id'];
     if (!$formid) {
-        $formid = $_POST['formid'];  }
+        $formid = $_POST['formid'];
+    }
 }
 
 $myprocedureid =  $_POST['procedure2track'];

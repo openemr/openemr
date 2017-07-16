@@ -15,25 +15,29 @@ $oemrdb = $GLOBALS['dbh'];
 // check for required data
 if (! isset($parameters['masterid'])) {
     echo "Missing a Master Merge ID";
-    exit; }
+    exit;
+}
 
 if (! isset($parameters['otherid'])) {
     echo "Missing a Other matching IDs";
-    exit; }
+    exit;
+}
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id='".$parameters['masterid']."'";
 $qResults = sqlStatement($sqlstmt);
 if (! $qResults) {
     echo "Error fetching master PID.";
-    exit; }
+    exit;
+}
 
 $row = sqlFetchArray($qResults);
 $masterPID = $row['pid'];
 
 $commitchanges = false;
 if ($parameters['confirm'] == 'yes') {
-    $commitchanges = true; }
+    $commitchanges = true;
+}
 
 // loop over the other IDs and alter their database records
 foreach ($parameters['otherid'] as $otherID) {
@@ -42,7 +46,8 @@ foreach ($parameters['otherid'] as $otherID) {
     $qResults = sqlStatement($sqlstmt);
     if (! $qResults) {
         echo "Error fetching master PID.";
-        exit; }
+        exit;
+    }
 
     $orow = sqlFetchArray($qResults);
     $otherPID = $orow['pid'];

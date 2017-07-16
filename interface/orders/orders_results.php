@@ -379,7 +379,8 @@ if ($form_batch) {
 ?>
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
 <!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
-    echo " checked";} ?>><?php xl('Include Completed', 'e') ?>
+    echo " checked";
+} ?>><?php xl('Include Completed', 'e') ?>
    &nbsp;-->
    <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
   </td>

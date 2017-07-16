@@ -245,8 +245,10 @@ function displayAlert()
      <tr>
           <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
           <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) {
-                echo 'checked';} ?> <?php if ($GLOBALS['erx_enable']) {
-                ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+                echo 'checked';
+} ?> <?php if ($GLOBALS['erx_enable']) {
+                ?> onchange='return displayAlert()' <?php
+} ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
          </tr>
         <tr>

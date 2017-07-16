@@ -379,8 +379,8 @@ class UserAudit extends UserMail
             $audit_master_id= sqlInsert($master_query, array($pid,$approval_status,$ip_address,$type));
             $detail_query="INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
             $detail_query_array='';
-            foreach ($table_name_array as $key=>$table_name) {
-                foreach ($field_name_value_array[$key] as $field_name=>$field_value) {
+            foreach ($table_name_array as $key => $table_name) {
+                foreach ($field_name_value_array[$key] as $field_name => $field_value) {
                     if ($field_name == 'pid') {
                         continue;
                     }

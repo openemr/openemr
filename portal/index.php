@@ -278,7 +278,8 @@ if (!(isset($_SESSION['password_update']))) {
         </tr>
         </table>
             <?php if (!(empty($hiddenLanguageField))) {
-                echo $hiddenLanguageField;} ?>
+                echo $hiddenLanguageField;
+} ?>
     </form>
 
         <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR</div>

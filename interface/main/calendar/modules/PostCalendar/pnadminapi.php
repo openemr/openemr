@@ -133,33 +133,35 @@ function postcalendar_adminapi_buildAdminList($args)
             
         // build sorting urls
         if (!isset($sdir)) {
-            $sdir = 1; } else {
-            $sdir = $sdir ? 0 : 1; }
+            $sdir = 1;
+        } else {
+            $sdir = $sdir ? 0 : 1;
+        }
             
             $title_sort_url = pnModUrl(__POSTCALENDAR__, 'admin', $function, array('offset'=>$offset,'sort'=>'title','sdir'=>$sdir));
             $time_sort_url = pnModUrl(__POSTCALENDAR__, 'admin', $function, array('offset'=>$offset,'sort'=>'time','sdir'=>$sdir));
             $output->Text('<tr><td>select</td><td><a href="'.$title_sort_url.'">title</a></td><td><a href="'.$time_sort_url.'">timestamp</a><td></tr>');
         // output the queued events
             $count=0;
-            for (; !$result->EOF; $result->MoveNext()) {
-                list($eid,$title,$timestamp) = $result->fields;
-                $output->Text('<tr>');
-                $output->Text('<td align="center" valign="top">');
-                    $output->FormCheckbox('pc_event_id[]', false, $eid);
+        for (; !$result->EOF; $result->MoveNext()) {
+            list($eid,$title,$timestamp) = $result->fields;
+            $output->Text('<tr>');
+            $output->Text('<td align="center" valign="top">');
+                $output->FormCheckbox('pc_event_id[]', false, $eid);
+            $output->Text('</td>');
+            $output->Text('<td  align="left" valign="top" width="100%">');
+                $output->URL(
+                    pnModURL(__POSTCALENDAR__, 'admin', 'edit', array('pc_event_id'=>$eid)),
+                    pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title))
+                );
                 $output->Text('</td>');
-                $output->Text('<td  align="left" valign="top" width="100%">');
-                    $output->URL(
-                        pnModURL(__POSTCALENDAR__, 'admin', 'edit', array('pc_event_id'=>$eid)),
-                        pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title))
-                    );
-                    $output->Text('</td>');
-                    $output->Text('<td  align="left" valign="top" nowrap>');
-                    $output->Text($timestamp);
-                    $output->Text('</td>');
-                $output->Text('</tr>');
+                $output->Text('<td  align="left" valign="top" nowrap>');
+                $output->Text($timestamp);
+                $output->Text('</td>');
+            $output->Text('</tr>');
                 
-                $count++;
-            }
+            $count++;
+        }
 
             $output->Text('</table>');
     }

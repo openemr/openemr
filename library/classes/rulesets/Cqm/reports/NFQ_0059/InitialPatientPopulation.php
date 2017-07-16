@@ -31,7 +31,8 @@ class NFQ_0059_InitialPatientPopulation implements CqmFilterIF
         if ($age >= 18 && $age < 75 && Helper::check(ClinicalType::ENCOUNTER, Encounter::ENC_OFF_VIS, $patient, $beginDate, $endDate)) {
             $diabetes_codes = array();
             foreach (Codes::lookup(Diagnosis::DIABETES, 'SNOMED-CT') as $code) {
-                $diabetes_codes[] = "SNOMED-CT:".$code;}
+                $diabetes_codes[] = "SNOMED-CT:".$code;
+            }
 
             $diabetes_codes = "'".implode("','", $diabetes_codes)."'";
             

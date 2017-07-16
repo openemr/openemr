@@ -96,7 +96,8 @@ if (empty($form_code)) {
 } else {
     $query_codes = 'c.id in (';
     foreach ($form_code as $code) {
-        $query_codes .= $code . ","; }
+        $query_codes .= $code . ",";
+    }
 
       $query_codes = substr($query_codes, 0, -1);
       $query_codes .= ') and ';

@@ -281,7 +281,8 @@ function fetch_reminders($pid, $appt_date)
                     <div class="checkbox">
                         <label><input type='checkbox' name='form_show_available'
                         <?php  if ($show_available_times) {
-                            echo ' checked';} ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
+                            echo ' checked';
+} ?>> <?php  echo xlt('Show Available Times'); # check this to show available times on the report ?>
                         </label>
                     </div>
                 </td>
@@ -301,7 +302,8 @@ function fetch_reminders($pid, $appt_date)
                 <td>
                     <div class="checkbox">
                         <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php if ($chk_with_out_provider) {
-                            echo "checked";}?>><?php echo xlt('Without Provider'); ?>
+                            echo "checked";
+}?>><?php echo xlt('Without Provider'); ?>
                         </label>
                     </div>
                 </td>
@@ -309,7 +311,8 @@ function fetch_reminders($pid, $appt_date)
                 <td>
                     <div class="checkbox">
                         <label><input type="checkbox" name="with_out_facility" id="with_out_facility" <?php if ($chk_with_out_facility) {
-                            echo "checked";}?>>&nbsp;<?php echo xlt('Without Facility'); ?>
+                            echo "checked";
+}?>>&nbsp;<?php echo xlt('Without Facility'); ?>
                         </label>
                     </div>
                 </td>
@@ -361,27 +364,32 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     <thead>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
     <?php if ($form_orderby == "doctor") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Provider'); ?>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
         <th <?php echo $showDate ? '' : 'style="display:none;"' ?>><a href="nojs.php" onclick="return dosort('date')"
     <?php if ($form_orderby == "date") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Date'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
     <?php if ($form_orderby == "time") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Time'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
     <?php if ($form_orderby == "patient") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Patient'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
     <?php if ($form_orderby == "pubpid") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('ID'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('ID'); ?></a>
         </th>
 
             <th><?php echo xlt('Home'); //Sorting by phone# not really useful ?></th>
@@ -390,12 +398,14 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
         <th><a href="nojs.php" onclick="return dosort('type')"
     <?php if ($form_orderby == "type") {
-        echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Type'); ?></a>
+        echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Type'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('status')"
             <?php if ($form_orderby == "status") {
-                echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Status'); ?></a>
+                echo " style=\"color:#00cc00\"";
+} ?>><?php  echo xlt('Status'); ?></a>
         </th>
     </thead>
     <tbody>
@@ -531,7 +541,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
 <?php
 if ($alertmsg) {
-    echo " alert('$alertmsg');\n"; }
+    echo " alert('$alertmsg');\n";
+}
 ?>
 
 </script>

@@ -109,7 +109,8 @@ $oauthorized = $my_authorized;
 <html>
 <head>
 <?php if (function_exists('html_header_show')) {
-    html_header_show();} ?>
+    html_header_show();
+} ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -493,12 +494,14 @@ if (!isset($_REQUEST['mode'])) {//default case
     <?php if ($daysheet_total) { ?>
     <span class=text><?php echo xlt('Totals'); ?> </span>
     <input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') {
-        echo "checked";}?>>
+        echo "checked";
+}?>>
     <?php } ?>
     <?php if ($provider_run) { ?>
     <span class=text><?php echo xlt('Provider'); ?> </span>
     <input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') {
-        echo "checked";}?>>
+        echo "checked";
+}?>>
     <?php } ?>
     </td>
           </tr>

@@ -1344,7 +1344,8 @@ if (true) {
 <?php if (!$isBilled) { // visit is not yet billed ?>
 <input type='submit' name='bn_save' value='<?php echo xla('Save');?>'
 <?php if ($rapid_data_entry) {
-    echo " style='background-color:#cc0000';color:#ffffff'";} ?>
+    echo " style='background-color:#cc0000';color:#ffffff'";
+} ?>
 />
 <?php if ($GLOBALS['ippf_specific']) { // start ippf-only stuff ?>
 <?php if ($fs->hasCharges) { // unbilled with charges ?>
@@ -1400,11 +1401,13 @@ if ($alertmsg) {
 </body>
 </html>
 <?php if (!empty($_POST['running_as_ajax'])) {
-    exit;} ?>
+    exit;
+} ?>
 <?php require_once("review/initialize_review.php"); ?>
 <?php require_once("code_choice/initialize_code_choice.php"); ?>
 <?php if ($GLOBALS['ippf_specific']) {
-    require_once("contraception_products/initialize_contraception_products.php");} ?>
+    require_once("contraception_products/initialize_contraception_products.php");
+} ?>
 <script>
 var translated_price_header="<?php echo xlt("Price");?>";
 </script>

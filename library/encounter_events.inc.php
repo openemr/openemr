@@ -343,8 +343,10 @@ function update_event($eid)
     $endtime=$origEvent['pc_endTime'];
     $selected_date = date("Ymd");
     if ($oldRecurrspec['exdate'] != "") {
-        $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
-        $oldRecurrspec['exdate'] .= $selected_date; }
+        $oldRecurrspec['exdate'] .= ",".$selected_date;
+    } else {
+        $oldRecurrspec['exdate'] .= $selected_date;
+    }
 
     // mod original event recur specs to exclude this date
         sqlStatement("UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
@@ -502,7 +504,8 @@ function &__increment($d, $m, $y, $f, $t)
         for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$daycount), $y));
             if (is_weekend_day($nextWorkDOW)) {
-                $f++; }
+                $f++;
+            }
         }
 
         // and finally make sure we haven't landed on a end week days
@@ -549,25 +552,32 @@ function getTheNextAppointment($appointment_date, $freq)
 function getDayName($day_num)
 {
     if ($day_num == "1") {
-        return "sunday";}
+        return "sunday";
+    }
 
     if ($day_num == "2") {
-        return "monday";}
+        return "monday";
+    }
 
     if ($day_num == "3") {
-        return "tuesday";}
+        return "tuesday";
+    }
 
     if ($day_num == "4") {
-        return "wednesday";}
+        return "wednesday";
+    }
 
     if ($day_num == "5") {
-        return "thursday";}
+        return "thursday";
+    }
 
     if ($day_num == "6") {
-        return "friday";}
+        return "friday";
+    }
 
     if ($day_num == "7") {
-        return "saturday";}
+        return "saturday";
+    }
 }
 
 

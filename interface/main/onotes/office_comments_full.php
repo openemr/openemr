@@ -64,8 +64,10 @@ if (isset($_POST['mode'])) {
 <?php
 /* BACK should go to the main Office Notes screen */
 if ($userauthorized) {
-    $backurl="office_comments.php"; } else {
-    $backurl="../main_info.php"; }
+    $backurl="office_comments.php";
+} else {
+    $backurl="../main_info.php";
+}
 ?>
 
 <a href="office_comments.php" onclick='top.restoreSession()'>
@@ -90,11 +92,14 @@ if ($userauthorized) {
 <?php //change the view on the current mode, whether all, active, or inactive
 if ($active==="1") {
     $inactive_class="_small";
-    $all_class="_small"; } elseif ($active==="0") {
+    $all_class="_small";
+} elseif ($active==="0") {
     $active_class="_small";
-    $all_class="_small";} else {
+    $all_class="_small";
+} else {
         $active_class="_small";
-        $inactive_class="_small";}
+        $inactive_class="_small";
+}
 ?>
 
 <a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
@@ -130,8 +135,10 @@ if ($notes) {
         }
 
         if ($note->getActivity()) {
-            $checked = "checked"; } else {
-            $checked = ""; }
+            $checked = "checked";
+        } else {
+            $checked = "";
+        }
 
             print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
             print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";

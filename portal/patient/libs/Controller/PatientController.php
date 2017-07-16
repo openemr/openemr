@@ -167,7 +167,8 @@ class PatientController extends AppBaseController
             $json = json_decode(RequestUtil::GetBody());
 
             if (! $json) {
-                throw new Exception('The request body does not contain valid JSON');}
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
             $patient = new Patient($this->Phreezer);
 
@@ -273,7 +274,8 @@ class PatientController extends AppBaseController
             $json = json_decode(RequestUtil::GetBody());
 
             if (! $json) {
-                throw new Exception('The request body does not contain valid JSON');}
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);

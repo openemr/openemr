@@ -246,7 +246,8 @@ if ($_POST['date_to'] != "") {
                                     <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
                                         <option <?php if ($_POST['srch_option'] == $skey) {
-                                            echo 'selected';} ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                            echo 'selected';
+} ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -257,13 +258,17 @@ if ($_POST['date_to'] != "") {
                                     <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
                                         <option value="allow_sms" <?php if ($communication == "allow_sms") {
-                                            echo "selected";}?>><?php echo xlt('Allow SMS'); ?></option>
+                                            echo "selected";
+}?>><?php echo xlt('Allow SMS'); ?></option>
                                         <option value="allow_voice" <?php if ($communication == "allow_voice") {
-                                            echo "selected";}?>><?php echo xlt('Allow Voice Message'); ?></option>
+                                            echo "selected";
+}?>><?php echo xlt('Allow Voice Message'); ?></option>
                                         <option value="allow_mail" <?php if ($communication == "allow_mail") {
-                                            echo "selected";}?>><?php echo xlt('Allow Mail Message'); ?></option>
+                                            echo "selected";
+}?>><?php echo xlt('Allow Mail Message'); ?></option>
                                         <option value="allow_email" <?php if ($communication == "allow_email") {
-                                            echo "selected";}?>><?php echo xlt('Allow Email'); ?></option>
+                                            echo "selected";
+}?>><?php echo xlt('Allow Email'); ?></option>
                                     </select>
                                     </span>
                                 </td>

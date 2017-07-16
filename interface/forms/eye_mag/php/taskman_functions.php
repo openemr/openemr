@@ -372,7 +372,8 @@ function make_document($task)
                 <td class='col1'><?php echo xlt('Address'); ?>:</td>
                     <td class='col2'>
                     <?php if ($from_data['name']) {
-                        echo text($from_data['name'])."<br />";} ?>
+                        echo text($from_data['name'])."<br />";
+} ?>
                     <?php echo text($from_data['street']); ?><br />
                     <?php echo text($from_data['city']); ?>, <?php echo text($from_data['state'])." ".text($from_data['zip']); ?>
                         <br />

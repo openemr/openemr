@@ -212,7 +212,8 @@ $rule = $viewBean->rule ?>
         </div>
         <?php } ?>
             </div>
-        <?php } // iteration over groups ?>
+        <?php
+    } // iteration over groups ?>
         <div class="group">
             <?php $nextGroupId = $groupId + 1; ?>
             <div class="section text">

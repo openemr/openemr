@@ -182,7 +182,8 @@
                                     <div class="col-md-9 col-sm 12">
                                         <?php if ($savingStatus == 'exist') : ?>
                                             <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if ($edit) :
-?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php endif;?></div>
+?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php
+endif;?></div>
                                         <?php endif ?>
                                         <?php if ($savingStatus == 'success') : ?>
                                             <h4 class="group-success-msg"><?php echo text($message) ?></h4>

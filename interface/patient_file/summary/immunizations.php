@@ -184,7 +184,8 @@ if ($GLOBALS['use_custom_immun_list']) {
 // set the default sort method for the list of past immunizations
 $sortby = $_GET['sortby'];
 if (!$sortby) {
-    $sortby = 'vacc'; }
+    $sortby = 'vacc';
+}
 
 // set the default value of 'administered_by'
 if (!$administered_by && !$administered_by_id) {
@@ -259,7 +260,7 @@ function saveImmunizationObservationResults($id, $immunizationdata)
 {
     $imm_obs_data = getImmunizationObservationResults();
     if (count($imm_obs_data) > 0) {
-        foreach ($imm_obs_data as $key=>$val) {
+        foreach ($imm_obs_data as $key => $val) {
             if ($val['imo_id'] && $val['imo_id'] != 0) {
                 $sql2                   = " DELETE
                                             FROM
@@ -561,15 +562,19 @@ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUO
           <td colspan="3" align="center">
             <img src='../../pic/add.png' onclick="showObservationResultSection();" align='absbottom' width='27' height='24' border='0' style='cursor:pointer;cursor:hand' title='<?php echo xla('Click here to see observation results'); ?>'>
           </td>
-      </tr><?php } ?>
+      </tr>
+    <?php
+    }
+    ?>
         <tr>
           <td align="center" colspan="3">
             <div class="observation_results" style="display:none;">
               <fieldset class="obs_res_head">
                 <legend><?php echo htmlspecialchars(xl('Observation Results'), ENT_QUOTES); ?></legend>
                 <table class="obs_res_table">
-                    <?php if (count($imm_obs_data) > 0) {
-                        foreach ($imm_obs_data as $key=>$value) {
+                    <?php
+                    if (count($imm_obs_data) > 0) {
+                        foreach ($imm_obs_data as $key => $value) {
                               $key_snomed = 0;
                             $key_cvx = 0;
                             $style= '';?>
@@ -588,64 +593,77 @@ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUO
                                 <td id="observation_criteria_td_<?php echo $key + 1 ;?>" style="<?php echo $style;?>">
                               <label><?php echo htmlspecialchars(xl('Observation Criteria'), ENT_QUOTES);?></label>
                               <select id="observation_criteria_<?php echo $key + 1 ;?>" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;">
-                                <?php foreach ($observation_criteria as $keyo=> $valo) { ?>
+                                <?php foreach ($observation_criteria as $keyo => $valo) { ?>
                               <option value="<?php echo attr($valo['option_id']);?>" <?php if ($valo['option_id'] == $value['imo_criteria'] && $id !=0) {
-                                    echo 'selected = "selected"' ;}?> ><?php echo text($valo['title']);?></option>
+                                    echo 'selected = "selected"' ;
+}?> ><?php echo text($valo['title']);?></option>
                                 <?php }
                                 ?>
                               </select>
                             </td>
                                 <td <?php if ($value['imo_criteria'] != 'funding_program_eligibility' || $id == 0) {
-?> style="display: none;" <?php } ?> class="observation_criteria_value_td" id="observation_criteria_value_td_<?php echo $key + 1 ;?>">
+?> style="display: none;" <?php
+} ?> class="observation_criteria_value_td" id="observation_criteria_value_td_<?php echo $key + 1 ;?>">
                                   <label><?php echo htmlspecialchars(xl('Observation Criteria Value'), ENT_QUOTES); ?></label>
                                   <select name="observation_criteria_value[]" id="observation_criteria_value_<?php echo $key + 1 ;?>" style="width: 220px;">
-                                    <?php foreach ($observation_criteria_value as $keyoc=> $valoc) { ?>
+                                    <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                               <option value="<?php echo attr($valoc['option_id']);?>" <?php if ($valoc['option_id'] == $value['imo_criteria_value']  && $id != 0) {
-                                    echo 'selected = "selected"' ;}?>><?php echo text($valoc['title']);?></option>
+                                    echo 'selected = "selected"' ;
+}?>><?php echo text($valoc['title']);?></option>
                                 <?php }
                                 ?>
                               </select>
                             </td>
                                 <td <?php if ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) {
-?> style="display: none;" <?php } ?> class="code_serach_td" id="code_search_td_<?php echo $key + 1 ;?>">
+?> style="display: none;" <?php
+} ?> class="code_serach_td" id="code_search_td_<?php echo $key + 1 ;?>">
                                     <?php $key_snomed = ($key > 0) ? (($key*2) + 2) : ($key + 2);?>
                                   <label><?php echo htmlspecialchars(xl('SNOMED-CT Code'), ENT_QUOTES);?></label>
                                   <input type="text" id="sct_code_<?php echo $key_snomed; ?>" style="width:140px" name="sct_code[]" class="code" value="<?php if ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') {
-                                        echo attr($value['imo_code']);}?>"  onclick='sel_code(this.id);'><br>
+                                        echo attr($value['imo_code']);
+}?>"  onclick='sel_code(this.id);'><br>
                                   <span id="displaytext_<?php echo $key_snomed; ?>" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php  echo text($value['imo_codetext']);?></span>
                                   <input type="hidden" id="codetext_<?php echo $key_snomed; ?>" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
                                   <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden<?php echo $key_snomed; ?>" />
                             </td>
                                 <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_<?php echo $key + 1 ;?>">
+?> style="display: none;" <?php
+} ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_<?php echo $key + 1 ;?>">
                                   <label><?php echo htmlspecialchars(xl('CVX Code'), ENT_QUOTES);?></label>
                                     <?php $key_cvx = ($key > 0) ? (($key*2) + 3) : ($key + 3);?>
                                   <input type="text" id="cvx_code<?php echo $key_cvx ;?>" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
                                  value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-                                        echo attr($value['imo_code']);}?>" style="width:140px;" />
+                                        echo attr($value['imo_code']);
+}?>" style="width:140px;" />
                                   <div class="imm-imm-add-12" id="imm-imm-add-12<?php echo $key_cvx ;?>"><?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-                                        echo text($value['imo_codetext']);}?></div>
+                                        echo text($value['imo_codetext']);
+}?></div>
                                   <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden<?php echo $key_cvx ;?>" />
                                   <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden<?php echo $key_cvx ;?>" value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-                                        echo attr($value['imo_codetext']);}?>"/>
+                                        echo attr($value['imo_codetext']);
+}?>"/>
                             </td>
                                 <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="vis_published_date_td" id="vis_published_date_td_<?php echo $key + 1 ;?>">
+?> style="display: none;" <?php
+} ?> class="vis_published_date_td" id="vis_published_date_td_<?php echo $key + 1 ;?>">
                                   <label><?php echo htmlspecialchars(xl('Date VIS Published'), ENT_QUOTES); ?></label>
                                     <?php
                                     $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars($value['imo_vis_date_published'], ENT_QUOTES) : '';
                                     ?>
                                   <input type="text" class='datepicker' name="vis_published_date[]" value="<?php if ($id != 0 && $vis_published_dateval != 0) {
-                                        echo attr($vis_published_dateval);}?>" id="vis_published_date_<?php echo $key + 1 ;?>" style="width:140px">
+                                        echo attr($vis_published_dateval);
+}?>" id="vis_published_date_<?php echo $key + 1 ;?>" style="width:140px">
                             </td>
                                 <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_<?php echo $key + 1 ;?>">
+?> style="display: none;" <?php
+} ?> class="vis_presented_date_td" id="vis_presented_date_td_<?php echo $key + 1 ;?>">
                                   <label><?php echo htmlspecialchars(xl('Date VIS Presented'), ENT_QUOTES); ?></label>
                                     <?php
                                     $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars($value['imo_vis_date_presented'], ENT_QUOTES) : '';
                                     ?>
                                   <input type="text" class='datepicker' name="vis_presented_date[]" value="<?php if ($id != 0 && $vis_presented_dateval !=0) {
-                                        echo attr($vis_presented_dateval);}?>" id="vis_presented_date_<?php echo $key + 1 ;?>" style="width:140px">
+                                        echo attr($vis_presented_dateval);
+}?>" id="vis_presented_date_<?php echo $key + 1 ;?>" style="width:140px">
                             </td>
                                 <?php if ($key != 0 && $id != 0) {?>
                         <td>
@@ -653,71 +671,87 @@ var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUO
                         </td>
                         <?php } ?>
                           </tr>
-                            <?php }
-} else {?>
+                        <?php
+                        }
+                    } else {?>
                       <tr id="or_tr_1">
                         <td id="observation_criteria_td_1">
         <label><?php echo htmlspecialchars(xl('Observation Criteria'), ENT_QUOTES); ?></label>
         <select id="observation_criteria_1" name="observation_criteria[]" onchange="selectCriteria(this.id,this.value);" style="width: 220px;">
-            <?php foreach ($observation_criteria as $keyo=> $valo) { ?>
+            <?php foreach ($observation_criteria as $keyo => $valo) { ?>
                               <option value="<?php echo attr($valo['option_id']);?>" <?php if ($valo['option_id'] == $value['imo_criteria'] && $id !=0) {
-                                    echo 'selected = "selected"' ;}?> ><?php echo text($valo['title']);?></option>
+                                    echo 'selected = "selected"' ;
+}?> ><?php echo text($valo['title']);?></option>
                                 <?php }
 ?>
                           </select>
                         </td>
       <td <?php if ($value['imo_criteria'] != 'funding_program_eligibility') {
-?> style="display: none;" <?php } ?> class="observation_criteria_value_td" id="observation_criteria_value_td_1">
+?> style="display: none;" <?php
+} ?> class="observation_criteria_value_td" id="observation_criteria_value_td_1">
         <label><?php echo htmlspecialchars(xl('Observation Criteria Value'), ENT_QUOTES); ?></label>
                           <select id="observation_criteria_value_1" name="observation_criteria_value[]" style="width: 220px;">
-            <?php foreach ($observation_criteria_value as $keyoc=> $valoc) { ?>
+            <?php foreach ($observation_criteria_value as $keyoc => $valoc) { ?>
                               <option value="<?php echo attr($valoc['option_id']);?>" <?php if ($valoc['option_id'] == $value['imo_criteria_value'] && $id != 0) {
-                                    echo 'selected = "selected"' ;}?>><?php echo text($valoc['title']);?></option>
+                                    echo 'selected = "selected"' ;
+}?>><?php echo text($valoc['title']);?></option>
                                 <?php }
 ?>
                           </select>
                         </td>
       <td <?php if ($value['imo_criteria'] != 'disease_with_presumed_immunity' || $id == 0) {
-?> style="display: none;" <?php } ?> class="code_serach_td" id="code_search_td_1">
+?> style="display: none;" <?php
+} ?> class="code_serach_td" id="code_search_td_1">
         <label><?php echo htmlspecialchars(xl('SNOMED-CT Code'), ENT_QUOTES);?></label>
         <input type="text" id="sct_code_2" style="width:140px" name="sct_code[]" class="code" value="<?php if ($id != 0 && $value['imo_criteria'] == 'disease_with_presumed_immunity') {
-            echo attr($value['imo_code']);}?>"  onclick='sel_code(this.id);'><br>
+            echo attr($value['imo_code']);
+}?>"  onclick='sel_code(this.id);'><br>
         <span id="displaytext_2" style="width:210px !important;display: block;font-size:13px;color: blue;" class="displaytext"><?php  echo text($value['imo_codetext']);?></span>
         <input type="hidden" id="codetext_2" name="codetext[]" class="codetext" value="<?php echo attr($value['imo_codetext']); ?>">
                           <input type="hidden"  value="SNOMED-CT" name="codetypehidden[]" id="codetypehidden2" />
                         </td>
       <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
+?> style="display: none;" <?php
+} ?> class="code_serach_vaccine_type_td" id="code_serach_vaccine_type_td_1">
         <label><?php echo htmlspecialchars(xl('CVX Code'), ENT_QUOTES);?></label>
                           <input type="text" id="cvx_code3" name="cvx_vac_type_code[]" onclick="sel_cvxcode(this);"
 value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-    echo attr($value['imo_code']);}?>" style="width:140px;" />
+    echo attr($value['imo_code']);
+}?>" style="width:140px;" />
         <div class="imm-imm-add-12" id="imm-imm-add-123"><?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-            echo text($value['imo_codetext']);}?></div>
+            echo text($value['imo_codetext']);
+}?></div>
                           <input type="hidden"  value="CVX" name="code_type_hidden[]" id="code_type_hidden3"/>
         <input type="hidden" class="code_text_hidden" name="code_text_hidden[]" id="code_text_hidden3" value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
-            echo attr($value['imo_codetext']);}?>"/>
+            echo attr($value['imo_codetext']);
+}?>"/>
                         </td>
        <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="vis_published_date_td" id="vis_published_date_td_1">
+?> style="display: none;" <?php
+} ?> class="vis_published_date_td" id="vis_published_date_td_1">
         <label><?php echo htmlspecialchars(xl('Date VIS Published'), ENT_QUOTES); ?></label>
         <?php
           $vis_published_dateval = $value['imo_vis_date_published'] ? htmlspecialchars($value['imo_vis_date_published'], ENT_QUOTES) : '';
         ?>
         <input type="text" class='datepicker' name="vis_published_date[]" value="<?php if ($id != 0 && $vis_published_dateval != 0) {
-            echo attr($vis_published_dateval);}?>" id="vis_published_date_1" style="width:140px">
+            echo attr($vis_published_dateval);
+}?>" id="vis_published_date_1" style="width:140px">
                         </td>
                         <td <?php if ($value['imo_criteria'] != 'vaccine_type' || $id == 0) {
-?> style="display: none;" <?php } ?> class="vis_presented_date_td" id="vis_presented_date_td_1">
+?> style="display: none;" <?php
+} ?> class="vis_presented_date_td" id="vis_presented_date_td_1">
                           <label><?php echo htmlspecialchars(xl('Date VIS Presented'), ENT_QUOTES); ?></label>
                             <?php
                             $vis_presented_dateval = $value['imo_vis_date_presented'] ?htmlspecialchars($value['imo_vis_date_presented'], ENT_QUOTES) : '';
                             ?>
                           <input type="text" class='datepicker' name="vis_presented_date[]" value="<?php if ($id != 0 && $vis_presented_dateval !=0) {
-                                echo attr($vis_presented_dateval);}?>" id="vis_presented_date_1" style="width:140px">
+                                echo attr($vis_presented_dateval);
+}?>" id="vis_presented_date_1" style="width:140px">
                         </td>
                       </tr>
-                    <?php }?>
+                    <?php
+                    }
+                    ?>
                 </table>
                 <div>
                   <center style="cursor: pointer;">
@@ -754,13 +788,15 @@ value="<?php if ($id != 0 && $value['imo_criteria'] == 'vaccine_type') {
         <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=vacc';" title='<?php echo htmlspecialchars(xl('Sort by vaccine'), ENT_QUOTES); ?>'>
             <?php echo htmlspecialchars(xl('Vaccine'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'vacc') {
-            echo 'v'; } ?></span>
+            echo 'v';
+} ?></span>
     </th>
     <th>
         <a href="javascript:top.restoreSession();location.href='immunizations.php?sortby=date';" title='<?php echo htmlspecialchars(xl('Sort by date'), ENT_QUOTES); ?>'>
             <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?></a>
         <span class='small' style='font-family:arial'><?php if ($sortby == 'date') {
-            echo 'v'; } ?></span>
+            echo 'v';
+} ?></span>
     </th>
     <th><?php echo htmlspecialchars(xl('Amount'), ENT_NOQUOTES); ?></th>
     <th><?php echo xlt('Expiration'); ?></th>
@@ -829,15 +865,15 @@ while ($row = sqlFetchArray($result)) {
         echo "<td>&nbsp</td>";
     }
 
-        echo "<td>" . $del_tag_open . text($row["expiration_date"]) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . htmlspecialchars($row["manufacturer"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . htmlspecialchars($row["lot_number"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . htmlspecialchars($row["administered_by"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . htmlspecialchars($row["education_date"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . htmlspecialchars($row["note"], ENT_NOQUOTES) . $del_tag_close . "</td>";
-        echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . text($row["expiration_date"]) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . htmlspecialchars($row["manufacturer"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . htmlspecialchars($row["lot_number"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . htmlspecialchars($row["administered_by"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . htmlspecialchars($row["education_date"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'immunization_administered_site'), $row['administration_site']) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . htmlspecialchars($row["note"], ENT_NOQUOTES) . $del_tag_close . "</td>";
+    echo "<td>" . $del_tag_open . generate_display_field(array('data_type'=>'1','list_id'=>'Immunization_Completion_Status'), $row['completion_status']) . $del_tag_close . "</td>";
 
     if ($isError) {
         $checkbox = "checked";

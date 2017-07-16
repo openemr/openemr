@@ -359,17 +359,20 @@ function sel_procedure() {
 
             <td class='control-label'>
                 <?php if (!$GLOBALS['simplified_demographics']) {
-                    echo '&nbsp;' . xl('Procedure/Service') . ':';} ?>
+                    echo '&nbsp;' . xl('Procedure/Service') . ':';
+} ?>
             </td>
             <td>
                <input type='text' name='form_proc_codefull' class='form-control' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
                 title='<?php xl('Click to select optional procedure code', 'e'); ?>'
                 <?php if ($GLOBALS['simplified_demographics']) {
-                    echo "style='display:none'";} ?> />
+                    echo "style='display:none'";
+} ?> />
                                 <br>
           <div class="checkbox">
                   <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
-                        echo " checked";} ?> /><?php echo xl('Details')?></label>
+                        echo " checked";
+} ?> /><?php echo xl('Details')?></label>
           </div>
             </td>
         </tr>
@@ -379,7 +382,8 @@ function sel_procedure() {
                <select name='form_use_edate' class='form-control'>
                 <option value='0'><?php xl('Payment Date', 'e'); ?></option>
                 <option value='1'<?php if ($form_use_edate) {
-                    echo ' selected'; } ?>><?php xl('Invoice Date', 'e'); ?></option>
+                    echo ' selected';
+} ?>><?php xl('Invoice Date', 'e'); ?></option>
                </select>
             </td>
             <td>

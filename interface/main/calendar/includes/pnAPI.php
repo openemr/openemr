@@ -721,7 +721,7 @@ function pnVarPrepHTMLDisplay()
 
     if (!isset($allowedhtml)) {
         $allowedhtml = array();
-        foreach (pnConfigGetVar('AllowableHTML') as $k=>$v) {
+        foreach (pnConfigGetVar('AllowableHTML') as $k => $v) {
             switch ($v) {
                 case 0:
                     break;
@@ -1046,9 +1046,10 @@ function pnThemeLoad($thistheme)
 */
 // eugenio themeover 20020413
     if (@file(WHERE_IS_PERSO."themes/$thistheme/theme.php")) {
-        include WHERE_IS_PERSO."themes/$thistheme/theme.php"; } else {
+        include WHERE_IS_PERSO."themes/$thistheme/theme.php";
+    } else {
         include "themes/$thistheme/theme.php";
-        }
+    }
 
     // end of modification
         $loaded = 1;

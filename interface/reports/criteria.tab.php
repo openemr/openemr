@@ -162,11 +162,12 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                    </td>
                                   </tr>
                                 </table>
-                        <?php }?>
                         <?php
-                        if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down') {
-                            $array_query_drop_down=BuildArrayForReport($ThisPageSearchCriteriaQueryDropDownMaster[$ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]]);
-                            $QueryDropDownNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                            }
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='query_drop_down') {
+                                $array_query_drop_down=BuildArrayForReport($ThisPageSearchCriteriaQueryDropDownMaster[$ThisPageSearchCriteriaQueryDropDown[$ThisPageSearchCriteriaIndex]]);
+                                $QueryDropDownNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex] ?>" style="display:none">
@@ -204,10 +205,11 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                 </td>
                               </tr>
                             </table>
-                        <?php }?>
                         <?php
-                        if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include') {
-                            $IncludeNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                            }
+
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='include') {
+                                $IncludeNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -221,18 +223,19 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                 ?></td>
                               </tr>
                             </table>
-                        <?php }?>
                         <?php
-                        if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text' ||
-                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
-                            $TextNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
-                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text') {
-                                $TextSeperator=' = ';
                             }
 
-                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
-                                $TextSeperator=' like ';
-                            }
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text' ||
+                                $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
+                                $TextNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
+                                if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text') {
+                                    $TextSeperator=' = ';
+                                }
+
+                                if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='text_like') {
+                                    $TextSeperator=' like ';
+                                }
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -251,10 +254,11 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                             size="15"  autocomplete="off" /></td>
                           </tr>
                         </table>
-                        <?php }?>
                         <?php
-                        if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
-                            $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
+                            }
+                            
+                            if ($ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio' ||
+                                $ThisPageSearchCriteriaDataType[$ThisPageSearchCriteriaIndex]=='radio_like') {
                         ?>
                         <table width="150" border="0" cellspacing="0" cellpadding="0"
                           id="table_<?php echo attr($ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]) ?>" style="display:none">
@@ -299,7 +303,7 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                             ?>
                             </table>
                         <?php
-                        }
+                            }
                         ?>
                     <?php
                         }

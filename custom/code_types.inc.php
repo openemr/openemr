@@ -537,7 +537,8 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
             // Ensure the external table exists
             $check_table = sqlQuery("SHOW TABLES LIKE '".$table."'");
             if ((empty($check_table))) {
-                HelpfulDie("Missing table in code set search:".$table);}
+                HelpfulDie("Missing table in code set search:".$table);
+            }
             
             $sql_bind_array = array();
             if ($count) {
@@ -566,7 +567,8 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                 $join_table=$join_info[JOIN_TABLE];
                 $check_table = sqlQuery("SHOW TABLES LIKE '".$join_table."'");
                 if ((empty($check_table))) {
-                    HelpfulDie("Missing join table in code set search:".$join_table);}
+                    HelpfulDie("Missing join table in code set search:".$join_table);
+                }
 
                 $query.=" INNER JOIN ". $join_table;
                 $query.=" ON ";
@@ -692,7 +694,8 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                     $join_table=$join_info[JOIN_TABLE];
                     $check_table = sqlQuery("SHOW TABLES LIKE '".$join_table."'");
                     if ((empty($check_table))) {
-                        HelpfulDie("Missing join table in code set search:".$join_table);}
+                        HelpfulDie("Missing join table in code set search:".$join_table);
+                    }
 
                     $sql.=" INNER JOIN ". $join_table;
                     $sql.=" ON ";
@@ -714,7 +717,8 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
 
                 // When using the external codes table, we have to filter by the code_type.  (All the other tables only contain one type)
                 if ($table_id==0) {
-                    $sql .= " code_type = '".add_escape_custom($code_types[$codetype]['id'])."' AND ";   }
+                    $sql .= " code_type = '".add_escape_custom($code_types[$codetype]['id'])."' AND ";
+                }
 
                 // Specify the code in the query.
                 $sql .= $table_name.".".$code_col."=? ";
@@ -731,7 +735,8 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
 
         
                 if ($table_info[EXT_VERSION_ORDER]) {
-                    $sql .= " ORDER BY ".$table_info[EXT_VERSION_ORDER];}
+                    $sql .= " ORDER BY ".$table_info[EXT_VERSION_ORDER];
+                }
 
                 $sql .= " LIMIT 1";
                 $crow = sqlQuery($sql, $sqlArray);

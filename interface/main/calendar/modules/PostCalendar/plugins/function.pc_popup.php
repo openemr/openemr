@@ -28,7 +28,8 @@ function smarty_function_pc_popup($args)
 {
     // if we're not using popups just return an empty string
     if (!_SETTING_USE_POPUPS) {
-        return; }
+        return;
+    }
     
     extract($args);
 
@@ -37,149 +38,197 @@ function smarty_function_pc_popup($args)
     }
 
     if (empty($trigger)) {
-        $trigger = "onMouseOver"; }
+        $trigger = "onMouseOver";
+    }
 
     echo $trigger.'="return overlib(\''.pc_clean($text).'\'';
     if ($sticky) {
-        echo ",STICKY"; }
+        echo ",STICKY";
+    }
 
     if (!empty($caption)) {
-        echo ",CAPTION,'".pc_clean($caption)."'"; }
+        echo ",CAPTION,'".pc_clean($caption)."'";
+    }
 
     if (!empty($fgcolor)) {
-        echo ",FGCOLOR,'$fgcolor'"; }
+        echo ",FGCOLOR,'$fgcolor'";
+    }
 
     if (!empty($bgcolor)) {
-        echo ",BGCOLOR,'$bgcolor'"; }
+        echo ",BGCOLOR,'$bgcolor'";
+    }
 
     if (!empty($textcolor)) {
-        echo ",TEXTCOLOR,'$textcolor'"; }
+        echo ",TEXTCOLOR,'$textcolor'";
+    }
 
     if (!empty($capcolor)) {
-        echo ",CAPCOLOR,'$capcolor'"; }
+        echo ",CAPCOLOR,'$capcolor'";
+    }
 
     if (!empty($closecolor)) {
-        echo ",CLOSECOLOR,'$closecolor'"; }
+        echo ",CLOSECOLOR,'$closecolor'";
+    }
 
     if (!empty($textfont)) {
-        echo ",TEXTFONT,'$textfont'"; }
+        echo ",TEXTFONT,'$textfont'";
+    }
 
     if (!empty($captionfont)) {
-        echo ",CAPTIONFONT,'$captionfont'"; }
+        echo ",CAPTIONFONT,'$captionfont'";
+    }
 
     if (!empty($closefont)) {
-        echo ",CLOSEFONT,'$closefont'"; }
+        echo ",CLOSEFONT,'$closefont'";
+    }
 
     if (!empty($textsize)) {
-        echo ",TEXTSIZE,$textsize"; }
+        echo ",TEXTSIZE,$textsize";
+    }
 
     if (!empty($captionsize)) {
-        echo ",CAPTIONSIZE,$captionsize"; }
+        echo ",CAPTIONSIZE,$captionsize";
+    }
 
     if (!empty($closesize)) {
-        echo ",CLOSESIZE,$closesize"; }
+        echo ",CLOSESIZE,$closesize";
+    }
 
     if (!empty($width)) {
-        echo ",WIDTH,$width"; }
+        echo ",WIDTH,$width";
+    }
 
     if (!empty($height)) {
-        echo ",HEIGHT,$height"; }
+        echo ",HEIGHT,$height";
+    }
 
     if (!empty($left)) {
-        echo ",LEFT"; }
+        echo ",LEFT";
+    }
 
     if (!empty($right)) {
-        echo ",RIGHT"; }
+        echo ",RIGHT";
+    }
 
     if (!empty($center)) {
-        echo ",CENTER"; }
+        echo ",CENTER";
+    }
 
     if (!empty($above)) {
-        echo ",ABOVE"; }
+        echo ",ABOVE";
+    }
 
     if (!empty($below)) {
-        echo ",BELOW"; }
+        echo ",BELOW";
+    }
 
     if (isset($border)) {
-        echo ",BORDER,$border"; }
+        echo ",BORDER,$border";
+    }
 
     if (isset($offsetx)) {
-        echo ",OFFSETX,$offsetx"; }
+        echo ",OFFSETX,$offsetx";
+    }
 
     if (isset($offsety)) {
-        echo ",OFFSETY,$offsety"; }
+        echo ",OFFSETY,$offsety";
+    }
 
     if (!empty($fgbackground)) {
-        echo ",FGBACKGROUND,'$fgbackground'"; }
+        echo ",FGBACKGROUND,'$fgbackground'";
+    }
 
     if (!empty($bgbackground)) {
-        echo ",BGBACKGROUND,'$bgbackground'"; }
+        echo ",BGBACKGROUND,'$bgbackground'";
+    }
 
     if (!empty($closetext)) {
-        echo ",CLOSETEXT,'".pc_clean($closetext)."'"; }
+        echo ",CLOSETEXT,'".pc_clean($closetext)."'";
+    }
 
     if (!empty($noclose)) {
-        echo ",NOCLOSE"; }
+        echo ",NOCLOSE";
+    }
 
     if (!empty($status)) {
-        echo ",STATUS,'".pc_clean($status)."'"; }
+        echo ",STATUS,'".pc_clean($status)."'";
+    }
 
     if (!empty($autostatus)) {
-        echo ",AUTOSTATUS"; }
+        echo ",AUTOSTATUS";
+    }
 
     if (!empty($autostatuscap)) {
-        echo ",AUTOSTATUSCAP"; }
+        echo ",AUTOSTATUSCAP";
+    }
 
     if (isset($inarray)) {
-        echo ",INARRAY,'$inarray'"; }
+        echo ",INARRAY,'$inarray'";
+    }
 
     if (isset($caparray)) {
-        echo ",CAPARRAY,'$caparray'"; }
+        echo ",CAPARRAY,'$caparray'";
+    }
 
     if (!empty($capicon)) {
-        echo ",CAPICON,'$capicon'"; }
+        echo ",CAPICON,'$capicon'";
+    }
 
     if (!empty($snapx)) {
-        echo ",SNAPX,$snapx"; }
+        echo ",SNAPX,$snapx";
+    }
 
     if (!empty($snapy)) {
-        echo ",SNAPY,$snapy"; }
+        echo ",SNAPY,$snapy";
+    }
 
     if (isset($fixx)) {
-        echo ",FIXX,$fixx"; }
+        echo ",FIXX,$fixx";
+    }
 
     if (isset($fixy)) {
-        echo ",FIXY,$fixy"; }
+        echo ",FIXY,$fixy";
+    }
 
     if (!empty($background)) {
-        echo ",BACKGROUND,'$background'"; }
+        echo ",BACKGROUND,'$background'";
+    }
 
     if (!empty($padx)) {
-        echo ",PADX,$padx"; }
+        echo ",PADX,$padx";
+    }
 
     if (!empty($pady)) {
-        echo ",PADY,$pady"; }
+        echo ",PADY,$pady";
+    }
 
     if (!empty($fullhtml)) {
-        echo ",FULLHTML"; }
+        echo ",FULLHTML";
+    }
 
     if (!empty($frame)) {
-        echo ",FRAME,'$frame'"; }
+        echo ",FRAME,'$frame'";
+    }
 
     if (isset($timeout)) {
-        echo ",TIMEOUT,$timeout"; }
+        echo ",TIMEOUT,$timeout";
+    }
 
     if (!empty($function)) {
-        echo ",FUNCTION,'$function'"; }
+        echo ",FUNCTION,'$function'";
+    }
 
     if (isset($delay)) {
-        echo ",DELAY,$delay"; }
+        echo ",DELAY,$delay";
+    }
 
     if (!empty($hauto)) {
-        echo ",HAUTO"; }
+        echo ",HAUTO";
+    }
 
     if (!empty($vauto)) {
-        echo ",VAUTO"; }
+        echo ",VAUTO";
+    }
 
     echo ');" onMouseOut="nd();"';
 }

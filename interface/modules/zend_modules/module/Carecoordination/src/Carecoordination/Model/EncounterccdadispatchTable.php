@@ -1100,7 +1100,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         
         $progress_notes .= "<progressNotes>";
         foreach ($result as $row) {
-            foreach ($row as $key=>$value) {
+            foreach ($row as $key => $value) {
                 $progress_notes .= "<item>".htmlspecialchars($value, ENT_QUOTES)."</item>";
             }
         }
@@ -1891,7 +1891,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $result     = $appTable->zQuery($query, array($pid, $encounter, $formTables_details[2]));
                     
                     foreach ($result as $row) {
-                        foreach ($row as $key=>$value) {
+                        foreach ($row as $key => $value) {
                             $res[0][$key] .= trim($value);
                         }
                     }
@@ -1938,7 +1938,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
                     $field_ids      = explode(',', $formTables_details[3]);
                     $fields_str     = '';
-                    foreach ($field_ids as $key=>$value) {
+                    foreach ($field_ids as $key => $value) {
                         if ($fields_str != '') {
                             $fields_str .= ",";
                         }

@@ -200,7 +200,7 @@ function submit_form(val){
 
                             $set = 0;
                             $cnt = 0;
-                            foreach ($aud_res['lists1'] as $k=>$v) {
+                            foreach ($aud_res['lists1'] as $k => $v) {
                                 $cnt++;
                                 if ($cnt%2 == 0) {
                                     $class = 'alternate';
@@ -233,7 +233,7 @@ function submit_form(val){
                             echo "</tr>";
                         }
 
-                        foreach ($aud_res['lists1'] as $key=>$val) {
+                        foreach ($aud_res['lists1'] as $key => $val) {
                             if ($val['activity'] == 1) {
                                 $activity = 'Active';
                             } else {
@@ -286,7 +286,7 @@ function submit_form(val){
                             "<td>" . xlt('Reaction') . "</td><td>" . text($res_existing_alerts['reaction']) . "</td><td>&nbsp;</td></tr>";
                         }
 
-                        foreach ($aud_res['lists2'] as $key=>$val) {
+                        foreach ($aud_res['lists2'] as $key => $val) {
                             if ($val['activity'] == 1) {
                                 $activity = 'Active';
                             } else {
@@ -343,7 +343,7 @@ function submit_form(val){
                             "<td>" . xlt('Refills') . "</td><td>" . text($res_existing_medications['refills']) . "</td></tr>";
                         }
 
-                        foreach ($aud_res['prescriptions'] as $key=>$val) {
+                        foreach ($aud_res['prescriptions'] as $key => $val) {
                             if ($val['active'] == 1) {
                                 $activity = 'Active';
                             } else {
@@ -394,7 +394,7 @@ function submit_form(val){
                             "<td>&nbsp;</td></tr>";
                         }
 
-                        foreach ($aud_res['immunizations'] as $key=>$val) {
+                        foreach ($aud_res['immunizations'] as $key => $val) {
                             echo "<tr><td>" . xlt('Administered Date') . "</td>" .
                             "<td><input type='text' name='immunizations-administered_date[]' value='" . attr($val['administered_date']) . "' ></td>" .
                             "<td>" . xlt('Note') . "</td><td><input type='text' name='immunizations-note[]' value='" . attr($val['note']) . "' ></td>" .
@@ -439,7 +439,7 @@ function submit_form(val){
                                     "<td>&nbsp;</td></tr>";
                             }
 
-                            foreach ($aud_res['procedure_result,procedure_type'] as $key=>$val) {
+                            foreach ($aud_res['procedure_result,procedure_type'] as $key => $val) {
                                 echo "<tr><td>" . xlt('Name') . "</td>" .
                                     "<td><input type='text' name='procedure_type-name[]' value='" . attr($val['name']) . "' ></td>" .
                                     "<td>" . xlt('Date') . "</td><td><input type='text' name='procedure_result-date[]' value='" . attr($val['date']) . "' ></td>" .

@@ -245,8 +245,10 @@ $display_collapse_msg = "display:inline;";
                 <td><?php echo $note; ?> &nbsp;</td>
                 <td align="center"><?php echo ( $row['encounter_id'] ) ? text($row['encounter_id']) : ''; ?> </td>
             </tr>
-        <?php } ?>
-    <?php } ?>
+        <?php
+        } ?>
+    <?php
+    } ?>
     </table>
 </div>
 </body>

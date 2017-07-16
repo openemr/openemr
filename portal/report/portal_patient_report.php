@@ -337,7 +337,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
    <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
     <?php if (!$GLOBALS['simplified_demographics']) {
-        echo 'checked';} ?>><?php echo xlt('Billing'); ?><br>
+        echo 'checked';
+} ?>><?php echo xlt('Billing'); ?><br>
   </td>
   <td class='text'>
    <!--
@@ -416,8 +417,10 @@ while ($prow = sqlFetchArray($pres)) {
     echo "     <td>" . $prow['begdate'];
 
     if ($prow['enddate']) {
-        echo " - " . $prow['enddate']; } else {
-        echo " Active"; }
+        echo " - " . $prow['enddate'];
+    } else {
+        echo " Active";
+    }
 
         echo "</td>\n";
         echo "</tr>\n";
@@ -465,7 +468,8 @@ while ($result = sqlFetchArray($res)) {
             foreach ($registry_form_name as $var) {
                 if ($toprint = $html_strings[$var]) {
                     foreach ($toprint as $var) {
-                        print $var;}
+                        print $var;
+                    }
                 }
             }
 
@@ -504,7 +508,8 @@ while ($result = sqlFetchArray($res)) {
         $form_name_found_flag = 0;
         foreach ($registry_form_name as $var) {
             if ($var == $form_name) {
-                $form_name_found_flag = 1;}
+                $form_name_found_flag = 1;
+            }
         }
 
         // if the form does not match precisely with any names in the registry, now see if any front partial matches
@@ -512,12 +517,14 @@ while ($result = sqlFetchArray($res)) {
         if (!$form_name_found_flag) {
             foreach ($registry_form_name as $var) {
                 if (strpos($form_name, $var) == 0) {
-                    $form_name = $var;}
+                    $form_name = $var;
+                }
             }
         }
 
         if (!is_array($html_strings[$form_name])) {
-            $html_strings[$form_name] = array();}
+            $html_strings[$form_name] = array();
+        }
 
         array_push($html_strings[$form_name], "<input type='checkbox' ".
                                                 " name='" . $result{"formdir"} . "_" . $result{"form_id"} . "'".
@@ -531,7 +538,8 @@ while ($result = sqlFetchArray($res)) {
 foreach ($registry_form_name as $var) {
     if ($toprint = $html_strings[$var]) {
         foreach ($toprint as $var) {
-            print $var;}
+            print $var;
+        }
     }
 }
 ?>

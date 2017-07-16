@@ -304,11 +304,14 @@ while ($myrow = sqlFetchArray($result)) { ?>
                 } ?>
               <select class="patient_reminder" name="<?php echo htmlspecialchars($rule['id'], ENT_NOQUOTES); ?>">
                 <option value="default" <?php if ($select == "default") {
-                    echo "selected";} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Default'), ENT_NOQUOTES); ?></option>
                 <option value="on" <?php if ($select == "on") {
-                    echo "selected";} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('On'), ENT_NOQUOTES); ?></option>
                 <option value="off" <?php if ($select == "off") {
-                    echo "selected";} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
+                    echo "selected";
+} ?>><?php echo htmlspecialchars(xl('Off'), ENT_NOQUOTES); ?></option>
               </select>
             </td>
             <td align="center" style="border-right:1px solid black;">

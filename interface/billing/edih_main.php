@@ -106,7 +106,8 @@ if (!is_dir($edih_tmp_dir)) {
     if (csv_setup() == true) {
         $html_str = '';
         if (is_dir($edih_tmp_dir)) {
-            csv_clear_tmpdir(); }
+            csv_clear_tmpdir();
+        }
     } else {
         print $html_str;
         exit;
@@ -118,7 +119,7 @@ $html_str = '';
 // debug
 if (count($_GET)) {
     $dbg_str = "_GET request ".PHP_EOL;
-    foreach ($_GET as $k=>$v) {
+    foreach ($_GET as $k => $v) {
         $dbg_str .= " $k => $v ";
     }
 
@@ -127,7 +128,7 @@ if (count($_GET)) {
 
 if (count($_POST)) {
     $dbg_str = "_POST request ".PHP_EOL;
-    foreach ($_POST as $k=>$v) {
+    foreach ($_POST as $k => $v) {
         $dbg_str .= " $k => $v ";
     }
 

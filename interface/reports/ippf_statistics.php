@@ -1104,7 +1104,8 @@ action='ippf_statistics.php?t=<?php echo $report_type ?>'>
 
 <!-- Begin experimental code -->
 <tr<?php if (empty($arr_report)) {
-    echo " style='display:none'";} ?>>
+    echo " style='display:none'";
+} ?>>
 <td valign='top' class='dehead' nowrap>
 <?php xl('Report', 'e'); ?>:
 </td>

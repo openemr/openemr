@@ -113,14 +113,16 @@ class pcSmarty extends Smarty
         //=================================================================
         $template_name = _SETTING_TEMPLATE;
         if (!isset($template_name)) {
-            $template_name = 'default'; }
+            $template_name = 'default';
+        }
 
         //=================================================================
         //  Find out what Template View to use
         //=================================================================
         $template_view = pnVarCleanFromInput('tplview');
         if (!isset($template_view)) {
-            $template_view = 'default'; }
+            $template_view = 'default';
+        }
 
         $this->config_dir = "modules/$pcDir/pntemplates/$template_name/config/";
         $this->assign_by_ref('TPL_NAME', $template_name);

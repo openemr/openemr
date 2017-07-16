@@ -71,13 +71,13 @@ class xmltoarray_parser_htmlfix
     {
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = array();
-        foreach ($trans_table as $key=>$value) {
+        foreach ($trans_table as $key => $value) {
             if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
                 $keys[$key] = $value;
             }
         }
 
-        foreach ($keys as $key=>$value) {
+        foreach ($keys as $key => $value) {
             $xml =  preg_replace("/".$key."/", $value, $xml);
         }
 

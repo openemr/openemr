@@ -537,7 +537,8 @@ if ($_REQUEST["mode"] == "new") {
                         //we always want a default begin date
                         //if it is empty, fill it with today
                         if ($_REQUEST['form_begin'] =='') {
-                            $_REQUEST['form_begin'] = date("Y-m-d"); }
+                            $_REQUEST['form_begin'] = date("Y-m-d");
+                        }
                     }
 
                     if ($_REQUEST['form_begin'] =='') {

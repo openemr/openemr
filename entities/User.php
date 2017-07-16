@@ -31,7 +31,8 @@ class User
      * Default constructor.
      */
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @Column(name="id", type="integer")

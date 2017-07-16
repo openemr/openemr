@@ -37,11 +37,13 @@ $pc_username    = pnVarCleanFromInput('pc_username');
 $output =& new pnHTML();
 $output->SetInputMode(_PNH_VERBATIMINPUT);
 if (!pnModAPILoad('postcalendar', 'user')) {
-    die('Could not load PostCalendar user API'); }
+    die('Could not load PostCalendar user API');
+}
 
 $theme = pnUserGetTheme();
 if (!pnThemeLoad($theme)) {
-    die('Could not load theme'); }
+    die('Could not load theme');
+}
 
 $output->Text('<html><head>');
 $output->Text("<title>".pnConfigGetVar('sitename').' :: '.pnConfigGetVar('slogan')."</title>\n");

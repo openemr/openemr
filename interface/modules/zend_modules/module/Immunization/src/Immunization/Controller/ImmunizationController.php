@@ -570,7 +570,7 @@ class ImmunizationController extends AbstractActionController
                     $imm_obs_res                  = $this->getImmunizationTable()->getImmunizationObservationResultsData($r['patientid'], $r['immunizationid']);
                     if (count($imm_obs_res > 0)) {
                         $last_key                   = 1;
-                        foreach ($imm_obs_res as $key_obs=>$val_obs) {
+                        foreach ($imm_obs_res as $key_obs => $val_obs) {
                             $criteria_code            = $criteria_notes = $obs_value_notes = $obs_value = $obs_method = $date_obs = $value_type = $criteria_value = '';
                             $criteria_code            = $this->getImmunizationTable()->getCodes($val_obs['imo_criteria'], 'immunization_observation');
                             $criteria_notes           = $this->getImmunizationTable()->getNotes($val_obs['imo_criteria'], 'immunization_observation');

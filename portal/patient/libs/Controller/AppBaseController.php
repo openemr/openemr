@@ -102,7 +102,7 @@ class AppBaseController extends Controller
         $err->errors = array();
 
         if ($errors != null) {
-            foreach ($errors as $key=>$val) {
+            foreach ($errors as $key => $val) {
                 $err->errors[lcfirst($key)] = $val;
             }
         }

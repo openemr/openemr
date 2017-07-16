@@ -32,5 +32,7 @@
     (ex: [PostCalendar])
  *******************************************************/
 if (!defined("LOADED_AS_MODULE")) {
-    echo 'You may not access this module directly'; } else {
-    pnRedirect(pnModURL(pnVarCleanFromInput('name'), 'user', 'main')); }
+    echo 'You may not access this module directly';
+} else {
+    pnRedirect(pnModURL(pnVarCleanFromInput('name'), 'user', 'main'));
+}

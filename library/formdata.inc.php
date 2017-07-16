@@ -260,7 +260,8 @@ function formDataCore($s, $isTrim = false)
 {
       //trim if selected
     if ($isTrim) {
-        $s = trim($s);}
+        $s = trim($s);
+    }
 
       //strip escapes
       $s = strip_escape_custom($s);

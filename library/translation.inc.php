@@ -39,7 +39,8 @@ if (!(function_exists('xl'))) {
              $row = SqlFetchArray($res);
              $string = $row['definition'];
             if ($string == '') {
-                $string = "$constant"; }
+                $string = "$constant";
+            }
 
              // remove dangerous characters and remove comments
             if ($GLOBALS['translate_no_safe_apostrophe']) {
@@ -225,7 +226,8 @@ function getLanguageTitle($val)
     for ($iter = 0; $row = sqlFetchArray($res);
     $iter++) {
         $result[$iter] = $row;
-        $languageTitle = $result[0]"lang_description"};
+        $languageTitle = $result[0]"lang_description"
+    };
     return $languageTitle;
 }
 

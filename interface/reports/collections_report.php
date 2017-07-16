@@ -406,59 +406,70 @@ function checkAll(checked) {
                     <tr>
                         <td>
                            <label><input type='checkbox' name='form_cb_ssn'<?php if ($form_cb_ssn) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('SSN') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_dob'<?php if ($form_cb_dob) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('DOB') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_pubpid'<?php if ($form_cb_pubpid) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('ID') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_policy'<?php if ($form_cb_policy) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Policy') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_phone'<?php if ($form_cb_phone) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Phone') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_city'<?php if ($form_cb_city) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('City') ?>&nbsp;</label>
                         </td>
                     </tr>
                     <tr>
                         <td>
                            <label><input type='checkbox' name='form_cb_ins1'<?php if ($form_cb_ins1) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Primary Ins') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_referrer'<?php if ($form_cb_referrer) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Referrer') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_adate'<?php if ($form_cb_adate) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Act Date') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_idays'<?php if ($form_cb_idays) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Inactive Days') ?>&nbsp;</label>
                         </td>
                         <td>
                            <label><input type='checkbox' name='form_cb_err'<?php if ($form_cb_err) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Errors') ?></label>
                         </td>
                     </tr>
@@ -602,7 +613,8 @@ function checkAll(checked) {
                         <td>
               <div class="checkbox">
                            <label><input type='checkbox' name='form_cb_with_debt'<?php if ($form_cb_with_debt) {
-                                echo ' checked';} ?>>
+                                echo ' checked';
+} ?>>
                             <?php echo xlt('Patients with debt') ?></label>
               </div>
                         </td>

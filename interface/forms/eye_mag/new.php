@@ -42,7 +42,8 @@ $pid = $_REQUEST['pid'];
 if (!$pid) {
     $pid = $_SESSION['pid'];
 } else {
-    $_SESSION['pid'] = $pid; }
+    $_SESSION['pid'] = $pid;
+}
 
 if (!$user) {
     $user = $_SESSION['authUser'];
@@ -55,7 +56,8 @@ if (!$group) {
 if (!$_SESSION['encounter']) {
     $encounter = date("Ymd");
 } else {
-    $encounter=$_SESSION['encounter'];}
+    $encounter=$_SESSION['encounter'];
+}
 
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, array($pid,$encounter));

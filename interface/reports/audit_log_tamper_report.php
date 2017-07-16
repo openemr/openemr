@@ -173,7 +173,8 @@ $sortby = $_GET['sortby'];
 $check_sum = $_GET['check_sum'];
 ?>
 <input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') {
-    echo "checked";}  ?>"></input>
+    echo "checked";
+}  ?>"></input>
 </td>
 <td>
 <input type=hidden name="event" value=<?php echo attr($event) ; ?>>

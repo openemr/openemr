@@ -132,7 +132,8 @@ use OpenEMR\Core\Header;
                         if (!$counterFlag) {
                             ?>
                             <br><?php echo text($nameDoc); ?><span style='color:red;'>[<?php echo xlt('EMPTY'); ?>]</span>
-                            <?php }
+                            <?php
+                        }
                     }
                 }
                 ?>

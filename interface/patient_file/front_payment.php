@@ -917,7 +917,8 @@ function make_insurance()
 <center>
 
 <form method='post' action='front_payment.php<?php if ($payid) {
-    echo "?payid=$payid";} ?>'
+    echo "?payid=$payid";
+} ?>'
  onsubmit='return validate();'>
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 

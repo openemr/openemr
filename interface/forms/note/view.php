@@ -75,9 +75,11 @@ function PrintForm() {
 
 <select name="note_type">
 <option value="WORK NOTE" <?php if ($obj['note_type']=="WORK NOTE") {
-    echo " SELECTED";} ?>><?php echo xlt('WORK NOTE'); ?></option>
+    echo " SELECTED";
+} ?>><?php echo xlt('WORK NOTE'); ?></option>
 <option value="SCHOOL NOTE" <?php if ($obj['note_type']=="SCHOOL NOTE") {
-    echo " SELECTED";} ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
+    echo " SELECTED";
+} ?>><?php echo xlt('SCHOOL NOTE'); ?></option>
 </select>
 <br>
 <b><?php echo xlt('MESSAGE:'); ?></b>

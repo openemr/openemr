@@ -135,7 +135,8 @@ if (empty($collectthis)) {
     echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true);
     $("select").prop("disabled", true);
-}) </script>';}?>
+}) </script>';
+}?>
 
     <?php
 
@@ -447,7 +448,8 @@ if (empty($collectthis)) {
                 // obtain current list of providers regarding the multiple key
                 $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
                 while ($current = sqlFetchArray($up)) {
-                    $providers_current[] = $current['pc_aid']; }
+                    $providers_current[] = $current['pc_aid'];
+                }
 
                 // get the new list of providers from the submitted form
                 $providers_new = $_POST['form_provider'];
@@ -463,8 +465,10 @@ if (empty($collectthis)) {
                         $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                         $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                         if ($oldRecurrspec['exdate'] != "") {
-                            $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
-                            $oldRecurrspec['exdate'] .= $selected_date; }
+                            $oldRecurrspec['exdate'] .= ",".$selected_date;
+                        } else {
+                            $oldRecurrspec['exdate'] .= $selected_date;
+                        }
 
                         // mod original event recur specs to exclude this date
                             sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -621,8 +625,10 @@ if (empty($collectthis)) {
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") {
-                        $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
-                        $oldRecurrspec['exdate'] .= $selected_date; }
+                        $oldRecurrspec['exdate'] .= ",".$selected_date;
+                    } else {
+                        $oldRecurrspec['exdate'] .= $selected_date;
+                    }
 
                     // mod original event recur specs to exclude this date
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -730,50 +736,55 @@ if (empty($collectthis)) {
             $providers_current = array();
             $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
             while ($current = sqlFetchArray($up)) {
-                $providers_current[] = $current['pc_aid']; }
+                $providers_current[] = $current['pc_aid'];
+            }
 
             // establish a WHERE clause
             if ($row['pc_multiple']) {
-                $whereClause = "pc_multiple = '{$row['pc_multiple']}'"; } else {
-                $whereClause = "pc_eid = '$eid'"; }
+                $whereClause = "pc_multiple = '{$row['pc_multiple']}'";
+            } else {
+                $whereClause = "pc_eid = '$eid'";
+            }
 
-                if ($_POST['recurr_affect'] == 'current') {
-                    // update all existing event records to exlude the current date
-                    foreach ($providers_current as $provider) {
-                        // update the provider's original event
-                        // get the original event's repeat specs
-                        $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
-                        $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
-                        $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
-                        if ($oldRecurrspec['exdate'] != "") {
-                            $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
-                            $oldRecurrspec['exdate'] .= $selected_date; }
+            if ($_POST['recurr_affect'] == 'current') {
+                // update all existing event records to exlude the current date
+                foreach ($providers_current as $provider) {
+                    // update the provider's original event
+                    // get the original event's repeat specs
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
+                    " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
+                    $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
+                    if ($oldRecurrspec['exdate'] != "") {
+                        $oldRecurrspec['exdate'] .= ",".$selected_date;
+                    } else {
+                            $oldRecurrspec['exdate'] .= $selected_date;
+                    }
 
                     // mod original event recur specs to exclude this date
-                            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                            " pc_recurrspec = ? ".
-                            " WHERE ". $whereClause, array(serialize($oldRecurrspec)));
-                    }
-                } else if ($_POST['recurr_affect'] == 'future') {
-                    // update all existing event records to stop recurring on this date-1
-                    $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
-                    foreach ($providers_current as $provider) {
-                        // In case of a change in the middle of the event
-                        if (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
-                            // update the provider's original event
-                            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                            " pc_enddate = ? " .
-                            " WHERE " . $whereClause, array($selected_date));
-                        } // In case of a change in the event head
-                        else {
-                            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
-                        }
-                    }
-                } else {
-                    // really delete the event from the database
-                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_recurrspec = ? ".
+                        " WHERE ". $whereClause, array(serialize($oldRecurrspec)));
                 }
+            } else if ($_POST['recurr_affect'] == 'future') {
+                // update all existing event records to stop recurring on this date-1
+                $selected_date = date("Y-m-d", (strtotime($_POST['selected_date'])-24*60*60));
+                foreach ($providers_current as $provider) {
+                    // In case of a change in the middle of the event
+                    if (strcmp($_POST['event_start_date'], $_POST['selected_date'])!=0) {
+                        // update the provider's original event
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_enddate = ? " .
+                        " WHERE " . $whereClause, array($selected_date));
+                    } // In case of a change in the event head
+                    else {
+                        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+                    }
+                }
+            } else {
+                // really delete the event from the database
+                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE ".$whereClause);
+            }
         } // =======================================
         //  single provider event
         // =======================================
@@ -786,8 +797,10 @@ if (empty($collectthis)) {
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                 $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                 if ($oldRecurrspec['exdate'] != "") {
-                    $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
-                    $oldRecurrspec['exdate'] .= $selected_date; }
+                    $oldRecurrspec['exdate'] .= ",".$selected_date;
+                } else {
+                    $oldRecurrspec['exdate'] .= $selected_date;
+                }
 
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? ".
@@ -1031,54 +1044,54 @@ if ($_GET['group'] == true) {
     $cattype=3;
 }
 
- $cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
-  "pc_recurrtype, pc_duration, pc_end_all_day " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
- $catoptions = "";
- $prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
- $thisduration = 0;
- if ($eid) {
-     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
+$cres = sqlStatement("SELECT pc_catid, pc_cattype, pc_catname, " .
+"pc_recurrtype, pc_duration, pc_end_all_day " .
+"FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq");
+$catoptions = "";
+$prefcat_options = "    <option value='0'>-- " . xlt("None") . " --</option>\n";
+$thisduration = 0;
+if ($eid) {
+    $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
+}
+
+while ($crow = sqlFetchArray($cres)) {
+    $duration = round($crow['pc_duration'] / 60);
+    if ($crow['pc_end_all_day']) {
+        $duration = 1440;
     }
 
-    while ($crow = sqlFetchArray($cres)) {
-        $duration = round($crow['pc_duration'] / 60);
-        if ($crow['pc_end_all_day']) {
-            $duration = 1440;
-        }
-
-        // This section is to build the list of preferred categories:
-        if ($duration) {
-            $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
-            if ($eid) {
-                if ($crow['pc_catid'] == $row['pc_prefcatid']) {
-                    $prefcat_options .= " selected";
-                }
-            }
-
-            $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
-        }
-
-        if ($crow['pc_cattype'] != $cattype) {
-            continue;
-        }
-
-        echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
-        // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
-        $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
+    // This section is to build the list of preferred categories:
+    if ($duration) {
+        $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
         if ($eid) {
-            if ($crow['pc_catid'] == $row['pc_catid']) {
-                $catoptions .= " selected";
-            }
-        } else {
-            if ($crow['pc_catid'] == $default_catid) {
-                $catoptions .= " selected";
-                $thisduration = $duration;
+            if ($crow['pc_catid'] == $row['pc_prefcatid']) {
+                $prefcat_options .= " selected";
             }
         }
 
-        $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+        $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
+
+    if ($crow['pc_cattype'] != $cattype) {
+        continue;
+    }
+
+    echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
+    // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
+    $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
+    if ($eid) {
+        if ($crow['pc_catid'] == $row['pc_catid']) {
+            $catoptions .= " selected";
+        }
+    } else {
+        if ($crow['pc_catid'] == $default_catid) {
+            $catoptions .= " selected";
+            $thisduration = $duration;
+        }
+    }
+
+    $catoptions .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
+}
 ?>
 
 <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -1419,7 +1432,8 @@ if ($_GET['prov']==true) {
             &nbsp;&nbsp;
             <input   type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
             <?php if ($thisduration == 1440) {
-                echo "checked "; } ?>/>
+                echo "checked ";
+} ?>/>
         </td>
         <td colspan='2' nowrap id='tdallday1'>
             <?php echo xlt('All day event'); ?>
@@ -1438,7 +1452,8 @@ if ($_GET['prov']==true) {
         <td nowrap>
             &nbsp;&nbsp;
             <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) {
-                echo "checked "; } ?>/>
+                echo "checked ";
+} ?>/>
         </td>
         <td width='1%' nowrap id='tdallday2'>
             <?php echo xlt('Time'); ?>
@@ -1453,7 +1468,8 @@ if ($_GET['prov']==true) {
             <select   name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
                 <option value='1'><?php echo xlt('AM'); ?></option>
                 <option value='2'<?php if ($startampm == '2') {
-                    echo " selected"; } ?>><?php echo xlt('PM'); ?></option>
+                    echo " selected";
+} ?>><?php echo xlt('PM'); ?></option>
             </select>
         </td>
     </tr>
@@ -1750,7 +1766,8 @@ if ($GLOBALS['select_multi_providers']) {
       */
         ?>
    <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) {
-        echo " checked"; } ?>/>
+        echo " checked";
+} ?>/>
    <input   type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1760,7 +1777,7 @@ if ($GLOBALS['select_multi_providers']) {
    <select   name='form_repeat_freq' title='<?php echo xla('Every, every other, every 3rd, etc.'); ?>'>
 <?php
 foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'), 5 => xl('5th'), 6 => xl('6th'))
-  as $key => $value) {
+ as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
     if ($key == $repeatfreq && isRegularRepeat($repeats)) {
         echo " selected";
@@ -1800,7 +1817,8 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
     <td></td>
     <td></td>
     <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) {
-        echo " checked"; } ?>/></td>
+        echo " checked";
+} ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
@@ -1855,19 +1873,21 @@ if ($_GET['group']!=true) {
 if ($repeatexdate != "") {
     $tmptitle = "The following dates are excluded from the repeating series";
     if ($multiple_value) {
-        $tmptitle .= " for one or more providers:\n"; } else {
-        $tmptitle .= "\n"; }
+        $tmptitle .= " for one or more providers:\n";
+    } else {
+        $tmptitle .= "\n";
+    }
 
         $max = $GLOBALS['number_of_ex_appts_to_show'];
 
         $exdates = explode(",", $repeatexdate);
-        if (!empty($exdates)) {
-            $exdates=array_slice($exdates, 0, $max, true);
-        }
+    if (!empty($exdates)) {
+        $exdates=array_slice($exdates, 0, $max, true);
+    }
 
-        foreach ($exdates as $exdate) {
-            $tmptitle .= date("d M Y", strtotime($exdate))."\n";
-        }
+    foreach ($exdates as $exdate) {
+        $tmptitle .= date("d M Y", strtotime($exdate))."\n";
+    }
 
         echo "<a href='#' title='" . attr($tmptitle) . "' alt='" . attr($tmptitle) . "'><img src='../../pic/warning.gif' title='" . attr($tmptitle) . "' alt='*!*' style='border:none;'/></a>";
 }
@@ -1887,7 +1907,8 @@ if ($repeatexdate != "") {
         ?>
      </td>
     </tr>
-        <?php } ?>
+    <?php
+    } ?>
  <tr>
   <td nowrap>
    <b><?php echo xlt('Comments'); ?>:</b>
@@ -1929,7 +1950,8 @@ if ($repeatexdate != "") {
 
 &nbsp;
 <input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) {
-    echo " disabled"; } ?> />
+    echo " disabled";
+} ?> />
 &nbsp;
 <input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
 &nbsp;
@@ -1937,7 +1959,8 @@ if ($repeatexdate != "") {
 </p></td></tr></table>
 <?php if ($informant) {
     echo "<p class='text'>" . xlt('Last update by') . " " .
-    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";} ?>
+    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";
+} ?>
 </center>
 </form>
 

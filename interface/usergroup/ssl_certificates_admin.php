@@ -186,10 +186,12 @@ function create_client_cert()
     }
 
     if ($_POST["client_cert_user"]) {
-        $user = formData('client_cert_user', 'P', true);  }
+        $user = formData('client_cert_user', 'P', true);
+    }
 
     if ($_POST["client_cert_email"]) {
-        $email = formData('client_cert_email', 'P', true);  }
+        $email = formData('client_cert_email', 'P', true);
+    }
 
     $opensslconf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $serial = 0;
@@ -256,28 +258,36 @@ function create_and_download_certificates()
 
     /* Retrieve the certificate name settings from the form input */
     if ($_POST["commonName"]) {
-        $commonName = formData('commonName', 'P', true);  }
+        $commonName = formData('commonName', 'P', true);
+    }
 
     if ($_POST["emailAddress"]) {
-        $emailAddress = formData('emailAddress', 'P', true);  }
+        $emailAddress = formData('emailAddress', 'P', true);
+    }
 
     if ($_POST["countryName"]) {
-        $countryName = formData('countryName', 'P', true);  }
+        $countryName = formData('countryName', 'P', true);
+    }
 
     if ($_POST["stateOrProvinceName"]) {
-        $stateOrProvinceName = formData('stateOrProvinceName', 'P', true);  }
+        $stateOrProvinceName = formData('stateOrProvinceName', 'P', true);
+    }
 
     if ($_POST["localityName"]) {
-        $localityName = formData('localityName', 'P', true);  }
+        $localityName = formData('localityName', 'P', true);
+    }
 
     if ($_POST["organizationName"]) {
-        $organizationName = formData('organizationName', 'P', true);  }
+        $organizationName = formData('organizationName', 'P', true);
+    }
 
     if ($_POST["organizationalUnitName"]) {
-        $organizationName = formData('organizationalUnitName', 'P', true);  }
+        $organizationName = formData('organizationalUnitName', 'P', true);
+    }
 
     if ($_POST["clientCertValidity"]) {
-        $clientCertValidity = formData('clientCertValidity', 'P', true);  }
+        $clientCertValidity = formData('clientCertValidity', 'P', true);
+    }
 
 
     /* Create the Certficate Authority (CA) */
@@ -696,9 +706,11 @@ if ($_POST["mode"] == "create_client_certificate") {
           <td>
             <input name='isClientAuthenticationEnabled' type='radio' value='Yes'
                 <?php if ($GLOBALS['is_client_ssl_enabled']) {
-                    echo "checked";} ?> > <?php xl('Yes', 'e'); ?>
+                    echo "checked";
+} ?> > <?php xl('Yes', 'e'); ?>
             <input name='isClientAuthenticationEnabled' type='radio' value='No'  <?php if (!$GLOBALS['is_client_ssl_enabled']) {
-                echo "checked";} ?> > <?php xl('No', 'e'); ?>
+                echo "checked";
+} ?> > <?php xl('No', 'e'); ?>
           </td>
         </tr>
         <tr><td>&nbsp;</td></tr>

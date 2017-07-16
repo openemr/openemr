@@ -560,97 +560,97 @@ if ($_POST['form_action'] != "") {
 
  // If we get this far then we are displaying the form.
 
- $statuses = array(
-  '-' => '',
-  '*' => xl('* Reminder done'),
-  '+' => xl('+ Chart pulled'),
-  'x' => xl('x Cancelled'), // added Apr 2008 by JRM
-  '?' => xl('? No show'),
-  '@' => xl('@ Arrived'),
-  '~' => xl('~ Arrived late'),
-  '!' => xl('! Left w/o visit'),
-  '#' => xl('# Ins/fin issue'),
-  '<' => xl('< In exam room'),
-  '>' => xl('> Checked out'),
-  '$' => xl('$ Coding done'),
-  '^' => xl('^ Pending'),
- );
+$statuses = array(
+'-' => '',
+'*' => xl('* Reminder done'),
+'+' => xl('+ Chart pulled'),
+'x' => xl('x Cancelled'), // added Apr 2008 by JRM
+'?' => xl('? No show'),
+'@' => xl('@ Arrived'),
+'~' => xl('~ Arrived late'),
+'!' => xl('! Left w/o visit'),
+'#' => xl('# Ins/fin issue'),
+'<' => xl('< In exam room'),
+'>' => xl('> Checked out'),
+'$' => xl('$ Coding done'),
+'^' => xl('^ Pending'),
+);
 
- $repeats = 0; // if the event repeats
- $repeattype = '0';
- $repeatfreq = '0';
- $patienttitle = "";
- $hometext = "";
- $row = array();
+$repeats = 0; // if the event repeats
+$repeattype = '0';
+$repeatfreq = '0';
+$patienttitle = "";
+$hometext = "";
+$row = array();
 
- // If we are editing an existing event, then get its data.
- if ($eid) {
-     $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-     $date = $row['pc_eventDate'];
-     $userid = $row['pc_aid'];
-     $patientid = $row['pc_pid'];
-     $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
-     $starttimem = substr($row['pc_startTime'], 3, 2);
-     $repeats = $row['pc_recurrtype'];
-     $multiple_value = $row['pc_multiple'];
+// If we are editing an existing event, then get its data.
+if ($eid) {
+    $row = sqlQuery("SELECT * FROM openemr_postcalendar_events WHERE pc_eid = $eid");
+    $date = $row['pc_eventDate'];
+    $userid = $row['pc_aid'];
+    $patientid = $row['pc_pid'];
+    $starttimeh = substr($row['pc_startTime'], 0, 2) + 0;
+    $starttimem = substr($row['pc_startTime'], 3, 2);
+    $repeats = $row['pc_recurrtype'];
+    $multiple_value = $row['pc_multiple'];
 
-     if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
-         $repeattype = $matches[1];
-        }
-
-        if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
-               $repeatfreq = $matches[1];
-        }
-
-        $hometext = $row['pc_hometext'];
-        if (substr($hometext, 0, 6) == ':text:') {
-            $hometext = substr($hometext, 6);
-        }
-    } else {
-        $patientid=$_GET['pid'];
+    if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+        $repeattype = $matches[1];
     }
 
- // If we have a patient ID, get the name and phone numbers to display.
-    if ($patientid) {
-        $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-         "FROM patient_data WHERE pid = '" . $patientid . "'");
-        $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) {
-            $patienttitle .= " H=" . $prow['phone_home'];
-        }
-
-        if ($prow['phone_biz']) {
-            $patienttitle  .= " W=" . $prow['phone_biz'];
-        }
+    if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
+            $repeatfreq = $matches[1];
     }
 
- // Get the providers list.
-    $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
+    $hometext = $row['pc_hometext'];
+    if (substr($hometext, 0, 6) == ':text:') {
+        $hometext = substr($hometext, 6);
+    }
+} else {
+    $patientid=$_GET['pid'];
+}
+
+// If we have a patient ID, get the name and phone numbers to display.
+if ($patientid) {
+    $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
+        "FROM patient_data WHERE pid = '" . $patientid . "'");
+    $patientname = $prow['lname'] . ", " . $prow['fname'];
+    if ($prow['phone_home']) {
+        $patienttitle .= " H=" . $prow['phone_home'];
+    }
+
+    if ($prow['phone_biz']) {
+        $patienttitle  .= " W=" . $prow['phone_biz'];
+    }
+}
+
+// Get the providers list.
+$ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
     "authorized != 0 AND active = 1 ORDER BY lname, fname");
 
- //-------------------------------------
- //(CHEMED)
- //Set default facility for a new event based on the given 'userid'
-    if ($userid) {
-        $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
-        $e2f = $pref_facility['facility_id'];
-        $e2f_name = $pref_facility['facility'];
-    }
+//-------------------------------------
+//(CHEMED)
+//Set default facility for a new event based on the given 'userid'
+if ($userid) {
+    $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
+    $e2f = $pref_facility['facility_id'];
+    $e2f_name = $pref_facility['facility'];
+}
 
  //END of CHEMED -----------------------
 
- // Get event categories.
-    $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
-    "FROM openemr_postcalendar_categories ORDER BY pc_catname");
+// Get event categories.
+$cres = sqlStatement("SELECT pc_catid, pc_catname, pc_recurrtype, pc_duration, pc_end_all_day " .
+"FROM openemr_postcalendar_categories ORDER BY pc_catname");
 
- // Fix up the time format for AM/PM.
-    $startampm = '1';
-    if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
-        $startampm = '2';
-        if ($starttimeh > 12) {
-            $starttimeh -= 12;
-        }
+// Fix up the time format for AM/PM.
+$startampm = '1';
+if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
+    $startampm = '2';
+    if ($starttimeh > 12) {
+        $starttimeh -= 12;
     }
+}
 
 ?>
 <html>
@@ -689,7 +689,8 @@ if ($_POST['form_action'] != "") {
   <td colspan='2' nowrap id='tdallday1'>
    <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
     value='<?php if (isset($eid)) {
-        echo $eid ? $row['pc_eventDate'] : $date; } ?>'
+        echo $eid ? $row['pc_eventDate'] : $date;
+} ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'  />
   </td>
  </tr>
@@ -707,15 +708,18 @@ if ($_POST['form_action'] != "") {
   </td>
   <td width='1%' nowrap id='tdallday3'>
    <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php if (isset($eid)) {
-        echo $starttimeh; } ?>'
+        echo $starttimeh;
+} ?>'
     title='<?php xl('Event start time', 'e'); ?>' readonly/> :
   <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php if (isset($eid)) {
-        echo $starttimem; } ?>'
+        echo $starttimem;
+} ?>'
     title='<?php  xl('Event start time', 'e'); ?>' readonly/>&nbsp; <!--  -->
    <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly >
     <option value='1'><?php xl('AM', 'e'); ?></option>
     <option value='2'<?php if ($startampm == '2') {
-        echo " selected"; } ?>><?php xl('PM', 'e'); ?></option>
+        echo " selected";
+} ?>><?php xl('PM', 'e'); ?></option>
    </select>
   </td>
  </tr>

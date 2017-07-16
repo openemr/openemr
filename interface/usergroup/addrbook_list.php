@@ -113,7 +113,8 @@ $res = sqlStatement($query, $sqlBindArray);
   echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
 ?>
    <input type='checkbox' name='form_external' value='1'<?php if ($form_external) {
-        echo ' checked';} ?>
+        echo ' checked';
+} ?>
     title='<?php echo xla("Omit internal users?") ?>' />
     <?php echo xlt('External Only')?>&nbsp;&nbsp;
    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='button' name='form_search' value='<?php echo xla("Search")?>' />
@@ -195,7 +196,8 @@ while ($row = sqlFetchArray($res)) {
 <script language="JavaScript">
 
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {

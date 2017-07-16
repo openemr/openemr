@@ -126,11 +126,11 @@ require_once("../globals.php");
  <tbody>  <!-- added for better print-ability -->
 <?php
 
- $res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
-    " FROM `background_services` ORDER BY `sort_order`");
- while ($row = sqlFetchArray($res)) {
+$res = sqlStatement("SELECT *, (`next_run` - INTERVAL `execute_interval` MINUTE) as `last_run_start`" .
+  " FROM `background_services` ORDER BY `sort_order`");
+while ($row = sqlFetchArray($res)) {
 ?>
- <tr>
+  <tr>
       <td align='center'><?php echo xlt($row['title']); ?></td>
 
       <td align='center'><?php echo ($row['active']) ? xlt("Yes") : xlt("No"); ?></td>
@@ -162,14 +162,14 @@ require_once("../globals.php");
         <?php } ?>
 
         <?php if ($row['name'] == "phimail") { ?>
-         <td align='center'><a href='direct_message_log.php' onclick='top.restoreSession()'><?php echo xlt("View Log"); ?></a></td>
+          <td align='center'><a href='direct_message_log.php' onclick='top.restoreSession()'><?php echo xlt("View Log"); ?></a></td>
         <?php } else { ?>
-         <td align='center'>&nbsp;</td>
+          <td align='center'>&nbsp;</td>
         <?php } ?>
 
- </tr>
+  </tr>
 <?php
-    } // $row = sqlFetchArray($res) while
+} // $row = sqlFetchArray($res) while
 ?>
 </tbody>
 </table>

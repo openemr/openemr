@@ -105,13 +105,15 @@ function process_commands(&$string_to_process, &$camos_return_data)
                 $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
                 $statement = sqlStatement($query);
                 if ($result = sqlFetchArray($statement)) {
-                    $replacement_text = $result['content'];}
+                    $replacement_text = $result['content'];
+                }
 
                 $replacement_text = formDataCore($replacement_text);
                 $string_to_process = str_replace($val, $replacement_text, $string_to_process);
             }
         } else {
-            $replace_finished = true;}
+            $replace_finished = true;
+        }
     }
 
   //date_add is a function to add a given number of days to the date of the current encounter
@@ -146,7 +148,8 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $command_array = array();  //to be filled with potential commands
     $matches= array();  //to be filled with potential commands
     if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {
-        return $return_value;}
+        return $return_value;
+    }
 
     $command_array = $matches[0];
     foreach ($command_array as $val) {
@@ -244,8 +247,10 @@ function replace($pid, $enc, $content)
         $mname = $results['mname'];
         $lname = $results['lname'];
         if ($mname) {
-            $name = $fname.' '.$mname.' '.$lname;} else {
-            $name = $fname.' '.$lname;}
+            $name = $fname.' '.$mname.' '.$lname;
+        } else {
+            $name = $fname.' '.$lname;
+        }
 
             $dob = $results['DOB'];
             $date = $results['date'];

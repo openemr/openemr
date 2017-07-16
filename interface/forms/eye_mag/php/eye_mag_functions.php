@@ -119,12 +119,14 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     if ($current < $i) {
         $earlier = $current + 1;
     } else {
-        $earlier = $current; }
+        $earlier = $current;
+    }
 
     if ($current > '0') {
         $later   = ($current - 1);
     } else {
-        $later   = "0"; }
+        $later   = "0";
+    }
 
     if ($GLOBALS['date_display_format'] == 1) {      // mm/div/yyyy
         $priors[$i]['encounter_date'] = date("m/d/Y", strtotime($priors[$i]['encounter_date']));
@@ -240,8 +242,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     if ($report =='0') {
                         echo xlt('Prior Exam');
                     } else {
-                        echo xlt($zone);}
-                        ?>: </b><br />
+                        echo xlt($zone);
+                    } ?>: </b><br />
                 <div id="PRIORS_EXT_left_1">
                     <table>
                         <?php
@@ -407,37 +409,49 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     <table id="PRIORS_dil_listbox">
                       <tr>
                         <td>
-                              <input disabled type="checkbox" class="dil_drug" id="PRIORS_CycloMydril" name="PRIORS_CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') {
-                                    echo "checked='checked'";} ?> />
-                              <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_CycloMydril" name="PRIORS_CYCLOMYDRIL" value="Cyclomydril" <?php
+                            if ($CYCLOMYDRIL == 'Cyclomydril') {
+                                echo "checked='checked'";
+                            } ?> />
+                            <label for="CycloMydril" class="input-helper input-helper--checkbox"><?php echo text('CycloMydril'); ?></label>
                         </td>
                         <td>
-                              <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
-                                    echo "checked='checked'";} ?> />
-                              <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Tropicamide" name="PRIORS_TROPICAMIDE" value="Tropicamide 2.5%" <?php
+                            if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                                echo "checked='checked'";
+                            } ?> />
+                            <label for="Tropicamide" class="input-helper input-helper--checkbox"><?php echo text('Tropic 2.5%'); ?></label>
                         </td>
                       </tr>
                       <tr>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo25" name="PRIORS_NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') {
-                                echo "checked='checked'";} ?> />
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo25" name="PRIORS_NEO25" value="Neosynephrine 2.5%"  <?php
+                            if ($NEO25 =='Neosynephrine 2.5%') {
+                                echo "checked='checked'";
+                            } ?> />
                             <label for="Neo25" class="input-helper input-helper--checkbox"><?php echo text('Neo 2.5%'); ?></label>
                         </td>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') {
-                                echo "checked='checked'";} ?> />
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php
+                            if ($NEO10 =='Neosynephrine 10%') {
+                                echo "checked='checked'";
+                            } ?> />
                             <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
                         </td>
                       </tr>
                       <tr>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Cyclogyl" style="left:150px;" name="PRIORS_CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') {
-                                echo "checked='checked'";} ?> />
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Cyclogyl" style="left:150px;" name="PRIORS_CYCLOGYL" value="Cyclopentolate 1%"  <?php
+                            if ($CYCLOGYL == 'Cyclopentolate 1%') {
+                                echo "checked='checked'";
+                            } ?> />
                             <label for="Cyclogyl" class="input-helper input-helper--checkbox"><?php echo text('Cyclo 1%'); ?></label>
                         </td>
                         <td>
-                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Atropine" name="PRIORS_ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') {
-                                echo "checked='checked'";} ?> />
+                            <input disabled type="checkbox" class="dil_drug" id="PRIORS_Atropine" name="PRIORS_ATROPINE" value="Atropine 1%"  <?php
+                            if ($ATROPINE == 'Atropine 1%') {
+                                echo "checked='checked'";
+                            } ?> />
                             <label for="Atropine" class="input-helper input-helper--checkbox"><?php echo text('Atropine 1%'); ?></label>
                         </td>
                       </tr>
@@ -599,16 +613,20 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <?php echo xlt('Color'); ?>:
                         </td>
                         <td>
-                            <input disabled type="text" id="PRIOR_ODCOLOR" name="PRIOR_ODCOLOR" value="<?php if ($ODCOLOR) {
+                            <input disabled type="text" id="PRIOR_ODCOLOR" name="PRIOR_ODCOLOR" value="<?php
+                            if ($ODCOLOR) {
                                 echo  attr($ODCOLOR);
-} else {
-    echo "   /   "; } ?>"/>
+                            } else {
+                                echo "   /   ";
+                            } ?>"/>
                         </td>
                         <td>
-                            <input disabled type="text" id="PRIOR_OSCOLOR" name="PRIOR_OSCOLOR" value="<?php if ($OSCOLOR) {
+                            <input disabled type="text" id="PRIOR_OSCOLOR" name="PRIOR_OSCOLOR" value="<?php
+                            if ($OSCOLOR) {
                                 echo  attr($OSCOLOR);
-} else {
-    echo "   /   "; } ?>"/>
+                            } else {
+                                echo "   /   ";
+                            } ?>"/>
                         </td>
                         <td style="text-align:bottom;">
                                                &nbsp;<span title="<?php echo xla('Insert normals - 11/11'); ?>" class="fa fa-share-square-o fa-flip-horizontal"></span>
@@ -654,8 +672,10 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         <td>
                             <span id="PRIOR_ACTNORMAL_CHECK" name="PRIOR_ACTNORMAL_CHECK">
                             <label for="PRIOR_ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho'); ?></label>
-                            <input disabled type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php if ($ACT =='1') {
-                                echo "checked";} ?>"></span>
+                            <input disabled type="checkbox" name="PRIOR_ACT" id="PRIOR_ACT" checked="<?php
+                            if ($ACT =='1') {
+                                echo "checked";
+                            } ?>"></span>
                         </td>
                     </tr>
                     <tr>
@@ -1022,8 +1042,10 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                             <td style="width:40%;font-size:0.9em;margin:0 auto;font-weight:bold;"><?php echo xlt('Motility'); ?>:</td>
                             <td style="font-size:0.9em;vertical-align:middle;text-align:right;top:0.0in;right:0.1in;height:30px;">
                                 <label for="PRIOR_MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php if ($MOTILITYNORMAL >'0') {
-                                    echo "checked";} ?> disabled>
+                                <input disabled id="PRIOR_MOTILITYNORMAL" name="PRIOR_MOTILITYNORMAL" type="checkbox" value="1" <?php
+                                if ($MOTILITYNORMAL >'0') {
+                                    echo "checked";
+                                } ?> disabled>
                             </td>
                         </tr>
                     </table>
@@ -2047,11 +2069,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     if ($item['reaction']) {
                         $reaction = " (".text($item['reaction']).")";
                     } else {
-                        $reaction =""; }
+                        $reaction ="";
+                    }
 
                     $red = "style='color:red;'";
                 } else {
-                    $red =''; }
+                    $red ='';
+                }
 
                 $table .= "<span $red name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
                 onclick=\"alter_issue2('".attr($item['rowid'])."','".attr($key)."','".attr($index)."');\">".text($item['title']).$reaction."</span><br />";
@@ -2087,7 +2111,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count=0;
-        $row_count =2;}
+        $row_count =2;
+    }
 
     echo $display_PMSFH['Surgery'];
 
@@ -2095,7 +2120,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count=0;
-        $row_count =2;}
+        $row_count =2;
+    }
 
     echo $display_PMSFH['Medication'];
 
@@ -2103,7 +2129,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count=0;
-        $row_count =2;}
+        $row_count =2;
+    }
 
     echo $display_PMSFH['Allergy'];
 
@@ -2111,8 +2138,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     if (($count >= $column_max) && ($row_count < $rows)) {
         echo $div;
         $count=0;
-        $row_count =2;}
-        ?>
+        $row_count =2;
+    } ?>
         <table style="width:1.6in;">
                 <tr>
                     <td width="90%">
@@ -2131,7 +2158,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 if (($counter > $column_max) && ($row_count < $rows)) {
                     echo $close_table.$div.$open_table;
                     $counter="0";
-                    $row_count++;}
+                    $row_count++;
+                }
 
                 if ($item['display'] > '') {
                     $counter++;
@@ -2142,23 +2170,21 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             }
         }
 
-        if ($mentions_FH < '1') {
-        ?>
+        if ($mentions_FH < '1') { ?>
                 <span href="#PMH_anchor"
         onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
                 <?php
                 $counter = $counter+3;
         }
 
-                echo $close_table;
+        echo $close_table;
+        $count = $count + $count['SOCH'] + 4;
 
-                $count = $count + $count['SOCH'] + 4;
         if (($count > $column_max) && ($row_count < $rows)) {
             echo $div;
             $count=0;
-            $row_count =2;}
-
-                    ?>
+            $row_count =2;
+        } ?>
                 <table style="width:1.6in;">
                 <tr>
                     <td width="90%">
@@ -2175,7 +2201,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     if (($counter > $column_max) && ($row_count < $rows)) {
                         echo $close_table.$div.$open_table;
                         $counter="0";
-                        $row_count++;}
+                        $row_count++;
+                    }
 
                     if (($item['display'] > '') && ($item['display'] != 'not_applicable')) {
                         echo "<span name='QP_PMH_".$item['rowid']."' href='#PMH_anchor' id='QP_PMH_".$item['rowid']."'
@@ -2193,16 +2220,14 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     $counter=$counter+2;
                 }
 
-                    echo $close_table;
+                echo $close_table;
+                $count = $count + $count['ROS'] + 4;
 
-                    $count = $count + $count['ROS'] + 4;
                 if (($count > $column_max) && ($row_count < $rows)) {
                     echo $div;
                     $count=0;
-                    $row_count =2;}
-
-                            ?>
-
+                    $row_count =2;
+                } ?>
             <table style="width:1.6in;">
                 <tr>
                     <td width="90%">
@@ -2220,7 +2245,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     if (($counter > $column_max)&& ($row_count < $rows)) {
                         echo $close_table.$div.$open_table;
                         $counter="0";
-                        $row_count++;}
+                        $row_count++;
+                    }
 
                     //xlt($item['short_title']) - for a list of short_titles, see the predefined ROS categories
                     echo "<span name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
@@ -2371,7 +2397,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
             if ($item['reaction']) {
                 $reaction = "(".text($item['reaction']).")";
             } else {
-                $reaction =""; }
+                $reaction ="";
+            }
 
             echo "<span ok style='color:red;' name='QP_PMH_".attr($item['rowid'])."' href='#PMH_anchor' id='QP_PMH_".attr($item['rowid'])."'
       onclick=\"alter_issue2('".attr(addslashes($item['rowid']))."','Allergy','$i');\">".text($item['title'])." ".$reaction."</span><br />";
@@ -2402,7 +2429,8 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Negative"); ?><br /></span>
-        <?php         }
+    <?php
+    }
 
     //<!-- Family History -->
     echo "<br /><span class='panel_title' title='".xlt("Family History")."'>".xlt("FH{{Family History}}").":</span>";
@@ -2522,7 +2550,8 @@ function show_PMSFH_report($PMSFH)
 
     if (($counter + $count['POS']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2542,7 +2571,8 @@ function show_PMSFH_report($PMSFH)
 
     if (($counter + $count['PMH']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2563,7 +2593,8 @@ function show_PMSFH_report($PMSFH)
 
     if ($counter + $count['Medication'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2583,7 +2614,8 @@ function show_PMSFH_report($PMSFH)
 
     if ($counter + $count['Surgery'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     //<!-- Surgeries -->
     $counter++;
@@ -2602,7 +2634,8 @@ function show_PMSFH_report($PMSFH)
 
     if ($counter + $count['Allergy'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2622,7 +2655,8 @@ function show_PMSFH_report($PMSFH)
 
     if ($counter + $count['SOCH'] > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2645,7 +2679,8 @@ function show_PMSFH_report($PMSFH)
 
     if (($counter + $count['FH']) > $panel_size) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -2668,7 +2703,8 @@ function show_PMSFH_report($PMSFH)
 
     if (($counter!=="0") && (($counter + $count['ROS']) > $panel_size)) {
         echo "</td><td class='show_report' style='vertical-align:top;width:150px;'>";
-        $counter ="0"; }
+        $counter ="0";
+    }
 
     $counter++;
     $counter++;
@@ -3546,10 +3582,11 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
     }
 
     if ($_REQUEST['display'] == "fullscreen") {
-        $fullscreen_disable = 'disabled'; } else {
+        $fullscreen_disable = 'disabled';
+    } else {
         $frame_disabled ='disabled';
         echo "<style>.tabHide{ display:none; }</style>";
-        }
+    }
     ?>
        <!-- Navigation -->
     <nav class="navbar-fixed-top navbar-custom navbar-bright navbar-inner" data-role="page banner navigation" style="margin-bottom: 0;z-index:1000000;font-size: 1.2em;">
@@ -3623,11 +3660,12 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                             // If the decision is made to show this is framed openEMR, then display it
                             */
                             if ($display !== "fullscreen") { ?>
-                            <li class="divider"></li>
-                            <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
-                                <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
-                            </li>
-                            <?php } ?>
+                                <li class="divider"></li>
+                                <li id="menu_fullscreen" name="menu_fullscreen" <?php echo $fullscreen; ?>>
+                                    <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet');top.restoreSession();dopopup('<?php echo $_SERVER['REQUEST_URI']. '&display=fullscreen&encounter='.$encounter; ?>');" href="JavaScript:void(0);" class=""><?php echo xlt('Fullscreen'); ?></a>
+                                </li>
+                            <?php
+                            } ?>
                         </ul>
                     </li>
                     <li class="dropdown tabHide">
@@ -3691,36 +3729,39 @@ function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
                                 $new_category = trim($entry['category']);
                                 $new_nickname = trim($entry['nickname']);
                                 if ($new_category == '') {
-                                    $new_category = xlt('Miscellaneous');}
+                                    $new_category = xlt('Miscellaneous');
+                                }
 
                                 if ($new_nickname != '') {
-                                    $nickname = $new_nickname;} else {
-                                    $nickname = $entry['name'];}
+                                    $nickname = $new_nickname;
+                                } else {
+                                    $nickname = $entry['name'];
+                                }
 
-                                    if ($old_category != $new_category) { //new category, new menu section
-                                        $new_category_ = $new_category;
-                                        $new_category_ = str_replace(' ', '_', $new_category_);
-                                        if ($old_category != '') {
-                                            $StringEcho.= "
-                                                </ul>
-                                            </li>
-                                            <li class='dropdown'>
-                                            ";
-                                        }
-
-                                        $StringEcho.= '
-                                      <a class="dropdown-toggle tabHide" data-toggle="dropdown"
-                                        id="menu_dropdown_'.xla($new_category_).'" role="button"
-                                        aria-expanded="false">'.xlt($new_category).' </a>
-                                        <ul class="dropdown-menu" role="menu">
-                                        ';
-                                        $old_category = $new_category;
+                                if ($old_category != $new_category) { //new category, new menu section
+                                    $new_category_ = $new_category;
+                                    $new_category_ = str_replace(' ', '_', $new_category_);
+                                    if ($old_category != '') {
+                                        $StringEcho.= "
+                                            </ul>
+                                        </li>
+                                        <li class='dropdown'>
+                                        ";
                                     }
 
-                                    $StringEcho.= "<li>
-                                    <a role='menuitem' tabindex='-1' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
-                                    <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
-                                    xlt($nickname) . "</a></li>";
+                                    $StringEcho.= '
+                                    <a class="dropdown-toggle tabHide" data-toggle="dropdown"
+                                    id="menu_dropdown_'.xla($new_category_).'" role="button"
+                                    aria-expanded="false">'.xlt($new_category).' </a>
+                                    <ul class="dropdown-menu" role="menu">
+                                    ';
+                                    $old_category = $new_category;
+                                }
+
+                                $StringEcho.= "<li>
+                                <a role='menuitem' tabindex='-1' href='".$GLOBALS['webroot']."/interface/patient_file/encounter/load_form.php?formname=" .urlencode($entry['directory'])."'>
+                                <i class='fa fa-angle-double-down' title='". xla('Opens in Bottom frame')."'></i>".
+                                xlt($nickname) . "</a></li>";
                             }
                         }
 
@@ -4163,7 +4204,7 @@ function start_your_engines($FIELDS)
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
                 //do any of the previous hits found in in this location contain this term already?
                 //if so stop; if not, continue onward to add to Builder.
-                foreach ($positives[$amihere['location']] as $k=>$v) {
+                foreach ($positives[$amihere['location']] as $k => $v) {
                     if (preg_match("/$term/", $v)) {
                         $within_array = 'yes';
                         break;
@@ -4230,7 +4271,7 @@ function start_your_engines($FIELDS)
                             //is the patient diabetic?
                             //search medical_problem for DM
                             $within_array="";
-                            foreach ($PMSFH[0]['PMH'] as $k=>$v) {
+                            foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                 if (stripos($v['codedesc'], "diabetes")) {
                                     $DM_code = $v['codedesc'];
                                     $within_array = 'yes';
@@ -4901,7 +4942,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                     if (!$current_drugs) {
                         $current_drugs = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>".xlt('None documented')."</td></tr>";
-                        $no_drugs='1'; }
+                        $no_drugs='1';
+                    }
 
                     foreach ($PMSFH[0]['Medication'] as $drug) {
                         if (($drug['row_subtype'] =="eye")&&($drug['enddate'] > "")) {
@@ -4914,8 +4956,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     <td colspan="2" class="GFS_title"><?php echo xlt('Current Eye Meds'); ?>:</td>
                         <?php  ($no_drugs) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
-                    <?php if ($FAILED_drugs) {
-                        echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa fa-toggle-down"></i></span></td>';} ?>
+                    <?php
+                    if ($FAILED_drugs) {
+                        echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa fa-toggle-down"></i></span></td>';
+                    } ?>
                 </tr>
                 <?php
                 echo $current_drugs;
@@ -4982,7 +5026,8 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         }
 
                         if ($old_OCTs) {
-                            echo '<td><span class="top right " id="toggle_OCTs"><i class="fa fa-toggle-down"></i></span></td>'; }
+                            echo '<td><span class="top right " id="toggle_OCTs"><i class="fa fa-toggle-down"></i></span></td>';
+                        }
 
                         echo "</tr>";
                         echo $current_OCT.$old_OCTs;
@@ -5014,10 +5059,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     if ($count > '0') {
                         echo "<td class='GFS_title center'>".xlt('OD{{right eye}}')."</td><td class='GFS_title center'>".xlt('OS{{left eye}}')."</td>";
                     } else {
-                        echo "<td class='GFS_title center'></td><td class='GFS_title center'></td>"; }
+                        echo "<td class='GFS_title center'></td><td class='GFS_title center'></td>";
+                    }
 
                     if ($hideme) {
-                        echo '<td><span class="top right" id="toggle_gonios"><i class="fa fa-toggle-down"></i></span></td>'; }
+                        echo '<td><span class="top right" id="toggle_gonios"><i class="fa fa-toggle-down"></i></span></td>';
+                    }
                     ?>
                 </tr>
                     <?php echo $gonios;
@@ -5612,17 +5659,25 @@ function generate_specRx($W)
                           <td rowspan="6" class="right">
                             <?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br />
                             <label for="Single_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
-                            <input type="radio" value="0" id="Single_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php if ($RX_TYPE == '0') {
-                                echo 'checked="checked"';} ?> /></span><br /><br />
+                            <input type="radio" value="0" id="Single_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
+                            if ($RX_TYPE == '0') {
+                                echo 'checked="checked"';
+                            } ?> /></span><br /><br />
                             <label for="Bifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
-                            <input type="radio" value="1" id="Bifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php if ($RX_TYPE == '1') {
-                                echo 'checked="checked"';} ?> /></span><br /><br />
+                            <input type="radio" value="1" id="Bifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
+                            if ($RX_TYPE == '1') {
+                                echo 'checked="checked"';
+                            } ?> /></span><br /><br />
                             <label for="Trifocal_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
-                            <input type="radio" value="2" id="Trifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php if ($RX_TYPE == '2') {
-                                echo 'checked="checked"';} ?> /></span><br /><br />
+                            <input type="radio" value="2" id="Trifocal_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
+                            if ($RX_TYPE == '2') {
+                                echo 'checked="checked"';
+                            } ?> /></span><br /><br />
                             <label for="Progressive_<?php echo attr($W); ?>" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
-                            <input type="radio" value="3" id="Progressive_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php if ($RX_TYPE == '3') {
-                                echo 'checked="checked"';} ?> /></span><br />
+                            <input type="radio" value="3" id="Progressive_<?php echo attr($W); ?>" name="RX_TYPE_<?php echo attr($W); ?>" <?php
+                            if ($RX_TYPE == '3') {
+                                echo 'checked="checked"';
+                            } ?> /></span><br />
                           </td>
                         </tr>
                         <tr>

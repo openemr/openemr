@@ -473,16 +473,20 @@ if (! $dh) {
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
     if (preg_match("/^\./", $tfname)) {
-        continue; }
+        continue;
+    }
 
     if (preg_match("/\.php$/", $tfname)) {
-        continue; }
+        continue;
+    }
 
     if (preg_match("/\.jpg$/", $tfname)) {
-        continue; }
+        continue;
+    }
 
     if (preg_match("/\.png$/", $tfname)) {
-        continue; }
+        continue;
+    }
 
     echo "<option value='" . attr($tfname) . "'";
     if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) {

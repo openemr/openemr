@@ -137,7 +137,8 @@ if ($form_step == 104) {
 <form method='post' action='backup.php' enctype='multipart/form-data'>
 
 <table<?php if ($form_step != 101) {
-    echo " style='width:50em'";} ?>>
+    echo " style='width:50em'";
+} ?>>
  <tr>
   <td>
 

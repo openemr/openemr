@@ -204,17 +204,17 @@ function cancelClicked() {
      <td class='text'>
       <select name='pc_catid' id='pc_catid'>
     <option value='_blank'>-- <?php echo xlt('Select One'); ?> --</option>
-<?php
- $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
-  "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
- while ($crow = sqlFetchArray($cres)) {
-     $catid = $crow['pc_catid'];
-     if ($crow['pc_cattype'] != 3) {
-         continue;
+    <?php
+    $cres = sqlStatement("SELECT pc_catid, pc_catname, pc_cattype " .
+    "FROM openemr_postcalendar_categories where pc_active = 1 ORDER BY pc_seq ");
+    while ($crow = sqlFetchArray($cres)) {
+        $catid = $crow['pc_catid'];
+        if ($crow['pc_cattype'] != 3) {
+            continue;
         }
 
         echo "       <option value='" . attr($catid) . "'";
-  // mark therapy group's category as selected
+    // mark therapy group's category as selected
         if (!$viewmode && $crow['pc_cattype'] == 3) {
             echo " selected";
         }
@@ -225,7 +225,7 @@ function cancelClicked() {
 
         echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
-?>
+    ?>
       </select>
      </td>
     </tr>
@@ -249,7 +249,8 @@ if ($facilities) {
     foreach ($facilities as $iter) {
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
-            echo "selected";}?>><?php echo text($iter['name']); ?></option>
+            echo "selected";
+}?>><?php echo text($iter['name']); ?></option>
 <?php
     }
 }
@@ -332,7 +333,8 @@ echo ">" . xlt('None'). "</option>\n";
     </tr>
 
     <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
-        echo " style='visibility:hidden;'";} ?>>
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -351,7 +353,8 @@ echo ">" . xlt('None'). "</option>\n";
     </tr>
 
     <tr<?php if ($GLOBALS['ippf_specific']) {
-        echo " style='visibility:hidden;'";} ?>>
+        echo " style='visibility:hidden;'";
+} ?>>
      <td class='bold' nowrap><?php echo xlt('Additional Date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'

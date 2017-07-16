@@ -314,7 +314,8 @@ function postToGet($newpatient, $pids)
 
     $iCounter = 0;
 if (empty($newpatient)) {
-    $newpatient = array(); }
+    $newpatient = array();
+}
 
 foreach ($newpatient as $patient) {
     /*

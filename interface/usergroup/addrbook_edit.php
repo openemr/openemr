@@ -309,7 +309,8 @@ if ($type) { // note this only happens when its new
     style='width:100%' class='inputtext' />
     <span id='cpoe_span' style="display:none;">
         <input type='checkbox' title="<?php echo xla('CPOE'); ?>" name='form_cpoe' id='form_cpoe' value='1' <?php if ($row['cpoe']=='1') {
-            echo "CHECKED";} ?>/>
+            echo "CHECKED";
+} ?>/>
         <label for='form_cpoe'><b><?php echo xlt('CPOE'); ?></b></label>
    </span>
   </td>

@@ -84,7 +84,8 @@ class edih_x12_file
     {
         //
         if ($file_path === '') {
-            return true;   }
+            return true;
+        }
 
         //
         if (is_file($file_path) && is_readable($file_path)) {
@@ -157,13 +158,16 @@ class edih_x12_file
         $this->constructing = true;
         //
         if ($type) {
-            $ret_ar['type'] = $this->edih_x12_type($file_text); }
+            $ret_ar['type'] = $this->edih_x12_type($file_text);
+        }
 
         if ($delimiters) {
-            $ret_ar['delimiters'] = $this->edih_x12_delimiters(substr($file_text, 0, 126)); }
+            $ret_ar['delimiters'] = $this->edih_x12_delimiters(substr($file_text, 0, 126));
+        }
 
         if ($segments) {
-            $ret_ar['segments'] = $this->edih_x12_segments($file_text); }
+            $ret_ar['segments'] = $this->edih_x12_segments($file_text);
+        }
 
         //
         $this->constructing = false;
@@ -176,46 +180,60 @@ class edih_x12_file
 	 */
     public function classname()
     {
-        return get_class($this); }
+        return get_class($this);
+    }
     public function edih_filepath()
     {
-        return $this->filepath; }
+        return $this->filepath;
+    }
     public function edih_filename()
     {
-        return $this->filename; }
+        return $this->filename;
+    }
     public function edih_type()
     {
-        return $this->type; }
+        return $this->type;
+    }
     public function edih_version()
     {
-        return $this->version; }
+        return $this->version;
+    }
     public function edih_text()
     {
-        return $this->text; }
+        return $this->text;
+    }
     public function edih_length()
     {
-        return $this->length; }
+        return $this->length;
+    }
     public function edih_valid()
     {
-        return $this->valid; }
+        return $this->valid;
+    }
     public function edih_isx12()
     {
-        return $this->isx12; }
+        return $this->isx12;
+    }
     public function edih_hasGS()
     {
-        return $this->hasGS; }
+        return $this->hasGS;
+    }
     public function edih_hasST()
     {
-        return $this->hasST; }
+        return $this->hasST;
+    }
     public function edih_delimiters()
     {
-        return $this->delimiters; }
+        return $this->delimiters;
+    }
     public function edih_segments()
     {
-        return $this->segments; }
+        return $this->segments;
+    }
     public function edih_envelopes()
     {
-        return $this->envelopes; }
+        return $this->envelopes;
+    }
 
     /**
      * message statements regarding object or from functions
@@ -270,7 +288,8 @@ class edih_x12_file
         // possibly $ftxt = trim($filetext, "\x00..\x1F") to remove ASCII control characters
         // remove newlines
         if (strpos($ftxt, PHP_EOL)) {
-            $ftxt = str_replace(PHP_EOL, '', $ftxt); }
+            $ftxt = str_replace(PHP_EOL, '', $ftxt);
+        }
 
         $flen = ( $ftxt && is_string($ftxt) ) ? strlen($ftxt) : 0;
         if (!$flen) {
@@ -307,10 +326,12 @@ class edih_x12_file
             $de = substr($ftxt, 3, 1);
             $dt = substr($ftxt, -1);
             if (strpos($ftxt, $dt.'GS'.$de, 0)) {
-                $hasval = 'ovig'; }
+                $hasval = 'ovig';
+            }
 
             if (strpos($ftxt, $dt.'ST'.$de, 0)) {
-                $hasval = 'ovigs'; }
+                $hasval = 'ovigs';
+            }
         }
 
         return $hasval;
@@ -369,7 +390,8 @@ class edih_x12_file
         } elseif (count($this->segments)) {
             // No argument and no envelopes, so scan segments
             if (!$de) {
-                $de = substr(reset($this->segments), 3, 1); }
+                $de = substr(reset($this->segments), 3, 1);
+            }
 
             foreach ($this->segments as $seg) {
                 if (strncmp($seg, 'GS'.$de, 3) == 0) {
@@ -502,11 +524,13 @@ class edih_x12_file
                 // element count incremented at end of loop
                 // repetition separator in version 5010
                 if ($delim_ct == 11) {
-                    $dr = substr($s, 1, 1); }
+                    $dr = substr($s, 1, 1);
+                }
 
                 if ($delim_ct == 12) {
                     if (strpos($s, '501') === false) {
-                        $dr = ''; }
+                        $dr = '';
+                    }
                 }
 
                 //
@@ -516,7 +540,8 @@ class edih_x12_file
                 }
 
                 if ($delim_ct == 16) {
-                    break; }
+                    break;
+                }
 
                 $s = $isa_str[$i];   // $elem_delim;
                 $delim_ct++;
@@ -631,7 +656,8 @@ class edih_x12_file
             $sn = substr($seg_text, 0, 4);
             // skip over segments that are not envelope boundaries or identifiers
             if (!in_array(substr($sn, 0, 3), $chk_segs)) {
-                continue; }
+                continue;
+            }
 
             // create the structure array
             if (strncmp($sn, 'ISA'.$de, 4) == 0) {
@@ -1041,7 +1067,8 @@ class edih_x12_file
         //array('HB'=>'271', 'HS'=>'270', 'HR'=>'276', 'HI'=>'278',
         //		'HN'=>'277', 'HP'=>'835', 'FA'=>'999', 'HC'=>'837');
         if (substr($tp, 0, 5) == 'mixed') {
-            $tp = substr($tp, -2); }
+            $tp = substr($tp, -2);
+        }
 
         if (!strpos('|HB|271|HS|270|HR|276|HI|278|HN|277|HP|835|FA|999|HC|837', $tp)) {
             $this->message[] = 'edih_x12_transaction: wrong edi type for transaction search '.$tp;
@@ -1058,7 +1085,8 @@ class edih_x12_file
         if (count($env_ar)) {
             foreach ($env_ar['ST'] as $st) {
                 if (strlen($stn) && $st['stn'] != $stn) {
-                    continue; }
+                    continue;
+                }
 
                 if (isset($st['acct']) && count($st['acct'])) {
                     $ky = array_search($clm01, $st['acct']);
@@ -1095,12 +1123,13 @@ class edih_x12_file
             $idval = '';
             $idlen = 1;
             //
-            foreach ($srch['array'] as $key=>$seg) {
+            foreach ($srch['array'] as $key => $seg) {
                 $idx++;
                 //
                 $test_str = substr($seg, 0, 3);
                 if (!in_array($test_str, $test_id, true)) {
-                    continue; }
+                    continue;
+                }
 
                 //
                 // the opening ST segment should be in each search array,
@@ -1259,7 +1288,8 @@ class edih_x12_file
         if (is_array($seg_array) && count($seg_array)) {
             if (isset($seg_array[0]) && is_array($seg_array[0])) {
                 foreach ($seg_array as $ar) {
-                    $seg_ar = array_merge($seg_ar, $ar); }
+                    $seg_ar = array_merge($seg_ar, $ar);
+                }
             } else {
                 $seg_ar = $seg_array;
             }
@@ -1302,7 +1332,7 @@ class edih_x12_file
         //
         if (count($seg_ar)) {
             $cmplen = strlen($segid.$de);
-            foreach ($seg_ar as $key=>$seg) {
+            foreach ($seg_ar as $key => $seg) {
                 if (strncmp($seg, $segid.$de, $cmplen) === 0) {
                     if ($srch) {
                         if (strpos($seg, $srch) !== false) {
@@ -1387,7 +1417,7 @@ class edih_x12_file
         $icn = '';
         $prskeys = false;
         //
-        foreach ($arg_array as $key=>$val) {
+        foreach ($arg_array as $key => $val) {
             switch ((string)$key) {
                 case 'trace':
                     $trace = (string)$val;

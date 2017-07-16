@@ -753,7 +753,8 @@ function edih_278_transaction_html($obj278, $bht03)
                     if ($elem01 && $ct > 2) {
                         for ($i=2; $i<$ct;
                         $i++) {
-                            $elem01 .= ' '.$ar01[$i]; }
+                            $elem01 .= ' '.$ar01[$i];
+                        }
                     }
                 } elseif (isset($sar[1]) && $sar[1]) {
                     $elem01 =  $sar[1];
@@ -796,7 +797,8 @@ function edih_278_transaction_html($obj278, $bht03)
                     if ($elem01 && count($ar01) > 2) {
                         for ($i=2; $i<$ct;
                         $i++) {
-                            $elem01 .= ' '.$ar01[$i]; }
+                            $elem01 .= ' '.$ar01[$i];
+                        }
                     }
                 } elseif (isset($sar[1]) && $sar[1]) {
                     $elem01 =  $sar[1];
@@ -873,7 +875,8 @@ function edih_278_html($filename, $bht03 = '')
                 foreach ($env_ar['ST'] as $st) {
                     foreach ($env_ar['GS'] as $gs) {
                         if ($gs['icn'] != $st['icn']) {
-                            continue; }
+                            continue;
+                        }
 
                         if ($gs['gsn'] == $st['gsn']) {
                             $gs_date = edih_format_date($gs['date']);

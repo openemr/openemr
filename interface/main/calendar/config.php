@@ -76,7 +76,8 @@ $pndebug['debug_sql']      = 0;
 // we add it. (This HAS to be at the end, after all initialization.)
 // ----------------------------------------------------------------------
 if (@file_exists("personal_config.php")) {
-    include("personal_config.php"); }
+    include("personal_config.php");
+}
 
 // ----------------------------------------------------------------------
 // Make config file backwards compatible (deprecated)

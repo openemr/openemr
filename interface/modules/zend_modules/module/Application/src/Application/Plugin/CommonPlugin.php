@@ -122,7 +122,7 @@ class CommonPlugin extends AbstractPlugin
         $audit_master_id    = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = '';
-        foreach ($field_name_value_array as $key=>$val) {
+        foreach ($field_name_value_array as $key => $val) {
             foreach ($field_name_value_array[$key] as $cnt => $field_details) {
                 foreach ($field_details as $field_name => $field_value) {
                     $detail_query         .= "(? ,? ,? ,? ,?),";

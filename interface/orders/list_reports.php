@@ -342,7 +342,8 @@ $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provi
    &nbsp;
    <input type='checkbox' name='form_patient' value='1'
     <?php if ($form_patient) {
-        echo 'checked ';} ?>/><?php echo xlt('Current Pt Only'); ?>
+        echo 'checked ';
+} ?>/><?php echo xlt('Current Pt Only'); ?>
 
    &nbsp;
    <select name='form_reviewed'>

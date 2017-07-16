@@ -104,7 +104,8 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   </td>
   <td class="detail" colspan="3">
         <?php if ($_POST['form_details']) {
-            echo xlt('Total for') . ' ';}
+            echo xlt('Total for') . ' ';
+}
 
         echo text(display_desc($product)); ?>
   </td>
@@ -429,7 +430,8 @@ $('.datepicker').datetimepicker({
           <td>
             <div class='checkbox'>
            <label><input type='checkbox' name='form_details'<?php  if ($form_details) {
-                echo ' checked';} ?>>
+                echo ' checked';
+} ?>>
             <?php echo xlt('Details'); ?></label>
             </div>
           </td>
@@ -481,7 +483,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
  </th>
  <th>
     <?php if ($form_details) {
-        echo xlt('Date');} ?>
+        echo xlt('Date');
+} ?>
  </th>
     <?php if ($GLOBALS['sales_report_invoice'] == 2) {?>
   <th>
@@ -644,7 +647,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   </td>
   <td class="detail" colspan="3">
     <?php if ($_POST['form_details']) {
-        echo xlt('Total for') . ' ';}
+        echo xlt('Total for') . ' ';
+}
 
     echo text(display_desc($product)); ?>
   </td>
@@ -722,11 +726,13 @@ if (! $_POST['form_csvexport']) {
 </tbody>
 </table>
 </div> <!-- report results -->
-<?php } else { ?>
+    <?php
+    } else { ?>
 <div class='text'>
     <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
-<?php } ?>
+<?php
+    } ?>
 
 </form>
 

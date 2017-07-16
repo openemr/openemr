@@ -68,7 +68,8 @@ if (count($missingExtensions) > 0) {
         <p><?php echo xlt('Please contact your systems administrator, the following component(s) are required but are missing.'); ?></p>
         <ul>
             <?php foreach ($missingExtensions as $missingExtension) {
-                echo '<li>'.text($missingExtension).'</li>'; } ?>
+                echo '<li>'.text($missingExtension).'</li>';
+} ?>
         <ul>
 <?php
 } else {
@@ -80,7 +81,8 @@ if (count($missingExtensions) > 0) {
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
         <ul>
             <?php foreach ($messages['demographics'] as $message) {
-                echo '<li>'.text($message).'</li>'; } ?>
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
         <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.'); ?></p>
 <?php
@@ -99,7 +101,8 @@ if (count($missingExtensions) > 0) {
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
         <ul>
             <?php foreach ($messages['empty'] as $message) {
-                echo '<li>'.text($message).'</li>'; } ?>
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
 <?php
     } else {
@@ -109,7 +112,8 @@ if (count($missingExtensions) > 0) {
         <p><?php echo xlt('The following fields are empty.'); ?></p>
         <ul>
             <?php foreach ($messages['warning'] as $message) {
-                echo '<li>'.text($message).'</li>'; } ?>
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
         <p><strong><?php echo xlt('This will not prevent you from going to the e-Prescriptions site.'); ?></strong></p>
 <?php
@@ -129,7 +133,8 @@ if (count($missingExtensions) > 0) {
         <strong><?php echo xlt('NewCrop call failed'); ?></strong>
         <ul>
             <?php foreach ($errors as $message) {
-                echo '<li>'.$message.'</li>'; } ?>
+                echo '<li>'.$message.'</li>';
+} ?>
         <ul>
 <?php
         } else {

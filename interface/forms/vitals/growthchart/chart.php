@@ -60,12 +60,14 @@ $datapoints = explode('~', $_GET['data']);
 if (isset($datapoints) && $datapoints != "") {
     list($date, $height, $weight, $head_circ) = explode('-', $datapoints[0]);
     if ($date != "") {
-        $charttype_date = $date; }
+        $charttype_date = $date;
+    }
 
     $tmpAge = getPatientAgeInDays($patient_data['DOB'], $date);
     // use the birth-24 chart if the age-on-date-of-vitals is 24months or younger
     if ($tmpAge < (365*2)) {
-        $charttype = "birth"; }
+        $charttype = "birth";
+    }
 }
 
 if (isset($_GET['chart_type'])) {
@@ -406,13 +408,15 @@ if ($_GET['html'] == 1) {
     foreach ($datapoints as $data) {
         list($date, $height, $weight, $head_circ) = explode('-', $data);
         if ($date == "") {
-            continue; }
+            continue;
+        }
 
         // only plot if we have both weight and heights. Skip if either is 0.
         // Rational is only well visit will need both, sick visit only needs weight
         // for some clinic.
         if ($weight == 0 || $height == 0) {
-            continue; }
+            continue;
+        }
 
         // get age of patient at this data-point
         // to get data from function getPatientAgeYMD including $age,$age_in_months, $ageinYMD
@@ -427,10 +431,12 @@ if ($_GET['html'] == 1) {
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
         if ($daysold >= (365*2) && $charttype == "birth") {
-            continue; }
+            continue;
+        }
 
         if ($daysold <= (365*2) && $charttype == "2-20") {
-            continue; }
+            continue;
+        }
 
         // calculate the x-axis (Age) value
         $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -556,13 +562,15 @@ $count = 0;
 foreach ($datapoints as $data) {
     list($date, $height, $weight, $head_circ) = explode('-', $data);
     if ($date == "") {
-        continue; }
+        continue;
+    }
 
     // only plot if we have both weight and heights. Skip if either is 0.
     // Rational is only well visit will need both, sick visit only needs weight
     // for some clinic.
     if ($weight == 0 || $height == 0) {
-        continue; }
+        continue;
+    }
 
     // get age of patient at this data-point
     // to get data from function getPatientAgeYMD including $age, $ageinYMD, $age_in_months
@@ -577,10 +585,12 @@ foreach ($datapoints as $data) {
     // from that patient's 2-20 yr chart
     $daysold = getPatientAgeInDays($dob, $date);
     if ($daysold > (365*2) && $charttype == "birth") {
-        continue; }
+        continue;
+    }
 
     if ($daysold < (365*2) && $charttype == "2-20") {
-        continue; }
+        continue;
+    }
 
     // calculate the x-axis (Age) value
     $x = $dot_x + $delta_x * ($age - $ageOffset);

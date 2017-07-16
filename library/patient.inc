@@ -760,19 +760,24 @@ function getPatientPID($args)
 
     // alter default values if defined in the passed in args
     if (isset($args['pid'])) {
-        $pid = $args['pid']; }
+        $pid = $args['pid'];
+    }
 
     if (isset($args['given'])) {
-        $given = $args['given']; }
+        $given = $args['given'];
+    }
 
     if (isset($args['orderby'])) {
-        $orderby = $args['orderby']; }
+        $orderby = $args['orderby'];
+    }
 
     if (isset($args['limit'])) {
-        $limit = $args['limit']; }
+        $limit = $args['limit'];
+    }
 
     if (isset($args['start'])) {
-        $start = $args['start']; }
+        $start = $args['start'];
+    }
 
     $command = "=";
     if ($pid == -1) {
@@ -1444,13 +1449,16 @@ function getPatientAge($dobYMD, $nowYMD = null)
 
     // We want the age in FULL months, so if the current date is less than the numerical day of birth, subtract a month
     if ($dayDiff<0) {
-        $ageInMonths-=1; }
+        $ageInMonths-=1;
+    }
 
     if ($ageInMonths > 24) {
         $age = $yearDiff;
         if (($monthDiff == 0) && ($dayDiff < 0)) {
-            $age -= 1; } else if ($monthDiff < 0) {
-            $age -= 1; }
+            $age -= 1;
+        } else if ($monthDiff < 0) {
+            $age -= 1;
+        }
     } else {
         $age = "$ageInMonths " . xl('month');
     }
@@ -1519,11 +1527,14 @@ function getPatientAgeYMD($dob, $date = null)
     elseif ($mo==03) { // for march, look to the month of February for calculation, check for leap year
         $check_leap_Y=$yearnow/4; // To check if this is a leap year.
         if (is_int($check_leap_Y)) {
-            $nd=29;} //If it true then this is the leap year
+            $nd=29;
+        } //If it true then this is the leap year
         else {
-            $nd=28;} //otherwise, it is not a leap year.
+            $nd=28;
+        } //otherwise, it is not a leap year.
     } else {
-        $nd=31;} // other months have 31 days
+        $nd=31;
+    } // other months have 31 days
 
     $bdthisyear=$yearnow.$dobmonth.$dobday; //Date current year's birthday falls on
     if ($datenow < $bdthisyear) { // if patient hasn't had birthday yet this year
@@ -1664,9 +1675,11 @@ function dropdown_yesno($selected = 0, $name = 'yesno')
     $selected = (int)$selected;
     if ($selected == 0) {
         $sel1 = 'selected="selected"';
-        $sel2 = ''; } else {
+        $sel2 = '';
+    } else {
         $sel2 = 'selected="selected"';
-        $sel1 = ''; }
+        $sel1 = '';
+    }
 
         $string .= "<option value='0' $sel1>" .xl('No'). "</option>";
         $string .= "<option value='1' $sel2>" .xl('Yes'). "</option>";
@@ -1692,13 +1705,16 @@ function dropdown_sex($selected = 0, $name = 'sex')
     if ($selected == 1) {
         $sel1 = 'selected="selected"';
         $sel2 = '';
-        $sel0 = ''; } else if ($selected == 2) {
+        $sel0 = '';
+    } else if ($selected == 2) {
         $sel2 = 'selected="selected"';
         $sel1 = '';
-        $sel0 = ''; } else {
+        $sel0 = '';
+    } else {
             $sel0 = 'selected="selected"';
             $sel1 = '';
-            $sel2 = ''; }
+            $sel2 = '';
+    }
 
         $string .= "<option value='0' $sel0>" .xl('Unselected'). "</option>";
         $string .= "<option value='1' $sel1>" .xl('Male'). "</option>";

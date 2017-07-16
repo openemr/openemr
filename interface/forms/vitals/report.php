@@ -38,7 +38,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
             }
 
             if ($value == "on") {
-                $value = "yes"; }
+                $value = "yes";
+            }
 
             $key = ucwords(str_replace("_", " ", $key));
 

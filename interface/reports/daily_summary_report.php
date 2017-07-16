@@ -405,8 +405,8 @@ $to_date = fixDate($selectedToDate, date('Y-m-d'));
                     ?>
                     <tr>
                         <td colspan="9" style="text-align:center;font-weight:bold;"> <?php echo xlt("There are no record(s) found."); ?></td>
-                    </tr>
-                <?php } ?>
+                    </tr><?php
+                } ?>
 
             </table>
         </div>

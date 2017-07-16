@@ -83,10 +83,13 @@ $(document).ready(function() {
 </head>
 <body class="body_top">
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
-<div style='float: left; margin-right: 5px'><?php if ($editlid) {
-?><!--Edit the disclosures-->
-<span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php } else {
-?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php }?>
+<div style='float: left; margin-right: 5px'><?php
+if ($editlid) {
+    ?><!--Edit the disclosures-->
+    <span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php
+} else { ?>
+    <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php
+} ?>
 </div>
 <div><a onclick="return submitform()" class="css_button large_button"
     name='form_save' id='form_save' href='#'> <span
@@ -116,18 +119,19 @@ $(document).ready(function() {
             <input type=hidden name=updatemode value="disclosure_update">
             <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date, ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
         } else {
-            ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;
-            <?php }
-            ?>
+            ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;<?php
+        } ?>
     </tr>
     <tr>
         <td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'), ENT_NOQUOTES); ?>: </span></TD>
-        <td><?php if ($editlid) {
-        //To incorporate the disclosure types  into the list_options listings
-                generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $app_event);} else {
-//To incorporate the disclosure types  into the list_options listings
-    generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $title);
-                } ?>
+        <td><?php
+        if ($editlid) {
+            //To incorporate the disclosure types  into the list_options listings
+            generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $app_event);
+        } else {
+            //To incorporate the disclosure types  into the list_options listings
+            generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $title);
+        } ?>
         </td>
     </tr>
     <tr>

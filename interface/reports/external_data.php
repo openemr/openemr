@@ -157,7 +157,8 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['provider'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value1['facility'], ENT_NOQUOTES); ?></span></td>
                     </tr>
-                <?php } ?>
+                <?php
+                } ?>
             </table>
             <?php if (empty($records1)) { ?>
                 <div class="dm-ed-in-8">
@@ -183,15 +184,15 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                     $records2[] = $row2;
                 }
 
-                foreach ($records2 as $value2) {
-                    ?>
+                foreach ($records2 as $value2) { ?>
                     <tr>
                         <td><span class="dm-ed-in-7"><?php echo oeFormatShortDate($value2['ep_date']); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_type'] . ':' . $value2['ep_code'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['ep_code_text'], ENT_NOQUOTES); ?></span></td>
                         <td><span class="dm-ed-in-7"><?php echo htmlspecialchars($value2['facility'], ENT_NOQUOTES); ?></span></td>
                     </tr>
-            <?php } ?>
+                <?php
+                } ?>
             </table>
                 <?php if (empty($records2)) { ?>
                 <div class="dm-ed-in-8">

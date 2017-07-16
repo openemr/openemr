@@ -225,8 +225,8 @@ endforeach;
                     </td>
                 <input type="hidden" name="count[]" id="count_1" class="count" value="1">
             </tr>
-            <?php }
-    ?>
+            <?php
+            } ?>
 
     <tr>
         <td align="left" colspan="5" style="padding-bottom:7px;"></td>
