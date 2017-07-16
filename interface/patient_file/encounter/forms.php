@@ -670,9 +670,16 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 
     //fetch acl for category of given encounter
     $pc_catid = fetchCategoryIdByEncounter($encounter);
-    $postCalendarCategoryACO = explode('|',fetchPostCalendarCategoryACO($pc_catid));
-    $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
-    $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1],'','write');
+    $postCalendarCategoryACO = fetchPostCalendarCategoryACO($pc_catid);
+    if($postCalendarCategoryACO) {
+        $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+        $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1], '', 'write');
+    }
+    else { // if no aco is set for category
+        $authPostCalendarCategory = true;
+        $authPostCalendarCategoryWrite = true;
+    }
 
     // Check for no access to the encounter's sensitivity level.
     $result = sqlQuery("SELECT sensitivity FROM form_encounter WHERE " .

@@ -464,8 +464,13 @@ while ($result4 = sqlFetchArray($res4)) {
 
         //fetch acl for given pc_catid
         $postCalendarCategoryACO = fetchPostCalendarCategoryACO($result4['pc_catid']);
-        $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
-        $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+        if($postCalendarCategoryACO) {
+            $postCalendarCategoryACO = explode('|', $postCalendarCategoryACO);
+            $authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+        }
+        else { // if no aco is set for category
+            $authPostCalendarCategory = true;
+        }
 
         // if ($auth_notes_a || ($auth_notes && $result4['user'] == $_SESSION['authUser']))
         $reason_string .= htmlspecialchars( $result4{"reason"}, ENT_NOQUOTES) . "<br>\n";
