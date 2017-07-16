@@ -38,6 +38,7 @@ function parse_date($date)
     if (preg_match('/^(\d\d\d\d)\D*(\d\d)\D*(\d\d)$/', $date, $matches)) {
         return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
     }
+
     return '';
 }
 
@@ -71,7 +72,7 @@ function writeDetailLine(
     else $last_invnumber = $invnumber;
     if ($code == $last_code) $code = '&nbsp;';
     else $last_code = $code;
-    if ($amount ) $amount  = sprintf("%.2f", $amount);
+    if ($amount) $amount  = sprintf("%.2f", $amount);
     if ($balance) $balance = sprintf("%.2f", $balance);
     $dline =
     " <tr bgcolor='$bgcolor'>\n" .
@@ -101,6 +102,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
             $ddate = $dos;
             $description = 'Service Item';
         }
+
         $amount = sprintf("%.2f", $ddata['chg'] - $ddata['pmt']);
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
         writeDetailLine(
@@ -124,28 +126,24 @@ function era_callback_check(&$out)
     global $InsertionId;//last inserted ID of
     global $StringToEcho,$debug;
 
-    if($_GET['original']=='original')
-    {
+    if ($_GET['original']=='original') {
         $StringToEcho="<br/><br/><br/><br/><br/><br/>";
         $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
         $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars(xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars(xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars(xl('Check Amount'), ENT_QUOTES)."</td></tr>";
         $WarningFlag=false;
-        for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
-        {
-            if($check_count%2==1)
-             {
+        for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
+            if ($check_count%2==1) {
                 $bgcolor='#ddddff';
-            }
-            else
-             {
+            } else {
                 $bgcolor='#ffdddd';
             }
+
              $rs=sqlQ("select reference from ar_session where reference='".$out['check_number'.$check_count]."'");
-            if(sqlNumRows($rs)>0)
-             {
+            if (sqlNumRows($rs)>0) {
                 $bgcolor='#ff0000';
                 $WarningFlag=true;
             }
+
             $StringToEcho.="<tr bgcolor='$bgcolor'>";
             $StringToEcho.="<td><input type='checkbox'  name='chk".$out['check_number'.$check_count]."' value='".$out['check_number'.$check_count]."'/></td>";
             $StringToEcho.="<td>".htmlspecialchars($out['check_number'.$check_count])."</td>";
@@ -153,25 +151,20 @@ function era_callback_check(&$out)
             $StringToEcho.="<td align='right'>".htmlspecialchars(number_format($out['check_amount'.$check_count], 2))."</td>";
             $StringToEcho.="</tr>";
         }
+
         $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
-        if($WarningFlag==true)
+        if ($WarningFlag==true)
         $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars(xl('Warning, Check Number already exist in the database'), ENT_QUOTES)."</td></tr>";
         $StringToEcho.="</table>";
-    }
-    else
-    {
-        for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
-        {
+    } else {
+        for ($check_count=1; $check_count<=$out['check_count']; $check_count++) {
             $chk_num=$out['check_number'.$check_count];
             $chk_num=str_replace(' ', '_', $chk_num);
-            if(isset($_REQUEST['chk'.$chk_num]))
-            {
+            if (isset($_REQUEST['chk'.$chk_num])) {
                 $check_date=$out['check_date'.$check_count]?$out['check_date'.$check_count]:$_REQUEST['paydate'];
                 $post_to_date=$_REQUEST['post_to_date']!=''?$_REQUEST['post_to_date']:date('Y-m-d');
                 $deposit_date=$_REQUEST['deposit_date']!=''?$_REQUEST['deposit_date']:date('Y-m-d');
                 $InsertionId[$out['check_number'.$check_count]]=arPostSession($_REQUEST['InsId'], $out['check_number'.$check_count], $out['check_date'.$check_count], $out['check_amount'.$check_count], $post_to_date, $deposit_date, $debug);
-
-
             }
         }
     }
@@ -186,7 +179,7 @@ function era_callback(&$out)
     // Some heading information.
     $chk_123=$out['check_number'];
     $chk_123=str_replace(' ', '_', $chk_123);
-    if(isset($_REQUEST['chk'.$chk_123])){
+    if (isset($_REQUEST['chk'.$chk_123])) {
         if ($encount == 0) {
             writeMessageLine(
                 '#ffffff',
@@ -246,8 +239,7 @@ function era_callback(&$out)
                 'errdetail',
                 "The following claim is not in our database"
             );
-        }
-        else {
+        } else {
             // Skip this test. Claims can get multiple CLPs from the same payer!
             //
             // $insdone = strtolower($arrow['shipvia']);
@@ -268,19 +260,20 @@ function era_callback(&$out)
                             $code_value .= $svc['code'].'_'.$svc['mod'].'_'.$adj['group_code'].'_'.$adj['reason_code'].',';
                         }
                     }
+
                     $code_value = substr($code_value, 0, -1);
                     //We store the reason code to display it with description in the billing manager screen.
                     //process_file is used as for the denial case file name will not be there, and extra field(to store reason) can be avoided.
                     updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
+
             writeMessageLine(
                 $bgcolor,
                 'errdetail',
                 "Not posting adjustments for denied claims, please follow up manually!"
             );
-        }
-        else if ($csc == '22') {
+        } else if ($csc == '22') {
             $inverror = true;
             writeMessageLine(
                 $bgcolor,
@@ -309,7 +302,6 @@ function era_callback(&$out)
 
     // This loops once for each service item in this claim.
         foreach ($out['svc'] as $svc) {
-
           // Treat a modifier in the remit data as part of the procedure key.
           // This key will then make its way into SQL-Ledger.
             $codekey = $svc['code'];
@@ -346,11 +338,8 @@ function era_callback(&$out)
                 ****/
 
                 unset($codes[$codekey]);
-            }
-
-            // If the service item is not in our database...
+            } // If the service item is not in our database...
             else {
-
                 // This is not an error. If we are not in error mode and not debugging,
                 // insert the service item into SL.  Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
@@ -371,6 +360,7 @@ function era_callback(&$out)
                     );
                     $invoice_total += $svc['chg'];
                 }
+
                 $class = $error ? 'errdetail' : 'newdetail';
                 writeDetailLine(
                     $bgcolor,
@@ -383,7 +373,6 @@ function era_callback(&$out)
                     $svc['chg'],
                     ($error ? '' : $invoice_total)
                 );
-
             }
 
             $class = $error ? 'errdetail' : 'newdetail';
@@ -400,10 +389,12 @@ function era_callback(&$out)
                     if (($adj['group_code'] == 'CO' || $adj['group_code'] == 'PI') && $adj['amount'] != 0)
                     $contract_adj = 0;
                 }
+
                 if ($contract_adj > 0) {
                     $svc['adj'][] = array('group_code' => 'CO', 'reason_code' => 'A2',
                     'amount' => $contract_adj);
                 }
+
                 writeMessageLine(
                     $bgcolor,
                     'infdetail',
@@ -436,6 +427,7 @@ function era_callback(&$out)
                     );
                     $invoice_total -= $svc['paid'];
                 }
+
                 $description = "$inslabel/" . $out['check_number'] . ' payment';
                 if ($svc['paid'] < 0) $description .= ' reversal';
                 writeDetailLine(
@@ -469,8 +461,7 @@ function era_callback(&$out)
                         if ($adj['reason_code'] == '1') $reason = "$inslabel dedbl: ";
                         else if ($adj['reason_code'] == '2') $reason = "$inslabel coins: ";
                         else if ($adj['reason_code'] == '3') $reason = "$inslabel copay: ";
-                    }
-                    // Non-primary insurance adjustments are garbage, either repeating
+                    } // Non-primary insurance adjustments are garbage, either repeating
                     // the primary or are not adjustments at all.  Report them as notes
                     // but do not post any amounts.
                     else {
@@ -479,6 +470,7 @@ function era_callback(&$out)
                     $reason .= sprintf("%.2f", $adj['amount']);
                 ****/
                     }
+
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
@@ -495,10 +487,10 @@ function era_callback(&$out)
                             $codetype
                         );
                     }
+
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
-                }
-                // Other group codes for primary insurance are real adjustments.
+                } // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
                         arPostAdjustment(
@@ -515,6 +507,7 @@ function era_callback(&$out)
                         );
                         $invoice_total -= $adj['amount'];
                     }
+
                     writeDetailLine(
                         $bgcolor,
                         $class,
@@ -528,7 +521,6 @@ function era_callback(&$out)
                     );
                 }
             }
-
         } // End of service item
 
     // Report any existing service items not mentioned in the ERA, and
@@ -542,6 +534,7 @@ function era_callback(&$out)
             foreach ($prev['dtl'] as $ddata) {
                 if ($ddata['pmt'] || $ddata['rsn']) $got_response = true;
             }
+
             if (!$got_response) $insurance_done = false;
         }
 
@@ -549,8 +542,7 @@ function era_callback(&$out)
         if (!$error && !$debug && $insurance_done) {
             $level_done = 0 + substr($inslabel, 3);
 
-            if($out['crossover']==1)
-             {//Automatic forward case.So need not again bill from the billing manager screen.
+            if ($out['crossover']==1) {//Automatic forward case.So need not again bill from the billing manager screen.
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = $level_done,last_level_billed=".$level_done." WHERE " .
                 "pid = '$pid' AND encounter = '$encounter'");
@@ -559,18 +551,17 @@ function era_callback(&$out)
                     'infdetail',
                     'This claim is processed by Insurance '.$level_done.' and automatically forwarded to Insurance '.($level_done+1) .' for processing. '
                 );
-            }
-            else {
+            } else {
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = $level_done WHERE " .
                 "pid = '$pid' AND encounter = '$encounter'");
             }
+
             // Check for secondary insurance.
             if ($primary && arGetPayerID($pid, $service_date, 2)) {
                 arSetupSecondary($pid, $encounter, $debug, $out['crossover']);
 
-                if($out['crossover']<>1)
-                {
+                if ($out['crossover']<>1) {
                     writeMessageLine(
                         $bgcolor,
                         'infdetail',
@@ -599,6 +590,7 @@ if (!$debug) {
     for ($i = 1; is_file("$nameprefix$namesuffix.html"); ++$i) {
         $namesuffix = "_$i";
     }
+
     $fnreport = "$nameprefix$namesuffix.html";
     $fhreport = fopen($fnreport, 'w');
     if (!$fhreport) die(xl("Cannot create") . " '$fnreport'");
@@ -625,13 +617,10 @@ if (!$debug) {
 <form action="sl_eob_process.php" method="get" >
 <center>
 <?php
-if($_GET['original']=='original')
-{
+if ($_GET['original']=='original') {
     $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     echo $StringToEcho;
-}
-else
-{
+} else {
     ?>
     <table border='0' cellpadding='2' cellspacing='0' width='100%'>
 
@@ -665,12 +654,10 @@ else
     $eraname=$_REQUEST['eraname'];
     $alertmsg = parse_era_for_check($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi");
     $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
-    if(!$debug)
-    {
+    if (!$debug) {
           $StringIssue=htmlspecialchars(xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';
           $StringPrint='No';
-        foreach($InsertionId as $key => $value)
-            {
+        foreach ($InsertionId as $key => $value) {
             $rs= sqlQ("select pay_total from ar_session where session_id='$value'");
             $row=sqlFetchArray($rs);
             $pay_total=$row['pay_total'];
@@ -678,13 +665,13 @@ else
             $row=sqlFetchArray($rs);
             $pay_amount=$row['sum_pay_amount'];
 
-            if(($pay_total-$pay_amount)<>0)
-            {
+            if (($pay_total-$pay_amount)<>0) {
                 $StringIssue.=$key.' ';
                 $StringPrint='Yes';
             }
         }
-        if($StringPrint=='Yes')
+
+        if ($StringPrint=='Yes')
             echo "<script>alert('$StringIssue')</script>";
     }
 
@@ -715,5 +702,6 @@ if (!$debug) {
     fwrite($fhreport, ob_get_contents());
     fclose($fhreport);
 }
+
     ob_end_flush();
 ?>

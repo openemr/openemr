@@ -53,7 +53,6 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
         $html = '<a href="';
         
         if (is_array($href)) {
-            
             // add the HREF from an array
             $tmp = '';
             
@@ -82,7 +81,6 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
             
             $html .= htmlspecialchars($tmp);
         } else {
-            
             // add the HREF from a scalar
             $html .= htmlspecialchars($href);
         }
@@ -92,7 +90,7 @@ class Savant3_Plugin_ahref extends Savant3_Plugin
         // add attributes
         if (is_array($attr)) {
             // from array
-            foreach ( $attr as $key => $val ) {
+            foreach ($attr as $key => $val) {
                 $key = htmlspecialchars($key);
                 $val = htmlspecialchars($val);
                 $html .= " $key=\"$val\"";

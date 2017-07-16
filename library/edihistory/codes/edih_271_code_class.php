@@ -2406,14 +2406,14 @@ class edih_271_codes
         //
         $e = (string)$elem;
         $val = '';
-        if ( ($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false) ) {
-            if ($this->ds && strpos($code, $this->ds) !== false ) {
+        if (($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false)) {
+            if ($this->ds && strpos($code, $this->ds) !== false) {
                 $cdar = explode($this->ds, $code);
-                foreach($cdar as $cd) {
+                foreach ($cdar as $cd) {
                     if ($this->dr && strpos($code, $this->dr) !== false) {
                         $cdar2 = explode($this->dr, $code);
-                        foreach($cdar2 as $cd2) {
-                            if (isset($this->code271[$e][$cd2]) ) {
+                        foreach ($cdar2 as $cd2) {
+                            if (isset($this->code271[$e][$cd2])) {
                                 $val .= $this->code271[$e][$cd2] . '; ';
                             } else {
                                 $val .= "code $cd2 N/A ";
@@ -2425,15 +2425,16 @@ class edih_271_codes
                 }
             } elseif ($this->dr && strpos($code, $this->dr) !== false) {
                 $cdar = explode($this->dr, $code);
-                foreach($cdar as $cd) {
+                foreach ($cdar as $cd) {
                     $val .= (isset($this->code271[$e][$cd]) ) ? $this->code271[$e][$cd].'; ' : "code $cd unknown ";
                 }
             }
-        } elseif ( array_key_exists($e, $this->code271) ) {
+        } elseif (array_key_exists($e, $this->code271)) {
             $val = (isset($this->code271[$e][$code]) ) ? $this->code271[$e][$code] : "$elem code $code unknown ";
         } else {
             $val = "$e codes not available ($code) ";
         }
+
         //
         return $val;
     }

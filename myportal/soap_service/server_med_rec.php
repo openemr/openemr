@@ -35,12 +35,11 @@ class Userforms extends UserAudit
 
     public function issue_type($data)
     {
-        if(UserService::valid($data[0])=='existingpatient'){
+        if (UserService::valid($data[0])=='existingpatient') {
             global $ISSUE_TYPES;
             require_once("../../library/lists.inc");
             return $ISSUE_TYPES;
-        }
-        else{
+        } else {
             throw new SoapFault("Server", "credentials failed");
         }
     }
@@ -50,7 +49,7 @@ class Userforms extends UserAudit
     public function print_report($data)
     {
         global $pid;
-        if(UserService::valid($data[0])=='existingpatient'){
+        if (UserService::valid($data[0])=='existingpatient') {
             $repArr = $data[1];
             $type = $data[3];
             global $ISSUE_TYPES;
@@ -63,24 +62,22 @@ class Userforms extends UserAudit
             require_once("../../library/lists.inc");
             require_once("../../library/report.inc");
             require_once("../../custom/code_types.inc.php");
-            foreach($repArr as $value){
+            foreach ($repArr as $value) {
                 ob_start();
-                if($type=="profile"){
+                if ($type=="profile") {
                     $this->getIncudes($value);
                     $out .= ob_get_clean();
-                }
-                else{
-                    if($type=='issue')
+                } else {
+                    if ($type=='issue')
                     $this->getIid($value);
-                    if($type=='forms')
+                    if ($type=='forms')
                     $this->getforms($value);
                     $out .= ob_get_clean();
                 }
-
             }
+
              return $out;
-        }
-        else{
+        } else {
             throw new SoapFault("Server", "credentials failed");
         }
     }
@@ -90,16 +87,14 @@ class Userforms extends UserAudit
 
     public function print_ccr_report($data)
     {
-        if(UserService::valid($data[0])=='existingpatient'){
+        if (UserService::valid($data[0])=='existingpatient') {
             $ccraction = $data[1];
             $raw = $data[2];
             require_once("../../ccr/createCCR.php");
               ob_start();
               createCCR($ccraction, $raw);
               $html = ob_get_clean();
-            if($ccraction=='viewccd')
-              {
-
+            if ($ccraction=='viewccd') {
                 $html = preg_replace('/<!DOCTYPE html PUBLIC "-\/\/W3C\/\/DTD HTML 4.01\/\/EN" "http:\/\/www.w3.org\/TR\/html4\/strict.dtd">/', '', $html);
                 $pos1 = strpos($html, 'body {');
                 $pos2 = strpos($html, '.h1center');
@@ -107,16 +102,15 @@ class Userforms extends UserAudit
                 $html = str_replace($tes, '', $html);
                 $html = str_replace('h3>', 'h2>', $html);
                 $html = base64_encode($html);
-            }
-            else{
+            } else {
                 $pos1 = strpos($html, '*{');
                 $pos2 = strpos($html, 'h1');
                 $tes = substr("$html", $pos1, ($pos2-$pos1));
                 $html = str_replace($tes, '', $html);
             }
+
             return $html;
-        }
-        else{
+        } else {
             throw new SoapFault("Server", "credentials failed");
         }
     }
@@ -128,17 +122,17 @@ class Userforms extends UserAudit
         global $pid;
         $GLOBALS['pid'] = $pid;
         $inclookupres = sqlStatement("SELECT DISTINCT formdir FROM forms WHERE pid = ? AND deleted=0", array($pid));
-        while($result = sqlFetchArray($inclookupres)) {
+        while ($result = sqlFetchArray($inclookupres)) {
             $formdir = $result['formdir'];
             if (substr($formdir, 0, 3) == 'LBF')
               include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-            else
-              include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
         }
+
         $N = 6;
         $inclookupres = sqlStatement("SELECT encounter,form_id,formdir,id FROM forms WHERE pid = ? AND deleted=0
 				     AND id =? ", array($pid,$fId));
-        while($result = sqlFetchArray($inclookupres)) {
+        while ($result = sqlFetchArray($inclookupres)) {
             $form_encounter=$result['encounter'];
             $form_id=$result['form_id'];
             $formdir = $result['formdir'];
@@ -146,8 +140,7 @@ class Userforms extends UserAudit
             ob_start();
             if (substr($formdir, 0, 3) == 'LBF')
               call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $formdir);
-            else
-              call_user_func($formdir . "_report", $pid, $form_encounter, $N, $form_id);
+            else call_user_func($formdir . "_report", $pid, $form_encounter, $N, $form_id);
             $out=ob_get_clean();
             ?>  <table>
             <tr class=text>
@@ -166,12 +159,11 @@ class Userforms extends UserAudit
         global $pid;
         global $ISSUE_TYPES;
         $inclookupres = sqlStatement("SELECT DISTINCT formdir FROM forms WHERE pid = ? AND deleted=?", array($pid,0));
-        while($result = sqlFetchArray($inclookupres)) {
+        while ($result = sqlFetchArray($inclookupres)) {
             $formdir = $result['formdir'];
             if (substr($formdir, 0, 3) == 'LBF')
               include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-            else
-              include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
         }
         ?>
         <tr class=text>
@@ -181,8 +173,7 @@ class Userforms extends UserAudit
         $irow = sqlQuery("SELECT type, title, comments, diagnosis FROM lists WHERE id =? ", array($val));
         $diagnosis = $irow['diagnosis'];
 
-        if ($prevIssueType != $irow['type'])
-        {
+        if ($prevIssueType != $irow['type']) {
             $disptype = $ISSUE_TYPES[$irow['type']][0];
         ?>
         <div class='issue_type' style='font-weight: bold;'><?php echo htmlspecialchars($disptype, ENT_QUOTES);?>:</div>
@@ -194,15 +185,13 @@ class Userforms extends UserAudit
         <span class='issue_title'><?php echo htmlspecialchars($irow['title'], ENT_QUOTES);?>:</span>
         <span class='issue_comments'><?php echo htmlspecialchars($irow['comments'], ENT_QUOTES);?></span>
         <?php
-        if ($diagnosis)
-        {
+        if ($diagnosis) {
         ?>
         <div class='text issue_diag'>
         <span class='bold'>[<?php echo htmlspecialchars(xl('Diagnosis'), ENT_QUOTES);?>]</span><br>
         <?php
         $dcodes = explode(";", $diagnosis);
-        foreach ($dcodes as $dcode)
-        {
+        foreach ($dcodes as $dcode) {
             ?>
             <span class='italic'><?php echo htmlspecialchars($dcode, ENT_QUOTES);?></span>:
             <?php
@@ -215,8 +204,8 @@ class Userforms extends UserAudit
         </div>
         <?php
         }
-        if ($irow['type'] == 'ippf_gcac')
-        {
+
+        if ($irow['type'] == 'ippf_gcac') {
         ?>
         <table>
         <?php
@@ -225,9 +214,7 @@ class Userforms extends UserAudit
 
         </table>
         <?php
-        }
-        else if ($irow['type'] == 'contraceptive')
-        {
+        } else if ($irow['type'] == 'contraceptive') {
         ?>
         <table>
             <?php
@@ -249,8 +236,7 @@ class Userforms extends UserAudit
     private function getIncudes($val)
     {
         global $pid;
-        if ($val == "demographics")
-        {
+        if ($val == "demographics") {
             ?>
             <hr />
             <div class='text demographics' id='DEM'>
@@ -267,9 +253,7 @@ class Userforms extends UserAudit
         </table>
         </div>
             <?php
-        }
-        elseif ($val == "history")
-        {
+        } elseif ($val == "history") {
             ?>
             <hr />
             <div class='text history' id='HIS'>
@@ -284,9 +268,7 @@ class Userforms extends UserAudit
         </table>
         </div>
             <?php
-        }
-        elseif ($val == "insurance")
-        {
+        } elseif ($val == "insurance") {
             ?>
             <hr />
             <div class='text insurance'>";
@@ -305,9 +287,7 @@ class Userforms extends UserAudit
         ?>
         </div>
         <?php
-        }
-        elseif ($val == "billing")
-        {
+        } elseif ($val == "billing") {
             ?>
             <hr />
             <div class='text billing'>
@@ -346,6 +326,7 @@ class Userforms extends UserAudit
             }
             }
         }
+
         echo "<tr><td>&nbsp;</td></tr>";
         echo "<tr><td class=bold>".htmlspecialchars(xl('Sub-Total'), ENT_QUOTES)."</td><td class=text>" . htmlspecialchars(oeFormatMoney($total + abs($copays)), ENT_QUOTES) . "</td></tr>";
         echo "<tr><td class=bold>".htmlspecialchars(xl('Paid'), ENT_QUOTES)."</td><td class=text>" . htmlspecialchars(oeFormatMoney(abs($copays)), ENT_QUOTES) . "</td></tr>";
@@ -357,11 +338,9 @@ class Userforms extends UserAudit
             } else {
                 printPatientBilling($pid);
             }
-            echo "</div>\n"; // end of billing DIV
-        }
-        elseif ($val == "immunizations")
-        {
 
+            echo "</div>\n"; // end of billing DIV
+        } elseif ($val == "immunizations") {
             ?>
             <hr />
             <div class='text immunizations'>
@@ -379,10 +358,7 @@ class Userforms extends UserAudit
             ?>
         </div>
             <?php
-
-        }
-        elseif ($val == "batchcom")
-        {
+        } elseif ($val == "batchcom") {
             ?>
             <hr />
             <div class='text transactions'>
@@ -399,9 +375,7 @@ class Userforms extends UserAudit
             ?>
         </div>
             <?php
-        }
-        elseif ($val == "notes")
-        {
+        } elseif ($val == "notes") {
             ?>
             <hr />
             <div class='text notes'>
@@ -411,9 +385,7 @@ class Userforms extends UserAudit
             ?>
         </div>
             <?php
-        }
-        elseif ($val == "transactions")
-        {
+        } elseif ($val == "transactions") {
             ?>
             <hr />
             <div class='text transactions'>
@@ -452,35 +424,32 @@ class Userforms extends UserAudit
                     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
                     $result = curl_exec($ch) or die(curl_error($ch));
                     curl_close($ch);
-                }
-                catch (Exception $e) {
-
+                } catch (Exception $e) {
                 }
 
                 try {
                     $event = isset($data['event']) ? $data['event'] : 'patient-record';
                     $menu_item = isset($data['menu_item']) ? $data['menu_item'] : 'Dashboard';
                     newEvent($event, 1, '', 1, '', $pid, $log_from = 'patient-portal', $menu_item);
-                }catch (Exception $e) {
-
+                } catch (Exception $e) {
                 }
+
                 return $result;
-            }
-            else {
+            } else {
                 return '<?xml version="1.0" encoding="UTF-8"?>
 			<note>
 			<heading>WARNING!</heading>
 			<body>Unable to fetch CCDA Carecoordination module not installed!</body>
 			</note>';
             }
-        }
-        else {
+        } else {
             return '<?xml version="1.0" encoding="UTF-8"?>
 			<note>
 			<heading>WARNING!</heading>
 			<body>Existing patient checking failed!</body>
 			</note>';
         }
+
         return '<?xml version="1.0" encoding="UTF-8"?>
 		  <note>
 		  <heading>WARNING!</heading>
@@ -507,13 +476,15 @@ class Userforms extends UserAudit
         $xmlData .= "<" . $rootElementName . ">";
         foreach ($inputArray as $rowItem) {
             $xmlData .= "<" . $childElementName . ">";
-            foreach($rowItem as $fieldName => $fieldValue) {
+            foreach ($rowItem as $fieldName => $fieldValue) {
                 $xmlData .= "<" . $fieldName . ">";
                 $xmlData .= !empty($fieldValue) ? $fieldValue : "null";
                 $xmlData .= "</" . $fieldName . ">";
             }
+
             $xmlData .= "</" . $childElementName . ">";
         }
+
         $xmlData .= "</" . $rootElementName . ">";
 
         return $xmlData;
@@ -544,7 +515,7 @@ class Userforms extends UserAudit
             $sql .= " AND log_from = 'patient-portal'";
             $sql .= " AND patient_id = ?";
             $arrBinds = array($date1  . ' 00:00:00', $date2 . ' 23:59:59', $pid);
-            if(!empty($keyword)) {
+            if (!empty($keyword)) {
                 $sql .= " AND (log.date LIKE ?
 					  OR LOWER(event) LIKE ?
 					  OR LOWER(user) LIKE ?
@@ -561,11 +532,12 @@ class Userforms extends UserAudit
                 $arrBinds[] = '%' . strtolower($keyword) . '%';
                 $arrBinds[] = '%' . strtolower($keyword) . '%';
             }
+
             $sql .= "  ORDER BY date DESC LIMIT 5000";
 
             $res = sqlStatement($sql, $arrBinds);
             $all = array();
-            for($iter=0; $row=sqlFetchArray($res); $iter++) {
+            for ($iter=0; $row=sqlFetchArray($res); $iter++) {
                 $all[$iter] = $row;
             }
 
@@ -592,7 +564,6 @@ class Userforms extends UserAudit
         $xml_type = $data['xml_type'];
 
         if (UserService::valid($data[0])=='existingpatient') {
-
             try {
                 $_SESSION['authProvider'] = 1;
                 global $pid;
@@ -620,39 +591,38 @@ class Userforms extends UserAudit
                     $phimail_username = $GLOBALS['phimail_username'];
                     $phimail_password = $GLOBALS['phimail_password'];
                     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-                    if($ret!==true) return("$config_err 4");
+                    if ($ret!==true) return("$config_err 4");
 
                     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-                    if($ret!==true) return( xl("Delivery is not allowed to the specified Direct Address.") );
+                    if ($ret!==true) return( xl("Delivery is not allowed to the specified Direct Address.") );
 
                     $ret=fgets($fp, 1024); //ignore extra server data
 
-                    if($requested_by=="patient")
+                    if ($requested_by=="patient")
                      $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
                      ($patientName2=="" ? "." : ", " . $patientName2 . ".");
-                else
-                     $text_out = xl("A clinical document is attached") .
+                else $text_out = xl("A clinical document is attached") .
                      ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
 
                     $text_len=strlen($text_out);
                     phimail_write($fp, "TEXT $text_len\n");
                     $ret=@fgets($fp, 256);
 
-                if($ret!="BEGIN\n") {
+                if ($ret!="BEGIN\n") {
                     phimail_close($fp);
                     return("$config_err 5");
                 }
-                    $ret=phimail_write_expect_OK($fp, $text_out);
-                    if($ret!==true) return("$config_err 6");
 
-                if(in_array($xml_type, array('CCR', 'CCDA', 'CDA')))
-                    {
+                    $ret=phimail_write_expect_OK($fp, $text_out);
+                    if ($ret!==true) return("$config_err 6");
+
+                if (in_array($xml_type, array('CCR', 'CCDA', 'CDA'))) {
                     $ccd = simplexml_load_string($ccd);
                     $ccd_out = $ccd->saveXml();
                     $ccd_len = strlen($ccd_out);
                     phimail_write($fp, "ADD " . ($xml_type=="CCR" ? $xml_type . ' ' : "CDA ") . $ccd_len . $att_filename . "\n");
                     //phimail_write($fp,"ADD " . (isset($xml_type) ? $xml_type . ' ' : "CDA ") . $ccd_len . $att_filename . "\n");
-                } else if(strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
+                } else if (strtolower($xml_type) == 'html' || strtolower($xml_type) == 'pdf') {
                     $ccd_out = base64_decode($ccd);
                     $message_length = strlen($ccd_out);
                     $add_type = (strtolower($xml_type) == 'html') ? 'TEXT' : 'RAW';
@@ -662,20 +632,21 @@ class Userforms extends UserAudit
 
                     $ret=fgets($fp, 256);
 
-                if($ret!="BEGIN\n") {
+                if ($ret!="BEGIN\n") {
                     phimail_close($fp);
                     return("$config_err 7");
                 }
+
                     $ret=phimail_write_expect_OK($fp, $ccd_out);
 
-                    if($ret!==true) return("$config_err 8");
+                    if ($ret!==true) return("$config_err 8");
 
 
                     phimail_write($fp, "SEND\n");
                     $ret=fgets($fp, 256);
                     phimail_close($fp);
 
-                if($requested_by=="patient")  {
+                if ($requested_by=="patient") {
                      $reqBy="portal-user";
                      $sql = "SELECT id FROM users WHERE username='portal-user'";
 
@@ -685,13 +656,12 @@ class Userforms extends UserAudit
                     } else {
                            $reqID = $u['id'];
                     }
-
                 } else {
                     $reqBy=$_SESSION['authUser'];
                      $reqID=$_SESSION['authUserID'];
                 }
 
-                if(substr($ret, 5)=="ERROR") {
+                if (substr($ret, 5)=="ERROR") {
                     //log the failure
                     newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
                     return( xl("The message could not be sent at this time."));
@@ -703,11 +673,12 @@ class Userforms extends UserAudit
              * is suitable for logging.
              */
                     $msg_id=explode(" ", trim($ret), 4);
-                if($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
+                if ($msg_id[0]!="QUEUED" || !isset($msg_id[2])) { //unexpected response
                     $ret = "UNEXPECTED RESPONSE: " . $ret;
                     newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
                     return( xl("There was a problem sending the message."));
                 }
+
                     newEvent("transmit-".$xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
                     $adodb=$GLOBALS['adodb']['db'];
 
@@ -716,7 +687,7 @@ class Userforms extends UserAudit
             //            $res=@sqlStatement($sql,array($msg_id[2],$phimail_username,$recipient,$pid,$reqID));
 
                     return("SUCCESS");
-            }catch (Exception $e) {
+            } catch (Exception $e) {
                 return 'Error: ' . $e->getMessage();
             }
         }

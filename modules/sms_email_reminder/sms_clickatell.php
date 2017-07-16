@@ -129,6 +129,7 @@ class sms
             $this->base   = "http://api.clickatell.com/http";
             $this->base_s = $this->base;
         }
+
         $this->_auth();
     }
 
@@ -176,6 +177,7 @@ class sms
             if (mb_strlen($text) > 210) {
                 die("Your unicode message is too long! (Current lenght=".mb_strlen($text).")");
             }
+
             /* Does message need to be concatenate */
             if (mb_strlen($text) > 70) {
                 $concat = "&concat=3";
@@ -186,6 +188,7 @@ class sms
             if (strlen($text) > 459) {
                 die("Your message is too long! (Current lenght=".strlen($text).")");
             }
+
             /* Does message need to be concatenate */
             if (strlen($text) > 160) {
                 $concat = "&concat=3";
@@ -198,6 +201,7 @@ class sms
         if (empty($to)) {
             die("You not specify destination address (TO)!");
         }
+
         if (empty($from)) {
             die("You not specify source address (FROM)!");
         }
@@ -318,6 +322,7 @@ class sms
             curl_setopt($ch, CURLOPT_PROXY, $this->curl_proxy);
             curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
         }
+
         $result=curl_exec($ch);
         curl_close($ch);
         return $result;
@@ -335,6 +340,7 @@ class sms
             while ($line = @fgets($handler, 1024)) {
                 $result .= $line;
             }
+
             fclose($handler);
             return $result;
         } else {
@@ -353,6 +359,7 @@ class sms
         if ($code!="OK") {
             die("Error in SMS authorization! ($result)");
         }
+
         return $session;
     }
 
@@ -368,6 +375,7 @@ class sms
         } else {
             $code = "OK";
         }
+
         return $code;
     }
 

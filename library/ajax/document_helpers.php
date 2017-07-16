@@ -39,8 +39,10 @@ function get_patients_list($term)
             $row['value'] = "00";
             $row['label'] = xl("Locked") . "-" . xl("In Use") . ":" . $row['label'];
         }
+
         $resultpd[] = $row;
     }
+
     echo json_encode($resultpd);
 }
 

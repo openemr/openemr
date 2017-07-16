@@ -60,10 +60,11 @@ class RSS_Writer
         
         $element = $this->rss_dom->createElement($node_name, $content);
         if ($attributes) {
-            foreach ( $attributes as $key => $value ) {
+            foreach ($attributes as $key => $value) {
                 $element->setAttribute($key, $value);
             }
         }
+
         $parent_node->appendChild($element);
         if ($return) {
             return $element;
@@ -78,7 +79,7 @@ class RSS_Writer
             $result [0] = $value;
             
             if ($attributes) {
-                foreach ( $attributes as $key => $value ) {
+                foreach ($attributes as $key => $value) {
                     $result [0] [$key] = $value;
                 }
             }
@@ -102,6 +103,7 @@ class RSS_Writer
         if ($width > 144) {
             $width = 144;
         }
+
         if ($height > 400) {
             $height = 400;
         }
@@ -129,6 +131,7 @@ class RSS_Writer
         if ($source) {
             $this->elementCreate($item_element, 'source', $source);
         }
+
         $this->item_list [$this->item_counter] = $item_element;
     }
     public function addEnclosure($url, $type)
@@ -145,6 +148,7 @@ class RSS_Writer
             $size = curl_getinfo($curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
             curl_close($curl);
         }
+
         $this->elementCreate($item_element, 'enclosure', '', array (
                 'url' => $url,
                 'length' => $size,

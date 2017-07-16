@@ -195,6 +195,7 @@ function sel_diagnosis() {
                         if ($provid == $_POST['form_doctor']) echo " selected";
                         echo ">" . text($row['lname']) . ", " . text($row['fname']) . "\n";
                     }
+
                     echo "   </select>\n";
                 } else {
                     echo "<input type='hidden' name='form_doctor' value='" . attr($_SESSION['authUserID']) . "'>";
@@ -374,11 +375,13 @@ if ($_POST['form_refresh']) {
             $query .= " AND fe.facility_id = ?";
             array_push($sqlBindArray, $form_facility);
         }
+
         // If a doctor was specified.
         if ($form_doctor) {
             $query .= " AND fe.provider_id = ?";
             array_push($sqlBindArray, $form_doctor);
         }
+
         /************************************************************/
         //
         $res = sqlStatement($query, $sqlBindArray);
@@ -402,6 +405,7 @@ if ($_POST['form_refresh']) {
                       continue;
                 }
             }
+
           //
             $key = sprintf(
                 "%08u%s%08u%08u%06u",
@@ -419,9 +423,10 @@ if ($_POST['form_refresh']) {
             $arows[$key]['memo'] = '';
             if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
                 $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
-            } else{
+            } else {
                 $arows[$key]['invnumber'] = "$patient_name";
             }
+
             $arows[$key]['irnumber'] = $row['invoice_refno'];
         } // end while
     } // end copays (not $form_proc_code)
@@ -469,11 +474,13 @@ if ($_POST['form_refresh']) {
         $query .= " AND (a.code_type = ? OR a.code_type = '') AND a.code = ?";
         array_push($sqlBindArray, $form_proc_codetype, $form_proc_code);
     }
+
     // If a facility was specified.
     if ($form_facility) {
         $query .= " AND fe.facility_id = ?";
         array_push($sqlBindArray, $form_facility);
     }
+
     // If a doctor was specified.
     if ($form_doctor) {
         $query .= " AND ( b.provider_id = ? OR " .
@@ -481,6 +488,7 @@ if ($_POST['form_refresh']) {
         "fe.provider_id = ? ) )";
         array_push($sqlBindArray, $form_doctor, $form_doctor);
     }
+
     /**************************************************************/
     //
     $res = sqlStatement($query, $sqlBindArray);
@@ -497,9 +505,9 @@ if ($_POST['form_refresh']) {
         } else {
             if (!empty($row['deposit_date']))
             $thedate = $row['deposit_date'];
-            else
-            $thedate = substr($row['post_time'], 0, 10);
+            else $thedate = substr($row['post_time'], 0, 10);
         }
+
         if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) continue;
         //
         // If a diagnosis code was given then skip any invoices without
@@ -514,6 +522,7 @@ if ($_POST['form_refresh']) {
                 continue;
             }
         }
+
         //
         $docid = empty($row['encounter_id']) ? $row['docid'] : $row['encounter_id'];
         $key = sprintf(
@@ -532,9 +541,10 @@ if ($_POST['form_refresh']) {
         $arows[$key]['memo'] = $row['code'];
         if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
             $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
-        } else{
+        } else {
             $arows[$key]['invnumber'] = "$patient_name";
         }
+
         $arows[$key]['irnumber'] = $row['invoice_refno'];
     } // end while
 
@@ -542,7 +552,6 @@ if ($_POST['form_refresh']) {
     $docid = 0;
 
     foreach ($arows as $row) {
-
       // Get insurance company name
         $insconame = '';
         if ($form_proc_codefull  && $row['project_id']) {
@@ -555,8 +564,7 @@ if ($_POST['form_refresh']) {
         $amount2 = 0;
         if ($form_procedures && is_clinic($row['memo']))
         $amount2 -= $row['amount'];
-        else
-        $amount1 -= $row['amount'];
+        else $amount1 -= $row['amount'];
 
       // if ($docid != $row['employee_id']) {
         if ($docid != $row['docid']) {
@@ -579,6 +587,7 @@ if ($_POST['form_refresh']) {
  </tr>
 <?php
             }
+
             $doctotal1 = 0;
             $doctotal2 = 0;
 

@@ -34,15 +34,16 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
 {
     $justify_string = '';
-    if ($justify)
-    {
+    if ($justify) {
         //trim eahc entry
         foreach ($justify as $temp_justify) {
             $justify_trimmed[] = trim($temp_justify);
         }
+
         //format it
         $justify_string = implode(":", $justify_trimmed).":";
     }
+
     $code_type = formDataCore($code_type);
     $code = formDataCore($code);
     $code_text = formDataCore($code_text);
@@ -96,20 +97,23 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $replace_finished = false;
     while (!$replace_finished) {
         if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//", $string_to_process, $matches)) {
-            foreach($matches[0] as $val) {
+            foreach ($matches[0] as $val) {
                 $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
                 $comm_array = explode('::', $comm); //array where first element is command and rest are args
                 $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
                 $replacement_text = '';
                 $query = "SELECT content FROM form_CAMOS_item WHERE item like '".$replacement_item."'";
                 $statement = sqlStatement($query);
-                if ($result = sqlFetchArray($statement)) {$replacement_text = $result['content'];}
+                if ($result = sqlFetchArray($statement)) {
+                    $replacement_text = $result['content'];}
+
                 $replacement_text = formDataCore($replacement_text);
                 $string_to_process = str_replace($val, $replacement_text, $string_to_process);
             }
-        }
-        else {$replace_finished = true;}
+        } else {
+            $replace_finished = true;}
     }
+
   //date_add is a function to add a given number of days to the date of the current encounter
   //this will be useful for saving templates of prescriptions with 'do not fill until' dates
   //I am going to implement with mysql date functions.
@@ -120,16 +124,17 @@ function process_commands(&$string_to_process, &$camos_return_data)
         $days = $matches[1];
         $query = "select date_format(date_add(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
         $statement = sqlStatement($query);
-        if ($result = sqlFetchArray($statement)){
+        if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
     }
+
     if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
         $days = $matches[1];
         $query = "select date_format(date_sub(date, interval $days day),'%W, %m-%d-%Y') as date from form_encounter where " . "pid = " . $_SESSION['pid'] . " and encounter = " . $_SESSION['encounter'];
         $statement = sqlStatement($query);
-        if ($result = sqlFetchArray($statement)){
+        if ($result = sqlFetchArray($statement)) {
             $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
         }
     }
@@ -140,9 +145,11 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $camos_return_data = array(); // to be filled with additional camos form submissions if any embedded
     $command_array = array();  //to be filled with potential commands
     $matches= array();  //to be filled with potential commands
-    if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {return $return_value;}
+    if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {
+        return $return_value;}
+
     $command_array = $matches[0];
-    foreach($command_array as $val) {
+    foreach ($command_array as $val) {
         //process each command
         $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
         $comm_array = explode('::', $comm); //array where first element is command and rest are args
@@ -159,20 +166,24 @@ function process_commands(&$string_to_process, &$camos_return_data)
             if ($units == '') {
                 $units = 1;
             }
+
             $fee = sprintf("%01.2f", trim(array_shift($comm_array)));
             //make default fee 0.00 if left blank
             if ($fee == '') {
                 $fee = sprintf("%01.2f", '0.00');
             }
+
             //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
             addBilling2($encounter, $type, $code, $text, $modifier, $units, $fee, $comm_array);
         }
+
         if (trim($comm_array[0])== 'appt') {
             array_shift($comm_array);
             $days = trim(array_shift($comm_array));
             $time = trim(array_shift($comm_array));
             addAppt($days, $time);
         }
+
         if (trim($comm_array[0])== 'vitals') {
             array_shift($comm_array);
             $weight = trim(array_shift($comm_array));
@@ -183,6 +194,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
             $temp = trim(array_shift($comm_array));
             addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp);
         }
+
         $command_count = 0;
         if (trim($comm_array[0]) == 'camos') {
             $command_count++;
@@ -199,6 +211,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
             );
         }
     }
+
     $string_to_process = remove_comments($string_to_process);
     return $return_value;
 }
@@ -230,18 +243,22 @@ function replace($pid, $enc, $content)
         $fname = $results['fname'];
         $mname = $results['mname'];
         $lname = $results['lname'];
-        if ($mname) {$name = $fname.' '.$mname.' '.$lname;}
-        else {$name = $fname.' '.$lname;}
-        $dob = $results['DOB'];
-        $date = $results['date'];
-        $age = patient_age($dob, $date);
-        $gender = $results['gender'];
+        if ($mname) {
+            $name = $fname.' '.$mname.' '.$lname;} else {
+            $name = $fname.' '.$lname;}
+
+            $dob = $results['DOB'];
+            $date = $results['date'];
+            $age = patient_age($dob, $date);
+            $gender = $results['gender'];
     }
+
     $query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
     "t2 on (t1.username like t2.user) where t2.encounter = ".$enc);
     if ($results = sqlFetchArray($query1)) {
         $doctorname = "Dr. ".$results['lname'];
     }
+
     $ret = preg_replace(
         array("/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"),
         array($name,$age,strtolower($gender),$doctorname),

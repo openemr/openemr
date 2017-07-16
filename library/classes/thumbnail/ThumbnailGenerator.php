@@ -43,9 +43,10 @@ class ThumbnailGenerator
      */
     public static function get_types_support()
     {
-        foreach(self::$types_support as $value){
+        foreach (self::$types_support as $value) {
             $types_support[] = "'$value'";
         }
+
         return $types_support;
     }
 
@@ -73,9 +74,8 @@ class ThumbnailGenerator
         WHERE mimetype IN (" . implode(',', self::get_types_support()) . ") AND thumb_url IS NULL";
 
         $results = sqlStatement($sql);
-        while($row = sqlFetchArray($results)) {
-
-            switch((int)$row['storagemethod']) {
+        while ($row = sqlFetchArray($results)) {
+            switch ((int)$row['storagemethod']) {
                 //for hard disk store
                 case 0:
                     $new_file = $this->generate_HD_file($row['url'], $row['path_depth']);
@@ -88,6 +88,7 @@ class ThumbnailGenerator
                     $this->error_log($row['url']);
 continue;
             }
+
             // Write error to log if failed
             if (!$new_file) {
                 $this->error_log($row['url']);
@@ -98,7 +99,7 @@ continue;
 
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
             $update = sqlStatement($sql, array($new_file, $row['id']));
-            if($update) {
+            if ($update) {
                 $feedback['sum_success'] ++;
                 $feedback['success'][] = $row['url'];
             }
@@ -129,9 +130,10 @@ continue;
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
-        for ($i=0;$i<$path_depth;$i++) {
+        for ($i=0; $i<$path_depth; $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
+
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
 
@@ -146,7 +148,7 @@ continue;
         $path_parts = pathinfo($url);
 
         $resource = $this->thumb_obj->create_thumbnail($url);
-        if(!$resource) {
+        if (!$resource) {
             return false;
         }
 
@@ -165,26 +167,28 @@ continue;
      */
     private function generate_couch_file($doc_id, $file_name)
     {
-        if( is_null($this->couch_obj)) {
+        if (is_null($this->couch_obj)) {
             $this->couch_obj = new CouchDB();
         }
+
         $data = array($GLOBALS['couchdb_dbase'],$doc_id);
         $resp = $this->couch_obj->retrieve_doc($data);
 
-        if(empty($resp->data)) {
+        if (empty($resp->data)) {
             return false;
         }
 
         $resource = $this->thumb_obj->create_thumbnail(null, base64_decode($resp->data));
-        if(!$resource) {
+        if (!$resource) {
             return false;
         }
 
         $new_file_content = $this->thumb_obj->get_string_file($resource);
 
-        if(!$new_file_content) {
+        if (!$new_file_content) {
             return false;
         }
+
         $couch_row = get_object_vars($resp);
 
         $couch_row['th_data'] = json_encode(base64_encode($new_file_content));

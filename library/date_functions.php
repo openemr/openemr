@@ -17,7 +17,7 @@ function dateformat($strtime = '', $with_dow = false)
 {
 
 // without an argument, display current date
-    if ( !$strtime ) {
+    if (!$strtime) {
         $strtime = strtotime('now');
     }
 

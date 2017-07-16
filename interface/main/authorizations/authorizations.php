@@ -93,7 +93,6 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <?php
 if ($imauthorized && $see_auth > 1) {
-
 //  provider
 //  billing
 //  forms
@@ -104,9 +103,8 @@ if ($imauthorized && $see_auth > 1) {
     if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
     "from billing LEFT JOIN users as u on billing.user = u.id where " .
     "billing.authorized = 0 and billing.activity = 1 and " .
-    "groupname = ?", array($groupname)))
-    {
-          for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    "groupname = ?", array($groupname))) {
+          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result1[$iter] = $row;
         if ($result1) {
             foreach ($result1 as $iter) {
@@ -119,9 +117,8 @@ if ($imauthorized && $see_auth > 1) {
 
 //fetch transaction information:
     if ($res = sqlStatement("select * from transactions where " .
-    "authorized = 0 and groupname = ?", array($groupname)))
-    {
-          for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    "authorized = 0 and groupname = ?", array($groupname))) {
+          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result2[$iter] = $row;
         if ($result2) {
             foreach ($result2 as $iter) {
@@ -135,9 +132,8 @@ if ($imauthorized && $see_auth > 1) {
     if (empty($GLOBALS['ignore_pnotes_authorization'])) {
           //fetch pnotes information:
         if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
-        "groupname = ?", array($groupname)))
-          {
-            for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+        "groupname = ?", array($groupname))) {
+            for ($iter = 0; $row = sqlFetchArray($res); $iter++)
               $result3[$iter] = $row;
             if ($result3) {
                 foreach ($result3 as $iter) {
@@ -151,9 +147,8 @@ if ($imauthorized && $see_auth > 1) {
 
 //fetch forms information:
     if ($res = sqlStatement("select * from forms where authorized = 0 and " .
-    "groupname = ?", array($groupname)))
-    {
-          for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    "groupname = ?", array($groupname))) {
+          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result4[$iter] = $row;
         if ($result4) {
             foreach ($result4 as $iter) {
@@ -254,10 +249,10 @@ $(document).ready(function(){
 
 var EditNote = function(note) {
     var parts = note.id.split("~");
-<?php if (true): ?>
+<?php if (true) : ?>
     top.restoreSession();
     location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?noteid=" + parts[1] + "&set_pid=" + parts[0] + "&active=1";
-<?php else: ?>
+<?php else : ?>
     // no-op
     alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
 <?php endif; ?>

@@ -58,7 +58,7 @@ function getLayoutRes()
 //
 function getSearchClass($data_type)
 {
-    switch($data_type) {
+    switch ($data_type) {
         case  1: // single-selection list
         case 10: // local provider list
         case 11: // provider list
@@ -73,6 +73,7 @@ function getSearchClass($data_type)
         case  4: // date
           return 1;
     }
+
     return 0;
 }
 
@@ -146,7 +147,7 @@ function replace(string,text,by) {
  return newstr;
 }
 
-<?php for ($i=1;$i<=3;$i++) { ?>
+<?php for ($i=1; $i<=3; $i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self") {
@@ -274,7 +275,7 @@ function trimlen(s) {
 function validate(f) {
   var errMsgs = new Array();
     <?php generate_layout_validation('DEM'); ?>
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
   alertMsg='';
   for(i=0;i<f.length;i++){
     if(f[i].type=='text' && f[i].value)
@@ -380,7 +381,7 @@ while ($lrow = sqlFetchArray($lres)) {
     if (strpos($field_id, 'em_') === 0) continue;
     $data_type = $lrow['data_type'];
     $fldname = "form_$field_id";
-    switch(getSearchClass($data_type)) {
+    switch (getSearchClass($data_type)) {
         case  1:
             echo
             " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
@@ -473,8 +474,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
         if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-    }
-    else {
+    } else {
         if (isset($result[$field_id])) $currvalue = $result[$field_id];
     }
 
@@ -495,10 +495,10 @@ while ($frow = sqlFetchArray($fres)) {
             echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
             echo " <table border='0' cellpadding='0'>\n";
             $display_style = 'none';
-        }
-        else if (strlen($last_group) == 0) {
+        } else if (strlen($last_group) == 0) {
             echo " <table border='0' cellpadding='0'>\n";
         }
+
         $last_group = $this_group;
     }
 
@@ -519,6 +519,7 @@ while ($frow = sqlFetchArray($fres)) {
         echo ">";
         $cell_count += $titlecols;
     }
+
     ++$item_count;
 
     echo "<b>";
@@ -562,7 +563,7 @@ if (! $GLOBALS['simplified_demographics']) {
     echo " /><b>" . xl('Insurance') . "</b></span>\n";
     echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
 
-    for($i=1;$i<=3;$i++) {
+    for ($i=1; $i<=3; $i++) {
         $result3 = $insurance_info[$i];
     ?>
   <table border="0">
@@ -739,6 +740,7 @@ foreach ($insurancei as $iid => $iname) {
   <hr />
     <?php
     }
+
     echo "</div>\n";
 } // end of "if not simplified_demographics"
 ?>
@@ -771,7 +773,7 @@ foreach ($insurancei as $iid => $iname) {
 <script language="JavaScript">
 
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if($GLOBALS['new_validate'] == 0) { ?>
+<?php if ($GLOBALS['new_validate'] == 0) { ?>
 
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
@@ -798,7 +800,7 @@ enable_modals();
                 'frameWidth' : 650
         });
     // added to integrate insurance stuff
-    <?php for ($i=1;$i<=3;$i++) { ?>
+    <?php for ($i=1; $i<=3; $i++) { ?>
     $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
 
@@ -806,9 +808,9 @@ enable_modals();
     $('#create').click(function() { check()});
 
     var check = function(e) {
-        <?php if($GLOBALS['new_validate']){?>
+        <?php if ($GLOBALS['new_validate']) {?>
             var valid = submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,e,"DEM",constraints);
-        <?php }else{?>
+        <?php } else {?>
             top.restoreSession();
             var f = document.forms[0];
             var valid = validate(f);
@@ -836,10 +838,10 @@ enable_modals();
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
-        <?php if ( ($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive()) ):?>
+        <?php if (($GLOBALS['full_new_patient_form'] == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
             var url ='<?php echo  $GLOBALS['web_root']."/interface/modules/zend_modules/public/patientvalidation";?>';
-        <?php else:?>
+        <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
         <?php endif;?>
@@ -866,7 +868,7 @@ $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
     if (strpos($field_id, 'em_') === 0) continue;
-    switch(getSearchClass($lrow['data_type'])) {
+    switch (getSearchClass($lrow['data_type'])) {
         case 1:
             echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
           break;

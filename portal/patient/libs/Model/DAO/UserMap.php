@@ -70,8 +70,7 @@ class UserMap implements IDaoMap, IDaoMap2
      */
     public static function GetFieldMaps()
     {
-        if (self::$FM == null)
-        {
+        if (self::$FM == null) {
             self::$FM = array();
             self::$FM["Id"] = new FieldMap("Id", "users", "id", true, FM_TYPE_BIGINT, 20, null, true);
             self::$FM["Username"] = new FieldMap("Username", "users", "username", false, FM_TYPE_VARCHAR, 255, null, false);
@@ -130,6 +129,7 @@ class UserMap implements IDaoMap, IDaoMap2
             self::$FM["Cpoe"] = new FieldMap("Cpoe", "users", "cpoe", false, FM_TYPE_TINYINT, 1, null, false);
             self::$FM["PhysicianType"] = new FieldMap("PhysicianType", "users", "physician_type", false, FM_TYPE_VARCHAR, 50, null, false);
         }
+
         return self::$FM;
     }
 
@@ -138,12 +138,12 @@ class UserMap implements IDaoMap, IDaoMap2
      */
     public static function GetKeyMaps()
     {
-        if (self::$KM == null)
-        {
+        if (self::$KM == null) {
             self::$KM = array();
             self::$KM["examinerlkup"] = new KeyMap("examinerlkup", "Id", "FormHearing", "ExaminerId", KM_TYPE_ONETOMANY, KM_LOAD_LAZY);  // use KM_LOAD_EAGER with caution here (one-to-one relationships only)
             self::$KM["reviewerlkup"] = new KeyMap("reviewerlkup", "Id", "FormHearing", "ReviewerId", KM_TYPE_ONETOMANY, KM_LOAD_LAZY);  // use KM_LOAD_EAGER with caution here (one-to-one relationships only)
         }
+
         return self::$KM;
     }
 }

@@ -50,6 +50,7 @@
         if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
         $thisauth = 0;
     }
+
     if (!$thisauth) {
         echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
     } else { ?>
@@ -90,6 +91,7 @@
                 ' (' . $iter['user'] . ') ', ENT_NOQUOTES) .
                 nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
             }
+
             $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
             $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
             echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
@@ -114,7 +116,7 @@
     </table>
 
     <?php
-    if ($has_note < 1 ) { ?>
+    if ($has_note < 1) { ?>
         <span class='text'>
 <?php
     echo xlt("There are no notes on file for this patient.");
@@ -182,6 +184,7 @@ if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
                 ' (' . $iter['user'] . ') ', ENT_NOQUOTES) .
                 nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
             }
+
             $body = preg_replace('/(:\d{2}\s\()'.$iter['pid'].'(\sto\s)/', '${1}'.$patientname.'${2}', $body);
             $body = strlen($body) > 120 ? substr($body, 0, 120)."<b>.......</b>" : $body;
             echo " <tr class='text' id='".htmlspecialchars($iter['id'], ENT_QUOTES)."' style='border-bottom:1px dashed;height:30px;' >\n";
@@ -198,7 +201,7 @@ if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
     } ?>
     </table>
     <?php
-    if ($has_sent_note < 1 ) { ?>
+    if ($has_sent_note < 1) { ?>
         <span class='text'>
 <?php
     echo xlt("There are no notes on file for this patient.");

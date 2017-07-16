@@ -54,7 +54,7 @@ class NameValue
         if ($lines == "")
             return $return;
         
-        foreach ( $arr as $line ) {
+        foreach ($arr as $line) {
             $return [] = new NameValue($line, $delim, $nameonly);
         }
         
@@ -73,9 +73,10 @@ class NameValue
     static function ToSimpleArray($nvArray)
     {
         $sa = array ();
-        foreach ( $nvArray as $nv ) {
+        foreach ($nvArray as $nv) {
             $sa [$nv->Name] = $nv->Value;
         }
+
         return $sa;
     }
 }

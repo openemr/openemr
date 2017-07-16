@@ -179,6 +179,7 @@ class HttpRequest
                 $url ['port'] = 443;
             }
         }
+
         $url ['query'] = isset($url ['query']) ? $url ['query'] : '';
         
         $url ['protocol'] = $url ['scheme'] . '://';
@@ -189,9 +190,10 @@ class HttpRequest
         if ($fp) {
             fputs($fp, $headers);
             $result = '';
-            while ( ! feof($fp) ) {
+            while (! feof($fp)) {
                 $result .= fgets($fp, 128);
             }
+
             fclose($fp);
             if (! $show_headers) {
                 // removes headers
@@ -285,6 +287,7 @@ class HttpRequest
                 if (! $fp) {
                     throw new Exception('Unable to write to php://temp for PUT request');
                 }
+
                 fwrite($fp, $data);
                 fseek($fp, 0);
                 
@@ -327,6 +330,7 @@ class HttpRequest
         if ($error != "") {
             $tmp .= $error;
         }
+
         curl_close($ch);
         
         return $tmp;
@@ -347,7 +351,7 @@ class HttpRequest
             // convert the data array into a url querystring
             $qs = "";
             $delim = "";
-            foreach ( array_keys($arr) as $key ) {
+            foreach (array_keys($arr) as $key) {
                 $qs .= $delim . $key . "=" . $arr [$key];
                 $delim = "&";
             }

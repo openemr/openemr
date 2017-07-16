@@ -51,8 +51,7 @@ if ($_POST['form_csvexport']) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=patient_list.csv");
     header("Content-Description: File Transfer");
-}
-else {
+} else {
 ?>
 <html>
 <head>
@@ -210,8 +209,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         echo '"' . xl('Zip') . '",';
         echo '"' . xl('Home Phone') . '",';
         echo '"' . xl('Work Phone') . '"' . "\n";
-    }
-    else {
+    } else {
     ?>
 
   <div id="report_results">
@@ -246,17 +244,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         if ($form_provider) {
             $query .= "AND e.provider_id = '$form_provider' ";
         }
-    }
-    else {
+    } else {
         if ($form_provider) {
             $query .= "JOIN form_encounter AS e ON " .
             "e.pid = p.pid AND e.provider_id = '$form_provider' ";
-        }
-        else {
+        } else {
             $query .= "LEFT OUTER JOIN form_encounter AS e ON " .
             "e.pid = p.pid ";
         }
     }
+
     $query .=
     "LEFT OUTER JOIN insurance_data AS i1 ON " .
     "i1.pid = p.pid AND i1.type = 'primary' " .
@@ -297,8 +294,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . qescape($row['postal_code']) . '",';
             echo '"' . qescape($row['phone_home']) . '",';
             echo '"' . qescape($row['phone_biz']) . '"' . "\n";
-        }
-        else {
+        } else {
         ?>
        <tr>
         <td>

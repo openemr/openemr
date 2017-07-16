@@ -68,8 +68,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
                          ) AS pt
                          WHERE pt.date_report < ?
                          ORDER BY pt.report_id", array($end_date));
-    }
-    else {
+    } else {
         $res = sqlStatement("SELECT *, TIMESTAMPDIFF(MINUTE,pt.date_report,pt.date_report_complete) as `report_time_processing`
                          FROM (
                            SELECT `report_id`,
@@ -101,8 +100,7 @@ function bookmarkReportDatabase()
     $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
     if (empty($query)) {
         $new_report_id = 1;
-    }
-    else {
+    } else {
         $new_report_id = $query['max_report_id'] + 1;
     }
 
@@ -128,12 +126,10 @@ function beginReportDatabase($type, $fields, $report_id = null)
         $query = sqlQuery("SELECT max(`report_id`) as max_report_id FROM `report_results`");
         if (empty($query)) {
             $new_report_id = 1;
-        }
-        else {
+        } else {
             $new_report_id = $query['max_report_id'] + 1;
         }
-    }
-    else {
+    } else {
         $new_report_id = $report_id;
     }
 
@@ -147,7 +143,6 @@ function beginReportDatabase($type, $fields, $report_id = null)
   // Set the fields tokens
     if (!empty($fields)) {
         foreach ($fields as $key=>$value) {
-
             // skip the special tokens
             if (($key == "type") ||
              ($key == "data") ||
@@ -261,8 +256,7 @@ function getStatusReportDatabase($report_id)
     if ($final_array['progress'] == "complete") {
         // return COMPLETE
         return "COMPLETE";
-    }
-    else {
+    } else {
         $final_array['progress_items'] = ($final_array['progress_items']) ? $final_array['progress_items'] : 0;
         return $final_array['progress_items'] . " / " . $final_array['total_items'] . " " . xl("Patients");
     }
@@ -303,7 +297,8 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                 // Store this
                 $dispTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
             }
-            if ( ($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label) ) {
+
+            if (($row['itemized_test_id'] == $itemized_test_id) && ($row['numerator_label'] == $numerator_label)) {
                 // We have a hit, build on the $dispTitle created above
                 if (isset($row['is_main'])) {
                     $tempCqmAmcString = "";
@@ -311,28 +306,34 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " . xlt('PQRI') . ":" . text($row['cqm_pqri_code']) . " ";
                         }
+
                         if (!empty($row['cqm_nqf_code'])) {
                             $tempCqmAmcString .= " " . xlt('NQF') . ":" . text($row['cqm_nqf_code']) . " ";
                         }
                     }
+
                     if ($type_report == "amc") {
                         if (!empty($row['amc_code'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
                         }
+
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014') . ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2011") {
                         if (!empty($row['amc_code'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2011') . ":" . text($row['amc_code']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2014_stage1") {
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014 Stage I'). ":" . text($row['amc_code_2014']) . " ";
                         }
                     }
+
                     if ($type_report == "amc_2014_stage2") {
                         if (!empty($row['amc_code_2014'])) {
                             $tempCqmAmcString .= " " . xlt('AMC-2014 Stage II'). ":" . text($row['amc_code_2014']) . " ";
@@ -342,18 +343,20 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
                     if (!empty($tempCqmAmcString)) {
                         $dispTitle .=  "(".$tempCqmAmcString.")";
                     }
-                    if ( !(empty($row['concatenated_label'])) ) {
+
+                    if (!(empty($row['concatenated_label']))) {
                         $dispTitle .= ", " . xlt($row['concatenated_label']) . " ";
                     }
-                }
-                else { // isset($row['is_sub']
+                } else { // isset($row['is_sub']
                     $dispTitle .= " - " .  generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
                     $dispTitle .= ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
                 }
+
                 return $dispTitle;
             }
         }
     }
+
     return false;
 }
 
@@ -373,10 +376,10 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
 
     if ($count) {
         $given = " COUNT(DISTINCT `patient_data`.`pid`) AS total_listings ";
-    }
-    else {
+    } else {
         $given = " DISTINCT `patient_data`.*, DATE_FORMAT(`patient_data`.`DOB`,'%m/%d/%Y') as DOB_TS ";
     }
+
     $orderby = " `patient_data`.`lname` ASC, `patient_data`.`fname` ASC ";
 
   // set $pass_sql
@@ -402,23 +405,22 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
 
     if ($pass == "all") {
         $sql_where = " WHERE `report_itemized`.`pass` != 3 AND `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? ";
-    }
-    else if ($pass == "fail") {
+    } else if ($pass == "fail") {
         $exlPidArr = array();
         $exludeResult = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, 'exclude', $numerator_label, false, $sqllimit, $fstart);
-        foreach($exludeResult as $exlResArr){
+        foreach ($exludeResult as $exlResArr) {
             $exlPidArr[] = $exlResArr['pid'];
         }
 
         $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
 
-        if(count($exlPidArr) > 0){
+        if (count($exlPidArr) > 0) {
             $exlPids = implode(",", $exlPidArr);
             $sql_where .= " AND patient_data.pid NOT IN(" . add_escape_custom($exlPids) . ") ";
         }
+
         array_push($sqlParameters, $pass_sql);
-    }
-    else {
+    } else {
         $sql_where = " WHERE `report_itemized`.`report_id` = ? AND `report_itemized`.`itemized_test_id` = ? AND `report_itemized`.`numerator_label` = ? AND `report_itemized`.`pass` = ? ";
         array_push($sqlParameters, $pass_sql);
     }
@@ -430,13 +432,13 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     if ($count) {
         $rez = sqlQueryCdrEngine($sql_query, $sqlParameters);
         return $rez['total_listings'];
-    }
-    else {
+    } else {
         $rez = sqlStatementCdrEngine($sql_query, $sqlParameters);
         // create array of listing for return
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $returnval[$iter]=$row;
         }
+
         return $returnval;
     }
 }

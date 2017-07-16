@@ -10,33 +10,24 @@ include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
 
-foreach ($_POST as $k => $var)
-{
+foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
 
-if($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") $encounter = date("Ymd");
 
-if( $_GET["mode"] == "new" )
-{
-    if( $_GET["id"] != '' )
-    {
+if ($_GET["mode"] == "new") {
+    if ($_GET["id"] != '') {
         $_GET["id"] = '0';
         $newid = formSubmit("form_intakeverslag", $_POST, $_GET["id"], $userauthorized);
       // moved here ?
         addForm($encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized);
-      
-    } else
-    {
+    } else {
         $_POST['autosave_flag'] = 0;
         $newid = formUpdate("form_intakeverslag", $_POST, $_GET["saveid"], $userauthorized);
     }
-    
-    
-
-} elseif( $_GET["mode"] == "update" )
-{
+} elseif ($_GET["mode"] == "update") {
     sqlQuery("UPDATE form_intakeverslag 
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 

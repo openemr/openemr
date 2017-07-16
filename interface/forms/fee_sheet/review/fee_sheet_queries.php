@@ -70,65 +70,55 @@ function update_issues($pid, $encounter, $diags)
     
     $sqlCreateProblem = " INSERT into lists(date,begdate,type,occurrence,classification,pid,diagnosis,title,modifydate) values(?,?,'medical_problem',0,0,?,?,?,NOW())";
     $idx_list_id=count($encounter_params)-1;
-    foreach($diags as $diags)
-    {
+    foreach ($diags as $diags) {
         // ensure that a problem is allowed to be created from the diagnostic element
         if ($diags->allowed_to_create_problem_from_diagnosis != "TRUE") continue;
 
         $diagnosis_key=$diags->code_type.":".$diags->code;
         $list_id=null;
-        if($diags->db_id!=null)
-        {
+        if ($diags->db_id!=null) {
             // If we got a the id for the problem passed in, then use it.
             $list_id=$diags->db_id;
-        }
-        else
-        {
+        } else {
             // If not, then search the database for it.
             $lists_params[$idx_diagnosis]='%'.$diagnosis_key.'%';
             $res=sqlStatement($sqlFindProblem, $lists_params);
-            if(sqlNumRows($res)>0)
-            {
+            if (sqlNumRows($res)>0) {
                 $list_id=$res->fields['id'];
             }
         }
         
-        if(!($list_id==null))
-        {
+        if (!($list_id==null)) {
             // We found a problem corresponding to this diagnosis
             $encounter_params[$idx_list_id]=$list_id;
             $issue_encounter=sqlStatement($sqlFindIssueEncounter, $encounter_params);
-            if(sqlNumRows($issue_encounter)==0)
-            {
+            if (sqlNumRows($issue_encounter)==0) {
                 // An issue encounter entry didn't exist, so create it
                 sqlInsert($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
             }
+
             // Check the description in the problem
             sqlStatement($sqlUpdateIssueDescription, array($diags->description,$list_id,$diags->description));
             $list_touched=true;  // Since there is already medical_problem listed, then the list has been touched in the past, so make sure it's flagged correctly
-        }
-        else
-        {
+        } else {
             // No Problem found for this diagnosis
-            if($diags->create_problem) // TODO: per entry create
-            {
-                // If the create flag is set, then create an entry for this diagnosis.
+            if ($diags->create_problem) { // TODO: per entry create
+            // If the create flag is set, then create an entry for this diagnosis.
                 sqlInsert($sqlCreateProblem, array($target_date,$target_date,$pid,$diagnosis_key,$diags->description));
                 $newProblem=sqlStatement($sqlFindProblem, $lists_params); // requerying the database for the newly created ID, instead of using the sqlInsert return value for backwards compatbility with 4.1.0 and earlier insert ID bug.
-                if(sqlNumRows($newProblem)>0)
-                {
+                if (sqlNumRows($newProblem)>0) {
                     $list_id=$newProblem->fields['id'];
-                    if($list_id>0)
-                    {
+                    if ($list_id>0) {
                         sqlInsert($sqlCreateIssueEncounter, array($pid,$list_id,$encounter));
                     }
                 }
+
                 $list_touched=true; // Since we are creating a new problem, the list has been touched
             }
         }
     }
-    if($list_touched)
-    {
+
+    if ($list_touched) {
         // If the list was touched at any point by this code, then flag it in the DB.
         setListTouch($pid, 'medical_problem');
     }
@@ -160,26 +150,21 @@ function create_diags($req_pid, $req_encounter, $diags)
     
     $sqlUpdateDescription = "UPDATE billing SET code_text=? WHERE id=?";
     $findRow= " SELECT id,code_text FROM billing where activity=1 AND encounter=? AND pid=? and code_type=? and code=?";
-    foreach($diags as $diag)
-    {
+    foreach ($diags as $diag) {
         $find_params=array($req_encounter,$req_pid,$diag->getCode_type(),$diag->getCode());
         $search=sqlStatement($findRow, $find_params);
         $count=sqlNumRows($search);
-        if($count==0)
-        {
+        if ($count==0) {
             $bound_params=array();
             array_push($bound_params, $req_encounter);
             $diag->addArrayParams($bound_params);
             array_push($bound_params, $req_pid, $authorized, $_SESSION['authId'], $_SESSION['authProvider'], $provid);
             $res=sqlInsert($sqlCreateDiag, $bound_params);
-        }
-        else
-        {
+        } else {
             // update the code_text;
             $billing_entry=sqlFetchArray($search);
             $code_text=$billing_entry['code_text'];
-            if($code_text!=$diag->description)
-            {
+            if ($code_text!=$diag->description) {
                 sqlStatement($sqlUpdateDescription, array($diag->description,$billing_entry['id']));
             }
         }
@@ -213,8 +198,7 @@ function create_procs($req_pid, $req_encounter, $procs)
             "?,1,0,?,".     // groupname,activity,billed,provider_id
             "?,?,?,'',".     // modifier, units, fee, ndc_info
             "?,'')";        // justify, notecodes
-    foreach($procs as $proc)
-    {
+    foreach ($procs as $proc) {
         $insert_params=array();
         array_push($insert_params, $req_encounter);
         $proc->addArrayParams($insert_params);
@@ -248,13 +232,11 @@ function issue_diagnoses($pid, $encounter)
           " ( ( l.enddate IS NULL) OR (l.enddate IS NOT NULL AND l.enddate>=NOW()) ) ".
           " ORDER BY ie.encounter DESC,l.id";
     $results=sqlStatement($sql, $parameters);
-    while( $res=sqlFetchArray($results))
-    {
+    while ($res=sqlFetchArray($results)) {
         $title=$res['title'];
         $db_id=$res['id'];
         $codes=explode(";", $res['diagnosis']);
-        foreach($codes as $code_key)
-        {
+        foreach ($codes as $code_key) {
             $diagnosis=explode(":", $code_key);
             $code=$diagnosis[1];
             $code_type=$diagnosis[0];
@@ -265,9 +247,9 @@ function issue_diagnoses($pid, $encounter)
 
             $new_info->db_id=$db_id;
             $retval[]=$new_info;
-            
         }
     }
+
     return $retval;
 }
 
@@ -289,13 +271,13 @@ function common_diagnoses($limit = 10)
          " FROM billing WHERE code_type in (".diag_code_types('keylist', true).")" .  // include all code types
          " GROUP BY code_type,code,code_text ORDER BY num desc LIMIT ?";
     $results=sqlStatement($sql, $parameters);
-    while($res=sqlFetchArray($results))
-    {
+    while ($res=sqlFetchArray($results)) {
         $title=$res['code_text'];
         $code=$res['code'];
         $code_type=$res['code_type'];
         $retval[]=new code_info($code, $code_type, $title, 0);
     }
+
     return $retval;
 }
 
@@ -317,17 +299,13 @@ function fee_sheet_items($pid, $encounter, &$diagnoses, &$procedures)
           ." WHERE encounter=? AND billing.activity>0 AND ct.ct_key=billing.code_type "
           ." ORDER BY id";
     $results=sqlStatement($sql, $param);
-    while($res=sqlFetchArray($results))
-    {
+    while ($res=sqlFetchArray($results)) {
         $code=$res['code'];
         $code_type=$res['code_type'];
         $code_text=$res['code_text'];
-        if($res['ct_diag']=='1')
-        {
+        if ($res['ct_diag']=='1') {
             $diagnoses[]=new code_info($code, $code_type, $code_text);
-        }
-        else if($res['ct_fee']==1)
-        {
+        } else if ($res['ct_fee']==1) {
             $fee=$res['fee'];
             $justify=$res['justify'];
             $modifiers=$res['modifier'];
@@ -356,10 +334,10 @@ function select_encounters($pid, $encounter)
          " WHERE pid=? and encounter!=? " .
          " ORDER BY date DESC";
     $results=sqlStatement($sql, $parameters);
-    while($res=sqlFetchArray($results))
-    {
+    while ($res=sqlFetchArray($results)) {
         $retval[]=new encounter_info($res['encounter'], $res['date']);
     }
+
     return $retval;
 }
 
@@ -377,10 +355,10 @@ function select_encounters($pid, $encounter)
 function update_justify($pid, $enc, $diags, $billing_id)
 {
     $justify="";
-    foreach($diags as $diag)
-    {
+    foreach ($diags as $diag) {
         $justify.=$diag->getKey().":";
     }
+
     $sqlUpdate=" UPDATE billing SET justify=? "
               ." WHERE id=?";
     $params=array($justify,$billing_id);

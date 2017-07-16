@@ -82,9 +82,10 @@ class SendtoTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $result     = $appTable->zQuery($query, array($type));
         
-        foreach($result as $row){
+        foreach ($result as $row) {
             $components[$row['ccda_components_field']] = $row['ccda_components_name'];
         }
+
         return $components;
     }
 }

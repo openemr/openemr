@@ -61,13 +61,16 @@ class Holidays_Controller
                 return false;
             }
         }
+
         $file_type = pathinfo($this->target_file, PATHINFO_EXTENSION);
-        if($file_type != "csv"){
+        if ($file_type != "csv") {
             return false;
         }
+
         if (move_uploaded_file($files["form_file"]["tmp_name"], $this->target_file)) {
             return true;
         }
+
         return false;
     }
 
@@ -78,7 +81,7 @@ class Holidays_Controller
     public function import_holidays_from_csv()
     {
         $file=$this->get_file_csv_data();
-        if(empty($file)){
+        if (empty($file)) {
             return false;
         }
 
@@ -93,9 +96,10 @@ class Holidays_Controller
     public function get_file_csv_data()
     {
         $file=array();
-        if (file_exists($this->target_file)){
+        if (file_exists($this->target_file)) {
             $file['date']= date("d/m/Y H:i:s", filemtime($this->target_file));
         }
+
         return $file;
     }
 
@@ -130,9 +134,10 @@ class Holidays_Controller
     {
         $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($date, $date);
-        if(in_array($date, $holidays)){
+        if (in_array($date, $holidays)) {
             return true;
         }
+
         return false;
     }
 }

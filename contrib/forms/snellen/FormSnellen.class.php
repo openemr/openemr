@@ -48,8 +48,7 @@ class FormSnellen extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -75,8 +74,7 @@ class FormSnellen extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -117,7 +115,7 @@ class FormSnellen extends ORDataObject
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -187,7 +185,7 @@ class FormSnellen extends ORDataObject
     }
     function set_notes($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->notes = $data;
         }
     }

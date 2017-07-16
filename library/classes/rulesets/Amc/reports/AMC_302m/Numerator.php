@@ -28,10 +28,9 @@ class AMC_302m_Numerator implements AmcFilterIF
                          "AND enc.date >= ? " .
                          "AND enc.date <= ?", array($patient->id,$beginDate,$endDate));
 
-        if ( !(empty($item)) ) {
+        if (!(empty($item))) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

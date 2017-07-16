@@ -107,15 +107,12 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
               // Set the patient specific setting for gui
                 if (empty($patient_plan)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_plan['normal_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_plan['normal_flag'] == "0"){
+                    } else if ($patient_plan['normal_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['normal_flag'] == NULL
+                    } else { // $patient_rule['normal_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
@@ -128,8 +125,7 @@ $patient_id = ($_GET['patient_id']) ? $_GET['patient_id'] : "";
             <td align="center" style="border-right:1px solid black;">
                 <?php if ($plan['normal_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-}
-else {
+} else {
     echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>
@@ -159,15 +155,12 @@ else {
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_rule['passive_alert_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_rule['passive_alert_flag'] == "0"){
+                    } else if ($patient_rule['passive_alert_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['passive_alert_flag'] == NULL
+                    } else { // $patient_rule['passive_alert_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
@@ -180,8 +173,7 @@ else {
             <td align="center" style="border-right:1px solid black;">
                 <?php if ($rule['passive_alert_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-}
-else {
+} else {
     echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>
@@ -190,15 +182,12 @@ else {
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_rule['active_alert_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_rule['active_alert_flag'] == "0"){
+                    } else if ($patient_rule['active_alert_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['active_alert_flag'] == NULL
+                    } else { // $patient_rule['active_alert_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
@@ -211,8 +200,7 @@ else {
             <td align="center">
                 <?php if ($rule['active_alert_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-}
-else {
+} else {
     echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>

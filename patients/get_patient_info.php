@@ -40,6 +40,7 @@ if (!isset($_SESSION['itsme'])) {
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
     //
 
     //some validation
@@ -48,22 +49,22 @@ if (!isset($_POST['uname']) || empty($_POST['uname'])) {
     header('Location: '.$landingpage.'&w&c');
     exit;
 }
+
 if (!isset($_POST['pass']) || empty($_POST['pass'])) {
     session_destroy();
     header('Location: '.$landingpage.'&w&c');
     exit;
 }
+
     //
 
     // set the language
 if (!empty($_POST['languageChoice'])) {
     $_SESSION['language_choice'] = (int)$_POST['languageChoice'];
-}
-else if (empty($_SESSION['language_choice'])) {
+} else if (empty($_SESSION['language_choice'])) {
     // just in case both are empty, then use english
     $_SESSION['language_choice'] = 1;
-}
-else {
+} else {
     // keep the current session language token
 }
 
@@ -90,20 +91,19 @@ else {
           ." FROM ".TBL_PAT_ACC_ON
           ." WHERE ".COL_POR_USER."=?";
             $auth = privQuery($sql, array($_POST['uname']));
-if($auth===false)
-{
+if ($auth===false) {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
-if(empty($auth[COL_POR_SALT]))
-{
-    if(SHA1($plain_code)!=$auth[COL_POR_PWD])
-    {
+
+if (empty($auth[COL_POR_SALT])) {
+    if (SHA1($plain_code)!=$auth[COL_POR_PWD]) {
         session_destroy();
         header('Location: '.$landingpage.'&w');
         exit;
     }
+
     $new_salt=oemr_password_salt();
     $new_hash=oemr_password_hash($plain_code, $new_salt);
     $sqlUpdatePwd= " UPDATE " . TBL_PAT_ACC_ON
@@ -111,17 +111,14 @@ if(empty($auth[COL_POR_SALT]))
       . COL_POR_SALT . "=? "
       ." WHERE ".COL_ID."=?";
     privStatement($sqlUpdatePwd, array($new_hash,$new_salt,$auth[COL_ID]));
-}
-else {
-    if(oemr_password_hash($plain_code, $auth[COL_POR_SALT])!=$auth[COL_POR_PWD])
-    {
+} else {
+    if (oemr_password_hash($plain_code, $auth[COL_POR_SALT])!=$auth[COL_POR_PWD]) {
         session_destroy();
         header('Location: '.$landingpage.'&w');
         exit;
-
     }
-
 }
+
             $_SESSION['portal_username']=$_POST['uname'];
     $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
@@ -148,11 +145,10 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         exit;
     }
 
-    if ( $password_update)
-    {
+    if ($password_update) {
             $code_new=$_POST['pass_new'];
             $code_new_confirm=$_POST['pass_new_confirm'];
-        if(!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
+        if (!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
             $new_salt=oemr_password_salt();
             $new_hash=oemr_password_hash($code_new, $new_salt);
 
@@ -162,8 +158,9 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
             $authorizedPortal = true;
         }
     }
+
     if ($auth['portal_pwd_status'] == 0) {
-        if(!$authorizedPortal) {
+        if (!$authorizedPortal) {
             // Need to enter a new password in the index.php script
             $_SESSION['password_update'] = 1;
                             header('Location: '.$landingpage);
@@ -182,15 +179,12 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         unset($_SESSION['itsme']); // just being safe
         $_SESSION['pid'] = $auth['pid'];
         $_SESSION['patient_portal_onsite'] = 1;
-    }
-    else {
+    } else {
         session_destroy();
         header('Location: '.$landingpage.'&w');
         exit;
     }
-
-}
-else { //problem with query
+} else { //problem with query
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;

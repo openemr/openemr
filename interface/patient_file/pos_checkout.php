@@ -131,20 +131,22 @@ function generate_receipt($patient_id, $encounter = 0)
         "WHERE pid = ? " .
         "ORDER BY id DESC LIMIT 1", array($patient_id));
     }
+
     if (empty($ferow)) die(xlt("This patient has no activity."));
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
     $svcdate = substr($ferow['date'], 0, 10);
 
-    if ($GLOBALS['receipts_by_provider']){
-        if (isset($ferow['provider_id']) ) {
+    if ($GLOBALS['receipts_by_provider']) {
+        if (isset($ferow['provider_id'])) {
             $encprovider = $ferow['provider_id'];
-        } else if (isset($patdata['providerID'])){
+        } else if (isset($patdata['providerID'])) {
             $encprovider = $patdata['providerID'];
-        } else { $encprovider = -1; }
+        } else {
+            $encprovider = -1; }
     }
 
-    if ($encprovider){
+    if ($encprovider) {
         $providerrow = sqlQuery("SELECT fname, mname, lname, title, street, streetb, " .
         "city, state, zip, phone, fax FROM users WHERE id = ?", array($encprovider));
     }
@@ -195,8 +197,9 @@ function generate_receipt($patient_id, $encounter = 0)
 <body class="body_top">
 <center>
 <?php
-if ( $GLOBALS['receipts_by_provider'] && !empty($providerrow) ) { printProviderHeader($providerrow); }
-else { printFacilityHeader($frow); }
+if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
+    printProviderHeader($providerrow); } else {
+    printFacilityHeader($frow); }
 ?>
 <?php
   echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
@@ -240,6 +243,7 @@ while ($inrow = sqlFetchArray($inres)) {
         $inrow['quantity']
     );
 }
+
     // Service and tax items
     $inres = sqlStatement("SELECT * FROM billing WHERE " .
       "pid = ? AND encounter = ? AND " .
@@ -255,6 +259,7 @@ while ($inrow = sqlFetchArray($inres)) {
         $inrow['units']
     );
 }
+
     // Adjustments.
     $inres = sqlStatement("SELECT " .
       "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
@@ -300,6 +305,7 @@ while ($inrow = sqlFetchArray($inres)) {
     $charges += sprintf('%01.2f', $inrow['fee']);
     receiptPaymentLine($svcdate, 0 - $inrow['fee'], $inrow['code_text']);
 }
+
     // Get other payments.
     $inres = sqlStatement("SELECT " .
       "a.code_type, a.code, a.modifier, a.memo, a.payer_type, a.adj_amount, a.pay_amount, " .
@@ -448,7 +454,6 @@ $alertmsg = ''; // anything here pops up in an alert box
 // If the Save button was clicked...
 //
 if ($_POST['form_save']) {
-
   // On a save, do the following:
   // Flag drug_sales and billing items as billed.
   // Post the corresponding invoice with its payment(s) to sql-ledger
@@ -478,6 +483,7 @@ if ($_POST['form_save']) {
             if (empty($ferow)) break;
             $tmp = $tmp ? $tmp + 1 : 1;
         }
+
         $form_encounter .= $tmp;
     }
 
@@ -502,8 +508,7 @@ if ($_POST['form_save']) {
             "encounter = ?, billed = 1 WHERE " .
             "sale_id = ?";
             sqlQuery($query, array($amount,$form_encounter,$id));
-        }
-        else if ($code_type == 'TAX') {
+        } else if ($code_type == 'TAX') {
             // In the SL case taxes show up on the invoice as line items.
             // Otherwise we gotta save them somewhere, and in the billing
             // table with a code type of TAX seems easiest.
@@ -524,8 +529,7 @@ if ($_POST['form_save']) {
                 '',
                 1
             );
-        }
-        else {
+        } else {
             // Because there is no insurance here, there is no need for a claims
             // table entry and so we do not call updateClaim().  Note we should not
             // eliminate billed and bill_date from the billing table!
@@ -539,10 +543,10 @@ if ($_POST['form_save']) {
     if ($_POST['form_discount']) {
         if ($GLOBALS['discount_by_money']) {
             $amount  = sprintf('%01.2f', trim($_POST['form_discount']));
-        }
-        else {
+        } else {
             $amount  = sprintf('%01.2f', trim($_POST['form_discount']) * $form_amount / 100);
         }
+
         $memo = xl('Discount');
         $time = date('Y-m-d H:i:s');
         sqlBeginTrans();
@@ -578,16 +582,16 @@ if ($_POST['form_save']) {
                 "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                 array($form_pid,$form_encounter)
             );
-        if($RowSearch = sqlFetchArray($ResultSearchNew))
-            {
+        if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                           $Codetype=$RowSearch['code_type'];
             $Code=$RowSearch['code'];
             $Modifier=$RowSearch['modifier'];
-        }else{
+        } else {
                           $Codetype='';
             $Code='';
             $Modifier='';
         }
+
           $session_id=sqlInsert(
               "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
               " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
@@ -609,10 +613,10 @@ if ($_POST['form_save']) {
     $invoice_refno = '';
     if (isset($_POST['form_irnumber'])) {
         $invoice_refno = trim($_POST['form_irnumber']);
-    }
-    else {
+    } else {
         $invoice_refno = updateInvoiceRefNumber();
     }
+
     if ($invoice_refno) {
         sqlStatement("UPDATE form_encounter " .
         "SET invoice_refno = ? " .
@@ -836,6 +840,7 @@ while ($brow = sqlFetchArray($bres)) {
         } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
+
         $query .= " LIMIT 1";
         $tmp = sqlQuery($query, $sqlBindArray);
         $taxrates = $tmp['taxrates'];
@@ -953,9 +958,8 @@ if ($inv_encounter) {
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112, array('payment_method'));
-    while ($brow1112 = sqlFetchArray($bres1112))
-     {
-        if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
+    while ($brow1112 = sqlFetchArray($bres1112)) {
+        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
         continue;
         echo "<option value='".attr($brow1112['option_id'])."'>".text(xl_list_label($brow1112['title']))."</option>";
     }
@@ -1008,8 +1012,7 @@ if (!empty($irnumber)) {
   </td>
  </tr>
 <?php
-}
-// Otherwise if there is an invoice reference number mask, ask for the refno.
+} // Otherwise if there is an invoice reference number mask, ask for the refno.
 else if (!empty($GLOBALS['gbl_mask_invoice_number'])) {
 ?>
  <tr>

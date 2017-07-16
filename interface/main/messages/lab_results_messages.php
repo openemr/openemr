@@ -16,6 +16,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = "")
     if ($provider_id != "") {
         $where = "AND id = '".$provider_id."'";
     }
+
     // Get all active users.
     $rez = sqlStatement("select id, username from users where username != '' AND active = '1' $where");
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
@@ -31,8 +32,7 @@ function lab_results_messages($set_pid, $rid, $provider_id = "")
             // Route message to administrators if there is no provider match.
             if ($provider_id == "") {
                 $thisauth = acl_check('admin', 'super', $user_detail['username']);
-            }
-            else {
+            } else {
                 $thisauth = true;
             }
 

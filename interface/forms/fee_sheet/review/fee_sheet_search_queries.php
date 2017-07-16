@@ -34,9 +34,9 @@ function diagnosis_search($search_type_id, $search_type, $search_query)
 {
     $retval=array();
     $search=main_code_set_search($search_type, $search_query, 20);
-    while($code=sqlFetchArray($search))
-    {
+    while ($code=sqlFetchArray($search)) {
         array_push($retval, new code_info($code['code'], $search_type, $code['code_text']));
     }
+
     return $retval;
 }

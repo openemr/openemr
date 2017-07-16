@@ -30,7 +30,7 @@ class Controller_edit extends BaseController
         $funding = _post('fld_funding_source');
         $release = _post('fld_release');
         $web_ref = _post('fld_web_reference');
-        if ( is_null($rule_id)) {
+        if (is_null($rule_id)) {
             // its a new rule submit
             $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
 
@@ -59,22 +59,23 @@ class Controller_edit extends BaseController
         // new intervals object
         $intervals = new ReminderIntervals();
         $change = false;
-        foreach( ReminderIntervalType::values() as $type ) {
-            foreach( ReminderIntervalRange::values() as $range ) {
+        foreach (ReminderIntervalType::values() as $type) {
+            foreach (ReminderIntervalRange::values() as $range) {
                 $amtKey = $type->code . "-" . $range->code;
                 $timeKey = $amtKey . "-timeunit";
 
                 $amt = _post($amtKey);
                 $timeUnit = TimeUnit::from(_post($timeKey));
 
-                if ( $amt && $timeUnit ) {
+                if ($amt && $timeUnit) {
                     $detail = new ReminderIntervalDetail($type, $range, $amt, $timeUnit);
                     $intervals->addDetail($detail);
                     $change = true;
                 }
             }
         }
-        if ( $change ) {
+
+        if ($change) {
             $this->getRuleManager()->updateIntervals($rule, $intervals);
         }
 
@@ -135,7 +136,7 @@ class Controller_edit extends BaseController
     {
         $search = _get('q');
         $codes = $this->getCodeManager()->search($search);
-        foreach( $codes as $code ) {
+        foreach ($codes as $code) {
             echo $code->display() . "|". $code->id . "\n";
         }
     }
@@ -143,18 +144,20 @@ class Controller_edit extends BaseController
     function _action_categories()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
-        for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
+
         $this->emit_json($columns);
     }
 
     function _action_items()
     {
         $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
-        for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
+
         $this->emit_json($columns);
     }
 
@@ -163,9 +166,10 @@ class Controller_edit extends BaseController
         $columns = array();
         $table = _get('table');
         $stmts = sqlStatement("SHOW COLUMNS FROM " . $table);
-        for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = $row['Field'];
         }
+
         $this->emit_json($columns);
     }
 
@@ -178,27 +182,29 @@ class Controller_edit extends BaseController
 
         $guid = _post('guid');
         $type = _post('type');
-        if ( $type == "filter" ) {
+        if ($type == "filter") {
             $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
         } else {
             $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $guid);
         }
 
-        if ( is_null($criteria) ) {
+        if (is_null($criteria)) {
             $criteriaType = RuleCriteriaType::from(_post('criteriaTypeCode'));
             $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
         }
-        if ( !is_null($criteria) ) {
+
+        if (!is_null($criteria)) {
             $dbView = $criteria->getDbView();
             $criteria->updateFromRequest();
             $dbView = $criteria->getDbView();
 
-            if ( $type == "filter" ) {
+            if ($type == "filter") {
                 $this->ruleManager->updateFilterCriteria($rule, $criteria);
             } else {
                 $this->ruleManager->updateTargetCriteria($rule, $criteria);
             }
         }
+
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
@@ -254,7 +260,7 @@ class Controller_edit extends BaseController
         $customOption = _post("fld_custom_input") == "yes" ? 1 : 0;
 
         $action = $this->getRuleManager()->getRuleAction($rule, $guid);
-        if ( is_null($action) ) {
+        if (is_null($action)) {
             $action = new RuleAction();
             $action->id = $ruleId;
         }
@@ -280,10 +286,11 @@ class Controller_edit extends BaseController
         $id = _get("id");
         $groupId = _get("group_id");
 
-        if ( $type == "filter" ) {
+        if ($type == "filter") {
             $allowed = $this->getRuleManager()->getAllowedFilterCriteriaTypes();
         }
-        if ( $type == "target" ) {
+
+        if ($type == "target") {
             $allowed = $this->getRuleManager()->getAllowedTargetCriteriaTypes();
         }
 
@@ -304,10 +311,11 @@ class Controller_edit extends BaseController
         $criteriaType = RuleCriteriaType::from(_get("criteriaType"));
         $rule = $this->getRuleManager()->getRule($id);
 
-        if ( $type == "filter") {
+        if ($type == "filter") {
             $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
         }
-        if ( $type == "target") {
+
+        if ($type == "target") {
             $criteria = $this->getRuleManager()->createTargetRuleCriteria($rule, $criteriaType);
         }
 

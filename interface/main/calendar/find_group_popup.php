@@ -221,20 +221,20 @@ if ($_REQUEST['searchby'] && $_REQUEST['searchparm']) {
 </div>
 
 
-<?php if (!isset($_REQUEST['searchparm'])): ?>
+<?php if (!isset($_REQUEST['searchparm'])) : ?>
     <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) == 0): ?>
+<?php elseif (count($result) == 0) : ?>
 <div id="searchstatus"
      class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
     <br>
 </div>
-<?php elseif (count($result) >= 100): ?>
+<?php elseif (count($result) >= 100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) < 100): ?>
+<?php elseif (count($result) < 100) : ?>
 <div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
-<?php if (isset($result)): ?>
+<?php if (isset($result)) : ?>
 
 <div id="searchResultsHeader">
 <table>

@@ -40,10 +40,9 @@ class CouchDB
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode($resp);
-        if($response->couchdb && $response->version)
+        if ($response->couchdb && $response->version)
         return true;
-        else
-        return false;
+        else return false;
     }
 
     function createDB($db)
@@ -70,7 +69,7 @@ class CouchDB
         $couch_json['encounter'] = $encounter;
         $couch_json['mimetype'] = $type;
         $couch_json['data'] = $json;
-        if($th_json) {
+        if ($th_json) {
             $couch_json['th_data'] = $th_json;
         }
 
@@ -88,9 +87,10 @@ class CouchDB
         $couch_json['encounter'] = $encounter;
         $couch_json['mimetype'] = $type;
         $couch_json['data'] = $json;
-        if($th_json) {
+        if ($th_json) {
             $couch_json['th_data'] = $th_json;
         }
+
         $resp = $this->send("PUT", "/".$db."/".$docid, json_encode($couch_json));
         return json_decode($resp);
     }
@@ -126,7 +126,7 @@ class CouchDB
     function send($method, $url, $post_data = null)
     {
         $s = fsockopen($this->host, $this->port, $errno, $errstr);
-        if(!$s) {
+        if (!$s) {
             return false;
         }
 
@@ -136,18 +136,17 @@ class CouchDB
             $request .= 'Authorization: Basic '.base64_encode($this->user.':'.$this->pass)."\r\n";
         }
 
-        if($post_data) {
+        if ($post_data) {
             $request .= "Content-Length: ".strlen($post_data)."\r\n\r\n";
             $request .= "$post_data\r\n";
-        }
-        else {
+        } else {
             $request .= "\r\n";
         }
 
         fwrite($s, $request);
         $response = "";
 
-        while(!feof($s)) {
+        while (!feof($s)) {
             $response .= fgets($s);
         }
 

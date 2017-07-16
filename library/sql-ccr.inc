@@ -21,8 +21,8 @@
  */
 
 
-if($_POST['ccrAction'] == 'generate'){
-    if(isset($_POST['show_date'])){
+if ($_POST['ccrAction'] == 'generate') {
+    if (isset($_POST['show_date'])) {
         $set = "on";
         $start = $_POST['Start'];
         $start = $start." 00:00:00";
@@ -40,7 +40,7 @@ function getHeaderData()
 function getMedicationData()
 {
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = " 
       SELECT prescriptions.date_added ,
         prescriptions.patient_id,
@@ -87,7 +87,7 @@ function getMedicationData()
         AND pid = ?
         AND `date` BETWEEN ? AND ?";
         $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
-    }else{
+    } else {
         $sql = " 
       SELECT prescriptions.date_added ,
         prescriptions.patient_id,
@@ -133,13 +133,14 @@ function getMedicationData()
         AND pid = ?";
         $result = sqlStatement($sql, array($pid,$pid));
     }
+
     return $result;
 }
 
 function getImmunizationData()
 {
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = "SELECT
       immunizations.administered_date,
       immunizations.patient_id,
@@ -154,7 +155,7 @@ function getImmunizationData()
     WHERE immunizations.patient_id = ? AND code_types.ct_key = 'CVX' AND immunizations.added_erroneously = 0
     AND create_date BETWEEN ? AND ?" ;
         $result = sqlStatement($sql, array($pid,$start,$end));
-    }else{
+    } else {
         $sql = "SELECT
       immunizations.administered_date,
       immunizations.patient_id,
@@ -169,6 +170,7 @@ function getImmunizationData()
     WHERE immunizations.patient_id = ? AND immunizations.added_erroneously = 0 AND code_types.ct_key = 'CVX'";
         $result = sqlStatement($sql, array($pid));
     }
+
     return $result;
 }
 
@@ -177,7 +179,7 @@ function getProcedureData()
 {
 
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = " 
     SELECT 
       lists.title as proc_title,
@@ -237,7 +239,7 @@ function getProcedureData()
     AND prs.date BETWEEN ? AND ?";
   
         $result = sqlStatement($sql, array($pid,$start,$end,$pid,$start,$end));
-    }else{
+    } else {
         $sql = " 
     SELECT 
       lists.title as proc_title,
@@ -296,6 +298,7 @@ function getProcedureData()
   
         $result = sqlStatement($sql, array($pid,$pid));
     }
+
     return $result;
 }
 
@@ -312,7 +315,7 @@ function getProblemData()
   #  (this will likely need to be dealt with at some point; ie. support multiple dx codes per problem).
 
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
@@ -326,7 +329,7 @@ function getProblemData()
     AND l.diagnosis NOT LIKE '%;%'
     AND l.date BETWEEN ? AND ?";
         $result = sqlStatement($sql, array($pid,$start,$end));
-    }else{
+    } else {
         $sql = " 
     SELECT fe.encounter, fe.reason, fe.provider_id, u.title, u.fname, u.lname, 
       fe.facility_id, f.street, f.city, f.state, ie.list_id, l.pid, l.title AS prob_title, l.diagnosis, 
@@ -340,6 +343,7 @@ function getProblemData()
     AND l.diagnosis NOT LIKE '%;%'";
         $result = sqlStatement($sql, array($pid));
     }
+
     return $result;
 }
 
@@ -348,7 +352,7 @@ function getAlertData()
 {
 
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = " 
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
       ie.list_id, l.pid, l.title as alert_title, l.outcome, 
@@ -370,7 +374,7 @@ function getAlertData()
     AND l.date BETWEEN ? AND ?";
     
         $result = sqlStatement($sql, array($pid,$start,$end));
-    }else{
+    } else {
         $sql = " 
     select fe.reason, fe.provider_id, fe.facility_id, fe.encounter,
       ie.list_id, l.pid, l.title as alert_title, l.outcome, 
@@ -392,6 +396,7 @@ function getAlertData()
       
         $result = sqlStatement($sql, array($pid));
     }
+
     return $result;
 }
 
@@ -400,7 +405,7 @@ function getResultData()
 {
 
     global $pid,$set,$start,$end;
-    if($set == "on"){
+    if ($set == "on") {
         $sql = "
       SELECT 
         prs.procedure_result_id as `pid`,
@@ -434,7 +439,7 @@ function getResultData()
       AND prs.date BETWEEN ? AND ?";
         
         $result = sqlStatement($sql, array($pid,$start,$end));
-    }else{
+    } else {
         $sql = "
       SELECT 
         prs.procedure_result_id as `pid`,
@@ -468,6 +473,7 @@ function getResultData()
         
         $result = sqlStatement($sql, array($pid));
     }
+
     return $result;
 }
 

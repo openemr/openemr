@@ -38,6 +38,7 @@ function getKittens($catid, $catstring, &$categories)
         getKittens($crow['id'], ($catstring ? "$catstring / " : "") .
         ($catid ? $crow['name'] : ''), $categories);
     }
+
   // If no kitties, then this is a leaf node and should be listed.
     if (!$childcount) $categories[$catid] = $catstring;
 }
@@ -56,10 +57,10 @@ if ($_POST['bn_save']) {
             flush();
             if ($messageid) {
                 $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));
-            }
-            else {
+            } else {
                 $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
             }
+
             if ($result['errmsg']) die(text($result['errmsg']));
             $d = new Document();
             // With JSON-over-HTTP we would need to base64_decode the contents.
@@ -73,16 +74,18 @@ if ($_POST['bn_save']) {
             if ($rc) die(text(xl('Error saving document') . ": $rc"));
         }
     }
+
   // Finally, delete the request or message from the portal.
     if ($messageid) {
         $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
-    }
-    else {
+    } else {
         $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     }
+
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -98,10 +101,10 @@ getKittens(0, '', $categories);
 if (!$postid && !$messageid) die(xlt('Request ID is missing!'));
 if ($messageid) {
     $result = cms_portal_call(array('action' => 'getmessage', 'messageid' => $messageid));
-}
-else {
+} else {
     $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 }
+
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }
@@ -188,6 +191,7 @@ if (is_array($result['uploads'])) {
             if (++$i == 1) echo " selected";
             echo ">" . text($catname) . "</option>\n";
         }
+
         echo "</select></td>\n";
         //
         echo " </tr>\n";

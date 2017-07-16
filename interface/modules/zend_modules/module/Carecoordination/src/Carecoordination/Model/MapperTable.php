@@ -44,7 +44,7 @@ class MapperTable extends AbstractTableGateway
                         where 1=1 ORDER BY sec.ccda_components_id, sec.ccda_sections_id";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array());
-        foreach($row as $result){
+        foreach ($row as $result) {
             $sections[] = $result;
         }
         
@@ -64,7 +64,7 @@ class MapperTable extends AbstractTableGateway
         $query      = "select name, directory, nickname from registry where state=? ORDER BY name";
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array(1));
-        foreach($row as $result){
+        foreach ($row as $result) {
             $name       = $result['nickname'] ? $result['nickname'] : $result['name'];
             $directory  = "1|".$result['directory'];
             $forms[]    = array($name, $directory);
@@ -87,16 +87,17 @@ class MapperTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $row        = $appTable->zQuery($query, array('lbfnames'));
         $count      = 0;
-        foreach($row as $result){
+        foreach ($row as $result) {
             $lbf[$count][0]     = $result['title'];
             $lbf[$count][1]     = "2|".$result['option_id'];
             $res_1 =  $appTable->zQuery("SELECT field_id,title FROM layout_options WHERE form_id=? ORDER BY title", array($result['option_id']));
             $count_sub      = 0;
-            foreach($res_1 as $row_1){
+            foreach ($res_1 as $row_1) {
                 $lbf[$count][2][$count_sub][0] = ($row_1['title'] ? $row_1['title'] : $row_1['field_id']);
                 $lbf[$count][2][$count_sub][1] = $lbf[$count][1]."|".$row_1['field_id'];
                 $count_sub++;
             }
+
             $count++;
         }
         
@@ -117,17 +118,18 @@ class MapperTable extends AbstractTableGateway
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array());
         $count  = 0;
-        foreach($res as $row){
+        foreach ($res as $row) {
             $table_name     = array_shift($row);
             $tables[$count][0]  = $table_name;
             $tables[$count][1]  = "3|".$table_name;
             $res_desc       = $appTable->zQuery("DESCRIBE ".$table_name);
             $count_sub      = 0;
-            foreach($res_desc as $row_desc){
+            foreach ($res_desc as $row_desc) {
                 $tables[$count][2][$count_sub][0] = $row_desc['Field'];
                 $tables[$count][2][$count_sub][1] = $tables[$count][1]."|".$row_desc['Field'];
                 $count_sub++;
             }
+
             $count++;
         }
         
@@ -147,7 +149,7 @@ class MapperTable extends AbstractTableGateway
         $query      = "SELECT * FROM categories WHERE id != ? ORDER BY NAME ASC";
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array(1));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $document_categories[] = array($row['name'], '4|'.$row['id']);
         }
         
@@ -175,39 +177,35 @@ class MapperTable extends AbstractTableGateway
         
         $count      = 0;
         $class      = '';
-        foreach($res as $row){
+        foreach ($res as $row) {
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_dir']      = $row['form_dir'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_type']     = $row['form_type'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['form_table']    = $row['form_table'];
             $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['ccda_field']    = $row['ccda_field'];
-            if($row['form_type'] == 1){
-                if($row['ccda_field']){
+            if ($row['form_type'] == 1) {
+                if ($row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['ccda_field'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "3|".$row['form_dir']."|".$row['ccda_field'];
-                }
-                elseif($row['form_table'] && !$row['ccda_field']){
+                } elseif ($row['form_table'] && !$row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['form_table'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "1|".$row['form_table'];
-                }
-                else{
+                } else {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['form_name'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "1|".$row['form_dir'];
                 }
-            }
-            elseif($row['form_type'] == 2){
-                if($row['ccda_field']){
+            } elseif ($row['form_type'] == 2) {
+                if ($row['ccda_field']) {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['ccda_field'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "2|".$row['form_dir']."|".$row['ccda_field'];
-                }
-                else{
+                } else {
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['title'];
                     $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "2|".$row['form_dir'];
                 }
-            }
-            elseif($row['form_type'] == 3){
+            } elseif ($row['form_type'] == 3) {
                 $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['name']  = $row['name'];
                 $mapped_values[$row['ccda_component']][$row['ccda_component_section']][$count]['class'] = "4|".$row['id'];
             }
+
             $count++;
         }
         
@@ -224,7 +222,7 @@ class MapperTable extends AbstractTableGateway
         $query      = "select max(id) as id from ccda_table_mapping where user_id=?";
         $appTable       = new ApplicationTable();
         $res            = $appTable->zQuery($query, array(1));
-        foreach($res as $row){
+        foreach ($res as $row) {
             return $row['id'];
         }
     }
@@ -243,7 +241,7 @@ class MapperTable extends AbstractTableGateway
         $query      = "select max(id) as id from ccda_table_mapping";
         $appTable   = new ApplicationTable();
         $res        = $appTable->zQuery($query, array());
-        foreach($res as $row){
+        foreach ($res as $row) {
             return $row['id'];
         }
     }

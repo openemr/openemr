@@ -36,7 +36,7 @@ function getDisclosureByDate($pid, $limit)
     " ORDER BY el.date DESC LIMIT 0, $limit";
     $r1 = sqlStatement($discQry, array($pid));
     $result2 = array();
-    for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++)
         $result2[$iter] = $frow;
     return $result2;
 }
@@ -56,10 +56,9 @@ $N=3;
 $has_disclosure=0;
 //retrieve all the disclosures.
 $result=getDisclosureByDate($pid, $N);
-if ($result != null){
+if ($result != null) {
     $disclosure_count = 0;//number of disclosures so far displayed
-    foreach ($result as $iter)
-    {
+    foreach ($result as $iter) {
         $has_disclosure = 1;
         $app_event=$iter{"event"};
         $event=explode("-", $app_event);
@@ -67,7 +66,8 @@ if ($result != null){
         //listing the disclosures
         echo "<tr style='border-bottom:1px dashed' class='text'>";
             echo "<td valign='top' class='text'>";
-        if($event[1]=='healthcareoperations'){ echo "<b>";
+        if ($event[1]=='healthcareoperations') {
+            echo "<b>";
             echo xlt('health care operations');
             echo "</b>";
         } else echo "<b>".text($event[1])."</b>";
@@ -78,14 +78,13 @@ if ($result != null){
                     echo " ".$description;
             echo "</td>";
         echo "</tr>";
-
     }
 }
 ?>
 </table>
 <?php
-if ( $has_disclosure == 0 ) //If there are no disclosures recorded
-{ ?>
+if ($has_disclosure == 0) { //If there are no disclosures recorded
+    ?>
     <span class='text'>
 <?php
   echo xlt("There are no disclosures recorded for this patient.");
@@ -99,8 +98,7 @@ if (acl_check('patients', 'disclosure', '', array('write', 'addonly'))) {
 ?>
     </span>
 <?php
-} else
-{
+} else {
 ?>
     <br />
     <span class='text'> <?php

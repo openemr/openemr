@@ -39,16 +39,17 @@ class Viewer extends Abstract_Model
     
     protected function setAttributes(array $attributes)
     {
-        foreach ( $attributes as $key => $value ) {
+        foreach ($attributes as $key => $value) {
             $this->{$key} = $value;
         }
     }
     
     public function render(ViewableIF $viewable, array $attributes = null)
     {
-        if ( $attributes ) {
+        if ($attributes) {
             $this->setAttributes($attributes);
         }
+
         include $viewable->getViewScript();
     }
     

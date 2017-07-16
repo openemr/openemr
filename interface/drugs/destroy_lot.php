@@ -23,7 +23,7 @@ function QuotedOrNull($fld)
 
  if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
  if (!$drug_id) die(xlt('Drug ID missing!'));
- if (!$lot_id ) die(xlt('Lot ID missing!'));
+ if (!$lot_id) die(xlt('Lot ID missing!'));
 ?>
 <html>
 <head>

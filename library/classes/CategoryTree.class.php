@@ -30,12 +30,12 @@ class CategoryTree extends Tree
             if ($patient_id == "00") {
       // Collect documents that are not assigned to a patient
                 $sql .= " AND (d.foreign_id = 0 OR d.foreign_id IS NULL) ";
-            }
-            else {
+            } else {
       // Collect documents for a specific patient
                 $sql .= " AND d.foreign_id = '" . $patient_id . "'";
             }
         }
+
         $sql .= " ORDER BY c.id ASC, d.docdate DESC, d.url ASC";
 
         //echo $sql;

@@ -63,6 +63,7 @@ function phimail_connect(&$phimail_error)
         default: $phimail_error = 'C2';
                return false;
     }
+
     if ($phimail_secure) {
         $context = stream_context_create();
         if ($phimail_cafile != '' &&
@@ -71,6 +72,7 @@ function phimail_connect(&$phimail_error)
             $phimail_error = 'C3';
             return false;
         }
+
         $socket_tries = 0;
         $fp = false;
         while ($socket_tries < 3 && !$fp) {
@@ -84,6 +86,7 @@ function phimail_connect(&$phimail_error)
                 $context
             );
         }
+
         if (!$fp) {
             if ($err1 == '111') $err2 = xl('Server may be offline');
             if ($err2 == '') $err2 = xl('Connection error');
@@ -92,6 +95,7 @@ function phimail_connect(&$phimail_error)
     } else {
         $fp = @fsockopen($server, $phimail_server['port']);
     }
+
     return $fp;
 }
 
@@ -107,27 +111,27 @@ function phimail_check()
         phimail_logit(0, xl('could not connect to server').' '.$err);
         return;
     }
+
     $phimail_username = $GLOBALS['phimail_username'];
     $phimail_password = $GLOBALS['phimail_password'];
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-    if($ret!==true) {
+    if ($ret!==true) {
         phimail_logit(0, "authentication error " . $ret);
         return;
     }
 
-    if(!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
+    if (!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
 
     while (1) {
         phimail_write($fp, "CHECK\n");
         $ret=fgets($fp, 512);
 
-        if($ret=="NONE\n") { //nothing to process
+        if ($ret=="NONE\n") { //nothing to process
             phimail_close($fp);
             phimail_logit(1, "message check completed");
             return;
-        }
-        else if(substr($ret, 0, 6)=="STATUS") {
+        } else if (substr($ret, 0, 6)=="STATUS") {
          //Format STATUS message-id status-code [additional-information]
             $val=explode(" ", trim($ret), 4);
             $sql='SELECT * from direct_message_log WHERE msg_id = ?';
@@ -137,16 +141,17 @@ function phimail_check()
                 phimail_logit(0, "database problem");
                 return;
             }
+
             if (($msg=sqlFetchArray($res))===false) {
                 //no match, so log it and move on (should never happen)
                 phimail_logit(0, "NO MATCH: ".$ret);
                 $ret = phimail_write_expect_OK($fp, "OK\n");
-                if($ret!==true) return;
+                if ($ret!==true) return;
                 else continue;
             }
 
             //if we get here, $msg contains the matching outgoing message record
-            if($val[2]=='failed') {
+            if ($val[2]=='failed') {
                 $success=0;
                 $status='F';
             } else if ($val[2]=='dispatched') {
@@ -194,15 +199,11 @@ function phimail_check()
 
          //done with this status message
             $ret = phimail_write_expect_OK($fp, "OK\n");
-            if($ret!==true) {
+            if ($ret!==true) {
                    phimail_close($fp);
                 return;
             }
-
-        }
-
-        else if(substr($ret, 0, 4)=="MAIL") {
-
+        } else if (substr($ret, 0, 4)=="MAIL") {
             $val = explode(" ", trim($ret), 5); // MAIL recipient sender #attachments msg-id
             $recipient=$val[1];
             $sender=$val[2];
@@ -211,15 +212,14 @@ function phimail_check()
 
             //request main message
             $ret2 = phimail_write_expect_OK($fp, "SHOW 0\n");
-            if($ret2!==true) {
+            if ($ret2!==true) {
                 phimail_close($fp);
                 return;
             }
 
         //get message headers
             $hdrs="";
-            while (($next_hdr = fgets($fp, 1024)) != "\n")
-            $hdrs .= $next_hdr;
+            while (($next_hdr = fgets($fp, 1024)) != "\n")$hdrs .= $next_hdr;
 
             $mime_type=fgets($fp, 512);
             $mime_info=explode(";", $mime_type);
@@ -234,15 +234,15 @@ function phimail_check()
             }
 
             $att2=fgets($fp, 256);
-            if($att2!=$att) { //safety for mismatch on attachments
+            if ($att2!=$att) { //safety for mismatch on attachments
                    phimail_close($fp);
                    return;
             }
 
         //get attachment info
-            if($att>0) {
-                for ($attnum=0;$attnum<$att;$attnum++) {
-                    if(  ($attinfo[$attnum]['name']=fgets($fp, 1024)) === false
+            if ($att>0) {
+                for ($attnum=0; $attnum<$att; $attnum++) {
+                    if (($attinfo[$attnum]['name']=fgets($fp, 1024)) === false
                     || ($attinfo[$attnum]['mime']=fgets($fp, 1024)) === false
                     || ($attinfo[$attnum]['desc']=fgets($fp, 1024)) === false) {
                              phimail_close($fp);
@@ -263,6 +263,7 @@ function phimail_check()
                     phimail_close($fp);
                     return;
                 }
+
                    $idnum=$doc_id['doc_id'];
                    $all_doc_ids[] = $idnum;
                    $url=$doc_id['url'];
@@ -272,7 +273,7 @@ function phimail_check()
             }
 
         //download and store attachments
-            for($attnum=0;$attnum<$att;$attnum++) {
+            for ($attnum=0; $attnum<$att; $attnum++) {
                 $ret2 = phimail_write_expect_OK($fp, "SHOW " . ($attnum+1) . "\n");
                 if ($ret2!==true) {
                     phimail_close($fp);
@@ -280,7 +281,7 @@ function phimail_check()
                 }
 
                //we can ignore next two lines (repeat of name and mime-type)
-                if ( ($a1=fgets($fp, 512))===false || ($a2=fgets($fp, 512))===false ) {
+                if (($a1=fgets($fp, 512))===false || ($a2=fgets($fp, 512))===false) {
                     phimail_close($fp);
                     return;
                 }
@@ -291,6 +292,7 @@ function phimail_check()
                     phimail_close($fp);
                     return;
                 }
+
                 $attinfo[$attnum]['file']=$attdata;
 
                 $req_name = trim($attinfo[$attnum]['name']);
@@ -302,6 +304,7 @@ function phimail_check()
                     phimail_close($fp);
                     return;
                 }
+
                 $attinfo[$attnum]['doc_id']=$att_doc_id;
                 $idnum=$att_doc_id['doc_id'];
                 $all_doc_ids[] = $idnum;
@@ -324,8 +327,7 @@ function phimail_check()
             phimail_logit(1, $ret);
 
         //alert appointed user about new message
-            switch($mime_type_main) {
-
+            switch ($mime_type_main) {
                 case "text/plain":
                     $body_text = @file_get_contents($body); //this was not uploaded as a document
                     unlink($body);
@@ -347,7 +349,6 @@ function phimail_check()
                     . xl("Message content is not plain text so it has been stored as a document.") . $att_detail;
                     $pnote_id = addPnote(0, $note, 0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
                     break;
-
             }
 
             foreach ($all_doc_ids as $doc_id) setGpRelation(1, $doc_id, 6, $pnote_id);
@@ -356,9 +357,7 @@ function phimail_check()
                    phimail_close();
                    return;
             }
-
-        }
-        else { //unrecognized or FAIL response
+        } else { //unrecognized or FAIL response
             phimail_logit(0, "problem checking messages " . $ret);
             phimail_close($fp);
             return;
@@ -379,10 +378,11 @@ function phimail_write_expect_OK($fp, $text)
 {
     phimail_write($fp, $text);
     $ret = fgets($fp, 256);
-    if($ret!="OK\n") { //unexpected error
+    if ($ret!="OK\n") { //unexpected error
         phimail_close($fp);
         return $ret;
     }
+
     return true;
 }
 
@@ -407,31 +407,34 @@ function phimail_read_blob($fp, $len)
 {
 
     $fpath=$GLOBALS['temporary_files_dir'];
-    if(!@file_exists($fpath)) {
+    if (!@file_exists($fpath)) {
         return false;
     }
+
     $name = uniqid("direct-");
     $fn = $fpath . "/" . $name . ".dat";
     $dup = 1;
-    while(file_exists($fn)) {
+    while (file_exists($fn)) {
         $fn = $fpath . "/" . $name . "." . $dup++ . ".dat";
     }
 
     $ff = @fopen($fn, "w");
-    if(!$ff) return false;
+    if (!$ff) return false;
 
     $bytes_left=$len;
     $chunk_size=1024;
     while (!feof($fp) && $bytes_left>0) {
-        if ($bytes_left < $chunk_size ) $chunk_size = $bytes_left;
+        if ($bytes_left < $chunk_size) $chunk_size = $bytes_left;
         $chunk = fread($fp, $chunk_size);
-        if($chunk===false || @fwrite($ff, $chunk)===false) {
+        if ($chunk===false || @fwrite($ff, $chunk)===false) {
             @fclose($ff);
             @unlink($fn);
             return false;
         }
+
         $bytes_left -= strlen($chunk);
     }
+
     @fclose($ff);
     return($fn);
 }
@@ -443,12 +446,13 @@ function phimail_read_blob($fp, $len)
 function phimail_extension($mime)
 {
     $m=explode("/", $mime);
-    switch($mime) {
+    switch ($mime) {
         case 'text/plain':
             return (".txt");
         default:
     }
-    switch($m[1]) {
+
+    switch ($m[1]) {
         case 'html':
         case 'xml':
         case 'pdf':
@@ -467,6 +471,7 @@ function phimail_service_userID($name = 'phimail-service')
     } else {
         $user = $u['id'];
     }
+
     return ($user);
 }
 

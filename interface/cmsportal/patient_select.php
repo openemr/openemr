@@ -112,30 +112,35 @@ if ($postid) {
         $clsql .= " + ((cmsportal_login IS NOT NULL AND cmsportal_login = ?) * 100)";
         $clarr[] = $cmsportal_login;
     }
+
   // First name.
     $fname = trim($result['fields']['fname']);
     if ($fname !== '') {
         $clsql .= " + ((fname IS NOT NULL AND fname = ?) * 5)";
         $clarr[] = $fname;
     }
+
   // Last name.
     $lname = trim($result['fields']['lname']);
     if ($lname !== '') {
         $clsql .= " + ((lname IS NOT NULL AND lname = ?) * 5)";
         $clarr[] = $lname;
     }
+
   // Birth date.
     $dob = fixDate(trim($result['fields']['dob']), '');
     if ($dob !== '') {
         $clsql .= " + ((DOB IS NOT NULL AND DOB = ?) * 5)";
         $clarr[] = $dob;
     }
+
   // SSN match is worth a lot and we allow for matching on last 4 digits.
     $ssn = preg_replace('/[^0-9]/', '', $result['fields']['ss']);
     if (strlen($ssn) > 3) {
         $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";
         $clarr[] = "%$ssn";
     }
+
   // Zip code makes it unnecessary to match on city and state.
     $zip = preg_replace('/[^0-9]/', '', $result['fields']['postal_code']);
     $zip = substr($zip, 0, 5);
@@ -143,6 +148,7 @@ if ($postid) {
         $clsql .= " + ((postal_code IS NOT NULL AND postal_code LIKE ?) * 2)";
         $clarr[] = "$zip%";
     }
+
   // This generates a REGEXP query that matches the first 2 words of the street address.
     if (preg_match('/^\W*(\w+)\W+(\w+)/', $result['fields']['street'], $matches)) {
         $clsql .= " + ((street IS NOT NULL AND street REGEXP '^[^[:alnum:]]*";
@@ -192,11 +198,11 @@ while ($row = sqlFetchArray($res)) {
     if ($row['closeness'] >= 100) {
         ++$login_matches;
         $login_pid = $row['pid'];
-    }
-    else {
+    } else {
       // We have a match on login name but this is not one, so ignore it.
         if ($login_matches) continue;
     }
+
     $phone = $row['phone_biz'];
     if (empty($phone)) $phone = $row['phone_home'];
     if (empty($phone)) $phone = $row['phone_cell'];
@@ -210,6 +216,7 @@ while ($row = sqlFetchArray($res)) {
     if ($row['cmsportal_login'] !== '' && $result['post']['user'] !== $row['cmsportal_login']) {
         echo " style='color:red' title='" . xla('Portal ID does not match request from portal!') . "'";
     }
+
     echo ">" . text($row['cmsportal_login']) . "</td>\n";
     echo "   <td>" . text($row['lname'] . ", " . $row['fname']) . "</td>\n";
     echo "   <td>" . text($phone) . "</td>\n";
@@ -223,6 +230,7 @@ while ($row = sqlFetchArray($res)) {
 </div>
 <?php
 }
+
 if ($login_matches == 1) {
   // There is exactly one match by portal login name, this must be it.
   // There should not be more than one, but if there is then we will

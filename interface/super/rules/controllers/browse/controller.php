@@ -26,7 +26,7 @@ class Controller_browse extends BaseController
         $rows = array();
 
         $rules = resolve_rules_sql('', '0', true);
-        foreach( $rules as $rowRule ) {
+        foreach ($rules as $rowRule) {
             $title = getLabel($rowRule['id'], 'clinical_rules');
             $type = xl("Reminder");
 

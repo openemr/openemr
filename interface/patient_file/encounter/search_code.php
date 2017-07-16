@@ -69,21 +69,20 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     " LIMIT " . ($M + 1).
     "";
 
-    if ($res = sqlStatement($sql) ) {
-        for($iter=0; $row=sqlFetchArray($res); $iter++)
-        {
+    if ($res = sqlStatement($sql)) {
+        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
+
         echo "<div id='resultsummary' style='background-color:lightgreen;'>";
         if (count($result) > $M) {
             echo "Showing the first ".$M." results";
-        }
-        else if (count($result) == 0) {
+        } else if (count($result) == 0) {
             echo "No results found";
-        }
-        else {
+        } else {
             echo "Showing all ".count($result)." results";
         }
+
         echo "</div>";
 ?>
 <div id="results">

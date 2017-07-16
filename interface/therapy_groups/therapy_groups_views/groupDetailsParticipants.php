@@ -29,7 +29,7 @@
 <?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
+<?php if ($view || $edit) :?>
 <main id="group-details">
     <div class="container-group">
         <span class="hidden title"><?php echo text($groupName);?></span>
@@ -43,14 +43,14 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <?php if($edit) :?>
-                            <?php if($edit_encounter):?>
+                        <?php if ($edit) :?>
+                            <?php if ($edit_encounter) :?>
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
-                        <?php if($readonly == ''): ?>
+                        <?php if ($readonly == '') : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr($groupId); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveForm" class="float-right"><?php echo xlt('Save');?></button>
-                        <?php else: ?>
+                        <?php else : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&editParticipants=1&group_id=' . attr($groupId); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                         <?php endif; ?>
@@ -95,13 +95,13 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-md-offset-4 col-md-4 text-center">
-                                                <?php if($edit) :?>
+                                                <?php if ($edit) :?>
                                                 <input type="submit" name="save_new" value="<?php echo xla('Adding a participant'); ?>">
                                                 <input id="cancelAddParticipant" type="button" value="<?php echo xla('Cancel'); ?>">
                                                 <?php endif;?>
                                             </div>
                                         </div>
-                                        <?php if(isset($message)): ?>
+                                        <?php if (isset($message)) : ?>
                                         <div class="row">
                                             <div class="col-md-offset-2 col-md-8">
                                                 <p class="<?php echo $addStatus == 'failed' ? 'groups-error-msg' : 'groups-success-msg' ?>"><?php echo text($message)?></p>
@@ -120,7 +120,7 @@
                                 <div class="col-md-12">
                                     <form id="updateParticipants" method="post">
                                         <input type="hidden" name="group_id" value="<?php echo attr($groupId); ?>" />
-                                        <?php if($edit) :?>
+                                        <?php if ($edit) :?>
                                         <button id="addParticipant"><?php echo xlt('Add'); ?></button>
                                         <?php endif;?>
                                         <table  id="participants_table" class="dataTable display">
@@ -132,7 +132,7 @@
                                                 <th><?php echo xlt('Date of registration'); ?></th>
                                                 <th><?php echo xlt('Date of exit'); ?></th>
                                                 <th><?php echo xlt('Comment'); ?></th>
-                                                <?php if($readonly == ''): ?>
+                                                <?php if ($readonly == '') : ?>
                                                     <th><?php echo xlt('Delete'); ?></th>
                                                 <?php endif; ?>
                                             </tr>
@@ -147,15 +147,15 @@
                                                     <td><span><?php echo text($participant['pid']); ?></span></td>
                                                     <td>
                                                         <select name="group_patient_status[]" <?php echo $readonly; ?>>
-                                                            <?php foreach ($statuses as $key => $status): ?>
-                                                                <option value="<?php echo attr($key);?>" <?php if($key == $participant['group_patient_status']) echo 'selected'; ?> > <?php echo text($status); ?> </option>
+                                                            <?php foreach ($statuses as $key => $status) : ?>
+                                                                <option value="<?php echo attr($key);?>" <?php if ($key == $participant['group_patient_status']) echo 'selected'; ?> > <?php echo text($status); ?> </option>
                                                             <?php endforeach; ?>
                                                         </select>
                                                     </td>
                                                     <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i+1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?>></td>
                                                     <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i+1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?>></td>
                                                     <td><input type="text" name="group_patient_comment[]" class="full-width"  value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
-                                                    <?php if($readonly == ''): ?>
+                                                    <?php if ($readonly == '') : ?>
                                                         <td class="delete_btn">
                                                             <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id='. attr($groupId) .'&deleteParticipant=1&pid=' . attr($participant['pid']); ?>"><span>X</span></a>
                                                         </td>
@@ -298,9 +298,8 @@
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if(sqlNumRows($result4)>0)
-    while($rowresult4 = sqlFetchArray($result4))
-    {
+    if (sqlNumRows($result4)>0)
+    while ($rowresult4 = sqlFetchArray($result4)) {
     ?>
     EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';

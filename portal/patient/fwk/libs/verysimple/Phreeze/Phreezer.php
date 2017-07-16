@@ -148,7 +148,7 @@ class Phreezer extends Observable
         );
         
         $this->DataAdapters = array ();
-        foreach ( $csettings as $key => $connection ) {
+        foreach ($csettings as $key => $connection) {
             $this->DataAdapters [$key] = new DataAdapter($connection, $observer, null, $key);
         }
         
@@ -353,7 +353,7 @@ class Phreezer extends Observable
     public function AttachObserver($observer)
     {
         parent::AttachObserver($observer);
-        foreach ( $this->DataAdapters as $adapter ) {
+        foreach ($this->DataAdapters as $adapter) {
             $adapter->AttachObserver($observer);
         }
     }
@@ -512,6 +512,7 @@ class Phreezer extends Observable
         if (strlen($objectclass) < 1) {
             throw new Exception("\$objectclass argument is required");
         }
+
         if (strlen($id) < 1) {
             throw new Exception("\$id argument is required for $objectclass");
         }
@@ -593,20 +594,21 @@ class Phreezer extends Observable
             
             $sql = "update `$table` set ";
             $delim = "";
-            foreach ( $fms as $fm ) {
+            foreach ($fms as $fm) {
                 if ((! $fm->IsPrimaryKey) && $fm->FieldType != FM_CALCULATION) {
                     $prop = $fm->PropertyName;
                     $val = $obj->$prop;
                     
                     try {
                         $sql .= $delim . "`" . $fm->ColumnName . "` = " . $this->GetQuotedSql($val);
-                    } catch ( Exception $ex ) {
+                    } catch (Exception $ex) {
                         throw new Exception("Error escaping property '$prop'. value could not be converted to string");
                     }
                     
                     $delim = ", ";
                 }
             }
+
             $sql .= " where $pkcol = '" . $this->Escape($id) . "'";
             
             $returnval = $this->DataAdapter->Execute($sql);
@@ -616,7 +618,7 @@ class Phreezer extends Observable
             // this is an insert
             $sql = "insert into `$table` (";
             $delim = "";
-            foreach ( $fms as $fm ) {
+            foreach ($fms as $fm) {
                 // we don't want to include the primary key if this is an auto-increment table
                 if ((! $fm->IsPrimaryKey) || $force_insert) {
                     // calculated fields are not directly bound to a column and do not get persisted
@@ -632,7 +634,7 @@ class Phreezer extends Observable
             $sql .= ") values (";
             
             $delim = "";
-            foreach ( $fms as $fm ) {
+            foreach ($fms as $fm) {
                 // use the save logic inserting values as with the column names above
                 if ((! $fm->IsPrimaryKey) || $force_insert) {
                     if ($fm->FieldType != FM_CALCULATION) {
@@ -641,7 +643,7 @@ class Phreezer extends Observable
                         
                         try {
                             $sql .= $delim . ' ' . $this->GetQuotedSql($val);
-                        } catch ( Exception $ex ) {
+                        } catch (Exception $ex) {
                             throw new Exception("Error escaping property '$prop'. value could not be converted to string");
                         }
                         
@@ -649,6 +651,7 @@ class Phreezer extends Observable
                     }
                 }
             }
+
             $sql .= ")";
             
             // for the insert we also need to get the insert id of the primary key
@@ -657,6 +660,7 @@ class Phreezer extends Observable
                 $returnval = $this->DataAdapter->GetLastInsertId();
                 $obj->$pk = $returnval;
             }
+
             $obj->OnInsert(); // fire OnInsert event
         }
         
@@ -892,7 +896,7 @@ class Phreezer extends Observable
     public function GetPrimaryKeyMap($objectclass)
     {
         $fms = $this->GetFieldMaps($objectclass);
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             if ($fm->IsPrimaryKey) {
                 return $fm;
             }
@@ -939,7 +943,7 @@ class Phreezer extends Observable
             
             // if this criteria has any or criterias attached, we need to set the foreign key to these
             // as well or else we'll get unexpected results
-            foreach ( $criteria->GetOrs() as $oc ) {
+            foreach ($criteria->GetOrs() as $oc) {
                 $oc->$foreign_prop = $key_value;
             }
         }

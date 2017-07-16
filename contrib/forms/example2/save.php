@@ -19,7 +19,6 @@ $form_folder = "example";
 if ($encounter == "") $encounter = date("Ymd");
 
 if ($_GET["mode"] == "new") {
-    
     /* NOTE - for customization you can replace $_POST with your own array
      * of key=>value pairs where 'key' is the table field name and 
      * 'value' is whatever it should be set to
@@ -32,8 +31,7 @@ if ($_GET["mode"] == "new") {
     
     /* link the form to the encounter in the 'forms' table */
     addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-}
-elseif ($_GET["mode"] == "update") {
+} elseif ($_GET["mode"] == "update") {
     /* update existing record */
     $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
 }

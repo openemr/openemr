@@ -52,6 +52,7 @@ window.close(); // comment out for debugging
 <?php
   exit();
 }
+
 // end Save logic
 
 ?>
@@ -127,6 +128,7 @@ for ($parentid = $order; $parentid > 0;) {
     $parentid = $row['parent'] + 0;
     echo ", $parentid";
 }
+
 echo "];\n";
 ?>
 

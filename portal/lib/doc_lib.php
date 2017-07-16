@@ -22,16 +22,15 @@
  */
 $ignoreAuth = true;
 session_start();
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-}
-else {
+} else {
     session_destroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
-    if ( ! isset($_SESSION['authUserID']) ){
+    if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: '.$landingpage);
         exit;
@@ -49,7 +48,7 @@ $logit = new ApplicationTable();
 $htmlin = $_REQUEST['content'];
 $dispose = $_POST['handler'];
 
-try{
+try {
     $form_filename = $_REQUEST['docid'] . '_' . $GLOBALS['pid'] . '.pdf';
     $templatedir = $GLOBALS['OE_SITE_DIR'] . "/documents/onsite_portal_documents/patient_documents";
     $templatepath = "$templatedir/$form_filename";
@@ -64,17 +63,19 @@ try{
         )
     );
     $pdf->writeHtml($htmlin, false);
-    if( $dispose == 'download' ){
+    if ($dispose == 'download') {
         header('Content-type: application/pdf');
         header('Content-Disposition: attachment; filename=$form_filename');
         $pdf->Output($form_filename, 'D');
         $logit->portalLog('download document', $_SESSION['pid'], ('document:'.$form_filename));
     }
-    if( $dispose == 'view' ){
+
+    if ($dispose == 'view') {
         Header("Content-type: application/pdf");
         $pdf->Output($templatepath, 'I');
     }
-    if( $dispose == 'chart' ){
+
+    if ($dispose == 'chart') {
         $data = $pdf->Output($form_filename, 'S');
         ob_start();
         $d = new Document();
@@ -85,11 +86,11 @@ try{
 
         exit(0);
     };
-}
-catch(Exception $e){
+} catch (Exception $e) {
     echo 'Message: ' .$e->getMessage();
     die(xlt("no signature in document"));
 }
+
 // not currently used but meant to be.
 function doc_toDoc($htmlin)
 {

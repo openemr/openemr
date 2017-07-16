@@ -32,15 +32,14 @@ $orderby = '';
 if (isset($_GET['iSortCol_0'])) {
     for ($i = 0; $i < intval($_GET['iSortingCols']); ++$i) {
         $iSortCol = intval($_GET["iSortCol_$i"]);
-        if ($_GET["bSortable_$iSortCol"] == "true" ) {
+        if ($_GET["bSortable_$iSortCol"] == "true") {
             $sSortDir = escape_sort_order($_GET["sSortDir_$i"]); // ASC or DESC
       // We are to sort on column # $iSortCol in direction $sSortDir.
             $orderby .= $orderby ? ', ' : 'ORDER BY ';
       //
             if ($aColumns[$iSortCol] == 'name') {
                     $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
-            }
-            else {
+            } else {
                     $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
             }
         }
@@ -59,11 +58,11 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
             "lname LIKE '$sSearch%' OR " .
             "fname LIKE '$sSearch%' OR " .
             "mname LIKE '$sSearch%' ";
-        }
-        else {
+        } else {
             $where .= "`" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%' ";
         }
     }
+
     if ($where) $where .= ")";
 }
 
@@ -79,8 +78,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
             "lname LIKE '$sSearch%' OR " .
             "fname LIKE '$sSearch%' OR " .
             "mname LIKE '$sSearch%' )";
-        }
-        else {
+        } else {
             $where .= " `" . escape_sql_column_name($colname, array('patient_data')) . "` LIKE '$sSearch%'";
         }
     }
@@ -95,8 +93,7 @@ foreach ($aColumns as $colname) {
     $sellist .= ", ";
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
-    }
-    else {
+    } else {
         $sellist .= "`" . escape_sql_column_name($colname, array('patient_data')) . "`";
     }
 }
@@ -131,14 +128,13 @@ while ($row = sqlFetchArray($res)) {
             if ($row['fname']) $name .= $row['fname'];
             if ($row['mname']) $name .= ' ' . $row['mname'];
             $arow[] = $name;
-        }
-        else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
+        } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);
-        }
-        else {
+        } else {
             $arow[] = $row[$colname];
         }
     }
+
     $out['aaData'][] = $arow;
 }
 

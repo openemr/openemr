@@ -24,13 +24,13 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
         break;
     }
 }
+
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
         die(xlt('Not authorized'));
     }
-}
-else {
+} else {
     die(xlt('Not authorized'));
 }
 
@@ -122,8 +122,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
     if ($first) {
         $first = 0;
-    }
-    else {
+    } else {
         echo "</table>";
     }
 
@@ -133,12 +132,12 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         if (($focustype=='allergy' || $focustype=='medication') && $GLOBALS['erx_enable']) {
             echo "<a href='../../eRx.php?page=medentry' class='css_button_small' onclick='top.restoreSession()' ><span>" .
             xlt('Add') . "</span></a>\n";
-        }
-        else {
+        } else {
             echo "<a href='javascript:;' class='css_button_small' onclick='dopclick(0,\"" .
             attr($focustype)  . "\")'><span>" . xlt('Add') . "</span></a>\n";
         }
     }
+
     echo "  <span class='title'>" . text($disptype) . "</span>\n";
   // echo " <table style='margin-bottom:1em;text-align:center'>";
     echo " <table style='margin-bottom:1em;'>";
@@ -162,18 +161,17 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // collect issues
     $condition = '';
-    if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
     $condition .= "and erx_uploaded != '1' ";
     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
     "ORDER BY begdate", array($pid,$focustype));
 
   // if no issues (will place a 'None' text vs. toggle algorithm here)
     if (sqlNumRows($pres) < 1) {
-        if ( getListTouch($pid, $focustype) ) {
+        if (getListTouch($pid, $focustype)) {
             // Data entry has happened to this type, so can display an explicit None.
             echo "<tr><td class='text'><b>" . xlt("None") . "</b></td></tr>";
-        }
-        else {
+        } else {
               // Data entry has not happened to this type, so can show the none selection option.
               echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
             attr($focustype) . "' value='none'";
@@ -184,7 +182,6 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // display issues
     while ($row = sqlFetchArray($pres)) {
-
         $rowid = $row['id'];
 
         $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
@@ -215,16 +212,15 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         if ($row['outcome'] == "1" && $row['enddate'] != null) {
               // Resolved
               $statusCompute = generate_display_field(array('data_type'=>'1','list_id'=>'outcome'), $row['outcome']);
-        }
-        else if($row['enddate'] == null) {
+        } else if ($row['enddate'] == null) {
               $statusCompute = xlt("Active");
-        }
-        else {
+        } else {
               $statusCompute = xlt("Inactive");
         }
+
         $click_class='statrow';
-        if($row['erx_source']==1 && $focustype=='allergy') $click_class='';
-        elseif($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
+        if ($row['erx_source']==1 && $focustype=='allergy') $click_class='';
+        elseif ($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
 
         echo " <tr class='$bgclass detail' $colorstyle>\n";
         echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";
@@ -241,6 +237,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
                 echo generate_display_field(array('data_type'=>'1','list_id'=>'reaction'), $row['reaction']);
               echo "</td>\n";
         }
+
         echo "  <td>" . text($row['referredby']) . "</td>\n";
         echo "  <td>" . text($row['modifydate']) . "</td>\n";
         echo "  <td>" . text($row['comments']) . "</td>\n";
@@ -250,6 +247,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         echo " </tr>\n";
     }
 }
+
 echo "</table>";
 ?>
 

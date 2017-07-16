@@ -30,10 +30,10 @@ class C_FormPriorAuth extends Controller
     {
         if (is_numeric($form_id)) {
             $prior_auth = new FormPriorAuth($form_id);
-        }
-        else {
+        } else {
             $prior_auth = new FormPriorAuth();
         }
+
         $this->assign("VIEW", true);
         $this->assign("prior_auth", $prior_auth);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -51,6 +51,7 @@ class C_FormPriorAuth extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Prior Authorization Form", $this->prior_auth->id, "prior_auth", $GLOBALS['pid'], $_SESSION['userauthorized']);
         $_POST['process'] = "";
         return;

@@ -189,11 +189,13 @@ while ($row = sqlFetchArray($res)) {
         $disp_category = $category;
         ++$irow;
     }
+
     foreach ($code_types as $key => $value) {
         if ($value['id'] == $row['code_type']) {
             break;
         }
     }
+
     $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
     echo "  <tr bgcolor='$bgcolor'>\n";
 // Added 5-09 by BM - Translate label if applicable
@@ -215,6 +217,7 @@ while ($row = sqlFetchArray($res)) {
             "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
             echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
         }
+
         echo "</td>\n";
     }
 
@@ -226,6 +229,7 @@ while ($row = sqlFetchArray($res)) {
     while ($prow = sqlFetchArray($pres)) {
         echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
     }
+
     echo "  </tr>\n";
 }
 ?>

@@ -37,7 +37,7 @@
 
     ini_set("error_log", E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
-if ( !(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable']) ) {
+if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo htmlspecialchars(xl('Patient Portal is turned off'), ENT_NOQUOTES);
     exit;
 }
@@ -52,18 +52,19 @@ if ( !(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite
     // collect default language id (skip this if this is a password update)
 if (!(isset($_SESSION['password_update']))) {
     $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
-    for ($iter = 0;$row = sqlFetchArray($res2);$iter++) {
+    for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
     }
+
     if (count($result2) == 1) {
         $defaultLangID = $result2[0]{"lang_id"};
         $defaultLangName = $result2[0]{"lang_description"};
-    }
-    else {
+    } else {
         //default to english if any problems
         $defaultLangID = 1;
         $defaultLangName = "English";
     }
+
   // set session variable to default so login information appears in default language
     $_SESSION['language_choice'] = $defaultLangID;
   // collect languages if showing language menu
@@ -73,8 +74,7 @@ if (!(isset($_SESSION['password_update']))) {
         if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
             $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
             $res3=SqlStatement($sql);
-        }
-        else {
+        } else {
           // Use and sort by the translated language name.
             $sql = "SELECT ll.lang_id, " .
                  "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " .
@@ -86,15 +86,16 @@ if (!(isset($_SESSION['password_update']))) {
                  "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
             $res3=SqlStatement($sql, array($mainLangID));
         }
-        for ($iter = 0;$row = sqlFetchArray($res3);$iter++) {
+
+        for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
             $result3[$iter] = $row;
         }
+
         if (count($result3) == 1) {
           //default to english if only return one language
             $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
         }
-    }
-    else {
+    } else {
         $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."' />\n";
     }
 }
@@ -250,12 +251,11 @@ if (!(isset($_SESSION['password_update']))) {
                             echo "<option selected='selected' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."'>" . htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
-                                    if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
                                     echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
-                                }
-                                else {
+                                } else {
                                     if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                        if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
                                         echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                     }
                                 }
@@ -264,7 +264,8 @@ if (!(isset($_SESSION['password_update']))) {
                         </select>
                     </td>
                   </tr>
-                <?php }} ?>
+                <?php }
+} ?>
 
         <tr>
             <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" /></center></td>

@@ -30,10 +30,11 @@ function smarty_function_pc_date_format($args)
     extract($args);
     unset($args);
     setlocale(LC_TIME, _PC_LOCALE);
-    if(!isset($format)) {
+    if (!isset($format)) {
         $format = _SETTING_DATE_FORMAT;
     }
-    if(isset($date)) {
+
+    if (isset($date)) {
         list($y,$m,$d) = explode('-', $date);
         echo strftime($format, smarty_make_timestamp($date));
     } else {

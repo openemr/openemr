@@ -75,7 +75,7 @@ class Google extends SearchEngine
         
         $rank->Query = $query;
         
-        while ( $rank->Position == 0 && $result_counter <= $maxresults ) {
+        while ($rank->Position == 0 && $result_counter <= $maxresults) {
             $current_page ++;
             
             $result = $this->DoSearch($query, $result_counter, $page_size);
@@ -122,7 +122,7 @@ class Google extends SearchEngine
         $rank = new SearchRank();
         $counter = 0;
         
-        foreach ( $result->resultElements as $element ) {
+        foreach ($result->resultElements as $element) {
             $counter ++;
             // print "<div>$url :: $counter = ".$element->URL."</div>";
             $normalizedurl = str_replace("/", "\\/", $url);
@@ -158,12 +158,12 @@ class Google extends SearchEngine
         $continue = true;
         $counter = 0;
         
-        while ( $continue ) {
+        while ($continue) {
             $counter ++;
             try {
                 $result = $this->_googleSoap($query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe);
                 $continue = false;
-            } catch ( exception $ex ) {
+            } catch (exception $ex) {
                 $this->FailedRequests ++;
                 
                 if (preg_match("/Daily limit/i", $ex->getMessage()) || preg_match("/Invalid/i", $ex->getMessage())) {

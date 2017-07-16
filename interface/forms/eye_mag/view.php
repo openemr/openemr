@@ -56,10 +56,11 @@ if ($_REQUEST['url']) {
     redirector($_REQUEST['url']);
     exit;
 }
+
 // Get user preferences, for this user
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND (id=?) ORDER BY id,ZONE_ORDER,ordering";
 $result = sqlStatement($query, array($_SESSION['authId']));
-while ($prefs= sqlFetchArray($result))   {
+while ($prefs= sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
 }
@@ -128,6 +129,7 @@ if (!$LOCKED||!$LOCKEDBY) { //no one else has write privs.
     $warning = ""; //remove nodisplay class
     $take_ownership = $uniqueID;
 }
+
 //drop TIME from encounter_date (which is in DATETIME format)
 //since OpenEMR assumes input is yyyy-mm-dd
 //we could do this by changing the MYSQL query in the first place too.  Which is better?
@@ -135,12 +137,14 @@ $dated = new DateTime($encounter_data['encounter_date']);
 $dated = $dated->format('Y-m-d');
 $visit_date = oeFormatShortDate($dated);
 
-if (!$form_id && !$encounter) { echo text($encounter)."-".text($form_id).xlt('No encounter...');
+if (!$form_id && !$encounter) {
+    echo text($encounter)."-".text($form_id).xlt('No encounter...');
     exit;}
+
 //ideally this would point to an error databased by problem #, cause it'd be a problem.
 
 if ($refresh and $refresh != 'fullscreen') {
-    if ($refresh == "PMSFH")  {
+    if ($refresh == "PMSFH") {
         echo display_PRIOR_section($refresh, $id, $id, $pid);
     } else if ($refresh == "PMSFH_panel") {
         echo show_PMSFH_panel($PMSFH);
@@ -149,6 +153,7 @@ if ($refresh and $refresh != 'fullscreen') {
     } else if ($refresh == "GFS") {
         echo display_GlaucomaFlowSheet($pid);
     }
+
     exit;
 }
 ?><!DOCTYPE html>
@@ -166,9 +171,9 @@ if ($refresh and $refresh != 'fullscreen') {
     <?php require_once("$srcdir/restoreSession.php");
     ?>
     function dopclick(id) {
-        <?php if ($thisauth != 'write'): ?>
+        <?php if ($thisauth != 'write') : ?>
       dlgopen('../../patient_file/summary/a_issue.php?issue=0&thistype=' + id, '_blank', 550, 400);
-        <?php else: ?>
+        <?php else : ?>
       alert("<?php echo xls('You are not authorized to add/edit issues'); ?>");
         <?php endif; ?>
     }
@@ -188,12 +193,11 @@ if ($refresh and $refresh != 'fullscreen') {
       IMP_target = target;
         <?php
 
-        if($irow['type'] == 'PMH') //or POH
-        {
-            ?>
+        if ($irow['type'] == 'PMH') { //or POH
+        ?>
           dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+escape(term), '_blank', 600, 400);
             <?php
-        } else{
+        } else {
             ?>
           dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+escape(term), '_blank', 600, 400);
             <?php
@@ -299,6 +303,7 @@ if ($refresh and $refresh != 'fullscreen') {
           // $priors[earlier]['PLAN'] contains the orders from last visit
           // explode '|' and display as needed
         }
+
         menu_overhaul_left($pid, $encounter);
         ?>
 
@@ -789,7 +794,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                 $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
                 $wear = sqlStatement($query, array($pid,$form_id,$encounter));
-                while ($wearing = sqlFetchArray($wear))   {
+                while ($wearing = sqlFetchArray($wear)) {
                     $count_rx++;
                     ${"display_W_$count_rx"}        = '';
                     ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
@@ -931,6 +936,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     if (($IOPTIME == '00:00:00')||(!$IOPTIME)) {
                                         $IOPTIME =  date('G:i A');
                                     }
+
                                     $show_IOPTIME = date('g:i A', strtotime($IOPTIME));
                                     ?>
                                   <input type="text" name="IOPTIME" id="IOPTIME" tabindex="-1" value="<?php echo attr($show_IOPTIME); ?>">
@@ -1036,6 +1042,7 @@ if ($refresh and $refresh != 'fullscreen') {
                             } else {
                                 $ODVF[$z] = 'value=0';
                             }
+
                             $OSzone = "OSVF".$z;
                             if ($$OSzone =="1") {
                                 $OSVF[$z] = 'checked value=1';
@@ -1044,6 +1051,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                 $OSVF[$z] = 'value=0';
                             }
                         }
+
                             if (!$bad)  $VFFTCF = "checked";
                         ?>
                     <div id="Lyr60">
@@ -1540,6 +1548,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         $CTLMANUFACTURER_list_OS .= '>'.text(substr($row['title'], 0, 12)).'</option>
                                     ' ;
                                     }
+
                                                       //build supplier list from list_options::list_id::CTLSupplier
                                     $query = "select * from list_options where list_id like 'CTLSupplier' order by seq";
                                     $CTLSUPPLIER_data =sqlStatement($query);
@@ -1553,6 +1562,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         $CTLSUPPLIER_list_OS .= '>'.text(substr($row['title'], 0, 10)).'</option>
                                     ' ;
                                     }
+
                                                       //build manufacturer list from list_options::list_id::CTLManufacturer
                                     $query = "select * from list_options where list_id like 'CTLBrand' order by seq";
                                     $CTLBRAND_data =sqlStatement($query);
@@ -1803,8 +1813,10 @@ if ($refresh and $refresh != 'fullscreen') {
                   <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text"
                   class="borderShadow"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
                     <?php
-                    if ($output_priors !='') {  echo $output_priors;
-                    } else { echo "<b>". xlt("First visit: No Old Records")."</b>"; }
+                    if ($output_priors !='') {
+                        echo $output_priors;
+                    } else {
+                        echo "<b>". xlt("First visit: No Old Records")."</b>"; }
                     ?>&nbsp;
                 </span>
               </div>
@@ -2401,10 +2413,14 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                                 <td class="right"><?php echo xlt('Color'); ?>: </td>
-                                <td><input type="text"  name="ODCOLOR" id="ODCOLOR" value="<?php if ($ODCOLOR) { echo  text($ODCOLOR);
-} else { echo ""; } ?>"/></td>
-                                <td><input type="text" name="OSCOLOR" id="OSCOLOR" value="<?php if ($OSCOLOR) { echo  text($OSCOLOR);
-} else { echo ""; } ?>"/></td>
+                                <td><input type="text"  name="ODCOLOR" id="ODCOLOR" value="<?php if ($ODCOLOR) {
+                                    echo  text($ODCOLOR);
+} else {
+    echo ""; } ?>"/></td>
+                                <td><input type="text" name="OSCOLOR" id="OSCOLOR" value="<?php if ($OSCOLOR) {
+                                    echo  text($OSCOLOR);
+} else {
+    echo ""; } ?>"/></td>
                                 <td style="text-align:bottom;"><!-- //Normals may be 11/11 or 15/15.  Need to make a preference here for the user.
                                     //or just take the normal they use and incorporate that ongoing?  -->
                                   &nbsp;<span title="<?php echo xlt('Insert normals'); ?> - 11/11" class="fa fa-share-square-o fa-flip-horizontal" id="NEURO_COLOR" name="NEURO_COLOR" ></span>
@@ -3264,29 +3280,34 @@ if ($refresh and $refresh != 'fullscreen') {
                             if ($total_DX == '1') {
                                 foreach ($PMSFH[0]['POH'] as $k => $v) {
                                     $insert_code='';
-                                    if ($v['diagnosis'] >''){
+                                    if ($v['diagnosis'] >'') {
                                         $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                     }
+
                                     $k = xla($k);
                                     $v['title'] = xlt($v['title']);
                                     $insert_code = text($insert_code);
                                     echo "<li class='ui-widget-content'> <span id='DX_POH_".$k."' name='DX_POH_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                 }
+
                                 foreach ($PMSFH[0]['POS'] as $k => $v) {
                                     $insert_code='';
-                                    if ($v['diagnosis'] >''){
+                                    if ($v['diagnosis'] >'') {
                                         $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                     }
+
                                     $k = xla($k);
                                     $v['title'] = xlt($v['title']);
                                     $insert_code = text($insert_code);
                                     echo "<li class='ui-widget-content'> <span id='DX_POS_".$k."' name='DX_POS_".$k."'>".$v['title']."</span> ".$insert_code."</li>";
                                 }
+
                                 foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
                                     $insert_code='';
-                                    if ($v['diagnosis'] >''){
+                                    if ($v['diagnosis'] >'') {
                                         $insert_code = "<code class='pull-right diagnosis'>".$v['diagnosis']."</code>";
                                     }
+
                                     $k = xla($k);
                                     $v['title'] = xlt($v['title']);
                                     $insert_code = text($insert_code);
@@ -3298,7 +3319,6 @@ if ($refresh and $refresh != 'fullscreen') {
                                 echo xlt('and').' '.xlt('no diagnosis was auto-generated from the clinical findings.');
                                 echo "</span><br /><br>";
                                 echo xlt("Update the chart to activate the Builder.")."<br />";
-
                             }
                             ?>
                           </ol>
@@ -3362,14 +3382,16 @@ if ($refresh and $refresh != 'fullscreen') {
                                         $fs_option   = $row['fs_option'];
                                         $fs_codes    = $row['fs_codes'];
                                         list($code_type_here,$code) = explode("|", $fs_codes);
-                                        if($fs_category !== $last_category) {
+                                        if ($fs_category !== $last_category) {
                                             $last_category = $fs_category;
                                             echo "    <option value=''> " . text(substr($fs_category, 1)) . "</option>\n";
                                         }
+
                                         $code_text = (strlen(substr($fs_option, 1)) > 18) ? substr(substr($fs_option, 1), 0, 16).'...' : substr($fs_option, 1);
 
                                         echo "    <option value='" . attr($fs_codes) . "'>" . text($code)." ".text(substr($fs_category, 1)).": ".text($code_text) . "</option>\n";
                                     }
+
                                     // Create drop-lists based on categories defined within the codes.
                                     $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                                       "WHERE list_id = 'superbill' ORDER BY seq");
@@ -3435,6 +3457,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         if (in_array($row['codes'], $arrTESTS)) {
                                             $checked = "checked='yes'";
                                         }
+
                                       /**
                                        *  This will link to a report generator for billable procedures/tests.
                                        *  They items need to be read/interpreted/dictated/documented to be billable.
@@ -3509,12 +3532,13 @@ if ($refresh and $refresh != 'fullscreen') {
                             $number_rows=0;
                             $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
                             $TODO_data = sqlStatement($query, array("Eye_todo_done_defaults"));
-                            while ($TODO= sqlFetchArray($TODO_data))   {
+                            while ($TODO= sqlFetchArray($TODO_data)) {
                                 if ($number_rows > 0) $SQL_INSERT .= ",
                             ";
                                 $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($providerID)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
                                 $number_rows++;
                             }
+
                             sqlStatement($SQL_INSERT.";");
                         }
                         ?>
@@ -3550,6 +3574,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                     if (in_array($title, $PLAN_arr)) {
                                         $checked = "checked='yes'";
                                     }
+
                                    // <!-- <i title="Build your plan." class="fa fa-share-square-o fa-flip-horizontal" id="make_blank_PLAN" name="make_blank_PLAN"></i>-->
                                     echo "<input type='checkbox' id='PLAN$counter' name='PLAN[]' $checked value='".attr($row[title])."'> ";
                                     $label = text(substr($row['title'], 0, 30));

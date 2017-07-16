@@ -79,7 +79,7 @@ class Rule
      */
     function addRuleType($ruleType)
     {
-        if ( !$this->hasRuleType($ruleType) ) {
+        if (!$this->hasRuleType($ruleType)) {
             array_push($this->ruleTypes, $ruleType->code);
         }
     }
@@ -91,11 +91,12 @@ class Rule
      */
     function hasRuleType($ruleType)
     {
-        foreach( $this->ruleTypes as $type) {
-            if ( $type == $ruleType->code ) {
+        foreach ($this->ruleTypes as $type) {
+            if ($type == $ruleType->code) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -171,9 +172,10 @@ class Rule
     function getRuleTypeLabels()
     {
         $labels = array();
-        foreach( $this->ruleTypes as $ruleType ) {
+        foreach ($this->ruleTypes as $ruleType) {
             array_push($labels, RuleType::from($ruleType)->lbl);
         }
+
         return $labels;
     }
 }

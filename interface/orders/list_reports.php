@@ -69,6 +69,7 @@ if ($_POST['form_xmit']) {
         if (empty($errmsg)) {
               $errmsg = send_hl7_order($ppid, $hl7);
         }
+
         if ($errmsg) break;
         sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
         "procedure_order_id = ?", array($formid));
@@ -171,6 +172,7 @@ if (empty($_POST['form_external_refresh'])) {
             $info['select'][$selkey] = $selval;
         }
     }
+
   // Get file delete requests from this form if there are any.
     if (is_array($_POST['delete'])) {
         foreach ($_POST['delete'] as $delkey => $dummy) {
@@ -223,29 +225,31 @@ foreach ($info as $infokey => $infoval) {
                 if (!$count++) {
                     $s .= "  <td><input type='checkbox' name='delete[" . attr($infokey) . "]' value='1' /></td>\n";
                     $s .= "  <td>" . text($infokey) . "</td>\n";
-                }
-                else {
+                } else {
                     $s .= "  <td>&nbsp;</td>\n";
                     $s .= "  <td>&nbsp;</td>\n";
                 }
+
                 $s .= "  <td colspan='2' style='color:red'>". text(substr($message, 1)) . "</td>\n";
-            }
-            else {
+            } else {
                 // Informational message starts with '>'
                 $s .= "  <td>&nbsp;</td>\n";
                 $s .= "  <td>" . text($infokey) . "</td>\n";
                 $s .= "  <td colspan='2' style='color:green'>". text(substr($message, 1)) . "</td>\n";
             }
+
             $s .= " </tr>\n";
         }
     }
 }
+
 if ($s) {
     if ($matchreqs || $errors) {
         echo "<p class='bold' style='color:#008800'>";
         echo xlt('Incoming results requiring attention:');
         echo "</p>\n";
     }
+
     echo "<table width='100%'>\n";
     echo " <tr class='head'>\n";
     echo "  <td>" . xlt('Delete') . "</th>\n";
@@ -262,6 +266,7 @@ if ($s) {
             echo xlt('After that the Match column will show the selected patient ID, or 0 to create.') . ' ';
             echo xlt('If you do not select a match the patient will be created.') . ' ';
         }
+
         echo xlt('Checkboxes above indicate if you want to reject and delete the HL7 file.') . ' ';
         echo xlt('When done, click Submit (below) to apply your choices.');
         echo "</p>\n";
@@ -395,6 +400,7 @@ if (!empty($form_from_date)) {
     $where .= " AND po.date_ordered >= ?";
     $sqlBindArray[] = $form_from_date;
 }
+
 if (!empty($form_to_date)) {
     $where .= " AND po.date_ordered <= ?";
     $sqlBindArray[] = $form_to_date;
@@ -412,14 +418,11 @@ if ($form_provider) {
 
 if ($form_reviewed == 2) {
     $where .= " AND pr.procedure_report_id IS NOT NULL AND pr.review_status = 'reviewed'";
-}
-else if ($form_reviewed == 3) {
+} else if ($form_reviewed == 3) {
     $where .= " AND pr.procedure_report_id IS NOT NULL AND pr.review_status != 'reviewed'";
-}
-else if ($form_reviewed == 4) {
+} else if ($form_reviewed == 4) {
     $where .= " AND po.date_transmitted IS NOT NULL AND pr.procedure_report_id IS NULL";
-}
-else if ($form_reviewed == 5) {
+} else if ($form_reviewed == 5) {
     $where .= " AND po.date_transmitted IS NULL AND pr.procedure_report_id IS NULL";
 }
 
@@ -465,6 +468,7 @@ while ($row = sqlFetchArray($res)) {
     if ($lastpoid != $order_id || $lastpcid != $order_seq) {
         ++$encount;
     }
+
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -476,8 +480,7 @@ while ($row = sqlFetchArray($res)) {
         echo text($ptname);
         echo "</td>\n";
         echo "  <td>" . text($row['pubpid']) . "</td>\n";
-    }
-    else {
+    } else {
         echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
     }
 
@@ -493,6 +496,7 @@ while ($row = sqlFetchArray($res)) {
             echo "checked";
             ++$num_checkboxes;
         }
+
         echo " />";
         // Order date comes with a link to open results in the same frame.
         echo "<a href='javascript:openResults($order_id)' ";
@@ -508,8 +512,7 @@ while ($row = sqlFetchArray($res)) {
         echo "title='" . xla('Click for order summary') . "'>";
         echo text($order_id);
         echo "</a></td>\n";
-    }
-    else {
+    } else {
         echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
     }
 
@@ -518,13 +521,11 @@ while ($row = sqlFetchArray($res)) {
         if ($sendable) {
             echo "  <td>" . text($procedure_code) . "</td>\n";
             echo "  <td>" . text($procedure_name) . "</td>\n";
-        }
-        else {
+        } else {
             echo "  <td><strike>" . text($procedure_code) . "</strike></td>\n";
             echo "  <td><strike>" . text($procedure_name) . "</strike></td>\n";
         }
-    }
-    else {
+    } else {
         echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
     }
 
@@ -536,9 +537,9 @@ while ($row = sqlFetchArray($res)) {
         if ($review_status == 'reviewed') {
             echo " &#x2713;"; // unicode check mark character
         }
+
         echo "</td>\n";
-    }
-    else {
+    } else {
         echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
     }
 

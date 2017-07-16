@@ -46,7 +46,7 @@ function getErxCredentials()
 
 function validation($val_check, $val, $msg)
 {
-    if(!$val)
+    if (!$val)
     $msg .= $val_check.' '.xl('missing').'<br>';
     return $msg;
 }
@@ -77,22 +77,21 @@ function trimData($str, $length)
 
 function stringToNumeric($str)
 {
-    if(is_numeric($str)){
+    if (is_numeric($str)) {
         return array($str,"");
-    }
-    else{
-        for($i=0;$i<strlen($str);$i++){
+    } else {
+        for ($i=0; $i<strlen($str); $i++) {
             $x=substr($str, $i, 1);
-            if(is_numeric($x) && !$txt){
+            if (is_numeric($x) && !$txt) {
                 $num.=$x;
-            }
-            else{
+            } else {
                 $txt.=$x;
-
             }
         }
+
         return array($num,$txt);
     }
+
     $str=substr($str, 0, ($length-1));
     return $str;
 }
@@ -136,17 +135,18 @@ function user_role($doc, $r)
 {
     global $msg;
     $userRole=sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
-    if(!$userRole['newcrop_user_role'])
-    {echo xl('Unauthorized access to ePrescription');
+    if (!$userRole['newcrop_user_role']) {
+        echo xl('Unauthorized access to ePrescription');
         die;}
+
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
-    if($userRole['newcrop_user_role'] == 'doctor')
+    if ($userRole['newcrop_user_role'] == 'doctor')
     $userRole['eRxUser'] = 'LicensedPrescriber';
-    elseif($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse')
+    elseif ($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse')
     $userRole['eRxUser'] = 'Staff';
-    elseif($userRole['newcrop_user_role'] == 'midlevelPrescriber')
+    elseif ($userRole['newcrop_user_role'] == 'midlevelPrescriber')
     $userRole['eRxUser'] = 'MidlevelPrescriber';
-    elseif($userRole['newcrop_user_role'] == 'supervisingDoctor')
+    elseif ($userRole['newcrop_user_role'] == 'supervisingDoctor')
     $userRole['eRxUser'] = 'SupervisingDoctor';
     $msg = validation(xl('ERX User'), $userRole['eRxUser'], $msg);
     $b = $doc->createElement("UserRole");
@@ -169,14 +169,14 @@ function destination($doc, $r, $page = '', $pid)
     global $msg,$page;
     $userRole=sqlQuery("select * from users where username=?", array($_SESSION['authUser']));
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
-    if(!$page)
-    {
+    if (!$page) {
         $page='compose';
-        if($userRole['newcrop_user_role']=='admin')
+        if ($userRole['newcrop_user_role']=='admin')
         $page='admin';
-        elseif($userRole['newcrop_user_role']=='manager')
+        elseif ($userRole['newcrop_user_role']=='manager')
         $page='manager';
     }
+
     $b = $doc->createElement("Destination");
     $requestedPage = $doc->createElement("requestedPage");
     $requestedPage->appendChild(
@@ -190,11 +190,11 @@ function account($doc, $r)
 {
     global $msg, $facilityService;
     $erxSiteID= $facilityService->getPrimaryBusinessEntity();
-    if(!$erxSiteID['federal_ein'])
-    {
+    if (!$erxSiteID['federal_ein']) {
         echo htmlspecialchars(xl("Please select a Primary Business Entity facility with 'Tax ID' as your facility Tax ID. If you are an individual practitioner, use your tax id. This is used for identifying you in the NewCrop system."), ENT_NOQUOTES);
         die;
     }
+
     $b = $doc->createElement("Account");
     $b->setAttribute('ID', $GLOBALS['erx_account_id']);
     $erxSiteID['name']=stripSpecialCharacterFacility($erxSiteID['name']);
@@ -234,25 +234,26 @@ function account($doc, $r)
         $AccountAddress->appendChild($state);
         $jasonbigzip=$erxSiteID['postal_code'];
     $jasonbigzip=preg_replace('/[^0-9]/', '', $jasonbigzip);
-    if(strlen($jasonbigzip) >=5){
+    if (strlen($jasonbigzip) >=5) {
         $jasonzip=substr($jasonbigzip, 0, 5);
         $zip4=substr($jasonbigzip, 5, 4);
-    }
-    else{
+    } else {
         $msg = validation(xl('Facility Zip'), $jasonzip, $msg);
     }
+
         $zip = $doc->createElement("zip");
         $zip->appendChild(
             $doc->createTextNode($jasonzip)
         );
         $AccountAddress->appendChild($zip);
-    if(strlen($zip4)==4){
+    if (strlen($zip4)==4) {
         $zipFour = $doc->createElement("zip4");
         $zipFour->appendChild(
             $doc->createTextNode($zip4)
         );
         $AccountAddress->appendChild($zipFour);
     }
+
         $msg = validation(xl('Facility Country code'), $erxSiteID['country_code'], $msg);
         $county_code = substr($erxSiteID['country_code'], 0, 2);
         $country = $doc->createElement("country");
@@ -294,49 +295,53 @@ function location($doc, $r)
     $userRole['street']=stripSpecialCharacterFacility($userRole['street']);
     $userRole['street']=trimData($userRole['street'], 35);
     $LocationAddress = $doc->createElement('LocationAddress');
-    if($userRole['street']){
+    if ($userRole['street']) {
         $address1 = $doc->createElement('address1');
         $address1->appendChild(
             $doc->createTextNode($userRole['street'])
         );
         $LocationAddress->appendChild($address1);
     }
-    if($userRole['city']){
+
+    if ($userRole['city']) {
         $city = $doc->createElement('city');
         $city->appendChild(
             $doc->createTextNode($userRole['city'])
         );
         $LocationAddress->appendChild($city);
     }
-    if($userRole['state']){
+
+    if ($userRole['state']) {
         $state = $doc->createElement('state');
         $state->appendChild(
             $doc->createTextNode($userRole['state'])
         );
         $LocationAddress->appendChild($state);
     }
+
     $jasonbigzip=$userRole['postal_code'];
     $jasonbigzip=preg_replace('/[^0-9]/', '', $jasonbigzip);
-    if(strlen($jasonbigzip) >=5){
+    if (strlen($jasonbigzip) >=5) {
         $jasonzip=substr($jasonbigzip, 0, 5);
         $zip4=substr($jasonbigzip, 5, 4);
-    }
-    else{
+    } else {
         $msg = validation(xl('Facility Zip'), $jasonzip, $msg);
     }
+
         $zip = $doc->createElement("zip");
         $zip->appendChild(
             $doc->createTextNode($jasonzip)
         );
         $LocationAddress->appendChild($zip);
-    if(strlen($zip4)==4){
+    if (strlen($zip4)==4) {
         $zipFour = $doc->createElement("zip4");
         $zipFour->appendChild(
             $doc->createTextNode($zip4)
         );
         $LocationAddress->appendChild($zipFour);
     }
-    if($userRole['country_code']){
+
+    if ($userRole['country_code']) {
         $county_code = substr($userRole['country_code'], 0, 2);
         $country = $doc->createElement('country');
         $country->appendChild(
@@ -344,8 +349,9 @@ function location($doc, $r)
         );
         $LocationAddress->appendChild($country);
     }
+
     $b->appendChild($LocationAddress);
-    if($userRole['phone']){
+    if ($userRole['phone']) {
         $userRole['phone'] = stripPhoneSlashes($userRole['phone']);
         $primaryPhoneNumber = $doc->createElement('primaryPhoneNumber');
         $primaryPhoneNumber->appendChild(
@@ -353,7 +359,8 @@ function location($doc, $r)
         );
         $b->appendChild($primaryPhoneNumber);
     }
-    if($userRole['fax']){
+
+    if ($userRole['fax']) {
         $userRole['fax'] = stripPhoneSlashes($userRole['fax']);
         $primaryFaxNumber = $doc->createElement('primaryFaxNumber');
         $primaryFaxNumber->appendChild(
@@ -361,6 +368,7 @@ function location($doc, $r)
         );
         $b->appendChild($primaryFaxNumber);
     }
+
     $pharmacyContactNumber = $doc->createElement('pharmacyContactNumber');
     $pharmacyContactNumber->appendChild(
         $doc->createTextNode($userRole['phone'])
@@ -403,13 +411,14 @@ function LicensedPrescriber($doc, $r)
         $doc->createTextNode($user_details['federaldrugid'])
     );
     $b->appendChild($dea);
-    if($user_details['upin']){
+    if ($user_details['upin']) {
         $upin = $doc->createElement("upin");
         $upin->appendChild(
             $doc->createTextNode($user_details['upin'])
         );
         $b->appendChild($upin);
     }
+
     $licenseNumber = $doc->createElement("licenseNumber");
     $licenseNumber->appendChild(
         $doc->createTextNode($user_details['state_license_number'])
@@ -492,13 +501,14 @@ function SupervisingDoctor($doc, $r)
         $doc->createTextNode($user_details['federaldrugid'])
     );
     $b->appendChild($dea);
-    if($user_details['upin']){
+    if ($user_details['upin']) {
         $upin = $doc->createElement("upin");
         $upin->appendChild(
             $doc->createTextNode($user_details['upin'])
         );
         $b->appendChild($upin);
     }
+
     $licenseNumber = $doc->createElement("licenseNumber");
     $licenseNumber->appendChild(
         $doc->createTextNode($user_details['state_license_number'])
@@ -540,7 +550,7 @@ function MidlevelPrescriber($doc, $r)
             $doc->createTextNode($user_details['mname'])
         );
         $LicensedPrescriberName->appendChild($middle);
-    if($user_details['title']){
+    if ($user_details['title']) {
         $msg = validation(xl('Midlevel Prescriber Prefix'), $user_details['title'], $msg);
         $prefix = $doc->createElement("prefix");
         $prefix->appendChild(
@@ -548,6 +558,7 @@ function MidlevelPrescriber($doc, $r)
         );
         $LicensedPrescriberName->appendChild($prefix);
     }
+
     $b->appendChild($LicensedPrescriberName);
     $msg = validation(xl('Midlevel Prescriber DEA'), $user_details['federaldrugid'], $msg);
     $dea = $doc->createElement("dea");
@@ -555,13 +566,14 @@ function MidlevelPrescriber($doc, $r)
         $doc->createTextNode($user_details['federaldrugid'])
     );
     $b->appendChild($dea);
-    if($user_details['upin']){
+    if ($user_details['upin']) {
         $upin = $doc->createElement("upin");
         $upin->appendChild(
             $doc->createTextNode($user_details['upin'])
         );
         $b->appendChild($upin);
     }
+
     $licenseNumber = $doc->createElement("licenseNumber");
     $licenseNumber->appendChild(
         $doc->createTextNode($user_details['state_license_number'])
@@ -580,7 +592,7 @@ function Patient($doc, $r, $pid)
         $patient_data['lname']=stripSpecialCharacter($patient_data['lname']);
         $patient_data['lname']=trimData($patient_data['lname'], 35);
         //$msg = validation(xl('Patient Last name'),$patient_data['lname'],$msg);
-        if($patient_data['lname']=='')
+        if ($patient_data['lname']=='')
             $dem_check.=htmlspecialchars(xl("Patient Last name is missing"), ENT_NOQUOTES)."<br>";
         $last = $doc->createElement("last");
         $last->appendChild(
@@ -590,7 +602,7 @@ function Patient($doc, $r, $pid)
         $patient_data['fname']=stripSpecialCharacter($patient_data['fname']);
         $patient_data['fname']=trimData($patient_data['fname'], 35);
         //$msg = validation(xl('Patient First name'),$patient_data['fname'],$msg);
-        if($patient_data['fname']=='')
+        if ($patient_data['fname']=='')
             $dem_check.=htmlspecialchars(xl("Patient First name is missing"), ENT_NOQUOTES)."<br>";
         $first = $doc->createElement("first");
         $first->appendChild(
@@ -609,7 +621,7 @@ function Patient($doc, $r, $pid)
         $patient_data['street']=stripSpecialCharacter($patient_data['street']);
         $patient_data['street']=trimData($patient_data['street'], 35);
         $msg = validation(xl('Patient Address'), $patient_data['street'], $msg);
-        if(trim($patient_data['street'])=='')
+        if (trim($patient_data['street'])=='')
             $warning_msg .= "<br>".htmlspecialchars(xl("Patient Address is missing"), ENT_NOQUOTES);
         $address1 = $doc->createElement("address1");
         $address1->appendChild(
@@ -617,31 +629,33 @@ function Patient($doc, $r, $pid)
         );
         $PatientAddress->appendChild($address1);
         //$msg = validation(xl('Patient City'),$patient_data['city'],$msg);
-        if($patient_data['city']=='')
+        if ($patient_data['city']=='')
             $dem_check.=htmlspecialchars(xl("Patient City is missing"), ENT_NOQUOTES)."<br>";
         $city = $doc->createElement("city");
         $city->appendChild(
             $doc->createTextNode($patient_data['city'])
         );
         $PatientAddress->appendChild($city);
-    if($patient_data['state']){
+    if ($patient_data['state']) {
         $state = $doc->createElement("state");
         $state->appendChild(
             $doc->createTextNode($patient_data['state'])
         );
         $PatientAddress->appendChild($state);
     }
-    if($patient_data['postal_code']){
+
+    if ($patient_data['postal_code']) {
         $zip = $doc->createElement("zip");
         $zip->appendChild(
             $doc->createTextNode($patient_data['postal_code'])
         );
         $PatientAddress->appendChild($zip);
     }
+
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-        if(trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='')
+        if (trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='')
             $dem_check.=htmlspecialchars(xl("Patient Country is missing. Also you have not set default Patient Country in Global Settings"), ENT_NOQUOTES)."<br>";
-        elseif(trim($patient_data['country_code'])=='')
+        elseif (trim($patient_data['country_code'])=='')
             $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
         $county_code = substr($patient_data['country_code'], 0, 2);
         $country = $doc->createElement("country");
@@ -652,27 +666,29 @@ function Patient($doc, $r, $pid)
     $b->appendChild($PatientAddress);
     $PatientContact = $doc->createElement("PatientContact");
         $patient_data['phone_home']=stripPhoneSlashes($patient_data['phone_home']);
-    if($patient_data['phone_home']){
+    if ($patient_data['phone_home']) {
         $homeTelephone = $doc->createElement("homeTelephone");
         $homeTelephone->appendChild(
             $doc->createTextNode($patient_data['phone_home'])
         );
         $PatientContact->appendChild($homeTelephone);
     }
+
     $b->appendChild($PatientContact);
     $PatientCharacteristics = $doc->createElement("PatientCharacteristics");
-        if(trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000')
+        if (trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000')
             $warning_msg .= "<br>".htmlspecialchars(xl("Patient Date Of Birth is missing"), ENT_NOQUOTES);
-    if($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000'){
+    if ($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000') {
         $dob = $doc->createElement("dob");
         $dob->appendChild(
             $doc->createTextNode($patient_data['date_of_birth'])
         );
         $PatientCharacteristics->appendChild($dob);
     }
-        if(trim($patient_data['sex'])=='')
+
+        if (trim($patient_data['sex'])=='')
             $warning_msg .= "<br>".htmlspecialchars(xl("Patient Gender is missing"), ENT_NOQUOTES);
-    if($patient_data['sex']){
+    if ($patient_data['sex']) {
         $gender_val=substr($patient_data['sex'], 0, 1);
         $gender = $doc->createElement("gender");
         $gender->appendChild(
@@ -680,6 +696,7 @@ function Patient($doc, $r, $pid)
         );
         $PatientCharacteristics->appendChild($gender);
     }
+
     $b->appendChild($PatientCharacteristics);
     PatientFreeformHealthplans($doc, $b, $pid);
     $allergyId=PatientFreeformAllergy($doc, $b, $pid);
@@ -690,8 +707,7 @@ function Patient($doc, $r, $pid)
 function OutsidePrescription($doc, $r, $pid, $prescid)
 {
     global $msg;
-    if($prescid)
-    {
+    if ($prescid) {
         $prec=sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.size,p.interval,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,l4.title AS title4,p.id AS prescid,
             DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT_WS(fname,' ',mname,' ',lname) AS docname,p.quantity
             FROM prescriptions AS p
@@ -755,13 +771,12 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active='';
-    if($GLOBALS['erx_upload_active']==1)
+    if ($GLOBALS['erx_upload_active']==1)
         $active = " and (enddate is null or enddate = '' or enddate = '0000-00-00' )";
     $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>''
 	and erx_uploaded='0' $active order by enddate limit 0,$med_limit", array($pid));
     $uploaded_med_arr="";
-    while($row_med=sqlFetchArray($res_med))
-    {
+    while ($row_med=sqlFetchArray($res_med)) {
         $uploaded_med_arr[]=$row_med['id'];
         $b = $doc->createElement("OutsidePrescription");
             $externalId = $doc->createElement("externalId");
@@ -806,8 +821,8 @@ function PatientMedication($doc, $r, $pid, $med_limit)
             );
             $b->appendChild($prescriptionType);
         $r->appendChild($b);
-
     }
+
     return $uploaded_med_arr;
 }
 
@@ -817,8 +832,7 @@ function PatientFreeformAllergy($doc, $r, $pid)
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
 	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')", array($pid));
     $allergyId=array();
-    while($row=sqlFetchArray($res))
-    {
+    while ($row=sqlFetchArray($res)) {
         $val=array();
         $val['id']=$row['id'];
         $val['title1']=$row['title1'];
@@ -826,30 +840,34 @@ function PatientFreeformAllergy($doc, $r, $pid)
         $val['comments']=$row['comments'];
         $b = $doc->createElement("PatientFreeformAllergy");
         $b->setAttribute('ID', $val['id']);
-        if($val['title1']){
+        if ($val['title1']) {
             $allergyName = $doc->createElement("allergyName");
             $allergyName->appendChild(
                 $doc->createTextNode(trimData(stripSpecialCharacter($val['title1']), 70))
             );
             $b->appendChild($allergyName);
         }
-        if($val['title2'] && ($val['title2']=='Mild' || $val['title2']=='Moderate' || $val['title2']=='Severe')){
+
+        if ($val['title2'] && ($val['title2']=='Mild' || $val['title2']=='Moderate' || $val['title2']=='Severe')) {
             $allergySeverityTypeID = $doc->createElement("allergySeverityTypeID");
             $allergySeverityTypeID->appendChild(
                 $doc->createTextNode($val['title2'])
             );
             $b->appendChild($allergySeverityTypeID);
         }
-        if($val['comments']){
+
+        if ($val['comments']) {
             $allergyComment = $doc->createElement("allergyComment");
             $allergyComment->appendChild(
                 $doc->createTextNode(trimData(stripSpecialCharacter($val['comments']), 200))
             );
             $b->appendChild($allergyComment);
         }
+
         $r->appendChild($b);
         $allergyId[]=$row['id'];
     }
+
     return $allergyId;
 }
 
@@ -873,7 +891,7 @@ function PatientFreeformHealthplans($doc, $r, $pid)
         array($pid)
     );
 
-    while($row = sqlFetchArray($resource)) {
+    while ($row = sqlFetchArray($resource)) {
         $healthplanName = $doc->createElement('healthplanName');
         $healthplanName->appendChild($doc->createTextNode(
             stripSpecialCharacter(trimData($row['name'], 35))
@@ -923,35 +941,32 @@ function checkError($xml)
 
     $result=curl_exec($ch)  or die(curl_error($ch)) ;
     preg_match('/<textarea.*>(.*)Original XML:/is', $result, $error_message);
-    if(strpos($result, 'RxEntry.aspx')){
+    if (strpos($result, 'RxEntry.aspx')) {
         erx_error_log($xml);
         erx_error_log($result);
     }
+
     $arr=explode('Error', $error_message[1]);
     //echo "Te: ".count($arr);
     //print_r($arr);
-    if(count($arr)==1)
-    {
+    if (count($arr)==1) {
         echo nl2br($error_message[1]);
-    }
-    else
-    {
-        for($i=1;$i<count($arr);$i++)
-        {
+    } else {
+        for ($i=1; $i<count($arr); $i++) {
             echo $arr[$i]."<br><br>";
         }
     }
+
     curl_close($ch);
-    if(strpos($result, 'RxEntry.aspx'))
+    if (strpos($result, 'RxEntry.aspx'))
         return '1';
-    else
-        return '0';
+    else return '0';
 }
 
 function erx_error_log($message)
 {
     $date = date("Y-m-d");
-    if(!is_dir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error'))
+    if (!is_dir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error'))
     mkdir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error', 0777, true);
     $filename = $GLOBALS['OE_SITE_DIR']."/documents/erx_error/erx_error"."-".$date.".log";
     $f=fopen($filename, 'a');
@@ -962,8 +977,9 @@ function erx_error_log($message)
 function stripStrings($str, $pattern)
 {
     $result = $str;
-    foreach($pattern as $key=>$value){
+    foreach ($pattern as $key=>$value) {
         $result = preg_replace("/$key/", $value, $result);
     }
+
     return $result;
 }

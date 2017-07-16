@@ -28,14 +28,13 @@ require_once("../../globals.php");
 //retrieve most recent set of vitals.
 $result=sqlQuery("SELECT FORM_VITALS.date, FORM_VITALS.id FROM form_vitals AS FORM_VITALS LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id WHERE FORM_VITALS.pid=? AND FORMS.deleted != '1' ORDER BY FORM_VITALS.date DESC", array($pid));
     
-if ( !$result ) //If there are no disclosures recorded
-{ ?>
+if (!$result) { //If there are no disclosures recorded
+    ?>
   <span class='text'> <?php echo htmlspecialchars(xl("No vitals have been documented."), ENT_NOQUOTES);
 ?>
   </span> 
 <?php
-} else
-{
+} else {
 ?> 
   <span class='text'><b>
     <?php echo htmlspecialchars(xl('Most recent vitals from:')." ".$result['date'], ENT_NOQUOTES); ?>

@@ -79,7 +79,7 @@ class Form_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if ( $GLOBALS['esign_individual'] ) {
+        if ($GLOBALS['esign_individual']) {
             $viewable = true;
         }
         

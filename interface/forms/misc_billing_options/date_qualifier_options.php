@@ -18,12 +18,12 @@
 function generateDateQualifierSelect($name, $options, $obj)
 {
     echo     "<select name='".attr($name)."'>";
-    for($idx=0;$idx<count($options);$idx++)
-    {
+    for ($idx=0; $idx<count($options); $idx++) {
         echo "<option value='".attr($options[$idx][1])."'";
-        if($obj[$name]==$options[$idx][1]) echo " selected";
+        if ($obj[$name]==$options[$idx][1]) echo " selected";
         echo ">".text($options[$idx][0])."</option>";
     }
+
     echo     "</select>";
 }
 
@@ -44,6 +44,7 @@ function genProviderSelect($selname, $toptext, $default = 0, $disabled = false)
         if ($provid == $default) echo " selected";
         echo ">" . text($row['lname'] . ", " . $row['fname']);
     }
+
     echo "</select>\n";
 }
 
@@ -65,12 +66,11 @@ $hcfa_date_quals=array("box_14_date_qual"=>$box_14_qualifier_options,"box_15_dat
 function qual_id_to_description($qual_type, $value)
 {
     $options=$GLOBALS['hcfa_date_quals'][$qual_type];
-    for($idx=0;$idx<count($options);$idx++)
-    {
-        if($options[$idx][1]==$value)
-        {
+    for ($idx=0; $idx<count($options); $idx++) {
+        if ($options[$idx][1]==$value) {
             return $options[$idx][0];
         }
     }
+
     return null;
 }

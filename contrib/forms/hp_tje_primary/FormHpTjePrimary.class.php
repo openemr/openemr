@@ -60,10 +60,10 @@ class FormHpTjePrimary extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->date = date("Y-m-d H:i:s");
         $this->date_of_onset = date("Y-m-d");
         $this->_table = "form_hp_tje_primary";
@@ -108,8 +108,7 @@ class FormHpTjePrimary extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -204,6 +203,7 @@ class FormHpTjePrimary extends ORDataObject
         if (!is_numeric) {
             return;
         }
+
         $this->event = $event;
     }
 
@@ -372,6 +372,7 @@ class FormHpTjePrimary extends ORDataObject
                 }
             }
         }
+
         if (is_numeric($this->id) and !empty($this->history)) {
             $sql = "delete FROM form_hp_tje_history where foreign_id = '" . $this->id . "'";
             sqlQuery($sql);
@@ -692,7 +693,7 @@ class FormHpTjePrimary extends ORDataObject
     {
         $a = array();
         foreach ($row_array as $row) {
-            switch(strtolower($row)) {
+            switch (strtolower($row)) {
                 case "onset":
                     $a["Onset"][$name . '_onset_precipitated_by_accident']      =  "Precipitated By Accident";
                     $a["Onset"][$name . '_onset_aggravated_by_accident']    =  "Aggravated By Accident";
@@ -736,7 +737,6 @@ class FormHpTjePrimary extends ORDataObject
                     $a["Occurance"][$name . '_occurance_variable'] =  "Variable";
                     break;
             }
-
         }
 
         return $a;

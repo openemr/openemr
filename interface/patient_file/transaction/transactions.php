@@ -58,11 +58,13 @@ require_once("$srcdir/options.inc.php");
                     if (!isset($item['body'])) {
                         $item['body'] = '';
                     }
+
                     if (getdate() == strtotime($item['date'])) {
                         $date = "Today, " . date('D F ds', strtotime($item['date']));
                     } else {
                         $date = date('D F ds', strtotime($item['date']));
                     }
+
                     $date = oeFormatShortDate($item['refer_date']);
                     $id = $item['id'];
                     $edit = xl('Edit');

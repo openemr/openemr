@@ -22,10 +22,9 @@ class AMC_302c_Numerator implements AmcFilterIF
         //  (true if an entry in lists_touch or an active entry in lists)
         $firstCheck = sqlQuery("SELECT * FROM `lists_touch` WHERE `pid`=? AND `type`=?", array($patient->id,'medical_problem'));
         $secondCheck = sqlQuery("SELECT * FROM `lists` WHERE `activity`='1' AND `pid`=? AND `type`=?", array($patient->id,'medical_problem'));
-        if ( !(empty($firstCheck)) || !(empty($secondCheck)) ) {
+        if (!(empty($firstCheck)) || !(empty($secondCheck))) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

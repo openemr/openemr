@@ -67,6 +67,7 @@ if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
         $_SESSION['pc_facility'] = $_COOKIE['pc_facility'];
     }
 }
+
 if (isset($_POST['pc_facility']))  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 /********************************************************************/
 
@@ -105,23 +106,27 @@ list($module,
      );
 
 // Defaults for variables
-if (isset($catid)) { pnVarCleanFromInput('catid'); }
+if (isset($catid)) {
+    pnVarCleanFromInput('catid'); }
 
 // check requested module and set to start module if not present
 if (empty($name)) {
     $name = pnConfigGetVar('startpage');
     // fixed for the new style of loading modules and set start page for them [class007]
-    if (empty($module)) { $module = $name; }
+    if (empty($module)) {
+        $module = $name; }
 }
 
 // get module information
 $modinfo = pnModGetInfo(pnModGetIDFromName($module));
 
-if ($modinfo['type'] == 2)
-{
+if ($modinfo['type'] == 2) {
     // New-new style of loading modules
-    if (empty($type)) { $type = 'user'; }
-    if (empty($func)) { $func="main"; }
+    if (empty($type)) {
+        $type = 'user'; }
+
+    if (empty($func)) {
+        $func="main"; }
 
     // it should be $module not $name [class007]
     if (pnModAvailable($module)) {
@@ -166,6 +171,7 @@ if ($modinfo['type'] == 2)
     if (empty($op)) {
         $op = "modload";
     }
+
     if (empty($file)) {
         $file="index";
     }
@@ -197,5 +203,4 @@ if ($modinfo['type'] == 2)
             $output->PrintPage();
             break;
     }
-
 }

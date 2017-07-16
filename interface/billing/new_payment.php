@@ -50,25 +50,22 @@ $hidden_type_code        = formData('hidden_type_code', true);
 //ar_session addition code
 //===============================================================================
 
-if ($mode == "new_payment" || $mode == "distribute")
-{
-    if(trim(formData('type_name'))=='insurance')
-     {
+if ($mode == "new_payment" || $mode == "distribute") {
+    if (trim(formData('type_name'))=='insurance') {
         $QueryPart="payer_id = '$hidden_type_code', patient_id = '0" ; // Closing Quote in idSqlStatement below
-    }
-    elseif(trim(formData('type_name'))=='patient')
-     {
+    } elseif (trim(formData('type_name'))=='patient') {
         $QueryPart="payer_id = '0', patient_id = '$hidden_type_code" ; // Closing Quote in idSqlStatement below
     }
+
       $user_id=$_SESSION['authUserID'];
       $closed=0;
       $modified_time = date('Y-m-d H:i:s');
       $check_date=DateToYYYYMMDD(formData('check_date'));
       $deposit_date=DateToYYYYMMDD(formData('deposit_date'));
       $post_to_date=DateToYYYYMMDD(formData('post_to_date'));
-      if($post_to_date=='')
+      if ($post_to_date=='')
        $post_to_date=date('Y-m-d');
-      if(formData('deposit_date')=='')
+      if (formData('deposit_date')=='')
        $deposit_date=$post_to_date;
       $payment_id = idSqlStatement("insert into ar_session set "    .
         $QueryPart .
@@ -90,26 +87,22 @@ if ($mode == "new_payment" || $mode == "distribute")
 //===============================================================================
 //ar_activity addition code
 //===============================================================================
-if ($mode == "PostPayments" || $mode == "FinishPayments")
-{
+if ($mode == "PostPayments" || $mode == "FinishPayments") {
     $user_id=$_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i:s');
-    for($CountRow=1;;$CountRow++)
-     {
-        if (isset($_POST["HiddenEncounter$CountRow"]))
-        {
+    for ($CountRow=1;; $CountRow++) {
+        if (isset($_POST["HiddenEncounter$CountRow"])) {
             DistributionInsert($CountRow, $created_time, $user_id);
-        }
-        else
-        break;
+        } else break;
     }
-    if($_REQUEST['global_amount']=='yes')
+
+    if ($_REQUEST['global_amount']=='yes')
         sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"))*1 ." where session_id ='$payment_id'");
-    if($mode=="FinishPayments")
-     {
+    if ($mode=="FinishPayments") {
         header("Location: edit_payment.php?payment_id=$payment_id&ParentPage=new_payment");
         die();
     }
+
     $mode = "search";
     $_POST['mode'] = $mode;
 }
@@ -327,14 +320,11 @@ document.onclick=HideTheAjaxDivs;
 <body class="body_top" onLoad="OnloadAction()"  >
 <form name='new_payment' method='post'  action="new_payment.php"  onsubmit='
 <?php
-if($payment_id*1==0)
-{
+if ($payment_id*1==0) {
     ?>
 top.restoreSession();return SavePayment();
 <?php
-}
-else
-{
+} else {
     ?>
 return false;
 <?php
@@ -365,8 +355,7 @@ return false;
   </tr>
 </table>
 <?php
-if($payment_id*1>0)
-{
+if ($payment_id*1>0) {
     ?>
 <table width="999" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
     <table width="979" border="0" cellspacing="0" cellpadding="0">
@@ -374,14 +363,14 @@ if($payment_id*1>0)
        <td colspan="13" align="left" >
                <!--Distribute section-->
                 <?php
-                if($PaymentType=='patient' && $default_search_patient != "default_search_patient")
-                {
+                if ($PaymentType=='patient' && $default_search_patient != "default_search_patient") {
                     $default_search_patient = "default_search_patient";
                     $_POST['default_search_patient'] = $default_search_patient;
                     $hidden_patient_code=$TypeCode;
                     $_REQUEST['hidden_patient_code']=$hidden_patient_code;
                     $_REQUEST['RadioPaid']='Show_Paid';
                 }
+
                 require_once("payment_pat_sel.inc.php"); //Patient ajax section and listing of charges.
                 ?>
             </td>
@@ -389,8 +378,7 @@ if($payment_id*1>0)
           <tr>
             <td colspan="13" align="left" >
                 <?php
-                if($CountIndexBelow>0)
-                {
+                if ($CountIndexBelow>0) {
                 ?>
                 <table border="0" cellspacing="0" cellpadding="0" width="267" align="center" id="AllocateButtons">
                   <tr height="5">

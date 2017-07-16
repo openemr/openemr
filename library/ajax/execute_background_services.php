@@ -105,21 +105,20 @@ function execute_background_service_calls()
     $sql = 'SELECT * FROM background_services WHERE ' . ($force ? '1' : 'execute_interval > 0');
     if ($single_service!="")
     $services = sqlStatementNoLog($sql.' AND name=?', array($single_service));
-    else
-    $services = sqlStatementNoLog($sql.' ORDER BY sort_order');
+    else $services = sqlStatementNoLog($sql.' ORDER BY sort_order');
 
-    while($service = sqlFetchArray($services)){
+    while ($service = sqlFetchArray($services)) {
         $service_name = $service['name'];
-        if(!$service['active'] || $service['running'] == 1) continue;
+        if (!$service['active'] || $service['running'] == 1) continue;
         $interval=(int)$service['execute_interval'];
 
         //leverage locking built-in to UPDATE to prevent race conditions
         //will need to assess performance in high concurrency setting at some point
         $sql='UPDATE background_services SET running = 1, next_run = NOW()+ INTERVAL ?'
         . ' MINUTE WHERE running < 1 ' . ($force ? '' : 'AND NOW() > next_run ') . 'AND name = ?';
-        if(sqlStatementNoLog($sql, array($interval,$service_name))===false) continue;
+        if (sqlStatementNoLog($sql, array($interval,$service_name))===false) continue;
         $acquiredLock =  generic_sql_affected_rows();
-        if($acquiredLock<1) continue; //service is already running or not due yet
+        if ($acquiredLock<1) continue; //service is already running or not due yet
 
         if ($service['require_once'])
         require_once($GLOBALS['fileroot'] . $service['require_once']);
@@ -149,10 +148,8 @@ function background_shutdown()
 {
     global $service_name;
     if (isset($service_name)) {
-
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
         $res = sqlStatementNoLog($sql, array($service_name));
-
     }
 }
 

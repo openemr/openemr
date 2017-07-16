@@ -31,7 +31,7 @@ class NFQ_0013_Exclusion implements CqmFilterIF
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         //Also exclude patients with a diagnosis of pregnancy during the measurement period.
-        if ( Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $beginDate)  || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::END_STAGE_RENAL_DISEASE, $patient, $beginDate, $beginDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::CHRONIC_KIDNEY_DISEASE, $patient, $beginDate, $beginDate)){
+        if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::PREGNANCY, $patient, $beginDate, $beginDate)  || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::END_STAGE_RENAL_DISEASE, $patient, $beginDate, $beginDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::CHRONIC_KIDNEY_DISEASE, $patient, $beginDate, $beginDate)) {
             return true;
         }
         
@@ -44,7 +44,7 @@ class NFQ_0013_Exclusion implements CqmFilterIF
                "AND (pr.date_ordered BETWEEN ? AND ?)";
         //echo $sql;
         $check = sqlQuery($sql, array($patient->id, $beginDate, $endDate));
-        if ($check['cnt'] > 0){
+        if ($check['cnt'] > 0) {
             return true;
         }
         

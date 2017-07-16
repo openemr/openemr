@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-    if(!extension_loaded("curl")) die("Curl extension is required");
+    if (!extension_loaded("curl")) die("Curl extension is required");
             
 class MaviqClient
 {
@@ -28,7 +28,7 @@ class MaviqClient
         echo "Path: {$path}\n";
 
         $encoded = "";
-        foreach($vars as $key=>$value)
+        foreach ($vars as $key=>$value)
             $encoded .= "$key=".urlencode($value)."&";
         $encoded = substr($encoded, 0, -1);
         $tmpfile = "";
@@ -40,7 +40,7 @@ class MaviqClient
         echo "Url: {$url}\n";
 
         // if GET and vars, append them
-        if($method == "GET")
+        if ($method == "GET")
             $url .= (false === strpos($path, '?')?"?":"&").$encoded;
 
         // initialize a new curl object
@@ -48,7 +48,7 @@ class MaviqClient
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        switch(strtoupper($method)) {
+        switch (strtoupper($method)) {
             case "GET":
                 curl_setopt($curl, CURLOPT_HTTPGET, true);
                 break;
@@ -90,7 +90,7 @@ class MaviqClient
         );
             
         // do the request. If FALSE, then an exception occurred
-        if(false === ($result = curl_exec($curl)))
+        if (false === ($result = curl_exec($curl)))
             throw(new Exception(
                 "Curl failed with error " . curl_error($curl)
             ));
@@ -99,9 +99,9 @@ class MaviqClient
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             
         // unlink tmpfiles
-        if($fp)
+        if ($fp)
             fclose($fp);
-        if(strlen($tmpfile))
+        if (strlen($tmpfile))
             unlink($tmpfile);
                 
         return new RestResponse($url, $result, $responseCode);
@@ -126,10 +126,10 @@ class RestResponse
         $this->QueryString = $matches[2];
         $this->ResponseText = $text;
         $this->HttpStatus = $status;
-        if($this->HttpStatus != 204)
+        if ($this->HttpStatus != 204)
             $this->ResponseXml = @simplexml_load_string($text);
             
-        if($this->IsError = ($status >= 400))
+        if ($this->IsError = ($status >= 400))
             $this->ErrorMessage =
                 (string)$this->ResponseXml->RestException->Message;
     }

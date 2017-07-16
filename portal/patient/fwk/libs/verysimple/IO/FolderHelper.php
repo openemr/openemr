@@ -44,7 +44,7 @@ class FolderHelper
         $files = array ();
         $dh = opendir($this->Path);
         
-        while ( $fname = readdir($dh) ) {
+        while ($fname = readdir($dh)) {
             if (is_file($this->Path . $fname)) {
                 if ($pattern == "" || preg_match($pattern, $fname) > 0) {
                     $files [] = new FileHelper($this->Path . $fname);

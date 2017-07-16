@@ -12,7 +12,7 @@ foreach ($_POST as $k => $var) {
 
 if ($encounter == "") $encounter = date("Ymd");
 
-if ($_GET["mode"] == "new"){
+if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ped_fever", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Pediatric Fever Evaluation", $newid, "ped_fever", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {

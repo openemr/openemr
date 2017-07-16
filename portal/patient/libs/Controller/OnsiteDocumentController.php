@@ -59,11 +59,11 @@ class OnsiteDocumentController extends AppBaseController
         $recid = $pid = $user = $encounter =  0;
         $docid = "";
 
-        if( isset($_GET['pid']) ) $pid = ( int ) $_GET['pid'];
-        if( isset($_GET['user']) ) $user = $_GET['user'];
-        if( isset($_GET['docid']) ) $docid = $_GET['docid'];
-        if( isset($_GET['enc']) ) $encounter = ( int ) $_GET['enc'];
-        if( isset($_GET['recid']) )  $recid = ( int ) $_GET['recid'];
+        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
+        if (isset($_GET['user'])) $user = $_GET['user'];
+        if (isset($_GET['docid'])) $docid = $_GET['docid'];
+        if (isset($_GET['enc'])) $encounter = ( int ) $_GET['enc'];
+        if (isset($_GET['recid']))  $recid = ( int ) $_GET['recid'];
         $this->Assign('recid', $recid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -78,15 +78,15 @@ class OnsiteDocumentController extends AppBaseController
      */
     public function Query()
     {
-        try
-        {
+        try {
             $criteria = new OnsiteDocumentCriteria();
             $pid = RequestUtil::Get('patientId');
             $criteria->Pid_Equals = $pid;
             $recid = RequestUtil::Get('recid');
-            if( $recid > 0 ){
+            if ($recid > 0) {
                 $criteria->Id_Equals = $recid;
             }
+
             $filter = RequestUtil::Get('filter');
             if ($filter) $criteria->AddFilter(
                 new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
@@ -94,17 +94,13 @@ class OnsiteDocumentController extends AppBaseController
             );
 
             // TODO: this is generic query filtering based only on criteria properties
-            foreach (array_keys($_REQUEST) as $prop)
-            {
+            foreach (array_keys($_REQUEST) as $prop) {
                 $prop_normal = ucfirst($prop);
                 $prop_equals = $prop_normal.'_Equals';
 
-                if (property_exists($criteria, $prop_normal))
-                {
+                if (property_exists($criteria, $prop_normal)) {
                     $criteria->$prop_normal = RequestUtil::Get($prop);
-                }
-                elseif (property_exists($criteria, $prop_equals))
-                {
+                } elseif (property_exists($criteria, $prop_equals)) {
                     // this is a convenience so that the _Equals suffix is not needed
                     $criteria->$prop_equals = RequestUtil::Get($prop);
                 }
@@ -119,8 +115,7 @@ class OnsiteDocumentController extends AppBaseController
 
             $page = RequestUtil::Get('page');
 
-            if ($page != '')
-            {
+            if ($page != '') {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
@@ -130,9 +125,7 @@ class OnsiteDocumentController extends AppBaseController
                 $output->totalPages = $onsitedocuments->TotalPages;
                 $output->pageSize = $onsitedocuments->PageSize;
                 $output->currentPage = $onsitedocuments->CurrentPage;
-            }
-            else
-            {
+            } else {
                 // return all results
                 $onsitedocuments = $this->Phreezer->Query('OnsiteDocument', $criteria);
                 $output->rows = $onsitedocuments->ToObjectArray(true, $this->SimpleObjectParams());
@@ -144,19 +137,17 @@ class OnsiteDocumentController extends AppBaseController
 
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
     public function SingleView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if( isset($_GET['id']) ) $rid = ( int ) $_GET['id'];
-        if( isset($_GET['pid']) ) $pid = ( int ) $_GET['pid'];
-        if( isset($_GET['user']) ) $user = $_GET['user'];
-        if( isset($_GET['enc']) ) $encounter = $_GET['enc'];
+        if (isset($_GET['id'])) $rid = ( int ) $_GET['id'];
+        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
+        if (isset($_GET['user'])) $user = $_GET['user'];
+        if (isset($_GET['enc'])) $encounter = $_GET['enc'];
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -168,14 +159,11 @@ class OnsiteDocumentController extends AppBaseController
      */
     public function Read()
     {
-        try
-        {
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -185,13 +173,10 @@ class OnsiteDocumentController extends AppBaseController
      */
     public function Create()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -224,19 +209,13 @@ class OnsiteDocumentController extends AppBaseController
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            }
-            else
-            {
+            } else {
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -246,13 +225,10 @@ class OnsiteDocumentController extends AppBaseController
      */
     public function Update()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -286,22 +262,13 @@ class OnsiteDocumentController extends AppBaseController
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            }
-            else
-            {
+            } else {
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-
-        }
-        catch (Exception $ex)
-        {
-
-
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -311,9 +278,7 @@ class OnsiteDocumentController extends AppBaseController
      */
     public function Delete()
     {
-        try
-        {
-
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
@@ -324,10 +289,7 @@ class OnsiteDocumentController extends AppBaseController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

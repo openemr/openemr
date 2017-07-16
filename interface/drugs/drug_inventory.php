@@ -187,6 +187,7 @@ while ($row = sqlFetchArray($res)) {
         echo " <tr class='detail' bgcolor='$bgcolor'>\n";
         echo "  <td colspan='7'>&nbsp;</td>\n";
     }
+
     if (!empty($row['inventory_id'])) {
         echo "  <td onclick='doiclick(" . attr($lastid) . "," . attr($row['inventory_id']) . ")'>" .
         "<a href='' onclick='return false'>" . text($row['lot_number']) . "</a></td>\n";
@@ -196,6 +197,7 @@ while ($row = sqlFetchArray($res)) {
     } else {
         echo "  <td colspan='4'>&nbsp;</td>\n";
     }
+
     echo " </tr>\n";
 } // end while
 ?>

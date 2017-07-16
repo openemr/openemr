@@ -33,11 +33,10 @@ class AMC_304a_Denominator implements AmcFilterIF
                        "AND l.date >= ? and l.date <= ? ";
         $check = sqlQuery($sql, array($patient->id,$beginDate,$endDate,$patient->id,$beginDate,$endDate));
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if ( (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
+        if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
             !(empty($check)) ) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

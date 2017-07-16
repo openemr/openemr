@@ -37,14 +37,14 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 //
 
 $ignoreAuth = 1;
@@ -78,11 +78,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             if ($input_catid) {
                 if ($prefcatid == $input_catid || !$prefcatid)
                 $slots[$i] |= 1;
-                else
-                $slots[$i] |= 2;
+                else $slots[$i] |= 2;
             } else {
                 $slots[$i] |= 1;
             }
+
             break; // ignore any positive duration for IN
         } else if ($catid == 3) { // out of office
             $slots[$i] |= 2;
@@ -112,8 +112,7 @@ if ($_REQUEST['startdate'] && preg_match(
     "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
     $_REQUEST['startdate'],
     $matches
-))
-{
+)) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
@@ -163,7 +162,6 @@ if ($_REQUEST['startdate'] && preg_match(
      while ($row = sqlFetchArray($res)) {
          $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
          if ($row['pc_recurrtype']) {
-
              preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
              $repeattype = $matches[1];
 
@@ -174,6 +172,7 @@ if ($_REQUEST['startdate'] && preg_match(
                  preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
                  $repeatfreq = $matches[1];
                 }
+
                 if (! $repeatfreq) $repeatfreq = 1;
 
                 preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
@@ -187,7 +186,6 @@ if ($_REQUEST['startdate'] && preg_match(
 
                 $repeatix = 0;
                 while ($thistime < $endtime) {
-
                     // Skip the event if a repeat frequency > 1 was specified and this is
                     // not the desired occurrence.
                     if (! $repeatix) {
@@ -199,6 +197,7 @@ if ($_REQUEST['startdate'] && preg_match(
                             $row['pc_prefcatid']
                         );
                     }
+
                     if (++$repeatix >= $repeatfreq) $repeatix = 0;
 
                     $adate = getdate($thistime);
@@ -210,13 +209,13 @@ if ($_REQUEST['startdate'] && preg_match(
                             $adate['year'] += 1;
                             $adate['mon'] -= 12;
                         }
+
                         if ($my_repeat_on_num < 5) { // not last
                             $adate['mday'] = 1;
                             $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                             if ($dow > $my_repeat_on_day) $dow -= 7;
                             $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                        }
-                        else { // last weekday of month
+                        } else { // last weekday of month
                             $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                             $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                             if ($dow < $my_repeat_on_day) $dow += 7;
@@ -226,7 +225,7 @@ if ($_REQUEST['startdate'] && preg_match(
 
                     else { // recurrtype 1
 
-                        if ($repeattype == 0)        { // daily
+                        if ($repeattype == 0) { // daily
                             $adate['mday'] += 1;
                         } else if ($repeattype == 1) { // weekly
                             $adate['mday'] += 7;
@@ -239,8 +238,7 @@ if ($_REQUEST['startdate'] && preg_match(
                              $adate['mday'] += 3;
                             else if ($adate['wday'] == 6) // saturday should not happen
                              $adate['mday'] += 2;
-                            else
-                             $adate['mday'] += 1;
+                            else $adate['mday'] += 1;
                         } else if ($repeattype == 5) { // monday
                             $adate['mday'] += 7;
                         } else if ($repeattype == 6) { // tuesday
@@ -254,7 +252,6 @@ if ($_REQUEST['startdate'] && preg_match(
                         } else {
                              die("Invalid repeat type '$repeattype'");
                         }
-
                     } // end recurrtype 1
 
                     $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
@@ -404,11 +401,11 @@ form {
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
 for ($i = 0; $i < $slotcount; ++$i) {
-
     $available = true;
     for ($j = $i; $j < $i + $catslots; ++$j) {
         if ($slots[$j] >= 4) $available = false;
     }
+
     if (!$available) continue; // skip reserved slots
 
     $utime = ($slotbase + $i) * $slotsecs;
@@ -420,6 +417,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
             echo "</td>\n";
             echo " </tr>\n";
         }
+
         $lastdate = $thisdate;
         echo " <tr class='oneresult'>\n";
         echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
@@ -429,7 +427,9 @@ for ($i = 0; $i < $slotcount; ++$i) {
     }
 
     $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
+    if ($ampmFlag != $ampm) {
+        echo "</div><div id='pm'>PM "; }
+
     $ampmFlag = $ampm;
 
     $atitle = "Choose ".date("h:i a", $utime);
@@ -449,6 +449,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
     // This is to avoid reporting available times on undesirable boundaries.
     $i += $catslots - 1;
 }
+
 if ($lastdate) {
     echo "</td>\n";
     echo " </tr>\n";

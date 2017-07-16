@@ -25,11 +25,12 @@ class RuleCriteriaLifestyle extends RuleCriteria
     function getRequirements()
     {
         $requirements = xl("Value") . ": ";
-        if ( is_null($this->matchValue) ) {
+        if (is_null($this->matchValue)) {
             $requirements .= xl("Any");
         } else {
             $requirements .= "'" . $this->matchValue . "'";
         }
+
         return $requirements;
     }
 
@@ -54,7 +55,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $options = array();
 
-        for( $iter=0; $row=sqlFetchArray($stmt); $iter++ ) {
+        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
             $id = $row['field_id'];
             $label = xl_layout_label($row['title']);
             $option = array( "id"=>$id, "label"=>$label );
@@ -84,7 +85,7 @@ class RuleCriteriaLifestyle extends RuleCriteria
 
         $this->type = $lifestyle;
 
-        if ( $matchType == "any" ) {
+        if ($matchType == "any") {
             $this->matchValue = null;
         } else {
             $this->matchValue = $value;

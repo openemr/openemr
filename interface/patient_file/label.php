@@ -69,7 +69,7 @@ $text = sprintf("  %s %s\n  %s\n  %s\n  %s", $patdata['fname'], $patdata['lname'
 // For loop for printing the labels
 //
 
-for($i=1;$i<=$last;$i++) {
+for ($i=1; $i<=$last; $i++) {
     $pdf->Add_Label($text);
 }
 

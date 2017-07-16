@@ -113,16 +113,19 @@ if ($form_key) {
         $clsql .= " + ((fname IS NOT NULL AND fname = ?) * 5)";
         $clarr[] = $form_fname;
     }
+
   // Last name.
     if ($form_lname !== '') {
         $clsql .= " + ((lname IS NOT NULL AND lname = ?) * 5)";
         $clarr[] = $form_lname;
     }
+
   // Birth date.
     if ($form_DOB !== '') {
         $clsql .= " + ((DOB IS NOT NULL AND DOB = ?) * 5)";
         $clarr[] = $form_DOB;
     }
+
   // SSN match is worth a lot and we allow for matching on last 4 digits.
     if (strlen($form_ss) > 3) {
         $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";

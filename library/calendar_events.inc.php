@@ -27,7 +27,6 @@ function eventMatchesDay($row, $date)
 
     $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
     if ($row['pc_recurrtype']) {
-
         preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
         $repeattype = $matches[1];
 
@@ -38,6 +37,7 @@ function eventMatchesDay($row, $date)
             preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
             $repeatfreq = $matches[1];
         }
+
         if (! $repeatfreq) $repeatfreq = 1;
 
         preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
@@ -66,13 +66,13 @@ function eventMatchesDay($row, $date)
                     $adate['year'] += 1;
                     $adate['mon'] -= 12;
                 }
+
                 if ($my_repeat_on_num < 5) { // not last
                     $adate['mday'] = 1;
                     $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                     if ($dow > $my_repeat_on_day) $dow -= 7;
                     $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                }
-                else { // last weekday of month
+                } else { // last weekday of month
                     $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                     $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                     if ($dow < $my_repeat_on_day) $dow += 7;
@@ -81,7 +81,7 @@ function eventMatchesDay($row, $date)
             } // end recurrtype 2
 
             else { // recurrtype 1
-                if ($repeattype == 0)        { // daily
+                if ($repeattype == 0) { // daily
                     $adate['mday'] += 1;
                 } else if ($repeattype == 1) { // weekly
                     $adate['mday'] += 7;
@@ -94,8 +94,7 @@ function eventMatchesDay($row, $date)
                     $adate['mday'] += 3;
                     else if ($adate['wday'] == 6) // saturday should not happen
                     $adate['mday'] += 2;
-                    else
-                    $adate['mday'] += 1;
+                    else $adate['mday'] += 1;
                 } else {
                     die("Invalid repeat type '$repeattype'");
                 }

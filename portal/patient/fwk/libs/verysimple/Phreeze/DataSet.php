@@ -258,7 +258,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             // we have a cache value, so we will repopulate from that
             $this->_phreezer->Observe("(DataSet.ToObjectArray: skipping query because cache exists) " . $this->_sql, OBSERVE_DEBUG);
             if (! $asSimpleObject) {
-                foreach ( $arr as $obj ) {
+                foreach ($arr as $obj) {
                     $obj->Refresh($this->_phreezer);
                 }
             }
@@ -273,7 +273,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             $arr = $this->CountIsKnown() ? $this->GetEmptyArray($this->Count()) : array ();
             
             $i = 0;
-            while ( $object = $this->Next() ) {
+            while ($object = $this->Next()) {
                 $arr [$i ++] = $asSimpleObject ? $object->ToObject($options) : $object;
             }
             
@@ -337,7 +337,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             $arr = array ();
             $this->UnableToCache = false;
             
-            while ( $object = $this->Next() ) {
+            while ($object = $this->Next()) {
                 $arr [$object->$val_prop] = $object->$label_prop;
             }
             
@@ -389,7 +389,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         if ($page != null) {
             $this->_phreezer->Observe("(DataSet.GetDataPage: skipping query because cache exists) " . $this->_sql, OBSERVE_QUERY);
             
-            foreach ( $page->Rows as $obj ) {
+            foreach ($page->Rows as $obj) {
                 $obj->Refresh($this->_phreezer);
             }
         } else {
@@ -447,7 +447,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
             
             // transfer all of the results into the page object
             $i = 0;
-            while ( $obj = $this->Next() ) {
+            while ($obj = $this->Next()) {
                 $page->Rows [$i ++] = $obj;
             }
             
@@ -480,7 +480,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         
         // no cache, so try three times with a delay to prevent a cache stampede
         $counter = 1;
-        while ( $counter < 4 && $obj == null && $this->IsLocked($cachekey) ) {
+        while ($counter < 4 && $obj == null && $this->IsLocked($cachekey)) {
             $this->_phreezer->Observe("(DataSet.GetDelayedCache: flood prevention. delayed attempt " . $counter . " of 3...) " . $cachekey, OBSERVE_DEBUG);
             usleep(50000); // 5/100th of a second
             $obj = $this->_phreezer->GetValueCache($cachekey);

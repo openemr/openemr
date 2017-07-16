@@ -53,7 +53,7 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
 {
     // NM1 CPL
     $str_html = "";
-    if ( is_array($trans_array) && count($trans_array) ) {
+    if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = array();
             $clp_ar[] = $trans_array;
@@ -65,35 +65,40 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
         $str_html .= "<p>Did not get transaction segments</p>".PHP_EOL;
         return $str_html;
     }
+
     $de = (isset($delimiters['e'])) ? $delimiters['e'] : "";
     $ds = (isset($delimiters['s'])) ? $delimiters['s'] : "";
     $dr = (isset($delimiters['r'])) ? $delimiters['r'] : "";
     //
-    if ( !$de || !$ds ) {
+    if (!$de || !$ds) {
         csv_edihist_log("edih_835_transaction_html: Did not get delimiters");
         $str_html .= "<p>Did not get delimiters</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     $fn = ($fname) ? trim($fname) : "";
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ( 'edih_835_codes' == get_class($codes835) ) {
+    if ('edih_835_codes' == get_class($codes835)) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x) ) {
+    } elseif ('edih_835_codes' == get_class($codes27x)) {
         $cd835 = $codes27x;
     }
-    if ( 'edih_271_codes' == get_class($codes27x) ) {
+
+    if ('edih_271_codes' == get_class($codes27x)) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835) ) {
+    } elseif ('edih_271_codes' == get_class($codes835)) {
         $cd27x = $codes835;
     }
+
     if (!$cd835 || !$cd27x) {
         csv_edihist_log('edih_835_payment_html: invalid code class argument');
         $str_html .= "<p>invalid code class argument</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     $tblid = "";
     $capstr = "";
@@ -105,16 +110,20 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
     $svc_html = "";
     $sbr_html = "";
     $chksegs = array('CLP', 'NM1', 'AMT', 'QTY');
-    foreach($trans_array as $trans) {
+    foreach ($trans_array as $trans) {
         $capstr = "Summary ";
         $loopid = 'NA';
-        foreach($trans as $seg) {
+        foreach ($trans as $seg) {
             //
             $test_str = substr($seg, 0, 3);
-            if ($test_str == 'SVC') { break; }
-            if ( !in_array($test_str, $chksegs, true) ) { continue; }
+            if ($test_str == 'SVC') {
+                break; }
+
+            if (!in_array($test_str, $chksegs, true)) {
+                continue; }
+
             //
-            if ( strncmp('CLP'.$de, $seg, 4) === 0 ) {
+            if (strncmp('CLP'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 $loopid = '2100';
                 $cls = 'clp';
@@ -123,8 +132,8 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 //
                 $clp01 = $clp02 = $clp03 = $clp04 = $clp05 = $clp06 = $clp07 = '';
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
-                foreach($sar as $k=>$v) {
-                    switch((int)$k) {
+                foreach ($sar as $k=>$v) {
+                    switch ((int)$k) {
                         case 0: break;
                         case 1: $clp01 = $v;
                             $capstr = $v;
@@ -145,6 +154,7 @@ break;
                         case 9: $clp09 = ($v && isset($clp09ar[$v])) ? "<em>Freq</em> ".$clp09ar[$v] : $v;
                     }
                 }
+
                 //
                 $clp_html .= "<tr class='$cls'><td><em>PtID:</em> $clp01</td><td colspan=3><em>Status</em> $clp02 <em>$clp06</em></td></tr>".PHP_EOL;
                 $clp_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$clp03 $clp04 $clp05 $clp07 </td></tr>".PHP_EOL;
@@ -153,8 +163,9 @@ break;
                 continue;
                 //
             }
+
             if ($loopid == '2100') {
-                if ( strncmp('AMT'.$de, $seg, 4) === 0 ) {
+                if (strncmp('AMT'.$de, $seg, 4) === 0) {
                     // Payment information
                     $sar = explode($de, $seg);
                     //
@@ -165,8 +176,9 @@ break;
                     //
                     continue;
                 }
+
                 //
-                if ( strncmp('QTY'.$de, $seg, 4) === 0 ) {
+                if (strncmp('QTY'.$de, $seg, 4) === 0) {
                     // Payment information
                     $sar = explode($de, $seg);
                     //
@@ -176,11 +188,12 @@ break;
                     if ($loopid == '2100') {
                         $clp_html .= ($qty01) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$qty01 $qty02</td></tr>".PHP_EOL : "";
                     }
+
                     //
                     continue;
                 }
                 
-                if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
+                if (strncmp('NM1'.$de, $seg, 4) === 0) {
                     $sar = explode($de, $seg);
                     //
                     $descr = (isset($sar[1]) && $sar[1]) ? $cd27x->get_271_code('NM101', $sar[1]) : "";
@@ -194,22 +207,26 @@ break;
                     $nm108 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('NM108', $sar[8]) : "";
                     $nm109 = (isset($sar[9]) &&  $sar[9]) ? $sar[9] : "";
                     // complete table caption
-                    if (isset($sar[1]) && $sar[1] == "QC") { $capstr .= " $name"; }
+                    if (isset($sar[1]) && $sar[1] == "QC") {
+                        $capstr .= " $name"; }
+
                     //
                     if ($nm108) {
                         $sbr_html .= "<tr class='sbr'><td><em>$descr</em></td><td colspan=3>$name <em>$nm108</em>  $nm109</td></tr>" .PHP_EOL;
                     } else {
                         $sbr_html .= "<tr class='sbr'><td><em>$descr</em></td><td colspan=3>$name </td></tr>" .PHP_EOL;
                     }
+
                     //
                     $descr = $name = $nm108 = $nm109 = '';
                     continue;
                 }
-                if ( strncmp('CAS'.$de, $seg, 4) === 0 ) {
+
+                if (strncmp('CAS'.$de, $seg, 4) === 0) {
                     $sar = explode($de, $seg);
                     $cas_str = '';
                     // claim adjustment group;  expect CAS segment for each adjustment group
-                    foreach($sar as $k=>$v) {
+                    foreach ($sar as $k=>$v) {
                         switch ((int)$k) {
                             case 0: break;
                             case 1: $cas_str .= "$v ".$cd835->get_835_code('CAS_GROUP', $v);
@@ -235,12 +252,14 @@ break;
                             default: $cas_str .= " *";
                         }
                     }
+
                     $clp_html .= ($cas_str) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$cas_str</td></tr>".PHP_EOL : "";
                     //
                     continue;
                 }
             }
         }
+
         //
         $str_html .= "<table name='$tblid' class='h835c' columns=4><caption>$capstr</caption>".PHP_EOL."<thead>".PHP_EOL;
         $str_html .= $hdr_html;
@@ -248,6 +267,7 @@ break;
         $str_html .= $clp_html;
         $str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
     }
+
     //
     return $str_html;
 }
@@ -269,7 +289,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
 {
     //
     $str_html = "";
-    if ( is_array($trans_array) && count($trans_array) ) {
+    if (is_array($trans_array) && count($trans_array)) {
         if (csv_singlerecord_test($trans_array)) {
             $clp_ar = array();
             $clp_ar[] = $trans_array;
@@ -281,35 +301,40 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $str_html .= "<p>Did not get transaction segments</p>".PHP_EOL;
         return $str_html;
     }
+
     $de = (isset($delimiters['e'])) ? $delimiters['e'] : "";
     $ds = (isset($delimiters['s'])) ? $delimiters['s'] : "";
     $dr = (isset($delimiters['r'])) ? $delimiters['r'] : "";
     //
-    if ( !$de || !$ds ) {
+    if (!$de || !$ds) {
         csv_edihist_log("edih_835_transaction_html: Did not get delimiters");
         $str_html .= "<p>Did not get delimiters</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     $fn = ($fname) ? trim($fname) : "";
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ( 'edih_835_codes' == get_class($codes835) ) {
+    if ('edih_835_codes' == get_class($codes835)) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x) ) {
+    } elseif ('edih_835_codes' == get_class($codes27x)) {
         $cd835 = $codes27x;
     }
-    if ( 'edih_271_codes' == get_class($codes27x) ) {
+
+    if ('edih_271_codes' == get_class($codes27x)) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835) ) {
+    } elseif ('edih_271_codes' == get_class($codes835)) {
         $cd27x = $codes835;
     }
+
     if (!$cd835 || !$cd27x) {
         csv_edihist_log('edih_835_payment_html: invalid code class argument');
         $str_html .= "<p>invalid code class argument</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     $str_html = "";
     //
@@ -324,7 +349,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
     $sbr_html = "";
     $moa_html = "";
     //
-    foreach($clp_ar as $trans) {
+    foreach ($clp_ar as $trans) {
         $lq_ar = array();
         $cas_ar = array();
         $moa_ar = array();
@@ -333,9 +358,9 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
         $svc_html = "";
         $sbr_html = "";
         $moa_html = "";
-        foreach($trans as $seg) {
+        foreach ($trans as $seg) {
             //
-            if ( strncmp('REF'.$de, $seg, 4) === 0 ) {
+            if (strncmp('REF'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
                 if (isset($sar[1]) && $sar[1]) {
@@ -348,6 +373,7 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                         // entity ID
                         $ref02 = (isset($sar[2])) ? $sar[2] : '';
                     }
+
                     //
                     if ($loopid == '2100') {
                         $clp_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$ref01</em> $ref02</td></tr>".PHP_EOL;
@@ -355,11 +381,13 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                         $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$ref01</em> $ref02</td></tr>".PHP_EOL;
                     }
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('DTM'.$de, $seg, 4) === 0 ) {
+            if (strncmp('DTM'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
@@ -379,17 +407,19 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 } elseif ($loopid == '2110') {
                     $svc_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$dtm01</em> $dtm02</td></tr>".PHP_EOL;
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('PER'.$de, $seg, 4) === 0 ) {
+            if (strncmp('PER'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $per01_ar = array('CX'=>'Claims Dept','BL'=>'Technical Dept','IC'=>'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
-                foreach($sar as $k=>$v) {
-                    switch((int)$k) {
+                foreach ($sar as $k=>$v) {
+                    switch ((int)$k) {
                         case 0: break;
                         case 1: $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
 break;
@@ -408,16 +438,19 @@ break;
                         case 8: $per08 = ($per03=='TE') ? edih_format_telephone($v) :  $v;
                     }
                 }
+
                 //
                 if ($loopid == '2100') {
                     $clp_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$per01 $per02 $per03 $per04 </td></tr>".PHP_EOL;
                     $clp_html .= ($per05 || $per07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$per05 $per06 $per07 $per08</td></tr>".PHP_EOL : "";
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('CLP'.$de, $seg, 4) === 0 ) {
+            if (strncmp('CLP'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 $loopid = '2100';
                 $cls = 'clp';
@@ -434,11 +467,12 @@ break;
                 $clp08 = (isset($sar[8]) && $sar[8]) ? "<em>Location</em> ".$cd27x->get_271_code('POS', $sar[8]) : ''; // Faciliy code place of service
                 // frequency type code 1 original  7 replacement  8 void
                 $clp09ar = array('1'=>'original', '7'=>'replacement',  '8'=>'void');
-                if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar) ) {                                                           // claim frequency code
+                if (isset($sar[9]) && array_key_exists($sar[9], $clp09ar)) {                                                           // claim frequency code
                     $clp09 = "<em>Freq</em> ".$clp09ar[$sar[9]];
                 } else {
                     $clp09 = (isset($sar[9]) && $sar[9]) ? "<em>Freq</em> ".$sar[9] : "";
                 }
+
                 // DRG code not expected
                 $clp11 = (isset($sar[11]) && $sar[11]) ? "<em>DRG Code</em> ".$sar[11] : '';
                 // DRG weight
@@ -458,7 +492,8 @@ break;
                 continue;
                 //
             }
-            if ( strncmp('CAS'.$de, $seg, 4) === 0 ) {
+
+            if (strncmp('CAS'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 // claim adjustments
                 $cls = ($loopid == '2100') ? 'clp' : 'svc';
@@ -469,12 +504,14 @@ break;
                     //echo '== array_chunk'.PHP_EOL;
                     //var_dump( $cas_ar ).PHP_EOL;
                 }
+
                 //
                 continue;
                 //
             }
+
             //
-            if ( strncmp('NM1'.$de, $seg, 4) === 0 ) {
+            if (strncmp('NM1'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 $nm1_str = "";
                 //
@@ -484,11 +521,13 @@ break;
                     } else {
                         $cls = 'clp';
                     }
+
                     $descr = $cd27x->get_271_code('NM101', $sar[1]);
                 } else {
                     $cls = 'clp';
                     $descr = '';
                 }
+
                 //
                 $name = (isset($sar[3]) && $sar[3]) ? $sar[3] : "";
                 $name .= (isset($sar[7]) && $sar[7]) ? " {$sar[7]}" : "";
@@ -499,7 +538,9 @@ break;
                 $nm108 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('NM108', $sar[8]) : "";
                 $nm109 = (isset($sar[9]) &&  $sar[9]) ? $sar[9] : "";
                 // complete table caption
-                if (isset($sar[1]) && $sar[1] == "QC") { $capstr .= " $name"; }
+                if (isset($sar[1]) && $sar[1] == "QC") {
+                    $capstr .= " $name"; }
+
                 //
 
                 if ($nm108) {
@@ -507,17 +548,20 @@ break;
                 } else {
                     $nm1_str .= "<tr class='$cls'><td><em>$descr</em></td><td colspan=3>$name </td></tr>" .PHP_EOL;
                 }
+
                 if ($loopid == '2100') {
                     $clp_html .= $nm1_str;
                 } elseif ($loopid == '2110') {
                     $svc_html .= $nm1_str;
                 }
+
                 //
                 $descr = $name = $nm108 = $nm109 = '';
                 continue;
             }
+
             //
-            if ( strncmp('MIA'.$de, $seg, 4) === 0 ) {
+            if (strncmp('MIA'.$de, $seg, 4) === 0) {
                 // Inpatient Adjudication information
                 $sar = explode($de, $seg);
                 // <tr class='mia'><td>&gt;</td><td> </td></tr>".PHP_EOL;
@@ -549,14 +593,15 @@ break;
                 //
                 continue;
             }
+
             //
-            if ( strncmp('MOA'.$de, $seg, 4) === 0 ) {
+            if (strncmp('MOA'.$de, $seg, 4) === 0) {
                 // Inpatient Adjudication information
                 $sar = explode($de, $seg);
                 //
                 $moa_str = 'Claim Level Remarks: ';
-                foreach($sar as $k=>$v) {
-                    switch((int)$k){
+                foreach ($sar as $k=>$v) {
+                    switch ((int)$k) {
                         case 0: break;
                         case 1: $moa_str .= ($v) ? 'Reimbursement Rate: '.edih_format_percent($v) : '';
 break;
@@ -572,13 +617,15 @@ break;
                             $moa_ar[] = ($v) ? $v : '';
                     }
                 }
+
                 //
                 $clp_html .= ($moa_str) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$moa_str</td></tr>".PHP_EOL : "";
                 //
                 continue;
             }
+
             //
-            if ( strncmp('AMT'.$de, $seg, 4) === 0 ) {
+            if (strncmp('AMT'.$de, $seg, 4) === 0) {
                 // Payment information
                 $sar = explode($de, $seg);
                 //
@@ -590,11 +637,13 @@ break;
                 } elseif ($loopid == '2110') {
                     $svc_html .= ($amt01) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$amt01 $amt02</td></tr>".PHP_EOL : "";
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('QTY'.$de, $seg, 4) === 0 ) {
+            if (strncmp('QTY'.$de, $seg, 4) === 0) {
                 // Payment information
                 $sar = explode($de, $seg);
                 //
@@ -606,11 +655,13 @@ break;
                 } elseif ($loopid == '2110') {
                     $svc_html .= ($qty01) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$qty01 $qty02</td></tr>".PHP_EOL : "";
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('SVC'.$de, $seg, 4) === 0 ) {
+            if (strncmp('SVC'.$de, $seg, 4) === 0) {
                 //
                 $sar = explode($de, $seg);
                 $loopid = '2110';
@@ -618,12 +669,12 @@ break;
                 $rarc_str = ''; // used in LQ segment stanza
                 // composite procedure code source:code:modifier:modifier
                 $svc01 = '';
-                if ( isset($sar[1]) && $sar[1]) {
+                if (isset($sar[1]) && $sar[1]) {
                     // construct a code source code modifier string
-                    if ( strpos($sar[1], $ds) ) {
+                    if (strpos($sar[1], $ds)) {
                         $scda = explode($ds, $sar[1]);
                         reset($scda);
-                        while ( list($key, $val) = each($scda) ) {
+                        while (list($key, $val) = each($scda)) {
                             if ($key == 0 && $val) {
                                 $svc01 = $cd27x->get_271_code('EB13', $val);
                             } else {
@@ -634,6 +685,7 @@ break;
                         $svc01 = $sar[1];
                     }
                 }
+
                 //
                 $svc02 = (isset($sar[2]) && $sar[2]) ? edih_format_money($sar[2]) : "";  // billed amount
                 $svc03 = (isset($sar[3]) && $sar[3]) ? edih_format_money($sar[3]) : "";  // paid amount
@@ -641,12 +693,12 @@ break;
                 $svc05 = (isset($sar[5]) && $sar[5]) ? "<em>Units</em> ".$sar[5] : "";  // quantity
                 //
                 $svc06 = '';
-                if ( isset($sar[6]) && $sar[6]) {
+                if (isset($sar[6]) && $sar[6]) {
                     // construct a code source code modifier string
-                    if ( strpos($sar[6], $ds) ) {
+                    if (strpos($sar[6], $ds)) {
                         $scda = explode($ds, $sar[6]);
                         reset($scda);
-                        while ( list($key, $val) = each($scda) ) {
+                        while (list($key, $val) = each($scda)) {
                             if ($key == 0 && $val) {
                                 $svc06 = $cd27x->get_271_code('EB13', $val)." ";
                             } else {
@@ -665,8 +717,9 @@ break;
                 //
                 continue;
             }
+
             //
-            if ( strncmp('LQ'.$de, $seg, 3) === 0 ) {
+            if (strncmp('LQ'.$de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 // Health Care Remark Codes
                 $lq01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : "";
@@ -685,6 +738,7 @@ break;
                 //
                 continue;
             }
+
             //
         } // end foreach trans as seg
         // assemble the html table at end of the inside foreach loop
@@ -697,8 +751,10 @@ break;
         $str_html .= $svc_html;
         $str_html .= ($rarc_str) ? "<tr class='svc'><td>&gt;</td><td colspan=3>$rarc_str</td></tr>".PHP_EOL : "";
         if (count($cas_ar)) {
-            foreach($cas_ar as $key=>$cas) {
-                if (!is_array($cas) && !count($cas)) { continue; }
+            foreach ($cas_ar as $key=>$cas) {
+                if (!is_array($cas) && !count($cas)) {
+                    continue; }
+
                 if ($key == '2100' && count($cas)) {
                     $cls = 'remc';
                     $str_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Claim Level Adjustments</em></td></tr>".PHP_EOL;
@@ -706,25 +762,27 @@ break;
                     $cls = 'rems';
                     $str_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Service Level Adjustments</em></td></tr>".PHP_EOL;
                 }
+
                 $cg = '';
-                foreach($cas as $ky=>$trp) {
+                foreach ($cas as $ky=>$trp) {
                     //echo '==== cas_ar unwind cas as ky trp '.$ky.PHP_EOL;
                     //var_dump ($trp).PHP_EOL;
                     //
-                    if (!is_array($trp) && !count($trp)) { continue; }
+                    if (!is_array($trp) && !count($trp)) {
+                        continue; }
+
                     $cg = $cd835->get_835_code('CAS_GROUP', $ky);
-                    foreach($trp as  $tr) {
+                    foreach ($trp as  $tr) {
                         // debug
                         //echo '==== cas_ar unwind trp as tr '.PHP_EOL;
                         //var_dump ($tr).PHP_EOL;
                         //
                         $cd = $cr = $ca = $cq = '';
-                        foreach($tr as $k=>$c) {
-                            
+                        foreach ($tr as $k=>$c) {
                             //echo '==== cas_ar unwind tr as k c '.$k.PHP_EOL;
                             //var_dump ($c).PHP_EOL;
                             //
-                            switch((int)$k) {
+                            switch ((int)$k) {
                                 case 0:
                                     $cd = $c;
                                     $cr = $cd835->get_835_code('CARC', $c);
@@ -737,33 +795,38 @@ break;
                             }
                         }
                     }
+
                     //
                     $str_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$ky $cg $cd $ca $cq</td></tr>".PHP_EOL;
                     $str_html .= "<tr class='$cls'><td style='text-align: center;'>$ky $cd</td><td colspan=3>$cr</td></tr>".PHP_EOL;
                 }
             }
         }
+
         if (count($moa_ar)) {
             $cls = 'remc';
             $str_html .= "<tr class='$cls'><td colspan=4><em>Remarks</em></td></tr>".PHP_EOL;
-            foreach($moa_ar as $moa) {
+            foreach ($moa_ar as $moa) {
                 $moar = $cd835->get_835_code('RARC', $moa);
                 $str_html .= "<tr class='$cls'><td style='text-align: center;'>$moa</td><td colspan=3>$moar</td></tr>".PHP_EOL;
             }
         }
+
         if (count($lq_ar)) {
             $cls = 'mia';
             $str_html .= ($rarc_str) ? "<tr class='$cls'><td colspan=4>$rarc_str</td></tr>".PHP_EOL : "";
-            foreach($lq_ar as $lq) {
+            foreach ($lq_ar as $lq) {
                 $lqr = $cd835->get_835_code('RARC', $lq);
                 $str_html .= "<tr class='$cls'><td style='text-align: center;'>$lq</td><td colspan=3>$lqr</td></tr>".PHP_EOL;
             }
         }
+
         // bottom border
         $str_html .= "<tr class='remc'><td colspan=4>&nbsp;</td></tr>".PHP_EOL;
         // end tags for table
         $str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
     }
+
     //
     return $str_html;
 }
@@ -787,7 +850,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     //
     $str_html = '';
     $pid = $chk = '';
-    if (is_array($segments) && count($segments) ) {
+    if (is_array($segments) && count($segments)) {
         $trans_ar = $segments;
     } else {
         csv_edihist_log("edih_835_payment_html: invalid segments argument");
@@ -795,7 +858,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         return $str_html;
     }
         
-    if (is_array($delimiters) && count($delimiters) ) {
+    if (is_array($delimiters) && count($delimiters)) {
         $de = $delimiters['e'];
         $ds = $delimiters['s'];
         $dr = $delimiters['r'];
@@ -804,26 +867,30 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         $str_html .= "<p>invalid delimiters argument</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     $fn = ($fname) ? trim($fname) : "";
     //
     // get the code objects right
     $cd835 = $cd27x = '';
-    if ( 'edih_835_codes' == get_class($codes835) ) {
+    if ('edih_835_codes' == get_class($codes835)) {
         $cd835 = $codes835;
-    } elseif ('edih_835_codes' == get_class($codes27x) ) {
+    } elseif ('edih_835_codes' == get_class($codes27x)) {
         $cd835 = $codes27x;
     }
-    if ( 'edih_271_codes' == get_class($codes27x) ) {
+
+    if ('edih_271_codes' == get_class($codes27x)) {
         $cd27x = $codes27x;
-    } elseif ('edih_271_codes' == get_class($codes835) ) {
+    } elseif ('edih_271_codes' == get_class($codes835)) {
         $cd27x = $codes835;
     }
+
     if (!$cd835 || !$cd27x) {
         csv_edihist_log('edih_835_payment_html: invalid code class argument');
         $str_html .= "<p>invalid code class argument</p>".PHP_EOL;
         return $str_html;
     }
+
     //
     // collect all strings into this variable
     $str_html = "";
@@ -840,7 +907,7 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
     //
     $acctng = array('pmt'=>0,'fee'=>0,'clmpmt'=>0,'clmadj'=>0, 'ptrsp'=>0, 'svcptrsp'=>0, 'svcfee'=>0,'svcadj'=>0,'plbadj'=>0);
     //
-    foreach($trans_ar as $trans) {
+    foreach ($trans_ar as $trans) {
         $clpsegs = array();
         $lx_ar = array();
         $clp_ct = 0;
@@ -852,12 +919,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
         //
         foreach ($trans as $seg) {
             //
-            if ( strncmp('ST'.$de, $seg, 3) === 0 ) {
+            if (strncmp('ST'.$de, $seg, 3) === 0) {
                 $loopid = 'header';
                 continue;
             }
+
             //
-            if ( strncmp('BPR'.$de, $seg, 4) === 0 ) {
+            if (strncmp('BPR'.$de, $seg, 4) === 0) {
                 $loopid = 'header';
                 $cls = 'pmt';
                 //
@@ -887,23 +955,27 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 } else {
                     $pmt_html .= "<tr class='$cls'><td>$bpr16</td><td>$bpr03 $bpr04</td><td colspan=2>$bpr02 to $bpr13 $bpr12 $bpr14</td></tr>".PHP_EOL;
                 }
-                if ( strpos('|ACH|BOP|FWT', $bpr04) ) {
+
+                if (strpos('|ACH|BOP|FWT', $bpr04)) {
                     $pmt_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$bpr05 from: $bpr07 $bpr09 $bpr10</td></tr>".PHP_EOL;
                 }
+
                 $pmt_html .= ($bpr11) ? "<tr class='$cls'><td>&gt;</td><td colspan=3><em>Pmt No.</em> $bpr11 $bpr01</td></tr>".PHP_EOL : "";
                 $acctng['pmt'] =(isset($sar[2]) && $sar[2]) ? (float)$sar[2] : "";
                 //
                 continue;
             }
+
             //
-            if ( strncmp('TRN'.$de, $seg, 4) === 0 ) {
+            if (strncmp('TRN'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $trn01 = (isset($sar[1]) && $sar[1]) ? $sar[1] : '';  // trace type code
                 $trn02 = (isset($sar[2]) && $sar[2]) ? $sar[2] : '';  // trace number (= BPR11)
                 $trn03 = (isset($sar[3]) && $sar[3]) ? $sar[3] : '';  // originator ID
                 $trn04 = (isset($sar[4]) && $sar[4]) ? $sar[4] : '';  // originator supplemental ID
-                if ($trn03[0] == '1') { $trn03 = substr($trn03, 1); } // originator ID is '1' prepended to EIN or TIN
+                if ($trn03[0] == '1') {
+                    $trn03 = substr($trn03, 1); } // originator ID is '1' prepended to EIN or TIN
                 // the html ID for the table
                 $tblid = ($trn02) ? $trn02 : "";
                 $capstr .= ($trn02) ? "Check No: ".$trn02 : "Payment Listing";
@@ -912,8 +984,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 continue;
             }
+
             //
-            if ( strncmp('CUR'.$de, $seg, 4) === 0 ) {
+            if (strncmp('CUR'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $cur01 = (isset($sar[1])) ? $sar[1] : '';  // entity ID code
@@ -923,8 +996,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 continue;
             }
+
             //
-            if ( strncmp('REF'.$de, $seg, 4) === 0 ) {
+            if (strncmp('REF'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $ref01 = (isset($sar[1])) ? $cd27x->get_271_code('REF', $sar[1]) : '';  // entity ID code
@@ -939,18 +1013,19 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 } elseif ($loopid == '1000B') {
                     // receiver
                     $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3><em>$ref01</em> $ref02</td></tr>".PHP_EOL;
-                }  elseif ($loopid == '2100') {
+                } elseif ($loopid == '2100') {
                     //
                     $clpsegs[] = $seg;
-                }  elseif ($loopid == '2110') {
+                } elseif ($loopid == '2110') {
                     //
                     $clpsegs[] = $seg;
                 }
+
                 //
                 continue;
             }
             
-            if ( strncmp('DTM'.$de, $seg, 4) === 0 ) {
+            if (strncmp('DTM'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 // DTM in 835 use DTP codes from 271 codes
                 $dtm01 = (isset($sar[1])) ? $cd27x->get_271_code('DTP', $sar[1]) : '';  // date qualifier
@@ -974,11 +1049,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 } elseif ($loopid == '2110') {
                     $clpsegs[] = $seg;
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('N1'.$de, $seg, 3) === 0 ) {
+            if (strncmp('N1'.$de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $n101 = (isset($sar[1])) ? $cd27x->get_271_code('NM101', $sar[1]) : '';  // entity ID code
@@ -999,8 +1076,9 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 //
                 continue;
             }
+
             //
-            if ( strncmp('N3'.$de, $seg, 3) === 0 ) {
+            if (strncmp('N3'.$de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $n301 = (isset($sar[1])) ? $sar[1] : '';  // address
@@ -1011,11 +1089,13 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 } elseif ($loopid == '1000B') {
                     $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$n301 $n302</td></tr>".PHP_EOL;
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('N4'.$de, $seg, 3) === 0 ) {
+            if (strncmp('N4'.$de, $seg, 3) === 0) {
                 $sar = explode($de, $seg);
                 //
                 $n401 = (isset($sar[1])) ? $sar[1] : '';  // city
@@ -1031,21 +1111,24 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                     $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$n401 $n402 $n403</td></tr>".PHP_EOL;
                     $rcv_html .= ($n404 || $n407) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$n404 $n405</td></tr>".PHP_EOL : "";
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('PER'.$de, $seg, 4) === 0 ) {
+            if (strncmp('PER'.$de, $seg, 4) === 0) {
                 if ($loopid == '2100' || $loopid == '2100') {
                     // loop 2100 only
                     $clpsegs[] = $seg;
                     continue;
                 }
+
                 $sar = explode($de, $seg);
                 $per01_ar = array('CX'=>'Claims Dept','BL'=>'Technical Dept','IC'=>'Website');
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
-                foreach($sar as $k=>$v) {
-                    switch((int)$k) {
+                foreach ($sar as $k=>$v) {
+                    switch ((int)$k) {
                         case 0: break;
                         case 1: $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
 break;
@@ -1064,6 +1147,7 @@ break;
                         case 8: $per08 = ($per03=='TE') ? edih_format_telephone($v) : $v;
                     }
                 }
+
                 //
                 if ($loopid == '1000A') {
                     $src_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$per01 $per02 $per03 $per04 </td></tr>".PHP_EOL;
@@ -1072,11 +1156,13 @@ break;
                     $rcv_html .= "<tr class='$cls'><td>&gt;</td><td colspan=3>$per01 $per02 $per03 $per04 </td></tr>".PHP_EOL;
                     $rcv_html .= ($per05 || $per07) ? "<tr class='$cls'><td>&gt;</td><td colspan=3>$per05 $per06 $per07 $per08</td></tr>".PHP_EOL : "";
                 }
+
                 //
                 continue;
             }
+
             //
-            if ( strncmp('RDM'.$de, $seg, 4) === 0 ) {
+            if (strncmp('RDM'.$de, $seg, 4) === 0) {
                 // remittance delivery method
                 // loop 1000B -- add to pmt information
                 $sar = explode($de, $seg);
@@ -1091,6 +1177,7 @@ break;
                 } elseif ($sar[1] == 'OL') {
                     $rdm01 = 'By online';
                 }
+
                 $rdm02 = (isset($sar[2])) ? $sar[2] : '';                               // name
                 $rdm03 = (isset($sar[3])) ? $sar[3] : '';                               // number
                 //
@@ -1098,8 +1185,9 @@ break;
                 //
                 continue;
             }
+
             //
-            if ( strncmp('LX'.$de, $seg, 3) === 0 ) {
+            if (strncmp('LX'.$de, $seg, 3) === 0) {
                 // LX can end loop 1000B or a claim grouping
                 if ($loopid == '1000B') {
                     // finish off pmt, src, and rcv
@@ -1112,6 +1200,7 @@ break;
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                             $clpsegs = array();
                         }
+
                         $nlx_html = ($lx_html) ? "<table name='lx_$lxkey' class='h835c' columns=4>".PHP_EOL."<tbody>".PHP_EOL.$lx_html.PHP_EOL : "";
                         $lx_ar[$lxkey]['lx'] = $nlx_html;
                         $lx_ar[$lxkey]['clp'] = $clp_html;
@@ -1120,6 +1209,7 @@ break;
                         $clpsegs = array();
                     }
                 }
+
                 $sar = explode($de, $seg);
                 $lxkey = (isset($sar[1]) && $sar[1]) ? $sar[1] : ''; // identify a grouping for claim info
                 $lx_ar[$lxkey] = array();
@@ -1130,8 +1220,9 @@ break;
                 $lx_html .= ($lxkey) ? "<tr class='$cls'><td colspan=4><em>Claim Group</em> $lxkey</td></tr>".PHP_EOL: "";
                 continue;
             }
+
             //
-            if ( strncmp('TS3'.$de, $seg, 4) === 0 ) {
+            if (strncmp('TS3'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 // this looks like a medicare part A or hospital remittance segment
                 // segment TS2 gives DRG totals -- not read in this sequence. If you need it, code it
@@ -1160,8 +1251,9 @@ break;
                 //
                 continue;
             }
+
             //
-            if ( strncmp('TS2'.$de, $seg, 4) === 0 ) {
+            if (strncmp('TS2'.$de, $seg, 4) === 0) {
                 csv_edihist_log("edih_835_transaction_html: segment TS2 present in $fn");
                 // Medicare Part A
                 $tr1 = "<tr class='$cls'><td>&gt;</td><td colspan=3>";
@@ -1190,7 +1282,7 @@ break;
                 continue;
             }
     
-            if ( strncmp('PLB'.$de, $seg, 4) === 0 ) {
+            if (strncmp('PLB'.$de, $seg, 4) === 0) {
                 // can signal end of claim transaction
                 $loopid = 'summary';
                 $cls = 'pmt';
@@ -1209,18 +1301,19 @@ break;
                 $plbar = array_slice($sar, 2);
                 $plbar = array_chunk($plbar, 2);
                 // reason code and amount
-                foreach($plbar as $plb) {
-                    foreach($plb as $k=>$p) {
+                foreach ($plbar as $plb) {
+                    foreach ($plb as $k=>$p) {
                         // PLB 3, 5, 7, 9, 11, 13
                         // composite element 'code:reference'
                         if ($k==0) {
-                            if ($p && strpos($p, $ds) ) {
+                            if ($p && strpos($p, $ds)) {
                                 $plb_rc = substr($p, 0, strpos($p, $ds));   // code
                                 $plb_tr = substr($p, strpos($p, $ds)+1);    // reference (case #)?
                             } else {
                                 $plb_rc = ($p) ? $p : "";
                                 $plb_tr = "";
                             }
+
                             $plb_rt = ($plb_rc) ? $cd835->get_835_code('PLB', $plb_rc) : "";
                         } else {
                             // PLB 4, 6, 8, 10, 12, 14
@@ -1229,13 +1322,16 @@ break;
                             $acctng['plbadj'] +=  ($p) ? (float)$p : 0;
                         }
                     }
+
                     $pmt_html .= "<tr class='$cls'><td>$plb_tr</td><td colspan=3>$plb_rc $plb_rt $plb_amt</td></tr>".PHP_EOL;
                 }
+
                 //
                 continue;
             }
+
             //
-            if (strncmp('SE'.$de, $seg, 3) === 0 ) {
+            if (strncmp('SE'.$de, $seg, 3) === 0) {
                 // end of payment transaction, so create the html page
                 $loopid ='trailer';
                 $cls = 'pmt';
@@ -1249,16 +1345,23 @@ break;
                     //
                     $pmt_html .= "<tr class='$cls'><td colspan=4>$acct_str</td></tr>".PHP_EOL;
                 }
+
                 //
                 // create the html page
                 $str_html .= "<table id=$tblid class='h835' columns=4><caption>$capstr</caption>".PHP_EOL;
                 $str_html .= $hdr_html;
-                if ($pmt_html) { $str_html .= $pmt_html;
+                if ($pmt_html) {
+                    $str_html .= $pmt_html;
                     $pmt_html = ""; }
-                if ($src_html) { $str_html .= $src_html;
+
+                if ($src_html) {
+                    $str_html .= $src_html;
                     $src_html = ""; }
-                if ($rcv_html) { $str_html .= $rcv_html;
+
+                if ($rcv_html) {
+                    $str_html .= $rcv_html;
                     $rcv_html = ""; }
+
                 //
                 if (count($lx_ar)) {
                     // claim segments are in lx array
@@ -1268,6 +1371,7 @@ break;
                             $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                             $clpsegs = array();
                         }
+
                         // note: table ending in CLP if stanza
                         $nlx_html = "<table name='lx_$lxkey' class='h835c' columns=4>".PHP_EOL."<tbody>".PHP_EOL.$lx_html.PHP_EOL;
                         $lx_ar[$lxkey]['lx'] = $nlx_html;
@@ -1276,35 +1380,40 @@ break;
                         $clp_html = "";
                         $clpsegs = array();
                     }
+
                     // append segments to html
-                    foreach($lx_ar as $key=>$val) {
+                    foreach ($lx_ar as $key=>$val) {
                         $str_html .= $val['lx'];
                         $str_html .= $val['clp'];
                     }
-                } elseif($lx_html) {
+                } elseif ($lx_html) {
                     $str_html .= $lx_html;
                     $lx_html = "";
                 }
+
                 //
                 if (count($clpsegs)) {
                     // would be captured in LX and lx array
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                     $clpsegs = array();
                 }
+
                 if ($clp_html) {
                     $str_html .= $clp_html;
                     $clp_html = "";
                 }
+
                 if ($trl_html) {
                     $str_html .= $trl_html;
                     $trl_html = "";
                 }
+
                 //$str_html .= "</tbody>".PHP_EOL."</table>".PHP_EOL;
                 //
                 continue;
             }
                     
-            if (strncmp('CLP'.$de, $seg, 4) === 0 ) {
+            if (strncmp('CLP'.$de, $seg, 4) === 0) {
                 if ($loopid == '1000B') {
                     // end of 1000B (receiver) loop
                     $rcv_html .= ($clp_ct) ? "" : "</tbody>".PHP_EOL."</table>".PHP_EOL;
@@ -1312,6 +1421,7 @@ break;
                     // end of LX header (LX TS3 TS2 claim grouping)
                     $lx_html .= ($clp_ct) ? "" : "</tbody>".PHP_EOL."</table>".PHP_EOL;
                 }
+
                 $loopid = '2100';
                 //array('pmt'=>0, 'clmpmt'=>0, 'clmadj'=0, 'prvadj'=>0, 'ptrsp'=>0,'lx'=>array());
                 $sar = explode($de, $seg);
@@ -1322,17 +1432,18 @@ break;
                 if (count($clpsegs)) {
                     $clp_html .= edih_835_transaction_html($clpsegs, $codes27x, $codes835, $delimiters);
                 }
+
                 $clpsegs = array();
                 $clpsegs[] = $seg;
                 $clp_ct++;
                 continue;
             }
 
-            if (strncmp('SVC'.$de, $seg, 4) === 0 ) {
+            if (strncmp('SVC'.$de, $seg, 4) === 0) {
                 $loopid = '2110';
                 $sar = explode($de, $seg);
                 $pmtm = $pmts = 1;
-                foreach($sar as $k=>$v) {
+                foreach ($sar as $k=>$v) {
                     if ($k == 2) {
                         $svcfee = ($v) ? (float)$v : 0;
                     } elseif ($k == 3) {
@@ -1343,13 +1454,15 @@ break;
                         $pmts = ($v) ? (int)$v : 1;
                     }
                 }
+
                 $acctng['svcfee'] += $svcfee * $pmts;
                 $acctng['svcpmt'] += $svcpmt * $pmtm;
                 //
                 $clpsegs[] = $seg;
                 continue;
             }
-            if (strncmp('CAS'.$de, $seg, 4) === 0 ) {
+
+            if (strncmp('CAS'.$de, $seg, 4) === 0) {
                 $sar = explode($de, $seg);
                 // category
                 $ctg = (isset($sar[1]) && $sar[1]) ? $sar[1] : 'CO';
@@ -1358,14 +1471,14 @@ break;
                 $sar1 = array_slice($sar, 2);
                 $sar1 = array_chunk($sar1, 3);
                 //
-                foreach($sar1 as $cas) {
+                foreach ($sar1 as $cas) {
                     $cav = 0;
                     $cq = '';
-                    foreach($cas as $k=>$v) {
+                    foreach ($cas as $k=>$v) {
                         if ($k == 1) {
                             // monetary amount elem 3, 6, 9, 12, 15, 18
                             $cav = ($v) ?  $v : 0;
-                        } elseif($k == 2) {
+                        } elseif ($k == 2) {
                             // quantity elem 4, 7, 10, 13, 16, 19
                             $cq =  ($v) ? $v : "";
                             if ($cq && strcmp($cq, '1') > 0) {
@@ -1373,6 +1486,7 @@ break;
                             }
                         }
                     }
+
                     if ($ctg == 'PR') {
                         $acctng['svcptrsp'] += ($cav) ? (float)$cav : 0;
                     } else {
@@ -1380,15 +1494,16 @@ break;
                         $acctng[$acctky] += ($cav) ? (float)$cav : 0;
                     }
                 }
+
                 $clpsegs[] = $seg;
                 continue;
             }
+
             // uncaught segments should be routed by this
             if ($loopid == '2100' || $loopid == '2110') {
                 $clpsegs[] = $seg;
                 continue;
             }
-            
         } // end foreach(trans as seg)
     } // end foreach(trans_ar as trans)
     //
@@ -1432,7 +1547,8 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
         csv_edihist_log("edih_835_html: error in parsing file $filename");
         return $html_str;
     }
-    if ( $de && $ds ) {
+
+    if ($de && $ds) {
         // note $dr, repetition separator, is not always available
         $cd27x = new edih_271_codes($ds, $dr);
         $cd835 = new edih_835_codes($ds, $dr);
@@ -1441,6 +1557,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
         $html_str .= "<p>Did not get delimiters for $fn</p>".PHP_EOL;
         return $html_str;
     }
+
     //
     // if given, one only of trace or clm01
     $pid = $chk = '';
@@ -1449,11 +1566,12 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
     } elseif ($trace) {
         $chk = trim((string)$trace);
     }
+
     //
     if ($pid) {
         $clp_ar = $obj835->edih_x12_transaction($pid);
         // $clp_ar is array[i][j]
-        if ( count($clp_ar) ) {
+        if (count($clp_ar)) {
             if ($summary) {
                 $html_str .= edih_835_clp_summary($clp_ar, $cd27x, $cd835, $delims, $fn);
             } else {
@@ -1469,8 +1587,10 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
         // check detail
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
             $trans_ar = array();
-            foreach($env_ar['ST'] as $st) {
-                if ($st['trace'] != $chk) { continue; }
+            foreach ($env_ar['ST'] as $st) {
+                if ($st['trace'] != $chk) {
+                    continue; }
+
                 $trans_ar[] = $obj835->edih_x12_slice(array('trace'=>$chk));
             }
         } else {
@@ -1478,6 +1598,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
             $html_str .= "<p>Did not get envelopes information for $fn</p>".PHP_EOL;
             return $html_str;
         }
+
         if (is_array($trans_ar) && count($trans_ar)) {
             // $trans_ar is a slice, array[i]
             $html_str .= edih_835_payment_html($trans_ar, $cd27x, $cd835, $delims, $fn);
@@ -1490,7 +1611,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
         // entire file
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
             $trans_ar = array();
-            foreach($env_ar['ST'] as $st) {
+            foreach ($env_ar['ST'] as $st) {
                 $trans_ar[] = $obj835->edih_x12_slice(array('trace'=>$st['trace']));
             }
         } else {
@@ -1498,6 +1619,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
             $html_str .= "<p>Did not get envelopes information for $fn</p>".PHP_EOL;
             return $html_str;
         }
+
         if (is_array($trans_ar) && count($trans_ar)) {
             // $trans_ar is a slice, array[i]
             $html_str .= edih_835_payment_html($trans_ar, $cd27x, $cd835, $delims, $fn);
@@ -1507,6 +1629,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
             return $html_str;
         }
     }
+
     //
     return $html_str;
 }

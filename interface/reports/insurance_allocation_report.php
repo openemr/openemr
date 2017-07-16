@@ -48,8 +48,7 @@ if ($_POST['form_csvexport']) {
         echo '"Patients",';
         echo '"Pt Pct"' . "\n";
     }
-}
-else {
+} else {
 ?>
 <html>
 <head>
@@ -190,7 +189,6 @@ else {
 <?php
 } // end not export
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-
     $from_date = fixDate($_POST['form_from_date']);
     $to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 
@@ -236,8 +234,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . $val['visits']                                      . '",';
             echo '"' . $val['patients']                                    . '",';
             echo '"' . sprintf("%.1f", $val['patients'] * 100 / $patcount) . '"' . "\n";
-        }
-        else {
+        } else {
         ?>
      <tr>
       <td>

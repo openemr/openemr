@@ -38,8 +38,7 @@ function genEndRow()
     global $form_output;
     if ($form_output == 3) {
         echo "\n";
-    }
-    else {
+    } else {
         echo " </tr>\n";
     }
 }
@@ -52,17 +51,18 @@ function genAnyCell($data, $right = false, $class = '')
     if (!is_array($data)) {
         $data = array(0 => $data);
     }
+
     foreach ($data as $datum) {
         if ($form_output == 3) {
             if ($cellcount) echo ',';
             echo '"' . $datum . '"';
-        }
-        else {
+        } else {
             echo "  <td";
             if ($class) echo " class='$class'";
             if ($right) echo " align='right'";
             echo ">$datum</td>\n";
         }
+
         ++$cellcount;
     }
 }
@@ -92,8 +92,7 @@ if ($form_output == 3) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
@@ -141,6 +140,7 @@ foreach ($fres as $frow) {
     if ($facid == $_POST['form_facility']) echo " selected";
     echo ">" . $frow['name'] . "\n";
 }
+
  echo "   </select>\n";
 ?>
   </td>
@@ -178,13 +178,13 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
 } // end not export
 
 if ($_POST['form_submit']) {
-
     $lores = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'contrameth' AND activity = 1 ORDER BY title");
     while ($lorow = sqlFetchArray($lores)) {
         $areport[$lorow['option_id']] = array($lorow['title'],
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
+
     $areport['zzz'] = array('Unknown', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
   // This gets us all MA codes, with encounter and patient
@@ -203,6 +203,7 @@ if ($_POST['form_submit']) {
     if ($form_facility) {
         $query .= "AND fe.facility_id = '$form_facility' ";
     }
+
     $query .= "ORDER BY fe.pid, fe.encounter, b.code";
     $res = sqlStatement($query);
 
@@ -213,7 +214,6 @@ if ($_POST['form_submit']) {
 
     while ($row = sqlFetchArray($res)) {
         if ($row['code_type'] === 'MA') {
-
             // Logic for individual patients.
             //
             if ($row['pid'] != $last_pid) { // new patient
@@ -258,7 +258,6 @@ if ($_POST['form_submit']) {
                 if (empty($trow['count'])) ++$areport[$method][5];
               }
                 *************************************************************/
-
             } // end new patient
 
             // Logic for visits.
@@ -319,6 +318,7 @@ if ($_POST['form_submit']) {
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
             genNumCell($varr[$cnum + 1], $cnum);
         }
+
         genEndRow();
     } // end foreach
 
@@ -329,11 +329,11 @@ if ($_POST['form_submit']) {
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
             genHeadCell($atotals[$cnum], true);
         }
+
         genEndRow();
         // End of table.
         echo "</table>\n";
     }
-
 } // end if submit
 
 if ($form_output != 3) {

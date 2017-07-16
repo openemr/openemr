@@ -15,7 +15,7 @@ class NFQ_0038_Numerator1 implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Immunizations::checkDtap($patient, $beginDate, $endDate) ) {
+        if (Immunizations::checkDtap($patient, $beginDate, $endDate)) {
             return true;
         }
         

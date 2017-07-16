@@ -84,6 +84,7 @@ foreach (array('primary','secondary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
 }
+
  $query = "SELECT " .
   "p.pubpid, p.fname, p.mname, p.lname, p.DOB, p.providerID, " .
   "p.ss, p.street, p.city, p.state, p.postal_code, p.phone_home, p.sex, " .
@@ -123,6 +124,7 @@ if ($row['providerID']) {
 } else {
     $query .= " ORDER BY id LIMIT 1";
 }
+
  $prow = sqlFetchArray(sqlStatement($query));
 
  // Patient Section.
@@ -232,6 +234,7 @@ while (false !== ($filename = readdir($dh))) {
         }
     }
 }
+
  closedir($dh);
  $fnprefix = sprintf("PMI%08.0f.", $nextnumber);
  $initialname = $fnprefix . "creating";

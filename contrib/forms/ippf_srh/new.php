@@ -72,8 +72,7 @@ if ($_POST['bn_save']) {
         // Updating an existing form.
         $query = "UPDATE form_ippf_srh SET $sets WHERE id = '$formid'";
         sqlStatement($query);
-    }
-    else {
+    } else {
         // Adding a new form.
         $query = "INSERT INTO form_ippf_srh SET $sets";
         $newid = sqlInsert($query);
@@ -210,6 +209,7 @@ function divclick(cb, divid) {
               echo ">";
               $cell_count += $titlecols;
         }
+
         ++$item_count;
 
         echo "<b>";
@@ -230,8 +230,7 @@ function divclick(cb, divid) {
 
         if ($frow['edit_options'] == 'H')
         echo generate_display_field($frow, $currvalue);
-        else
-        generate_form_field($frow, $currvalue);
+        else generate_form_field($frow, $currvalue);
     }
 
     end_group();

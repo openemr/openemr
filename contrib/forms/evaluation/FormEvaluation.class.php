@@ -42,8 +42,7 @@ class FormEvaluation extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
 
@@ -77,8 +76,7 @@ class FormEvaluation extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }

@@ -15,14 +15,14 @@
     $current_date2 = date('Y-m-d');
     $events = array();
     $apptNum = (int)$GLOBALS['patient_portal_appt_display_num'];
-    if($apptNum != 0) $apptNum2 = abs($apptNum);
+    if ($apptNum != 0) $apptNum2 = abs($apptNum);
 else $apptNum2 = 20;
     $events = fetchNextXAppts($current_date2, $pid, $apptNum2);
     ///////
 
     $count = 0;
 
-foreach($events as $row) {
+foreach ($events as $row) {
     $count++;
     $dayname = xl(date("l", strtotime($row['pc_eventDate'])));
     $dispampm = "am";
@@ -32,26 +32,30 @@ foreach($events as $row) {
         $dispampm = "pm";
         if ($disphour > 12) $disphour -= 12;
     }
+
     if ($row['pc_hometext'] != "") {
         $etitle = 'Comments'.": ".$row['pc_hometext']."\r\n";
     } else {
         $etitle = "";
     }
+
     if ($GLOBALS['portal_onsite_appt_modify']) {
         echo "<a href='add_edit_event_user.php?date=" . htmlspecialchars(preg_replace("/-/", "", $row['pc_eventDate']), ENT_QUOTES) .
         "&eid=" . htmlspecialchars($row['pc_eid'], ENT_QUOTES) .
         "' class='edit_event iframe' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
     }
+
     echo "<b>" . htmlspecialchars($row['pc_eventDate'] . " (" . $dayname . ")", ENT_NOQUOTES) . "</b><br>";
     echo htmlspecialchars("$disphour:$dispmin " . $dispampm . " " . $row['pc_catname'], ENT_NOQUOTES) . "<br>\n";
     echo htmlspecialchars($row['ufname'] . " " . $row['ulname'], ENT_NOQUOTES);
     if ($GLOBALS['portal_onsite_appt_modify']) {
         echo "</a><br>\n";
-    }
-    else {
+    } else {
         echo "<br>\n";
     }
 }
+
 if ($resNotNull) {
-    if ( $count < 1 ) { echo "&nbsp;&nbsp;" . htmlspecialchars('No Appointments', ENT_NOQUOTES); }
+    if ($count < 1) {
+        echo "&nbsp;&nbsp;" . htmlspecialchars('No Appointments', ENT_NOQUOTES); }
 }

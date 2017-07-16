@@ -50,8 +50,7 @@ if ($mode) {
     if ($transid) {
         array_push($sqlBindArray, $transid);
         sqlStatement("UPDATE transactions SET $sets WHERE id = ?", $sqlBindArray);
-    }
-    else {
+    } else {
         array_push($sqlBindArray, $pid);
         $sets .= ", pid = ?";
         $newid = sqlInsert("INSERT INTO transactions SET $sets", $sqlBindArray);
@@ -71,14 +70,12 @@ if ($mode) {
                 $query = "DELETE FROM lbt_data WHERE " .
                 "form_id = ? AND field_id = ?";
                 sqlStatement($query, array($transid, $field_id));
-            }
-            else {
+            } else {
                 $query = "REPLACE INTO lbt_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
                 sqlStatement($query, array($value, $transid, $field_id));
             }
-        }
-        else { // new form
+        } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbt_data " .
@@ -98,8 +95,7 @@ if ($mode) {
         if (!(empty($_POST['send_sum_elec_flag']))) {
             processAmcCall('send_sum_elec_amc', true, 'add', $pid, 'transactions', $transid);
         }
-    }
-    else {
+    } else {
         // remove the sent records flags
         processAmcCall('send_sum_amc', true, 'remove', $pid, 'transactions', $transid);
         processAmcCall('send_sum_elec_amc', true, 'remove', $pid, 'transactions', $transid);
@@ -402,10 +398,10 @@ while ($frow = sqlFetchArray($fres)) {
         $last_group = $this_group;
         if ($group_seq == 1) {
             echo "<li class='current'>";
-        }
-        else {
+        } else {
             echo "<li class=''>";
         }
+
         $group_seq_esc = attr($group_seq);
         $group_name_show = text(xl_layout_label($group_name));
         echo "<a href='#' id='div_$group_seq_esc'>" .
@@ -458,8 +454,7 @@ while ($frow = sqlFetchArray($fres)) {
                                     if (!$currvalue && !$transid && $form_id == 'LBTref') {
                                         if ($field_id == 'refer_date') {
                                             $currvalue = date('Y-m-d');
-                                        }
-                                        else if ($field_id == 'body' && $transid > 0 ) {
+                                        } else if ($field_id == 'body' && $transid > 0) {
                                              $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
                                               "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
                                             if (!empty($tmp)) $currvalue = $tmp['reason'];
@@ -473,7 +468,7 @@ while ($frow = sqlFetchArray($fres)) {
                                         $group_name = substr($this_group, 1);
                                         $last_group = $this_group;
                                         $group_seq_esc = attr($group_seq);
-                                        if($group_seq == 1)   echo "<div class='tab current' id='div_$group_seq_esc'>";
+                                        if ($group_seq == 1)   echo "<div class='tab current' id='div_$group_seq_esc'>";
                                         else echo "<div class='tab' id='div_$group_seq_esc'>";
                                         echo " <table border='0' cellpadding='0'>\n";
                                         $display_style = 'none';
@@ -499,6 +494,7 @@ while ($frow = sqlFetchArray($fres)) {
                                         echo ">";
                                         $cell_count += $titlecols;
                                     }
+
                                                                   ++$item_count;
 
                                                                   echo "<b>";

@@ -28,17 +28,16 @@
 if (isset($_GET['portal_auth']) || isset($_GET['portal_auth_two'])) {
     if (isset($_GET['portal_auth'])) {
         $landingpage = "../patients/index.php";
-    }
-    else { // isset($_GET['portal_auth_two'])
+    } else { // isset($_GET['portal_auth_two'])
         $landingpage = "../portal/index.php";
     }
+
     session_start();
-    if ( isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two']))) {
+    if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two']))) {
         $pid = $_SESSION['pid'];
         $ignoreAuth=true;
         global $ignoreAuth;
-    }
-    else {
+    } else {
         session_destroy();
         header('Location: '.$landingpage.'?w');
         exit;
@@ -60,7 +59,7 @@ function createCCR($action, $raw = "no", $requested_by = "")
     $oemrID = getUuid();
   
     $result = getActorData();
-    while($res = sqlFetchArray($result[2])){
+    while ($res = sqlFetchArray($result[2])) {
         ${"labID{$res['id']}"} = getUuid();
     }
 
@@ -126,11 +125,11 @@ function createCCR($action, $raw = "no", $requested_by = "")
        require_once("createCCRActor.php");
        $e_ccr->appendChild($e_Actors);
        
-    if ($action=="generate"){
+    if ($action=="generate") {
         gnrtCCR($ccr, $raw, $requested_by);
     }
        
-    if($action == "viewccd"){
+    if ($action == "viewccd") {
         viewCCD($ccr, $raw, $requested_by);
     }
 }
@@ -148,35 +147,35 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
         echo $ccr->saveXml();
         echo "</textarea>";
         return;
-    }
-
-    else if ($raw == "hybrid") {
+    } else if ($raw == "hybrid") {
 // send a file that contains a hybrid file of the raw xml and the xsl stylesheet
         createHybridXML($ccr);
-    }
-
-    else if ($raw == "pure") {
+    } else if ($raw == "pure") {
 // send a zip file that contains a separate xml data file and xsl stylesheet
-        if (! (class_exists('ZipArchive')) ) {
+        if (! (class_exists('ZipArchive'))) {
                         displayError(xl("ERROR: Missing ZipArchive PHP Module"));
                     return;
         }
+
         $tempDir = $GLOBALS['temporary_files_dir'];
         $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
         if (file_exists($zipName)) {
                     unlink($zipName);
         }
+
         $zip = new ZipArchive();
         if (!($zip)) {
                     displayError(xl("ERROR: Unable to Create Zip Archive."));
                     return;
         }
-        if ( $zip->open($zipName, ZIPARCHIVE::CREATE) ) {
+
+        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
             $zip->addFile("stylesheet/ccr.xsl", "stylesheet/ccr.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccr.xml";
             if (file_exists($xmlName)) {
                             unlink($xmlName);
             }
+
             $ccr->save($xmlName);
             $zip->addFile($xmlName, basename($xmlName));
             $zip->close();
@@ -191,21 +190,16 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
             unlink($zipName);
             unlink($xmlName);
                 exit(0);
-        }
-        else {
+        } else {
                     displayError(xl("ERROR: Unable to Create Zip Archive."));
                     return;
         }
-    }
-
-    else if (substr($raw, 0, 4)=="send") {
+    } else if (substr($raw, 0, 4)=="send") {
         $recipient = trim(stripslashes(substr($raw, 5)));
         $result=transmitCCD($ccr, $recipient, $requested_by, "CCR");
         echo htmlspecialchars($result, ENT_NOQUOTES);
         return;
-    }
-
-    else {
+    } else {
         header("Content-type: application/xml");
             echo $ccr->saveXml();
     }
@@ -247,26 +241,30 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
 
     if ($raw == "pure") {
         // send a zip file that contains a separate xml data file and xsl stylesheet
-        if (! (class_exists('ZipArchive')) ) {
+        if (! (class_exists('ZipArchive'))) {
             displayError(xl("ERROR: Missing ZipArchive PHP Module"));
             return;
         }
+
         $tempDir = $GLOBALS['temporary_files_dir'];
         $zipName = $tempDir . "/" . getReportFilename() . "-ccd.zip";
         if (file_exists($zipName)) {
             unlink($zipName);
         }
+
         $zip = new ZipArchive();
         if (!($zip)) {
             displayError(xl("ERROR: Unable to Create Zip Archive."));
             return;
         }
-        if ( $zip->open($zipName, ZIPARCHIVE::CREATE) ) {
+
+        if ($zip->open($zipName, ZIPARCHIVE::CREATE)) {
             $zip->addFile("stylesheet/cda.xsl", "stylesheet/cda.xsl");
             $xmlName = $tempDir . "/" . getReportFilename() . "-ccd.xml";
             if (file_exists($xmlName)) {
                 unlink($xmlName);
             }
+
             $e_styleSheet = $ccd->createProcessingInstruction(
                 'xml-stylesheet',
                 'type="text/xsl" href="stylesheet/cda.xsl"'
@@ -286,8 +284,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
             unlink($zipName);
             unlink($xmlName);
             exit(0);
-        }
-        else {
+        } else {
             displayError(xl("ERROR: Unable to Create Zip Archive."));
             return;
         }
@@ -374,7 +371,7 @@ function createHybridXML($ccr)
     echo $main_xml;
 }
     
-if($_POST['ccrAction']) {
+if ($_POST['ccrAction']) {
     $raw=$_POST['raw'];
   /* If transmit requested, fail fast if the recipient address fails basic validation */
     if (substr($raw, 0, 4)=="send") {
@@ -383,6 +380,7 @@ if($_POST['ccrAction']) {
             echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
+
         createCCR($_POST['ccrAction'], $raw, $_POST['requested_by']);
     } else {
         createCCR($_POST['ccrAction'], $raw);

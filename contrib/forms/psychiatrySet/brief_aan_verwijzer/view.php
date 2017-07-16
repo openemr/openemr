@@ -41,10 +41,9 @@ function getPatientDateOfLastEncounter($nPid)
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if( $strEventDate['max'] != "" )
+    if ($strEventDate['max'] != "")
     return( $strEventDate['max'] );
-    else
-    return( "00-00-0000" );
+    else return( "00-00-0000" );
 }
 
 $m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
@@ -58,12 +57,9 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
                             AND autosave_flag=1
                             ORDER by id DESC limit 1");
 
-if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 )
-{
+if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0) {
     $obj = formFetch("form_brief_aan_verwijzer", $vectAutosave['id']);
-
-} else
-{
+} else {
     $obj = formFetch("form_brief_aan_verwijzer", (int)$_GET["id"]);
 }
 
@@ -92,10 +88,9 @@ if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 
 
 <?php
 
-if( $_GET["id"] )
+if ($_GET["id"])
   $brief_aan_verwijzer_id = $_GET["id"];
-else
-  $brief_aan_verwijzer_id = "0";
+else $brief_aan_verwijzer_id = "0";
 
 ?>
 <script type="text/javascript">

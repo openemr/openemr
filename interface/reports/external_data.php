@@ -148,6 +148,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 while ($row1 = sqlFetchArray($res1)) {
                     $records1[] = $row1;
                 }
+
                 foreach ($records1 as $value1) {
                     ?>
                     <tr>
@@ -181,6 +182,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 while ($row2 = sqlFetchArray($res2)) {
                     $records2[] = $row2;
                 }
+
                 foreach ($records2 as $value2) {
                     ?>
                     <tr>

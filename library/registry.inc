@@ -6,13 +6,11 @@
 function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory='$directory'");
-    if ($check == false)
-    {
+    if ($check == false) {
         $lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
         if ($lines)
             $name = $lines[0];
-        else
-            $name = $directory;
+        else $name = $directory;
         return sqlInsert("insert into registry set
 			name='$name',
 			state='$state',
@@ -22,6 +20,7 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 			date=NOW()
 		");
     }
+
     return false;
 }
 
@@ -42,12 +41,9 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
         $sql .= " limit $limit, $offset";
     $res = sqlStatement($sql);
     if ($res)
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
-    }
-    else
-        return false;
+    } else return false;
     return $all;
 }
 
@@ -66,8 +62,7 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
 function installSQL($dir)
 {
     $sqltext = $dir."/table.sql";
-    if ($sqlarray = @file($sqltext))
-    {
+    if ($sqlarray = @file($sqltext)) {
         $sql = implode("", $sqlarray);
         //echo "<br>$sql<br><br>";
         $sqla = explode(";", $sql);
@@ -78,8 +73,7 @@ function installSQL($dir)
         }
 
         return true;
-    }else
-        return false;
+    } else return false;
 }
 
 

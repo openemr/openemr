@@ -90,8 +90,7 @@ class GlobalConfig
      */
     static function Init()
     {
-        if (!self::$IS_INITIALIZED)
-        {
+        if (!self::$IS_INITIALIZED) {
             require_once 'verysimple/HTTP/RequestUtil.php';
             RequestUtil::NormalizeUrlRewrite();
 
@@ -122,9 +121,9 @@ class GlobalConfig
      */
     function GetContext()
     {
-        if ($this->context == null)
-        {
+        if ($this->context == null) {
         }
+
         return $this->context;
     }
 
@@ -134,11 +133,11 @@ class GlobalConfig
      */
     function GetRouter()
     {
-        if ($this->router == null)
-        {
+        if ($this->router == null) {
             require_once("verysimple/Phreeze/GenericRouter.php");
             $this->router = new GenericRouter(self::$ROOT_URL, self::GetDefaultAction(), self::$ROUTE_MAP);
         }
+
         return $this->router;
     }
 
@@ -168,27 +167,21 @@ class GlobalConfig
      */
     function GetPhreezer()
     {
-        if ($this->phreezer == null)
-        {
-            if (!self::$CONVERT_NULL_TO_EMPTYSTRING)
-            {
+        if ($this->phreezer == null) {
+            if (!self::$CONVERT_NULL_TO_EMPTYSTRING) {
                 require_once("verysimple/DB/DatabaseConfig.php");
                 DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING = false;
             }
 
-            if (self::$DEBUG_MODE)
-            {
+            if (self::$DEBUG_MODE) {
                 require_once("verysimple/Phreeze/ObserveToSmarty.php");
                 $observer = new ObserveToSmarty($this->GetRenderEngine());
                 $this->phreezer = new Phreezer(self::$CONNECTION_SETTING, $observer);
-            }
-            else
-            {
+            } else {
                 $this->phreezer = new Phreezer(self::$CONNECTION_SETTING);
             }
 
-            if (self::$LEVEL_2_CACHE)
-            {
+            if (self::$LEVEL_2_CACHE) {
                 $this->phreezer->SetLevel2CacheProvider(self::$LEVEL_2_CACHE, self::$LEVEL_2_CACHE_TEMP_PATH);
                 $this->phreezer->ValueCacheTimeout = self::$LEVEL_2_CACHE_TIMEOUT;
             }
@@ -202,13 +195,12 @@ class GlobalConfig
      */
     function GetRenderEngine()
     {
-        if ($this->render_engine == null)
-        {
+        if ($this->render_engine == null) {
             $engine_class = self::$TEMPLATE_ENGINE;
-            if (!class_exists($engine_class))
-            {
+            if (!class_exists($engine_class)) {
                 require_once 'verysimple/Phreeze/'. $engine_class  . '.php';
             }
+
             $this->render_engine = new $engine_class(self::$TEMPLATE_PATH,self::$TEMPLATE_CACHE_PATH);
             $this->render_engine->assign("ROOT_URL", self::$ROOT_URL);
             $this->render_engine->assign("PHREEZE_VERSION", Phreezer::$Version);

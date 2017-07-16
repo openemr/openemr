@@ -32,10 +32,11 @@ function convert_safe_file_dir_name($label)
 function basename_international($path)
 {
     $parts = preg_split('~[\\\\/]~', $path);
-    foreach ($parts as $key => $value){
+    foreach ($parts as $key => $value) {
         $encoded = urlencode($value);
         $parts[$key] = $encoded;
     }
+
     $encoded_path = implode("/", $parts);
     $encoded_file_name = basename($encoded_path);
     $decoded_file_name = urldecode($encoded_file_name);
@@ -55,7 +56,7 @@ $white_list = null;
 function isWhiteFile($file)
 {
     global $white_list;
-    if(is_null($white_list)){
+    if (is_null($white_list)) {
         $white_list = array();
         $lres = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'files_white_list' AND activity = 1");
         while ($lrow = sqlFetchArray($lres)) {
@@ -64,12 +65,13 @@ function isWhiteFile($file)
     }
 
     $mimetype  = mime_content_type($file);
-    if(in_array($mimetype, $white_list)){
+    if (in_array($mimetype, $white_list)) {
         return true;
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
-        if(in_array($categoryType. '/*', $white_list))return true;
+        if (in_array($categoryType. '/*', $white_list))return true;
     }
+
     return false;
 }

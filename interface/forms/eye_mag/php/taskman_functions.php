@@ -58,6 +58,7 @@ function make_task($ajax_req)
         $sql = "DELETE from form_taskman where FROM_ID=? and TO_ID=? and PATIENT_ID=? and ENC_ID=?";
         $task = sqlQuery($sql, array($from_id,$to_id,$patient_id,$enc));
     }
+
     if ($task['ID'] && $task['COMPLETED'] =='2') {
         $send['comments'] = xlt('This fax has already been sent.')." ".
                             xlt('If you made changes and want to re-send it, delete the original (in Communications) and try again.')." ".
@@ -112,6 +113,7 @@ function process_tasks($task)
     if ($task['DOC_TYPE'] == 'Fax') {
         deliver_document($task);
     }
+
     update_taskman($task, 'completed', '1');
 
     if ($task['DOC_TYPE'] == "Fax") {
@@ -122,6 +124,7 @@ function process_tasks($task)
 							</a>";
                             //if we want a "resend" icon, add it here.
     }
+
     return $send;
 }
 
@@ -136,11 +139,13 @@ function update_taskman($task, $action, $value)
         sqlQuery($sql, array($task['DOC_ID'],$task['ID']));
         $send['comments'] .="Documented created.\n";
     }
+
     if ($action == 'completed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Completed: ', NOW(),'\n') where ID=?";
         sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
         $send['comments'] .="Task completed.\n";
     }
+
     if ($action == 'refaxed') {
         $sql = "UPDATE form_taskman set DOC_ID=?,COMPLETED =?,COMPLETED_DATE=NOW(),COMMENT=concat(COMMENT,'Refaxed: ', NOW(),'\n') where ID=?";
         sqlQuery($sql, array($task['DOC_ID'],$value,$task['ID']));
@@ -422,6 +427,7 @@ function make_document($task)
     <?php
     echo '<page></page><div style="page-break-after:always; clear:both"></div>';
     }
+
         // 	If the doc_id does exit, why remake it?
         //	We could just add another attachment, stopping here at the coversheet, and adding the doc_name that we sent...
         //	No.  We actually need a physical copy of what we sent, since the report itself can be overwritten.  Keep it legal.
@@ -442,8 +448,7 @@ function make_document($task)
         $i = stripos($content, " src='/", $i + 1);
         if ($i === false) break;
         if (substr($content, $i+6, $wrlen) === $web_root &&
-          substr($content, $i+6, $wsrlen) !== $webserver_root)
-        {
+          substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }

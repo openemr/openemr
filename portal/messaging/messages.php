@@ -37,9 +37,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         header('Location: ' . $landingpage);
         exit();
     }
+
     define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
 }
+
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/options.inc.php");
@@ -54,6 +56,7 @@ $theresult = array();
 foreach ($result as $iter) {
     $theresult[] = $iter;
 }
+
 $dashuser = array();
 if (IS_DASHBOARD) {
     $dashuser = getUserIDInfo($_SESSION['authUserID']);
@@ -68,11 +71,13 @@ function getAuthPortalUsers()
         while ($row = sqlFetchArray($authusers)) {
             $resultusers[] = $row;
         }
+
         $authpatients = sqlStatement("SELECT LOWER(CONCAT(patient_data.fname, patient_data.id)) as userid,
  CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
         }
+
         $resultpd[] = array_merge($resultusers, $resultpatients);
         return $resultpd[0];
     } else {
@@ -82,6 +87,7 @@ function getAuthPortalUsers()
             $resultpd[] = $row;
         }
     }
+
     return $resultpd;
 }
 ?>

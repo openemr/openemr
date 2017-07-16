@@ -31,8 +31,7 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 //if the edit button for editing disclosure is set.
-if (isset($_GET['editlid']))
-{
+if (isset($_GET['editlid'])) {
     $editlid=$_GET['editlid'];
 }
 ?>
@@ -84,9 +83,10 @@ $(document).ready(function() {
 </head>
 <body class="body_top">
 <div id="record-disclosure" style='float: left; margin-right: 10px' >
-<div style='float: left; margin-right: 5px'><?php if($editlid) {?><!--Edit the disclosures-->
-<span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php }
-else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php }?>
+<div style='float: left; margin-right: 5px'><?php if ($editlid) {
+?><!--Edit the disclosures-->
+<span class="title"><?php echo htmlspecialchars(xl('Edit Disclosure'), ENT_NOQUOTES); ?></span><?php } else {
+?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure'), ENT_NOQUOTES); ?></span><?php }?>
 </div>
 <div><a onclick="return submitform()" class="css_button large_button"
     name='form_save' id='form_save' href='#'> <span
@@ -105,7 +105,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
         <td><span class='text'><?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>:</span></td>
         <td><!--retrieve disclosures from extended_log table for modifications-->
         <?php
-        if($editlid){
+        if ($editlid) {
             $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
                        $description=$dres{"description"};
             $app_event=$dres{"event"};
@@ -115,22 +115,19 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
             <input type=hidden name=disclosure_id value="<?php echo htmlspecialchars($editlid, ENT_QUOTES); ?>">
             <input type=hidden name=updatemode value="disclosure_update">
             <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='<?php echo htmlspecialchars($disc_date, ENT_QUOTES);?>' style="background-color:white"/>&nbsp; <?php
-        }
-        else {
+        } else {
             ?> <input type='entry' size='20' class='datepicker' name='dates' id='dates' value='' style="background-color:white"/>&nbsp;
             <?php }
             ?>
     </tr>
     <tr>
         <td><span class=text><?php echo htmlspecialchars(xl('Type of Disclosure'), ENT_NOQUOTES); ?>: </span></TD>
-        <td><?php if($editlid)
-        {
+        <td><?php if ($editlid) {
         //To incorporate the disclosure types  into the list_options listings
-                generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $app_event);}
-else{
+                generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $app_event);} else {
 //To incorporate the disclosure types  into the list_options listings
     generate_form_field(array('data_type'=>1,'field_id'=>'disclosure_type','list_id'=>'disclosure_type','fld_length'=>'10','max_length'=>'63','empty_title'=>'SKIP'), $title);
-} ?>
+                } ?>
         </td>
     </tr>
     <tr>
@@ -138,11 +135,10 @@ else{
         </span></td>
         <td class='text'>
         <?php
-        if($editlid){
+        if ($editlid) {
             ?> <input type=entry name=recipient_name size=20 value="<?php echo htmlspecialchars($recipient_name, ENT_QUOTES); ?>"></td>
             <?php
-        }else
-        {?>
+        } else {?>
             <input type=entry name=recipient_name size=20 value="">
         </td>
         <?php
@@ -151,14 +147,11 @@ else{
     <tr>
         <td>
         <span class=text><?php echo htmlspecialchars(xl('Description of the Disclosure'), ENT_NOQUOTES); ?>:</span></td>
-        <?php if($editlid)
-        {
+        <?php if ($editlid) {
         ?>
         <td>
         <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
-        <?php }
-else
-{?>
+        <?php } else {?>
 <td><textarea name=desc_disc wrap=auto rows=4 cols=30></textarea><?php }?>
         </td>
     </tr>

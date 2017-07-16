@@ -53,6 +53,7 @@ $lres = sqlStatement("SELECT * FROM list_options " .
 while ($lrow = sqlFetchArray($lres)) {
     $validations[$lrow['option_id']] = xl_list_label($lrow['title']);
 }
+
 // array of the data_types of the fields
 $datatypes = array(
   "1"  => xl("List box"),
@@ -107,7 +108,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
     if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") return;
 
-    if      ($layout_id == "DEM") $tablename = "patient_data";
+    if ($layout_id == "DEM") $tablename = "patient_data";
     else if ($layout_id == "HIS") $tablename = "history_data";
     else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
     else if ($layout_id == "CON") $tablename = "lists_ippf_con";
@@ -127,8 +128,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
             1,
             "$tablename ADD $field_id"
         );
-    }
-    else if (!$add && $column_exists) {
+    } else if (!$add && $column_exists) {
         // Do not drop a column that has any data.
         $tmp = sqlQuery("SELECT `$field_id` FROM `$tablename` WHERE " .
         "`$field_id` IS NOT NULL AND `$field_id` != '' LIMIT 1");
@@ -178,6 +178,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
             'andor'    => strip_escape_custom($andor),
             );
         }
+
         $conditions = empty($condarr) ? '' : serialize($condarr);
         if ($field_id) {
             sqlStatement("UPDATE layout_options SET " .
@@ -202,9 +203,7 @@ if ($_POST['formaction'] == "save" && $layout_id) {
                 "WHERE form_id = '$layout_id' AND field_id = '$field_id'");
         }
     }
-}
-
-else if ($_POST['formaction'] == "addfield" && $layout_id) {
+} else if ($_POST['formaction'] == "addfield" && $layout_id) {
     // Add a new field to a specific group
     $data_type = formTrim($_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
@@ -234,9 +233,7 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ",'" . formTrim($_POST['newbackuplistid']) . "'" .
       " )");
     addOrDeleteColumn($layout_id, formTrim($_POST['newid']), true);
-}
-
-else if ($_POST['formaction'] == "movefields" && $layout_id) {
+} else if ($_POST['formaction'] == "movefields" && $layout_id) {
     // Move field(s) to a new group in the layout
     $sqlstmt = "UPDATE layout_options SET ".
                 " group_name='". $_POST['targetgroup']."' ".
@@ -248,12 +245,11 @@ else if ($_POST['formaction'] == "movefields" && $layout_id) {
         $sqlstmt .= $comma."'".$onefield."'";
         $comma = ", ";
     }
+
     $sqlstmt .= ")";
     //echo $sqlstmt;
     sqlStatement($sqlstmt);
-}
-
-else if ($_POST['formaction'] == "deletefields" && $layout_id) {
+} else if ($_POST['formaction'] == "deletefields" && $layout_id) {
     // Delete a field from a specific group
     $sqlstmt = "DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
@@ -263,14 +259,13 @@ else if ($_POST['formaction'] == "deletefields" && $layout_id) {
         $sqlstmt .= $comma."'".$onefield."'";
         $comma = ", ";
     }
+
     $sqlstmt .= ")";
     sqlStatement($sqlstmt);
     foreach (explode(" ", $_POST['selectedfields']) as $onefield) {
         addOrDeleteColumn($layout_id, $onefield, false);
     }
-}
-
-else if ($_POST['formaction'] == "addgroup" && $layout_id) {
+} else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     // all group names are prefixed with a number indicating their display order
     // this new group is prefixed with the net highest number given the
     // layout_id
@@ -312,9 +307,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ",'" . formTrim($_POST['gnewbackuplistid']) . "'" .
       " )");
     addOrDeleteColumn($layout_id, formTrim($_POST['gnewid']), true);
-}
-
-else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
+} else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // drop the fields from the related table (this is critical)
     $res = sqlStatement("SELECT field_id FROM layout_options WHERE " .
       "form_id = '" . $_POST['layout_id'] . "' ".
@@ -322,13 +315,12 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     while ($row = sqlFetchArray($res)) {
         addOrDeleteColumn($layout_id, $row['field_id'], false);
     }
+
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
                 " AND group_name = '".$_POST['deletegroupname']."'");
-}
-
-else if ($_POST['formaction'] == "movegroup" && $layout_id) {
+} else if ($_POST['formaction'] == "movegroup" && $layout_id) {
     $results = sqlStatement("SELECT DISTINCT(group_name) AS gname " .
     "FROM layout_options WHERE form_id = '$layout_id' " .
     "ORDER BY gname");
@@ -341,23 +333,20 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
                     $garray[$i] = $garray[$i - 1];
                     $garray[$i - 1] = $result['gname'];
                     $i++;
-                }
-                else {
+                } else {
                     $garray[$i++] = $result['gname'];
                 }
-            }
-            else { // moving down
+            } else { // moving down
                 $garray[$i++] = '';
                 $garray[$i++] = $result['gname'];
             }
-        }
-        else if ($i > 1 && $garray[$i - 2] == '') {
+        } else if ($i > 1 && $garray[$i - 2] == '') {
             $garray[$i - 2] = $result['gname'];
-        }
-        else {
+        } else {
             $garray[$i++] = $result['gname'];
         }
     }
+
     $nextord = '1';
     foreach ($garray as $value) {
         if ($value === '') continue;
@@ -368,9 +357,7 @@ else if ($_POST['formaction'] == "movegroup" && $layout_id) {
         "group_name = '$value'");
         $nextord = nextGroupOrder($nextord);
     }
-}
-
-else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
+} else if ($_POST['formaction'] == "renamegroup" && $layout_id) {
     $currpos = substr($_POST['renameoldgroupname'], 0, 1);
   // update the database rows
     sqlStatement("UPDATE layout_options SET " .
@@ -407,6 +394,7 @@ function genFieldOptionList($current = '')
             $option_list .= ">" . text($field_id) . "</option>";
         }
     }
+
     return $option_list;
 }
 
@@ -443,6 +431,7 @@ function writeFieldLine($linedata)
         if ($key == $linedata['source']) echo " selected";
         echo ">" . text($value) . "</option>\n";
     }
+
     echo "</select>";
     echo "</td>\n";
 
@@ -475,6 +464,7 @@ function writeFieldLine($linedata)
         if ($key == $linedata['uor']) echo " selected";
         echo ">$value</option>\n";
     }
+
     echo "</select>";
     echo "</td>\n";
   
@@ -485,9 +475,9 @@ function writeFieldLine($linedata)
     foreach ($datatypes as $key=>$value) {
         if ($linedata['data_type'] == $key)
             echo "<option value='$key' selected>$value</option>";
-        else
-            echo "<option value='$key'>$value</option>";
+        else echo "<option value='$key'>$value</option>";
     }
+
     echo "</select>";
     echo "  </td>";
 
@@ -508,17 +498,16 @@ function writeFieldLine($linedata)
             echo "<input type='text' name='fld[$fld_line_no][lengthHeight]' value='" .
             htmlspecialchars($linedata['fld_rows'], ENT_QUOTES) .
             "' size='2' maxlength='10' class='optin' title='" . xla('Height') . "' />";
-        }
-        else {
+        } else {
             // Hide the height field
             echo "<input type='hidden' name='fld[$fld_line_no][lengthHeight]' value=''>";
         }
-    }
-    else {
+    } else {
       // all other data_types (hide both the width and height fields
         echo "<input type='hidden' name='fld[$fld_line_no][lengthWidth]' value=''>";
         echo "<input type='hidden' name='fld[$fld_line_no][lengthHeight]' value=''>";
     }
+
     echo "</td>\n";
 
     echo "  <td align='center' class='optcell' style='width:4%'>";
@@ -534,14 +523,14 @@ function writeFieldLine($linedata)
       $linedata['data_type'] == 25 || $linedata['data_type'] == 26 ||
       $linedata['data_type'] == 27 || $linedata['data_type'] == 32 ||
       $linedata['data_type'] == 33 || $linedata['data_type'] == 34 ||
-      $linedata['data_type'] == 36)
-    {
+      $linedata['data_type'] == 36) {
         $type = "";
         $disp = "style='display:none'";
-        if($linedata['data_type'] == 34){
+        if ($linedata['data_type'] == 34) {
             $type = "style='display:none'";
             $disp = "";
         }
+
         echo "<input type='text' name='fld[$fld_line_no][list_id]'  id='fld[$fld_line_no][list_id]' value='" .
         htmlspecialchars($linedata['list_id'], ENT_QUOTES) . "'".$type.
         " size='6' maxlength='30' class='optin listid' style='width:100%;cursor:pointer'".
@@ -549,32 +538,32 @@ function writeFieldLine($linedata)
     
         echo "<select name='fld[$fld_line_no][contextName]' id='fld[$fld_line_no][contextName]' ".$disp.">";
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-        while($row = sqlFetchArray($res)){
+        while ($row = sqlFetchArray($res)) {
             $sel = '';
             if ($linedata['list_id'] == $row['cl_list_item_long'])
             $sel = 'selected';
             echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."' ".$sel.">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
+
         echo "</select>";
-    }
-    else {
+    } else {
       // all other data_types
         echo "<input type='hidden' name='fld[$fld_line_no][list_id]' value=''>";
     }
+
     echo "</td>\n";
 
     //Backup List Begin
     echo "  <td align='center' class='optcell' style='width:4%'>";
     if ($linedata['data_type'] ==  1 || $linedata['data_type'] == 26 ||
-        $linedata['data_type'] == 33 || $linedata['data_type'] == 36)
-    {
+        $linedata['data_type'] == 33 || $linedata['data_type'] == 36) {
         echo "<input type='text' name='fld[$fld_line_no][list_backup_id]' value='" .
             htmlspecialchars($linedata['list_backup_id'], ENT_QUOTES) .
             "' size='3' maxlength='10' class='optin listid' style='cursor:pointer; width:100%' />";
-    }
-    else {
+    } else {
         echo "<input type='hidden' name='fld[$fld_line_no][list_backup_id]' value=''>";
     }
+
     echo "</td>\n";
     //Backup List End
 
@@ -642,8 +631,7 @@ function writeFieldLine($linedata)
         echo "<input type='hidden' name='fld[$fld_line_no][default]' value='" .
          htmlspecialchars($linedata['default_value'], ENT_QUOTES) . "' />";
         echo "</td>\n";
-    }
-    else {
+    } else {
         echo "  <td align='center' class='optcell' style='width:24%'>";
         echo "<input type='text' name='fld[$fld_line_no][desc]' value='" .
         htmlspecialchars($linedata['description'], ENT_QUOTES) .
@@ -717,6 +705,7 @@ function writeFieldLine($linedata)
             if ($key == $condition['operator']) $extra_html .= " selected";
             $extra_html .= ">" . text($value) . "</option>\n";
         }
+
         $extra_html .=
         "   </select>\n" .
         "  </td>\n" .
@@ -729,8 +718,7 @@ function writeFieldLine($linedata)
             "  <td align='right' title='" . xla('Add a condition') . "'>\n" .
             "   <input type='button' value='+' onclick='extAddCondition($fld_line_no,this)' />\n" .
             "  </td>\n";
-        }
-        else {
+        } else {
             $extra_html .=
             "  <td align='right'>\n" .
             "   <select name='fld[$fld_line_no][condition_andor][$i]'>\n";
@@ -742,13 +730,16 @@ function writeFieldLine($linedata)
                 if ($key == $condition['andor']) $extra_html .= " selected";
                 $extra_html .= ">" . text($value) . "</option>\n";
             }
+
             $extra_html .=
             "   </select>\n" .
             "  </td>\n";
         }
+
         $extra_html .=
         " </tr>\n";
     }
+
     $extra_html .=
       "</table>\n";
 
@@ -768,11 +759,12 @@ function writeFieldLine($linedata)
     "   <option value=''";
         if (empty($linedata['validation'])) $extra_html .= " selected";
         $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
-    foreach ($validations as $key=>$value){
+    foreach ($validations as $key=>$value) {
         $extra_html .= "    <option value='$key'";
         if ($key == $linedata['validation']) $extra_html .= " selected";
         $extra_html .= ">" . text($value) . "</option>\n";
     }
+
     $extra_html .="</select>\n" .
         "  </td>\n";
 
@@ -1061,7 +1053,9 @@ $prevgroup = "!@#asdf1234"; // an unlikely group name
 $firstgroup = true; // flag indicates it's the first group to be displayed
 while ($row = sqlFetchArray($res)) {
     if ($row['group_name'] != $prevgroup) {
-        if ($firstgroup == false) { echo "</tbody></table></div>\n"; }
+        if ($firstgroup == false) {
+            echo "</tbody></table></div>\n"; }
+
         echo "<div id='".$row['group_name']."' class='group'>";
         echo "<div class='text bold layouts_title' style='position:relative; background-color: #eef'>";
         // echo preg_replace("/^\d+/", "", $row['group_name']);
@@ -1073,6 +1067,7 @@ while ($row = sqlFetchArray($res)) {
             echo "<span class='translation'>>>&nbsp; " . xl(substr($row['group_name'], 1)) . "</span>";
             echo "&nbsp; ";
         }
+
         echo "&nbsp; ";
         echo " <input type='button' class='addfield' id='addto~".$row['group_name']."' value='" . xl('Add Field') . "'/>";
         echo "&nbsp; &nbsp; ";
@@ -1121,7 +1116,6 @@ while ($row = sqlFetchArray($res)) {
 
     writeFieldLine($row);
     $prevgroup = $row['group_name'];
-
 } // end while loop
 
 ?>
@@ -1205,7 +1199,7 @@ foreach ($datatypes as $key=>$value) {
     <select name='gcontextName' id='gcontextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-        while($row = sqlFetchArray($res)){
+        while ($row = sqlFetchArray($res)) {
             echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
         ?>
@@ -1288,7 +1282,7 @@ foreach ($datatypes as $key=>$value) {
        <select name='contextName' id='contextName' style='display:none'>
         <?php
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
-        while($row = sqlFetchArray($res)){
+        while ($row = sqlFetchArray($res)) {
             echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."'>".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
         ?>

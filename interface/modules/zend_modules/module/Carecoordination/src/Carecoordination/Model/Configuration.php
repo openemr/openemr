@@ -248,6 +248,7 @@ class Configuration extends Form implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
     
@@ -270,9 +271,10 @@ class Configuration extends Form implements InputFilterAwareInterface
     {
         $users = array('0' => '');
         $res = sqlStatement("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'");
-        while($row = sqlFetchArray($res)){
+        while ($row = sqlFetchArray($res)) {
             $users[$row['id']] = $row['fname']." ".$row['lname'];
         }
+
         return $users;
     }
     

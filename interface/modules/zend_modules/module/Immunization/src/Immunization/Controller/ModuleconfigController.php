@@ -55,6 +55,7 @@ class ModuleconfigController extends AbstractActionController
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
   

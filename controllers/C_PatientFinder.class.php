@@ -44,7 +44,7 @@ class C_PatientFinder extends Controller
         $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_name));
         $this->assign('form_id', $form_id);
         $this->assign('form_name', $form_name);
-        if(!empty($pid))
+        if (!empty($pid))
             $isPid = true;
         $this->assign('hidden_ispid', $isPid);
 
@@ -63,10 +63,10 @@ class C_PatientFinder extends Controller
 
         $isPub = false;
         $search_string = $_POST['searchstring'];
-        if(!empty($_POST['pid']))
-        {
+        if (!empty($_POST['pid'])) {
             $isPub = !$_POST['pid'];
         }
+
         //get the db connection and pass it to the helper functions
         $sql = "SELECT CONCAT(lname, ' ', fname, ' ', mname) as name, DOB, pubpid, pid FROM patient_data";
         //parse search_string to determine what type of search we have
@@ -75,18 +75,17 @@ class C_PatientFinder extends Controller
         // get result set into array and pass to array
         $result_array = array();
 
-        if($pos === false) {
+        if ($pos === false) {
             //no comma just last name
             $result_array = $this->search_by_lName($sql, $search_string);
-        }
-        else if($pos === 0){
+        } else if ($pos === 0) {
             //first name only
             $result_array = $this->search_by_fName($sql, $search_string);
-        }
-        else {
+        } else {
             //last and first at least
             $result_array = $this->search_by_FullName($sql, $search_string);
         }
+
         $this->assign('search_string', $search_string);
         $this->assign('result_set', $result_array);
         $this->assign('ispub', $isPub);

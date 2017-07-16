@@ -28,8 +28,7 @@
 
     $res = sqlStatement($sql, array($pid));
 
-if(sqlNumRows($res)>0)
-{
+if (sqlNumRows($res)>0) {
     ?>
           <table class="table table-striped">
         <tr class="header">
@@ -41,7 +40,6 @@ if(sqlNumRows($res)>0)
     <?php
     $even=false;
     while ($row = sqlFetchArray($res)) {
-
           echo "<tr class='".text($class)."'>";
           echo "<td>".text($row['title'])."</td>";
           echo "<td>".text($row['date'])."</td>";
@@ -49,10 +47,9 @@ if(sqlNumRows($res)>0)
           echo "<td>".text($row['enddate'])."</td>";
           echo "</tr>";
     }
+
     echo "</table>";
-}
-else
-{
+} else {
     echo xlt("No Results");
 }
 ?>

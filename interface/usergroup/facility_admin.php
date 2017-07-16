@@ -12,9 +12,8 @@ if (isset($_GET["fid"])) {
 if (isset($_POST["fid"])) {
     $my_fid = $_POST["fid"];
 }
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility")
-{
 
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility") {
     echo '
 <script type="text/javascript">
 <!--
@@ -48,8 +47,7 @@ parent.$.fn.fancybox.close();
     $collectthis = collectValidationPageRules("/interface/usergroup/facility_admin.php");
     if (empty($collectthis)) {
         $collectthis = "undefined";
-    }
-    else {
+    } else {
         $collectthis = $collectthis["facility-form"]["rules"];
     }
     ?>
@@ -67,7 +65,7 @@ parent.$.fn.fancybox.close();
             var valid = submitme(1, undefined, 'facility-form', collectvalidation);
             if (!valid) return;
 
-            <?php if($GLOBALS['erx_enable']){ ?>
+            <?php if ($GLOBALS['erx_enable']) { ?>
             alertMsg='';
             f=document.forms[0];
             for(i=0;i<f.length;i++){
@@ -183,10 +181,9 @@ parent.$.fn.fancybox.close();
         <?php
         $ssn='';
         $ein='';
-        if($facility['tax_id_type']=='SY'){
+        if ($facility['tax_id_type']=='SY') {
             $ssn='selected';
-        }
-        else{
+        } else {
             $ein='selected';
         }
         ?>
@@ -218,12 +215,13 @@ parent.$.fn.fancybox.close();
         <?php
         $disabled='';
         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-        if(sizeof($resPBE)>0)
+        if (sizeof($resPBE)>0)
         $disabled='disabled';
         ?>
         <tr>
             <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
-            <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+            <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if ($GLOBALS['erx_enable']) {
+?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
             <td>&nbsp;</td>
         </tr>
         <tr>
@@ -242,6 +240,7 @@ parent.$.fn.fancybox.close();
                         if ($facility['pos_code'] == $pos['code']) {
                             echo "selected";
                         }
+
                         echo ">" . $pos['code']  . ": ". text($pos['title']);
                         echo "</option>\n";
                     }

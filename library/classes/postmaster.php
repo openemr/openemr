@@ -29,8 +29,7 @@ class MyMailer extends PHPMailer
     {
         global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
-        switch($GLOBALS['EMAIL_METHOD'])
-        {
+        switch ($GLOBALS['EMAIL_METHOD']) {
             case "PHPMAIL" :
             {
                 $this->Mailer = "mail";

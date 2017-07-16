@@ -308,14 +308,11 @@ function FillAmount()
  {//Called when there is change in the amount by typing.
  //Readjusts the various values.
     <?php
-    if($screen=='new_payment')
-     {
+    if ($screen=='new_payment') {
         ?>
     UnpostedAmt=document.getElementById('HidUnpostedAmount').value*1;
         <?php
-    }
-    else
-     {
+    } else {
         ?>
     UnpostedAmt=document.getElementById('payment_amount').value*1;
         <?php
@@ -428,8 +425,7 @@ function FormValidations()
     return false;
    }
     <?php
-    if($screen=='edit_payment')
-     {
+    if ($screen=='edit_payment') {
         ?>
        if(document.getElementById('check_number').value!='' &&
        document.getElementById('payment_method').options[document.getElementById('payment_method').selectedIndex].value=='')
@@ -454,8 +450,7 @@ function FormValidations()
     return false;
    }
     <?php
-    if($screen=='edit_payment')
-     {
+    if ($screen=='edit_payment') {
         ?>
       if(document.getElementById('adjustment_code').options[document.getElementById('adjustment_code').selectedIndex].value=='')
        {

@@ -148,7 +148,7 @@ class Mime_Types
             $method = & $callback [1];
         $mime_types = $this->mime_types;
         asort($mime_types);
-        foreach ( $mime_types as $ext => $type ) {
+        foreach ($mime_types as $ext => $type) {
             $ext_type = array (
                     $ext,
                     $type
@@ -158,6 +158,7 @@ class Mime_Types
             } else {
                 $res = $callback ( $this, $ext_type, $param );
             }
+
             if (! $res)
                 return;
         }
@@ -188,11 +189,12 @@ class Mime_Types
         $result = false;
         if ($this->file_cmd && is_readable($file) && is_executable($this->file_cmd)) {
             $cmd = $this->file_cmd;
-            foreach ( $this->file_options as $option_key => $option_val ) {
+            foreach ($this->file_options as $option_key => $option_val) {
                 $cmd .= ' -' . $option_key;
                 if (isset($option_val))
                     $cmd .= ' ' . escapeshellarg($option_val);
             }
+
             $cmd .= ' ' . escapeshellarg($file);
             $result = @exec($cmd);
             if ($result) {
@@ -215,6 +217,7 @@ class Mime_Types
                 }
             }
         }
+
         // try and get type from extension
         if (! $type && $use_ext && strpos($file, '.'))
             $type = $this->get_type($file);
@@ -274,12 +277,14 @@ class Mime_Types
     {
         if (! isset($exts)) {
             if (is_array($type)) {
-                foreach ( $type as $mime_type => $exts ) {
+                foreach ($type as $mime_type => $exts) {
                     $this->set($mime_type, $exts);
                 }
             }
+
             return;
         }
+
         if (! is_string($type))
             return;
             // get rid of any parameters which might be included with the MIME type
@@ -293,7 +298,7 @@ class Mime_Types
             // loop through extensions
         if (! is_array($exts))
             $exts = explode(' ', $exts);
-        foreach ( $exts as $ext ) {
+        foreach ($exts as $ext) {
             $ext = trim(str_replace('.', '', $ext));
             if ($ext == '')
                 continue;
@@ -339,10 +344,11 @@ class Mime_Types
     function get_extension($type)
     {
         $type = strtolower($type);
-        foreach ( $this->mime_types as $ext => $m_type ) {
+        foreach ($this->mime_types as $ext => $m_type) {
             if ($m_type == $type)
                 return $ext;
         }
+
         return false;
     }
     
@@ -378,7 +384,7 @@ class Mime_Types
     {
         if (! is_array($exts))
             $exts = explode(' ', $exts);
-        foreach ( $exts as $ext ) {
+        foreach ($exts as $ext) {
             $ext = strtolower(trim($ext));
             if (isset($this->mime_types [$ext]))
                 unset($this->mime_types [$ext]);
@@ -406,6 +412,7 @@ class Mime_Types
             $this->mime_types = array ();
             return;
         }
+
         $slash_pos = strpos($type, '/');
         if (! $slash_pos)
             return;
@@ -419,6 +426,7 @@ class Mime_Types
             $type_info ['wildcard'] = true;
             $type_info ['type'] = substr($type, 0, $slash_pos);
         }
+
         $this->scan(array (
                 &$this,
                 '_remove_type_callback'
@@ -439,7 +447,7 @@ class Mime_Types
         if (! file_exists($file) || ! is_readable($file))
             return false;
         $data = file($file);
-        foreach ( $data as $line ) {
+        foreach ($data as $line) {
             $line = trim($line);
             if (($line == '') || ($line == '#'))
                 continue;
@@ -453,6 +461,7 @@ class Mime_Types
                 $exts = substr($exts, 0, $hash_pos);
             $this->set($line [0], $exts);
         }
+
         return true;
     }
     
@@ -481,6 +490,7 @@ class Mime_Types
         } elseif ($type == $type_info ['type']) {
             $matched = true;
         }
+
         if ($matched) {
             $this->remove_extension($ext);
             $type_info ['last_match'] = true;
@@ -490,6 +500,7 @@ class Mime_Types
             // no further successful matches.
             return false;
         }
+
         return true;
     }
 }

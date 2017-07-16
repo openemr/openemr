@@ -45,6 +45,7 @@ class DocumentsController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this ->documentsTable = $sm->get('Documents\Model\DocumentsTable');
         }
+
         return $this->documentsTable;
     }
 
@@ -54,7 +55,7 @@ class DocumentsController extends AbstractActionController
     public function uploadAction()
     {
         $request        = $this->getRequest();
-        if($request->isPost()) {
+        if ($request->isPost()) {
             $error          = false;
             $files          = array();
             $uploaddir      = $GLOBALS['OE_SITE_DIR'].'/documents/'.$request->getPost('file_location');
@@ -67,7 +68,7 @@ class DocumentsController extends AbstractActionController
             $storage_method = $GLOBALS['document_storage_method'];
             $documents = array();
             $i         = 0;
-            foreach($_FILES as $file){
+            foreach ($_FILES as $file) {
                 $i++;
                 $dateStamp      = date('Y-m-d-H-i-s');
                 $file_name      = $dateStamp."_".basename($file["name"]);
@@ -87,7 +88,7 @@ class DocumentsController extends AbstractActionController
                 $filetext   = fread($tmpfile, $file['size']);
 
                 // Decrypt Encryped Files
-                if($encrypted_file == '1') {
+                if ($encrypted_file == '1') {
                         $plaintext  = \Documents\Plugin\Documents::decrypt($filetext, $encryption_key);
                         fclose($tmpfile);
                         unlink($file['tmp_name']);
@@ -134,11 +135,11 @@ class DocumentsController extends AbstractActionController
 
         $document       = \Documents\Plugin\Documents::getDocument($documentId, $doEncryption, $encryptionKey);
         $categoryIds    = $this->getDocumentsTable()->getCategoryIDs(array('CCD','CCR','CCDA'));
-        if(in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
+        if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml'  && !$doEncryption) {
             $xml          = simplexml_load_string($document);
             $xsl          = new \DomDocument;
 
-            switch($result['category_id']){
+            switch ($result['category_id']) {
                 case $categoryIds['CCD']:
                     $style = "ccd.xsl";
                   break;
@@ -156,23 +157,23 @@ class DocumentsController extends AbstractActionController
             $document     = $proc->transformToXML($xml);
         }
 
-        if($type=="inline" && !$doEncryption) {
-            if(in_array($result['mimetype'], $previewAvailableFiles)){
-                if(in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml') {
+        if ($type=="inline" && !$doEncryption) {
+            if (in_array($result['mimetype'], $previewAvailableFiles)) {
+                if (in_array($result['category_id'], $categoryIds) && $contentType == 'text/xml') {
                     $contentType  = 'text/html';
                 }
             } else {
                 $skip_headers = true;
             }
         } else {
-            if($doEncryption) {
+            if ($doEncryption) {
                 $contentType  = "application/octet-stream";
             } else {
                 $contentType  = $result['mimetype'];
             }
         }
 
-        if(!$skip_headers) {
+        if (!$skip_headers) {
             $response       = $this->getResponse();
             $response->setContent($document);
             $headers        = $response->getHeaders();

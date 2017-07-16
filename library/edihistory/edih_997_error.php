@@ -39,17 +39,19 @@
 function edih_997_sbmtfile($icn, $filetype)
 {
     //
-    if ( strlen($icn) == 13 ) {
+    if (strlen($icn) == 13) {
         $bticn = substr($icn, 0, 9);
         $stn = substr($icn, -4);
     } else {
         $bticn = $icn;
     }
+
     if (is_numeric($filetype)) {
         $ftp = 'f'.$filetype;
     } else {
         $ftp = $filetype;
     }
+
     //
     $btfn = csv_file_by_controlnum($ftp, $bticn);
     $bfullpath = ($btfn) ? csv_check_filepath($btfn, $ftp) : '';
@@ -80,7 +82,7 @@ function edih_997_errdata($obj997)
     $batchfile = '';
     $idx = -1;
     //
-    foreach($segments as $seg) {
+    foreach ($segments as $seg) {
         $sar = array();
         if (strncmp($seg, 'TA1'.$de, 4) == 0) {
             $sar = explode($de, $seg);
@@ -94,6 +96,7 @@ function edih_997_errdata($obj997)
 
             continue;
         }
+
         if (strncmp($seg, 'AK1'.$de, 4) == 0) {
             $sar = explode($de, $seg);
             //
@@ -103,7 +106,7 @@ function edih_997_errdata($obj997)
             continue;
         }
             
-        if (strncmp($seg, 'AK2'.$de, 4) == 0 || strncmp($seg, 'IK2'.$de, 4) == 0 ) {
+        if (strncmp($seg, 'AK2'.$de, 4) == 0 || strncmp($seg, 'IK2'.$de, 4) == 0) {
             $sar = explode($de, $seg);
             //
             $iserr = false;
@@ -113,7 +116,8 @@ function edih_997_errdata($obj997)
             // AK2*837*0001
             continue;
         }
-        if (strncmp($seg, 'AK3'.$de, 4) == 0 || strncmp($seg, 'IK3'.$de, 4) == 0 ) {
+
+        if (strncmp($seg, 'AK3'.$de, 4) == 0 || strncmp($seg, 'IK3'.$de, 4) == 0) {
             $sar = explode($de, $seg);
             //$idx = count($diag);
             $idx++;
@@ -129,6 +133,7 @@ function edih_997_errdata($obj997)
             //
             continue;
         }
+
         if (strncmp($seg, 'CTX'.$de, 4) == 0) {
             $sar = explode($de, $seg);
             if (isset($sar[1]) && strpos($sar[1], 'TRIG')) {
@@ -143,10 +148,12 @@ function edih_997_errdata($obj997)
                 // business unit identifier
                 $diag['err'][$idx]['ctxacct'] =  (isset($sar[2])) ?  $sar[2] : '';
             }
+
             //
             continue;
         }
-        if (strncmp($seg, 'AK4'.$de, 4) == 0 || strncmp($seg, 'IK4'.$de, 4) == 0 ) {
+
+        if (strncmp($seg, 'AK4'.$de, 4) == 0 || strncmp($seg, 'IK4'.$de, 4) == 0) {
             $sar = explode($de, $seg);
             $diag['err'][$idx]['ik401'] = (isset($sar[1])) ?  $sar[1] : '';
             $diag['err'][$idx]['ik402'] = (isset($sar[2])) ?  $sar[2] : '';
@@ -155,7 +162,8 @@ function edih_997_errdata($obj997)
             //
             continue;
         }
-        if (strncmp($seg, 'AK5'.$de, 4) == 0 || strncmp($seg, 'IK5'.$de, 4) == 0 ) {
+
+        if (strncmp($seg, 'AK5'.$de, 4) == 0 || strncmp($seg, 'IK5'.$de, 4) == 0) {
             if ($iserr) {
                 $sar = explode($de, $seg);
                 $diag['err'][$idx]['ik501'] = (isset($sar[1])) ?  $sar[1] : '';
@@ -166,9 +174,11 @@ function edih_997_errdata($obj997)
                 //
                 $iserr = false;
             }
+
                 //
             continue;
         }
+
         if (strncmp($seg, 'AK9'.$de, 4) == 0) {
             $diag['summary']['sub_icn'] = $sub_icn;
             $diag['summary']['subtype'] = $subtype;
@@ -193,6 +203,7 @@ function edih_997_errdata($obj997)
             continue;
         }
     }
+
     return $diag;
 }
 
@@ -215,6 +226,7 @@ function edih_997_err_report($err_array)
         csv_edihist_log('edih_997_err_report: invalid function argument');
         return $str_html;
     }
+
     //
     $str_html = "";
     $batchfile = "";
@@ -233,6 +245,7 @@ function edih_997_err_report($err_array)
             $str_html .= " <em>Functional Group Type</em> $fg_type ($fgtp)";
             $str_html .= (isset($fg_id)) ? " <em>GS06</em> $fg_id <br />".PHP_EOL : "<br />".PHP_EOL;
         }
+
         //
         //$str_html .= "</p>".PHP_EOL;
         //
@@ -248,8 +261,9 @@ function edih_997_err_report($err_array)
         //
         $str_html .= "</p>".PHP_EOL;
     }
+
     //
-    foreach($err_array['err'] as $k=>$v) {
+    foreach ($err_array['err'] as $k=>$v) {
         //
         $ct = $k + 1;
         $icn = (isset($sub_icn)) ? $sub_icn : '';
@@ -280,6 +294,7 @@ function edih_997_err_report($err_array)
         } else {
             $str_html .= "Unable to trace, did not get all of icn, type, and st number <br />".PHP_EOL;
         }
+
         //
         $str_html .= (isset($v['ctxacct'])) ? "<em>Transaction ID</em> ".$v['ctxacct'] : "";
         $str_html .= (isset($v['ik3segid'])) ? " Segment <em>ID</em> ".$v['ik3segid'] : "";
@@ -305,6 +320,7 @@ function edih_997_err_report($err_array)
         //
         $str_html .= "</p>".PHP_EOL;
     }
+
     return $str_html;
 }
 
@@ -331,5 +347,6 @@ function edih_997_error($filepath)
         $html_str .= "<p>Error: invalid file path</p>".PHP_EOL;
         csv_edihist_log("edih_997_error: invalid file path $filepath");
     }
+
     return $html_str;
 }

@@ -39,16 +39,19 @@ class OFX
                     //echo "\nsd: $date_start < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
                     $date_start = date("YmdHis", strtotime($trns[$key]['date']));
                 }
+
                 if ($date_end < date("YmdHis", strtotime($trns[$key]['date']))) {
                     //echo "\ned: $date_end < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
                     $date_end = date("YmdHis", strtotime($trns[$key]['date']));
                 }
             }
         }
+
         if (!empty($date_start) && !empty($date_end)) {
             $string .= "<DTSTART>" . $date_start . "\n";
             $string .= "<DTEND>" . $date_end . "\n";
         }
+
         foreach ($trns as $key => $trn) {
             $string .= "<STMTTRN>\n";
             $string .= "<TRNTYPE>CREDIT\n";
@@ -62,6 +65,7 @@ class OFX
             $string .= "</STMTTRN>\n";
             $sum += $trn['amount'];
         }
+
         $string .= $this->_ofx_footer($sum);
         return $string;
     }

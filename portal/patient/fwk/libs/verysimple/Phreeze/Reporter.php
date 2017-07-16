@@ -117,7 +117,7 @@ abstract class Reporter implements Serializable
         $propvals = array ();
         $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties() as $rp ) {
+        foreach ($ro->getProperties() as $rp) {
             $propname = $rp->getName();
             
             if (! in_array($propname, self::$NoCacheProperties)) {
@@ -146,7 +146,7 @@ abstract class Reporter implements Serializable
         
         $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties() as $rp ) {
+        foreach ($ro->getProperties() as $rp) {
             $propname = $rp->name;
             if (array_key_exists($propname, $propvals)) {
                 if (method_exists($rp, "setAccessible")) {
@@ -173,11 +173,10 @@ abstract class Reporter implements Serializable
         $className = get_class($this);
         
         if (! array_key_exists($className, self::$PublicPropCache)) {
-            
             $props = array ();
             $ro = new ReflectionObject($this);
             
-            foreach ( $ro->getProperties() as $rp ) {
+            foreach ($ro->getProperties() as $rp) {
                 $propname = $rp->getName();
                 
                 if (! in_array($propname, self::$NoCacheProperties)) {
@@ -217,7 +216,7 @@ abstract class Reporter implements Serializable
         
         $obj = new stdClass();
         
-        foreach ( $props as $prop ) {
+        foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
                 $newProp = ($camelCase) ? lcfirst($prop) : $prop;
                 $obj->$newProp = $this->$prop;
@@ -299,7 +298,7 @@ abstract class Reporter implements Serializable
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
         $cols = array ();
         
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
             $cols [$fm->ColumnName] = $this->$prop;
         }
@@ -317,7 +316,7 @@ abstract class Reporter implements Serializable
     {
         $this->_phreezer->Observe("Loading " . get_class($this), OBSERVE_DEBUG);
         
-        foreach ( array_keys($row) as $prop ) {
+        foreach (array_keys($row) as $prop) {
             $this->$prop = $row [$prop];
         }
         

@@ -150,11 +150,9 @@ function check_search_str()
     $query = "SELECT count(*) as count FROM list_options " .
       "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' AND activity = 1) " ;
     $res = sqlStatement($query);
-if ($row = sqlFetchArray($res))
-    {
+if ($row = sqlFetchArray($res)) {
     $no_of_items = addslashes($row['count']);
-    if($no_of_items < 1)
-    {
+    if ($no_of_items < 1) {
         ?>
      <script language='JavaScript'>
         alert("<?php echo xl('Search string does not match with list in database');
@@ -165,6 +163,7 @@ if ($row = sqlFetchArray($res))
      </script>    
         <?php
     }
+
     $query = "SELECT option_id,title FROM list_options " .
     "WHERE (list_id = 'immunizations' and title LIKE '%$search_term%' AND activity = 1) " .
     "ORDER BY title";
@@ -178,6 +177,7 @@ if ($row = sqlFetchArray($res))
        <input type="checkbox" id="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
     }
 }
+
   }
 ?>
 </td>

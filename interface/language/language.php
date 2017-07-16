@@ -34,7 +34,7 @@ require_once("language.inc.php");
 </form>
 
 <?php
-switch ($_GET['m']):
+switch ($_GET['m']) :
     case 'definition':
         include_once('lang_definition.php');
             break;

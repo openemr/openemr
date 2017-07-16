@@ -84,14 +84,11 @@ class SecureAppController extends AppBaseController
     {
         $user = new SecureApp();
 
-        if ($user->Login(RequestUtil::Get('username'), RequestUtil::Get('password')))
-        {
+        if ($user->Login(RequestUtil::Get('username'), RequestUtil::Get('password'))) {
             // login success
             $this->SetCurrentUser($user);
             $this->Redirect('SecureApp.UserPage');
-        }
-        else
-        {
+        } else {
             // login failed
             $this->Redirect('SecureApp.LoginForm', 'Unknown username/password combination');
         }

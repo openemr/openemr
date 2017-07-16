@@ -49,5 +49,6 @@ if (getenv('OPENEMR__ENVIRONMENT') === 'dev') {
     // Change this number when bumping
     $v_js_includes = 40;
 }
+
 // Do note modify below
 $GLOBALS['v_js_includes'] = $v_js_includes;

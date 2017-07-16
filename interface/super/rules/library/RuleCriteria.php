@@ -66,9 +66,10 @@ abstract class RuleCriteria
 
     function getInterval()
     {
-        if ( is_null($this->interval) || is_null($this->intervalType) ) {
+        if (is_null($this->interval) || is_null($this->intervalType)) {
             return null;
         }
+
         return xl($this->interval) . " x " . " "
              . xl($this->intervalType->lbl);
     }
@@ -85,7 +86,7 @@ abstract class RuleCriteria
     
     protected function decodeComparator($comparator)
     {
-        switch ( $comparator ) {
+        switch ($comparator) {
             case "eq": return "";
                 break;
             case "ne": return "!=";
@@ -99,6 +100,7 @@ abstract class RuleCriteria
             case "le": return "<=";
                 break;
         }
+
         return "";
     }
 

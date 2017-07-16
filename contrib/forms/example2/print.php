@@ -26,10 +26,12 @@ if ($record['form_date'] != "") {
     $dateparts = explode(" ", $record['form_date']);
     $record['form_date'] = $dateparts[0];
 }
+
 if ($record['dob'] != "") {
     $dateparts = explode(" ", $record['dob']);
     $record['dob'] = $dateparts[0];
 }
+
 if ($record['sig_date'] != "") {
     $dateparts = explode(" ", $record['sig_date']);
     $record['sig_date'] = $dateparts[0];

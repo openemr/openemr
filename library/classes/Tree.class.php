@@ -57,13 +57,13 @@ class Tree
         if ($this->root_type == ROOT_TYPE_NAME) {
             $sql = "SELECT * FROM " . $this->_table . " WHERE name='".$root."'";
         }
+
         $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
         $row = array();
 
-        if($result && !$result->EOF) {
+        if ($result && !$result->EOF) {
             $row = $result->fields;
-        }
-        else {
+        } else {
             $this->tree = array();
         }
 
@@ -87,8 +87,7 @@ class Tree
             if ($this->_table == "categories") {
                 $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']),
                 "parent" => $row['parent'], "value" => $row['value'], "aco_spec" => $row['aco_spec']);
-            }
-            else {
+            } else {
                 $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
             }
 
@@ -109,7 +108,7 @@ class Tree
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
-            while($parent != 0 && $loop < count($this->_id_name)) {
+            while ($parent != 0 && $loop < count($this->_id_name)) {
                 $ar_string = "[\"" . ($this->_id_name[$parent]['id']) . "\"]" . $ar_string;
                 $loop++;
                 $parent = $this->_id_name[$parent]['parent'];
@@ -156,15 +155,15 @@ class Tree
             $sql = "SELECT lft FROM " . $this->_table . " WHERE id='" . $parent . "';";
             $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
 
-            if($result && !$result->EOF) {
+            if ($result && !$result->EOF) {
                 $left = $result->fields['lft'];
-            }
-            else {
+            } else {
                 //the node you are rebuilding below if goofed up and you didn't supply a proper value
                 //nothing we can do so error
                 die("Error: The node you are rebuilding from could not be found, please supply an existing node id.");
             }
         }
+
       // get all children of this node
         $sql = "SELECT id FROM " . $this->_table . " WHERE parent='" . $parent . "' ORDER BY id;";
         $result = $this->_db->Execute($sql) or die("Error: " . $this->_db->ErrorMsg());
@@ -253,6 +252,7 @@ class Tree
         if ($result && !$result->EOF) {
               die(xlt('This name already exists under this parent.') . "<br>");
         }
+
         $sql = "UPDATE " . $this->_table . " SET name = '" . add_escape_custom($name) .
         "', value = '" . add_escape_custom($value) .
         "', aco_spec = '" . add_escape_custom($aco_spec) . "' WHERE id = $id";
@@ -312,20 +312,18 @@ class Tree
 
     function get_node_info($id)
     {
-        if(!empty($this->_id_name[$id])) {
+        if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id];
-        }
-        else {
+        } else {
             return array();
         }
     }
 
     function get_node_name($id)
     {
-        if(!empty($this->_id_name[$id])) {
+        if (!empty($this->_id_name[$id])) {
             return $this->_id_name[$id]['name'];
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -340,6 +338,7 @@ function array_merge_2(&$array, &$array_i)
             if (!isset($array[$k])) {
                 $array[$k] = array();
             }
+
             array_merge_2($array[$k], $v);
 
            // Else, the value is assigned to the current element of the resulting array:
@@ -352,6 +351,7 @@ function array_merge_2(&$array, &$array_i)
                     $array = array();
                     $array[0] = $temp;
                 }
+
                 $array[$k] = $v;
             }
         }

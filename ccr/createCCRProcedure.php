@@ -25,7 +25,6 @@
     $row = sqlFetchArray($result);
 
 do {
-
     $e_Procedure = $ccr->createElement('Procedure');
     $e_Procedures->appendChild($e_Procedure);
 
@@ -125,5 +124,4 @@ do {
 
     $e_Text = $ccr->createElement('Text', $row['body_site']);
     $e_Site->appendChild($e_Text);
-        
 } while ($row = sqlFetchArray($result));

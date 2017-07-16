@@ -29,14 +29,14 @@ class NFQ_0041_Numerator implements CqmFilterIF
                "AND poc.procedure_code in ($influenza_procedure) and ( po.date_ordered <= ? or po.date_ordered <= ? )";
         
         $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days));
-        if($sql['cnt'] > 0) return true;
+        if ($sql['cnt'] > 0) return true;
         
         $query = "select count(*) as cnt from form_encounter fe ".
                "INNER JOIN immunizations imm on imm.patient_id = fe.pid ".
                "WHERE pid = ? and fe.date between ? and ? ".
                "AND imm.cvx_code in ($influenza_medication) and (imm.administered_date <= ? or imm.administered_date <= ?) ";
         $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$periodMinus153Days,$periodPlus89Days));
-        if($sql['cnt'] > 0) return true;
+        if ($sql['cnt'] > 0) return true;
         
         return false;
     }

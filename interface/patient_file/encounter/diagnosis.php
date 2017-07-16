@@ -32,9 +32,9 @@ $ndc_uom_choices = array(
 if ($payment_method == "insurance") {
     $payment_method = "insurance: " . $insurance_company;
 }
+
 if (isset($mode)) {
     if ($mode == "add") {
-
         // Get the provider ID from the new encounter form if possible, otherwise
         // it's the logged-in user.
         $tmp = sqlQuery("SELECT users.id FROM forms, users WHERE " .
@@ -56,8 +56,7 @@ if (isset($mode)) {
                 $units,
                 sprintf("%01.2f", 0 - $code)
             );
-        }
-        elseif (strtolower($type) == "other") {
+        } elseif (strtolower($type) == "other") {
             addBilling(
                 $encounter,
                 $type,
@@ -70,8 +69,7 @@ if (isset($mode)) {
                 $units,
                 sprintf("%01.2f", $fee)
             );
-        }
-        else {
+        } else {
             $ndc_info = '';
       // If HCPCS, get and save default NDC data.
             if (strtolower($type) == "hcpcs") {
@@ -80,6 +78,7 @@ if (isset($mode)) {
                 "ORDER BY date DESC LIMIT 1");
                     if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
             }
+
             addBilling(
                 $encounter,
                 $type,
@@ -94,8 +93,7 @@ if (isset($mode)) {
                 $ndc_info
             );
         }
-    }
-    elseif ($mode == "justify") {
+    } elseif ($mode == "justify") {
         $diags = $_POST['code']['diag'];
         $procs = $_POST['code']['proc'];
         $sql = array();
@@ -106,10 +104,11 @@ if (isset($mode)) {
                 foreach ($diags as $diag) {
                     $justify_string .= $diag . ":";
                 }
+
                 $sql[] = "UPDATE billing set justify = concat(justify,'" . add_escape_custom($justify_string)  ."') where encounter = '" . add_escape_custom($_POST['encounter_id']) . "' and pid = '" . add_escape_custom($_POST['patient_id']) . "' and code = '" . add_escape_custom($proc) . "'";
             }
-
         }
+
         if (!empty($sql)) {
             foreach ($sql as $q) {
                 $results = sqlQ($q);
@@ -125,12 +124,12 @@ if (isset($mode)) {
                 $ndc_info = 'N4' . trim($ndc['ndcnum']) . '   ' . $ndc['ndcuom'] .
                 trim($ndc['ndcqty']);
             }
+
               sqlStatement("UPDATE billing SET ndc_info = '$ndc_info' WHERE " .
                 "encounter = '" . add_escape_custom($_POST['encounter_id']) . "' AND " .
                 "pid = '" . add_escape_custom($_POST['patient_id']) . "' AND " .
                 "code = '" . add_escape_custom($ndc['code']) . "'");
         }
-
     }
 }
 
@@ -199,11 +198,13 @@ if (!$thisauth) {
     if ($erow['user'] == $_SESSION['authUser'])
     $thisauth = acl_check('encounters', 'coding');
 }
+
 if ($thisauth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     $thisauth = 0;
 }
+
 if (!$thisauth) {
     echo "<p>(".xl('Coding not authorized').")</p>\n";
     echo "</body>\n</html>\n";
@@ -226,7 +227,7 @@ if (!$thisauth) {
 <font class=more><?php echo $tmore;?></font></a>
 
 <?php
-if( !empty($_GET["back"]) || !empty($_POST["back"]) ){
+if (!empty($_GET["back"]) || !empty($_POST["back"])) {
     print "&nbsp;<a href=\"superbill_codes.php\" target=\"$target\" onclick=\"top.restoreSession()\"><font class=more>$tback</font></a>";
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
@@ -243,7 +244,7 @@ if( !empty($_GET["back"]) || !empty($_POST["back"]) ){
 </a>
 <table border="0">
 <?php
-if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
     $total = 0.0;
     $ndclino = 0;
@@ -259,8 +260,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
                     "</a></div></td></tr>\n";
                 $billing_html[$iter["code_type"]] .= $html;
                 $counter++;
-        }
-        elseif ($iter["code_type"] == "COPAY") {
+        } elseif ($iter["code_type"] == "COPAY") {
             $billing_html[$iter["code_type"]] .=
                 "<tr><td></td><td><a target='$target' class='small' " .
             "href='diagnosis_full.php' onclick='top.restoreSession()'><b>" .
@@ -268,8 +268,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
                 ucwords(strtolower($iter['code_text'])) .
                 ' ' . xl('payment entered on') . ' ' .
                 oeFormatShortDate(substr($iter['date'], 0, 10)) . substr($iter['date'], 10, 6) . "</a></td></tr>\n";
-        }
-        else {
+        } else {
             $billing_html[$iter["code_type"]] .=
                 "<tr><td>" . '<input  style="width: 11px;height: 11px;" name="code[proc][' .
                 $iter["code"] . ']" type="checkbox" value="' . $iter[code] . '">' .
@@ -282,16 +281,17 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
             $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
-                if(!empty($j)) {
+                if (!empty($j)) {
                     if ($counter == 0) {
                         $billing_html[$iter["code_type"]] .= " (<b>$j</b>)";
-                    }
-                    else {
+                    } else {
                         $billing_html[$iter["code_type"]] .= " ($j)";
                     }
+
                     $counter++;
                 }
             }
+
             $billing_html[$iter["code_type"]] .= "</span></td></tr>\n";
 
       // If this is HCPCS, write NDC line.
@@ -305,6 +305,7 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
                     $ndcuom = $tmp[2];
                     $ndcqty = $tmp[3];
                 }
+
                     $billing_html[$iter["code_type"]] .=
                       "<tr><td>&nbsp;</td><td class='small'>NDC:&nbsp;\n" .
                       "<input type='hidden' name='ndc[$ndclino][code]' value='" . $iter[code] . "'>" .
@@ -319,9 +320,9 @@ if ($result = getBillingByEncounter($pid, $encounter, "*") ) {
                     if ($key == $ndcuom) $billing_html[$iter["code_type"]] .= " selected";
                     $billing_html[$iter["code_type"]] .= ">$value</option>";
                 }
+
                     $billing_html[$iter["code_type"]] .= "</select></td></tr>\n";
             }
-
         }
     }
 

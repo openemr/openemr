@@ -3097,6 +3097,7 @@ $(document).ready(function() {
                                             ('Eye_defaults_".$providerID."','OSPERIPH','flat','RETINA','520')";
                                                 sqlStatement($query);
                                             }
+
                                             $query = "select * from list_options where list_id =? and activity='1' order by seq";
 
                                             $DEFAULT_data =sqlStatement($query, array("Eye_defaults_$providerID"));
@@ -3852,7 +3853,8 @@ $(document).ready(function() {
                   });
                   build_IMPPLAN(obj.IMPPLAN_items);
                   scroll='1';
-                    <?php if ($GLOBALS['new_tabs_layout'] !=='1') { ?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>
+                    <?php if ($GLOBALS['new_tabs_layout'] !=='1') {
+?>  $("[class='tabHide']").css("display","inline-block"); <?php } ?>
                   $("input,textarea,text").focus(function(){
                                                  $(this).css("background-color","#ffff99");
                                                  });

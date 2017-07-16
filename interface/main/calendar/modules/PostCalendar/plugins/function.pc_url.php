@@ -33,12 +33,13 @@ function smarty_function_pc_url($args)
     extract($args);
     unset($args);
 
-    if(!isset($action)) $action = _SETTING_DEFAULT_VIEW;
-    if(empty($print)) {
+    if (!isset($action)) $action = _SETTING_DEFAULT_VIEW;
+    if (empty($print)) {
         $print = false;
     } else {
         $print = true;
     }
+
     $starth = "";
     if ($setdeftime == 1)
         $starth = date("H");
@@ -57,23 +58,23 @@ function smarty_function_pc_url($args)
     $category = pnVarCleanFromInput('pc_category');
     $topic = pnVarCleanFromInput('pc_topic');
     $popup = pnVarCleanFromInput('popup');
-    if(!isset($date)) {
+    if (!isset($date)) {
         $Date = postcalendar_getDate();
     } else {
         $Date = $date;
     }
+
     // some extra cleanup if necessary
     $Date = str_replace('-', '', $Date);
 
     $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 
-    switch($action) {
+    switch ($action) {
         case 'submit' :
             if (!empty($starth)) {
                 $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview'=>$template_view,'Date'=>$Date, 'event_starttimeh' => $starth, 'event_startampm' => $ampm));
-            }
-            else {
+            } else {
                 $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview'=>$template_view,'Date'=>$Date));
             }
             break;
@@ -131,8 +132,8 @@ function smarty_function_pc_url($args)
             break;
 
         case 'detail' :
-            if(isset($eid)) {
-                if(_SETTING_OPEN_NEW_WINDOW && !$popup) {
+            if (isset($eid)) {
+                if (_SETTING_OPEN_NEW_WINDOW && !$popup) {
                     $link = "javascript:opencal($eid,'$Date');";
                 } else {
                     $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('Date'=>$Date,
@@ -146,10 +147,12 @@ function smarty_function_pc_url($args)
             }
             break;
     }
-    if($print) {
+
+    if ($print) {
         $link .= '" target="_blank"';
-    } elseif(_SETTING_OPEN_NEW_WINDOW && $viewtype == 'details') {
+    } elseif (_SETTING_OPEN_NEW_WINDOW && $viewtype == 'details') {
         $link .= '" target="csCalendar"';
     }
+
     echo $link;
 }

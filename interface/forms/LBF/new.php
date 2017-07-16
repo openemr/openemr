@@ -135,6 +135,7 @@ if ($_POST['bn_save']) {
           "field_id = ''", array($newid));
         addForm($encounter, $formtitle, $newid, $formname, $pid, $userauthorized);
     }
+
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -162,22 +163,20 @@ if ($_POST['bn_save']) {
             if ($source == 'H') {
                 $new = array($field_id => $value);
                 updateHistoryData($pid, $new);
-            }
-            else if (strpos($field_id, 'em_') === 0) {
+            } else if (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
                 updateEmployerData($pid, $new);
-            }
-            else {
+            } else {
                 $esc_field_id = escape_sql_column_name($field_id, array('patient_data'));
                 sqlStatement(
                     "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
                     array($value, $pid)
                 );
             }
+
             continue;
-        }
-        else if ($source == 'E') {
+        } else if ($source == 'E') {
             // Save to shared_attributes. Can't delete entries for empty fields because with the P option
             // it's important to know when a current empty value overrides a previous value.
             sqlStatement(
@@ -187,8 +186,7 @@ if ($_POST['bn_save']) {
                 array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value)
             );
             continue;
-        }
-        else if ($source == 'V') {
+        } else if ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
             sqlStatement(
@@ -198,20 +196,19 @@ if ($_POST['bn_save']) {
             );
             continue;
         }
+
         // It's a normal form field, save to lbf_data.
         if ($formid) { // existing form
             if ($value === '') {
                 $query = "DELETE FROM lbf_data WHERE " .
                 "form_id = ? AND field_id = ?";
                 sqlStatement($query, array($formid, $field_id));
-            }
-            else {
+            } else {
                 $query = "REPLACE INTO lbf_data SET field_value = ?, " .
                 "form_id = ?, field_id = ?";
                 sqlStatement($query, array($value, $formid, $field_id));
             }
-        }
-        else { // new form
+        } else { // new form
             if ($value !== '') {
                 sqlStatement(
                     "INSERT INTO lbf_data " .
@@ -234,6 +231,7 @@ if ($_POST['bn_save']) {
     if (function_exists($formname . '_save_exit')) {
         if (call_user_func($formname . '_save_exit')) exit;
     }
+
     formHeader("Redirecting....");
     formJump();
     formFooter();
@@ -437,6 +435,7 @@ if (empty($is_lbf)) {
     echo "</p>\n";
     $cmsportal_login = $enrow['cmsportal_login'];
 }
+
   // If loading data from portal, get the data.
 if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
     $portalres = cms_portal_call(array('action' => 'getpost', 'postid' => $portalid));
@@ -510,9 +509,11 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                 // Copying CMS Portal form data into this field if appropriate.
                 $currvalue = cms_field_to_lbf($data_type, $field_id, $portalres['fields']);
             }
+
             if ($currvalue === '') {
                 $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
             }
+
               if ($currvalue === false) continue; // column does not exist, should not happen
               // Handle "P" edit option to default to the previous value of a form field.
             if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== false) {
@@ -528,8 +529,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                     if (!empty($tmp['encounter'])) {
                                 $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
                     }
-                }
-                else if ($source == 'E') {
+                } else if ($source == 'E') {
                     // Visit attribute, get most recent value as of this visit.
                     // Even if the form already exists for this visit it may have a readonly value that only
                     // exists in a previous visit and was created from a different form.
@@ -564,6 +564,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                 echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
                 echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
             }
+
               // echo " <table border='0' cellpadding='0' width='100%'>\n";
               echo " <table border='0' cellspacing='0' cellpadding='0' width='100%' class='lbfdata'>\n";
               $display_style = 'none';
@@ -573,11 +574,12 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
             if ($formhistory > 0) {
                 echo " <tr>";
                 echo "<td colspan='" . attr($CPR) . "' align='right' class='bold'>";
-                if (empty($is_lbf)){
+                if (empty($is_lbf)) {
                       // Including actual date per IPPF request 2012-08-23.
                       echo oeFormatShortDate(substr($enrow['date'], 0, 10));
                       echo ' (' . htmlspecialchars(xl('Current')) . ')';
                 }
+
                 echo "&nbsp;</td>\n";
                 $hres = sqlStatement(
                     "SELECT f.form_id, fe.date " .
@@ -597,9 +599,9 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                             text(oeFormatShortDate(substr($hrow['date'], 0, 10))) . "</td>\n";
                           $historical_ids[$hrow['form_id']] = '';
                 }
+
                 echo " </tr>";
             }
-
         }
 
     // Handle starting of a new row.
@@ -636,6 +638,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
 
               $cell_count += $titlecols;
         }
+
         ++$item_count;
 
         echo "<b>";
@@ -667,8 +670,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
         if (empty($is_lbf)) {
               if ($frow['edit_options'] == 'H')
             echo generate_display_field($frow, $currvalue);
-            else
-            generate_form_field($frow, $currvalue);
+            else generate_form_field($frow, $currvalue);
         }
 
     // Append to historical data of other dates for this item.
@@ -676,7 +678,6 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
               $value = lbf_current_value($frow, $key, 0);
               $historical_ids[$key] .= generate_display_field($frow, $value);
         }
-
     }
 
     end_group();
@@ -730,6 +731,7 @@ if (!$formid && $GLOBALS['gbl_portal_cms_enable'] && $cmsportal_login && !$porta
     if ($portalres['errmsg']) {
         die(text($portalres['errmsg'])); // TBD: Change to alertmsg
     }
+
     $portalid = $portalres['postid'];
     if ($portalid) {
         echo "if (confirm('" . xls('The portal has data for this patient and form. Load it now?') . "')) {\n";

@@ -55,7 +55,7 @@ function pnModGetVar($modname, $name)
               AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -109,7 +109,7 @@ function pnModSetVar($modname, $name, $value)
 
     $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -141,7 +141,7 @@ function pnModDelVar($modname, $name)
               AND $modulevarscolumn[name] = '" . pnVarPrepForStore($name) . "'";
     $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -149,6 +149,7 @@ function pnModDelVar($modname, $name)
     if (isset($pnmodvar[$modname][$name])) {
         unset($pnmodvar[$modname][$name]);
     }
+
     return true;
 }
 
@@ -178,7 +179,7 @@ function pnModGetIDFromName($module)
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($module) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -203,7 +204,7 @@ function pnModGetIDFromName($module)
 function pnModGetInfo($modid)
 {
     // a $modid of 0 is associated with core ( pn_blocks.mid, ... ).
-    if ( $modid == 0 ) {
+    if ($modid == 0) {
         return false;
     }
 
@@ -228,7 +229,7 @@ function pnModGetInfo($modid)
               WHERE $modulescolumn[id] = " . pnVarPrepForStore($modid);
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -275,7 +276,7 @@ function pnModGetUserMods()
               ORDER BY $modulescolumn[name]";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -284,7 +285,7 @@ function pnModGetUserMods()
     }
 
     $resarray = array();
-    while(list($name,
+    while (list($name,
                $modtype,
                $directory,
                $regid,
@@ -303,6 +304,7 @@ function pnModGetUserMods()
 
         array_push($resarray, $tmparray);
     }
+
     $result->Close();
 
     return $resarray;
@@ -336,7 +338,7 @@ function pnModGetAdminMods()
 
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -345,7 +347,7 @@ function pnModGetAdminMods()
     }
 
     $resarray = array();
-    while(list($name,
+    while (list($name,
                $modtype,
                $directory,
                $regid,
@@ -364,6 +366,7 @@ function pnModGetAdminMods()
 
         array_push($resarray, $tmparray);
     }
+
     $result->Close();
 
     return $resarray;
@@ -401,7 +404,7 @@ function pnModAPILoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -470,7 +473,7 @@ function pnModDBInfoLoad($modname, $directory = '')
                 FROM $modulestable
                 WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
         $result = $dbconn->Execute($sql);
-        if($dbconn->ErrorNo() != 0) {
+        if ($dbconn->ErrorNo() != 0) {
             return;
         }
 
@@ -492,6 +495,7 @@ function pnModDBInfoLoad($modname, $directory = '')
         global $pntable;
         $pntable = array_merge($pntable, $tablefunc());
     }
+
     $loaded[$modname] = true;
 
     return true;
@@ -529,7 +533,7 @@ function pnModLoad($modname, $type = 'user')
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -590,6 +594,7 @@ function pnModAPIFunc($modname, $type = 'user', $func = 'main', $args = array())
     if (empty($type)) {
         $func = 'user';
     }
+
     if (empty($func)) {
         $func = 'main';
     }
@@ -621,6 +626,7 @@ function pnModFunc($modname, $type = 'user', $func = 'main', $args = array())
     if (empty($type)) {
         $func = 'user';
     }
+
     if (empty($func)) {
         $func = 'main';
     }
@@ -665,9 +671,11 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     if ((!empty($type)) && ($type != 'user')) {
         $urlargs[] = "type=$type";
     }
+
     if ((!empty($func)) && ($func != 'main')) {
         $urlargs[] = "func=$func";
     }
+
     $urlargs = join('&', $urlargs);
     $url = "index.php?$urlargs";
 
@@ -679,7 +687,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
     } else {
         foreach ($args as $k=>$v) {
             if (is_array($v)) {
-                foreach($v as $l=>$w) {
+                foreach ($v as $l=>$w) {
                     $url .= "&$k" . "[$l]=$w";
                 }
             } else {
@@ -687,6 +695,7 @@ function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $pa
             }
         }
     }
+
     //remove characters not belonging in a path, prevent possible injection
     //this may break windows path accesses?
     $path = preg_replace("/[^\.\/a-zA-Z0-9]/", "", $path)
@@ -726,7 +735,7 @@ function pnModAvailable($modname)
               WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
     $result = $dbconn->Execute($query);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return;
     }
 
@@ -761,9 +770,11 @@ function pnModGetName()
             if (empty($ModName)) {
                 return false;
             }
+
             $modname = preg_replace('/^NS-/', '', $ModName);
             return $modname;
         }
+
         return $name;
     } else {
         $modname = preg_replace('/^NS-/', '', $modname);
@@ -815,7 +826,7 @@ function pnModRegisterHook(
               '" . pnVarPrepForStore($hookfunc) . "')";
     $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -857,7 +868,7 @@ function pnModUnregisterHook(
              AND $hookscolumn[tfunc] = '" . pnVarPrepForStore($hookfunc) . "'";
     $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -893,7 +904,7 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
             AND $hookscolumn[action] = '" . pnVarPrepForStore($hookaction) . "'";
     $result = $dbconn->Execute($sql);
                   
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return null;
     }
 

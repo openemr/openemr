@@ -29,11 +29,10 @@ class C_InsuranceNumbers extends Controller
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record
-        if (get_class($this->insurance_numbers[0]) != "insurancenumbers" && is_numeric($id) ) {
+        if (get_class($this->insurance_numbers[0]) != "insurancenumbers" && is_numeric($id)) {
             $this->insurance_numbers[0] = new InsuranceNumbers($id);
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
-        }
-        elseif (is_numeric($provider_id)) {
+        } elseif (is_numeric($provider_id)) {
             $this->providers[0] = new Provider($provider_id);
             if (get_class($this->insurance_numbers[0]) != "insurancenumbers") {
                 if ($id == "default") {
@@ -42,23 +41,20 @@ class C_InsuranceNumbers extends Controller
                         $this->insurance_numbers[0] = new InsuranceNumbers();
                         $this->insurance_numbers[0]->set_provider_id($provider_id);
                     }
-                }
-                else {
+                } else {
                     $this->insurance_numbers[0] = new InsuranceNumbers();
                     $this->insurance_numbers[0]->set_provider_id($provider_id);
                 }
-
             }
-        }
-        elseif (get_class($this->insurance_numbers[0]) == "insurancenumbers") {
+        } elseif (get_class($this->insurance_numbers[0]) == "insurancenumbers") {
             //this is the case that occurs after an update
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
-        }
-        else {
+        } else {
             $this->insurance_numbers[0] = new InsuranceNumbers();
             $this->providers[0] = new Provider();
             $this->assign("ERROR", "A provider must be specified. Check the link you you came from or the URL and try again.");
         }
+
         $ic = new InsuranceCompany();
         $icompanies =  $ic->insurance_companies_factory();
 
@@ -107,8 +103,7 @@ class C_InsuranceNumbers extends Controller
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);
-        }
-        else {
+        } else {
             $this->insurance_numbers[0] = new InsuranceNumbers();
         }
 

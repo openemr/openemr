@@ -12,8 +12,7 @@ include_once("_global_config.php");
 include_once("_app_config.php");
 @include_once("_machine_config.php"); // This include auth any framework calls
 
-if (!GlobalConfig::$CONNECTION_SETTING)
-{
+if (!GlobalConfig::$CONNECTION_SETTING) {
     throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');
 }
 
@@ -23,8 +22,7 @@ require_once("verysimple/Phreeze/Dispatcher.php");
 // the global config is used for all dependency injection
 $gc = GlobalConfig::GetInstance();
 
-try
-{
+try {
     Dispatcher::Dispatch(
         $gc->GetPhreezer(),
         $gc->GetRenderEngine(),
@@ -32,9 +30,7 @@ try
         $gc->GetContext(),
         $gc->GetRouter()
     );
-}
-catch (exception $ex)
-{
+} catch (exception $ex) {
     // This is the global error handler which will be called in the event of
     // uncaught errors.  If the endpoint appears to be an API request then
     // render it as JSON, otherwise attempt to render a friendly HTML page
@@ -42,8 +38,7 @@ catch (exception $ex)
     $url = RequestUtil::GetCurrentURL();
     $isApiRequest = (strpos($url, 'api/') !== false);
 
-    if ($isApiRequest)
-    {
+    if ($isApiRequest) {
         $result = new stdClass();
         $result->success= false;
         $result->message = $ex->getMessage();
@@ -51,19 +46,14 @@ catch (exception $ex)
 
         @header('HTTP/1.1 401 Unauthorized');
         echo json_encode($result);
-    }
-    else
-    {
+    } else {
         $gc->GetRenderEngine()->assign("message", $ex->getMessage());
         $gc->GetRenderEngine()->assign("stacktrace", $ex->getTraceAsString());
         $gc->GetRenderEngine()->assign("code", $ex->getCode());
 
-        try
-        {
+        try {
             $gc->GetRenderEngine()->display("DefaultErrorFatal.tpl");
-        }
-        catch (Exception $ex2)
-        {
+        } catch (Exception $ex2) {
             // this means there is an error with the template, in which case we can't display it nicely
             echo "<style>* { font-family: verdana, arial, helvetica, sans-serif; }</style>\n";
             echo "<h1>Fatal Error:</h1>\n";

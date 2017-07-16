@@ -120,6 +120,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
 }
+
  $query = "SELECT " .
   "p.*, " .
   "i1.policy_number AS policy1, i1.group_number AS group1, i1.provider as provider1, " .

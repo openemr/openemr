@@ -106,8 +106,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     $collectthis = collectValidationPageRules("/interface/forms/newGroupEncounter/common.php");
     if (empty($collectthis)) {
          $collectthis = "undefined";
-    }
-    else {
+    } else {
          $collectthis = $collectthis["new-encounter-form"]["rules"];
     }
     ?>
@@ -213,7 +212,7 @@ function cancelClicked() {
      if ($crow['pc_cattype'] != 3) continue;
      echo "       <option value='" . attr($catid) . "'";
   // mark therapy group's category as selected
-     if(!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
+     if (!$viewmode && $crow['pc_cattype'] == 3) echo " selected";
      if ($viewmode && $crow['pc_catid'] == $result['pc_catid']) echo " selected";
      echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
     }
@@ -238,7 +237,7 @@ if ($viewmode) {
 
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
-    foreach($facilities as $iter) {
+    foreach ($facilities as $iter) {
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
 <?php
@@ -258,7 +257,7 @@ if ($facilities) {
             </div>
         </td>
      </tr>
-        <?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
         <tr>
             <td><span class='bold' nowrap><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
@@ -269,10 +268,9 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if($pos["code"] == $result['pos_code']) echo "selected";
+                    if ($pos["code"] == $result['pos_code']) echo "selected";
                     echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
-
                 }
 
                 ?>
@@ -298,6 +296,7 @@ foreach ($sensitivities as $value) {
         echo ">" . xlt($value[3]) . "</option>\n";
     }
 }
+
 echo "       <option value=''";
 if ($viewmode && !$result['sensitivity']) echo " selected";
 echo ">" . xlt('None'). "</option>\n";

@@ -91,6 +91,7 @@ class Parser_HL7v2
                     "_FreeMED.Handler_HL7v2_".$type.
                     "</b><br/>\n";
             }
+
             return false;
         }
 

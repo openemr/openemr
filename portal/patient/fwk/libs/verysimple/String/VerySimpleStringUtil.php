@@ -55,7 +55,7 @@ class VerySimpleStringUtil
     static function InitStaticVars()
     {
         self::$HTML_ENTITIES_TABLE = array ();
-        foreach ( get_html_translation_table(HTML_ENTITIES, ENT_QUOTES) as $char => $entity ) {
+        foreach (get_html_translation_table(HTML_ENTITIES, ENT_QUOTES) as $char => $entity) {
             self::$HTML_ENTITIES_TABLE [$entity] = '&#' . ord($char) . ';';
         }
         
@@ -349,7 +349,7 @@ class VerySimpleStringUtil
     {
         $utf8 = $string;
         $result = '';
-        for($i = 0; $i < strlen($utf8); $i ++) {
+        for ($i = 0; $i < strlen($utf8); $i ++) {
             $char = $utf8 [$i];
             $ascii = ord($char);
             if ($ascii < 128) {
@@ -401,10 +401,11 @@ class VerySimpleStringUtil
         $contents = self::unicode_string_to_array($content);
         $swap = "";
         $iCount = count($contents);
-        for($o = 0; $o < $iCount; $o ++) {
+        for ($o = 0; $o < $iCount; $o ++) {
             $contents [$o] = self::unicode_entity_replace($contents [$o]);
             $swap .= $contents [$o];
         }
+
         return mb_convert_encoding($swap, "UTF-8"); // not really necessary, but why not.
     }
     
@@ -420,11 +421,12 @@ class VerySimpleStringUtil
     {
         $array = array ();
         $strlen = mb_strlen($string);
-        while ( $strlen ) {
+        while ($strlen) {
             $array [] = mb_substr($string, 0, 1, "UTF-8");
             $string = mb_substr($string, 1, $strlen, "UTF-8");
             $strlen = mb_strlen($string);
         }
+
         return $array;
     }
     
@@ -474,8 +476,7 @@ class VerySimpleStringUtil
             return false;
         elseif ($code < 128)
             return chr($code);
-        elseif ($code < 160) // Remove Windows Illegals Cars
-        {
+        elseif ($code < 160) { // Remove Windows Illegals Cars
             if ($code == 128)
                 $code = 8364;
             elseif ($code == 129)
@@ -541,12 +542,12 @@ class VerySimpleStringUtil
             elseif ($code == 159)
                 $code = 376;
         }
+
         if ($code < 2048)
             return chr(192 | ($code >> 6)) . chr(128 | ($code & 63));
         elseif ($code < 65536)
             return chr(224 | ($code >> 12)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
-        else
-            return chr(240 | ($code >> 18)) . chr(128 | (($code >> 12) & 63)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
+        else return chr(240 | ($code >> 18)) . chr(128 | (($code >> 12) & 63)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
     }
     
     /**

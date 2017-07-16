@@ -31,15 +31,13 @@ function slInvoiceNumber(&$out)
     if ($acount == 2) {
         $pid = $atmp[0];
         $encounter = $atmp[1];
-    }
-    else if ($acount == 3) {
+    } else if ($acount == 3) {
         $pid = $atmp[0];
         $brow = sqlQuery("SELECT encounter FROM billing WHERE " .
         "pid = '$pid' AND encounter = '" . $atmp[1] . "' AND activity = 1");
         
         $encounter = $brow['encounter'];
-    }
-    else if ($acount == 1) {
+    } else if ($acount == 1) {
         $pres = sqlStatement("SELECT pid FROM patient_data WHERE " .
         "lname LIKE '" . addslashes($out['patient_lname']) . "' AND " .
         "fname LIKE '" . addslashes($out['patient_fname']) . "' " .
@@ -71,6 +69,7 @@ function arGetSession($payer_id, $reference, $check_date, $deposit_date = '', $p
         "ORDER BY session_id DESC LIMIT 1");
         if (!empty($row['session_id'])) return $row['session_id'];
     }
+
     return sqlInsert("INSERT INTO ar_session ( " .
     "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
     ") VALUES ( " .
@@ -116,6 +115,7 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
         $codeonly = substr($code, 0, $tmp);
         $modifier = substr($code, $tmp+1);
     }
+
     if (empty($time)) $time = date('Y-m-d H:i:s');
 
     sqlBeginTrans();
@@ -166,6 +166,7 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
       // default to CPT4 if empty, which is consistent with previous functionality.
         $codetype="CPT4";
     }
+
     $codeonly = $code;
     $modifier = '';
     $tmp = strpos($code, ':');
@@ -201,6 +202,7 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
         $codeonly = substr($code, 0, $tmp);
         $modifier = substr($code, $tmp+1);
     }
+
     if (empty($time)) $time = date('Y-m-d H:i:s');
 
     sqlBeginTrans();
@@ -247,12 +249,10 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
     if ($crossover==1) {
     //if claim forwarded setting a new status
         $status=6;
-    
     } else {
-    
         $status=1;
-    
     }
+
     // Determine the next insurance level to be billed.
     $ferow = sqlQuery("SELECT date, last_level_billed " .
     "FROM form_encounter WHERE " .
@@ -268,8 +268,7 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
         // Queue up the claim.
         if (!$debug)
         updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
-    }
-    else {
+    } else {
       // Just reopen the claim.
         if (!$debug)
         updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);

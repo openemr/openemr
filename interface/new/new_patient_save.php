@@ -34,7 +34,7 @@ if ($result['pid'] > 1)
 
 setpid($newpid);
 
-if($pid == null) {
+if ($pid == null) {
     $pid = 0;
 }
 
@@ -46,7 +46,6 @@ if (isset($_POST["pubpid"]) && ($_POST["pubpid"] != "")) {
 }
 
 if ($_POST['form_create']) {
-
     $form_fname = ucwords(trim($_POST["fname"]));
     $form_lname = ucwords(trim($_POST["lname"]));
     $form_mname = ucwords(trim($_POST["mname"]));
@@ -124,7 +123,6 @@ if ($_POST['form_create']) {
         sqlQuery("UPDATE patient_data SET referral_source = ? " .
         "WHERE pid = ?", array($refsource, $pid));
     }
-
 }
 ?>
 <html>
@@ -134,6 +132,7 @@ if ($_POST['form_create']) {
 if ($alertmsg) {
     echo "alert('" . addslashes($alertmsg) . "');\n";
 }
+
   echo "window.location='$rootdir/patient_file/summary/demographics.php?" .
     "set_pid=" . attr($pid) . "&is_new=1';\n";
 ?>

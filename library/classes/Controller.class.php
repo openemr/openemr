@@ -43,14 +43,14 @@ class Controller extends Smarty
 
     function populate_object(&$obj)
     {
-        if(!is_object($obj)) {
+        if (!is_object($obj)) {
             $this->function_argument_error();
         }
 
-        foreach($_POST as $varname => $var) {
+        foreach ($_POST as $varname => $var) {
             $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
             $func = "set_" . $varname;
-            if (    (!(strpos("_", $varname) === 0)) && is_callable(array($obj,$func))       ) {
+            if ((!(strpos("_", $varname) === 0)) && is_callable(array($obj,$func))) {
                 //echo "c: $func on w: "  . $var . "<br />";
 
         //modified 01-2010 by BGM to centralize to formdata.inc.php
@@ -82,17 +82,18 @@ class Controller extends Smarty
     function act($qarray)
     {
 
-        if (isset($_GET['process'])){
+        if (isset($_GET['process'])) {
             unset($_GET['process']);
             unset($qarray['process']);
             $_POST['process'] = "true";
         }
+
             $args = array_reverse(array_keys($qarray));
             $c_name = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
             $parts = explode("_", $c_name);
             $name = "";
 
-        foreach($parts as $p) {
+        foreach ($parts as $p) {
             $name .= ucfirst($p);
         }
 
@@ -100,7 +101,7 @@ class Controller extends Smarty
             $c_action = preg_replace("/[^A-Za-z0-9_]/", "", array_pop($args));
             $args = array_reverse($args);
 
-        if(!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
+        if (!call_user_func(array("Controller","i_once"), $GLOBALS['fileroot'] ."/controllers/C_" . $c_name . ".class.php")) {
             echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
             exit;
         }
@@ -122,8 +123,7 @@ class Controller extends Smarty
             if (empty($qarray[$arg]) && $qarray[$arg]!="0") {
                 //if argument is empty pass null as value and arg as assoc array key
                 $args_array[$arg] = null;
-            }
-            else {
+            } else {
                 $args_array[$arg] = $qarray[$arg];
             }
         }
@@ -131,7 +131,6 @@ class Controller extends Smarty
             $output = "";
             //print_r($args_array);
         if (isset($_POST['process']) && ($_POST['process']== "true")) {
-
             if (is_callable(array(&$c_obj,$c_action . "_action_process"))) {
                 //echo "ca: " . $c_action . "_action_process";
                 $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"), $args_array);
@@ -139,16 +138,14 @@ class Controller extends Smarty
                     return $output;
                 }
             }
+
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
-
-        }
-        else {
+        } else {
             if (is_callable(array(&$c_obj,$c_action . "_action"))) {
                 //echo "ca: " . $c_action . "_action";
                 $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
-            }
-            else {
+            } else {
                 echo "The action trying to be performed: " . $c_action ." does not exist controller: ". $name;
             }
         }
@@ -166,21 +163,21 @@ class Controller extends Smarty
         if (strpos($url_parts[0], "=") === false) {
             $inline_arg = $url_parts[0];
             $url_parts[0] = $action;
-        }
-        else {
+        } else {
             array_unshift($url_parts, $action);
         }
+
         if ($inlining) {
             $link .= "&" . $inline_arg;
             $link .= "&action=" . $url_parts[0];
-        }
-        else {
+        } else {
             $link .= "&" . $url_parts[0];
         }
 
         foreach ($this->_args as $arg_name => $arg) {
             $link .= "&" . $arg_name . "=" . $arg;
         }
+
             $link .= "&";
             return  $link;
     }

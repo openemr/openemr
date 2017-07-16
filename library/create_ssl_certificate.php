@@ -48,7 +48,7 @@ function create_csr(
     /* Build the Distinguished Name (DN) for the certificate */
     $dn = array("commonName" => $commonName);
 
-    if($emailAddress)
+    if ($emailAddress)
         $dn = array_merge($dn, array("emailAddress" => $emailAddress));
 
     if ($countryName)
@@ -80,6 +80,7 @@ function create_csr(
     if ($csr === false) {
         return false;
     }
+
     return array($csr, $privkey);
 }
 
@@ -124,6 +125,7 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if ($arr === false) {
         return false;
     }
+
     $csr = $arr[0];
     $privkey = $arr[1];
 
@@ -153,5 +155,6 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
     if (openssl_pkcs12_export($cert, $p12Out, $privkey, "") === false) {
         return false;
     }
+
     return $p12Out;
 }

@@ -30,10 +30,10 @@ class C_FormEvaluation extends Controller
     {
         if (is_numeric($form_id)) {
             $evaluation = new FormEvaluation($form_id);
-        }
-        else {
+        } else {
             $evaluation = new FormEvaluation();
         }
+
         $this->assign("VIEW", true);
         $this->assign("checks", $evaluation->_form_layout());
         $this->assign("evaluation", $evaluation);
@@ -51,6 +51,7 @@ class C_FormEvaluation extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
@@ -62,7 +63,6 @@ class C_FormEvaluation extends Controller
             if (!empty($row)) {
                 addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
-
         }
 
         $_POST['process'] = "";

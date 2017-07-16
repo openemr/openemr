@@ -84,7 +84,7 @@ abstract class Abstract_Controller implements ViewableIF
     
     public function run()
     {
-        if ( method_exists($this, $this->_method) ) {
+        if (method_exists($this, $this->_method)) {
             $this->{$this->_method}();
         } else {
             throw new \Exception("The method ".$this->_method." does not exist and cannot be executed");
@@ -111,7 +111,7 @@ class Request
     
     public function getParam($key, $default = '')
     {
-        if ( isset($this->_params[$key]) ) {
+        if (isset($this->_params[$key])) {
             return $this->_params[$key];
         }
     
@@ -120,7 +120,7 @@ class Request
     
     protected function parseParams()
     {
-        foreach ( $_REQUEST as $key => $value ) {
+        foreach ($_REQUEST as $key => $value) {
             $this->_params[$key] = $value;
         }
     }

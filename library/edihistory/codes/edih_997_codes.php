@@ -166,7 +166,7 @@ function edih_997_ta1_code($code)
         '030' => 'Invalid delivery time Code in Deferred Delivery Request',
         '031' => 'Invalid grade of Service Code'
         );
-    if ( array_key_exists($code, $ta1code) ) {
+    if (array_key_exists($code, $ta1code)) {
         return  $ta1code[$code];
     } else {
         return "Code $code not found in TA1 codes table. <br />";

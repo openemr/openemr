@@ -27,7 +27,7 @@ General Helpers
     <option id="" value="">--<?php echo out(xl('Select')); ?>--</option>
 
     <!-- iterate over other options -->
-    <?php foreach( $args['options'] as $option ) { ?>
+    <?php foreach ($args['options'] as $option) { ?>
     <option id="<?php echo out($option['id']); ?>" 
             value="<?php echo out($option['id']); ?>"
             <?php echo $args['value'] == $option['id'] ? "SELECTED" : "" ?>>
@@ -89,7 +89,7 @@ Compound Helpers
         </span>
     </p>
 
-    <?php if ( $criteria->interval && $criteria->intervalType )  { ?>
+    <?php if ($criteria->interval && $criteria->intervalType) { ?>
     <p class="row">
         <span class="left_col colhead req" data-field="fld_target_interval"><?php echo out(xl('Interval')); ?></span>
         <span class="end_col">

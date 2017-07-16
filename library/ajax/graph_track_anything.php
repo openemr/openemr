@@ -33,32 +33,34 @@ if ($the_checked_cols == null) {
     echo "nothing to plot."; // DEBUG ONLY! COMMENT ME OUT!
     exit;
 }
+
 // end check if NULL data
 
 // build labels
 $data_final = array();
 $data_final = xl('Date');
 foreach ($the_checked_cols as $col) {
-    if( is_numeric($the_value_array[$col][0]) ) {
+    if (is_numeric($the_value_array[$col][0])) {
         $data_final .= "\t" . $the_item_names[$col];
-    }
-    else {
+    } else {
         // is NOT numeric, so skip column
     }
 }
+
 $data_final .= "\n";
 
 // build data
 for ($i = 0; $i < count($the_date_array); $i++) {
     $data_final .= $the_date_array[$i];
     foreach ($the_checked_cols as $col) {
-        if( is_numeric($the_value_array[$col][0]) ) {
+        if (is_numeric($the_value_array[$col][0])) {
             // is numeric
             $data_final .= "\t" . $the_value_array[$col][$i];
         } else {
             // is NOT numeric, do nothing
         }
     }
+
     $data_final .= "\n";
 }
 

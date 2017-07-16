@@ -203,13 +203,13 @@
  There MUST be one space between the closing parenthesis and the opening brace
  The structure body MUST be indented once
  The closing brace MUST be on the next line after the body -->
- <!-- <rule ref="Squiz.ControlStructures.ControlSignature"/> --><!-- FIXABLE -->
- <!-- <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen" /> --><!-- FIXABLE -->
- <!-- <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose" /> --><!-- FIXABLE -->
- <!-- <rule ref="Squiz.ControlStructures.ForLoopDeclaration"/> --><!-- FIXABLE -->
+ <rule ref="Squiz.ControlStructures.ControlSignature"/>
+ <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingAfterOpen" />
+ <rule ref="Squiz.WhiteSpace.ControlStructureSpacing.SpacingBeforeClose" />
+ <rule ref="Squiz.ControlStructures.ForLoopDeclaration"/>
  <rule ref="Squiz.ControlStructures.LowercaseDeclaration"/>
  <!-- checked in ControlStructures/ControlStructureSpacingSniff -->
- <!-- <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/> --><!-- FIXABLE -->
+ <rule ref="PSR2.ControlStructures.ControlStructureSpacing"/>
 
  <!-- The body of each structure MUST be enclosed by braces. This standardizes how the structures look, and reduces the likelihood of introducing errors as new lines get added to the body. -->
  <!-- <rule ref="Generic.ControlStructures.InlineControlStructure"/> --><!-- FIXABLE -->

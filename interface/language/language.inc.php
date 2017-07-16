@@ -12,8 +12,10 @@ if (!$thisauth) {
 
 function check_pattern($data, $pat)
 {
-    if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) { return true ;
-    } else { return false; }
+    if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) {
+        return true ;
+    } else {
+        return false; }
 }
 
 // Function to insert/modify items in the language log table, lang_custom
@@ -24,8 +26,7 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
     if (!$disable_utf8_flag) {
         $case_sensitive_collation = "COLLATE utf8_bin";
-    }
-    else {
+    } else {
         $case_sensitive_collation = "COLLATE latin_bin";
     }
     
@@ -39,8 +40,7 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
             $sql="INSERT INTO lang_custom SET lang_code=?, lang_description=?";
             SqlStatement($sql, array($lang_code, $lang_desc));
         }
-    }
-    elseif ($lang_desc == '') {
+    } elseif ($lang_desc == '') {
         // NEW CONSTANT
         // (ensure not a repeat entry)
         $sql = "SELECT * FROM lang_custom WHERE lang_description='' AND constant_name=? ".$case_sensitive_collation;
@@ -49,8 +49,7 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
             $sql="INSERT INTO lang_custom SET constant_name=?";
             SqlStatement($sql, array($cons_name));
         }
-    }
-    else {
+    } else {
         // FULL ENTRY
         // (ensure not a repeat log entry)
         $sql = "SELECT * FROM lang_custom WHERE lang_description=? ".$case_sensitive_collation." AND constant_name=? ".$case_sensitive_collation." AND definition=? ".$case_sensitive_collation;
@@ -63,8 +62,7 @@ function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
                 // modify existing log entry(s)
                 $sql = "UPDATE lang_custom SET definition=? WHERE lang_description=? ".$case_sensitive_collation." AND constant_name=? ".$case_sensitive_collation;
                 SqlStatement($sql, array($def, $lang_desc, $cons_name));
-            }
-            else {
+            } else {
                 // create new log entry
                 $sql = "INSERT INTO lang_custom (lang_description,lang_code,constant_name,definition) VALUES (?,?,?,?)";
                 SqlStatement($sql, array($lang_desc, $lang_code, $cons_name, $def));

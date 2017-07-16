@@ -56,6 +56,7 @@ function recursiveDelete($typeid)
     while ($row = sqlFetchArray($res)) {
         recursiveDelete($row['procedure_type_id']);
     }
+
     sqlStatement("DELETE FROM procedure_type WHERE " .
     "procedure_type_id = '$typeid'");
 }
@@ -145,7 +146,6 @@ $(document).ready(function() {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save']) {
-
     $sets =
     "name = "           . invalue('form_name')           . ", " .
     "lab_id = "         . invalue('form_lab_id')         . ", " .
@@ -172,10 +172,7 @@ if ($_POST['form_save']) {
         $newid = sqlInsert("INSERT INTO procedure_type SET parent = '$parent', $sets");
         // $newid is not really used in this script
     }
-}
-
-else  if ($_POST['form_delete']) {
-
+} else if ($_POST['form_delete']) {
     if ($typeid) {
         // Get parent ID so we can refresh the tree view after deleting.
         $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
@@ -183,7 +180,6 @@ else  if ($_POST['form_delete']) {
         $parent = $row['parent'];
         recursiveDelete($typeid);
     }
-
 }
 
 if ($_POST['form_save'] || $_POST['form_delete']) {

@@ -47,8 +47,8 @@ $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
-if ($issue && !acl_check('patients', 'med', '', 'write') ) die(xlt("Edit is not authorized!"));
-if ( !acl_check('patients', 'med', '', array('write','addonly'))) die(xlt("Add is not authorized!"));
+if ($issue && !acl_check('patients', 'med', '', 'write')) die(xlt("Edit is not authorized!"));
+if (!acl_check('patients', 'med', '', array('write','addonly'))) die(xlt("Add is not authorized!"));
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID   = findProvider($pid, $encounter);
@@ -61,12 +61,14 @@ if ($issue) {
     $irow['type'] = $thistype;
     $irow['subtype'] = $subtype;
 }
+
 if (!empty($irow['type'])) {
     foreach ($ISSUE_TYPES as $key => $value) {
         if ($key == $irow['type']) break;
         ++$type_index;
     }
 }
+
 $given="ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE";
 $query="SELECT $given from form_eye_mag where id=? and pid=?";
 $rres = sqlQuery($query, array($form_id,$pid));
@@ -154,14 +156,16 @@ foreach (explode(',', $given) as $item) {
                 $local = "";
                 $qry = "";
             }
+
             if ($local =="1") { // leave FH/SocHx/ROS for later - done below separately
-                while($res = sqlFetchArray($qry)){ //Should we take the top 10 and display alphabetically?
+                while ($res = sqlFetchArray($qry)) { //Should we take the top 10 and display alphabetically?
                     echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length] = new Option('".attr(trim($res['option_id']))."', '".attr(xl_list_label(trim($res['title'])))."', false, false);\n";
                     if ($res['codes']) {
                         echo " aopts['" .attr($key). "'][aopts['" .attr($key). "'].length-1].setAttribute('data-code','".attr(trim($res['codes']))."');\n";
                     }
                 }
             }
+
             ++$i;
         }
 
@@ -409,13 +413,11 @@ foreach (explode(',', $given) as $item) {
       var f = document.forms[0];
       term = f.form_title.value;
         <?php
-        if(($irow['type'] == 'PMH') ||($irow['type'] == 'POH'))
-        {
+        if (($irow['type'] == 'PMH') ||($irow['type'] == 'POH')) {
             ?>
           dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("medical_problem", "csv")) ?>&search_term='+term, '_blank', 500, 400);
             <?php
-        }
-        else{
+        } else {
             ?>
           dlgopen('../../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr(collect_codetypes("diagnosis", "csv")) ?>&search_term='+term, '_blank', 500, 400);
             <?php
@@ -626,19 +628,30 @@ foreach (explode(',', $given) as $item) {
             $output= array();
             foreach ($PMSFH[0] as $key => $value) {
                 $checked = '';
-                if ($key == "POH") {  $checked = " checked='checked' "; }
+                if ($key == "POH") {
+                    $checked = " checked='checked' "; }
+
                 $key_short_title = $key;
-                if ($key == "Medication") {$key_short_title = "Meds";
+                if ($key == "Medication") {
+                    $key_short_title = "Meds";
                     $title = "Medications"; }
-                if ($key == "Problem") {$key_short_title = "PMH";
+
+                if ($key == "Problem") {
+                    $key_short_title = "PMH";
                     $title = "Past Medical History"; }
-                if ($key == "Surgery") {$key_short_title = "Surg";
+
+                if ($key == "Surgery") {
+                    $key_short_title = "Surg";
                     $title = "Surgery History"; }
-                if ($key == "SOCH") {$key_short_title = "Soc";
+
+                if ($key == "SOCH") {
+                    $key_short_title = "Soc";
                     $title = "Social History"; }
+
                 $HELLO[attr($key)] = '<input type="radio" name="form_type" id="PMSFH_'.attr($key).'" value="'.attr($key).'" '.$checked.' onclick="top.restoreSession();newtype(\''.attr($key).'\');" /><span>'.
                             '<label class="input-helper input-helper--checkbox" for="PMSFH_'.attr($key).'" title="'.xla($title).'">' . xlt($key_short_title) . '</label></span>&nbsp;';
             }
+
           //put them in the desired display order
             echo $HELLO['POH'].$HELLO['POS'].$HELLO['PMH'].$HELLO['Medication'].$HELLO['Surgery'].$HELLO['Allergy'].$HELLO['FH'].$HELLO['SOCH'].$HELLO['ROS'];
             ?>
@@ -777,14 +790,11 @@ foreach (explode(',', $given) as $item) {
                 $dateEnd=$_POST['dateEnd'];
                 if ($dateStart && $dateEnd) {
                       $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? and date <= ? order by date DESC limit 0,1", array($pid,$dateStart,$dateEnd));
-                }
-                else if ($dateStart && !$dateEnd) {
+                } else if ($dateStart && !$dateEnd) {
                     $result1 = sqlQuery("select $given from history_data where pid = ? and date >= ? order by date DESC limit 0,1", array($pid,$dateStart));
-                }
-                else if (!$dateStart && $dateEnd) {
+                } else if (!$dateStart && $dateEnd) {
                     $result1 = sqlQuery("select $given from history_data where pid = ? and date <= ? order by date DESC limit 0,1", array($pid,$dateEnd));
-                }
-                else {
+                } else {
                     $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid));
                 }
 
@@ -801,7 +811,7 @@ foreach (explode(',', $given) as $item) {
                       if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
                       if ($data_type == 28 || $data_type == 32) {
                           $tmp = explode('|', $currvalue);
-                          switch(count($tmp)) {
+                          switch (count($tmp)) {
                               case "4": {
                                   $result2[$field_id]['resnote'] = $tmp[0];
                                   $result2[$field_id]['restype'] = $tmp[1];
@@ -826,6 +836,7 @@ foreach (explode(',', $given) as $item) {
                                       $result2[$field_id]['restype'] = $result2[$field_id]['resdate'] = $result2[$field_id]['resnote'] = "";
                                 } break;
                             }
+
                             $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
                             $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
                             $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
@@ -1199,8 +1210,10 @@ foreach (explode(',', $given) as $item) {
       </form>
     </div>
     <script language='JavaScript'>
-       newtype('<?php if (!$form_index) { echo "POH";
-} else { echo $type_index; } ?>');
+       newtype('<?php if (!$form_index) {
+            echo "POH";
+} else {
+    echo $type_index; } ?>');
        Calendar.setup({inputField:"form_begin", ifFormat:"%Y-%m-%d", button:"img_begin"});
        Calendar.setup({inputField:"form_end", ifFormat:"%Y-%m-%d", button:"img_end"});
         <?php

@@ -29,7 +29,7 @@ function smarty_function_pc_form_nav_open($args = array())
     extract($args);
     unset($args);
     $viewtype = strtolower(pnVarCleanFromInput('viewtype'));
-    if(_SETTING_OPEN_NEW_WINDOW && $viewtype == 'details') {
+    if (_SETTING_OPEN_NEW_WINDOW && $viewtype == 'details') {
         $target = 'target="csCalendar"';
     } else {
         $target = '';

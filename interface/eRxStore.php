@@ -162,7 +162,7 @@ class eRxStore
                 $process
             )
         );
-        if($return === false)
+        if ($return === false)
             return false;
 
         return $return['updated'];
@@ -314,7 +314,7 @@ class eRxStore
             )
         );
 
-        if(is_array($return))
+        if (is_array($return))
             $return = $return['option_id'];
 
         return $return;
@@ -336,7 +336,7 @@ class eRxStore
             array($listId)
         );
 
-        if(is_array($return))
+        if (is_array($return))
             $return = $return['option_id'];
 
         return $return;
@@ -552,7 +552,7 @@ class eRxStore
             )
         );
 
-        if(is_array($return))
+        if (is_array($return))
             $return = $return['erx_source'];
 
         return $return;

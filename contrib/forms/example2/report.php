@@ -14,16 +14,14 @@ function example_report($pid, $encounter, $cols, $id)
     $data = formFetch($table_name, $id);
    
     if ($data) {
- 
         print "<table><tr>";
        
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" ||
                 $key == "groupname" || $key == "authorized" ||
                 $key == "activity" || $key == "date" ||
                 $value == "" || $value == "0000-00-00 00:00:00" ||
-                $value == "n")
-            {
+                $value == "n") {
                 // skip certain fields and blank data
                 continue;
             }
@@ -39,5 +37,6 @@ function example_report($pid, $encounter, $cols, $id)
             }
         }
     }
+
     print "</tr></table>";
 }

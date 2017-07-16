@@ -48,30 +48,33 @@ if (!empty($report_id)) {
         $begin_date = $report_view['date_begin'];
         $labs_manual = $report_view['labs_manual'];
     }
+
     $target_date = $report_view['date_target'];
     $plan_filter = $report_view['plan'];
     $organize_method = $report_view['organize_mode'];
     $provider  = $report_view['provider'];
     $pat_prov_rel = $report_view['pat_prov_rel'];
     $dataSheet = json_decode($report_view['data'], true);
-}
-else {
+} else {
   // Collect report type parameter (standard, amc, cqm)
   // Note that need to convert amc_2011 and amc_2014 to amc and cqm_2011 and cqm_2014 to cqm
   // to simplify for when submitting for a new report.
     $type_report = (isset($_GET['type'])) ? trim($_GET['type']) : "standard";
 
-    if ( ($type_report == "cqm_2011") || ($type_report == "cqm_2014") ) {
+    if (($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
         $type_report = "cqm";
     }
-    if ( ($type_report == "amc_2011") || ($type_report == "amc_2014")  || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2") ) {
+
+    if (($type_report == "amc_2011") || ($type_report == "amc_2014")  || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) {
         $type_report = "amc";
     }
+
   // Collect form parameters (set defaults if empty)
     if ($type_report == "amc") {
         $begin_date = (isset($_POST['form_begin_date'])) ? trim($_POST['form_begin_date']) : "";
         $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
     }
+
     $target_date = (isset($_POST['form_target_date'])) ? trim($_POST['form_target_date']) : date('Y-m-d H:i:s');
     $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : "";
     $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
@@ -229,7 +232,7 @@ else {
  }
 
  function validateForm() {
-    <?php if ( (empty($report_id)) && ($type_report == "cqm") ) { ?>
+    <?php if ((empty($report_id)) && ($type_report == "cqm")) { ?>
      // If this is a cqm and plan set not set to ignore, then need to ensure consistent with the rules set
      if ($("#form_plan_filter").val() != '') {
        if ($("#form_rule_filter").val() == $("#form_plan_filter").val()) {
@@ -247,7 +250,7 @@ else {
  }
 
  function Form_Validate() {
-        <?php if ( (empty($report_id)) && (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) ){ ?>
+        <?php if ((empty($report_id)) && (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2"))) { ?>
          var d = document.forms[0];
          FromDate = d.form_begin_date.value;
          ToDate = d.form_target_date.value;
@@ -260,7 +263,7 @@ else {
     <?php } ?>
 
     //For Results are in Gray Background & disabling anchor links
-    <?php if($report_id != ""){?>
+    <?php if ($report_id != "") {?>
     $("#report_results").css("opacity", '0.4');
     $("#report_results").css("filter", 'alpha(opacity=40)');
     $("a").removeAttr("href");
@@ -623,10 +626,9 @@ if (!empty($report_id)) {
 
  <th>
     <?php
-      if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
+      if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
           echo htmlspecialchars(xl('Initial Patient Population'), ENT_NOQUOTES);
-    else
-          echo htmlspecialchars(xl('Total Patients'), ENT_NOQUOTES);
+    else echo htmlspecialchars(xl('Total Patients'), ENT_NOQUOTES);
     ?>
   </th>
 
@@ -643,7 +645,7 @@ if (!empty($report_id)) {
     <?php echo htmlspecialchars(xl('Denominator Exclusion'), ENT_NOQUOTES); ?></a>
    </th>
     <?php }?>
-    <?php if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {?>
+    <?php if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {?>
    <th>
     <?php echo htmlspecialchars(xl('Denominator Exception'), ENT_NOQUOTES); ?></a>
    </th>
@@ -677,7 +679,6 @@ $firstProviderFlag = true;
 $firstPlanFlag = true;
 $existProvider = false;
 foreach ($dataSheet as $row) {
-
 ?>
 
 <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -686,7 +687,6 @@ foreach ($dataSheet as $row) {
 if (isset($row['is_main']) || isset($row['is_sub'])) {
     echo "<td class='detail'>";
     if (isset($row['is_main'])) {
-
         // is_sub is a special case of is_main whereas total patients, denominator, and excluded patients are taken
         // from is_main prior to it. So, need to store denominator patients from is_main for subsequent is_sub
         // to calculate the number of patients that failed.
@@ -701,24 +701,29 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
             if (!empty($row['cqm_pqri_code'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
             }
+
             if (!empty($row['cqm_nqf_code'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
             }
         }
+
         if ($type_report == "amc") {
             if (!empty($row['amc_code'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
             }
+
             if (!empty($row['amc_code_2014'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
             }
         }
+
         if ($type_report == "amc_2011") {
             if (!empty($row['amc_code'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
             }
         }
-        if ( ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2") ) {
+
+        if (($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) {
             if (!empty($row['amc_code_2014'])) {
                 $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
             }
@@ -728,55 +733,49 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
             echo "(".$tempCqmAmcString.")";
         }
 
-        if ( !(empty($row['concatenated_label'])) ) {
+        if (!(empty($row['concatenated_label']))) {
             echo ", " . htmlspecialchars(xl($row['concatenated_label']), ENT_NOQUOTES) . " ";
         }
-
-    }
-    else { // isset($row['is_sub'])
+    } else { // isset($row['is_sub'])
         echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
         echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
     }
+
         echo "</td>";
 
-        if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
+        if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
         echo "<td align='center'>" . $row['initial_population'] . "</td>";
-    else
-        echo "<td align='center'>" . $row['total_patients'] . "</td>";
+    else echo "<td align='center'>" . $row['total_patients'] . "</td>";
 
-    if ( isset($row['itemized_test_id']) && ($row['pass_filter'] > 0) ) {
+    if (isset($row['itemized_test_id']) && ($row['pass_filter'] > 0)) {
         echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=all&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['pass_filter'] . "</a></td>";
-    }
-    else {
+    } else {
         echo "<td align='center'>" . $row['pass_filter'] . "</td>";
     }
 
     if ($type_report != "amc") {
         // Note that amc will likely support in excluded items in the future for MU2
-        if ( ($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0) ) {
+        if (($type_report != "standard") && isset($row['itemized_test_id']) && ($row['excluded'] > 0)) {
             // Note standard reporting exluded is different than cqm/amc and will not support itemization
             echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exclude&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['excluded'] . "</a></td>";
-        }
-        else {
+        } else {
             echo "<td align='center'>" . $row['excluded'] . "</td>";
         }
     }
 
-    if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014'){
+    if ($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {
         // Note that amc will likely support in exception items in the future for MU2
-        if ( isset($row['itemized_test_id']) && ($row['exception'] > 0) ) {
+        if (isset($row['itemized_test_id']) && ($row['exception'] > 0)) {
            // Note standard reporting exluded is different than cqm/amc and will not support itemization
             echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=exception&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['exception'] . "</a></td>";
-        }
-        else {
+        } else {
              echo "<td align='center'>" . $row['exception'] . "</td>";
         }
     }
 
-    if ( isset($row['itemized_test_id']) && ($row['pass_target'] > 0) ) {
+    if (isset($row['itemized_test_id']) && ($row['pass_target'] > 0)) {
         echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=pass&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $row['pass_target'] . "</a></td>";
-    }
-    else {
+    } else {
         echo "<td align='center'>" . $row['pass_target'] . "</td>";
     }
 
@@ -785,29 +784,27 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         if ($type_report == "standard") {
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $row['pass_filter'] - $row['pass_target'];
-        }
-        else {
+        } else {
             $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
         }
-    }
-    else { // isset($row['is_sub'])
+    } else { // isset($row['is_sub'])
         // Excluded is not part of denominator in standard rules so do not use in calculation
         $failed_items = $main_pass_filter - $row['pass_target'];
     }
-    if ( isset($row['itemized_test_id']) && ($failed_items > 0) ) {
+
+    if (isset($row['itemized_test_id']) && ($failed_items > 0)) {
         echo "<td align='center'><a href='../main/finder/patient_select.php?from_page=cdr_report&pass_id=fail&report_id=".attr($report_id)."&itemized_test_id=".attr($row['itemized_test_id'])."&numerator_label=".urlencode(attr($row['numerator_label']))."' onclick='top.restoreSession()'>" . $failed_items . "</a></td>";
-    }
-    else {
+    } else {
         echo "<td align='center'>" . $failed_items . "</td>";
     }
 
         echo "<td align='center'>" . $row['percentage'] . "</td>";
-}
-else if (isset($row['is_provider'])) {
+} else if (isset($row['is_provider'])) {
    // Display the provider information
     if (!$firstProviderFlag && $_POST['form_provider'] == 'collate_outer') {
         echo "<tr><td>&nbsp</td></tr>";
     }
+
     echo "<td class='detail' align='center'><b>";
     echo htmlspecialchars(xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
     if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
@@ -815,25 +812,29 @@ else if (isset($row['is_provider'])) {
         if (!empty($row['npi'])) {
             echo " " . htmlspecialchars(xl('NPI') . ":" . $row['npi'], ENT_NOQUOTES) . " ";
         }
+
         if (!empty($row['federaltaxid'])) {
             echo " " . htmlspecialchars(xl('TID') . ":" . $row['federaltaxid'], ENT_NOQUOTES) . " ";
         }
+
            echo ")";
     }
+
        echo "</b></td>";
        $firstProviderFlag = false;
        $existProvider = true;
-}
-else { // isset($row['is_plan'])
+} else { // isset($row['is_plan'])
     if (!$firstPlanFlag && $_POST['form_provider'] != 'collate_outer') {
         echo "<tr><td>&nbsp</td></tr>";
     }
+
     echo "<td class='detail' align='center'><b>";
     echo htmlspecialchars(xl("Plan"), ENT_NOQUOTES) . ": ";
     echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $row['id']);
     if (!empty($row['cqm_measure_group'])) {
         echo " (". htmlspecialchars(xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
     }
+
     echo "</b></td>";
     $firstPlanFlag = false;
 }

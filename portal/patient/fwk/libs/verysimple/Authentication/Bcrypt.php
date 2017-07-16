@@ -118,7 +118,7 @@ class Bcrypt
                 }
             }
             
-            for($i = 0; $i < $count; $i += 16) {
+            for ($i = 0; $i < $count; $i += 16) {
                 $this->randomState = md5(microtime() . $this->randomState);
                 
                 if (PHP_VERSION >= '5') {
@@ -164,7 +164,7 @@ class Bcrypt
             $c1 |= $c2 >> 6;
             $output .= $itoa64 [$c1];
             $output .= $itoa64 [$c2 & 0x3f];
-        } while ( 1 );
+        } while (1);
         
         return $output;
     }

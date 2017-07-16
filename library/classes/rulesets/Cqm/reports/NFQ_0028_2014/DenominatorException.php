@@ -33,11 +33,13 @@ class NFQ_0028_2014_DenominatorException implements CqmFilterIF
         
         // Diagnosis Limited Life Expectancy
         $limited_life = array();
-        foreach(Codes::lookup(Diagnosis::LIMITED_LIFE, 'SNOMED-CT') as $code){ $limited_life[] = "SNOMED-CT:".$code;}
+        foreach (Codes::lookup(Diagnosis::LIMITED_LIFE, 'SNOMED-CT') as $code) {
+            $limited_life[] = "SNOMED-CT:".$code;}
+
         $limited_life = "'".implode("','", $limited_life)."'";
         $query = "SELECT count(*) as cnt from lists where type ='medical_problem' and pid = ? and diagnosis in ($limited_life) and begdate between ? and ? and (enddate is null or enddate > ? )";
         $diagnosis = sqlQuery($query, array($patient->id,$beginDate,$endDate,$endDate));
-        if($diagnosis['cnt'] > 0)
+        if ($diagnosis['cnt'] > 0)
             return true;
         
         //Risk Category Tobacco Screening Done to allow a provider to document that the screening was performed along with other numerous options from the Risk
@@ -54,9 +56,9 @@ class NFQ_0028_2014_DenominatorException implements CqmFilterIF
                             "AND prc.procedure_order_title = 'Risk Category Assessment'";
         
         $check = sqlQuery($riskCatAssessQry, array($beginDate, $endDate, $patient->id));
-        if ($check['cnt'] > 0){
+        if ($check['cnt'] > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

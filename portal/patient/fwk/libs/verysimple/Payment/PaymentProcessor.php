@@ -99,7 +99,7 @@ abstract class PaymentProcessor
         // convert the data array into a url querystring
         $post_data = "";
         $delim = "";
-        foreach ( array_keys($data) as $key ) {
+        foreach (array_keys($data) as $key) {
             $post_data .= $delim . $key . "=" . $data [$key];
             $delim = "&";
         }
@@ -130,6 +130,7 @@ abstract class PaymentProcessor
         if ($error != "") {
             $tmp .= $error;
         }
+
         curl_close($ch);
         
         return $tmp;

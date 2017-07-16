@@ -61,14 +61,14 @@ function do_visit_form($irow, $encounter, $first)
                 " VALUES ( '$newid', '$field_id', '$value' )";
                 if ($verbose) echo "<br />$query\n";
                 if (!$debug) sqlStatement($query);
-            }
-            else {
+            } else {
                 $query = "INSERT INTO lbf_data " .
                 "( field_id, field_value ) " .
                 " VALUES ( '$field_id', '$value' )";
                 if ($verbose) echo "<br />$query\n";
                 if (!$debug) $newid = sqlInsert($query);
             }
+
             $didone = true;
         }
     }
@@ -93,7 +93,6 @@ function do_visit_form($irow, $encounter, $first)
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
-
   // If database is not utf8, convert it.
     $trow = sqlQuery("SHOW CREATE DATABASE $dbase");
     array_shift($trow);
@@ -107,6 +106,7 @@ if (!empty($_POST['form_submit'])) {
             if ($verbose) echo "<br />$query\n";
             sqlStatement($query);
         }
+
         $query = "ALTER DATABASE $dbase CHARACTER SET utf8";
         if ($verbose) echo "<br />$query\n";
         sqlStatement($query);
@@ -136,8 +136,7 @@ if (!empty($_POST['form_submit'])) {
                 do_visit_form($irow, $ierow['encounter'], $first);
                 $first = false;
             }
-        }
-        else {
+        } else {
               echo "<br />*** Issue $list_id for pid $patient_id has no linked visits, skipped ***\n";
         }
     }

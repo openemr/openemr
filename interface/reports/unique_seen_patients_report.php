@@ -38,8 +38,7 @@ if ($_POST['form_labels']) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=labels.txt");
     header("Content-Description: File Transfer");
-}
-else {
+} else {
 ?>
 <html>
 <head>
@@ -250,8 +249,7 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
             echo '"' . $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] . '","' .
              $row['street'] . '","' . $row['city'] . '","' . $row['state'] . '","' .
              $row['postal_code'] . '"' . "\n";
-        }
-        else { // not labels
+        } else { // not labels
         ?>
        <tr>
         <td>

@@ -15,9 +15,10 @@ class NFQ_0064_Numerator1 implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Helper::checkLab(LabResult::LDL_TEST, $patient, $beginDate, $endDate) ) {
+        if (Helper::checkLab(LabResult::LDL_TEST, $patient, $beginDate, $endDate)) {
             return true;
         }
+
         return false;
     }
 }

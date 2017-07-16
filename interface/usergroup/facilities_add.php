@@ -31,8 +31,7 @@ $alertmsg = '';
 $collectthis = collectValidationPageRules("/interface/usergroup/facilities_add.php");
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis["facility-add"]["rules"];
 }
 
@@ -59,7 +58,7 @@ function submitform() {
     var valid = submitme(1, undefined, 'facility-add', collectvalidation);
     if (!valid) return;
 
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
     alertMsg='';
     f=document.forms[0];
     for(i=0;i<f.length;i++){
@@ -239,12 +238,13 @@ function displayAlert()
     <?php
     $disabled='';
     $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-    if(sizeof($resPBE)>0)
+    if (sizeof($resPBE)>0)
     $disabled='disabled';
     ?>
      <tr>
           <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
-          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if($GLOBALS['erx_enable']){ ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+          <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if ($GLOBALS['erx_enable']) {
+?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
           <td>&nbsp;</td>
          </tr>
         <tr>

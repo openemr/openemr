@@ -42,12 +42,14 @@ if ($_POST['bn_save']) {
             $newdata[$field_id] = get_layout_form_value($frow);
         }
     }
+
     updateHistoryData($ptid, $newdata);
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -154,11 +156,13 @@ while ($lorow = sqlFetchArray($lores)) {
         if (($i = strpos($key, ':')) !== false) {
             $key = substr($key, 0, $i);
         }
+
         if (strcasecmp($key, $field_id) == 0) {
             $reskey = $key;
             $gotfield = true;
         }
     }
+
   // Generate form fields for items that are either from the WordPress form
   // or are mandatory.
     if ($gotfield || $lorow['uor'] > 1) {

@@ -27,24 +27,18 @@
 //===============================================================================
 //Patient ajax section and listing of charges..Used in New Payment and Edit Payment screen.
 //===============================================================================
-if (isset($_POST["mode"]))
- {
-    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && $_REQUEST['hidden_patient_code']*1>0)
-    {
+if (isset($_POST["mode"])) {
+    if (($_POST["mode"] == "search" || $_POST["default_search_patient"] == "default_search_patient") && $_REQUEST['hidden_patient_code']*1>0) {
         $hidden_patient_code=$_REQUEST['hidden_patient_code'];
         $RadioPaid=$_REQUEST['RadioPaid'];
-        if($RadioPaid=='Show_Paid')
-         {
+        if ($RadioPaid=='Show_Paid') {
             $StringForQuery='';
-        }
-        elseif($RadioPaid=='Non_Paid')
-         {
+        } elseif ($RadioPaid=='Non_Paid') {
             $StringForQuery=" and last_level_closed = 0 ";
-        }
-        elseif($RadioPaid=='Show_Primary_Complete')
-         {
+        } elseif ($RadioPaid=='Show_Primary_Complete') {
             $StringForQuery=" and last_level_closed >= 1 ";
         }
+
         $ResultSearchNew = sqlStatement("SELECT b.id,last_level_closed,b.encounter,fe.`date`,b.code_type,b.code,b.modifier,fee
 	                                 FROM billing AS b,form_encounter AS fe, code_types AS ct
 			                         WHERE b.encounter=fe.encounter AND b.code_type=ct.ct_key AND ct.ct_diag=0 
@@ -59,6 +53,7 @@ if (isset($_POST["mode"]))
           $NameNew=$lname.' '.$fname.' '.$mname;
     }
 }
+
 //===============================================================================
 ?>
 <table width="1004" border="0" cellspacing="0" cellpadding="0"  id="TablePatientPortion">
@@ -117,8 +112,7 @@ if (isset($_POST["mode"]))
             $CountIndexBelow=0;
             $PreviousEncounter=0;
             $PreviousPID=0;
-            if($RowSearch = sqlFetchArray($ResultSearchNew))
-             {
+            if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
             ?>
             <table width="1004"  border="0" cellpadding="0" cellspacing="0" align="center" id="TableDistributePortion">
               <tr class="text" height="10">
@@ -142,9 +136,7 @@ if (isset($_POST["mode"]))
                 <td width="209" class="left top right" ><?php echo htmlspecialchars(xl('Follow Up Reason'), ENT_QUOTES) ?></td>
               </tr>
                 <?php
-                do
-                 {
-
+                do {
                     $CountIndex++;
                     $CountIndexBelow++;
                     $Ins=0;
@@ -158,12 +150,9 @@ if (isset($_POST["mode"]))
                       ++$new_payer_type;
                     $new_payer_id = arGetPayerID($hidden_patient_code, $date_of_service, $new_payer_type);
                     
-                    if($new_payer_id==0)
-                     {
+                    if ($new_payer_id==0) {
                         $Ins=0;
-                    }
-                    elseif($new_payer_id>0)
-                     {
+                    } elseif ($new_payer_id>0) {
                         $Ins=$new_payer_type;
                     }
 
@@ -173,10 +162,9 @@ if (isset($_POST["mode"]))
                                         $Codetype=$RowSearch['code_type'];
                     $Code=$RowSearch['code'];
                     $Modifier =$RowSearch['modifier'];
-                    if($Modifier!='')
+                    if ($Modifier!='')
                      $ModifierString=", $Modifier";
-                    else
-                     $ModifierString="";
+                    else $ModifierString="";
                     $Fee=$RowSearch['fee'];
                     $Encounter=$RowSearch['encounter'];
                     
@@ -189,12 +177,9 @@ if (isset($_POST["mode"]))
                     $rowId = sqlFetchArray($resId);
                     $Id=$rowId['id'];
 
-                    if($BillingId!=$Id)//multiple cpt in single encounter
-                     {
+                    if ($BillingId!=$Id) {//multiple cpt in single encounter
                         $Copay=0.00;
-                    }
-                    else
-                     {
+                    } else {
                         $resCopay = sqlStatement("SELECT sum(fee) as copay FROM billing where  code_type='COPAY'  and
 						pid ='$hidden_patient_code' and  encounter  ='$Encounter' and billing.activity!=0");
                         $rowCopay = sqlFetchArray($resCopay);
@@ -208,6 +193,7 @@ if (isset($_POST["mode"]))
                         
                         $Copay=$Copay+$PatientPay;
                     }
+
                         //payer_type!=0, supports both mapped and unmapped code_type in ar_activity
                         $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as MoneyGot FROM ar_activity where
 						pid ='$hidden_patient_code' and (code_type='$Codetype' or code_type='') and code='$Code' and modifier='$Modifier'  and  encounter  ='$Encounter' and  !(payer_type=0 and 
@@ -223,30 +209,20 @@ if (isset($_POST["mode"]))
                         $Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
 
                     $TotalRows=sqlNumRows($ResultSearchNew);
-                    if($CountIndexBelow==sqlNumRows($ResultSearchNew))
-                     {
+                    if ($CountIndexBelow==sqlNumRows($ResultSearchNew)) {
                         $StringClass=' bottom left top ';
-                    }
-                    else
-                     {
+                    } else {
                         $StringClass=' left top ';
                     }
 
 
-                    if($Ins==1)
-                     {
+                    if ($Ins==1) {
                         $bgcolor='#ddddff';
-                    }
-                    elseif($Ins==2)
-                     {
+                    } elseif ($Ins==2) {
                         $bgcolor='#ffdddd';
-                    }
-                    elseif($Ins==3)
-                     {
+                    } elseif ($Ins==3) {
                         $bgcolor='#F2F1BC';
-                    }
-                    elseif($Ins==0)
-                     {
+                    } elseif ($Ins==0) {
                         $bgcolor='#AAFFFF';
                     }
                 ?>
@@ -292,8 +268,7 @@ if (isset($_POST["mode"]))
                  name="FollowUpReason<?php echo $CountIndex; ?>"  readonly=""  type="text"   style="width:209px;font-size:12px" /></td>
               </tr>
             <?php
-
-                }while($RowSearch = sqlFetchArray($ResultSearchNew));
+                } while ($RowSearch = sqlFetchArray($ResultSearchNew));
             ?>
              <tr class="text">
                 <td align="left" colspan="7">&nbsp;</td>

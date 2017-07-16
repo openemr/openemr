@@ -36,7 +36,7 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF
     
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
-        if(!in_array($patient->id, $this->patArr)){
+        if (!in_array($patient->id, $this->patArr)) {
             $this->patArr[] = $patient->id;
                         //
                         // Still TODO
@@ -49,9 +49,9 @@ class AMC_314g_1_2_20_Numerator implements AmcFilterIF
                          "INNER JOIN patient_data pd ON pd.pid = d.foreign_id ".
                          "WHERE d.foreign_id = ? AND (d.date BETWEEN ? AND ?) ";
             $check = sqlQuery($docLabQry, array($patient->id, $beginDate, $endDate));
-            if ($check['cnt'] > 0){
+            if ($check['cnt'] > 0) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }

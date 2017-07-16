@@ -23,9 +23,7 @@ $fname = $claim_file_dir . $fname;
 
 if (!file_exists($fname)) {
     echo xl("The claim file: ") . $_GET['key'] . xl(" could not be accessed.");
-}
-
-else {
+} else {
     $fp = fopen($fname, 'r');
 
     header("Pragma: public");
@@ -38,4 +36,5 @@ else {
     // dump the picture and stop the script
     fpassthru($fp);
 }
+
 exit;

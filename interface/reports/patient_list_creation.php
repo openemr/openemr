@@ -45,15 +45,13 @@ function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
     ));
     return $newdate;
 }
-    if($_POST['date_from'] != "")
+    if ($_POST['date_from'] != "")
         $sql_date_from = $_POST['date_from'];
-else
-        $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+else $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
 
-    if($_POST['date_to'] != "")
+    if ($_POST['date_to'] != "")
         $sql_date_to = $_POST['date_to'];
-else
-        $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
+else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
 
     //echo "<pre>";print_r($_POST);
     $patient_id = trim($_POST["patient_id"]);
@@ -180,7 +178,7 @@ else
                         }
                     }
                 });
-                <?php if($_POST['srch_option'] == "Communication"){ ?>
+                <?php if ($_POST['srch_option'] == "Communication") { ?>
                         $('#com_pref').show();
                 <?php } ?>
 
@@ -215,11 +213,10 @@ else
             <?php echo "<span style='margin-left:5px;'><b>".xlt('Date Range').":</b>&nbsp;".text(date($sql_date_from, strtotime($sql_date_from))) .
               " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
             <span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
-            if($_POST['srch_option'] == "Communication" && $_POST['communication'] != ""){
-                if(isset($comarr[$_POST['communication']]))
+            if ($_POST['srch_option'] == "Communication" && $_POST['communication'] != "") {
+                if (isset($comarr[$_POST['communication']]))
                 echo "(".text($comarr[$_POST['communication']]).")";
-                else
-                echo "(".xlt('All').")";
+                else echo "(".xlt('All').")";
             }  ?></span>
             </p>
         </div>
@@ -241,8 +238,8 @@ else
                                 <td class='control-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='control-label'>
                                     <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
-                                        <?php foreach($search_options as $skey => $svalue){ ?>
-                                        <option <?php if($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                        <?php foreach ($search_options as $skey => $svalue) { ?>
+                                        <option <?php if ($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -252,10 +249,14 @@ else
                                     <span id="com_pref" style="display:none">
                                     <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
-                                        <option value="allow_sms" <?php if($communication == "allow_sms"){ echo "selected";}?>><?php echo xlt('Allow SMS'); ?></option>
-                                        <option value="allow_voice" <?php if($communication == "allow_voice"){ echo "selected";}?>><?php echo xlt('Allow Voice Message'); ?></option>
-                                        <option value="allow_mail" <?php if($communication == "allow_mail"){ echo "selected";}?>><?php echo xlt('Allow Mail Message'); ?></option>
-                                        <option value="allow_email" <?php if($communication == "allow_email"){ echo "selected";}?>><?php echo xlt('Allow Email'); ?></option>
+                                        <option value="allow_sms" <?php if ($communication == "allow_sms") {
+                                            echo "selected";}?>><?php echo xlt('Allow SMS'); ?></option>
+                                        <option value="allow_voice" <?php if ($communication == "allow_voice") {
+                                            echo "selected";}?>><?php echo xlt('Allow Voice Message'); ?></option>
+                                        <option value="allow_mail" <?php if ($communication == "allow_mail") {
+                                            echo "selected";}?>><?php echo xlt('Allow Mail Message'); ?></option>
+                                        <option value="allow_email" <?php if ($communication == "allow_email") {
+                                            echo "selected";}?>><?php echo xlt('Allow Email'); ?></option>
                                     </select>
                                     </span>
                                 </td>
@@ -300,7 +301,7 @@ else
                                             <a href='#' class='btn btn-default btn-save' onclick='submitForm();'>
                                                 <?php echo xlt('Submit'); ?>
                                             </a>
-                                            <?php if(isset($_POST['form_refresh'])){?>
+                                            <?php if (isset($_POST['form_refresh'])) {?>
                                                 <a href='#' class='btn btn-default btn-print' onclick="printForm()">
                                                     <?php echo xlt('Print'); ?>
                                                 </a>
@@ -322,8 +323,7 @@ else
 
         // SQL scripts for the various searches
         $sqlBindArray = array();
-        if ($_POST['form_refresh']){
-
+        if ($_POST['form_refresh']) {
             $sqlstmt = "select
 						pd.date as patient_date,
 						concat(pd.lname, ', ', pd.fname) AS patient_name,
@@ -403,31 +403,31 @@ else
                     break;
             }
 
-            if(strlen($patient_id) != 0) {
+            if (strlen($patient_id) != 0) {
                 $whr_stmt = $whr_stmt."   and pd.pid = ?";
                 array_push($sqlBindArray, $patient_id);
             }
 
-            if(strlen($age_from) != 0) {
+            if (strlen($age_from) != 0) {
                 $whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
                 array_push($sqlBindArray, $age_from);
             }
 
-            if(strlen($age_to) != 0) {
+            if (strlen($age_to) != 0) {
                 $whr_stmt = $whr_stmt."   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
                 array_push($sqlBindArray, $age_to);
             }
 
-            if(strlen($sql_gender) != 0) {
+            if (strlen($sql_gender) != 0) {
                 $whr_stmt = $whr_stmt."   and pd.sex = ?";
                 array_push($sqlBindArray, $sql_gender);
             }
 
-            if($srch_option == "Communication" && strlen($communication) > 0){
-                if($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
-                else if($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
-                else if($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
-                else if($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+            if ($srch_option == "Communication" && strlen($communication) > 0) {
+                if ($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
+                else if ($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
+                else if ($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
+                else if ($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
             }
 
             //Sorting By filter fields
@@ -440,7 +440,7 @@ else
                 case "Allergies":
                 case "Problems":
                     $sort = array("lists_date","lists_diagnosis","lists_title");
-                    if($sortby == "")$sortby = $sort[1];
+                    if ($sortby == "")$sortby = $sort[1];
                     break;
                 case "Lab results":
                     $sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
@@ -449,25 +449,29 @@ else
                 case "Communication":
                     //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
-                    if($sortby == "")$sortby = $sort[6];
+                    if ($sortby == "")$sortby = $sort[6];
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
                 case "Demographics":
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethinic","users_provider");
                     break;
             }
-            if($sortby == "") {
+
+            if ($sortby == "") {
                 $sortby = $sort[0];
             }
-            if($sortorder == "") {
+
+            if ($sortorder == "") {
                 $sortorder = "asc";
             }
-            for($i = 0; $i < count($sort); $i++) {
+
+            for ($i = 0; $i < count($sort); $i++) {
                 $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sort[$i]','asc');\" ><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Up')."\"></a>";
             }
-            for($i = 0; $i < count($sort); $i++) {
-                if($sortby == $sort[$i]) {
-                    switch($sortorder) {
+
+            for ($i = 0; $i < count($sort); $i++) {
+                if ($sortby == $sort[$i]) {
+                    switch ($sortorder) {
                         case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
 break;
                         case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
@@ -493,10 +497,11 @@ break;
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
             }
-            if(!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])){
-                if($_REQUEST['sortby'] =="communications"){
+
+            if (!empty($_REQUEST['sortby']) && !empty($_REQUEST['sortorder'])) {
+                if ($_REQUEST['sortby'] =="communications") {
                     $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) ".escape_sort_order($_REQUEST['sortorder']).", communications ".escape_sort_order($_REQUEST['sortorder']);
-                }else{
+                } else {
                     $odrstmt = "ORDER BY ".escape_identifier($_REQUEST['sortby'], $sort, true)." ".escape_sort_order($_REQUEST['sortorder']);
                 }
             }
@@ -509,18 +514,17 @@ break;
             $img_id = 1.2;
             $k=1.3;
 
-            if(sqlNumRows($result) > 0){
+            if (sqlNumRows($result) > 0) {
                 $patArr = array();
 
                 $patDataArr = array();
                 $smoke_codes_arr = getSmokeCodes();
                 while ($row = sqlFetchArray($result)) {
-
                         $patArr[] = $row['patient_id'];
                         $patInfoArr = array();
                         $patInfoArr['patient_id'] = $row['patient_id'];
                         //Diagnosis Check
-                    if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){
+                    if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") {
                         $patInfoArr['lists_date'] = $row['lists_date'];
                         $patInfoArr['lists_diagnosis'] = $row['lists_diagnosis'];
                         $patInfoArr['lists_title'] = $row['lists_title'];
@@ -530,7 +534,7 @@ break;
                         $patInfoArr['patient_race'] = $row['patient_race'];
                         $patInfoArr['patient_ethinic'] = $row['patient_ethinic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
-                    }elseif($srch_option == "Lab results"){
+                    } elseif ($srch_option == "Lab results") {
                         $patInfoArr['procedure_result_date'] = $row['procedure_result_date'];
                         $patInfoArr['procedure_result_facility'] = $row['procedure_result_facility'];
                         $patInfoArr['procedure_result_units'] = $row['procedure_result_units'];
@@ -539,14 +543,14 @@ break;
                         $patInfoArr['procedure_result_abnormal'] = $row['procedure_result_abnormal'];
                         $patInfoArr['procedure_result_comments'] = $row['procedure_result_comments'];
                         $patInfoArr['procedure_result_document_id'] = $row['procedure_result_document_id'];
-                    }elseif($srch_option == "Communication"){
+                    } elseif ($srch_option == "Communication") {
                         $patInfoArr['patient_date'] = $row['patient_date'];
                         $patInfoArr['patient_name'] = $row['patient_name'];
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                         $patInfoArr['communications'] = $row['communications'];
-                    }elseif($srch_option == "Demographics"){
+                    } elseif ($srch_option == "Demographics") {
                         $patInfoArr['patient_date'] = $row['patient_date'];
                         $patInfoArr['patient_name'] = $row['patient_name'];
                         $patInfoArr['patient_age'] = $row['patient_age'];
@@ -557,7 +561,6 @@ break;
                     }
 
                             $patFinalDataArr[] = $patInfoArr;
-
                 }
 
 
@@ -576,7 +579,7 @@ break;
 
                     <table width=90% align="center" cellpadding="5" cellspacing="0" style="font-family:tahoma;color:black;" border="0">
 
-                    <?php if($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems"){ ?>
+                    <?php if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><b><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></b></td>
                             <td width="15%"><b><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></b></td>
@@ -587,7 +590,7 @@ break;
                             <td width="10%"><b><?php echo xlt('Gender');?></b></td>
                             <td colspan=4><b><?php echo xlt('Provider');?></b></td>
                         </tr>
-                    <?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
+                    <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" style="font-size:15px;">
                                     <td ><?php echo text($patDetailVal['lists_date']); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
@@ -599,7 +602,7 @@ break;
                                     <td colspan=4><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
                     <?php	}
-}elseif($srch_option == "Lab results"){ ?>
+} elseif ($srch_option == "Lab results") { ?>
                         <tr bgcolor="#C3FDB8" align= "left" >
                             <td width="15%"><b><?php echo xlt('Date'); ?><?php echo $sortlink[0]; ?></b></td>
                             <td width="15%"><b><?php echo xlt('Facility');?><?php echo $sortlink[1]; ?></b></td>
@@ -612,7 +615,7 @@ break;
                             <td width="5%"><b><?php echo xlt('PID');?></b></td>
                         </tr>
                         <?php
-                        foreach($patFinalDataArr as $patKey => $labResInsideArr){?>
+                        foreach ($patFinalDataArr as $patKey => $labResInsideArr) {?>
                                 <tr bgcolor = "#CCCCCC" >
                                                     <td> <?php echo text($labResInsideArr['procedure_result_date']);?>&nbsp;</td>
                                                     <td> <?php echo text($labResInsideArr['procedure_result_facility'], ENT_NOQUOTES); ?>&nbsp;</td>
@@ -626,7 +629,7 @@ break;
                                </tr>
                                         <?php
                         }
-}elseif($srch_option == "Communication"){ ?>
+} elseif ($srch_option == "Communication") { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
@@ -636,10 +639,12 @@ break;
                             <td width="15%"><b><?php echo xlt('Provider');?></b><?php echo $sortlink[5]; ?></td>
                             <td ><b><?php echo xlt('Communication');?></b><?php echo $sortlink[6]; ?></td>
                         </tr>
-                    <?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
+                    <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" >
-                                    <td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);
-}else{ echo "";
+                                    <td ><?php if ($patDetailVal['patient_date'] != '') {
+                                        echo text($patDetailVal['patient_date']);
+} else {
+    echo "";
 }; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
@@ -650,7 +655,7 @@ break;
                                </tr>
                         <?php
 }
-}elseif($srch_option == "Demographics"){ ?>
+} elseif ($srch_option == "Demographics") { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><b><?php echo xlt('Date'); ?></b><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><b><?php echo xlt('Patient Name'); ?></b><?php echo $sortlink[1]; ?></td>
@@ -660,10 +665,12 @@ break;
                             <td width="20%"><b><?php echo xlt('Race');?></b><?php echo $sortlink[5]; ?></td>
                             <td colspan=5><b><?php echo xlt('Provider');?></b><?php echo $sortlink[7]; ?></td>
                         </tr>
-                            <?php foreach($patFinalDataArr as $patKey => $patDetailVal){ ?>
+                            <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" style="font-size:15px;">
-                                    <td ><?php if($patDetailVal['patient_date'] != ''){ echo text($patDetailVal['patient_date']);
-}else{ echo "";
+                                    <td ><?php if ($patDetailVal['patient_date'] != '') {
+                                        echo text($patDetailVal['patient_date']);
+} else {
+    echo "";
 };?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
@@ -678,7 +685,7 @@ break;
                     </table>
                      <!-- Main table ends -->
                 <?php
-            }else{//End if $result?>
+            } else {//End if $result?>
                     <table>
                         <tr>
                             <td class="text">&nbsp;&nbsp;<?php echo xlt('No records found.')?></td>
@@ -690,7 +697,7 @@ break;
                 </div>
 
             <?php
-        }else{//End if form_refresh
+        } else {//End if form_refresh
             ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
         }
             ?>

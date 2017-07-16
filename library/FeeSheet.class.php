@@ -142,6 +142,7 @@ class FeeSheet
         foreach ($code_types as $key => $value) {
             if ($value['id'] == $id) return $key;
         }
+
         return '';
     }
 
@@ -174,11 +175,13 @@ class FeeSheet
                 $providerid = $_SESSION['authUserID'];
             }
         }
+
         if (!$providerid) {
             $find_provider = sqlQuery("SELECT providerID FROM patient_data " .
             "WHERE pid = ?", array($this->pid));
             $providerid = $find_provider['providerID'];
         }
+
         return intval($providerid);
     }
 
@@ -221,6 +224,7 @@ class FeeSheet
             $comment .= ", Saved = " . ($saved ? "true" : "false");
             newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $this->pid);
         }
+
         return $ret;
     }
 
@@ -259,11 +263,11 @@ class FeeSheet
         if ($form_id) {
             sqlInsert("INSERT INTO lbf_data (form_id, field_id, field_value) " .
             "VALUES (?, ?, ?)", array($form_id, $field_id, $field_value));
-        }
-        else {
+        } else {
             $form_id = sqlInsert("INSERT INTO lbf_data (field_id, field_value) " .
             "VALUES (?, ?)", array($field_id, $field_value));
         }
+
         return $form_id;
     }
 
@@ -314,7 +318,7 @@ class FeeSheet
         $del         = !empty($args['del']);
 
         // If using line item billing and user wishes to default to a selected provider, then do so.
-        if(!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
+        if (!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
             if ($provider_id == 0) {
                 $provider_id = 0 + $this->findProvider();
             }
@@ -333,10 +337,10 @@ class FeeSheet
         if ($modifier) {
             $query .= " AND modifier = ?";
             array_push($sqlArray, $modifier);
-        }
-        else {
+        } else {
             $query .= " AND (modifier IS NULL OR modifier = '')";
         }
+
         $result = sqlQuery($query, $sqlArray);
         $codes_id = $result['id'];
 
@@ -353,6 +357,7 @@ class FeeSheet
                 $fee = empty($prrow) ? 0 : $prrow['pr_price'];
             }
         }
+
         $fee = sprintf('%01.2f', $fee);
 
         $li['hidden']['code_type'] = $codetype;
@@ -384,12 +389,11 @@ class FeeSheet
             }
         }
 
-        if($codetype == 'COPAY') {
+        if ($codetype == 'COPAY') {
             $li['codetype'] = xl($codetype);
             if ($ndc_info) $li['codetype'] .= " ($ndc_info)";
             $ndc_info = '';
-        }
-        else {
+        } else {
             $li['codetype'] = $codetype;
         }
 
@@ -418,11 +422,11 @@ class FeeSheet
                 $ndcuom = $tmp[2];
                 $ndcqty = $tmp[3];
             }
+
             $li['ndcnum'  ] = $ndcnum;
             $li['ndcuom'  ] = $ndcuom;
             $li['ndcqty'  ] = $ndcqty;
-        }
-        else if ($ndc_info) {
+        } else if ($ndc_info) {
             $li['ndc_info'  ] = $ndc_info;
         }
 
@@ -543,6 +547,7 @@ class FeeSheet
                 ));
             }
         }
+
         // echo "<!-- \n"; // debugging
         // print_r($this->serviceitems); // debugging
         // echo "--> \n";  // debugging
@@ -617,15 +622,13 @@ class FeeSheet
                         )) {
                             $insufficient = $drug_id;
                         }
-                    }
-                    else {
+                    } else {
                         if (($dirow['on_hand'] + $dirow['quantity'] - $units) < 0) {
                             $insufficient = $drug_id;
                         }
                     }
                 }
-            }
-            // Otherwise it's a new item...
+            } // Otherwise it's a new item...
             else {
                 // This only checks for sufficient inventory, nothing is updated.
                 if (!sellDrug(
@@ -650,6 +653,7 @@ class FeeSheet
             $alertmsg = xl('Insufficient inventory for product') . ' "' . $drow['name'] . '".';
             if ($expiredlots) $alertmsg .= " " . xl('Check expiration dates.');
         }
+
         return $alertmsg;
     }
 
@@ -692,7 +696,7 @@ class FeeSheet
 
             $fee       = sprintf('%01.2f', $price * $units);
 
-            if(!$cod0 && $code_types[$code_type]['fee'] == 1) {
+            if (!$cod0 && $code_types[$code_type]['fee'] == 1) {
                 $mod0 = $modifier;
                 $cod0 = $code;
                 $ct0  = $code_type;
@@ -702,6 +706,7 @@ class FeeSheet
                 if ($fee < 0) {
                     $fee = $fee * -1;
                 }
+
                 if (!$id) {
                     // adding new copay from fee sheet into ar_session and ar_activity tables
                     $session_id = idSqlStatement(
@@ -724,8 +729,7 @@ class FeeSheet
                         $fee)
                     );
                     sqlCommitTrans();
-                }
-                else {
+                } else {
                     // editing copay saved to ar_session and ar_activity
                     $session_id = $id;
                     $res_amount = sqlQuery(
@@ -744,10 +748,12 @@ class FeeSheet
                               );
                     }
                 }
-                if (!$cod0){
+
+                if (!$cod0) {
                     $copay_update = true;
                     $update_session_id = $session_id;
                 }
+
                 continue;
             }
 
@@ -757,6 +763,7 @@ class FeeSheet
                      $autojustify = $justify;
                 }
             }
+
             if (($GLOBALS['replicate_justification'] == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
                 $justify =  $autojustify;
             }
@@ -775,8 +782,7 @@ class FeeSheet
                 if ($del) {
                     $this->logFSMessage(xl('Service deleted'));
                     deleteBilling($id);
-                }
-                else {
+                } else {
                     $tmp = sqlQuery(
                         "SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
                         array($id)
@@ -801,8 +807,7 @@ class FeeSheet
                         }
                     }
                 }
-            }
-            // Otherwise it's a new item...
+            } // Otherwise it's a new item...
             else if (!$del) {
                 $this->logFSMessage(xl('Service added'));
                 $code_text = lookup_code_descriptions($code_type.":".$code);
@@ -828,7 +833,7 @@ class FeeSheet
 
         // if modifier is not inserted during loop update the record using the first
         // non-empty modifier and code
-        if($copay_update == true && $update_session_id != '' && $mod0 != '') {
+        if ($copay_update == true && $update_session_id != '' && $mod0 != '') {
             sqlStatement(
                 "UPDATE ar_activity SET code_type = ?, code = ?, modifier = ?".
                 " WHERE pid = ? AND encounter = ? AND account_code = 'PCP' AND session_id = ?",
@@ -873,11 +878,11 @@ class FeeSheet
                             );
                         }
                     }
+
                     if ($rxid) {
                           sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
                     }
-                }
-                else {
+                } else {
                           // Modify the sale and adjust inventory accordingly.
                     if (!empty($tmprow)) {
                         foreach (array(
@@ -905,6 +910,7 @@ class FeeSheet
                                 }
                             }
                         }
+
                         if ($tmprow['inventory_id'] && $warehouse_id && $warehouse_id != $tmprow['warehouse_id']) {
                             // Changing warehouse.  Requires deleting and re-adding the sale.
                             // Not setting $somechange because this alone does not affect a prescription.
@@ -932,15 +938,14 @@ class FeeSheet
                             );
                         }
                     }
+
                           // Delete Rx if $rxid and flag not set.
                     if ($GLOBALS['gbl_auto_create_rx'] && $rxid && empty($iter['rx'])) {
                         sqlStatement("UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ?", array($sale_id));
                         sqlStatement("DELETE FROM prescriptions WHERE id = ?", array($rxid));
                     }
                 }
-            }
-
-            // Otherwise it's a new item...
+            } // Otherwise it's a new item...
             else if (! $del) {
                 $somechange = true;
                 $this->logFSMessage(xl('Product added'));
@@ -1022,6 +1027,7 @@ class FeeSheet
             );
             $this->provider_id = $main_provid;
         }
+
         if (isset($main_supid) && $main_supid != $this->supervisor_id) {
             sqlStatement(
                 "UPDATE form_encounter SET supervisor_id = ? WHERE pid = ? AND encounter = ?",
@@ -1055,8 +1061,7 @@ class FeeSheet
                         "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
                         array($this->pid, $this->encounter)
                     );
-            }
-            else {
+            } else {
                   // Would be good to display an error message here... they clicked
                   // Save and Close but the close could not be done.  However the
                   // framework does not provide an easy way to do that.
@@ -1097,13 +1102,13 @@ class FeeSheet
                     $this->insert_lbf_item($newid, 'provider', $main_provid);
                     addForm($this->encounter, 'Contraception', $newid, 'LBFccicon', $this->pid, $GLOBALS['userauthorized']);
                 }
-            }
-            else if (empty($csrow) || $csrow['field_value'] != "IPPFCM:$ippfconmeth") {
+            } else if (empty($csrow) || $csrow['field_value'] != "IPPFCM:$ippfconmeth") {
                   // Contraceptive method does not match what is in an existing Contraception
                   // form for this visit, or there is no such form. User intervention is needed.
                   return empty($csrow) ? -1 : intval($csrow['form_id']);
             }
         }
+
         return 0;
     }
 
@@ -1147,8 +1152,7 @@ class FeeSheet
             );
             $this->code_is_in_fee_sheet = !empty($crow['sale_id']);
             $cbarray = array($codetype, $code, $selector);
-        }
-        else {
+        } else {
             $crow = sqlQuery(
                 "SELECT c.id AS code_id, b.id " .
                 "FROM codes AS c " .
@@ -1159,6 +1163,7 @@ class FeeSheet
             $this->code_is_in_fee_sheet = !empty($crow['id']);
             $cbarray = array($codetype, $code);
         }
+
         $cbval = json_encode($cbarray);
         return $cbval;
     }

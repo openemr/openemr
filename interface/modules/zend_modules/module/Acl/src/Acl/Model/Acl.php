@@ -52,6 +52,7 @@ class Acl implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

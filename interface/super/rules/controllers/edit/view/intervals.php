@@ -31,8 +31,8 @@
             <span class="end_col colhead"><u><?php echo out(xl('Detail')); ?></u></span>
         </p>
 
-    <?php foreach( ReminderIntervalType::values() as $type ) { ?>
-    <?php foreach( ReminderIntervalRange::values() as $range ) { ?>
+    <?php foreach (ReminderIntervalType::values() as $type) { ?>
+    <?php foreach (ReminderIntervalRange::values() as $range) { ?>
     <?php $first = true;
     $detail = $intervals->getDetailFor($type, $range); ?>
         <p>

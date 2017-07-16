@@ -15,8 +15,7 @@ include_once("$srcdir/forms.inc");
 //var_dump($_POST);
 
 // escape the strings
-foreach ($_POST as $k => $var)
-{
+foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
   // echo "$var\n";
 }
@@ -32,12 +31,10 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
                             ORDER by id DESC limit 1");
 
 // if yes then update this else insert
-if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
-{
-    if( $_POST["mode"] == "update" )
+if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
+    if ($_POST["mode"] == "update")
     $newid = $_POST["id"];
-    else
-    $newid = $vectAutosave['id'];
+    else $newid = $vectAutosave['id'];
   
     $strSql = "UPDATE form_intakeverslag 
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
@@ -66,9 +63,7 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
     sqlQuery($strSql);
 
 //echo "lalalalal id=$newid, sql=$strSql<br>";
-
-} else
-{
+} else {
     $newid = formSubmit("form_intakeverslag", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized);
     

@@ -48,8 +48,7 @@ class FormNursingNotes extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -75,8 +74,7 @@ class FormNursingNotes extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -117,7 +115,7 @@ class FormNursingNotes extends ORDataObject
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -139,7 +137,7 @@ class FormNursingNotes extends ORDataObject
     }
     function set_assessment($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->assessment = $data;
         }
     }
@@ -150,7 +148,7 @@ class FormNursingNotes extends ORDataObject
     }
     function set_procedures($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->procedures = $data;
         }
     }
@@ -161,7 +159,7 @@ class FormNursingNotes extends ORDataObject
     }
     function set_discharge($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->discharge = $data;
         }
     }

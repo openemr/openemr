@@ -36,9 +36,9 @@ class AMC_304a_3_Numerator implements AmcFilterIF
         // AMC MU2 TODO :
         // Note the counter for this is using prescriptions which does not incorporate the cpoe_stat field.
         //
-        if(isset($patient->object['cpoe_stat']) && $patient->object['cpoe_stat'] == 1){
+        if (isset($patient->object['cpoe_stat']) && $patient->object['cpoe_stat'] == 1) {
               return true;
-        }else {
+        } else {
             return false;
         }
     }

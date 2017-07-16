@@ -10,7 +10,7 @@ function ped_GI_report($pid, $encounter, $cols, $id)
     $data = formFetch("form_ped_GI", $id);
     if ($data) :
         print "<table span class=text><tr>";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") continue;
 
             if ($value == "on") $value = "yes";

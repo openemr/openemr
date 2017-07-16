@@ -30,7 +30,7 @@ class NFQ_0038_2014_Numerator implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if (  (Immunizations::checkDtap($patient, $beginDate, $endDate) ) ||
+        if ((Immunizations::checkDtap($patient, $beginDate, $endDate) ) ||
               ( Immunizations::checkIpv($patient, $beginDate, $endDate) ) ||
               ( Immunizations::checkMmr($patient, $beginDate, $endDate) ) ||
               ( Immunizations::checkHib($patient, $beginDate, $endDate) ) ||
@@ -40,10 +40,10 @@ class NFQ_0038_2014_Numerator implements CqmFilterIF
               ( Immunizations::checkHepA($patient, $beginDate, $endDate) ) ||
               ( Immunizations::checkRotavirus_2014($patient, $beginDate, $endDate) ) ||
               ( Immunizations::checkInfluenza($patient, $beginDate, $endDate) )
-            )
-        {
+            ) {
             return true;
         }
+
         return false;
     }
 }

@@ -21,8 +21,7 @@ global $EMAIL_NOTIFICATION_HOUR;
 function cron_SendMail($to, $subject, $vBody, $from)
 {
     // check if smtp globals set
-    if( $GLOBALS['smtp_host_name'] == '' )
-    {
+    if ($GLOBALS['smtp_host_name'] == '') {
         // larry :: debug
         //echo "\nDEBUG :: use mail method\n";
 
@@ -32,14 +31,14 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
 
         //echo "function called";exit;
-        if( strlen($format)==0 )  $format="text/html";
+        if (strlen($format)==0)  $format="text/html";
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
         
         // additional headers
         $headers .= "From: $from\r\n";
-        if( strlen($cc)>5 ) $headers .= "Cc: $cc\r\n";
-        if( strlen($bcc)>5 ) $headers .= "Bcc: $bcc\r\n";
+        if (strlen($cc)>5) $headers .= "Cc: $cc\r\n";
+        if (strlen($bcc)>5) $headers .= "Bcc: $bcc\r\n";
         $cnt = "";
         $cnt .= "\nHeaders : ".$headers;
         $cnt .= "\nDate Time :". date("d M, Y  h:i:s");
@@ -47,22 +46,20 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $cnt .= "\nSubject : ".$subject;
         $cnt .= "\nBody : \n".$vBody."\n";
         
-        if(1)
-        {
+        if (1) {
             //WriteLog($cnt);
         }
+
         $mstatus = true;
         $mstatus = @mail($to, $subject, $vBody, $headers);
         // larry :: debug
         //echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
         //echo "\nDEBUG :email: send status=".$mstatus."\n";
-    } else
-    {
+    } else {
         // larry :: debug
         //echo "\nDEBUG :: use smtp method\n";
 
-        if( !class_exists("smtp_class") )
-        {
+        if (!class_exists("smtp_class")) {
             include("../../library/classes/smtp/smtp.php");
             include("../../library/classes/smtp/sasl.php");
         }
@@ -71,8 +68,8 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line=__LINE__;
         $strTo = $to;
         $recipient_line=__LINE__;
-        if( strlen($strFrom) == 0 ) return( false );
-        if( strlen($strTo) == 0 ) return( false );
+        if (strlen($strFrom) == 0) return( false );
+        if (strlen($strTo) == 0) return( false );
         
         //if( !$smtp )
         $smtp=new smtp_class;
@@ -101,16 +98,14 @@ function cron_SendMail($to, $subject, $vBody, $from)
         
         // If you need to use the direct delivery mode and this is running under
         // Windows or any other platform
-        if($smtp->direct_delivery)
-        {
-            if(!function_exists("GetMXRR"))
-            {
+        if ($smtp->direct_delivery) {
+            if (!function_exists("GetMXRR")) {
                 $_NAMESERVERS=array();
                 include("getmxrr.php");
             }
         }
         
-        if( $smtp->SendMessage(
+        if ($smtp->SendMessage(
             $strFrom,
             array( $strTo ),
             array(
@@ -120,12 +115,10 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 "Date Time :". date("d M, Y  h:i:s")
                 ),
             $vBody
-        ) )
-        {
+        ) ) {
             echo "Message sent to $to OK.\n";
             $mstatus = true;
-        } else
-        {
+        } else {
              echo "Cound not send the message to $to.\nError: ".$smtp->error."\n";
              $mstatus = false;
         }
@@ -146,16 +139,14 @@ function WriteLog($data)
     
     $filename = $log_folder_path . "/cronlog_".date("Ymd").".html";
     //echo $filename;exit;
-    if (!$fp = fopen($filename, 'a'))
-    {
+    if (!$fp = fopen($filename, 'a')) {
             print "Cannot open file ($filename)";
             exit;
     }
     
     $sdata = "\n====================================================================\n";
     
-    if (!fwrite($fp, $sdata.$data.$sdata))
-    {
+    if (!fwrite($fp, $sdata.$data.$sdata)) {
         print "Cannot write to file ($filename)";
         exit;
     }
@@ -166,8 +157,7 @@ function WriteLog($data)
 ////////////////////////////////////////////////////////////////////
 // define my_print_r - used for debuging - if not defined 
 ////////////////////////////////////////////////////////////////////
-if( !function_exists('my_print_r') )
-{
+if (!function_exists('my_print_r')) {
     function my_print_r($data)
     {
         echo "<pre>";
@@ -189,10 +179,10 @@ function cron_SendSMS($to, $subject, $vBody, $from)
     $cnt .= "\From : ".$from;
     $cnt .= "\nSubject : ".$subject;
     $cnt .= "\nBody : \n".$vBody."\n";
-    if(1)
-    {
+    if (1) {
         //WriteLog($cnt);
     }
+
     $mstatus = true;
     // larry :: todo - find out about the billing inclusion ?
     // $mysms->getbalance();
@@ -215,10 +205,9 @@ function cron_updateentry($type, $pid, $pc_eid)
     $query = "update openemr_postcalendar_events set ";
     
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if($type=='SMS')
+    if ($type=='SMS')
         $query.=" pc_sendalertsms='YES' ";
-    else
-        $query.=" pc_sendalertemail='YES' ";
+    else $query.=" pc_sendalertemail='YES' ";
         
     $query .=" where pc_pid='$pid' and pc_eid='$pc_eid' ";
     //echo "<br>".$query;
@@ -237,15 +226,13 @@ function cron_getAlertpatientData($type)
 
     
     //$ssql .= " and ((ope.pc_eventDate='$check_date') OR ('$check_date' BETWEEN ope.pc_eventDate AND ope.pc_endDate)) ";
-    if($type=='SMS')
-    {
+    if ($type=='SMS') {
         // larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar
         $ssql = " and pd.hipaa_allowsms='YES' and pd.phone_cell<>'' and ope.pc_sendalertsms='NO' ";
         // $ssql = " and pd.hipaa_allowsms='YES' and pd.phone_cell<>'' ";
 
         $check_date = date("Y-m-d", mktime(date("h")+$SMS_NOTIFICATION_HOUR, 0, 0, date("m"), date("d"), date("Y")));
-    }else
-    {
+    } else {
         // larry :: remove ope.pc_sendalertemail='No' - nothing like it in the calendar
         $ssql = " and pd.hipaa_allowemail='YES' and pd.email<>''  and ope.pc_sendalertemail='NO' ";
         //$ssql = " and pd.hipaa_allowemail='YES' and pd.email<>'' ";
@@ -273,11 +260,11 @@ function cron_getAlertpatientData($type)
     $db_patient = (sqlStatement($query));
     $patient_array = array();
     $cnt=0;
-    while ($prow = sqlFetchArray($db_patient))
-    {
+    while ($prow = sqlFetchArray($db_patient)) {
         $patient_array[$cnt] = $prow;
         $cnt++;
     }
+
     return $patient_array;
 }
 
@@ -304,10 +291,9 @@ function cron_getNotificationData($type)
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
-    if( $type=='SMS' )
+    if ($type=='SMS')
         $smsgateway_info = $db_email_msg['sms_gateway_type']."|||".$SMS_GATEWAY_USENAME."|||".$SMS_GATEWAY_PASSWORD."|||".$SMS_GATEWAY_APIKEY;
-    else
-        $smsgateway_info = $db_email_msg['email_sender']."|||".$db_email_msg['email_subject'];
+    else $smsgateway_info = $db_email_msg['email_sender']."|||".$db_email_msg['email_subject'];
 
     $patient_info = $prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."|||".$prow['phone_cell']."|||".$prow['email'];
     $data_info = $prow['pc_eventDate']."|||".$prow['pc_endDate']."|||".$prow['pc_startTime']."|||".$prow['pc_endTime'];

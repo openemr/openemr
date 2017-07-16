@@ -52,13 +52,14 @@ class Allergy extends ClinicalType
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();
-        foreach( $data as $codeType => $codes ) {
-            foreach ( $codes as $code ) {
-                if ( exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate) ) {
+        foreach ($data as $codeType => $codes) {
+            foreach ($codes as $code) {
+                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

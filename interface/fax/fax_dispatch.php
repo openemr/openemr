@@ -21,13 +21,11 @@ if ($_GET['file']) {
     check_file_dir_name($filename);
 
     $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
-}
-else if ($_GET['scan']) {
+} else if ($_GET['scan']) {
     $mode = 'scan';
     $filename = $_GET['scan'];
     $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
-}
-else {
+} else {
     die("No filename was given.");
 }
 
@@ -50,6 +48,7 @@ function getKittens($catid, $catstring, &$categories)
         getKittens($crow['id'], ($catstring ? "$catstring / " : "") .
         ($catid ? $crow['name'] : ''), $categories);
     }
+
   // If no kitties, then this is a leaf node and should be listed.
     if (!$childcount) $categories[$catid] = $catstring;
 }
@@ -67,11 +66,13 @@ function mergeTiffs()
     foreach ($_POST['form_images'] as $inbase) {
         $inames .= ' ' . escapeshellarg("$inbase.tif");
     }
+
     if (!$inames) die(xl("Internal error - no pages were selected!"));
     $tmp0 = exec("cd '$faxcache'; tiffcp $inames temp.tif", $tmp1, $tmp2);
     if ($tmp2) {
         $msg .= "tiffcp returned $tmp2: $tmp0 ";
     }
+
     return $msg;
 }
 
@@ -105,6 +106,7 @@ if ($_POST['form_save']) {
                 ++$count;
                 $ffmod = "_$count";
             }
+
             $target = "$docdir/$ffname$ffmod$ffsuff";
             $docdate = fixDate($_POST['form_docdate']);
 
@@ -118,8 +120,7 @@ if ($_POST['form_save']) {
 
             if ($tmp2) {
                 $info_msg .= "tiff2pdf returned $tmp2: $tmp0 ";
-            }
-            else {
+            } else {
                 $newid = generate_id();
                 $fsize = filesize($target);
                 $catid = (int) $_POST['form_category'];
@@ -149,6 +150,7 @@ if ($_POST['form_save']) {
                     $note = $catrow['name'] . "/$note";
                     $tmp = $catrow['parent'];
                 }
+
                 $note = "New scanned document $newid: $note";
                 $form_note_message = trim($_POST['form_note_message']);
                 $form_note_message = strip_escape_custom($form_note_message);
@@ -170,7 +172,6 @@ if ($_POST['form_save']) {
         // Otherwise creating a scanned encounter note...
         //
         else {
-
             // Get desired $encounter_id.
             $encounter_id = 0;
             if (empty($_POST['form_copy_sn_visit'])) {
@@ -210,6 +211,7 @@ if ($_POST['form_save']) {
                         if ($tmp2) die("mkdir returned $tmp2: $tmp0");
                         exec("touch '$imagedir/index.html'");
                 }
+
                 if (is_file($imagepath)) unlink($imagepath);
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
@@ -237,7 +239,6 @@ if ($_POST['form_save']) {
         }
 
         $action_taken = true;
-
     } // end copy to chart
 
     if ($_POST['form_cb_forward']) {
@@ -261,7 +262,7 @@ if ($_POST['form_save']) {
         $tmph = fopen($tmpfn1, "w");
         $cpstring = '';
         $fh = fopen($GLOBALS['OE_SITE_DIR'] . "/faxcover.txt", 'r');
-        while (!feof($fh)) $cpstring .= fread($fh, 8192);
+        while (!feof($fh))$cpstring .= fread($fh, 8192);
         fclose($fh);
         $cpstring = str_replace('{CURRENT_DATE}', date('F j, Y'), $cpstring);
         $cpstring = str_replace('{SENDER_NAME}', $form_from, $cpstring);
@@ -275,6 +276,7 @@ if ($_POST['form_save']) {
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";
         }
+
         unlink($tmpfn1);
 
         // Send the fax as the cover page followed by the selected pages.
@@ -288,6 +290,7 @@ if ($_POST['form_save']) {
         if ($tmp2) {
               $info_msg .= "sendfax returned $tmp2: $tmp0 ";
         }
+
         unlink($tmpfn2);
 
         $action_taken = true;
@@ -301,6 +304,7 @@ if ($_POST['form_save']) {
             unlink("$faxcache/$inbase.jpg");
             $action_taken = true;
         }
+
         // Check if any .jpg files remain... if not we'll clean up.
         if ($action_taken) {
             $dh = opendir($faxcache);
@@ -309,6 +313,7 @@ if ($_POST['form_save']) {
             while (false !== ($jfname = readdir($dh))) {
                 if (preg_match('/\.jpg$/', $jfname)) $form_cb_delete = '1';
             }
+
             closedir($dh);
         }
     } // end delete 1
@@ -320,15 +325,18 @@ if ($_POST['form_save']) {
         } else {
             unlink($filepath);
         }
+
         // Erase its cache.
         if (is_dir($faxcache)) {
             $dh = opendir($faxcache);
             while (($tmp = readdir($dh)) !== false) {
                 if (is_file("$faxcache/$tmp")) unlink("$faxcache/$tmp");
             }
+
             closedir($dh);
             rmdir($faxcache);
         }
+
         $action_taken = true;
     } // end delete 2
 
@@ -372,6 +380,7 @@ if (! is_dir($faxcache)) {
         $tmp0 = exec("cd '$faxcache'; tiffsplit '$filepath'", $tmp1, $tmp2);
         if ($tmp2) die("tiffsplit returned $tmp2: $tmp0");
     }
+
     $tmp0 = exec("cd '$faxcache'; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
     if ($tmp2) die("mogrify returned $tmp2: $tmp0; ext is '$ext'; filepath is '$filepath'");
 }
@@ -750,6 +759,7 @@ while (false !== ($jfname = readdir($dh))) {
         $jpgarray[$matches[1]] = $jfname;
     }
 }
+
 closedir($dh);
 // readdir does not read in any particular order, we must therefore sort
 // by filename so the display order matches the original document.

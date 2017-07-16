@@ -45,8 +45,7 @@ class FormROM extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -72,8 +71,7 @@ class FormROM extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -114,7 +112,7 @@ class FormROM extends ORDataObject
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -149,7 +147,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_1_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_1_active = $data;
         }
     }
@@ -159,7 +157,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_1_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_1_passive = $data;
         }
     }
@@ -174,7 +172,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_2_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_2_active = $data;
         }
     }
@@ -184,7 +182,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_2_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_2_passive = $data;
         }
     }
@@ -199,7 +197,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_3_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_3_active = $data;
         }
     }
@@ -209,7 +207,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_3_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_3_passive = $data;
         }
     }
@@ -224,7 +222,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_4_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_4_active = $data;
         }
     }
@@ -234,7 +232,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_4_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_4_passive = $data;
         }
     }
@@ -249,7 +247,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_5_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_5_active = $data;
         }
     }
@@ -259,7 +257,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_5_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_5_passive = $data;
         }
     }
@@ -274,7 +272,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_6_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_6_active = $data;
         }
     }
@@ -284,7 +282,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_6_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_6_passive = $data;
         }
     }
@@ -299,7 +297,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_7_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_7_active = $data;
         }
     }
@@ -309,7 +307,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_7_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_7_passive = $data;
         }
     }
@@ -324,7 +322,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_8_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_8_active = $data;
         }
     }
@@ -334,7 +332,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_8_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_8_passive = $data;
         }
     }
@@ -349,7 +347,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_9_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_9_active = $data;
         }
     }
@@ -359,7 +357,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_9_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_9_passive = $data;
         }
     }
@@ -374,7 +372,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_10_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_10_active = $data;
         }
     }
@@ -384,7 +382,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_10_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_10_passive = $data;
         }
     }
@@ -399,7 +397,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_11_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_11_active = $data;
         }
     }
@@ -409,7 +407,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_11_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_11_passive = $data;
         }
     }
@@ -424,7 +422,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_12_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_12_active = $data;
         }
     }
@@ -434,7 +432,7 @@ class FormROM extends ORDataObject
     }
     function set_r1_12_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r1_12_passive = $data;
         }
     }
@@ -451,7 +449,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_1_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_1_rt_active = $data;
         }
     }
@@ -461,7 +459,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_1_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_1_rt_passive = $data;
         }
     }
@@ -471,7 +469,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_1_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_1_lf_active = $data;
         }
     }
@@ -481,7 +479,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_1_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_1_lf_passive = $data;
         }
     }
@@ -496,7 +494,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_2_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_2_rt_active = $data;
         }
     }
@@ -506,7 +504,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_2_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_2_rt_passive = $data;
         }
     }
@@ -516,7 +514,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_2_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_2_lf_active = $data;
         }
     }
@@ -526,7 +524,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_2_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_2_lf_passive = $data;
         }
     }
@@ -541,7 +539,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_3_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_3_rt_active = $data;
         }
     }
@@ -551,7 +549,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_3_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_3_rt_passive = $data;
         }
     }
@@ -561,7 +559,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_3_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_3_lf_active = $data;
         }
     }
@@ -571,7 +569,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_3_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_3_lf_passive = $data;
         }
     }
@@ -586,7 +584,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_4_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_4_rt_active = $data;
         }
     }
@@ -596,7 +594,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_4_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_4_rt_passive = $data;
         }
     }
@@ -606,7 +604,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_4_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_4_lf_active = $data;
         }
     }
@@ -616,7 +614,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_4_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_4_lf_passive = $data;
         }
     }
@@ -631,7 +629,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_5_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_5_rt_active = $data;
         }
     }
@@ -641,7 +639,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_5_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_5_rt_passive = $data;
         }
     }
@@ -651,7 +649,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_5_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_5_lf_active = $data;
         }
     }
@@ -661,7 +659,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_5_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_5_lf_passive = $data;
         }
     }
@@ -676,7 +674,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_6_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_6_rt_active = $data;
         }
     }
@@ -686,7 +684,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_6_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_6_rt_passive = $data;
         }
     }
@@ -696,7 +694,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_6_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_6_lf_active = $data;
         }
     }
@@ -706,7 +704,7 @@ class FormROM extends ORDataObject
     }
     function set_r2_6_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r2_6_lf_passive = $data;
         }
     }
@@ -723,7 +721,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_1_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_1_rt_active = $data;
         }
     }
@@ -733,7 +731,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_1_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_1_rt_passive = $data;
         }
     }
@@ -743,7 +741,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_1_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_1_lf_active = $data;
         }
     }
@@ -753,7 +751,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_1_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_1_lf_passive = $data;
         }
     }
@@ -768,7 +766,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_2_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_2_rt_active = $data;
         }
     }
@@ -778,7 +776,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_2_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_2_rt_passive = $data;
         }
     }
@@ -788,7 +786,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_2_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_2_lf_active = $data;
         }
     }
@@ -798,7 +796,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_2_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_2_lf_passive = $data;
         }
     }
@@ -813,7 +811,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_3_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_3_rt_active = $data;
         }
     }
@@ -823,7 +821,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_3_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_3_rt_passive = $data;
         }
     }
@@ -833,7 +831,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_3_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_3_lf_active = $data;
         }
     }
@@ -843,7 +841,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_3_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_3_lf_passive = $data;
         }
     }
@@ -858,7 +856,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_4_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_4_rt_active = $data;
         }
     }
@@ -868,7 +866,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_4_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_4_rt_passive = $data;
         }
     }
@@ -878,7 +876,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_4_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_4_lf_active = $data;
         }
     }
@@ -888,7 +886,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_4_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_4_lf_passive = $data;
         }
     }
@@ -903,7 +901,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_5_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_5_rt_active = $data;
         }
     }
@@ -913,7 +911,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_5_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_5_rt_passive = $data;
         }
     }
@@ -923,7 +921,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_5_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_5_lf_active = $data;
         }
     }
@@ -933,7 +931,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_5_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_5_lf_passive = $data;
         }
     }
@@ -948,7 +946,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_6_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_6_rt_active = $data;
         }
     }
@@ -958,7 +956,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_6_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_6_rt_passive = $data;
         }
     }
@@ -968,7 +966,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_6_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_6_lf_active = $data;
         }
     }
@@ -978,7 +976,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_6_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_6_lf_passive = $data;
         }
     }
@@ -993,7 +991,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_7_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_7_rt_active = $data;
         }
     }
@@ -1003,7 +1001,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_7_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_7_rt_passive = $data;
         }
     }
@@ -1013,7 +1011,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_7_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_7_lf_active = $data;
         }
     }
@@ -1023,7 +1021,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_7_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_7_lf_passive = $data;
         }
     }
@@ -1038,7 +1036,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_8_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_8_rt_active = $data;
         }
     }
@@ -1048,7 +1046,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_8_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_8_rt_passive = $data;
         }
     }
@@ -1058,7 +1056,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_8_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_8_lf_active = $data;
         }
     }
@@ -1068,7 +1066,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_8_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_8_lf_passive = $data;
         }
     }
@@ -1083,7 +1081,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_9_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_9_rt_active = $data;
         }
     }
@@ -1093,7 +1091,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_9_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_9_rt_passive = $data;
         }
     }
@@ -1103,7 +1101,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_9_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_9_lf_active = $data;
         }
     }
@@ -1113,7 +1111,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_9_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_9_lf_passive = $data;
         }
     }
@@ -1128,7 +1126,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_10_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_10_rt_active = $data;
         }
     }
@@ -1138,7 +1136,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_10_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_10_rt_passive = $data;
         }
     }
@@ -1148,7 +1146,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_10_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_10_lf_active = $data;
         }
     }
@@ -1158,7 +1156,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_10_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_10_lf_passive = $data;
         }
     }
@@ -1173,7 +1171,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_11_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_11_rt_active = $data;
         }
     }
@@ -1183,7 +1181,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_11_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_11_rt_passive = $data;
         }
     }
@@ -1193,7 +1191,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_11_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_11_lf_active = $data;
         }
     }
@@ -1203,7 +1201,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_11_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_11_lf_passive = $data;
         }
     }
@@ -1218,7 +1216,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_12_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_12_rt_active = $data;
         }
     }
@@ -1228,7 +1226,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_12_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_12_rt_passive = $data;
         }
     }
@@ -1238,7 +1236,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_12_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_12_lf_active = $data;
         }
     }
@@ -1248,7 +1246,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_12_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_12_lf_passive = $data;
         }
     }
@@ -1263,7 +1261,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_13_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_13_rt_active = $data;
         }
     }
@@ -1273,7 +1271,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_13_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_13_rt_passive = $data;
         }
     }
@@ -1283,7 +1281,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_13_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_13_lf_active = $data;
         }
     }
@@ -1293,7 +1291,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_13_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_13_lf_passive = $data;
         }
     }
@@ -1308,7 +1306,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_14_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_14_rt_active = $data;
         }
     }
@@ -1318,7 +1316,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_14_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_14_rt_passive = $data;
         }
     }
@@ -1328,7 +1326,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_14_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_14_lf_active = $data;
         }
     }
@@ -1338,7 +1336,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_14_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_14_lf_passive = $data;
         }
     }
@@ -1353,7 +1351,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_15_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_15_rt_active = $data;
         }
     }
@@ -1363,7 +1361,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_15_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_15_rt_passive = $data;
         }
     }
@@ -1373,7 +1371,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_15_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_15_lf_active = $data;
         }
     }
@@ -1383,7 +1381,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_15_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_15_lf_passive = $data;
         }
     }
@@ -1398,7 +1396,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_16_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_16_rt_active = $data;
         }
     }
@@ -1408,7 +1406,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_16_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_16_rt_passive = $data;
         }
     }
@@ -1418,7 +1416,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_16_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_16_lf_active = $data;
         }
     }
@@ -1428,7 +1426,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_16_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_16_lf_passive = $data;
         }
     }
@@ -1443,7 +1441,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_17_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_17_rt_active = $data;
         }
     }
@@ -1453,7 +1451,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_17_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_17_rt_passive = $data;
         }
     }
@@ -1463,7 +1461,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_17_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_17_lf_active = $data;
         }
     }
@@ -1473,7 +1471,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_17_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_17_lf_passive = $data;
         }
     }
@@ -1488,7 +1486,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_18_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_18_rt_active = $data;
         }
     }
@@ -1498,7 +1496,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_18_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_18_rt_passive = $data;
         }
     }
@@ -1508,7 +1506,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_18_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_18_lf_active = $data;
         }
     }
@@ -1518,7 +1516,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_18_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_18_lf_passive = $data;
         }
     }
@@ -1533,7 +1531,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_19_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_19_rt_active = $data;
         }
     }
@@ -1543,7 +1541,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_19_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_19_rt_passive = $data;
         }
     }
@@ -1553,7 +1551,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_19_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_19_lf_active = $data;
         }
     }
@@ -1563,7 +1561,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_19_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_19_lf_passive = $data;
         }
     }
@@ -1578,7 +1576,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_20_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_20_rt_active = $data;
         }
     }
@@ -1588,7 +1586,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_20_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_20_rt_passive = $data;
         }
     }
@@ -1598,7 +1596,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_20_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_20_lf_active = $data;
         }
     }
@@ -1608,7 +1606,7 @@ class FormROM extends ORDataObject
     }
     function set_r3_20_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r3_20_lf_passive = $data;
         }
     }
@@ -1625,7 +1623,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_1_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_1_rt_active = $data;
         }
     }
@@ -1635,7 +1633,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_1_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_1_rt_passive = $data;
         }
     }
@@ -1645,7 +1643,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_1_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_1_lf_active = $data;
         }
     }
@@ -1655,7 +1653,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_1_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_1_lf_passive = $data;
         }
     }
@@ -1670,7 +1668,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_2_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_2_rt_active = $data;
         }
     }
@@ -1680,7 +1678,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_2_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_2_rt_passive = $data;
         }
     }
@@ -1690,7 +1688,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_2_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_2_lf_active = $data;
         }
     }
@@ -1700,7 +1698,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_2_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_2_lf_passive = $data;
         }
     }
@@ -1715,7 +1713,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_3_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_3_rt_active = $data;
         }
     }
@@ -1725,7 +1723,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_3_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_3_rt_passive = $data;
         }
     }
@@ -1735,7 +1733,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_3_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_3_lf_active = $data;
         }
     }
@@ -1745,7 +1743,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_3_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_3_lf_passive = $data;
         }
     }
@@ -1760,7 +1758,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_4_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_4_rt_active = $data;
         }
     }
@@ -1770,7 +1768,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_4_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_4_rt_passive = $data;
         }
     }
@@ -1780,7 +1778,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_4_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_4_lf_active = $data;
         }
     }
@@ -1790,7 +1788,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_4_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_4_lf_passive = $data;
         }
     }
@@ -1805,7 +1803,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_5_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_5_rt_active = $data;
         }
     }
@@ -1815,7 +1813,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_5_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_5_rt_passive = $data;
         }
     }
@@ -1825,7 +1823,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_5_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_5_lf_active = $data;
         }
     }
@@ -1835,7 +1833,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_5_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_5_lf_passive = $data;
         }
     }
@@ -1850,7 +1848,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_6_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_6_rt_active = $data;
         }
     }
@@ -1860,7 +1858,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_6_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_6_rt_passive = $data;
         }
     }
@@ -1870,7 +1868,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_6_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_6_lf_active = $data;
         }
     }
@@ -1880,7 +1878,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_6_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_6_lf_passive = $data;
         }
     }
@@ -1895,7 +1893,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_7_rt_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_7_rt_active = $data;
         }
     }
@@ -1905,7 +1903,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_7_rt_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_7_rt_passive = $data;
         }
     }
@@ -1915,7 +1913,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_7_lf_active($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_7_lf_active = $data;
         }
     }
@@ -1925,7 +1923,7 @@ class FormROM extends ORDataObject
     }
     function set_r4_7_lf_passive($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->r4_7_lf_passive = $data;
         }
     }
@@ -1939,7 +1937,7 @@ class FormROM extends ORDataObject
     }
     function set_notes($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->notes = $data;
         }
     }

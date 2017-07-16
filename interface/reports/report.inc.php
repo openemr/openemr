@@ -38,22 +38,19 @@ function stripslashes_deep($value)
 function PrepareSearchItem($SearchItem)
 {
     $SplitArray=explode(' like ', $SearchItem);
-    if(isset($SplitArray[1]))
-    {
+    if (isset($SplitArray[1])) {
         $SplitArray[1] = substr($SplitArray[1], 0, -1);
         $SplitArray[1] = substr($SplitArray[1], 1);
         $SearchItem=$SplitArray[0].' like '."'".add_escape_custom($SplitArray[1])."'";
-    }
-    else
-    {
+    } else {
         $SplitArray=explode(' = ', $SearchItem);
-        if(isset($SplitArray[1]))
-         {
+        if (isset($SplitArray[1])) {
             $SplitArray[1] = substr($SplitArray[1], 0, -1);
             $SplitArray[1] = substr($SplitArray[1], 1);
             $SearchItem=$SplitArray[0].' = '."'".add_escape_custom($SplitArray[1])."'";
         }
     }
+
     return($SearchItem);
 }
 
@@ -62,10 +59,10 @@ function BuildArrayForReport($Query)
 {
     $array_data=array();
     $res = sqlStatement($Query);
-    while($row=sqlFetchArray($res))
-    {
+    while ($row=sqlFetchArray($res)) {
         $array_data[$row['id']]=htmlspecialchars($row['name'], ENT_QUOTES);
     }
+
     return $array_data;
 }
 

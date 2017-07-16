@@ -45,19 +45,19 @@ class Form_Signable extends DbRow_Signable implements SignableIF
     protected function getLastLockHash()
     {
         $hash = null;
-        if ( $this->isLocked() ) {
+        if ($this->isLocked()) {
             // Check to see if there was an explicit lock hash
             $hash = parent::getLastLockHash();
             
             // If there was no explicit lock hash, then we must have been locked because
             // our encounter was locked, so get our last hash
-            if ( $hash === null ) {
+            if ($hash === null) {
                 $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
                 $statement .= "WHERE E.tid = ? AND E.table = ? ";
                 $statement .= "ORDER BY E.datetime DESC LIMIT 1";
                 $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName ));
                 $hash = null;
-                if ( $row && isset($row['hash']) ) {
+                if ($row && isset($row['hash'])) {
                     $hash = $row['hash'];
                 }
             }
@@ -78,17 +78,17 @@ class Form_Signable extends DbRow_Signable implements SignableIF
     {
         // Initialize to false and check individual form
         $locked = false;
-        if ( $GLOBALS['lock_esign_individual'] ) {
+        if ($GLOBALS['lock_esign_individual']) {
             $locked = parent::isLocked();
         }
         
         // Check the "parent" encounter if signing is allowed at encounter level
-        if ( !$locked && $GLOBALS['lock_esign_all'] ) {
+        if (!$locked && $GLOBALS['lock_esign_all']) {
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
             $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";
             $row = sqlQuery($statement, array( $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ));
-            if ( $row && $row['is_lock'] == SignatureIF::ESIGN_LOCK ) {
+            if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
                 $locked = true;
             }
         }
@@ -116,6 +116,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         if (isset($row['title'])) {
             $excp = json_decode("{".$row['title']."}");
         }
+
         $tbl = (isset($excp->tbl) ? $excp->tbl : "form_".$this->_formDir);
         $id = (isset($excp->id) ? $excp->id : 'id');
         $limit = (isset($excp->limit) ? $excp->limit : 1);
@@ -131,6 +132,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         if ($limit <> '*') {
             $sql .= ' LIMIT '.escape_limit($limit);
         }
+
         $rs = sqlStatement($sql, array( $this->_formId ));
         if (sqlNumRows($rs) == 1) { // maintain legacy hash
             $frs = sqlFetchArray($rs);

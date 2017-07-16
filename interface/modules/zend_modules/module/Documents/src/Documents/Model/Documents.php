@@ -52,6 +52,7 @@ class Documents implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

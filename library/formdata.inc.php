@@ -108,8 +108,7 @@ function escape_sql_column_name($s, $tables, $long = false)
         while ($row=sqlFetchArray($res)) {
             if ($long) {
                 $columns_options[]=$table_escaped.".".$row['Field'];
-            }
-            else {
+            } else {
                 $columns_options[]=$row['Field'];
             }
         }
@@ -203,22 +202,22 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
                 $ok_UPPER = array_map("strtoupper", $ok);
                 $key = array_search(strtoupper($s), $ok_UPPER);
             }
+
             if ($key === false) {
                 // Still no match
                 if ($die_if_no_match) {
                     // No match and $die_if_no_match is set, so die() and send error messages to screen and log
                     error_Log("ERROR: OpenEMR SQL Escaping ERROR of the following string: ".$s, 0);
                     die("<br><span style='color:red;font-weight:bold;'>".xlt("There was an OpenEMR SQL Escaping ERROR of the following string")." ".text($s)."</span><br>");
-                }
-                else {
+                } else {
                     // Return first token since no match
                     $key = 0;
                 }
             }
         }
+
         return $ok[$key];
-    }
-    else {
+    } else {
         // Return an item that has been "cleaned" up
         // (this is currently experimental and goal is to avoid using this)
         return preg_replace('/[^a-zA-Z0-9_.]/', '', $s);
@@ -240,8 +239,7 @@ function formData($name, $type = 'P', $isTrim = false)
     $s = isset($_POST[$name]) ? $_POST[$name] : '';
     else if ($type == 'G')
     $s = isset($_GET[$name]) ? $_GET[$name] : '';
-    else
-    $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+    else $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
 
     return formDataCore($s, $isTrim);
 }
@@ -259,7 +257,9 @@ function formData($name, $type = 'P', $isTrim = false)
 function formDataCore($s, $isTrim = false)
 {
       //trim if selected
-    if ($isTrim) {$s = trim($s);}
+    if ($isTrim) {
+        $s = trim($s);}
+
       //strip escapes
       $s = strip_escape_custom($s);
       //add escapes for safe database insertion

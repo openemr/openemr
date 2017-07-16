@@ -27,14 +27,17 @@ if (! function_exists('password_hash')) {
             trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
             return null;
         }
+
         if (! is_string($password)) {
             trigger_error("password_hash(): Password must be a string", E_USER_WARNING);
             return null;
         }
+
         if (! is_int($algo)) {
             trigger_error("password_hash() expects parameter 2 to be long, " . gettype($algo) . " given", E_USER_WARNING);
             return null;
         }
+
         switch ($algo) {
             case PASSWORD_BCRYPT :
                 // Note that this is a C constant, but not exposed to PHP, so we don't define it here.
@@ -46,6 +49,7 @@ if (! function_exists('password_hash')) {
                         return null;
                     }
                 }
+
                 $required_salt_len = 22;
                 $hash_format = sprintf("$2y$%02d$", $cost);
                 break;
@@ -53,6 +57,7 @@ if (! function_exists('password_hash')) {
                 trigger_error(sprintf("password_hash(): Unknown password hashing algorithm: %s", $algo), E_USER_WARNING);
                 return null;
         }
+
         if (isset($options ['salt'])) {
             switch (gettype($options ['salt'])) {
                 case 'NULL' :
@@ -67,12 +72,14 @@ if (! function_exists('password_hash')) {
                         $salt = ( string ) $options ['salt'];
                         break;
                     }
+
                 case 'array' :
                 case 'resource' :
                 default :
                     trigger_error('password_hash(): Non-string salt parameter supplied', E_USER_WARNING);
                     return null;
             }
+
             if (strlen($salt) < $required_salt_len) {
                 trigger_error(sprintf("password_hash(): Provided salt is too short: %d expecting %d", strlen($salt), $required_salt_len), E_USER_WARNING);
                 return null;
@@ -82,6 +89,7 @@ if (! function_exists('password_hash')) {
         } else {
             $salt = __password_make_salt($required_salt_len);
         }
+
         $salt = substr($salt, 0, $required_salt_len);
         
         $hash = $hash_format . $salt;
@@ -128,6 +136,7 @@ if (! function_exists('password_get_info')) {
             list ( $cost ) = sscanf($hash, "$2y$%d$");
             $return ['options'] ['cost'] = $cost;
         }
+
         return $return;
     }
 }
@@ -153,6 +162,7 @@ if (! function_exists('password_needs_rehash')) {
         if ($info ['algo'] != $algo) {
             return true;
         }
+
         switch ($algo) {
             case PASSWORD_BCRYPT :
                 $cost = isset($options ['cost']) ? $options ['cost'] : 10;
@@ -161,6 +171,7 @@ if (! function_exists('password_needs_rehash')) {
                 }
                 break;
         }
+
         return false;
     }
 }
@@ -182,13 +193,14 @@ if (! function_exists('password_verify')) {
             trigger_error("Crypt must be loaded for password_create to function", E_USER_WARNING);
             return false;
         }
+
         $ret = crypt($password, $hash);
         if (! is_string($ret) || strlen($ret) != strlen($hash)) {
             return false;
         }
         
         $status = 0;
-        for($i = 0; $i < strlen($ret); $i ++) {
+        for ($i = 0; $i < strlen($ret); $i ++) {
             $status |= (ord($ret [$i]) ^ ord($hash [$i]));
         }
         
@@ -210,6 +222,7 @@ function __password_make_salt($length)
         trigger_error(sprintf("Length cannot be less than or equal zero: %d", $length), E_USER_WARNING);
         return false;
     }
+
     $buffer = '';
     $raw_length = ( int ) ($length * 3 / 4 + 1);
     $buffer_valid = false;
@@ -219,31 +232,36 @@ function __password_make_salt($length)
             $buffer_valid = true;
         }
     }
+
     if (! $buffer_valid && function_exists('openssl_random_pseudo_bytes')) {
         $buffer = openssl_random_pseudo_bytes($raw_length);
         if ($buffer) {
             $buffer_valid = true;
         }
     }
+
     if (! $buffer_valid && file_exists('/dev/urandom')) {
         $f = @fopen('/dev/urandom', 'r');
         if ($f) {
             $read = strlen($buffer);
-            while ( $read < $raw_length ) {
+            while ($read < $raw_length) {
                 $buffer .= fread($f, $raw_length - $read);
                 $read = strlen($buffer);
             }
+
             fclose($f);
             if ($read >= $raw_length) {
                 $buffer_valid = true;
             }
         }
     }
+
     if (! $buffer_valid) {
-        for($i = 0; $i < $raw_length; $i ++) {
+        for ($i = 0; $i < $raw_length; $i ++) {
             $buffer .= chr(mt_rand(0, 255));
         }
     }
+
     $buffer = str_replace('+', '.', base64_encode($buffer));
     return substr($buffer, 0, $length);
 }

@@ -25,7 +25,6 @@ $result = getResultData();
 $row = sqlFetchArray($result);
 
 do {
-
     $e_Result = $ccr->createElement('Result');
     $e_Results->appendChild($e_Result);
 
@@ -211,5 +210,4 @@ do {
     //	$e_Flag->appendChild($e_Text);
     //
     //}
-
 } while ($row = sqlFetchArray($result));

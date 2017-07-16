@@ -70,8 +70,7 @@ if (!empty($_POST['bn_upload'])) {
                     break;
                 }
             }
-        }
-        else {
+        } else {
             $eres = fopen($tmp_name, 'r');
         }
 
@@ -86,11 +85,10 @@ if (!empty($_POST['bn_upload'])) {
         sqlStatementNoLog("SET autocommit=0");
         sqlStatementNoLog("START TRANSACTION");
         while (($line = fgets($eres)) !== false) {
-
             if ($code_type == 'RXCUI') {
                 $a = explode('|', $line);
-                if (count($a) < 18    ) continue;
-                if ($a[17] != '4096'  ) continue;
+                if (count($a) < 18) continue;
+                if ($a[17] != '4096') continue;
                 if ($a[11] != 'RXNORM') continue;
                 $code = $a[0];
                 if (isset($seen_codes[$code])) continue;
@@ -110,6 +108,7 @@ if (!empty($_POST['bn_upload'])) {
                               continue;
                     }
                 }
+
                 sqlStatementNoLog(
                     "INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
                     "fee = 0, units = 0",
@@ -119,8 +118,8 @@ if (!empty($_POST['bn_upload'])) {
             }
 
             // TBD: Clone/adapt the above for each new code type.
-
         }
+
         // Settings to drastically speed up import with InnoDB
         sqlStatementNoLog("COMMIT");
         sqlStatementNoLog("SET autocommit=1");

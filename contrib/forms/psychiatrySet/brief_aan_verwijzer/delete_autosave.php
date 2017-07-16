@@ -19,9 +19,7 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
                             AND autosave_flag=1 
                             ORDER by id DESC limit 1");
 
-if( $vectAutosave['autosave_flag'] == 1 )
-{
-  
+if ($vectAutosave['autosave_flag'] == 1) {
     $strSql = "DELETE from  form_brief_aan_verwijzer 
                   WHERE id = ".$vectAutosave['id'].";";
     sqlQuery($strSql);

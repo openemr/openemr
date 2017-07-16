@@ -44,8 +44,7 @@ $patient_id = $pid;
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-}
-else if ($orderid) {
+} else if ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
@@ -68,12 +67,12 @@ $form_active = $_REQUEST['form_active'];
 $form_inactive = $_REQUEST['form_inactive'];
 $noteid = $_REQUEST['noteid'];
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
-if($_REQUEST['s'] == '1'){
+if ($_REQUEST['s'] == '1') {
     $inbox = "";
     $outbox = "current";
     $inbox_style = "style='display:none;border:5px solid #FFFFFF;'";
     $outbox_style = "style='border:5px solid #FFFFFF;'";
-}else{
+} else {
     $inbox = "current";
     $outbox = "";
     $inbox_style = "style='border:5px solid #FFFFFF;'";
@@ -88,12 +87,10 @@ if (!isset($offset_sent)) $offset_sent = 0;
 if ($form_active) {
     $active = '1';
     $activity_string_html = 'form_active=1';
-}
-else if ($form_inactive) {
+} else if ($form_inactive) {
     $active = '0';
     $activity_string_html = 'form_inactive=1';
-}
-else {
+} else {
     $active = 'all';
     $activity_string_html = '';
     $form_active = $form_inactive = '0';
@@ -111,21 +108,21 @@ if (isset($mode)) {
                 } else {
                     disappearPnote($id);
                 }
+
                 if ($docid) {
                     setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
                 }
+
                 if ($orderid) {
                     setGpRelation(2, $orderid, 6, $id, !empty($_POST["lnk$id"]));
                 }
             }
         }
-    }
-    elseif ($mode == "new") {
+    } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
             updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
-        }
-        else {
+        } else {
             $noteid = addPnote(
                 $patient_id,
                 $note,
@@ -135,19 +132,22 @@ if (isset($mode)) {
                 $_POST['assigned_to']
             );
         }
+
         if ($docid) {
             setGpRelation(1, $docid, 6, $noteid);
         }
+
         if ($orderid) {
             setGpRelation(2, $orderid, 6, $noteid);
         }
+
         $noteid = '';
-    }
-    elseif ($mode == "delete") {
+    } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
             newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$noteid);
         }
+
         $noteid = '';
     }
 }
@@ -251,6 +251,7 @@ if ($docid) {
     $d = new Document($docid);
     $title_docname .= $d->get_url_file();
 }
+
 if ($orderid) {
     $title_docname .= " " . xl("linked to procedure order") . " $orderid";
 }
@@ -309,7 +310,7 @@ $billing_note = "";
 $colorbeg = "";
 $colorend = "";
 $resnote = getPatientData($patient_id, "billing_note");
-if(!empty($resnote['billing_note'])) {
+if (!empty($resnote['billing_note'])) {
     $billing_note = $resnote['billing_note'];
     $colorbeg = "<span style='color:red'>";
     $colorend = "</span>";
@@ -319,7 +320,7 @@ if(!empty($resnote['billing_note'])) {
 $balance = get_patient_balance($patient_id);
 ?>
 
-<?php if ($billing_note || $balance ) { ?>
+<?php if ($billing_note || $balance) { ?>
 
 <div style='margin-top:3px'>
 <table width='80%'>
@@ -361,7 +362,7 @@ if ($billing_note) {
 <input type='hidden' name='offset_sent' id='offset_sent' value="<?php echo $offset_sent; ?>">
 <input type='hidden' name='noteid' id='noteid' value="0">
 <table border='0' cellpadding="1" class="text">
-<?php if ($result != ""): ?>
+<?php if ($result != "") : ?>
  <tr>
   <td colspan='5' style="padding: 5px;" >
     <a href="#" class="change_activity" ><span><?php echo htmlspecialchars(xl('Update Active'), ENT_NOQUOTES); ?></span></a>
@@ -394,17 +395,14 @@ if ($result != "") {
         if ($docid) {
             if (isGpRelation(1, $docid, 6, $row_note_id)) {
                 $linked = "checked";
-            }
-            else {
+            } else {
                 // Skip unlinked notes if that is requested.
                 if ($form_doc_only) continue;
             }
-        }
-        else if ($orderid) {
+        } else if ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
-            }
-            else {
+            } else {
                 // Skip unlinked notes if that is requested.
                 if ($form_doc_only) continue;
             }
@@ -417,8 +415,9 @@ if ($result != "") {
             $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
             ' (' . htmlspecialchars($iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
         }
+
         $body = preg_replace('/(\sto\s)-patient-(\))/', '${1}'.$patientname.'${2}', $body);
-        if ( ($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
+        if (($iter{"activity"}) && ($iter['message_status'] != "Done")) {
             $checked = "checked";
         } else {
             $checked = "";
@@ -427,8 +426,7 @@ if ($result != "") {
         // highlight the row if it's been selected for updating
         if ($_REQUEST['noteid'] == $row_note_id) {
             echo " <tr height=20 class='noterow highlightcolor' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
-        }
-        else {
+        } else {
             echo " <tr class='noterow' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
         }
 
@@ -443,6 +441,7 @@ if ($result != "") {
             "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
             htmlspecialchars(xl('Delete'), ENT_NOQUOTES) . "</span>\n";
         }
+
         echo "  </td>\n";
 
 
@@ -455,6 +454,7 @@ if ($result != "") {
         if ($docid || $orderid) {
             echo "   <input type='checkbox' name='lnk" . htmlspecialchars($row_note_id, ENT_QUOTES) . "' $linked />\n";
         }
+
         echo "  </td>\n";
 
         echo "  <td class='bold notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>" .
@@ -515,7 +515,7 @@ if ($result_count == $N) {
 </div>
   <div id='outbox_div' <?php echo $outbox_style; ?> >
 <table border='0' cellpadding="1" class="text">
-<?php if ($result_sent != ""): ?>
+<?php if ($result_sent != "") : ?>
  <tr>
   <td colspan='5' style="padding: 5px;" >
     <a href="pnotes_full.php?<?php echo $urlparms; ?>&s=1&<?php echo attr($activity_string_html);?>"
@@ -547,17 +547,14 @@ if ($result_sent != "") {
         if ($docid) {
             if (isGpRelation(1, $docid, 6, $row_note_id)) {
                 $linked = "checked";
-            }
-            else {
+            } else {
                 // Skip unlinked notes if that is requested.
                 if ($form_doc_only) continue;
             }
-        }
-        else if ($orderid) {
+        } else if ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
-            }
-            else {
+            } else {
                 // Skip unlinked notes if that is requested.
                 if ($form_doc_only) continue;
             }
@@ -570,8 +567,9 @@ if ($result_sent != "") {
             $body = htmlspecialchars(oeFormatSDFT(strtotime($iter['date'])).date(' H:i', strtotime($iter['date'])), ENT_NOQUOTES) .
             ' (' . htmlspecialchars($iter['user'], ENT_NOQUOTES) . ') ' . nl2br(htmlspecialchars(oeFormatPatientNote($body), ENT_NOQUOTES));
         }
+
         $body = preg_replace('/(:\d{2}\s\()' . $patient_id . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
-        if (($iter{"activity"}) && ($iter['message_status'] != "Done") ) {
+        if (($iter{"activity"}) && ($iter['message_status'] != "Done")) {
             $checked = "checked";
         } else {
             $checked = "";
@@ -580,8 +578,7 @@ if ($result_sent != "") {
         // highlight the row if it's been selected for updating
         if ($_REQUEST['noteid'] == $row_note_id) {
             echo " <tr height=20 class='noterow highlightcolor' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
-        }
-        else {
+        } else {
             echo " <tr class='noterow' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>\n";
         }
 
@@ -596,6 +593,7 @@ if ($result_sent != "") {
             "' title='" . htmlspecialchars(xl('Delete this note'), ENT_QUOTES) . "' onclick='top.restoreSession()'><span>" .
             htmlspecialchars(xl('Delete'), ENT_NOQUOTES) . "</span>\n";
         }
+
         echo "  </td>\n";
 
 
@@ -608,6 +606,7 @@ if ($result_sent != "") {
         if ($docid || $orderid) {
             echo "   <input type='checkbox' name='lnk" . htmlspecialchars($row_note_id, ENT_QUOTES) . "' $linked />\n";
         }
+
         echo "  </td>\n";
 
         echo "  <td class='bold notecell' id='".htmlspecialchars($row_note_id, ENT_QUOTES)."'>" .
@@ -681,7 +680,7 @@ if ($_GET['set_pid']) {
 // If this note references a new patient document, pop up a display
 // of that document.
 //
-if ($noteid /* && $title == 'New Document' */ ) {
+if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
     if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
         $docid = $matches[1];

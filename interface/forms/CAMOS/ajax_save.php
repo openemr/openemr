@@ -26,10 +26,11 @@ if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $field_names['content']) == 0) { //m
     $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
     addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
 }
+
 //deal with embedded camos submissions here
-foreach($camos_array as $val) {
+foreach ($camos_array as $val) {
     if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $val['content']) == 0) { //make sure blanks not submitted
-        foreach($val as $k => $v) {
+        foreach ($val as $k => $v) {
             // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
             //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
             //   before being submitted to the database. Will also continue to support placeholder conversion on report
@@ -37,10 +38,12 @@ foreach($camos_array as $val) {
             //   version 4.0).
             $val[$k] = trim(add_escape_custom(replace($pid, $encounter, $v)));
         }
+
         $CAMOS_form_name = "CAMOS-".$val['category'].'-'.$val['subcategory'].'-'.$val['item'];
         reset($val);
         $newid = formSubmit("form_CAMOS", $val, $_GET["id"], $userauthorized);
         addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
     }
 }
+
 echo "<font color=red><b>" . xl('submitted') . ": " . time() . "</b></font>";

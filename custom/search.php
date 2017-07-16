@@ -88,11 +88,13 @@ require_once("../interface/globals.php");
     function echoFilterItem($iter, $fieldId, $fieldTitle)
     {
         if ($iter % 3 == 0) {
-            if ( $iter > 0 ) {
+            if ($iter > 0) {
                 echo "</tr>\n";
             }
+
             echo "<tr>\n";
         }
+
             echo "<td>";
             echo "<input type='checkbox' value='".htmlspecialchars(${fieldId}, ENT_QUOTES)."' name='searchFields'/> <b>".htmlspecialchars($fieldTitle, ENT_NOQUOTES)."</b>";
             echo "</td>\n";
@@ -106,21 +108,23 @@ require_once("../interface/globals.php");
 
         echo "<table>";
 
-        for($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($layoutCols); $iter++) {
             $label = $row['title'] ? $row['title'] : $row['description'];
-            if ( !$label ) {
+            if (!$label) {
                 $label = $row['field_id'];
             }
+
             echoFilterItem(
                 $iter,
                 $row['field_id'],
                 xl_layout_label($label)
             );
         }
+
         echoFilterItem($iter++, 'pid', xl('Internal Identifier (pid)'));
 
         // Finish the row gracefully.
-        while ($iter++ % 3) echo "<td>&nbsp;</td>\n";
+        while ($iter++ % 3)echo "<td>&nbsp;</td>\n";
         echo "</tr>\n";
 
         // Write a final line to solicit an optional service code.

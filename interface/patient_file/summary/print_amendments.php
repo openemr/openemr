@@ -74,7 +74,7 @@ function printAmendment($amendmentID, $lastAmendment)
 
     $query = "SELECT u.fname,u.lname,ah.* FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE ah.amendment_id = ?";
     $resultSet = sqlStatement($query, array($amendmentID));
-    while( $row = sqlFetchArray($resultSet)) {
+    while ($row = sqlFetchArray($resultSet)) {
         echo "<tr class=text>";
         $created_date = date('Y-m-d', strtotime($row['created_time']));
         echo "<td>" . oeFormatShortDate($created_date) . "</td>";
@@ -82,6 +82,7 @@ function printAmendment($amendmentID, $lastAmendment)
         echo "<td>" . text($row['amendment_note']) . "</td>";
         echo "</tr>";
     }
+
     echo "</table>";
 }
 
@@ -107,7 +108,7 @@ function printAmendment($amendmentID, $lastAmendment)
     <p></p>
 
     <?php
-    for ( $i = 0 ; $i < count($amendmentsList) ; $i++ ) {
+    for ($i = 0; $i < count($amendmentsList); $i++) {
         $lastAmendment = ( $i == count($amendmentsList) - 1 ) ? true : false;
         printAmendment($amendmentsList[$i], $lastAmendment);
     }

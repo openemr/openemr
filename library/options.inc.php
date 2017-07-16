@@ -62,13 +62,12 @@ function optionalAge($frow, $date, &$asof)
     $date = substr($date, 0, 10);
     if (strpos($frow['edit_options'], 'A') !== false) {
         $format = 0;
-    }
-    else if (strpos($frow['edit_options'], 'B') !== false) {
+    } else if (strpos($frow['edit_options'], 'B') !== false) {
         $format = 3;
-    }
-    else {
+    } else {
         return '';
     }
+
     if (strpos($frow['form_id'], 'LBF') === 0) {
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
@@ -77,6 +76,7 @@ function optionalAge($frow, $date, &$asof)
         );
         if (!empty($tmp['date'])) $asof = substr($tmp['date'], 0, 10);
     }
+
     $prefix = ($format ? xl('Gest age') : xl('Age')) . ' ';
     return $prefix . oeFormatAge($date, $asof, $format);
 }
@@ -121,21 +121,22 @@ function generate_select_list(
     if (!empty($class)) {
         $class_esc = attr($class);
         $s .= " class='form-control $class_esc'";
-    }
-    else {
+    } else {
         $s .= " class='form-control'";
     }
 
     if ($onchange) {
         $s .= " onchange='$onchange'";
     }
+
     if ($custom_attributes != null && is_array($custom_attributes)) {
-        foreach ( $custom_attributes as $attr => $val ) {
+        foreach ($custom_attributes as $attr => $val) {
             if (isset($custom_attributes [$attr])) {
                 $s .= " " . attr($attr) . "='" . attr($val) . "'";
             }
         }
     }
+
     $selectTitle = attr($title);
     $s .= " title='$selectTitle'>";
     $selectEmptyName = xlt($empty_name);
@@ -155,23 +156,22 @@ function generate_select_list(
         if ($GLOBALS['gb_how_sort_list'] == '0') {
             // order by seq
             $order_by_sql = "seq, title";
-        }
-        else { //$GLOBALS['gb_how_sort_list'] == '1'
+        } else { //$GLOBALS['gb_how_sort_list'] == '1'
             // order by title
             $order_by_sql = "title, seq";
         }
+
         $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY " . $order_by_sql, array($list_id));
-    }
-    else {
+    } else {
         // do translate
         if ($GLOBALS['gb_how_sort_list'] == '0') {
             // order by seq
             $order_by_sql = "lo.seq, IF(LENGTH(ld.definition),ld.definition,lo.title)";
-        }
-        else { //$GLOBALS['gb_how_sort_list'] == '1'
+        } else { //$GLOBALS['gb_how_sort_list'] == '1'
             // order by title
             $order_by_sql = "IF(LENGTH(ld.definition),ld.definition,lo.title), lo.seq";
         }
+
         $lres = sqlStatement("SELECT lo.option_id, lo.is_default, " .
         "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
         "FROM list_options AS lo " .
@@ -181,9 +181,10 @@ function generate_select_list(
         "WHERE lo.list_id = ?  AND lo.activity=1 " .
         "ORDER BY " . $order_by_sql, array($lang_id, $list_id));
     }
+
     $got_selected = false;
 
-    while ( $lrow = sqlFetchArray($lres) ) {
+    while ($lrow = sqlFetchArray($lres)) {
         $selectedValues = explode("|", $currvalue);
 
         $optionValue = attr($lrow ['option_id']);
@@ -203,12 +204,11 @@ function generate_select_list(
     /*
 	  To show the inactive item in the list if the value is saved to database
 	  */
-    if (!$got_selected && strlen($currvalue) > 0)
-      {
+    if (!$got_selected && strlen($currvalue) > 0) {
         $lres_inactive = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
         $lrow_inactive = sqlFetchArray($lres_inactive);
-        if($lrow_inactive['option_id']) {
+        if ($lrow_inactive['option_id']) {
             $optionValue = htmlspecialchars($lrow_inactive['option_id'], ENT_QUOTES);
             $s .= "<option value='$optionValue' selected>" . htmlspecialchars(xl_list_label($lrow_inactive['title']), ENT_NOQUOTES) . "</option>\n";
             $got_selected = true;
@@ -230,7 +230,6 @@ function generate_select_list(
             $fontText = xlt('Fix this');
             $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
         }
-
     } else if (!$got_selected && strlen($currvalue) > 0 && $multiple) {
         //if not found in main list, display all selected values that exist in backup list
         $list_id = $backup_list;
@@ -238,12 +237,12 @@ function generate_select_list(
         $got_selected_backup = false;
         if (!empty($backup_list)) {
             $lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
-            while ( $lrow_backup = sqlFetchArray($lres_backup) ) {
+            while ($lrow_backup = sqlFetchArray($lres_backup)) {
                 $selectedValues = explode("|", $currvalue);
 
                 $optionValue = attr($lrow_backup['option_id']);
 
-                if ( in_array($lrow_backup ['option_id'], $selectedValues)) {
+                if (in_array($lrow_backup ['option_id'], $selectedValues)) {
                     $s .= "<option value='$optionValue'";
                     $s .= " selected";
                     $optionLabel = text(xl_list_label($lrow_backup ['title']));
@@ -252,23 +251,24 @@ function generate_select_list(
                 }
             }
         }
+
         if (!$got_selected_backup) {
             $selectedValues = explode("|", $currvalue);
-            foreach ( $selectedValues as $selectedValue ) {
+            foreach ($selectedValues as $selectedValue) {
                 $s .= "<option value='" . attr($selectedValue) . "'";
                 $s .= " selected";
                 $s .= ">* " . text($selectedValue) . " *</option>\n";
             }
+
             $s .= "</select>";
             $fontTitle = xlt('Please choose a valid selection from the list.');
             $fontText = xlt('Fix this');
             $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
         }
-    }
-
-    else {
+    } else {
         $s .= "</select>";
     }
+
     return $s;
 }
 
@@ -313,12 +313,10 @@ function generate_form_field($frow, $currvalue)
             //do not display an 'empty' choice
             $showEmpty = false;
             $empty_title = "Unassigned";
-        }
-        else {
+        } else {
             $empty_title = $frow['empty_title'];
         }
-    }
-    else {
+    } else {
         $empty_title = "Unassigned";
     }
 
@@ -344,9 +342,7 @@ function generate_form_field($frow, $currvalue)
             false,
             $backup_list
         );
-    }
-
-  // simple text field
+    } // simple text field
     else if ($data_type == 2) {
         $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $maxlength = $frow['max_length'];
@@ -372,14 +368,14 @@ function generate_form_field($frow, $currvalue)
             echo " onkeyup='maskkeyup(this,\"$tmp\")'";
             echo " onblur='maskblur(this,\"$tmp\")'";
         }
+
         if (strpos($frow['edit_options'], '1') !== false && strlen($currescaped) > 0) {
             echo " readonly";
         }
+
         if ($disabled) echo ' disabled';
         echo " />";
-    }
-
-  // long or multi-line text field
+    } // long or multi-line text field
     else if ($data_type == 3) {
         $textCols = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $textRows = htmlspecialchars($frow['fld_rows'], ENT_QUOTES);
@@ -391,9 +387,7 @@ function generate_form_field($frow, $currvalue)
         " cols='$textCols'" .
         " rows='$textRows' $lbfonchange $disabled" .
         ">" . $currescaped . "</textarea>";
-    }
-
-  // date
+    } // date
     else if ($data_type == 4) {
         $age_asof_date = ''; // optionalAge() sets this
         $age_format = strpos($frow['edit_options'], 'A') === false ? 3 : 0;
@@ -416,9 +410,7 @@ function generate_form_field($frow, $currvalue)
         if ($agestr) {
             echo "</td></tr><tr><td id='span_$field_id' class='text'>" . text($agestr) . "</td></tr></table>";
         }
-    }
-
-  // provider list, local providers only
+    } // provider list, local providers only
     else if ($data_type == 10) {
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -435,19 +427,18 @@ function generate_form_field($frow, $currvalue)
                 echo " selected";
                 $got_selected = true;
             }
+
             echo ">$uname</option>";
         }
+
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // provider list, including address book entries with an NPI number
+    } // provider list, including address book entries with an NPI number
     else if ($data_type == 11) {
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
@@ -465,19 +456,18 @@ function generate_form_field($frow, $currvalue)
                 echo " selected";
                 $got_selected = true;
             }
+
             echo ">$uname</option>";
         }
+
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // pharmacy list
+    } // pharmacy list
     else if ($data_type == 12) {
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
         echo " $lbfonchange $disabled>";
@@ -495,19 +485,18 @@ function generate_form_field($frow, $currvalue)
                   echo " selected";
                   $got_selected = true;
             }
+
             echo ">$optionLabel</option>";
         }
+
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // squads
+    } // squads
     else if ($data_type == 13) {
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control'";
         echo " $lbfonchange $disabled>";
@@ -522,10 +511,9 @@ function generate_form_field($frow, $currvalue)
                 echo ">$optionLabel</option>\n";
             }
         }
-        echo "</select>";
-    }
 
-  // Address book, preferring organization name if it exists and is not in
+        echo "</select>";
+    } // Address book, preferring organization name if it exists and is not in
   // parentheses, and excluding local users who are not providers.
   // Supports "referred to" practitioners and facilities.
   // Alternatively the letter L in edit_options means that abook_type
@@ -547,8 +535,7 @@ function generate_form_field($frow, $currvalue)
         $tmp = "abook_type LIKE 'vendor%'";
         else if (strpos($frow['edit_options'], 'R') !== false)
         $tmp = "abook_type LIKE 'dist'";
-        else
-        $tmp = "( username = '' OR authorized = 1 )";
+        else $tmp = "( username = '' OR authorized = 1 )";
         $ures = sqlStatement("SELECT id, fname, lname, organization, username FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
         "AND $tmp " .
@@ -562,6 +549,7 @@ function generate_form_field($frow, $currvalue)
                 $uname = $urow['lname'];
                 if ($urow['fname']) $uname .= ", " . $urow['fname'];
             }
+
             $optionValue = htmlspecialchars($urow['id'], ENT_QUOTES);
             $optionLabel = htmlspecialchars($uname, ENT_NOQUOTES);
             echo "<option value='$optionValue'";
@@ -571,10 +559,9 @@ function generate_form_field($frow, $currvalue)
             if ($urow['id'] == $currvalue) echo " selected";
             echo ">$optionLabel</option>";
         }
-        echo "</select>";
-    }
 
-  // A billing code. If description matches an existing code type then that type is used.
+        echo "</select>";
+    } // A billing code. If description matches an existing code type then that type is used.
     else if ($data_type == 15) {
         $fldlength = htmlspecialchars($frow['fld_length'], ENT_QUOTES);
         $maxlength = $frow['max_length'];
@@ -594,12 +581,12 @@ function generate_form_field($frow, $currvalue)
                     if ($currdescstring !== '') $currdescstring .= '; ';
                     if (!empty($code_text)) {
                         $currdescstring .= $code_text;
-                    }
-                    else {
+                    } else {
                         $currdescstring .= $codestring;
                     }
                 }
             }
+
             $currdescstring = attr($currdescstring);
             //
             echo "<input type='text'" .
@@ -618,10 +605,10 @@ function generate_form_field($frow, $currvalue)
             if (!$disabled) {
                 echo " onclick='sel_related(this,\"$codetype\")'";
             }
+
             echo "class='form-control'";
             echo " readonly $disabled />";
-        }
-        else {
+        } else {
             echo "<input type='text'" .
             " name='form_$field_id_esc'" .
             " id='form_related_code'" .
@@ -632,12 +619,11 @@ function generate_form_field($frow, $currvalue)
             if (!$disabled) {
                 echo " onclick='sel_related(this,\"$codetype\")'";
             }
+
             echo "class='form-control'";
             echo " $lbfonchange readonly $disabled />";
         }
-    }
-
-  // insurance company list
+    } // insurance company list
     else if ($data_type == 16) {
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
         echo "<option value='0'></option>";
@@ -651,19 +637,18 @@ function generate_form_field($frow, $currvalue)
                 echo " selected";
                 $got_selected = true;
             }
+
             echo ">$optionLabel</option>";
         }
+
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // issue types
+    } // issue types
     else if ($data_type == 17) {
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control' title='$description'>";
         echo "<option value='0'></option>";
@@ -676,19 +661,18 @@ function generate_form_field($frow, $currvalue)
                 echo " selected";
                 $got_selected = true;
             }
+
             echo ">$optionLabel</option>";
         }
+
         if (!$got_selected && strlen($currvalue) > 0) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // Visit categories.
+    } // Visit categories.
     else if ($data_type == 18) {
         $cres = sqlStatement("SELECT pc_catid, pc_catname " .
         "FROM openemr_postcalendar_categories ORDER BY pc_catname");
@@ -704,19 +688,18 @@ function generate_form_field($frow, $currvalue)
                 echo " selected";
                 $got_selected = true;
             }
+
             echo ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>";
         }
+
         if (!$got_selected && $currvalue) {
             echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
             echo "</select>";
             echo " <font color='red' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</font>";
-        }
-        else {
+        } else {
             echo "</select>";
         }
-    }
-
-  // a set of labeled checkboxes
+    } // a set of labeled checkboxes
     else if ($data_type == 21) {
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
@@ -733,6 +716,7 @@ function generate_form_field($frow, $currvalue)
                 if ($count) echo "</tr>";
                 echo "<tr>";
             }
+
             echo "<td width='$tdpct%'>";
             echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
             "id='form_{$field_id_esc}[$option_id_esc]' class='form-control' value='1' $lbfonchange";
@@ -743,6 +727,7 @@ function generate_form_field($frow, $currvalue)
 
             echo "</td>";
         }
+
         if ($count) {
             echo "</tr>";
             if ($count > $cols) {
@@ -751,10 +736,9 @@ function generate_form_field($frow, $currvalue)
                 echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
             }
         }
-        echo "</table>";
-    }
 
-  // a set of labeled text input fields
+        echo "</table>";
+    } // a set of labeled text input fields
     else if ($data_type == 22) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -763,6 +747,7 @@ function generate_form_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table cellpadding='0' cellspacing='0'>";
@@ -788,10 +773,9 @@ function generate_form_field($frow, $currvalue)
             " value='$optionValue'";
             echo " $lbfonchange $disabled /></td></tr>";
         }
-        echo "</table>";
-    }
 
-  // a set of exam results; 3 radio buttons and a text field:
+        echo "</table>";
+    } // a set of exam results; 3 radio buttons and a text field:
     else if ($data_type == 23) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -800,6 +784,7 @@ function generate_form_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $maxlength = $frow['max_length'];
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
@@ -833,6 +818,7 @@ function generate_form_field($frow, $currvalue)
                 if ($restype === "$i") echo " checked";
                 echo " $disabled /></td>";
             }
+
             $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
             $resnote = htmlspecialchars($resnote, ENT_QUOTES);
             echo "<td><input type='text'" .
@@ -843,10 +829,9 @@ function generate_form_field($frow, $currvalue)
             " value='$resnote' $disabled /></td>";
             echo "</tr>";
         }
-        echo "</table>";
-    }
 
-  // the list of active allergies for the current patient
+        echo "</table>";
+    } // the list of active allergies for the current patient
   // this is read-only!
     else if ($data_type == 24) {
         $query = "SELECT title, comments FROM lists WHERE " .
@@ -860,9 +845,7 @@ function generate_form_field($frow, $currvalue)
             echo htmlspecialchars($lrow['title'], ENT_NOQUOTES);
             if ($lrow['comments']) echo ' (' . htmlspecialchars($lrow['comments'], ENT_NOQUOTES) . ')';
         }
-    }
-
-  // a set of labeled checkboxes, each with a text field:
+    } // a set of labeled checkboxes, each with a text field:
     else if ($data_type == 25) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -871,6 +854,7 @@ function generate_form_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $maxlength = $frow['max_length'];
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
@@ -904,10 +888,9 @@ function generate_form_field($frow, $currvalue)
             " value='$resnote' $disabled /></td>";
             echo "</tr>";
         }
-        echo "</table>";
-    }
 
-  // single-selection list with ability to add to it
+        echo "</table>";
+    } // single-selection list with ability to add to it
     else if ($data_type == 26) {
         echo generate_select_list(
             "form_$field_id",
@@ -929,14 +912,11 @@ function generate_form_field($frow, $currvalue)
         if (aco_exist('lists', $list_id)) {
            // a specific aco exist for this list, so ensure access
             if (acl_check('lists', $list_id)) echo $outputAddButton;
-        }
-        else {
+        } else {
            // no specific aco exist for this list, so check for access to 'default' list
             if (acl_check('lists', 'default')) echo $outputAddButton;
         }
-    }
-
-  // a set of labeled radio buttons
+    } // a set of labeled radio buttons
     else if ($data_type == 27) {
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
@@ -952,18 +932,20 @@ function generate_form_field($frow, $currvalue)
                 if ($count) echo "</tr>";
                 echo "<tr>";
             }
+
             echo "<td width='$tdpct%'>";
             echo "<input type='radio' name='form_{$field_id_esc}' class='form-control' id='form_{$field_id_esc}[$option_id_esc]'" .
             " value='$option_id_esc' $lbfonchange";
             if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-              (strlen($currvalue)  > 0 && $option_id == $currvalue))
-            {
+              (strlen($currvalue)  > 0 && $option_id == $currvalue)) {
                 echo " checked";
                 $got_selected = true;
             }
+
             echo " $disabled />" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             echo "</td>";
         }
+
         if ($count) {
             echo "</tr>";
             if ($count > $cols) {
@@ -972,19 +954,18 @@ function generate_form_field($frow, $currvalue)
                 echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
             }
         }
+
         echo "</table>";
         if (!$got_selected && strlen($currvalue) > 0) {
             $fontTitle = htmlspecialchars(xl('Please choose a valid selection.'), ENT_QUOTES);
             $fontText = htmlspecialchars(xl('Fix this'), ENT_NOQUOTES);
             echo "$currescaped <font color='red' title='$fontTitle'>$fontText!</font>";
         }
-    }
-
-  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+    } // special case for history of lifestyle status; 3 radio buttons and a date text field:
   // VicarePlus :: A selection list box for smoking status:
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
-        switch(count($tmp)) {
+        switch (count($tmp)) {
             case "4": {
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
@@ -1009,6 +990,7 @@ function generate_form_field($frow, $currvalue)
                 $restype = $resdate = $resnote = "";
             } break;
         }
+
         $maxlength = $frow['max_length'];
         $string_maxlength = "";
         // if max_length is set to zero, then do not set a maxlength
@@ -1020,8 +1002,7 @@ function generate_form_field($frow, $currvalue)
         $resdate = htmlspecialchars($resdate, ENT_QUOTES);
         echo "<table cellpadding='0' cellspacing='0'>";
         echo "<tr>";
-        if ($data_type == 28)
-        {
+        if ($data_type == 28) {
           // input text
             echo "<td><input type='text'" .
             " name='form_$field_id_esc'" .
@@ -1032,9 +1013,7 @@ function generate_form_field($frow, $currvalue)
             echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
             htmlspecialchars(xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
-        }
-        else if($data_type == 32)
-        {
+        } else if ($data_type == 32) {
           // input text
             echo "<tr><td><input type='text'" .
             " name='form_text_$field_id_esc'" .
@@ -1060,6 +1039,7 @@ function generate_form_field($frow, $currvalue)
             echo "</td>";
             echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . xlt('Status') . ":&nbsp;&nbsp;</td>";
         }
+
         // current
         echo "<td class='text' ><input type='radio'" .
         " name='radio_{$field_id_esc}'" .
@@ -1076,7 +1056,7 @@ function generate_form_field($frow, $currvalue)
         " class='form-control'" .
         " value='quit".$field_id_esc."' $lbfonchange";
         if ($restype == "quit" . $field_id) echo " checked";
-        if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
+        if ($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
         echo " $disabled />" . xlt('Quit') . "&nbsp;</td>";
         // quit date
         echo "<td class='text'><input type='text' size='6' class='datepicker' name='date_$field_id_esc' id='date_$field_id_esc'" .
@@ -1091,7 +1071,7 @@ function generate_form_field($frow, $currvalue)
         " id='radio_{$field_id_esc}[never]'" .
         " value='never" . $field_id_esc . "' $lbfonchange";
         if ($restype == "never" . $field_id) echo " checked";
-        if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
+        if ($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
         echo " />" . xlt('Never') . "&nbsp;</td>";
         // Not Applicable
         echo "<td class='text'><input type='radio'" .
@@ -1100,37 +1080,32 @@ function generate_form_field($frow, $currvalue)
         " id='radio_{$field_id}[not_applicable]'" .
         " value='not_applicable" . $field_id . "' $lbfonchange";
         if ($restype == "not_applicable" . $field_id) echo " checked";
-        if($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
+        if ($data_type == 32) echo " onClick='smoking_statusClicked(this)'";
         echo " $disabled />" . xlt('N/A') . "&nbsp;</td>";
         //
         //Added on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
         echo "<td class='text' ><div id='smoke_code'></div></td>";
         echo "</tr>";
         echo "</table>";
-    }
-
-  // static text.  read-only, of course.
+    } // static text.  read-only, of course.
     else if ($data_type == 31) {
         echo nl2br($frow['description']);
-    }
-
-  //$data_type == 33
+    } //$data_type == 33
   // Race and Ethnicity. After added support for backup lists, this is now the same as datatype 1; so have migrated it there.
   //$data_type == 33
 
-    else if($data_type == 34){
+    else if ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
         echo "<div id='form_{$field_id}_div' class='text-area'>".htmlspecialchars($arr[0], ENT_QUOTES)."</div>";
         echo "<div style='display:none'><textarea name='form_{$field_id}' id='form_{$field_id}' class='form-control' style='display:none' $lbfonchange $disabled>" . $currvalue . "</textarea></div>";
         echo "</a>";
-    }
-
-  //facilities drop-down list
+    } //facilities drop-down list
     else if ($data_type == 35) {
-        if (empty($currvalue)){
+        if (empty($currvalue)) {
             $currvalue = 0;
         }
+
         dropdown_facility(
             $selected = $currvalue,
             $name = "form_$field_id_esc",
@@ -1139,9 +1114,7 @@ function generate_form_field($frow, $currvalue)
             $disabled,
             $lbfchange
         );
-    }
-
-  //multiple select
+    } //multiple select
   // supports backup list
     else if ($data_type == 36) {
         echo generate_select_list(
@@ -1157,10 +1130,7 @@ function generate_form_field($frow, $currvalue)
             true,
             $backup_list
         );
-
-    }
-
-  // Canvas and related elements for browser-side image drawing.
+    } // Canvas and related elements for browser-side image drawing.
   // Note you must invoke lbf_canvas_head() (below) to use this field type in a form.
     else if ($data_type == 40) {
         // Unlike other field types, width and height are in pixels.
@@ -1172,6 +1142,7 @@ function generate_form_field($frow, $currvalue)
                 $currvalue = $GLOBALS['web_root'] . '/sites/' . $_SESSION['site_id'] . '/images/' . $matches[1];
             }
         }
+
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div id='form_$field_id_esc' style='width:$mywidth; height:$myheight;'></div>";
@@ -1207,12 +1178,10 @@ function generate_print_field($frow, $currvalue)
             //do not display an 'empty' choice
             $showEmpty = false;
             $empty_title = "Unassigned";
-        }
-        else {
+        } else {
             $empty_title = $frow['empty_title'];
         }
-    }
-    else {
+    } else {
         $empty_title = "Unassigned";
     }
 
@@ -1226,6 +1195,7 @@ function generate_print_field($frow, $currvalue)
                 $fld_length = 10;
             }
         }
+
         $tmp = '';
         if ($currvalue) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
@@ -1237,8 +1207,10 @@ function generate_print_field($frow, $currvalue)
                     "WHERE list_id = ? AND option_id = ?", array($backup_list,$currvalue));
                     $tmp = xl_list_label($lrow['title']);
             }
+
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         /*****************************************************************
       echo "<input type='text'" .
         " size='$fld_length'" .
@@ -1248,14 +1220,12 @@ function generate_print_field($frow, $currvalue)
         *****************************************************************/
         if ($tmp === '') {
             $tmp = '&nbsp;';
-        }
-        else {
+        } else {
             $tmp = htmlspecialchars($tmp, ENT_QUOTES);
         }
-        echo $tmp;
-    }
 
-  // simple text field
+        echo $tmp;
+    } // simple text field
     else if ($data_type == 2 || $data_type == 15) {
         /*****************************************************************
       echo "<input type='text'" .
@@ -1266,9 +1236,7 @@ function generate_print_field($frow, $currvalue)
         *****************************************************************/
         if ($currescaped === '') $currescaped = '&nbsp;';
         echo $currescaped;
-    }
-
-  // long or multi-line text field
+    } // long or multi-line text field
     else if ($data_type == 3) {
         $fldlength = htmlspecialchars($fld_length, ENT_QUOTES);
         $maxlength = htmlspecialchars($frow['fld_rows'], ENT_QUOTES);
@@ -1277,28 +1245,25 @@ function generate_print_field($frow, $currvalue)
         " cols='$fldlength'" .
         " rows='$maxlength'>" .
         $currescaped . "</textarea>";
-    }
-
-  // date
+    } // date
     else if ($data_type == 4) {
         $asof = ''; //not used here, but set to prevent a php warning when call optionalAge
         $agestr = optionalAge($frow, $currvalue, $asof);
         if ($agestr) {
             echo "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
         }
+
         if ($currvalue === '') {
             echo '&nbsp;';
-        }
-        else {
+        } else {
             echo text(oeFormatShortDate($currvalue));
         }
+
         // Optional display of age or gestational age.
         if ($agestr) {
             echo "</td></tr><tr><td class='text'>" . text($agestr) . "</td></tr></table>";
         }
-    }
-
-  // provider list
+    } // provider list
     else if ($data_type == 10 || $data_type == 11) {
         $tmp = '';
         if ($currvalue) {
@@ -1307,6 +1272,7 @@ function generate_print_field($frow, $currvalue)
             $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         /*****************************************************************
       echo "<input type='text'" .
         " size='$fld_length'" .
@@ -1314,12 +1280,12 @@ function generate_print_field($frow, $currvalue)
         " class='under'" .
         " />";
         *****************************************************************/
-        if ($tmp === '') { $tmp = '&nbsp;'; }
-        else { $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
-        echo $tmp;
-    }
+        if ($tmp === '') {
+            $tmp = '&nbsp;'; } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
 
-  // pharmacy list
+            echo $tmp;
+    } // pharmacy list
     else if ($data_type == 12) {
         $tmp = '';
         if ($currvalue) {
@@ -1332,8 +1298,10 @@ function generate_print_field($frow, $currvalue)
                     $prow['line1'] . ' / ' . $prow['city'];
                 }
             }
+
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         /*****************************************************************
       echo "<input type='text'" .
         " size='$fld_length'" .
@@ -1341,12 +1309,12 @@ function generate_print_field($frow, $currvalue)
         " class='under'" .
         " />";
         *****************************************************************/
-        if ($tmp === '') { $tmp = '&nbsp;'; }
-        else { $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
-        echo $tmp;
-    }
+        if ($tmp === '') {
+            $tmp = '&nbsp;'; } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
 
-  // squads
+            echo $tmp;
+    } // squads
     else if ($data_type == 13) {
         $tmp = '';
         if ($currvalue) {
@@ -1358,8 +1326,10 @@ function generate_print_field($frow, $currvalue)
                     }
                 }
             }
+
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         /*****************************************************************
       echo "<input type='text'" .
         " size='$fld_length'" .
@@ -1367,12 +1337,12 @@ function generate_print_field($frow, $currvalue)
         " class='under'" .
         " />";
         *****************************************************************/
-        if ($tmp === '') { $tmp = '&nbsp;'; }
-        else { $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
-        echo $tmp;
-    }
+        if ($tmp === '') {
+            $tmp = '&nbsp;'; } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
 
-  // Address book.
+            echo $tmp;
+    } // Address book.
     else if ($data_type == 14) {
         $tmp = '';
         if ($currvalue) {
@@ -1383,6 +1353,7 @@ function generate_print_field($frow, $currvalue)
             $tmp = $uname;
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         /*****************************************************************
       echo "<input type='text'" .
         " size='$fld_length'" .
@@ -1390,12 +1361,12 @@ function generate_print_field($frow, $currvalue)
         " class='under'" .
         " />";
         *****************************************************************/
-        if ($tmp === '') { $tmp = '&nbsp;'; }
-        else { $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
-        echo $tmp;
-    }
+        if ($tmp === '') {
+            $tmp = '&nbsp;'; } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
 
-  // insurance company list
+            echo $tmp;
+    } // insurance company list
     else if ($data_type == 16) {
         $tmp = '';
         if ($currvalue) {
@@ -1405,14 +1376,14 @@ function generate_print_field($frow, $currvalue)
                     $tmp = $ipname;
                 }
             }
+
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         if ($tmp === '') $tmp = '&nbsp;';
         else $tmp = htmlspecialchars($tmp, ENT_QUOTES);
         echo $tmp;
-    }
-
-  // issue types
+    } // issue types
     else if ($data_type == 17) {
         $tmp = '';
         if ($currvalue) {
@@ -1421,14 +1392,14 @@ function generate_print_field($frow, $currvalue)
                     $tmp = $value[1];
                 }
             }
+
             if (empty($tmp)) $tmp = "($currvalue)";
         }
+
         if ($tmp === '') $tmp = '&nbsp;';
         else $tmp = htmlspecialchars($tmp, ENT_QUOTES);
         echo $tmp;
-    }
-
-  // Visit categories.
+    } // Visit categories.
     else if ($data_type == 18) {
         $tmp = '';
         if ($currvalue) {
@@ -1440,12 +1411,13 @@ function generate_print_field($frow, $currvalue)
             $tmp = xl_appt_category($crow['pc_catname']);
             if (empty($tmp)) $tmp = "($currvalue)";
         }
-        if ($tmp === '') { $tmp = '&nbsp;'; }
-        else { $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
-        echo $tmp;
-    }
 
-  // a set of labeled checkboxes
+        if ($tmp === '') {
+            $tmp = '&nbsp;'; } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+
+            echo $tmp;
+    } // a set of labeled checkboxes
     else if ($data_type == 21) {
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $fld_length);
@@ -1460,12 +1432,14 @@ function generate_print_field($frow, $currvalue)
                 if ($count) echo "</tr>";
                 echo "<tr>";
             }
+
             echo "<td width='$tdpct%'>";
             echo "<input type='checkbox'";
             if (in_array($option_id, $avalue)) echo " checked";
             echo ">" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             echo "</td>";
         }
+
         if ($count) {
             echo "</tr>";
             if ($count > $cols) {
@@ -1474,10 +1448,9 @@ function generate_print_field($frow, $currvalue)
                 echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
             }
         }
-        echo "</table>";
-    }
 
-  // a set of labeled text input fields
+        echo "</table>";
+    } // a set of labeled text input fields
     else if ($data_type == 22) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -1486,6 +1459,7 @@ function generate_print_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         echo "<table cellpadding='0' cellspacing='0'>";
@@ -1502,10 +1476,9 @@ function generate_print_field($frow, $currvalue)
             " class='under'" .
             " /></td></tr>";
         }
-        echo "</table>";
-    }
 
-  // a set of exam results; 3 radio buttons and a text field:
+        echo "</table>";
+    } // a set of exam results; 3 radio buttons and a text field:
     else if ($data_type == 23) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -1514,6 +1487,7 @@ function generate_print_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $fldlength = empty($fld_length) ?  20 : $fld_length;
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
@@ -1535,6 +1509,7 @@ function generate_print_field($frow, $currvalue)
                 if ($restype === "$i") echo " checked";
                 echo " /></td>";
             }
+
             $resnote = htmlspecialchars($resnote, ENT_QUOTES);
             $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
             echo "<td><input type='text'" .
@@ -1543,10 +1518,9 @@ function generate_print_field($frow, $currvalue)
             " class='under form-control' /></td>" .
             "</tr>";
         }
-        echo "</table>";
-    }
 
-  // the list of active allergies for the current patient
+        echo "</table>";
+    } // the list of active allergies for the current patient
   // this is read-only!
     else if ($data_type == 24) {
         $query = "SELECT title, comments FROM lists WHERE " .
@@ -1559,9 +1533,7 @@ function generate_print_field($frow, $currvalue)
             echo htmlspecialchars($lrow['title'], ENT_QUOTES);
             if ($lrow['comments']) echo htmlspecialchars(' (' . $lrow['comments'] . ')', ENT_QUOTES);
         }
-    }
-
-  // a set of labeled checkboxes, each with a text field:
+    } // a set of labeled checkboxes, each with a text field:
     else if ($data_type == 25) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -1570,6 +1542,7 @@ function generate_print_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $fldlength = empty($fld_length) ?  20 : $fld_length;
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
@@ -1592,10 +1565,9 @@ function generate_print_field($frow, $currvalue)
             " /></td>" .
             "</tr>";
         }
-        echo "</table>";
-    }
 
-  // a set of labeled radio buttons
+        echo "</table>";
+    } // a set of labeled radio buttons
     else if ($data_type == 27) {
         // In this special case, fld_length is the number of columns generated.
         $cols = max(1, $frow['fld_length']);
@@ -1609,16 +1581,18 @@ function generate_print_field($frow, $currvalue)
                 if ($count) echo "</tr>";
                 echo "<tr>";
             }
+
             echo "<td width='$tdpct%'>";
             echo "<input type='radio'";
             if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-              (strlen($currvalue)  > 0 && $option_id == $currvalue))
-            {
+              (strlen($currvalue)  > 0 && $option_id == $currvalue)) {
                 echo " checked";
             }
+
             echo ">" . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             echo "</td>";
         }
+
         if ($count) {
             echo "</tr>";
             if ($count > $cols) {
@@ -1627,13 +1601,12 @@ function generate_print_field($frow, $currvalue)
                 echo "<tr><td colspan='$cols' style='height:0.7em'></td></tr>";
             }
         }
-        echo "</table>";
-    }
 
-  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+        echo "</table>";
+    } // special case for history of lifestyle status; 3 radio buttons and a date text field:
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
-        switch(count($tmp)) {
+        switch (count($tmp)) {
             case "4": {
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
@@ -1658,14 +1631,14 @@ function generate_print_field($frow, $currvalue)
                 $restype = $resdate = $resnote = "";
             } break;
         }
+
         $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
         echo "<table cellpadding='0' cellspacing='0'>";
         echo "<tr>";
         $fldlength = htmlspecialchars($fldlength, ENT_QUOTES);
         $resnote = htmlspecialchars($resnote, ENT_QUOTES);
         $resdate = htmlspecialchars($resdate, ENT_QUOTES);
-        if($data_type == 28)
-        {
+        if ($data_type == 28) {
             echo "<td><input type='text'" .
             " size='$fldlength'" .
             " class='under'" .
@@ -1673,9 +1646,7 @@ function generate_print_field($frow, $currvalue)
             echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
             htmlspecialchars(xl('Status'), ENT_NOQUOTES).":&nbsp;</td>";
-        }
-        else if($data_type == 32)
-        {
+        } else if ($data_type == 32) {
             echo "<tr><td><input type='text'" .
             " size='$fldlength'" .
             " class='under form-control'" .
@@ -1688,6 +1659,7 @@ function generate_print_field($frow, $currvalue)
             " value='$smoking_status_title' /></td>";
             echo "<td class='bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".htmlspecialchars(xl('Status'), ENT_NOQUOTES).":&nbsp;&nbsp;</td>";
         }
+
         echo "<td><input type='radio' class='form-control'";
         if ($restype == "current".$field_id) echo " checked";
         echo "/>".htmlspecialchars(xl('Current'), ENT_NOQUOTES)."&nbsp;</td>";
@@ -1710,29 +1682,22 @@ function generate_print_field($frow, $currvalue)
         echo " />".htmlspecialchars(xl('N/A'), ENT_NOQUOTES)."&nbsp;</td>";
         echo "</tr>";
         echo "</table>";
-    }
-
-  // static text.  read-only, of course.
+    } // static text.  read-only, of course.
     else if ($data_type == 31) {
         echo nl2br($frow['description']);
-    }
-
-    else if($data_type == 34){
+    } else if ($data_type == 34) {
         echo "<a href='../../../library/custom_template/custom_template.php?type=form_{$field_id}&contextName=".htmlspecialchars($list_id_esc, ENT_QUOTES)."' class='iframe_medium' style='text-decoration:none;color:black;'>";
         echo "<div id='form_{$field_id}_div' class='text-area'></div>";
         echo "<div style='display:none'><textarea name='form_{$field_id}' class='form-control' id='form_{$field_id}' stye='display:none'></textarea></div>";
         echo "</a>";
-    }
-
-  //facilities drop-down list
+    } //facilities drop-down list
     else if ($data_type == 35) {
-        if (empty($currvalue)){
+        if (empty($currvalue)) {
             $currvalue = 0;
         }
-        dropdown_facility($selected = $currvalue, $name = "form_$field_id_esc", $allow_unspecified = true, $allow_allfacilities = false);
-    }
 
-  //Multi-select
+        dropdown_facility($selected = $currvalue, $name = "form_$field_id_esc", $allow_unspecified = true, $allow_allfacilities = false);
+    } //Multi-select
   // Supports backup lists.
     else if ($data_type == 36) {
         if (empty($fld_length)) {
@@ -1742,12 +1707,13 @@ function generate_print_field($frow, $currvalue)
                 $fld_length = 10;
             }
         }
+
         $tmp = '';
 
         $values_array = explode("|", $currvalue);
 
         $i=0;
-        foreach($values_array as $value) {
+        foreach ($values_array as $value) {
             if ($value) {
                 $lrow = sqlQuery("SELECT title FROM list_options " .
                     "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
@@ -1758,22 +1724,21 @@ function generate_print_field($frow, $currvalue)
                             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
                         $tmp = xl_list_label($lrow['title']);
                 }
+
                 if (empty($tmp)) $tmp = "($value)";
             }
 
             if ($tmp === '') {
                 $tmp = '&nbsp;';
-            }
-            else {
+            } else {
                 $tmp = htmlspecialchars($tmp, ENT_QUOTES);
             }
+
                 if ($i != 0 && $tmp != '&nbsp;') echo ",";
             echo $tmp;
                 $i++;
         }
-    }
-
-  // Image from canvas drawing
+    } // Image from canvas drawing
     else if ($data_type == 40) {
         echo "<img src='" . attr($currvalue) . "'>";
     }
@@ -1804,19 +1769,13 @@ function generate_display_field($frow, $currvalue)
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
         }
-    }
-
-  // simple text field
+    } // simple text field
     else if ($data_type == 2) {
          $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
-    }
-
-  // long or multi-line text field
+    } // long or multi-line text field
     else if ($data_type == 3) {
         $s = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
-    }
-
-  // date
+    } // date
     else if ($data_type == 4) {
         $asof = ''; //not used here, but set to prevent a php warning when call optionalAge
         $s = '';
@@ -1824,26 +1783,23 @@ function generate_display_field($frow, $currvalue)
         if ($agestr) {
             $s .= "<table cellpadding='0' cellspacing='0'><tr><td class='text'>";
         }
+
         if ($currvalue === '') {
             $s .= '&nbsp;';
-        }
-        else {
+        } else {
             $s .= text(oeFormatShortDate($currvalue));
         }
+
         // Optional display of age or gestational age.
         if ($agestr) {
             $s .= "</td></tr><tr><td class='text'>" . text($agestr) . "</td></tr></table>";
         }
-    }
-
-  // provider
+    } // provider
     else if ($data_type == 10 || $data_type == 11) {
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
         "WHERE id = ?", array($currvalue));
         $s = htmlspecialchars(ucwords($urow['fname'] . " " . $urow['lname']), ENT_NOQUOTES);
-    }
-
-  // pharmacy list
+    } // pharmacy list
     else if ($data_type == 12) {
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -1854,9 +1810,7 @@ function generate_display_field($frow, $currvalue)
                 $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
             }
         }
-    }
-
-  // squads
+    } // squads
     else if ($data_type == 13) {
         $squads = acl_get_squads();
         if ($squads) {
@@ -1866,28 +1820,23 @@ function generate_display_field($frow, $currvalue)
                 }
             }
         }
-    }
-
-  // address book
+    } // address book
     else if ($data_type == 14) {
         $urow = sqlQuery("SELECT fname, lname, specialty, organization FROM users " .
         "WHERE id = ?", array($currvalue));
         //ViSolve: To display the Organization Name if it exist. Else it will display the user name.
-        if($urow['organization'] !=""){
+        if ($urow['organization'] !="") {
             $uname = $urow['organization'];
-        }else{
+        } else {
             $uname = $urow['lname'];
             if ($urow['fname']) $uname .= ", " . $urow['fname'];
         }
-        $s = htmlspecialchars($uname, ENT_NOQUOTES);
-    }
 
-  // billing code
+        $s = htmlspecialchars($uname, ENT_NOQUOTES);
+    } // billing code
     else if ($data_type == 15) {
         $s = htmlspecialchars($currvalue, ENT_NOQUOTES);
-    }
-
-  // insurance company list
+    } // insurance company list
     else if ($data_type == 16) {
         $insprovs = getInsuranceProviders();
         foreach ($insprovs as $key => $ipname) {
@@ -1895,18 +1844,14 @@ function generate_display_field($frow, $currvalue)
                 $s .= htmlspecialchars($ipname, ENT_NOQUOTES);
             }
         }
-    }
-
-  // issue types
+    } // issue types
     else if ($data_type == 17) {
         foreach ($ISSUE_TYPES as $key => $value) {
             if ($currvalue == $key) {
                 $s .= htmlspecialchars($value[1], ENT_NOQUOTES);
             }
         }
-    }
-
-  // visit category
+    } // visit category
     else if ($data_type == 18) {
         $crow = sqlQuery(
             "SELECT pc_catid, pc_catname " .
@@ -1914,9 +1859,7 @@ function generate_display_field($frow, $currvalue)
             array($currvalue)
         );
         $s = htmlspecialchars($crow['pc_catname'], ENT_NOQUOTES);
-    }
-
-  // a set of labeled checkboxes
+    } // a set of labeled checkboxes
     else if ($data_type == 21) {
         $avalue = explode('|', $currvalue);
         $lres = sqlStatement("SELECT * FROM list_options " .
@@ -1929,12 +1872,9 @@ function generate_display_field($frow, $currvalue)
 
             // Added 5-09 by BM - Translate label if applicable
                 $s .= nl2br(htmlspecialchars(xl_list_label($lrow['title'])), ENT_NOQUOTES);
-
             }
         }
-    }
-
-  // a set of labeled text input fields
+    } // a set of labeled text input fields
     else if ($data_type == 22) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -1943,6 +1883,7 @@ function generate_display_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         $s .= "<table cellpadding='0' cellspacing='0'>";
@@ -1955,10 +1896,9 @@ function generate_display_field($frow, $currvalue)
 
             $s .= "<td class='text' valign='top'>" . htmlspecialchars($avalue[$option_id], ENT_NOQUOTES) . "</td></tr>";
         }
-        $s .= "</table>";
-    }
 
-  // a set of exam results; 3 radio buttons and a text field:
+        $s .= "</table>";
+    } // a set of exam results; 3 radio buttons and a text field:
     else if ($data_type == 23) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -1967,6 +1907,7 @@ function generate_display_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         $s .= "<table cellpadding='0' cellspacing='0'>";
@@ -1986,10 +1927,9 @@ function generate_display_field($frow, $currvalue)
             $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "</td>";
             $s .= "</tr>";
         }
-        $s .= "</table>";
-    }
 
-  // the list of active allergies for the current patient
+        $s .= "</table>";
+    } // the list of active allergies for the current patient
     else if ($data_type == 24) {
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
@@ -2002,9 +1942,7 @@ function generate_display_field($frow, $currvalue)
             $s .= htmlspecialchars($lrow['title'], ENT_NOQUOTES);
             if ($lrow['comments']) $s .= ' (' . htmlspecialchars($lrow['comments'], ENT_NOQUOTES) . ')';
         }
-    }
-
-  // a set of labeled checkboxes, each with a text field:
+    } // a set of labeled checkboxes, each with a text field:
     else if ($data_type == 25) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -2013,6 +1951,7 @@ function generate_display_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         $s .= "<table cellpadding='0' cellspacing='0'>";
@@ -2030,14 +1969,13 @@ function generate_display_field($frow, $currvalue)
             $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "</td></tr>";
             $s .= "</tr>";
         }
-        $s .= "</table>";
-    }
 
-  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+        $s .= "</table>";
+    } // special case for history of lifestyle status; 3 radio buttons and a date text field:
   // VicarePlus :: A selection list for smoking status.
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
-        switch(count($tmp)) {
+        switch (count($tmp)) {
             case "4": {
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
@@ -2062,6 +2000,7 @@ function generate_display_field($frow, $currvalue)
                 $restype = $resdate = $resnote = "";
             } break;
         }
+
         $s .= "<table cellpadding='0' cellspacing='0'>";
 
         $s .= "<tr>";
@@ -2072,16 +2011,13 @@ function generate_display_field($frow, $currvalue)
         if ($restype == "not_applicable".$field_id) $res = xl('N/A');
         // $s .= "<td class='text' valign='top'>$restype</td></tr>";
         // $s .= "<td class='text' valign='top'>$resnote</td></tr>";
-        if ($data_type == 28)
-        {
+        if ($data_type == 28) {
             if (!empty($resnote)) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
-        }
-         //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
-        else if ($data_type == 32)
-        {//changes on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
+        } //VicarePlus :: Tobacco field has a listbox, text box, date field and 3 radio buttons.
+        else if ($data_type == 32) {//changes on 5-jun-2k14 (regarding 'Smoking Status - display SNOMED code description')
             $smoke_codes = getSmokeCodes();
             if (!empty($reslist)) {
-                  if($smoke_codes[$reslist]!="")
+                  if ($smoke_codes[$reslist]!="")
                     $code_desc = "( ".$smoke_codes[$reslist]." )";
 
                   $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $reslist) . "&nbsp;".text($code_desc)."&nbsp;&nbsp;&nbsp;&nbsp;</td>";}
@@ -2093,32 +2029,24 @@ function generate_display_field($frow, $currvalue)
         if ($restype == "quit".$field_id) $s .= "<td class='text' valign='top'>" . htmlspecialchars($resdate, ENT_NOQUOTES) . "&nbsp;</td>";
         $s .= "</tr>";
         $s .= "</table>";
-    }
-
-  // static text.  read-only, of course.
+    } // static text.  read-only, of course.
     else if ($data_type == 31) {
         $s .= nl2br($frow['description']);
-    }
-
-    else if($data_type == 34){
+    } else if ($data_type == 34) {
         $arr = explode("|*|*|*|", $currvalue);
-        for($i=0;$i<sizeof($arr);$i++){
+        for ($i=0; $i<sizeof($arr); $i++) {
             $s.=$arr[$i];
         }
-    }
-
-  // facility
+    } // facility
     else if ($data_type == 35) {
         $urow = $facilityService->getById($currvalue);
         $s = htmlspecialchars($urow['name'], ENT_NOQUOTES);
-    }
-
-  // Multi select
+    } // Multi select
   //  Supports backup lists
     else if ($data_type == 36) {
         $values_array = explode("|", $currvalue);
         $i = 0;
-        foreach($values_array as $value) {
+        foreach ($values_array as $value) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
             if ($lrow == 0 && !empty($backup_list)) {
@@ -2126,16 +2054,16 @@ function generate_display_field($frow, $currvalue)
                   $lrow = sqlQuery("SELECT title FROM list_options " .
                     "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$value));
             }
+
             if ($i > 0) {
                   $s = $s . ", " . htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             } else {
                 $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
             }
+
             $i++;
         }
-    }
-
-  // Image from canvas drawing
+    } // Image from canvas drawing
     else if ($data_type == 40) {
         $s .= "<img src='" . attr($currvalue) . "'>";
     }
@@ -2171,30 +2099,22 @@ function generate_plaintext_field($frow, $currvalue)
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = xl_list_label($lrow['title']);
         }
-    }
-
-  // simple or long text field
+    } // simple or long text field
     else if ($data_type == 2 || $data_type == 3 || $data_type == 15) {
         $s = $currvalue;
-    }
-
-  // date
+    } // date
     else if ($data_type == 4) {
         $s = oeFormatShortDate($currvalue);
         // Optional display of age or gestational age.
         $asof=''; //not used here, but set to prevent a php warning when call optionalAge
         $tmp = optionalAge($frow, $currvalue, $asof);
         if ($tmp) $s .= ' ' . $tmp;
-    }
-
-  // provider
+    } // provider
     else if ($data_type == 10 || $data_type == 11) {
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
         "WHERE id = ?", array($currvalue));
         $s = ucwords($urow['fname'] . " " . $urow['lname']);
-    }
-
-  // pharmacy list
+    } // pharmacy list
     else if ($data_type == 12) {
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -2205,18 +2125,14 @@ function generate_plaintext_field($frow, $currvalue)
                 $prow['line1'] . ' / ' . $prow['city'];
             }
         }
-    }
-
-  // address book
+    } // address book
     else if ($data_type == 14) {
         $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
         "WHERE id = ?", array($currvalue));
         $uname = $urow['lname'];
         if ($urow['fname']) $uname .= ", " . $urow['fname'];
         $s = $uname;
-    }
-
-  // insurance company list
+    } // insurance company list
     else if ($data_type == 16) {
         $insprovs = getInsuranceProviders();
         foreach ($insprovs as $key => $ipname) {
@@ -2224,18 +2140,14 @@ function generate_plaintext_field($frow, $currvalue)
                 $s .= $ipname;
             }
         }
-    }
-
-  // issue type
+    } // issue type
     else if ($data_type == 17) {
         foreach ($ISSUE_TYPES as $key => $value) {
             if ($currvalue == $key) {
                 $s .= $value[1];
             }
         }
-    }
-
-  // visit category
+    } // visit category
     else if ($data_type == 18) {
         $crow = sqlQuery(
             "SELECT pc_catid, pc_catname " .
@@ -2243,9 +2155,7 @@ function generate_plaintext_field($frow, $currvalue)
             array($currvalue)
         );
         $s = $crow['pc_catname'];
-    }
-
-  // a set of labeled checkboxes
+    } // a set of labeled checkboxes
     else if ($data_type == 21) {
         $avalue = explode('|', $currvalue);
         $lres = sqlStatement("SELECT * FROM list_options " .
@@ -2258,9 +2168,7 @@ function generate_plaintext_field($frow, $currvalue)
                 $s .= xl_list_label($lrow['title']);
             }
         }
-    }
-
-  // a set of labeled text input fields
+    } // a set of labeled text input fields
     else if ($data_type == 22) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -2269,6 +2177,7 @@ function generate_plaintext_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         while ($lrow = sqlFetchArray($lres)) {
@@ -2278,9 +2187,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s .= xl_list_label($lrow['title']) . ': ';
             $s .= $avalue[$option_id];
         }
-    }
-
-  // A set of exam results; 3 radio buttons and a text field.
+    } // A set of exam results; 3 radio buttons and a text field.
   // This shows abnormal results only.
     else if ($data_type == 23) {
         $tmp = explode('|', $currvalue);
@@ -2290,6 +2197,7 @@ function generate_plaintext_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         while ($lrow = sqlFetchArray($lres)) {
@@ -2302,9 +2210,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s .= xl_list_label($lrow['title']);
             if (!empty($resnote)) $s .= ': ' . $resnote;
         }
-    }
-
-  // the list of active allergies for the current patient
+    } // the list of active allergies for the current patient
     else if ($data_type == 24) {
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
@@ -2316,9 +2222,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s .= $lrow['title'];
             if ($lrow['comments']) $s .= ' (' . $lrow['comments'] . ')';
         }
-    }
-
-  // a set of labeled checkboxes, each with a text field:
+    } // a set of labeled checkboxes, each with a text field:
     else if ($data_type == 25) {
         $tmp = explode('|', $currvalue);
         $avalue = array();
@@ -2327,6 +2231,7 @@ function generate_plaintext_field($frow, $currvalue)
                 $avalue[$matches[1]] = $matches[2];
             }
         }
+
         $lres = sqlStatement("SELECT * FROM list_options " .
         "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
         while ($lrow = sqlFetchArray($lres)) {
@@ -2340,9 +2245,7 @@ function generate_plaintext_field($frow, $currvalue)
             $s .= $restype;
             if ($resnote) $s .= ' ' . $resnote;
         }
-    }
-
-  // special case for history of lifestyle status; 3 radio buttons and a date text field:
+    } // special case for history of lifestyle status; 3 radio buttons and a date text field:
   // VicarePlus :: A selection list for smoking status.
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
@@ -2358,29 +2261,28 @@ function generate_plaintext_field($frow, $currvalue)
 
         if ($data_type == 28) {
             if (!empty($resnote)) $s .= $resnote;
-        }
-        // Tobacco field has a listbox, text box, date field and 3 radio buttons.
+        } // Tobacco field has a listbox, text box, date field and 3 radio buttons.
         else if ($data_type == 32) {
             if (!empty($reslist)) $s .= generate_plaintext_field(array('data_type'=>'1','list_id'=>$list_id), $reslist);
             if (!empty($resnote)) $s .= ' ' . $resnote;
         }
+
         if (!empty($res)) {
             if ($s !== '') $s .= ' ';
             $s .= xl('Status') . ' ' . $res;
         }
+
         if ($restype == "quit".$field_id) {
             if ($s !== '') $s .= ' ';
             $s .= $resdate;
         }
-    }
-
-  // Multi select
+    } // Multi select
   //  Supports backup lists
     else if ($data_type == 36) {
         $values_array = explode("|", $currvalue);
 
         $i = 0;
-        foreach($values_array as $value) {
+        foreach ($values_array as $value) {
             $lrow = sqlQuery("SELECT title FROM list_options " .
             "WHERE list_id = ? AND option_id = ? AND activity = 1", array($list_id,$value));
 
@@ -2460,12 +2362,10 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 if ($GLOBALS['omit_employers']) continue;
                 $tmp = substr($field_id, 3);
                 if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-            }
-            else {
+            } else {
                 if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
             }
-        }
-        else {
+        } else {
             if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
         }
 
@@ -2497,6 +2397,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     //echo "<td class='' style='padding-right:5pt' valign='top'>";
                     echo "<td valign='top'>&nbsp;";
                 }
+
                   echo "</td>";
             }
 
@@ -2512,6 +2413,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 echo ">";
                 $cell_count += $titlecols;
             }
+
             ++$item_count;
 
           // Added 5-09 by BM - Translate label if applicable
@@ -2590,7 +2492,6 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
 
             <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
-
                 $titlecols     = $group_fields['titlecols'];
                 $datacols      = $group_fields['datacols'];
                 $data_type     = $group_fields['data_type'];
@@ -2606,12 +2507,10 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                         if ($GLOBALS['omit_employers']) continue;
                         $tmp = substr($field_id, 3);
                         if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-                    }
-                    else {
+                    } else {
                         if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
                     }
-                }
-                else {
+                } else {
                     if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
                 }
 
@@ -2642,6 +2541,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
                     echo ">";
                     $cell_count += $titlecols;
                 }
+
                 ++$item_count;
 
                 $field_id_label = 'label_'.$group_fields['field_id'];
@@ -2677,7 +2577,6 @@ function display_layout_tabs_data($formtype, $result1, $result2 = '')
         <?php
 
         $first = false;
-
     }
 }
 
@@ -2696,6 +2595,7 @@ function get_conditions_str($condition_str, $frow)
             "value:'"    . addslashes($condition['value'])    . "', " .
             "andor:'"    . addslashes($andor)                 . "'}";
     }
+
     return $condition_str;
 }
 function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
@@ -2730,7 +2630,6 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 
             <?php
             while ($group_fields = sqlFetchArray($group_fields_query)) {
-
                 $titlecols  = $group_fields['titlecols'];
                 $datacols   = $group_fields['datacols'];
                 $data_type  = $group_fields['data_type'];
@@ -2746,12 +2645,10 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                         if ($GLOBALS['omit_employers']) continue;
                         $tmp = substr($field_id, 3);
                         if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-                    }
-                    else {
+                    } else {
                         if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
                     }
-                }
-                else {
+                } else {
                     if (isset($result1[$field_id])) $currvalue = $result1[$field_id];
                 }
 
@@ -2782,6 +2679,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
                     echo ">";
                     $cell_count += $titlecols;
                 }
+
                 ++$item_count;
 
                 // Added 5-09 by BM - Translate label if applicable
@@ -2810,7 +2708,6 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
         <?php
 
         $first = false;
-
     }
 }
 
@@ -2832,8 +2729,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 if (strlen($value)) $value .= '|';
                 $value .= $key;
             }
-        }
-        else if ($data_type == 22) {
+        } else if ($data_type == 22) {
             // $_POST["$prefix$field_id"] is an array of text fields to be imploded
             // into "key:value|key:value|...".
             foreach ($_POST["$prefix$field_id"] as $key => $val) {
@@ -2841,8 +2737,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 if (strlen($value)) $value .= '|';
                 $value .= "$key:$val";
             }
-        }
-        else if ($data_type == 23) {
+        } else if ($data_type == 23) {
             // $_POST["$prefix$field_id"] is an array of text fields with companion
             // radio buttons to be imploded into "key:n:notes|key:n:notes|...".
             foreach ($_POST["$prefix$field_id"] as $key => $val) {
@@ -2852,8 +2747,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 if (strlen($value)) $value .= '|';
                 $value .= "$key:$restype:$val";
             }
-        }
-        else if ($data_type == 25) {
+        } else if ($data_type == 25) {
             // $_POST["$prefix$field_id"] is an array of text fields with companion
             // checkboxes to be imploded into "key:n:notes|key:n:notes|...".
             foreach ($_POST["$prefix$field_id"] as $key => $val) {
@@ -2862,25 +2756,20 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 if (strlen($value)) $value .= '|';
                 $value .= "$key:$restype:$val";
             }
-        }
-        else if ($data_type == 28 || $data_type == 32) {
+        } else if ($data_type == 28 || $data_type == 32) {
             // $_POST["$prefix$field_id"] is an date text fields with companion
             // radio buttons to be imploded into "notes|type|date".
             $restype = $_POST["radio_{$field_id}"];
             if (empty($restype)) $restype = '0';
             $resdate = str_replace('|', ' ', $_POST["date_$field_id"]);
             $resnote = str_replace('|', ' ', $_POST["$prefix$field_id"]);
-            if ($data_type == 32)
-            {
+            if ($data_type == 32) {
               //VicarePlus :: Smoking status data is imploded into "note|type|date|list".
                 $reslist = str_replace('|', ' ', $_POST["$prefix$field_id"]);
                 $res_text_note = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = "$res_text_note|$restype|$resdate|$reslist";
-            }
-            else
-            $value = "$resnote|$restype|$resdate";
-        }
-        else if ($data_type == 36) {
+            } else $value = "$resnote|$restype|$resdate";
+        } else if ($data_type == 36) {
             $value_array = $_POST["form_$field_id"];
             $i = 0;
             foreach ($value_array as $key => $valueofkey) {
@@ -2889,10 +2778,10 @@ function get_layout_form_value($frow, $prefix = 'form_')
                 } else {
                     $value =  $value . "|" . $valueofkey;
                 }
+
                 $i++;
             }
-        }
-        else {
+        } else {
             $value = $_POST["$prefix$field_id"];
         }
     }
@@ -2931,7 +2820,7 @@ function generate_layout_validation($form_id)
 
         if ($frow['uor'] < 2) continue;
 
-        switch($data_type) {
+        switch ($data_type) {
             case  1:
             case 11:
             case 12:
@@ -3024,20 +2913,22 @@ function dropdown_facility(
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
+
         $option_content = htmlspecialchars('-- ' . xl('All Facilities') . ' --', ENT_NOQUOTES);
         echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
     } elseif ($allow_unspecified) {
         $option_value = '0';
         $option_selected_attr = '';
-        if ( $selected == '0' ) {
+        if ($selected == '0') {
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
+
         $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
         echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
     }
 
-    foreach($fres as $frow) {
+    foreach ($fres as $frow) {
         $facility_id = $frow['id'];
         $option_value = htmlspecialchars($facility_id, ENT_QUOTES);
         $option_selected_attr = '';
@@ -3045,6 +2936,7 @@ function dropdown_facility(
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
+
         $option_content = htmlspecialchars($frow['name'], ENT_NOQUOTES);
         echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
     }
@@ -3052,10 +2944,11 @@ function dropdown_facility(
     if ($allow_unspecified && $allow_allfacilities) {
         $option_value = '0';
         $option_selected_attr = '';
-        if ( $selected == '0' ) {
+        if ($selected == '0') {
             $option_selected_attr = ' selected="selected"';
             $have_selected = true;
         }
+
         $option_content = htmlspecialchars('-- ' . xl('Unspecified') . ' --', ENT_NOQUOTES);
         echo "    <option value=\"$option_value\" $option_selected_attr>$option_content</option>\n";
     }
@@ -3066,6 +2959,7 @@ function dropdown_facility(
         $option_content = htmlspecialchars(xl('Missing or Invalid'), ENT_NOQUOTES);
         echo "    <option value='$option_value' label='$option_label' selected='selected'>$option_content</option>\n";
     }
+
     echo "   </select>\n";
 }
 
@@ -3088,39 +2982,41 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 {
     if ($fixedWidth) {
         echo "<div class='section-header'>";
-    }
-    else {
+    } else {
         echo "<div class='section-header-dynamic'>";
     }
+
     echo "<table><tr>";
     if ($auth) {
         // show button, since authorized
         // first prepare class string
         if ($buttonClass) {
             $class_string = "css_button_small ".htmlspecialchars($buttonClass, ENT_NOQUOTES);
-        }
-        else {
+        } else {
             $class_string = "css_button_small";
         }
+
         // next, create the link
         if ($linkMethod == "javascript") {
             echo "<td><a class='" . $class_string . "' href='javascript:;' onclick='" . $buttonLink . "'";
-        }
-        else {
+        } else {
             echo "<td><a class='" . $class_string . "' href='" . $buttonLink . "'";
-            if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two']) ) {
+            if (!isset($_SESSION['patient_portal_onsite']) && !isset($_SESSION['patient_portal_onsite_two'])) {
                 // prevent an error from occuring when calling the function from the patient portal
                 echo " onclick='top.restoreSession()'";
             }
         }
+
         echo "><span>" .
         htmlspecialchars($buttonLabel, ENT_NOQUOTES) . "</span></a></td>";
     }
-    if ($forceExpandAlways){
+
+    if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
         echo "<td><span class='text'><b>" . htmlspecialchars($title, ENT_NOQUOTES) . "</b></span>";
         $indicatorTag ="style='display:none'";
     }
+
     $indicatorTag = isset($indicatorTag) ?  $indicatorTag : "";
     echo "<td><a " . $indicatorTag . " href='javascript:;' class='small' onclick='toggleIndicator(this,\"" .
     htmlspecialchars($label, ENT_QUOTES) . "_ps_expand\")'><span class='text'><b>";
@@ -3129,13 +3025,12 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
         $text = xl('expand');
-    }
-    else if (getUserSetting($label."_ps_expand")) {
+    } else if (getUserSetting($label."_ps_expand")) {
         $text = xl('collapse');
-    }
-    else {
+    } else {
         $text = xl('expand');
     }
+
     echo " (<span class='indicator'>" . htmlspecialchars($text, ENT_QUOTES) .
     "</span>)</a></td>";
     echo "</tr></table>";
@@ -3143,20 +3038,19 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
     if ($forceExpandAlways) {
         // Special case to force the widget to always be expanded
         $styling = "";
-    }
-    else if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
+    } else if (isset($_SESSION['patient_portal_onsite']) || isset($_SESSION['patient_portal_onsite_two'])) {
         // collapse all entries in the patient portal
         $styling = "style='display:none'";
-    }
-    else if (getUserSetting($label."_ps_expand")) {
+    } else if (getUserSetting($label."_ps_expand")) {
         $styling = "";
-    }
-    else {
+    } else {
         $styling = "style='display:none'";
     }
+
     if ($bodyClass) {
         $styling .= " class='" . $bodyClass . "'";
     }
+
   //next, create the first div tag to hold the information
   // note the code that calls this function will then place the ending div tag after the data
     echo "<div id='" . htmlspecialchars($label, ENT_QUOTES) . "_ps_expand' " . $styling . ">";
@@ -3173,6 +3067,7 @@ function billing_facility($name, $select)
             $selected = ( $facrow['id'] == $select ) ? 'selected="selected"' : '' ;
              echo "<option value=".htmlspecialchars($facrow['id'], ENT_QUOTES)." $selected>".htmlspecialchars($facrow['name'], ENT_QUOTES)."</option>";
     }
+
               echo "</select>";
 }
 
@@ -3190,10 +3085,10 @@ function getSmokeCodes()
 {
      $smoking_codes_arr = array();
      $smoking_codes = sqlStatement("SELECT option_id,codes FROM list_options WHERE list_id='smoking_status' AND activity = 1");
-    while($codes_row = sqlFetchArray($smoking_codes))
-      {
+    while ($codes_row = sqlFetchArray($smoking_codes)) {
         $smoking_codes_arr[$codes_row['option_id']] = $codes_row['codes'];
     }
+
      return $smoking_codes_arr;
 }
 
@@ -3215,23 +3110,21 @@ function lbf_current_value($frow, $formid, $encounter)
         if ($source == 'H') {
             $table = 'history_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';
-        }
-        else if (strpos($field_id, 'em_') === 0) {
+        } else if (strpos($field_id, 'em_') === 0) {
             $field_id = substr($field_id, 3);
             $table = 'employer_data';
             $orderby = 'ORDER BY date DESC LIMIT 1';
-        }
-        else {
+        } else {
             $table = 'patient_data';
             $orderby = '';
         }
+
         // It is an error if the field does not exist, but don't crash.
         $tmp = sqlQuery("SHOW COLUMNS FROM $table WHERE Field = ?", array($field_id));
         if (empty($tmp)) return false;
         $pdrow = sqlQuery("SELECT `$field_id` AS field_value FROM $table WHERE pid = ? $orderby", array($pid));
         if (isset($pdrow)) $currvalue = $pdrow['field_value'];
-    }
-    else if ($source == 'E') {
+    } else if ($source == 'E') {
         if ($encounter) {
             // Get value from shared_attributes of the current encounter.
             $sarow = sqlQuery(
@@ -3240,8 +3133,7 @@ function lbf_current_value($frow, $formid, $encounter)
                 array($pid, $encounter, $field_id)
             );
             if (isset($sarow)) $currvalue = $sarow['field_value'];
-        }
-        else if ($formid) {
+        } else if ($formid) {
             // Get from shared_attributes of the encounter that this form is linked to.
             // Note the importance of having an index on forms.form_id.
             $sarow = sqlQuery(
@@ -3252,12 +3144,10 @@ function lbf_current_value($frow, $formid, $encounter)
                 array($formid, $formname, $field_id)
             );
             if (!empty($sarow)) $currvalue = $sarow['field_value'];
-        }
-        else {
+        } else {
             // New form and encounter not available, this should not happen.
         }
-    }
-    else if ($source == 'V') {
+    } else if ($source == 'V') {
         if ($encounter) {
             // Get value from the current encounter's form_encounter.
             $ferow = sqlQuery(
@@ -3266,8 +3156,7 @@ function lbf_current_value($frow, $formid, $encounter)
                 array($pid, $encounter)
             );
             if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
-        }
-        else if ($formid) {
+        } else if ($formid) {
             // Get value from the form_encounter that this form is linked to.
             $ferow = sqlQuery(
                 "SELECT fe.* " .
@@ -3277,23 +3166,21 @@ function lbf_current_value($frow, $formid, $encounter)
                 array($formid, $formname)
             );
             if (isset($ferow[$field_id])) $currvalue = $ferow[$field_id];
-        }
-        else {
+        } else {
             // New form and encounter not available, this should not happen.
         }
-    }
-    else if ($formid) {
+    } else if ($formid) {
         // This is a normal form field.
         $ldrow = sqlQuery("SELECT field_value FROM lbf_data WHERE " .
         "form_id = ? AND field_id = ?", array($formid, $field_id));
         if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
-    }
-    else {
+    } else {
         // New form, see if there is a custom default from a plugin.
         // This logic does not apply to shared attributes because they do not
         // have a "new form" concept.
         if (function_exists($deffname)) $currvalue = call_user_func($deffname);
     }
+
     return $currvalue;
 }
 

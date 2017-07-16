@@ -83,7 +83,7 @@ class RequestUtil
         
         if (isset($uri ['query'])) {
             $parts = explode("&", $uri ['query']);
-            foreach ( $parts as $part ) {
+            foreach ($parts as $part) {
                 $keyval = explode("=", $part, 2);
                 $_REQUEST [$keyval [0]] = isset($keyval [1]) ? urldecode($keyval [1]) : "";
             }
@@ -143,7 +143,7 @@ class RequestUtil
         array_shift($parts);
         
         // if there is no action specified then we don't want to return an array with an empty string
-        while ( count($parts) && $parts [0] == '' ) {
+        while (count($parts) && $parts [0] == '') {
             array_shift($parts);
         }
         
@@ -188,13 +188,14 @@ class RequestUtil
             return getallheaders();
         
         $headers = array ();
-        foreach ( $_SERVER as $k => $v ) {
+        foreach ($_SERVER as $k => $v) {
             if (substr($k, 0, 5) == "HTTP_") {
                 $k = str_replace('_', ' ', substr($k, 5));
                 $k = str_replace(' ', '-', ucwords(strtolower($k)));
                 $headers [$k] = $v;
             }
         }
+
         return $headers;
     }
     
@@ -250,10 +251,11 @@ class RequestUtil
             // apache_request_headers is not supported in this environment
             
             $headers = array ();
-            foreach ( $_SERVER as $key => $value ) {
+            foreach ($_SERVER as $key => $value) {
                 if (substr($key, 0, 5) != 'HTTP_') {
                     continue;
                 }
+
                 $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
                 $headers [$header] = $value;
             }
@@ -337,6 +339,7 @@ class RequestUtil
             if ($ignore_empty) {
                 return null;
             }
+
             throw new Exception("\$_FILES['" . $fieldname . "'] is empty.  Did you forget to add enctype='multipart/form-data' to your form code?");
         }
         
@@ -475,7 +478,7 @@ class RequestUtil
             require_once("verysimple/String/VerySimpleStringUtil.php");
             
             if (is_array($val)) {
-                foreach ( $val as $k => $v ) {
+                foreach ($val as $k => $v) {
                     $val [$k] = VerySimpleStringUtil::EncodeToHTML($v);
                 }
             } else {
@@ -557,6 +560,7 @@ class RequestUtil
                     if ($ampm == "PM") {
                         $hour = ($hour * 1) + 12;
                     }
+
                     $returnVal .= " " . $hour . ":" . $minute . ":" . "00";
                 }
                 

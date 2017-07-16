@@ -146,14 +146,14 @@ class Pop3Client
         $attachments = array ();
         
         if ($contentParts >= 2) {
-            for($i = 2; $i <= $contentParts; $i ++) {
+            for ($i = 2; $i <= $contentParts; $i ++) {
                 $att [$i - 2] = imap_bodystruct($this->mbox, $msgno, $i);
                 // these extra bits help us later...
                 $att [$i - 2]->x_msg_id = $msgno;
                 $att [$i - 2]->x_part_id = $i;
             }
             
-            for($k = 0; $k < sizeof($att); $k ++) {
+            for ($k = 0; $k < sizeof($att); $k ++) {
                 if (strtolower($att [$k]->parameters [0]->value) == "us-ascii" && $att [$k]->parameters [1]->value != "") {
                     $attachments [$k] = $this->_getPartFromStruct($att [$k], $include_raw_data);
                 } elseif (strtolower($att [$k]->parameters [0]->value) != "iso-8859-1") {
@@ -240,6 +240,7 @@ class Pop3Client
         if ($structure->subtype) {
             return $this->GetPrimaryType($structure) . '/' . $structure->subtype;
         }
+
         return "TEXT/PLAIN";
     }
     
@@ -301,12 +302,12 @@ class Pop3Client
                 }
             }
             
-            if ($structure->type == 1) /* multipart */
-            {
-                while ( list ( $index, $sub_structure ) = each($structure->parts) ) {
+            if ($structure->type == 1) { /* multipart */
+                while (list ( $index, $sub_structure ) = each($structure->parts)) {
                     if ($part_number) {
                         $prefix = $part_number . '.';
                     }
+
                     $data = $this->GetPart($msg_number, $mime_type, $sub_structure, $prefix . ($index + 1));
                     
                     if ($data) {

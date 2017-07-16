@@ -26,7 +26,7 @@ function send_email($subject, $body)
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
-    if(!$mail->Send()) {
+    if (!$mail->Send()) {
         error_log(xl('There has been a mail error sending to', '', '', ' ') . $recipient .
         " " . $mail->ErrorInfo);
     }
@@ -41,10 +41,10 @@ function send_email($subject, $body)
 
  if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
 
- if (!$drug_id        ) $drug_id = 0;
+ if (!$drug_id) $drug_id = 0;
  if (!$prescription_id) $prescription_id = 0;
- if (!$quantity       ) $quantity = 0;
- if (!$fee            ) $fee = 0.00;
+ if (!$quantity) $quantity = 0;
+ if (!$fee) $fee = 0.00;
 
  $inventory_id = 0;
  $bad_lot_list = '';
@@ -101,7 +101,6 @@ if (! $sale_id) {
      // TBD: Set and check a reorder notification date so we don't
      // send zillions of redundant emails.
        ******************************************************************/
-
     } // end if $drug_id
 
   /*******************************************************************
@@ -114,7 +113,6 @@ if (! $sale_id) {
   *******************************************************************/
 
     if (!$sale_id) die(xlt('Internal error, no drug ID specified!'));
-
 } // end if not $sale_id
 
  // Generate the bottle label for the sale identified by $sale_id.
@@ -181,15 +179,15 @@ if (! $sale_id) {
      $pdf->selectFont('Helvetica');
      $pdf->ezSetDy(20); // dunno why we have to do this...
      $pdf->ezText($header_text, 7, array('justification'=>'center'));
-     if(!empty($dconfig['logo'])) {
+     if (!empty($dconfig['logo'])) {
          $pdf->ezSetDy(-5); // add space (move down) before the image
          $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
          $pdf->ezSetDy(8);  // reduce space (move up) after the image
         }
+
         $pdf->ezText($label_text, 9, array('justification'=>'center'));
         $pdf->ezStream();
-    }
-    else { // HTML output
+    } else { // HTML output
         ?>
    <html>
       <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>

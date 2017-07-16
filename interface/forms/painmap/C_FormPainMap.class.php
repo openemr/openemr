@@ -51,7 +51,7 @@ class C_FormPainMap extends C_AbstractClickmap
      */
     public function createModel($form_id = "")
     {
-        if ( $form_id != "" ) {
+        if ($form_id != "") {
             return new FormPainMap($form_id);
         } else {
             return new FormPainMap();

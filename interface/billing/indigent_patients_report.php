@@ -187,12 +187,12 @@ $form_end_date   = fixDate($_POST['form_end_date'], date("Y-m-d"));
 
 <?php
 if ($_POST['form_refresh']) {
-
     $where = "";
 
     if ($form_start_date) {
         $where .= " AND e.date >= '$form_start_date'";
     }
+
     if ($form_end_date) {
         $where .= " AND e.date <= '$form_end_date'";
     }

@@ -40,7 +40,7 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     function getRequirements()
     {
         $requirements = "";
-        if ( $this->value ) {
+        if ($this->value) {
             $requirements .= xl("Value") . ": ";
             $requirements .= $this->decodeComparator($this->valueComparator) . " " . $this->value;
             $requirements .= " | ";
@@ -66,11 +66,12 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria
     {
         $options = array();
         $stmts = sqlStatement("SHOW TABLES");
-        for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
-            foreach( $row as $key=>$value) {
+        for ($iter=0; $row=sqlFetchArray($stmts); $iter++) {
+            foreach ($row as $key=>$value) {
                 array_push($options, array( "id" => out($value), "label" => out(xl($value)) ));
             }
         }
+
         return $options;
     }
     

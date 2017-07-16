@@ -29,9 +29,10 @@ class ReminderIntervals
     function addDetail($detail)
     {
         $details = $this->detailMap[ $detail->intervalType->code ];
-        if ( is_null($details) ) {
+        if (is_null($details)) {
             $details = array();
         }
+
         array_push($details, $detail);
         $this->detailMap[ $detail->intervalType->code ] = $details;
     }
@@ -39,9 +40,10 @@ class ReminderIntervals
     function getTypes()
     {
         $types = array();
-        foreach ( array_keys($this->detailMap) as $code )  {
+        foreach (array_keys($this->detailMap) as $code) {
             array_push($types, ReminderIntervalType::from($code));
         }
+
         return $types;
     }
 
@@ -54,12 +56,12 @@ class ReminderIntervals
     function getDetailFor($type, $range = null)
     {
         $details = $this->detailMap[ $type->code ];
-        if (is_null($range) ) {
+        if (is_null($range)) {
             return $details;
         }
 
-        foreach( $details as $detail ) {
-            if ( $detail->intervalRange == $range ) {
+        foreach ($details as $detail) {
+            if ($detail->intervalRange == $range) {
                 return $detail;
             }
         }
@@ -71,12 +73,14 @@ class ReminderIntervals
     {
         $details = $this->getDetailFor($type);
         $display = "";
-        foreach( $details as $detail ) {
-            if ( $display != "" ) {
+        foreach ($details as $detail) {
+            if ($display != "") {
                 $display .= ", ";
             }
+
             $display .= $detail->display();
         }
+
         return $display;
     }
 }

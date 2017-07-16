@@ -48,10 +48,10 @@ class FormReviewOfSystems extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->_table = "form_review_of_systems";
         $this->date = date("Y-m-d H:i:s");
         $this->activity = 1;
@@ -68,8 +68,7 @@ class FormReviewOfSystems extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }

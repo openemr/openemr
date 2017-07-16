@@ -33,7 +33,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // If updating an existing form...
  //
     if ($formid) {
@@ -43,9 +42,7 @@ if ($_POST['bn_save']) {
          "plan = '"        . $_POST['form_plan']        . "' "  .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_hist_exam_plan ( " .

@@ -144,14 +144,17 @@ if (!empty($_POST['form_submit'])) {
                     if (!unlink("$sencdir/$sfname"))
                     die("<br />" . xlt('Delete failed!'));
                 }
+
                 continue;
             }
+
             echo "<br />" . xlt('Moving') . " $sencdir/$sfname " . xlt('to') . " $tencdir/$sfname";
             if ($PRODUCTION) {
                 if (!rename("$sencdir/$sfname", "$tencdir/$sfname"))
                 die("<br />" . xlt('Move failed!'));
             }
         }
+
         closedir($dh);
         echo "<br />" . xlt('Deleting') . " $sencdir";
         if ($PRODUCTION) {
@@ -165,20 +168,15 @@ if (!empty($_POST['form_submit'])) {
         $tblname = array_shift($trow);
         if ($tblname == 'patient_data' || $tblname == 'history_data' || $tblname == 'insurance_data') {
             deleteRows($tblname, 'pid', $source_pid);
-        }
-        else if ($tblname == 'chart_tracker') {
+        } else if ($tblname == 'chart_tracker') {
             updateRows($tblname, 'ct_pid', $source_pid, $target_pid);
-        }
-        else if ($tblname == 'documents') {
+        } else if ($tblname == 'documents') {
             // Documents already handled.
-        }
-        else if ($tblname == 'openemr_postcalendar_events') {
+        } else if ($tblname == 'openemr_postcalendar_events') {
             updateRows($tblname, 'pc_pid', $source_pid, $target_pid);
-        }
-        else if ($tblname == 'log') {
+        } else if ($tblname == 'log') {
             // Don't mess with log data.
-        }
-        else {
+        } else {
             $crow = sqlQuery("SHOW COLUMNS FROM `$tblname` WHERE " .
             "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'");
             if (!empty($crow['Field'])) {

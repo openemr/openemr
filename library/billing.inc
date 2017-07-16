@@ -16,10 +16,10 @@ function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_
     $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter,$pid));
 
     $all=array();
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
@@ -120,8 +120,8 @@ function updateClaim(
         if ($status       < 0) $status       = $row['status'];
         if ($bill_process < 0) $bill_process = $row['bill_process'];
         if ($partner_id   < 0) $partner_id   = $row['x12_partner_id'];
-        if (!$process_file   ) $process_file = $row['process_file'];
-        if (!$target         ) $target       = $row['target'];
+        if (!$process_file) $process_file = $row['process_file'];
+        if (!$target) $target       = $row['target'];
     }
 
     $claimset = "";
@@ -130,8 +130,7 @@ function updateClaim(
 
     if ($status==7) {//$status==7 is the claim denial case.
         $claimset .= ", status = '$status'";
-    }
-    elseif ($status >= 0) {
+    } elseif ($status >= 0) {
         $claimset .= ", status = '$status'";
         if ($status > 1) {
             $billset .= ", billed = 1";
@@ -140,28 +139,31 @@ function updateClaim(
             $billset .= ", billed = 0";
         }
     }
+
     if ($status==7) {//$status==7 is the claim denial case.
         $billset  .= ", bill_process = '$status'";
-    }
-    elseif ($bill_process >= 0) {
+    } elseif ($bill_process >= 0) {
         $claimset .= ", bill_process = '$bill_process'";
         $billset  .= ", bill_process = '$bill_process'";
     }
+
     if ($status==7) {//$status==7 is the claim denial case.
         $claimset  .= ", process_file = '$process_file'";//Denial reason code is stored here
-    }
-    elseif ($process_file) {
+    } elseif ($process_file) {
         $claimset .= ", process_file = '$process_file', process_time = NOW()";
         $billset  .= ", process_file = '$process_file', process_date = NOW()";
     }
+
     if ($target) {
         $claimset .= ", target = '$target'";
         $billset  .= ", target = '$target'";
     }
+
     if ($payer_id >= 0) {
         $claimset .= ", payer_id = '$payer_id', payer_type = '$payer_type'";
         $billset  .= ", payer_id = '$payer_id'";
     }
+
     if ($partner_id >= 0) {
         $claimset .= ", x12_partner_id = '$partner_id'";
         $billset  .= ", x12_partner_id = '$partner_id'";
@@ -197,27 +199,23 @@ function updateClaim(
         ****/
         sqlBeginTrans();
         $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ));
-        if($crossover<>1)
-        {
+        if ($crossover<>1) {
             $sql .= "INSERT INTO claims SET " .
               "patient_id = $patient_id, " .
               "encounter_id = $encounter_id, " .
               "bill_time = NOW() $claimset ," .
               "version = " . $version['increment'];
-        }
-        else
-        {//Claim automatic forward case.startTra
+        } else {//Claim automatic forward case.startTra
             $sql= "INSERT INTO claims SET " .
               "patient_id = $patient_id, " .
               "encounter_id = $encounter_id, " .
               "bill_time = NOW(), status=$status ," .
               "version = " . $version['increment'];
         }
+
         sqlStatement($sql);
         sqlCommitTrans();
-    }
-
-  // Otherwise update the existing claim row.
+    } // Otherwise update the existing claim row.
   //
     else if ($claimset) {
         $claimset = substr($claimset, 2);
@@ -265,8 +263,7 @@ function isEncounterBilled($pid, $encounter)
     while ($brow = sqlFetchArray($bres)) {
         if ($brow['billed'] == 0) {
             $billed = 0;
-        }
-        else {
+        } else {
             if ($billed < 0) $billed = 1;
         }
     }
@@ -333,6 +330,7 @@ function updateInvoiceRefNumber()
             array($newnumber, $_SESSION['authUser'])
         );
     }
+
     return $irnumber;
 }
 
@@ -360,8 +358,7 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
         if (!empty($corow['bill_date'])) {
               $date_original = $corow['bill_date'];
         }
-    }
-    else if ($time == 'all') {
+    } else if ($time == 'all') {
         $row = sqlQuery(
             "SELECT SUM(pay_amount) AS payments, " .
             "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
@@ -370,10 +367,10 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
         );
         $adjustments = $row['adjustments'];
         $payments = $row['payments'];
-    }
-    else {
+    } else {
         $date_original = $time;
     }
+
   // Get its charges and adjustments.
     if ($date_original) {
         $row = sqlQuery(
@@ -412,8 +409,10 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
               $query .= ", date_original = ?";
               $sqlarr[] = $date_original;
         }
+
         sqlStatement($query, $sqlarr);
     }
+
     if ($purge) {
         // Purge means delete adjustments and payments from the last checkout
         // and re-open the visit.
@@ -435,8 +434,7 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
                 "bill_date IS NOT NULL AND bill_date = ?",
                 array($patient_id, $encounter_id, $date_original)
             );
-        }
-        else {
+        } else {
             if ($time == 'all') {
                 sqlStatement(
                     "DELETE FROM ar_activity WHERE " .
@@ -444,6 +442,7 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
                     array($patient_id, $encounter_id)
                 );
             }
+
             sqlStatement(
                 "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
                 "pid = ? AND encounter = ? AND activity = 1",
@@ -455,14 +454,14 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
                 array($patient_id, $encounter_id)
             );
         }
+
         sqlStatement(
             "UPDATE form_encounter SET last_level_billed = 0, " .
             "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
             "WHERE pid = ? AND encounter = ?",
             array($patient_id, $encounter_id)
         );
-    }
-    else if ($usingirnpools) {
+    } else if ($usingirnpools) {
         // Non-purge means just assign a new invoice reference number.
         $new_invoice_refno = add_escape_custom(updateInvoiceRefNumber());
         sqlStatement(

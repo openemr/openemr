@@ -107,11 +107,10 @@ abstract class Phreezable implements Serializable
         $className = get_class($this);
         
         if (! array_key_exists($className, self::$PublicPropCache)) {
-            
             $props = array ();
             $ro = new ReflectionObject($this);
             
-            foreach ( $ro->getProperties() as $rp ) {
+            foreach ($ro->getProperties() as $rp) {
                 $propname = $rp->getName();
                 
                 if (! in_array($propname, self::$NoCacheProperties)) {
@@ -136,7 +135,7 @@ abstract class Phreezable implements Serializable
         $propvals = array ();
         $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties() as $rp ) {
+        foreach ($ro->getProperties() as $rp) {
             $propname = $rp->getName();
             
             if (! in_array($propname, self::$NoCacheProperties)) {
@@ -189,7 +188,7 @@ abstract class Phreezable implements Serializable
         
         $obj = new stdClass();
         
-        foreach ( $props as $prop ) {
+        foreach ($props as $prop) {
             if (! in_array($prop, $omit)) {
                 $newProp = ($camelCase) ? lcfirst($prop) : $prop;
                 $obj->$newProp = $this->$prop;
@@ -210,7 +209,7 @@ abstract class Phreezable implements Serializable
         $propvals = unserialize($data);
         $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties() as $rp ) {
+        foreach ($ro->getProperties() as $rp) {
             $propname = $rp->name;
             if (array_key_exists($propname, $propvals)) {
                 if (method_exists($rp, "setAccessible")) {
@@ -267,7 +266,7 @@ abstract class Phreezable implements Serializable
     {
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
         
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
             $this->$prop = $fm->DefaultValue;
         }
@@ -289,7 +288,7 @@ abstract class Phreezable implements Serializable
         $this->IsLoaded(true);
         $src_cls = get_class($src);
         
-        foreach ( get_object_vars($this) as $key => $val ) {
+        foreach (get_object_vars($this) as $key => $val) {
             if (substr($key, 0, 1) != "_") {
                 if (property_exists($src_cls, $key)) {
                     $this->$key = $src->$key;
@@ -383,7 +382,7 @@ abstract class Phreezable implements Serializable
         if (! $this->_base_validation_complete) {
             $fms = $this->_phreezer->GetFieldMaps(get_class($this));
             
-            foreach ( $fms as $fm ) {
+            foreach ($fms as $fm) {
                 $prop = $fm->PropertyName;
                 
                 if ($fm->FieldType == FM_TYPE_DECIMAL && is_numeric($fm->FieldSize)) {
@@ -467,7 +466,7 @@ abstract class Phreezable implements Serializable
         $this->_phreezer = $phreezer;
         
         // also refresh any children in the cache in case they are accessed
-        foreach ( $this->_cache as $child ) {
+        foreach ($this->_cache as $child) {
             if (in_array("Phreezable", class_parents($child))) {
                 $child->Refresh($phreezer, $row);
             }
@@ -500,7 +499,7 @@ abstract class Phreezable implements Serializable
     function GetPrimaryKeyName()
     {
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             if ($fm->IsPrimaryKey) {
                 return $fm->PropertyName;
             }
@@ -545,7 +544,7 @@ abstract class Phreezable implements Serializable
         $fms = $this->_phreezer->GetFieldMaps(get_class($this));
         $cols = array ();
         
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
             $cols [$fm->ColumnName] = $this->$prop;
         }
@@ -594,7 +593,7 @@ abstract class Phreezable implements Serializable
         // in order to prevent collisions on fields, QueryBuilder appends __tablename__rand to the
                                          // sql statement. We need to strip that out so we can match it up to the property names
         $rowlocal = array ();
-        foreach ( $row as $key => $val ) {
+        foreach ($row as $key => $val) {
             $info = explode("___", $key);
             
             // we prefer to use tablename.colname if we have it, but if not
@@ -603,10 +602,11 @@ abstract class Phreezable implements Serializable
             if (isset($rowlocal [$newkey])) {
                 throw new Exception("The column `$newkey` was selected twice in the same query, causing a data collision");
             }
+
             $rowlocal [$newkey] = $val;
         }
         
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             if (array_key_exists($fm->TableName . "." . $fm->ColumnName, $rowlocal)) {
                 // first try to locate the field by tablename.colname
                 $prop = $fm->PropertyName;
@@ -626,7 +626,7 @@ abstract class Phreezable implements Serializable
         // now look for any eagerly loaded children - their fields should be available in this query
         $kms = $this->_phreezer->GetKeyMaps(get_class($this));
         
-        foreach ( $kms as $km ) {
+        foreach ($kms as $km) {
             if ($km->LoadType == KM_LOAD_EAGER || $km->LoadType == KM_LOAD_INNER) {
                 // load the child object that was obtained eagerly and cache so we
                 // won't ever grab the same object twice in one page load
@@ -637,6 +637,7 @@ abstract class Phreezable implements Serializable
                 $this->_phreezer->SetCache($foclass, $fo->GetPrimaryKeyValue(), $fo, $this->_phreezer->CacheQueryObjectLevel2);
             }
         }
+
         $this->_phreezer->Observe("Firing " . get_class($this) . "->OnLoad()", OBSERVE_DEBUG);
         $this->OnLoad();
     }

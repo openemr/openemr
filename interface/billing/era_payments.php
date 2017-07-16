@@ -62,19 +62,18 @@ if ($_FILES['form_erafile']['size']) {
         exec("unzip -p $tmp_name.zip > $tmp_name");
         unlink("$tmp_name.zip");
     }
+
     $alertmsg .= parse_era($tmp_name, 'era_callback');
     $erafullname = $GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi";
     if (is_file($erafullname)) {
         $alertmsg .=  xl("Warning").': '. xl("Set").' '.$eraname.' '. xl("was already uploaded").' ';
-        if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
-        {
+        if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
             $Processed=1;
             $alertmsg .=  xl("and processed.").' ';
-        }
-        else
-        $alertmsg .=  xl("but not yet processed.").' ';
+        } else $alertmsg .=  xl("but not yet processed.").' ';
         ;
     }
+
     rename($tmp_name, $erafullname);
 } // End 835 upload
 //===============================================================================

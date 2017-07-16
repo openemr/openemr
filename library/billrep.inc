@@ -8,74 +8,49 @@ function GenerateTheQueryPart()
     $auth='';
     $query_part='';
     $query_part2='';
-    if(isset($_REQUEST['final_this_page_criteria']))
-    {
-        foreach($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value)
-         {
+    if (isset($_REQUEST['final_this_page_criteria'])) {
+        foreach ($_REQUEST['final_this_page_criteria'] as $criteria_key => $criteria_value) {
             $criteria_value=PrepareSearchItem($criteria_value); // this escapes for sql
             $SplitArray=array();
           //---------------------------------------------------------
-            if(strpos($criteria_value, "billing.billed = '1'")!== false)
-            {
+            if (strpos($criteria_value, "billing.billed = '1'")!== false) {
                 $billstring .= ' AND '.$criteria_value;
-            }
-            elseif(strpos($criteria_value, "billing.billed = '0'")!== false)
-            {
+            } elseif (strpos($criteria_value, "billing.billed = '0'")!== false) {
                 //3 is an error condition
                 $billstring .= ' AND '."(billing.billed is null or billing.billed = '0' or (billing.billed = '1' and billing.bill_process = '3'))";
-            }
-            elseif(strpos($criteria_value, "billing.billed = '7'")!== false)
-            {
+            } elseif (strpos($criteria_value, "billing.billed = '7'")!== false) {
                 $billstring .= ' AND '."billing.bill_process = '7'";
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "billing.id = 'null'")!== false)
-            {
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "billing.id = 'null'")!== false) {
                 $billstring .= ' AND '."billing.id is null";
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "billing.id = 'not null'")!== false)
-            {
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "billing.id = 'not null'")!== false) {
                 $billstring .= ' AND '."billing.id is not null";
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "patient_data.fname")!== false)
-            {
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "patient_data.fname")!== false) {
                 $SplitArray=explode(' like ', $criteria_value);
                 $query_part .= " AND ($criteria_value or patient_data.lname like ".$SplitArray[1].")";
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "billing.authorized")!== false)
-            {
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "billing.authorized")!== false) {
                 $auth = ' AND '.$criteria_value;
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "form_encounter.pid")!== false)
-            {//comes like '781,780'
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "form_encounter.pid")!== false) {//comes like '781,780'
                 $SplitArray=explode(" = '", $criteria_value);//comes like 781,780'
                 $SplitArray[1]=substr($SplitArray[1], 0, -1);//comes like 781,780
                 $query_part .= ' AND form_encounter.pid in ('.$SplitArray[1].')';
                 $query_part2 .= ' AND pid in ('.$SplitArray[1].')';
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "form_encounter.encounter")!== false)
-            {//comes like '781,780'
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "form_encounter.encounter")!== false) {//comes like '781,780'
                 $SplitArray=explode(" = '", $criteria_value);//comes like 781,780'
                 $SplitArray[1]=substr($SplitArray[1], 0, -1);//comes like 781,780
                 $query_part .= ' AND form_encounter.encounter in ('.$SplitArray[1].')';
-            }
-          //---------------------------------------------------------
-            elseif(strpos($criteria_value, "insurance_data.provider = '1'")!== false)
-            {
+            } //---------------------------------------------------------
+            elseif (strpos($criteria_value, "insurance_data.provider = '1'")!== false) {
                 $query_part .= ' AND '."insurance_data.provider > '0' and insurance_data.date <= form_encounter.date";
-            }
-            elseif(strpos($criteria_value, "insurance_data.provider = '0'")!== false)
-            {
+            } elseif (strpos($criteria_value, "insurance_data.provider = '0'")!== false) {
                 $query_part .= ' AND '."(insurance_data.provider = '0' or insurance_data.date > form_encounter.date)";
-            }
-          //---------------------------------------------------------
-            else
-            {
+            } //---------------------------------------------------------
+            else {
                 $query_part .= ' AND '.$criteria_value;
             }
         }
@@ -109,8 +84,7 @@ function getBillsBetween(
     //echo $sql;
     $res = sqlStatement($sql, array($code_type));
     $all = false;
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
 
@@ -143,16 +117,14 @@ function getBillsBetweenReport(
     //echo $sql;
     $res = sqlStatement($sql, array($code_type));
     $all = false;
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
 
     $query = sqlStatement("SELECT pid, 'COPAY' AS code_type, pay_amount AS code, date(post_time) AS date ".
     "FROM ar_activity where 1=1 $query_part2 and payer_type=0 and account_code='PCP'");
     //new fees screen copay gives account_code='PCP' openemr payment screen copay gives code='CO-PAY'
-    for($iter; $row=sqlFetchArray($query); $iter++)
-    {
+    for ($iter; $row=sqlFetchArray($query); $iter++) {
         $all[$iter] = $row;
     }
 
@@ -182,10 +154,10 @@ function getBillsListBetween(
 
     $res = sqlStatement($sql, array($code_type));
     $string = "( ";
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $string .= $row{"id"}.",";
     }
+
     $string = substr($string, 0, strlen($string)-1);
     $string .= ")";
     return $string;
@@ -198,8 +170,7 @@ function billCodesList($list, $skip = "()")
 
     if ($skip == "()")
     sqlStatement("update billing set billed=1 where id in $list");
-    else
-    sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
+    else sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
 
     return;
 }

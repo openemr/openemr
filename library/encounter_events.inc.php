@@ -49,18 +49,15 @@ function calendar_arrived($form_pid)
 		and pc_eventDate < ? and pc_endDate >= ? ",
         array($form_pid,$Today,$Today)
     );
-    if(sqlNumRows($result_event)==0)//no repeating appointment
-     {
+    if (sqlNumRows($result_event)==0) {//no repeating appointment
         $result_event=sqlStatement(
             "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
             array($form_pid,$Today)
         );
-        if(sqlNumRows($result_event)==0)//no appointment
-         {
+        if (sqlNumRows($result_event)==0) {//no appointment
             echo "<br><br><br>".htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES).". ".htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES).".";
             die;
-        }
-        else//one appointment
+        } else //one appointment
          {
              $enc = todaysEncounterCheck($form_pid);//create encounter
              $zero_enc=0;
@@ -69,35 +66,27 @@ function calendar_arrived($form_pid)
                  array($form_pid,$Today)
              );
         }
-    }
-    else//repeating appointment set
+    } else //repeating appointment set
      {
-        while($row_event=sqlFetchArray($result_event))
-         {
+        while ($row_event=sqlFetchArray($result_event)) {
             $pc_eid = $row_event['pc_eid'];
             $pc_eventDate = $row_event['pc_eventDate'];
             $pc_recurrspec_array = unserialize($row_event['pc_recurrspec']);
-            while(1)
-             {
-                if($pc_eventDate==$Today)//Matches so insert.
-                 {
-                    if(!$exist_eid=check_event_exist($pc_eid))
-                    {
+            while (1) {
+                if ($pc_eventDate==$Today) {//Matches so insert.
+                    if (!$exist_eid=check_event_exist($pc_eid)) {
                         update_event($pc_eid);
-                    }
-                    else
-                    {
+                    } else {
                         sqlStatement(
                             "UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?",
                             array($exist_eid)
                         );
                     }
+
                      $enc = todaysEncounterCheck($form_pid);//create encounter
                      $zero_enc=0;
                     break;
-                }
-                elseif($pc_eventDate>$Today)//the frequency does not match today,no need to increment furthur.
-                 {
+                } elseif ($pc_eventDate>$Today) {//the frequency does not match today,no need to increment furthur.
                     echo "<br><br><br>".htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES).". ".htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES).".";
                     die;
                     break;
@@ -113,18 +102,19 @@ function calendar_arrived($form_pid)
                         $adate['year'] += 1;
                         $adate['mon'] -= 12;
                     }
+
                     if ($my_repeat_on_num < 5) { // not last
                         $adate['mday'] = 1;
                         $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                         if ($dow > $my_repeat_on_day) $dow -= 7;
                         $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                    }
-                    else { // last weekday of month
+                    } else { // last weekday of month
                         $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                         $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
                         if ($dow < $my_repeat_on_day) $dow += 7;
                         $adate['mday'] += $my_repeat_on_day - $dow;
                     }
+
                           $pc_eventDate = date('Y-m-d', mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']));
                 } // end recurrtype 2
 
@@ -139,10 +129,10 @@ function calendar_arrived($form_pid)
                               $pc_recurrspec_array['event_repeat_freq_type']
                           );
                 }
-
             }
         }
     }
+
     return $enc;
 }
 //===============================================================================
@@ -152,20 +142,22 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 {
     global $today;
     $encounter = todaysEncounterIf($patient_id);
-    if($encounter){
-        if($return_existing){
+    if ($encounter) {
+        if ($return_existing) {
             return $encounter;
-        }else{
+        } else {
             return 0;
         }
     }
-    if(is_array($provider)){
+
+    if (is_array($provider)) {
         $visit_provider = (int)$provider[0];
-    } elseif($provider){
+    } elseif ($provider) {
         $visit_provider = (int)$provider;
     } else {
         $visit_provider = '(NULL)';
     }
+
     $dos = $enc_date ? $enc_date : $today;
     $visit_reason = $reason ? $reason : 'Please indicate visit reason';
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
@@ -208,21 +200,23 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
 {
     global $today;
     $encounter = todaysTherapyGroupEncounterIf($group_id);
-    if($encounter){
-        if($return_existing){
+    if ($encounter) {
+        if ($return_existing) {
             return $encounter;
-        }else{
+        } else {
             return 0;
         }
     }
-    if(is_array($provider)){
+
+    if (is_array($provider)) {
         $visit_provider = (int)$provider[0];
         $counselors = implode(',', $provider);
-    } elseif($provider){
+    } elseif ($provider) {
         $visit_provider = $counselors = (int)$provider;
     } else {
         $visit_provider = $counselors = null;
     }
+
     $dos = $enc_date ? $enc_date : $today;
     $visit_reason = $reason ? $reason : 'Please indicate visit reason';
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
@@ -340,13 +334,15 @@ function update_event($eid)
     $starttime=$origEvent['pc_startTime'];
     $endtime=$origEvent['pc_endTime'];
     $selected_date = date("Ymd");
-    if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
-    else { $oldRecurrspec['exdate'] .= $selected_date; }
+    if ($oldRecurrspec['exdate'] != "") {
+        $oldRecurrspec['exdate'] .= ",".$selected_date; } else {
+        $oldRecurrspec['exdate'] .= $selected_date; }
+
     // mod original event recur specs to exclude this date
-    sqlStatement("UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
+        sqlStatement("UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
     // specify some special variables needed for the INSERT
   // no recurr specs, this is used for adding a new non-recurring event
-    $noRecurrspec = array("event_repeat_freq" => "",
+        $noRecurrspec = array("event_repeat_freq" => "",
                         "event_repeat_freq_type" => "",
                         "event_repeat_on_num" => "1",
                         "event_repeat_on_day" => "0",
@@ -403,19 +399,13 @@ function check_event_exist($eid)
         "and pc_pid=? and pc_eventDate=? and pc_startTime=? and pc_endTime=? and pc_facility=? and pc_billing_location=?",
         array($eid,$pc_catid,$pc_aid,$pc_pid,$pc_eventDate,$pc_startTime,$pc_endTime,$pc_facility,$pc_billing_location)
     );
-    if(sqlNumRows($origEvent)>0)
-     {
+    if (sqlNumRows($origEvent)>0) {
         $origEventRow=sqlFetchArray($origEvent);
         return $origEventRow['pc_eid'];
-    }
-    else
-     {
-        if(strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false)//;'20110228'
-         {
+    } else {
+        if (strpos($pc_recurrspec_array['exdate'], date('Ymd')) === false) {//;'20110228'
             return false;
-        }
-        else
-         {//this happens in delete case
+        } else {//this happens in delete case
             return true;
         }
     }
@@ -427,18 +417,18 @@ function InsertEvent($args, $from = 'general')
 {
     $pc_recurrtype = '0';
     if ($args['form_repeat'] || $args['days_every_week']) {
-        if($args['recurrspec']['event_repeat_freq_type'] == "6"){
+        if ($args['recurrspec']['event_repeat_freq_type'] == "6") {
             $pc_recurrtype = 3;
-        }
-        else {
+        } else {
             $pc_recurrtype = $args['recurrspec']['event_repeat_on_freq'] ? '2' : '1';
         }
     }
+
     $form_pid = empty($args['form_pid']) ? '' : $args['form_pid'];
     $form_room = empty($args['form_room']) ? '' : $args['form_room'];
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
     ;
-    if($from == 'general'){
+    if ($from == 'general') {
         $pc_eid = sqlInsert(
             "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
@@ -457,11 +447,11 @@ function InsertEvent($args, $from = 'general')
         if (!empty($form_pid)) {
             manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $_SESSION['authUser'], $args['form_apptstatus'], $args['form_room']);
         }
+
             $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in
 
             return $pc_eid;
-
-    }elseif($from == 'payment'){
+    } elseif ($from == 'payment') {
         sqlStatement(
             "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, " .
@@ -490,9 +480,9 @@ function InsertEvent($args, $from = 'general')
 function &__increment($d, $m, $y, $f, $t)
 {
 
-    if($t == REPEAT_EVERY_DAY) {
+    if ($t == REPEAT_EVERY_DAY) {
         return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
-    } elseif($t == REPEAT_EVERY_WORK_DAY) {
+    } elseif ($t == REPEAT_EVERY_WORK_DAY) {
         // a workday is defined as Mon,Tue,Wed,Thu,Fri
         // repeating on every or Nth work day means to not include
         // weekends (Sat/Sun) in the increment... tricky
@@ -503,31 +493,31 @@ function &__increment($d, $m, $y, $f, $t)
         $orig_freq = $f;
         for ($daycount=1; $daycount<=$orig_freq; $daycount++) {
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$daycount), $y));
-            if (is_weekend_day($nextWorkDOW)) { $f++; }
+            if (is_weekend_day($nextWorkDOW)) {
+                $f++; }
         }
 
         // and finally make sure we haven't landed on a end week days
         // adjust as necessary
         $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d+$f), $y));
-        if (count($GLOBALS['weekend_days']) === 2){
+        if (count($GLOBALS['weekend_days']) === 2) {
             if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
                 $f+=2;
-            }elseif($nextWorkDOW == $GLOBALS['weekend_days'][1]){
+            } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
                  $f++;
             }
-        } elseif(count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+        } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
             $f++;
         }
 
         return date('Y-m-d', mktime(0, 0, 0, $m, ($d+$f), $y));
-
-    } elseif($t == REPEAT_EVERY_WEEK) {
+    } elseif ($t == REPEAT_EVERY_WEEK) {
         return date('Y-m-d', mktime(0, 0, 0, $m, ($d+(7*$f)), $y));
-    } elseif($t == REPEAT_EVERY_MONTH) {
+    } elseif ($t == REPEAT_EVERY_MONTH) {
         return date('Y-m-d', mktime(0, 0, 0, ($m+$f), $d, $y));
-    } elseif($t == REPEAT_EVERY_YEAR) {
+    } elseif ($t == REPEAT_EVERY_YEAR) {
         return date('Y-m-d', mktime(0, 0, 0, $m, $d, ($y+$f)));
-    }elseif($t == REPEAT_DAYS_EVERY_WEEK) {
+    } elseif ($t == REPEAT_DAYS_EVERY_WEEK) {
         $old_appointment_date = date('Y-m-d', mktime(0, 0, 0, $m, $d, $y));
         $next_appointment_date = getTheNextAppointment($old_appointment_date, $f);
         return $next_appointment_date;
@@ -538,35 +528,50 @@ function getTheNextAppointment($appointment_date, $freq)
 {
     $day_arr = explode(",", $freq);
     $date_arr = array();
-    foreach ($day_arr as $day){
+    foreach ($day_arr as $day) {
         $day = getDayName($day);
         $date = date('Y-m-d', strtotime("next " . $day, strtotime($appointment_date)));
         array_push($date_arr, $date);
     }
+
     $next_appointment = getEarliestDate($date_arr);
     return $next_appointment;
 }
 
 function getDayName($day_num)
 {
-    if($day_num == "1"){return "sunday";}
-    if($day_num == "2"){return "monday";}
-    if($day_num == "3"){return "tuesday";}
-    if($day_num == "4"){return "wednesday";}
-    if($day_num == "5"){return "thursday";}
-    if($day_num == "6"){return "friday";}
-    if($day_num == "7"){return "saturday";}
+    if ($day_num == "1") {
+        return "sunday";}
+
+    if ($day_num == "2") {
+        return "monday";}
+
+    if ($day_num == "3") {
+        return "tuesday";}
+
+    if ($day_num == "4") {
+        return "wednesday";}
+
+    if ($day_num == "5") {
+        return "thursday";}
+
+    if ($day_num == "6") {
+        return "friday";}
+
+    if ($day_num == "7") {
+        return "saturday";}
 }
 
 
 function getEarliestDate($date_arr)
 {
     $earliest = ($date_arr[0]);
-    foreach ($date_arr as $date){
-        if(strtotime($date) < strtotime($earliest)){
+    foreach ($date_arr as $date) {
+        if (strtotime($date) < strtotime($earliest)) {
             $earliest = $date;
         }
     }
+
     return $earliest;
 }
 //================================================================================================================

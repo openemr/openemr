@@ -32,25 +32,22 @@ require_once("$srcdir/options.inc.php");
 $res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
 $uname=$res{"username"};
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
-if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
+if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure") {
     $dates=trim($_POST['dates']);
     $event=trim($_POST['form_disclosure_type']);
     $recipient_name=trim($_POST['recipient_name']);
     $disclosure_desc=trim($_POST['desc_disc']);
     $disclosure_id=trim($_POST['disclosure_id']);
-    if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update")
-    {
+    if (isset($_POST["updatemode"]) and $_POST["updatemode"] == "disclosure_update") {
         //update the recorded disclosure in the extended_log table.
         updateRecordedDisclosure($dates, $event, $recipient_name, $disclosure_desc, $disclosure_id);
-    }
-    else
-    {
+    } else {
         //insert the disclosure records in the extended_log table.
          recordDisclosure($dates, $event, $pid, $recipient_name, $disclosure_desc, $uname);
     }
 }
-if (isset($_GET['deletelid']))
-{
+
+if (isset($_GET['deletelid'])) {
     $deletelid=$_GET['deletelid'];
 //function to delete the recorded disclosures
     deleteDisclosure($deletelid);
@@ -108,7 +105,7 @@ $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date
 $r1= sqlStatement($disclInnerQry, array($pid));
 $n=sqlNumRows($r1);
 $noOfRecordsLeft=($totalRecords - $offset);
-if ($n>0){?>
+if ($n>0) {?>
     <table border='0' class="text">
         <tr>
         <td colspan='5' style="padding: 5px;"><a href="disclosure_full.php" class="" id='Submit' onclick="top.restoreSession()"><span><?php echo xlt('Refresh'); ?></span></a></td>
@@ -125,10 +122,9 @@ if ($n>0){?>
         </tr>
     <?php
     $result2 = array();
-    for ($iter = 0;$frow = sqlFetchArray($r1);$iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++)
         $result2[$iter] = $frow;
-    foreach($result2 as $iter)
-    {
+    foreach ($result2 as $iter) {
         $description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
         ?>
         <!-- List the recipient name, description, date and edit and delete options-->
@@ -145,9 +141,7 @@ if ($n>0){?>
         </tr>
         <?php
     }
-}
-else
-{?>
+} else {?>
     <br>
     <!-- Display None, if there is no disclosure -->
     <span class='text' colspan='3'><?php echo xlt('None');?></span>

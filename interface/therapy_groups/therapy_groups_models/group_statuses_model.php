@@ -38,9 +38,10 @@ class Group_Statuses
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, array('groupstat'));
         $final_result =array();
-        while($row = sqlFetchArray($result)){
+        while ($row = sqlFetchArray($result)) {
             $final_result[] = $row;
         }
+
         return $final_result;
     }
 
@@ -53,10 +54,11 @@ class Group_Statuses
         $sql = 'SELECT  option_id, title FROM ' . self::TABLE . ' WHERE list_id = ?;';
         $result = sqlStatement($sql, array('attendstat'));
         $final_result =array();
-        while($row = sqlFetchArray($result)){
+        while ($row = sqlFetchArray($result)) {
             $row['title']=xla(trim($row['title']));
             $final_result[] = $row;
         }
+
         return $final_result;
     }
 }

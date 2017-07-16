@@ -29,8 +29,7 @@ $patient_id = $pid;
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-}
-else if ($orderid) {
+} else if ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
@@ -59,12 +58,10 @@ if (!isset($offset)) $offset = 0;
 $active = 'all';
 if ($form_active) {
     if (!$form_inactive) $active = '1';
-}
-else {
+} else {
     if ($form_inactive)
     $active = '0';
-    else
-    $form_active = $form_inactive = '1';
+    else $form_active = $form_inactive = '1';
 }
 
 // this code handles changing the state of activity tags when the user updates
@@ -79,22 +76,22 @@ if (isset($mode)) {
                 } else {
                     disappearPnote($id);
                 }
+
                 if ($docid) {
                     setGpRelation(1, $docid, 6, $id, !empty($_POST["lnk$id"]));
                 }
+
                 if ($orderid) {
                     setGpRelation(2, $orderid, 6, $id, !empty($_POST["lnk$id"]));
                 }
             }
         }
-    }
-    elseif ($mode == "new") {
+    } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
             updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
             $noteid = '';
-        }
-        else {
+        } else {
             $noteid = addPnote(
                 $patient_id,
                 $note,
@@ -104,19 +101,22 @@ if (isset($mode)) {
                 $_POST['assigned_to']
             );
         }
+
         if ($docid) {
             setGpRelation(1, $docid, 6, $noteid);
         }
+
         if ($orderid) {
             setGpRelation(2, $orderid, 6, $noteid);
         }
+
         $noteid = '';
-    }
-    elseif ($mode == "delete") {
+    } elseif ($mode == "delete") {
         if ($noteid) {
             deletePnote($noteid);
             newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], "pnotes: id ".$noteid);
         }
+
         $noteid = '';
     }
 }
@@ -181,6 +181,7 @@ if ($docid) {
     $d = new Document($docid);
     $title_docname .= $d->get_url_file();
 }
+
 if ($orderid) {
     $title_docname .= " " . xl("linked to procedure order") . " $orderid";
 }
@@ -338,7 +339,7 @@ if ($_GET['set_pid']) {
 // If this note references a new patient document, pop up a display
 // of that document.
 //
-if ($noteid /* && $title == 'New Document' */ ) {
+if ($noteid /* && $title == 'New Document' */) {
     $prow = getPnoteById($noteid, 'body');
     if (preg_match('/New scanned document (\d+): [^\n]+\/([^\n]+)/', $prow['body'], $matches)) {
         $docid = $matches[1];

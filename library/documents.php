@@ -83,8 +83,7 @@ function document_category_to_id($category_title)
     $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", array($category_title));
     if ($ret['id']) {
         return $ret['id'];
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -97,9 +96,8 @@ function document_category_to_id($category_title)
  */
 function get_extension($imagetype)
 {
-    if(empty($imagetype)) return false;
-    switch($imagetype)
-    {
+    if (empty($imagetype)) return false;
+    switch ($imagetype) {
         case 'application/andrew-inset': return '.ez';
         case 'application/mac-binhex40': return '.hqx';
         case 'application/mac-compactpro': return '.cpt';

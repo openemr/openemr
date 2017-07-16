@@ -111,7 +111,6 @@ class thumbnail
         if ($useExactSize == false && $size [0] <= $maxWidth && $size [1] <= $maxHeight) {
             $function ( $source, $targetFormatOrFilename );
         } else {
-            
             $newWidth = 0;
             $newHeight = 0;
             

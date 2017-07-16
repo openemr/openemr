@@ -84,8 +84,7 @@ if ($createvisit) {
 top.left_nav.setEncounter('<?php echo $today; ?>', enc, 'RBot');
 top.left_nav.loadFrame2('enc2', 'RBot', 'patient_file/encounter/encounter_top.php?set_encounter=' + enc);
 <?php
-}
-else { // if not $createvisit
+} else { // if not $createvisit
 ?>
 top.left_nav.loadFrame2('nen1','RBot','forms/newpatient/new.php?autoloaded=1&calenc=&issue=<?php echo $issue; ?>');
 <?php

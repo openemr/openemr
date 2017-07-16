@@ -71,7 +71,7 @@ class ExportUtility
                 
                 // these are the columns we'll use for enumeration from here on
                 $columns = array_keys($fields);
-            } catch ( Exception $ex ) {
+            } catch (Exception $ex) {
                 // no fieldmaps exist, so use the reflection class instead
                 $reflect = new ReflectionClass($objects [0]);
                 $publicAttributes = $reflect->getProperties(ReflectionProperty::IS_PUBLIC);
@@ -79,13 +79,13 @@ class ExportUtility
                 // only include non-static public properties
                 $props = array_diff($publicAttributes, $staticAttributes);
                 
-                foreach ( $props as $prop ) {
+                foreach ($props as $prop) {
                     $column = $prop->getName();
                     $columns [] = $column;
                 }
             }
             
-            foreach ( $columns as $column ) {
+            foreach ($columns as $column) {
                 // save this so we don't check it every time when looping through data
                 $is_numeric [$column] = $fieldmap_exists ? $fields [$column]->IsNumeric() : false;
                 
@@ -100,9 +100,9 @@ class ExportUtility
         $current_row = 4;
         
         // loop through all of the data
-        foreach ( $objects as $object ) {
+        foreach ($objects as $object) {
             $current_column = "A";
-            foreach ( $columns as $column ) {
+            foreach ($columns as $column) {
                 if ($fieldmap_exists == false || $is_numeric [$column] == true) {
                     $worksheet->setCellValue($current_column . $current_row, $object->$column);
                 } else {
@@ -111,12 +111,13 @@ class ExportUtility
                 
                 $current_column ++;
             }
+
             $current_row ++;
         }
         
         // lastly write to the footer to sum the numeric columns
         $current_column = "A";
-        foreach ( $columns as $column ) {
+        foreach ($columns as $column) {
             if ($is_numeric [$column]) {
                 $columnLetter = ExportUtility::GetColumnLetter($current_column);
                 $formula = "=SUM(" . $columnLetter . "3:" . $columnLetter . ($current_row - 1) . ")";

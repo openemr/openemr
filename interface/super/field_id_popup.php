@@ -98,6 +98,7 @@ function gsr_fixup(&$row, $fldid, $default = '')
     if (isset($row[$fldid])) {
         return addslashes($row[$fldid]);
     }
+
     return $default;
 }
 
@@ -195,11 +196,11 @@ li {
 <h1>
 <?php
 // F should never happen, but just in case.
-if ($source == 'F') echo xlt('Fields in This Form'); else
-if ($source == 'D') echo xlt('Demographics Fields'); else
-if ($source == 'H') echo xlt('History Fields'); else
-if ($source == 'E') echo xlt('Visit Attributes'); else
-if ($source == 'V') echo xlt('Visit Form Attributes');
+if ($source == 'F') echo xlt('Fields in This Form');
+else if ($source == 'D') echo xlt('Demographics Fields');
+else if ($source == 'H') echo xlt('History Fields');
+else if ($source == 'E') echo xlt('Visit Attributes');
+else if ($source == 'V') echo xlt('Visit Form Attributes');
 ?>
 </h1>
 
@@ -209,22 +210,21 @@ if ($source == 'V') {
     foreach ($form_encounter_layout as $lrow) {
         gen_sel_row($lrow);
     }
-}
-else {
+} else {
     if ($source == 'D' || $source == 'H') {
         $res = sqlStatement(
             "SELECT * FROM layout_options " .
             "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
             array($source == 'D' ? 'DEM' : 'HIS')
         );
-    }
-    else {
+    } else {
         $res = sqlStatement(
             "SELECT * FROM layout_options WHERE " .
             "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
             array('LBF%', 'E')
         );
     }
+
     $last_field_id = '';
     while ($row = sqlFetchArray($res)) {
         if ($row['field_id'] === $last_field_id) continue;
@@ -232,6 +232,7 @@ else {
         gen_sel_row($row);
     }
 }
+
 echo "</table>\n";
 ?>
 

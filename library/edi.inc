@@ -173,20 +173,15 @@ function create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
 
     $HL[1] = $nHlCounter;       // Hierarchical ID No.
 
-    if($nHlCounter == 1)
-    {
+    if ($nHlCounter == 1) {
         $HL[2] = "";
         $HL[3] = 20;            // Description: Identifies the payor, maintainer, or source of the information.
         $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
-    }
-    else if($nHlCounter == 2)
-    {
+    } else if ($nHlCounter == 2) {
         $HL[2] = 1;                 // Hierarchical Parent ID Number
         $HL[3] = 21;            // Hierarchical Level Code. '21' Information Receiver
         $HL[4] = 1;                 // 1 Additional Subordinate HL Data Segment in This Hierarchical Structure.
-    }
-    else
-    {
+    } else {
         $HL[2] = 2;
         $HL[3] = 22;            // Hierarchical Level Code.'22' Subscriber
         $HL[4] = 0;                 // 0 no Additional Subordinate in the Hierarchical Structure.
@@ -208,8 +203,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
 
     $NM1[0]         = "NM1";                    // Subscriber Name Segment ID
 
-    if($nm1Cast == 'PR')
-    {
+    if ($nm1Cast == 'PR') {
         $NM1[1] = "PR";                         // Entity ID Code - Payer [PR Payer]
         $NM1[2] = "2";                      // Entity Type - Non-Person
         $NM1[3] = $row["payer_name"];       // Organizational Name
@@ -219,9 +213,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = "46";                         // 46 - Electronic Transmitter Identification Number (ETIN)
         $NM1[9] = $X12info[3];              // Application Sender's ID
-    }
-    else if($nm1Cast == 'FA')
-    {
+    } else if ($nm1Cast == 'FA') {
         $NM1[1] = "FA";                         // Entity ID Code - Facility [FA Facility]
         $NM1[2] = "2";                      // Entity Type - Non-Person
         $NM1[3] = $row['facility_name'];            // Organizational Name
@@ -231,9 +223,7 @@ function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
         $NM1[7] = "";                       // Data Element not required.
         $NM1[8] = "FI";
         $NM1[9] = $row['facility_npi'];
-    }
-    else if($nm1Cast == 'IL')
-    {
+    } else if ($nm1Cast == 'IL') {
         $NM1[1] = "IL";                         // Insured or Subscriber
         $NM1[2] = "1";                      // Entity Type - Person
         $NM1[3] = $row['lname'];                // last Name
@@ -261,16 +251,14 @@ function create_REF($row, $ref, $X12info, $segTer, $compEleSep)
 
     $REF[0] = "REF";                        // Subscriber Additional Identification    does not want this for anything
 
-    if($ref == '1P')
-    {
+    if ($ref == '1P') {
         $REF[1] = "4A";                         // Reference Identification Qualifier
         $REF[2] = $row['provider_pin'];                 // Provider Pin.
-    }
-    else
-    {
+    } else {
         $REF[1] = "EJ";                         // 'EJ' for Patient Account Number     does not want this for patient
         $REF[2] = $row['pid'];                  // Patient Account No.
     }
+
     $REF['Created'] = implode('*', $REF);               // Data Element Separator
 
     $REF['Created'] = $REF['Created'] . $segTer;
@@ -335,11 +323,12 @@ function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
 
     $DTP[2] = "D8";                             // Date Format Qualifier - (D8 means CCYYMMDD)
 
-    if($qual == '102'){
+    if ($qual == '102') {
         $DTP[3] = $row['date'];                 // Date
-    }else{
+    } else {
         $DTP[3] = $row['pc_eventDate'];         // Date of Service
     }
+
     $DTP['Created'] = implode('*', $DTP);   // Data Element Separator
 
     $DTP['Created'] = $DTP['Created'] .  $segTer;
@@ -456,11 +445,8 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
     $trcNo      = 1234501;
     $refiden    = 5432101;
 
-    while ($row = sqlFetchArray($res))
-    {
-
-        if($nHlCounter == 1)
-        {
+    while ($row = sqlFetchArray($res)) {
+        if ($nHlCounter == 1) {
             // create ISA
             $PATEDI    = create_ISA($row, $X12info, $segTer, $compEleSep);
 
@@ -503,8 +489,7 @@ function print_elig($res, $X12info, $segTer, $compEleSep)
         $refiden    = $refiden + 1;
 
 
-        if($rowCount == sqlNumRows($res))
-        {
+        if ($rowCount == sqlNumRows($res)) {
             $segmentcount = $segmentcount + 1;
             $PATEDI   .= create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep);
             $PATEDI   .= create_GE($row, $X12info, $segTer, $compEleSep);
@@ -541,13 +526,11 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 		";
 
     while ($row = sqlFetchArray($res)) {
-
-
         $i= $i+1;
 
-        if($i%2 == 0){
+        if ($i%2 == 0) {
             $background = '#FFF';
-        }else{
+        } else {
             $background = '#FFF';
         }
 
@@ -591,14 +574,14 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
         unset($elig);
     }
 
-    if($i==0){
-
+    if ($i==0) {
         echo "	<tr>
 				<td class='norecord' colspan=9>
 					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>". htmlspecialchars(xl('No records found'), ENT_NOQUOTES) . "</div>
 				</td>
 			</tr>	";
     }
+
         echo "	</tbody>
 			</table>";
 }
@@ -669,18 +652,13 @@ function eligibility_response_save($segmentVal, $vendorID)
     $resCount = sqlStatement($query, array($segmentVal, $vendorID));
 
 
-    if(isset($resCount))
-    {
-
+    if (isset($resCount)) {
         $row        = sqlFetchArray($resCount);
 
         $resCount   = $row['RecordsCount'];
-
     }
 
-    if($resCount == 0)
-    {
-
+    if ($resCount == 0) {
         $query = "INSERT into eligibility_response SET	response_description =?,
 								response_vendor_id	 = ?,
 								response_create_date = now(),
@@ -714,40 +692,32 @@ function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
 
     $insId  = sqlStatement($query, array($patientId));
 
-    if(isset($resId))
-    {
-
+    if (isset($resId)) {
         $row        = sqlFetchArray($resId);
 
         $responseId     = $row['response_id'];
-
     }
-    if(isset($insId))
-    {
 
+    if (isset($insId)) {
         $row        = sqlFetchArray($insId);
 
         $insuranceId    = $row['id'];
         $copay      = $row['copay'];
-
     }
 
-    if($resCount == 0)
-    {
-
-        if(isset($insuranceId) && !empty($insuranceId)){
-
+    if ($resCount == 0) {
+        if (isset($insuranceId) && !empty($insuranceId)) {
             //Set up the sql variable binding array (this prevents sql-injection attacks)
             $sqlBindArray = array();
             $query = "INSERT into eligibility_verification SET	response_id	= ? ,
 										insurance_id	= ?,";
             array_push($sqlBindArray, $responseId, $insuranceId);
 
-            if(!empty($copay))
-            {
+            if (!empty($copay)) {
                 $query .= "copay = ?,";
                 array_push($sqlBindArray, $copay);
             }
+
             $query .= "eligibility_check_date	= now(),
 				   create_date			= now()";
             $res    = sqlStatement($query, $sqlBindArray);
@@ -774,7 +744,7 @@ function eligibility_information($insuranceId)
 function getX12Partner()
 {
     $rez = sqlStatement("select * from x12_partners");
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
     return $returnval;
@@ -785,7 +755,7 @@ function getUsernames()
 {
     $rez = sqlStatement("select distinct username, lname, fname,id from users " .
         "where authorized = 1 and username != ''");
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
         $returnval[$iter]=$row;
 
     return $returnval;

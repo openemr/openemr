@@ -82,6 +82,7 @@ class ApplicationTable extends AbstractTableGateway
         if ($log) {
             auditSQLEvent($sql, $result, $params);
         }
+
         return $return;
     }
     
@@ -118,10 +119,12 @@ class ApplicationTable extends AbstractTableGateway
                     $processedBinds .= ",'" . $valueBind . "'";
                 }
             }
+
             if (!empty($processedBinds)) {
                 $processedBinds = "(" . $processedBinds . ")";
             }
         }
+
         echo '<pre><span style="color: red;">';
         echo 'ERROR : ' . $logMsg;
         echo "\r\n";
@@ -195,9 +198,10 @@ class ApplicationTable extends AbstractTableGateway
                                 
         $res_groups     = $this->zQuery($sql_user_group, array('users',$user_id));
         $groups = array();
-        foreach($res_groups as $row){
+        foreach ($res_groups as $row) {
             array_push($groups, $row['group_id']);
         }
+
         $groups_str = implode(",", $groups);
         
         $count_user_denied      = 0;
@@ -206,35 +210,34 @@ class ApplicationTable extends AbstractTableGateway
         $count_group_allowed    = 0;
         
         $res_user_denied    = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,0));
-        foreach($res_user_denied as $row){
+        foreach ($res_user_denied as $row) {
             $count_user_denied  = $row['count'];
         }
         
         $res_user_allowed   = $this->zQuery($sql_user_acl, array($section_identifier,$user_id,1));
-        foreach($res_user_allowed as $row){
+        foreach ($res_user_allowed as $row) {
             $count_user_allowed  = $row['count'];
         }
         
         $res_group_denied   = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,0));
-        foreach($res_group_denied as $row){
+        foreach ($res_group_denied as $row) {
             $count_group_denied  = $row['count'];
         }
         
         $res_group_allowed  = $this->zQuery($sql_group_acl, array($section_identifier,$groups_str,1));
-        foreach($res_group_allowed as $row){
+        foreach ($res_group_allowed as $row) {
             $count_group_allowed  = $row['count'];
         }
 
-        if($count_user_denied > 0)
+        if ($count_user_denied > 0)
             return false;
-        elseif($count_user_allowed > 0)
+        elseif ($count_user_allowed > 0)
             return true;
-        elseif($count_group_denied > 0)
+        elseif ($count_group_denied > 0)
             return false;
-        elseif($count_group_allowed > 0)
+        elseif ($count_group_allowed > 0)
             return true;
-        else
-            return false;
+        else return false;
     }
 
     /**
@@ -246,17 +249,18 @@ class ApplicationTable extends AbstractTableGateway
         $limitEnd     =  \Application\Plugin\CommonPlugin::escapeLimit($limit);
       
         if (isset($GLOBALS['set_autosuggest_options'])) {
-          
             if ($GLOBALS['set_autosuggest_options'] == 1) {
                 $leading        = '%';
             } else {
                 $leading        = $post->leading;
             }
+
             if ($GLOBALS['set_autosuggest_options'] == 2) {
                 $trailing       = '%';
             } else {
                 $trailing       = $post->trailing;
             }
+
             if ($GLOBALS['set_autosuggest_options'] == 3) {
                 $leading        = '%';
                 $trailing       = '%';
@@ -308,8 +312,7 @@ class ApplicationTable extends AbstractTableGateway
                                           $keyword,
 
                                       ));
-        }
-        elseif (strtolower($searchType) == 'emrdirect') {
+        } elseif (strtolower($searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email,id FROM users 
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?  
                 OR  CONCAT(lname, ' ', fname) LIKE ? 
@@ -330,13 +333,16 @@ class ApplicationTable extends AbstractTableGateway
                                           $keyword,
                                       ));
         }
+
         $arr = array();
         if ($result) {
             foreach ($result as $row) {
                 $arr[] = $row;
             }
+
             $arr['rowCount'] = $rowCount;
         }
+
         return $arr;
     }
     
@@ -348,14 +354,13 @@ class ApplicationTable extends AbstractTableGateway
     **/
     public function dateFormat($format)
     {
-        if($format == "0")
+        if ($format == "0")
             $date_format = 'yyyy/mm/dd';
-        else if($format == 1)
+        else if ($format == 1)
             $date_format = 'mm/dd/yyyy';
-        else if($format == 2)
+        else if ($format == 2)
             $date_format = 'dd/mm/yyyy';
-        else
-            $date_format = $format;
+        else $date_format = $format;
         return $date_format;
     }
     /**
@@ -365,7 +370,7 @@ class ApplicationTable extends AbstractTableGateway
     */
     public function fixDate($input_date, $output_format = null, $input_format = null)
     {
-        if(!$input_date) return;
+        if (!$input_date) return;
         
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
         
@@ -387,7 +392,7 @@ class ApplicationTable extends AbstractTableGateway
         $seperator_input    = $date_seperator_input[0];
         $input_date_arr     = explode($seperator_input, $input_date);
   
-        foreach($output_date_arr as $key => $format) {
+        foreach ($output_date_arr as $key => $format) {
             $index = array_search($format, $input_date_array);
             $output_date_arr[$key] = $input_date_arr[$index];
         }

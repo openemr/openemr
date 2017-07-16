@@ -87,19 +87,16 @@ class VerySimpleXmlUtil
         ), E_ALL);
         
         try {
-            
             $element = new SimpleXMLElement($xml);
-        } catch ( Exception $ex1 ) {
-            
+        } catch (Exception $ex1) {
             // the xml could not be parsed, SimpleXMLElement is very picky about non-ascii characters
             // so if specified then re-try it with all non-ascii characters stripped
             if ($reAttempt) {
-                
                 try {
                     // $xml = @iconv('UTF-8', "ISO-8859-1//IGNORE", $xml); // this doesn't seem to work
                     $xml = preg_replace('/[[:^print:]]/', '?', $xml); // this is heavy-handed but works
                     $element = new SimpleXMLElement($xml);
-                } catch ( Exception $ex2 ) {
+                } catch (Exception $ex2) {
                     // re-throw the first exception so we don't confuse the error due to the second attempt
                     throw $ex1;
                 }
@@ -133,6 +130,7 @@ class VerySimpleXmlUtil
             $str = str_replace(VerySimpleXmlUtil::$reservedText, VerySimpleXmlUtil::$replacementsText, $str);
             $str = str_replace(VerySimpleXmlUtil::$replacementsTempText, VerySimpleXmlUtil::$replacementsText, $str);
         }
+
         return $str;
     }
     
@@ -177,7 +175,7 @@ class VerySimpleXmlUtil
         if ($recurse) {
             VerySimpleXmlUtil::RecurseXmlObjToArr($xml, $array);
         } else {
-            foreach ( $xml as $key => $val ) {
+            foreach ($xml as $key => $val) {
                 $children = $val->children();
                 
                 if ($children) {
@@ -192,6 +190,7 @@ class VerySimpleXmlUtil
                 }
             }
         }
+
         return $array;
     }
     
@@ -208,25 +207,28 @@ class VerySimpleXmlUtil
     static function RecurseXmlObjToArr($obj, &$arr)
     {
         $children = $obj->children();
-        foreach ( $children as $elementName => $node ) {
+        foreach ($children as $elementName => $node) {
             $nextIdx = count($arr);
             $arr [$nextIdx] = array ();
             $arr [$nextIdx] ['@name'] = strtolower(( string ) $elementName);
             $arr [$nextIdx] ['@attributes'] = array ();
             $attributes = $node->attributes();
-            foreach ( $attributes as $attributeName => $attributeValue ) {
+            foreach ($attributes as $attributeName => $attributeValue) {
                 $attribName = strtolower(trim(( string ) $attributeName));
                 $attribVal = trim(( string ) $attributeValue);
                 $arr [$nextIdx] ['@attributes'] [$attribName] = $attribVal;
             }
+
             $text = ( string ) $node;
             $text = trim($text);
             if (strlen($text) > 0) {
                 $arr [$nextIdx] ['@text'] = $text;
             }
+
             $arr [$nextIdx] ['@children'] = array ();
             VerySimpleXmlUtil::RecurseXmlObjToArr($node, $arr [$nextIdx] ['@children']);
         }
+
         return;
     }
     
@@ -249,7 +251,7 @@ class VerySimpleXmlUtil
             $xml .= "<" . $name . ">\n";
             
             $props = get_object_vars($var);
-            foreach ( array_keys($props) as $key ) {
+            foreach (array_keys($props) as $key) {
                 $xml .= VerySimpleXmlUtil::ToXML($props [$key], $key);
             }
             
@@ -258,7 +260,7 @@ class VerySimpleXmlUtil
             $name = strlen($root) > 0 ? (is_numeric($root) ? "Array_" . $root : $root) : "Array";
             $xml .= "<" . $name . ">\n";
             
-            foreach ( array_keys($var) as $key ) {
+            foreach (array_keys($var) as $key) {
                 $xml .= VerySimpleXmlUtil::ToXML($var [$key], $key);
             }
             

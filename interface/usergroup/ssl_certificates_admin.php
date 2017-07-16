@@ -185,8 +185,12 @@ function create_client_cert()
         return;
     }
 
-    if ($_POST["client_cert_user"]) {    $user = formData('client_cert_user', 'P', true);  }
-    if ($_POST["client_cert_email"]) {    $email = formData('client_cert_email', 'P', true);  }
+    if ($_POST["client_cert_user"]) {
+        $user = formData('client_cert_user', 'P', true);  }
+
+    if ($_POST["client_cert_email"]) {
+        $email = formData('client_cert_email', 'P', true);  }
+
     $opensslconf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $serial = 0;
     $data = create_user_certificate(
@@ -251,14 +255,29 @@ function create_and_download_certificates()
     }
 
     /* Retrieve the certificate name settings from the form input */
-    if ($_POST["commonName"]) {    $commonName = formData('commonName', 'P', true);  }
-    if ($_POST["emailAddress"]) {    $emailAddress = formData('emailAddress', 'P', true);  }
-    if ($_POST["countryName"]) {    $countryName = formData('countryName', 'P', true);  }
-    if ($_POST["stateOrProvinceName"]) {    $stateOrProvinceName = formData('stateOrProvinceName', 'P', true);  }
-    if ($_POST["localityName"]) {    $localityName = formData('localityName', 'P', true);  }
-    if ($_POST["organizationName"]) {    $organizationName = formData('organizationName', 'P', true);  }
-    if ($_POST["organizationalUnitName"]) {    $organizationName = formData('organizationalUnitName', 'P', true);  }
-    if ($_POST["clientCertValidity"]) {    $clientCertValidity = formData('clientCertValidity', 'P', true);  }
+    if ($_POST["commonName"]) {
+        $commonName = formData('commonName', 'P', true);  }
+
+    if ($_POST["emailAddress"]) {
+        $emailAddress = formData('emailAddress', 'P', true);  }
+
+    if ($_POST["countryName"]) {
+        $countryName = formData('countryName', 'P', true);  }
+
+    if ($_POST["stateOrProvinceName"]) {
+        $stateOrProvinceName = formData('stateOrProvinceName', 'P', true);  }
+
+    if ($_POST["localityName"]) {
+        $localityName = formData('localityName', 'P', true);  }
+
+    if ($_POST["organizationName"]) {
+        $organizationName = formData('organizationName', 'P', true);  }
+
+    if ($_POST["organizationalUnitName"]) {
+        $organizationName = formData('organizationalUnitName', 'P', true);  }
+
+    if ($_POST["clientCertValidity"]) {
+        $clientCertValidity = formData('clientCertValidity', 'P', true);  }
 
 
     /* Create the Certficate Authority (CA) */
@@ -269,6 +288,7 @@ function create_and_download_certificates()
         delete_certificates();
         return;
     }
+
     $ca_csr = $arr[0];
     $ca_key = $arr[1];
     $ca_crt = create_crt($ca_key, $ca_csr, null, $ca_key);
@@ -277,6 +297,7 @@ function create_and_download_certificates()
         delete_certificates();
         return;
     }
+
     openssl_pkey_export_to_file($ca_key, $tempDir . "/CertificateAuthority.key");
     openssl_x509_export_to_file($ca_crt, $tempDir . "/CertificateAuthority.crt");
 
@@ -329,6 +350,7 @@ function create_and_download_certificates()
         delete_certificates();
         return;
     }
+
     $adminFile = $tempDir . "/admin.p12";
     $handle = fopen($adminFile, 'w');
     fwrite($handle, $user_cert);
@@ -336,13 +358,13 @@ function create_and_download_certificates()
 
     /* Create a zip file containing the CertificateAuthority, Server, and admin files */
     try {
-        if (! (class_exists('ZipArchive')) ) {
+        if (! (class_exists('ZipArchive'))) {
              $_SESSION["zip_error"]="Error, Class ZipArchive does not exist";
             return;
         }
 
         $zip = new ZipArchive;
-        if(!($zip)) {
+        if (!($zip)) {
              $_SESSION["zip_error"]="Error, Could not create file archive";
              return;
         }
@@ -353,18 +375,17 @@ function create_and_download_certificates()
             foreach ($files as $file) {
                  $zip->addFile($tempDir . "/" . $file, $file);
             }
-        }
-        else {
+        } else {
             $_SESSION["zip_error"]="Error, unable to create zip file with all the certificates";
             return;
         }
+
         $zip->close();
 
-        if(ini_get('zlib.output_compression')) {
+        if (ini_get('zlib.output_compression')) {
             ini_set('zlib.output_compression', 'Off');
         }
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         $_SESSION["zip_error"]="Error, Could not create file archive";
         return;
     }
@@ -384,8 +405,7 @@ if (!acl_check('admin', 'users')) {
 
 if ($_POST["mode"] == "create_client_certificate") {
     create_client_cert();
-}
-else if ($_POST["mode"] == "download_certificates") {
+} else if ($_POST["mode"] == "download_certificates") {
     create_and_download_certificates();
 }
 
@@ -536,7 +556,7 @@ else if ($_POST["mode"] == "download_certificates") {
   <body class="body_top">
   <span class='title'><b><?php xl('SSL Certificate Administration', 'e'); ?></b></span>
   </br> </br>
-    <?php if($_SESSION["zip_error"]) { ?>
+    <?php if ($_SESSION["zip_error"]) { ?>
   <div>  <table align="center" >
   <tr valign="top"> <td rowspan="3"> <?php echo "<font class='redtext'>" . xl($_SESSION["zip_error"]) ?> </td> </tr>
   </table> <?php

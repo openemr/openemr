@@ -148,19 +148,16 @@ function check_search_str()
 <table>
 <tr>
 <td colspan="4">
-<?php if ($_REQUEST['bn_search'])
-{
+<?php if ($_REQUEST['bn_search']) {
     $search_term = $_REQUEST['search_term'];
     {
     $query = "SELECT count(*) as count FROM drugs " .
       "WHERE (drug_id LIKE '%$search_term%' OR " .
       "name LIKE '%$search_term%') ";
     $res = sqlStatement($query);
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
         $no_of_items = addslashes($row['count']);
-        if($no_of_items < 1)
-        {
+        if ($no_of_items < 1) {
             ?>
         <script language='JavaScript'>
             alert("<?php echo xl('Search string does not match with list in database');
@@ -171,6 +168,7 @@ function check_search_str()
         </script>    
         <?php
         }
+
         $query = "SELECT drug_id, name FROM drugs " .
         "WHERE (drug_id LIKE '%$search_term%' OR " .
         "name LIKE '%$search_term%') " .
@@ -185,6 +183,7 @@ function check_search_str()
                <input type="checkbox" id="chkbox" name ="chkbox" value= "<?php echo $itercode."-".$itertext; ?>" > <?php echo $itercode."    ".$itertext."</br>";
         }
     }
+
     }
 ?>
 </td>

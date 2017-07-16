@@ -37,8 +37,7 @@ class AMC_314g_1_2_14_STG2_Denominator implements AmcFilterIF
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

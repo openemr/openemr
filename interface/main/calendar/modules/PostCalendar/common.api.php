@@ -139,11 +139,12 @@ require_once("modules/$pcDir/pnincludes/Date/Calc.php");
 //  grab the global language file
 //=========================================================================
 $userlang = pnUserGetLang();
-if(file_exists("modules/$pcDir/pnlang/$userlang/global.php")) {
+if (file_exists("modules/$pcDir/pnlang/$userlang/global.php")) {
     require_once("modules/$pcDir/pnlang/$userlang/global.php");
 } else {
     require_once("modules/$pcDir/pnlang/eng/global.php");
 }
+
 unset($userlang);
 //=========================================================================
 //  Setup Smarty defines
@@ -155,7 +156,7 @@ require_once("modules/$pcDir/pcSmarty.class.php");
 function pcDebugVar($in)
 {
     echo '<pre>';
-    if(is_array($in)) print_r($in);
+    if (is_array($in)) print_r($in);
     else echo $in;
     echo '</pre>';
 }
@@ -180,15 +181,16 @@ function pcGetTopicName($topicid)
             FROM $topics_table
             WHERE $topics_column[topicid] = '$topicid'";
     $result = $dbconn->Execute($sql);
-    if($result === false) return '';
+    if ($result === false) return '';
     else return $result->fields[0];
 }
 function &postcalendar_makeValidURL($s)
 {
-    if(empty($s)) return '';
-    if(!preg_match('|^http[s]?:\/\/|i', $s)) {
+    if (empty($s)) return '';
+    if (!preg_match('|^http[s]?:\/\/|i', $s)) {
         $s = 'http://'.$s;
     }
+
     return $s;
 }
 function postcalendar_removeScriptTags($in)
@@ -200,7 +202,7 @@ function postcalendar_getDate($format = '%Y%m%d')
 {
     list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
-    if(!isset($Date)) {
+    if (!isset($Date)) {
         // if we still don't have a date then calculate it
         // check the jump menu, might be a 'jumpdate' input field or m/d/y select lists
         if ($jumpdate) {
@@ -215,13 +217,16 @@ function postcalendar_getDate($format = '%Y%m%d')
                 if (pnUserLoggedIn())
                     $time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
             }
-            if(!isset($jumpday))   $jumpday   = strftime('%d', $time);
-            if(!isset($jumpmonth)) $jumpmonth = strftime('%m', $time);
-            if(!isset($jumpyear))  $jumpyear  = strftime('%Y', $time);
+
+            if (!isset($jumpday))   $jumpday   = strftime('%d', $time);
+            if (!isset($jumpmonth)) $jumpmonth = strftime('%m', $time);
+            if (!isset($jumpyear))  $jumpyear  = strftime('%Y', $time);
         }
+
         // create the correct date string
         $Date = (int) "$jumpyear$jumpmonth$jumpday";
     }
+
     $y = substr($Date, 0, 4);
     $m = substr($Date, 4, 2);
     $d = substr($Date, 6, 2);
@@ -235,6 +240,7 @@ function &postcalendar_today($format = '%Y%m%d')
     if (pnUserLoggedIn()) {
         $time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
     }
+
     return strftime($format, $time);
 }
 
@@ -257,9 +263,13 @@ function postcalendar_userapi_pageSetup()
 {
     $output = '';
     // load the DHTML JavaScript code and insert it into the page
-    if(_SETTING_USE_POPUPS) { $output .= postcalendar_userapi_loadPopups(); }
+    if (_SETTING_USE_POPUPS) {
+        $output .= postcalendar_userapi_loadPopups(); }
+
     // insert the js popup code into the page (find better code)
-    if(_SETTING_OPEN_NEW_WINDOW) { $output .= postcalendar_userapi_jsPopup(); }
+    if (_SETTING_OPEN_NEW_WINDOW) {
+        $output .= postcalendar_userapi_jsPopup(); }
+
     return $output;
 }
 /**
@@ -268,10 +278,11 @@ function postcalendar_userapi_pageSetup()
  */
 function postcalendar_userapi_jsPopup()
 {
-    if(defined('_POSTCALENDAR_JSPOPUPS_LOADED')) {
+    if (defined('_POSTCALENDAR_JSPOPUPS_LOADED')) {
         // only put the script on the page once
         return false;
     }
+
     define('_POSTCALENDAR_JSPOPUPS_LOADED', true);
 
     // build the correct link
@@ -307,10 +318,11 @@ EOF;
  */
 function postcalendar_userapi_loadPopups()
 {
-    if(defined('_POSTCALENDAR_LOADPOPUPS_LOADED')) {
+    if (defined('_POSTCALENDAR_LOADPOPUPS_LOADED')) {
         // only put the script on the page once
         return false;
     }
+
     define('_POSTCALENDAR_LOADPOPUPS_LOADED', true);
 
     // get the theme globals :: is there a better way to do this?
@@ -392,7 +404,9 @@ function postcalendar_userapi_getmonthname($args)
 {
     extract($args);
     unset($args);
-    if(!isset($Date)) { return false; }
+    if (!isset($Date)) {
+        return false; }
+
     $month_name = array('01' => _CALJAN, '02' => _CALFEB, '03' => _CALMAR,
                         '04' => _CALAPR, '05' => _CALMAY, '06' => _CALJUN,
                         '07' => _CALJUL, '08' => _CALAUG, '09' => _CALSEP,
@@ -411,7 +425,7 @@ function postcalendar_userapi_buildTimeSelect($args)
     extract($args);
     unset($args);
     $output = array('h'=>array(),'m'=>array());
-    if((bool)_SETTING_TIME_24HOUR) {
+    if ((bool)_SETTING_TIME_24HOUR) {
         $start=0;
         $end=23;
     } else {
@@ -419,18 +433,21 @@ function postcalendar_userapi_buildTimeSelect($args)
         $end=12;
         $hselected = $hselected > 12 ? $hselected-=12 : $hselected;
     }
-    for($c=0,$h=$start; $h<=$end; $h++,$c++) {
+
+    for ($c=0,$h=$start; $h<=$end; $h++,$c++) {
         $hour = sprintf('%02d', $h);
         $output['h'][$c]['id']         = pnVarPrepForStore($h);
         $output['h'][$c]['selected']   = $hselected == $hour;
         $output['h'][$c]['name']       = pnVarPrepForDisplay($hour);
     }
-    for($c=0,$m=0; $m<=(60-$inc);$m+=$inc,$c++) {
+
+    for ($c=0,$m=0; $m<=(60-$inc); $m+=$inc,$c++) {
         $min = sprintf('%02d', $m);
         $output['m'][$c]['id']         = pnVarPrepForStore($m);
         $output['m'][$c]['selected']   = $mselected == $min;
         $output['m'][$c]['name']       = pnVarPrepForDisplay($min);
     }
+
     return $output;
 }
 /**
@@ -443,18 +460,23 @@ function postcalendar_userapi_buildMonthSelect($args)
 {
     extract($args);
     unset($args);
-    if(!isset($pc_month)) { $pc_month = Date_Calc::getMonth(); }
+    if (!isset($pc_month)) {
+        $pc_month = Date_Calc::getMonth(); }
+
     // create the return object to be inserted into the form
     $output = array();
-    if(!isset($selected)) $selected = '';
-    for ($c=0,$i=1;$i<=12;$i++,$c++) {
-        if ($selected)              { $sel = $selected == $i ? true : false; }
-        elseif ($i == $pc_month)    { $sel = true; }
-        else                        { $sel = false; }
-        $output[$c]['id']       = sprintf('%02d', $i);
-        $output[$c]['selected'] = $sel;
-        $output[$c]['name']     = postcalendar_userapi_getmonthname(array('Date'=>mktime(0, 0, 0, $i, 15)));
+    if (!isset($selected)) $selected = '';
+    for ($c=0,$i=1; $i<=12; $i++,$c++) {
+        if ($selected) {
+            $sel = $selected == $i ? true : false; } elseif ($i == $pc_month) {
+            $sel = true; } else {
+                $sel = false; }
+
+            $output[$c]['id']       = sprintf('%02d', $i);
+            $output[$c]['selected'] = $sel;
+            $output[$c]['name']     = postcalendar_userapi_getmonthname(array('Date'=>mktime(0, 0, 0, $i, 15)));
     }
+
     return $output;
 }
 
@@ -468,18 +490,23 @@ function postcalendar_userapi_buildDaySelect($args)
 {
     extract($args);
     unset($args);
-    if(!isset($pc_day)) { $pc_day = Date_Calc::getDay(); }
+    if (!isset($pc_day)) {
+        $pc_day = Date_Calc::getDay(); }
+
     // create the return object to be inserted into the form
     $output = array();
-    if(!isset($selected)) $selected = '';
-    for($c=0,$i=1; $i<=31; $i++,$c++) {
-        if ($selected)          { $sel = $selected == $i ? true : false; }
-        elseif ($i == $pc_day)  { $sel = true; }
-        else                    { $sel = false; }
-        $output[$c]['id']       = sprintf('%02d', $i);
-        $output[$c]['selected'] = $sel;
-        $output[$c]['name']     = sprintf('%02d', $i);
+    if (!isset($selected)) $selected = '';
+    for ($c=0,$i=1; $i<=31; $i++,$c++) {
+        if ($selected) {
+            $sel = $selected == $i ? true : false; } elseif ($i == $pc_day) {
+            $sel = true; } else {
+                $sel = false; }
+
+            $output[$c]['id']       = sprintf('%02d', $i);
+            $output[$c]['selected'] = $sel;
+            $output[$c]['name']     = sprintf('%02d', $i);
     }
+
     return $output;
 }
 
@@ -493,22 +520,27 @@ function postcalendar_userapi_buildYearSelect($args)
 {
     extract($args);
     unset($args);
-    if(!isset($pc_year)) { $pc_year = date('Y'); }
+    if (!isset($pc_year)) {
+        $pc_year = date('Y'); }
+
     // create the return object to be inserted into the form
     $output = array();
     // we want the list to contain 10 years before today and 30 years after
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
     $pc_end_year = date('Y') + 30;
-    if(!isset($selected)) $selected = '';
-    for($c=0,$i=$pc_start_year; $i<=$pc_end_year; $i++,$c++) {
-        if ($selected)          { $sel = $selected == $i ? true : false; }
-        elseif ($i == $pc_year) { $sel = true; }
-        else                    { $sel = false; }
-        $output[$c]['id']       = sprintf('%04d', $i);
-        $output[$c]['selected'] = $sel;
-        $output[$c]['name']     = sprintf('%04d', $i);
+    if (!isset($selected)) $selected = '';
+    for ($c=0,$i=$pc_start_year; $i<=$pc_end_year; $i++,$c++) {
+        if ($selected) {
+            $sel = $selected == $i ? true : false; } elseif ($i == $pc_year) {
+            $sel = true; } else {
+                $sel = false; }
+
+            $output[$c]['id']       = sprintf('%04d', $i);
+            $output[$c]['selected'] = $sel;
+            $output[$c]['name']     = sprintf('%04d', $i);
     }
+
     return $output;
 }
 
@@ -527,11 +559,14 @@ function &postcalendar_userapi_getCategories()
             ORDER BY pc_catname";
     $result = $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) { return array(); }
-    if(!isset($result)) { return array(); }
+    if ($dbconn->ErrorNo() != 0) {
+        return array(); }
+
+    if (!isset($result)) {
+        return array(); }
 
     $categories = array();
-    for($i=0; !$result->EOF; $result->MoveNext()) {
+    for ($i=0; !$result->EOF; $result->MoveNext()) {
         list($catid,$catname,$catcolor,$catdesc,
             $rtype,$rspec,$rfreq,$duration,$limit,$end_date_flag,
             $end_date_type,$end_date_freq,$end_all_day,$cattype,$active,$seq) = $result->fields;
@@ -539,6 +574,7 @@ function &postcalendar_userapi_getCategories()
         if (!pnSecAuthAction(0, 'PostCalendar::Category', "$catname::$catid", ACCESS_OVERVIEW)) {
             continue;
         }
+
         $categories[$i]['id']     = $catid;
         $categories[$i]['name']   = $catname;
         $categories[$i]['color']  = $catcolor;
@@ -562,8 +598,8 @@ function &postcalendar_userapi_getCategories()
         $categories[$i]['end_date_freq'] = $end_date_freq;
         $categories[$i]['end_all_day'] = $end_all_day;
         $categories[$i++]['dailylimit'] = $limit;
-
     }
+
     $result->Close();
     return $categories;
 }
@@ -581,17 +617,19 @@ function &postcalendar_userapi_getTopics()
             FROM $topics_table
             ORDER BY $topics_column[topictext]";
     $topiclist = $dbconn->Execute($sql);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
+
     $data = array();
     $i=0;
-    for(;!$topiclist->EOF;$topiclist->MoveNext()) {
+    for (; !$topiclist->EOF; $topiclist->MoveNext()) {
         // check topic permissions
-        if(pnSecAuthAction(0, 'PostCalendar::Topic', $topiclist->fields[2].'::'.$topiclist->fields[0], ACCESS_OVERVIEW)) {
+        if (pnSecAuthAction(0, 'PostCalendar::Topic', $topiclist->fields[2].'::'.$topiclist->fields[0], ACCESS_OVERVIEW)) {
             list($data[$i]['id'], $data[$i]['text'], $data[$i++]['name']) = $topiclist->fields;
         }
     }
+
     $topiclist->Close();
     return $data;
 }
@@ -622,43 +660,42 @@ function postcalendar_userapi_submitEvent($args)
     //    determine if the event is to be published immediately or not
     //also whether is a special system only event i.e. _EVENT_TEMPORARY
     if (empty($event_status)) {
-        if( (bool) _SETTING_DIRECT_SUBMIT || (bool) PC_ACCESS_ADMIN || ($event_sharing != SHARING_GLOBAL) ) {
+        if ((bool) _SETTING_DIRECT_SUBMIT || (bool) PC_ACCESS_ADMIN || ($event_sharing != SHARING_GLOBAL)) {
             $event_status = _EVENT_APPROVED;
         } else {
             $event_status = _EVENT_QUEUED;
         }
-    }
-    elseif ($event_status ==  _EVENT_TEMPORARY) {
+    } elseif ($event_status ==  _EVENT_TEMPORARY) {
         $event_status = _EVENT_TEMPORARY;
-    }
-    else {
+    } else {
         $event_status = _EVENT_QUEUED;
     }
 
 
     // set up some vars for the insert statement
     $startDate = $event_startyear.'-'.$event_startmonth.'-'.$event_startday;
-    if($event_endtype == 1) {
+    if ($event_endtype == 1) {
         $endDate = $event_endyear.'-'.$event_endmonth.'-'.$event_endday;
     } else {
         $endDate = '0000-00-00';
     }
 
-    if(!isset($event_allday)) $event_allday = 0;
-    if((bool)_SETTING_TIME_24HOUR) {
+    if (!isset($event_allday)) $event_allday = 0;
+    if ((bool)_SETTING_TIME_24HOUR) {
         $startTime = $event_starttimeh.':'.$event_starttimem.':00';
     } else {
-        if($event_startampm == _AM_VAL) {
+        if ($event_startampm == _AM_VAL) {
             $event_starttimeh = $event_starttimeh == 12 ? '00' : $event_starttimeh;
         } else {
             $event_starttimeh = $event_starttimeh != 12 ? $event_starttimeh+=12 : $event_starttimeh;
         }
+
         $startTime = sprintf('%02d', $event_starttimeh).':'.sprintf('%02d', $event_starttimem).':00';
     }
+
     if ($event_allday == 1) {
         $endTime = "24:00:00";
-    }
-    else {
+    } else {
         $endTime = date("H:i:00", ($event_duration + strtotime($startTime)));
     }
 
@@ -682,11 +719,12 @@ function postcalendar_userapi_submitEvent($args)
     }*/
 
 
-    if($pc_html_or_text == 'html') {
+    if ($pc_html_or_text == 'html') {
         $event_desc = ':html:'.$event_desc;
     } else {
         $event_desc = ':text:'.$event_desc;
     }
+
     list($event_subject,$event_desc,$event_topic,$startDate,$endDate,
          $event_repeat,$startTime,$event_allday,$event_category,
          $event_location_info,$event_conttel,$event_contname,
@@ -717,8 +755,10 @@ function postcalendar_userapi_submitEvent($args)
              $pc_event_id
          );
 
-    if(!isset($is_update)) { $is_update = false; }
-    if($is_update) {
+    if (!isset($is_update)) {
+        $is_update = false; }
+
+    if ($is_update) {
         $sql = "UPDATE $pntable[postcalendar_events]
                 SET pc_title = '$event_subject',
                     pc_hometext = '$event_desc',
@@ -799,15 +839,17 @@ function postcalendar_userapi_submitEvent($args)
                     '$event_pid'
                     )";
     }
+
     $result = $dbconn->Execute($sql);
-    if($result === false) {
+    if ($result === false) {
         return false;
     } else {
-        if((bool)$is_update) {
+        if ((bool)$is_update) {
             $eid = $pc_event_id;
         } else {
             $eid = $dbconn->PO_Insert_ID($pntable['postcalendar_events'], 'pc_eid');
         }
+
         pc_notify($eid, $is_update);
         return true;
     }
@@ -815,11 +857,12 @@ function postcalendar_userapi_submitEvent($args)
 
 function pc_notify($eid, $is_update)
 {
-    if(!(bool)_SETTING_NOTIFY_ADMIN) { return true; }
+    if (!(bool)_SETTING_NOTIFY_ADMIN) {
+        return true; }
 
     $subject = _PC_NOTIFY_SUBJECT;
 
-    if((bool)$is_update) {
+    if ((bool)$is_update) {
         $message = _PC_NOTIFY_UPDATE_MSG;
     } else {
         $message = _PC_NOTIFY_NEW_MSG;
@@ -857,11 +900,12 @@ function findFirstAvailable($period)
     foreach ($period as $date => $day) {
         //echo "begin free times for $date:<br />";
         $ffid_res = findFirstInDay($day, $date);
-        foreach($ffid_res as $times) {
+        foreach ($ffid_res as $times) {
             //echo "starting: " . date("h:i:s A",$times['startTime']) . " long: " . $times['duration'] . "<br />";
             $available_times[$date][] = $times;
             //echo "count of times is:" . count($available_times) . "<br />";
         }
+
         //echo "end free times for $date";
     }
 
@@ -880,13 +924,12 @@ function findFirstInDay($day, $date)
         if ($event['catid'] == 2) { //catid 2 is reserved to represent "In Office" events, id 3 is "Out Of Office"
             $intime = $event['startTime'];
             //echo "setting in: $intime<br />";
-        }
-        elseif ($event['catid'] == 3) {
-
+        } elseif ($event['catid'] == 3) {
             $outtime = $event['startTime'];
             //echo "setting out: $outtime<br />";
         }
     }
+
     if ($intime == false or $outtime == false) {
         return array();
     }
@@ -903,25 +946,21 @@ function findFirstInDay($day, $date)
         //echo "time is now: " . date("h:i:s A",$i) . "<br />";
         $closest_start = $outtime_sec;
         $timeclear = false;
-        foreach($day as $event) {
+        foreach ($day as $event) {
             if ($event['catid'] != 2) {
-
                 $estart = dtSec($date, $event['startTime']) ;
                 $eend = dtSecDur($date, $event['startTime'], $event['duration']);
 
-                if    ($eend < $intime_sec or $estart > $outtime_sec) {
+                if ($eend < $intime_sec or $estart > $outtime_sec) {
                     //event ends before intime or starts after outtime we don't care move on;
                     continue;
-                }
-                elseif ($eend < $i ) {
+                } elseif ($eend < $i) {
                     //event ended before time currently being evaluated, we don't care move on;
                     continue;
-                }
-                elseif ($estart < $i and $eend > $i) {
+                } elseif ($estart < $i and $eend > $i) {
                     //event occupies part of the time we are looking at, look at another time
                     continue;
-                }
-                elseif ($estart >= $i) {
+                } elseif ($estart >= $i) {
                     //echo "tin: " . date("h:i:s A",$i) . " estart: " . date("h:i:s A",$estart) . "<br />";
 
                     //echo "ev: " . $event['title'] . " s at:" . date("h:i:s A",$estart) . " e at: " . date("h:i:s A",$eend) ." <br />";
@@ -939,8 +978,7 @@ function findFirstInDay($day, $date)
                         //echo "set time is " . date("h:i:s A",$i) . " min free: " . (($closest_start - $i)/60)   . " " . date("h:i:s A",$closest_start) .  "<br />";
                         if ($i < ($eend - $inc))
                             $i = ($eend - $inc);
-                    }
-                    elseif($newfreetime <= $oldfreetime && $oldfreetime == ($outtime_sec - $i)) {
+                    } elseif ($newfreetime <= $oldfreetime && $oldfreetime == ($outtime_sec - $i)) {
                         $free_time = $i;
                         $closest_start = $estart;
 
@@ -950,9 +988,7 @@ function findFirstInDay($day, $date)
                     }
 
                     //echo "closest start: " . date("h:i:s A",$closest_start) . "<br />";
-
                 }
-
             }
         }
 
@@ -971,6 +1007,7 @@ function findFirstInDay($day, $date)
             }
         }
     }
+
     return $times;
 }
 
@@ -999,7 +1036,9 @@ function postcalendar_adminapi_buildSubmitForm($args)
 function postcalendar_userapi_buildSubmitForm($args, $admin = false)
 {
     $_SESSION['category'] = "";
-    if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
+    if (!PC_ACCESS_ADD) {
+        return _POSTCALENDARNOAUTH; }
+
     extract($args);
     unset($args);
     //since we seem to clobber category
@@ -1012,7 +1051,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
 
     $template_name = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
 
-    if(!isset($template_name)) {
+    if (!isset($template_name)) {
         $template_name ='default';
     }
 
@@ -1059,17 +1098,15 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     if (is_numeric($ProviderID)) {
         $tpl->assign('ProviderID', $ProviderID);
         $tpl->assign('provider_id', $ProviderID);
-    }
-    elseif(is_numeric($event_userid) && $event_userid != 0) {
+    } elseif (is_numeric($event_userid) && $event_userid != 0) {
         $tpl->assign('ProviderID', $event_userid);
         $tpl->assign('provider_id', $event_userid);
-    }
-    else {
+    } else {
         if ($_SESSION['userauthorized'] == 1)
             $tpl->assign('ProviderID', $_SESSION['authUserID']);
-        else
-              $tpl->assign('ProviderID', "");
+        else $tpl->assign('ProviderID', "");
     }
+
     $provinfo = getProviderInfo();
     $tpl->assign('providers', $provinfo);
     $PatientID = pnVarCleanFromInput("patient_id");
@@ -1081,11 +1118,9 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $plistlimit = 500;
     if (is_numeric($PatientID)) {
         $tpl->assign('PatientList', getPatientPID(array('pid'=>$PatientID, 'limit'=>$plistlimit)));
-    }
-    elseif (is_numeric($event_pid)) {
+    } elseif (is_numeric($event_pid)) {
         $tpl->assign('PatientList', getPatientPID(array('pid'=>$event_pid, 'limit'=>$plistlimit)));
-    }
-    else {
+    } else {
         $tpl->assign('PatientList', getPatientPID(array('limit' =>$plistlimit)));
     }
 
@@ -1093,11 +1128,11 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $tpl->assign('event_aid', $event_aid);
     $tpl->assign('event_category', pnVarCleanFromInput("event_category"));
 
-    if(empty($event_patient_name))
-    {
+    if (empty($event_patient_name)) {
         $patient_data = getPatientData($event_pid, $given = "lname, fname");
         $event_patient_name = $patient_data['lname'].", ".$patient_data['fname'];
     }
+
     $tpl->assign('patient_value', $event_patient_name);
 
     //=================================================================
@@ -1115,7 +1150,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     // that the fields will not be disabled.  -- Rod 2005-03-22
 
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    if(_SETTING_USE_INT_DATES) {
+    if (_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
         $formdata = $output->FormSelectMultiple('event_startday', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_startmonth));
@@ -1126,6 +1161,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
         $formdata .= $output->FormSelectMultiple('event_startday', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
     }
+
     $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_startyear));
     $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
@@ -1143,24 +1179,25 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     //=================================================================
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     //if there is no end date we want the box to read todays date instead of jan 01 1994 :)
-    if($event_endmonth == 0 && $event_endday ==0 && $event_endyear ==0){
+    if ($event_endmonth == 0 && $event_endday ==0 && $event_endyear ==0) {
         $event_endmonth =$month;
         $event_endday = $day ;
         $event_endyear = $year;
     }
-    if(_SETTING_USE_INT_DATES) {
+
+    if (_SETTING_USE_INT_DATES) {
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday));
 
         $formdata = $output->FormSelectMultiple('event_endday', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
         $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
     } else {
-
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
         $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
         $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday));
         $formdata .= $output->FormSelectMultiple('event_endday', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
     }
+
     $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_endyear));
     $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data, 0, 1, "", "", false, /* $double_book*/ '');
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
@@ -1172,24 +1209,23 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $timed_hours = $output->FormSelectMultiple('event_starttimeh', $stimes['h'], 0, 1, "", "", false, /* $double_book*/ '');
     $timed_minutes = $output->FormSelectMultiple('event_starttimem', $stimes['m'], 0, 1, "", "", false, /* $double_book*/ '');
-    if(!_SETTING_TIME_24HOUR) {
+    if (!_SETTING_TIME_24HOUR) {
         $ampm = array();
         $ampm[0]['id']          = pnVarPrepForStore(_AM_VAL);
         $ampm[0]['name']        = pnVarPrepForDisplay(_PC_AM);
         $ampm[1]['id']          = pnVarPrepForStore(_PM_VAL);
         $ampm[1]['name']        = pnVarPrepForDisplay(_PC_PM);
-        if($event_startampm == "AM" || $event_startampm == _AM_VAL)
-        {
+        if ($event_startampm == "AM" || $event_startampm == _AM_VAL) {
             $ampm[0]['selected'] = 1;
-        }
-        else
-        {
+        } else {
             $ampm[1]['selected'] = 1;
         }
+
         $timed_ampm = $output->FormSelectMultiple('event_startampm', $ampm, 0, 1, "", "", false, /* $double_book*/ '');
     } else {
         $timed_ampm = '';
     }
+
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
     $tpl->assign('SelectTimedHours', $timed_hours);
     $tpl->assign('SelectTimedMinutes', $timed_minutes);
@@ -1208,7 +1244,7 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     //=================================================================
     $event_dur_hours = (int) $event_dur_hours;
 
-    for($i=0; $i<=24; $i+=1) {
+    for ($i=0; $i<=24; $i+=1) {
         $TimedDurationHours[$i] = array('value'=>$i,
                                         'selected'=>($event_dur_hours==$i ? 'selected':''),
                                         'name'=>sprintf('%02d', $i));
@@ -1217,15 +1253,15 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $tpl->assign('TimedDurationHours', $TimedDurationHours);
     $tpl->assign('InputTimedDurationHours', 'event_dur_hours');
     $found_time = false;
-    for($i=0; $i<60; $i+=_SETTING_TIME_INCREMENT) {
+    for ($i=0; $i<60; $i+=_SETTING_TIME_INCREMENT) {
         $TimedDurationMinutes[$i] = array('value'=>$i,
                                           'selected'=>($event_dur_minutes==$i ? 'selected':''),
                                           'name'=>sprintf('%02d', $i));
-         if( $TimedDurationMinutes[$i]['selected'] == 'selected' )
+         if ($TimedDurationMinutes[$i]['selected'] == 'selected')
              $found_time = true;
     }
 
-    if(!$found_time)
+    if (!$found_time)
         $TimedDurationMinutes[$i] = array('value'=>$event_dur_minutes,
                                             'selected'=>'selected',
                                             'name'=>sprintf('%02d', $event_dur_minutes));
@@ -1236,86 +1272,96 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     //  PARSE INPUT_EVENT_DESC
     //=================================================================
     $tpl->assign('InputEventDesc', 'event_desc');
-    if(empty($pc_html_or_text)) {
+    if (empty($pc_html_or_text)) {
         $display_type = substr($event_desc, 0, 6);
-        if($display_type == ':text:') {
+        if ($display_type == ':text:') {
             $pc_html_or_text = 'text';
             $event_desc = substr($event_desc, 6);
-        } elseif($display_type == ':html:') {
+        } elseif ($display_type == ':html:') {
             $pc_html_or_text = 'html';
             $event_desc = substr($event_desc, 6);
         } else {
             $pc_html_or_text = 'text';
         }
+
         unset($display_type);
     }
+
     $tpl->assign('ValueEventDesc', pnVarPrepForDisplay($event_desc));
     $eventHTMLorText  = "<select name=\"pc_html_or_text\">";
-    if($pc_html_or_text == 'text') {
+    if ($pc_html_or_text == 'text') {
         $eventHTMLorText .= "<option value=\"text\" selected=\"selected\">"._PC_SUBMIT_TEXT."</option>";
     } else {
         $eventHTMLorText .= "<option value=\"text\">"._PC_SUBMIT_TEXT."</option>";
     }
-    if($pc_html_or_text == 'html') {
+
+    if ($pc_html_or_text == 'html') {
         $eventHTMLorText .= "<option value=\"html\" selected=\"selected\">"._PC_SUBMIT_HTML."</option>";
     } else {
         $eventHTMLorText .= "<option value=\"html\">"._PC_SUBMIT_HTML."</option>";
     }
+
     $eventHTMLorText .= "</select>";
     $tpl->assign('EventHTMLorText', $eventHTMLorText);
     //=================================================================
     //  PARSE select_event_topic_block
     //=================================================================
     $tpl->assign('displayTopics', _SETTING_DISPLAY_TOPICS);
-    if((bool)_SETTING_DISPLAY_TOPICS) {
+    if ((bool)_SETTING_DISPLAY_TOPICS) {
         $a_topics =& postcalendar_userapi_getTopics();
         $topics = array();
-        foreach($a_topics as $topic) {
+        foreach ($a_topics as $topic) {
             array_push($topics, array('value'=>$topic['id'],
                                      'selected'=>($topic['id']==$event_topic ? 'selected':''),
                                      'name'=>$topic['text']));
         }
+
         unset($a_topics);
         // only show this if we have topics to show
-        if(count($topics) > 0) {
+        if (count($topics) > 0) {
             $tpl->assign('topics', $topics);
             $tpl->assign('EventTopicTitle', _PC_EVENT_TOPIC);
             $tpl->assign('InputEventTopic', 'event_topic');
         }
     }
+
     //=================================================================
     //  PARSE select_event_type_block
     //=================================================================
     $categories = array();
-    foreach($all_categories as $category) {
+    foreach ($all_categories as $category) {
         array_push($categories, array('value'=>$category['id'],
                                      'selected'=>($category['id']==$event_category ? 'selected' : ''),
                                      'name'=>$category['name'],
                                      'color'=>$category['color'],
                                      'desc'=>$category['desc']));
     }
+
     // only show this if we have categories to show
     // you should ALWAYS have at least one valid category
-    if(count($categories) > 0) {
+    if (count($categories) > 0) {
         $tpl->assign('categories', $categories);
         $tpl->assign('EventCategoriesTitle', _PC_EVENT_CATEGORY);
         $tpl->assign('InputEventCategory', 'event_category');
         $tpl->assign('hidden_event_category', $event_category);
     }
+
     //=================================================================
     //  PARSE event_sharing_block
     //=================================================================
     $data = array();
-    if(_SETTING_ALLOW_USER_CAL) {
+    if (_SETTING_ALLOW_USER_CAL) {
         array_push($data, array(SHARING_PRIVATE,_PC_SHARE_PRIVATE));
         array_push($data, array(SHARING_PUBLIC,_PC_SHARE_PUBLIC));
         array_push($data, array(SHARING_BUSY,_PC_SHARE_SHOWBUSY));
     }
-    if(pnSecAuthAction(0, 'PostCalendar::', '::', ACCESS_ADMIN) || _SETTING_ALLOW_GLOBAL || !_SETTING_ALLOW_USER_CAL) {
+
+    if (pnSecAuthAction(0, 'PostCalendar::', '::', ACCESS_ADMIN) || _SETTING_ALLOW_GLOBAL || !_SETTING_ALLOW_USER_CAL) {
         array_push($data, array(SHARING_GLOBAL,_PC_SHARE_GLOBAL));
     }
+
     $sharing = array();
-    foreach($data as $cell) {
+    foreach ($data as $cell) {
         array_push($sharing, array('value'=>$cell[0],
                                   'selected'=>((int) $event_sharing == $cell[0] ? 'selected' : ''),
                                   'name'=>$cell[1]));
@@ -1387,24 +1433,26 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY,_PC_EVERY_OTHER,_PC_EVERY_THIRD,_PC_EVERY_FOURTH);
     $keys = array(REPEAT_EVERY,REPEAT_EVERY_OTHER,REPEAT_EVERY_THIRD,REPEAT_EVERY_FOURTH);
     $repeat_freq = array();
-    foreach($in as $k=>$v) {
+    foreach ($in as $k=>$v) {
         array_push($repeat_freq, array('value'=>$keys[$k],
                                       'selected'=>($keys[$k]==$event_repeat_freq?'selected':''),
                                       'name'=>$v));
     }
+
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
-    if(empty($event_repeat_freq) || $event_repeat_freq < 1) $event_repeat_freq = 1;
+    if (empty($event_repeat_freq) || $event_repeat_freq < 1) $event_repeat_freq = 1;
     $tpl->assign('InputRepeatFreqVal', $event_repeat_freq);
     $tpl->assign('repeat_freq', $repeat_freq);
     unset($in);
     $in = array(_PC_EVERY_DAY,_PC_EVERY_WORKDAY,_PC_EVERY_WEEK,_PC_EVERY_MONTH,_PC_EVERY_YEAR);
     $keys = array(REPEAT_EVERY_DAY,REPEAT_EVERY_WORK_DAY,REPEAT_EVERY_WEEK,REPEAT_EVERY_MONTH,REPEAT_EVERY_YEAR);
     $repeat_freq_type = array();
-    foreach($in as $k=>$v) {
+    foreach ($in as $k=>$v) {
         array_push($repeat_freq_type, array('value'=>$keys[$k],
                                            'selected'=>($keys[$k]==$event_repeat_freq_type?'selected':''),
                                            'name'=>$v));
     }
+
     $tpl->assign('InputRepeatFreqType', 'event_repeat_freq_type');
     $tpl->assign('repeat_freq_type', $repeat_freq_type);
 
@@ -1416,11 +1464,12 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY_1ST,_PC_EVERY_2ND,_PC_EVERY_3RD,_PC_EVERY_4TH,_PC_EVERY_LAST);
     $keys = array(REPEAT_ON_1ST,REPEAT_ON_2ND,REPEAT_ON_3RD,REPEAT_ON_4TH,REPEAT_ON_LAST);
     $repeat_on_num = array();
-    foreach($in as $k=>$v) {
+    foreach ($in as $k=>$v) {
         array_push($repeat_on_num, array('value'=>$keys[$k],
                                         'selected'=>($keys[$k]==$event_repeat_on_num?'selected':''),
                                         'name'=>$v));
     }
+
     $tpl->assign('InputRepeatOnNum', 'event_repeat_on_num');
     $tpl->assign('repeat_on_num', $repeat_on_num);
 
@@ -1428,11 +1477,12 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_EVERY_SUN,_PC_EVERY_MON,_PC_EVERY_TUE,_PC_EVERY_WED,_PC_EVERY_THU,_PC_EVERY_FRI,_PC_EVERY_SAT);
     $keys = array(REPEAT_ON_SUN,REPEAT_ON_MON,REPEAT_ON_TUE,REPEAT_ON_WED,REPEAT_ON_THU,REPEAT_ON_FRI,REPEAT_ON_SAT);
     $repeat_on_day = array();
-    foreach($in as $k=>$v) {
+    foreach ($in as $k=>$v) {
         array_push($repeat_on_day, array('value'=>$keys[$k],
                                         'selected'=>($keys[$k]==$event_repeat_on_day ? 'selected' : ''),
                                         'name'=>$v));
     }
+
     $tpl->assign('InputRepeatOnDay', 'event_repeat_on_day');
     $tpl->assign('repeat_on_day', $repeat_on_day);
 
@@ -1440,13 +1490,14 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $in = array(_PC_OF_EVERY_MONTH,_PC_OF_EVERY_2MONTH,_PC_OF_EVERY_3MONTH,_PC_OF_EVERY_4MONTH,_PC_OF_EVERY_6MONTH,_PC_OF_EVERY_YEAR);
     $keys = array(REPEAT_ON_MONTH,REPEAT_ON_2MONTH,REPEAT_ON_3MONTH,REPEAT_ON_4MONTH,REPEAT_ON_6MONTH,REPEAT_ON_YEAR);
     $repeat_on_freq = array();
-    foreach($in as $k=>$v) {
+    foreach ($in as $k=>$v) {
         array_push($repeat_on_freq, array('value'=>$keys[$k],
                                          'selected'=>($keys[$k] == $event_repeat_on_freq ? 'selected' : ''),
                                          'name'=>$v));
     }
+
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
-    if(empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) $event_repeat_on_freq = 1;
+    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) $event_repeat_on_freq = 1;
     $tpl->assign('InputRepeatOnFreqVal', $event_repeat_on_freq);
     $tpl->assign('repeat_on_freq', $repeat_on_freq);
     $tpl->assign('MonthsTitle', _PC_MONTHS);
@@ -1473,18 +1524,20 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"$is_update\" />";
     $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"$pc_event_id\" />";
     $form_hidden .= "<input type=\"hidden\" name=\"category\" value=\"$cat\" />";
-    if(isset($data_loaded)) {
+    if (isset($data_loaded)) {
         $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"$data_loaded\" />";
         $tpl->assign('FormHidden', $form_hidden);
     }
+
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
                    '.$authkey.'<input type="submit" name="submit" value="go">' ;
     $tpl->assign('FormSubmit', $form_submit);
 
     // do not cache this page
-    if($admin) {
+    if ($admin) {
         $output->Text($tpl->fetch($template_name.'/admin/submit.html'));
     }
+
     //check flag no_nav, if true use much smaller submit form for find_patient.php, etc
     //elseif (pnVarCleanFromInput("no_nav") == 1) {
     //    $output->Text($tpl->fetch($template_name.'/user/submit_no_nav.html'));
@@ -1498,9 +1551,10 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
 function &postcalendar_userapi_pcGetEventDetails($eid)
 {
 
-    if(!isset($eid)) {
+    if (!isset($eid)) {
         return false;
     }
+
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
 
@@ -1541,13 +1595,15 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
             WHERE  (e.pc_eid = '$eid' AND c.pc_catid = e.pc_catid)";
 
     $result = $dbconn->Execute($sql);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         die($dbconn->ErrorMsg());
     }
+
     $event = array();
-    if(!isset($result)) {
+    if (!isset($result)) {
         return $event;
     }
+
     list($event['eid'],        $event['uname'],       $event['catid'],
          $event['title'],      $event['time'],        $event['hometext'],
          $event['eventDate'],  $event['duration'],    $event['endDate'],
@@ -1566,19 +1622,20 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
 
     // get the user id of event's author
     $users = pnUserGetAll();
-    foreach($users as $user) {
-        if($user['uname'] == $event['uname']) {
+    foreach ($users as $user) {
+        if ($user['uname'] == $event['uname']) {
             $cuserid = $user['uid'];
             break;
         }
     }
+
     unset($users);
 
     // is this a public event to be shown as busy?
-    if($event['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
+    if ($event['sharing'] == SHARING_PRIVATE && $cuserid != $userid) {
         // they are not supposed to see this
         return false;
-    } elseif($event['sharing'] == SHARING_BUSY && $cuserid != $userid) {
+    } elseif ($event['sharing'] == SHARING_BUSY && $cuserid != $userid) {
         // make it not display any information
         $event['title']     = _USER_BUSY_TITLE;
         $event['hometext']  = _USER_BUSY_MESSAGE;
@@ -1598,6 +1655,7 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
         $event['website']   = $event['website'];
         $event['fee']       = $event['fee'];
     }
+
     $event['desc'] = $event['hometext'];
     $event['website'] = $event['website'];
     if (!empty($event['pid']))
@@ -1621,7 +1679,9 @@ function postcalendar_adminapi_eventDetail($args)
     return postcalendar_userapi_eventDetail($args, true); }
 function postcalendar_userapi_eventDetail($args, $admin = false)
 {
-    if(!(bool)PC_ACCESS_READ) { return _POSTCALENDARNOAUTH; }
+    if (!(bool)PC_ACCESS_READ) {
+        return _POSTCALENDARNOAUTH; }
+
     // get the theme globals :: is there a better way to do this?
     pnThemeLoad(pnUserGetTheme());
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5;
@@ -1629,11 +1689,12 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
     $popup = pnVarCleanFromInput('popup');
     extract($args);
     unset($args);
-    if(!isset($cacheid)) $cacheid = null;
-    if(!isset($eid)) {
+    if (!isset($cacheid)) $cacheid = null;
+    if (!isset($eid)) {
         return false;
     }
-    if(!isset($nopop)) {
+
+    if (!isset($nopop)) {
         $nopop = false;
     }
 
@@ -1642,15 +1703,16 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
     //  Find out what Template we're using
     //=================================================================
     $template_name = _SETTING_TEMPLATE;
-    if(!isset($template_name)) {
+    if (!isset($template_name)) {
         $template_name = 'default';
     }
+
     //=================================================================
     //  Setup Smarty Template Engine
     //=================================================================
     $tpl = new pcSmarty();
 
-    if($admin) {
+    if ($admin) {
         $template = $template_name.'/admin/details.html';
         $args['cacheid'] = '';
         $print=0;
@@ -1660,7 +1722,7 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         $template = $template_name.'/user/details.html';
     }
 
-    if(!$tpl->is_cached($template, $cacheid)) {
+    if (!$tpl->is_cached($template, $cacheid)) {
         // let's get the DB information
         list($dbconn) = pnDBGetConn();
         $pntable = pnDBGetTables();
@@ -1668,7 +1730,9 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         $event =& postcalendar_userapi_pcGetEventDetails($eid);
         // if the above is false, it's a private event for another user
         // we should not diplay this - so we just exit gracefully
-        if($event === false) { return false; }
+        if ($event === false) {
+            return false; }
+
         //=================================================================
         //  get event's topic information
         //=================================================================
@@ -1691,29 +1755,32 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         //=================================================================
         //  populate the template
         //=================================================================
-        if(!empty($event['location']) || !empty($event['street1']) ||
+        if (!empty($event['location']) || !empty($event['street1']) ||
            !empty($event['street2']) || !empty($event['city']) ||
            !empty($event['state']) || !empty($event['postal'])) {
             $tpl->assign('LOCATION_INFO', true);
         } else {
             $tpl->assign('LOCATION_INFO', false);
         }
-        if(!empty($event['contname']) || !empty($event['contemail']) ||
+
+        if (!empty($event['contname']) || !empty($event['contemail']) ||
            !empty($event['conttel']) || !empty($event['website'])) {
             $tpl->assign('CONTACT_INFO', true);
         } else {
             $tpl->assign('CONTACT_INFO', false);
         }
+
         $display_type = substr($event['hometext'], 0, 6);
-        if($display_type == ':text:') {
+        if ($display_type == ':text:') {
             $prepFunction = 'pcVarPrepForDisplay';
             $event['hometext'] = substr($event['hometext'], 6);
-        } elseif($display_type == ':html:') {
+        } elseif ($display_type == ':html:') {
             $prepFunction = 'pcVarPrepHTMLDisplay';
             $event['hometext'] = substr($event['hometext'], 6);
         } else {
             $prepFunction = 'pcVarPrepHTMLDisplay';
         }
+
         unset($display_type);
         // prep the vars for output
         $event['title'] =& $prepFunction($event['title']);
@@ -1736,7 +1803,7 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         //  populate the template $ADMIN_OPTIONS
         //=================================================================
         $target='';
-        if(_SETTING_OPEN_NEW_WINDOW) {
+        if (_SETTING_OPEN_NEW_WINDOW) {
             $target = 'target="csCalendar"';
         }
 
@@ -1745,8 +1812,9 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
             $admin_edit_url     = pnModURL(__POSTCALENDAR__, 'admin', 'submit', array('pc_event_id'=>$eid));
             $admin_delete_url   = pnModURL(__POSTCALENDAR__, 'admin', 'adminevents', array('action'=>_ACTION_DELETE,'pc_event_id'=>$eid));
         }
+
         $user_edit_url = $user_delete_url = '';
-        if(pnUserLoggedIn()) {
+        if (pnUserLoggedIn()) {
             $logged_in_uname = $_SESSION['authUser'];
         } else {
             $logged_in_uname = '';
@@ -1755,11 +1823,11 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
 
         $can_edit = false;
         if (pnSecAuthAction(0, 'PostCalendar::', '::', ACCESS_ADD) && validateGroupStatus($logged_in_uname, getUsername($event['uname']))) {
-
             $user_edit_url     = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('pc_event_id'=>$eid));
             $user_delete_url   = pnModURL(__POSTCALENDAR__, 'user', 'delete', array('pc_event_id'=>$eid));
             $can_edit = true;
         }
+
         $tpl->assign('STYLE', $GLOBALS['style']);
         $tpl->assign_by_ref('ADMIN_TARGET', $target);
         $tpl->assign_by_ref('ADMIN_EDIT', $admin_edit_url);
@@ -1769,10 +1837,11 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
         $tpl->assign_by_ref('USER_DELETE', $user_delete_url);
         $tpl->assign_by_ref('USER_CAN_EDIT', $can_edit);
     }
+
     //=================================================================
     //  Parse the template
     //=================================================================
-    if($popup != 1 && $print != 1) {
+    if ($popup != 1 && $print != 1) {
         $output  = "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
         $output .= $tpl->fetch($template, $cacheid);
         $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
@@ -1839,10 +1908,10 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
         list($eh,$em) = explode(':', $end);
     }
 
-    if(strtolower($order) == 'asc') $function = 'sort_byTimeA';
-    if(strtolower($order) == 'desc') $function = 'sort_byTimeD';
+    if (strtolower($order) == 'asc') $function = 'sort_byTimeA';
+    if (strtolower($order) == 'desc') $function = 'sort_byTimeD';
 
-    foreach($value as $events) {
+    foreach ($value as $events) {
         usort($events, $function);
         $newArray = $events;
     }
@@ -1851,22 +1920,22 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
     // columns and rows to build a nice day view
     $ch = $sh;
     $cm = $sm;
-    while("$ch:$cm" <= "$eh:$em") {
+    while ("$ch:$cm" <= "$eh:$em") {
         $hours["$ch:$cm"] = array();
         $cm += $inc;
-        if($cm >= 60) {
+        if ($cm >= 60) {
             $cm = '00';
             $ch = sprintf('%02d', $ch+1);
         }
     }
 
     $alldayevents = array();
-    foreach($newArray as $event) {
+    foreach ($newArray as $event) {
         list($sh,$sm,$ss) = explode(':', $event['startTime']);
         $eh = sprintf('%02d', $sh + $event['duration_hours']);
         $em = sprintf('%02d', $sm + $event['duration_minutes']);
 
-        if($event['alldayevent']) {
+        if ($event['alldayevent']) {
             // we need an entire column . save till later
             $alldayevents[] = $event;
         } else {
@@ -1875,59 +1944,62 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
             $ch = $sh;
             $cm = $sm;
             //what times do we need?
-            while("$ch:$cm" < "$eh:$em") {
+            while ("$ch:$cm" < "$eh:$em") {
                 $needed[] = "$ch:$cm";
                 $cm += $inc;
-                if($cm >= 60) {
+                if ($cm >= 60) {
                     $cm = '00';
                     $ch = sprintf('%02d', $ch+1);
                 }
             }
+
             $i = 0;
-            foreach($needed as $time) {
-                if($i==0) {
+            foreach ($needed as $time) {
+                if ($i==0) {
                     $hours[$time][] = $event;
                     $key = count($hours[$time])-1;
                 } else {
                     $hours[$time][$key] = 'continued';
                 }
+
                 $i++;
             }
         }
     }
+
     //pcDebugVar($hours);
     $smarty->assign_by_ref($var, $hours);
 }
 
 function sort_byCategoryA($a, $b)
 {
-    if($a['catname'] < $b['catname']) return -1;
-    elseif($a['catname'] > $b['catname']) return 1;
+    if ($a['catname'] < $b['catname']) return -1;
+    elseif ($a['catname'] > $b['catname']) return 1;
 }
 function sort_byCategoryD($a, $b)
 {
-    if($a['catname'] < $b['catname']) return 1;
-    elseif($a['catname'] > $b['catname']) return -1;
+    if ($a['catname'] < $b['catname']) return 1;
+    elseif ($a['catname'] > $b['catname']) return -1;
 }
 function sort_byTitleA($a, $b)
 {
-    if($a['title'] < $b['title']) return -1;
-    elseif($a['title'] > $b['title']) return 1;
+    if ($a['title'] < $b['title']) return -1;
+    elseif ($a['title'] > $b['title']) return 1;
 }
 function sort_byTitleD($a, $b)
 {
-    if($a['title'] < $b['title']) return 1;
-    elseif($a['title'] > $b['title']) return -1;
+    if ($a['title'] < $b['title']) return 1;
+    elseif ($a['title'] > $b['title']) return -1;
 }
 function sort_byTimeA($a, $b)
 {
-    if($a['startTime'] < $b['startTime']) return -1;
-    elseif($a['startTime'] > $b['startTime']) return 1;
+    if ($a['startTime'] < $b['startTime']) return -1;
+    elseif ($a['startTime'] > $b['startTime']) return 1;
 }
 function sort_byTimeD($a, $b)
 {
-    if($a['startTime'] < $b['startTime']) return 1;
-    elseif($a['startTime'] > $b['startTime']) return -1;
+    if ($a['startTime'] < $b['startTime']) return 1;
+    elseif ($a['startTime'] > $b['startTime']) return -1;
 }
 /**
  *    pc_clean
@@ -1937,11 +2009,12 @@ function sort_byTimeD($a, $b)
 function pc_clean($s)
 {
     $display_type = substr($s, 0, 6);
-    if($display_type == ':text:') {
+    if ($display_type == ':text:') {
         $s = substr($s, 6);
-    } elseif($display_type == ':html:') {
+    } elseif ($display_type == ':html:') {
         $s = substr($s, 6);
     }
+
     unset($display_type);
     $s = preg_replace('/[\r|\n]/i', '', $s);
     $s = str_replace("'", "\'", $s);
@@ -1966,22 +2039,27 @@ function &postcalendar_userapi_getCategoryLimits()
             ORDER BY pc_limitid";
     $result = $dbconn->Execute($sql);
 
-    if($dbconn->ErrorNo() != 0) { return array(); }
-    if(!isset($result)) { return array(); }
+    if ($dbconn->ErrorNo() != 0) {
+        return array(); }
+
+    if (!isset($result)) {
+        return array(); }
 
     $limits = array();
-    for($i=0; !$result->EOF; $result->MoveNext()) {
+    for ($i=0; !$result->EOF; $result->MoveNext()) {
         list($limitid,$catid,$startTime,$endTime,$limit) = $result->fields;
         // check the category's permissions
         if (!pnSecAuthAction(0, 'PostCalendar::Category', "$catname::$catid", ACCESS_OVERVIEW)) {
             continue;
         }
+
         $limits[$i]['limitid']  = $limitid;
         $limits[$i]['catid']       = $catid;
         $limits[$i]['startTime']= $startTime;
         $limits[$i]['endTime']    = $endTime;
         $limits[$i++]['limit']    = $limit;
     }
+
     $result->Close();
     return $limits;
 }

@@ -131,9 +131,11 @@ if ($_POST['form_refresh']) {
     } else {
         $query .= "e.pc_eventDate = '$form_from_date' ";
     }
+
     if ($form_facility !== '') {
         $query .= "AND e.pc_facility = '" . add_escape_custom($form_facility) . "' ";
     }
+
   // $query .= "AND ( e.pc_catid = 5 OR e.pc_catid = 9 OR e.pc_catid = 10 ) " .
     $query .= "AND e.pc_pid != '' AND e.pc_apptstatus != '?' " .
     ") UNION ( " .
@@ -159,9 +161,11 @@ if ($_POST['form_refresh']) {
        // $query .= "LEFT(fe.date, 10) = '$form_from_date' ";
         $query .= "fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
     }
+
     if ($form_facility !== '') {
         $query .= "AND fe.facility_id = '" . add_escape_custom($form_facility) . "' ";
     }
+
     $query .= ") ORDER BY docname, IFNULL(pc_eventDate, encdate), pc_startTime";
 
     $res = sqlStatement($query);
@@ -255,6 +259,7 @@ $(document).ready(function() {
                          if ($facid == $form_facility) echo " selected";
                          echo ">" . htmlspecialchars($frow['name']) . "\n";
                 }
+
                  echo "    <option value='0'";
                  if ($form_facility === '0') echo " selected";
                  echo ">-- " . xl('Unspecified') . " --\n";
@@ -314,7 +319,7 @@ $(document).ready(function() {
 </div> <!-- end apptenc_report_parameters -->
 
 <?php
-if ($_POST['form_refresh'] ) {
+if ($_POST['form_refresh']) {
 ?>
 <div id="report_results">
 <table id='mymaintable'>
@@ -367,6 +372,7 @@ if ($res) {
             if ($code_types[$code_type]['just']) {
                 if (! $brow['justify']) postError(xl('Needs Justify'));
             }
+
             if ($code_types[$code_type]['fee']) {
                 $charges += $brow['fee'];
                 if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) postError(xl('Missing Fee'));
@@ -385,6 +391,7 @@ if ($res) {
                     } else {
                         $query .= "(modifier IS NULL OR modifier = '')";
                     }
+
                     $query .= " LIMIT 1";
                     $tmp = sqlQuery($query);
                     $relcodes = explode(';', $tmp['related_code']);
@@ -396,7 +403,6 @@ if ($res) {
                     }
                 }
             } // End IPPF stuff
-
         } // end while
 
         $copays -= getPatientCopay($patient_id, $encounter);
@@ -462,8 +468,7 @@ if ($res) {
      *****************************************************************/
         if (empty($row['pc_eventDate'])) {
             echo oeFormatShortDate(substr($row['encdate'], 0, 10));
-        }
-        else {
+        } else {
             echo oeFormatShortDate($row['pc_eventDate']) . ' ' . substr($row['pc_startTime'], 0, 5);
         }
         ?>
@@ -522,7 +527,6 @@ if ($res) {
     echo "   &nbsp;\n";
     echo "  </td>\n";
     echo " </tr>\n";
-
 }
 ?>
 </tbody>
@@ -538,7 +542,8 @@ if ($res) {
 
 </form>
 <script>
-<?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
+<?php if ($alertmsg) {
+    echo " alert('$alertmsg');\n"; } ?>
 </script>
 </body>
 

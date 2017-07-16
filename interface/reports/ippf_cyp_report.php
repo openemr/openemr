@@ -21,6 +21,7 @@ function display_desc($desc)
     if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
         $desc = $matches[1];
     }
+
     return $desc;
 }
 
@@ -45,8 +46,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
                     echo '"' . formatcyp($productcyp) . '",';
                     echo '"' . formatcyp($producttotal) . '"' . "\n";
                 }
-            }
-            else {
+            } else {
         ?>
 
        <tr bgcolor="#ddddff">
@@ -66,6 +66,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 <?php
             } // End not csv export
         }
+
         $producttotal = 0;
         $productqty = 0;
         $product = $rowproduct;
@@ -81,8 +82,7 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             echo '"' . display_desc($qty) . '",';
             echo '"' . formatcyp($rowcyp) . '",';
             echo '"' . formatcyp($rowresult) . '"' . "\n";
-        }
-        else {
+        } else {
         ?>
 
      <tr>
@@ -107,7 +107,6 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
   </td>
  </tr>
 <?php
-
         } // End not csv export
     } // end details
     $producttotal += $rowresult;
@@ -137,15 +136,13 @@ if ($_POST['form_csvexport']) {
         echo '"Qty",';
         echo '"CYP",';
         echo '"Result"' . "\n";
-    }
-    else {
+    } else {
         echo '"Item",';
         echo '"Qty",';
         echo '"CYP",';
         echo '"Result"' . "\n";
     }
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
@@ -186,6 +183,7 @@ while ($frow = sqlFetchArray($fres)) {
     if ($facid == $form_facility) echo " selected";
     echo ">" . $frow['name'] . "\n";
 }
+
   echo "   </select>\n";
 ?>
    &nbsp;<?xl('From:','e')?>
@@ -270,6 +268,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY b.code, fe.date, fe.id";
   //
     $res = sqlStatement($query);
@@ -284,6 +283,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['invoice_refno']
         );
     }
+
   //
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
     "d.name, d.cyp_factor, fe.date, fe.facility_id, fe.invoice_refno " .
@@ -297,6 +297,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY d.name, fe.date, fe.id";
   //
     $res = sqlStatement($query);
@@ -319,8 +320,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             echo '"' . formatcyp($productcyp) . '",';
             echo '"' . formatcyp($producttotal) . '"' . "\n";
         }
-    }
-    else {
+    } else {
     ?>
 
    <tr bgcolor="#ddddff">
@@ -354,7 +354,6 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
  </tr>
 
 <?php
-
     } // End not csv export
 } // end report generation
 

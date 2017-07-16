@@ -50,12 +50,12 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     if ($_POST['form_submit']) {
         sqlStatement("UPDATE form_encounter " .
         "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
-    }
-    else {
+    } else {
         $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
         " WHERE id = ?", array($feid));
         $fenote = $tmp['billing_note'];
     }
+
   // escape and format note for viewing
     $fenote = htmlspecialchars($fenote, ENT_QUOTES);
     $fenote = str_replace("\r\n", "<br />", $fenote);

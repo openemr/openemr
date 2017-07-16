@@ -39,7 +39,7 @@ if (!acl_check('admin', 'users')) {
 
 $alertmsg = '';
 
-if ( isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POST["user_id"]) && isset($_POST["fac_id"]) ) {
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_POST["user_id"]) && isset($_POST["fac_id"])) {
   // Inserting/Updating new facility specific user information
     $fres = sqlStatement("SELECT * FROM `layout_options` " .
                        "WHERE `form_id` = 'FACUSR' AND `uor` > 0 AND `field_id` != '' " .
@@ -50,8 +50,7 @@ if ( isset($_POST["mode"]) && $_POST["mode"] == "facility_user_id" && isset($_PO
         if (empty($entry_id)) {
             // Insert new entry
             sqlInsert("INSERT INTO `facility_user_ids` (`uid`, `facility_id`, `field_id`, `field_value`) VALUES (?,?,?,?)", array($_POST["user_id"],$_POST["fac_id"],$frow['field_id'], $value));
-        }
-        else {
+        } else {
             // Update existing entry
             sqlStatement("UPDATE `facility_user_ids` SET `field_value` = ? WHERE `id` = ?", array($value,$entry_id['id']));
         }
@@ -103,7 +102,7 @@ $u_res = sqlStatement("select * from `users` WHERE `username` != '' AND `active`
 // Collect all facilities and store them in an array
 $f_res = sqlStatement("select * from `facility` order by `name`");
 $f_arr = array();
-for($i=0; $row=sqlFetchArray($f_res); $i++) {
+for ($i=0; $row=sqlFetchArray($f_res); $i++) {
     $f_arr[$i]=$row;
 }
 
@@ -112,7 +111,7 @@ $l_res = sqlStatement("SELECT * FROM layout_options " .
                       "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                       "ORDER BY group_name, seq");
 $l_arr = array();
-for($i=0; $row=sqlFetchArray($l_res); $i++) {
+for ($i=0; $row=sqlFetchArray($l_res); $i++) {
     $l_arr[$i]=$row;
 }
 
@@ -160,7 +159,8 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
                                     ?>
                 </tr>
                 <?php
-                        }}
+                        }
+                    }
                 ?>
                 </tbody>
             </table>

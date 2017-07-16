@@ -311,11 +311,9 @@ if ($_POST['form_refresh']) {
     <?php
     if ($rule == "send_sum_amc") {
         echo htmlspecialchars(xl('Referral Date'), ENT_NOQUOTES);
-    }
-    else if ($rule == "provide_rec_pat_amc") {
+    } else if ($rule == "provide_rec_pat_amc") {
         echo htmlspecialchars(xl('Record Request Date'), ENT_NOQUOTES);
-    }
-    else { // $rule == "provide_sum_pat_amc"
+    } else { // $rule == "provide_sum_pat_amc"
         echo htmlspecialchars(xl('Encounter Date'), ENT_NOQUOTES);
     }
     ?>
@@ -325,11 +323,9 @@ if ($_POST['form_refresh']) {
     <?php
     if ($rule == "send_sum_amc") {
         echo htmlspecialchars(xl('Referral ID'), ENT_NOQUOTES);
-    }
-    else if ($rule == "provide_rec_pat_amc") {
+    } else if ($rule == "provide_rec_pat_amc") {
         echo "&nbsp";
-    }
-    else { // $rule == "provide_sum_pat_amc"
+    } else { // $rule == "provide_sum_pat_amc"
         echo htmlspecialchars(xl('Encounter ID'), ENT_NOQUOTES);
     }
     ?>
@@ -339,11 +335,9 @@ if ($_POST['form_refresh']) {
     <?php
     if ($rule == "provide_rec_pat_amc") {
         echo htmlspecialchars(xl('Medical Records Sent'), ENT_NOQUOTES);
-    }
-    else if ($rule == "send_sum_amc") {
+    } else if ($rule == "send_sum_amc") {
         echo htmlspecialchars(xl('Summary of Care Sent'), ENT_NOQUOTES);
-    }
-    else { // $rule == "provide_sum_pat_amc"
+    } else { // $rule == "provide_sum_pat_amc"
         echo htmlspecialchars(xl('Medical Summary Given'), ENT_NOQUOTES);
     }
     ?>
@@ -373,21 +367,19 @@ foreach ($resultsArray as $result) {
     echo "<td>" . htmlspecialchars($result['date'], ENT_NOQUOTES) . "</td>";
     if ($rule == "send_sum_amc" || $rule == "provide_sum_pat_amc") {
         echo "<td>" . htmlspecialchars($result['id'], ENT_NOQUOTES) . "</td>";
-    }
-    else { //$rule == "provide_rec_pat_amc"
+    } else { //$rule == "provide_rec_pat_amc"
         echo "<td>&nbsp</td>";
     }
 
     if ($rule == "send_sum_amc") {
         echo "<td><input type='checkbox' id='send_sum_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
         echo "<td><input type='checkbox' id='send_sum_elec_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='send_sum_elec(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
-    }
-    else if ($rule == "provide_rec_pat_amc") {
+    } else if ($rule == "provide_rec_pat_amc") {
         echo "<td><input type='checkbox' id='provide_rec_pat_flag_".attr($result['pid'])."' onclick='provide_rec_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['date'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
-    }
-    else { //$rule == "provide_sum_pat_amc"
+    } else { //$rule == "provide_sum_pat_amc"
         echo "<td><input type='checkbox' id='provide_sum_pat_flag_".attr($result['pid'])."_".attr($result['id'])."' onclick='provide_sum_pat(\"".htmlspecialchars($result['pid'], ENT_QUOTES)."\",\"".htmlspecialchars($result['id'], ENT_QUOTES)."\")'>" . htmlspecialchars(xl('Yes'), ENT_NOQUOTES) . "</td>";
     }
+
         echo "</tr>";
 }
     ?>

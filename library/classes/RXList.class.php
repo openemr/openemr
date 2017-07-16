@@ -54,6 +54,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 while (!feof($fp)) {
                     $buffer .= fgets($fp, 4096);
                 }
+
                 fclose($fp);
                 return $buffer;
             } // end checking for successful open
@@ -69,9 +70,11 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 foreach ($data as $k => $v) {
                     $my_data[$k] = $v;
                 }
+
                 $list[trim($my_data[brand_name])." (".trim($my_data[generic_name]).")"] =
                 trim($my_data[brand_name]);
             }
+
             return $list;
         } // end function RxList::get_list
 
@@ -85,12 +88,13 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             unset($tokens);
             $in_token = false;
             while ($pos < strlen($page)) {
-                switch(substr($page, $pos, 1)) {
+                switch (substr($page, $pos, 1)) {
                     case "<":
                         if ($in_token) {
                             $token++;
                             $in_token = false;
                         }
+
                         $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = true;
                         break;
@@ -105,7 +109,6 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                         $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
                         break;
-
                 } // end decide what to do
                 $pos++;
             } // end looping through string
@@ -121,15 +124,14 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             unset($hash);
             unset($all);
             for ($pos=0; $pos<count($tokens); $pos++) {
-
-                if (!(strpos($tokens[$pos], "Brand Name") === false)){
+                if (!(strpos($tokens[$pos], "Brand Name") === false)) {
                             // found a brand line 'token'
                     $type = "brand_name";
                     $record = $pos;
                     $ending = "</a>";
                 }
 
-                if (!(strpos($tokens[$pos], "Generic Name") === false)){
+                if (!(strpos($tokens[$pos], "Generic Name") === false)) {
                             // found a generic line 'token'
                     $type = "generic_name";
                     //print "generic_name record start at $pos<BR>\n";
@@ -137,7 +139,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                     $record = $pos;
                 }
 
-                if (!(strpos($tokens[$pos], "Drug Class") === false)){
+                if (!(strpos($tokens[$pos], "Drug Class") === false)) {
                             // found a drug-class 'token'
                     $type = "drug_class";
                     //print "drug_class record start at $pos<BR>\n";
@@ -165,13 +167,11 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 if ((($pos == ($record + 1)) or
                             ($pos == ($record + 2)) or
                             ($pos == ($record + 3)))
-                            and ($ending != ""))
-                        {
+                            and ($ending != "")) {
                             //print "tokens[$pos] = ".htmlentities($tokens[$pos])."<BR>\n";
                     if ((!(strpos(strtoupper($tokens[$pos]), "</A>") === false)) or
                                 (!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false)) or
-                                (!(strpos(strtoupper($tokens[$pos]), "</TD>") === false)))
-                            {
+                                (!(strpos(strtoupper($tokens[$pos]), "</TD>") === false))) {
                         // Find where anchor is
                         $my_pos = strpos(strtoupper($tokens[$pos]), "<");
                         $hash[$type] = substr($tokens[$pos], 0, $my_pos);

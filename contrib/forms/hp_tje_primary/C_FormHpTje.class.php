@@ -30,8 +30,7 @@ class C_FormHpTje extends Controller
     {
         if (is_numeric($form_id)) {
             $hptje_primary = new FormHpTjePrimary($form_id);
-        }
-        else {
+        } else {
             $hptje_primary = new FormHpTjePrimary();
         }
 
@@ -52,6 +51,7 @@ class C_FormHpTje extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Head Pain TJE", $this->hptje_primary->id, "hp_tje_primary", $GLOBALS['pid'], $_SESSION['userauthorized']);
         $_POST['process'] = "";
         return;

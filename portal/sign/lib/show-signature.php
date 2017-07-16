@@ -34,12 +34,13 @@ $user = $_GET ['user'];
 $type = $_GET ['type'];
 $signer = $_GET ['signer'];
 
-if ( $pid == 0 || empty($user) ){
-    if( $type != 'admin-signature' || empty($user) ){
+if ($pid == 0 || empty($user)) {
+    if ($type != 'admin-signature' || empty($user)) {
         echo ('error');
         return;
     }
 }
+
 $sig_hash = sha1($output);
 $created = time();
 $ip = $_SERVER ['REMOTE_ADDR'];
@@ -51,11 +52,13 @@ if ($type == 'admin-signature') {
 } else {
     $row = sqlQuery("SELECT pid,status,sig_image,type,user FROM onsite_signatures WHERE pid=?", array($pid));
 }
-if ( !$row ['pid'] && !$row ['user']) {
+
+if (!$row ['pid'] && !$row ['user']) {
     $status = 'waiting';
     $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator,created) VALUES (?,?,?,?,?,?,?) ";
     sqlStatement($qstr, array($pid,$lastmod, $status,$type,$user,$signer,$created));
 }
+
 if ($row ['status'] == 'filed') {
     header("Content-Type: image/png");
     echo $row ['sig_image'];

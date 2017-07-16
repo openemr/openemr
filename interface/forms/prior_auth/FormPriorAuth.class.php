@@ -38,10 +38,10 @@ class FormPriorAuth extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
         }
+
         $this->_table = "form_prior_auth";
         $this->date = date("Y-m-d H:i:s");
         $this->activity = 1;
@@ -59,8 +59,7 @@ class FormPriorAuth extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }

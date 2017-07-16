@@ -185,16 +185,14 @@ $(document).ready(function() {
         //Create category title
         if ($row['category'] == 'clinical_reminder_widget') {
             $category_title = xl("Passive Alert");
-        }
-        else if ($row['category'] == 'active_reminder_popup') {
+        } else if ($row['category'] == 'active_reminder_popup') {
             $category_title = xl("Active Alert");
-        }
-        else if ($row['category'] == 'allergy_alert') {
+        } else if ($row['category'] == 'allergy_alert') {
             $category_title = xl("Allergy Warning");
-        }
-        else {
+        } else {
             $category_title = $row['category'];
         }
+
         //Prepare the targets
         $all_alerts = json_decode($row['value'], true);
         if (!empty($row['new_value'])) {
@@ -210,7 +208,7 @@ $(document).ready(function() {
         <?php
          //list off all targets with rule information shown when hover
         foreach ($all_alerts as $targetInfo => $alert) {
-            if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+            if (($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup')) {
                 $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
                 $catAndTarget = explode(':', $targetInfo);
                 $category = $catAndTarget[0];
@@ -220,8 +218,7 @@ $(document).ready(function() {
                   ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                   " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                   "<span><br>";
-            }
-            else { // $row['category'] == 'allergy_alert'
+            } else { // $row['category'] == 'allergy_alert'
                  echo $alert . "<br>";
             }
         }
@@ -232,7 +229,7 @@ $(document).ready(function() {
         if (!empty($row['new_value'])) {
          //list new targets with rule information shown when hover
             foreach ($new_alerts as $targetInfo => $alert) {
-                if ( ($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup') ) {
+                if (($row['category'] == 'clinical_reminder_widget') || ($row['category'] == 'active_reminder_popup')) {
                     $rule_title = getListItemTitle("clinical_rules", $alert['rule_id']);
                     $catAndTarget = explode(':', $targetInfo);
                     $category = $catAndTarget[0];
@@ -242,13 +239,11 @@ $(document).ready(function() {
                       ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $target) .
                       " (" . generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $alert['due_status']) . ")" .
                       "<span><br>";
-                }
-                else { // $row['category'] == 'allergy_alert'
+                } else { // $row['category'] == 'allergy_alert'
                     echo $alert . "<br>";
                 }
             }
-        }
-        else {
+        } else {
             echo "&nbsp;";
         }
         ?>

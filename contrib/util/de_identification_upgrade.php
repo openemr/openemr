@@ -58,7 +58,7 @@ function upgradeFromSqlFile_de($filename)
     $skipping = false;
     $proc = 0;
 
-    while (!feof($fd)){
+    while (!feof($fd)) {
         $line = fgets($fd, 2048);
         $line = rtrim($line);
 
@@ -70,34 +70,31 @@ function upgradeFromSqlFile_de($filename)
             if ($skipping) echo "<font color='green'>";
             echo xl('Skipping section');
             echo " ".$line."</font><br />\n";
-        }
-        else if (preg_match('/^#EndIf/', $line)) {
+        } else if (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
+
         if (preg_match('/^\s*#/', $line)) continue;
         if ($skipping) continue;
 
-        if($proc == 1) $query .= "\n";
+        if ($proc == 1) $query .= "\n";
         $query = $query . $line;
 
-        if (substr($query, -1) == '$')
-        {
+        if (substr($query, -1) == '$') {
             $query = rtrim($query, '$');
-            if($proc == 0)
+            if ($proc == 0)
             $proc = 1;
-            else
-            {
+            else {
                 $proc = 0; //executes procedures and functions
-                if (!sqlStatement($query))
-                {
+                if (!sqlStatement($query)) {
                     echo "<font color='red'>";
                     echo xl("The above statement failed"); echo ": " .
                       getSqlLastError() . "<br />";
                     echo xl("Upgrading will continue");
                     echo ".<br /></font>\n";
                 }
-                   $query = '';
 
+                   $query = '';
             }
         }
 
@@ -111,9 +108,11 @@ function upgradeFromSqlFile_de($filename)
                 echo xl("Upgrading will continue");
                 echo ".<br /></font>\n";
             }
+
             $query = '';
         }
     }
+
     flush();
 } // end function
 
@@ -155,9 +154,7 @@ if (!empty($_POST['form_submit'])) {
         echo xl("Error");
         echo "\n";
         break;
-    }
-    else
-    echo "<font color='green'>";
+    } else echo "<font color='green'>";
     echo xl("File privilege granted to OpenEMR user.");
     echo "<br></font>\n";
 
@@ -196,17 +193,14 @@ function form_validate()
 <center>
 <form method='post' action='de_identification_upgrade.php' onsubmit="return form_validate();">
 </br>
-<p><?php  if($de_identification_config != 1)
-{
+<p><?php  if ($de_identification_config != 1) {
     echo "<p><font color='red'>";
     echo xl("Please set");
     echo " 'de_identification_config' ";
     echo xl("variable to one to run de-identification upgrade script");
     echo "</br></br>";
     echo "([OPENEMR]/contrib/util/de_identification_upgrade.php)";
-}
-else
-{
+} else {
     xl('Upgrades the OpenEMR database to include Procedures, Functions and tables needed for De-identification process', 'e');?></p></br>
         <table class="de_id_upgrade_login" align="center">
     <tr><td>&nbsp;</td><td colspan=3 align=center>&nbsp;</td><td>&nbsp;</td></tr>

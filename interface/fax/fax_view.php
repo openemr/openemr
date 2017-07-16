@@ -21,6 +21,7 @@ if ($jobid) {
         echo "<br />";
         die(xl("Cannot open ") . $jfname);
     }
+
     while (!feof($jfhandle)) {
         $line = trim(fgets($jfhandle));
         if (substr($line, 0, 12) == '!postscript:') {
@@ -29,15 +30,14 @@ if ($jobid) {
             break;
         }
     }
+
     fclose($jfhandle);
     if (!$ffname) {
         die(xl("Cannot find postscript document reference in ") . $jfname);
     }
-}
-else if ($_GET['scan']) {
+} else if ($_GET['scan']) {
     $ffname = $GLOBALS['scanner_output_directory'] . '/' . $_GET['scan'];
-}
-else {
+} else {
     $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . $_GET['file'];
 }
 
@@ -56,8 +56,7 @@ if (!is_readable($ffname)) {
         passthru("TMPDIR=/tmp ps2pdf '$ffname' -");
 else if ($ext == '.pdf' || $ext == '.PDF')
         readfile($ffname);
-else
-        passthru("tiff2pdf '$ffname'");
+else passthru("tiff2pdf '$ffname'");
 
     header("Pragma: public");
     header("Expires: 0");

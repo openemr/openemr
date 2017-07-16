@@ -54,6 +54,7 @@ while (false !== ($sfname = readdir($dh))) {
         $versions[$version] = $sfname;
     }
 }
+
 closedir($dh);
 ksort($versions);
 ?>
@@ -82,7 +83,7 @@ if (!empty($_POST['form_submit'])) {
         upgradeFromSqlFile('ippf_upgrade.sql');
     }
 
-    if ( (!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0) ) {
+    if ((!empty($v_realpatch)) && ($v_realpatch != "") && ($v_realpatch > 0)) {
         // This release contains a patch file, so process it.
         upgradeFromSqlFile('patch.sql');
     }
@@ -94,7 +95,7 @@ if (!empty($_POST['form_submit'])) {
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-            if ( is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_') ) {
+            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
                 $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
                 if (empty($row['count'])) {
                     sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .

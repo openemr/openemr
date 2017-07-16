@@ -41,7 +41,7 @@ class Users
 
         $users = array();
         $result = sqlStatement($sql);
-        while($u = sqlFetchArray($result)){
+        while ($u = sqlFetchArray($result)) {
             $users[] = $u;
         }
 
@@ -72,20 +72,21 @@ class Users
     {
 
         $multiple = $this->checkIfMultiple($eid);
-        if($multiple > 0){
+        if ($multiple > 0) {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_multiple = ?";
             $result = sqlStatement($sql, array($multiple));
-            while($p = sqlFetchArray($result)){
+            while ($p = sqlFetchArray($result)) {
                 $providers[] = $p['pc_aid'];
             }
+
             return $providers;
-        }
-        else{
+        } else {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
             $result = sqlStatement($sql, array($eid));
-            while($p = sqlFetchArray($result)){
+            while ($p = sqlFetchArray($result)) {
                 $providers[] = $p['pc_aid'];
             }
+
             return $providers;
         }
     }
@@ -101,9 +102,10 @@ class Users
 
         $sql = "SELECT pc_multiple FROM " . self::EVENTS_TABLE . " WHERE pc_eid = ?";
         $result = sqlQuery($sql, array($eid));
-        if($result['pc_multiple'] == 0){
+        if ($result['pc_multiple'] == 0) {
             return false;
         }
+
         return $result['pc_multiple'];
     }
 }

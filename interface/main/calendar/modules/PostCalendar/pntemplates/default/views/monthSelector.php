@@ -25,11 +25,11 @@
 // +------------------------------------------------------------------------------+
 
 $DOMClass="DOMDocument";
-if(!class_exists($DOMClass))
-{
+if (!class_exists($DOMClass)) {
     error_log("Creation of month drop down failed:".PHP_EOL."Do you have php-xml installed?");
     return;
 }
+
 $DOM=new $DOMClass;
 
 $divMonths= $DOM->createElement("DIV");
@@ -44,13 +44,16 @@ $pMonth = date("m");
 $pYear = date("Y");
 
 $tdClasses = "tdDatePicker tdMonthName-small";
-for($idx=0;$idx<13;$idx++)
-{
+for ($idx=0; $idx<13; $idx++) {
     $pDay = $cDay;
 
-    if ($pMonth > 12) { $pMonth = $pMonth-12;
+    if ($pMonth > 12) {
+        $pMonth = $pMonth-12;
         $pYear = $pYear + 1; }
-    while (! checkdate($pMonth, $pDay, $pYear)) { $pDay = $pDay - 1; }
+
+    while (! checkdate($pMonth, $pDay, $pYear)) {
+        $pDay = $pDay - 1; }
+
     $pDate = sprintf("%d%02d%02d", $pYear, $pMonth, $pDay);
     $trMonth=$DOM->createElement("TR");
     $tdMonth=$DOM->createElement("TD", xl(date("F", strtotime($pDate)))." ".$pYear);
@@ -59,7 +62,6 @@ for($idx=0;$idx<13;$idx++)
     $trMonth->appendChild($tdMonth);
     $tbodyMonths->appendChild($trMonth);
     $pMonth = $pMonth + 1;
-    
 }
 
 echo $DOM->saveXML($divMonths);

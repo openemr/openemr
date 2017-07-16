@@ -104,6 +104,7 @@ class NumberToText
             $int_o = $int = $number;
             $decimal_o = $decimal = 0;
         }
+
         // $int_o and $decimal_o are for "original value"
         // conversion for integer part:
 
@@ -131,7 +132,7 @@ class NumberToText
 
                 if ($convert > 0) {
                     // we have something here, put it in
-                    if ( $section > 0 ) {
+                    if ($section > 0) {
                         $text = $this->n2t_convertthree($convert, $and, ($int > 0))." ".$big[$section-1]." ".$text;
                     } else {
                         $text = $this->n2t_convertthree($convert, $and, ($int > 0));
@@ -211,6 +212,7 @@ class NumberToText
             // we have 100's place
             $text .= $small[$hundreds]." hundred ";
         }
+
         $tens = $number % 100;
         if ($tens) {
             // we still have values

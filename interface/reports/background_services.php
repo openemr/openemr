@@ -149,13 +149,13 @@ require_once("../globals.php");
 
           <td align='center'><?php echo ($row['running']>0) ? xlt("Yes") : xlt("No"); ?></td>
 
-        <?php if ( $row['running'] > -1) { ?>
+        <?php if ($row['running'] > -1) { ?>
           <td align='center'><?php echo text($row['last_run_start']); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Never'); ?></td>
         <?php } ?>
 
-        <?php if ( $row['active'] && ($row['execute_interval'] > 0) ) { ?>
+        <?php if ($row['active'] && ($row['execute_interval'] > 0)) { ?>
           <td align='center'><?php echo text($row['next_run']); ?></td>
         <?php } else { ?>
           <td align='center'><?php echo xlt('Not Applicable'); ?></td>

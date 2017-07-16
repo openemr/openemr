@@ -29,7 +29,7 @@
     $docid = $this->docid;
     $encounter= '';
 
-    if(  !$docid )
+    if (!$docid)
          $docid = 'Hipaa_Document';
 
     $isnew = false;

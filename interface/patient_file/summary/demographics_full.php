@@ -56,7 +56,7 @@ $CPR = 4; // cells per row
 // $provideri = getProviderInfo();
 if ($GLOBALS['insurance_information'] != '0') {
     $insurancei = getInsuranceProvidersExtra();
-}else{
+} else {
     $insurancei = getInsuranceProviders();
 }
 
@@ -152,7 +152,7 @@ function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
 
-<?php for ($i=1;$i<=3;$i++) { ?>
+<?php for ($i=1; $i<=3; $i++) { ?>
 function auto_populate_employer_address<?php echo $i ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo $i?>subscriber_relationship.options[f.form_i<?php echo $i?>subscriber_relationship.selectedIndex].value == "self")
@@ -295,7 +295,7 @@ if(dateVal > currentDate)
 }
 
 //Patient Data validations
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
  alertMsg='';
  for(i=0;i<f.length;i++){
   if(f[i].type=='text' && f[i].value)
@@ -394,7 +394,7 @@ function policykeyup(e) {
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(document).ready(function() {
 
-    <?php for ($i=1;$i<=3;$i++) { ?>
+    <?php for ($i=1; $i<=3; $i++) { ?>
   $("#form_i<?php echo $i?>subscriber_relationship").change(function() { auto_populate_employer_address<?php echo $i?>(); });
     <?php } ?>
 
@@ -495,7 +495,6 @@ $group_seq=0; // this gives the DIV blocks unique IDs
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {
-
     $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
     $insurance_info = array();
     $insurance_info[1] = getInsuranceData($pid, "primary");
@@ -519,7 +518,7 @@ echo xlt($CapInstype); ?></a></li><?php
     <div class="tabContainer">
 
     <?php
-    for($i=1;$i<=3;$i++) {
+    for ($i=1; $i<=3; $i++) {
         $result3 = $insurance_info[$i];
     ?>
 
@@ -769,7 +768,7 @@ foreach ($policy_types as $key => $value) {
 
 <script language="JavaScript">
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if($GLOBALS['new_validate'] == 0) { ?>
+<?php if ($GLOBALS['new_validate'] == 0) { ?>
  // fix inconsistently formatted phone numbers from the database
  var f = document.forms[0];
  if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -822,7 +821,7 @@ $use_validate_js=$GLOBALS['new_validate'];
     });
 
 //This code deals with demographics before save action -
-    <?php if ( ($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive()) ):?>
+    <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
 
                 //Use the Zend patient validation hook.
                 //TODO - get the edit part of patient validation hook to work smoothly and then

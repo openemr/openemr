@@ -24,27 +24,24 @@
 
 require_once("../interface/globals.php");
 
-if($_POST['mode'] == 'get'){
+if ($_POST['mode'] == 'get') {
     echo file_get_contents($_POST['docid']);
     exit;
-}
-else if($_POST['mode'] == 'save'){
+} else if ($_POST['mode'] == 'save') {
     file_put_contents($_POST['docid'], $_POST['content']);
     exit(true);
-}
-else if($_POST['mode'] == 'delete'){
+} else if ($_POST['mode'] == 'delete') {
     unlink($_POST['docid']);
     exit(true);
 }
+
 // so it is an import
-if(!isset($_POST['up_dir'])){
+if (!isset($_POST['up_dir'])) {
     define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
-}
-else {
-    if($_POST['up_dir'] > 0)
+} else {
+    if ($_POST['up_dir'] > 0)
         define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/'. $_POST['up_dir'] . '/');
-    else
-        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
+    else define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
 }
 
 if (!empty($_FILES["tplFile"])) {
@@ -55,6 +52,7 @@ if (!empty($_FILES["tplFile"])) {
         echo "<p>". xlt("An error occurred: Missing file to upload: Use back button!") . "</p>";
         exit;
     }
+
     // ensure a safe filename
     $name = preg_replace("/[^A-Z0-9._-]/i", "_", $tplFile["name"]);
     $parts = pathinfo($name);
@@ -72,6 +70,7 @@ if (!empty($_FILES["tplFile"])) {
         echo "<p>". xlt("Unable to save file: Use back button!") . "</p>";
         exit;
     }
+
     // set proper permissions on the new file
     chmod(UPLOAD_DIR . $name, 0644);
     header("location: " . $_SERVER['HTTP_REFERER']);

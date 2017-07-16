@@ -34,8 +34,7 @@ class fee_sheet_option
         $this->description=$desc;
         $this->price=$price;
         $this->category=$category;
-        if($price==null)
-        {
+        if ($price==null) {
             $this->price=xl("Not Specified");
         }
     }
@@ -68,8 +67,7 @@ function load_fee_sheet_options($pricelevel)
     $results=sqlStatement($sql, array($pricelevel));
 
     $retval=array();
-    while($res=sqlFetchArray($results))
-    {
+    while ($res=sqlFetchArray($results)) {
         $fso=new fee_sheet_option($res['code'], $res['code_type'], $res['code_text'], $res['pr_price'], $res['fs_category']);
         $retval[]=$fso;
     }

@@ -47,10 +47,10 @@ class DataDriverSQLite implements IDataDriver
         
         if ($bootstrap) {
             $statements = explode(';', $bootstrap);
-            foreach ( $statements as $sql ) {
+            foreach ($statements as $sql) {
                 try {
                     $this->Execute($connection, $sql);
-                } catch ( Exception $ex ) {
+                } catch (Exception $ex) {
                     throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }
@@ -154,7 +154,7 @@ class DataDriverSQLite implements IDataDriver
         
         $tables = array ();
         
-        while ( $row = $this->Fetch($connection, $rs) ) {
+        while ($row = $this->Fetch($connection, $rs)) {
             $tables [] = $row ['name'];
         }
         

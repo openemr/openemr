@@ -121,7 +121,6 @@ class Savant3_Plugin_image extends Savant3_Plugin
         
         // did we find the file info?
         if (is_array($info)) {
-            
             // capture type info regardless
             $type = $info [2];
             
@@ -138,7 +137,6 @@ class Savant3_Plugin_image extends Savant3_Plugin
         // is the file a PNG? if so, check user agent, we will need to
         // make special allowances for Microsoft IE.
         if (stristr($_SERVER ['HTTP_USER_AGENT'], 'MSIE') && $type === 3) {
-            
             // support alpha transparency for PNG files in MSIE
             $html = '<span style="position: relative;';
             
@@ -159,7 +157,6 @@ class Savant3_Plugin_image extends Savant3_Plugin
             // done
             $html .= '></span>';
         } else {
-            
             // not IE, so build a normal image tag.
             $html = '<img';
             $html .= ' src="' . htmlspecialchars($file) . '"';
@@ -168,6 +165,7 @@ class Savant3_Plugin_image extends Savant3_Plugin
             if (is_null($alt)) {
                 $alt = basename($file);
             }
+
             $html .= ' alt="' . htmlspecialchars($alt) . '"';
             
             // add the height attribute

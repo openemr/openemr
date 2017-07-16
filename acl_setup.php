@@ -44,6 +44,7 @@ if ($gacl->add_object_section('Accounting', 'acct', 10, 0, 'ACO') === false) {
     echo "Unable to create the access controls for OpenEMR.  You have likely already run this script (acl_setup.php) successfully.<br>Other possible problems include php-GACL configuration file errors (gacl.ini.php or gacl.class.php).<br>";
     return;
 }
+
      // xl('Accounting')
  $gacl->add_object_section('Administration', 'admin', 10, 0, 'ACO');
      // xl('Administration')
@@ -241,8 +242,7 @@ $breakglass  = $gacl->add_group('breakglass', 'Emergency Login', $users, 'ARO');
 if (isset($this) && isset($this->iuser)) {
     $gacl->add_object('users', $this->iuname, $this->iuser, 10, 0, 'ARO');
     $gacl->add_group_object($admin, 'users', $this->iuser, 'ARO');
-}
-else {
+} else {
     $gacl->add_object('users', 'Administrator', 'admin', 10, 0, 'ARO');
     $gacl->add_group_object($admin, 'users', 'admin', 'ARO');
 }

@@ -34,8 +34,7 @@ class AMC_304b_STG1_Numerator implements AmcFilterIF
         $amcElement = amcCollect('e_prescribe_amc', $patient->id, 'prescriptions', $patient->object['id']);
         if (!(empty($amcElement))) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

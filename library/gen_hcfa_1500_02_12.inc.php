@@ -89,10 +89,10 @@ function cmp_hcfa_info($first, $second)
 {
     $first_value=$first->get_position();
     $second_value=$second->get_position();
-    if($first_value==$second_value)
-    {
+    if ($first_value==$second_value) {
         return 0;
     }
+
     return $first_value<$second_value ? -1 : 1;
 }
 
@@ -136,12 +136,9 @@ function process_diagnoses_02_12(&$claim, &$log)
 
     $hcfa_entries=array();
     $diags = $claim->diagArray(false);
-    if($claim->diagtype=='ICD10')
-    {
+    if ($claim->diagtype=='ICD10') {
         $icd_indicator='0';
-    }
-    else
-    {
+    } else {
         $icd_indicator='9';
     }
 
@@ -155,24 +152,20 @@ function process_diagnoses_02_12(&$claim, &$log)
     $hcfa_entries[]=new hcfa_info(40, 50, 28, $claim->priorAuth());
 
     $diag_count=0;
-    foreach($diags as $diag)
-    {
-        if($diag_count<12)
-        {
+    foreach ($diags as $diag) {
+        if ($diag_count<12) {
             add_diagnosis($hcfa_entries, $diag_count, $diag);
-        }
-        else
-        {
+        } else {
             $log.= "***Too many diagnoses ".($diag_count+1).":".$diag;
         }
+
         $diag_count++;
     }
 
     // Sort the entries to put them in the page base sequence.
     usort($hcfa_entries, "cmp_hcfa_info");
 
-    foreach($hcfa_entries as $hcfa_entry)
-    {
+    foreach ($hcfa_entries as $hcfa_entry) {
         $hcfa_entry->put();
     }
 }

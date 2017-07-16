@@ -60,10 +60,10 @@ class PortalPatientController extends AppBaseController
     public function ListView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if( isset($_GET['id']) ) $rid = ( int ) $_GET['id'];
-        if( isset($_GET['pid']) ) $pid = ( int ) $_GET['pid'];
-        if( isset($_GET['user']) ) $user = $_GET['user'];
-        if( isset($_GET['enc']) ) $encounter = $_GET['enc'];
+        if (isset($_GET['id'])) $rid = ( int ) $_GET['id'];
+        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
+        if (isset($_GET['user'])) $user = $_GET['user'];
+        if (isset($_GET['enc'])) $encounter = $_GET['enc'];
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -76,7 +76,7 @@ class PortalPatientController extends AppBaseController
      */
     public function Query()
     {
-        try{
+        try {
             $criteria = new PatientCriteria();
             $recnum = RequestUtil::Get('patientId');
             $criteria->Pid_Equals = $recnum;
@@ -86,7 +86,7 @@ class PortalPatientController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if( $output->orderBy ) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
 
             $page = RequestUtil::Get('page');
 
@@ -99,7 +99,7 @@ class PortalPatientController extends AppBaseController
             $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -109,7 +109,7 @@ class PortalPatientController extends AppBaseController
      */
     public function Read()
     {
-        try{
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $ppid = RequestUtil::Get('patientId');
             // $patient = $this->Phreezer->Get( 'Patient', $pk );
@@ -117,11 +117,12 @@ class PortalPatientController extends AppBaseController
             $edata = $appsql->getPortalAudit($ppid, 'review');
             $changed = unserialize($edata['table_args']);
             $newv = array ();
-            foreach( $changed as $key => $val ){
+            foreach ($changed as $key => $val) {
                 $newv[lcfirst(ucwords(preg_replace_callback("/(\_(.))/", create_function('$matches', 'return strtoupper($matches[2]);'), strtolower($key))))] = $val;
             }
+
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -131,11 +132,11 @@ class PortalPatientController extends AppBaseController
      */
     public function Update()
     {
-        try{
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if( ! $json ){throw new Exception('The request body does not contain valid JSON');}
+            if (! $json) {
+                throw new Exception('The request body does not contain valid JSON');}
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $patient = $this->Phreezer->Get('Patient', $pk);
@@ -211,14 +212,14 @@ class PortalPatientController extends AppBaseController
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
 
-            if( count($errors) > 0 ){
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else{
+            } else {
                 self::SaveAudit($patient);
                 // $patient->Save(); //active records save
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -227,7 +228,7 @@ class PortalPatientController extends AppBaseController
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         $ja['note'] = $p->Note;
-        try{
+        try {
             $audit = array ();
             // date("Y-m-d H:i:s");
             $audit['patient_id'] = $ja['pid'];
@@ -245,11 +246,11 @@ class PortalPatientController extends AppBaseController
 
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             $audit['date'] = $edata['date'];
-            if( $edata['id'] > 0 ) $appsql->portalAudit('update', $edata['id'], $audit);
-            else{
+            if ($edata['id'] > 0) $appsql->portalAudit('update', $edata['id'], $audit);
+            else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -258,8 +259,7 @@ class PortalPatientController extends AppBaseController
      */
     public function Delete()
     {
-        try{
-
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
@@ -270,7 +270,7 @@ class PortalPatientController extends AppBaseController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

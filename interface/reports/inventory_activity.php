@@ -103,10 +103,8 @@ function thisLineItem(
 
   // If new warehouse or product...
     if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
-
         // If there was anything to total...
         if (($product_first && $last_warehouse_id != '~') || (!$product_first && $last_product_id)) {
-
             $secei = getEndInventory($last_product_id, $last_warehouse_id);
 
             // Print second-column totals.
@@ -120,6 +118,7 @@ function thisLineItem(
                         echo '"'  . esc4Export($warehouse) . '"';
                         echo ',"' . esc4Export($product)   . '"';
                     }
+
                     echo ',"' . ($secei - $secqtys[0] - $secqtys[1] - $secqtys[2] - $secqtys[3] - $secqtys[4]) . '"'; // start inventory
                     echo ',"' . $secqtys[0] . '"'; // sales
                     echo ',"' . $secqtys[1] . '"'; // distributions
@@ -129,8 +128,7 @@ function thisLineItem(
                     echo ',"' . $secei      . '"'; // end inventory
                     echo "\n";
                 }
-            }
-            else {
+            } else {
                 // Not export:
         ?>
        <tr bgcolor="#ddddff">
@@ -178,8 +176,9 @@ function thisLineItem(
 <?php
             } // End not csv export
         }
+
         $secqtys = array(0, 0, 0, 0, 0);
-        if ($product_first ) {
+        if ($product_first) {
             $whleft = $warehouse = $rowwh;
             $last_warehouse_id = $warehouse_id;
         } else {
@@ -190,11 +189,9 @@ function thisLineItem(
 
   // If first column is changing, time for its totals.
     if (($product_first && $product_id != $last_product_id) ||
-      (!$product_first && $warehouse_id != $last_warehouse_id))
-    {
+      (!$product_first && $warehouse_id != $last_warehouse_id)) {
         if (($product_first && $last_product_id) ||
-        (!$product_first && $last_warehouse_id != '~'))
-        {
+        (!$product_first && $last_warehouse_id != '~')) {
             $priei = $product_first ? getEndInventory($last_product_id) :
               getEndInventory(0, $last_warehouse_id);
             // Print first column total.
@@ -234,6 +231,7 @@ function thisLineItem(
 <?php
             } // End not csv export
         }
+
         $priqtys = array(0, 0, 0, 0, 0);
         if ($product_first) {
             $prodleft = $product = $rowprod;
@@ -254,6 +252,7 @@ function thisLineItem(
                 echo '"'  . esc4Export($warehouse) . '"';
                 echo ',"' . esc4Export($product)   . '"';
             }
+
             echo ',"' . oeFormatShortDate($transdate) . '"';
             echo ',"' . esc4Export($invnumber) . '"';
             echo ',"' . $qtys[0]             . '"'; // sales
@@ -262,8 +261,7 @@ function thisLineItem(
             echo ',"' . $qtys[3]             . '"'; // transfers
             echo ',"' . $qtys[4]             . '"'; // adjustments
             echo "\n";
-        }
-        else {
+        } else {
         ?>
      <tr>
         <?php if ($product_first) { ?>
@@ -347,6 +345,7 @@ if ($form_action == 'export') {
         echo '"' . esc4export(xl('Warehouse')) . '",';
         echo '"' . esc4export(xl('Product')) . '",';
     }
+
     if ($_POST['form_details']) {
         echo '"' . esc4export(xl('Date')) . '",';
         echo '"' . esc4export(xl('Invoice')) . '",';
@@ -355,8 +354,7 @@ if ($form_action == 'export') {
         echo '"' . esc4export(xl('Purchases')) . '",';
         echo '"' . esc4export(xl('Transfers')) . '",';
         echo '"' . esc4export(xl('Adjustments')) . '"' . "\n";
-    }
-    else {
+    } else {
         echo '"' . esc4export(xl('Start')) . '",';
         echo '"' . esc4export(xl('Sales')) . '",';
         echo '"' . esc4export(xl('Distributions')) . '",';
@@ -496,6 +494,7 @@ while ($prow = sqlFetchArray($pres)) {
     if ($drug_id == $form_product) echo " selected";
     echo ">" . htmlspecialchars($prow['name']) . "\n";
 }
+
 echo "      </select>\n";
 ?>
      </td>
@@ -626,14 +625,12 @@ if ($form_action) { // if submit or export
 
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-
         // If new lot and it was destroyed during the reporting period,
         // generate a pseudo-adjustment for that.
         if ($row['inventory_id'] != $last_inventory_id) {
             $last_inventory_id = $row['inventory_id'];
             if (!empty($row['destroy_date']) && $row['on_hand'] != 0
-            && $row['destroy_date'] <= $form_to_date)
-            {
+            && $row['destroy_date'] <= $form_to_date) {
                 thisLineItem(
                     $row['drug_id'],
                     $row['warehouse_id'],
@@ -654,10 +651,8 @@ if ($form_action) { // if submit or export
                 // A transfer sale item will appear twice, once with each lot.
                 if ($row['inventory_id'] == $row['xfer_inventory_id'])
                 $qtys[3] = $row['quantity'];
-                else
-                $qtys[3] = 0 - $row['quantity'];
-            }
-            else if ($row['pid'])
+                else $qtys[3] = 0 - $row['quantity'];
+            } else if ($row['pid'])
             $qtys[0] = 0 - $row['quantity'];
             else if ($row['distributor_id'])
             $qtys[1] = 0 - $row['quantity'];
@@ -666,6 +661,7 @@ if ($form_action) { // if submit or export
             else // no pid, distributor, source lot or fee: must be an adjustment
             $qtys[4] = 0 - $row['quantity'];
         }
+
         thisLineItem(
             $row['drug_id'],
             $row['warehouse_id'],

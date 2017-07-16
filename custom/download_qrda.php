@@ -184,9 +184,10 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
             $counter = 0;
         foreach ($dataSheet as $row) {
             if (isset($row['is_main']) || isset($row['is_sub'])) {
-                if ( count($cqmCodes) && in_array($row['cqm_nqf_code'], $cqmCodes) ) {
+                if (count($cqmCodes) && in_array($row['cqm_nqf_code'], $cqmCodes)) {
                     continue;
                 }
+
                 echo "<tr>";
                 $cqmCodes[] = $row['cqm_nqf_code'];
                 echo "<td class=multiDownload>";
@@ -200,10 +201,12 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                         if (!empty($row['cqm_pqri_code'])) {
                             $tempCqmAmcString .= " " .  xl('PQRI') . ":" . $row['cqm_pqri_code'] . " ";
                         }
+
                         if (!empty($row['cqm_nqf_code'])) {
                             $tempCqmAmcString .= " " .  xl('NQF') . ":" . $row['cqm_nqf_code'] . " ";
                         }
                     }
+
                     if (!empty($tempCqmAmcString)) {
                         echo "(".text($tempCqmAmcString).")";
                     }
@@ -211,6 +214,7 @@ $type_report = (($type_report == "amc") || ($type_report == "amc_2011") || ($typ
                     echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $row['action_category']);
                     echo ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $row['action_item']);
                 }
+
                 echo "<input type=hidden id=text" . attr($counter) . " name=text" . attr($counter) . " value='" . attr($row['cqm_nqf_code']) . "'/>";
                 echo "</td>";
                 echo "<td align=center>";

@@ -72,10 +72,11 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
 {
     $output =  array();
     $query = sqlStatement("SELECT ".implode(',', $fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
-    while($ll = sqlFetchArray($query)) {
-        foreach($fieldnames as $val)
+    while ($ll = sqlFetchArray($query)) {
+        foreach ($fieldnames as $val)
           $output[$ll['option_id']][$val] = $ll[$val];
     }
+
     return $output;
 }
 $formid = formData('id', 'G') + 0;
@@ -104,9 +105,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
         $query = "UPDATE procedure_order SET $sets "  .
         "WHERE procedure_order_id = '$formid'";
         sqlStatement($query);
-    }
-
-  // If adding a new form...
+    } // If adding a new form...
   //
     else {
         $query = "INSERT INTO procedure_order SET $sets";
@@ -163,10 +162,10 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
                 if ($_POST["G1_$prefix$qcode"]) {
                     $data = $_POST["G1_$prefix$qcode"] * 7 + $_POST["G2_$prefix$qcode"];
                 }
-            }
-            else {
+            } else {
                   $data = $_POST["$prefix$qcode"];
             }
+
               if (!isset($data) || $data === '') continue;
               if (!is_array($data)) $data = array($data);
             foreach ($data as $datum) {
@@ -194,6 +193,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
         if (empty($alertmsg)) {
             $alertmsg = send_hl7_order($ppid, $hl7);
         }
+
         if (empty($alertmsg)) {
             sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
             "procedure_order_id = ?", array($formid));
@@ -206,6 +206,7 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
         echo addslashes(xl('Transmit failed') . ': ' . $alertmsg);
         echo "')</script>\n";
     }
+
     formJump();
     formFooter();
     exit;
@@ -539,6 +540,7 @@ $(document).ready(function() {
                     $oparr[] = $oprow;
                 }
             }
+
             if (empty($oparr)) $oparr[] = array('procedure_name' => '');
 
             $i = 0;
@@ -559,9 +561,9 @@ $(document).ready(function() {
                     <tbody>
                     <tr>
                         <td>
-                            <?php if (empty($formid) || empty($oprow['procedure_order_title'])):?>
+                            <?php if (empty($formid) || empty($oprow['procedure_order_title'])) :?>
                                 <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]" value="Procedure">
-                            <?php else: ?>
+                            <?php else : ?>
                                 <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_order_title']) ?>'>
                             <?php endif; ?>
                             <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
@@ -603,7 +605,7 @@ $(document).ready(function() {
                 <div class="col-md-6 col-md-offset-6">
                     <div class="form-group">
                         <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
-                            <?php foreach($procedure_order_type as $ordered_types){?>
+                            <?php foreach ($procedure_order_type as $ordered_types) {?>
                                 <option value="<?php echo attr($ordered_types['option_id']); ?>" ><?php echo text(xl_list_label($ordered_types['title'])) ; ?></option>
                             <?php } ?>
                         </select>

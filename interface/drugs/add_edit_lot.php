@@ -63,11 +63,11 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 
         echo "<option value='".attr($whid)."'";
         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
-        (strlen($currvalue)  > 0 && $whid == $currvalue))
-        {
+        (strlen($currvalue)  > 0 && $whid == $currvalue)) {
             echo " selected";
             $got_selected = true;
         }
+
         echo ">" . text($lrow['title']) . "</option>\n";
 
         ++$count;
@@ -79,8 +79,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
         echo " <font color='red' title='" .
         xla('Please choose a valid selection from the list.') . "'>" .
         xlt('Fix this') . "!</font>";
-    }
-    else {
+    } else {
         echo "</select>";
     }
 
@@ -187,7 +186,6 @@ if ($lot_id) {
 // If we are saving, then save and close the window.
 //
 if ($_POST['form_save'] || $_POST['form_delete']) {
-
     $form_quantity = $_POST['form_quantity'] + 0;
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     $form_source_lot = $_POST['form_source_lot'] + 0;
@@ -197,21 +195,20 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     if ($form_trans_type == '3') { // return
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
-    }
-    else if ($form_trans_type == '5') { // adjustment
+    } else if ($form_trans_type == '5') { // adjustment
         $form_cost = 0;
-    }
-    else if ($form_trans_type == '0') { // no transaction
+    } else if ($form_trans_type == '0') { // no transaction
         $form_quantity = 0;
         $form_cost = 0;
-    }
-    else if ($form_trans_type == '6') { // distribution
+    } else if ($form_trans_type == '6') { // distribution
         $form_quantity = 0 - $form_quantity;
         $form_cost = 0 - $form_cost;
     }
+
     if ($form_trans_type != '4') { // not transfer
         $form_source_lot = 0;
     }
+
     if ($form_trans_type != '6') { // not distribution
         $form_distributor_id = '0';
     }
@@ -232,8 +229,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                 // Make sure the destination quantity will not end up negative.
                 if (($row['on_hand'] + $form_quantity) < 0) {
                     $info_msg = xl('Transaction failed, insufficient quantity in destination lot');
-                }
-                else {
+                } else {
                     sqlStatement("UPDATE drug_inventory SET " .
                     "lot_number = '"   . add_escape_custom($_POST['form_lot_number'])    . "', " .
                     "manufacturer = '" . add_escape_custom($_POST['form_manufacturer'])  . "', " .
@@ -243,18 +239,15 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                     "on_hand = on_hand + '" . add_escape_custom($form_quantity)            . "' "  .
                     "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
                 }
-            }
-            else {
+            } else {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
                 "AND inventory_id = ?", array($drug_id,$lot_id));
             }
-        }
-        // Destination lot will be created.
+        } // Destination lot will be created.
         else {
             if ($form_quantity < 0) {
                 $info_msg = xl('Transaction failed, quantity is less than zero');
-            }
-            else {
+            } else {
                 $lot_id = sqlInsert("INSERT INTO drug_inventory ( " .
                 "drug_id, lot_number, manufacturer, expiration, " .
                 "vendor_id, warehouse_id, on_hand " .
@@ -376,8 +369,7 @@ if (!genWarehouseList(
     "form_warehouse_id",
     $row['warehouse_id'],
     xl('Location of this lot')
-))
-{
+)) {
     $info_msg = xl('This product allows only one lot per warehouse.');
 }
 ?>
@@ -403,8 +395,7 @@ foreach (array(
   '6' => xl('Distribution'),
   '4' => xl('Transfer'),
   '5' => xl('Adjustment'),
-) as $key => $value)
-{
+) as $key => $value) {
     echo "<option value='" . attr($key) . "'";
     if ($key == $form_trans_type) echo " selected";
     echo ">" . text($value) . "</option>\n";

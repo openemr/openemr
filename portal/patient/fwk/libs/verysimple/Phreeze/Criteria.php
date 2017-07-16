@@ -192,12 +192,12 @@ class Criteria
     final private function Prepare()
     {
         if (! $this->_is_prepared) {
-            
             if (get_class($this) == "Criteria") {
                 if ($this->PrimaryKeyField) {
                     // PrimaryKeyField property was specified. this might be coming from $phreezer->Get
                     $this->_where = " " . $this->PrimaryKeyField . " = '" . $this->Escape($this->PrimaryKeyValue) . "'";
                 }
+
                 // else {raw SQL was likely provided in the constructor. this might be coming from $phreezer->GetOneToMany}
             } else {
                 // loop through all of the properties and attempt to
@@ -206,7 +206,7 @@ class Criteria
                 $this->_where_delim = '';
                 
                 $props = get_object_vars($this);
-                foreach ( $props as $prop => $val ) {
+                foreach ($props as $prop => $val) {
                     // TODO: tighten this up a bit to reduce redundant code
                     if ($prop == "Filters" && isset($val) && (is_array($val) || is_a($val, 'CriteriaFilter'))) {
                         // a filter object will take care of generating it's own where statement
@@ -216,7 +216,7 @@ class Criteria
                                 $val
                         );
                         
-                        foreach ( $filters as $filter ) {
+                        foreach ($filters as $filter) {
                             $this->_where .= $this->_where_delim . ' ' . $filter->GetWhere($this);
                             $this->_where_delim = " and";
                         }
@@ -297,10 +297,11 @@ class Criteria
                         $dbfield = $this->GetFieldFromProp(str_replace("_In", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " in (";
                         $indelim = "";
-                        foreach ( $val as $n ) {
+                        foreach ($val as $n) {
                             $this->_where .= $indelim . "'" . $this->Escape($n) . "'";
                             $indelim = ",";
                         }
+
                         $this->_where .= ")";
                         $this->_where_delim = " and";
                     } elseif (substr($prop, - 6) == "_NotIn" && isset($val)) {
@@ -320,10 +321,11 @@ class Criteria
                         $dbfield = $this->GetFieldFromProp(str_replace("_NotIn", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " not in (";
                         $indelim = "";
-                        foreach ( $val as $n ) {
+                        foreach ($val as $n) {
                             $this->_where .= $indelim . "'" . $this->Escape($n) . "'";
                             $indelim = ",";
                         }
+
                         $this->_where .= ")";
                         $this->_where_delim = " and";
                     }
@@ -343,7 +345,7 @@ class Criteria
             // if any of the filters have an order by then add those
             if (is_array($this->Filters)) {
                 $orderDelim = $this->_order ? ',' : '';
-                foreach ( $this->Filters as $filter ) {
+                foreach ($this->Filters as $filter) {
                     $filterOrder = $filter->GetOrder($this);
                     if ($filterOrder) {
                         $this->_order .= $orderDelim . $filterOrder;
@@ -437,7 +439,7 @@ class Criteria
     {
         try {
             Includer::RequireClass($objectclass, "Model/DAO/");
-        } catch ( IncludeException $ex ) {
+        } catch (IncludeException $ex) {
             throw new Exception($ex->getMessage() . '.  If a map file does not exist then ' . get_class($this) . ' can implement GetFieldFromProp instead.');
         }
     }
@@ -463,6 +465,7 @@ class Criteria
         if (! isset($fms [$propname])) {
             throw new Exception(get_class($this) . " is unable to determine the database column for the property: '$propname'");
         }
+
         // print_r($this->_fieldmaps);
         $fm = $fms [$propname];
         

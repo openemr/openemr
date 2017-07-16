@@ -68,7 +68,8 @@ class ONoteRepository extends EntityRepository
                 $this->_em->flush();
                 $result = true;
             }
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $result;
     }
@@ -92,7 +93,8 @@ class ONoteRepository extends EntityRepository
                 $this->_em->flush();
                 $result = true;
             }
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $result;
     }

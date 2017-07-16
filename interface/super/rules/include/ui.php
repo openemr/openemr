@@ -12,7 +12,7 @@ function getLabel($value, $list_id)
 {
     // get from list_options
     $result = generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $value);
-    if ( $result != '') {
+    if ($result != '') {
         return $result;
     }
                     
@@ -43,20 +43,22 @@ function getListOptions($list_id)
         "SELECT option_id, title from list_options WHERE list_id = ? AND activity = 1",
         array($list_id)
     );
-    for($iter=0; $row=sqlFetchArray($sql); $iter++) {
+    for ($iter=0; $row=sqlFetchArray($sql); $iter++) {
         $options[] = new Option(
             out($row['option_id']),            // id
             out(xl_list_label($row['title']))  // label
         );
     }
+
     return $options;
 }
 
 function getListOptionsArray($list_id)
 {
     $optionsArray = array();
-    foreach ( getListOptions($list_id) as $option ) {
+    foreach (getListOptions($list_id) as $option) {
         $optionsArray[] = array( "id" => $option->id, "label" => $option->label );
     }
+
     return $optionsArray;
 }

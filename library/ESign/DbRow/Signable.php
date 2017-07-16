@@ -53,7 +53,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement .= "ORDER BY E.datetime ASC";
         $result = sqlStatement($statement, array( $this->_tableId, $this->_tableName ));
         
-        while ( $row = sqlFetchArray($result) ) {
+        while ($row = sqlFetchArray($result)) {
             $signature = new Signature(
                 $row['id'],
                 $row['tid'],
@@ -88,9 +88,10 @@ abstract class DbRow_Signable implements SignableIF
         $statement .= "ORDER BY E.datetime DESC LIMIT 1";
         $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
         $hash = null;
-        if ( $row && isset($row['hash']) ) {
+        if ($row && isset($row['hash'])) {
             $hash = $row['hash'];
         }
+
         return $hash;
     }
     
@@ -110,7 +111,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement .= "WHERE E.tid = ? AND E.table = ? AND is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1 ";
         $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
-        if ( $row && $row['is_lock'] == SignatureIF::ESIGN_LOCK ) {
+        if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {
             return true;
         }
         
@@ -124,7 +125,7 @@ abstract class DbRow_Signable implements SignableIF
         
         // Make type string
         $isLock = SignatureIF::ESIGN_NOLOCK;
-        if ( $lock ) {
+        if ($lock) {
             $isLock = SignatureIF::ESIGN_LOCK;
         }
         
@@ -145,7 +146,7 @@ abstract class DbRow_Signable implements SignableIF
         $signature[]= $signatureHash;
         $id = sqlInsert($statement, $signature);
         
-        if ( $id === false ) {
+        if ($id === false) {
             throw new \Exception("Error occured while attempting to insert a signature into the database.");
         }
         
@@ -157,23 +158,21 @@ abstract class DbRow_Signable implements SignableIF
         $valid = true;
         // Verify the signable data integrity
         // Check to see if this SignableIF is locked
-        if ( $this->isLocked() ) {
+        if ($this->isLocked()) {
             $signatures = $this->getSignatures();
         
             // SignableIF is locked, so if it has any signatures, make sure it hasn't been edited since lock
-            if ( count($signatures) ) {
-                
+            if (count($signatures)) {
                 // Verify the data of the SignableIF object
                 $lastLockHash = $this->getLastLockHash();
                 $valid = $this->_verification->verify($this->getData(), $lastLockHash);
                 
-                if ( $valid === true ) {
-                    
+                if ($valid === true) {
                     // If still vlaid, verify each signatures' integrity
-                    foreach( $signatures as $signature ) {
-                        if ( $signature instanceof SignatureIF ) {
+                    foreach ($signatures as $signature) {
+                        if ($signature instanceof SignatureIF) {
                             $valid = $signature->verify();
-                            if ( $valid === false ) {
+                            if ($valid === false) {
                                 break;
                             }
                         }

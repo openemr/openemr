@@ -68,7 +68,7 @@ class Includer
         );
         $attempts = "";
         
-        foreach ( $classpaths as $path ) {
+        foreach ($classpaths as $path) {
             if (class_exists($classname))
                 break;
             
@@ -77,7 +77,7 @@ class Includer
                 if ($path && substr($path, - 1) != "/")
                     $path .= "/";
                 Includer::IncludeFile($path . $classname . ".php");
-            } catch ( IncludeException $ex ) {
+            } catch (IncludeException $ex) {
                 $attempts .= " " . $ex->getMessage();
             }
         }

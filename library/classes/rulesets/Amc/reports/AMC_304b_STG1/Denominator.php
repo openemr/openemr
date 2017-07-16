@@ -39,8 +39,7 @@ class AMC_304b_STG1_Denominator implements AmcFilterIF
         if (empty($controlledSubstanceCheck)) {
             // Not a controlled substance, so include in denominator.
             return true;
-        }
-        else {
+        } else {
             // Is a controlled substance, so exclude from denominator.
             return false;
         }

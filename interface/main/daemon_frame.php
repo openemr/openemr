@@ -29,6 +29,7 @@ if ($GLOBALS['enable_hylafax']) {
         if (substr($line, 0, 1) == '-') ++$faxcount;
     }
 }
+
  $color_fax = $faxcount ? $colorh : $colorn;
 
  // Check if this user has any active patient notes assigned to them.

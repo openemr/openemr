@@ -127,6 +127,7 @@ function set_main_compl_list() {
             echo " n = 'form_complications[$complid]'; if (f[n]) f[n].value = 2;\n";
         }
     }
+
     echo " // Scan the list items and set their disabled flags.
  for (var i = 1; i < sel.options.length; ++i) {
   n = 'form_complications[' + sel.options[i].value + ']';

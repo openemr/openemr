@@ -66,6 +66,7 @@ class ModuleconfigController extends AbstractActionController
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
     

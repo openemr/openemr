@@ -121,32 +121,33 @@ if ($_POST['bn_save']) {
             $value = fixDate($value, '');
             if (empty($value)) {
                 $value = "NULL";
-            }
-            else {
+            } else {
                 $value = "'$value'";
             }
-        }
-        else {
+        } else {
             $value = "'" . add_escape_custom($value) . "'";
         }
+
         $sets .= ", `$key` = $value";
     }
+
     if (empty($issueid)) {
         $sql = "INSERT INTO lists SET " .
         "pid = '" . add_escape_custom($ptid) . "', activity = 1, " .
         "user = '" . add_escape_custom($_SESSION['authUser']) . "', " .
         "groupname = '" . add_escape_custom($_SESSION['authProvider']) . "', $sets";
         $issueid = sqlInsert($sql);
-    }
-    else {
+    } else {
         $sql = "UPDATE lists SET $sets WHERE id = '" . add_escape_custom($issueid) . "'";
         sqlStatement($sql);
     }
+
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -160,6 +161,7 @@ $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }
+
 // If user changed issue type, it will have submitted the form to override it.
 if ($form_type) $result['fields']['type'] = $form_type;
 

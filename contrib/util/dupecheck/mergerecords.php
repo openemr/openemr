@@ -13,30 +13,37 @@ $oemrdb = $GLOBALS['dbh'];
 
 <?php
 // check for required data
-if (! isset($parameters['masterid'])) { echo "Missing a Master Merge ID";
+if (! isset($parameters['masterid'])) {
+    echo "Missing a Master Merge ID";
     exit; }
-if (! isset($parameters['otherid'])) { echo "Missing a Other matching IDs";
+
+if (! isset($parameters['otherid'])) {
+    echo "Missing a Other matching IDs";
     exit; }
 
 // get the PID matching the masterid
 $sqlstmt = "select pid from patient_data where id='".$parameters['masterid']."'";
 $qResults = sqlStatement($sqlstmt);
-if (! $qResults) { echo "Error fetching master PID.";
+if (! $qResults) {
+    echo "Error fetching master PID.";
     exit; }
+
 $row = sqlFetchArray($qResults);
 $masterPID = $row['pid'];
 
 $commitchanges = false;
-if ($parameters['confirm'] == 'yes') { $commitchanges = true; }
+if ($parameters['confirm'] == 'yes') {
+    $commitchanges = true; }
 
 // loop over the other IDs and alter their database records
 foreach ($parameters['otherid'] as $otherID) {
-
     // get info about the "otherID"
     $sqlstmt = "select lname, pid from patient_data where id='".$otherID."'";
     $qResults = sqlStatement($sqlstmt);
-    if (! $qResults) { echo "Error fetching master PID.";
+    if (! $qResults) {
+        echo "Error fetching master PID.";
         exit; }
+
     $orow = sqlFetchArray($qResults);
     $otherPID = $orow['pid'];
     
@@ -111,6 +118,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
             if ($commitchanges == true) {
                 $qResults = sqlStatement($sqlstmt);
             }
+
             $rowsupdated = generic_sql_affected_rows();
             echo "<li>";
             echo "".$tablename.": ".$rowsupdated." row(s) updated<br>";
@@ -135,7 +143,7 @@ foreach ($parameters['otherid'] as $otherID) {
 <input type="submit" name="confirm" value="yes">
 <input type="button" value="no" onclick="javascript:window.close();"?>
 </form>
-<?php else: ?>
+<?php else : ?>
 <a href="" onclick="javascript:window.close();">Close this window</a>
 <?php endif; ?>
 

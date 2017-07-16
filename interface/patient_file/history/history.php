@@ -39,8 +39,7 @@ $(document).ready(function(){
                     echo "</body>\n</html>\n";
                     exit();
                 }
-            }
-            else {
+            } else {
                 echo "<p>(".htmlspecialchars(xl('History not authorized'), ENT_NOQUOTES).")</p>\n";
                 echo "</body>\n</html>\n";
                 exit();

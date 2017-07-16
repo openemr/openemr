@@ -29,6 +29,7 @@ class MainMenuRole
         if (empty($mainMenuRole)) {
             $mainMenuRole = "standard";
         }
+
         return $mainMenuRole;
     }
 
@@ -57,8 +58,10 @@ class MainMenuRole
                     $output .= "</option>";
                 }
             }
+
             closedir($dHandle);
         }
+
         $output .= "</select>";
         return $output;
     }

@@ -53,11 +53,12 @@ class CriteriaFilter
         
         $where = ' (';
         $orDelim = '';
-        foreach ( $propertyNames as $propName ) {
+        foreach ($propertyNames as $propName) {
             $dbfield = $criteria->GetFieldFromProp($propName);
             $where .= $orDelim . $criteria->Escape($dbfield) . " like " . $criteria->GetQuotedSql($this->Value) . "";
             $orDelim = ' or ';
         }
+
         $where .= ') ';
         
         return $where;

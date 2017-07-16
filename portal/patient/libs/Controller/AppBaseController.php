@@ -101,16 +101,13 @@ class AppBaseController extends Controller
         $err->message = $message;
         $err->errors = array();
 
-        if ($errors != null)
-        {
-            foreach ($errors as $key=>$val)
-            {
+        if ($errors != null) {
+            foreach ($errors as $key=>$val) {
                 $err->errors[lcfirst($key)] = $val;
             }
         }
 
-        if ($exception)
-        {
+        if ($exception) {
             $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
         }
 

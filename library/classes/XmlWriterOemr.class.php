@@ -31,6 +31,7 @@ class XmlWriterOemr
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= ">\n";
         $this->stack[] = htmlspecialchars($element);
     }
@@ -41,6 +42,7 @@ class XmlWriterOemr
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= '>'.htmlspecialchars($content).'</'.htmlspecialchars($element).'>'."\n";
     }
     function emptyelement($element, $attributes = array())
@@ -50,6 +52,7 @@ class XmlWriterOemr
         foreach ($attributes as $key => $value) {
             $this->xml .= ' '.htmlspecialchars($key).'="'.htmlspecialchars($value).'"';
         }
+
         $this->xml .= " />\n";
     }
     function pop()

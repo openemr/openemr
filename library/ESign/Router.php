@@ -37,7 +37,7 @@ class Router
         require_once $GLOBALS['srcdir'].'/ESign/'.$Module.'/Controller.php';
         $controllerClass = "\\ESign\\".$Module."_Controller";
         $controller = new $controllerClass( $request );
-        if ( $controller instanceof Abstract_Controller ) {
+        if ($controller instanceof Abstract_Controller) {
             $controller->run();
         }
     }

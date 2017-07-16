@@ -34,18 +34,19 @@ $pid = filter_input(INPUT_POST, 'pid', FILTER_DEFAULT);
 $output = filter_input(INPUT_POST, 'output', FILTER_UNSAFE_RAW);
 $user = filter_input(INPUT_POST, 'user', FILTER_UNSAFE_RAW);
 
-if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
-    if( $type == 'admin-signature' ) $signer = $user;
-    if( ! json_decode($output) ){
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if ($type == 'admin-signature') $signer = $user;
+    if (! json_decode($output)) {
         exit();
     }
+
 /* Don't need at present
     if( $pid > 0 ) $resizedFile = './../../patient_documents/signed/current/' . $pid . '_master.png';
     else $resizedFile = './../../patient_documents/signed/current/' . $signer . '_master.png';
  */
     $svgsig = '';
-    if( empty($errors) ){
-        try{
+    if (empty($errors)) {
+        try {
             $svg = new sigToSvg($output, array (
                     'penWidth' => 6
             ));
@@ -71,12 +72,13 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
             imagedestroy($img);
             imagedestroy($image_png);
             $image_data = base64_encode($image);
-        } catch( Exception $e ){
+        } catch (Exception $e) {
             die($e->getMessage());
         }
     }
+
     // No validation errors exist, so we can start the database stuff
-    if( empty($errors) ){
+    if (empty($errors)) {
         $sig_hash = sha1($output);
         $created = time();
         $ip = $_SERVER['REMOTE_ADDR'];
@@ -85,14 +87,14 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' ){
         $r = sqlStatement("SELECT COUNT( DISTINCT TYPE ) x FROM onsite_signatures where pid = ? and user = ? ", array ($pid, $user));
         $c = sqlFetchArray($r);
         $isit = $c['x'] * 1;
-        if($isit){
+        if ($isit) {
             $qstr = "UPDATE onsite_signatures SET pid=?,lastmod=?,status=?, user=?, signature=?, sig_hash=?, ip=?,sig_image=? WHERE pid=? && user=?";
             $rcnt = sqlStatement($qstr, array($pid,$lastmod,$status,$user,$svgsig,$sig_hash,$ip,$image_data,$pid,$user));
-        }
-        else{
+        } else {
             $qstr = "INSERT INTO onsite_signatures (pid,lastmod,status,type,user,signator, signature, sig_hash, ip, created, sig_image) VALUES (?,?,?,?,?,?,?,?,?,?,?) ";
             sqlStatement($qstr, array($pid , $lastmod, $status,$type, $user, $signer, $svgsig, $sig_hash, $ip, $created, $image_data));
         }
     }
+
     print json_encode('Done');
 }

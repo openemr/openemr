@@ -66,12 +66,14 @@ function next_child_name($node)
 {
     // get the next child
     $nextNode = $node->nextSibling;
-    while ( $nextNode != null ) {
+    while ($nextNode != null) {
         if ($nextNode instanceof DOMElement) {
             break;
         }
+
         $nextNode = $nextNode->nextSibling;
     }
+
     $nextName = null;
     if ($nextNode instanceof DOMElement && $nextNode != null) {
         $nextName = strtolower($nextNode->nodeName);
@@ -83,12 +85,14 @@ function prev_child_name($node)
 {
     // get the previous child
     $nextNode = $node->previousSibling;
-    while ( $nextNode != null ) {
+    while ($nextNode != null) {
         if ($nextNode instanceof DOMElement) {
             break;
         }
+
         $nextNode = $nextNode->previousSibling;
     }
+
     $nextName = null;
     if ($nextNode instanceof DOMElement && $nextNode != null) {
         $nextName = strtolower($nextNode->nodeName);
@@ -101,6 +105,7 @@ function iterate_over_node($node)
     if ($node instanceof DOMText) {
         return preg_replace("/\\s+/im", " ", $node->wholeText);
     }
+
     if ($node instanceof DOMDocumentType) {
         // ignore
         return "";
@@ -149,7 +154,7 @@ function iterate_over_node($node)
     // debug
     // $output .= "[$name,$nextName]";
     
-    for($i = 0; $i < $node->childNodes->length; $i ++) {
+    for ($i = 0; $i < $node->childNodes->length; $i ++) {
         $n = $node->childNodes->item($i);
         
         $text = iterate_over_node($n);

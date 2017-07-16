@@ -51,7 +51,7 @@ class BaseController
 
     protected function loadModel($name)
     {
-        if(!isset($this->$name)){
+        if (!isset($this->$name)) {
             require(dirname(__FILE__) .'/../' . self::MODEL_FOLDER .'/'. strtolower($name) .'_model.php');
             $this->$name = new $name;
         }

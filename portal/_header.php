@@ -70,8 +70,8 @@
                                 <!-- inner menu: contains the actual data -->
                                 <ul class="menu">
                                 <?php
-                                foreach ( $msgs as $i ) {
-                                    if($i['message_status']=='New'){
+                                foreach ($msgs as $i) {
+                                    if ($i['message_status']=='New') {
                                         echo "<li><a href='/messaging/messages.php'><h4>" . text($i['title']) . "</h4></a></li>";
                                     }
                                 }

@@ -42,22 +42,18 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
         //the manipulation is done to insert the amount paid into payments table in correct order to show in front receipts report,
         //if the payment is for today's encounter it will be shown in the report under today field and otherwise shown as previous
     $tmprowArray=explode(' ', $tmprow['date']);
-    if(date('Y-m-d')==$tmprowArray[0])
-    {
-        if($amount1==0)
-         {
+    if (date('Y-m-d')==$tmprowArray[0]) {
+        if ($amount1==0) {
               $amount1=$amount2;
               $amount2=0;
         }
-    }
-    else
-    {
-        if($amount2==0)
-         {
+    } else {
+        if ($amount2==0) {
               $amount2=$amount1;
               $amount1=0;
         }
     }
+
     $payid = sqlInsert("INSERT INTO payments ( " .
     "pid, encounter, dtime, user, method, source, amount1, amount2 " .
     ") VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)", array($patient_id,$encounter,$timestamp,$auth,$method,$source,$amount1,$amount2));
@@ -73,25 +69,20 @@ function DistributionInsert($CountRow, $created_time, $user_id)
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $Affected='no';
-    if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"]*1>0)
-    {
-        if(trim(formData('type_name'))=='insurance')
-         {
-            if(trim(formData("HiddenIns$CountRow"))==1)
-            {
+    if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"]*1>0) {
+        if (trim(formData('type_name'))=='insurance') {
+            if (trim(formData("HiddenIns$CountRow"))==1) {
                 $AccountCode="IPP";
             }
-            if(trim(formData("HiddenIns$CountRow"))==2)
-            {
+
+            if (trim(formData("HiddenIns$CountRow"))==2) {
                 $AccountCode="ISP";
             }
-            if(trim(formData("HiddenIns$CountRow"))==3)
-            {
+
+            if (trim(formData("HiddenIns$CountRow"))==3) {
                 $AccountCode="ITP";
             }
-        }
-        elseif(trim(formData('type_name'))=='patient')
-         {
+        } elseif (trim(formData('type_name'))=='patient') {
             $AccountCode="PP";
         }
 
@@ -116,15 +107,12 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           sqlCommitTrans();
           $Affected='yes';
     }
-    if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"]*1!=0)
-    {
-        if(trim(formData('type_name'))=='insurance')
-         {
+
+    if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"]*1!=0) {
+        if (trim(formData('type_name'))=='insurance') {
             $AdjustString="Ins adjust Ins".trim(formData("HiddenIns$CountRow"));
             $AccountCode="IA";
-        }
-        elseif(trim(formData('type_name'))=='patient')
-         {
+        } elseif (trim(formData('type_name'))=='patient') {
             $AdjustString="Pt adjust";
             $AccountCode="PA";
         }
@@ -151,8 +139,8 @@ function DistributionInsert($CountRow, $created_time, $user_id)
            sqlCommitTrans();
           $Affected='yes';
     }
-    if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0)
-    {
+
+    if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"]*1>0) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
          sqlInsert("insert into ar_activity set "    .
@@ -175,8 +163,8 @@ function DistributionInsert($CountRow, $created_time, $user_id)
            sqlCommitTrans();
           $Affected='yes';
     }
-    if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0)
-    {
+
+    if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"]*1>0) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
          sqlInsert("insert into ar_activity set "    .
@@ -198,8 +186,8 @@ function DistributionInsert($CountRow, $created_time, $user_id)
            sqlCommitTrans();
           $Affected='yes';
     }
-    if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y')
-    {
+
+    if (isset($_POST["FollowUp$CountRow"]) && $_POST["FollowUp$CountRow"]=='y') {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
          sqlInsert("insert into ar_activity set "    .
@@ -222,15 +210,13 @@ function DistributionInsert($CountRow, $created_time, $user_id)
            sqlCommitTrans();
           $Affected='yes';
     }
-    if($Affected=='yes')
-    {
-        if(trim(formData('type_name'))!='patient')
-         {
+
+    if ($Affected=='yes') {
+        if (trim(formData('type_name'))!='patient') {
             $ferow = sqlQuery("select last_level_closed from form_encounter  where
 		pid ='".trim(formData('hidden_patient_code'))."' and encounter='".trim(formData("HiddenEncounter$CountRow"))."'");
               //multiple charges can come.
-            if($ferow['last_level_closed']<trim(formData("HiddenIns$CountRow")))
-               {
+            if ($ferow['last_level_closed']<trim(formData("HiddenIns$CountRow"))) {
                   sqlStatement("update form_encounter set last_level_closed='".trim(formData("HiddenIns$CountRow"))."' where
 			pid ='".trim(formData('hidden_patient_code'))."' and encounter='".trim(formData("HiddenEncounter$CountRow"))."'");
                   //last_level_closed gets increased.
@@ -244,10 +230,10 @@ function DistributionInsert($CountRow, $created_time, $user_id)
                   if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
                     ++$new_payer_type;
                   $new_payer_id = arGetPayerID(trim(formData('hidden_patient_code')), $date_of_service, $new_payer_type);
-                if($new_payer_id>0)
-                   {
+                if ($new_payer_id>0) {
                         arSetupSecondary(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow")), 0);
                 }
+
                     //-----------------------------------
             }
         }
@@ -268,9 +254,11 @@ function row_delete($table, $where)
             if ($logstring) $logstring .= " ";
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
+
         newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
+
     if ($count) {
         $query = "DELETE FROM $table WHERE $where";
         sqlStatement($query);

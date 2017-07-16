@@ -89,11 +89,12 @@ class Mailer
         $lang_path = "";
         $paths = explode(PATH_SEPARATOR, get_include_path());
         
-        foreach ( $paths as $path ) {
+        foreach ($paths as $path) {
             if (file_exists($path . '/language/phpmailer.lang-en.php')) {
                 $lang_path = $path . '/language/';
             }
         }
+
         return $lang_path;
     }
     
@@ -131,7 +132,7 @@ class Mailer
         }
         
         // if custom headers are to be provided, include them in the message
-        foreach ( $message->Headers as $header_key => $header_val ) {
+        foreach ($message->Headers as $header_key => $header_val) {
             $mailer->AddCustomHeader($header_key . ': ' . $header_val);
         }
         
@@ -152,7 +153,7 @@ class Mailer
         }
         
         // add the recipients
-        foreach ( $message->Recipients as $recipient ) {
+        foreach ($message->Recipients as $recipient) {
             $this->_log [] = "Adding Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
             if (! $this->IsValid($recipient->Email)) {
@@ -163,7 +164,7 @@ class Mailer
             $mailer->AddAddress($recipient->Email, $recipient->RealName);
         }
         
-        foreach ( $message->CCRecipients as $recipient ) {
+        foreach ($message->CCRecipients as $recipient) {
             $this->_log [] = "Adding CC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
             if (! $this->IsValid($recipient->Email)) {
@@ -174,7 +175,7 @@ class Mailer
             $mailer->AddCC($recipient->Email, $recipient->RealName);
         }
         
-        foreach ( $message->BCCRecipients as $recipient ) {
+        foreach ($message->BCCRecipients as $recipient) {
             $this->_log [] = "Adding BCC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
             if (! $this->IsValid($recipient->Email)) {

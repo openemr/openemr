@@ -26,16 +26,16 @@
     
         <div class="body_title esign-log-row header"><?php echo xlt('eSign Log'); ?></div>
         
-        <?php if ( !$this->verified ) { ?>
+        <?php if (!$this->verified) { ?>
         <div class="esign-log-row">
             <div style='text-align:center;color:red;'><?php echo xlt('The data integrity test failed for this form'); ?></div>
         </div>
         <?php } ?>
         
-        <?php foreach ( $this->signatures as $count => $signature ) { ?>
+        <?php foreach ($this->signatures as $count => $signature) { ?>
         <div class="esign-log-row esign-log-row-container <?php echo text($signature->getClass()); ?>">
             
-            <?php if ( $signature->getAmendment() ) { ?>
+            <?php if ($signature->getAmendment()) { ?>
             <div class="esign-log-row">
                 <span class="esign-amendment"><?php echo text($signature->getAmendment()); ?></span>
             </div>
@@ -50,7 +50,7 @@
         </div>
         <?php } ?>
         
-        <?php if ( count($this->signatures) === 0 ) { ?>
+        <?php if (count($this->signatures) === 0) { ?>
         <div class="esign-log-row">
             <span><?php echo xlt('No signatures on file'); ?></span>
         </div>

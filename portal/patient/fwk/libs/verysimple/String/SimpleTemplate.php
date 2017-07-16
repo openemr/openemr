@@ -39,8 +39,7 @@ class SimpleTemplate
     static function TextToHtml($txt)
     {
         // Kills double spaces and spaces inside tags.
-        while ( ! (strpos($txt, '  ') === false) )
-            $txt = str_replace('  ', ' ', $txt);
+        while (! (strpos($txt, '  ') === false))$txt = str_replace('  ', ' ', $txt);
         $txt = str_replace(' >', '>', $txt);
         $txt = str_replace('< ', '<', $txt);
         
@@ -75,7 +74,7 @@ class SimpleTemplate
                 "li"
         );
         
-        for($x = 0; $x < count($wipebr); $x ++) {
+        for ($x = 0; $x < count($wipebr); $x ++) {
             $tag = $wipebr [$x];
             $html = str_ireplace("<$tag><br />", "<$tag>", $html);
             $html = str_ireplace("</$tag><br />", "</$tag>", $html);
@@ -132,7 +131,7 @@ class SimpleTemplate
     {
         $replacements = array ();
         
-        foreach ( $values as $key => $val ) {
+        foreach ($values as $key => $val) {
             $replacements [$ldelim . $key . $rdelim] = $val;
         }
         

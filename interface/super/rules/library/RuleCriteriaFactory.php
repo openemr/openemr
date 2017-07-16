@@ -36,9 +36,9 @@ abstract class RuleCriteriaFactory
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
-        foreach( $strategyMap as $key=>$value ) {
+        foreach ($strategyMap as $key=>$value) {
             $criteriaType = $value->resolveRuleCriteriaType($method, $methodDetail, $ruleValue);
-            if ( $criteriaType != null ) {
+            if ($criteriaType != null) {
                 return $criteriaType;
             }
         }
@@ -60,21 +60,22 @@ abstract class RuleCriteriaFactory
     ) {
         
         $criteriaType = $this->resolveCriteriaType($method, $methodDetail, $value);
-        if ( $criteriaType == null ) {
+        if ($criteriaType == null) {
             // could not resolve a criteria
             return null;
         }
 
         $builder = $this->getBuilderFor($criteriaType);
-        if ( is_null($builder) ) {
+        if (is_null($builder)) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
         $criteria = $builder->build($criteriaType, $value, $methodDetail);
-        if ( is_null($criteria) ) {
+        if (is_null($criteria)) {
             return null;
         }
+
         $criteria->inclusion = $inclusion;
         $criteria->optional = $optional;
         $criteria->guid = $guid;
@@ -93,15 +94,16 @@ abstract class RuleCriteriaFactory
     {
         $strategyMap = $this->getStrategyMap();
         $builder = $this->getBuilderFor($criteriaType);
-        if ( is_null($builder) ) {
+        if (is_null($builder)) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
         $criteria = $builder->newInstance($criteriaType);
-        if ( is_null($criteria) ) {
+        if (is_null($criteria)) {
             return null;
         }
+
         $criteria->criteriaType = $criteriaType;
 
         return $criteria;

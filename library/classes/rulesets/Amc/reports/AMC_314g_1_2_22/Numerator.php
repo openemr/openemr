@@ -34,9 +34,9 @@ class AMC_314g_1_2_22_Numerator implements AmcFilterIF
                   "WHERE  f.formdir != 'newpatient' AND f.deleted = 0 AND f.pid = ? AND (f.date BETWEEN ? AND ?) ";
         
         $check = sqlQuery($encQry, array($patient->id, $beginDate, $endDate));
-        if (!(empty($check))){
+        if (!(empty($check))) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

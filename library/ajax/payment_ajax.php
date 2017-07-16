@@ -29,15 +29,14 @@
 //===============================================================================
 require_once("../../interface/globals.php");
 //=================================
-if (isset($_REQUEST["ajax_mode"]))
- {
+if (isset($_REQUEST["ajax_mode"])) {
     AjaxDropDownCode();
 }
+
 //=================================
 function AjaxDropDownCode()
 {
-    if ($_REQUEST["ajax_mode"] == "set")//insurance
-    {
+    if ($_REQUEST["ajax_mode"] == "set") {//insurance
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerInsurance'><table width='552' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
@@ -55,16 +54,13 @@ function AjaxDropDownCode()
         $insurance_text_ajax=formData('insurance_text_ajax', '', true);
         $res = sqlStatement("SELECT insurance_companies.id,name,city,state,country FROM insurance_companies
 			left join addresses on insurance_companies.id=addresses.foreign_id  where name like '$insurance_text_ajax%' or  insurance_companies.id like '$insurance_text_ajax%' ORDER BY name");
-        while ($row = sqlFetchArray($res))
-         {
-            if($CountIndex%2==1)
-               {
+        while ($row = sqlFetchArray($res)) {
+            if ($CountIndex%2==1) {
                 $bgcolor='#ddddff';
-            }
-            else
-                 {
+            } else {
                 $bgcolor='#ffdddd';
             }
+
                 $CountIndex++;
                 $Id=$row['id'];
                 $Name=$row['name'];
@@ -80,39 +76,37 @@ function AjaxDropDownCode()
 		    <td><a href='#'>".htmlspecialchars($Address)."</a></td>
 </tr>";
         }
+
         $StringForAjax.="</table></div>";
         echo strlen($_REQUEST['insurance_text_ajax']).'~`~`'.$StringForAjax;
         die;
     }
+
 //===============================================================================
-    if ($_REQUEST["ajax_mode"] == "set_patient")//patient.
-    {//From 2 areas this ajax is called.So 2 pairs of functions are used.
+    if ($_REQUEST["ajax_mode"] == "set_patient") {//patient.
+    //From 2 areas this ajax is called.So 2 pairs of functions are used.
         //PlaceValues==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClick==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PlaceValuesDistribute==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClickDistribute==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
-        if(isset($_REQUEST['patient_code']) && $_REQUEST['patient_code']!='')
-         {
+        if (isset($_REQUEST['patient_code']) && $_REQUEST['patient_code']!='') {
             $patient_code=formData('patient_code', '', true);
-            if(isset($_REQUEST['submit_or_simple_type']) && $_REQUEST['submit_or_simple_type']=='Simple')
-             {
+            if (isset($_REQUEST['submit_or_simple_type']) && $_REQUEST['submit_or_simple_type']=='Simple') {
                 $StringToAppend="PutTheValuesClickPatient";
                 $StringToAppend2="PlaceValuesPatient";
-            }
-            else
-             {
+            } else {
                 $StringToAppend="PutTheValuesClickDistribute";
                 $StringToAppend2="PlaceValuesDistribute";
             }
+
             $patient_code_complete=$_REQUEST['patient_code'];//we need the spaces here
-        }
-        elseif(isset($_REQUEST['insurance_text_ajax']) && $_REQUEST['insurance_text_ajax']!='')
-         {
+        } elseif (isset($_REQUEST['insurance_text_ajax']) && $_REQUEST['insurance_text_ajax']!='') {
             $patient_code=formData('insurance_text_ajax', '', true);
             $StringToAppend="PutTheValuesClick";
             $StringToAppend2="PlaceValues";
             $patient_code_complete=$_REQUEST['insurance_text_ajax'];//we need the spaces here
         }
+
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerPatient'><table width='452' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
@@ -132,16 +126,13 @@ function AjaxDropDownCode()
         $res = sqlStatement("SELECT pid as id,fname,lname,mname,DOB FROM patient_data
 			 where  fname like '$patient_code%' or lname like '$patient_code%' or mname like '$patient_code%' or
 			 CONCAT(lname,' ',fname,' ',mname) like '$patient_code%' or pid like '$patient_code%' ORDER BY lname");
-        while ($row = sqlFetchArray($res))
-         {
-            if($CountIndex%2==1)
-               {
+        while ($row = sqlFetchArray($res)) {
+            if ($CountIndex%2==1) {
                 $bgcolor='#ddddff';
-            }
-            else
-                 {
+            } else {
                 $bgcolor='#ffdddd';
             }
+
                 $CountIndex++;
                 $Id=$row['id'];
                 $fname=$row['fname'];
@@ -158,21 +149,22 @@ function AjaxDropDownCode()
             <td><a href='#'>".htmlspecialchars($DOB)."</a></td>
   </tr>";
         }
+
         $StringForAjax.="</table></div>";
         echo strlen($patient_code_complete).'~`~`'.$StringForAjax;
         die;
     }
+
 //===============================================================================
-    if ($_REQUEST["ajax_mode"] == "encounter")//encounter
-    {
-        //PlaceValuesEncounter==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
+    if ($_REQUEST["ajax_mode"] == "encounter") {//encounter
+    //PlaceValuesEncounter==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
         //PutTheValuesClickEncounter==>Used while -->CLICK<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
-        if(isset($_REQUEST['encounter_patient_code']))
-         {
+        if (isset($_REQUEST['encounter_patient_code'])) {
             $patient_code=formData('encounter_patient_code', '', true);
             $StringToAppend="PutTheValuesClickEncounter";
             $StringToAppend2="PlaceValuesEncounter";
         }
+
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerEncounter'><table width='202' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
@@ -188,16 +180,13 @@ function AjaxDropDownCode()
 	  ";
         $res = sqlStatement("SELECT date,encounter FROM form_encounter
 			 where pid ='$patient_code' ORDER BY encounter");
-        while ($row = sqlFetchArray($res))
-         {
-            if($CountIndex%2==1)
-               {
+        while ($row = sqlFetchArray($res)) {
+            if ($CountIndex%2==1) {
                 $bgcolor='#ddddff';
-            }
-            else
-                 {
+            } else {
                 $bgcolor='#ffdddd';
             }
+
                 $CountIndex++;
                 $Date=$row['date'];
                 $Date=explode(' ', $Date);
@@ -209,6 +198,7 @@ function AjaxDropDownCode()
 			<td><a href='#'>".htmlspecialchars($Date)."</a></td>
   </tr>";
         }
+
         $StringForAjax.="</table></div>";
         echo $StringForAjax;
         die;

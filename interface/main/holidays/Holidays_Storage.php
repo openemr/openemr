@@ -42,6 +42,7 @@ class Holidays_Storage
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row;
         }
+
         return $holidays;
     }
 
@@ -59,6 +60,7 @@ class Holidays_Storage
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row['pc_eventDate'];
         }
+
         return $holidays;
     }
 
@@ -70,11 +72,12 @@ class Holidays_Storage
     public function create_events(array $holidays)
     {
         $deleted = false;
-        foreach ($holidays as $holiday){
-            if(!$deleted){
+        foreach ($holidays as $holiday) {
+            if (!$deleted) {
                 $this->delete_holiday_events();
                 $deleted = true;
             }
+
             $row=array(
                 self::CALENDAR_CATEGORY_HOLIDAY,//catgory
                 0,//authid
@@ -97,6 +100,7 @@ class Holidays_Storage
                 $row
             );
         }
+
         return true;
     }
 
@@ -114,14 +118,13 @@ class Holidays_Storage
         $deleted = false;
         do {
             if ($data[0]) {
-                if(!$deleted){
+                if (!$deleted) {
                     $this->delete_calendar_external();
                     $deleted = true;
                 }
 
                 $row=array($data[0],$data[1]);
                 sqlInsert("INSERT INTO ".escape_table_name(self::TABLE_NAME) . "(date,description,source)"." VALUES (?,?,'csv')", $row);
-
             }
         } while ($data = fgetcsv($handle, 1000, ",", "'"));
         return true;

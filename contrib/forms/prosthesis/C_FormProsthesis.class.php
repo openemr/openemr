@@ -29,10 +29,10 @@ class C_FormProsthesis extends Controller
     {
         if (is_numeric($form_id)) {
             $prosthesis = new FormProsthesis($form_id);
-        }
-        else {
+        } else {
             $prosthesis = new FormProsthesis();
         }
+
         $this->assign("VIEW", true);
         $this->assign("prosthesis", $prosthesis);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -50,6 +50,7 @@ class C_FormProsthesis extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->prosthesis->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
@@ -61,7 +62,6 @@ class C_FormProsthesis extends Controller
             if (!empty($row)) {
                 addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
-
         }
 
         $_POST['process'] = "";

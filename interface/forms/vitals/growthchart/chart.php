@@ -59,14 +59,16 @@ $charttype = "2-20"; // default the chart-type to ages 2-20
 $datapoints = explode('~', $_GET['data']);
 if (isset($datapoints) && $datapoints != "") {
     list($date, $height, $weight, $head_circ) = explode('-', $datapoints[0]);
-    if ($date != "") { $charttype_date = $date; }
+    if ($date != "") {
+        $charttype_date = $date; }
+
     $tmpAge = getPatientAgeInDays($patient_data['DOB'], $date);
     // use the birth-24 chart if the age-on-date-of-vitals is 24months or younger
-    if ($tmpAge < (365*2)) { $charttype = "birth"; }
+    if ($tmpAge < (365*2)) {
+        $charttype = "birth"; }
 }
 
-if(isset($_GET['chart_type']))
-{
+if (isset($_GET['chart_type'])) {
     $charttype=$_GET['chart_type'];
 }
 
@@ -80,8 +82,7 @@ function unitsWt($wt)
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
         return (number_format(($wt*0.45359237), 2, '.', '').xl('kg', '', ' '));
-    }
-    else {
+    } else {
     //keep US units
         return $wt.xl('lb', '', ' ');
     }
@@ -93,8 +94,7 @@ function unitsDist($dist)
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
         return (number_format(($dist*2.54), 2, '.', '').xl('cm', '', ' '));
-    }
-    else {
+    } else {
         //keep US units
         return $dist.xl('in', '', ' ');
     }
@@ -140,8 +140,7 @@ if ($charttype == 'birth') {
         // added by BM for CSS html output
         $chartCss1 = "birth-24mos_boys_HC-1.png";
         $chartCss2 = "birth-24mos_boys_HC-2.png";
-    }
-    elseif (preg_match('/^female/i', $patient_data['sex'])) {
+    } elseif (preg_match('/^female/i', $patient_data['sex'])) {
         $chart = "birth-24mos_girls_HC.png";
 
         // added by BM for CSS html output
@@ -172,8 +171,7 @@ if ($charttype == 'birth') {
     $datatable2_hc_offset = 290;
     $datatable2_y = 1098;
     $datatable2_y_increment = 18;
-}
-elseif ($charttype == "2-20") {
+} elseif ($charttype == "2-20") {
     // current patient age between 2 and 20 years
 
     $dot_x = 177;
@@ -194,8 +192,7 @@ elseif ($charttype == "2-20") {
         // added by BM for CSS html output
         $chartCss1 = "2-20yo_boys_BMI-1.png";
         $chartCss2 = "2-20yo_boys_BMI-2.png";
-    }
-    elseif (preg_match('/^female/i', $patient_data['sex'])) {
+    } elseif (preg_match('/^female/i', $patient_data['sex'])) {
         $chart = "2-20yo_girls_BMI.png";
 
         // added by BM for CSS html output
@@ -224,9 +221,7 @@ elseif ($charttype == "2-20") {
     $datatable2_bmi_offset = 310;
     $datatable2_y = 152;
     $datatable2_y_increment = 17;
-}
-
-else {
+} else {
     // bad age data? no graph for you.
     echo "<p>" . xl('Age data is out of range.') . "</p>";
     exit;
@@ -378,8 +373,7 @@ function convertpoint($coord)
         //on second page so subtract 1000 from x
         $Xcoord = $Xcoord - 1000;
         $page = "page2";
-    }
-    else {
+    } else {
         $page = "page1";
     }
 
@@ -411,27 +405,32 @@ if ($_GET['html'] == 1) {
     // plot the data points
     foreach ($datapoints as $data) {
         list($date, $height, $weight, $head_circ) = explode('-', $data);
-        if ($date == "") { continue; }
+        if ($date == "") {
+            continue; }
 
         // only plot if we have both weight and heights. Skip if either is 0.
         // Rational is only well visit will need both, sick visit only needs weight
         // for some clinic.
-        if ($weight == 0 || $height == 0 ) { continue; }
+        if ($weight == 0 || $height == 0) {
+            continue; }
 
         // get age of patient at this data-point
         // to get data from function getPatientAgeYMD including $age,$age_in_months, $ageinYMD
         extract(getPatientAgeYMD($dob, $date));
-        if($charttype=='birth')
-        {
+        if ($charttype=='birth') {
             // for birth style chart, we use the age in months
             $age=$age_in_months;
         }
+
         // exclude data points that do not belong on this chart
         // for example, a data point for a 18 month old can be excluded
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
-        if ($daysold >= (365*2) && $charttype == "birth") { continue; }
-        if ($daysold <= (365*2) && $charttype == "2-20") { continue; }
+        if ($daysold >= (365*2) && $charttype == "birth") {
+            continue; }
+
+        if ($daysold <= (365*2) && $charttype == "2-20") {
+            continue; }
 
         // calculate the x-axis (Age) value
         $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -457,8 +456,7 @@ if ($_GET['html'] == 1) {
             $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
             $point = convertpoint(array($HT,$WT));
             echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
-        }
-        else if ($charttype == "2-20") {
+        } else if ($charttype == "2-20") {
             // Draw BMI
             $bmi = $weight/$height/$height*703;
             $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
@@ -537,6 +535,7 @@ if ($_GET['html'] == 1) {
     cssFooter();
     exit;
 }
+
 // Done creating CSS HTML output
 /******************************/
 
@@ -556,18 +555,19 @@ $count = 0;
 // plot the data points
 foreach ($datapoints as $data) {
     list($date, $height, $weight, $head_circ) = explode('-', $data);
-    if ($date == "") { continue; }
+    if ($date == "") {
+        continue; }
 
     // only plot if we have both weight and heights. Skip if either is 0.
     // Rational is only well visit will need both, sick visit only needs weight
     // for some clinic.
-    if ($weight == 0 || $height == 0 ) { continue; }
+    if ($weight == 0 || $height == 0) {
+        continue; }
 
     // get age of patient at this data-point
     // to get data from function getPatientAgeYMD including $age, $ageinYMD, $age_in_months
     extract(getPatientAgeYMD($dob, $date));
-    if($charttype=='birth')
-    {
+    if ($charttype=='birth') {
         // for birth style chart, we use the age in months
         $age=$age_in_months;
     }
@@ -576,8 +576,11 @@ foreach ($datapoints as $data) {
     // for example, a data point for a 18 month old can be excluded
     // from that patient's 2-20 yr chart
     $daysold = getPatientAgeInDays($dob, $date);
-    if ($daysold > (365*2) && $charttype == "birth") { continue; }
-    if ($daysold < (365*2) && $charttype == "2-20") { continue; }
+    if ($daysold > (365*2) && $charttype == "birth") {
+        continue; }
+
+    if ($daysold < (365*2) && $charttype == "2-20") {
+        continue; }
 
     // calculate the x-axis (Age) value
     $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -600,8 +603,7 @@ foreach ($datapoints as $data) {
         $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
         $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
         imagefilledellipse($im, $HT, $WT, 10, 10, $color);
-    }
-    else if ($charttype == "2-20") {
+    } else if ($charttype == "2-20") {
         // Draw BMI
         $bmi = $weight/$height/$height*703;
         $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
@@ -682,8 +684,7 @@ if ($_GET['pdf'] == 1) {
 
     // output the PDF
     $pdf->ezStream();
-}
-else {
+} else {
     // older style chart that is simply a PNG image
     header("Content-type: image/png");
     imagepng($im);

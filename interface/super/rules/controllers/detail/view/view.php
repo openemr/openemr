@@ -45,21 +45,21 @@ $rule = $viewBean->rule ?>
     <!--                    -->
     <!-- reminder intervals -->
     <!--                    -->
-    <?php $intervals = $rule->reminderIntervals; if ( $intervals) { ?>
+    <?php $intervals = $rule->reminderIntervals; if ($intervals) { ?>
     <div class="section text">
         <p class="header">
             <?php echo out(xl('Reminder intervals')); ?>
             <a href="index.php?action=edit!intervals&id=<?php echo $rule->id ?>" class="action_link" onclick="top.restoreSession()">(<?php echo out(xl('edit')); ?>)</a>
         </p>
 
-        <?php if ( $intervals->getTypes() ) {?>
+        <?php if ($intervals->getTypes()) {?>
         <p>
             <div>
                 <span class="left_col colhead"><u><?php echo out(xl('Type')); ?></u></span>
                 <span class="end_col colhead"><u><?php echo out(xl('Detail')); ?></u></span>
             </div>
 
-            <?php foreach($intervals->getTypes() as $type) {?>
+            <?php foreach ($intervals->getTypes() as $type) {?>
                 <div>
                 <span class="left_col"><?php echo out(xl($type->lbl)); ?></span>
                 <span class="end_col">
@@ -77,11 +77,11 @@ $rule = $viewBean->rule ?>
     <!--                      -->
     <!-- rule filter criteria -->
     <!--                      -->
-    <?php $filters = $rule->filters; if ( $filters ) { ?>
+    <?php $filters = $rule->filters; if ($filters) { ?>
     <div class="section text">
         <p class="header"><?php echo out(xl('Demographics filter criteria')); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo out($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo out(xl('add')); ?>)</a></p>
         <p>
-            <?php if ( $filters->criteria ) { ?>
+            <?php if ($filters->criteria) { ?>
 
                 <div>
                     <span class="left_col">&nbsp;</span>
@@ -90,7 +90,7 @@ $rule = $viewBean->rule ?>
                     <span class="end_col"><u><?php echo out(xl('Requirements')); ?></u></span>
                 </div>
 
-                <?php foreach($filters->criteria as $criteria) { ?>
+                <?php foreach ($filters->criteria as $criteria) { ?>
                     <div>
                         <span class="left_col">
                             <a href="index.php?action=edit!filter&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>"
@@ -122,13 +122,14 @@ $rule = $viewBean->rule ?>
     <div class="section text">
     <p class="header"><?php echo out(xl('Target/Action Groups')); ?></p>
     <?php $groupId = 0;
-    foreach ( $rule->groups as $group ) { $groupId = $group->groupId; ?>
+    foreach ($rule->groups as $group) {
+        $groupId = $group->groupId; ?>
             <div class="group">
             <!--                      -->
             <!-- rule target criteria -->
             <!--                      -->
         
-            <?php $targets = $group->ruleTargets; if ( $targets ) { ?>
+            <?php $targets = $group->ruleTargets; if ($targets) { ?>
         <div class="section text">
             <p class="header"><?php echo out(xl('Clinical targets')); ?> 
                 <a href="index.php?action=edit!add_criteria&id=<?php echo out($rule->id); ?>&group_id=<?php echo out($group->groupId); ?>&criteriaType=target" class="action_link" onclick="top.restoreSession()">
@@ -136,7 +137,7 @@ $rule = $viewBean->rule ?>
                 </a>
             </p>
             <p>
-                <?php if ( $targets->criteria ) { ?>
+                <?php if ($targets->criteria) { ?>
     
                     <div>
                         <span class="left_col">&nbsp;</span>
@@ -145,7 +146,7 @@ $rule = $viewBean->rule ?>
                         <span class="end_col"><u><?php echo out(xl('Requirements')); ?></u></span>
                     </div>
     
-                    <?php foreach($targets->criteria as $criteria) { ?>
+                    <?php foreach ($targets->criteria as $criteria) { ?>
                         <div class="row">
                             <span class="left_col">
                                 <a href="index.php?action=edit!target&id=<?php echo out($rule->id); ?>&guid=<?php echo out($criteria->guid); ?>"
@@ -177,7 +178,7 @@ $rule = $viewBean->rule ?>
             <!--              -->
             <!-- rule actions -->
             <!--              -->
-            <?php $actions = $group->ruleActions; if ( $actions ) { ?>
+            <?php $actions = $group->ruleActions; if ($actions) { ?>
         <div class="section text">
             <p class="header"><?php echo out(xl('Actions')); ?>
                 <a href="index.php?action=edit!add_action&id=<?php echo out($rule->id); ?>&group_id=<?php echo out($group->groupId);?>" class="action_link" onclick="top.restoreSession()">
@@ -185,14 +186,14 @@ $rule = $viewBean->rule ?>
                 </a>
             </p>
             <p>
-                <?php if ( $actions->actions) { ?>
+                <?php if ($actions->actions) { ?>
                     <div>
                         <span class="left_col">&nbsp;</span>
                         <span class="end_col"><u><?php echo out(xl('Category/Title')); ?></u></span>
                     </div>
     
                     <div>
-                    <?php foreach($actions->actions as $action) { ?>
+                    <?php foreach ($actions->actions as $action) { ?>
                         <span class="left_col">
                             <a href="index.php?action=edit!action&id=<?php echo out($rule->id); ?>&guid=<?php echo out($action->guid); ?>"
                                class="action_link" onclick="top.restoreSession()">

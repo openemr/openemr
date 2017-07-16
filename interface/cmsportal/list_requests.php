@@ -75,6 +75,7 @@ function patientNameFromLogin($login)
               if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
         }
     }
+
     return $ptname;
 }
 
@@ -94,6 +95,7 @@ if (!empty($_POST['bn_delete'])) {
             }
         }
     }
+
     if (is_array($_POST['form_msg_cb'])) {
         foreach ($_POST['form_msg_cb'] as $messageid) {
             $result = cms_portal_call(array('action' => 'delmessage', 'messageid' => $messageid));
@@ -273,8 +275,7 @@ while ($v1 || $v2) {
         echo "  <td align='center'><input type='checkbox' name='form_req_cb[" .
          attr($postid) . "]' value='" . attr($postid) . "' /></td>\n";
         $v1 = each($result['list']);
-    }
-    else {
+    } else {
         $messageid = $v2[1]['messageid'];
         $ptname = patientNameFromLogin($v2[1]['user']);
         echo "  <td>" . text($v2[1]['user']) . "</td>\n";
@@ -289,6 +290,7 @@ while ($v1 || $v2) {
            attr($messageid) . "]' value='" . attr($messageid) . "' /></td>\n";
         $v2 = each($result['messages']);
     }
+
     echo " </tr>\n";
 }
 ?>

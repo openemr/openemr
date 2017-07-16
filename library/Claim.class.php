@@ -22,8 +22,7 @@ function cleanDate($date_field)
 {
       $cleandate = str_replace('-', '', substr($date_field, 0, 10));
 
-    if(substr_count($cleandate, '0')==8)
-      {
+    if (substr_count($cleandate, '0')==8) {
         $cleandate='';
     }
 
@@ -94,8 +93,7 @@ class Claim
         //
         for ($i = 1; $i < count($this->payers); ++$i) {
             if ($billrow['process_date'] &&
-            $this->payers[0]['data']['provider'] == $this->payers[$i]['data']['provider'])
-            {
+            $this->payers[0]['data']['provider'] == $this->payers[$i]['data']['provider']) {
                 $tmp = $this->payers[0];
                 $this->payers[0] = $this->payers[$i];
                 $this->payers[$i] = $tmp;
@@ -154,6 +152,7 @@ class Claim
                 $this->diags[$row['code']] = $row['code'];
                 continue;
             }
+
             if (!$row['units']) $row['units'] = 1;
             // Load prior payer data at the first opportunity in order to get
             // the using_modifiers flag that is referenced below.
@@ -184,7 +183,7 @@ class Claim
         "date(post_time) as date FROM ar_activity where pid ='{$this->pid}' and encounter ='{$this->encounter_id}' ".
         "and payer_type=0 and account_code='PCP'");
           //new fees screen copay gives account_code='PCP'
-        while($rowMoneyGot = sqlFetchArray($resMoneyGot)){
+        while ($rowMoneyGot = sqlFetchArray($resMoneyGot)) {
               $PatientPay=$rowMoneyGot['PatientPay']*-1;
               $this->copay -= $PatientPay;
         }
@@ -205,8 +204,7 @@ class Claim
         // try the first (and hopefully only) facility marked as a billing location.
         if (empty($this->encounter['billing_facility'])) {
               $this->billing_facility = $this->facilityService->getPrimaryBillingLocation();
-        }
-        else {
+        } else {
               $this->billing_facility = $this->facilityService->getById($this->encounter['billing_facility']);
         }
 
@@ -300,14 +298,12 @@ class Claim
             // payments and "hard" adjustments up to this payer.
             $ptresp = $this->invoice[$code]['chg'] + $this->invoice[$code]['adj'];
             foreach ($this->invoice[$code]['dtl'] as $key => $value) {
-
                 // plv (from ar_activity.payer_type) exists to
                 // indicate the payer level.
                 if (isset($value['pmt']) && $value['pmt'] != 0) {
                     if ($value['plv'] > 0 && $value['plv'] <= $insnumber)
                     $ptresp -= $value['pmt'];
-                }
-                else if (isset($value['chg']) && trim(substr($key, 0, 10))) {
+                } else if (isset($value['chg']) && trim(substr($key, 0, 10))) {
                   // non-blank key indicates this is an adjustment and not a charge
                     if ($value['plv'] > 0 && $value['plv'] <= $insnumber)
                     $ptresp += $value['chg']; // adjustments are negative charges
@@ -315,6 +311,7 @@ class Claim
 
                 $msp = isset($value['msp']) ? $value['msp'] : null; // record the reason for adjustment
             }
+
             if ($ptresp < 0) $ptresp = 0; // we may be insane but try to hide it
 
             // Main loop, to extract adjustments for this payer and procedure.
@@ -330,66 +327,50 @@ class Claim
 
                     if (preg_match("/Ins adjust $inslabel/i", $rsn, $tmp)) {
                         // From manual post. Take the defaults.
-                    }
-                    else if (preg_match("/To copay $inslabel/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/To copay $inslabel/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $ptresp; // from manual post
                         continue;
-                    }
-                    else if (preg_match("/To ded'ble $inslabel/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/To ded'ble $inslabel/i", $rsn, $tmp) && !$chg) {
                         $deductible = $ptresp; // from manual post
                         continue;
-                    }
-                    else if (preg_match("/$inslabel copay: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/$inslabel copay: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $tmp[1]; // from 835 as of 6/2007
                         continue;
-                    }
-                    else if (preg_match("/$inslabel coins: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/$inslabel coins: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $coinsurance = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    }
-                    else if (preg_match("/$inslabel dedbl: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/$inslabel dedbl: (\S+)/i", $rsn, $tmp) && !$chg) {
                         $deductible = $tmp[1]; // from 835 and manual post as of 6/2007
                         continue;
-                    }
-                    else if (preg_match("/$inslabel ptresp: (\S+)/i", $rsn, $tmp) && !$chg) {
+                    } else if (preg_match("/$inslabel ptresp: (\S+)/i", $rsn, $tmp) && !$chg) {
                         continue; // from 835 as of 6/2007
-                    }
-                    else if (preg_match("/$inslabel adjust code (\S+)/i", $rsn, $tmp)) {
+                    } else if (preg_match("/$inslabel adjust code (\S+)/i", $rsn, $tmp)) {
                         $rcode = $tmp[1]; // from 835
-                    }
-                    else if (preg_match("/$inslabel/i", $rsn, $tmp)) {
+                    } else if (preg_match("/$inslabel/i", $rsn, $tmp)) {
                         // Take the defaults.
-                    }
-                    else if (preg_match('/Ins(\d)/i', $rsn, $tmp) && $tmp[1] != $insnumber) {
+                    } else if (preg_match('/Ins(\d)/i', $rsn, $tmp) && $tmp[1] != $insnumber) {
                         continue; // it's for some other payer
-                    }
-                    else if ($insnumber == '1') {
+                    } else if ($insnumber == '1') {
                         if (preg_match("/\$\s*adjust code (\S+)/i", $rsn, $tmp)) {
                             $rcode = $tmp[1]; // from 835
-                        }
-                        else if ($chg) {
+                        } else if ($chg) {
                             // Other adjustments default to Ins1.
-                        }
-                        else if (preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
+                        } else if (preg_match("/Co-pay: (\S+)/i", $rsn, $tmp) ||
                         preg_match("/Coinsurance: (\S+)/i", $rsn, $tmp)) {
                             $coinsurance = 0 + $tmp[1]; // from 835 before 6/2007
                             continue;
-                        }
-                        else if (preg_match("/To deductible: (\S+)/i", $rsn, $tmp)) {
+                        } else if (preg_match("/To deductible: (\S+)/i", $rsn, $tmp)) {
                             $deductible = 0 + $tmp[1]; // from 835 before 6/2007
                             continue;
-                        }
-                        else {
+                        } else {
                             continue; // there is no adjustment amount
                         }
-                    }
-                    else {
+                    } else {
                         continue; // it's for primary and that's not us
                     }
 
                     if ($rcode == '42') $rcode= '45'; // reason 42 is obsolete
                     $aadj[] = array($date, $gcode, $rcode, sprintf('%.2f', $chg));
-
                 } // end if
             } // end foreach
 
@@ -400,7 +381,7 @@ class Claim
             // Find out if this payer paid anything at all on this claim.  This will
             // help us allocate any unknown patient responsibility amounts.
             $thispaidanything = 0;
-            foreach($this->invoice as $codekey => $codeval) {
+            foreach ($this->invoice as $codekey => $codeval) {
                 foreach ($codeval['dtl'] as $key => $value) {
                     // plv exists to indicate the payer level.
                     if ($value['plv'] == $insnumber) {
@@ -413,8 +394,7 @@ class Claim
             // deductible has been satisfied.
             if ($thispaidanything)
             $coinsurance = $ptresp - $deductible;
-            else
-            $deductible = $ptresp - $coinsurance;
+            else $deductible = $ptresp - $coinsurance;
 
             $deductible  = sprintf('%.2f', $deductible);
             $coinsurance = sprintf('%.2f', $coinsurance);
@@ -423,7 +403,6 @@ class Claim
             $aadj[] = array($date, 'PR', '1', $deductible, $msp);
             if ($date && $coinsurance != 0)
             $aadj[] = array($date, 'PR', '2', $coinsurance, $msp);
-
         } // end if
 
         return $aadj;
@@ -445,7 +424,7 @@ class Claim
         $paytotal = 0;
         $adjtotal = 0;
         $date = '';
-        foreach($this->invoice as $codekey => $codeval) {
+        foreach ($this->invoice as $codekey => $codeval) {
             if ($code && strcmp($codekey, $code) != 0) continue;
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv (from ar_activity.payer_type) exists to
@@ -455,12 +434,14 @@ class Claim
                     $paytotal += $value['pmt'];
                 }
             }
+
             $aarr = $this->payerAdjustments($ins, $codekey);
             foreach ($aarr as $a) {
                 if (strcmp($a[1], 'PR') != 0) $adjtotal += $a[3];
                 if (!$date) $date = $a[0];
             }
         }
+
         return array($date, sprintf('%.2f', $paytotal), sprintf('%.2f', $adjtotal));
     }
 
@@ -473,7 +454,7 @@ class Claim
         if (empty($this->invoice)) return $this->copay;
         //
         $amount = 0;
-        foreach($this->invoice as $codekey => $codeval) {
+        foreach ($this->invoice as $codekey => $codeval) {
             foreach ($codeval['dtl'] as $key => $value) {
                 // plv exists to indicate the payer level.
                 if ($value['plv'] == 0) { // 0 indicates patient
@@ -481,6 +462,7 @@ class Claim
                 }
             }
         }
+
         return sprintf('%.2f', $amount);
     }
 
@@ -489,9 +471,10 @@ class Claim
     function invoiceTotal()
     {
         $amount = 0;
-        foreach($this->invoice as $codekey => $codeval) {
+        foreach ($this->invoice as $codekey => $codeval) {
             $amount += $codeval['chg'];
         }
+
         return sprintf('%.2f', $amount);
     }
 
@@ -515,7 +498,7 @@ class Claim
     function x12gssenderid()
     {
         $tmp = $this->x12_partner['x12_sender_id'];
-        while (strlen($tmp) < 15) $tmp .= " ";
+        while (strlen($tmp) < 15)$tmp .= " ";
         return $tmp;
     }
 
@@ -534,16 +517,15 @@ class Claim
       * Therefore if the x12_gs03 segement is explicitly specified we use that value,
       * otherwise we simply use the same receiver ID as specified for ISA03
         */
-        if($this->x12_partner['x12_gs03'] !== '')
+        if ($this->x12_partner['x12_gs03'] !== '')
         return $this->x12_partner['x12_gs03'];
-        else
-        return $this->x12_partner['x12_receiver_id'];
+        else return $this->x12_partner['x12_receiver_id'];
     }
 
     function x12gsreceiverid()
     {
         $tmp = $this->x12_partner['x12_receiver_id'];
-        while (strlen($tmp) < 15) $tmp .= " ";
+        while (strlen($tmp) < 15)$tmp .= " ";
         return $tmp;
     }
 
@@ -642,11 +624,9 @@ class Claim
 
     function federalIdType()
     {
-        if ($this->billing_facility['tax_id_type'])
-        {
+        if ($this->billing_facility['tax_id_type']) {
             return $this->billing_facility['tax_id_type'];
-        }
-        else{
+        } else {
             return null;
         }
     }
@@ -670,10 +650,10 @@ class Claim
             "/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
             $this->billing_facility['phone'],
             $tmp
-        ))
-        {
+        )) {
             return $tmp[1] . $tmp[2] . $tmp[3];
         }
+
         return '';
     }
 
@@ -714,9 +694,9 @@ class Claim
 
     function facilityPOS()
     {
-        if($this->encounter['pos_code']){
+        if ($this->encounter['pos_code']) {
             return sprintf('%02d', trim($this->encounter['pos_code']));
-        }else{
+        } else {
             return sprintf('%02d', trim($this->facility['pos_code']));
         }
     }
@@ -1037,6 +1017,7 @@ class Claim
         foreach ($mods as $mod) {
             array_push($cln_mods, x12clean($mod));
         }
+
         return (implode(':', $cln_mods));
     }
 
@@ -1072,8 +1053,10 @@ class Claim
             if (preg_match('/^(\d+)-(\d+)-(\d+)$/', $ndc, $tmp)) {
                 return sprintf('%05d%04d%02d', $tmp[1], $tmp[2], $tmp[3]);
             }
+
             return x12clean($ndc); // format is bad but return it anyway
         }
+
         return '';
     }
 
@@ -1093,6 +1076,7 @@ class Claim
         if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo, $tmp)) {
             return x12clean(ltrim($tmp[3], '0'));
         }
+
         return '';
     }
 
@@ -1266,46 +1250,42 @@ class Claim
 
                     // If there was a | in the code data, the the first part of the array is the type, and the second is the identifier
                     if (!empty($code_data[1])) {
-
                         // This is the simplest way to determine if the claim is using ICD9 or ICD10 codes
                         // a mix of code types is generally not allowed as there is only one specifier for all diagnoses on HCFA-1500 form
                         // and there would be ambiguity with E and V codes
                         $this->diagtype=$code_data[0];
 
                         //code is in the second part of the $code_data array.
-                        if($strip_periods==true)
-                          {
+                        if ($strip_periods==true) {
                                 $diag = str_replace('.', '', $code_data[1]);
-
-                        }
-                        else
-                          {
+                        } else {
                             $diag=$code_data[1];
                         }
-
-                    }
-                    else {
+                    } else {
                         //No prepended code type label
-                        if($strip_periods) {
+                        if ($strip_periods) {
                             $diag = str_replace('.', '', $code_data[0]);
-                        }
-                        else
-                        {
+                        } else {
                             $diag=$code_data[0];
                         }
                     }
+
                     $da[$diag] = $diag;
                 }
             }
         }
+
         // The above got all the diagnoses used for justification, in the order
         // used for justification.  Next we go through all diagnoses, justified
         // or not, to make sure they all get into the claim.  We do it this way
         // so that the more important diagnoses appear first.
         foreach ($this->diags as $diag) {
-            if($strip_periods) {$diag = str_replace('.', '', $diag);}
+            if ($strip_periods) {
+                $diag = str_replace('.', '', $diag);}
+
             $da[$diag] = $diag;
         }
+
         return $da;
     }
 
@@ -1322,6 +1302,7 @@ class Claim
             ++$i;
             if (strcmp($value, $diag) == 0) return $i;
         }
+
         return '';
     }
 
@@ -1337,11 +1318,11 @@ class Claim
                 if (!empty($code_data[1])) {
                     //Strip the prepended code type label
                     $diag = str_replace('.', '', $code_data[1]);
-                }
-                else {
+                } else {
                     //No prepended code type label
                     $diag = str_replace('.', '', $code_data[0]);
                 }
+
                 $i = 0;
                 foreach ($da as $value) {
                     ++$i;
@@ -1349,6 +1330,7 @@ class Claim
                 }
             }
         }
+
         return $dia;
     }
 
@@ -1383,9 +1365,9 @@ class Claim
     function NPIValid($npi)
     {
         // A NPI MUST be a 10 digit number
-        if($npi==='') return false;
-        if(strlen($npi)!=10) return false;
-        if(!preg_match("/[0-9]*/", $npi)) return false;
+        if ($npi==='') return false;
+        if (strlen($npi)!=10) return false;
+        if (!preg_match("/[0-9]*/", $npi)) return false;
         return true;
     }
     function providerNPIValid($prockey = -1)

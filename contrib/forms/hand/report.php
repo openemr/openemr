@@ -55,7 +55,6 @@ function hand_report($pid, $encounter, $cols, $id)
     <?php } ?>
 
         <?php
-
     }
 }
 ?>

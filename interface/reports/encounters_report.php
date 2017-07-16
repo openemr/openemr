@@ -85,10 +85,12 @@ if ($form_encounter_esigned) {
     $esign_fields = ", es.table, es.tid ";
     $esign_joins = "LEFT OUTER JOIN esign_signatures AS es ON es.tid = fe.encounter ";
 }
+
 if ($form_esigned) {
     $esign_fields = ", es.table, es.tid ";
     $esign_joins = "LEFT OUTER JOIN esign_signatures AS es ON es.tid = fe.encounter ";
 }
+
 if ($form_not_esigned) {
     $esign_fields = ", es.table, es.tid ";
     $esign_joins = "LEFT JOIN esign_signatures AS es on es.tid = fe.encounter ";
@@ -110,24 +112,31 @@ if ($form_to_date) {
 } else {
     $query .= "AND fe.date >= '$form_from_date 00:00:00' AND fe.date <= '$form_from_date 23:59:59' ";
 }
+
 if ($form_provider) {
     $query .= "AND fe.provider_id = '$form_provider' ";
 }
+
 if ($form_facility) {
     $query .= "AND fe.facility_id = '$form_facility' ";
 }
+
 if ($form_new_patients) {
     $query .= "AND fe.date = (SELECT MIN(fe2.date) FROM form_encounter AS fe2 WHERE fe2.pid = fe.pid) ";
 }
+
 if ($form_encounter_esigned) {
     $query .= "AND es.tid = fe.encounter AND es.table = 'form_encounter' ";
 }
+
 if ($form_esigned) {
     $query .= "AND es.tid = fe.encounter ";
 }
+
 if ($form_not_esigned) {
     $query .= "AND es.tid IS NULL ";
 }
+
 $query .= "ORDER BY $orderby";
 
 $res = sqlStatement($query);
@@ -311,7 +320,7 @@ $res = sqlStatement($query);
                       <a href='#' class='btn btn-default btn-save' onclick='$("#form_refresh").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Submit'); ?>
                       </a>
-                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby'] ) { ?>
+                        <?php if ($_POST['form_refresh'] || $_POST['form_orderby']) { ?>
               <a href='#' class='btn btn-default btn-print' id='printbutton'>
                                 <?php echo xlt('Print'); ?>
                         </a>
@@ -395,7 +404,7 @@ if ($res) {
                 $row['encounter'],
                 "formdir, user, form_name, form_id"
             );
-            if($encarr!='') {
+            if ($encarr!='') {
                 foreach ($encarr as $enc) {
                     if ($enc['formdir'] == 'newpatient') continue;
                     if ($encnames) $encnames .= '<br />';
@@ -411,8 +420,7 @@ if ($res) {
                 $row['pid'],
                 $row['encounter'],
                 "code_type, code, code_text, billed"
-            ))
-            {
+            )) {
                 foreach ($billres as $billrow) {
                     // $title = addslashes($billrow['code_text']);
                     if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
@@ -421,6 +429,7 @@ if ($res) {
                         else ++$unbilled_count;
                     }
                 }
+
                     $coded = substr($coded, 0, strlen($coded) - 2);
             }
 
@@ -434,9 +443,9 @@ if ($res) {
 
             // Compute billing status.
             if ($billed_count && $unbilled_count) $status = xl('Mixed');
-            else if ($billed_count              ) $status = xl('Closed');
-            else if ($unbilled_count            ) $status = xl('Open');
-            else                                  $status = xl('Empty');
+            else if ($billed_count) $status = xl('Closed');
+            else if ($unbilled_count) $status = xl('Open');
+            else $status = xl('Empty');
         ?>
        <tr bgcolor='<?php echo $bgcolor ?>'>
   <td>
@@ -473,11 +482,13 @@ if ($res) {
                 show_doc_total($lastdocname, $doc_encounters);
                 $doc_encounters = 0;
             }
+
               ++$doc_encounters;
         }
-        $lastdocname = $docname;
 
+        $lastdocname = $docname;
     }
+
     if (!$form_details) show_doc_total($lastdocname, $doc_encounters);
 }
 ?>
@@ -497,6 +508,7 @@ if ($res) {
 </body>
 
 <script language='JavaScript'>
-<?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
+<?php if ($alertmsg) {
+    echo " alert('$alertmsg');\n"; } ?>
 </script>
 </html>

@@ -16,6 +16,7 @@ function si_report_item($title, $value)
         $si_report_colno = 1;
         echo " </tr>\n <tr>\n";
     }
+
     echo "  <td valign='top'><span class='bold'>$title: </span>" .
     "<span class='text'>$value &nbsp;</span></td>\n";
 }
@@ -158,11 +159,13 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
     foreach ($arr_equip as $key => $value) {
         if ($row["siequip_$key"]) si_report_item("Equipment", $value);
     }
+
     si_report_item("Side", $arr_side[$row['siside']]);
     si_report_item("Removed", $arr_removed[$row['siremoved']]);
     foreach ($arr_treat as $key => $value) {
         if ($row["sitreat_$key"]) si_report_item("Treatment", $value);
     }
+
     if ($row["sitreat_other"]) si_report_item("Treatment", $row["sitreat_other"]);
     si_report_item("To Return", $row['sinoreturn'] ? "No" : "Yes");
 

@@ -37,8 +37,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] !
 }
 
 /*		Editing existing facility					*/
-if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility")
-{
+if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] == "admin_facility") {
     $newFacility = array(
       "fid" => trim(isset($_POST["fid"]) ? $_POST["fid"] : ''),
       "name" => trim(isset($_POST["facility"]) ? $_POST["facility"] : ''),
@@ -134,7 +133,7 @@ $(document).ready(function(){
             $result2 = array();
             for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++)
             $result2[$iter3] = $fres[$iter3];
-            foreach($result2 as $iter3) {
+            foreach ($result2 as $iter3) {
                 $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                 $varcity="";
                 $varstate="";
@@ -151,8 +150,8 @@ $(document).ready(function(){
     <?php
             }
         }
-        if (count($result2)<=0)
-         {?>
+
+        if (count($result2)<=0) {?>
          <tr height="25">
                <td colspan="3"  style="text-align:center;font-weight:bold;"> <?php echo xl("Currently there are no facilities."); ?></td>
     </tr>

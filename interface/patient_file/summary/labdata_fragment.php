@@ -40,14 +40,13 @@ $spell = "SELECT procedure_report.date_collected AS thedate, " .
             "ORDER BY procedure_report.date_collected DESC ";
 $result=sqlQuery($spell, array($pid));
     
-if ( !$result ) //If there are no lab data recorded
-{ ?>
+if (!$result) { //If there are no lab data recorded
+    ?>
   <span class='text'> <?php echo htmlspecialchars(xl("No lab data documented."), ENT_NOQUOTES);
 ?>
   </span> 
 <?php
-} else
-{
+} else {
 ?> 
   <span class='text'><b>
     <?php echo htmlspecialchars(xl('Most recent lab data:'), ENT_NOQUOTES); ?>

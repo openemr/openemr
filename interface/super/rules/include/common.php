@@ -17,11 +17,12 @@
 function implode_funcs($glue, array $pieces, array $funcs)
 {
     $new_pieces = array();
-    foreach ( $pieces as $piece ) {
+    foreach ($pieces as $piece) {
         $new_piece = $piece;
-        foreach ( $funcs as $func ) {
+        foreach ($funcs as $func) {
             $new_piece = $func( $new_piece );
         }
+
         $new_pieces []= $new_piece;
     }
 
@@ -94,8 +95,9 @@ function controller_basedir()
 function controller_dir($controller)
 {
     $dir = controller_basedir() . '/'. $controller;
-    if ( realpath($dir . '/../') != controller_basedir() )  {
+    if (realpath($dir . '/../') != controller_basedir()) {
         throw Exception("Invalid controller '$controller'");
     }
+
     return $dir;
 }

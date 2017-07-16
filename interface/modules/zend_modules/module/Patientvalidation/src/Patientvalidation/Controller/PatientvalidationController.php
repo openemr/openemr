@@ -44,10 +44,9 @@ class PatientvalidationController extends BaseController
     {
         //Collect all of the data received from the new patient form
         $patientParams = $this->getRequestedParamsArray();
-        if(isset($patientParams["closeBeforeOpening"])) {
+        if (isset($patientParams["closeBeforeOpening"])) {
             $closeBeforeOpening = $patientParams["closeBeforeOpening"];
-        }
-        else{
+        } else {
             $closeBeforeOpening ='';
         }
 
@@ -56,20 +55,19 @@ class PatientvalidationController extends BaseController
                 $keyArr=explode("mf_", $key);
                 $patientParams[$keyArr[1]]=$item;
                 unset($patientParams[$key]);
-
-
         }
 
 
         $patientData=$this->getPatientDataTable()->getPatients($patientParams);
 
 
-        if(isset($patientData)){
-            foreach($patientData as $data){
-                if($data['pubpid']==$patientParams['pubpid']){
+        if (isset($patientData)) {
+            foreach ($patientData as $data) {
+                if ($data['pubpid']==$patientParams['pubpid']) {
                     return array("status"=>"failed","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
                 }
             }
+
             return array("status"=>"ok","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
         }
     }
@@ -103,6 +101,7 @@ class PatientvalidationController extends BaseController
             $sm = $this->getServiceLocator();
             $this->PatientDataTable = $sm->get('Patientvalidation\Model\PatientDataTable');
         }
+
         return $this->PatientDataTable;
     }
 }

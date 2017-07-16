@@ -86,7 +86,7 @@ class Savant3_Error
     public function __construct($conf = array())
     {
         // set public properties
-        foreach ( $conf as $key => $val ) {
+        foreach ($conf as $key => $val) {
             $this->$key = $val;
         }
         

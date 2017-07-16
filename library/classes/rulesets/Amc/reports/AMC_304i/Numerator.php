@@ -22,8 +22,7 @@ class AMC_304i_Numerator implements AmcFilterIF
         $amcElement = amcCollect('send_sum_amc', $patient->id, 'transactions', $patient->object['id']);
         if (!(empty($amcElement))) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

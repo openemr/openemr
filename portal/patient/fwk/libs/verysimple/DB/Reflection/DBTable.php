@@ -77,7 +77,7 @@ class DBTable
      */
     function GetPrimaryKeyName($remove_prefix = true)
     {
-        foreach ( $this->PrimaryKeys as $key ) {
+        foreach ($this->PrimaryKeys as $key) {
             return ($remove_prefix) ? $this->RemovePrefix($key->KeyColumn) : $key->KeyColumn;
         }
         
@@ -98,7 +98,7 @@ class DBTable
     function GetColumnNameByIndex($index, $remove_prefix = true)
     {
         $count = 0;
-        foreach ( $this->Columns as $column ) {
+        foreach ($this->Columns as $column) {
             if ($count == $index)
                 return ($remove_prefix) ? $column->NameWithoutPrefix : $column->Name;
         }
@@ -127,7 +127,7 @@ class DBTable
      */
     function GetDescriptorName($remove_prefix = true)
     {
-        foreach ( $this->Columns as $column ) {
+        foreach ($this->Columns as $column) {
             if ($column->Type == "varchar") {
                 return ($remove_prefix) ? $this->RemovePrefix($column->Name) : $column->Name;
             }
@@ -146,7 +146,7 @@ class DBTable
     {
         $prev_prefix = "";
         $has_prefix = true;
-        foreach ( $this->Columns as $column ) {
+        foreach ($this->Columns as $column) {
             $curr_prefix = substr($column->Name, 0, strpos($column->Name, "_") + 1);
             
             if ($prev_prefix == "") {
@@ -162,14 +162,14 @@ class DBTable
             $this->ColumnPrefix = $curr_prefix;
             
             // update the columns to reflect the prefix as well
-            foreach ( $this->Columns as $column ) {
+            foreach ($this->Columns as $column) {
                 $column->NameWithoutPrefix = substr($column->Name, strlen($curr_prefix));
             }
         }
         
         // if a column begins with a numeric character then prepend a string to prevent generated code errors
         if (self::$NUMERIC_COLUMN_PREFIX) {
-            foreach ( $this->Columns as $column ) {
+            foreach ($this->Columns as $column) {
                 if (is_numeric(substr($column->NameWithoutPrefix, 0, 1))) {
                     $column->NameWithoutPrefix = self::$NUMERIC_COLUMN_PREFIX . $column->NameWithoutPrefix;
                 }
@@ -212,7 +212,7 @@ class DBTable
         
         $rs = $this->Schema->Server->Connection->Select($sql);
         
-        while ( $row = $this->Schema->Server->Connection->Next($rs) ) {
+        while ($row = $this->Schema->Server->Connection->Next($rs)) {
             $this->Columns [$row ["Field"]] = new DBColumn($this, $row);
         }
         
@@ -253,7 +253,7 @@ class DBTable
         
         $lines = explode("\n", $create_table);
         
-        foreach ( $lines as $line ) {
+        foreach ($lines as $line) {
             $line = trim($line);
             if (substr($line, 0, 11) == "PRIMARY KEY") {
                 preg_match_all("/`(\w+)`/", $line, $matches, PREG_PATTERN_ORDER);
@@ -295,6 +295,7 @@ class DBTable
                 
                 // print "<pre>" . $column . "=" . htmlspecialchars( $this->Columns[$column]->Default );
             }
+
             // TODO: look for COMMENT
         }
     }

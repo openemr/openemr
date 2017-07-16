@@ -32,7 +32,7 @@ class eRxGlobals
      */
     public function __construct(&$configuration = null)
     {
-        if(is_array($configuration)) {
+        if (is_array($configuration)) {
             $this->setGlobals($configuration);
         }
     }
@@ -55,7 +55,7 @@ class eRxGlobals
      */
     public function getGlobalValue($key)
     {
-        if(array_key_exists($key, $this->configuration)) {
+        if (array_key_exists($key, $this->configuration)) {
             return $this->configuration[$key];
         }
     }

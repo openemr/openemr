@@ -67,17 +67,18 @@ if ($to_date) {
     array_push($sqlBindArray, $to_date);
 }
 
-if($form_facility != "") {
+if ($form_facility != "") {
     $where .= " AND f.id = ? ";
     array_push($sqlBindArray, $form_facility);
 }
 
-if($form_provider != "") {
+if ($form_provider != "") {
     $where .= " AND d.id = ? ";
     array_push($sqlBindArray, $form_provider);
 }
 
-if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
+if ($exclude_policy != "") {
+    $arrayExplode   =   explode(",", $exclude_policy);
                         array_walk($arrayExplode, 'arrFormated');
                         $exclude_policy = implode(",", $arrayExplode);
                         $where .= " AND i.policy_number not in (".stripslashes($exclude_policy).")";
@@ -327,7 +328,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                                         <td>
                                             <select name='form_users' class='form-control' onchange='form.submit();'>
                                                 <option value=''>-- <?php echo htmlspecialchars(xl('All'), ENT_NOQUOTES); ?> --</option>
-                                                <?php foreach($providers as $user): ?>
+                                                <?php foreach ($providers as $user) : ?>
                                                     <option value='<?php echo htmlspecialchars($user['id'], ENT_QUOTES); ?>'
                                                         <?php echo $form_provider == $user['id'] ? " selected " : null; ?>
                                                     ><?php echo htmlspecialchars($user['fname']." ".$user['lname'], ENT_NOQUOTES); ?></option>
@@ -346,9 +347,8 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                                             <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
                                                         <option value=''>--<?php echo htmlspecialchars(xl('select'), ENT_NOQUOTES); ?>--</option>
                                                         <?php
-                                                        if(isset($clearinghouses) && !empty($clearinghouses))
-                                                        {
-                                                            foreach($clearinghouses as $clearinghouse): ?>
+                                                        if (isset($clearinghouses) && !empty($clearinghouses)) {
+                                                            foreach ($clearinghouses as $clearinghouse) : ?>
                                                                     <option value='<?php echo htmlspecialchars($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
                                                                         <?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
                                                                     ><?php echo htmlspecialchars($clearinghouse['name'], ENT_NOQUOTES); ?></option>
@@ -393,14 +393,15 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
         </form>
 
         <?php
-        if ($res){
+        if ($res) {
             show_elig($res, $X12info, $segTer, $compEleSep);
         }
         ?>
     </body>
 
     <script language='JavaScript'>
-        <?php if ($alertmsg) { echo " alert('$alertmsg');\n"; } ?>
+        <?php if ($alertmsg) {
+            echo " alert('$alertmsg');\n"; } ?>
     </script>
 
 </html>

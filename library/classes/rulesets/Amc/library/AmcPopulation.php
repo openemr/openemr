@@ -17,7 +17,7 @@ class AmcPopulation extends RsPopulation
      */
     public function __construct(array $patientIdArray)
     {
-        foreach ( $patientIdArray as $patientId ) {
+        foreach ($patientIdArray as $patientId) {
             $this->_patients[]= new AmcPatient($patientId);
         }
     }
@@ -27,10 +27,10 @@ class AmcPopulation extends RsPopulation
      */
     public function offsetSet($offset, $value)
     {
-        if ($value instanceof AmcPatient ) {
-            if ( $offset == "" ) {
+        if ($value instanceof AmcPatient) {
+            if ($offset == "") {
                 $this->_patients[] = $value;
-            }else {
+            } else {
                 $this->_patients[$offset] = $value;
             }
         } else {

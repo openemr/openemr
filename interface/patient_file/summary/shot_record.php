@@ -25,8 +25,7 @@ $title = xl('Shot Record as of:', '', '', ' ') . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") {
     printHTML($res, $res2, $data_array);
-}
-else {
+} else {
     printPDF($res, $res2, $data_array);
 }
 
@@ -43,23 +42,21 @@ function convertToDataArray($data_array)
         // Figure out which name to use (ie. from cvx list or from the custom list)
         if ($GLOBALS['use_custom_immun_list']) {
             $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-        }
-        else {
+        } else {
             if (!empty($row['code_text_short'])) {
                 $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
-            }
-            else {
+            } else {
                 $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
             }
         }
+
         $data[$current][xl('Vaccine')] = $vaccine_display;
 
         //Amount
         if ($row['amount_administered'] > 0) {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = $row['amount_administered'] . " " .
             generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']);
-        }
-        else {
+        } else {
             $data[$current][xl('Amount') . "\n" . xl('Admin')] = "";
         }
 
@@ -67,8 +64,7 @@ function convertToDataArray($data_array)
         if (isset($row['expiration_date'])) {
             $temp_date = new DateTime($row['expiration_date']);
             $data[$current][xl('Expiration') . "\n" . xl('Date')] = $temp_date->format('Y-m-d');
-        }
-        else{
+        } else {
             $data[$current][xl('Expiration') . "\n" . xl('Date')] = '';//$temp_date->format('Y-m-d');
         }
 
@@ -95,6 +91,7 @@ function convertToDataArray($data_array)
         $data[$current][xl('Comments')] = $row['note'];
         $current ++;
     }
+
     return $data;
 }
 
@@ -205,7 +202,7 @@ function printHTML($res, $res2, $data)
   //plan 15 lines per page
     $linesPerPage=15;
     $countTotalPages = (ceil((count($data))/$linesPerPage));
-    for ($i=0;$i<$countTotalPages;$i++) {
+    for ($i=0; $i<$countTotalPages; $i++) {
         echo "<div class='paddingdiv'>\n";
 
         //display facility information (Note it is already escaped)
@@ -224,29 +221,26 @@ function printHTML($res, $res2, $data)
         //display header
         echo "<tr>\n";
         foreach ($data[0] as $key => $value) {
-
           //convert end of line characters to space
             $patterns = array ('/\n/');
             $replace = array (' ');
             $key = preg_replace($patterns, $replace, $key);
             echo "<th>".htmlspecialchars($key, ENT_NOQUOTES)."</th>\n";
         }
+
         echo "</tr>\n";
 
         //display shot data
-        for ($j=0;$j<$linesPerPage;$j++) {
+        for ($j=0; $j<$linesPerPage; $j++) {
             if ($rowData = array_shift($data)) {
                 echo "<tr>";
                 foreach ($rowData as $key => $value) {
-
                     //shading of cells
                     if ($j==0) {
                         echo "<td>";
-                    }
-                    elseif ($j%2) {
+                    } elseif ($j%2) {
                         echo "<td class ='odd'>";
-                    }
-                    else {
+                    } else {
                         echo "<td>";
                     }
 
@@ -254,8 +248,7 @@ function printHTML($res, $res2, $data)
                     echo ($value == "") ? "&nbsp;" : htmlspecialchars($value, ENT_NOQUOTES);
                     echo "</td>";
                 }
-            }
-            else {
+            } else {
             //done displaying shot data, so leave loop
                 break;
             }

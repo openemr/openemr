@@ -38,7 +38,7 @@ class newpatient
     public function query_formation($data)
     {
         global $pid;
-        switch($data[0]){
+        switch ($data[0]) {
         // Entries pending  for approval for Existing Patient and New Patient.
             case 'U4':
                 $query=  "select * from  audit_master  where pid=? and  approval_status='1' and  (type='1' or type='2')";
@@ -127,13 +127,10 @@ class newpatient
         //master data for calendar from Globals
             case 'B1':
             
-                if($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end')
-                {
+                if ($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end') {
                     $query="select gl_value from globals where gl_name=?";
                     return array($query,$data[1]);
-                }
-                else
-                return 0;
+                } else return 0;
             break;
             
             case 'B4':

@@ -36,9 +36,12 @@ $pc_username    = pnVarCleanFromInput('pc_username');
 
 $output =& new pnHTML();
 $output->SetInputMode(_PNH_VERBATIMINPUT);
-if(!pnModAPILoad('postcalendar', 'user')) { die('Could not load PostCalendar user API'); }
+if (!pnModAPILoad('postcalendar', 'user')) {
+    die('Could not load PostCalendar user API'); }
+
 $theme = pnUserGetTheme();
-if(!pnThemeLoad($theme)) { die('Could not load theme'); }
+if (!pnThemeLoad($theme)) {
+    die('Could not load theme'); }
 
 $output->Text('<html><head>');
 $output->Text("<title>".pnConfigGetVar('sitename').' :: '.pnConfigGetVar('slogan')."</title>\n");
@@ -50,7 +53,7 @@ $output->Text('<body bgcolor="#ffffff">');
 // setup our cache id
 $cacheid = md5($Date.$viewtype.$tplview._SETTING_TEMPLATE.$eid.$print.$uid.$pc_username.$theme);
 // display the correct view
-switch($viewtype) {
+switch ($viewtype) {
     case 'details' :
         $output->Text(pnModAPIFunc('PostCalendar', 'user', 'eventDetail', array('eid'=>$eid,
                                                                              'Date'=>$Date,

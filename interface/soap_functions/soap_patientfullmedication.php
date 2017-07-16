@@ -41,13 +41,13 @@ $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS))
     ->setStore(new eRxStore)
     ->setAuthUserId($_SESSION['authUserID']);
 
-if(array_key_exists('patient', $_REQUEST)) {
+if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
-} elseif(array_key_exists('pid', $GLOBALS)) {
+} elseif (array_key_exists('pid', $GLOBALS)) {
     $eRxSOAP->setPatientId($GLOBALS['pid']);
 }
 
-if((array_key_exists('refresh', $_REQUEST)
+if ((array_key_exists('refresh', $_REQUEST)
         && $_REQUEST['refresh'] == 'true')
     || $eRxSOAP->elapsedTTL(eRxSOAP::ACTION_MEDICATIONS)
     || $eRxSOAP->checkPatientImportStatus(eRxSOAP::FLAG_PRESCRIPTION_PRESS)

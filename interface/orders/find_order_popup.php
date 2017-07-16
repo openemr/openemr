@@ -55,8 +55,7 @@ if (isset($_GET['formid'])) {
         echo ' opener.set_proc_html("';
         echo generate_qoe_html($typeid, intval($_GET['formid']), 0, intval($_GET['formseq']));
         echo '", "' . $qoe_init_javascript .  '");' . "\n";
-    }
-    else {
+    } else {
         echo ' opener.set_proc_html("", "");' . "\n";
     }
 }
@@ -67,6 +66,7 @@ window.close();
 <?php
   exit();
 }
+
 // End Submission.
 //////////////////////////////////////////////////////////////////////
 

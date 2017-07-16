@@ -21,14 +21,14 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 //
 
 $ignoreAuth = 1;
@@ -55,8 +55,7 @@ global $ignoreAuth;
 
  if ($date)
   $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-else
-  $date = date("Y-m-d");
+else $date = date("Y-m-d");
  //
  $starttimem = '00';
  if (isset($_GET['starttimem']))
@@ -71,6 +70,7 @@ if (isset($_GET['starttimeh'])) {
 } else {
     $starttimeh = date("G");
 }
+
  $startampm = '';
 
  $info_msg = "";
@@ -105,22 +105,23 @@ if (isset($_GET['starttimeh'])) {
 // EVENTS TO FACILITIES (lemonsoftware)
 //(CHEMED) get facility name
 // edit event case - if there is no association made, then insert one with the first facility
-if ( $eid ) {
+if ($eid) {
     $selfacil = '';
     $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
                               WHERE pc_eid = $eid");
-    if ( !$facility['pc_facility'] ) {
+    if (!$facility['pc_facility']) {
         $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ".$facility['pc_aid']);
         $min  = $qmin['minId'];
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if ( $GLOBALS['select_multi_providers'] ) {
+        if ($GLOBALS['select_multi_providers']) {
             $mul  = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_multiple = $mul");
         }
+
         // EOS multiple
 
         sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = $min WHERE pc_eid = $eid");
@@ -131,6 +132,7 @@ if ( $eid ) {
         $e2f_name = $facility['name'];
     }
 }
+
 // EOS E2F
 // ===========================
 
@@ -153,6 +155,7 @@ if ($_POST['form_action'] == "save") {
         if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
         $duration = $_POST['form_duration'];
     }
+
     $starttime = "$tmph:$tmpm:00";
   //
     $tmpm += $duration;
@@ -160,6 +163,7 @@ if ($_POST['form_action'] == "save") {
         $tmpm -= 60;
         ++$tmph;
     }
+
     $endtime = "$tmph:$tmpm:00";
 
   // Useless garbage that we must save.
@@ -188,110 +192,84 @@ if ($_POST['form_action'] == "save") {
   //for example monday, or thursday. We set the start date on the first day of the week
   //that the event is scheduled. For example if you set the event to repeat on each monday
   //the start date of the event will be set on the first monday after the day the event is scheduled
-    if($_POST['form_repeat_type'] == 5)
-    {
+    if ($_POST['form_repeat_type'] == 5) {
         $exploded_date= explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if($edate=="Tue") {
+        if ($edate=="Tue") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
-        }
-        elseif($edate=="Wed") {
+        } elseif ($edate=="Wed") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
-        }
-        elseif($edate=="Thu") {
+        } elseif ($edate=="Thu") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
-        }
-        elseif($edate=="Fri") {
+        } elseif ($edate=="Fri") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
-        }
-        elseif($edate=="Sat") {
+        } elseif ($edate=="Sat") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
-        }
-        elseif($edate=="Sun") {
+        } elseif ($edate=="Sun") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
-    } elseif($_POST['form_repeat_type'] == 6)  {
+    } elseif ($_POST['form_repeat_type'] == 6) {
         $exploded_date= explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if($edate=="Wed") {
+        if ($edate=="Wed") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
-        }
-        elseif($edate=="Thu") {
+        } elseif ($edate=="Thu") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
-        }
-        elseif($edate=="Fri") {
+        } elseif ($edate=="Fri") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
-        }
-        elseif($edate=="Sat") {
+        } elseif ($edate=="Sat") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
-        }
-        elseif($edate=="Sun") {
+        } elseif ($edate=="Sun") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
-        }
-        elseif($edate=="Mon") {
+        } elseif ($edate=="Mon") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
-    } elseif($_POST['form_repeat_type'] == 7)  {
+    } elseif ($_POST['form_repeat_type'] == 7) {
         $exploded_date= explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if($edate=="Thu") {
+        if ($edate=="Thu") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
-        }
-        elseif($edate=="Fri") {
+        } elseif ($edate=="Fri") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
-        }
-        elseif($edate=="Sat") {
+        } elseif ($edate=="Sat") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
-        }
-        elseif($edate=="Sun") {
+        } elseif ($edate=="Sun") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
-        }
-        elseif($edate=="Mon") {
+        } elseif ($edate=="Mon") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
-        }
-        elseif($edate=="Tue") {
+        } elseif ($edate=="Tue") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
-    } elseif($_POST['form_repeat_type'] == 8)  {
+    } elseif ($_POST['form_repeat_type'] == 8) {
         $exploded_date= explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if($edate=="Fri") {
+        if ($edate=="Fri") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
-        }
-        elseif($edate=="Sat") {
+        } elseif ($edate=="Sat") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
-        }
-        elseif($edate=="Sun") {
+        } elseif ($edate=="Sun") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
-        }
-        elseif($edate=="Mon") {
+        } elseif ($edate=="Mon") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
-        }
-        elseif($edate=="Tue") {
+        } elseif ($edate=="Tue") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
-        }
-        elseif($edate=="Wed") {
+        } elseif ($edate=="Wed") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
-    } elseif($_POST['form_repeat_type'] == 9)  {
+    } elseif ($_POST['form_repeat_type'] == 9) {
         $exploded_date= explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if($edate=="Sat") {
+        if ($edate=="Sat") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+6, $exploded_date[0]));
-        }
-        elseif($edate=="Sun") {
+        } elseif ($edate=="Sun") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+5, $exploded_date[0]));
-        }
-        elseif($edate=="Mon") {
+        } elseif ($edate=="Mon") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+4, $exploded_date[0]));
-        }
-        elseif($edate=="Tue") {
+        } elseif ($edate=="Tue") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+3, $exploded_date[0]));
-        }
-        elseif($edate=="Wed") {
+        } elseif ($edate=="Wed") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+2, $exploded_date[0]));
-        }
-        elseif($edate=="Thu") {
+        } elseif ($edate=="Thu") {
             $event_date=date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2]+1, $exploded_date[0]));
         }
     }//if end
@@ -299,7 +277,6 @@ if ($_POST['form_action'] == "save") {
 //                                  UPDATE EVENTS
 ========================================================*/
     if ($eid) {
-
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
 
@@ -384,9 +361,8 @@ if ($_POST['form_action'] == "save") {
       /* ==========================================
     // multi providers EOS
       ==========================================*/
-
-        } elseif (  !$row['pc_multiple'] ) {
-            if ( $GLOBALS['select_multi_providers'] ) {
+        } elseif (!$row['pc_multiple']) {
+            if ($GLOBALS['select_multi_providers']) {
                 $prov = $_POST['form_provider_ae'][0];
             } else {
                 $prov =  $_POST['form_provider_ae'];
@@ -413,7 +389,6 @@ if ($_POST['form_action'] == "save") {
                 "pc_prefcatid = '"   . $_POST['form_prefcat']              . "' ,"  .
                  "pc_facility = '"   .(int)$_POST['facility']               ."' "  . // FF stuff
                 "WHERE pc_eid = '$eid'");
-
         }
 
     // =======================================
@@ -428,13 +403,11 @@ if ($_POST['form_action'] == "save") {
   //                                  INSERT EVENTS
     ========================================================*/
     } else {
-
     // =======================================
     // multi providers case
     // =======================================
 
         if (is_array($_POST['form_provider_ae'])) {
-
             // obtain the next available unique key to group multiple providers around some event
             $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
             $max = sqlFetchArray($q);
@@ -468,9 +441,7 @@ if ($_POST['form_action'] == "save") {
                 "'$locationspec', "                               .
                 "1, " .
                 "1, " .(int)$_POST['facility']. " )"); // FF stuff
-
             } // foreach
-
         } else {
             $_POST['form_apptstatus'] =  '^';
             sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
@@ -550,20 +521,19 @@ if ($_POST['form_action'] == "save") {
               $info_msg .= "New encounter $encounter was created. ";
         }
     }
-
-}
-else if ($_POST['form_action'] == "delete") {
+} else if ($_POST['form_action'] == "delete") {
       // =======================================
       //  multi providers case
       // =======================================
     if ($GLOBALS['select_multi_providers']) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = $eid");
-        if ( $row['pc_multiple'] ) {
+        if ($row['pc_multiple']) {
             sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_multiple = {$row['pc_multiple']}");
         } else {
                         sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = $eid");
         }
+
         // =======================================
         //  EOS multi providers case
         // =======================================
@@ -578,6 +548,7 @@ if ($_POST['form_action'] != "") {
     header('Location:./home.php');
     exit();
 }
+
  // If we get this far then we are displaying the form.
 
  $statuses = array(
@@ -617,13 +588,14 @@ if ($_POST['form_action'] != "") {
      if (preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
          $repeattype = $matches[1];
         }
+
         if (preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches)) {
                $repeatfreq = $matches[1];
         }
+
         $hometext = $row['pc_hometext'];
         if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
-    }
-    else {
+    } else {
         $patientid=$_GET['pid'];
     }
 
@@ -648,6 +620,7 @@ if ($_POST['form_action'] != "") {
         $e2f = $pref_facility['facility_id'];
         $e2f_name = $pref_facility['facility'];
     }
+
  //END of CHEMED -----------------------
 
  // Get event categories.
@@ -697,7 +670,8 @@ if ($_POST['form_action'] != "") {
   </td>
   <td colspan='2' nowrap id='tdallday1'>
    <input class="form-control input-md" type='text' size='10' name='form_date' readonly id='form_date'
-    value='<?php if (isset($eid)) { echo $eid ? $row['pc_eventDate'] : $date; } ?>'
+    value='<?php if (isset($eid)) {
+        echo $eid ? $row['pc_eventDate'] : $date; } ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'  />
   </td>
  </tr>
@@ -714,9 +688,11 @@ if ($_POST['form_action'] != "") {
    <b><?php xl('Time', 'e');?>:</b>
   </td>
   <td width='1%' nowrap id='tdallday3'>
-   <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php if(isset($eid)) { echo $starttimeh; } ?>'
+   <input class="form-control inline" type='text' size='2' name='form_hour' value='<?php if (isset($eid)) {
+        echo $starttimeh; } ?>'
     title='<?php xl('Event start time', 'e'); ?>' readonly/> :
-  <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php if(isset($eid)) { echo $starttimem; } ?>'
+  <input class="form-control inline" type='text' size='2' name='form_minute' value='<?php if (isset($eid)) {
+        echo $starttimem; } ?>'
     title='<?php  xl('Event start time', 'e'); ?>' readonly/>&nbsp; <!--  -->
    <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly >
     <option value='1'><?php xl('AM', 'e'); ?></option>
@@ -794,6 +770,7 @@ while ($urow = sqlFetchArray($ures)) {
 if ($eid) {
     $thisduration = $row['pc_alldayevent'] ? 1440 : round($row['pc_duration'] / 60);
 }
+
 while ($crow = sqlFetchArray($cres)) {
     $duration = round($crow['pc_duration'] / 60);
     if ($crow['pc_end_all_day']) $duration = 1440;
@@ -808,6 +785,7 @@ while ($crow = sqlFetchArray($cres)) {
             $thisduration = $duration;
         }
     }
+
     $catoptions .= ">" . $crow['pc_catname'] . "</option>\n";
 
   // This section is to build the list of preferred categories:
@@ -816,9 +794,9 @@ while ($crow = sqlFetchArray($cres)) {
         if ($eid) {
             if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
         }
+
         $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
     }
-
 }
 ?>
 

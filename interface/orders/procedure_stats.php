@@ -108,8 +108,7 @@ function genEndRow()
     global $form_output;
     if ($form_output == 3) {
         echo "\n";
-    }
-    else {
+    } else {
         echo " </tr>\n";
     }
 }
@@ -130,17 +129,18 @@ function genAnyCell($data, $right = false, $class = '')
     if (!is_array($data)) {
         $data = array(0 => $data);
     }
+
     foreach ($data as $datum) {
         if ($form_output == 3) {
             if ($cellcount) echo ',';
             echo '"' . $datum . '"';
-        }
-        else {
+        } else {
             echo "  <td";
             if ($class) echo " class='$class'";
             if ($right) echo " align='right'";
             echo ">$datum</td>\n";
         }
+
         ++$cellcount;
     }
 }
@@ -195,8 +195,7 @@ function loadColumnData($key, $row)
   // Increment the correct sex category.
     if (strcasecmp($row['sex'], 'Male') == 0)
     ++$areport[$key]['.men'];
-    else
-    ++$areport[$key]['.wom'];
+    else ++$areport[$key]['.wom'];
 
   // Increment the correct age category.
     $age = getAge(fixDate($row['DOB']), $row['date_ordered']);
@@ -227,9 +226,7 @@ function process_result_code($row)
     if ($form_by === '4') {
         $key = $row['order_name'] . ' / ' . $row['result_name'];
         loadColumnData($key, $row);
-    }
-
-  // Recommended followup services.
+    } // Recommended followup services.
   //
     else if ($form_by === '5') {
         if (!empty($row['related_code'])) {
@@ -255,8 +252,7 @@ if ($form_output == 3) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
-}
-else {
+} else {
 ?>
 <html>
 <head>
@@ -451,6 +447,7 @@ if ($_POST['form_submit']) {
         $query .= "AND fe.facility_id = ? ";
         array_push($sqlBindArray, $form_facility);
     }
+
     $query .= "ORDER BY fe.pid, fe.encounter, ps.result_code"; // needed?
 
     $res = sqlStatement($query, $sqlBindArray);
@@ -471,8 +468,7 @@ if ($_POST['form_submit']) {
 
     // genHeadCell($arr_by[$form_by]);
     // If the key is an MA or IPPF code, then add a column for its description.
-    if ($form_by === '5')
-    {
+    if ($form_by === '5') {
         genHeadCell(array($arr_by[$form_by], xl('Description')));
     } else {
         genHeadCell($arr_by[$form_by]);
@@ -485,8 +481,7 @@ if ($_POST['form_submit']) {
       // }
         if ($value == '.tneg') { // Total Negatives
             genHeadCell(xl('Negatives'));
-        }
-        else if ($value == '.age') { // Age
+        } else if ($value == '.age') { // Age
             genHeadCell(xl('0-10'), true);
             genHeadCell(xl('11-14'), true);
             genHeadCell(xl('15-19'), true);
@@ -496,13 +491,11 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('35-39'), true);
             genHeadCell(xl('40-44'), true);
             genHeadCell(xl('45+'), true);
-        }
-        else if ($arr_show[$value]['list_id']) {
+        } else if ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell(getListTitle($arr_show[$value]['list_id'], $key), true);
             }
-        }
-        else if (!empty($arr_titles[$value])) {
+        } else if (!empty($arr_titles[$value])) {
             foreach ($arr_titles[$value] as $key => $dummy) {
                 genHeadCell($key, true);
             }
@@ -523,8 +516,7 @@ if ($_POST['form_submit']) {
         $dispkey = $key;
 
       // If the key is an MA or IPPF code, then get its description.
-        if ($form_by === '5')
-        {
+        if ($form_by === '5') {
             list($codetype, $code) = explode(':', $key);
             $type = $code_types[$codetype]['id'];
             $dispkey = array($key, '');
@@ -548,13 +540,11 @@ if ($_POST['form_submit']) {
             // }
             if ($value == '.tneg') { // Total Negatives
                 genNumCell($areport[$key]['.neg'], $cnum++);
-            }
-            else if ($value == '.age') { // Age
+            } else if ($value == '.age') { // Age
                 for ($i = 0; $i < 9; ++$i) {
                     genNumCell($areport[$key]['.age'][$i], $cnum++);
                 }
-            }
-            else if (!empty($arr_titles[$value])) {
+            } else if (!empty($arr_titles[$value])) {
                 foreach ($arr_titles[$value] as $title => $dummy) {
                     genNumCell($areport[$key][$value][$title], $cnum++);
                 }
@@ -576,8 +566,7 @@ if ($_POST['form_submit']) {
 
       // genHeadCell(xl('Totals'));
       // If the key is an MA or IPPF code, then add a column for its description.
-        if ($form_by === '5')
-        {
+        if ($form_by === '5') {
             genHeadCell(array(xl('Totals'), ''));
         } else {
             genHeadCell(xl('Totals'));
@@ -586,11 +575,11 @@ if ($_POST['form_submit']) {
         for ($cnum = 0; $cnum < count($atotals); ++$cnum) {
             genHeadCell($atotals[$cnum], true);
         }
+
         genEndRow();
       // End of table.
         echo "</table>\n";
     }
-
 } // end of if refresh or export
 
 if ($form_output != 3) {

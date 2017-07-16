@@ -35,7 +35,7 @@ if (sqlNumRows($res) > 0) {
     $count = 0;
     echo '<table id="appttable" style="width:100%;background:#eee;" class="table table-striped fixedtable"><thead>
 </thead><tbody>';
-    while ( $row = sqlFetchArray($res) ) {
+    while ($row = sqlFetchArray($res)) {
         $count ++;
         $dayname = xl(date("l", strtotime($row ['pc_eventDate'])));
         $dispampm = "am";
@@ -46,11 +46,13 @@ if (sqlNumRows($res) > 0) {
             if ($disphour > 12)
                 $disphour -= 12;
         }
+
         if ($row ['pc_hometext'] != "") {
             $etitle = 'Comments' . ": " . $row ['pc_hometext'] . "\r\n";
         } else {
             $etitle = "";
         }
+
         echo "<tr><td><p>";
         echo "<a href='#' onclick='editAppointment(0," . htmlspecialchars($row ['pc_eid'], ENT_QUOTES) . ')' . "' title='" . htmlspecialchars($etitle, ENT_QUOTES) . "'>";
         echo "<b>" . htmlspecialchars($dayname . ", " . $row ['pc_eventDate'], ENT_NOQUOTES) . "</b><br>";
@@ -58,8 +60,8 @@ if (sqlNumRows($res) > 0) {
         echo htmlspecialchars($row ['fname'] . " " . $row ['lname'], ENT_NOQUOTES) . "<br>";
         echo htmlspecialchars("Status: " . $row ['pc_apptstatus'], ENT_NOQUOTES);
         echo "</a></p></td></tr>";
-
     }
+
     if (isset($res) && $res != null) {
         if ($count < 1) {
             echo "&nbsp;&nbsp;" . xlt('None');
@@ -68,6 +70,7 @@ if (sqlNumRows($res) > 0) {
 } else { // if no appts
     echo xlt('No Appointments');
 }
+
 echo '</tbody></table>';
 ?>
 <div style='margin: 5px 0 5px'>

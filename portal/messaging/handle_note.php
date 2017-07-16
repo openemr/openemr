@@ -126,5 +126,6 @@ switch ($task) {
         echo 'failed';
         break;
 }
+
 if (isset($_REQUEST["submit"]))
     header("Location: {$_REQUEST["submit"]}");

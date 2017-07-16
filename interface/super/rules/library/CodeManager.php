@@ -44,7 +44,7 @@ class CodeManager
 
         $codes = array();
 
-        for($iter=0; $row=sqlFetchArray($stmt); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($stmt); $iter++) {
             $code = new Code();
             $code->code = $row['code'];
             $code->text = $row['code_text'];

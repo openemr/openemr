@@ -32,7 +32,7 @@ function send_drug_email($subject, $body)
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
-    if(!$mail->Send()) {
+    if (!$mail->Send()) {
         error_log("There has been a mail error sending to " . $recipient .
         " " . $mail->ErrorInfo);
     }
@@ -113,6 +113,7 @@ function sellDrug(
         $query .= "AND di.warehouse_id = ? ";
         $sqlarr[] = $default_warehouse;
     }
+
     $query .= "ORDER BY $orderby";
     $res = sqlStatement($query, $sqlarr);
 
@@ -124,6 +125,7 @@ function sellDrug(
             $seq = empty($row['seq']) ? 0 : $row['seq'] + 0;
             if ($seq > 99) continue;
         }
+
         $on_hand = $row['on_hand'];
         $expired = (!empty($row['expiration']) && $row['expiration'] <= $sale_date);
         if ($expired || $on_hand < $quantity) {
@@ -132,6 +134,7 @@ function sellDrug(
             if ($bad_lot_list) $bad_lot_list .= ', ';
             $bad_lot_list .= $tmp;
         }
+
         if ($expired) {
             $gotexpired = true;
             continue;
@@ -208,8 +211,7 @@ function sellDrug(
         // item take the remaining unallocated fee to avoid round-off error.
         if ($qty_final)
         $thisfee = sprintf('%0.2f', $fee * $thisqty / $quantity);
-        else
-        $thisfee = sprintf('%0.2f', $fee_final);
+        else $thisfee = sprintf('%0.2f', $fee_final);
         $fee_final -= $thisfee;
 
         // Update inventory and create the sale line item.
@@ -284,6 +286,7 @@ function isFacilityAllowed($facid, $userid = 0)
         );
         return !empty($countrow['count']);
     }
+
     return true;
 }
 
@@ -306,5 +309,6 @@ function isWarehouseAllowed($facid, $whid, $userid = 0)
         );
         return !empty($countrow['count']);
     }
+
     return true;
 }

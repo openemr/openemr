@@ -48,8 +48,7 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
 
     if ($_POST["form_delete"]) {
         unlink($filename);
-    }
-    else {
+    } else {
       // Check if the upload worked.
       //
         if (! $errmsg) {
@@ -61,7 +60,6 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
       // Copy the image to its destination.
       //
         if (! $errmsg) {
-
             /***************************************************************
           $tmp = exec("/usr/bin/convert -resize 150x150 " .
             ($_POST["form_normalize"] ? "-equalize " : "") .
@@ -88,6 +86,7 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
         echo "opener.location.reload()\n";
         echo "window.close()\n";
     }
+
     echo "</script>\n</body>\n</html>\n";
 
     exit;

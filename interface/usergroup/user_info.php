@@ -1,7 +1,7 @@
 <?php
 include_once("../globals.php");
 include_once("$srcdir/auth.inc");
-if($GLOBALS['use_active_directory']) {
+if ($GLOBALS['use_active_directory']) {
     exit();
 }
 ?>

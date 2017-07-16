@@ -221,8 +221,7 @@ if ($_POST['form_refresh']) {
         if ($form_facility !== '') {
             if ($form_facility) {
                 if ($row['facility_id'] != $form_facility) continue;
-            }
-            else {
+            } else {
                 if (!empty($row['facility_id'])) continue;
             }
         }
@@ -230,10 +229,9 @@ if ($_POST['form_refresh']) {
     ?>
    <tr>
     <td>
-        <?php if($row['organization']!=null || $row['organization']!='') {
+        <?php if ($row['organization']!=null || $row['organization']!='') {
             echo text($row['organization']);
-}
-else {
+} else {
     echo text($row['referer_to']);
 }
 

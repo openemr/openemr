@@ -40,10 +40,12 @@ function pnSessionSetup()
     if (empty($path)) {
         $path = '/';
     }
+
     $host = $HTTP_SERVER_VARS['HTTP_HOST'];
     if (empty($host)) {
         $host = getenv('HTTP_HOST');
     }
+
     $host = preg_replace('/:.*/', '', $host);
 
     // PHP configuration variables
@@ -83,6 +85,7 @@ function pnSessionSetup()
             $lifetime = 788940000;
             break;
     }
+
     ini_set('session.cookie_lifetime', $lifetime);
 
     if (pnConfigGetVar('intranet') == false) {
@@ -216,18 +219,22 @@ function pnSessionInit()
     if (empty($ipaddr)) {
         $ipaddr = getenv('REMOTE_ADDR');
     }
+
     if (!empty($HTTP_SERVER_VARS['HTTP_CLIENT_IP'])) {
         $ipaddr = $HTTP_SERVER_VARS['HTTP_CLIENT_IP'];
     }
+
     $tmpipaddr = getenv('HTTP_CLIENT_IP');
     if (!empty($tmpipaddr)) {
         $ipaddr = $tmpipaddr;
     }
-    if  (!empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
+
+    if (!empty($HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR'])) {
         $ipaddr = preg_replace('/,.*/', '', $HTTP_SERVER_VARS['HTTP_X_FORWARDED_FOR']);
     }
+
     $tmpipaddr = getenv('HTTP_X_FORWARDED_FOR');
-    if  (!empty($tmpipaddr)) {
+    if (!empty($tmpipaddr)) {
         $ipaddr = preg_replace('/,.*/', '', $tmpipaddr);
     }
 
@@ -239,7 +246,7 @@ function pnSessionInit()
               WHERE $sessioninfocolumn[sessid] = '" . pnVarPrepForStore($sessid) . "'";
 
     $result = $dbconn->Execute($query);
-    if($dbconn->ErrorNo() != 0) {
+    if ($dbconn->ErrorNo() != 0) {
         return false;
     }
 
@@ -379,6 +386,7 @@ function pnSessionRead($sessid)
     } else {
         $value = '';
     }
+
     $result->Close();
 
     return($value);
@@ -464,6 +472,7 @@ function pnSessionGC($maxlifetime)
             $where = "WHERE $sessioninfocolumn[lastused] < " . (time() - (pnConfigGetVar('secinactivemins') * 60));
             break;
     }
+
     $query = "DELETE FROM $sessioninfotable $where";
     $dbconn->Execute($query);
 

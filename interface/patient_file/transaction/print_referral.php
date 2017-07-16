@@ -60,8 +60,7 @@ if ($transid) {
     $trow = getTransById($transid);
     $patient_id = $trow['pid'];
     $refer_date = empty($trow['refer_date']) ? date('Y-m-d') : $trow['refer_date'];
-}
-else {
+} else {
     if (empty($_REQUEST['patient_id'])) {
         // If no transaction ID or patient ID, this will be a totally blank form.
         $patient_id = 0;
@@ -70,6 +69,7 @@ else {
         $patient_id = $_REQUEST['patient_id'] + 0;
         $refer_date = date('Y-m-d');
     }
+
     $trow = array('id' => '', 'pid' => $patient_id, 'refer_date' => $refer_date);
 }
 
@@ -118,7 +118,7 @@ if (empty($facrow['facility_npi'])) $facrow['facility_npi'] = '&nbsp;';
 
 $s = '';
 $fh = fopen($template_file, 'r');
-while (!feof($fh)) $s .= fread($fh, 8192);
+while (!feof($fh))$s .= fread($fh, 8192);
 fclose($fh);
 
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1), $s);
@@ -147,8 +147,7 @@ while ($frow = sqlFetchArray($fres)) {
 foreach ($patdata as $key => $value) {
     if ($key == "sex") {
         $s = str_replace("{pt_$key}", generate_display_field(array('data_type'=>'1','list_id'=>'sex'), $value), $s);
-    }
-    else {
+    } else {
         $s = str_replace("{pt_$key}", $value, $s);
     }
 }

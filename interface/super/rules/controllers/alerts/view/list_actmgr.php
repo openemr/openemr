@@ -55,26 +55,26 @@ require_once("$phpgacl_location/gacl_api.class.php");
                 <th></th>
         </tr>
         <?php $index = -1; ?>
-        <?php foreach($viewBean->rules as $rule) {?>
+        <?php foreach ($viewBean->rules as $rule) {?>
         <?php $index++; ?>
         <tr height="22">
                 <td><?php echo out(xl($rule->get_rule()));?></td>
                 <td>&nbsp;</td>
-                <?php if ($rule->active_alert_flag() == "1"){  ?>
+                <?php if ($rule->active_alert_flag() == "1") {  ?>
                     <td><input type="checkbox" name="active[<?php echo $index ?>]" checked="yes"></td>
-                <?php }else {?>
+                <?php } else {?>
                     <td><input type="checkbox" name="active[<?php echo $index ?>]" ></td>
                 <?php } ?>                
                 <td>&nbsp;</td>
-                <?php if ($rule->passive_alert_flag() == "1"){ ?>
+                <?php if ($rule->passive_alert_flag() == "1") { ?>
                     <td><input type="checkbox" name="passive[<?php echo $index ?>]]" checked="yes"></td>
-                <?php }else {?>
+                <?php } else {?>
                     <td><input type="checkbox" name="passive[<?php echo $index ?>]]"></td>
                 <?php } ?>                
                 <td>&nbsp;</td>
-                <?php if ($rule->patient_reminder_flag() == "1"){ ?>
+                <?php if ($rule->patient_reminder_flag() == "1") { ?>
                     <td><input type="checkbox" name="reminder[<?php echo $index ?>]]" checked="yes"></td>
-                <?php }else {?>
+                <?php } else {?>
                     <td><input type="checkbox" name="reminder[<?php echo $index ?>]]"></td>
                 <?php } ?>               
                  <td>&nbsp;</td>
@@ -85,6 +85,7 @@ require_once("$phpgacl_location/gacl_api.class.php");
                         foreach ($list_aco_objects as $key => $value) {
                             asort($list_aco_objects[$key]);
                         }
+
                         echo "<select name='access_control[" . $index . "]'>";
                         foreach ($list_aco_objects as $section => $array_acos) {
                             $aco_section_data = $gacl_temp->get_section_data($section, 'ACO');
@@ -97,9 +98,11 @@ require_once("$phpgacl_location/gacl_api.class.php");
                                 if ($rule->access_control() == $section.":".$aco) {
                                     $select = 'selected';
                                 }
+
                                 echo "<option value='" . attr($section) . ":" . attr($aco) . "' " . $select . ">" . xlt($aco_section_title) . ": " . xlt($aco_title)  . "</option>";
                             }
                         }
+
                         echo "</select>";
                         ?>
                  </td> 

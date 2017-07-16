@@ -44,6 +44,7 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
             $currvalue = lbf_current_value($frow, $id, $encounter);
             if ($currvalue === false) continue; // should not happen
         }
+
         // For brevity, skip fields without a value.
         if ($currvalue === '') continue;
         // $arr[$field_id] = $currvalue;
@@ -52,12 +53,13 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false)
         // Hi Rod content width issue in Encounter Summary - epsdky
         // Also had it not wordwrap nation notes which breaks it since it splits
         //  html tags apart - brady
-        if ( $no_wrap || ($frow['data_type'] == 34) ) {
+        if ($no_wrap || ($frow['data_type'] == 34)) {
             $arr[$field_id] = $currvalue;
         } else {
             $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
         }
     }
+
     echo "<table>\n";
     display_layout_rows($formname, $arr);
     echo "</table>\n";

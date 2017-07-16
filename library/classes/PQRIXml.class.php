@@ -60,8 +60,7 @@ class PQRIXml extends XmlWriterOemr
     {
         $this->push('measure-group-stat');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
 
@@ -72,8 +71,7 @@ class PQRIXml extends XmlWriterOemr
     {
         $this->push('pqri-measure');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
 
@@ -85,8 +83,7 @@ class PQRIXml extends XmlWriterOemr
     {
         $this->push('provider');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
     }

@@ -37,7 +37,7 @@ class newpatienttoapprove
     public function query_formation($data)
     {
         global $pid,$auditmasterid;
-        switch($data[0]){
+        switch ($data[0]) {
             case 'A1':
             //Select list of encounters for the patients
                 $query="select f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.facility_id,f.billing_facility, " .
@@ -67,17 +67,17 @@ class newpatienttoapprove
             //ledger
                 $where = '';
                 $wherearray=array();
-                foreach($data[1][0] as $k=>$v)
-                {
+                foreach ($data[1][0] as $k=>$v) {
                     $where .= " OR f.id = ?";
                     $wherearray[]=$v;
                 }
+
                 $where = substr($where, 4);
-                if(!$where)
-                {
+                if (!$where) {
                     $where='?';
                     $wherearray[]=0;
                 }
+
                 $wherearray[]=$pid;
                    $query= "Select f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.facility_id,f.billing_facility, " .
                   "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
@@ -101,11 +101,11 @@ class newpatienttoapprove
             //Select encounters of the patient
                         $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][1]=='' && $data[1][2]>0)
-                {
+                if ($data[1][1]=='' && $data[1][2]>0) {
                     $enc_set= " and encounter=? " ;
                     $enc_set_array[]=$data[1][2];
                 }
+
                 $provider="";
                 $provider  =add_escape_custom($data[1][0]);
                 $query="select fe.id,fe.pid,encounter,date_format(fe.date,'%Y-%m-%d') 
@@ -120,11 +120,11 @@ class newpatienttoapprove
                         //Select encounter and copay of the patient
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
                 }
+
                 $query="select encounter,sum(fee) as copay ".
                 " from billing where code_type='copay' and pid=? $enc_set group by encounter";
             return array($query,$enc_set_array);
@@ -133,12 +133,11 @@ class newpatienttoapprove
             case 'A7':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
-
                 }
+
                 $query="select concat(encounter,code,modifier) as ecm,encounter,code,
             modifier,units,fee,code_text,justify from billing where activity=1 and fee>0 and code_type not in('ICD9','copay') and pid=? $enc_set";
             return array($query,$enc_set_array);
@@ -147,11 +146,11 @@ class newpatienttoapprove
             case 'A8':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
                 }
+
                 $query="select concat(encounter,code,modifier) as pecm,encounter,code,
             modifier,pay_amount,adj_amount,payer_type,post_time,account_code,
             follow_up_note,memo,date_format(post_time,'%Y-%m-%d') as dtfrom from ar_activity where pid=? $enc_set";
@@ -209,11 +208,12 @@ class newpatienttoapprove
             case 'P3':
                         $query="SELECT * FROM audit_details WHERE audit_master_id = ? AND table_name = 'patient_data'";
                         $query_res = sqlStatement($query, array($auditmasterid));
-                while($result = sqlFetchArray($query_res)){
-                    if($result['field_name'] == 'DOB'){
+                while ($result = sqlFetchArray($query_res)) {
+                    if ($result['field_name'] == 'DOB') {
                           $dob_res = sqlQuery("SELECT DATE_FORMAT(?,'%Y-%m-%d') as DOB_YMD", array($result['field_value']));
                           $res['DOB_YMD'] = $dob_res['DOB_YMD'];
                     }
+
                     $res[$result['field_name']] = $result['field_value'];
                 }
             return array($res,'result');
@@ -223,7 +223,7 @@ class newpatienttoapprove
             case 'P4':
                         $query="SELECT * FROM audit_details WHERE audit_master_id = ? AND table_name = 'employer_data'";
                         $query_res = sqlStatement($query, array($auditmasterid));
-                while($result = sqlFetchArray($query_res)){
+                while ($result = sqlFetchArray($query_res)) {
                     $res[$result['field_name']] = $result['field_value'];
                 }
             return array($res,'result');
@@ -234,7 +234,7 @@ class newpatienttoapprove
                         $query="SELECT * FROM audit_details WHERE audit_master_id = ? AND table_name = 'insurance_data' AND entry_identification = ?";
                         array_unshift($data[1], $auditmasterid);
                         $query_res = sqlStatement($query, $data[1]);
-                while($result = sqlFetchArray($query_res)){
+                while ($result = sqlFetchArray($query_res)) {
                     $res[$result['field_name']] = $result['field_value'];
                 }
             return array($res,'result');
@@ -323,36 +323,32 @@ class newpatienttoapprove
             break;
                         //Duplicate existance
             case 'P20':
-                if($pid)
-                {
+                if ($pid) {
                       $string_query=" and pid !=?";
                 }
-                if($string_query)
-                {
+
+                if ($string_query) {
                     $x=array($data[1][0],$pid);
-                }
-                else
-                {
+                } else {
                     $x=array($data[1][0]);
                 }
+
                 $query="select count(*) AS count from patient_data where pubpid = ? $string_query";
             return array($query,$x);
             break;
         
             //getting DOB and SSN for verifying the duplicate patient existance
             case 'P21':
-                if($pid)
-                {
+                if ($pid) {
                       $string_query=" and pid !=?";
                 }
-                if($string_query)
-                {
+
+                if ($string_query) {
                     $x=array($data[1][0],$pid);
-                }
-                else
-                {
+                } else {
                     $x=array($data[1][0]);
                 }
+
                 $query="select  ss,DOB  from patient_data where DOB=? $string_query  ";
             return array($query,$x);
             break;
@@ -360,13 +356,10 @@ class newpatienttoapprove
             //master data for calendar from Globals
             case 'B1':
             //patient appointment
-                if($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end')
-                {
+                if ($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end') {
                     $query="select gl_value from globals where gl_name=?";
                     return array($query,$data[1]);
-                }
-                else
-                return 0;
+                } else return 0;
             break;
             
             case 'B4':
@@ -540,7 +533,7 @@ class newpatienttoapprove
             //Patient details .
                         $query="SELECT * FROM audit_details WHERE audit_master_id = ? AND table_name = 'patient_data'";
                         $query_res = sqlStatement($query, array($auditmasterid));
-                while($result = sqlFetchArray($query_res)){
+                while ($result = sqlFetchArray($query_res)) {
                     $res[$result['field_name']] = $result['field_value'];
                 }
             return array($res,'result');

@@ -38,29 +38,32 @@ class Therapy_groups_participants
         $sql .= "WHERE gp.group_id = ?";
         $binds = array($groupId);
 
-        if($onlyActive) {
+        if ($onlyActive) {
             $sql .= " AND gp.group_patient_status = ?";
             $binds[] = 10;
         }
+
         $groupParticipants = array();
         $result = sqlStatement($sql, $binds);
-        while($gp = sqlFetchArray($result)){
+        while ($gp = sqlFetchArray($result)) {
             $groupParticipants[] = $gp;
         }
+
         return $groupParticipants;
     }
 
     public function updateParticipant(array $participant, $patientId, $groupId)
     {
 
-        if(empty($participant['group_patient_end'])){
+        if (empty($participant['group_patient_end'])) {
             $participant['group_patient_end'] = null;
         }
 
         $sql = "UPDATE " . self::TABLE . " SET ";
-        foreach($participant as $key => $value){
+        foreach ($participant as $key => $value) {
             $sql .= $key . '=?,';
         }
+
         $sql = substr($sql, 0, -1);
         $sql .= ' WHERE pid = ? AND group_id = ?';
 

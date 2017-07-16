@@ -60,9 +60,10 @@ function addPortalMailboxPnote(
 
 function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
 	SELECT
 	p.id,
@@ -89,17 +90,19 @@ function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = ''
 	$limit
 	";
     $res = sqlStatement($sql, array($pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
 function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
 	SELECT
 	pr.id,
@@ -125,17 +128,19 @@ function getPortalPatientNotifications($pid = '', $limit = '', $offset = 0, $sea
 	$limit
 	";
     $res = sqlStatement($sql, array($pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
 function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
 	SELECT
 	p.id,
@@ -164,67 +169,70 @@ function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search 
 	$limit
 	";
     $res = sqlStatement($sql, array($pid,$pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 function updatePortalPnoteMessageStatus($id, $message_status)
 {
     if ($message_status == "Done") {
         sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
-    }
-    else {
+    } else {
         sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
     }
 }
 function getMails($pid, $dotype, $nsrch, $nfsrch)
 {
 
-    if($pid){
-        if($dotype == "inbox"){
-            if($nsrch && $nfsrch){
+    if ($pid) {
+        if ($dotype == "inbox") {
+            if ($nsrch && $nfsrch) {
                 $result_notes = getPortalPatientNotes($pid, '', '0', $nsrch);
                 $result_notifications = getPortalPatientNotifications($pid, '', '0', $nfsrch);
                 $result = array_merge((array)$result_notes, (array)$result_notifications);
-            }else{
+            } else {
                 $result_notes = getPortalPatientNotes($pid);
                 $result_notifications = getPortalPatientNotifications($pid);
                 $result = array_merge((array)$result_notes, (array)$result_notifications);
             }
+
             return $result;
-        }elseif($dotype == "sent"){
-            if($nsrch){
+        } elseif ($dotype == "sent") {
+            if ($nsrch) {
                 $result_sent_notes = getPortalPatientSentNotes($pid, '', '0', $nsrch);
-            }else{
+            } else {
                 $result_sent_notes = getPortalPatientSentNotes($pid);
             }
+
             return $result_sent_notes;
         }
-    }else{
+    } else {
         return 'failed';
     }
 }
 
 function getMailDetails($id)
 {
-    if($pid){
+    if ($pid) {
         $result = getPnoteById($id);
-        if($result['assigned_to'] == '-patient-' && $result['message_status'] == 'New'){
+        if ($result['assigned_to'] == '-patient-' && $result['message_status'] == 'New') {
             updatePortalPnoteMessageStatus($id, 'Read');
         }
+
         return $result;
-    }else{
+    } else {
         return 'failed';
     }
 }
 
 function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
 {
-    if($pid){
+    if ($pid) {
         addPortalMailboxPnote($pid, $note, '1', '1', $title, $to, '', 'New', $noteid);
         return 1;
-    }else{
+    } else {
         return 'failed';
     }
 }
@@ -232,9 +240,9 @@ function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
 
 function updateStatus($id, $status)
 {
-    if($pid){
+    if ($pid) {
         updatePortalPnoteMessageStatus($id, $status);
-    }else{
+    } else {
         return 'failed';
     }
 }

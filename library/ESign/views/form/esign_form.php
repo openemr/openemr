@@ -33,7 +33,7 @@
               <input type='password' id='password' name='password' size='10' />
         </div>
         
-        <?php if ( $this->form->showLock ) { ?>
+        <?php if ($this->form->showLock) { ?>
         <div class="esign-signature-form-element">
               <label for='lock'><?php echo xlt('Lock?');?></label> 
               <input type="checkbox" id="lock" name="lock" />

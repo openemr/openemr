@@ -67,6 +67,7 @@ class SoapController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->encounterccdadispatchTable = $sm->get('Zend\Db\Adapter\Adapter');
         }
+
         return $this->encounterccdadispatchTable;
     }
     
@@ -81,6 +82,7 @@ class SoapController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
         }
+
         return $this->applicationTable;
     }
 }

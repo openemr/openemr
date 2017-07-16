@@ -27,7 +27,7 @@
 
     $qrda_fname = $_GET['qrda_fname'];
         check_file_dir_name($qrda_fname);
-if($qrda_fname != ""){
+if ($qrda_fname != "") {
     $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
     $xmlurl = $qrda_file_path.$qrda_fname;
 
@@ -42,6 +42,6 @@ if($qrda_fname != ""){
     ob_clean();
     flush();
     readfile($xmlurl);
-}else{
+} else {
     echo xlt("File path not found.");
 }

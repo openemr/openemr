@@ -64,13 +64,13 @@ function postcalendar_calendarblock_display($blockinfo)
     
     // find out what view we're using
     $template_view = pnVarCleanFromInput('tplview');
-    if(!isset($template_view)) {
+    if (!isset($template_view)) {
         $template_view ='default';
     }
     
     // find out what template we're using
     $template_name = _SETTING_TEMPLATE;
-    if(!isset($template_name) || empty($template_name)) {
+    if (!isset($template_name) || empty($template_name)) {
         $template_name ='default';
     }
     
@@ -110,21 +110,23 @@ function postcalendar_calendarblock_display($blockinfo)
     
     // setup the Smarty cache id
     $templates_cached = true;
-    if($showcalendar) {
+    if ($showcalendar) {
         $cacheid1 = md5($Date.'M'.$template_view.$template_name.$showcalendar.$showevents.$nextevents.$uid.$theme);
-        if(!$tpl->is_cached($template_name.'/views/calendarblock/month_view.html', $cacheid1)) {
+        if (!$tpl->is_cached($template_name.'/views/calendarblock/month_view.html', $cacheid1)) {
             $templates_cached = false;
         }
     }
-    if($showevents) {
+
+    if ($showevents) {
         $cacheid2 = md5($Date.'T'.$template_view.$template_name.$showcalendar.$showevents.$nextevents.$uid.$theme);
-        if(!$tpl->is_cached($template_name.'/views/calendarblock/todays_events.html', $cacheid2)) {
+        if (!$tpl->is_cached($template_name.'/views/calendarblock/todays_events.html', $cacheid2)) {
             $templates_cached = false;
         }
     }
-    if($nextevents) {
+
+    if ($nextevents) {
         $cacheid3 = md5($Date.'U'.$template_view.$template_name.$showcalendar.$showevents.$nextevents.$uid.$theme);
-        if(!$tpl->is_cached($template_name.'/views/calendarblock/upcoming_events.html', $cacheid3)) {
+        if (!$tpl->is_cached($template_name.'/views/calendarblock/upcoming_events.html', $cacheid3)) {
             $templates_cached = false;
         }
     }
@@ -133,7 +135,7 @@ function postcalendar_calendarblock_display($blockinfo)
     $output = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
     
     // if one of the templates is not cached, we need to run the following
-    if(!$templates_cached) {
+    if (!$templates_cached) {
         // set up the next and previous months to move to
         $prev_month = Date_Calc::beginOfPrevMonth(1, $the_month, $the_year, '%Y%m%d');
         $next_month = Date_Calc::beginOfNextMonth(1, $the_month, $the_year, '%Y%m%d');
@@ -159,13 +161,12 @@ function postcalendar_calendarblock_display($blockinfo)
                                    _CALTUESDAY, _CALWEDNESDAY,
                                    _CALTHURSDAY, _CALFRIDAY,
                                    _CALSATURDAY);
-        switch (_SETTING_FIRST_DAY_WEEK)
-        {
+        switch (_SETTING_FIRST_DAY_WEEK) {
             case _IS_MONDAY:
                 $pc_array_pos = 1;
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 0, $the_year));
                 $end_dow = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if($end_dow != 0) {
+                if ($end_dow != 0) {
                     $the_last_day = $last_day+(7-$end_dow);
                 } else {
                     $the_last_day = $last_day;
@@ -175,9 +176,9 @@ function postcalendar_calendarblock_display($blockinfo)
                 $pc_array_pos = 6;
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 2, $the_year));
                 $end_dow = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if($end_dow == 6) {
+                if ($end_dow == 6) {
                     $the_last_day = $last_day+6;
-                } elseif($end_dow != 5) {
+                } elseif ($end_dow != 5) {
                     $the_last_day = $last_day+(5-$end_dow);
                 } else {
                     $the_last_day = $last_day;
@@ -188,7 +189,7 @@ function postcalendar_calendarblock_display($blockinfo)
                 $pc_array_pos = 0;
                 $first_day  = date('w', mktime(0, 0, 0, $the_month, 1, $the_year));
                 $end_dow = date('w', mktime(0, 0, 0, $the_month, $last_day, $the_year));
-                if($end_dow != 6) {
+                if ($end_dow != 6) {
                     $the_last_day = $last_day+(6-$end_dow);
                 } else {
                     $the_last_day = $last_day;
@@ -207,34 +208,38 @@ function postcalendar_calendarblock_display($blockinfo)
 
         $sdaynames = array();
         $numDays = count($pc_short_day_names);
-        for($i=0; $i < $numDays; $i++)
-        {   if($pc_array_pos >= $numDays) {
+        for ($i=0; $i < $numDays; $i++) {
+            if ($pc_array_pos >= $numDays) {
                 $pc_array_pos = 0;
-        }
+            }
+
             array_push($sdaynames, $pc_short_day_names[$pc_array_pos]);
             $pc_array_pos++;
         }
+
         $daynames = array();
         $numDays = count($pc_long_day_names);
-        for($i=0; $i < $numDays; $i++)
-        {   if($pc_array_pos >= $numDays) {
+        for ($i=0; $i < $numDays; $i++) {
+            if ($pc_array_pos >= $numDays) {
                 $pc_array_pos = 0;
-        }
+            }
+
             array_push($daynames, $pc_long_day_names[$pc_array_pos]);
             $pc_array_pos++;
         }
 
         $dates = array();
-        while($starting_date <= $ending_date) {
+        while ($starting_date <= $ending_date) {
             array_push($dates, $starting_date);
             list($m,$d,$y) = explode('/', $starting_date);
             $starting_date = Date_Calc::nextDay($d, $m, $y, '%m/%d/%Y');
         }
 
         $categories =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
-        if(isset($calendarView)) {
+        if (isset($calendarView)) {
             $tpl->assign_by_ref('CAL_FORMAT', $calendarView);
         }
+
         $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
         $tpl->assign_by_ref('A_LONG_DAY_NAMES', $pc_long_day_names);
         $tpl->assign_by_ref('A_SHORT_DAY_NAMES', $pc_short_day_names);
@@ -254,42 +259,46 @@ function postcalendar_calendarblock_display($blockinfo)
         $tpl->assign('NO_EVENTS', _PC_BLOCK_NO_EVENTS);
     }
     
-    if($showcalendar) {
+    if ($showcalendar) {
         // we need to create a unique ID for caching purposes
         $output .= $tpl->fetch($template_name.'/views/calendarblock/month_view.html', $cacheid1);
     }
     
-    if($showevents) {
-        if($showcalendar) {
+    if ($showevents) {
+        if ($showcalendar) {
             $tpl->assign('SHOW_TITLE', 1);
         } else {
             $tpl->assign('SHOW_TITLE', 0);
         }
+
         // we need to create a unique ID for caching purposes
         $output .= $tpl->fetch($template_name.'/views/calendarblock/todays_events.html', $cacheid2);
     }
     
-    if($nextevents) {
-        if($showcalendar || $showevents) {
+    if ($nextevents) {
+        if ($showcalendar || $showevents) {
             $tpl->assign('SHOW_TITLE', 1);
         } else {
             $tpl->assign('SHOW_TITLE', 0);
         }
+
         // we need to create a unique ID for caching purposes
         $output .= $tpl->fetch($template_name.'/views/calendarblock/upcoming_events.html', $cacheid3);
     }
 
-    if($pcbshowsslinks) {
+    if ($pcbshowsslinks) {
         $output .= '<br /><br />';
         $submit_event_url = pnModURL(__POSTCALENDAR__, 'user', 'submit');
         $search_event_url = pnModURL(__POSTCALENDAR__, 'user', 'search');
         $output .= '<center>';
-        if(PC_ACCESS_ADD) {
+        if (PC_ACCESS_ADD) {
             $output .= '[ <a href="'.$submit_event_url.'">'._PC_SUBMIT_EVENT.'</a> ] ';
         }
+
         $output .= '[ <a href="'.$search_event_url.'">'._PC_SEARCH_EVENT.'</a> ]';
         $output .= '</center>';
     }
+
     // Populate block info and pass to theme
 
     $blockinfo['content'] = $output;
@@ -335,9 +344,10 @@ function postcalendar_calendarblock_modify($blockinfo)
 
     // Add row
     $output->SetInputMode(_PNH_VERBATIMINPUT);
-    for($i=0; $i<count($settings); $i++) {
+    for ($i=0; $i<count($settings); $i++) {
         $output->TableAddRow($settings[$i], 'left');
     }
+
     $output->SetInputMode(_PNH_PARSEINPUT);
 
     // Return output
@@ -368,12 +378,23 @@ function postcalendar_calendarblock_update($blockinfo)
              'pcbshowsslinks'
          );
     // set up defaults if not defined
-    if(!isset($vars['pcbshowcalendar']))  { $vars['pcbshowcalendar']  = 0; }
-    if(!isset($vars['pcbeventslimit']))   { $vars['pcbeventslimit']   = 5; }
-    if(!isset($vars['pcbeventoverview'])) { $vars['pcbeventoverview'] = 0; }
-    if(!isset($vars['pcbnextevents']))    { $vars['pcbnextevents']    = 0; }
-    if(!isset($vars['pcbeventsrange']))   { $vars['pcbeventsrange']   = 6; }
-    if(!isset($vars['pcbshowsslinks']))   { $vars['pcbshowsslinks']   = 0; }
+    if (!isset($vars['pcbshowcalendar'])) {
+        $vars['pcbshowcalendar']  = 0; }
+
+    if (!isset($vars['pcbeventslimit'])) {
+        $vars['pcbeventslimit']   = 5; }
+
+    if (!isset($vars['pcbeventoverview'])) {
+        $vars['pcbeventoverview'] = 0; }
+
+    if (!isset($vars['pcbnextevents'])) {
+        $vars['pcbnextevents']    = 0; }
+
+    if (!isset($vars['pcbeventsrange'])) {
+        $vars['pcbeventsrange']   = 6; }
+
+    if (!isset($vars['pcbshowsslinks'])) {
+        $vars['pcbshowsslinks']   = 0; }
     
     $tpl =& new pcSmarty();
     $tpl->clear_all_cache();

@@ -29,6 +29,7 @@ function bucks($amount)
         $amount = sprintf("%.2f", $amount);
         if ($amount != 0.00) return $amount;
     }
+
     return '';
 }
 
@@ -65,6 +66,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
         echo "<input type='text' name='form_tmpl[$tmpl_line_no][price][" . attr($pricelevel) . "]' value='" . attr($price) . "' size='6' maxlength='12'>";
         echo "</td>\n";
     }
+
     $pres = sqlStatement("SELECT option_id FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
     while ($prow = sqlFetchArray($pres)) {
@@ -73,6 +75,7 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
         if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
         echo " /></td>\n";
     }
+
     echo " </tr>\n";
 }
 
@@ -184,8 +187,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
             "active = "          . (empty($_POST['form_active']) ? 0 : 1) . " " .
             "WHERE drug_id = ?", array($drug_id));
             sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
-        }
-        else { // deleting
+        } else { // deleting
             if (acl_check('admin', 'super')) {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ?", array($drug_id));
                 sqlStatement("DELETE FROM drug_templates WHERE drug_id = ?", array($drug_id));
@@ -193,8 +195,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
             }
         }
-    }
-    else if ($_POST['form_save']) { // saving a new drug
+    } else if ($_POST['form_save']) { // saving a new drug
         $new_drug = true;
         $drug_id = sqlInsert("INSERT INTO drugs ( " .
         "name, ndc_number, drug_code, on_order, reorder_point, max_level, form, " .
@@ -226,6 +227,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
         if ($GLOBALS['sell_non_drug_products'] == 2) {
             $tmpl["1"]['selector'] = $_POST['form_name'];
         }
+
         sqlStatement("DELETE FROM prices WHERE pr_id = ? AND pr_selector != ''", array($drug_id));
         for ($lino = 1; isset($tmpl["$lino"]['selector']); ++$lino) {
             $iter = $tmpl["$lino"];
@@ -237,6 +239,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                         $taxrates .= "$key:";
                     }
                 }
+
                 sqlInsert(
                     "INSERT INTO drug_templates ( " .
                     "drug_id, selector, dosage, period, quantity, refills, taxrates " .
@@ -284,6 +287,7 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
     } else {
         echo " window.close();\n";
     }
+
     echo "</script></body></html>\n";
     exit();
 }
@@ -292,8 +296,7 @@ if ($drug_id) {
     $row = sqlQuery("SELECT * FROM drugs WHERE drug_id = ?", array($drug_id));
     $tres = sqlStatement("SELECT * FROM drug_templates WHERE " .
     "drug_id = ? ORDER BY selector", array($drug_id));
-}
-else {
+} else {
     $row = array(
     'name' => '',
     'active' => '1',
@@ -511,6 +514,7 @@ foreach ($pwarr as $pwrow) {
       generate_display_field(array('data_type'=>'1','list_id'=>'pricelevel'), $prow['option_id']) .
       "</b></td>\n";
     }
+
   // Show a heading for each tax rate.
     $pres = sqlStatement("SELECT option_id, title FROM list_options " .
     "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
@@ -540,6 +544,7 @@ if ($tres) {
         while ($prow = sqlFetchArray($pres)) {
             $prices[$prow['option_id']] = $prow['pr_price'];
         }
+
         writeTemplateLine(
             $selector,
             $trow['dosage'],
@@ -551,6 +556,7 @@ if ($tres) {
         );
     }
 }
+
 for ($i = 0; $i < $blank_lines; ++$i) {
     $selector = $GLOBALS['sell_non_drug_products'] == 2 ? $row['name'] : '';
     writeTemplateLine($selector, '', '', '', '', $emptyPrices, '');

@@ -251,8 +251,7 @@ function download_file()
 <strong><?php xl('De Identification', 'e'); ?></strong>
 <?php
  $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
-if (empty($row))
-{
+if (empty($row)) {
     ?>
    <table>  <tr>    <td>&nbsp;</td> <td>&nbsp;</td> </tr>
          <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -279,12 +278,10 @@ if (empty($row))
     </tr>
     </table>
     <?php
-}
-else {
+} else {
     $query = "select status from de_identification_status";
     $res = sqlStatement($query);
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
          $deIdentificationStatus = addslashes($row['status']);
        /* $deIdentificationStatus:
     *  0 - There is no De Identification in progress. (start new De Identification process)
@@ -293,8 +290,8 @@ else {
     *  3 - The De Identification process completed with error
        */
     }
-    if($deIdentificationStatus == 1)
-    {
+
+    if ($deIdentificationStatus == 1) {
         //1 - A De Identification process is currently in progress.
         ?>
     <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -322,18 +319,15 @@ else {
        </tr>
        </table>
         <?php
-    }
-    else if($deIdentificationStatus == 2)
-    {
+    } else if ($deIdentificationStatus == 2) {
         //2 - The De Identification process completed and xls file is ready to download
         $query = "SELECT count(*) as count FROM de_identified_data ";
         $res = sqlStatement($query);
-        if ($row = sqlFetchArray($res))
-        {
+        if ($row = sqlFetchArray($res)) {
             $no_of_items = addslashes($row['count']);
         }
-        if($no_of_items <= 1)
-         {
+
+        if ($no_of_items <= 1) {
        //start new search - no patient record fount
             $query = "update de_identification_status set status = 0";
             $res = sqlStatement($query);
@@ -363,8 +357,7 @@ else {
       <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
         </table>
         <?php
-        }
-        else {
+        } else {
     ?>
     <table>  <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
           <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -393,9 +386,7 @@ else {
       </table>
     <?php
         }
-    }
-    else if($deIdentificationStatus == 3)
-    {
+    } else if ($deIdentificationStatus == 3) {
         //3 - The De Identification process completed with error
         ?>
       <table>  <tr> <td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -430,8 +421,8 @@ else {
 
         <?php
     }
-    if($deIdentificationStatus == 0 )
-    {
+
+    if ($deIdentificationStatus == 0) {
       //0 - There is no De Identification in progress. (start new De Identification process)
         ?>
   <div id="overDiv" style="position: absolute; visibility: hidden; z-index: 1000;">

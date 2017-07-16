@@ -45,6 +45,7 @@ function physical_exam_report($pid, $encounter, $cols, $id)
                      echo "  <td class='text' colspan='2'>" . htmlentities($linedbrow['comments']) . "</td>\n";
                      echo " </tr>\n";
             }
+
             $sysnamedisp = '';
         } // end of line
     } // end of system name

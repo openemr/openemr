@@ -53,14 +53,13 @@ while ($row = sqlFetchArray($res)) {
             echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
             if ($chid == $order) echo " checked";
             echo " />";
-        }
-        else {
+        } else {
             echo xl('Yes');
         }
-    }
-    else {
+    } else {
         echo '&nbsp;';
     }
+
     echo "</td>";
   //
     echo "<td class=\"col3\">" . htmlspecialchars($row['procedure_code'], ENT_QUOTES) . "</td>";

@@ -59,9 +59,9 @@ $siteslist = array();
 
 while (false !== ($sfname = readdir($dh))) {
     if (substr($sfname, 0, 1) == '.') continue;
-    if ($sfname == 'CVS'            ) continue;
+    if ($sfname == 'CVS') continue;
     $sitedir = "$OE_SITES_BASE/$sfname";
-    if (!is_dir($sitedir)               ) continue;
+    if (!is_dir($sitedir)) continue;
     if (!is_file("$sitedir/sqlconf.php")) continue;
     $siteslist[$sfname] = $sfname;
 }
@@ -92,11 +92,9 @@ foreach ($siteslist as $sfname) {
 
     if (!$config) {
         echo "  <td colspan='3'><a href='setup.php?site=$sfname'>Needs setup, click here to run it</a></td>\n";
-    }
-    else if ($errmsg) {
+    } else if ($errmsg) {
         echo "  <td colspan='3' style='color:red'>$errmsg</td>\n";
-    }
-    else {
+    } else {
         // Get site name for display.
         $row = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'openemr_name' LIMIT 1", $dbh);
         $openemr_name = $row ? $row['gl_value'] : '';
@@ -106,13 +104,13 @@ foreach ($siteslist as $sfname) {
         if (empty($row)) {
             $openemr_version = 'Unknown';
             $database_version = 0;
-        }
-        else {
+        } else {
             $row = sqlQuery("SELECT * FROM version LIMIT 1", $dbh);
             $database_patch_txt = "";
-            if ( !(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0 ) {
+            if (!(empty($row['v_realpatch'])) && $row['v_realpatch'] != 0) {
                 $database_patch_txt = " (" . $row['v_realpatch'] .")";
             }
+
             $openemr_version = $row['v_major'] . "." . $row['v_minor'] . "." .
             $row['v_patch'] . $row['v_tag'] . $database_patch_txt;
             $database_version = 0 + $row['v_database'];
@@ -125,17 +123,15 @@ foreach ($siteslist as $sfname) {
         echo "  <td>$openemr_version</td>\n";
         if ($v_database != $database_version) {
             echo "  <td><a href='sql_upgrade.php?site=$sfname'>Upgrade Database</a></td>\n";
-        }
-        else if ( ($v_acl > $database_acl) ) {
+        } else if (($v_acl > $database_acl)) {
             echo "  <td><a href='acl_upgrade.php?site=$sfname'>Upgrade Access Controls</a></td>\n";
-        }
-        else if ( ($v_realpatch != $database_patch) ) {
+        } else if (($v_realpatch != $database_patch)) {
             echo "  <td><a href='sql_patch.php?site=$sfname'>Patch Database</a></td>\n";
-        }
-        else {
+        } else {
             echo "  <td><a href='interface/login/login.php?site=$sfname'>Log In</a></td>\n";
         }
     }
+
     echo " </tr>\n";
 
     if ($config && $dbh !== false) mysqli_close($dbh);

@@ -64,6 +64,7 @@ function issue_ippf_gcac_save($issue)
         $value = get_layout_form_value($frow);
         $sets .= ", $field_id = '" . add_escape_custom($value) . "'";
     }
+
   // This replaces the row if its id exists, otherwise inserts it.
     sqlStatement("REPLACE INTO lists_ippf_gcac SET $sets");
 }
@@ -139,6 +140,7 @@ function issue_ippf_gcac_form($issue, $thispid)
             echo ">";
             $cell_count += $titlecols;
         }
+
         ++$item_count;
 
         echo "<b>";
@@ -159,8 +161,7 @@ function issue_ippf_gcac_form($issue, $thispid)
 
         if ($frow['edit_options'] == 'H')
         echo generate_display_field($frow, $currvalue);
-        else
-        generate_form_field($frow, $currvalue);
+        else generate_form_field($frow, $currvalue);
     }
 
     end_group();
@@ -184,6 +185,7 @@ function issue_ippf_con_save($issue)
         $value = get_layout_form_value($frow);
         $sets .= ", $field_id = '" . add_escape_custom($value) . "'";
     }
+
   // This replaces the row if its id exists, otherwise inserts it.
     sqlStatement("REPLACE INTO lists_ippf_con SET $sets");
 }
@@ -259,6 +261,7 @@ function issue_ippf_con_form($issue, $thispid)
             echo ">";
             $cell_count += $titlecols;
         }
+
         ++$item_count;
 
         echo "<b>";
@@ -279,8 +282,7 @@ function issue_ippf_con_form($issue, $thispid)
 
         if ($frow['edit_options'] == 'H')
         echo generate_display_field($frow, $currvalue);
-        else
-        generate_form_field($frow, $currvalue);
+        else generate_form_field($frow, $currvalue);
     }
 
     end_group();

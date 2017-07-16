@@ -27,6 +27,7 @@ class McryptUtil
             if (! function_exists("mcrypt_get_iv_size")) {
                 throw new Exception("The mcrypt extension does not appear to be enabled.");
             }
+
             $iv_size = mcrypt_get_iv_size(McryptUtil::$CIPHER, McryptUtil::$MODE);
             McryptUtil::$IV = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         }

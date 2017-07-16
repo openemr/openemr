@@ -48,6 +48,7 @@ class Authenticator
                 self::$user = unserialize($_SESSION [$guid]);
             }
         }
+
         return self::$user;
     }
     
@@ -73,7 +74,7 @@ class Authenticator
     public static function UnsetAllSessionVars()
     {
         self::Init();
-        foreach ( array_keys($_SESSION) as $key ) {
+        foreach (array_keys($_SESSION) as $key) {
             unset($_SESSION [$key]);
         }
     }

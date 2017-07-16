@@ -129,12 +129,12 @@ class BaseController extends AbstractActionController
 
         $response = $this->getResponse();
         $response->setStatusCode($responsecode);
-        if($convertToJson) {
+        if ($convertToJson) {
             $response->setContent(json_encode($data));
-        }
-        else{
+        } else {
             $response->setContent($data);
         }
+
         return $response;
     }
 }

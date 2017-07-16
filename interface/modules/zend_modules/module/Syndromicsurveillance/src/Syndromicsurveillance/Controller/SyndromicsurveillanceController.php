@@ -75,19 +75,20 @@ class SyndromicsurveillanceController extends AbstractActionController
                     );
         $params['form_icd_codes'][] = $code_selected;
         
-        if($new_search){
+        if ($new_search) {
             $count = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1);
-        }
-        else{
+        } else {
             $count = $request->getPost('form_count', $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end, 1));
         }
+
         $totalpages     = ceil($count/$results);
         
         $params['res_count']    = $count;
         $params['total_pages']  = $totalpages;
-        if($download_hl7){
+        if ($download_hl7) {
             $this->getSyndromicsurveillanceTable()->generate_hl7($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
         }
+
         $search_result  = $this->getSyndromicsurveillanceTable()->fetch_result($fromDate, $toDate, $code_selected, $provider_selected, $start, $end);
         
         $code_list  = $this->getSyndromicsurveillanceTable()->non_reported_codes();
@@ -116,6 +117,7 @@ class SyndromicsurveillanceController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->syndromicsurveillanceTable = $sm->get('Syndromicsurveillance\Model\SyndromicsurveillanceTable');
         }
+
         return $this->syndromicsurveillanceTable;
     }
 }

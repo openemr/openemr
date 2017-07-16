@@ -37,7 +37,7 @@
               <span id='esign-signature-form-prompt'><?php echo xlt("Checking the lock checkbox will prevent any futher edits on any forms in this encounter."); ?></span> 
         </div>
         
-        <?php if ( $this->form->showLock ) { ?>
+        <?php if ($this->form->showLock) { ?>
         <div class="esign-signature-form-element">
               <label for='lock'><?php echo xlt('Lock?');?></label> 
               <input type="checkbox" id="lock" name="lock" />

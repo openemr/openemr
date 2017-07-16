@@ -52,6 +52,7 @@ class PayPal extends PaymentProcessor
                 $resp->ResponseMessage = "RefundAmount is required for partial refund";
                 return $resp;
             }
+
             $nvpStr .= "&REFUNDTYPE=Partial&AMT=" . urldecode($req->RefundAmount);
         } else {
             $nvpStr .= "&REFUNDTYPE=Full";
@@ -67,7 +68,6 @@ class PayPal extends PaymentProcessor
         $resp->RawResponse = $this->PPHttpPost('RefundTransaction', $nvpStr);
         
         if ("SUCCESS" == strtoupper($resp->RawResponse ["ACK"]) || "SUCCESSWITHWARNING" == strtoupper($resp->RawResponse ["ACK"])) {
-            
             /*
 			 * SAMPLE SUCCESS RESPONSE
 			 * Array (
@@ -110,7 +110,7 @@ class PayPal extends PaymentProcessor
         
         $resp->ParsedResponse = "";
         $delim = "";
-        foreach ( array_keys($resp->RawResponse) as $key ) {
+        foreach (array_keys($resp->RawResponse) as $key) {
             $resp->ParsedResponse .= $delim . $key . "='" . urldecode($resp->RawResponse [$key]) . "'";
             $delim = ", ";
         }
@@ -200,11 +200,11 @@ class PayPal extends PaymentProcessor
             
             $resp->ParsedResponse = "";
             $delim = "";
-            foreach ( array_keys($resp->RawResponse) as $key ) {
+            foreach (array_keys($resp->RawResponse) as $key) {
                 $resp->ParsedResponse .= $delim . $key . "='" . urldecode($resp->RawResponse [$key]) . "'";
                 $delim = ", ";
             }
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             // this means we had a connection error talking to the gateway
             $resp->IsSuccess = false;
             $resp->ResponseCode = $ex->getCode();
@@ -337,7 +337,7 @@ class PayPal extends PaymentProcessor
         $httpResponseAr = explode("&", $httpResponse);
         
         $httpParsedResponseAr = array ();
-        foreach ( $httpResponseAr as $i => $value ) {
+        foreach ($httpResponseAr as $i => $value) {
             $tmpAr = explode("=", $value);
             if (sizeof($tmpAr) > 1) {
                 $httpParsedResponseAr [$tmpAr [0]] = $tmpAr [1];

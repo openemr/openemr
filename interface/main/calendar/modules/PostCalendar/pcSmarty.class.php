@@ -65,11 +65,12 @@ class pcSmarty extends Smarty
         $open_basedir   = ini_get('open_basedir');
 
         $use_safe_mode = ((bool)$safe_mode || (bool)$safe_mode_gid || !empty($open_basedir));
-        if($use_safe_mode) {
+        if ($use_safe_mode) {
             $this->use_sub_dirs = false;
         } else {
             $this->use_sub_dirs = true;
         }
+
         unset($use_safe_mode,$safe_mode,$safe_mode_gid,$open_basedir);
 
         $this->autoload_filters = array('output' => array('trimwhitespace'));
@@ -111,12 +112,16 @@ class pcSmarty extends Smarty
         //  Find out what Template we're using
         //=================================================================
         $template_name = _SETTING_TEMPLATE;
-        if(!isset($template_name)) { $template_name = 'default'; }
+        if (!isset($template_name)) {
+            $template_name = 'default'; }
+
         //=================================================================
         //  Find out what Template View to use
         //=================================================================
         $template_view = pnVarCleanFromInput('tplview');
-        if(!isset($template_view)) { $template_view = 'default'; }
+        if (!isset($template_view)) {
+            $template_view = 'default'; }
+
         $this->config_dir = "modules/$pcDir/pntemplates/$template_name/config/";
         $this->assign_by_ref('TPL_NAME', $template_name);
         $this->assign_by_ref('TPL_VIEW', $template_view);

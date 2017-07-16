@@ -43,8 +43,7 @@ $alertmsg = '';
 $collectthis = collectValidationPageRules("/interface/usergroup/usergroup_admin_add.php");
 if (empty($collectthis)) {
     $collectthis = "undefined";
-}
-else {
+} else {
     $collectthis = $collectthis["new_user"]["rules"];
 }
 ?>
@@ -105,7 +104,7 @@ function submitform() {
       }
    } //secure_pwd if ends here
 
-    <?php if($GLOBALS['erx_enable']){ ?>
+    <?php if ($GLOBALS['erx_enable']) { ?>
    alertMsg='';
    f=document.forms[0];
    for(i=0;i<f.length;i++){
@@ -191,9 +190,9 @@ function authorized_clicked() {
 <table border=0 cellpadding=0 cellspacing=0 style="width:600px;">
 <tr>
 <td style="width:150px;"><span class="text"><?php xl('Username', 'e'); ?>: </span></td><td  style="width:220px;"><input type=entry name="rumple" style="width:120px;"> <span class="mandatory">&nbsp;*</span></td>
-    <?php if(!$GLOBALS['use_active_directory']) { ?>
+    <?php if (!$GLOBALS['use_active_directory']) { ?>
 <td style="width:150px;"><span class="text"><?php xl('Password', 'e'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin"><span class="mandatory">&nbsp;*</span></td>
-    <?php }else{ ?>
+    <?php } else { ?>
         <td> <input type="hidden" value="124" name="stiltskin" /></td>
     <?php } ?>
 </tr>
@@ -210,7 +209,7 @@ function authorized_clicked() {
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+for ($iter = 0; $row = sqlFetchArray($res); $iter++)
   $result2[$iter] = $row;
 foreach ($result2 as $iter) {
     print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
@@ -233,9 +232,9 @@ foreach ($result2 as $iter) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
-    for ($iter = 0; $iter < sizeof($fres);$iter++)
+    for ($iter = 0; $iter < sizeof($fres); $iter++)
     $result[$iter] = $fres[$iter];
-    foreach($result as $iter) {
+    foreach ($result as $iter) {
     ?>
     <option value="<?php echo $iter{'id'};?>"><?php echo $iter{'name'};?></option>
 <?php
@@ -253,8 +252,7 @@ if ($fres) {
 <td class='text'><?php xl('See Authorizations', 'e'); ?>: </td>
 <td><select name="see_auth" style="width:120px;">
 <?php
-foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value)
-{
+foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='$key'";
     echo ">$value</option>\n";
 }
@@ -336,8 +334,7 @@ foreach ($list_acl_groups as $value) {
     if ($default_acl_group == $value) {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='$value' selected>" . xl_gacl_group($value) . "</option>\n";
-    }
-    else {
+    } else {
         // Modified 6-2009 by BM - Translate group name if applicable
         echo " <option value='$value'>" . xl_gacl_group($value) . "</option>\n";
     }
@@ -377,7 +374,7 @@ foreach ($list_acl_groups as $value) {
 <select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+for ($iter = 0; $row = sqlFetchArray($res); $iter++)
   $result[$iter] = $row;
 foreach ($result as $iter) {
     print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
@@ -405,7 +402,7 @@ foreach ($result as $iter) {
 <select name=rumple>
 <?php
 $res = sqlStatement("select distinct username from users where username != ''");
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+for ($iter = 0; $row = sqlFetchArray($res); $iter++)
   $result3[$iter] = $row;
 foreach ($result3 as $iter) {
     print "<option value='".$iter{"username"}."'>" . $iter{"username"} . "</option>\n";
@@ -418,7 +415,7 @@ foreach ($result3 as $iter) {
 <?php
 $res = sqlStatement("select distinct name from groups");
 $result2 = array();
-for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+for ($iter = 0; $row = sqlFetchArray($res); $iter++)
   $result2[$iter] = $row;
 foreach ($result2 as $iter) {
     print "<option value='".$iter{"name"}."'>" . $iter{"name"} . "</option>\n";
@@ -436,7 +433,7 @@ foreach ($result2 as $iter) {
 <?php
 if (empty($GLOBALS['disable_non_default_groups'])) {
     $res = sqlStatement("select * from groups order by name");
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
     $result5[$iter] = $row;
 
     foreach ($result5 as $iter) {

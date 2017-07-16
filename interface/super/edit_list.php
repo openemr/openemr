@@ -35,8 +35,7 @@ require_once("$srcdir/options.inc.php");
 if (empty($_REQUEST['list_id'])) {
     $list_id = 'language';
     $blank_list_id = true;
-}
-else {
+} else {
     $list_id = $_REQUEST['list_id'];
 }
 
@@ -66,8 +65,7 @@ if ($_POST['formaction']=='save' && $list_id) {
                         ")");
             }
         }
-    }
-    else if ($list_id == 'code_types') {
+    } else if ($list_id == 'code_types') {
       // special case for code types
         sqlStatement("DELETE FROM code_types");
         for ($lino = 1; isset($opt["$lino"]['ct_key']); ++$lino) {
@@ -115,8 +113,7 @@ if ($_POST['formaction']=='save' && $list_id) {
                 ")");
             }
         }
-    }
-    else if ($list_id == 'issue_types') {
+    } else if ($list_id == 'issue_types') {
       // special case for issue_types
         sqlStatement("DELETE FROM issue_types");
         for ($lino = 1; isset($opt["$lino"]['category']); ++$lino) {
@@ -140,14 +137,14 @@ if ($_POST['formaction']=='save' && $list_id) {
                 ));
             }
         }
-    }
-    else {
+    } else {
         // all other lists
         //
         // collect the option toggle if using the 'immunizations' list
         if ($list_id == 'immunizations') {
             $ok_map_cvx_codes = isset($_POST['ok_map_cvx_codes']) ? $_POST['ok_map_cvx_codes'] : 0;
         }
+
         // erase lists options and recreate them from the submitted form data
         sqlStatement("DELETE FROM list_options WHERE list_id = '$list_id'");
         for ($lino = 1; isset($opt["$lino"]['id']); ++$lino) {
@@ -155,7 +152,6 @@ if ($_POST['formaction']=='save' && $list_id) {
             $value = empty($iter['value']) ? 0 : (formTrim($iter['value']) + 0);
             $id = formTrim($iter['id']);
             if (strlen($id) > 0) {
-
               // Special processing for the immunizations list
               // Map the entered cvx codes into the immunizations table cvx_code
               // Ensure the following conditions are met to do this:
@@ -188,11 +184,10 @@ if ($_POST['formaction']=='save' && $list_id) {
 
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
                     $notes = formTrim($iter['apptstat_color']) .'|'. formTrim($iter['apptstat_timealert']);
-                }
-                else
-                {
+                } else {
                     $notes = formTrim($iter['notes']);
                 }
+
               // Insert the list item
                 sqlInsert("INSERT INTO list_options ( " .
                   "list_id, option_id, title, seq, is_default, option_value, mapping, notes, codes, toggle_setting_1, toggle_setting_2, activity, subtype " .
@@ -214,8 +209,7 @@ if ($_POST['formaction']=='save' && $list_id) {
             }
         }
     }
-}
-else if ($_POST['formaction']=='addlist') {
+} else if ($_POST['formaction']=='addlist') {
     // make a new list ID from the new list name
     $newlistID = $_POST['newlistname'];
     $newlistID = preg_replace("/\W/", "_", $newlistID);
@@ -232,8 +226,7 @@ else if ($_POST['formaction']=='addlist') {
                 "'".$_POST['newlistname']."', ".
                 "'".($row['maxseq']+1)."',".
                 "'1', '0')");
-}
-else if ($_POST['formaction']=='deletelist') {
+} else if ($_POST['formaction']=='deletelist') {
     // delete the lists options
     sqlStatement("DELETE FROM list_options WHERE list_id = '".$_POST['list_id']."'");
     // delete the list from the master list-of-lists
@@ -260,17 +253,18 @@ function getCodeDescriptions($codes)
         if ($code_type == 'PROD') {
             $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = '$code' ");
             $desc = "$code:$selector " . $row['name'];
-        }
-        else {
+        } else {
             $row = sqlQuery("SELECT code_text FROM codes WHERE " .
             "code_type = '" . $code_types[$code_type]['id'] . "' AND " .
             "code = '$code' ORDER BY modifier LIMIT 1");
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text']));
         }
+
         $desc = str_replace('~', ' ', $desc);
         if ($s) $s .= '~';
         $s .= $desc;
     }
+
     return $s;
 }
 
@@ -301,6 +295,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . (htmlspecialchars(xl($title), ENT_QUOTES)) . "</td>\n";
     }
+
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][seq]' value='" .
        htmlspecialchars($seq, ENT_QUOTES) . "' size='4' maxlength='10' class='optin' />";
@@ -323,9 +318,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "<input type='text' name='opt[$opt_line_no][value]' value='" .
         htmlspecialchars($value, ENT_QUOTES) . "' size='8' maxlength='15' class='optin' />";
         echo "</td>\n";
-    }
-
-  // Adjustment reasons use option_value as a reason category.  This is
+    } // Adjustment reasons use option_value as a reason category.  This is
   // needed to distinguish between adjustments that change the invoice
   // balance and those that just shift responsibility of payment or
   // are used as comments.
@@ -344,11 +337,10 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
             if ($key == $value) echo " selected";
             echo ">" . htmlspecialchars($desc) . "</option>";
         }
+
         echo "</select>";
         echo "</td>\n";
-    }
-
-  // Address book categories use option_value to flag category as a
+    } // Address book categories use option_value to flag category as a
   // person-centric vs company-centric vs indifferent.
   //
     else if ($list_id == 'abook_type') {
@@ -363,11 +355,10 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
             if ($key == $value) echo " selected";
             echo ">" . htmlspecialchars($desc) . "</option>";
         }
+
         echo "</select>";
         echo "</td>\n";
-    }
-
-  // Immunization categories use option_value to map list items
+    } // Immunization categories use option_value to map list items
   // to CVX codes.
   //
     else if ($list_id == 'immunizations') {
@@ -386,8 +377,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "<input type='text' name='opt[$opt_line_no][mapping]' value='" .
         htmlspecialchars($mapping, ENT_QUOTES) . "' size='12' maxlength='15' class='optin' />";
         echo "</td>\n";
-    }
-    else if($list_id == 'apptstat' || $list_id == 'groupstat') {
+    } else if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         list($apptstat_color, $apptstat_timealert) = explode("|", $notes);
         echo "  <td align='center' class='optcell'>";
         echo "<input type='text' class='color' name='opt[$opt_line_no][apptstat_color]' value='" .
@@ -404,10 +394,12 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         if ($list_id == 'lbfnames') {
             echo "onclick='edit_layout_props($opt_line_no)' ";
         }
+
         echo "/>";
         echo "</td>\n";
     }
-    if($list_id == 'apptstat' || $list_id == 'groupstat') {
+
+    if ($list_id == 'apptstat' || $list_id == 'groupstat') {
         echo "  <td align='center' class='optcell'>";
         echo "<input type='checkbox' name='opt[$opt_line_no][toggle_setting_1]' value='1' " .
         "onclick='defClicked($opt_line_no)' class='optin'$checked_tog1 />";
@@ -417,6 +409,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         "onclick='defClicked($opt_line_no)' class='optin'$checked_tog2 />";
         echo "</td>\n";
     }
+
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][codes]' title='" .
       xla('Clinical Term Code(s)') ."' value='" .
@@ -428,6 +421,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo generate_select_list("opt[$opt_line_no][subtype]", 'issue_subtypes', $subtype, 'Subtype', ' ', 'optin');
         echo "</td>\n";
     }
+
     echo " </tr>\n";
 }
 
@@ -465,6 +459,7 @@ function writeFSLine($category, $option, $codes)
             ++$i;
         }
     }
+
     echo "</div>";
     echo "<a href='' onclick='return select_code($opt_line_no)'>";
     echo "[" . xl('Add') . "]</a>";
@@ -512,11 +507,12 @@ function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''
     $value = isset($data_array[$name]) ? $data_array[$name] : '';
     $s = "  <td title='" . attr($title) . "' align='center' class='optcell'>";
     $s .= "<select name='opt[$opt_line_no][$name]' class='optin'>";
-    foreach ( $option_array as $key => $desc) {
+    foreach ($option_array as $key => $desc) {
         $s .= "<option value='" . attr($key) . "'";
         if ($key == $value) $s .= " selected";
         $s .= ">" . text($desc) . "</option>";
     }
+
     $s .= "</select>";
     $s .= "</td>\n";
     return $s;
@@ -567,6 +563,7 @@ function writeCTLine($ct_array)
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
     }
+
     echo ctGenCell(
         $opt_line_no,
         $ct_array,
@@ -681,16 +678,19 @@ function writeITLine($it_array)
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
     }
+
     echo ctGenCell($opt_line_no, $it_array, 'singular', 15, 75, xl('Singular'));
   // if not english and translating lists then show the translation
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
     }
+
     echo ctGenCell($opt_line_no, $it_array, 'abbreviation', 5, 10, xl('Abbreviation'));
   // if not english and translating lists then show the translation
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
     }
+
     echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
     echo ctGenCBox($opt_line_no, $it_array, 'force_show', xl('Show this category on the patient summary screen even if no issues have been entered for this category.'));
 
@@ -924,12 +924,10 @@ function mysubmit() {
 $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
 
 if (($lang_id == '1' && !empty($GLOBALS['skip_english_translation'])) ||
-  !$GLOBALS['translate_lists'])
-{
+  !$GLOBALS['translate_lists']) {
     $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
     "list_id = 'lists' ORDER BY title, seq");
-}
-else {
+} else {
   // Use and sort by the translated list name.
     $res = sqlStatement("SELECT lo.option_id, " .
     "IF(LENGTH(ld.definition),ld.definition,lo.title) AS title " .
@@ -942,10 +940,9 @@ else {
 }
 
 while ($row = sqlFetchArray($res)) {
-
     // This allows the list to default to the first item on the list
     //   when the list_id request parameter is blank.
-    if( ($blank_list_id) && ($list_id == 'language') ) {
+    if (($blank_list_id) && ($list_id == 'language')) {
         $list_id = $row['option_id'];
         $blank_list_id = false;
     }
@@ -1103,31 +1100,31 @@ if ($list_id) {
         while ($row = sqlFetchArray($res)) {
               writeFSLine($row['fs_category'], $row['fs_option'], $row['fs_codes']);
         }
+
         for ($i = 0; $i < 3; ++$i) {
               writeFSLine('', '', '');
         }
-    }
-    else if ($list_id == 'code_types') {
+    } else if ($list_id == 'code_types') {
         $res = sqlStatement("SELECT * FROM code_types " .
         "ORDER BY ct_seq, ct_key");
         while ($row = sqlFetchArray($res)) {
             writeCTLine($row);
         }
+
         for ($i = 0; $i < 3; ++$i) {
             writeCTLine(array());
         }
-    }
-    else if ($list_id == 'issue_types') {
+    } else if ($list_id == 'issue_types') {
         $res = sqlStatement("SELECT * FROM issue_types " .
         "ORDER BY category, ordering ASC");
         while ($row = sqlFetchArray($res)) {
             writeITLine($row);
         }
+
         for ($i = 0; $i < 3; ++$i) {
             writeITLine(array());
         }
-    }
-    else {
+    } else {
         /*
        *  Add edit options to show or hide in list management
        *   If the edit_options setting of the main list entry is set to 0,
@@ -1156,6 +1153,7 @@ if ($list_id) {
                   $row['subtype']
               );
         }
+
         for ($i = 0; $i < 3; ++$i) {
               writeOptionLine('', '', '', '', 0);
         }

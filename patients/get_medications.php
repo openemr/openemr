@@ -12,8 +12,7 @@
     
     $res = sqlStatement($sql, array($pid));
 
-if(sqlNumRows($res)>0)
-{
+if (sqlNumRows($res)>0) {
     ?>
     <table class="class1">
         <tr class="header">
@@ -32,6 +31,7 @@ if(sqlNumRows($res)>0)
             $class="class1_odd";
             $even=true;
         }
+
         echo "<tr class='".htmlspecialchars($class, ENT_QUOTES)."'>";
         echo "<td>".htmlspecialchars($row['title'], ENT_NOQUOTES)."</td>";
         echo "<td>".htmlspecialchars($row['begdate'], ENT_NOQUOTES)."</td>";
@@ -39,10 +39,9 @@ if(sqlNumRows($res)>0)
         echo "<td>".htmlspecialchars($row['referredby'], ENT_NOQUOTES)."</td>";
         echo "</tr>";
     }
+
     echo "</table>";
-}
-else
-{
+} else {
     echo htmlspecialchars(xl("No Results"), ENT_NOQUOTES);
 }
 ?>

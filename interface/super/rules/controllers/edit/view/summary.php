@@ -39,7 +39,7 @@
     <p class="row">
     <span class="left_col colhead" data-fld="fld_ruleTypes[]"><?php echo out(xl('Type')); ?></span>
     <span class="end_col">
-        <?php foreach ( RuleType::values() as $type ) {?>
+        <?php foreach (RuleType::values() as $type) {?>
         <input name="fld_ruleTypes[]"
                value="<?php echo out($type); ?>"
                type="checkbox" <?php echo $rule->hasRuleType(RuleType::from($type)) ? "CHECKED": "" ?>>

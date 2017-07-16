@@ -1,5 +1,5 @@
 <?php
-if ($_REQUEST['root'] == "source"):
+if ($_REQUEST['root'] == "source") :
 ?>
 [
     {
@@ -58,7 +58,8 @@ if ($_REQUEST['root'] == "source"):
         ]
     }
 ]
-<?php else: sleep(1); ?>
+<?php else :
+    sleep(1); ?>
 
 [
     {

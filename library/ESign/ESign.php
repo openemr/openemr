@@ -63,15 +63,14 @@ class ESign
     public function isLogViewable($mode = "default")
     {
         $viewable = false;
-        if ( count($this->_signable->getSignatures()) > 0 ) {
+        if (count($this->_signable->getSignatures()) > 0) {
             // If we have signatures, always show the log.
             $viewable = true;
         } else {
             // If in report mode then hide the log if $_GLOBALS['esign_report_hide_empty_sig'] is true and there are no signatures
-            if ( ($mode=="report") && ($GLOBALS['esign_report_hide_empty_sig']) ) {
+            if (($mode=="report") && ($GLOBALS['esign_report_hide_empty_sig'])) {
                 $viewable = false;
-            }
-            else {
+            } else {
                 // defer if viewable to the log object
                 $viewable = $this->_log->isViewable();
             }

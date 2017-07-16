@@ -39,9 +39,7 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
 
             addBilling(date("Ymd"), 'CPT4', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
         }
-
-    }
-        //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
+    } //case where key looks like "[a-zA-Z]*diagnosis[0-9]" which is special, it is used to auto add ICD codes
 
     elseif (strpos($key, "diagnosis") == (strlen($key) -10) && !(strpos($key, "diagnosis")=== false )) {
         //icd auto add ICD9-CM
@@ -49,10 +47,10 @@ function formSubmit($tableName, $values, $id, $authorized = "0")
             $code_array = explode(" ", $value, 2);
             addBilling(date("Ymd"), 'ICD9-M', $code_array[0], $code_array[1], $_SESSION['pid'], $authorized, $_SESSION['authUserID']);
         }
-    }
-    else {
+    } else {
         $sql .= " " . escape_sql_column_name($key, array($tableName)) . " = '" . add_escape_custom($value) . "',";
     }
+
     $sql = substr($sql, 0, -1);
     return sqlInsert($sql);
 }
@@ -88,16 +86,13 @@ function formFetch($tableName, $id, $cols = "*", $activity = "1")
 
 function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activity = "1")
 {
-    if($limit == "all")
-        {
+    if ($limit == "all") {
                 // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
                 $sql = "select $cols from `" . escape_table_name($tableName) . "` where pid like '$pid' ";
                 if ($activity != "all")
                         $sql .= "and activity like '$activity' ";
                 $sql .= "order by date DESC";
-    }
-    else
-        {
+    } else {
         $sql = "select $cols from pnotes where pid like '$pid' ";
         $sql .= " AND deleted != 1 "; // exclude ALL deleted notes
         if ($activity != "all")
@@ -107,7 +102,7 @@ function formGetIds($tableName, $cols = "*", $limit = 'all', $start = 0, $activi
 
         $res = sqlStatement($sql);
 
-        for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
                 $all[$iter] = $row;
         return $all;
 }

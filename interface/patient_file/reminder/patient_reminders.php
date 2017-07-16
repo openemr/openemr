@@ -92,19 +92,22 @@ if ($mode == "simple") {
 <?php
 // This is for sorting the records.
 $sort = array("category, item", "lname, fname", "due_status", "date_created", "hipaa_allowemail", "hipaa_allowsms", "date_sent", "voice_status", "email_status", "sms_status", "mail_status");
-if($sortby == "") {
+if ($sortby == "") {
     $sortby = $sort[0];
 }
-if($sortorder == "") {
+
+if ($sortorder == "") {
     $sortorder = "asc";
 }
-for($i = 0; $i < count($sort); $i++) {
+
+for ($i = 0; $i < count($sort); $i++) {
     $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) ."&mode=" . attr($mode) . "&sortby=" . attr($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
     "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
 }
-for($i = 0; $i < count($sort); $i++) {
-    if($sortby == $sort[$i]) {
-        switch($sortorder) {
+
+for ($i = 0; $i < count($sort); $i++) {
+    if ($sortby == $sort[$i]) {
+        switch ($sortorder) {
             case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
                         break;
@@ -114,6 +117,7 @@ for($i = 0; $i < count($sort); $i++) {
         } break;
     }
 }
+
 // This is for managing page numbering and display beneath the Patient Reminders table.
 $listnumber = 25;
 $sqlBindArray = array();
@@ -121,40 +125,42 @@ if (!empty($patient_id)) {
     $add_sql = "AND a.pid=? ";
     array_push($sqlBindArray, $patient_id);
 }
+
 $sql = "SELECT a.id, a.due_status, a.category, a.item, a.date_created, a.date_sent, b.fname, b.lname " .
   "FROM `patient_reminders` as a, `patient_data` as b " .
   "WHERE a.active='1' AND a.pid=b.pid ".$add_sql;
 $result = sqlStatement($sql, $sqlBindArray);
-if(sqlNumRows($result) != 0) {
+if (sqlNumRows($result) != 0) {
     $total = sqlNumRows($result);
-}
-else {
+} else {
     $total = 0;
 }
-if($begin == "" or $begin == 0) {
+
+if ($begin == "" or $begin == 0) {
     $begin = 0;
 }
+
 $prev = $begin - $listnumber;
 $next = $begin + $listnumber;
 $start = $begin + 1;
 $end = $listnumber + $start - 1;
-if($end >= $total) {
+if ($end >= $total) {
     $end = $total;
 }
-if($end < $start) {
+
+if ($end < $start) {
     $start = 0;
 }
-if($prev >= 0) {
+
+if ($prev >= 0) {
     $prevlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$prev\" onclick=\"top.restoreSession()\"><<</a>";
-}
-else {
+} else {
     $prevlink = "<<";
 }
 
-if($next < $total) {
+if ($next < $total) {
     $nextlink = "<a href=\"patient_reminders.php?patient_id=$patient_id&mode=$mode&sortby=$sortby&sortorder=$sortorder&begin=$next\" onclick=\"top.restoreSession()\">>></a>";
-}
-else {
+} else {
     $nextlink = ">>";
 }
 ?>
@@ -285,15 +291,12 @@ while ($myrow = sqlFetchArray($result)) { ?>
               // Set the patient specific setting for gui
                 if (empty($patient_rule)) {
                     $select = "default";
-                }
-                else {
+                } else {
                     if ($patient_rule['patient_reminder_flag'] == "1") {
                         $select = "on";
-                    }
-                    else if ($patient_rule['patient_reminder_flag'] == "0"){
+                    } else if ($patient_rule['patient_reminder_flag'] == "0") {
                         $select = "off";
-                    }
-                    else { // $patient_rule['patient_reminder_flag'] == NULL
+                    } else { // $patient_rule['patient_reminder_flag'] == NULL
                         $select = "default";
                     }
                 } ?>
@@ -306,8 +309,7 @@ while ($myrow = sqlFetchArray($result)) { ?>
             <td align="center" style="border-right:1px solid black;">
                 <?php if ($rule['patient_reminder_flag'] == "1") {
                     echo htmlspecialchars(xl('On'), ENT_NOQUOTES);
-}
-else {
+} else {
     echo htmlspecialchars(xl('Off'), ENT_NOQUOTES);
 } ?>
             </td>

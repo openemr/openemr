@@ -90,7 +90,7 @@ class TherapyGroupsController extends BaseController
     {
 
         $data = array();
-        if($groupId) self::setSession($groupId);
+        if ($groupId) self::setSession($groupId);
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');
@@ -111,16 +111,15 @@ class TherapyGroupsController extends BaseController
         $_POST['group_start_date'] = DateToYYYYMMDD($_POST['group_start_date']);
         $_POST['group_end_date'] = DateToYYYYMMDD($_POST['group_end_date']);
 
-        if(isset($_POST['save'])){
-
+        if (isset($_POST['save'])) {
             $isEdit = empty($_POST['group_id']) ? false : true;
 
             // for new group - checking if already exist same name
-            if($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)){
+            if ($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)) {
                 $data['message'] = xlt('Failed - already has group with the same name') . '.';
                 $data['savingStatus'] = 'exist';
                 $data['groupData'] = $_POST;
-                if($isEdit){
+                if ($isEdit) {
                     $this->loadView('groupDetailsGeneralData', $data);
                 } else {
                     $this->loadView('addGroup', $data);
@@ -138,19 +137,18 @@ class TherapyGroupsController extends BaseController
                 'counselors' => array('filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY)
             );
-            if($isEdit){
+            if ($isEdit) {
                 $filters['group_end_date'] = FILTER_SANITIZE_SPECIAL_CHARS;
                 $filters['group_id'] = FILTER_VALIDATE_INT;
             }
+
             //filter and sanitize all post data.
             $data['groupData'] = filter_var_array($_POST, $filters);
-            if(!$data['groupData']){
+            if (!$data['groupData']) {
                 $data['message'] = xlt('Failed to create new group') . '.';
                 $data['savingStatus'] = 'failed';
-            }
-            else {
-
-                if(!$isEdit){
+            } else {
+                if (!$isEdit) {
                     // save new group
                     $id = $this->saveNewGroup($data['groupData']);
                     $data['groupData']['group_id'] = $id;
@@ -170,12 +168,11 @@ class TherapyGroupsController extends BaseController
                     $data['readonly'] = 'disabled';
                     $this->loadView('groupDetailsGeneralData', $data);
                 }
-
             }
+
         // before saving
         } else {
-
-            if(is_null($groupId)){
+            if (is_null($groupId)) {
                 //for new form
                 $data['groupData'] = array('group_name' => null,
                     'group_start_date' => date('Y-m-d'),
@@ -186,7 +183,6 @@ class TherapyGroupsController extends BaseController
                     'group_status' => null
                 );
                 $this->loadView('addGroup', $data);
-
             } else {
                 //for exist group screen
                 $data['groupData'] = $this->therapyGroupModel->getGroup($groupId);
@@ -195,7 +191,6 @@ class TherapyGroupsController extends BaseController
 
                 $this->loadView('groupDetailsGeneralData', $data);
             }
-
         }
     }
 
@@ -208,10 +203,10 @@ class TherapyGroupsController extends BaseController
     private function alreadyExist($groupData, $isEdit = false)
     {
 
-        if($isEdit){
+        if ($isEdit) {
             //return false if not touched on name and date
             $databaseData = $this->therapyGroupModel->getGroup($groupData['group_id']);
-            if($databaseData['group_name'] == $groupData['group_name'] && $databaseData['group_start_date'] == $groupData['group_start_date']){
+            if ($databaseData['group_name'] == $groupData['group_name'] && $databaseData['group_start_date'] == $groupData['group_start_date']) {
                 return false;
             }
         }
@@ -228,7 +223,7 @@ class TherapyGroupsController extends BaseController
     {
 
         //If deleting a group
-        if($_GET['deleteGroup'] == 1){
+        if ($_GET['deleteGroup'] == 1) {
             $group_id = $_GET['group_id'];
             $deletion_response = $this->deleteGroup($group_id);
             $data['deletion_try'] = 1;
@@ -277,11 +272,11 @@ class TherapyGroupsController extends BaseController
         }
 
         //Insert the counselors into their groups in new array.
-        foreach ($counselors as $counselor){
+        foreach ($counselors as $counselor) {
             $group_id_of_counselor = $counselor['group_id'];
             $counselor_id = $counselor['user_id'];
             $counselor_name = $users_model->getUserNameById($counselor_id);
-            if(is_array($new_array[$group_id_of_counselor])) {
+            if (is_array($new_array[$group_id_of_counselor])) {
                 array_push($new_array[$group_id_of_counselor]['counselors'], $counselor_name);
             }
         }
@@ -293,9 +288,10 @@ class TherapyGroupsController extends BaseController
     {
 
         $length = strlen($notes);
-        if($length > $this->notes_preview_proper_length){
+        if ($length > $this->notes_preview_proper_length) {
             $notes = mb_substr($notes, 0, 50).'...';
         }
+
         return $notes;
     }
 
@@ -310,7 +306,7 @@ class TherapyGroupsController extends BaseController
         $new_array = array();
         $users_model = $this->loadModel('Users');
 
-        foreach ($counselors as $counselor){
+        foreach ($counselors as $counselor) {
             $counselor_id = $counselor['user_id'];
             $counselor_name = $users_model->getUserNameById($counselor_id);
             $new_array[$counselor_id] = $counselor_name;
@@ -331,11 +327,10 @@ class TherapyGroupsController extends BaseController
 
         //If group has encounters cannot delete the group.
         $group_has_encounters = $this->checkIfHasApptOrEncounter($group_id);
-        if($group_has_encounters){
+        if ($group_has_encounters) {
             $response['success'] = 0;
             $response['message'] = xl("Deletion failed because group has appointments or encounters");
-        }
-        else{
+        } else {
             //Change group status to 'canceled'.
             $therapy_groups_model = $this->loadModel('Therapy_Groups');
             $therapy_groups_model->changeGroupStatus($group_id, 30);
@@ -356,9 +351,10 @@ class TherapyGroupsController extends BaseController
         $therapy_groups_encounters_model = $this->loadModel('Therapy_Groups_Encounters');
         $events = $therapy_groups_events_model->getGroupEvents($group_id);
         $encounters = $therapy_groups_encounters_model->getGroupEncounters($group_id);
-        if(empty($events) && empty($encounters)){
+        if (empty($events) && empty($encounters)) {
             return false; //no appts or encounters so can delete
         }
+
         return true; //appts or encounters exist so can't delete
     }
 
@@ -377,7 +373,7 @@ class TherapyGroupsController extends BaseController
 
         $groupId = $this->therapyGroupModel->saveNewGroup($groupData);
 
-        foreach($counselors as $counselorId){
+        foreach ($counselors as $counselorId) {
             $this->counselorsModel->save($groupId, $counselorId);
         }
 
@@ -398,7 +394,7 @@ class TherapyGroupsController extends BaseController
         $this->therapyGroupModel->updateGroup($groupData);
 
         $this->counselorsModel->remove($groupData['group_id']);
-        foreach($counselors as $counselorId){
+        foreach ($counselors as $counselorId) {
             $this->counselorsModel->save($groupData['group_id'], $counselorId);
         }
     }
@@ -407,7 +403,7 @@ class TherapyGroupsController extends BaseController
     {
 
         setpid(0);
-        if($_SESSION['therapy_group'] != $groupId){
+        if ($_SESSION['therapy_group'] != $groupId) {
             $_SESSION['therapy_group'] = $groupId;
         }
     }

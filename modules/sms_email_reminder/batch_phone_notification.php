@@ -53,8 +53,7 @@ echo "<br>" . htmlspecialchars(xl("Total Records Found") . ": " . count($db_pati
 //Create a new instance of the phone service client
 $client = new MaviqClient($phone_id, $phone_token, $phone_url);
 
-for($p=0;$p<count($db_patient);$p++)
-{
+for ($p=0; $p<count($db_patient); $p++) {
     $prow =$db_patient[$p];
 
     //Get the apptDate and apptTime
@@ -69,6 +68,7 @@ for($p=0;$p<count($db_patient);$p++)
             //Use the default when the message is not found
             $greeting = $GLOBALS['phone_appt_message']['Default'];
     }
+
     //Set up the parameters for the call
     $data = array(
                 "firstName" => $prow['fname'],
@@ -88,10 +88,9 @@ for($p=0;$p<count($db_patient);$p++)
     $response = $client->sendRequest("appointment", "POST", $data);
 
         // check response for success or error
-    if($response->IsError) {
+    if ($response->IsError) {
         $strMsg =   "Error starting phone call for {$prow['fname']} | {$prow['lname']} | {$prow['phone_home']} | {$appt_date} | {$appt_time} | {$response->ErrorMessage}\n";
-    }
-    else {
+    } else {
         $strMsg = "\n========================".$type." || ".date("Y-m-d H:i:s")."=========================";
         $strMsg .= "\nPhone reminder sent successfully: {$prow['fname']} | {$prow['lname']} |	| {$prow['phone_home']} | {$appt_date} | {$appt_time} ";
         // insert entry in notification_log table
@@ -99,12 +98,10 @@ for($p=0;$p<count($db_patient);$p++)
 
     //update entry >> pc_sendalertsms='Yes'
         cron_updateentry($type, $prow['pid'], $prow['pc_eid']);
-
     }
 
     //echo $strMsg;
     WriteLog($strMsg);
-
 }
 
 sqlClose();
@@ -119,12 +116,12 @@ function cron_updateentry($type, $pid, $pc_eid)
     $query = "update openemr_postcalendar_events set ";
 
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if($type=='SMS')
+    if ($type=='SMS')
         $query.=" pc_sendalertsms='YES' ";
     elseif ($type=='Email')
         $query.=" pc_sendalertemail='YES' ";
     //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif($type=='Phone')
+    elseif ($type=='Phone')
         $query.=" pc_sendalertsms='YES' ";
 
     $query .=" where pc_pid=? and pc_eid=? ";
@@ -140,11 +137,10 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
 
     //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
-    if($type=='Phone'){
+    if ($type=='Phone') {
         $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>''	and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
 
         $check_date = date("Y-m-d", mktime(date("H")+$trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
-
     }
 
     $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,pd.phone_home,pd.hipaa_voice,";
@@ -163,11 +159,11 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
     $db_patient = (sqlStatement($query, array($check_date)));
     $patient_array = array();
     $cnt=0;
-    while ($prow = sqlFetchArray($db_patient))
-    {
+    while ($prow = sqlFetchArray($db_patient)) {
         $patient_array[$cnt] = $prow;
         $cnt++;
     }
+
     return $patient_array;
 }
 
@@ -195,19 +191,14 @@ function WriteLog($data)
     $log_file = $GLOBALS['phone_reminder_log_dir'];
 
     if ($log_file != null) {
-
         $filename = $log_file . "/"."phone_reminder_cronlog_".date("Ymd").".html";
 
-        if (!$fp = fopen($filename, 'a'))
-            {
+        if (!$fp = fopen($filename, 'a')) {
             print "Cannot open file ($filename)";
-
-        }else {
-
+        } else {
             $sdata = "\n====================================================================\n";
 
-            if (!fwrite($fp, $data.$sdata))
-            {
+            if (!fwrite($fp, $data.$sdata)) {
                 print "Cannot write to file ($filename)";
             }
 
@@ -230,8 +221,7 @@ function cron_getFacilitiesMap()
     $facility_phone_map = array();
     //get facilities from the database
     $fres = $facilityService->getAll();
-    foreach ($fres as $frow)
-    {
+    foreach ($fres as $frow) {
         $facility_msg_map[$frow['id']] = $message_map[$frow['name']];
         $facility_phone_map[$frow['id']] = $frow['phone'];
     }

@@ -47,20 +47,22 @@ class Barcode
         $rect  = false;
         $b2d   = false;
 
-        if (is_array($datas)){
-            foreach(array('code' => '', 'crc' => true, 'rect' => false) as $v => $def){
+        if (is_array($datas)) {
+            foreach (array('code' => '', 'crc' => true, 'rect' => false) as $v => $def) {
                 $$v = isset($datas[$v]) ? $datas[$v] : $def;
             }
+
             $code = $code;
         } else {
             $code = $datas;
         }
+
         if ($code == '') return false;
         $code = (string) $code;
 
         $type = strtolower($type);
 
-        switch($type){
+        switch ($type) {
             case 'std25':
             case 'int25':
                 $digit = BarcodeI25::getDigit($code, $crc, $type);
@@ -108,7 +110,7 @@ class Barcode
 
         if ($digit == '') return false;
 
-        if ( $b2d ){
+        if ($b2d) {
             $width = is_null($width) ? 5 : $width;
             $height = $width;
         } else {
@@ -117,9 +119,9 @@ class Barcode
             $digit = self::bitStringTo2DArray($digit);
         }
 
-        if ( $call == 'gd' ){
+        if ($call == 'gd') {
             $result = self::digitToGDRenderer($res, $color, $x, $y, $angle, $width, $height, $digit);
-        } else if ( $call == 'fpdf' ){
+        } else if ($call == 'fpdf') {
             $result = self::digitToFPDFRenderer($res, $color, $x, $y, $angle, $width, $height, $digit);
         }
 
@@ -132,7 +134,7 @@ class Barcode
     {
         $d = array();
         $len = strlen($digit);
-        for($i=0; $i<$len;
+        for ($i=0; $i<$len;
         $i++) $d[$i] = $digit[$i];
         return(array($d));
     }
@@ -148,15 +150,16 @@ class Barcode
         self::_rotate($columns * $mw / 2, $lines * $mh / 2, $cos, $sin, $x, $y);
         $xi -=$x;
         $yi -=$y;
-        for($y=0; $y<$lines; $y++){
+        for ($y=0; $y<$lines; $y++) {
             $x = -1;
-            while($x <$columns) {
+            while ($x <$columns) {
                 $x++;
                 if ($digit[$y][$x] == '1') {
                     $z = $x;
-                    while(($z + 1 <$columns) && ($digit[$y][$z + 1] == '1')) {
+                    while (($z + 1 <$columns) && ($digit[$y][$z + 1] == '1')) {
                         $z++;
                     }
+
                     $x1 = $x * $mw;
                     $y1 = $y * $mh;
                     $x2 = ($z + 1) * $mw;
@@ -175,6 +178,7 @@ class Barcode
                 }
             }
         }
+
         return self::result($xi, $yi, $columns, $lines, $mw, $mh, $cos, $sin);
     }
 
@@ -189,13 +193,14 @@ class Barcode
     // FPDF barcode renderer
     private static function digitToFPDFRenderer($pdf, $color, $xi, $yi, $angle, $mw, $mh, $digit)
     {
-        if (!is_array($color)){
-            if (preg_match('`([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})`i', $color, $m)){
+        if (!is_array($color)) {
+            if (preg_match('`([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})`i', $color, $m)) {
                 $color = array(hexdec($m[1]),hexdec($m[2]),hexdec($m[3]));
             } else {
                 $color = array(0,0,0);
             }
         }
+
         $color = array_values($color);
         $pdf->SetDrawColor($color[0], $color[1], $color[2]);
         $pdf->SetFillColor($color[0], $color[1], $color[2]);
@@ -205,10 +210,11 @@ class Barcode
             $h = $pdf->h;
             $k = $pdf->k;
             $points_string = '';
-            for($i=0; $i < 8; $i+=2){
+            for ($i=0; $i < 8; $i+=2) {
                 $points_string .= sprintf('%.2F %.2F', $points[$i]*$k, ($h-$points[$i+1])*$k);
                 $points_string .= $i ? ' l ' : ' m ';
             }
+
             $pdf->_out($points_string . $op);
         };
         return self::digitToRenderer($fn, $xi, $yi, $angle, $mw, $mh, $digit);
@@ -268,16 +274,18 @@ class BarcodeI25
         if (! $crc) {
             if (strlen($code) % 2) $code = '0' . $code;
         } else {
-            if ( ($type == 'int25') && (strlen($code) % 2 == 0) ) $code = '0' . $code;
+            if (($type == 'int25') && (strlen($code) % 2 == 0)) $code = '0' . $code;
             $odd = true;
             $sum = 0;
-            for($i=strlen($code)-1; $i>-1; $i--){
+            for ($i=strlen($code)-1; $i>-1; $i--) {
                 $v = intval($code[$i]);
                 $sum += $odd ? 3 * $v : $v;
                 $odd = ! $odd;
             }
+
             $code .= (string) ((10 - $sum % 10) % 10);
         }
+
         return($code);
     }
 
@@ -293,16 +301,17 @@ class BarcodeI25
 
             // digits + CRC
             $end = strlen($code) / 2;
-            for($i=0; $i<$end; $i++){
+            for ($i=0; $i<$end; $i++) {
                 $c1 = $code[2*$i];
                 $c2 = $code[2*$i+1];
-                for($j=0; $j<5; $j++){
+                for ($j=0; $j<5; $j++) {
                     $result .= '1';
                     if (self::$encoding[$c1][$j] == 'W') $result .= '1';
                     $result .= '0';
                     if (self::$encoding[$c2][$j] == 'W') $result .= '0';
                 }
             }
+
             // stop
             $result .= '1101';
         } else if ($type == 'std25') {
@@ -315,17 +324,19 @@ class BarcodeI25
 
             // digits + CRC
             $end = strlen($code);
-            for($i=0; $i<$end; $i++){
+            for ($i=0; $i<$end; $i++) {
                 $c = $code[$i];
-                for($j=0; $j<5; $j++){
+                for ($j=0; $j<5; $j++) {
                     $result .= '1';
                     if (self::$encoding[$c][$j] == 'W') $result .= '11';
                     $result .= '0';
                 }
             }
+
             // stop
             $result .= '11010110';
         }
+
         return($result);
     }
 }
@@ -361,9 +372,9 @@ class BarcodeEAN
         // process analyse
         $result = '101'; // start
 
-        if ($type == 'ean8'){
+        if ($type == 'ean8') {
             // process left part
-            for($i=0; $i<4; $i++){
+            for ($i=0; $i<4; $i++) {
                 $result .= self::$encoding[intval($code[$i])][0];
             }
 
@@ -371,16 +382,15 @@ class BarcodeEAN
             $result .= '01010';
 
             // process right part
-            for($i=4; $i<8; $i++){
+            for ($i=4; $i<8; $i++) {
                 $result .= self::$encoding[intval($code[$i])][2];
             }
-
         } else { // ean13
             // extract first digit and get sequence
             $seq = self::$first[ intval($code[0]) ];
 
             // process left part
-            for($i=1; $i<7; $i++){
+            for ($i=1; $i<7; $i++) {
                 $result .= self::$encoding[intval($code[$i])][ intval($seq[$i-1]) ];
             }
 
@@ -388,7 +398,7 @@ class BarcodeEAN
             $result .= '01010';
 
             // process right part
-            for($i=7; $i<13; $i++){
+            for ($i=7; $i<13; $i++) {
                 $result .= self::$encoding[intval($code[$i])][ 2 ];
             }
         } // ean13
@@ -404,10 +414,11 @@ class BarcodeEAN
         if (!preg_match('`[0-9]{'.$len.'}`', $code)) return('');
         $sum = 0;
         $odd = true;
-        for($i=$len-1; $i>-1; $i--){
+        for ($i=$len-1; $i>-1; $i--) {
             $sum += ($odd ? 3 : 1) * intval($code[$i]);
             $odd = ! $odd;
         }
+
         return($code . ( (string) ((10 - $sum % 10) % 10)));
     }
 }
@@ -420,6 +431,7 @@ class BarcodeUPC
         if (strlen($code) < 12) {
             $code = '0' . $code;
         }
+
         return BarcodeEAN::getDigit($code, 'ean13');
     }
 
@@ -428,6 +440,7 @@ class BarcodeUPC
         if (strlen($code) < 12) {
             $code = '0' . $code;
         }
+
         return substr(BarcodeEAN::compute($code, 'ean13'), 1);
     }
 }
@@ -441,20 +454,22 @@ class BarcodeMSI
 
     public static function compute($code, $crc)
     {
-        if (is_array($crc)){
-            if ($crc['crc1'] == 'mod10'){
+        if (is_array($crc)) {
+            if ($crc['crc1'] == 'mod10') {
                 $code = self::computeMod10($code);
-            } else if ($crc['crc1'] == 'mod11'){
+            } else if ($crc['crc1'] == 'mod11') {
                 $code = self::computeMod11($code);
             }
-            if ($crc['crc2'] == 'mod10'){
+
+            if ($crc['crc2'] == 'mod10') {
                 $code = self::computeMod10($code);
-            } else if ($crc['crc2'] == 'mod11'){
+            } else if ($crc['crc2'] == 'mod11') {
                 $code = self::computeMod11($code);
             }
-        } else if ($crc){
+        } else if ($crc) {
             $code = self::computeMod10($code);
         }
+
         return($code);
     }
 
@@ -464,19 +479,22 @@ class BarcodeMSI
         $toPart1 = $len % 2;
         $n1 = 0;
         $sum = 0;
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             if ($toPart1) {
                 $n1 = 10 * $n1 + intval($code[$i]);
             } else {
                 $sum += intval($code[$i]);
             }
+
             $toPart1 = ! $toPart1;
         }
+
         $s1 = (string) (2 * $n1);
         $len = strlen($s1);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $sum += intval($s1[$i]);
         }
+
         return($code . ( (string) (10 - $sum % 10) % 10));
     }
 
@@ -484,10 +502,11 @@ class BarcodeMSI
     {
         $sum = 0;
         $weight = 2;
-        for($i=strlen($code)-1; $i>-1; $i--){
+        for ($i=strlen($code)-1; $i>-1; $i--) {
             $sum += $weight * intval($code[$i]);
             $weight = $weight == 7 ? 2 : $weight + 1;
         }
+
         return($code . ( (string) (11 - $sum % 11) % 11) );
     }
 
@@ -504,7 +523,7 @@ class BarcodeMSI
 
         // digits
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $result .= self::$encoding[ intval($code[$i]) ];
         }
 
@@ -533,7 +552,7 @@ class Barcode11
 
         // digits
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $index = $code[$i] == '-' ? 10 : intval($code[$i]);
             $result .= self::$encoding[ $index ] . $intercharacter;
         }
@@ -543,7 +562,7 @@ class Barcode11
         $weightSumC = 0;
         $weightK    = 1; // start at 1 because the right-most character is 'C' checksum
         $weightSumK = 0;
-        for($i=$len-1; $i>-1; $i--){
+        for ($i=$len-1; $i>-1; $i--) {
             $weightC = $weightC == 10 ? 1 : $weightC + 1;
             $weightK = $weightK == 10 ? 1 : $weightK + 1;
 
@@ -559,7 +578,7 @@ class Barcode11
 
         $result .= self::$encoding[$c] . $intercharacter;
 
-        if ($len >= 10){
+        if ($len >= 10) {
             $result .= self::$encoding[$k] . $intercharacter;
         }
 
@@ -596,12 +615,13 @@ class Barcode39
         $code = strtoupper('*' . $code . '*');
 
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $index = strpos($table, $code[$i]);
             if ($index === false) return('');
             if ($i > 0) $result .= $intercharacter;
             $result .= self::$encoding[ $index ];
         }
+
         return($result);
     }
 }
@@ -636,20 +656,20 @@ class Barcode93
 
         // digits
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $c = $code[$i];
             $index = strpos($table, $c);
-            if ( ($c == '_') || ($index === false) ) return('');
+            if (($c == '_') || ($index === false)) return('');
             $result .= self::$encoding[ $index ];
         }
 
         // checksum
-        if ($crc){
+        if ($crc) {
             $weightC    = 0;
             $weightSumC = 0;
             $weightK    = 1; // start at 1 because the right-most character is 'C' checksum
             $weightSumK = 0;
-            for($i=$len-1; $i>-1; $i--){
+            for ($i=$len-1; $i>-1; $i--) {
                 $weightC = $weightC == 20 ? 1 : $weightC + 1;
                 $weightK = $weightK == 15 ? 1 : $weightK + 1;
 
@@ -718,14 +738,14 @@ class Barcode128
 
         // check each characters
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             if (strpos($tableB, $code[$i]) === false) return("");
         }
 
         // check firsts characters : start with C table only if enought numeric
         $tableCActivated = $len> 1;
         $c = '';
-        for($i=0; $i<3 && $i<$len; $i++){
+        for ($i=0; $i<3 && $i<$len; $i++) {
             $tableCActivated &= preg_match('`[0-9]`', $code[$i]);
         }
 
@@ -735,33 +755,35 @@ class Barcode128
         $result = self::$encoding[ $sum ];
 
         $i = 0;
-        while( $i < $len ){
-            if (! $tableCActivated){
+        while ($i < $len) {
+            if (! $tableCActivated) {
                 $j = 0;
                 // check next character to activate C table if interresting
-                while ( ($i + $j < $len) && preg_match('`[0-9]`', $code[$i+$j]) ) $j++;
+                while (($i + $j < $len) && preg_match('`[0-9]`', $code[$i+$j]))$j++;
 
                 // 6 min everywhere or 4 mini at the end
                 $tableCActivated = ($j > 5) || (($i + $j - 1 == $len) && ($j > 3));
 
-                if ( $tableCActivated ){
+                if ($tableCActivated) {
                     $result .= self::$encoding[ 99 ]; // C table
                     $sum += ++$isum * 99;
                 }
+
                 // 2 min for table C so need table B
-            } else if ( ($i == $len - 1) || (preg_match('`[^0-9]`', $code[$i])) || (preg_match('`[^0-9]`', $code[$i+1])) ) { //todo : verifier le JS : len - 1!!! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+            } else if (($i == $len - 1) || (preg_match('`[^0-9]`', $code[$i])) || (preg_match('`[^0-9]`', $code[$i+1]))) { //todo : verifier le JS : len - 1!!! XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
                 $tableCActivated = false;
                 $result .= self::$encoding[ 100 ]; // B table
                 $sum += ++$isum * 100;
             }
 
-            if ( $tableCActivated ) {
+            if ($tableCActivated) {
                 $value = intval(substr($code, $i, 2)); // Add two characters (numeric)
                 $i += 2;
             } else {
                 $value = strpos($tableB, $code[$i]); // Add one character
                 $i++;
             }
+
             $result  .= self::$encoding[ $value ];
             $sum += ++$isum * $value;
         }
@@ -798,7 +820,7 @@ class BarcodeCodabar
         $result .= self::$encoding[16] . $intercharacter;
 
         $len = strlen($code);
-        for($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $index = strpos($table, $code[$i]);
             if ($index === false) return('');
             $result .= self::$encoding[ $index ] . $intercharacter;
@@ -889,7 +911,7 @@ class BarcodeDatamatrix
     private static function champGaloisMult($a, $b)
     {
   // MULTIPLICATION IN GALOIS FIELD GF(2^8)
-        if(!$a || !$b) return 0;
+        if (!$a || !$b) return 0;
         return self::$aLogTab[(self::$logTab[$a] + self::$logTab[$b]) % 255];
     }
     private static function champGaloisDoub($a, $b)
@@ -912,7 +934,7 @@ class BarcodeDatamatrix
 
         $n = $rectangular ? 24 : 0;
 
-        while (self::$dataCWCount[$n] < $dataCodeWordsCount) $n++;
+        while (self::$dataCWCount[$n] < $dataCodeWordsCount)$n++;
         return $n;
     }
     private static function encodeDataCodeWordsASCII($text)
@@ -920,7 +942,7 @@ class BarcodeDatamatrix
         $dataCodeWords = array();
         $n = 0;
         $len = strlen($text);
-        for ($i=0; $i<$len; $i++){
+        for ($i=0; $i<$len; $i++) {
             $c = ord($text[$i]);
             if ($c > 127) {
                 $dataCodeWords[$n] = 235;
@@ -934,13 +956,14 @@ class BarcodeDatamatrix
             $dataCodeWords[$n] = $c;
             $n++;
         }
+
         return $dataCodeWords;
     }
     private static function addPadCW(&$tab, $from, $to)
     {
         if ($from >= $to) return ;
         $tab[$from] = 129;
-        for ($i=$from+1; $i<$to; $i++){
+        for ($i=$from+1; $i<$to; $i++) {
             $r = ((149 * ($i+1)) % 253) + 1;
             $tab[$i] = (129 + $r) % 254;
         }
@@ -949,12 +972,13 @@ class BarcodeDatamatrix
     {
  // CALCULATE THE REED SOLOMON FACTORS
         $g = array_fill(0, $solomonCWCount+1, 1);
-        for($i = 1; $i <= $solomonCWCount; $i++) {
-            for($j = $i - 1; $j >= 0; $j--) {
+        for ($i = 1; $i <= $solomonCWCount; $i++) {
+            for ($j = $i - 1; $j >= 0; $j--) {
                 $g[$j] = self::champGaloisDoub($g[$j], $i);
-                if($j > 0) $g[$j] = self::champGaloisSum($g[$j], $g[$j-1]);
+                if ($j > 0) $g[$j] = self::champGaloisSum($g[$j], $g[$j-1]);
             }
         }
+
         return $g;
     }
     private static function addReedSolomonCW($nSolomonCW, $coeffTab, $nDataCW, &$dataTab, $blocks)
@@ -963,37 +987,41 @@ class BarcodeDatamatrix
         $errorBlocks = $nSolomonCW / $blocks;
         $correctionCW = array();
 
-        for($k = 0; $k < $blocks; $k++) {
+        for ($k = 0; $k < $blocks; $k++) {
             for ($i=0; $i < $errorBlocks;
             $i++) $correctionCW[$i] = 0;
 
-            for ($i=$k; $i<$nDataCW; $i+=$blocks){
+            for ($i=$k; $i<$nDataCW; $i+=$blocks) {
                 $temp = self::champGaloisSum($dataTab[$i], $correctionCW[$errorBlocks-1]);
-                for ($j=$errorBlocks-1; $j>=0; $j--){
-                    if ( !$temp ) {
+                for ($j=$errorBlocks-1; $j>=0; $j--) {
+                    if (!$temp) {
                         $correctionCW[$j] = 0;
                     } else {
                         $correctionCW[$j] = self::champGaloisMult($temp, $coeffTab[$j]);
                     }
+
                     if ($j>0) $correctionCW[$j] = self::champGaloisSum($correctionCW[$j-1], $correctionCW[$j]);
                 }
             }
+
             // Renversement des blocs calcules
             $j = $nDataCW + $k;
-            for ($i=$errorBlocks-1; $i>=0; $i--){
+            for ($i=$errorBlocks-1; $i>=0; $i--) {
                 $dataTab[$j] = $correctionCW[$i];
                 $j=$j+$blocks;
             }
         }
+
         return $dataTab;
     }
     private static function getBits($entier)
     {
  // Transform integer to tab of bits
         $bits = array();
-        for ($i=0; $i<8; $i++){
+        for ($i=0; $i<8; $i++) {
             $bits[$i] = $entier & (128 >> $i) ? 1 : 0;
         }
+
         return $bits;
     }
     private static function next($etape, $totalRows, $totalCols, $codeWordsBits, &$datamatrix, &$assigned)
@@ -1005,27 +1033,27 @@ class BarcodeDatamatrix
 
         do {
             // Check for a special case of corner
-            if(($row == $totalRows) && ($col == 0)){
+            if (($row == $totalRows) && ($col == 0)) {
                 self::patternShapeSpecial1($datamatrix, $assigned, $codeWordsBits[$chr], $totalRows, $totalCols);
                 $chr++;
-            } else if(($etape<3) && ($row == $totalRows-2) && ($col == 0) && ($totalCols%4 != 0)){
+            } else if (($etape<3) && ($row == $totalRows-2) && ($col == 0) && ($totalCols%4 != 0)) {
                 self::patternShapeSpecial2($datamatrix, $assigned, $codeWordsBits[$chr], $totalRows, $totalCols);
                 $chr++;
-            } else if(($row == $totalRows-2) && ($col == 0) && ($totalCols%8 == 4)){
+            } else if (($row == $totalRows-2) && ($col == 0) && ($totalCols%8 == 4)) {
                 self::patternShapeSpecial3($datamatrix, $assigned, $codeWordsBits[$chr], $totalRows, $totalCols);
                 $chr++;
-            }
-            else if(($row == $totalRows+4) && ($col == 2) && ($totalCols%8 == 0)){
+            } else if (($row == $totalRows+4) && ($col == 2) && ($totalCols%8 == 0)) {
                 self::patternShapeSpecial4($datamatrix, $assigned, $codeWordsBits[$chr], $totalRows, $totalCols);
                 $chr++;
             }
 
             // Go up and right in the datamatrix
             do {
-                if(($row < $totalRows) && ($col >= 0) && (!isset($assigned[$row][$col]) || $assigned[$row][$col]!=1)) {
+                if (($row < $totalRows) && ($col >= 0) && (!isset($assigned[$row][$col]) || $assigned[$row][$col]!=1)) {
                     self::patternShapeStandard($datamatrix, $assigned, $codeWordsBits[$chr], $row, $col, $totalRows, $totalCols);
                     $chr++;
                 }
+
                 $row -= 2;
                 $col += 2;
             } while (($row >= 0) && ($col < $totalCols));
@@ -1034,10 +1062,11 @@ class BarcodeDatamatrix
 
             // Go down and left in the datamatrix
             do {
-                if(($row >= 0) && ($col < $totalCols) && (!isset($assigned[$row][$col]) || $assigned[$row][$col]!=1)){
+                if (($row >= 0) && ($col < $totalCols) && (!isset($assigned[$row][$col]) || $assigned[$row][$col]!=1)) {
                     self::patternShapeStandard($datamatrix, $assigned, $codeWordsBits[$chr], $row, $col, $totalRows, $totalCols);
                     $chr++;
                 }
+
                 $row += 2;
                 $col -= 2;
             } while (($row < $totalRows) && ($col >=0));
@@ -1108,10 +1137,12 @@ class BarcodeDatamatrix
             $row += $totalRows;
             $col += 4 - (($totalRows+4)%8);
         }
+
         if ($col < 0) {
             $col += $totalCols;
             $row += 4 - (($totalCols+4)%8);
         }
+
         if (!isset($assigned[$row][$col]) || $assigned[$row][$col] != 1) {
             $datamatrix[$row][$col] = $bit;
             $assigned[$row][$col] = 1;
@@ -1126,37 +1157,39 @@ class BarcodeDatamatrix
         $datamatrixTemp = array();
         $datamatrixTemp[0] = array_fill(0, $totalColsCW+2, 0);
 
-        for ($i=0; $i<$totalRowsCW; $i++){
+        for ($i=0; $i<$totalRowsCW; $i++) {
             $datamatrixTemp[$i+1] = array();
             $datamatrixTemp[$i+1][0] = 0;
             $datamatrixTemp[$i+1][$totalColsCW+1] = 0;
-            for ($j=0; $j<$totalColsCW; $j++){
-                if ($i%($rowsRegionCW+2) == 0){
-                    if ($j%2 == 0){
+            for ($j=0; $j<$totalColsCW; $j++) {
+                if ($i%($rowsRegionCW+2) == 0) {
+                    if ($j%2 == 0) {
                         $datamatrixTemp[$i+1][$j+1] = 1;
                     } else {
                         $datamatrixTemp[$i+1][$j+1] = 0;
                     }
-                } else if ($i%($rowsRegionCW+2) == $rowsRegionCW+1){
+                } else if ($i%($rowsRegionCW+2) == $rowsRegionCW+1) {
                     $datamatrixTemp[$i+1][$j+1] = 1;
-                } else if ($j%($colsRegionCW+2) == $colsRegionCW+1){
-                    if ($i%2 == 0){
+                } else if ($j%($colsRegionCW+2) == $colsRegionCW+1) {
+                    if ($i%2 == 0) {
                         $datamatrixTemp[$i+1][$j+1] = 0;
                     } else {
                         $datamatrixTemp[$i+1][$j+1] = 1;
                     }
-                } else if ($j%($colsRegionCW+2) == 0){
+                } else if ($j%($colsRegionCW+2) == 0) {
                     $datamatrixTemp[$i+1][$j+1] = 1;
-                } else{
+                } else {
                     $datamatrixTemp[$i+1][$j+1] = 0;
                     $datamatrixTemp[$i+1][$j+1] = $datamatrix[$i-1-(2*(floor($i/($rowsRegionCW+2))))][$j-1-(2*(floor($j/($colsRegionCW+2))))]; // todo : parseInt => ?
                 }
             }
         }
+
         $datamatrixTemp[$totalRowsCW+1] = array();
-        for ($j=0; $j<$totalColsCW+2; $j++){
+        for ($j=0; $j<$totalColsCW+2; $j++) {
             $datamatrixTemp[$totalRowsCW+1][$j] = 0;
         }
+
         return $datamatrixTemp;
     }
     public static function getDigit($text, $rectangular)
@@ -1185,7 +1218,7 @@ class BarcodeDatamatrix
         self::addReedSolomonCW($solomonCWCount, $g, $totalDataCWCount, $dataCodeWords, $blocks); // Add Reed Solomon codewords
 
         $codeWordsBits = array(); // Calculte bits from codewords
-        for ($i=0; $i<$totalCWCount; $i++){
+        for ($i=0; $i<$totalCWCount; $i++) {
             $codeWordsBits[$i] = self::getBits($dataCodeWords[$i]);
         }
 
@@ -1193,7 +1226,7 @@ class BarcodeDatamatrix
         $assigned = array_fill(0, $colsLengthMatrice, array());
 
         // Add the bottom-right corner if needed
-        if ( (($rowsLengthMatrice * $colsLengthMatrice) % 8) == 4) {
+        if ((($rowsLengthMatrice * $colsLengthMatrice) % 8) == 4) {
             $datamatrix[$rowsLengthMatrice-2][$colsLengthMatrice-2] = 1;
             $datamatrix[$rowsLengthMatrice-1][$colsLengthMatrice-1] = 1;
             $datamatrix[$rowsLengthMatrice-1][$colsLengthMatrice-2] = 0;

@@ -46,8 +46,7 @@ function thisLineItem($row)
         echo '"' . addslashes($provname) . '",';
         echo '"' . addslashes($row['priority_name' ]) . '",';
         echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
-    }
-    else {
+    } else {
     ?>
    <tr>
     <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
@@ -84,8 +83,7 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Provider') . '",';
     echo '"' . xl('Priority') . '",';
     echo '"' . xl('Status') . '"' . "\n";
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
@@ -202,6 +200,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
@@ -209,7 +208,6 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     while ($row = sqlFetchArray($res)) {
         thisLineItem($row);
     }
-
 } // end report generation
 
 if (! $_POST['form_csvexport']) {

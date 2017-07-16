@@ -49,7 +49,7 @@ if ($formid) {
 $check_res = $formid ? $check_res : array();
 $sql1 = "SELECT option_id AS `value`, title FROM `list_options` WHERE list_id = ?";
 $result = sqlStatement($sql1, array('Plan_of_Care_Type'));
-foreach($result as $value):
+foreach ($result as $value) :
     $care_plan_type[] = $value;
 endforeach;
 ?>
@@ -174,7 +174,7 @@ endforeach;
                         <td>
                           <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="care_plan_type">
                             <option value=""></option>
-                            <?php foreach($care_plan_type as $value):
+                            <?php foreach ($care_plan_type as $value) :
                                 $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                             ?>
                             <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>
@@ -210,7 +210,7 @@ endforeach;
                 <td>
                   <select name="care_plan_type[]" id="care_plan_type_1" class="care_plan_type">
                     <option value=""></option>
-                    <?php foreach($care_plan_type as $value):
+                    <?php foreach ($care_plan_type as $value) :
                         $selected = ($value['value'] == $obj{"care_plan_type"}) ? 'selected="selected"' : '';
                     ?>
                     <option value="<?php echo attr($value['value']);?>" <?php echo $selected;?>><?php echo text($value['title']);?></option>

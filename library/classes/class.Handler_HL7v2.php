@@ -33,6 +33,7 @@ class Handler_HL7v2
                     break;
             }
         }
+
         return $target;
     } // end method _StripToNumeric
 } // end class Handler_HL7v2

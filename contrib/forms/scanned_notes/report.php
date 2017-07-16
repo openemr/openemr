@@ -41,10 +41,10 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id)
                 if ($asize[0] > 750) {
                     echo " class='bigimage'";
                 }
+
                 echo " />\n";
                 echo " <br />\n";
-            }
-            else {
+            } else {
                 if ($i >= 0) break;
             }
         }

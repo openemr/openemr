@@ -103,12 +103,13 @@ class Multipledb implements InputFilterAwareInterface
         if (!$this->inputFilter) {
             $inputFilter = new InputFilter();
 
-            foreach(self::$inputsValidations as $input) {
+            foreach (self::$inputsValidations as $input) {
                 $inputFilter->add($input);
             }
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

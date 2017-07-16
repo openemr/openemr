@@ -80,8 +80,7 @@ if ($tempid) {
     $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
     "id = $tempid AND rownbr = -1 AND colnbr = -1");
     $template_name = $trow['value'];
-}
-else if ($formid) {
+} else if ($formid) {
     $trow = sqlQuery("SELECT value FROM form_$spreadsheet_form_name WHERE " .
     "id = $formid AND rownbr = -1 AND colnbr = -1");
     list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
@@ -96,7 +95,6 @@ $num_used_cols = 0;
 // If we are saving...
 //
 if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
-
   // The form data determines how many rows and columns are now used.
     $cells = $_POST['cell'];
     for ($i = 0; $i < count($cells); ++$i) {
@@ -119,8 +117,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             "WHERE id = '$formid' AND rownbr = -1 AND colnbr = -1");
             sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
               "id = '$formid' AND rownbr >= 0 AND colnbr >= 0");
-        }
-        // If adding a new form...
+        } // If adding a new form...
         else {
             $tmprow = sqlQuery(
                 "SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
@@ -147,9 +144,9 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 $userauthorized
             );
         }
+
         $saveid = $formid;
-    }
-    else { // saving a template
+    } else { // saving a template
         // The rule is, we can update the original name, or insert a new name
         // which must not match any existing template name.
         $new_template_name = form2real($_POST['form_new_template_name']);
@@ -160,19 +157,18 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             if ($trow['id']) {
                   $alertmsg = "Template \"" . real2form($new_template_name) .
                     "\" already exists!";
-            }
-            else {
+            } else {
                   $tempid = 0; // to force insert of new template
                   $template_name = $new_template_name;
             }
         }
+
         if (!$alertmsg) {
             // If updating an existing template...
             if ($tempid) {
                 sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
                 "id = '$tempid' AND rownbr >= 0 AND colnbr >= 0");
-            }
-            // If adding a new template...
+            } // If adding a new template...
             else {
                 sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
                 $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
@@ -186,6 +182,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 ")");
                 sqlStatement("UNLOCK TABLES");
             }
+
             $saveid = $tempid;
         }
     }
@@ -206,8 +203,7 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             }
         }
     }
-}
-else if ($_POST['bn_delete_template'] && $tempid) {
+} else if ($_POST['bn_delete_template'] && $tempid) {
     sqlStatement("DELETE FROM form_$spreadsheet_form_name WHERE " .
     "id = '$tempid'");
     $tempid = 0;
@@ -238,8 +234,7 @@ if ($formid) {
     "FROM form_$spreadsheet_form_name WHERE id = '$formid'");
     $num_used_rows = $tmprow['rowmax'] + 1;
     $num_used_cols = $tmprow['colmax'] + 1;
-}
-# Otherwise if we are editing a template, get it.
+} # Otherwise if we are editing a template, get it.
 else if ($tempid) {
     $dres = sqlStatement("SELECT * FROM form_$spreadsheet_form_name WHERE " .
     "id = '$tempid' ORDER BY rownbr, colnbr");
@@ -576,10 +571,10 @@ if ($popup) echo '&popup=1'; ?>"
 while ($trow = sqlFetchArray($tres)) {
     echo "    <option value='" . $trow['id'] . "'";
     if ($tempid && $tempid == $trow['id'] ||
-    $formid && $template_name == $trow['value'])
-    {
+    $formid && $template_name == $trow['value']) {
         echo " selected";
     }
+
     echo ">" . $trow['value'] . "</option>\n";
 }
 ?>
@@ -608,15 +603,12 @@ $typeprompts = array('unused','static','checkbox','text');
 for ($i = 0; $i < $num_virtual_rows; ++$i) {
     echo " <tr>\n";
     for ($j = 0; $j < $num_virtual_cols; ++$j) {
-
         // Match up with the database for cell type and value.
         $celltype = '0';
         $cellvalue = '';
         if ($dres) {
-            while ($drow && $drow['rownbr'] < $i)
-            $drow = sqlFetchArray($dres);
-            while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j)
-            $drow = sqlFetchArray($dres);
+            while ($drow && $drow['rownbr'] < $i)$drow = sqlFetchArray($dres);
+            while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j)$drow = sqlFetchArray($dres);
             if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
                 $celltype = $drow['datatype'];
                 $cellvalue = real2form($drow['value']);
@@ -644,6 +636,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             if ($key == $celltype) echo " selected";
             echo ">$value</option>";
         }
+
         echo "</select>";
         echo "</div>";
         /****************************************************************/
@@ -654,18 +647,15 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         if ($celltype == '1') {
             // So we don't have to write a PHP version of genStatic():
             echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
-        }
-        else if ($celltype == '2') {
+        } else if ($celltype == '2') {
             echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
             if ($cellvalue) echo " checked";
             echo " />";
-        }
-        else if ($celltype == '3') {
+        } else if ($celltype == '3') {
             echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
             echo " value='$cellvalue'";
             echo " size='12' />";
-        }
-        else if ($celltype == '4') {
+        } else if ($celltype == '4') {
             echo "<textarea rows='3' cols='25' wrap='virtual' class='intext' " .
             "onchange='longChange(this,$i,$j)'>";
             echo $cellvalue;
@@ -676,6 +666,7 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 
         echo "</td>\n";
     }
+
     echo " </tr>\n";
 }
 ?>

@@ -19,9 +19,10 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "sex") ) {
+        if (strpos($method, "sex")) {
             return RuleCriteriaType::from(RuleCriteriaType::sex);
         }
+
         return null;
     }
 

@@ -56,10 +56,11 @@ class X12Partner extends ORDataObject
         $x = new X12Partner();
         $sql = "SELECT id FROM "  . $x->_table . " order by name";
         $result = $x->_db->Execute($sql);
-        while($result && !$result->EOF) {
+        while ($result && !$result->EOF) {
             $partners[] = new X12Partner($result->fields['id']);
             $result->MoveNext();
         }
+
         return $partners;
     }
 
@@ -232,6 +233,7 @@ class X12Partner extends ORDataObject
             $ta = $this->processing_format_array;
             return $ta[$this->processing_format];
         }
+
         return $this->processing_format;
     }
 

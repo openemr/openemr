@@ -60,10 +60,10 @@ require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 $returnurl = 'encounter_top.php';
 
-if (isset($_REQUEST['id']))
-{
+if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
+
 if (!$id) $id = $_REQUEST['pid'];
 $encounter = $_REQUEST['encounter'];
 
@@ -72,6 +72,7 @@ if ($encounter == "" && !$id && !$AJAX_PREFS && (($_REQUEST['mode'] != "retrieve
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }
+
 /**
  * Save/update the preferences
  */
@@ -219,6 +220,7 @@ if ($_REQUEST['AJAX_PREFS']) {
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
     sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_TOOLTIPS']));
 }
+
 /**
   * ADD ANY NEW PREFERENCES above, and as a hidden field in the body.
   */
@@ -248,10 +250,11 @@ if ($_REQUEST['unlock'] == '1') {
   // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
     $lock = sqlQuery($query, array($form_id));
-    if (($lock['LOCKED'] >'') && ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY']))  {
+    if (($lock['LOCKED'] >'') && ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
         $query = "update ".$table_name." set LOCKED='',LOCKEDBY='' where id=?";
         sqlQuery($query, array($form_id));
     }
+
     exit;
 } elseif ($_REQUEST['acquire_lock']=="1") {
   //we are taking over the form's active state, others will go read-only
@@ -263,7 +266,7 @@ if ($_REQUEST['unlock'] == '1') {
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
     $lock = sqlQuery($query, array($form_id));
-    if (($lock['LOCKED']) && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY']))  {
+    if (($lock['LOCKED']) && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY'])) {
         // We are not the owner or it is not new so it is locked
         // Did the user send a demand to take ownership?
         if ($lock['LOCKEDBY'] != $_REQUEST['ownership']) {
@@ -288,13 +291,14 @@ if ($_REQUEST['unlock'] == '1') {
         sqlQuery($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
         //go on to save what we want...
     }
+
     if (!$_REQUEST['LOCKEDBY'])  $_REQUEST['LOCKEDBY'] = rand();
 }
 
-if ($_REQUEST["mode"] == "new")             {
+if ($_REQUEST["mode"] == "new") {
     $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
     addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-} elseif ($_REQUEST["mode"] == "update")    {
+} elseif ($_REQUEST["mode"] == "update") {
   // The user has write privileges to work with...
     if ($_REQUEST['action']=="store_PDF") {
         /*
@@ -316,6 +320,7 @@ if ($_REQUEST["mode"] == "new")             {
         foreach (glob($filepath.'/'.$filename) as $file) {
             unlink($file);
         }
+
         $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%".$filename."')";
         sqlQuery($sql);
         $sql = "DELETE from documents where documents.url like '%".$filename."'";
@@ -359,11 +364,11 @@ if ($_REQUEST["mode"] == "new")             {
             $i = stripos($content, " src='/", $i + 1);
             if ($i === false) break;
             if (substr($content, $i+6, $wrlen) === $web_root &&
-              substr($content, $i+6, $wsrlen) !== $webserver_root)
-            {
+              substr($content, $i+6, $wsrlen) !== $webserver_root) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }
+
         $pdf->writeHTML($content, false);
         $temp_filename = '/tmp/'.$filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
@@ -375,6 +380,7 @@ if ($_REQUEST["mode"] == "new")             {
         sqlQuery($sql, array($encounter,$doc_id));
         exit;
     }
+
   // Store the IMPPLAN area.  This is separate from the rest of the form
   // It is in a separate table due to its one-to-many relationship with the form_id.
     if ($_REQUEST['action']=="store_IMPPLAN") {
@@ -383,12 +389,13 @@ if ($_REQUEST["mode"] == "new")             {
         $query = "DELETE from form_".$form_folder."_impplan where form_id=? and pid=?";
         sqlQuery($query, array($form_id,$pid));
 
-        for($i = 0; $i < count($IMPPLAN); $i++) {
+        for ($i = 0; $i < count($IMPPLAN); $i++) {
             $query ="INSERT IGNORE INTO form_".$form_folder."_impplan (form_id, pid, title, code, codetype, codedesc, codetext, plan, IMPPLAN_order, PMSFH_link) VALUES(?,?,?,?,?,?,?,?,?,?) ";
             $response = sqlQuery($query, array($form_id,$pid,$IMPPLAN[$i]['title'],$IMPPLAN[$i]['code'],$IMPPLAN[$i]['codetype'],$IMPPLAN[$i]['codedesc'],$IMPPLAN[$i]['codetext'],$IMPPLAN[$i]['plan'],$i,$IMPPLAN[$i]['PMSFH_link']));
             //if it is a duplicate then delete this from the array and return the array via json.
             //or rebuild it from mysql
         }
+
         //Since we are potentially ignoring duplicates, build json IMPPLAN_items and return it to the user to rebuild IMP/Plan area
         $IMPPLAN_items = build_IMPPLAN_items($pid, $form_id);
         echo json_encode($IMPPLAN_items);
@@ -438,6 +445,7 @@ if ($_REQUEST["mode"] == "new")             {
                         $newdata[$field_id] = get_layout_form_value($frow);
                     }
                 }
+
                 updateHistoryData($pid, $newdata);
                 if ($_REQUEST['marital_status'] >'') {
                     // have to match input with list_option for marital to not break openEMR
@@ -451,10 +459,12 @@ if ($_REQUEST["mode"] == "new")             {
                         }
                     }
                 }
+
                 if ($_REQUEST['occupation'] > '') {
                     $query = "UPDATE patient_data set occupation=? where pid=?";
                     sqlStatement($query, array($_REQUEST['occupation'],$pid));
                 }
+
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -502,13 +512,15 @@ if ($_REQUEST["mode"] == "new")             {
                         $subtype="eye";
                         //we always want a default begin date
                         //if it is empty, fill it with today
-                        if ($_REQUEST['form_begin'] =='')
-                        { $_REQUEST['form_begin'] = date("Y-m-d"); }
+                        if ($_REQUEST['form_begin'] =='') {
+                            $_REQUEST['form_begin'] = date("Y-m-d"); }
                     }
+
                     if ($_REQUEST['form_begin'] =='') {
                         $_REQUEST['form_begin'] = $visit_date;
                     }
                 }
+
                 $i = 0;
                 $form_begin = fixDate($_REQUEST['form_begin'], '');
                 $form_end   = fixDate($_REQUEST['form_end'], '');
@@ -524,6 +536,7 @@ if ($_REQUEST["mode"] == "new")             {
                         $issue = $item['issue'];
                     }
                 }
+
                 if (!$issue) {
                     if ($subtype == '') {
                         $query = "SELECT id,pid from lists where title=? and type=? and pid=?";
@@ -535,6 +548,7 @@ if ($_REQUEST["mode"] == "new")             {
                         $issue = $issue2['id'];
                     }
                 }
+
                 $issue = 0 + $issue;
                 if ($_REQUEST['form_reinjury_id'] =="") $form_reinjury_id="0";
                 if ($_REQUEST['form_injury_grade'] =="") $form_injury_grade="0";
@@ -596,32 +610,34 @@ if ($_REQUEST["mode"] == "new")             {
                         ") VALUES ( ?,?,? )";
                         sqlStatement($query, array($pid,$issue,$encounter));
                     }
-
                 }
+
                 $irow = '';
                 //if it is a medication do we need to do something with dosage fields?
                 //leave all in title field form now.
             }
+
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
         }
     }
+
     if ($_REQUEST['action'] =='code_PMSFH') {
         $query = "UPDATE lists SET diagnosis = ? WHERE id = ?";
         sqlStatement($query, array($_POST['code'],$_POST['issue']));
         exit;
     }
 
-    if ($_REQUEST['action'] == 'code_visit'){
+    if ($_REQUEST['action'] == 'code_visit') {
         $CODING = json_decode($_REQUEST['parameter'], true);
         $query  = "delete from billing where encounter =?";
         sqlStatement($query, array($encounter));
-        foreach ($CODING as $item) //need toremove duplicate codes
-        {
+        foreach ($CODING as $item) { //need toremove duplicate codes
             if ($dups[$item["code"]]=='1') {
                 continue;
             }
+
             $dups[$item["code"]] = "1";
             $sql = "SELECT codes.*, prices.pr_price FROM codes " .
               "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
@@ -637,11 +653,14 @@ if ($_REQUEST["mode"] == "new")             {
                 $item["units"] = $res["units"];
                 $item["fee"] = $res["pr_price"];
             }
+
             addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $justify, $billed, '');
         }
+
         echo 'ok';
         exit;
     }
+
   /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
 
   /* Let's save the encounter specific values.
@@ -657,10 +676,12 @@ if ($_REQUEST["mode"] == "new")             {
         return 'Could not run query: No columns found in your table!  ' . mysql_error();
         exit;
     }
+
     $fields = array();
     if (($_POST['IOPTIME'] == '00:00:00')||(!$_POST['IOPTIME'])) {
         $_POST['IOPTIME'] =  date('H:i:s');
     }
+
     $_POST['IOPTIME'] = date('H:i:s', strtotime($_POST['IOPTIME']));
 
     if (sqlNumRows($result) > 0) {
@@ -680,6 +701,7 @@ if ($_REQUEST["mode"] == "new")             {
               continue;
             if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
         }
+
         // orders are checkboxes created from a user defined list in the PLAN area and stored as item1|item2|item3
         // if there are any, create the $field['PLAN'] value.
         // Remember --  If you uncheck a box, it won't be sent!
@@ -695,14 +717,15 @@ if ($_REQUEST["mode"] == "new")             {
         $sql_clear = "DELETE from form_eye_mag_orders where ORDER_PID =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
         sqlQuery($sql_clear, array($pid,$providerID,$visit_date));
         if ($N > '0') {
-            for($i=0; $i < $N; $i++)
-            {
+            for ($i=0; $i < $N; $i++) {
                 $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
                 $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?)";
                 $okthen = sqlQuery($ORDERS_sql, array($pid,$_POST['PLAN'][$i],'pending',$visit_date,$providerID));
             }
+
             $fields['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
         }
+
         if ($_REQUEST['PLAN2']) {
             $fields['PLAN'] .= $_REQUEST['PLAN2'];
             //there is something in the "freeform" plan textarea...
@@ -712,10 +735,10 @@ if ($_REQUEST["mode"] == "new")             {
 
         $M = count($_POST['TEST']);
         if ($M > '0') {
-            for($i=0; $i < $M; $i++)
-            {
+            for ($i=0; $i < $M; $i++) {
                 $fields['Resource'] .= $_POST['TEST'][$i] . "|"; //this makes an entry for form_eyemag: Resource
             }
+
             $fields['Resource'] = mb_substr($fields['Resource'], 0, -1); //get rid of trailing "|"
         }
 
@@ -775,6 +798,7 @@ if ($_REQUEST["mode"] == "new")             {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
             sqlQuery($query, array($encounter,$pid,$form_id,'1'));
         }
+
         if ($_POST['W_2']=='1') {
             //store W_2
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -800,6 +824,7 @@ if ($_REQUEST["mode"] == "new")             {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
             sqlQuery($query, array($encounter,$pid,$form_id,'2'));
         }
+
         if ($_POST['W_3']=='1') {
           //store W_3
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -825,6 +850,7 @@ if ($_REQUEST["mode"] == "new")             {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
             sqlQuery($query, array($encounter,$pid,$form_id,'3'));
         }
+
         if ($_POST['W_4']=='1') {
            //store W_4
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -850,10 +876,12 @@ if ($_REQUEST["mode"] == "new")             {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
             sqlQuery($query, array($encounter,$pid,$form_id,'4'));
         }
+
         for ($i=$rx_number; $i < 5; $i++) {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
             sqlQuery($query, array($encounter,$pid,$form_id,$i));
         }
+
         //now return the obj
         $send['IMPPLAN_items'] = build_IMPPLAN_items($pid, $form_id);
         $send['Clinical'] = start_your_engines($_REQUEST);
@@ -863,8 +891,7 @@ if ($_REQUEST["mode"] == "new")             {
         echo json_encode($send);
         exit;
     }
-} elseif ($_REQUEST["mode"] == "retrieve")  {
-
+} elseif ($_REQUEST["mode"] == "retrieve") {
     if ($_REQUEST['PRIORS_query']) {
         echo display_PRIOR_section($_REQUEST['zone'], $_REQUEST['orig_id'], $_REQUEST['id_to_show'], $pid);
         exit;
@@ -918,6 +945,7 @@ if ($_REQUEST['copy']) {
     copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], $_SESSION['ID'], $pid);
     return;
 }
+
 function QuotedOrNull($fld)
 {
     if ($fld) return "'".add_escape_custom($fld)."'";
@@ -945,9 +973,11 @@ function row_delete($table, $where)
             if ($logstring) $logstring .= " ";
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
+
         newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
+
     if ($count) {
         $query = "DELETE FROM $table WHERE $where";
         sqlStatement($query);
@@ -964,6 +994,7 @@ function issueTypeIndex($tstr)
         if ($key == $tstr) break;
         ++$i;
     }
+
     return $i;
 }
 

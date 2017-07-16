@@ -143,6 +143,7 @@ class POSRef
             default:
                 break;
         }
+
         return $pos;
     }
 

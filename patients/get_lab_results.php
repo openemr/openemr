@@ -34,8 +34,7 @@
       "WHERE po.patient_id = ? AND $where " .
       "ORDER BY $orderby", array($pid));
 
-  if(sqlNumRows($res)>0)
-  {
+  if (sqlNumRows($res)>0) {
         ?>
         <table class="class1">
           <tr class="header">
@@ -85,7 +84,6 @@
 
             $rres = sqlStatement($query);
             while ($rrow = sqlFetchArray($rres)) {
-
                 if ($even) {
                     $class="class1_even";
                     $even=false;
@@ -93,6 +91,7 @@
                     $class="class1_odd";
                     $even=true;
                 }
+
                     $date=explode('-', $row['date_ordered']);
                     echo "<tr class='".$class."'>";
                     echo "<td>".htmlspecialchars($date[1]."/".$date[2]."/".$date[0], ENT_NOQUOTES)."</td>";
@@ -105,15 +104,11 @@
                         echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_res_status'), $rrow['result_status'])."</td>";
                         echo "<td>".generate_display_field(array('data_type'=>'1','list_id'=>'proc_rep_status'), $row['report_status'])."</td>";
                     echo "</tr>";
-
             }
-
         }
 
         echo "</table>";
-    }
-    else
-    {
+    } else {
         echo htmlspecialchars(xl("No Results"), ENT_NOQUOTES);
     }
 ?>

@@ -141,8 +141,7 @@ while ($frow = sqlFetchArray($fres)) {
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
         // if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
-    }
-    else {
+    } else {
         // if (isset($result[$field_id])) $currvalue = $result[$field_id];
     }
 
@@ -175,6 +174,7 @@ while ($frow = sqlFetchArray($fres)) {
         echo ">";
         $cell_count += $titlecols;
     }
+
     ++$item_count;
 
     echo "<b>";

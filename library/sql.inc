@@ -50,10 +50,10 @@ class ADODB_mysqli_log extends ADODB_mysqli
 
           // Last error no
             $GLOBALS['last_mysql_error_no']=$this->ErrorNo();
-        }
-        else {
+        } else {
             $outcome = true;
         }
+
         // Stash the insert ID into lastidado so it doesn't get clobbered when
         // we insert into the audit log.
         $GLOBALS['lastidado']=$this->Insert_ID();
@@ -109,8 +109,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         if ($rs) {
             $this->genID = mysqli_insert_id($this->_connectionID);
             $rs->Close();
-        } else
-                $this->genID = 0;
+        } else $this->genID = 0;
 
         return $this->genID;
     }
@@ -185,6 +184,7 @@ function sqlStatement($statement, $binds = false)
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
+
     return $recordset;
 }
 
@@ -216,6 +216,7 @@ function sqlStatementNoLog($statement, $binds = false)
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
+
     return $recordset;
 }
 
@@ -235,8 +236,7 @@ function sqlStatementCdrEngine($statement, $binds = false)
 
     if ($GLOBALS['audit_events_cdr']) {
         return sqlStatement($statement, $binds);
-    }
-    else {
+    } else {
         return sqlStatementNoLog($statement, $binds);
     }
 }
@@ -308,6 +308,7 @@ function sqlInsert($statement, $binds = false)
     if ($recordset === false) {
         HelpfulDie("insert failed: $statement", getSqlLastError());
     }
+
   // Return the correct last id generated using function
   //   that is safe with the audit engine.
     return getSqlLastID();
@@ -334,6 +335,7 @@ function sqlQuery($statement, $binds = false)
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
+
     if ($recordset->EOF)
     return false;
     $rez = $recordset->FetchRow();
@@ -366,6 +368,7 @@ function sqlQueryNoLog($statement, $binds = false)
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
+
     if ($recordset->EOF)
     return false;
     $rez = $recordset->FetchRow();
@@ -400,6 +403,7 @@ function sqlQueryNoLogIgnoreError($statement, $binds = false)
         // ignore the error and return FALSE
         return false;
     }
+
     if ($recordset->EOF)
     return false;
     $rez = $recordset->FetchRow();
@@ -424,8 +428,7 @@ function sqlQueryCdrEngine($statement, $binds = false)
 
     if ($GLOBALS['audit_events_cdr']) {
         return sqlQuery($statement, $binds);
-    }
-    else {
+    } else {
         return sqlQueryNoLog($statement, $binds);
     }
 }
@@ -493,9 +496,10 @@ function sqlListFields($table)
     $sql = "SHOW COLUMNS FROM ". add_escape_custom($table);
     $resource = sqlQ($sql);
     $field_list = array();
-    while($row = sqlFetchArray($resource)) {
+    while ($row = sqlFetchArray($resource)) {
         $field_list[] = $row['Field'];
     }
+
     return $field_list;
 }
 
@@ -531,14 +535,14 @@ function HelpfulDie($statement, $sqlerr = '')
         if (!$GLOBALS['sql_string_no_show_screen']) {
              echo "<p>Error: <font color='red'>" . text($sqlerr) . "</font></p>";
         }
+
         $logMsg.="--".$sqlerr;
     }//if error
 
     $backtrace = debug_backtrace();
 
     if (!$GLOBALS['sql_string_no_show_screen']) {
-        for ($level = 1; $level < count($backtrace); $level++)
-        {
+        for ($level = 1; $level < count($backtrace); $level++) {
             $info = $backtrace[$level];
             echo "<br>" . text($info["file"] . " at " . $info["line"] . ":" . $info["function"]);
             if ($level > 1) {

@@ -36,6 +36,7 @@
              $mlines[$matches[4]] = $matches;
             }
         }
+
         ksort($mlines);
 
   // Get the doneq entries, parse and sort by job ID
@@ -53,6 +54,7 @@
                 $dlines[$matches[1]] = $matches;
             }
         }
+
         ksort($dlines);
     }
 
@@ -67,6 +69,7 @@
             $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
             $slines[$tmp[9] . $tmp[1]] = $tmp; // key is file mod time and inode number
         }
+
         closedir($dh);
         ksort($slines);
     }
@@ -255,6 +258,7 @@ foreach ($dlines as $matches) {
         $fftts = $tmp[1];
         $ffstatend = $tmp[2];
     }
+
     if ($ffstatend) $ffstatus .= ': ' . $ffstatend;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo "    <tr class='detail' bgcolor='$bgcolor'>\n";

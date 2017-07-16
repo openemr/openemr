@@ -71,14 +71,16 @@ class xmltoarray_parser_htmlfix
     {
         $trans_table = get_html_translation_table(HTML_ENTITIES, ENT_QUOTES);
         $keys = array();
-        foreach($trans_table as $key=>$value) {
-            if($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " "){
+        foreach ($trans_table as $key=>$value) {
+            if ($key != "<" && $key != ">" && $key != "&" && $key != "\"" && $key != "'" && $key != " ") {
                 $keys[$key] = $value;
             }
         }
-        foreach($keys as $key=>$value){
+
+        foreach ($keys as $key=>$value) {
             $xml =  preg_replace("/".$key."/", $value, $xml);
         }
+
         $xml =  str_replace("&", "%and%", $xml);
         
         xml_parse_into_struct($this->parser, $xml, $this->values, $this->index);
@@ -110,7 +112,7 @@ class xmltoarray_parser_htmlfix
         if (isset($values[$i]['value'])) array_push($child, $values[$i]['value']);
         
         while ($i++ < count($values)) {
-            if(isset($values[$i])){
+            if (isset($values[$i])) {
                 switch ($values[$i]['type']) {
                     case 'cdata':
                         array_push($child, $values[$i]['value']);
@@ -118,9 +120,9 @@ class xmltoarray_parser_htmlfix
                     
                     case 'complete':
                         $name = $values[$i]['tag'];
-                        if(!empty($name)){
+                        if (!empty($name)) {
                             $child[$name]= (isset($values[$i]['value']))?($values[$i]['value']):'';
-                            if(isset($values[$i]['attributes'])) {
+                            if (isset($values[$i]['attributes'])) {
                                 $child[$name] = $values[$i]['attributes'];
                             }
                         }
@@ -138,6 +140,7 @@ class xmltoarray_parser_htmlfix
                 }
             }
         }
+
         return $child;
     }//_struct_to_array
 

@@ -32,10 +32,10 @@ function rhl7LogMsg($msg, $fatal = true)
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
         newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
-    }
-    else {
+    } else {
         $rhl7_return['mssgs'][] = '>' . $msg;
     }
+
     return $rhl7_return;
 }
 
@@ -55,6 +55,7 @@ function rhl7InsertRow(&$arr, $tablename)
         $sep = ',';
         $binds[] = $value;
     }
+
     $arr = array();
     return sqlInsert($query, $binds);
 }
@@ -76,6 +77,7 @@ function rhl7FlushMain(&$amain, $commentdelim = "\n")
                     $ares['comments'] = substr($ares['comments'], $i);
                 }
             }
+
             rhl7InsertRow($ares, 'procedure_result');
         }
     }
@@ -96,13 +98,14 @@ function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_
             if ($provider) {
                 $d->postPatientNote($provider, $mdm_category_id, xl('Electronic document received'));
                 rhl7LogMsg(xl('Notification sent to') . ": $provider", false);
-            }
-            else {
+            } else {
                 rhl7LogMsg(xl('No provider was matched'), false);
             }
         }
+
         return $rc;
     }
+
     return '';
 }
 
@@ -116,10 +119,10 @@ function rhl7Text($s, $allow_newlines = false)
     $s = str_replace('\\E\\', '\\', $s);
     if ($allow_newlines) {
         $s = str_replace('\\.br\\', "\n", $s);
-    }
-    else {
+    } else {
         $s = str_replace('\\.br\\', '~', $s);
     }
+
     return $s;
 }
 
@@ -129,6 +132,7 @@ function rhl7DateTime($s)
     if (preg_match('/^([0-9.]+)[+-]/', $s, $tmp)) {
         $s = $tmp[1];
     }
+
     $s = preg_replace('/[^0-9]/', '', $s);
     if (empty($s)) return '0000-00-00 00:00:00';
     $ret = substr($s, 0, 4) . '-' . substr($s, 4, 2) . '-' . substr($s, 6, 2);
@@ -140,6 +144,7 @@ function rhl7DateTime($s)
             $ret .= '00';
         }
     }
+
     return $ret;
 }
 
@@ -149,6 +154,7 @@ function rhl7DateTimeZone($s)
     if (preg_match('/^[0-9.]+([+-].*)$/', $s, $tmp)) {
         return trim($tmp[1]);
     }
+
     return '';
 }
 
@@ -159,11 +165,11 @@ function rhl7Date($s)
 
 function rhl7Abnormal($s)
 {
-    if ($s == ''  ) return 'no';
-    if ($s == 'N' ) return 'no';
-    if ($s == 'A' ) return 'yes';
-    if ($s == 'H' ) return 'high';
-    if ($s == 'L' ) return 'low';
+    if ($s == '') return 'no';
+    if ($s == 'N') return 'no';
+    if ($s == 'A') return 'yes';
+    if ($s == 'H') return 'high';
+    if ($s == 'L') return 'low';
     if ($s == 'HH') return 'vhigh';
     if ($s == 'LL') return 'vlow';
     return rhl7Text($s);
@@ -207,14 +213,16 @@ function rhl7MimeType($fileext)
 function rhl7DecodeData($enctype, &$src)
 {
     if ($enctype == 'Base64') return base64_decode($src);
-    if ($enctype == 'A'     ) return rhl7Text($src);
+    if ($enctype == 'A') return rhl7Text($src);
     if ($enctype == 'Hex') {
         $data = '';
         for ($i = 0; $i < strlen($src) - 1; $i += 2) {
             $data .= chr(hexdec($src[$i] . $src[$i+1]));
         }
+
         return $data;
     }
+
     return false;
 }
 
@@ -225,13 +233,13 @@ function rhl7CWE($s, $componentdelimiter)
     $arr = explode($componentdelimiter, $s);
     if (!empty($arr[8])) {
         $out = $arr[8];
-    }
-    else {
+    } else {
         $out = $arr[0];
         if (isset($arr[1])) {
             $out .= " (" . $arr[1] . ")";
         }
     }
+
     return $out;
 }
 
@@ -252,6 +260,7 @@ function rhl7UpdateReportWithSpecimen(&$amain, $specimen, $d2)
     if ($tmp) {
         $tmpnotes .= '; ' . xl('Rejected') . ': ' . $tmp;
     }
+
     $tmp = rhl7CWE($specimen[24], $d2);
     if ($tmp) {
         $tmpnotes .= '; ' . xl('Condition') . ': ' . $tmp;
@@ -274,38 +283,34 @@ function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdeli
 {
     $s = null;
 
-    if ( !empty($obx23) || !empty($obx24) || !empty($obx25) )
-    {
+    if (!empty($obx23) || !empty($obx24) || !empty($obx25)) {
         // Organization Name
         // OBX23 Example: "Century Hospital^^^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^XX^^^987"
         $obx23_segs = explode($componentdelimiter, $obx23);
-        if ( !empty($obx23_segs[0]) )
-        {
+        if (!empty($obx23_segs[0])) {
             $s .= $obx23_segs[0] . $commentdelim;
         }
 
         // Medical Director
         // OBX25 Example: "2343242^Knowsalot^Phil^J.^III^Dr.^^^NIST-AA-1&2.16.840.1.113883.3.72.5.30.1&ISO^L^^^DNSPM"
         //             Dr. Phil Knowsalot J. III
-        if ( !empty($obx25) )
-        {
+        if (!empty($obx25)) {
             $obx25_segs = explode($componentdelimiter, $obx25);
             $s .= "$obx25_segs[5] $obx25_segs[2] $obx25_segs[1] $obx25_segs[3] $obx25_segs[4]" . $commentdelim;
         }
 
         // Organization Address
         // OBX24 Example: "2070 Test Park^^Los Angeles^CA^90067^USA^B^^06037"
-        if ( !empty($obx24) )
-        {
+        if (!empty($obx24)) {
             $obx24_segs = explode($componentdelimiter, $obx24);
             //$s .= "$obx24_segs[0] $obx24_segs[1], $obx24_segs[2], $obx24_segs[3], $obx24_segs[4], $obx24_segs[5]" . $commentdelim;
             $s .= "$obx24_segs[0]$commentdelim$obx24_segs[2], $obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
-            if ( !empty($obx24_segs[8]) )
-            {
+            if (!empty($obx24_segs[8])) {
                 $s .= "County/Parish Code: $obx24_segs[8]$commentdelim";
             }
         }
     }
+
     return $s;
 }
 
@@ -339,13 +344,11 @@ function match_patient($ptarr)
     if (sqlNumRows($res) > 1) {
         // Multiple matches, so ambiguous.
         $patient_id = -1;
-    }
-    else if (sqlNumRows($res) == 1) {
+    } else if (sqlNumRows($res) == 1) {
         // Got exactly one match, so use it.
         $tmp = sqlFetchArray($res);
         $patient_id = intval($tmp['pid']);
-    }
-    else {
+    } else {
         // No match good enough, figure out if there's enough ambiguity to ask the user.
         $tmp = sqlQuery(
             "SELECT pid FROM patient_data WHERE " .
@@ -360,6 +363,7 @@ function match_patient($ptarr)
               $patient_id = -1;
         }
     }
+
     return $patient_id;
 }
 
@@ -381,16 +385,15 @@ function match_provider($arr)
             if ($op_fname && $op_lname) {
                 $where = "((npi IS NOT NULL AND npi = ?) OR ((npi IS NULL OR npi = ?) AND lname = ? AND fname = ?))";
                 $qarr = array($op_npi, '', $op_lname, $op_fname);
-            }
-            else {
+            } else {
                 $where = "npi IS NOT NULL AND npi = ?";
                 $qarr = array($op_npi);
             }
-        }
-        else {
+        } else {
             $where = "lname = ? AND fname = ?";
             $qarr = array($op_lname, $op_fname);
         }
+
         $oprow = sqlQuery(
             "SELECT id, username FROM users WHERE " .
             "username IS NOT NULL AND username != '' AND $where " .
@@ -399,6 +402,7 @@ function match_provider($arr)
         );
         if (!empty($oprow)) return $oprow;
     }
+
     return false;
 }
 
@@ -508,8 +512,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
         ': ' . $GLOBALS['lab_results_category_name'], true);
-    }
-    else {
+    } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
         $catrow = sqlQuery(
@@ -533,6 +536,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             if (!$dryrun) {
                 rhl7FlushMain($amain, $commentdelim);
             }
+
             $amain = array();
 
             if ('MDM' == $msgtype && !$dryrun) {
@@ -552,20 +556,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Ensoftek: Could come is as 'ORU^R01^ORU_R01'. Handle all cases when 'ORU^R01' is seen.
             if (strstr($a[8], "ORU^R01")) {
                 $msgtype = 'ORU';
-            }
-            else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
+            } else if ($a[8] == 'MDM^T02' || $a[8] == 'MDM^T04' || $a[8] == 'MDM^T08') {
                 $msgtype = 'MDM';
                 $mdm_datetime = '';
                 $mdm_docname = '';
                 $mdm_text = '';
-            }
-            else {
+            } else {
                 return rhl7LogMsg(xl('MSH.8 message type is not supported') . ": '" . $a[8] . "'", true);
             }
-            $in_message_id = $a[9];
-        }
 
-        else if ($a[0] == 'PID') {
+            $in_message_id = $a[9];
+        } else if ($a[0] == 'PID') {
             $context = $a[0];
 
             if ('MDM' == $msgtype && !$dryrun) {
@@ -605,14 +606,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     if (isset($matchresp[$ptstring])) {
                         // This will be an existing pid, or 0 to specify creating a patient.
                         $patient_id = intval($matchresp[$ptstring]);
-                    }
-                    else {
+                    } else {
                         if ($dryrun) {
                             // Nope, ask the user to match.
                             $matchreq[$ptstring] = true;
                             $rhl7_return['needmatch'] = true;
-                        }
-                        else {
+                        } else {
                             // Should not happen, but it would be bad to abort now.  Create the patient.
                             $patient_id = 0;
                             rhl7LogMsg(xl('Unexpected non-match, creating new patient for segment') .
@@ -620,54 +619,43 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         }
                     }
                 }
+
                 if ($patient_id == 0 && !$dryrun) {
                           // We must create the patient.
                           $patient_id = create_skeleton_patient($ptarr);
                 }
+
                 if ($patient_id == -1) $patient_id = 0;
             } // end results-only/MDM logic
-        }
-
-        else if ('PD1' == $a[0]) {
+        } else if ('PD1' == $a[0]) {
             // TBD: Save primary care provider name ($a[4]) somewhere?
-        }
-
-        else if ('PV1' == $a[0]) {
+        } else if ('PV1' == $a[0]) {
             if ('ORU' == $msgtype) {
                 // Save placer encounter number if present.
                 if ($direction != 'R' && !empty($a[19])) {
                     $tmp = explode($d2, $a[19]);
                     $in_encounter = intval($tmp[0]);
                 }
-            }
-            else if ('MDM' == $msgtype) {
+            } else if ('MDM' == $msgtype) {
                 // For documents we want the ordering provider.
                 // Try Referring Provider first.
                 $oprow = match_provider(explode($d2, $a[8]));
                 // If no match, try Other Provider.
                 if (empty($oprow)) $oprow = match_provider(explode($d2, $a[52]));
             }
-        }
-
-        else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('ORC' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             $porow = false;
             $pcrow = false;
             if ($direction != 'R' && $a[2]) $in_orderid = intval($a[2]);
-        }
-
-        else if ('TXA' == $a[0] && 'MDM' == $msgtype) {
+        } else if ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             $mdm_datetime = rhl7DateTime($a[4]);
             $mdm_docname = rhl7Text($a[12]);
-        }
-
-        else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
+        } else if ($a[0] == 'NTE' && ($context == 'ORC' || $context == 'TXA')) {
             // Is this ever used?
-        }
-
-        else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('OBR' == $a[0] && 'ORU' == $msgtype) {
             $context = $a[0];
             $arep = array();
             if ($direction != 'R' && $a[2]) {
@@ -675,6 +663,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $porow = false;
                 $pcrow = false;
             }
+
             $tmp = explode($d2, $a[4]);
             $in_procedure_code = $tmp[0];
             $in_procedure_name = $tmp[1];
@@ -704,6 +693,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                                 break;
                             }
                         }
+
                         break;
                     }
                 }
@@ -734,6 +724,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         array($lab_id, $external_order_id)
                     );
                 }
+
                 if (!empty($porow)) {
                     $in_orderid = intval($porow['procedure_order_id']);
                 }
@@ -756,11 +747,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                               $encounter_id = intval($encrow['encounter']);
                               $provider_id = intval($encrow['provider_id']);
                     }
+
                     if (!$provider_id) {
                               // Attempt ordering provider matching by name or NPI.
                               $oprow = match_provider(explode($d2, $a[16]));
                               if (!empty($oprow)) $provider_id = intval($oprow['id']);
                     }
+
                     if (!$dryrun) {
                               // Now create the procedure order.
                               $in_orderid = sqlInsert(
@@ -794,6 +787,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if (empty($porow) && !($dryrun && $direction == 'R')) {
                         return rhl7LogMsg(xl('Procedure order not found') . ": $in_orderid", true);
                 }
+
                 if ($in_encounter) {
                     if ($direction != 'R' && $porow['encounter_id'] != $in_encounter) {
                         return rhl7LogMsg(xl('Encounter ID') .
@@ -803,11 +797,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                           xl('does not match the PV1 encounter number') .
                           " '$in_encounter'");
                     }
-                }
-                else {
+                } else {
                           // They did not return an encounter number to verify, so more checking
                           // might be done here to make sure the patient seems to match.
                 }
+
                 // Save the lab's control ID if there is one.
                 $tmp = explode($d2, $a[3]);
                 $control_id = $tmp[0];
@@ -815,8 +809,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                           sqlStatement("UPDATE procedure_order SET control_id = ? WHERE " .
                             "procedure_order_id = ?", array($control_id, $in_orderid));
                 }
+
                 $code_seq_array = array();
             }
+
             // Find the order line item (procedure code) that matches this result.
             // If there is more than one, then we select the one whose sequence number
             // is next after the last sequence number encountered for this procedure
@@ -825,6 +821,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             if (!isset($code_seq_array[$in_procedure_code])) {
                 $code_seq_array[$in_procedure_code] = 0;
             }
+
             $pcquery = "SELECT pc.* FROM procedure_order_code AS pc " .
             "WHERE pc.procedure_order_id = ? AND pc.procedure_code = ? " .
             "ORDER BY (procedure_order_seq <= ?), procedure_order_seq LIMIT 1";
@@ -836,7 +833,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 // from the physician or as a "reflex" from the lab.
                 // procedure_source = '2' indicates this.
                 if (!$dryrun) {
-
                     sqlBeginTrans();
                     $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
                     sqlInsert(
@@ -850,8 +846,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     );
                     $pcrow = sqlQuery($pcquery, $pcqueryargs);
                     sqlCommitTrans();
-                }
-                else {
+                } else {
                     // Dry run, make a dummy procedure_order_code row.
                     $pcrow = array(
                     'procedure_order_id' => $in_orderid,
@@ -859,6 +854,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     );
                 }
             }
+
             $code_seq_array[$in_procedure_code] = 0 + $pcrow['procedure_order_seq'];
             $arep = array();
             $arep['procedure_order_id'] = $in_orderid;
@@ -877,6 +873,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $parent_ares['result_code'] . ' ' . xl('with value') . ' "' .
                 $parent_ares['result'] . '".' . "\n";
             }
+
             if (!empty($parent_arep)) {
                 $arep['report_notes'] .= $parent_arep['report_notes'];
                 $arep['specimen_num']  = $parent_arep['specimen_num'];
@@ -888,14 +885,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $amain[$i]['rep'] = $arep;
             $amain[$i]['fid'] = $in_filler_id;
             $amain[$i]['res'] = array();
-        }
-
-        else if ($a[0] == 'NTE' && $context == 'OBR') {
+        } else if ($a[0] == 'NTE' && $context == 'OBR') {
             // Append this note to those for the most recent report.
             $amain[count($amain)-1]['rep']['report_notes'] .= rhl7Text($a[3], true) . "\n";
-        }
-
-        else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('OBX' == $a[0] && 'ORU' == $msgtype) {
             $tmp = explode($d2, $a[3]);
             $result_code = rhl7Text($tmp[0]);
             $result_text = rhl7Text($tmp[1]);
@@ -916,6 +909,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 '~' . rhl7Text($a[5]) . $commentdelim;
                 continue;
             }
+
             $context = $a[0];
             $ares = array();
             $ares['result_data_type'] = substr($a[2], 0, 1); // N, S, F or E
@@ -930,6 +924,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if ($data === false) {
                     return rhl7LogMsg(xl('Invalid encapsulated data encoding type') . ': ' . $tmp[3]);
                 }
+
                 if (!$dryrun) {
                     $d = new Document();
                     $rc = $d->createDocument(
@@ -942,23 +937,20 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     if ($rc) return rhl7LogMsg($rc);
                     $ares['document_id'] = $d->get_id();
                 }
-            }
-            else if ($a[2] == 'CWE') {
+            } else if ($a[2] == 'CWE') {
                 $ares['result'] = rhl7CWE($a[5], $d2);
-            }
-            else if ($a[2] == 'SN') {
+            } else if ($a[2] == 'SN') {
                 $ares['result'] = trim(str_replace($d2, ' ', $a[5]));
-            }
-            else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
+            } else if ($a[2] == 'TX' || strlen($a[5]) > 200) {
                 // OBX-5 can be a very long string of text with "~" as line separators.
                 // The first line of comments is reserved for such things.
                 $ares['result_data_type'] = 'L';
                 $ares['result'] = '';
                 $ares['comments'] = rhl7Text($a[5]) . $commentdelim;
-            }
-            else {
+            } else {
                 $ares['result'] = rhl7Text($a[5]);
             }
+
             $ares['result_code'  ] = $result_code;
             $ares['result_text'  ] = $result_text;
             $ares['date'         ] = rhl7DateTime($a[14]);
@@ -989,20 +981,15 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain)-1]['res'][] = $ares;
-        }
-
-        else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
+        } else if ('OBX' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
             if ($a[2] == 'TX') {
                 if ($mdm_text !== '') $mdm_text .= "\r\n";
                 $mdm_text .= rhl7Text($a[5]);
-            }
-            else {
+            } else {
                 return rhl7LogMsg(xl('Unsupported MDM OBX result type') . ': ' . $a[2]);
             }
-        }
-
-        else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
+        } else if ('ZEF' == $a[0] && 'ORU' == $msgtype) {
             // ZEF segment is treated like an OBX with an embedded Base64-encoded PDF.
             $context = 'OBX';
             $ares = array();
@@ -1025,33 +1012,26 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if ($rc) return rhl7LogMsg($rc);
                 $ares['document_id'] = $d->get_id();
             }
+
             $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain)-1]['res'][] = $ares;
-        }
-
-        else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
+        } else if ('NTE' == $a[0] && 'OBX' == $context && 'ORU' == $msgtype) {
             // Append this note to the most recent result item's comments.
             $alast = count($amain) - 1;
             $rlast = count($amain[$alast]['res']) - 1;
             $amain[$alast]['res'][$rlast]['comments'] .= rhl7Text($a[3], true) . $commentdelim;
-        }
-
-        // Ensoftek: Get data from SPM segment for specimen.
+        } // Ensoftek: Get data from SPM segment for specimen.
         // SPM segment always occurs after the OBX segment.
         else if ('SPM' == $a[0] && 'ORU' == $msgtype) {
             rhl7UpdateReportWithSpecimen($amain, $a, $d2);
-        }
-
-        // Add code here for any other segment types that may be present.
+        } // Add code here for any other segment types that may be present.
 
         // Ensoftek: Get data from SPM segment for specimen. Comes in with MU2 samples, but can be ignored.
         else if ('TQ1' == $a[0] && 'ORU' == $msgtype) {
             // Ignore and do nothing.
-        }
-
-        else {
+        } else {
             return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
         }
     }
@@ -1121,6 +1101,7 @@ function poll_hl7_results(&$info)
                 $remote_port = 0 + substr($remote_host, $i + 1);
                 $remote_host = substr($remote_host, 0, $i);
             }
+
             // Compute the target path name.
             $pathname = '.';
             if ($pprow['results_path']) $pathname = $pprow['results_path'] . '/' . $pathname;
@@ -1129,6 +1110,7 @@ function poll_hl7_results(&$info)
             if (!$sftp->login($pprow['login'], $pprow['password'])) {
                 return xl('Login to remote host') . " '$remote_host' " . xl('failed');
             }
+
             $files = $sftp->nlist($pathname);
             foreach ($files as $file) {
                 if (substr($file, 0, 1) == '.') continue;
@@ -1147,15 +1129,17 @@ function poll_hl7_results(&$info)
                     if ($fh) {
                         fwrite($fh, $hl7);
                         fclose($fh);
-                    }
-                    else {
+                    } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
                     }
+
                     if (!$sftp->delete("$pathname/$file")) {
                         return xl('Cannot delete (from SFTP server) file') . ' "' . "$pathname/$file" . '"';
                     }
+
                     continue;
                 }
+
                 // Do a dry run of its contents and check for errors and match requests.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
                 $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1164,6 +1148,7 @@ function poll_hl7_results(&$info)
                     // There are errors or matching requests so skip this file.
                     continue;
                 }
+
                 // Now the money shot - not a dry run.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
                 $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1174,10 +1159,10 @@ function poll_hl7_results(&$info)
                     if ($fh) {
                         fwrite($fh, $hl7);
                         fclose($fh);
-                    }
-                    else {
+                    } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
                     }
+
                     if (!$sftp->delete("$pathname/$file")) {
                         return xl('Cannot delete (from SFTP server) file') . ' "' . "$pathname/$file" . '"';
                     }
@@ -1191,12 +1176,14 @@ function poll_hl7_results(&$info)
             if (!($dh = opendir($pathname))) {
                 return xl('Unable to access directory') . " '$pathname'";
             }
+
             // Sort by filename just because.
             $files = array();
             while (false !== ($file = readdir($dh))) {
                 if (substr($file, 0, 1) == '.') continue;
                 $files[$file] = $file;
             }
+
             closedir($dh);
             ksort($files);
             // For each file...
@@ -1216,15 +1203,17 @@ function poll_hl7_results(&$info)
                     if ($fh) {
                         fwrite($fh, $hl7);
                         fclose($fh);
-                    }
-                    else {
+                    } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
                     }
+
                     if (!unlink("$pathname/$file")) {
                         return xl('Cannot delete file') . ' "' . "$pathname/$file" . '"';
                     }
+
                     continue;
                 }
+
                 // Do a dry run of its contents and check for errors and match requests.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
                 $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1233,6 +1222,7 @@ function poll_hl7_results(&$info)
                     // There are errors or matching requests so skip this file.
                     continue;
                 }
+
                 // Now the money shot - not a dry run.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], false, $info['select']);
                 $info["$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1243,10 +1233,10 @@ function poll_hl7_results(&$info)
                     if ($fh) {
                         fwrite($fh, $hl7);
                         fclose($fh);
-                    }
-                    else {
+                    } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
                     }
+
                     if (!unlink("$pathname/$file")) {
                         return xl('Cannot delete file') . ' "' . "$pathname/$file" . '"';
                     }
@@ -1255,7 +1245,6 @@ function poll_hl7_results(&$info)
         } // end FS protocol
 
         // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
-
     } // end procedure provider
 
   // echo "<!-- out: "; print_r($info); echo " -->\n"; // debugging

@@ -112,12 +112,13 @@ abstract class Controller
             // print_r($feedback); die('feedback');
             
             if (is_array($feedback)) {
-                foreach ( $feedback as $key => $val ) {
+                foreach ($feedback as $key => $val) {
                     $this->Assign($key, $val);
                 }
             } else {
                 $this->Assign("feedback", $feedback);
             }
+
             $this->Context->Set("feedback", null);
         }
         
@@ -404,6 +405,7 @@ abstract class Controller
         } else {
             $this->RenderEngine->display("View" . $this->ModelName . "ListAll.tpl");
         }
+
         // $this->_ListAll(null, Request::Get("page",1), Request::Get("limit",20));
     }
     
@@ -474,14 +476,14 @@ abstract class Controller
         } else {
             try {
                 $fms = $this->Phreezer->GetFieldMaps($page->ObjectName);
-            } catch ( exception $ex ) {
+            } catch (exception $ex) {
                 throw new Exception("The objects contained in this DataPage do not have a FieldMap.  Set noMap argument to true to supress this error: " . $ex->getMessage());
             }
         }
         
-        foreach ( $page->Rows as $obj ) {
+        foreach ($page->Rows as $obj) {
             $xml .= "<" . htmlspecialchars($page->ObjectName) . ">\r\n";
-            foreach ( get_object_vars($obj) as $var => $val ) {
+            foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
                     $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
@@ -506,9 +508,9 @@ abstract class Controller
             
             // Add any properties that we want from child objects
             if ($additionalProps) {
-                foreach ( $additionalProps as $meth => $propPair ) {
+                foreach ($additionalProps as $meth => $propPair) {
                     $props = explode(",", $propPair);
-                    foreach ( $props as $prop ) {
+                    foreach ($props as $prop) {
                         $xml .= "<" . htmlspecialchars($meth . $prop) . ">" . htmlspecialchars($obj->$meth ()->$prop) . "</" . htmlspecialchars($meth . $prop) . ">\r\n";
                     }
                 }
@@ -516,6 +518,7 @@ abstract class Controller
             
             $xml .= "</" . htmlspecialchars($page->ObjectName) . ">\r\n";
         }
+
         $xml .= "</Records>\r\n";
         
         $xml .= "</DataPage>\r\n";
@@ -549,7 +552,7 @@ abstract class Controller
         
         if (count($feedItems)) {
             $count = 0;
-            foreach ( $feedItems as $item ) {
+            foreach ($feedItems as $item) {
                 $count ++;
                 
                 if ($item instanceof IRSSFeedItem) {
@@ -661,9 +664,10 @@ abstract class Controller
         
         $counter = 0;
         $props = array ();
-        foreach ( get_class_vars($this->ModelName) as $var => $val ) {
+        foreach (get_class_vars($this->ModelName) as $var => $val) {
             $props [$counter ++] = $var;
         }
+
         return $props;
     }
     
@@ -866,7 +870,7 @@ abstract class Controller
             // we need to figure out what type
             if (is_array($var) || is_a($var, 'SplFixedArray')) {
                 $obj = array ();
-                foreach ( $var as $item ) {
+                foreach ($var as $item) {
                     $obj [] = $item->ToObject($options);
                 }
             } elseif (is_a($var, 'Phreezable') || is_a($var, 'Reporter')) {
@@ -883,7 +887,7 @@ abstract class Controller
         
         try {
             $output = json_encode($obj);
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             if (strpos($ex->getMessage(), 'Invalid UTF-8') !== false) {
                 // a UTF encoding problem has been encountered
                 if ($forceUTF8 == 2) {
@@ -964,7 +968,6 @@ abstract class Controller
                 $this->DebugOutput = 'Location: ' . $url;
             }
         } else {
-            
             if ($mode == 'client') {
                 $this->RenderEngine->assign("url", $url);
                 $this->RenderEngine->display("_redirect.tpl");
@@ -994,13 +997,14 @@ abstract class Controller
             // pop recursion here
             $input = utf8_encode($input);
         } else if (is_array($input)) {
-            foreach ( $input as &$value ) {
+            foreach ($input as &$value) {
                 $this->UTF8Encode($value);
             }
+
             unset($value);
         } else if (is_object($input)) {
             $vars = array_keys(get_object_vars($input));
-            foreach ( $vars as $var ) {
+            foreach ($vars as $var) {
                 $this->UTF8Encode($input->$var);
             }
         }

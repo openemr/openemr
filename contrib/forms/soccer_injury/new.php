@@ -80,8 +80,7 @@ if ($_POST['bn_save']) {
     $simech_other = '';
     if ($_POST['activity'] == '7') {
         $simech_other = $_POST['activity_other'];
-    }
-    else if ($_POST['activity'] == '23') {
+    } else if ($_POST['activity'] == '23') {
         $simech_other = $_POST['activity_nc_other'];
     }
 
@@ -123,9 +122,7 @@ if ($_POST['bn_save']) {
          "sinoreturn = "  . cbvalue('noreturn') . " "  .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_soccer_injury ( " .

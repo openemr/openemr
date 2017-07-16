@@ -42,16 +42,14 @@ class CqmResult implements RsResultIF
     public function format()
     {
         $concatenated_label = '';
-        if ( $this->numeratorLabel != "Numerator" ) {
-            if ( $this->populationLabel != "Population Criteria" ) {
+        if ($this->numeratorLabel != "Numerator") {
+            if ($this->populationLabel != "Population Criteria") {
                 $concatenated_label = $this->populationLabel . ", " . $this->numeratorLabel;
-            }
-            else {
+            } else {
                 $concatenated_label = $this->numeratorLabel;
             }
-        }
-        else {
-            if ( $this->populationLabel != "Population Criteria" ) {
+        } else {
+            if ($this->populationLabel != "Population Criteria") {
                 $concatenated_label = $this->populationLabel;
             }
         }

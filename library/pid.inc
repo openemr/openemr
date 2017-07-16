@@ -25,8 +25,9 @@ function setpid($new_pid)
     if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
         $_SESSION['encounter'] = $encounter = 0;
     }
+
   // unset therapy_group session when set session for patient
-    if($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])){
+    if ($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])) {
         unset($_SESSION['therapy_group']);
     }
 

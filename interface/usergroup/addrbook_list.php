@@ -40,25 +40,31 @@ if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
     array_push($sqlBindArray, $form_organization."%");
 }
+
 if ($form_lname) {
     $query .= "AND u.lname LIKE ? ";
     array_push($sqlBindArray, $form_lname."%");
 }
+
 if ($form_fname) {
     $query .= "AND u.fname LIKE ? ";
     array_push($sqlBindArray, $form_fname."%");
 }
+
 if ($form_specialty) {
     $query .= "AND u.specialty LIKE ? ";
     array_push($sqlBindArray, "%".$form_specialty."%");
 }
+
 if ($form_abook_type) {
     $query .= "AND u.abook_type LIKE ? ";
     array_push($sqlBindArray, $form_abook_type);
 }
+
 if ($form_external) {
     $query .= "AND u.username = '' ";
 }
+
 if ($form_lname) {
     $query .= "ORDER BY u.lname, u.fname, u.mname";
 } else if ($form_organization) {
@@ -66,6 +72,7 @@ if ($form_lname) {
 } else {
     $query .= "ORDER BY u.organization, u.lname, u.fname";
 }
+
 $query .= " LIMIT 500";
 $res = sqlStatement($query, $sqlBindArray);
 ?>
@@ -142,17 +149,17 @@ while ($row = sqlFetchArray($res)) {
 
     $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
     if ($row['suffix'] >'') $displayName .=", ".$row['suffix'];
-    if ( acl_check('admin', 'practice') || (empty($username) && empty($row['ab_name'])) ) {
+    if (acl_check('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
         $trTitle = xl('Edit'). ' ' . $displayName;
         echo " <tr class='detail $bgclass' style='cursor:pointer' " .
         "onclick='doedclick_edit(" . $row['id'] . ")' title='".attr($trTitle)."'>\n";
-    }
-    else {
+    } else {
        // Do not allow edit, since no access and (item is a type or is a local user)
         $trTitle = $displayName . " (" . xl("Not Allowed to Edit") . ")";
         echo " <tr class='detail $bgclass' title='".attr($trTitle)."'>\n";
     }
+
     echo "  <td>" . text($row['organization']) . "</td>\n";
     echo "  <td>" . text($displayName) . "</td>\n";
     echo "  <td>" . ($username ? '*' : '') . "</td>\n";

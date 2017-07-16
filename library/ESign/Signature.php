@@ -63,7 +63,7 @@ class Signature implements SignatureIF
     public function getClass()
     {
         $class = "";
-        if ( $this->isLock() === true ) {
+        if ($this->isLock() === true) {
             $class .= " locked";
         }
        
@@ -102,7 +102,7 @@ class Signature implements SignatureIF
     
     public function isLock()
     {
-        if ( $this->isLock > 0 ) {
+        if ($this->isLock > 0) {
             return true;
         }
         

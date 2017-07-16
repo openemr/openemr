@@ -49,10 +49,10 @@ class Company extends ORDataObject
     {
         if (empty($foreign_id)) {
              $foreign_id= "like '%'";
-        }
-        else {
+        } else {
             $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
         }
+
         $a = new Address();
         $sql = "SELECT id FROM  " . $a->_table . " WHERE foreign_id " .$foreign_id ;
         //echo $sql . "<bR />";
@@ -78,8 +78,7 @@ class Company extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -169,6 +168,7 @@ class Company extends ORDataObject
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
+
         parent::persist();
     }
 } // end of Company

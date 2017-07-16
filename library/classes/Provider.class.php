@@ -61,9 +61,10 @@ class Provider extends ORDataObject
     {
         $provider_array = array();
         $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
-        while ($row = sqlFetchArray($res) ) {
+        while ($row = sqlFetchArray($res)) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
+
         return $provider_array;
     }
 
@@ -73,7 +74,7 @@ class Provider extends ORDataObject
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
         $results = sqlQ($sql);
 
-        while($row = sqlFetchArray($results) ) {
+        while ($row = sqlFetchArray($results)) {
                     $psa[] = new Provider($row['id']);
         }
 

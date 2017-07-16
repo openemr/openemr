@@ -92,7 +92,7 @@ class BrowserDevice
         if (! $this->UserAgent) {
             $this->IsConsole = true;
         } else {
-            foreach ( BrowserDevice::$MOBILE_DEVICE_PATTERNS as $key => $val ) {
+            foreach (BrowserDevice::$MOBILE_DEVICE_PATTERNS as $key => $val) {
                 if (preg_match('/' . $key . '/i', $this->UserAgent)) {
                     $this->IsMobile = true;
                     $this->Vendor = $val;
@@ -101,8 +101,7 @@ class BrowserDevice
             }
             
             if ($this->IsMobile == false) {
-                
-                foreach ( BrowserDevice::$DESKTOP_DEVICE_PATTERNS as $key => $val ) {
+                foreach (BrowserDevice::$DESKTOP_DEVICE_PATTERNS as $key => $val) {
                     if (preg_match('/' . $key . '/i', $this->UserAgent)) {
                         $this->Vendor = $val;
                         break;

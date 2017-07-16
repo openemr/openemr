@@ -104,7 +104,7 @@ class Documents extends AbstractPlugin
         $couch  = $connection->postDocument($data);
         $id         = $couch[0];
         $rev        = $couch[1];
-        if($id && $rev) {
+        if ($id && $rev) {
             $connection->putDocument($data, $id, $rev);
             return $couch;
         } else {
@@ -136,20 +136,18 @@ class Documents extends AbstractPlugin
         $result = $obj->zQuery($query);
         $count  = 0;
         $module = array();
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $content = \Documents\Plugin\Documents::getDocument($row['id']);
             $module[$count]['doc_id']   = $row['id'];
             if (preg_match("/<ClinicalDocument/", $content)) {
-                if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)){
+                if (preg_match("/2.16.840.1.113883.3.88.11.32.1/", $content)) {
                     $module[$count]['doc_type'] = 'CCD';
-                }
-                else
-                $module[$count]['doc_type'] = 'CCDA';
-            }
-            elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content))
+                } else $module[$count]['doc_type'] = 'CCDA';
+            } elseif (preg_match("/<ccr:ContinuityOfCareRecord/", $content))
             $module[$count]['doc_type'] = 'CCR';
             $count++;
         }
+
         return $module;
     }
 }

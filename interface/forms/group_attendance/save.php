@@ -29,7 +29,7 @@ require_once("functions.php");
 
 //Save only if has permission to edit
 $can_edit = acl_check("groups", "gadd", false, 'write');
-if(!$can_edit)
+if (!$can_edit)
     formJump();
 
 //Get relevant data from group appt (the appt that created the group encounter)
@@ -39,8 +39,7 @@ $appt_data = get_appt_data($encounter);
 $group_encounter_data = get_group_encounter_data($encounter);
 
 //If saving new form
-if($_GET['mode'] == 'new') {
-
+if ($_GET['mode'] == 'new') {
     //Get the number that should be the new form's id
     $newid = largest_id_plus_one('form_therapy_groups_attendance');
 
@@ -56,11 +55,8 @@ if($_GET['mode'] == 'new') {
 
     //Database insertions for participants
     participant_insertions($newid, $therapy_group, $group_encounter_data, $appt_data);
-
-}
-//If editing a form
-elseif ($_GET['mode'] == 'update'){
-
+} //If editing a form
+elseif ($_GET['mode'] == 'update') {
     //Update form_therapy_groups_attendance table
     $id = $_GET['id'];
     $sql_for_form_tga = "UPDATE form_therapy_groups_attendance SET date = NOW(), user = ?, groupname = ?, authorized = ? WHERE id = ?;";
@@ -74,7 +70,6 @@ elseif ($_GET['mode'] == 'update'){
 
     //Database insertions for participants
     participant_insertions($id, $therapy_group, $group_encounter_data, $appt_data);
-
 }
 
 formJump();

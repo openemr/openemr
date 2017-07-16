@@ -60,7 +60,7 @@ class UserController extends AppBaseController
     public function ListView()
     {
         $rid=0;
-        if (isset($_GET['id']) )
+        if (isset($_GET['id']))
             $rid = (int) $_GET['id'];
         $this->Assign('recid', $rid);
         $this->Render();
@@ -71,8 +71,7 @@ class UserController extends AppBaseController
      */
     public function Query()
     {
-        try
-        {
+        try {
             $criteria = new UserCriteria();
             $recnum = RequestUtil::Get('recId');
             $criteria->Id_Equals = $recnum;
@@ -95,9 +94,7 @@ class UserController extends AppBaseController
                 $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -107,14 +104,11 @@ class UserController extends AppBaseController
      */
     public function Read()
     {
-        try
-        {
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $user = $this->Phreezer->Get('User', $pk);
             $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -124,13 +118,10 @@ class UserController extends AppBaseController
      */
     public function Create()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -200,19 +191,13 @@ class UserController extends AppBaseController
             $user->Validate();
             $errors = $user->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            }
-            else
-            {
+            } else {
                 $user->Save();
                 $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -222,13 +207,10 @@ class UserController extends AppBaseController
      */
     public function Update()
     {
-        try
-        {
-
+        try {
             $json = json_decode(RequestUtil::GetBody());
 
-            if (!$json)
-            {
+            if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
 
@@ -299,22 +281,13 @@ class UserController extends AppBaseController
             $user->Validate();
             $errors = $user->GetValidationErrors();
 
-            if (count($errors) > 0)
-            {
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            }
-            else
-            {
+            } else {
                 $user->Save();
                 $this->RenderJSON($user, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-
-
-        }
-        catch (Exception $ex)
-        {
-
-
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -324,9 +297,7 @@ class UserController extends AppBaseController
      */
     public function Delete()
     {
-        try
-        {
-
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
             $pk = $this->GetRouter()->GetUrlParam('id');
@@ -337,10 +308,7 @@ class UserController extends AppBaseController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-
-        }
-        catch (Exception $ex)
-        {
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

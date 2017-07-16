@@ -6,13 +6,14 @@ include_once("../../../library/forms.inc");
 include_once("./content_parser.php");
 
 if ($_GET["mode"] == "delete") {
-    foreach($_POST as $key => $val) {
+    foreach ($_POST as $key => $val) {
         if (substr($key, 0, 3) == 'ch_' and $val='on') {
             $id = substr($key, 3);
             if ($_POST['delete']) {
                 sqlInsert("delete from ".mitigateSqlTableUpperCase("form_CAMOS")." where id=$id");
                 sqlInsert("delete from forms where form_name like 'CAMOS%' and form_id=$id");
             }
+
             if ($_POST['update']) {
                 // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
                 //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
@@ -25,8 +26,8 @@ if ($_GET["mode"] == "delete") {
             }
         }
     }
-
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();

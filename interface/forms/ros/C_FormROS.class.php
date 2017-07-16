@@ -31,8 +31,7 @@ class C_FormROS extends Controller
 
         if (is_numeric($form_id)) {
             $ros = new FormROS($form_id);
-        }
-        else {
+        } else {
             $ros = new FormROS();
         }
 
@@ -42,10 +41,10 @@ class C_FormROS extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true"){
-
+        if ($_POST['process'] != "true") {
             return;
         }
+
         $this->ros = new FormROS($_POST['id']);
 
         parent::populate_object($this->ros);
@@ -54,11 +53,12 @@ class C_FormROS extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
-        if(empty($_POST['id']))
-        {
+
+        if (empty($_POST['id'])) {
             addForm($GLOBALS['encounter'], "Review Of Systems", $this->ros->id, "ros", $GLOBALS['pid'], $_SESSION['userauthorized']);
             $_POST['process'] = "";
         }
+
         return;
     }
 }

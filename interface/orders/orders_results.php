@@ -101,8 +101,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             if ($report_id) { // Report already exists.
                 sqlStatement("UPDATE procedure_report SET $sets "  .
                 "WHERE procedure_report_id = '$report_id'");
-            }
-            else { // Add new report.
+            } else { // Add new report.
                 $report_id = sqlInsert("INSERT INTO procedure_report SET $sets");
             }
         }
@@ -121,6 +120,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             if ($form_notes !== '') {
                 $form_comments .= "\n" . $form_notes;
             }
+
             $sets =
             "procedure_report_id = '$current_report_id', " .
             "result_code = '" . oresData("form_result_code", $lino) . "', " .
@@ -135,8 +135,7 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             if ($result_id) { // result already exists
                 sqlStatement("UPDATE procedure_result SET $sets "  .
                 "WHERE procedure_result_id = '$result_id'");
-            }
-            else { // Add new result.
+            } else { // Add new result.
                 $result_id = sqlInsert("INSERT INTO procedure_result SET $sets");
             }
         }
@@ -426,8 +425,7 @@ if ($form_batch) {
     "po.date_ordered >= '$form_from_date' AND po.date_ordered <= '$form_to_date' " .
     "AND $where " .
     "ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, $orderby";
-}
-else {
+} else {
     $query = "SELECT $selects " .
     "FROM procedure_order AS po " .
     "$joins " .
@@ -460,14 +458,13 @@ while ($row = sqlFetchArray($res)) {
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
     if ($form_review) {
         if ($review_status == "reviewed") continue;
-    }
-    else {
+    } else {
         if ($review_status == "received") continue;
     }
 
     $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
   // skip the procedure that has been deleted from the encounter form
-    if($query_test['deleted']==1) continue;
+    if ($query_test['deleted']==1) continue;
 
     $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
     "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
@@ -522,9 +519,10 @@ while ($row = sqlFetchArray($res)) {
             $result_notes = trim(substr($result_comments, $i + 1));
             $result_comments = substr($result_comments, 0, $i);
         }
+
         $result_comments = trim($result_comments);
 
-        if($result_facility <> "" && !in_array($result_facility, $facilities)) {
+        if ($result_facility <> "" && !in_array($result_facility, $facilities)) {
             $facilities[] = $result_facility;
         }
 
@@ -532,6 +530,7 @@ while ($row = sqlFetchArray($res)) {
             ++$encount;
             $lastrcn = '';
         }
+
         $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
 
         echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -546,22 +545,19 @@ while ($row = sqlFetchArray($res)) {
                     $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
                     echo "  <td>" . text($tmp) . "</td>\n";
                     echo "  <td>" . text($row['pubpid']) . "</td>\n";
-                }
-                else {
+                } else {
                     echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
                 }
-            }
-            else {
+            } else {
                 if ($lastpoid != $order_id) {
                     echo "  <td>" . $row['date_ordered'] . "</td>\n";
-                }
-                else {
+                } else {
                     echo "  <td style='background-color:transparent'>&nbsp;</td>";
                 }
+
                 echo "  <td>" . text($row['procedure_name']) . "</td>\n";
             }
-        }
-        else {
+        } else {
             echo "  <td colspan='2' style='background-color:transparent'>&nbsp;</td>";
         }
 
@@ -606,8 +602,7 @@ while ($row = sqlFetchArray($res)) {
                 'cellselect'
             );
             echo "</td>\n";
-        }
-        else {
+        } else {
             echo "  <td colspan='4' style='background-color:transparent'>&nbsp;</td>\n";
         }
 
@@ -635,12 +630,12 @@ while ($row = sqlFetchArray($res)) {
         echo "  <td>";
         if ($result_units == 'bool') {
               echo "&nbsp;--";
-        }
-        else {
+        } else {
               echo "<input type='text' size='7' name='form_result_result[$lino]'" .
                 " class='celltext' value='" . attr($result_result) . "' " .
                 " />";
         }
+
         echo "</td>\n";
 
         echo "  <td>";
@@ -716,10 +711,10 @@ if (!empty($facilities)) {
   // display facility information
     $extra_html .= "<table>";
     $extra_html .= "<tr><th>". xl('Performing Laboratory Facility') . "</th></tr>";
-    foreach($facilities as $facilityID) {
-        foreach(explode(":", $facilityID) as $lab_facility) {
+    foreach ($facilities as $facilityID) {
+        foreach (explode(":", $facilityID) as $lab_facility) {
             $facility_array = getFacilityInfo($lab_facility);
-            if($facility_array) {
+            if ($facility_array) {
                 $extra_html .=
                 "<tr><td><hr></td></tr>" .
                 "<tr><td>". htmlspecialchars($facility_array['fname']) . " " . htmlspecialchars($facility_array['lname']) . ", " . htmlspecialchars($facility_array['title']). "</td></tr>" .
@@ -729,6 +724,7 @@ if (!empty($facilities)) {
             }
         }
     }
+
     $extra_html .= "</table>\n";
 }
 ?>
@@ -744,16 +740,14 @@ if ($form_review) {
          <input type='submit' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' />
      </p></center>
     <?php
-    }
-    else {
+    } else {
         ?>
      <center><p>
          <input type='button' name='form_submit' value='<?php xl('Sign Results', 'e'); ?>' onclick="alert('<?php xl('Not authorized', 'e') ?>');" />
      </p></center>
     <?php
     }
-}
-else {
+} else {
 ?>
  <center><p>
   <input type='submit' name='form_submit' value='<?php xl('Save', 'e'); ?>' />

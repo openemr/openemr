@@ -23,15 +23,17 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         // require all .php files in the report's sub-folder
         $className = get_class($this);
-        foreach ( glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename) {
             require_once($filename);
         }
+
         // require common .php files
-        foreach ( glob(dirname(__FILE__)."/../reports/common/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
+
         // require clinical types
-        foreach ( glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
@@ -65,44 +67,44 @@ abstract class AbstractCqmReport implements RsReportIF
     public function execute()
     {
         $populationCriterias = $this->createPopulationCriteria();
-        if ( !is_array($populationCriterias) ) {
+        if (!is_array($populationCriterias)) {
             $tmpPopulationCriterias = array();
             $tmpPopulationCriterias[]= $populationCriterias;
             $populationCriterias = $tmpPopulationCriterias;
         }
 
-        foreach ( $populationCriterias as $populationCriteria )
-        {
-
+        foreach ($populationCriterias as $populationCriteria) {
             // If itemization is turned on, then iterate the rule id iterator
             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                 $GLOBALS['report_itemized_test_id_iterator']++;
             }
 
-            if ( $populationCriteria instanceof CqmPopulationCrtiteriaFactory )
-            {
+            if ($populationCriteria instanceof CqmPopulationCrtiteriaFactory) {
                 $initialPatientPopulationFilter = $populationCriteria->createInitialPatientPopulation();
-                if ( !$initialPatientPopulationFilter instanceof CqmFilterIF ) {
+                if (!$initialPatientPopulationFilter instanceof CqmFilterIF) {
                     throw new Exception("InitialPatientPopulation must be an instance of CqmFilterIF");
                 }
+
                 $denominator = $populationCriteria->createDenominator();
-                if ( !$denominator instanceof CqmFilterIF ) {
+                if (!$denominator instanceof CqmFilterIF) {
                     throw new Exception("Denominator must be an instance of CqmFilterIF");
                 }
+
                 $numerators = $populationCriteria->createNumerators();
-                if ( !is_array($numerators) ) {
+                if (!is_array($numerators)) {
                     $tmpNumerators = array();
                     $tmpNumerators[]= $numerators;
                     $numerators = $tmpNumerators;
                 }
+
                 $exclusion = $populationCriteria->createExclusion();
-                if ( !$exclusion instanceof CqmFilterIF ) {
+                if (!$exclusion instanceof CqmFilterIF) {
                     throw new Exception("Exclusion must be an instance of CqmFilterIF");
                 }
 
                 //Denominator Exception added
                 $denomExept = false;
-                if( method_exists($populationCriteria, 'createDenominatorException')){
+                if (method_exists($populationCriteria, 'createDenominatorException')) {
                     $denomExept = true;
                 }
 
@@ -114,10 +116,8 @@ abstract class AbstractCqmReport implements RsReportIF
                 $patExclArr = array();
                 $patExceptArr = array();
                 $numeratorPatientPopulations = $this->initNumeratorPopulations($numerators);
-                foreach ( $this->_cqmPopulation as $patient )
-                {
-                    if ( !$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
-                    {
+                foreach ($this->_cqmPopulation as $patient) {
+                    if (!$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                         continue;
                     }
                         
@@ -128,30 +128,27 @@ abstract class AbstractCqmReport implements RsReportIF
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 3, $patient->id);
                     }
                     
-                    if ( !$denominator->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
-                    {
+                    if (!$denominator->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                         continue;
                     }
                             
                     $denominatorPatientPopulation++;
 
-                    if ( $exclusion->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
-                    {
+                    if ($exclusion->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                         $exclusionsPatientPopulation++;
                         $patExclArr[] = $patient->id;
                     }
 
                     //Denominator Exception added
-                    if($denomExept){
+                    if ($denomExept) {
                         $denom_exception = $populationCriteria->createDenominatorException();
-                        if ( $denom_exception->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
-                        {
+                        if ($denom_exception->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                             $exceptionsPatientPopulation++; // this is a bridge to no where variable (not used below). Will keep for now, though.
                             $patExceptArr[] = $patient->id;
                         }
                     }
                      
-                    foreach ( $numerators as $numerator ) {
+                    foreach ($numerators as $numerator) {
                         $this->testNumerator($patient, $numerator, $numeratorPatientPopulations);
                     }
                 }
@@ -159,18 +156,18 @@ abstract class AbstractCqmReport implements RsReportIF
                 // tally results, run exclusion on each numerator
                 $pass_filt = $denominatorPatientPopulation;
                 $exclude_filt = $exclusionsPatientPopulation;
-                foreach ( $numeratorPatientPopulations as $title => $pass_targ ) {
-
-                    if(count($patExclArr) > 0){
-                        foreach($patExclArr as $patVal){
+                foreach ($numeratorPatientPopulations as $title => $pass_targ) {
+                    if (count($patExclArr) > 0) {
+                        foreach ($patExclArr as $patVal) {
                             // If itemization is turned on, then record the "excluded" item
                             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                                 insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 2, $patVal, $title);
                             }
                         }
                     }
-                    if(count($patExceptArr) > 0){
-                        foreach($patExceptArr as $patVal){
+
+                    if (count($patExceptArr) > 0) {
+                        foreach ($patExceptArr as $patVal) {
                             // If itemization is turned on, then record the "exception" item
                             if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                                 insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 4, $patVal, $title);
@@ -201,36 +198,30 @@ abstract class AbstractCqmReport implements RsReportIF
     private function initNumeratorPopulations(array $numerators)
     {
         $numeratorPatientPopulations = array();
-        foreach ( $numerators as $numerator ) {
+        foreach ($numerators as $numerator) {
             $numeratorPatientPopulations[$numerator->getTitle()] = 0;
         }
+
         return $numeratorPatientPopulations;
     }
 
     private function testNumerator($patient, $numerator, &$numeratorPatientPopulations)
     {
-        if ( $numerator instanceof CqmFilterIF  )
-        {
-            if ( $numerator->test($patient, $this->_beginMeasurement, $this->_endMeasurement) ) {
-
+        if ($numerator instanceof CqmFilterIF) {
+            if ($numerator->test($patient, $this->_beginMeasurement, $this->_endMeasurement)) {
                 $numeratorPatientPopulations[$numerator->getTitle()]++;
 
                 // If itemization is turned on, then record the "passed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                     insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id, $numerator->getTitle());
                 }
- 
-            }
-            else {
+            } else {
                 // If itemization is turned on, then record the "failed" item
                 if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                     insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id, $numerator->getTitle());
                 }
-
             }
-        }
-        else
-        {
+        } else {
             throw new Exception("Numerator must be an instance of CqmFilterIF");
         }
     }

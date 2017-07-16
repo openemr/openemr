@@ -91,8 +91,7 @@ function xmlTime($str, $default = '9999-12-31T23:59:59')
     $str = $default;
     else if (strlen($str) > 10)
     $str = substr($str, 0, 10) . 'T' . substr($str, 11);
-    else
-    $str .= 'T00:00:00';
+    else $str .= 'T00:00:00';
   // Per discussion with Daniel 2009-05-12, replace zero day or month with 01.
     $str = preg_replace('/-00/', '-01', $str);
     return $str;
@@ -111,6 +110,7 @@ function getTextListValue($string, $key)
             if ($matches[1] == $key) return $matches[2];
         }
     }
+
     return '';
 }
 
@@ -237,6 +237,7 @@ function exportEncounter($pid, $encounter, $date)
                         list($codetype, $code) = explode(':', $rrow['related_code']);
                 }
             }
+
             if ($codetype !== 'IPPF') continue;
             OpenTag('IMS_eMRUpload_Service');
             Add('IppfServiceProductId', $code);
@@ -295,6 +296,7 @@ function endClient($pid, &$encarray)
                   CloseTag('IMS_eMRUpload_IssueData');
             }
         }
+
         // List the encounters linked to this issue.  We include pid
         // to speed up the search, as it begins the primary key.
         $ieres = sqlStatement("SELECT encounter FROM issue_encounter " .
@@ -306,6 +308,7 @@ function endClient($pid, &$encarray)
               Add('emrVisitId', $ierow['encounter']);
               CloseTag('IMS_eMRUpload_VisitIssue');
         }
+
         CloseTag('IMS_eMRUpload_Issue');
     }
 
@@ -344,6 +347,7 @@ function endClient($pid, &$encarray)
                     CloseTag('IMS_eMRUpload_IssueData');
                 }
             }
+
               OpenTag('IMS_eMRUpload_VisitIssue');
               Add('emrIssueId', 10000000 + $form_id);
               Add('emrVisitId', $erow['encounter']);
@@ -366,7 +370,6 @@ function endFacility()
 }
 
 if (!empty($form_submit)) {
-
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];
     $end_year = $beg_year;
@@ -438,7 +441,6 @@ if (!empty($form_submit)) {
     $res = sqlStatement($query);
 
     while ($row = sqlFetchArray($res)) {
-
         /*****************************************************************
       if ($row['facility_id'] != $last_facility) {
         if ($last_facility >= 0) {
@@ -514,6 +516,7 @@ if (!empty($form_submit)) {
               ***************************************************************/
               $methodid = mappedOption('contrameth', $methods[0]);
         }
+
         Add('CurrentMethod', $methodid);
 
         Add('Dob', xmlTime($row['DOB']));
@@ -562,6 +565,7 @@ if (!empty($form_submit)) {
               sprintf("date >= '%04u-%02u-01 00:00:00' AND ", $beg_year, $beg_month) .
               sprintf("date < '%04u-%02u-01 00:00:00' ", $end_year, $end_month);
         }
+
         $query .= "ORDER BY encounter";
 
         // Add('Debug', $query); // debugging

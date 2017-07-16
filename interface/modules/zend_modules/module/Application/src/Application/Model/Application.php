@@ -51,6 +51,7 @@ class Application implements InputFilterAwareInterface
 
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

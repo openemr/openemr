@@ -7,6 +7,7 @@ function getTransById($id, $cols = "*")
     while ($frow = sqlFetchArray($fres)) {
         $row[$frow['field_id']] = $frow['field_value'];
     }
+
     return $row;
 }
 
@@ -22,8 +23,10 @@ function getTransByPid($pid, $cols = "*")
         while ($frow = sqlFetchArray($fres)) {
               $row[$frow['field_id']] = $frow['field_value'];
         }
+
         $all[$iter] = $row;
     }
+
     return $all;
 }
 

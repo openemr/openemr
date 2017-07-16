@@ -50,28 +50,30 @@ function observation_report($pid, $encounter, $cols, $id)
                 <td align='center' style='border:1px solid #ccc;padding:4px;'><span class=bold>".xlt('Date')."</span></td>
             </tr>";
         foreach ($data as $key => $value) {
-            if($value['code'] == 'SS003') {
-                if($value['ob_value'] == '261QE0002X')
+            if ($value['code'] == 'SS003') {
+                if ($value['ob_value'] == '261QE0002X')
                 $value['ob_value'] ='Emergency Care';
-                else if($value['ob_value'] == '261QM2500X')
+                else if ($value['ob_value'] == '261QM2500X')
                 $value['ob_value'] ='Medical Specialty';
-                else if($value['ob_value'] == '261QP2300X')
+                else if ($value['ob_value'] == '261QP2300X')
                 $value['ob_value'] ='Primary Care';
-                else if($value['ob_value'] == '261QU0200X')
+                else if ($value['ob_value'] == '261QU0200X')
                 $value['ob_value'] ='Urgent Care';
             }
-            if($value['code'] == '21612-7') {
-                if($value['ob_unit'] == 'd')
+
+            if ($value['code'] == '21612-7') {
+                if ($value['ob_unit'] == 'd')
                 $value['ob_unit'] ='Day';
-                else if($value['ob_unit'] == 'mo')
+                else if ($value['ob_unit'] == 'mo')
                 $value['ob_unit'] ='Month';
-                else if($value['ob_unit'] == 'UNK')
+                else if ($value['ob_unit'] == 'UNK')
                 $value['ob_unit'] ='Unknown';
-                else if($value['ob_unit'] == 'wk')
+                else if ($value['ob_unit'] == 'wk')
                 $value['ob_unit'] ='Week';
-                else if($value['ob_unit'] == 'a')
+                else if ($value['ob_unit'] == 'a')
                 $value['ob_unit'] ='Year';
             }
+
             print "<tr>
                         <td style='border:1px solid #ccc;padding:4px;'><span class=text>".text($value['code'])."</span></td>
                         <td style='border:1px solid #ccc;padding:4px;'><span class=text>".text($value['description'])."</span></td>
@@ -83,6 +85,7 @@ function observation_report($pid, $encounter, $cols, $id)
                     </tr>";
             print "\n";
         }
+
         print "</table>";
     }
 }

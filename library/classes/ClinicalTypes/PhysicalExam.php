@@ -29,15 +29,15 @@ class PhysicalExam extends ClinicalType
     {
         $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();
-        foreach( $data as $codeType => $codes ) {
-            foreach ( $codes as $code ) {
-                if ( exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate) ) {
+        foreach ($data as $codeType => $codes) {
+            foreach ($codes as $code) {
+                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
                     return true;
                 }
             }
         }
         
-        if ( $this->getOptionId() == self::FINDING_BMI_PERC ) {
+        if ($this->getOptionId() == self::FINDING_BMI_PERC) {
             // check for any BMI percentile finding
             // there are a few BMI codes, but it doesn't matter,
             // because we just want to check for any finding
@@ -49,7 +49,7 @@ class PhysicalExam extends ClinicalType
                 "AND DATE( form_vitals.date ) <= ? ";
             $res = sqlStatement($query, array( $patient->id, $beginDate, $endDate ));
             $number = sqlNumRows($res);
-            if ( $number >= 1 ) {
+            if ($number >= 1) {
                 return true;
             }
         }

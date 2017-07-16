@@ -52,12 +52,12 @@ class DBSchema
         
         // first pass load all the tables. this will initialize each object. we have to
         // do this first so that we can correctly determine and store "Set" information
-        while ( $row = $this->Server->Connection->Next($rs) ) {
+        while ($row = $this->Server->Connection->Next($rs)) {
             $this->Tables [$row ["Tables_in_" . $this->Name]] = new DBTable($this, $row);
         }
         
         // now load all the keys and constraints for each table
-        foreach ( $this->Tables as $table ) {
+        foreach ($this->Tables as $table) {
             $table->LoadKeys();
         }
         
@@ -67,10 +67,11 @@ class DBSchema
         $rs2 = $this->Server->Connection->Select($sql);
         
         // load the extra data
-        while ( $row = $this->Server->Connection->Next($rs2) ) {
+        while ($row = $this->Server->Connection->Next($rs2)) {
             $this->Tables [$row ["Name"]]->Engine = $row ["Engine"];
             $this->Tables [$row ["Name"]]->Comment = $row ["Comment"];
         }
+
         $this->Server->Connection->Release($rs2);
     }
 }

@@ -43,14 +43,15 @@ class AclTable extends AbstractTableGateway
     public function aclSections($module_id)
     {
         $obj    = new ApplicationTable;
-        if($module_id != ''){
+        if ($module_id != '') {
             $sql    = "SELECT * FROM module_acl_sections WHERE module_id = ?";
             $params = array($module_id);
             $result = $obj->zQuery($sql, $params);
-        }else{
+        } else {
             $sql = "SELECT * FROM module_acl_sections ";
             $result = $obj->zQuery($sql);
         }
+
         return $result;
     }
     public function aclUserGroupMapping()
@@ -161,9 +162,10 @@ class AclTable extends AbstractTableGateway
         $obj    = new ApplicationTable;
         $result = $obj->zQuery($sql);
         $max_id = 0;
-        foreach($result as $row){
+        foreach ($result as $row) {
             $max_id = $row['max_id'];
         }
+
         $max_id++;
         return $max_id;
     }

@@ -24,66 +24,64 @@ require_once(dirname(__FILE__) . "/../library/log.inc");
 
 function runCheck()
 {
-    if( !socket_status('localhost', '6661', 'status') ){
+    if (!socket_status('localhost', '6661', 'status')) {
         server_logit(1, "Execute C-CDA Service Start", 0, "Task");
         execInBackground('');
         sleep(2);
-        if( socket_status('localhost', '6661', 'status') )
+        if (socket_status('localhost', '6661', 'status'))
             server_logit(1, "Service Status : Started.");
-        else
-            server_logit(1, "Service Status : Failed Start.");
+        else server_logit(1, "Service Status : Failed Start.");
         return true;
-    } else{
+    } else {
         server_logit(1, "Service Status : Alive.", 0, "Sanity Check");
         return true;
     }
 }
 function service_shutdown($soft = 1)
 {
-    if( socket_status('localhost', '6661', 'status') ){
+    if (socket_status('localhost', '6661', 'status')) {
         // shut down service- this can take a few seconds on windows so throw up notice to user.
         flush();
         echo '<h3 style="position: absolute; top: 25%; left: 42%">'. xlt("Shutting Down Service ...") . '</h3><img style="position: absolute; top: 40%; left: 45%; width: 125px; height: 125px" src="../../portal/sign/assets/loading.gif" />';
         ob_flush();
         flush();
         server_logit(1, "C-CDA Service shutdown request", 0, "Task");
-        if(!IS_WINDOWS){
+        if (!IS_WINDOWS) {
             chdir(dirname(__FILE__));
             $cmd = 'pkill -f "nodejs serveccda.njs"';
             exec($cmd . " > /dev/null &");
-        }
-        else{
+        } else {
             chdir(dirname(__FILE__));
             $cmd = 'node unservice';
             pclose(popen($cmd, "r"));
         }
+
         sleep(1);
-        if( !socket_status('localhost', '6661', 'status') ){
+        if (!socket_status('localhost', '6661', 'status')) {
             server_logit(1, "Service Status : " . $soft ? "Process Terminated" : "Terminated and Disabled.");
-            if($soft > 1) return true; // Just terminate process/service and allow background to restart. Restart if you will.
+            if ($soft > 1) return true; // Just terminate process/service and allow background to restart. Restart if you will.
             $service_name = 'ccdaservice';
             // with ccdaservice and background service and running = 1 bs will not attempt restart of service while still available/active.
             // not sure if needed but here it is anyway. Otherwise, service is disabled.
             $sql = 'UPDATE background_services SET running = ?, active = ? WHERE name = ?';
             $res = sqlStatementNoLog($sql, array($soft, $soft, $service_name));
             return true;
-        }
-        else{
+        } else {
             server_logit(1, "Service Status : Failed Shutdown.");
             return false;
         }
-    } else{
+    } else {
         server_logit(1, "Service Status : Not active.", 0, "Shutdown Request");
         return true;
     }
 }
 function execInBackground($cmd)
 {
-    if( IS_WINDOWS ){
+    if (IS_WINDOWS) {
         chdir(dirname(__FILE__));
         $cmd = 'node winservice';
         pclose(popen($cmd, "r"));
-    } else{
+    } else {
         chdir(dirname(__FILE__));
         $cmd = 'nodejs serveccda.njs';
         exec($cmd . " > /dev/null &");
@@ -93,23 +91,25 @@ function socket_status($ip, $port, $data)
 {
     $output = "";
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    if( $socket === false ){
+    if ($socket === false) {
         server_logit(1, "Creation of Socket Failed. Start/Restart Service");
         return false;
     }
+
     $result = socket_connect($socket, $ip, $port);
-    if( $result === false ){
+    if ($result === false) {
         socket_close($socket);
         server_logit(1, "Service Not Running");
         return false;
     }
+
     $data = $data  . "\r\n";
     $out = socket_write($socket, $data, strlen($data));
-    do{
+    do {
         $line = "";
         $line = socket_read($socket, 1024, PHP_NORMAL_READ);
         $output .= $line;
-    } while( $line != "\r" );
+    } while ($line != "\r");
     $output = substr(trim($output), 0, strlen($output) - 3);
     socket_close($socket);
     return true;
@@ -118,23 +118,25 @@ function service_command($ip, $port, $doaction)
 {
     $output = "";
     $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    if( $socket === false ){
+    if ($socket === false) {
         server_logit(1, "Service not resident.");
         return false;
     }
+
     $result = socket_connect($socket, $ip, $port);
-    if( $result === false ){
+    if ($result === false) {
         socket_close($socket);
         server_logit(1, "Service Not Running.");
         return false;
     }
+
     $doaction = $doaction  . "\r\n";
     $out = socket_write($socket, $doaction, strlen($doaction));
-    do{
+    do {
         $line = "";
         $line = socket_read($socket, 1024, PHP_NORMAL_READ);
         $output .= $line;
-    } while( $line != "\r" );
+    } while ($line != "\r");
     $output = substr(trim($output), 0, strlen($output) - 3);
     socket_close($socket);
     return true;

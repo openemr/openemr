@@ -167,8 +167,7 @@ function postcalendar_upgrade($oldversion)
     $events_table   =  $pntable['postcalendar_events'];
     $cat_table      =  $pntable['postcalendar_categories'];
     
-    switch($oldversion) {
-        
+    switch ($oldversion) {
         case '3.0' :
         case '3.01' :
         case '3.02' :
@@ -249,7 +248,7 @@ function postcalendar_upgrade($oldversion)
                 "INSERT INTO $cat_table (pc_catid,pc_catname,pc_catcolor) VALUES ('5','$category5','#ffcc00')"
                 );
                 
-            foreach($inserts as $insert) {
+            foreach ($inserts as $insert) {
                 $dbconn->Execute($insert);
                 if ($dbconn->ErrorNo() != 0) {
                     die('cat table insert error : '.$dbconn->ErrorMsg());
@@ -266,7 +265,7 @@ function postcalendar_upgrade($oldversion)
                 "UPDATE $events_table SET pc_catid = 5 WHERE pc_barcolor = 'y' "
                 );
             
-            foreach($updates as $update) {
+            foreach ($updates as $update) {
                 $dbconn->Execute($update);
                 if ($dbconn->ErrorNo() != 0) {
                     die('event table update error : '.$dbconn->ErrorMsg());
@@ -414,19 +413,19 @@ function postcalendar_upgrade($oldversion)
             $sql = "SELECT pc_eid, pc_eventDate, pc_startTime, pc_endTime, pc_recurrtype, pc_recurrfreq
                     FROM $events_table";
             $result = $dbconn->Execute($sql);
-            if($dbconn->ErrorNo() != 0) {
+            if ($dbconn->ErrorNo() != 0) {
                 die($dbconn->ErrorMsg());
                 return false;
             }
-            if(!isset($result)) return false;
+
+            if (!isset($result)) return false;
             // grab the results and start the conversion
-            for(; !$result->EOF; $result->MoveNext()) {
+            for (; !$result->EOF; $result->MoveNext()) {
                 $recurrspec = array();
                 list($eid,$eventdate,$start,$end,$rtype,$rfreq) = $result->fields;
 
-                if($rtype == null) $rtype = _EVENT_NONE;
-                switch($rtype) {
-                
+                if ($rtype == null) $rtype = _EVENT_NONE;
+                switch ($rtype) {
                     case _EVENT_NONE :
                         $recurrtype = NO_REPEAT;
                         $recurrspec['event_repeat_freq']        = 0;
@@ -455,14 +454,14 @@ function postcalendar_upgrade($oldversion)
                         break;
                     
                     case _EVENT_MONTHLY :
-                        if($rfreq == _RECUR_SAME_DATE) {
+                        if ($rfreq == _RECUR_SAME_DATE) {
                             $recurrtype = REPEAT;
                             $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
                             $recurrspec['event_repeat_freq_type']   = REPEAT_EVERY_MONTH;
                             $recurrspec['event_repeat_on_num']      = 0;
                             $recurrspec['event_repeat_on_day']      = 0;
                             $recurrspec['event_repeat_on_freq']     = 0;
-                        } elseif($rfreq == _RECUR_SAME_DAY) {
+                        } elseif ($rfreq == _RECUR_SAME_DAY) {
                             $recurrtype = REPEAT_ON;
                             list($y,$m,$d) = explode('-', $eventdate);
                             $recurrspec['event_repeat_freq']        = 0;
@@ -475,8 +474,12 @@ function postcalendar_upgrade($oldversion)
                             list($y2,$m2,$d2) = explode('-', $firstDay);
                             $diff = Date_Calc::dateDiff($d, $m, $y, $d2, $m2, $y2);
                             // assuming $diff is going to be a multiple of 7
-                            if($diff > 0) { $diff/=7; }
-                            if($diff > REPEAT_ON_4TH) { $diff = REPEAT_ON_LAST; }
+                            if ($diff > 0) {
+                                $diff/=7; }
+
+                            if ($diff > REPEAT_ON_4TH) {
+                                $diff = REPEAT_ON_LAST; }
+
                             $recurrspec['event_repeat_on_num']      = $diff;
                             $recurrspec['event_repeat_on_day']      = $edow;
                             $recurrspec['event_repeat_on_freq']     = REPEAT_ON_MONTH;
@@ -484,14 +487,14 @@ function postcalendar_upgrade($oldversion)
                         break;
                     
                     case _EVENT_YEARLY :
-                        if($rfreq == _RECUR_SAME_DATE) {
+                        if ($rfreq == _RECUR_SAME_DATE) {
                             $recurrtype = REPEAT;
                             $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
                             $recurrspec['event_repeat_freq_type']   = REPEAT_EVERY_YEAR;
                             $recurrspec['event_repeat_on_num']      = 0;
                             $recurrspec['event_repeat_on_day']      = 0;
                             $recurrspec['event_repeat_on_freq']     = 0;
-                        } elseif($rfreq == _RECUR_SAME_DAY) {
+                        } elseif ($rfreq == _RECUR_SAME_DAY) {
                             $recurrtype = REPEAT_ON;
                             list($y,$m,$d) = explode('-', $eventdate);
                             $recurrspec['event_repeat_freq']        = 0;
@@ -504,25 +507,31 @@ function postcalendar_upgrade($oldversion)
                             list($y2,$m2,$d2) = explode('-', $firstDay);
                             $diff = Date_Calc::dateDiff($d, $m, $y, $d2, $m2, $y2);
                             // assuming $diff is going to be a multiple of 7
-                            if($diff > 0) { $diff/=7; }
-                            if($diff > REPEAT_ON_4TH) { $diff = REPEAT_ON_LAST; }
+                            if ($diff > 0) {
+                                $diff/=7; }
+
+                            if ($diff > REPEAT_ON_4TH) {
+                                $diff = REPEAT_ON_LAST; }
+
                             $recurrspec['event_repeat_on_num']      = $diff;
                             $recurrspec['event_repeat_on_day']      = $edow;
                             $recurrspec['event_repeat_on_freq']     = REPEAT_ON_YEAR;
                         }
                         break;
                 }
+
                 // ok, figure out the event's duration
                 list($sh,$sm,$ss) = explode(':', $start);
                 list($eh,$em,$es) = explode(':', $end);
                 $stime = mktime($sh, $sm, $ss, 1, 1, 1970);
                 // if the ending hour is less than the starting hour
                 // assume that the event spans to the next day
-                if($eh < $sh) {
+                if ($eh < $sh) {
                     $etime = mktime($eh, $em, $es, 1, 2, 1970);
                 } else {
                     $etime = mktime($eh, $em, $es, 1, 1, 1970);
                 }
+
                 $duration = $etime - $stime;
                 // prep the vars for the sql statement
                 $eid = pnVarPrepForStore($eid);
@@ -542,8 +551,10 @@ function postcalendar_upgrade($oldversion)
                     die($dbconn->ErrorMsg());
                     return false;
                 }
+
                 // next event please
             }
+
             // all done, proceed with next upgrade step if available/necessary
             return postcalendar_upgrade('3.1');
             break;
@@ -574,6 +585,7 @@ function postcalendar_upgrade($oldversion)
                 die($dbconn->ErrorMsg());
                 return false;
             }
+
             // adding indexes
             $sql = "ALTER TABLE $cat_table 
 					ADD INDEX basic_cat (pc_catname, pc_catcolor)";
@@ -603,9 +615,10 @@ function postcalendar_upgrade($oldversion)
     }
     
     // if we get this far - load the userapi and clear the cache
-    if(!pnModAPILoad(__POSTCALENDAR__, 'user')) {
+    if (!pnModAPILoad(__POSTCALENDAR__, 'user')) {
         return false;
     }
+
     $tpl =& new pcSmarty();
     $tpl->clear_all_cache();
     $tpl->clear_compiled_tpl();

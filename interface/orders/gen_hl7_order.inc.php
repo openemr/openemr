@@ -76,9 +76,11 @@ function hl7Phone($s)
     if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
     }
+
     if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2];
     }
+
     return '';
 }
 
@@ -87,6 +89,7 @@ function hl7SSN($s)
     if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", $s, $tmp)) {
         return $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3];
     }
+
     return '';
 }
 
@@ -100,8 +103,8 @@ function hl7Relation($s)
     $tmp = strtolower($s);
     if ($tmp == 'self' || $tmp == '') return 'self';
     else if ($tmp == 'spouse') return 'spouse';
-    else if ($tmp == 'child' ) return 'child';
-    else if ($tmp == 'other' ) return 'other';
+    else if ($tmp == 'child') return 'child';
+    else if ($tmp == 'other') return 'other';
   // Should not get here so this will probably get noticed if we do.
     return $s;
 }
@@ -141,6 +144,7 @@ function loadPayerInfo($pid, $date = '')
         $payers[$ins]['company'] = $crow;
         $payers[$ins]['object']  = $orow;
     }
+
     return $payers;
 }
 
@@ -402,6 +406,7 @@ function gen_hl7_order($orderid, &$out)
                   $days = $answer % 7;
                   $answer = $weeks . 'wks ' . $days . 'days';
             }
+
               $out .= "OBX" .
                 $d1 . ++$setid2 .                           // Set ID
                 $d1 . $datatype .                           // Structure of observation value
@@ -449,9 +454,7 @@ function send_hl7_order($ppid, $out)
         header("Content-Description: File Transfer");
         echo $out;
         exit;
-    }
-
-    else if ($protocol == 'SFTP') {
+    } else if ($protocol == 'SFTP') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
@@ -461,12 +464,11 @@ function send_hl7_order($ppid, $out)
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }
+
         if (!$sftp->put($filename, $out)) {
             return xl('Creating this file on remote host failed') . ": '$filename'";
         }
-    }
-
-    else if ($protocol == 'FS') {
+    } else if ($protocol == 'FS') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
         if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
@@ -474,13 +476,10 @@ function send_hl7_order($ppid, $out)
         if ($fh) {
             fwrite($fh, $out);
             fclose($fh);
-        }
-        else {
+        } else {
             return xl('Cannot create file') . ' "' . "$filename" . '"';
         }
-    }
-
-  // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
+    } // TBD: Insert "else if ($protocol == '???') {...}" to support other protocols.
 
     else {
         return xl('This protocol is not implemented') . ": '$protocol'";

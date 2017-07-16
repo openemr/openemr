@@ -101,7 +101,6 @@ switch ($action) {
                     //Plan Name Taken
                     $status_code = '002';
                     $status_mssg = xl('Plan Name Already Exists');
-
                 } else if ($e->getMessage() == "003") {
                     //Already in list options
                     $status_code = '003';
@@ -139,15 +138,16 @@ switch ($action) {
         } else {
             $nm_flag = 1;
         }
+
         try {
             togglePlanStatus($plan_id_toggle, $nm_flag);
         } catch (Exception $e) {
-            if ($e->getMessage() == "007")
-            {
+            if ($e->getMessage() == "007") {
                 $code_back = "007";
                 echo json_encode($code_back);
             }
-            if  ($e->getMessage() == "002") {
+
+            if ($e->getMessage() == "002") {
                 $code_back = "002";
                 echo json_encode($code_back);
             }

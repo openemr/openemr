@@ -120,8 +120,7 @@ if (!empty($row)) {
     if ($ct_userid) {
         $user = $userService->getUser($ct_userid);
         $current_location = text($user->getLname() . ", " . $user->getFname() . " " . $user->getMname() . " " . $row['ct_when']);
-    }
-    else if ($ct_location) {
+    } else if ($ct_location) {
         $current_location = generate_display_field(array('data_type'=>'1','list_id'=>'chartloc'), $ct_location);
     }
 
@@ -167,7 +166,7 @@ if (!empty($row)) {
 
     $users = $userService->getActiveUsers();
 
-    foreach($users as $activeUser) {
+    foreach ($users as $activeUser) {
         echo "    <option value='" . attr($activeUser->getId()) . "'";
         echo ">" . text($activeUser->getLname()) . ', ' . text($activeUser->getFname()) . ' ' . text($activeUser->getMname()) .
         "</option>\n";

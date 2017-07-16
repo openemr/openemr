@@ -53,7 +53,7 @@ class Dispatcher
         if (! is_array($fileArray))
             return false;
         
-        foreach ( $fileArray as $file ) {
+        foreach ($fileArray as $file) {
             if (strtolower($file) == $fileNameLowerCase)
                 return $file;
         }
@@ -88,7 +88,6 @@ class Dispatcher
         $controller_class = $controller_param . "Controller";
         
         if (self::$FAST_LOOKUP) {
-            
             if (! class_exists($controller_class)) {
                 $controller_file = "Controller/$controller_class.php";
                 include_once $controller_file;
@@ -102,7 +101,7 @@ class Dispatcher
         
         // if the controller was in a sub-directory, get rid of the directory path
         $slashPos = strpos($controller_class, '/');
-        while ( $slashPos !== false ) {
+        while ($slashPos !== false) {
             $controller_class = substr($controller_class, $slashPos + 1);
             $slashPos = strpos($controller_class, '/');
         }
@@ -119,7 +118,7 @@ class Dispatcher
             ), explode(PATH_SEPARATOR, get_include_path()));
             
             $found = false;
-            foreach ( $paths as $path ) {
+            foreach ($paths as $path) {
                 $controller_filepath = self::ControllerFileExists($path . "/" . $controller_file);
                 if ($controller_filepath) {
                     $found = true;

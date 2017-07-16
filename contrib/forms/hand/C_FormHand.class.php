@@ -34,10 +34,10 @@ class C_FormHand extends Controller
     {
         if (is_numeric($form_id)) {
             $form = new FormHand($form_id);
-        }
-        else {
+        } else {
             $form = new FormHand();
         }
+
         $dbconn = $GLOBALS['adodb']['db'];
         $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -53,6 +53,7 @@ class C_FormHand extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         if (empty($_POST['id'])) {
             addForm(
                 $GLOBALS['encounter'],
@@ -64,6 +65,7 @@ class C_FormHand extends Controller
             );
             $_POST['process'] = "";
         }
+
         return;
     }
 }

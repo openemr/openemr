@@ -42,10 +42,9 @@ function getPatientDateOfLastEncounter($nPid)
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if( $strEventDate['max'] != "" )
+    if ($strEventDate['max'] != "")
     return( $strEventDate['max'] );
-    else
-    return( "00-00-0000" );
+    else return( "00-00-0000" );
 }
 
 $m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
@@ -75,51 +74,44 @@ $obj_po = formFetch("form_psychiatrisch_onderzoek", $vectAutosavePO['id']);
 /////////////////
 // here we mix the data
 // Reden van aanmelding
-if( $obj_po['reden_van_aanmelding'] != '' )
+if ($obj_po['reden_van_aanmelding'] != '')
   $obj['reden_van_aanmelding'] = $obj_po['reden_van_aanmelding'];
-elseif( $obj_iv['reden_van_aanmelding'] != '' )
+elseif ($obj_iv['reden_van_aanmelding'] != '')
   $obj['reden_van_aanmelding'] = $obj_iv['reden_van_aanmelding'];
-else
-  $obj['reden_van_aanmelding'] = '';
+else $obj['reden_van_aanmelding'] = '';
 // Conclusie van intake
-if( $obj_po['conclusie_van_intake'] != '' )
+if ($obj_po['conclusie_van_intake'] != '')
   $obj['conclusie_van_intake'] = $obj_po['conclusie_van_intake'];
-elseif( $obj_iv['beschrijvende_conclusie'] != '' )
+elseif ($obj_iv['beschrijvende_conclusie'] != '')
   $obj['conclusie_van_intake'] = $obj_iv['beschrijvende_conclusie'];
-else
-  $obj['conclusie_van_intake'] = '';
+else $obj['conclusie_van_intake'] = '';
 // Medicatie - local
-if( $obj_po['medicatie'] != '' )
+if ($obj_po['medicatie'] != '')
   $obj['medicatie'] = $obj_po['medicatie'];
-else
-  $obj['medicatie'] = '';
+else $obj['medicatie'] = '';
 // Anamnese - local
-if( $obj_po['anamnese'] != '' )
+if ($obj_po['anamnese'] != '')
   $obj['anamnese'] = $obj_po['anamnese'];
-else
-  $obj['anamnese'] = '';
+else $obj['anamnese'] = '';
 // Psychiatrisch onderzoek i.e.z. - local
-if( $obj_po['psychiatrisch_onderzoek'] != '' )
+if ($obj_po['psychiatrisch_onderzoek'] != '')
   $obj['psychiatrisch_onderzoek'] = $obj_po['psychiatrisch_onderzoek'];
-else
-  $obj['psychiatrisch_onderzoek'] = '';
+else $obj['psychiatrisch_onderzoek'] = '';
 // Beschrijvende conclusie
-if( $obj_po['beschrijvende_conclusie'] != '' )
+if ($obj_po['beschrijvende_conclusie'] != '')
   $obj['beschrijvende_conclusie'] = $obj_po['beschrijvende_conclusie'];
-elseif( $obj_iv['beschrijvende_conclusie'] != '' )
+elseif ($obj_iv['beschrijvende_conclusie'] != '')
   $obj['beschrijvende_conclusie'] = $obj_iv['beschrijvende_conclusie'];
-else
-  $obj['beschrijvende_conclusie'] = '';
+else $obj['beschrijvende_conclusie'] = '';
 // Behandelvoorstel
-if( $obj_po['behandelvoorstel'] != '' )
+if ($obj_po['behandelvoorstel'] != '')
   $obj['behandelvoorstel'] = $obj_po['behandelvoorstel'];
-elseif( $obj_iv['behandelvoorstel'] != '' )
+elseif ($obj_iv['behandelvoorstel'] != '')
   $obj['behandelvoorstel'] = $obj_iv['behandelvoorstel'];
-else
-  $obj['behandelvoorstel'] = '';
+else $obj['behandelvoorstel'] = '';
 
 $tmpDate = stripslashes($obj{"datum_onderzoek"});
-if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
+if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') $m_strEventDate = $tmpDate;
 
 ?>
 
@@ -148,10 +140,9 @@ if( $tmpDate && $tmpDate != '0000-00-00 00:00:00' ) $m_strEventDate = $tmpDate;
 
 <?php
 
-if( $vectAutosavePO['id'] )
+if ($vectAutosavePO['id'])
   $psychiatrisch_onderzoek_id = $vectAutosavePO['id'];
-else
-  $psychiatrisch_onderzoek_id = "0";
+else $psychiatrisch_onderzoek_id = "0";
 
 ?>
 <script type="text/javascript">

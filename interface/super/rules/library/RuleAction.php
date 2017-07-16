@@ -36,17 +36,19 @@ class RuleAction
 
     function getCategoryLabel()
     {
-        if ( !$this->categoryLbl ) {
+        if (!$this->categoryLbl) {
             $this->categoryLbl = getLabel($this->category, 'rule_action_category');
         }
+
         return $this->categoryLbl;
     }
 
     function getItemLabel()
     {
-        if ( !$this->itemLbl ) {
+        if (!$this->itemLbl) {
             $this->itemLbl = getLabel($this->item, 'rule_action');
         }
+
         return $this->itemLbl;
     }
 }

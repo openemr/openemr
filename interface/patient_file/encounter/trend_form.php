@@ -137,9 +137,7 @@ $(document).ready(function(){
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
     include_once("$incdir/forms/LBF/new.php");
-}
-else {
-
+} else {
   // ensure the path variable has no illegal characters
     check_file_dir_name($formname);
 

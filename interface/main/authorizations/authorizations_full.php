@@ -29,7 +29,6 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
     sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));
     sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pid"]));
-
 }
 ?>
 <html>
@@ -51,44 +50,38 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 
 //fetch billing information:
 if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized=0 and groupname=?", array ($groupname))) {
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result[$iter] = $row;
 
     if ($result) {
         foreach ($result as $iter) {
-
             $authorize{$iter{"pid"}}{"billing"} .= "<span class=small>" .
               htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
               htmlspecialchars($iter{"code_text"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
               "</span><br>\n";
-
         }
-
     }
 }
 
 //fetch transaction information:
 if ($res = sqlStatement("select * from transactions where authorized=0 and groupname=?", array($groupname))) {
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result2[$iter] = $row;
 
     if ($result2) {
         foreach ($result2 as $iter) {
-
             $authorize{$iter{"pid"}}{"transaction"} .= "<span class=small>" .
               htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
               htmlspecialchars($iter{"title"} . ": " . strterm($iter{"body"}, 25) . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
               "</span><br>\n";
-
         }
-
     }
 }
 
 if (empty($GLOBALS['ignore_pnotes_authorization'])) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", array($groupname))) {
-        for ($iter = 0;$row = sqlFetchArray($res);
+        for ($iter = 0; $row = sqlFetchArray($res);
         $iter++) $result3[$iter] = $row;
         if ($result3) {
             foreach ($result3 as $iter) {
@@ -103,19 +96,16 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
 
 //fetch forms information:
 if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?", array($groupname))) {
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
         $result4[$iter] = $row;
 
     if ($result4) {
         foreach ($result4 as $iter) {
-
             $authorize{$iter{"pid"}}{"forms"} .= "<span class=small>" .
               htmlspecialchars($iter{"user"}, ENT_NOQUOTES) . ": </span><span class=text>" .
               htmlspecialchars($iter{"form_name"} . " " . date("n/j/Y", strtotime($iter{"date"})), ENT_NOQUOTES) .
               "</span><br>\n";
-
         }
-
     }
 }
 ?>
@@ -126,9 +116,7 @@ if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?"
 
 <?php
 if ($authorize) {
-
-    while(list($ppid,$patient) = each($authorize)){
-    
+    while (list($ppid,$patient) = each($authorize)) {
         $name = getPatientData($ppid);
     
         echo "<tr><td valign=top><span class=bold>". htmlspecialchars($name{"fname"} . " " . $name{"lname"}, ENT_NOQUOTES) .

@@ -27,8 +27,7 @@ class C_InsuranceCompany extends Controller
     {
         if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
             $this->icompanies[0] = $p_obj;
-        }
-        elseif (get_class($this->icompanies[0]) != "insurancecompany" ) {
+        } elseif (get_class($this->icompanies[0]) != "insurancecompany") {
             $this->icompanies[0] = new InsuranceCompany($id);
         }
 
@@ -41,8 +40,7 @@ class C_InsuranceCompany extends Controller
 
         if (!empty($sort)) {
             $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("", $sort));
-        }
-        else {
+        } else {
             $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
         }
 
@@ -57,8 +55,7 @@ class C_InsuranceCompany extends Controller
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->icompanies[0] = new InsuranceCompany($_POST['id']);
-        }
-        else {
+        } else {
             $this->icompanies[0] = new InsuranceCompany();
         }
 

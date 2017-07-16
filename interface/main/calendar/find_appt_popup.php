@@ -61,11 +61,11 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             if ($input_catid) {
                 if ($prefcatid == $input_catid || !$prefcatid)
                 $slots[$i] |= 1;
-                else
-                $slots[$i] |= 2;
+                else $slots[$i] |= 2;
             } else {
                 $slots[$i] |= 1;
             }
+
             break; // ignore any positive duration for IN
         } else if ($catid == 3) { // out of office
             $slots[$i] |= 2;
@@ -96,8 +96,7 @@ if ($_REQUEST['startdate'] && preg_match(
     "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
     $_REQUEST['startdate'],
     $matches
-))
-{
+)) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
@@ -124,17 +123,17 @@ if ($_REQUEST['startdate'] && preg_match(
  // none is given then assume the default category duration.
  $evslots = $catslots;
  if (isset($_REQUEST['evdur'])) {
-
   // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
   // if the event duration is less than or equal to zero, use the global calander interval
   // if the global calendar interval is less than or equal to zero, use 10 mins
-     if(intval($_REQUEST['evdur']) <= 0){
-         if(intval($GLOBALS['calendar_interval']) <= 0){
+     if (intval($_REQUEST['evdur']) <= 0) {
+         if (intval($GLOBALS['calendar_interval']) <= 0) {
               $_REQUEST['evdur'] = 10;
-            }else{
+            } else {
                  $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
             }
         }
+
         $evslots = 60 * $_REQUEST['evdur'];
         $evslots = (int) (($evslots + $slotsecs - 1) / $slotsecs);
     }
@@ -166,16 +165,17 @@ if ($_REQUEST['startdate'] && preg_match(
          array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
         // phyaura whimmel facility filtering
-        if ($_REQUEST['facility'] > 0 ) {
+        if ($_REQUEST['facility'] > 0) {
              $facility = $_REQUEST['facility'];
              $query .= " AND pc_facility = ?";
              array_push($sqlBindArray, $facility);
         }
+
         // end facility filtering whimmel 29apr08
 
         //////
         $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
-        foreach($events2 as $row) {
+        foreach ($events2 as $row) {
              $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
              doOneDay(
                  $row['pc_catid'],
@@ -185,6 +185,7 @@ if ($_REQUEST['startdate'] && preg_match(
                  $row['pc_prefcatid']
              );
         }
+
         //////
 
         // Mark all slots reserved where the provider is not in-office.
@@ -194,20 +195,23 @@ if ($_REQUEST['startdate'] && preg_match(
             if (($i % $slotsperday) == 0) $inoffice = false;
             if ($slots[$i] & 1) $inoffice = true;
             if ($slots[$i] & 2) $inoffice = false;
-            if (! $inoffice) { $slots[$i] |= 4;
+            if (! $inoffice) {
+                $slots[$i] |= 4;
                 $prov[$i] = $i; }
         }
     }
+
     $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
     $is_holiday=false;
     $holidays_controller = new Holidays_Controller();
     $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-    if(in_array($sdate, $holidays)){
+    if (in_array($sdate, $holidays)) {
         $is_holiday=true;
         $ckavail=true;
     }
+
 //////
 
 
@@ -225,7 +229,7 @@ if ($_REQUEST['startdate'] && preg_match(
             if ($slots[$j] >= 4) {
                 $ckavail = false;
                 $isProv = false;
-                if(isset($prov[$j])){
+                if (isset($prov[$j])) {
                     $isProv = 'TRUE';
                 }
             }
@@ -244,6 +248,7 @@ if ($_REQUEST['startdate'] && preg_match(
             xlt('Time slot is open, saving event') . "...</body></html>";
              exit();
         }
+
         // The appointment slot is not available.  A message will be displayed
         // after this page is loaded.
     }
@@ -360,11 +365,11 @@ form {
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
 for ($i = 0; $i < $slotcount; ++$i) {
-
     $available = true;
     for ($j = $i; $j < $i + $evslots; ++$j) {
         if ($slots[$j] >= 4) $available = false;
     }
+
     if (!$available) continue; // skip reserved slots
 
     $utime = ($slotbase + $i) * $slotsecs;
@@ -376,6 +381,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
             echo "</td>\n";
             echo " </tr>\n";
         }
+
         $lastdate = $thisdate;
         $dayName = date("l", $utime);
         echo " <tr class='oneresult'>\n";
@@ -386,7 +392,9 @@ for ($i = 0; $i < $slotcount; ++$i) {
     }
 
     $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) { echo "</div><div id='pm'>PM "; }
+    if ($ampmFlag != $ampm) {
+        echo "</div><div id='pm'>PM "; }
+
     $ampmFlag = $ampm;
 
     $atitle = "Choose ".date("h:i a", $utime);
@@ -406,6 +414,7 @@ for ($i = 0; $i < $slotcount; ++$i) {
     // This is to avoid reporting available times on undesirable boundaries.
     $i += $evslots - 1;
 }
+
 if ($lastdate) {
     echo "</td>\n";
     echo " </tr>\n";
@@ -443,16 +452,16 @@ $(document).ready(function(){
 
 <?php if (!$ckavail) { ?>
 <?php if (acl_check('patients', 'appt', '', 'write')) {
-    if($is_holiday){?>
+    if ($is_holiday) {?>
             if (confirm('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>')) {
          opener.top.restoreSession();
          opener.document.forms[0].submit();
          window.close();
         }
-        <?php }else{
-        if($isProv): ?>
+        <?php } else {
+        if ($isProv) : ?>
             if (confirm('<?php echo xls('Provider not available, use it anyway?'); ?>')) {
-            <?php else: ?>
+            <?php else : ?>
         if (confirm('<?php echo xls('This appointment slot is already used, use it anyway?'); ?>')) {
         <?php endif; ?>
     opener.top.restoreSession();
@@ -461,12 +470,12 @@ $(document).ready(function(){
     }
     <?php } ?>
 <?php } else {
-    if($is_holiday){?>
+    if ($is_holiday) {?>
             alert('<?php echo xls('On this date there is a holiday, use it anyway?'); ?>');
-        <?php }else{
-        if($isProv): ?>
+        <?php } else {
+        if ($isProv) : ?>
             alert('<?php echo xls('Provider not available, please choose another.'); ?>');
-            <?php else: ?>
+            <?php else : ?>
         alert('<?php echo xls('This appointment slot is already used, please choose another.'); ?>');
         <?php endif; ?>
     <?php } ?>//close if is holiday

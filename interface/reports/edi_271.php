@@ -23,27 +23,21 @@
 
     $target         = $GLOBALS['edi_271_file_path'];
 
-if(isset($_FILES) && !empty($_FILES))
-{
-
+if (isset($_FILES) && !empty($_FILES)) {
     $target     = $target .time().basename($_FILES['uploaded']['name']);
 
     $FilePath   = $target;
 
-    if ($_FILES['uploaded']['size'] > 350000)
-    {
+    if ($_FILES['uploaded']['size'] > 350000) {
         $message .= htmlspecialchars(xl('Your file is too large'), ENT_NOQUOTES)."<br>";
-
     }
 
-    if ($_FILES['uploaded']['type']!="text/plain")
-    {
+    if ($_FILES['uploaded']['type']!="text/plain") {
         $message .= htmlspecialchars(xl('You may only upload .txt files'), ENT_NOQUOTES)."<br>";
     }
-    if(!isset($message))
-    {
-        if(move_uploaded_file($_FILES['uploaded']['tmp_name'], $target))
-        {
+
+    if (!isset($message)) {
+        if (move_uploaded_file($_FILES['uploaded']['tmp_name'], $target)) {
             $message    = htmlspecialchars(xl('The following EDI file has been uploaded').': "'. basename($_FILES['uploaded']['name']).'"', ENT_NOQUOTES);
 
             // Stores the content of the file
@@ -64,8 +58,7 @@ if(isset($_FILES) && !empty($_FILES))
             $patientId  = "";
 
             // Loop through each line
-            foreach($Response271 as $Value)
-            {
+            foreach ($Response271 as $Value) {
                // In the array store this line
                 // with values delimited by ^ (tilt)
                 // as separate array values
@@ -73,20 +66,14 @@ if(isset($_FILES) && !empty($_FILES))
                 $DataSegment271[$i] = explode("^", $Value);
 
 
-                if(count($DataSegment271[$i])<6)
-                {
+                if (count($DataSegment271[$i])<6) {
                         $messageEDI = true;
                         $message = "";
-                    if(file_exists($target))
-                        {
+                    if (file_exists($target)) {
                         unlink($target);
                     }
-                }
-                else
-                {
-                    foreach ($DataSegment271[$i] as $datastrings)
-                    {
-
+                } else {
+                    foreach ($DataSegment271[$i] as $datastrings) {
                         $Segments271[$j] = explode("*", $datastrings);
 
                         $segment         = $Segments271[$j][0];
@@ -94,60 +81,45 @@ if(isset($_FILES) && !empty($_FILES))
 
                         // Switch Case for Segment
 
-                        switch ($segment)
-                        {
+                        switch ($segment) {
                             case 'ISA':
 
                                 $j = 0;
 
-                                foreach($Segments271[$j] as $segmentVal){
-
-                                    if($j == 6)
-                                    {
+                                foreach ($Segments271[$j] as $segmentVal) {
+                                    if ($j == 6) {
                                         $x12PartnerId = $segmentVal;
                                     }
 
                                     $j  =   $j + 1;
                                 }
-
                                 break;
 
                             case 'REF':
 
-                                foreach($Segments271[$j] as $segmentVal){
-
-                                    if($segmentVal == "EJ")
-                                    {
+                                foreach ($Segments271[$j] as $segmentVal) {
+                                    if ($segmentVal == "EJ") {
                                         $patientId = $Segments271[$j][2];
                                     }
                                 }
-
                                 break;
 
                             case 'EB':
 
-                                foreach($Segments271[$j] as $segmentVal){
-
-
+                                foreach ($Segments271[$j] as $segmentVal) {
                                 }
                                 break;
 
                             case 'MSG':
 
-                                foreach($Segments271[$j] as $segmentVal){
-
-                                    if($segment != $segmentVal)
-                                    {
+                                foreach ($Segments271[$j] as $segmentVal) {
+                                    if ($segment != $segmentVal) {
                                         eligibility_response_save($segmentVal, $x12PartnerId);
 
                                         eligibility_verification_save($segmentVal, $x12PartnerId, $patientId);
                                     }
                                 }
-
                                 break;
-
-
-
                         }
 
 
@@ -156,13 +128,12 @@ if(isset($_FILES) && !empty($_FILES))
                         $j++;
                     }
                 }
+
               //Increase the line index
                 $i++;
             }
         }
-    }
-    else
-    {
+    } else {
         $message .= htmlspecialchars(xl('Sorry, there was a problem uploading your file'), ENT_NOQUOTES). "<br><br>";
     }
 }
@@ -225,15 +196,14 @@ if(isset($_FILES) && !empty($_FILES))
 <body class="body_top">
 
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-    <?php   if(isset($message) && !empty($message))
-            {
+    <?php   if (isset($message) && !empty($message)) {
     ?>
                 <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" ><?php echo $message; ?></div>
     <?php
                 $message = "";
 }
-if(isset($messageEDI))
-{
+
+if (isset($messageEDI)) {
     ?>
     <div style="margin-left:25%;width:50%;color:RED;text-align:center;font-family:arial;font-size:15px;background:#ECECEC;border:1px solid;" >
 <?php echo htmlspecialchars(xl('Please choose the proper formatted EDI-271 file'), ENT_NOQUOTES); ?>

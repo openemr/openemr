@@ -21,7 +21,7 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
     $data = formFetch("form_misc_billing_options", $id);
     if ($data) {
         print "<table><tr>";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
                 $key == "authorized" || $key == "activity" || $key == "date" || $value == "" ||
                 $value == "0" || $value == "0000-00-00 00:00:00" || $value =="0000-00-00" ||
@@ -37,11 +37,12 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
             if ($key === 'provider_qualifier_code') {
                 $pqe = $data['provider_qualifier_code'];
                 if (!empty($pqe)) {
-                    switch($pqe) {
+                    switch ($pqe) {
                         case ($pqe == "DN"): $value = "Referring";
                         case ($pqe == "DK"): $value = "Ordering";
                         case ($pqe == "DQ"): $value = "Supervising";
                     }
+
                     $key = 'Box 17 Qualifier';
                 }
             }
@@ -67,5 +68,6 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
             }
         }
     }
+
     print "</tr></table>";
 }

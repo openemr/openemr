@@ -126,7 +126,7 @@ form {
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
 <!-- ViSolve: Verify the noresult parameter -->
 <?php
-if(isset($_GET["res"])){
+if (isset($_GET["res"])) {
     echo '
 <script language="Javascript">
 			// Pass the variable to parent hidden type and submit
@@ -157,7 +157,7 @@ if(isset($_GET["res"])){
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if(isset($_GET['pflag'])) echo "pflag=0"; ?>'>
+<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) echo "pflag=0"; ?>'>
     <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='searchby'>
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
@@ -178,21 +178,22 @@ if(isset($_GET["res"])){
 </div>
 
 
-<?php if (! isset($_REQUEST['searchparm'])): ?>
+<?php if (! isset($_REQUEST['searchparm'])) : ?>
 <div id="searchstatus"><?php echo htmlspecialchars(xl('Enter your search criteria above'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result) == 0): ?>
+<?php elseif (count($result) == 0) : ?>
 <div id="searchstatus" class="noResults"><?php echo htmlspecialchars(xl('No records found. Please expand your search criteria.'), ENT_NOQUOTES); ?>
 <br>
 <!--VicarePlus :: If pflag is set the new patient create link will not be displayed --!>
-<a class="noresult" href='find_patient_popup.php?res=noresult' <?php if(isset($_GET['pflag'])) { ?> style="display:none;" <?php } ?>  ><?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
+<a class="noresult" href='find_patient_popup.php?res=noresult' <?php if (isset($_GET['pflag'])) {
+?> style="display:none;" <?php } ?>  ><?php echo htmlspecialchars(xl('Click Here to add a new patient.'), ENT_NOQUOTES); ?></a>
 </div>
-<?php elseif (count($result)>=100): ?>
+<?php elseif (count($result)>=100) : ?>
 <div id="searchstatus" class="tooManyResults"><?php echo htmlspecialchars(xl('More than 100 records found. Please narrow your search criteria.'), ENT_NOQUOTES); ?></div>
-<?php elseif (count($result)<100): ?>
+<?php elseif (count($result)<100) : ?>
 <div id="searchstatus" class="howManyResults"><?php echo htmlspecialchars(count($result), ENT_NOQUOTES); ?> <?php echo htmlspecialchars(xl('records found.'), ENT_NOQUOTES); ?></div>
 <?php endif; ?>
 
-<?php if (isset($result)): ?>
+<?php if (isset($result)) : ?>
 
 <div id="searchResultsHeader">
 <table>
@@ -219,12 +220,15 @@ foreach ($result as $iter) {
     // If billing note exists, then it gets special coloring and an extra line of output
     // in the 'name' column.
     $trClass = "oneresult";
-    if (!empty($iter['billing_note'])) { $trClass .= " billing"; }
+    if (!empty($iter['billing_note'])) {
+        $trClass .= " billing"; }
 
     echo " <tr class='".$trClass."' id='" .
         htmlspecialchars($iterpid."~".$iterlname."~".$iterfname."~".$iterdob, ENT_QUOTES) . "'>";
     echo "  <td class='srName'>" . htmlspecialchars($iterlname.", ".$iterfname." ".$itermname, ENT_NOQUOTES);
-    if (!empty($iter['billing_note'])) { echo "<br>" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES); }
+    if (!empty($iter['billing_note'])) {
+        echo "<br>" . htmlspecialchars($iter['billing_note'], ENT_NOQUOTES); }
+
     echo "</td>\n";
     echo "  <td class='srPhone'>" . htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n"; //(CHEMED) Search by phone number
     echo "  <td class='srSS'>" . htmlspecialchars($iter['ss'], ENT_NOQUOTES) . "</td>\n";

@@ -28,8 +28,7 @@ class C_Pharmacy extends Controller
     {
         if ($p_obj != null && get_class($p_obj) == "pharmacy") {
             $this->pharmacies[0] = $p_obj;
-        }
-        elseif (get_class($this->pharmacies[0]) != "pharmacy" ) {
+        } elseif (get_class($this->pharmacies[0]) != "pharmacy") {
             $this->pharmacies[0] = new Pharmacy($id);
         }
 
@@ -37,6 +36,7 @@ class C_Pharmacy extends Controller
             $this->pharmacies[0]->set_patient_id($patient_id);
             $this->pharmacies[0]->set_provider($this->pharmacies[0]->patient->get_provider());
         }
+
         $this->assign("pharmacy", $this->pharmacies[0]);
         return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_edit.html");
     }
@@ -46,10 +46,10 @@ class C_Pharmacy extends Controller
 
         if (!empty($sort)) {
             $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory("", $sort));
-        }
-        else {
+        } else {
             $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
         }
+
         //print_r(Prescription::prescriptions_factory($id));
         return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_list.html");
     }
@@ -62,10 +62,10 @@ class C_Pharmacy extends Controller
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->pharmacies[0] = new Pharmacy($_POST['id']);
-        }
-        else {
+        } else {
             $this->pharmacies[0] = new Pharmacy();
         }
+
         parent::populate_object($this->pharmacies[0]);
         //print_r($this->pharmacies[0]);
         //echo $this->pharmacies[0]->toString(true);

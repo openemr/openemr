@@ -48,6 +48,7 @@ Enter the name you wish to use for this OpenEMR installation.
 <?php
 exit(0);
 }
+
 if ($_POST['submit']) {
     $newname = $_POST['newname'];
     //handle the database stuff
@@ -69,24 +70,19 @@ if ($_POST['submit']) {
     flush();
     if ($server == "localhost")
         $dbh = mysql_connect("$server", "$root", "$rootpass");
-    else
-        $dbh = mysql_connect("$server:$port", "$root", "$rootpass");
+    else $dbh = mysql_connect("$server:$port", "$root", "$rootpass");
     if ($dbh == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         break;
-    }
-    else
-        echo "OK.<br>\n";
+    } else echo "OK.<br>\n";
     echo "Creating database...\n";
     flush();
     if (mysql_query("create database $dbname", $dbh) == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         break;
-    }
-    else
-        echo "OK.<br>\n";
+    } else echo "OK.<br>\n";
     echo "Creating user with permissions for database...\n";
     flush();
     if (mysql_query("GRANT ALL PRIVILEGES ON $dbname.* TO '$login'@'$loginhost' IDENTIFIED BY '$pass'", $dbh) == false) {
@@ -94,36 +90,27 @@ if ($_POST['submit']) {
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         echo "ERROR.\n";
         break;
-    }
-    else
-        echo "OK.<br>\n";
+    } else echo "OK.<br>\n";
     echo "Reconnecting as new user...\n";
     mysql_close($dbh);
-}
-else
-    echo "Connecting to MySQL Server...\n";
+} else echo "Connecting to MySQL Server...\n";
 
 if ($server == "localhost")
     $dbh = mysql_connect("$server", "$login", "$pass");
-else
-    $dbh = mysql_connect("$server:$port", "$login", "$pass");
+else $dbh = mysql_connect("$server:$port", "$login", "$pass");
 
 if ($dbh == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     break;
-}
-else
-    echo "OK.<br>\n";
+} else echo "OK.<br>\n";
 echo "Opening database...";
 flush();
 if (mysql_select_db("$dbname", $dbh) == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     break;
-}
-else
-    echo "OK.<br>\n";
+} else echo "OK.<br>\n";
     flush();
 if ($upgrade != 1) {
     echo "Creating initial tables...\n";
@@ -135,9 +122,10 @@ if ($upgrade != 1) {
         flush();
         break;
     }
+
     $query = "";
     $line = "";
-    while (!feof($fd)){
+    while (!feof($fd)) {
         $line = fgets($fd, 1024);
         $line = rtrim($line);
         if (substr($line, 0, 2) == "--") // Kill comments
@@ -154,6 +142,7 @@ if ($upgrade != 1) {
             $query = "";
         }
     }
+
     echo "OK<br>\n";
     fclose($fd);
     flush();
@@ -169,6 +158,7 @@ if ($upgrade != 1) {
         flush();
         break;
     }
+
     //// ViCareplus : As per NIST standard, SHA1 hash/digest of 'pass' is used
     if (mysql_query("INSERT INTO users (id, username, password, authorized, lname,fname) VALUES (1,'$iuser','9d4e1e23bd5b727046a9e3b4b7db57bd8d6ee684',1,'$iuname','')") == false) {
         echo "ERROR.  Could not run queries.\n";
@@ -176,6 +166,7 @@ if ($upgrade != 1) {
         flush();
         break;
     }
+
     echo "OK<br>\n";
     flush();
 
@@ -188,6 +179,7 @@ if ($upgrade != 1) {
         flush();
         break;
     }
+
     $string = "<?php
 
 //  OpenEMR
@@ -234,6 +226,7 @@ if ($it_died != 0) {
         flush();
         break;
 }
+
 fclose($fd);
 
     //Now, use new name and fix globals.php and rename directory!!!

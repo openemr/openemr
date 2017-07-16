@@ -56,6 +56,7 @@ while ($row = sqlFetchArray($res)) {
     if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
         $xlgname = "<span class='translation'>>>&nbsp; " . xl($gname) . "</span>";
     }
+
     echo "<li id='".$row['group_name']."' class='oneresult'> $gname $xlgname </li>";
 }
 ?>

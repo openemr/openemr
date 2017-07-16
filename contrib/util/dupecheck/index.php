@@ -8,14 +8,16 @@ require_once("./Utils.php");
 $parameters = GetParameters();
 
 // establish some defaults
-if (! isset($parameters['sortby'])) { $parameters['sortby'] = "name"; }
-if (! isset($parameters['limit'])) { $parameters['limit'] = 100; }
+if (! isset($parameters['sortby'])) {
+    $parameters['sortby'] = "name"; }
+
+if (! isset($parameters['limit'])) {
+    $parameters['limit'] = 100; }
 
 if (! isset($parameters['match_name']) &&
     ! isset($parameters['match_dob']) &&
     ! isset($parameters['match_sex']) &&
-    ! isset($parameters['match_ssn']))
-{
+    ! isset($parameters['match_ssn'])) {
     $parameters['match_name'] = 'on';
     $parameters['match_dob'] = 'on';
 }
@@ -115,6 +117,7 @@ if ($parameters['go'] == "Go") {
             $orderby = " ORDER BY lname, fname";
             break;
     }
+
     $sqlstmt .= $orderby;
     if ($parameters['limit']) {
         $sqlstmt .= " LIMIT 0,".$parameters['limit'];
@@ -122,7 +125,6 @@ if ($parameters['go'] == "Go") {
 
     $qResults = sqlStatement($sqlstmt);
     while ($row = sqlFetchArray($qResults)) {
-
         if ($dupelist[$row['id']] == 1) continue;
 
         $sqlstmt = "select id, pid, fname, lname, dob, sex, ss ".
@@ -133,18 +135,22 @@ if ($parameters['go'] == "Go") {
             $sqland = " AND ";
             $sqlstmt .= $sqland . " lname='".$row['lname']."'";
         }
+
         if ($parameters['match_sex']) {
             $sqlstmt .= $sqland . " sex='".$row['sex']."'";
             $sqland = " AND ";
         }
+
         if ($parameters['match_ssn']) {
             $sqlstmt .= $sqland . " ss='".$row['ss']."'";
             $sqland = " AND ";
         }
+
         if ($parameters['match_dob']) {
             $sqlstmt .= $sqland . " dob='".$row['dob']."'";
             $sqland = " AND ";
         }
+
         $mResults = sqlStatement($sqlstmt);
 
         if (! $mResults) continue;
@@ -175,6 +181,7 @@ if ($parameters['go'] == "Go") {
             $dupelist[$row['id']] = 1;
             $dupelist[$mrow['id']] = 1;
         }
+
         $dupecount++;
 
         echo "</table>";

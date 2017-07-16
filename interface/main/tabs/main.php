@@ -83,7 +83,7 @@ function goRepeaterServices(){
 }
 
 function isEncounterLocked( encounterId ) {
-    <?php if ( $esignApi->lockEncounters() ) { ?>
+    <?php if ($esignApi->lockEncounters()) { ?>
     // If encounter locking is enabled, make a syncronous call (async=false) to check the
     // DB to see if the encounter is locked.
     // Call restore session, just in case
@@ -143,6 +143,7 @@ if ($GLOBALS['erx_enable']) {
         $GLOBALS['newcrop_user_role_erxadmin'] = 1;
     }
 }
+
 // prepare track anything to be used in creating the menu
 $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
 $GLOBALS['track_anything_state'] = $track_anything_sql['state'];
@@ -159,7 +160,7 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 <?php require_once("menu/menu_json.php"); ?>
 <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 <script type="text/javascript">
-    <?php if(!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
+    <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
         app_view_model.application_data.tabs.tabsList()[0].url(<?php echo json_encode("../".$_SESSION['frame1url']); ?>);
         app_view_model.application_data.tabs.tabsList()[0].name(<?php echo json_encode($_SESSION['frame1target']); ?>);
     <?php } ?>

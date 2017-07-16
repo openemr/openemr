@@ -47,6 +47,7 @@ if ($result = sqlFetchArray($query)) {
     $patient_phone = $result['phone_home'];
     $patient_dob = $result['DOB'];
 }
+
 //update user information if selected from form
 if ($_POST['update']) { // OPTION update practice inf
     $query = "update users set " .
@@ -63,6 +64,7 @@ if ($_POST['update']) { // OPTION update practice inf
     "where id =" . $_SESSION['authUserID'];
     sqlInsert($query);
 }
+
 //get user information
 $query = sqlStatement("select * from users where id =" . $_SESSION['authUserID']);
 if ($result = sqlFetchArray($query)) {
@@ -78,6 +80,7 @@ if ($result = sqlFetchArray($query)) {
     $practice_fax = $result['fax'];
     $practice_dea = $result['federaldrugid'];
 }
+
 if ($_POST['print_pdf'] || $_POST['print_html']) {
     $camos_content = array();
     foreach ($_POST as $key => $val) {
@@ -85,16 +88,17 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             $query = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS")." where id =" .
             substr($key, 3));
             if ($result = sqlFetchArray($query)) {
-
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
                             $content = preg_replace('|<br/><br/>|', '<br/>', $content);
                 } else {
                         $content = $result['content'];
                 }
+
                   array_push($camos_content, $content);
             }
         }
+
         if (substr($key, 0, 5) == 'chrx_') {
             $rx = new Prescription(substr($key, 5));
             //$content = $rx->drug.' '.$rx->form.' '.$rx->dosage;
@@ -115,6 +119,7 @@ if ($_POST['print_pdf'] || $_POST['print_html']) {
             array_push($camos_content, $content);
         }
     }
+
     if (!$_GET['letterhead']) { //OPTION print a prescription with css formatting
     ?>
   <html>
@@ -212,7 +217,6 @@ if ($camos_content[1]) { //decide if we are printing this rx
     <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?php
-
 } // end of deciding if we are printing the above rx block
 else {
     print "<img src='./xout.jpg' id='rx2'>\n";
@@ -245,7 +249,6 @@ if ($camos_content[2]) { //decide if we are printing this rx
     <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?php
-
 } // end of deciding if we are printing the above rx block
 else {
     print "<img src='./xout.jpg' id='rx3'>\n";
@@ -278,7 +281,6 @@ if ($camos_content[3]) { //decide if we are printing this rx
     <?php print $sigline[$_GET[sigline]] ?>
 </div> <!-- end of rx block -->
 <?php
-
 } // end of deciding if we are printing the above rx block
 else {
     print "<img src='./xout.jpg' id='rx4'>\n";
@@ -287,10 +289,10 @@ else {
 </body>
 </html>
 <?php
-    }//end of printing to rx not letterhead
+    } //end of printing to rx not letterhead
     elseif ($_GET['letterhead']) { //OPTION print to letterhead
         $content = preg_replace('/PATIENTNAME/i', $patient_name, $camos_content[0]);
-        if($_POST['print_html']) { //print letterhead to html
+        if ($_POST['print_html']) { //print letterhead to html
         ?>
         <html>
         <head>
@@ -343,13 +345,13 @@ else {
 if ($_GET['signer'] == 'patient') {
     print "__________________________________________________________________________________" . "<br/>\n";
     print xl("Print name, sign and date.") . "<br/>\n";
-}
-elseif ($_GET['signer'] == 'doctor') {
+} elseif ($_GET['signer'] == 'doctor') {
     print xl('Sincerely,') . "<br/>\n";
     print "<br/>\n";
     print "<br/>\n";
     print $physician_name . "<br/>\n";
 }
+
     print "</div>";
 ?>
         <script language='JavaScript'>
@@ -361,8 +363,7 @@ elseif ($_GET['signer'] == 'doctor') {
         </html>
 <?php
         exit;
-        }
-        else { //print letterhead to pdf
+        } else { //print letterhead to pdf
             $pdf = new Cezpdf();
             $pdf->selectFont('Times-Bold');
             $pdf->ezSetCmMargins(3, 1, 1, 1);
@@ -382,13 +383,13 @@ elseif ($_GET['signer'] == 'doctor') {
             if ($_GET['signer'] == 'patient') {
                 $pdf->ezText("__________________________________________________________________________________", 12);
                 $pdf->ezText(xl("Print name, sign and date."), 12);
-            }
-            elseif ($_GET['signer'] == 'doctor') {
+            } elseif ($_GET['signer'] == 'doctor') {
                 $pdf->ezText(xl('Sincerely,'), 12);
                 $pdf->ezText('', 12);
                 $pdf->ezText('', 12);
                 $pdf->ezText($physician_name, 12);
             }
+
             $pdf->ezStream();
         } //end of html vs pdf print
     }
@@ -477,8 +478,7 @@ if ($_SESSION['encounter'] == null) {
     "where y.pid = " . $_SESSION['pid'] .
     " and y.form_name like 'CAMOS%'" .
     " and x.activity = 1");
-}
-else {
+} else {
     $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
     mitigateSqlTableUpperCase("form_CAMOS")."  as x join forms as y on (x.id = y.form_id) " .
     "where y.encounter = " .  $_SESSION['encounter'] .
@@ -486,6 +486,7 @@ else {
     " and y.form_name like 'CAMOS%'" .
     " and x.activity = 1");
 }
+
 $results = array();
 echo "<div id='checkboxes'>\n";
 $count = 0;
@@ -495,11 +496,13 @@ while ($result = sqlFetchArray($query)) {
         $count++;
         $checked = 'checked';
     }
+
     echo "<div>\n";
     echo "<input type=checkbox name='ch_" . $result['id'] . "' $checked><span>" .
     $result['category'] . '</span>:' . $result['subcategory'] . ':' . $result['item'] . "<br/>\n";
     echo "</div>\n";
 }
+
 echo "</div>\n";
 echo "<div id='log'>\n";//temp for debugging
 echo "</div>\n";
@@ -507,7 +510,7 @@ echo "</div>\n";
 //table for those who wish to do so
 $rxarray = Prescription::prescriptions_factory($_SESSION['pid']);
 //now give a choice of drugs from the Prescription table
-foreach($rxarray as $val) {
+foreach ($rxarray as $val) {
     echo "<input type=checkbox name='chrx_" . $val->id . "'>" .
     $val->drug . ':' . $val->start_date . "<br/>\n";
 }

@@ -26,24 +26,28 @@ use OpenEMR\Core\Header;
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
 
-if(isset($_POST['form_from_date'])) {
+if (isset($_POST['form_from_date'])) {
     $from_date = $_POST['form_from_date'] !== "" ?
     fixDate($_POST['form_from_date'], date('Y-m-d')) :
     0;
 }
-if(isset($_POST['form_to_date'])) {
+
+if (isset($_POST['form_to_date'])) {
     $to_date =$_POST['form_to_date'] !== "" ?
     fixDate($_POST['form_to_date'], date('Y-m-d')) :
     0;
 }
+
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
 //
-if (empty($form_code) ) {
+if (empty($form_code)) {
     $query_codes = '';
 } else {
     $query_codes = 'c.id in (';
-    foreach( $form_code as $code ){ $query_codes .= $code . ","; }
+    foreach ($form_code as $code) {
+        $query_codes .= $code . ","; }
+
       $query_codes = substr($query_codes, 0, -1);
       $query_codes .= ') and ';
 }
@@ -56,7 +60,7 @@ function tr($a)
 function format_cvx_code($cvx_code)
 {
 
-    if ( $cvx_code < 10 ) {
+    if ($cvx_code < 10) {
         return "0$cvx_code";
     }
 
@@ -67,8 +71,7 @@ function format_phone($phone)
 {
 
     $phone = preg_replace("/[^0-9]/", "", $phone);
-    switch (strlen($phone))
-    {
+    switch (strlen($phone)) {
         case 7:
             return tr(preg_replace("/([0-9]{3})([0-9]{4})/", "000 $1$2", $phone));
         case 10:
@@ -81,8 +84,7 @@ function format_phone($phone)
 function format_ethnicity($ethnicity)
 {
 
-    switch ($ethnicity)
-    {
+    switch ($ethnicity) {
         case "hisp_or_latin":
            return ("H^Hispanic or Latino^HL70189");
         case "not_hisp_or_latin":
@@ -122,24 +124,29 @@ if ($_POST['form_get_hl7']==='true') {
     $query .= "concat(p.fname, ' ',p.mname,' ', p.lname) as patientname, ".
     "i.vis_date as immunizationdate, "  ;
 }
+
   $query .=
   "i.id as immunizationid, c.code_text_short as immunizationtitle ".
   "from immunizations i, patient_data p, codes c ".
   "left join code_types ct on c.code_type = ct.ct_id ".
   "where ".
   "ct.ct_key='CVX' and ";
-if($from_date!=0) {
+if ($from_date!=0) {
     $query .= "i.vis_date >= '$from_date' " ;
 }
-if($from_date!=0 and $to_date!=0) {
+
+if ($from_date!=0 and $to_date!=0) {
     $query .= " and " ;
 }
-if($to_date!=0) {
+
+if ($to_date!=0) {
     $query .= "i.vis_date <= '$to_date' ";
 }
-if($from_date!=0 or $to_date!=0) {
+
+if ($from_date!=0 or $to_date!=0) {
     $query .= " and " ;
 }
+
   $query .= "i.patient_id=p.pid and ".
   $query_codes .
   "i.cvx_code = c.code and ";
@@ -242,7 +249,6 @@ if ($_POST['form_get_hl7']==='true') {
         "|" . // 20.Completion Status
         "A" . // 21.Action Code - RXA
         "$D" ;
-
     }
 
   // send the header here
@@ -347,6 +353,7 @@ while ($crow = sqlFetchArray($cres)) {
     if (in_array($codeid, $form_code)) echo " selected";
     echo ">" . $crow['name'] . "\n";
 }
+
  echo "   </select>\n";
 ?>
           </td>

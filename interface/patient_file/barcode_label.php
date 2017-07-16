@@ -55,7 +55,7 @@ $dob   = substr($patdata['DOB'], 5, 2) ."/". Substr($patdata['DOB'], 8, 2) ."/".
 $code     = $patdata['pubpid']; // what is wanted as the barcode
 $bartype = $GLOBALS['barcode_label_type'] ; // Get barcode type
 
-switch($bartype){
+switch ($bartype) {
     case '1':
         $type     = 'std25';
               break;
@@ -107,9 +107,7 @@ if ($GLOBALS['barcode_label_type'] == '12') {   // datamatrix
     $y        = 120;  // barcode center
     $height   = 40;   // barcode height in 1D ; module size in 2D
     $width    = 4;    // barcode height in 1D ; not use in 2D
-}
-else
-{
+} else {
     $marge    = 5;   // between barcode and hri in pixel
     $x        = 30;  // barcode center
     $y        = 120;  // barcode center

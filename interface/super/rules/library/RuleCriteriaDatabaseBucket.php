@@ -103,7 +103,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         // xxx todo abstract this out to a manager (which may or may not defer to core options handling code)!
         // xxx this belongs more in the rule manager
         $dbLbl = getLabel($category, 'rule_action_category');
-        if ( $category && $dbLbl != $categoryLbl ) {
+        if ($category && $dbLbl != $categoryLbl) {
             // update
             sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
                 $categoryLbl,
@@ -111,7 +111,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         }
 
         $dbLbl = getLabel($item, 'rule_action');
-        if ( $item && $dbLbl != $itemLbl ) {
+        if ($item && $dbLbl != $itemLbl) {
             // update
             sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
                 $itemLbl,

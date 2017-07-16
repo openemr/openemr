@@ -1,5 +1,5 @@
 <?php
-if ($_POST['check'] || $_POST['synchronize']){
+if ($_POST['check'] || $_POST['synchronize']) {
   // set up flag if only checking for changes (ie not performing synchronization)
     $checkOnly = 0;
     if ($_POST['check']) {
@@ -9,10 +9,10 @@ if ($_POST['check'] || $_POST['synchronize']){
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
     if (!$disable_utf8_flag) {
         $case_sensitive_collation = "COLLATE utf8_bin";
-    }
-    else {
+    } else {
         $case_sensitive_collation = "COLLATE latin_bin";
     }
+
     $difference = 0; //flag
 
   //
@@ -21,15 +21,17 @@ if ($_POST['check'] || $_POST['synchronize']){
     $sql = "SELECT lang_description FROM lang_languages";
     $res = SqlStatement($sql);
     $row_main = array();
-    while ($row=SqlFetchArray($res)){
+    while ($row=SqlFetchArray($res)) {
         $row_main[] = $row['lang_description'];
     }
+
     $sql = "SELECT lang_description FROM lang_custom";
     $res = SqlStatement($sql);
     $row_custom = array();
-    while ($row=SqlFetchArray($res)){
+    while ($row=SqlFetchArray($res)) {
         $row_custom[] = $row['lang_description'];
     }
+
     $custom_languages = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_languages as $var) {
         if ($var=='') continue;
@@ -43,6 +45,7 @@ if ($_POST['check'] || $_POST['synchronize']){
             SqlStatement($sql, array($row['lang_code'], $var));
             echo htmlspecialchars(xl('Synchronized new custom language:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
+
         $difference = 1;
     }
     
@@ -52,15 +55,17 @@ if ($_POST['check'] || $_POST['synchronize']){
     $sql = "SELECT constant_name FROM lang_constants";
     $res = SqlStatement($sql);
     $row_main = array();
-    while ($row=SqlFetchArray($res)){
+    while ($row=SqlFetchArray($res)) {
         $row_main[] = $row['constant_name'];
     }
+
     $sql = "SELECT constant_name FROM lang_custom";
     $res = SqlStatement($sql);
     $row_custom = array();
-    while ($row=SqlFetchArray($res)){
+    while ($row=SqlFetchArray($res)) {
         $row_custom[] = $row['constant_name'];
     }
+
     $custom_constants = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_constants as $var) {
         if ($var=='') continue;
@@ -71,6 +76,7 @@ if ($_POST['check'] || $_POST['synchronize']){
             SqlStatement($sql, array($var));
             echo htmlspecialchars(xl('Synchronized new custom constant:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
+
         $difference = 1;
     }
     
@@ -79,8 +85,7 @@ if ($_POST['check'] || $_POST['synchronize']){
   //
     $sql = "SELECT lang_description, lang_code, constant_name, definition FROM lang_custom WHERE lang_description != '' AND constant_name != ''";
     $res = SqlStatement($sql);
-    while ($row=SqlFetchArray($res)){
-      
+    while ($row=SqlFetchArray($res)) {
         // collect language id
         $sql = "SELECT lang_id FROM lang_languages WHERE lang_description=? ".$case_sensitive_collation." LIMIT 1";
         $res2 = SqlStatement($sql, array($row['lang_description']));
@@ -106,8 +111,7 @@ if ($_POST['check'] || $_POST['synchronize']){
             if (SqlFetchArray($res_test)) {
             //definition not different
                 continue;
-            }
-            else {
+            } else {
                 //definition is different
                 echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
                 " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
@@ -122,10 +126,10 @@ if ($_POST['check'] || $_POST['synchronize']){
                     " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
                     " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR><BR>";
                 }
+
                 $difference = 1;
             }
-        }
-        else {
+        } else {
             echo htmlspecialchars(xl('Following is a new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
             " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
             " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
@@ -139,9 +143,11 @@ if ($_POST['check'] || $_POST['synchronize']){
                 " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
                 " ".htmlspecialchars($row['definition'], ENT_NOQUOTES)."<BR><BR>";
             }
+
             $difference = 1;
         }
     }
+
     if (!$difference) {
         echo htmlspecialchars(xl('The translation tables are synchronized.'), ENT_NOQUOTES);
     }

@@ -42,7 +42,7 @@ class OEMRUser
     public function query_formation($data)
     {
         global $pid;
-        switch($data[0]){
+        switch ($data[0]) {
             case 'U1':
                 $query="select * from  audit_master where  approval_status='1'   and  (type='1' or type='2' or type='3') ";
             return array($query);
@@ -74,10 +74,10 @@ class OEMRUser
             // Entries pending  for approval for  documents only (no demo change).
             case 'U5':
                 $pid = $this->getPid($data[1][0]);
-                if($pid){
+                if ($pid) {
                     $query = " select * from  audit_master  where pid=? and  approval_status='1' and  type='3' ";
                     return array($query,array($pid));
-                }else{
+                } else {
                     $query = " select * from  audit_master where id=? and approval_status='1' and type='3'";
                     return array($query,array($data[1][0]));
                 }
@@ -123,16 +123,15 @@ class OEMRUser
             // Entries pending  for approval demo and documents.
             case 'P6':
                         $pid = $this->getPid($data[1]);
-                if($pid){
+                if ($pid) {
                     $query=" select * from audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.pid=? and am.approval_status='1'  
                 and  (am.type='1' or am.type='2' or am.type='3')  order by ad.id";
                     return array($query,array($pid));
-                }else{
+                } else {
                     $query=" select * from audit_master as am,audit_details as ad WHERE am.id=ad.audit_master_id and am.id=? and am.approval_status='1'  
                 and  (am.type='1' or am.type='2' or am.type='3') order by ad.id";
                     return array($query,array($data[1]));
                 }
-            
             break;
             // Demo building from layout options.
 
@@ -236,10 +235,10 @@ class OEMRUser
             case 'F8':
             //signing
                 $pid = $this->getPid($data[1][0]);
-                if($pid){
+                if ($pid) {
                     $query = " select * from  audit_master  where pid=? and  approval_status='1' and  (type='1' or type='2' or type='3')";
                     return array($query,array($pid));
-                }else{
+                } else {
                     $query = " select * from  audit_master where id=? and approval_status='1' and (type='1' or type='2' or type='3')";
                     return array($query,array($data[1][0]));
                 }

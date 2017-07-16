@@ -147,7 +147,7 @@ class Savant3
         
         // set the default plugin configs
         if (isset($config ['plugin_conf']) && is_array($config ['plugin_conf'])) {
-            foreach ( $config ['plugin_conf'] as $name => $opts ) {
+            foreach ($config ['plugin_conf'] as $name => $opts) {
                 $this->setPluginConf($name, $opts);
             }
         }
@@ -187,7 +187,6 @@ class Savant3
         // Andreas Korthaus for profiling the code to find
         // the slowdown.
         switch (count($args)) {
-            
             case 0 :
                 return $plugin->$func ();
             
@@ -266,14 +265,12 @@ class Savant3
         
         // is the plugin method object already instantiated?
         if (! array_key_exists($name, $plugins)) {
-            
             // not already instantiated, so load it up.
             // set up the class name.
             $class = "Savant3_Plugin_$name";
             
             // has the class been loaded?
             if (! class_exists($class, $autoload)) {
-                
                 // class is not loaded, set up the file name.
                 $file = "$class.php";
                 
@@ -584,10 +581,9 @@ class Savant3
     {
         // were custom callbacks passed?
         if (func_num_args() == 1) {
-            
             // no, only a value was passed.
             // loop through the predefined callbacks.
-            foreach ( $this->__config ['escape'] as $func ) {
+            foreach ($this->__config ['escape'] as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
                     $value = $func ( $value );
@@ -596,7 +592,6 @@ class Savant3
                 }
             }
         } else {
-            
             // yes, use the custom callbacks
             $callbacks = func_get_args();
             
@@ -604,7 +599,7 @@ class Savant3
             array_shift($callbacks);
             
             // loop through custom callbacks.
-            foreach ( $callbacks as $func ) {
+            foreach ($callbacks as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
                     $value = $func ( $value );
@@ -724,7 +719,6 @@ class Savant3
     {
         // convert from path string to array of directories
         if (is_string($path) && ! strpos($path, '://')) {
-            
             // the path config is a string, and it's not a stream
             // identifier (the "://" piece). add it as a path string.
             $path = explode(PATH_SEPARATOR, $path);
@@ -735,14 +729,12 @@ class Savant3
             // so that it behaves as expected with path strings.
             $path = array_reverse($path);
         } else {
-            
             // just force to array
             settype($path, 'array');
         }
         
         // loop through the path directories
-        foreach ( $path as $dir ) {
-            
+        foreach ($path as $dir) {
             // no surrounding spaces allowed!
             $dir = trim($dir);
             
@@ -780,8 +772,7 @@ class Savant3
         $set = $this->__config [$type . '_path'];
         
         // start looping through the path set
-        foreach ( $set as $path ) {
-            
+        foreach ($set as $path) {
             // get the path to the file
             $fullname = $path . $file;
             
@@ -865,23 +856,25 @@ class Savant3
         // assign from object
         if (is_object($arg0)) {
             // assign public properties
-            foreach ( get_object_vars($arg0) as $key => $val ) {
+            foreach (get_object_vars($arg0) as $key => $val) {
                 // can't assign to __config
                 if ($key != '__config') {
                     $this->$key = $val;
                 }
             }
+
             return true;
         }
         
         // assign from associative array
         if (is_array($arg0)) {
-            foreach ( $arg0 as $key => $val ) {
+            foreach ($arg0 as $key => $val) {
                 // can't assign to __config
                 if ($key != '__config') {
                     $this->$key = $val;
                 }
             }
+
             return true;
         }
         
@@ -996,11 +989,9 @@ class Savant3
         
         // did we get a path?
         if (! $result || $this->isError($result)) {
-            
             // no. return the error result.
             return $result;
         } else {
-            
             // yes. execute the template script. move the script-path
             // out of the local scope, then clean up the local scope to
             // avoid variable name conflicts.
@@ -1143,7 +1134,7 @@ class Savant3
     {
         // add the new filters to the static config variable
         // via the reference
-        foreach ( ( array ) @func_get_args() as $callback ) {
+        foreach (( array ) @func_get_args() as $callback) {
             $this->__config ['filters'] [] = $callback;
         }
     }
@@ -1163,12 +1154,10 @@ class Savant3
     protected function applyFilters($buffer)
     {
         $autoload = $this->__config ['autoload'];
-        foreach ( $this->__config ['filters'] as $callback ) {
-            
+        foreach ($this->__config ['filters'] as $callback) {
             // if the callback is a static Savant3_Filter method,
             // and not already loaded, try to auto-load it.
             if (is_array($callback) && is_string($callback [0]) && substr($callback [0], 0, 15) == 'Savant3_Filter_' && ! class_exists($callback [0], $autoload)) {
-                
                 // load the Savant3_Filter_*.php resource
                 $file = $callback [0] . '.php';
                 $result = $this->findFile('resource', $file);
@@ -1222,6 +1211,7 @@ class Savant3
             if (! class_exists('Savant3_Exception', $autoload)) {
                 include_once dirname(__FILE__) . '/Savant3/Exception.php';
             }
+
             throw new Savant3_Exception($code);
         }
         
@@ -1270,6 +1260,7 @@ class Savant3
             if (! class_exists('Savant3_Error', $autoload)) {
                 include_once dirname(__FILE__) . '/Savant3/Error.php';
             }
+
             // now compare the parentage
             $is = $obj instanceof Savant3_Error;
             $sub = is_subclass_of($obj, 'Savant3_Error');

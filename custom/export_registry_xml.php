@@ -37,15 +37,15 @@ if (!empty($GLOBALS['cdr_report_nice'])) {
 function getLabelNumber($label)
 {
 
-    if ( strlen($label) == 0) {
+    if (strlen($label) == 0) {
         return "1";
     }
 
     $tokens = explode(" ", $label);
 
     $num_tokens = sizeof($tokens);
-    if ( $tokens[$num_tokens-1] != null ) {
-        if ( is_numeric($tokens[$num_tokens-1])) {
+    if ($tokens[$num_tokens-1] != null) {
+        if (is_numeric($tokens[$num_tokens-1])) {
             return $tokens[$num_tokens-1];
         }
     }
@@ -55,16 +55,15 @@ function getLabelNumber($label)
 
 function getMeasureNumber($row)
 {
-    if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code']) ) {
+    if (!empty($row['cqm_pqri_code']) || !empty($row['cqm_nqf_code'])) {
         if (!empty($row['cqm_pqri_code'])) {
             return $row['cqm_pqri_code'];
         }
+
         if (!empty($row['cqm_nqf_code'])) {
             return $row['cqm_nqf_code'];
         }
-    }
-    else
-       {
+    } else {
         return "";
     }
 }
@@ -82,20 +81,18 @@ $xml->open_submission();
 $xml->add_file_audit_data();
 
 // Add the registry entries
-if ( $nested == 'false') {
+if ($nested == 'false') {
     $xml->add_registry('A');
-}
-else {
+} else {
     $xml->add_registry('E');
 }
 
 
 // Add the measure groups.
-if ( $nested == 'false' ) {
+if ($nested == 'false') {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
     $dataSheet = test_rules_clinic_batch_method('collate_outer', 'cqm_2011', $target_date, 'report', '', '');
-}
-else {
+} else {
         // Collect results (note using the batch method to decrease memory overhead and improve performance)
     $dataSheet = test_rules_clinic_batch_method('collate_inner', 'cqm_2011', $target_date, 'report', 'cqm', 'plans');
 }
@@ -104,7 +101,7 @@ $firstProviderFlag = true;
 $firstPlanFlag = true;
 $existProvider = false;
 
-if ( $nested == 'false' ){
+if ($nested == 'false') {
      $xml->open_measure_group('X');
 }
 
@@ -126,53 +123,53 @@ foreach ($dataSheet as $row) {
             $pqri_measures['reporting-rate'] = (($row['pass_filter']-$row['excluded'])/$row['pass_filter'])*100;
                 $pqri_measures['reporting-rate']=$pqri_measures['reporting-rate'].'%';
             $xml->add_pqri_measures($pqri_measures);
+        } else { // $row[0] == "sub"
         }
-        else { // $row[0] == "sub"
-
-        }
-    }
-    else if (isset($row['is_provider'])) {
-        if ( $firstProviderFlag == false ){
+    } else if (isset($row['is_provider'])) {
+        if ($firstProviderFlag == false) {
              $xml->close_provider();
         }
+
          // Add the provider
         $physician_ids = array();
         if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
             if (!empty($row['npi'])) {
                 $physician_ids['npi'] = $row['npi'];
             }
+
             if (!empty($row['federaltaxid'])) {
                 $physician_ids['tin'] = $row['federaltaxid'];
             }
         }
+
          $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date));
          $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date));
 
          $xml->open_provider($physician_ids);
          $firstProviderFlag = false;
          $existProvider = true;
-    }
-    else { // isset($row['is_plan'])
+    } else { // isset($row['is_plan'])
 
-        if ( $firstPlanFlag == false ) {
-            if ( $firstProviderFlag == false ) {
+        if ($firstPlanFlag == false) {
+            if ($firstProviderFlag == false) {
                 $xml->close_provider();
             }
-            if ( $nested == 'true' ) {
+
+            if ($nested == 'true') {
                 $xml->close_measure_group();
             }
         }
 
-        if ( $nested == 'true' ){
+        if ($nested == 'true') {
             $xml->open_measure_group($row['cqm_measure_group']);
         }
+
          $firstPlanFlag = false;
          $firstProviderFlag = true; // Reset the provider flag
     }
-
 }
 
-if ( $existProvider == true ){
+if ($existProvider == true) {
     $xml->close_provider();
     $xml->close_measure_group();
 }

@@ -82,10 +82,10 @@ class DataDriverMySQLi implements IDataDriver
         
         if ($bootstrap) {
             $statements = explode(';', $bootstrap);
-            foreach ( $statements as $sql ) {
+            foreach ($statements as $sql) {
                 try {
                     $this->Execute($connection, $sql);
-                } catch ( Exception $ex ) {
+                } catch (Exception $ex) {
                     throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }
@@ -194,7 +194,7 @@ class DataDriverMySQLi implements IDataDriver
         
         $tables = array ();
         
-        while ( $row = $this->Fetch($connection, $rs) ) {
+        while ($row = $this->Fetch($connection, $rs)) {
             if ($ommitEmptyTables == false || $rs ['Data_free'] > 0) {
                 $tables [] = $row ['Name'];
             }
@@ -211,7 +211,7 @@ class DataDriverMySQLi implements IDataDriver
         $result = "";
         $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");
         
-        while ( $row = $this->Fetch($connection, $rs) ) {
+        while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
             if (! isset($results [$tbl]))
                 $results [$tbl] = "";

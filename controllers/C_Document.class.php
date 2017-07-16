@@ -53,12 +53,14 @@ class C_Document extends Controller
         if (file_exists($templatedir)) {
               $dh = opendir($templatedir);
         }
+
         if ($dh) {
               $templateslist = array();
             while (false !== ($sfname = readdir($dh))) {
                 if (substr($sfname, 0, 1) == '.') continue;
                 $templateslist[$sfname] = $sfname;
             }
+
               closedir($dh);
               ksort($templateslist);
             foreach ($templateslist as $sfname) {
@@ -66,6 +68,7 @@ class C_Document extends Controller
                   "'>" . htmlspecialchars($sfname) . "</option>";
             }
         }
+
         $this->assign("TEMPLATES_LIST", $templates_options);
 
         $activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
@@ -86,10 +89,11 @@ class C_Document extends Controller
 
         $couchDB = false;
         $harddisk = false;
-        if($GLOBALS['document_storage_method']==0){
+        if ($GLOBALS['document_storage_method']==0) {
             $harddisk = true;
         }
-        if($GLOBALS['document_storage_method']==1){
+
+        if ($GLOBALS['document_storage_method']==1) {
             $couchDB = true;
         }
 
@@ -99,7 +103,7 @@ class C_Document extends Controller
         $doDecryption = false;
         $encrypted = $_POST['encrypted'];
         $passphrase = $_POST['passphrase'];
-        if ( !$GLOBALS['hide_document_encryption'] &&
+        if (!$GLOBALS['hide_document_encryption'] &&
             $encrypted && $passphrase ) {
             $doDecryption = true;
         }
@@ -111,16 +115,15 @@ class C_Document extends Controller
         $patient_id = 0;
         if (isset($_GET['patient_id']) && !$couchDB) {
             $patient_id = $_GET['patient_id'];
-        }
-        else if (is_numeric($_POST['patient_id'])) {
+        } else if (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
         }
 
         $sentUploadStatus = array();
-        if( count($_FILES['file']['name']) > 0){
+        if (count($_FILES['file']['name']) > 0) {
             $upl_inc = 0;
 
-            foreach($_FILES['file']['name'] as $key => $value){
+            foreach ($_FILES['file']['name'] as $key => $value) {
                 $fname = $value;
                 $err = "";
                 if ($_FILES['file']['error'][$key] > 0 || empty($fname) || $_FILES['file']['size'][$key] == 0) {
@@ -128,22 +131,25 @@ class C_Document extends Controller
                     if (empty($fname)) {
                         $fname = htmlentities("<empty>");
                     }
+
                     $error = xl("Error number") .": " . $_FILES['file']['error'][$key] . " " . xl("occurred while uploading file named") . ": " . $fname . "\n";
                     if ($_FILES['file']['size'][$key] == 0) {
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
-                }elseif($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])){
+                } elseif ($GLOBALS['secure_upload'] && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
                        $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
-                }else{
+                } else {
                     $tmpfile = fopen($_FILES['file']['tmp_name'][$key], "r");
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
                         $filetext = $this->decrypt($filetext, $passphrase);
                     }
-                    if ( $_POST['destination'] != '' ) {
+
+                    if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
+
                     $d = new Document();
                     $rc = $d->createDocument(
                         $patient_id,
@@ -158,10 +164,10 @@ class C_Document extends Controller
                     );
                     if ($rc) {
                         $error .= $rc . "\n";
-                    }
-                    else {
+                    } else {
                         $this->assign("upload_success", "true");
                     }
+
                     $sentUploadStatus[] = $d;
                     $this->assign("file", $sentUploadStatus);
                 }
@@ -172,6 +178,7 @@ class C_Document extends Controller
                 if (file_exists($upload_plugin)) {
                     include_once($upload_plugin);
                 }
+
                 $upload_plugin_pp = 'documentUploadPostProcess';
                 if (function_exists($upload_plugin_pp)) {
                     $tmp = call_user_func($upload_plugin_pp, $value, $d);
@@ -179,6 +186,7 @@ class C_Document extends Controller
                         $error = $tmp;
                     }
                 }
+
                 // Following is just an example of code in such a plugin file.
                 /*****************************************************
                 function documentUploadPostProcess($filename, &$d) {
@@ -191,7 +199,6 @@ class C_Document extends Controller
                   return "Failed to delete '$filepath'.";
                 }
                 *****************************************************/
-
             }
         }
 
@@ -211,22 +218,22 @@ class C_Document extends Controller
         $n = new Note();
                 $n->set_owner($_SESSION['authUserID']);
         parent::populate_object($n);
-        if ($_POST['identifier'] == "no"){
+        if ($_POST['identifier'] == "no") {
                         // associate a note with a document
             $n->persist();
-        }elseif ($_POST['identifier'] == "yes"){
+        } elseif ($_POST['identifier'] == "yes") {
                         // send the document via email
                         $d = new Document($_POST['foreign_id']);
                         $url =  $d->get_url();
                         $storagemethod = $d->get_storagemethod();
                         $couch_docid = $d->get_couch_docid();
                         $couch_revid = $d->get_couch_revid();
-            if($couch_docid && $couch_revid){
+            if ($couch_docid && $couch_revid) {
                 $couch = new CouchDB();
                 $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
                 $resp = $couch->retrieve_doc($data);
                 $content = $resp->data;
-                if($content=='' && $GLOBALS['couchdb_log']==1){
+                if ($content=='' && $GLOBALS['couchdb_log']==1) {
                     $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
                     $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
                     $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
@@ -236,6 +243,7 @@ class C_Document extends Controller
                     $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                     die(xlt("File retrieval from CouchDB failed"));
                 }
+
         // place it in a temporary file and will remove the file below after emailed
                 $temp_couchdb_url = $GLOBALS['OE_SITE_DIR'].'/documents/temp/couch_'.date("YmdHis").$d->get_url_file();
                 $fh = fopen($temp_couchdb_url, "w");
@@ -248,16 +256,19 @@ class C_Document extends Controller
                 $from_all = explode("/", $url);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
-                for ($i=0;$i<$d->get_path_depth();$i++) {
+                for ($i=0; $i<$d->get_path_depth(); $i++) {
                     $from_pathname_array[] = array_pop($from_all);
                 }
+
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/", $from_pathname_array);
                 $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
             }
+
             if (!file_exists($temp_url)) {
                 echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $temp_url;
             }
+
                         $url = $temp_url;
             $body_notes = attr($_POST['note']);
             $pdetails = getPatientData($patient_id);
@@ -268,6 +279,7 @@ class C_Document extends Controller
                 unlink($temp_couchdb_url);
             }
         }
+
         $this->_state = false;
         $_POST['process'] = "";
         return $this->view_action($patient_id, $n->get_foreign_id());
@@ -304,6 +316,7 @@ class C_Document extends Controller
             $delete_string = "<a href='' class='css_button' onclick='return deleteme(" . $d->get_id() .
                 ")'><span><font color='red'>" . xl('Delete') . "</font></span></a>";
         }
+
         $this->assign("delete_string", $delete_string);
         $this->assign("REFRESH_ACTION", $this->_link("list"));
 
@@ -327,6 +340,7 @@ class C_Document extends Controller
             $sel = ($irow['id'] == $d->get_list_id()) ? ' selected' : '';
             $issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
         }
+
         $this->assign("ISSUES_LIST", $issues_options);
 
         // For tagging to encounter
@@ -335,11 +349,12 @@ class C_Document extends Controller
         $encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
         $result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
             "LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc", array($patient_id));
-        if ( sqlNumRows($result_docs) > 0)
-        while($row_result_docs = sqlFetchArray($result_docs)) {
+        if (sqlNumRows($result_docs) > 0)
+        while ($row_result_docs = sqlFetchArray($result_docs)) {
             $sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
             $encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
         }
+
         $this->assign("ENC_LIST", $encOptions);
 
         //clear encounter tag
@@ -357,6 +372,7 @@ class C_Document extends Controller
             if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
             $visit_category_list .="<option value='".attr($catid)."'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
         }
+
         $this->assign("VISIT_CATEGORY_LIST", $visit_category_list);
 
         $this->assign("notes", $notes);
@@ -366,10 +382,10 @@ class C_Document extends Controller
         $imgOptions = "<option value='0'>-- " . xlt('Select Image Procedure') . " --</option>";
         $imgOrders  = sqlStatement("select procedure_name,po.procedure_order_id,procedure_code from procedure_order po inner join procedure_order_code poc on poc.procedure_order_id = po.procedure_order_id where po.patient_id = ?  and poc.procedure_order_title = 'imaging'", array($patient_id));
         $mapping    = $this->get_mapped_procedure($d->get_id());
-        if(sqlNumRows($imgOrders) > 0){
-            while($row = sqlFetchArray($imgOrders)) {
+        if (sqlNumRows($imgOrders) > 0) {
+            while ($row = sqlFetchArray($imgOrders)) {
                 $sel_proc = '';
-                if((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id']))
+                if ((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id']))
                   $sel_proc = 'selected';
                 $imgOptions .= "<option value='". attr($row['procedure_order_id']). "' data-code='".attr($row['procedure_code'])."' $sel_proc>".text($row['procedure_name'].' - '.$row['procedure_code'])."</option>";
             }
@@ -413,11 +429,11 @@ class C_Document extends Controller
         $ivsize = mcrypt_enc_get_iv_size($td) ;
         $iv = substr($crypttext, 0, $ivsize);
         $crypttext = substr($crypttext, $ivsize);
-        if( $iv )
-        {
+        if ($iv) {
             mcrypt_generic_init($td, $key, $iv);
             $plaintext = mdecrypt_generic($td, $crypttext);
         }
+
         return $plaintext;
     }
 
@@ -432,7 +448,7 @@ class C_Document extends Controller
         $encrypted = $_POST['encrypted'];
         $passphrase = $_POST['passphrase'];
         $doEncryption = false;
-        if ( !$GLOBALS['hide_document_encryption'] &&
+        if (!$GLOBALS['hide_document_encryption'] &&
             $encrypted == "true" &&
             $passphrase ) {
             $doEncryption = true;
@@ -441,26 +457,25 @@ class C_Document extends Controller
             //controller function ruins booleans, so need to manually re-convert to booleans
         if ($as_file == "true") {
                 $as_file=true;
-        }
-        else if ($as_file == "false") {
+        } else if ($as_file == "false") {
                 $as_file=false;
         }
+
         if ($original_file == "true") {
                 $original_file=true;
-        }
-        else if ($original_file == "false") {
+        } else if ($original_file == "false") {
                 $original_file=false;
         }
+
         if ($disable_exit == "true") {
                 $disable_exit=true;
-        }
-        else if ($disable_exit == "false") {
+        } else if ($disable_exit == "false") {
                 $disable_exit=false;
         }
+
         if ($show_original == "true") {
             $show_original=true;
-        }
-        else if ($show_original == "false") {
+        } else if ($show_original == "false") {
             $show_original=false;
         }
 
@@ -472,7 +487,7 @@ class C_Document extends Controller
         $couch_docid = $d->get_couch_docid();
         $couch_revid = $d->get_couch_revid();
 
-        if($couch_docid && $couch_revid && $original_file){
+        if ($couch_docid && $couch_revid && $original_file) {
             $couch = new CouchDB();
             $data = array($GLOBALS['couchdb_dbase'],$couch_docid);
             $resp = $couch->retrieve_doc($data);
@@ -482,7 +497,8 @@ class C_Document extends Controller
             } else {
                 $content = $resp->data;
             }
-            if($content=='' && $GLOBALS['couchdb_log']==1){
+
+            if ($content=='' && $GLOBALS['couchdb_log']==1) {
                 $log_content = date('Y-m-d H:i:s')." ==> Retrieving document\r\n";
                 $log_content = date('Y-m-d H:i:s')." ==> URL: ".$url."\r\n";
                 $log_content .= date('Y-m-d H:i:s')." ==> CouchDB Document Id: ".$couch_docid."\r\n";
@@ -492,9 +508,11 @@ class C_Document extends Controller
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                 die(xl("File retrieval from CouchDB failed"));
             }
-            if($disable_exit == true) {
+
+            if ($disable_exit == true) {
                 return base64_decode($content);
             }
+
             header('Content-Description: File Transfer');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
@@ -505,7 +523,7 @@ class C_Document extends Controller
             fwrite($fh, base64_decode($content));
             fclose($fh);
             $f = fopen($tmpcouchpath, "r");
-            if ( $doEncryption ) {
+            if ($doEncryption) {
                 $filetext = fread($f, filesize($tmpcouchpath));
                     $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
@@ -526,14 +544,15 @@ class C_Document extends Controller
                     header("Content-Length: " . filesize($tmpcouchpath));
                     fpassthru($f);
             }
+
             fclose($f);
-            if($content!='')
+            if ($content!='')
             unlink($tmpcouchpath);
             exit;//exits only if file download from CouchDB is successfull.
         }
 
         //Take thumbnail file when is not null and file is presented online
-        if(!$as_file && !is_null($th_url) && !$show_original) {
+        if (!$as_file && !is_null($th_url) && !$show_original) {
             $url = $th_url;
         }
 
@@ -552,17 +571,16 @@ class C_Document extends Controller
         $from_all = explode("/", $url);
             $from_filename = array_pop($from_all);
             $from_pathname_array = array();
-        for ($i=0;$i<$d->get_path_depth();$i++) {
+        for ($i=0; $i<$d->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
+
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/", $from_pathname_array);
-        if($couch_docid && $couch_revid){
+        if ($couch_docid && $couch_revid) {
             //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
             $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
-
-        }
-        else{
+        } else {
             $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
         }
 
@@ -573,23 +591,22 @@ class C_Document extends Controller
 
         if (!file_exists($url)) {
             echo xl('The requested document is not present at the expected location on the filesystem or there are not sufficient permissions to access it.', '', '', ' ') . $url;
-
-        }
-        else {
+        } else {
             if ($original_file) {
                 //normal case when serving the file referenced in database
-                if($disable_exit == true) {
+                if ($disable_exit == true) {
                     $f = fopen($url, "r");
                     $filetext = fread($f, filesize($url));
                     return $filetext;
                 }
+
                     header('Content-Description: File Transfer');
                     header('Content-Transfer-Encoding: binary');
                     header('Expires: 0');
                     header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
                     header('Pragma: public');
                     $f = fopen($url, "r");
-                if ( $doEncryption ) {
+                if ($doEncryption) {
                             $filetext = fread($f, filesize($url));
                     $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
@@ -610,20 +627,21 @@ class C_Document extends Controller
                     header("Content-Length: " . filesize($url));
                     fpassthru($f);
                 }
+
                     exit;
-            }
-            else {
+            } else {
                 //special case when retrieving a document that has been converted to a jpg and not directly referenced in database
                 $convertedFile = substr(basename_international($url), 0, strrpos(basename_international($url), '.')) . '_converted.jpg';
-                if($couch_docid && $couch_revid){
+                if ($couch_docid && $couch_revid) {
                     $url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $convertedFile;
-                }
-                else{
+                } else {
                     $url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $convertedFile;
                 }
-                if($disable_exit == true) {
+
+                if ($disable_exit == true) {
                     return ;
                 }
+
                         header("Pragma: public");
                         header("Expires: 0");
                         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
@@ -632,12 +650,13 @@ class C_Document extends Controller
                         header("Content-Length: " . filesize($url));
                         $f = fopen($url, "r");
                         fpassthru($f);
-                if($couch_docid && $couch_revid){
+                if ($couch_docid && $couch_revid) {
                     fclose($f);
                     unlink($url);
                     $url=str_replace("_converted.jpg", '.pdf', $url);
                     unlink($url);
                 }
+
                         exit;
             }
         }
@@ -670,9 +689,9 @@ class C_Document extends Controller
                     $queue_files[] = $file_info;
                 }
             }
+
             closedir($dir);
-        }
-        else {
+        } else {
             $messages .= "The repository directory does not exist, it is not a directory or there are not sufficient permissions to access it. '" . $this->config['repository'] . "'\n";
         }
 
@@ -709,7 +728,7 @@ class C_Document extends Controller
         is_array($_POST['files']) ? $files = $_POST['files']: $files = array();
 
         //loop through posted files
-        foreach($files as $doc_id=> $file) {
+        foreach ($files as $doc_id=> $file) {
             //only operate on files checked as active
             if (!$file['active']) continue;
 
@@ -779,11 +798,11 @@ class C_Document extends Controller
                     $sql = "REPLACE INTO categories_to_documents set category_id = '" . $file['category_id'] . "', document_id = '" . $d->get_id() . "'";
                     $d->_db->Execute($sql);
                 }
-            }
-            else {
+            } else {
                 $error .= "The file could not be succesfully stored, this error is usually related to permissions problems on the storage system.\n";
             }
         }
+
             $this->assign("messages", $messages);
             $_POST['process'] = "";
     }
@@ -814,24 +833,20 @@ class C_Document extends Controller
             if (!$result || $result->EOF) {
                 //patient id does not exist
                 $messages .= xl('Document could not be moved to patient id', '', '', ' \'') . $new_patient_id  . xl('because that id does not exist.', '', '\' ') . "\n";
-            }
-            else {
+            } else {
                 $couchsavefailed = !$d->change_patient($new_patient_id);
 
                 $this->_state = false;
-                if(!$couchsavefailed){
-
+                if (!$couchsavefailed) {
                     $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('successfully.', '', '\' ') . "\n";
-                }
-                else{
-
+                } else {
                     $messages .= xl('Document moved to patient id', '', '', ' \'') . $new_patient_id  . xl('Failed.', '', '\' ') . "\n";
                 }
+
                 $this->assign("messages", $messages);
                 return $this->list_action($patient_id);
             }
-        }
-        //in this case return the document to the queue instead of moving it
+        } //in this case return the document to the queue instead of moving it
         elseif (strtolower($new_patient_id) == "q" && is_numeric($document_id)) {
             $d = new Document($document_id);
             $new_path = $this->_config['repository'];
@@ -855,9 +870,7 @@ class C_Document extends Controller
                 $sql = "DELETE FROM categories_to_documents where document_id =" . $d->_db->qstr($document_id);
                 $d->_db->Execute($sql);
                 $messages .= "Document returned to queue successfully.\n";
-
-            }
-            else {
+            } else {
                 $messages .= "The file could not be succesfully stored, this error is usually related to permissions problems on the storage system.\n";
             }
 
@@ -875,7 +888,7 @@ class C_Document extends Controller
     {
 
                 $d = new Document($document_id);
-        if($d->couch_docid && $d->couch_revid){
+        if ($d->couch_docid && $d->couch_revid) {
             $file_path = $GLOBALS['OE_SITE_DIR'].'/documents/temp/';
             $url = $file_path.$d->get_url();
             $couch = new CouchDB();
@@ -887,8 +900,7 @@ class C_Document extends Controller
             $temp_file = fopen($url, "w");
             fwrite($temp_file, base64_decode($content));
             fclose($temp_file);
-        }
-        else{
+        } else {
                 $url =  $d->get_url();
 
                 //strip url of protocol handler
@@ -906,9 +918,10 @@ class C_Document extends Controller
                 $from_all = explode("/", $url);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
-            for ($i=0;$i<$d->get_path_depth();$i++) {
+            for ($i=0; $i<$d->get_path_depth(); $i++) {
                 $from_pathname_array[] = array_pop($from_all);
             }
+
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/", $from_pathname_array);
                 $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
@@ -921,26 +934,29 @@ class C_Document extends Controller
                 return;
             }
         }
+
         $d = new Document($document_id);
         $current_hash = sha1_file($url);
         $messages = xl('Current Hash').": ".$current_hash."<br>";
         $messages .= xl('Stored Hash').": ".$d->get_hash()."<br>";
-        if ( $d->get_hash() == '' ) {
+        if ($d->get_hash() == '') {
             $d->hash = $current_hash;
             $d->persist();
             $d->populate();
             $messages .= xl('Hash did not exist for this file. A new hash was generated.');
-        } else if ( $current_hash != $d->get_hash() ) {
+        } else if ($current_hash != $d->get_hash()) {
             $messages .= xl('Hash does not match. Data integrity has been compromised.');
         } else {
             $messages .= xl('Document passed integrity check.');
         }
+
         $this->_state = false;
         $this->assign("messages", $messages);
-        if($d->couch_docid && $d->couch_revid){
+        if ($d->couch_docid && $d->couch_revid) {
             //Removing the temporary file which is used to create the hash
             unlink($GLOBALS['OE_SITE_DIR'].'/documents/temp/'.$d->get_url());
         }
+
         return $this->view_action($patient_id, $document_id);
     }
 
@@ -962,17 +978,18 @@ class C_Document extends Controller
             $messages = '';
             $d = new Document($document_id);
             $file_name = $d->get_url_file();
-            if ( $docname != '' &&
+            if ($docname != '' &&
                  $docname != $file_name ) {
                 // Ready to rename - check for relocation
                 $old_url = $this->_check_relocation($d->get_url());
                 $new_url = $this->_check_relocation($d->get_url(), null, $docname);
                 $messages .= sprintf("%s -> %s<br>", $old_url, $new_url);
-                if ( rename($old_url, $new_url) ) {
+                if (rename($old_url, $new_url)) {
                     // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
-                    if ( file_exists($old_url) ) {
+                    if (file_exists($old_url)) {
                         unlink($old_url);
                     }
+
                     $d->url = $new_url;
                     $d->persist();
                     $d->populate();
@@ -987,24 +1004,25 @@ class C_Document extends Controller
             } else {
                 $docdate = "NULL";
             }
+
             if (!is_numeric($issue_id)) {
                 $issue_id = 0;
             }
+
             $couch_docid = $d->get_couch_docid();
             $couch_revid = $d->get_couch_revid();
-            if($couch_docid && $couch_revid ){
+            if ($couch_docid && $couch_revid) {
                 $sql = "UPDATE documents SET docdate = $docdate, url = '".$_POST['docname']."', " .
                     "list_id = '$issue_id' " .
                     "WHERE id = '$document_id'";
                 $this->tree->_db->Execute($sql);
-
-            }
-            else{
+            } else {
                 $sql = "UPDATE documents SET docdate = $docdate, " .
                 "list_id = '$issue_id' " .
                 "WHERE id = '$document_id'";
                 $this->tree->_db->Execute($sql);
             }
+
             $messages .= xl('Document date and issue updated successfully') . "<br>";
         }
 
@@ -1093,10 +1111,11 @@ class C_Document extends Controller
         if (!is_array($array)) {
             $array = array();
         }
+
         $node = &$this->_last_node;
         $current_node = &$node;
         $expandedIcon = 'folder-expanded.gif';
-        foreach($array as $id => $ar) {
+        foreach ($array as $id => $ar) {
             $icon = 'folder.gif';
             if (is_array($ar)  || !empty($id)) {
                 if ($node == null) {
@@ -1105,28 +1124,24 @@ class C_Document extends Controller
                     $this->_last_node = &$rnode;
                     $node = &$rnode;
                     $current_node = &$rnode;
-                }
-                else {
+                } else {
                     //echo "p:" . $this->tree->get_node_name($id) . "<br>";
                     $this->_last_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
                     $current_node = &$this->_last_node;
                 }
 
                 $this->_array_recurse($ar, $categories);
-            }
-            else {
+            } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
                   //echo "b:" . $this->tree->get_node_name($id) . "<br>";
                     $current_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $info['value'], 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
-                }
-                else {
+                } else {
                     //there is a third case that is implicit here when title === 0 and $ar is empty, in that case we do not want to do anything
                     //this conditional tree could be more efficient but working with recursive trees makes my head hurt, TODO
                     if ($id !== 0 && is_object($node)) {
                       //echo "n:" . $this->tree->get_node_name($id) . "<br>";
                         $current_node = &$node->addItem(new HTML_TreeNode(array("id" => $id, 'text' => $this->tree->get_node_name($id), 'link' => $this->_link("upload") . "parent_id=" . $id . "&", 'icon' => $icon, 'expandedIcon' => $expandedIcon)));
-
                     }
                 }
             }
@@ -1139,7 +1154,7 @@ class C_Document extends Controller
                     $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
           // If user has no access then there will be no link.
                     if (!acl_check_aco_spec($doc['aco_spec'])) $link = '';
-                    if($this->tree->get_node_name($id) == "CCR"){
+                    if ($this->tree->get_node_name($id) == "CCR") {
                                 $current_node->addItem(new HTML_TreeNode(array(
                         'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
                         'link' => $link,
@@ -1147,7 +1162,7 @@ class C_Document extends Controller
                         'expandedIcon' => $expandedIcon,
                         'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . $doc['document_id'] . "','CCR');")
                                 )));
-                    }elseif($this->tree->get_node_name($id) == "CCD"){
+                    } elseif ($this->tree->get_node_name($id) == "CCD") {
                                 $current_node->addItem(new HTML_TreeNode(array(
                         'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
                         'link' => $link,
@@ -1155,7 +1170,7 @@ class C_Document extends Controller
                         'expandedIcon' => $expandedIcon,
                         'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . $doc['document_id'] . "','CCD');")
                                 )));
-                    }else{
+                    } else {
                                 $current_node->addItem(new HTML_TreeNode(array(
                         'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
                         'link' => $link,
@@ -1165,8 +1180,8 @@ class C_Document extends Controller
                     }
                 }
             }
-
         }
+
         return $node;
     }
 
@@ -1175,7 +1190,7 @@ class C_Document extends Controller
     {
         $log_path = $GLOBALS['OE_SITE_DIR']."/documents/couchdb/";
         $log_file = 'log.txt';
-        if(!is_dir($log_path))
+        if (!is_dir($log_path))
             mkdir($log_path, 0777, true);
         $LOG = fopen($log_path.$log_file, 'a');
         fwrite($LOG, $content);
@@ -1271,11 +1286,11 @@ class C_Document extends Controller
                 addForm($encounter, "New Patient Encounter", $formID, "newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username);
                 $d->set_encounter_id($encounter);
                 $this->image_result_indication($d->id, $encounter);
-
             } else {
                 $d->set_encounter_id($encounter_id);
                 $this->image_result_indication($d->id, $encounter_id);
             }
+
             $d->set_encounter_check($encounter_check);
             $d->persist();
 
@@ -1294,44 +1309,46 @@ class C_Document extends Controller
         $img_procedure_id = $_POST['image_procedure_id'];
         $proc_code = $_POST['procedure_code'];
 
-        if(is_numeric($document_id)){
-
+        if (is_numeric($document_id)) {
             $img_order  = sqlQuery("select * from procedure_order_code where procedure_order_id = ? and procedure_code = ? ", array($img_procedure_id,$proc_code));
             $img_report = sqlQuery("select * from procedure_report where procedure_order_id = ? and procedure_order_seq = ? ", array($img_procedure_id,$img_order['procedure_order_seq']));
             $img_report_id = !empty($img_report['procedure_report_id']) ? $img_report['procedure_report_id'] : 0;
-            if($img_report_id == 0){
+            if ($img_report_id == 0) {
                 $report_date = date('Y-m-d H:i:s');
                 $img_report_id = sqlInsert("INSERT INTO procedure_report(procedure_order_id,procedure_order_seq,date_collected,date_report,report_status) values(?,?,?,?,'final')", array($img_procedure_id,$img_order['procedure_order_seq'],$img_order['date_collected'],$report_date));
             }
 
             $img_result = sqlQuery("select * from procedure_result where procedure_report_id = ? and document_id = ?", array($img_report_id,$document_id));
-            if(empty($img_result)){
+            if (empty($img_result)) {
                 sqlInsert("INSERT INTO procedure_result(procedure_report_id,date,document_id,result_status) values(?,?,?,'final')", array($img_report_id,date('Y-m-d H:i:s'),$document_id));
             }
 
             $this->image_result_indication($document_id, 0, $img_procedure_id);
         }
+
         return $this->view_action($patient_id, $document_id);
     }
 
     function clear_procedure_tag_action($patient_id = "", $document_id)
     {
-        if(is_numeric($document_id)){
+        if (is_numeric($document_id)) {
             sqlStatement("delete from procedure_result where document_id = ?", $document_id);
         }
+
         return $this->view_action($patient_id, $document_id);
     }
 
     function get_mapped_procedure($document_id)
     {
         $map = array();
-        if(is_numeric($document_id)){
+        if (is_numeric($document_id)) {
             $map = sqlQuery("select poc.procedure_order_id,poc.procedure_code from procedure_result pres
 						   inner join procedure_report pr on pr.procedure_report_id = pres.procedure_report_id
 						   inner join procedure_order_code poc on (poc.procedure_order_id = pr.procedure_order_id and poc.procedure_order_seq = pr.procedure_order_seq)
 						   inner join procedure_order po on po.procedure_order_id = poc.procedure_order_id
 						   where pres.document_id = ?", array($document_id));
         }
+
         return $map;
     }
 
@@ -1340,13 +1357,11 @@ class C_Document extends Controller
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration': 'Without Narration';
 
-        if($encounter != 0) {
+        if ($encounter != 0) {
             $ep = sqlQuery("select u.username as assigned_to from form_encounter inner join users u on u.id = provider_id where encounter = ?", array($encounter));
-        }
-        else if($image_procedure_id != 0){
+        } else if ($image_procedure_id != 0) {
             $ep = sqlQuery("select u.username as assigned_to from procedure_order inner join users u on u.id = provider_id where procedure_order_id = ?", array($image_procedure_id));
-        }
-        else{
+        } else {
             $ep = array('assigned_to' => $_SESSION['authUser']);
         }
 
@@ -1372,17 +1387,21 @@ class C_Document extends Controller
         while (current($fsnodes) != "documents") {
             array_shift($fsnodes);
         }
+
         if ($new_pid) {
             $fsnodes[1] = $new_pid;
         }
+
         if ($new_name) {
             $fsnodes[count($fsnodes)-1] = $new_name;
         }
+
         $url = $GLOBALS['OE_SITE_DIR'].DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $fsnodes);
         // Make sure the url is available after corrections
         if ($new_pid || $new_name) {
             $url = $this->_rename_file($url);
         }
+
         //Add full path and remaining nodes
         return $url;
     }
@@ -1393,6 +1412,7 @@ class C_Document extends Controller
         if (is_numeric($document_id)) {
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));
         }
+
         return $this->view_action($patient_id, $document_id);
     }
 }

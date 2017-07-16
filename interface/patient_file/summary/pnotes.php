@@ -36,11 +36,11 @@
 if ($docid) {
     $row = sqlQuery("SELECT foreign_id FROM documents WHERE id = ?", array($docid));
     $patient_id = intval($row['foreign_id']);
-}
-else if ($orderid) {
+} else if ($orderid) {
     $row = sqlQuery("SELECT patient_id FROM procedure_order WHERE procedure_order_id = ?", array($orderid));
     $patient_id = intval($row['patient_id']);
 }
+
  $urlparms = "docid=$docid&orderid=$orderid";
 ?>
 <html>
@@ -60,6 +60,7 @@ if ($thisauth) {
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
     $thisauth = 0;
 }
+
 if (!$thisauth) {
     echo "<p>(" . htmlspecialchars(xl('Notes not authorized'), ENT_NOQUOTES) . ")</p>\n";
     echo "</body>\n</html>\n";
@@ -69,7 +70,7 @@ if (!$thisauth) {
 
 <div id='pnotes'>
 
-<?php if ( acl_check('patients', 'notes', '', array('write','addonly'))): ?>
+<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
 
 <a href="pnotes_full.php?<?php echo $urlparms; ?>" onclick="top.restoreSession()">
 
@@ -79,8 +80,7 @@ if ($docid) {
     echo " " . xlt("linked to document") . " ";
     $d = new Document($docid);
     echo $d->get_url_file();
-}
-else if ($orderid) {
+} else if ($orderid) {
     echo " " . xlt("linked to procedure order") . " $orderid";
 }
 ?>
@@ -102,7 +102,7 @@ $billing_note = "";
 $colorbeg = "";
 $colorend = "";
 $resnote = getPatientData($patient_id, "billing_note");
-if(!empty($resnote['billing_note'])) {
+if (!empty($resnote['billing_note'])) {
     $billing_note = $resnote['billing_note'];
     $colorbeg = "<span style='color:red'>";
     $colorend = "</span>";
@@ -144,7 +144,6 @@ $result = getPnotesByDate(
 if ($result != null) {
     $notes_count = 0;//number of notes so far displayed
     foreach ($result as $iter) {
-
         if ($notes_count >= $N) {
             //we have more active notes to print, but we've reached our display maximum
             echo " <tr>\n";
@@ -198,10 +197,10 @@ $(document).ready(function(){
 });
 
 var EditNote = function(note) {
-<?php if ( acl_check('patients', 'notes', '', array('write','addonly'))): ?>
+<?php if (acl_check('patients', 'notes', '', array('write','addonly'))) : ?>
     top.restoreSession();
     location.href = "pnotes_full.php?<?php echo $urlparms; ?>&noteid=" + note.id + "&active=1";
-<?php else: ?>
+<?php else : ?>
     // no-op
     alert("<?php echo htmlspecialchars(xl('You do not have access to view/edit this note'), ENT_QUOTES); ?>");
 <?php endif; ?>

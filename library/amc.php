@@ -38,31 +38,24 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
     if ($mode == "add") {
         amcAdd($amc_id, $complete, $patient_id, $object_category, $object_id);
     }
+
     if ($mode == "add_force") {
         amcAddForce($amc_id, $complete, $patient_id, $object_category, $object_id);
-    }
-    else if ($mode == "remove") {
+    } else if ($mode == "remove") {
         amcRemove($amc_id, $patient_id, $object_category, $object_id);
-    }
-    else if ($mode == "complete") {
+    } else if ($mode == "complete") {
         amcComplete($amc_id, $patient_id, $object_category, $object_id);
-    }
-    else if ($mode == "complete_safe") {
+    } else if ($mode == "complete_safe") {
         amcCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
-    }
-    else if ($mode == "uncomplete") {
+    } else if ($mode == "uncomplete") {
         amcUnComplete($amc_id, $patient_id, $object_category, $object_id);
-    }
-    else if ($mode == "uncomplete_safe") {
+    } else if ($mode == "uncomplete_safe") {
         amcUnCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
-    }
-    else if ($mode == "soc_provided"){
+    } else if ($mode == "soc_provided") {
         amcSoCProvided($amc_id, $patient_id, $object_category, $object_id);
-    }
-    else if ($mode == "no_soc_provided"){
+    } else if ($mode == "no_soc_provided") {
         amcNoSoCProvided($amc_id, $patient_id, $object_category, $object_id);
-    }
-    else {
+    } else {
         // do nothing
         return;
     }
@@ -85,12 +78,10 @@ function amcAdd($amc_id, $complete, $patient_id, $object_category = '', $object_
         $sqlBindArray = array($amc_id,$patient_id,$object_category,$object_id);
         if ($complete) {
             sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`,`date_completed`) VALUES(?,?,?,?,NOW(),NOW())", $sqlBindArray);
-        }
-        else {
+        } else {
             sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`) VALUES(?,?,?,?,NOW())", $sqlBindArray);
         }
-    }
-    else {
+    } else {
         // already exist, so only ensure complete date is set (if applicable)
         if ($complete) {
             amcComplete($amc_id, $patient_id, $object_category, $object_id);
@@ -112,8 +103,7 @@ function amcAddForce($amc_id, $complete, $patient_id, $object_category = '', $ob
     $sqlBindArray = array($amc_id,$patient_id,$object_category,$object_id);
     if ($complete) {
         sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`,`date_completed`) VALUES(?,?,?,?,NOW(),NOW())", $sqlBindArray);
-    }
-    else {
+    } else {
         sqlStatement("INSERT INTO `amc_misc_data` (`amc_id`,`pid`,`map_category`,`map_id`,`date_created`) VALUES(?,?,?,?,NOW())", $sqlBindArray);
     }
 }
@@ -195,15 +185,14 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     if (empty($provider)) {
         // Look at entire practice
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data`");
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $patients[$iter]=$row;
         }
-    }
-    else {
+    } else {
         // Look at one provider
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data` " .
         "WHERE providerID=?", array($provider));
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
              $patients[$iter]=$row;
         }
     }
@@ -219,10 +208,12 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                 $where = " AND `date`>=? ";
                 array_push($sqlBindArray, $start);
             }
+
             if (!(empty($end))) {
                 $where .= " AND `date`<=? ";
                 array_push($sqlBindArray, $end);
             }
+
             $rez = sqlStatement("SELECT `id`, `date` FROM `transactions` WHERE `title` = 'LBTref' AND `pid` = ? $where ORDER BY `date` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 $amcCheck = amcCollect("send_sum_amc", $patient['pid'], "transactions", $res['id']);
@@ -231,37 +222,37 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                     array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['id']));
                 }
             }
-        }
-
-        else if ($amc_id == "provide_rec_pat_amc") {
+        } else if ($amc_id == "provide_rec_pat_amc") {
             $sqlBindArray = array();
             array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date_created`>=? ";
                 array_push($sqlBindArray, $start);
             }
+
             if (!(empty($end))) {
                 $where .= " AND `date_created`<=? ";
                 array_push($sqlBindArray, $end);
             }
+
             $rez = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`='provide_rec_pat_amc' AND `pid`=? AND (`date_completed` IS NULL OR `date_completed`='') $where ORDER BY `date_created` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 // Records have not been sent, so send this back
                 array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date_created']));
             }
-        }
-
-        else if ($amc_id == "provide_sum_pat_amc") {
+        } else if ($amc_id == "provide_sum_pat_amc") {
             $sqlBindArray = array();
             array_push($sqlBindArray, $patient['pid']);
             if (!(empty($start))) {
                 $where = " AND `date`>=? ";
                 array_push($sqlBindArray, $start);
             }
+
             if (!(empty($end))) {
                 $where .= " AND `date`<=? ";
                 array_push($sqlBindArray, $end);
             }
+
             $rez = sqlStatement("SELECT `encounter`, `date` FROM `form_encounter` WHERE `pid`=? $where ORDER BY `date` DESC", $sqlBindArray);
             while ($res = sqlFetchArray($rez)) {
                 $amcCheck = amcCollect("provide_sum_pat_amc", $patient['pid'], "form_encounter", $res['encounter']);
@@ -270,16 +261,13 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
                     array_push($tempResults, array("pid"=>$patient['pid'], "fname"=>$patient['fname'], "lname"=>$patient['lname'], "date"=>$res['date'], "id"=>$res['encounter']));
                 }
             }
-        }
-
-        else {
+        } else {
             // report nothing
             return;
         }
 
         // process results
         $results = array_merge($results, $tempResults);
-
     }
 
   // send results
@@ -308,8 +296,7 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
     if ($the_first_day_of_week <= $the_last_day_of_week) {
         if ($the_first_day_of_week <= 6 && 6 <= $the_last_day_of_week) $no_remaining_days--;
         if ($the_first_day_of_week <= 7 && 7 <= $the_last_day_of_week) $no_remaining_days--;
-    }
-    else {
+    } else {
         // (edit by Tokes to fix an edge case where the start day was a Sunday
         // and the end day was NOT a Saturday)
 
@@ -322,8 +309,7 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
                 // if the end date is a Saturday, then we subtract another day
                 $no_remaining_days--;
             }
-        }
-        else {
+        } else {
             // the start date was a Saturday (or earlier), and the end date was (Mon..Fri)
             // so we skip an entire weekend and subtract 2 days
             $no_remaining_days -= 2;
@@ -333,12 +319,12 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
   //The no. of business days is: (number of weeks between the two dates) * (5 working days) + the remainder
   //---->february in none leap years gave a remainder of 0 but still calculated weekends between first and last day, this is one way to fix it
     $workingDays = $no_full_weeks * 5;
-    if ($no_remaining_days > 0 ) {
+    if ($no_remaining_days > 0) {
         $workingDays += $no_remaining_days;
     }
 
   //We subtract the holidays
-    foreach($holidays as $holiday){
+    foreach ($holidays as $holiday) {
         $time_stamp=strtotime($holiday);
         //If the holiday doesn't fall in weekend
         if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7)

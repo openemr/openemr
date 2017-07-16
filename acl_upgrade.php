@@ -142,8 +142,7 @@ include_once('library/acl.inc');
 if (isset($phpgacl_location)) {
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
-}
-else {
+} else {
     die("You must first set up library/acl.inc to use phpGACL!");
 }
 

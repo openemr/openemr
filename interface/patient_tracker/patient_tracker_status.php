@@ -69,8 +69,7 @@ require_once("$srcdir/patient_tracker.inc.php");
 
         # Manage tracker status. Also auto create encounter, if applicable.
         if (!empty($tkpid)) {
-            if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate, $appttime, $tkpid, $pceid))
-            {
+            if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !is_tracker_encounter_exist($apptdate, $appttime, $tkpid, $pceid)) {
                  # Gather information for encounter fields
                  $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
                            "from openemr_postcalendar_events where pc_eid =? ", array($pceid));
@@ -79,9 +78,7 @@ require_once("$srcdir/patient_tracker.inc.php");
                 if (!empty($pceid)) {
                       manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $encounter);
                 }
-            }
-            else
-            {
+            } else {
                 # Capture the appt status and room number for patient tracker.
                 if (!empty($pceid)) {
                     manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom);
@@ -95,6 +92,7 @@ require_once("$srcdir/patient_tracker.inc.php");
          echo "</script></body></html>\n";
          exit();
     }
+
      #get the patient name for display
      $row = sqlQuery("select fname, lname " .
      "from patient_data where pid =? limit 1", array($tkpid));

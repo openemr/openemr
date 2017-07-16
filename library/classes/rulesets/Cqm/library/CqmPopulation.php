@@ -17,7 +17,7 @@ class CqmPopulation extends RsPopulation
      */
     public function __construct(array $patientIdArray)
     {
-        foreach ( $patientIdArray as $patientId ) {
+        foreach ($patientIdArray as $patientId) {
             $this->_patients[]= new CqmPatient($patientId);
         }
     }
@@ -27,10 +27,10 @@ class CqmPopulation extends RsPopulation
      */
     public function offsetSet($offset, $value)
     {
-        if ($value instanceof CqmPatient ) {
-            if ( $offset == "" ) {
+        if ($value instanceof CqmPatient) {
+            if ($offset == "") {
                 $this->_patients[] = $value;
-            }else {
+            } else {
                 $this->_patients[$offset] = $value;
             }
         } else {

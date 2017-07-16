@@ -73,7 +73,6 @@ if ($_POST['form_import']) {
     $xml = array();
 
     if (xml_parse_into_struct($parser, $_POST['form_import_data'], $xml)) {
-
         foreach ($xml as $taginfo) {
             $tag = strtolower($taginfo['tag']);
             $tagtype = $taginfo['type'];
@@ -84,40 +83,38 @@ if ($_POST['form_import']) {
                 $probearr[$probeix] = $tag;
                 continue;
             }
+
             if ($tagtype == 'close') {
                 --$probeix;
                 continue;
             }
+
             if ($tagtype != 'complete') {
                 die("Invalid tag type '$tagtype'");
             }
 
             if ($probeix == 1 && $probearr[$probeix] == 'patient') {
                 $apatient[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'pcp') {
                 $apcp[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'employer') {
                 $aemployer[$tag] = $tagval;
-            }
-            else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
+            } else if ($probeix == 2 && $probearr[$probeix] == 'insurance') {
                 if ($tag == 'priority') {
                     $inspriority = $tagval;
                 } else {
                     $ainsurance["$tag$inspriority"] = $tagval;
                 }
-            }
-            else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
+            } else if ($probeix == 3 && $probearr[$probeix] == 'subscriber') {
                 $asubscriber["$tag$inspriority"] = $tagval;
-            }
-            else {
+            } else {
                 $alertmsg = "Invalid tag \"" . $probearr[$probeix] . "\" at level $probeix";
             }
         }
     } else {
         $alertmsg = "Invalid import data!";
     }
+
     xml_parser_free($parser);
 
     $olddata = getPatientData($pid);

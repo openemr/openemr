@@ -39,12 +39,10 @@
             <?php
           // sorting order of language titles depends on language translation options.
             $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation']))
-            {
+            if ($mainLangID == '1' && !empty($GLOBALS['skip_english_translation'])) {
                 $sql = "SELECT * FROM lang_languages ORDER BY lang_description, lang_id";
                 $res=SqlStatement($sql);
-            }
-            else {
+            } else {
                 // Use and sort by the translated language name.
                 $sql = "SELECT ll.lang_id, " .
                 "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS lang_description " .
@@ -55,13 +53,13 @@
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
                 $res=SqlStatement($sql, array($mainLangID));
             }
+
           // collect the default selected language id, and then display list
             $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
-            while ($row=SqlFetchArray($res)){
+            while ($row=SqlFetchArray($res)) {
                 if ($tempLangID == $row['lang_id']) {
                     echo "<option value='" . htmlspecialchars($row['lang_id'], ENT_QUOTES) . "' selected>" . htmlspecialchars($row['lang_description'], ENT_NOQUOTES) . "</option>";
-                }
-                else {
+                } else {
                       echo "<option value='" . htmlspecialchars($row['lang_id'], ENT_QUOTES) . "'>" . htmlspecialchars($row['lang_description'], ENT_NOQUOTES) . "</option>";
                 }
             }
@@ -81,14 +79,12 @@
 if (!$disable_utf8_flag) {
     $case_sensitive_collation = "COLLATE utf8_bin";
     $case_insensitive_collation = "COLLATE utf8_general_ci";
-}
-else {
+} else {
     $case_sensitive_collation = "COLLATE latin_bin";
     $case_insensitive_collation = "COLLATE latin1_swedish_ci";
 }
 
 if ($_POST['load']) {
-
   // query for entering new definitions it picks the cons_id because is existant.
     if (!empty($_POST['cons_id'])) {
         foreach ($_POST['cons_id'] as $key => $value) {
@@ -141,10 +137,11 @@ if ($_POST['load']) {
             }
         }
     }
+
     if ($go=='yes') echo htmlspecialchars(xl("New Definition set added"), ENT_NOQUOTES);
 }
 
-if ($_POST['edit']){
+if ($_POST['edit']) {
     if ($_POST['language_select'] == '') {
          exit(htmlspecialchars(xl("Please select a language"), ENT_NOQUOTES));
     }
@@ -171,6 +168,7 @@ if ($_POST['edit']){
         $row = SqlFetchArray($res);
         $lang_name = $row['lang_description'];
     }
+
     $sql .= ") ORDER BY lc.constant_name ".$case_insensitive_collation;
     $res = SqlStatement($sql, $bind_sql_array);
         
@@ -178,11 +176,11 @@ if ($_POST['edit']){
     echo ('<table><FORM METHOD=POST ACTION="?m=definition" onsubmit="return top.restoreSession()">');
     // only english definitions
     if ($lang_id==1) {
-        while ($row=SqlFetchArray($res)){
+        while ($row=SqlFetchArray($res)) {
                 $isShow = false; //flag if passes the definition filter
                 $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'], ENT_NOQUOTES).'</td>';
             // if there is no definition
-            if (empty($row['def_id'])){
+            if (empty($row['def_id'])) {
                 $cons_name = "cons_id[" . $row['cons_id'] . "]";
                     if ($lang_filter_def=='%') $isShow = true;
             // if there is a previous definition
@@ -192,6 +190,7 @@ if ($_POST['edit']){
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
                     if (SqlFetchArray($res2)) $isShow = true;
             }
+
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name, ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'], ENT_QUOTES) . '">';
             $stringTemp .= '</td><td></td></tr>';
             if ($isShow) {
@@ -200,15 +199,17 @@ if ($_POST['edit']){
                 $isResults = true;
             }
         }
+
         echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id, ENT_QUOTES).'">');
     // english plus the other
     } else {
-        while ($row=SqlFetchArray($res)){
+        while ($row=SqlFetchArray($res)) {
             if (!empty($row['lang_id']) && $row['lang_id'] != '1') {
                     // This should not happen, if it does that must mean that this
                     // constant has more than one definition for the same language!
                     continue;
             }
+
                 $isShow = false; //flag if passes the definition filter
             $stringTemp = '<tr><td>'.htmlspecialchars($row['constant_name'], ENT_NOQUOTES).'</td>';
             if ($row['definition']=='' or $row['definition']=='NULL') {
@@ -216,9 +217,10 @@ if ($_POST['edit']){
             } else {
                 $def=$row['definition'];
             }
+
             $stringTemp .= '<td>'.htmlspecialchars($def, ENT_NOQUOTES).'</td>';
             $row=SqlFetchArray($res); // jump one to get the second language selected
-            if ($row['def_id']=='' or $row['def_id']=='NULL'){
+            if ($row['def_id']=='' or $row['def_id']=='NULL') {
                 $cons_name="cons_id[".$row['cons_id']."]";
                     if ($lang_filter_def=='%') $isShow = true;
             // if there is a previous definition
@@ -229,6 +231,7 @@ if ($_POST['edit']){
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
                     if (SqlFetchArray($res2)) $isShow = true;
             }
+
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.htmlspecialchars($cons_name, ENT_QUOTES).'" value="'.htmlspecialchars($row['definition'], ENT_QUOTES).'">';
             $stringTemp .='</td></tr>';
             if ($isShow) {
@@ -237,8 +240,10 @@ if ($_POST['edit']){
                 $isResults = true;
             }
         }
+
         echo ('<INPUT TYPE="hidden" name="lang_id" value="'.htmlspecialchars($lang_id, ENT_QUOTES).'">');
     }
+
     if ($isResults) {
             echo ('<tr><td colspan=3><INPUT TYPE="submit" name="load" Value="' . htmlspecialchars(xl('Load Definitions'), ENT_NOQUOTES) . '"></td></tr>');
                 ?>
@@ -246,10 +251,10 @@ if ($_POST['edit']){
             <INPUT TYPE="hidden" name="filter_def" value="<?php echo htmlspecialchars($_POST['filter_def'], ENT_QUOTES); ?>">
             <INPUT TYPE="hidden" name="language_select" value="<?php echo htmlspecialchars($_POST['language_select'], ENT_QUOTES); ?>">
             <?php
-    }
-    else {
+    } else {
         echo htmlspecialchars(xl('No Results Found For Search'), ENT_NOQUOTES);
     }
+
     echo ('</FORM></table>');
 }
 

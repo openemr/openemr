@@ -12,7 +12,6 @@ function rom_report($pid, $encounter, $cols, $id)
     $count = 0;
     $data = formFetch("form_rom", $id);
     if ($data) {
-
     ?>
 
   <table border='1' bordercolor='#000000' cellpadding='7' cellspacing='0'  class='text'>

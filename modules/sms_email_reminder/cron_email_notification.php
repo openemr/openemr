@@ -36,8 +36,7 @@ $db_email_msg = cron_getNotificationData($TYPE);
 // get patient data for send alert
 $db_patient = cron_getAlertpatientData($TYPE);
 echo "<br>Total ".count($db_patient)." Records Found\n";
-for($p=0;$p<count($db_patient);$p++)
-{
+for ($p=0; $p<count($db_patient); $p++) {
     $prow =$db_patient[$p];
     //my_print_r($prow);
     /*
@@ -60,8 +59,7 @@ for($p=0;$p<count($db_patient);$p++)
     $strMsg = "\n========================".$TYPE." || ".date("Y-m-d H:i:s")."=========================";
     $strMsg .= "\nSEND NOTIFICATION BEFORE:".$EMAIL_NOTIFICATION_HOUR." || CRONJOB RUN EVERY:".$CRON_TIME." || APPDATETIME:".$app_date." || REMAINING APP HOUR:".($remaining_app_hour)." || SEND ALERT AFTER:".($remain_hour);
     
-    if($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME)
-    {
+    if ($remain_hour >= -($CRON_TIME) &&  $remain_hour <= $CRON_TIME) {
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($TYPE, $prow, $db_email_msg);
 

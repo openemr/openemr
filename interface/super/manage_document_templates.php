@@ -64,15 +64,18 @@ if (!empty($_POST['bn_upload'])) {
         if ($form_dest_filename == '') {
             $form_dest_filename = $_FILES['form_file']['name'];
         }
+
         $form_dest_filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", basename($form_dest_filename));
         if ($form_dest_filename == '') {
             die(htmlspecialchars(xl('Cannot determine a destination filename')));
         }
+
         $templatepath = "$templatedir/$form_dest_filename";
         // If the site's template directory does not yet exist, create it.
         if (!is_dir($templatedir)) {
             mkdir($templatedir);
         }
+
         // If the target file already exists, delete it.
         if (is_file($templatepath)) unlink($templatepath);
         // Put the new file in its desired location.
@@ -145,6 +148,7 @@ if ($dh) {
         if (substr($sfname, 0, 1) == '.') continue;
         $templateslist[$sfname] = $sfname;
     }
+
     closedir($dh);
     ksort($templateslist);
     foreach ($templateslist as $sfname) {

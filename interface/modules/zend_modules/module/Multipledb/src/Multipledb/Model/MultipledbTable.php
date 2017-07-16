@@ -63,9 +63,9 @@ class MultipledbTable
         $rowset = $this->tableGateway->select(array('namespace' => $namespace));
         $count = $rowset->count();
 
-        if($count and $_SESSION['multiple_edit_id'] == 0){
+        if ($count and $_SESSION['multiple_edit_id'] == 0) {
             return 1;
-        }else{
+        } else {
             return 0;
         }
     }
@@ -73,15 +73,15 @@ class MultipledbTable
     public function storeMultipledb($id = 0, $db = array())
     {
 
-        if($db['password']){
+        if ($db['password']) {
             $db['password'] = my_encrypt($db['password']);
-        }else{
+        } else {
             unset($db['password']);
         }
 
-        if($id){
+        if ($id) {
             $this->tableGateway->update($db, array('id' => $id));
-        }else{
+        } else {
             $this->tableGateway->insert($db);
         }
     }
@@ -114,6 +114,7 @@ class MultipledbTable
             $n = mt_rand(0, $alphaLength);
             $pass[] = $alphabet[$n];
         }
+
         return implode($pass); //turn the array into a string
     }
 }

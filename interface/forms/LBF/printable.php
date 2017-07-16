@@ -185,6 +185,7 @@ while ($frow = sqlFetchArray($fres)) {
         echo ">";
         $cell_count += $titlecols;
     }
+
     ++$item_count;
 
     echo "<b>";

@@ -115,7 +115,7 @@ class DataAdapter implements IObservable
                         Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
                         $classname = "DataDriver" . $this->ConnectionSetting->Type;
                         $this->_driver = new $classname ();
-                    } catch ( IncludeException $ex ) {
+                    } catch (IncludeException $ex) {
                         throw new Exception('Unknown DataDriver "' . $this->ConnectionSetting->Type . '" specified in connection settings');
                     }
                     break;
@@ -155,7 +155,7 @@ class DataAdapter implements IObservable
                 $this->_dbconn = $this->_driver->Open($this->ConnectionSetting->ConnectionString, $this->ConnectionSetting->DBName, $this->ConnectionSetting->Username, $this->ConnectionSetting->Password, $this->ConnectionSetting->Charset, $this->ConnectionSetting->BootstrapSQL);
                 
                 $this->_num_retries = 0;
-            } catch ( Exception $ex ) {
+            } catch (Exception $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries ++;
@@ -230,7 +230,7 @@ class DataAdapter implements IObservable
         try {
             $rs = $this->_driver->Query($this->_dbconn, $sql);
             $this->_num_retries = 0;
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             // retry one time a communication error occurs
             if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                 $this->_num_retries ++;
@@ -260,18 +260,15 @@ class DataAdapter implements IObservable
         $result = null;
         
         if ($this->ConnectionSetting->IsReadOnlySlave) {
-            
             // this is a read-only slave connection attempting a write operation. we
             // will only proceed if the connection specifies a "master" delegate connection
             if (! $this->_masterAdapter) {
-                
                 if ($this->ConnectionSetting->MasterConnectionDelegate) {
-                    
                     $this->Observe("DataAdapter ($this->_label) (DataAdapter.Execute) Delegating write operation from Slave to Master Connection", OBSERVE_INFO);
                     
                     $this->_masterAdapter = new DataAdapter($this->ConnectionSetting->MasterConnectionDelegate);
                     
-                    foreach ( $this->_observers as $observer ) {
+                    foreach ($this->_observers as $observer) {
                         $this->_masterAdapter->AttachObserver($observer);
                     }
                 } else {
@@ -289,7 +286,7 @@ class DataAdapter implements IObservable
             try {
                 $result = $this->_driver->Execute($this->_dbconn, $sql);
                 $this->_num_retries = 0;
-            } catch ( Exception $ex ) {
+            } catch (Exception $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
                     $this->_num_retries ++;
@@ -304,6 +301,7 @@ class DataAdapter implements IObservable
                 throw new Exception($msg, $ex->getCode());
             }
         }
+
         return $result;
     }
     
@@ -406,7 +404,7 @@ class DataAdapter implements IObservable
         $results = array ();
         $table_names = $this->_driver->GetTableNames($this->_dbconn, $this->GetDBName());
         
-        foreach ( $table_names as $table_name ) {
+        foreach ($table_names as $table_name) {
             $results [$table_name] = $this->_driver->Optimize($this->_dbconn, $table_name);
         }
         
@@ -540,7 +538,7 @@ class DataAdapter implements IObservable
      */
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        foreach ( $this->_observers as $observer )
+        foreach ($this->_observers as $observer)
             @$observer->Observe($obj, $ltype);
     }
 }

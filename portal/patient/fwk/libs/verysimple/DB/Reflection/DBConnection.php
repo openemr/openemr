@@ -91,7 +91,7 @@ class DBConnection
             
             try {
                 $this->adapter->Open();
-            } catch ( Exception $ex ) {
+            } catch (Exception $ex) {
                 $this->handler->Crash(DatabaseException::$CONNECTION_ERROR, $ex->getMessage());
             }
             

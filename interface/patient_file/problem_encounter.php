@@ -276,6 +276,7 @@ while ($row = sqlFetchArray($peres)) {
   //  ($row['resolved'] ? "Y" : "N") . "/";
     echo text($row['list_id']) . "," . text($row['encounter']) . "/";
 }
+
  echo "' />\n";
 ?>
 
@@ -363,6 +364,7 @@ in that section to add and delete relationships.'); ?>
 if ($_REQUEST['issue']) {
     echo "doclick('p', " . attr(addslashes($_REQUEST['issue'])) . ");\n";
 }
+
  if ($alertmsg) echo "alert('" . addslashes($alertmsg) . "');\n";
 ?>
 </script>

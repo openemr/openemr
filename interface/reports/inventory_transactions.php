@@ -39,29 +39,25 @@ function thisLineItem($row, $xfer = false)
             $dpname .= ', ' . $row['pfname'];
             if (!empty($row['pmname'])) $dpname .= ' ' . $row['pmname'];
         }
+
         $invnumber = empty($row['invoice_refno']) ?
         "{$row['pid']}.{$row['encounter']}" : $row['invoice_refno'];
-    }
-    else if (!empty($row['distributor_id'])) {
+    } else if (!empty($row['distributor_id'])) {
         $ttype = xl('Distribution');
         if (!empty($row['organization'])) {
             $dpname = $row['organization'];
-        }
-        else {
+        } else {
             $dpname = $row['dlname'];
             if (!empty($row['dfname'])) {
                 $dpname .= ', ' . $row['dfname'];
                 if (!empty($row['dmname'])) $dpname .= ' ' . $row['dmname'];
             }
         }
-    }
-    else if (!empty($row['xfer_inventory_id']) || $xfer) {
+    } else if (!empty($row['xfer_inventory_id']) || $xfer) {
         $ttype = xl('Transfer');
-    }
-    else if ($row['fee'] != 0) {
+    } else if ($row['fee'] != 0) {
         $ttype = xl('Purchase');
-    }
-    else {
+    } else {
         $ttype = xl('Adjustment');
     }
 
@@ -76,8 +72,7 @@ function thisLineItem($row, $xfer = false)
         echo '"' . bucks($row['fee'])                   . '",';
         echo '"' . $row['billed']                       . '",';
         echo '"' . esc4Export($row['notes'])            . '"' . "\n";
-    }
-    else {
+    } else {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
     ?>
 
@@ -245,8 +240,7 @@ foreach (array(
   '6' => xl('Distribution'),
   '4' => xl('Transfer'),
   '5' => xl('Adjustment'),
-) as $key => $value)
-{
+) as $key => $value) {
     echo "       <option value='$key'";
     if ($key == $form_trans_type) echo " selected";
     echo ">" . htmlspecialchars($value, ENT_NOQUOTES) . "</option>\n";
@@ -375,19 +369,16 @@ if ($form_action) { // if submit or export
     "WHERE s.sale_date >= ? AND s.sale_date <= ? ";
     if ($form_trans_type == 2) { // purchase/return
         $query .= "AND s.pid = 0 AND s.distributor_id = 0 AND s.xfer_inventory_id = 0 AND s.fee != 0 ";
-    }
-    else if ($form_trans_type == 4) { // transfer
+    } else if ($form_trans_type == 4) { // transfer
         $query .= "AND s.xfer_inventory_id != 0 ";
-    }
-    else if ($form_trans_type == 5) { // adjustment
+    } else if ($form_trans_type == 5) { // adjustment
         $query .= "AND s.pid = 0 AND s.distributor_id = 0 AND s.xfer_inventory_id = 0 AND s.fee = 0 ";
-    }
-    else if ($form_trans_type == 6) { // distribution
+    } else if ($form_trans_type == 6) { // distribution
         $query .= "AND s.distributor_id != 0 ";
-    }
-    else if ($form_trans_type == 1) { // sale
+    } else if ($form_trans_type == 1) { // sale
         $query .= "AND s.pid != 0 ";
     }
+
     $query .= "ORDER BY s.sale_date, s.sale_id";
   //
     $res = sqlStatement($query, array($from_date, $to_date));

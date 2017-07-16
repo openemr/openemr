@@ -61,12 +61,13 @@ class OnsiteActivityViewController extends AppBaseController
     public function ListView()
     {
         $user = 0;
-        if( isset($_SESSION['authUser']) ) $user = $_SESSION['authUser'];
-        else{
+        if (isset($_SESSION['authUser'])) $user = $_SESSION['authUser'];
+        else {
             header("refresh:6;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br> Shared session not allowed!.';
             exit();
         }
+
         $this->Assign('cuser', $user);
         $this->Render();
     }
@@ -77,22 +78,22 @@ class OnsiteActivityViewController extends AppBaseController
     public function Query()
     {
         self::CreateView('');
-        try{
+        try {
             $criteria = new OnsiteActivityViewCriteria();
             $status = RequestUtil::Get('status');
             $criteria->Status_Equals = $status;
 
             $filter = RequestUtil::Get('filter');
-            if( $filter ) $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
+            if ($filter) $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
 
             // TODO: this is generic query filtering based only on criteria properties
-            foreach( array_keys($_REQUEST) as $prop ){
+            foreach (array_keys($_REQUEST) as $prop) {
                 $prop_normal = ucfirst($prop);
                 $prop_equals = $prop_normal . '_Equals';
 
-                if( property_exists($criteria, $prop_normal) ){
+                if (property_exists($criteria, $prop_normal)) {
                     $criteria->$prop_normal = RequestUtil::Get($prop);
-                } elseif( property_exists($criteria, $prop_equals) ){
+                } elseif (property_exists($criteria, $prop_equals)) {
                     // this is a convenience so that the _Equals suffix is not needed
                     $criteria->$prop_equals = RequestUtil::Get($prop);
                 }
@@ -103,11 +104,11 @@ class OnsiteActivityViewController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if( $output->orderBy ) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
 
             $page = RequestUtil::Get('page');
 
-            if( $page != '' ){
+            if ($page != '') {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
@@ -117,7 +118,7 @@ class OnsiteActivityViewController extends AppBaseController
                 $output->totalPages = $onsiteactivityviews->TotalPages;
                 $output->pageSize = $onsiteactivityviews->PageSize;
                 $output->currentPage = $onsiteactivityviews->CurrentPage;
-            } else{
+            } else {
                 // return all results
                 $onsiteactivityviews = $this->Phreezer->Query('OnsiteActivityViewReporter', $criteria);
                 $output->rows = $onsiteactivityviews->ToObjectArray(true, $this->SimpleObjectParams());
@@ -128,7 +129,7 @@ class OnsiteActivityViewController extends AppBaseController
             }
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -138,11 +139,11 @@ class OnsiteActivityViewController extends AppBaseController
      */
     public function Read()
     {
-        try{
+        try {
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
             $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -191,9 +192,9 @@ class OnsiteActivityViewController extends AppBaseController
   patient_data On onsite_portal_activity.patient_id = patient_data.pid Left Join
   users On patient_data.providerID = users.id ";
         // $sql .= "Where onsite_portal_activity.status = 'waiting'";
-        try{
+        try {
             $this->Phreezer->DataAdapter->Execute($sql);
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -210,13 +211,14 @@ class OnsiteActivityViewController extends AppBaseController
      */
     public function Update()
     {
-        try{
+        try {
             // TODO: views are read-only by default. uncomment at your own discretion
             throw new Exception('Database views are read-only and cannot be updated');
 
             $json = json_decode(RequestUtil::GetBody());
 
-            if( ! $json ){throw new Exception('The request body does not contain valid JSON');}
+            if (! $json) {
+                throw new Exception('The request body does not contain valid JSON');}
 
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
@@ -267,18 +269,18 @@ class OnsiteActivityViewController extends AppBaseController
             $onsiteactivityview->Validate();
             $errors = $onsiteactivityview->GetValidationErrors();
 
-            if( count($errors) > 0 ){
+            if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
-            } else{
+            } else {
                 $onsiteactivityview->Save();
                 $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch( Exception $ex ){
-
+        } catch (Exception $ex) {
             // this table does not have an auto-increment primary key, so it is semantically correct to
             // issue a REST PUT request, however we have no way to know whether to insert or update.
             // if the record is not found, this exception will indicate that this is an insert request
-            if( is_a($ex, 'NotFoundException') ){return $this->Create();}
+            if (is_a($ex, 'NotFoundException')) {
+                return $this->Create();}
 
             $this->RenderExceptionJSON($ex);
         }
@@ -289,7 +291,7 @@ class OnsiteActivityViewController extends AppBaseController
      */
     public function Delete()
     {
-        try{
+        try {
             // TODO: views are read-only by default. uncomment at your own discretion
             throw new Exception('Database views are read-only and cannot be updated');
 
@@ -303,7 +305,7 @@ class OnsiteActivityViewController extends AppBaseController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch( Exception $ex ){
+        } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

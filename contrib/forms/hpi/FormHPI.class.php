@@ -54,8 +54,7 @@ class FormHPI extends ORDataObject
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -81,8 +80,7 @@ class FormHPI extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -123,7 +121,7 @@ class FormHPI extends ORDataObject
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -145,7 +143,7 @@ class FormHPI extends ORDataObject
     }
     function set_complaint($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->complaint = $data;
         }
     }
@@ -156,7 +154,7 @@ class FormHPI extends ORDataObject
     }
     function set_location($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->location = $data;
         }
     }
@@ -167,7 +165,7 @@ class FormHPI extends ORDataObject
     }
     function set_quality($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->quality = $data;
         }
     }
@@ -178,7 +176,7 @@ class FormHPI extends ORDataObject
     }
     function set_severity($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->severity = $data;
         }
     }
@@ -189,7 +187,7 @@ class FormHPI extends ORDataObject
     }
     function set_duration($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->duration = $data;
         }
     }
@@ -200,7 +198,7 @@ class FormHPI extends ORDataObject
     }
     function set_timing($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->timing = $data;
         }
     }
@@ -211,7 +209,7 @@ class FormHPI extends ORDataObject
     }
     function set_context($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->context = $data;
         }
     }
@@ -222,7 +220,7 @@ class FormHPI extends ORDataObject
     }
     function set_factors($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->factors = $data;
         }
     }
@@ -233,7 +231,7 @@ class FormHPI extends ORDataObject
     }
     function set_signs($data)
     {
-        if(!empty($data)){
+        if (!empty($data)) {
             $this->signs = $data;
         }
     }

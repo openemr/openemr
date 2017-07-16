@@ -88,10 +88,11 @@ class TextImageWriter
         $fontColor = imagecolorallocate($im, $fontColor [0], $fontColor [1], $fontColor [2]);
         $lines = explode("\r", wordwrap($msg, ($width / 5), "\r"));
         $count = 0;
-        foreach ( $lines as $line ) {
+        foreach ($lines as $line) {
             imagestring($im, $fontId, 2, 2 + ($count * 12), $line, $fontColor);
             $count ++;
         }
+
         return $im;
     }
 }

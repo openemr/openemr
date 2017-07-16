@@ -159,9 +159,11 @@ class Header
             if (!is_string($link) && !is_array($link)) {
                 throw new \InvalidArgumentException("Link must be of type string or array");
             }
+
             if (is_string($link)) {
                 $link = [$link];
             }
+
             foreach ($link as $l) {
                 $l = self::parsePlaceholders($l);
                 $path = self::createFullPath($basePath, $l);
@@ -199,6 +201,7 @@ class Header
                 $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
             }
         }
+
         return $subject;
     }
 

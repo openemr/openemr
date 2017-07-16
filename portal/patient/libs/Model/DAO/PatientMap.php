@@ -70,8 +70,7 @@ class PatientMap implements IDaoMap, IDaoMap2
      */
     public static function GetFieldMaps()
     {
-        if (self::$FM == null)
-        {
+        if (self::$FM == null) {
             self::$FM = array();
             self::$FM["Id"] = new FieldMap("Id", "patient_data", "id", true, FM_TYPE_BIGINT, 20, null, true);
             self::$FM["Title"] = new FieldMap("Title", "patient_data", "title", false, FM_TYPE_VARCHAR, 255, null, false);
@@ -165,6 +164,7 @@ class PatientMap implements IDaoMap, IDaoMap2
             self::$FM["County"] = new FieldMap("County", "patient_data", "county", false, FM_TYPE_VARCHAR, 40, null, false);
             self::$FM["Industry"] = new FieldMap("Industry", "patient_data", "industry", false, FM_TYPE_TEXT, null, null, false);
         }
+
         return self::$FM;
     }
 
@@ -173,10 +173,10 @@ class PatientMap implements IDaoMap, IDaoMap2
      */
     public static function GetKeyMaps()
     {
-        if (self::$KM == null)
-        {
+        if (self::$KM == null) {
             self::$KM = array();
         }
+
         return self::$KM;
     }
 }

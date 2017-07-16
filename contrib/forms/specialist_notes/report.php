@@ -18,7 +18,7 @@ function specialist_notes_report($pid, $encounter, $cols, $id)
     "id = '$id' AND activity = '1'");
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
              $key == "authorized" || $key == "activity" || $key == "date" ||
              $value == "" || $value == "0" || $value == "0.00") {
@@ -37,6 +37,7 @@ function specialist_notes_report($pid, $encounter, $cols, $id)
                 print "</tr>\n<tr>\n";
             }
         }
+
         print "</tr>\n</table>\n";
     }
 }

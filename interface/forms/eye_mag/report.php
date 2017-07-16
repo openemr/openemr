@@ -70,7 +70,7 @@ if (!$id) $id=$form_id;
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
 $result = sqlStatement($query, array($_SESSION['authUserID']));
-while ($prefs= sqlFetchArray($result))   {
+while ($prefs= sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     $$LOCATION = text($prefs['GOVALUE']);
 }
@@ -163,7 +163,6 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
     } else if ($choice == 'TEXT') {
         //just display HPI and A/P
         narrative($pid, $encounter, $cols, $id, 'TEXT');
-
     } else if ($choice !="narrative") {
         narrative($pid, $encounter, $cols, $id, 'narrative');
         //return;
@@ -178,7 +177,7 @@ function left_overs()
     $data = formFetch($table_name, $id);
 
     if ($data) {
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             $$key=$value;
         }
     }
@@ -270,24 +269,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($TIMING1) {
                         echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING1)."<br />";
                     }
+
                     if ($CONTEXT1) {
                         echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT1)."<br />";
                     }
+
                     if ($SEVERITY1) {
                         echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY1)."<br />";
                     }
+
                     if ($MODIFY1) {
                         echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY1)."<br />";
                     }
+
                     if ($ASSOCIATED1) {
                         echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED1)."<br />";
                     }
+
                     if ($LOCATION1) {
                         echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION1)."<br />";
                     }
+
                     if ($QUALITY1) {
                         echo "<i>".xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY1)."<br />";
                     }
+
                     if ($DURATION1) {
                         echo "<i>".xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION1)."<br />";
                     }
@@ -308,24 +314,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             if ($TIMING2) {
                                 echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING2)."<br />";
                             }
+
                             if ($CONTEXT2) {
                                 echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT2)."<br />";
                             }
+
                             if ($SEVERITY2) {
                                 echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY2)."<br />";
                             }
+
                             if ($MODIFY2) {
                                 echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY2)."<br />";
                             }
+
                             if ($ASSOCIATED2) {
                                 echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED2)."<br />";
                             }
+
                             if ($LOCATION2) {
                                 echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION2)."<br />";
                             }
+
                             if ($QUALITY2) {
                                 echo "<i>".xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY2)."<br />";
                             }
+
                             if ($DURATION2) {
                                 echo "<i>".xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION2)."<br />";
                             }
@@ -333,6 +346,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       </div>
                         <?php
                     }
+
                     if ($CC3) {
                         ?>
 
@@ -346,24 +360,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         if ($TIMING3) {
                             echo "<i>".xlt('Timing'); ?>:</i>  &nbsp;<?php echo text($TIMING3)."<br />";
                         }
+
                         if ($CONTEXT3) {
                             echo "<i>".xlt('Context'); ?>:</i> &nbsp;<?php echo text($CONTEXT3)."<br />";
                         }
+
                         if ($SEVERITY3) {
                             echo "<i>".xlt('Severity'); ?>:</i> &nbsp;<?php echo text($SEVERITY3)."<br />";
                         }
+
                         if ($MODIFY3) {
                             echo "<i>".xlt('Modifying'); ?>:</i> &nbsp;<?php echo text($MODIFY3)."<br />";
                         }
+
                         if ($ASSOCIATED3) {
                             echo "<i>".xlt('Associated'); ?>:</i> &nbsp;<?php echo text($ASSOCIATED3)."<br />";
                         }
+
                         if ($LOCATION3) {
                             echo "<i>".xlt('Location'); ?>:</i> &nbsp;<?php echo text($LOCATION3)."<br />";
                         }
+
                         if ($QUALITY3) {
                             echo "<i>".xlt('Quality'); ?>:</i> &nbsp;<?php echo text($QUALITY3)."<br />";
                         }
+
                         if ($DURATION3) {
                             echo "<i>".xlt('Duration'); ?>:</i> &nbsp;<?php echo text($DURATION3)."<br />";
                         }
@@ -398,31 +419,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             $doc = sqlQuery($sql, array($pid));
             $document_id =$doc['document_id'];
             if (is_numeric($document_id)) {
-
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
                 $couch_revid = $d->get_couch_revid();
                 $url_file = $d->get_url_filepath();
-                if($couch_docid && $couch_revid){
+                if ($couch_docid && $couch_revid) {
                     $url_file = $d->get_couch_url($pid, $encounter);
                 }
+
                 // Collect filename and path
                 $from_all = explode("/", $url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
-                for ($i=0;$i<$d->get_path_depth();$i++) {
+                for ($i=0; $i<$d->get_path_depth(); $i++) {
                     $from_pathname_array[] = array_pop($from_all);
                 }
+
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/", $from_pathname_array);
-                if($couch_docid && $couch_revid) {
+                if ($couch_docid && $couch_revid) {
                     $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
-                }
-                else {
+                } else {
                     $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
                     '/documents/' . $from_pathname . '/' . $from_filename;
                 }
+
                 if ($PDF_OUTPUT) {
                     echo "<img src='". $from_file."' style='width:220px;'>";
                 } else {
@@ -449,7 +471,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 
         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
                 $wear = sqlStatement($query, array($pid,$form_id,$encounter));
-        while ($wearing = sqlFetchArray($wear))   {
+        while ($wearing = sqlFetchArray($wear)) {
             $count_rx++;
             ${"display_W_$count_rx"} = '';
             ${"ODSPH_$count_rx"} = $wearing['ODSPH'];
@@ -609,8 +631,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 } else {
                     $ODVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
                     if ($PDF_OUTPUT) $ODVF[$z] = 'O';
-
                 }
+
                 $OSzone = "OSVF".$z;
                 if ($$OSzone =="1") {
                     $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
@@ -619,12 +641,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 } else {
                     $OSVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
                     if ($PDF_OUTPUT) $OSVF[$z] = 'O';
-
                 }
             }
             ?>
             <?php
-            if ($bad < '1' ) {  ?>
+            if ($bad < '1') {  ?>
           <td class="report_vitals">
               <b class="underline"><?php echo xlt('Fields{{visual fields}}'); ?></b>
                 <?php
@@ -692,6 +713,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 } else {
                     $background = "url(../../forms/".$form_folder."/images/eom.bmp)";
                 }
+
                 $zone = array("MOTILITY_RRSO","MOTILITY_RS","MOTILITY_RLSO","MOTILITY_RR","MOTILITY_R0","MOTILITY_RL","MOTILITY_RRIO","MOTILITY_RI","MOTILITY_RLIO","MOTILITY_LRSO","MOTILITY_LS","MOTILITY_LLSO","MOTILITY_LR","MOTILITY_L0","MOTILITY_LL","MOTILITY_LRIO","MOTILITY_LI","MOTILITY_LLIO");
                 for ($i = 0; $i < count($zone); ++$i) {
                     ($$zone[$i] >= '1') ? ($$zone[$i] = "-".$$zone[$i]) : ($$zone[$i] = '');
@@ -756,6 +778,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       <b class="underline"><?php echo xlt('Pupils'); ?></b>&nbsp;&nbsp;
                         <?php echo xlt('Round and Reactive')."<br />";
                     }
+
                     if ($ODPUPILSIZE1||$OSPUPILSIZE1) { ?>
                   <table cellspacing="0" style="margin:1px;text-align:center;font-size:9px;">
                     <tr>
@@ -924,6 +947,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                         } else if (${"RX_TYPE_$i"} =="3") {
                             $RX_TYPE = xlt('Progressive');
                         }
+
                       /*
                     Note html2pdf does not like the last field of a table to be blank.
                     If it is it will squish the lines together.
@@ -1003,6 +1027,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                             <?php
                         }
                     }
+
                     if ($MRODSPH||$MROSSPH) { ?>
                     <tr>
                           <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo xlt('Manifest (Dry) Refraction'); ?></td>
@@ -1031,6 +1056,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     </tr>
                         <?php
                     }
+
                     if ($CRODSPH||$CROSSPH) { ?>
                   <tr>
                         <td style="font-weight:600;font-size:0.8em;text-align:right;"><?php echo xlt('Cycloplegic (Wet) Refraction'); ?></td>
@@ -1058,6 +1084,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                   </tr>
                         <?php
                     }
+
                     if ($CTLODSPH||$CTLOSSPH) { ?>
                   <tr style="text-align:center;padding:5px;text-decoration:underline;">
                     <td></td>
@@ -1236,6 +1263,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 </tr>
                     <?php
                 }
+
                 if ($EXT_COMMENTS) { ?>
                 <tr>
                   <td colspan="3">
@@ -1329,6 +1357,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                       <td class="report_text left"><?php echo text($OSTBUT); ?></td>
                     </tr>
                     <?php }
+
 if ($ANTSEG_COMMENTS) { ?>
                     <tr>
                       <td colspan="2">
@@ -1388,6 +1417,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RMRD || $LMRD) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RMRD); ?></td>
@@ -1396,6 +1426,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RVFISSURE || $LVFISSURE) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RVFISSURE); ?></td>
@@ -1404,6 +1435,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RCAROTID || $LCAROTID) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RCAROTID); ?></td>
@@ -1412,6 +1444,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RTEMPART || $LTEMPART) { ?>
                   <tr>
                     <td class="report_text right"><?php echo text($RTEMPART); ?></td>
@@ -1420,6 +1453,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RCNV || $LCNV) { ?>
                   <tr>
                   <td class="report_text right"><?php echo text($RCNV); ?></td>
@@ -1428,6 +1462,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($RCNVII || $LCNVII) { ?>
                   <tr>
                   <td class="report_text right"><?php echo text($RCNVII); ?></td>
@@ -1436,6 +1471,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   </tr>
                     <?php
                 }
+
                 if ($HERTELBASE) { ?>
                   <tr>
                   <td colspan="3" style="text-align:center;padding-top:15px;">
@@ -1477,6 +1513,7 @@ if ($ANTSEG_COMMENTS) { ?>
                             </tr>
                                 <?php
                         }
+
                         if ($ODREDDESAT or $OSREDDESAT) { ?>
                           <tr>
                                   <td class="report_text right"><?php echo text($ODREDDESAT); ?></td>
@@ -1484,6 +1521,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                   <td class="report_text left"><?php echo text($OSREDDESAT); ?></td>
                                 </tr><?php
                         }
+
                         if ($ODCOINS or $OSCOINS) { ?>
                           <tr>
                                     <td class="report_text right"><?php echo text($ODCOINS); ?></td>
@@ -1492,6 +1530,7 @@ if ($ANTSEG_COMMENTS) { ?>
                           </tr>
                                     <?php
                         }
+
                         if ($ODNPA or $OSNPA) { ?>
                           <tr>
                                   <td class="report_text right"><?php echo text($ODNPA); ?></td>
@@ -1499,12 +1538,14 @@ if ($ANTSEG_COMMENTS) { ?>
                                   <td class="report_text left"><?php echo text($OSNPA); ?></td>
                           </tr>
                                 <?php }
+
                         if ($ODNPC or $OSNPC) { ?>
                           <tr>
                                               <td class="right" style="font-weight:600;"><?php echo xlt('NPC{{near point of convergence}}'); ?>:&nbsp;</td>
                                               <td class="center" colspan="2" ><?php echo text($NPC); ?></td>
                           </tr>
                                 <?php }
+
                         if ($DACCDIST or $DACCNEAR or $CACCDIST or $CACCNEAR or $VERTFUSAMPS) { ?>
                           <tr style="text-decoration:underline;">
                             <td></td>
@@ -1512,6 +1553,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                     <td class="middle"> <?php echo xlt('Near'); ?></td>
                           </tr>
                                 <?php }
+
                         if ($DACCDIST or $DACCNEAR) { ?>
                           <tr>
                                     <td class="right" style="font-weight:600;"><?php echo xlt('Divergence Amps'); ?>: </td>
@@ -1519,6 +1561,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                     <td class="center"><?php echo text($DACCNEAR); ?></td>
                           </tr>
                                 <?php }
+
                         if ($CACCDIST or $CACCNEAR) { ?>
                                    <tr>
                                             <td class="right" style="font-weight:600;"><?php echo xlt('Convergence Amps'); ?>: </td>
@@ -1526,6 +1569,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                             <td class="center"><?php echo text($CACCNEAR); ?></td>
                                    </tr>
                                 <?php }
+
                         if ($VERTFUSAMPS) { ?>
                                    <tr>
                                        <td class="right" style="font-weight:600;">
@@ -1537,6 +1581,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                        </td>
                                    </tr>
                                 <?php }
+
                         if ($STEREOPSIS) { ?>
                                    <tr>
                                      <td class="right" style="font-weight:600;"><?php echo xlt('Stereopsis'); ?>:&nbsp;</td>
@@ -1685,6 +1730,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                   </td>
                                     <?php
                                 }
+
                                 if ($ACT5CCDIST) {
                                     ?>
                                   <td style="text-align:center;"> <!-- ccDIST -->
@@ -1726,6 +1772,7 @@ if ($ANTSEG_COMMENTS) { ?>
                               <tr>
                                     <?php
                                 }
+
                                 if ($ACT5SCNEAR) {
                                     ?>
 
@@ -1766,6 +1813,7 @@ if ($ANTSEG_COMMENTS) { ?>
                                 </td>
                                     <?php
                                 }
+
                                 if ($ACT5CCNEAR) {
                                     ?>
 
@@ -1826,6 +1874,7 @@ if ($ANTSEG_COMMENTS) { ?>
                 <?php
     }
     }
+
     //end choice !== 'TEXT' -- include this in summary mouseover report.
     ?>
     <!-- start of IMPPLAN exam -->
@@ -1846,7 +1895,7 @@ if ($ANTSEG_COMMENTS) { ?>
                   $order   = array("\r\n", "\n", "\r","\v","\f","\x85","\u2028","\u2029");
                   $replace = "<br />";
                   // echo '<ol>';
-                while ($ip_list = sqlFetchArray($result))   {
+                while ($ip_list = sqlFetchArray($result)) {
                     $newdata =  array (
                     'form_id'       => $ip_list['form_id'],
                     'pid'           => $ip_list['pid'],
@@ -1860,24 +1909,28 @@ if ($ANTSEG_COMMENTS) { ?>
                     $IMPPLAN_items[$i] =$newdata;
                     $i++;
                 }
+
                   //for ($i=0; $i < count($IMPPLAN_item); $i++) {
                 foreach ($IMPPLAN_items as $item) {
                     echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
                     echo  '<div style="padding-left:15px;">';
                     $pattern = '/Code/';
                     if (preg_match($pattern, $item['code']))  $item['code'] = '';
-                    if ($item['codetext'] > '')  {
+                    if ($item['codetext'] > '') {
                         echo $item['codetext']."<br />";
                     } else {
                         if ($item['code'] > '') {
                             if ($item['codetype'] > '') {
                                 $item['code'] =  $item['codetype'].": ".$item['code'];
                             }
+
                             echo $item['code']."<br />";
                         }
                     }
+
                     echo  $item['plan']."</div><br />";
                 }
+
                 if ($PLAN && $PLAN != '0') { ?>
                     <b><?php echo xlt('Orders')."/".xlt('Next Visit'); ?>:</b>
                     <br />
@@ -1887,6 +1940,7 @@ if ($ANTSEG_COMMENTS) { ?>
                         foreach ($PLAN_items as $item) {
                             echo  $item."<br />";
                         }
+
                         if ($PLAN2) {
                             echo $PLAN2."<br />";
                         }
@@ -1964,27 +2018,29 @@ function display_draw_image($zone, $encounter, $pid)
             echo '<td>'.$note->get_note().'<br /><br /></td>';
             echo '</tr>';
         }
+
         if (!empty($notes)) echo "</table>";
 
         $url_file = $d->get_url_filepath();
-        if($couch_docid && $couch_revid){
+        if ($couch_docid && $couch_revid) {
             $url_file = $d->get_couch_url($pid, $encounter);
         }
+
         // Collect filename and path
         $from_all = explode("/", $url_file);
         $from_filename = array_pop($from_all);
         $from_pathname_array = array();
-        for ($i=0;$i<$d->get_path_depth();$i++) {
+        for ($i=0; $i<$d->get_path_depth(); $i++) {
             $from_pathname_array[] = array_pop($from_all);
         }
+
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
 
-        if($couch_docid && $couch_revid) {
+        if ($couch_docid && $couch_revid) {
             $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
             $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-        }
-        else {
+        } else {
             $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
             '/documents/' . $from_pathname . '/' . $from_filename;
             $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
@@ -1997,10 +2053,8 @@ function display_draw_image($zone, $encounter, $pid)
             $filetoshow = $GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=$pid&document_id=".$doc['id']."&as_file=false&blahblah=".rand();
             echo "<img src='".$filetoshow."' style='width:220px;height:120px;'>";
         }
-    }
-  //else show base_image
+    } //else show base_image
     else {
-
         $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
         if ($PDF_OUTPUT) $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
       // uncomment to show base image, no touch up by user.

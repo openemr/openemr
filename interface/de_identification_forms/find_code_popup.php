@@ -131,8 +131,7 @@ function check_search_str()
 <?php
 if ($codetype) {
     echo "<input type='text' name='form_code_type' value='$codetype' size='5' readonly>\n";
-}
-else {
+} else {
     echo "   <select name='form_code_type'";
     echo ">\n";
     foreach ($code_types as $key => $value) {
@@ -140,6 +139,7 @@ else {
         if ($codetype == $key || $form_code_type == $key) echo " selected";
         echo ">$key</option>\n";
     }
+
     echo "    <option value='PROD'";
     if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
     echo ">Product</option>\n";
@@ -165,8 +165,7 @@ else {
 <table border='0'>
  <tr>
  <td colspan="4">
-<?php if ($_REQUEST['bn_search'])
-{
+<?php if ($_REQUEST['bn_search']) {
     $search_term = $_REQUEST['search_term'];
     if ($form_code_type == 'PROD') {
         $query = "SELECT dt.drug_id, dt.selector, d.name " .
@@ -185,17 +184,14 @@ else {
             ?>    
              <input type="checkbox" name="diagnosis[row_count]" value= "<?php echo $desc; ?>" > <?php echo $drug_id."    ".$selector."     ".$desc."</br>";
         }
-    }
-    else {
+    } else {
         $query = "SELECT count(*) as count FROM codes " .
         "WHERE (code_text LIKE '%$search_term%' OR " .
         "code LIKE '%$search_term%') " ;
         $res = sqlStatement($query);
-        if ($row = sqlFetchArray($res))
-        {
+        if ($row = sqlFetchArray($res)) {
             $no_of_items = addslashes($row['count']);
-            if($no_of_items < 1)
-            {
+            if ($no_of_items < 1) {
                 ?>
              <script language='JavaScript'>
             alert("<?php echo xl('Search string does not match with list in database');
@@ -206,6 +202,7 @@ else {
              </script>    
                 <?php
             }
+
             $query = "SELECT code_type, code, modifier, code_text FROM codes " .
             "WHERE (code_text LIKE '%$search_term%' OR " .
             "code LIKE '%$search_term%') " .

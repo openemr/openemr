@@ -32,6 +32,7 @@ use OpenEMR\Core\Header;
         echo "</script>\n</body>\n</html>\n";
         exit();
     }
+
     $sql = "select completed_ad, ad_reviewed from patient_data where pid = ?";
     $myrow = sqlQuery($sql, array($pid));
     if ($myrow) {
@@ -126,6 +127,7 @@ use OpenEMR\Core\Header;
                             <?php echo text($dateTimeDoc);
                                 $counterFlag = true;
                         }
+
                           // if no associated docs with category then show it's empty
                         if (!$counterFlag) {
                             ?>

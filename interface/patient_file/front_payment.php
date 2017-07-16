@@ -39,6 +39,7 @@ function bucks($amount)
         $amount = oeFormatMoney($amount);
         return $amount;
     }
+
     return '';
 }
 
@@ -48,6 +49,7 @@ function rawbucks($amount)
         $amount = sprintf("%.2f", $amount);
         return $amount;
     }
+
     return '';
 }
 
@@ -92,6 +94,7 @@ function decorateString($fmt, $str)
             $res .= $fc;
         }
     }
+
     return $res;
 }
 
@@ -111,10 +114,12 @@ function calcTaxes($row, $amount)
               echo "<!-- Missing tax rate '".text($value)."'! -->\n";
               continue;
         }
+
         $tax = sprintf("%01.2f", $amount * $trow['option_value']);
         // echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
         $total += $tax;
     }
+
     return $total;
 }
 
@@ -142,8 +147,7 @@ if ($_POST['form_save']) {
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew=$patdata['fname'] . " " .$patdata['lname']. " " .$patdata['mname'];
 
-    if($_REQUEST['radio_type_of_payment']=='pre_payment')
-     {
+    if ($_REQUEST['radio_type_of_payment']=='pre_payment') {
           $payment_id = idSqlStatement(
               "insert into ar_session set "    .
               "payer_id = ?"       .
@@ -168,17 +172,14 @@ if ($_POST['form_save']) {
         foreach ($_POST['form_upay'] as $enc => $payment) {
             if ($amount = 0 + $payment) {
                  $zero_enc=$enc;
-                if($_REQUEST['radio_type_of_payment']=='invoice_balance')
-                  {
+                if ($_REQUEST['radio_type_of_payment']=='invoice_balance') {
                     ;
-                }
-                else
-                  {
-                    if (!$enc)
-                    {
+                } else {
+                    if (!$enc) {
                            $enc = calendar_arrived($form_pid);
                     }
                 }
+
         //----------------------------------------------------------------------------------------------------
                   //Fetching the existing code and modifier
                   $ResultSearchNew = sqlStatement(
@@ -186,27 +187,24 @@ if ($_POST['form_save']) {
                       "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                       array($form_pid,$enc)
                   );
-                if($RowSearch = sqlFetchArray($ResultSearchNew))
-                    {
+                if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                              $Codetype=$RowSearch['code_type'];
                       $Code=$RowSearch['code'];
                       $Modifier=$RowSearch['modifier'];
-                }
-                else
-                    {
+                } else {
                            $Codetype='';
                       $Code='';
                       $Modifier='';
                 }
+
         //----------------------------------------------------------------------------------------------------
-                if($_REQUEST['radio_type_of_payment']=='copay')//copay saving to ar_session and ar_activity tables
-                     {
-                        $session_id=sqlInsert(
-                            "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
+                if ($_REQUEST['radio_type_of_payment']=='copay') {//copay saving to ar_session and ar_activity tables
+                     $session_id=sqlInsert(
+                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total,".
                             " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) ".
                             " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                            array($_SESSION['authId'],$form_source,$amount,$form_pid,$form_method)
-                        );
+                         array($_SESSION['authId'],$form_source,$amount,$form_pid,$form_method)
+                     );
 
                            sqlBeginTrans();
                            $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
@@ -219,10 +217,9 @@ if ($_POST['form_save']) {
 
                            frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
-                if($_REQUEST['radio_type_of_payment']=='invoice_balance' || $_REQUEST['radio_type_of_payment']=='cash')
-                     {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                    if($_REQUEST['radio_type_of_payment']=='cash')
-                           {
+
+                if ($_REQUEST['radio_type_of_payment']=='invoice_balance' || $_REQUEST['radio_type_of_payment']=='cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                    if ($_REQUEST['radio_type_of_payment']=='cash') {
                         sqlStatement(
                             "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
                             array(4,$enc,$form_pid)
@@ -232,6 +229,7 @@ if ($_POST['form_save']) {
                             array(1,$enc,$form_pid)
                         );
                     }
+
                           $adjustment_code='patient_payment';
                           $payment_id = idSqlStatement(
                               "insert into ar_session set "    .
@@ -272,8 +270,7 @@ if ($_POST['form_save']) {
                                 "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                                 array($form_pid,$enc)
                             );
-                    while($RowSearch = sqlFetchArray($ResultSearchNew))
-                              {
+                    while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                                    $Codetype=$RowSearch['code_type'];
                               $Code=$RowSearch['code'];
                               $Modifier =$RowSearch['modifier'];
@@ -298,18 +295,15 @@ if ($_POST['form_save']) {
 
                               $Remainder=$Fee-$Copay-$MoneyGot-$MoneyAdjusted;
                               $Copay=0;
-                        if(round($Remainder, 2)!=0 && $amount!=0)
-                               {
-                            if($amount-$Remainder >= 0)
-                                               {
+                        if (round($Remainder, 2)!=0 && $amount!=0) {
+                            if ($amount-$Remainder >= 0) {
                                     $insert_value=$Remainder;
                                     $amount=$amount-$Remainder;
-                            }
-                            else
-                                               {
+                            } else {
                                      $insert_value=$amount;
                                      $amount=0;
                             }
+
                                               sqlBeginTrans();
                                               $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
                                               sqlStatement(
@@ -332,9 +326,8 @@ if ($_POST['form_save']) {
                                                 sqlCommitTrans();
                         }//if
                     }//while
-                    if($amount!=0)//if any excess is there.
-                              {
-                                sqlBeginTrans();
+                    if ($amount!=0) {//if any excess is there.
+                              sqlBeginTrans();
                                 $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($form_pid, $enc));
                                 sqlStatement(
                                     "insert into ar_activity set "    .
@@ -364,7 +357,6 @@ if ($_POST['form_save']) {
 }//if ($_POST['form_save'])
 
 if ($_POST['form_save'] || $_REQUEST['receipt']) {
-
     if ($_REQUEST['receipt']) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
@@ -946,9 +938,8 @@ function make_insurance()
     <?php
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112, array('payment_method'));
-    while ($brow1112 = sqlFetchArray($bres1112))
-    {
-        if($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
+    while ($brow1112 = sqlFetchArray($bres1112)) {
+        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
          continue;
         echo "<option value='".htmlspecialchars($brow1112['option_id'], ENT_QUOTES)."'>".htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES)."</option>";
     }
@@ -1066,6 +1057,7 @@ while ($brow = sqlFetchArray($bres)) {
         'charges' => 0,
         'payments' => 0);
     }
+
     if ($brow['code_type'] === 'COPAY') {
       //$encs[$key]['payments'] -= $brow['fee'];
     } else {
@@ -1082,6 +1074,7 @@ while ($brow = sqlFetchArray($bres)) {
         } else {
             $query .= "(modifier IS NULL OR modifier = '')";
         }
+
         $query .= " LIMIT 1";
         $trow = sqlQuery($query, $sql_array);
         $encs[$key]['charges'] += calcTaxes($trow, $brow['fee']);
@@ -1110,6 +1103,7 @@ while ($drow = sqlFetchArray($dres)) {
         'charges' => 0,
         'payments' => 0);
     }
+
     $encs[$key]['charges'] += $drow['fee'];
     // Add taxes.
     $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
@@ -1143,6 +1137,7 @@ foreach ($encs as $key => $value) {
         $dispdate = date("Y-m-d");
         $gottoday = true;
     }
+
  //------------------------------------------------------------------------------------
     $inscopay = getCopay($pid, $dispdate);
     $patcopay = getPatientCopay($pid, $enc);
@@ -1176,8 +1171,7 @@ foreach ($encs as $key => $value) {
     $NumberOfInsurance=$RowNumberOfInsurance['NumberOfInsurance']*1;
  //------------------------------------------------------------------------------------
     $duept=0;
-    if((($NumberOfInsurance==0 || $value['last_level_closed']==4 || $NumberOfInsurance== $value['last_level_closed'])))
-    {//Patient balance
+    if ((($NumberOfInsurance==0 || $value['last_level_closed']==4 || $NumberOfInsurance== $value['last_level_closed']))) {//Patient balance
         $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
         "pid = ? and encounter = ? AND activity = 1", array($pid,$enc));
         $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
@@ -1187,6 +1181,7 @@ foreach ($encs as $key => $value) {
         "pid = ? and encounter = ? ", array($pid,$enc));
         $duept= $brow['amount'] + $srow['amount'] - $drow['payments'] - $drow['adjustments'];
     }
+
     echoLine(
         "form_upay[$enc]",
         $dispdate,

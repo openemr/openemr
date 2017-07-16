@@ -45,7 +45,7 @@ abstract class BaseController
     public function set_view($view, $template = '')
     {
         $this->viewBean->_view = $view;
-        if ( $template ) {
+        if ($template) {
             $this->viewBean->_template = $template;
         }
     }
@@ -66,25 +66,28 @@ abstract class BaseController
      */
     public function getRuleManager()
     {
-        if ( !$this->ruleManager ) {
+        if (!$this->ruleManager) {
             $this->ruleManager = new RuleManager();
         }
+
         return $this->ruleManager;
     }
 
     public function getCodeManager()
     {
-        if ( !$this->codeManager ) {
+        if (!$this->codeManager) {
             $this->codeManager = new CodeManager();
         }
+
         return $this->codeManager;
     }
 
     public function addHelper($helper)
     {
-        if ( is_null($this->viewBean->helpers) ) {
+        if (is_null($this->viewBean->helpers)) {
             $this->viewBean->helpers = array();
         }
+
         array_push($this->viewBean->helpers, $helper);
     }
 }

@@ -26,7 +26,7 @@ class Communication extends ClinicalType
         // for now, check for any encounter
         $encounters = getEncounters($patient->id, $beginDate, $endDate);
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);
-        if ( $totalNumberAppt < 1 ) {
+        if ($totalNumberAppt < 1) {
             return false;
         } else {
             return true;

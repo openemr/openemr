@@ -38,65 +38,51 @@ function validate_user_password($username, &$password, $provider)
     $valid=false;
 
     //Active Directory Authentication added by shachar zilbershlag <shaharzi@matrix.co.il>
-    if($GLOBALS['use_active_directory'])
-    {
+    if ($GLOBALS['use_active_directory']) {
         $valid = active_directory_validation($username, $password);
         $_SESSION['active_directory_auth'] = $valid;
-    }
-    else
-    {
+    } else {
         $getUserSecureSQL= " SELECT " . implode(",", array(COL_ID,COL_PWD,COL_SALT))
                         ." FROM ".TBL_USERS_SECURE
                         ." WHERE BINARY ".COL_UNM."=?";
                         // Use binary keyword to require case sensitive username match
         $userSecure=privQuery($getUserSecureSQL, array($username));
-        if(is_array($userSecure))
-        {
+        if (is_array($userSecure)) {
             $phash=oemr_password_hash($password, $userSecure[COL_SALT]);
-            if($phash!=$userSecure[COL_PWD])
-            {
-
+            if ($phash!=$userSecure[COL_PWD]) {
                 return false;
             }
+
             $valid=true;
-        }
-        else
-        {
-            if((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility']))           // use old password scheme if allowed.
-            {
+        } else {
+            if ((!isset($GLOBALS['password_compatibility'])||$GLOBALS['password_compatibility'])) {           // use old password scheme if allowed.
                 $getUserSQL="select username,id, password from users where BINARY username = ?";
                 $userInfo = privQuery($getUserSQL, array($username));
-                if($userInfo===false)
-                {
+                if ($userInfo===false) {
                     return false;
                 }
 
                 $username=$userInfo['username'];
                 $dbPasswordLen=strlen($userInfo['password']);
-                if($dbPasswordLen==32)
-                {
+                if ($dbPasswordLen==32) {
                     $phash=md5($password);
                     $valid=$phash==$userInfo['password'];
-                }
-                else if($dbPasswordLen==40)
-                {
+                } else if ($dbPasswordLen==40) {
                     $phash=sha1($password);
                     $valid=$phash==$userInfo['password'];
                 }
-                if($valid)
-                {
+
+                if ($valid) {
                     $phash=initializePassword($username, $userInfo['id'], $password);
                     purgeCompatabilityPassword($username, $userInfo['id']);
                     $_SESSION['relogin'] = 1;
-                }
-                else
-                {
+                } else {
                     return false;
                 }
             }
-
         }
     }
+
     $getUserSQL="select id, authorized, see_auth".
                         ", active ".
                         " from users where BINARY username = ?";
@@ -107,12 +93,11 @@ function validate_user_password($username, &$password, $provider)
         $password='';
         return false;
     }
+
     // Done with the cleartext password at this point!
     $password='';
-    if($valid)
-    {
-        if ($authGroup = privQuery("select * from groups where user=? and name=?", array($username,$provider)))
-        {
+    if ($valid) {
+        if ($authGroup = privQuery("select * from groups where user=? and name=?", array($username,$provider))) {
             $_SESSION['authUser'] = $username;
             $_SESSION['authPass'] = $phash;
             $_SESSION['authGroup'] = $authGroup['name'];
@@ -128,10 +113,8 @@ function validate_user_password($username, &$password, $provider)
             newEvent('login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
             $valid=false;
         }
-
-
-
     }
+
     return $valid;
 }
 
@@ -144,6 +127,7 @@ function verify_user_gacl_group($user)
             return false;
         }
     }
+
     return true;
 }
 
@@ -176,14 +160,11 @@ function active_directory_validation($user, $pass)
     $ad->addProvider($config);
 
     // If a successful connection is made, the provider will be returned.
-    try
-    {
+    try {
         $prov = $ad->connect();
         $valid = $prov->auth()->attempt($user, $pass);
+    } catch (Exception $e) {
     }
-    catch(Exception $e)
-    {
 
-    }
     return $valid;
 }

@@ -79,6 +79,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
             $ctx['sign_list'] .= $report_id;
         }
+
         // Allowing for multiple report notes separated by newlines.
         if (!empty($row['report_notes'])) {
             $notes = explode("\n", $row['report_notes']);
@@ -89,12 +90,14 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             }
         }
     }
+
   // allow for 0 to be displayed as a result value
-    if($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
+    if ($rrow['result'] == '' && $rrow['result'] !== 0 && $rrow['result'] !== '0') {
         $result_result = '';
     } else {
         $result_result = $rrow['result'];
     }
+
     $result_code      = empty($rrow['result_code'     ]) ? '' : $rrow['result_code'];
     $result_text      = empty($rrow['result_text'     ]) ? '' : $rrow['result_text'];
     $result_abnormal  = empty($rrow['abnormal'        ]) ? '' : $rrow['abnormal'];
@@ -115,12 +118,14 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         $result_comments = str_replace("~", "\n", substr($result_comments, 0, $i)) .
         substr($result_comments, $i);
     }
+
     $result_comments = trim($result_comments);
 
     $result_noteid = '';
     if (!empty($result_comments)) {
         $result_noteid = 1 + storeNote($result_comments);
     }
+
     if ($priors_omitted) {
         if ($result_noteid) $result_noteid .= ', ';
         $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
@@ -137,6 +142,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     if ($ctx['lastpcid'] != $order_seq) {
         ++$ctx['encount'];
     }
+
     $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
 
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
@@ -157,9 +163,9 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                     "\")'>$tmp</a>";
             }
         }
+
         echo "  <td>$tmp</td>\n";
-    }
-    else {
+    } else {
         echo "  <td style='background-color:transparent'>&nbsp;</td>";
     }
 
@@ -182,13 +188,13 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         if ($row['review_status'] == 'reviewed') {
             echo " &#x2713;"; // unicode check mark character
         }
+
         echo "</td>\n";
 
         echo "  <td align='center'>";
         echo myCellText($report_noteid);
         echo "</td>\n";
-    }
-    else {
+    } else {
         echo "  <td colspan='5' style='background-color:transparent'>&nbsp;</td>\n";
     }
 
@@ -198,6 +204,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($result_code) .
             "\")'>$tmp</a>";
         }
+
         echo "  <td>$tmp</td>\n";
         echo "  <td>";
         echo myCellText($result_text);
@@ -206,10 +213,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         $tmp = myCellText(getListItem('proc_res_abnormal', $result_abnormal));
         if ($result_abnormal && strtolower($result_abnormal) != 'no') {
             echo "<b><font color='red'>$tmp</font></b>";
-        }
-        else {
+        } else {
             echo $tmp;
         }
+
         echo "</td>\n";
         //
         if ($result_document_id) {
@@ -220,26 +227,27 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                 echo "&retrieve&patient_id=$patient_id&document_id=$result_document_id' ";
                 echo "onclick='top.restoreSession()'>";
             }
+
             echo $d->get_url_file();
             if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
                 echo "</a>";
             }
+
             echo "</td>\n";
             $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", array($result_document_id));
-            if(!empty($narrative_notes)){
+            if (!empty($narrative_notes)) {
                 $nnotes = explode("\n", $narrative_notes['notes']);
                 $narrative_note_list = '';
-                foreach($nnotes as $nnote){
-                    if($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
+                foreach ($nnotes as $nnote) {
+                    if ($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
                     $narrative_note_list .= $nnote;
                 }
 
-                if($narrative_note_list != ''){ if ($result_noteid) $result_noteid .= ', ';
+                if ($narrative_note_list != '') {
+                    if ($result_noteid) $result_noteid .= ', ';
                     $result_noteid .= 1 + storeNote($narrative_note_list);}
             }
-
-        }
-        else {
+        } else {
             echo "  <td>";
             echo myCellText($result_result);
             echo "</td>\n";
@@ -252,11 +260,11 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             echo myCellText(getListItemTitle('proc_unit', $result_units));
             echo "</td>\n";
         }
+
         echo "  <td align='center'>";
         echo myCellText($result_noteid);
         echo "</td>\n";
-    }
-    else {
+    } else {
         echo "  <td colspan='7' style='background-color:transparent'>&nbsp;</td>\n";
     }
 
@@ -409,10 +417,12 @@ if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo attr($orow['procedure_order_id']);
     echo "' target='_blank' onclick='top.restoreSession()'>";
 }
+
   echo myCellText($orow['procedure_order_id']);
 if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
     echo "</a>\n";
 }
+
 if ($orow['control_id']) {
     echo myCellText(' ' . xl('Lab') . ': ' . $orow['control_id']);
 }
@@ -523,6 +533,7 @@ while ($row = sqlFetchArray($res)) {
                 if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
                 $rrowsets[$key][] = $rrow;
             }
+
             // Second pass builds onto the array of final results for *all* reports, where each final
             // result for a given result code is its *array* of result rows from *one* of the reports.
             foreach ($rrowsets as $key => $rrowset) {
@@ -530,29 +541,26 @@ while ($row = sqlFetchArray($res)) {
                 if (isset($finals[$key]) &&
                 $row['date_report'] == $finals[$key][0]['date_report'] &&
                 !empty($rrow['date']) && !empty($finals[$key][1]['date']) &&
-                $rrow['date'] < $finals[$key][1]['date'])
-                {
+                $rrow['date'] < $finals[$key][1]['date']) {
                     $finals[$key][2] = true; // see comment below
                     continue;
                 }
+
                 // $finals[$key][2] indicates if there are multiple results for this result code.
                 $finals[$key] = array($row, $rrowset, isset($finals[$key]));
             }
-        }
-        else {
+        } else {
             // We have no results for this report.
             $key = sprintf('%05d/', $row['procedure_order_seq']);
             $finals[$key] = array($row, array($empty_results), false);
         }
-    }
-    else {
+    } else {
       // We are showing all results for all reports.
         if (sqlNumRows($rres)) {
             while ($rrow = sqlFetchArray($rres)) {
                 generate_result_row($ctx, $row, $rrow, false);
             }
-        }
-        else {
+        } else {
             generate_result_row($ctx, $row, $empty_results, false);
         }
     }
@@ -591,12 +599,13 @@ if (!empty($aNotes)) {
         echo "  <td><pre style='white-space:pre-wrap;'>" . text($value) . "</pre></td>\n";
         echo " </tr>\n";
     }
+
     echo "</table>\n";
 }
 ?>
   </td>
   <td style='border-width:0px;' align='right' valign='top'>
-<?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */ ) { ?>
+<?php if ($input_form && !empty($ctx['priors_omitted']) /* empty($_POST['form_showall']) */) { ?>
    <input type='submit' name='form_showall' value='<?php echo xla('Show All Results'); ?>'
     title='<?php echo xla('Include all values reported for each result code'); ?>' />
 <?php } else if ($input_form && !empty($_POST['form_showall'])) { ?>

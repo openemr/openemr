@@ -44,7 +44,6 @@ class HttpResponseHelper
                 } else {
                     $response = json_encode($payload);
                 }
-
                 break;
         }
 

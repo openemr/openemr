@@ -21,6 +21,7 @@ function addwhere($where, $colname, $value)
         $where .= " AND ";
         $where .= "$colname LIKE '%" . add_escape_custom($value) . "%'";
     }
+
     return $where;
 }
 
@@ -118,6 +119,7 @@ while ($row = sqlFetchArray($res)) {
     if ($row['number']) {
         $phone = $row['area_code'] . '-' . $row['prefix'] . '-' . $row['number'];
     }
+
     echo " <tr>\n";
     echo "  <td valign='top'>$anchor" . $row['name'] . "</a>&nbsp;</td>\n";
     echo "  <td valign='top'>" . $row['attn'] . "&nbsp;</td>\n";

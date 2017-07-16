@@ -73,7 +73,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
     $fu_timing = $_POST['fu_timing'];
 
  // If updating an existing form...
@@ -89,9 +88,7 @@ if ($_POST['bn_save']) {
       // "destination = "       . rbvalue('destination')     . " "   .
          "WHERE id = '$formid'";
         sqlStatement($query);
-    }
-
- // If adding a new form...
+    } // If adding a new form...
  //
     else {
         $query = "INSERT INTO form_clinical_notes ( " .

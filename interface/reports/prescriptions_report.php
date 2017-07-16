@@ -222,7 +222,7 @@ if ($_POST['form_refresh']) {
     "r.date_modified <= '$form_to_date'";
   //if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
     if ($form_patient_id) $where .= " AND p.pubpid = '$form_patient_id'";
-    if ($form_drug_name ) $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
+    if ($form_drug_name) $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
     if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
 
     $query = "SELECT r.id, r.patient_id, " .
@@ -252,11 +252,11 @@ if ($_POST['form_refresh']) {
         if ($form_facility !== '') {
             if ($form_facility) {
                 if ($row['facility_id'] != $form_facility) continue;
-            }
-            else {
+            } else {
                 if (!empty($row['facility_id'])) continue;
             }
         }
+
         $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
        //$patient_id      = $row['patient_id'];
         $patient_id      = $row['pubpid'];

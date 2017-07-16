@@ -27,7 +27,6 @@
     //while ($row = sqlFetchArray($result)) {
 
 do {
-        
     $pCount++;
 
     $e_Problem = $ccr->createElement('Problem');
@@ -129,7 +128,6 @@ do {
     $e_Description->appendChild($e_Text);
     
     $e_HealthStatus->appendChild(sourceType($ccr, $sourceID));
-    
 } while ($row = sqlFetchArray($result));
     //}
 

@@ -48,7 +48,6 @@ function snellen_report($pid, $encounter, $cols, $id)
     <?php } ?>
 
         <?php
-
     }
 }
 ?>

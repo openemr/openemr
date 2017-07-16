@@ -30,6 +30,7 @@
 if (!extension_loaded('soap')) {
     die("PLEASE ENABLE SOAP EXTENSION");
 }
+
 require_once("../interface/globals.php");
  $emr_path = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
  $emrpatharr = explode("/myportal", $emr_path);
@@ -42,25 +43,24 @@ function md5_pass($length = 8)
 {
     $randkey = substr(md5(rand().rand()), 0, $length);
     $res = sqlStatement("SELECT * FROM audit_master AS am LEFT OUTER JOIN audit_details AS ad ON ad.audit_master_id=am.id WHERE type=5 AND field_value=?", array($randkey));
-    if(sqlNumRows($res)){
+    if (sqlNumRows($res)) {
         md5_pass();
-    }
-    else{
+    } else {
         $grpID = sqlInsert("INSERT INTO audit_master SET type=5");
         sqlStatement("INSERT INTO audit_details SET field_value=? , audit_master_id=?", array($randkey,$grpID));
         return $randkey;
     }
 }
-for($i=1;$i<=5;$i++){//some times php is continuing without getting the return value from the function md5_pass()
-    if(!$randkey){
-        if($i>1)
+for ($i=1; $i<=5; $i++) {//some times php is continuing without getting the return value from the function md5_pass()
+    if (!$randkey) {
+        if ($i>1)
         sleep(1);
         $randkey = md5_pass();
-    }
-    else{
+    } else {
         break;
     }
 }
+
  $pass = sha1($GLOBALS['portal_offsite_password'].gmdate('Y-m-d H').$randkey);
 ?>
 <html>

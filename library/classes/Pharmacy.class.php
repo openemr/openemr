@@ -119,6 +119,7 @@ class Pharmacy extends ORDataObject
         if ($this->transmit_method == TYPE_EMAIL && empty($this->email)) {
             return TYPE_PRINT;
         }
+
         return $this->transmit_method;
     }
     function get_transmit_method_display()
@@ -127,22 +128,24 @@ class Pharmacy extends ORDataObject
     }
     function get_phone()
     {
-        foreach($this->phone_numbers as $phone) {
+        foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_WORK) {
                 return $phone->get_phone_display();
             }
         }
+
         return "";
     }
     function _set_number($num, $type)
     {
         $found = false;
-        for ($i=0;$i<count($this->phone_numbers);$i++) {
+        for ($i=0; $i<count($this->phone_numbers); $i++) {
             if ($this->phone_numbers[$i]->type == $type) {
                 $found = true;
                 $this->phone_numbers[$i]->set_phone($num);
             }
         }
+
         if ($found == false) {
             $p = new PhoneNumber("", $this->id);
             $p->set_type($type);
@@ -164,11 +167,12 @@ class Pharmacy extends ORDataObject
 
     function get_fax()
     {
-        foreach($this->phone_numbers as $phone) {
+        foreach ($this->phone_numbers as $phone) {
             if ($phone->type == TYPE_FAX) {
                 return $phone->get_phone_display();
             }
         }
+
         return "";
     }
     function populate()
@@ -192,14 +196,16 @@ class Pharmacy extends ORDataObject
         $pharmacy_array = array();
         $sql = "Select p.id, p.name, a.city, a.state from " . $this->_table ." as p INNER JOIN addresses as a on  p.id = a.foreign_id";
         $res = sqlQ($sql);
-        while ($row = sqlFetchArray($res) ) {
+        while ($row = sqlFetchArray($res)) {
                 $d_string = $row['city'];
             if (!empty($row['city']) && $row['state']) {
                 $d_string .= ", ";
             }
+
                 $d_string .=  $row['state'];
                 $pharmacy_array[strval($row['id'])] = $row['name'] . " " . $d_string;
         }
+
         return ($pharmacy_array);
     }
 
@@ -207,10 +213,10 @@ class Pharmacy extends ORDataObject
     {
         if (empty($city)) {
              $city= "";
-        }
-        else {
+        } else {
             $city = " WHERE city = " . add_escape_custom($foreign_id);
         }
+
         $p = new Pharmacy();
         $pharmacies = array();
         $sql = "SELECT p.id, a.city FROM  " . $p->_table . " as p INNER JOIN addresses as a on p.id = a.foreign_id " .$city . " " . add_escape_custom($sort);
@@ -219,9 +225,10 @@ class Pharmacy extends ORDataObject
         $results = sqlQ($sql);
         //echo "sql: $sql";
         //print_r($results);
-        while($row = sqlFetchArray($results) ) {
+        while ($row = sqlFetchArray($results)) {
                 $pharmacies[] = new Pharmacy($row['id']);
         }
+
         return $pharmacies;
     }
 
@@ -237,8 +244,7 @@ class Pharmacy extends ORDataObject
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }

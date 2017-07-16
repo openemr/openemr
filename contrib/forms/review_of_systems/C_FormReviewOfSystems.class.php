@@ -30,10 +30,10 @@ class C_FormReviewOfSystems extends Controller
     {
         if (is_numeric($form_id)) {
             $review_of_systems = new FormReviewOfSystems($form_id);
-        }
-        else {
+        } else {
             $review_of_systems = new FormReviewOfSystems();
         }
+
         $this->assign("VIEW", true);
         $this->assign("review_of_systems", $review_of_systems);
         $this->assign("checks", $review_of_systems->_form_layout());
@@ -50,6 +50,7 @@ class C_FormReviewOfSystems extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Review Of Systems", $this->review_of_systems->id, "review_of_systems", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
@@ -61,8 +62,8 @@ class C_FormReviewOfSystems extends Controller
             if (!empty($row)) {
                 addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
-
         }
+
         $_POST['process'] = "";
         return;
     }

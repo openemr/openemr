@@ -28,13 +28,12 @@ class C_X12Partner extends Controller
     {
         if ($x_obj != null && get_class($x_obj) == "x12partner") {
             $this->x12_partners[0] = $x_obj;
-        }
-        elseif (is_numeric($id)) {
+        } elseif (is_numeric($id)) {
             $this->x12_partners[0] = new X12Partner($id);
-        }
-        else {
+        } else {
             $this->x12_partners[0] = new X12Partner();
         }
+
         $this->assign("partner", $this->x12_partners[0]);
         return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_edit.html");
     }
@@ -61,8 +60,7 @@ class C_X12Partner extends Controller
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->x12_partner[0] = new X12Partner($_POST['id']);
-        }
-        else {
+        } else {
             $this->x12_partner[0] = new X12Partner();
         }
 

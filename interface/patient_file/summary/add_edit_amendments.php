@@ -27,10 +27,10 @@
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
 
-if ( isset($_POST['mode'])) {
+if (isset($_POST['mode'])) {
     $currentUser = $_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i');
-    if ( $_POST["amendment_id"] == "" ) {
+    if ($_POST["amendment_id"] == "") {
         // New. Insert
         $query = "INSERT INTO amendments SET
 			amendment_date = ?,
@@ -94,7 +94,7 @@ if ( isset($_POST['mode'])) {
 }
 
 $amendment_id = ( $amendment_id ) ? $amendment_id : $_REQUEST['id'];
-if ( $amendment_id ) {
+if ($amendment_id) {
     $query = "SELECT * FROM amendments WHERE amendment_id = ? ";
     $resultSet = sqlQuery($query, array($amendment_id));
     $amendment_date = $resultSet['amendment_date'];
@@ -105,6 +105,7 @@ if ( $amendment_id ) {
     $query = "SELECT * FROM amendments_history ah INNER JOIN users u ON ah.created_by = u.id WHERE amendment_id = ? ";
     $resultSet = sqlStatement($query, array($amendment_id));
 }
+
 // Check the ACL
 $haveAccess = acl_check('patients', 'trans');
 $onlyRead = ( $haveAccess ) ? 0 : 1;
@@ -182,7 +183,7 @@ $(document).ready(function() {
         <td>
             <span class="title"><?php echo xlt('Amendments'); ?></span>&nbsp;
         </td>
-        <?php if ( ! $onlyRead ) { ?>
+        <?php if (! $onlyRead) { ?>
         <td>
             <a href=# onclick="formValidation()" class="css_button_small"><span><?php echo xlt('Save');?></span></a>
         </td>
@@ -198,11 +199,11 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Requested Date'); ?></span></td>
             <td>
-            <?php if ( ! $onlyRead ) { ?>
+            <?php if (! $onlyRead) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
                     value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
-            <?php } else  { ?>
+            <?php } else { ?>
                 <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
                     value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
@@ -220,8 +221,10 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Request Description'); ?></span></td>
             <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="desc" name="desc" rows="4" cols="30"><?php
-            if($amendment_id) { echo text($amendment_desc);
-            }else{ echo ""; } ?></textarea></td>
+            if ($amendment_id) {
+                echo text($amendment_desc);
+            } else {
+                echo ""; } ?></textarea></td>
         </tr>
 
         <tr>
@@ -234,12 +237,12 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Comments'); ?></span></td>
             <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
-            if($amendment_id) echo "";
+            if ($amendment_id) echo "";
             else echo xlt('New amendment request'); ?></textarea></td>
         </tr>
     </table>
 
-    <?php if ( $amendment_id ) { ?>
+    <?php if ($amendment_id) { ?>
     <hr>
 
     <span class="title"><?php echo xlt("History") ; ?></span>
@@ -256,7 +259,7 @@ $(document).ready(function() {
 
     <?php
     if (sqlNumRows($resultSet)) {
-        while ( $row = sqlFetchArray($resultSet) ) {
+        while ($row = sqlFetchArray($resultSet)) {
             $created_date = date('Y-m-d', strtotime($row['created_time']));
             echo "<tr>";
             $userName = $row['lname'] . ", " . $row['fname'];

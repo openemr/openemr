@@ -33,12 +33,14 @@ function cms_portal_call($args)
     if (($phandle = curl_init($portal_url)) === false) {
         die(text(xl('Unable to access URL') . " '$portal_url'"));
     }
+
     curl_setopt($phandle, CURLOPT_POST, true);
     curl_setopt($phandle, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($phandle, CURLOPT_POSTFIELDS, $args);
     if (($presult = curl_exec($phandle)) === false) {
         die(text('curl_exec ' . xl('failed') . ': ' . curl_error($phandle)));
     }
+
     curl_close($phandle);
   // With JSON-over-HTTP we would use json_decode($presult,TRUE) here.
     return unserialize($presult);
@@ -70,31 +72,30 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
                 $newvalue .= $matches[1] . ":$value:";
             }
         }
-    }
-    else {
+    } else {
         if (isset($fldarr[$field_id])) $newvalue = $fldarr[$field_id];
         if ($newvalue !== '') {
             // Lifestyle Status.
             if ($data_type == '28') {
                 $newvalue = "|$newvalue$field_id|";
-            }
-            // Smoking Status.
+            } // Smoking Status.
             else if ($data_type == '32') {
                 // See the smoking_status list for these array values:
                 $ssarr = array('current' => 1, 'quit' => 3, 'never' => 4, 'not_applicable' => 9);
                 $ssindex = isset($ssarr[$newvalue]) ? $ssarr[$newvalue] : 0;
                 $newvalue = "|$newvalue$field_id||$ssindex";
-            }
-            // Checkbox list.
+            } // Checkbox list.
             else if (is_array($newvalue)) {
                 $tmp = '';
                 foreach ($newvalue as $value) {
                     if ($tmp !== '') $tmp .= '|';
                     $tmp .= $value;
                 }
+
                 $newvalue = $tmp;
             }
         }
     }
+
     return $newvalue;
 }

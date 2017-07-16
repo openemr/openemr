@@ -104,8 +104,10 @@ foreach ($result['fields'] as $field_id => $newvalue) {
             if ($tmp !== '') $tmp .= ', ';
             $tmp .= $value;
         }
+
         $newvalue = $tmp;
     }
+
     $newvalue = trim($newvalue);
     $field_title = $result['labels'][$field_id];
     echo " <tr class='detail'>\n";

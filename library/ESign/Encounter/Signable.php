@@ -53,18 +53,19 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
         $encStatement .= "WHERE F.encounter = ? ";
         $data = array();
         $res = sqlStatement($encStatement, array( $this->_encounterId ));
-        while ( $encRow = sqlFetchArray($res) ) {
+        while ($encRow = sqlFetchArray($res)) {
             $formFactory = new Form_Factory($encRow['id'], $encRow['formdir'], $this->_encounterId);
             $signable = $formFactory->createSignable();
             $data[]= $signable->getData();
         }
+
         return $data;
     }
     
     public function isLocked()
     {
         $locked = false;
-        if ( $GLOBALS['lock_esign_all'] ) {
+        if ($GLOBALS['lock_esign_all']) {
             $locked = parent::isLocked();
         }
         

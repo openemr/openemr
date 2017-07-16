@@ -160,10 +160,9 @@ class QRDAXml extends XmlWriterOemr
         $this->push('representedOrganization');
         $this->self_customTag('id', array('root' => '2.16.840.1.113883.19.5', 'extension' =>'223344'));
         $this->element('name', $facilArr['name']);
-        if(!empty($facilArr['phone']))
+        if (!empty($facilArr['phone']))
             $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
-        else
-            $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
+        else $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
         $this->add_facilAddress($facilArr);
         $this->pop();
     }
@@ -198,10 +197,9 @@ class QRDAXml extends XmlWriterOemr
         $this->push('representedCustodianOrganization');
         $this->self_reprsntCustId();
         $this->element('name', $facilArr['name']);
-        if(!empty($facilArr['phone']))
+        if (!empty($facilArr['phone']))
             $this->self_customTag('telecom', array('value' => $facilArr['phone'], 'use'=>'WP'));
-        else
-            $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
+        else $this->self_customTag('telecom', array("nullFlavor" => "UNK"));
         $this->add_facilAddress($facilArr);
         $this->pop();
     }
@@ -263,10 +261,9 @@ class QRDAXml extends XmlWriterOemr
     {
         $this->push('representedOrganization');
         $this->self_represntOrgId();
-        if($name)
+        if ($name)
             $this->element('name', $name);
-        else
-            $this->emptyelement('name');
+        else $this->emptyelement('name');
         $this->pop();
     }
 
@@ -309,31 +306,26 @@ class QRDAXml extends XmlWriterOemr
     {
 
         $this->push('addr', array("use" => "WP"));
-        if($addrArr['street'] != "")
+        if ($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
-        else
-            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
-        if($addrArr['city'] != "")
+        if ($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
-        else
-            $this->emptyelement('city', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
-        if($addrArr['state'] != "")
+        if ($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
-        else
-            $this->emptyelement('state', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
 
-        if($addrArr['postal_code'] != "")
+        if ($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
-        else
-            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
-        if($addrArr['country_code'] != "")
+        if ($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
-        else
-            $this->emptyelement('country', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }
@@ -410,10 +402,9 @@ class QRDAXml extends XmlWriterOemr
 
     function open_entry($code_type)
     {
-        if($code_type != "")
+        if ($code_type != "")
             $this->push('entry', array('typeCode'=>$code_type));
-        else
-            $this->push('entry');
+        else $this->push('entry');
     }
 
     function close_entry()
@@ -435,19 +426,19 @@ class QRDAXml extends XmlWriterOemr
     {
         $this->push('effectiveTime');
         $this->emptyelement('low', array('value'=>$arr['low']));
-        if(isset($arr['high'])){
+        if (isset($arr['high'])) {
             $this->emptyelement('high', array('value'=>$arr['high']));
         }
+
         $this->pop();
     }
 
 
     function open_customTag($ele, $arr = array())
     {
-        if(count($arr) > 0)
+        if (count($arr) > 0)
             $this->push($ele, $arr);
-        else
-            $this->push($ele);
+        else $this->push($ele);
     }
 
     function close_customTag()
@@ -500,30 +491,25 @@ class QRDAXml extends XmlWriterOemr
     function add_patientAddress($addrArr)
     {
         $this->push('addr', array('use' => 'WP'));
-        if($addrArr['street'] != "")
+        if ($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
-        else
-            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
-        if($addrArr['city'] != "")
+        if ($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
-        else
-            $this->emptyelement('city', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
-        if($addrArr['state'] != "")
+        if ($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
-        else
-            $this->emptyelement('state', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
-        if($addrArr['postal_code'] != "")
+        if ($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
-        else
-            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
-        if($addrArr['country_code'] != "")
+        if ($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
-        else
-            $this->emptyelement('country', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }
@@ -541,30 +527,25 @@ class QRDAXml extends XmlWriterOemr
     {
 
         $this->push('addr', array('use' => 'WP'));
-        if($addrArr['street'] != "")
+        if ($addrArr['street'] != "")
             $this->element('streetAddressLine', $addrArr['street']);
-        else
-            $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('streetAddressLine', array("nullFlavor" => "UNK"));
 
-        if($addrArr['city'] != "")
+        if ($addrArr['city'] != "")
             $this->element('city', $addrArr['city']);
-        else
-            $this->emptyelement('city', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('city', array("nullFlavor" => "UNK"));
 
-        if($addrArr['state'] != "")
+        if ($addrArr['state'] != "")
             $this->element('state', $addrArr['state']);
-        else
-            $this->emptyelement('state', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('state', array("nullFlavor" => "UNK"));
 
-        if($addrArr['postal_code'] != "")
+        if ($addrArr['postal_code'] != "")
             $this->element('postalCode', $addrArr['postal_code']);
-        else
-            $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('postalCode', array("nullFlavor" => "UNK"));
 
-        if($addrArr['country_code'] != "")
+        if ($addrArr['country_code'] != "")
             $this->element('country', $addrArr['country_code']);
-        else
-            $this->emptyelement('country', array("nullFlavor" => "UNK"));
+        else $this->emptyelement('country', array("nullFlavor" => "UNK"));
 
         $this->pop();
     }
@@ -573,9 +554,10 @@ class QRDAXml extends XmlWriterOemr
     {
         $this->push('time');
         $this->emptyelement('low', array('value'=>$arr['low']));
-        if(isset($arr['high'])){
+        if (isset($arr['high'])) {
             $this->emptyelement('high', array('value'=>$arr['high']));
         }
+
         $this->pop();
     }
 
@@ -583,11 +565,12 @@ class QRDAXml extends XmlWriterOemr
     {
         $this->push('effectiveTime');
         $this->emptyelement('low', array('value'=>$arr['low']));
-        if($arr['high'] != ""){
+        if ($arr['high'] != "") {
             $this->emptyelement('high', array('value'=>$arr['high']));
-        }else{
+        } else {
             $this->emptyelement('high', array('nullFlavor'=>'NI'));
         }
+
         $this->pop();
     }
 
@@ -596,11 +579,12 @@ class QRDAXml extends XmlWriterOemr
         $arrPass = array('xsi:type' => 'IVL_TS');
         $this->push('effectiveTime', $arrPass);
         $this->emptyelement('low', array('value'=>$arr['low']));
-        if($arr['high'] != ""){
+        if ($arr['high'] != "") {
             $this->emptyelement('high', array('value'=>$arr['high']));
-        }else{
+        } else {
             $this->emptyelement('high', array('nullFlavor'=>'NI'));
         }
+
         $this->pop();
     }
 }

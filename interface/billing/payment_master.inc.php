@@ -57,11 +57,11 @@ function generate_list_payment_category(
         $s .= "<option   id='option_" . $lrow['option_id'] . "'" . " value='$optionValue'";
         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
         (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue)  ||
-        ($lrow['option_id'] == 'insurance_payment' &&  $screen=='new_payment'))
-        {
+        ($lrow['option_id'] == 'insurance_payment' &&  $screen=='new_payment')) {
             $s .= " selected";
             $got_selected = true;
         }
+
         if (($PaymentType == 'insurance' || $screen=='new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment'))
         $s .=  " style='background-color:#DEDEDE' ";
         if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment')
@@ -69,6 +69,7 @@ function generate_list_payment_category(
         $optionLabel = htmlspecialchars(xl_list_label($lrow['title']), ENT_QUOTES);
         $s .= ">$optionLabel</option>\n";
     }
+
     if (!$got_selected && strlen($currvalue) > 0) {
         $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
         $s .= "<option value='$currescaped' selected>* $currescaped *</option>";
@@ -76,15 +77,14 @@ function generate_list_payment_category(
         $fontTitle = htmlspecialchars(xl('Please choose a valid selection from the list.'), ENT_QUOTES);
         $fontText = htmlspecialchars(xl('Fix this'), ENT_QUOTES);
         $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
-    }
-    else {
+    } else {
         $s .= "</select>";
     }
+
     return $s;
 }
 //================================================================================================
-if($payment_id>0)
- {
+if ($payment_id>0) {
     $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='$payment_id'");
     $row=sqlFetchArray($rs);
     $pay_total=$row['pay_total'];
@@ -111,20 +111,16 @@ if($payment_id>0)
     $AdjustmentCode=$row['adjustment_code'];
     $DepositDate=$row['deposit_date']=='0000-00-00'?'':$row['deposit_date'];
     $Description=$row['description'];
-    if($row['payment_type']=='insurance' || $row['payer_id']*1 > 0)
-     {
+    if ($row['payment_type']=='insurance' || $row['payer_id']*1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
 				where insurance_companies.id ='$InsuranceCompanyId'");
         $row = sqlFetchArray($res);
         $div_after_save=$row['name'];
         $TypeCode=$InsuranceCompanyId;
-        if($PaymentType=='')
-          {
+        if ($PaymentType=='') {
             $PaymentType='insurance';
         }
-    }
-    elseif($row['payment_type']=='patient' || $row['patient_id']*1 > 0)
-     {
+    } elseif ($row['payment_type']=='patient' || $row['patient_id']*1 > 0) {
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
 				where pid ='$PatientId'");
         $row = sqlFetchArray($res);
@@ -133,8 +129,7 @@ if($payment_id>0)
             $mname=$row['mname'];
             $div_after_save=$lname.' '.$fname.' '.$mname;
         $TypeCode=$PatientId;
-        if($PaymentType=='')
-          {
+        if ($PaymentType=='') {
             $PaymentType='patient';
         }
     }
@@ -142,8 +137,7 @@ if($payment_id>0)
 ?>
 <?php
 //================================================================================================
-if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
- {//New entry or edit in edit screen comes here.
+if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0)) {//New entry or edit in edit screen comes here.
 ?>
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
     <table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
@@ -153,20 +147,15 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
       <tr>
         <td colspan="14" align="left">&nbsp;<font class='title'>
         <?php
-        if($_REQUEST['ParentPage']=='new_payment')//This case comes when the Finish Payments is pressed from the New Payment screen.
-          {
+        if ($_REQUEST['ParentPage']=='new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
             ?>
             <?php echo htmlspecialchars(xl('Confirm Payment'), ENT_QUOTES) ?>
         <?php
-        }
-        elseif($screen=='new_payment')
-          {
+        } elseif ($screen=='new_payment') {
             ?>
             <?php echo htmlspecialchars(xl('Batch Payment Entry'), ENT_QUOTES) ?>
         <?php
-        }
-        else
-          {
+        } else {
             ?>
             <?php echo htmlspecialchars(xl('Edit Payment'), ENT_QUOTES) ?>
         <?php
@@ -203,10 +192,9 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES).':' ?></td>
         <td align="left">
             <?php
-                if($PaymentMethod=='' && $screen=='edit_payment')
+                if ($PaymentMethod=='' && $screen=='edit_payment')
                     $blankValue=' ';
-            else
-                    $blankValue='';
+            else $blankValue='';
             echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "class1 text", 'CheckVisible("yes")');
             ?>
       </td>
@@ -214,13 +202,10 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         <td align="left" class="text"><?php echo htmlspecialchars(xl('Check Number'), ENT_QUOTES).':' ?></td>
         <td>
         <?php
-        if($PaymentMethod=='check_payment' || $PaymentMethod=='bank_draft' || $CheckNumber!='' || $screen=='new_payment')
-         {
+        if ($PaymentMethod=='check_payment' || $PaymentMethod=='bank_draft' || $CheckNumber!='' || $screen=='new_payment') {
             $CheckDisplay='';
             $CheckDivDisplay=' display:none; ';
-        }
-        else
-         {
+        } else {
             $CheckDisplay=' display:none; ';
             $CheckDivDisplay='';
         }
@@ -240,10 +225,9 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         <td align="left" ></td>
         <td align="left" class="text"><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES).':' ?></td>
         <td align="left"><?php
-                if($PaymentType=='' && $screen=='edit_payment')
+                if ($PaymentType=='' && $screen=='edit_payment')
                     $blankValue=' ';
-        else
-                    $blankValue='';
+        else $blankValue='';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "class1 text", 'PayingEntityAction()');
             ?>
         </td>

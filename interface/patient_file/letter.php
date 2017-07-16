@@ -67,7 +67,6 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Generate button was clicked...
 if ($_POST['formaction']=="generate") {
-
     $form_pid      = $_POST['form_pid'];
     $form_from     = $_POST['form_from'];
     $form_to       = $_POST['form_to'];
@@ -92,11 +91,13 @@ if ($_POST['formaction']=="generate") {
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
         echo xl('Error while saving to the file', '', '', ' ') . $template_dir."/autosaved" .
              xl('Ensure OpenEMR has write privileges to directory', '', ' . ', ' ') . $template_dir  . "/ ." ;
         die;
     }
+
     fclose($fh);
 
     $cpstring = str_replace('{'.$FIELD_TAG['DATE'].'}', $datestr, $cpstring);
@@ -143,15 +144,14 @@ if ($_POST['formaction']=="generate") {
         $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         if (file_exists("$template_dir/custom_pdf.php")) {
             include("$template_dir/custom_pdf.php");
-        }
-        else {
+        } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
         }
+
         $pdf->ezStream();
         exit;
-    }
-    else { // $form_format = html
+    } else { // $form_format = html
         $cpstring = text($cpstring); //escape to prevent stored cross script attack
         $cpstring = str_replace("\n", "<br>", $cpstring);
         $cpstring = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", $cpstring);
@@ -196,29 +196,26 @@ if ($_POST['formaction']=="generate") {
     <?php
     exit;
     }
-}
-else if (isset($_GET['template']) && $_GET['template'] != "") {
+} else if (isset($_GET['template']) && $_GET['template'] != "") {
     // utilized to go back to autosaved template
     $bodytext = "";
     $fh = fopen("$template_dir/".$_GET['template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh))$bodytext.= fread($fh, 8192);
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
+} else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh))$bodytext.= fread($fh, 8192);
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
+} else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/".$_POST['newtemplatename'], 'w');
     // translate from definition to the constant
@@ -226,23 +223,24 @@ else if ($_POST['formaction'] == "newtemplate" && $_POST['newtemplatename'] != "
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['newtemplatename'];
         die;
     }
+
     fclose($fh);
 
     // read the saved file back
     $_POST['form_template'] = $_POST['newtemplatename'];
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh))$bodytext.= fread($fh, 8192);
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
         $bodytext = str_replace("{".$key."}", "{".$value."}", $bodytext);
     }
-}
-else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
+} else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != "") {
     // attempt to save the template
     $fh = fopen("$template_dir/".$_POST['form_template'], 'w');
     // translate from definition to the constant
@@ -250,15 +248,17 @@ else if ($_POST['formaction'] == "savetemplate" && $_POST['form_template'] != ""
     foreach ($FIELD_TAG as $key => $value) {
         $temp_bodytext = str_replace("{".$value."}", "{".$key."}", $temp_bodytext);
     }
+
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . $template_dir."/".$_POST['form_template'];
         die;
     }
+
     fclose($fh);
 
     // read the saved file back
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh)) $bodytext.= fread($fh, 8192);
+    while (!feof($fh))$bodytext.= fread($fh, 8192);
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -451,21 +451,30 @@ $dh = opendir($tpldir);
 if (! $dh) die(xlt('Cannot read') . ' ' . $tpldir);
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
-    if (preg_match("/^\./", $tfname)) { continue; }
-    if (preg_match("/\.php$/", $tfname)) { continue; }
-    if (preg_match("/\.jpg$/", $tfname)) { continue; }
-    if (preg_match("/\.png$/", $tfname)) { continue; }
+    if (preg_match("/^\./", $tfname)) {
+        continue; }
+
+    if (preg_match("/\.php$/", $tfname)) {
+        continue; }
+
+    if (preg_match("/\.jpg$/", $tfname)) {
+        continue; }
+
+    if (preg_match("/\.png$/", $tfname)) {
+        continue; }
+
     echo "<option value='" . attr($tfname) . "'";
     if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
     echo ">";
     if ($tfname == 'autosaved') {
         echo xlt($tfname);
-    }
-    else {
+    } else {
         echo text($tfname);
     }
+
     echo "</option>";
 }
+
 closedir($dh);
 ?>
    </select>

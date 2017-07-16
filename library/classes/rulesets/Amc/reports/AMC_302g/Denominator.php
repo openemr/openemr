@@ -24,11 +24,10 @@ class AMC_302g_Denominator implements AmcFilterIF
         // hospital’s or CAH’s inpatient or emergency department (POS 21 or 23)
         //  (basically needs an encounter within the report dates and needs to be 13 by the end report date)
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
-        if ( (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
+        if ((Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) &&
              ($patient->calculateAgeOnDate($endDate) >= 13) ) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

@@ -37,7 +37,7 @@ class existingpatient
     public function query_formation($data)
     {
         global $pid;
-        switch($data[0]){
+        switch ($data[0]) {
             case 'A1':
             //Select list of encounters for the patients
                 $query="select f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.facility_id,f.billing_facility, " .
@@ -67,17 +67,17 @@ class existingpatient
             //ledger
                 $where = '';
                 $wherearray=array();
-                foreach($data[1][0] as $k=>$v)
-                {
+                foreach ($data[1][0] as $k=>$v) {
                     $where .= " OR f.id = ?";
                     $wherearray[]=$v;
                 }
+
                 $where = substr($where, 4);
-                if(!$where)
-                {
+                if (!$where) {
                     $where='?';
                     $wherearray[]=0;
                 }
+
                 $wherearray[]=$pid;
                    $query= "Select f.id, f.date, f.pid, f.encounter, f.stmt_count, f.last_stmt_date, f.facility_id,f.billing_facility, " .
                   "p.fname, p.mname, p.lname, p.street, p.city, p.state, p.postal_code " .
@@ -99,11 +99,11 @@ class existingpatient
             case 'A5':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][1]=='' && $data[1][2]>0)
-                {
+                if ($data[1][1]=='' && $data[1][2]>0) {
                     $enc_set= " and encounter=? " ;
                     $enc_set_array[]=$data[1][2];
                 }
+
                 $provider="";
                 $provider  =add_escape_custom($data[1][0]);
                 $query="select fe.id,fe.pid,encounter,date_format(fe.date,'%Y-%m-%d') 
@@ -117,11 +117,11 @@ class existingpatient
             case 'A6':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
                 }
+
                 $query="select encounter,sum(fee) as copay ".
                 " from billing where code_type='copay' and pid=? $enc_set group by encounter";
             return array($query,$enc_set_array);
@@ -130,12 +130,11 @@ class existingpatient
             case 'A7':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
-
                 }
+
                 $query="select concat(encounter,code,modifier) as ecm,encounter,code,
             modifier,units,fee,code_text,justify from billing where activity=1 and fee>0 and code_type not in('ICD9','copay') and pid=? $enc_set";
             return array($query,$enc_set_array);
@@ -144,11 +143,11 @@ class existingpatient
             case 'A8':
                 $enc_set_array=array();
                 $enc_set_array[]=$pid;
-                if($data[1][0]=='' && $data[1][1]>0)
-                {
+                if ($data[1][0]=='' && $data[1][1]>0) {
                     $enc_set= " and encounter=? ";
                     $enc_set_array[]=$data[1][1];
                 }
+
                 $query="select concat(encounter,code,modifier) as pecm,encounter,code,
             modifier,pay_amount,adj_amount,payer_type,post_time,account_code,
             follow_up_note,memo,date_format(post_time,'%Y-%m-%d') as dtfrom from ar_activity where pid=? $enc_set";
@@ -302,36 +301,32 @@ class existingpatient
             break;
         
             case 'P20':
-                if($pid)
-                {
+                if ($pid) {
                       $string_query=" and pid !=?";
                 }
-                if($string_query)
-                {
+
+                if ($string_query) {
                     $x=array($data[1][0],$pid);
-                }
-                else
-                {
+                } else {
                     $x=array($data[1][0]);
                 }
+
                 $query="select count(*) AS count from patient_data where pubpid = ? $string_query";
             return array($query,$x);
             break;
         
             //getting DOB and SSN for verifying the duplicate patient existance
             case 'P21':
-                if($pid)
-                {
+                if ($pid) {
                       $string_query=" and pid !=?";
                 }
-                if($string_query)
-                {
+
+                if ($string_query) {
                     $x=array($data[1][0],$pid);
-                }
-                else
-                {
+                } else {
                     $x=array($data[1][0]);
                 }
+
                 $query="select  ss,DOB  from patient_data where DOB=? $string_query  ";
             return array($query,$x);
             break;
@@ -339,13 +334,10 @@ class existingpatient
             //master data for calendar from Globals
             case 'B1':
             //patient appointment
-                if($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end')
-                {
+                if ($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end') {
                     $query="select gl_value from globals where gl_name=?";
                     return array($query,$data[1]);
-                }
-                else
-                return 0;
+                } else return 0;
             break;
             
             case 'B4':

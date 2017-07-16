@@ -29,8 +29,7 @@ $form_action = $_POST['form_action'];
 
 if (!empty($_POST['form_days'])) {
     $form_days = $_POST['form_days'] + 0;
-}
-else {
+} else {
     $form_days = sprintf('%d', (strtotime(date('Y-m-d')) - strtotime(date('Y-01-01'))) / (60 * 60 * 24) + 1);
 }
 
@@ -228,12 +227,12 @@ while ($row = sqlFetchArray($res)) {
         if ($irow['on_hand'] < $min_sale) {
             addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('quantity seems unusable')));
         }
+
         if (!empty($irow['expiration'])) {
             $expdays = (int) ((strtotime($irow['expiration']) - time()) / (60 * 60 * 24));
             if ($expdays <= 0) {
                 addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('has expired')));
-            }
-            else if ($expdays <= 30) {
+            } else if ($expdays <= 30) {
                 addWarning(htmlspecialchars(xl('Lot') . " '$lotno' " . xl('expires in') . " $expdays " . xl('days')));
             }
         }

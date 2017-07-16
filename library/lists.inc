@@ -46,8 +46,8 @@ $ISSUE_TYPE_CATEGORIES = array(
 );
 // Second, collect the non hard-coded options and add to the array
 $res = sqlStatement("SELECT DISTINCT `category` FROM `issue_types`");
-while($row = sqlFetchArray($res)){
-    if ( ($row['category'] == "default") || ($row['category'] == "ippf_specific") ) continue;
+while ($row = sqlFetchArray($res)) {
+    if (($row['category'] == "default") || ($row['category'] == "ippf_specific")) continue;
     $ISSUE_TYPE_CATEGORIES[$row['category']] = $row['category'];
 }
 
@@ -67,8 +67,7 @@ function collect_issue_type_category()
 {
     if (!empty($GLOBALS['ippf_specific'])) { // IPPF version
         return "ippf_specific";
-    }
-    else { // Default version
+    } else { // Default version
         return "default";
     }
 }
@@ -78,7 +77,7 @@ $res = sqlStatement(
     "SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
     array(collect_issue_type_category())
 );
-while($row = sqlFetchArray($res)){
+while ($row = sqlFetchArray($res)) {
     $ISSUE_TYPES[$row['type']] = array(
     xl($row['plural']),
     xl($row['singular']),
@@ -101,15 +100,14 @@ function getListById($id, $cols = "*")
 
 function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
 {
-    if($active == "all")
+    if ($active == "all")
         $sql = "select $cols from lists where pid='$pid' and type='$type' order by date DESC";
-    else
-        $sql = "select $cols from lists where pid='$pid' and type='$type' and activity='$active' order by date DESC";
+    else $sql = "select $cols from lists where pid='$pid' and type='$type' and activity='$active' order by date DESC";
     if ($limit != "all")
         $sql .= " limit $offset,$limit";
     
     $res = sqlStatement($sql);
-    for($iter =0;$row = sqlFetchArray($res);$iter++)
+    for ($iter =0; $row = sqlFetchArray($res); $iter++)
         $all[$iter] = $row;
     return $all;
 }
@@ -137,8 +135,7 @@ function getListTouch($patient_id, $type)
 
     if (!empty($ret)) {
         return $ret['date'];
-    }
-    else {
+    } else {
         return false;
     }
 }
@@ -150,8 +147,7 @@ function setListTouch($patient_id, $type)
     if (!empty($ret)) {
                 // Already touched, so can exit
         return;
-    }
-    else {
+    } else {
         sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type));
     }
 }

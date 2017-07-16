@@ -37,19 +37,16 @@ $curPass=$_REQUEST['curPass'];
 $newPass=$_REQUEST['newPass'];
 $newPass2=$_REQUEST['newPass2'];
 
-if($newPass!=$newPass2)
-{
+if ($newPass!=$newPass2) {
     echo xlt("Passwords Don't match!");
     exit;
 }
+
 $errMsg='';
 $success=update_password($_SESSION['authId'], $_SESSION['authId'], $curPass, $newPass, $errMsg);
-if($success)
-{
+if ($success) {
     echo xlt("Password change successful");
-}
-else
-{
+} else {
     // If update_password fails the error message is returned
     echo text($errMsg);
 }

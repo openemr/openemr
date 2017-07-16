@@ -49,7 +49,7 @@ class Encounter_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        if ( $signable->isLocked() === false &&
+        if ($signable->isLocked() === false &&
             $GLOBALS['lock_esign_all'] &&
             $GLOBALS['esign_lock_toggle'] ) {
             $form->showLock = true;
@@ -83,17 +83,17 @@ class Encounter_Controller extends Abstract_Controller
         // Lock if 'Lock e-signed encounters and their forms' option is set,
         // unless esign_lock_toggle option is enable in globals, then check the request param
         $lock = false;
-        if ( $GLOBALS['lock_esign_all'] ) {
+        if ($GLOBALS['lock_esign_all']) {
             $lock = true;
-            if ( $GLOBALS['esign_lock_toggle'] ) {
+            if ($GLOBALS['esign_lock_toggle']) {
                 $lock = ( $this->getRequest()->getParam('lock', '') == 'on' ) ? true : false;
             }
         }
             
         $amendment = $this->getRequest()->getParam('amendment', '');
-        if ( confirm_user_password($_SESSION['authUser'], $password) ) {
+        if (confirm_user_password($_SESSION['authUser'], $password)) {
             $signable = new Encounter_Signable($encounterId);
-            if ( $signable->sign($_SESSION['authUserID'], $lock, $amendment) ) {
+            if ($signable->sign($_SESSION['authUserID'], $lock, $amendment)) {
                 $message = xlt("Form signed successfully");
                 $status = self::STATUS_SUCCESS;
             } else {
@@ -102,12 +102,14 @@ class Encounter_Controller extends Abstract_Controller
         } else {
             $message = xlt("The password you entered is invalid");
         }
+
         $response = new Response($status, $message);
         $response->encounterId = $encounterId;
         $response->locked = $lock;
-        if ( $lock ) {
+        if ($lock) {
             $response->editButtonHtml = "<a href=# class='css_button_small form-edit-button-locked'><span>".xlt('Locked')."</span></a>";
         }
+
         echo json_encode($response);
         exit;
     }

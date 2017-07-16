@@ -81,11 +81,11 @@ function load_drug_attributes($id)
     while ($row = sqlFetchArray($res)) {
         if ($row['title'] == '') {
              $arr[$row['option_id']] = ' ';
-        }
-        else {
+        } else {
              $arr[$row['option_id']] = xl_list_label($row['title']);
         }
     }
+
     return $arr;
 }
 
@@ -165,43 +165,48 @@ class Prescription extends ORDataObject
 
         $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
 
-        if (is_numeric($id)) { $this->id = $id; }
-        else { $id = "";}
+        if (is_numeric($id)) {
+            $this->id = $id; } else {
+            $id = "";}
 
         //$this->unit = UNIT_MG;
         //$this->route = ROUTE_PER_ORIS;
         //$this->quantity = 1;
         //$this->size = 1;
-        $this->refills = 0;
+            $this->refills = 0;
         //$this->form = FORM_TABLET;
-        $this->substitute = false;
-        $this->_prefix = $_prefix;
-        $this->_table = "prescriptions";
-        $this->pharmacy = new Pharmacy();
-        $this->pharmacist = new Person();
-        $this->provider = new Provider($_SESSION['authId']);
-        $this->patient = new Patient();
-        $this->start_date = date("Y-m-d");
-        $this->date_added = date("Y-m-d");
-        $this->date_modified = date("Y-m-d");
-        $this->per_refill = 0;
-        $this->note = "";
+            $this->substitute = false;
+            $this->_prefix = $_prefix;
+            $this->_table = "prescriptions";
+            $this->pharmacy = new Pharmacy();
+            $this->pharmacist = new Person();
+            $this->provider = new Provider($_SESSION['authId']);
+            $this->patient = new Patient();
+            $this->start_date = date("Y-m-d");
+            $this->date_added = date("Y-m-d");
+            $this->date_modified = date("Y-m-d");
+            $this->per_refill = 0;
+            $this->note = "";
 
-        $this->drug_id = 0;
-        $this->active = 1;
+            $this->drug_id = 0;
+            $this->active = 1;
 
-        for($i=0;$i<21;$i++) {
-            $this->refills_array[$i] = sprintf("%02d", $i);
-        }
+            for ($i=0; $i<21; $i++) {
+                $this->refills_array[$i] = sprintf("%02d", $i);
+            }
 
-        if ($id != "") { $this->populate(); }
+            if ($id != "") {
+                $this->populate(); }
     }
 
     function persist()
     {
         $this->date_modified = date("Y-m-d");
-        if ($this->id == "") { $this->date_added = date("Y-m-d"); }
-        if (parent::persist()) { }
+        if ($this->id == "") {
+            $this->date_added = date("Y-m-d"); }
+
+        if (parent::persist()) {
+        }
     }
 
     function populate()
@@ -241,8 +246,9 @@ class Prescription extends ORDataObject
             ."Drug ID: " . $this->drug_id . "\n"
             ."Active: " . $this->active;
 
-        if ($html) { return nl2br($string); }
-        else { return $string; }
+        if ($html) {
+            return nl2br($string); } else {
+            return $string; }
     }
     function get_encounter()
     {
@@ -260,12 +266,14 @@ class Prescription extends ORDataObject
     }
     function set_unit($unit)
     {
-        if (is_numeric($unit)) { $this->unit = $unit; }
+        if (is_numeric($unit)) {
+            $this->unit = $unit; }
     }
 
     function set_id($id)
     {
-        if (!empty($id) && is_numeric($id)) { $this->id = $id; }
+        if (!empty($id) && is_numeric($id)) {
+            $this->id = $id; }
     }
     function get_id()
     {
@@ -274,10 +282,9 @@ class Prescription extends ORDataObject
 
     function get_dosage_display($display_form = "")
     {
-        if( empty($this->form) && empty($this->interval) ) {
+        if (empty($this->form) && empty($this->interval)) {
             return( $this->dosage );
-        }
-        else {
+        } else {
             return ($this->dosage . " " . xl('in') . " " . $this->form_array[$this->form] . " " . $this->interval_array[$this->interval]);
         }
     }
@@ -293,7 +300,8 @@ class Prescription extends ORDataObject
 
     function set_form($form)
     {
-        if (is_numeric($form)) { $this->form = $form; }
+        if (is_numeric($form)) {
+            $this->form = $form; }
     }
     function get_form()
     {
@@ -302,7 +310,8 @@ class Prescription extends ORDataObject
 
     function set_refills($refills)
     {
-        if (is_numeric($refills)) { $this->refills = $refills; }
+        if (is_numeric($refills)) {
+            $this->refills = $refills; }
     }
     function get_refills()
     {
@@ -329,7 +338,8 @@ class Prescription extends ORDataObject
 
     function set_route($route)
     {
-        if (is_numeric($route)) { $this->route = $route; }
+        if (is_numeric($route)) {
+            $this->route = $route; }
     }
     function get_route()
     {
@@ -338,7 +348,8 @@ class Prescription extends ORDataObject
 
     function set_interval($interval)
     {
-        if (is_numeric($interval)) { $this->interval = $interval; }
+        if (is_numeric($interval)) {
+            $this->interval = $interval; }
     }
     function get_interval()
     {
@@ -347,7 +358,8 @@ class Prescription extends ORDataObject
 
     function set_substitute($sub)
     {
-        if (is_numeric($sub)) { $this->substitute = $sub; }
+        if (is_numeric($sub)) {
+            $this->substitute = $sub; }
     }
     function get_substitute()
     {
@@ -372,20 +384,18 @@ class Prescription extends ORDataObject
         //check if this drug is on the medication list
         $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 1 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
 
-        if ($med && !isset($dataRow['id'])){
+        if ($med && !isset($dataRow['id'])) {
             $dataRow = sqlQuery("select id from lists where type = 'medication' and activity = 0 and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = " . add_escape_custom($this->patient->id) . ' limit 1');
 
-            if (!isset($dataRow['id'])){
+            if (!isset($dataRow['id'])) {
                 //add the record to the medication list
                 sqlInsert("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1," . add_escape_custom($this->patient->id) . ",'" . $$_SESSION['authUser']. "','" . $$_SESSION['authProvider'] . "','" . add_escape_custom($this->drug) . "')");
-            }
-            else {
+            } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . $$_SESSION['authUser']
                             . "', groupname = '" . $$_SESSION['authProvider'] . "' where id = " . $dataRow['id']);
             }
-        }
-        elseif (!$med && isset($dataRow['id'])) {
+        } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
             $dataRow = sqlQuery('update lists set activity = 0'
                             . " ,user = '" . $$_SESSION['authUser']
@@ -400,7 +410,8 @@ class Prescription extends ORDataObject
 
     function set_per_refill($pr)
     {
-        if (is_numeric($pr)) { $this->per_refill = $pr; }
+        if (is_numeric($pr)) {
+            $this->per_refill = $pr; }
     }
     function get_per_refill()
     {
@@ -409,7 +420,8 @@ class Prescription extends ORDataObject
 
     function set_patient_id($id)
     {
-        if (is_numeric($id)) { $this->patient = new Patient($id); }
+        if (is_numeric($id)) {
+            $this->patient = new Patient($id); }
     }
     function get_patient_id()
     {
@@ -418,7 +430,8 @@ class Prescription extends ORDataObject
 
     function set_provider_id($id)
     {
-        if (is_numeric($id)) { $this->provider = new Provider($id); }
+        if (is_numeric($id)) {
+            $this->provider = new Provider($id); }
     }
     function get_provider_id()
     {
@@ -427,12 +440,14 @@ class Prescription extends ORDataObject
 
     function set_provider($pobj)
     {
-        if (get_class($pobj) == "provider") { $this->provider = $pobj; }
+        if (get_class($pobj) == "provider") {
+            $this->provider = $pobj; }
     }
 
     function set_pharmacy_id($id)
     {
-        if (is_numeric($id)) { $this->pharmacy = new Pharmacy($id); }
+        if (is_numeric($id)) {
+            $this->pharmacy = new Pharmacy($id); }
     }
     function get_pharmacy_id()
     {
@@ -441,7 +456,8 @@ class Prescription extends ORDataObject
 
     function set_pharmacist_id($id)
     {
-        if (is_numeric($id)) { $this->pharmacist = new Person($id); }
+        if (is_numeric($id)) {
+            $this->pharmacist = new Person($id); }
     }
     function get_pharmacist()
     {
@@ -562,7 +578,8 @@ class Prescription extends ORDataObject
     }
     function set_filled_by_id($id)
     {
-        if (is_numeric($id)) { return $this->pharmacist->id = $id; }
+        if (is_numeric($id)) {
+            return $this->pharmacist->id = $id; }
     }
 
     function set_drug_id($drug_id)
@@ -619,6 +636,7 @@ class Prescription extends ORDataObject
         if ($this->refills > 0) {
             $string .= "Refills: " . "\t\t" . $this->refills. ", of quantity: " . $this->per_refill ."\n";
         }
+
         $string .= "\n"."Notes: \n" . $this->note . "\n";
         return $string;
     }
@@ -635,7 +653,8 @@ class Prescription extends ORDataObject
 
         $gnd = $this->provider->get_name_display();
 
-        while(strlen($gnd)<31) { $gnd .= " "; }
+        while (strlen($gnd)<31) {
+            $gnd .= " "; }
 
         $string .= $gnd . $this->provider->federal_drug_id . "\n";
 
@@ -645,7 +664,8 @@ class Prescription extends ORDataObject
         if (!$results->EOF) {
             $rfn = $results->fields['name'];
 
-            while(strlen($rfn)<31) { $rfn .= " "; }
+            while (strlen($rfn)<31) {
+                $rfn .= " "; }
 
             $string .= $rfn . $this->provider->get_provider_number_default() . "\n"
                     . $results->fields['street'] . "\n"
@@ -663,21 +683,26 @@ class Prescription extends ORDataObject
         if (strlen($this->note) > 0) {
             $string .= "Notes: \n" . $this->note . "\n";
         }
+
         if (!empty($this->dosage)) {
             $string .= $this->dosage;
-            if (!empty($this->form)){
+            if (!empty($this->form)) {
                 $string .= " " . $this->form_array[$this->form];
             }
+
             if (!empty($this->interval)) {
                 $string .= " " . $this->interval_array[$this->interval];
             }
+
             if (!empty($this->route)) {
                 $string .= " " . $this->route_array[$this->route] . "\n";
             }
         }
+
         if (!empty($this->quantity)) {
             $string .= "Disp: " . $this->quantity . " (" . trim(strtoupper($ntt->convert())) . ")" . "\n";
         }
+
         $string .= "\n";
         $string .= "Refills: " . $this->refills . " (" . trim(strtoupper($ntt3->convert())) ."), Per Refill Disp: " . $this->per_refill . " (" . trim(strtoupper($ntt2->convert())) . ")" ."\n";
         $string .= $this->substitute_array[$this->substitute]. "\n";
@@ -697,9 +722,10 @@ class Prescription extends ORDataObject
                 add_escape_custom($patient_id) .
                 " ORDER BY " . add_escape_custom($order_by);
         $results = sqlQ($sql);
-        while ($row = sqlFetchArray($results) ) {
+        while ($row = sqlFetchArray($results)) {
             $prescriptions[] = new Prescription($row['id']);
         }
+
         return $prescriptions;
     }
 

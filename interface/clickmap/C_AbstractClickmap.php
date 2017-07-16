@@ -157,13 +157,15 @@ abstract class C_AbstractClickmap extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
+
         $this->model = $this->createModel($_POST['id']);
         parent::populate_object($this->model);
         $this->model->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
-        if(empty($_POST['id'])) {
+
+        if (empty($_POST['id'])) {
             addForm(
                 $GLOBALS['encounter'],
                 $this->model->getTitle(),

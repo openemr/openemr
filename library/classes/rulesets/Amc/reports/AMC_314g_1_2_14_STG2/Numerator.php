@@ -46,7 +46,7 @@ class AMC_314g_1_2_14_STG2_Numerator implements AmcFilterIF
                 
         $portalQry = "SELECT count(*) as cnt FROM `patient_access_offsite` WHERE pid=?";
         $check = sqlQuery($portalQry, array($patient->id));
-        if ($check['cnt'] > 0){
+        if ($check['cnt'] > 0) {
             return true;
         } else {
             return false;

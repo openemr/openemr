@@ -55,14 +55,12 @@ function oemr_password_salt()
 
     $salt = "";
 
-    for($i=0; $i<$Salt_Length; $i++)
-    {
+    for ($i=0; $i<$Salt_Length; $i++) {
         $salt .= $Allowed_Chars[mt_rand(0, $Chars_Len)];
     }
 
     // This is the preferred hashing mechanism
-    if(CRYPT_BLOWFISH===1)
-    {
+    if (CRYPT_BLOWFISH===1) {
         $rounds='05';
         //This string tells crypt to apply blowfish $rounds times.
         $Blowfish_Pre = '$2a$'.$rounds.'$';
@@ -70,6 +68,7 @@ function oemr_password_salt()
 
         return $Blowfish_Pre.$salt.$Blowfish_End;
     }
+
     error_log("Blowfish hashing algorithm not available.  Upgrading to PHP 5.3.x or newer is strongly recommended");
 
     return SALT_PREFIX_SHA1.$salt;
@@ -92,18 +91,15 @@ function oemr_password_salt()
 function oemr_password_hash($plaintext, $salt)
 {
     // if this is a SHA1 salt, the use prepended salt
-    if(strpos($salt, SALT_PREFIX_SHA1)===0)
-    {
+    if (strpos($salt, SALT_PREFIX_SHA1)===0) {
         return SALT_PREFIX_SHA1 . sha1($salt.$plaintext);
-    }
-    else { // Otherwise use PHP crypt()
+    } else { // Otherwise use PHP crypt()
         $crypt_return = crypt($plaintext, $salt);
-        if ( ($crypt_return == '*0') || ($crypt_return == '*1') || (strlen($crypt_return) < 6) ) {
+        if (($crypt_return == '*0') || ($crypt_return == '*1') || (strlen($crypt_return) < 6)) {
             // Error code returned by crypt or not hash, so die
             error_log("FATAL ERROR: crypt() function is not working correctly in OpenEMR");
             die("FATAL ERROR: crypt() function is not working correctly in OpenEMR");
-        }
-        else {
+        } else {
             // Hash confirmed, so return the hash.
             return $crypt_return;
         }

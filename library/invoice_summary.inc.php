@@ -124,25 +124,26 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
             $tmp = array();
             $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
             if ($row['pay_amount'] != 0) $tmp['pmt'] = $row['pay_amount'];
-            if ( isset($row['reason_code']) ) {
+            if (isset($row['reason_code'])) {
                 $tmp['msp'] = $row['reason_code'];
             }
+
             if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
                 $tmp['chg'] = 0 - $row['adj_amount'];
                 // $tmp['rsn'] = (empty($row['memo']) || empty($row['session_id'])) ? 'Unknown adjustment' : $row['memo'];
                 $tmp['rsn'] = empty($row['memo']) ? 'Unknown adjustment' : $row['memo'];
                 $tmpkey = $paydate . $keysuff1++;
-            }
-            else {
+            } else {
                 $tmpkey = $paydate . $keysuff2++;
             }
+
             if ($row['account_code'] == "PCP") {
                 //copay
                 $tmp['src'] = 'Pt Paid';
-            }
-            else {
+            } else {
                 $tmp['src'] = empty($row['session_id']) ? $row['memo'] : $row['reference'];
             }
+
             $tmp['insurance_company'] = substr($row['name'], 0, 10);
             if ($ins_id) $tmp['ins'] = $ins_id;
             $tmp['plv'] = $row['payer_type'];
@@ -150,6 +151,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
             $codes[$code]['dtl'][$tmpkey] = $tmp;
         }
     }
+
     return $codes;
 }
 

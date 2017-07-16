@@ -38,8 +38,7 @@ function thisLineItem($row, $codetype, $code)
         echo '"' . addslashes($provname) . '",';
         echo '"' . addslashes($code) . '",';
         echo '"' . addslashes($code_text) . '"' . "\n";
-    }
-    else {
+    } else {
     ?>
    <tr>
     <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
@@ -75,8 +74,7 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Provider') . '",';
     echo '"' . xl('Code') . '",';
     echo '"' . xl('Service') . '"' . "\n";
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
@@ -110,12 +108,13 @@ else { // not export
   $fres = $facilityService->getAll();
   echo "   <select name='form_facility'>\n";
   echo "    <option value=''>-- All Facilities --\n";
-foreach($fres as $frow) {
+foreach ($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
     if ($facid == $form_facility) echo " selected";
     echo ">" . $frow['name'] . "\n";
 }
+
   echo "   </select>\n";
 ?>
    &nbsp;<?xl('From:','e')?>
@@ -188,6 +187,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
@@ -216,7 +216,6 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             thisLineItem($row, $codetype, $code);
         }
     }
-
 } // end report generation
 
 if (! $_POST['form_csvexport']) {

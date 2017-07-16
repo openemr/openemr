@@ -56,6 +56,7 @@ function keySearch(&$s, $key)
     if ($keyLength == 0) {
         return false;
     }
+
     return $key == substr($s, $keyLocation, $keyLength);
 }
 
@@ -82,12 +83,15 @@ function dataFixup($data, $title = '')
             if ($title !== '') {
                 $data = $title . ': ' . $data;
             }
+
             if ($groupCount) {
                 $data = $itemSeparator . $data;
             }
+
             ++ $groupCount;
         }
     }
+
     return $data;
 }
 
@@ -104,11 +108,13 @@ function getIssues($type)
         if ($tmp) {
             $tmp .= '; ';
         }
+
         $tmp .= $lrow['title'];
         if ($lrow['comments']) {
             $tmp .= ' (' . $lrow['comments'] . ')';
         }
     }
+
     return $tmp;
 }
 
@@ -172,11 +178,13 @@ function doSubs($s)
                     $tmp .= ' ';
                 $tmp .= $ptrow['mname'];
             }
+
             if ($ptrow['lname']) {
                 if ($tmp)
                     $tmp .= ' ';
                 $tmp .= $ptrow['lname'];
             }
+
             $s = keyReplace($s, dataFixup($tmp, xl('Name')));
         } else if (keySearch($s, '{PatientID}')) {
             $s = keyReplace($s, dataFixup($ptrow['pubpid'], xl('Chart ID')));
@@ -199,6 +207,7 @@ function doSubs($s)
             if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
+
             $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
         } else if (keySearch($s, '{PatientDOB}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
@@ -218,6 +227,7 @@ function doSubs($s)
                     $cc = $tmp['pc_hometext'];
                 }
             }
+
             $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
         } else if (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
@@ -226,11 +236,13 @@ function doSubs($s)
                     $tmp .= ' ';
                 $tmp .= $ptrow['ur_mname'];
             }
+
             if (! empty($ptrow['ur_lname'])) {
                 if ($tmp)
                     $tmp .= ' ';
                 $tmp .= $ptrow['ur_lname'];
             }
+
             $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
         } else if (keySearch($s, '{Allergies}')) {
             $tmp = generate_plaintext_field(array(
@@ -283,10 +295,12 @@ function doSubs($s)
                     $currvalue = $ldrow['field_value'];
                     $title = $frow['title'];
                 }
+
                 if ($currvalue !== '') {
                     $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
+
             $s = keyReplace($s, dataFixup($data, $title));
         } // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
         else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
@@ -306,10 +320,12 @@ function doSubs($s)
                     $currvalue = $tmprow[$fieldid];
                     $title = $frow['title'];
                 }
+
                 if ($currvalue !== '') {
                     $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
+
             $s = keyReplace($s, dataFixup($data, $title));
         }
     } // End if { character found.
@@ -399,6 +415,7 @@ if ($zipin->open($templatepath) === true) {
         $xml .= $edata;
         $zipout->addFromString($ename, $edata);
     }
+
     $zipout->close();
     $zipin->close();
     $html = nl2br($xml);
@@ -412,4 +429,5 @@ if ($zipin->open($templatepath) === true) {
         $html = nl2br($edata);
     }
 }
+
 echo $html;

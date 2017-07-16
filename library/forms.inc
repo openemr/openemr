@@ -18,6 +18,7 @@ function getFormInfoById($id, $cols = "*")
     if ($result['formdir'] == "newpatient") {
         $result['formdir'] = "encounter";
     }
+
     $sql = "select * from form_" . $result['formdir'] . " where id='" . $result['form_id']  . "'";
     //echo $sql . "<br />";
     $result =  sqlQuery($sql);
@@ -36,26 +37,27 @@ function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_na
     $arraySqlBind = array();
     $sql = "select $cols from forms where encounter = ? ";
     array_push($arraySqlBind, $encounter);
-    if(!empty($name)){
+    if (!empty($name)) {
         $sql .= "and form_name=? ";
         array_push($arraySqlBind, $name);
     }
-    if($attendant_type == 'pid'){
+
+    if ($attendant_type == 'pid') {
         $sql .= " and pid=? and therapy_group_id IS NULL ";
-    }
-    else{
+    } else {
         $sql .= " and therapy_group_id = ? and pid IS NULL ";
     }
+
     array_push($arraySqlBind, $attendant_id);
   // This puts vitals first in the list, and newpatient last:
     $sql .= "ORDER BY FIND_IN_SET(formdir,'vitals') DESC, date DESC";
 
     $res = sqlStatement($sql, $arraySqlBind);
 
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
@@ -76,20 +78,21 @@ function addForm(
     if (!$user) $user = $_SESSION['authUser'];
     if (!$group) $group = $_SESSION['authProvider'];
 
-    if($therapy_group == 'not_given'){
+    if ($therapy_group == 'not_given') {
         $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];
     }
+
     //print_r($_SESSION['therapy_group']);die;
         $arraySqlBind = array();
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
         "user, groupname, authorized, formdir, therapy_group_id) values (";
-    if($date == "NOW()") {
+    if ($date == "NOW()") {
         $sql .= "$date";
-    }
-    else {
+    } else {
         $sql .= "?";
                 array_push($arraySqlBind, $date);
     }
+
     $sql .= ", ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         array_push($arraySqlBind, $encounter, $form_name, $form_id, $pid, $user, $group, $authorized, $formdir, $therapy_group);
     return sqlInsert($sql, $arraySqlBind);
@@ -110,8 +113,7 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
         $from = "form_encounter LEFT JOIN enc_category_map ON (form_encounter.pc_catid = enc_category_map.main_cat_id)";
         $where = "enc_category_map.rule_enc_id = ? and ";
         array_push($arraySqlBind, $encounterRuleType);
-    }
-    else {
+    } else {
         // Collect all encounters
         $from = "form_encounter";
     }
@@ -119,26 +121,23 @@ function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType 
     if ($dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ? and form_encounter.date <= ?";
         array_push($arraySqlBind, $pid, $dateStart, $dateEnd);
-    }
-    else if ($dateStart && !$dateEnd) {
+    } else if ($dateStart && !$dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date >= ?";
         array_push($arraySqlBind, $pid, $dateStart);
-    }
-    else if (!$dateStart && $dateEnd) {
+    } else if (!$dateStart && $dateEnd) {
         $where .= "form_encounter.pid = ? and form_encounter.date <= ?";
         array_push($arraySqlBind, $pid, $dateEnd);
-    }
-    else {
+    } else {
         $where .= "form_encounter.pid = ?";
         array_push($arraySqlBind, $pid);
     }
 
         $res = sqlStatement("SELECT distinct encounter FROM $from WHERE $where ORDER by date desc;", $arraySqlBind);
 
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-        {
+    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
         return $all;
 }
 
@@ -182,14 +181,15 @@ function getDocumentsByEncounter($patientID = null, $encounterID = null)
     $currentEncounter = ( $encounterID ) ? $encounterID : $_SESSION['encounter'];
     $currentPatient = ( $patientID ) ? $patientID : $_SESSION['pid'];
 
-    if($currentPatient != "" && $currentEncounter != "") {
+    if ($currentPatient != "" && $currentEncounter != "") {
         $sql = "SELECT d.id, d.type, d.url, d.docdate, d.list_id, c.name,d.encounter_id FROM documents AS d, categories_to_documents AS cd,
 			categories AS c WHERE d.foreign_id = ? AND d.encounter_id=? AND cd.document_id = d.id AND c.id = cd.category_id ORDER BY d.docdate DESC, d.id DESC";
         $res = sqlStatement($sql, array($currentPatient,$currentEncounter));
 
-        while ( $row = sqlFetchArray($res) ) {
+        while ($row = sqlFetchArray($res)) {
             $allDocuments[] = $row;
         }
     }
+
     return $allDocuments;
 }

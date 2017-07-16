@@ -24,7 +24,7 @@ require_once("$srcdir/lists.inc");
 
 $facilityService = new \services\FacilityService();
 
-if($GLOBALS['enable_group_therapy']){
+if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc");
 }
 
@@ -103,8 +103,7 @@ require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
     $collectthis = collectValidationPageRules("/interface/forms/newpatient/common.php");
     if (empty($collectthis)) {
          $collectthis = "undefined";
-    }
-    else {
+    } else {
          $collectthis = $collectthis["new_encounter"]["rules"];
     }
     ?>
@@ -216,6 +215,7 @@ function cancelClicked() {
                 if ($row['pc_cattype'] == 3) {
                     $therapyGroupCategories[] = $catId;
                 }
+
                 if (($catId < 9 && $catId != "5") || $catId === "_blank") {
                     continue;
                 }
@@ -233,6 +233,7 @@ function cancelClicked() {
                 } else {
                     $selected = ($GLOBALS['default_visit_category'] == $catId) ? " selected" : "";
                 }
+
                   $optionStr = str_replace("%selected%", $selected, $optionStr);
                   echo $optionStr;
             }
@@ -254,9 +255,10 @@ if ($viewmode) {
     $drow = sqlFetchArray($dres);
     $def_facility = $drow['facility_id'];
 }
+
 $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
-    foreach($facilities as $iter) {
+    foreach ($facilities as $iter) {
     ?>
        <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
 <?php
@@ -276,7 +278,7 @@ if ($facilities) {
             </div>
         </td>
      </tr>
-        <?php if($GLOBALS['set_pos_code_encounter']){ ?>
+        <?php if ($GLOBALS['set_pos_code_encounter']) { ?>
         <tr>
             <td><span class='bold' nowrap><?php echo xlt('POS Code'); ?>: </span></td>
             <td colspan="6">
@@ -287,10 +289,9 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if($pos["code"] == $result['pos_code']) echo "selected";
+                    if ($pos["code"] == $result['pos_code']) echo "selected";
                     echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
-
                 }
 
                 ?>
@@ -316,6 +317,7 @@ foreach ($sensitivities as $value) {
         echo ">" . xlt($value[3]) . "</option>\n";
     }
 }
+
 echo "       <option value=''";
 if ($viewmode && !$result['sensitivity']) echo " selected";
 echo ">" . xlt('None'). "</option>\n";
@@ -340,7 +342,7 @@ echo ">" . xlt('None'). "</option>\n";
      </td>
     </tr>
 
-    <?php if($GLOBALS['enable_group_therapy']) { ?>
+    <?php if ($GLOBALS['enable_group_therapy']) { ?>
         <!-- select group name - showing just if therapy group type is selected -->
     <tr id="therapy_group_name" style="display: none">
         <td class='bold' nowrap><?php echo xlt('Group name'); ?>:</td>
@@ -388,6 +390,7 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
         break;
     }
 }
+
 if ($issuesauth) {
 ?>
   <div style='float:left'>
@@ -424,11 +427,11 @@ while ($irow = sqlFetchArray($ires)) {
         $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
         "pid = ? AND encounter = ? AND list_id = ?", array($pid,$encounter,$list_id));
         if ($perow['count']) echo " selected";
-    }
-    else {
+    } else {
         // For new encounters the invoker may pass an issue ID.
         if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) echo " selected";
     }
+
     echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .
     text(substr($irow['title'], 0, 40)) . "</option>\n";
 }
@@ -481,7 +484,7 @@ if (!empty($erow['encounter'])) {
 }
 ?>
 
-<?php if($GLOBALS['enable_group_therapy']) { ?>
+<?php if ($GLOBALS['enable_group_therapy']) { ?>
 /* hide / show group name input */
   var groupCategories = <?php echo json_encode($therapyGroupCategories); ?>;
   $('#pc_catid').on('change', function () {
@@ -504,7 +507,7 @@ if (!empty($erow['encounter'])) {
      f.form_gid.value = gid;
   }
 
-    <?php if($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
+    <?php if ($viewmode && in_array($result['pc_catid'], $therapyGroupCategories)) {?>
     $('#therapy_group_name').show();
     <?php } ?>
 <?php } ?>

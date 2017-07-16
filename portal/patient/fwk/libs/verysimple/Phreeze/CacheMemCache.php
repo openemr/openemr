@@ -51,7 +51,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $obj = $this->_memcache->get($this->_prefix . $key);
             ExceptionThrower::Stop();
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors)
@@ -71,7 +71,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $result = $this->_memcache->set($this->_prefix . $key, $val, $flags, $timeout);
             ExceptionThrower::Stop();
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors)
@@ -91,7 +91,7 @@ class CacheMemCache implements ICache
             ExceptionThrower::Start();
             $result = $this->_memcache->delete($this->_prefix . $key);
             ExceptionThrower::Stop();
-        } catch ( Exception $ex ) {
+        } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
             if (! $this->_suppressServerErrors)

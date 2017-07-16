@@ -159,15 +159,14 @@ if ($popup) {
             if ($field_id == 'pid') {
                 $where .= " AND $field_id = ?";
                 array_push($sqlBindArray, $value);
-            }
-            else if ($field_id == 'pubpid') {
+            } else if ($field_id == 'pubpid') {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value);
-            }
-            else {
+            } else {
                 $where .= " AND $field_id LIKE ?";
                 array_push($sqlBindArray, $value."%");
             }
+
             echo "<input type='hidden' name='" . htmlspecialchars($field_id, ENT_QUOTES) .
             "' value='" . htmlspecialchars($value, ENT_QUOTES) . "' />\n";
         }
@@ -191,10 +190,9 @@ if ($popup) {
     "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
-    while ($row = sqlFetchArray($rez)) $result[] = $row;
+    while ($row = sqlFetchArray($rez))$result[] = $row;
     _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
-}
-else if ($from_page == "cdr_report") {
+} else if ($from_page == "cdr_report") {
   // Collect setting from cdr report
     echo "<input type='hidden' name='from_page' value='$from_page' />\n";
     $report_id = isset($_REQUEST['report_id']) ? $_REQUEST['report_id'] : 0;
@@ -214,15 +212,13 @@ else if ($from_page == "cdr_report") {
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label);
         $GLOBALS['PATIENT_INC_COUNT'] = count($result);
         $MAXSHOW = $GLOBALS['PATIENT_INC_COUNT'];
-    }
-    else {
+    } else {
         // collect the total listing count
         $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true);
         // then just collect applicable list for pagination
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, false, $sqllimit, $fstart);
     }
-}
-else {
+} else {
     $patient = $_REQUEST['patient'];
     $findBy  = $_REQUEST['findBy'];
     $searchFields = $_REQUEST['searchFields'];
@@ -308,16 +304,14 @@ if ($fend > $count) $fend = $count;
         echo "<b>";
         if ($pass_id == "fail") {
              echo xlt("Failed Patients");
-        }
-        else if ($pass_id == "pass") {
+        } else if ($pass_id == "pass") {
              echo xlt("Passed Patients");
-        }
-        else if ($pass_id == "exclude") {
+        } else if ($pass_id == "exclude") {
              echo xlt("Excluded Patients");
-        }
-        else { // $pass_id == "all"
+        } else { // $pass_id == "all"
              echo xlt("All Patients");
         }
+
         echo "</b>";
         echo " - ";
         echo collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label);
@@ -353,8 +347,7 @@ if (!$popup && preg_match('/^(\d+)\s*(.*)/', $patient, $matches) > 0) {
 </th>
 
 <?php
-}
-else {
+} else {
   // Alternate patient search results style; this gets address plus other
   // fields that are mandatory, up to a limit of 5.
     $extracols = array();
@@ -394,16 +387,21 @@ if ($result) {
         if ($iter{"phone_biz"} != "") {
             $phone_biz = " [business phone ".$iter{"phone_biz"}."] ";
         }
+
         $phone_contact = '';
         if ($iter{"phone_contact"} != "") {
             $phone_contact = " [contact phone ".$iter{"phone_contact"}."] ";
         }
+
         $phone_cell = '';
         if ($iter{"phone_cell"} != "") {
             $phone_cell = " [cell phone ".$iter{"phone_cell"}."] ";
         }
+
         $all_other_phones = $phone_biz.$phone_contact.$phone_cell;
-        if ($all_other_phones == '') {$all_other_phones = xl('No other phone numbers listed');}
+        if ($all_other_phones == '') {
+            $all_other_phones = xl('No other phone numbers listed');}
+
         //end of phone number display setup, now display the phone number(s)
         echo "<td class='srPhone' title='".htmlspecialchars($all_other_phones, ENT_QUOTES)."'>" .
         htmlspecialchars($iter['phone_home'], ENT_NOQUOTES) . "</td>\n";
@@ -418,7 +416,6 @@ if ($result) {
         echo "<td class='srID'>" . htmlspecialchars($iter['pubpid'], ENT_NOQUOTES) . "</td>";
 
         if (empty($GLOBALS['patient_search_results_style'])) {
-
             echo "<td class='srPID'>" . htmlspecialchars($iter['pid'], ENT_NOQUOTES) . "</td>";
           
           //setup for display of encounter date info
@@ -446,6 +443,7 @@ if ($result) {
                 $day_diff = $results['day_diff'];
                 $next_appt_date= xl($results['next_appt_day']).', '.$results['next_appt'];
             }
+
           // calculate date differences based on date of last encounter regardless of billing
             $query = "select DATE_FORMAT(max(form_encounter.date),'%m/%d/%y') as mydate," .
                   " (to_days(current_date())-to_days(max(form_encounter.date))) as day_diff," .
@@ -472,6 +470,7 @@ if ($result) {
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count_billed = $results['encounter_count'];
             }
+
           // calculate count of encounters, regardless of billing
             $query = "select count(date) as encounter_count ".
                       " from form_encounter where ".
@@ -480,13 +479,12 @@ if ($result) {
             if ($results = sqlFetchArray($statement)) {
                 $encounter_count = $results['encounter_count'];
             }
+
             echo "<td class='srNumEnc'>" . htmlspecialchars($encounter_count, ENT_NOQUOTES) . "</td>\n";
             echo "<td class='srNumDay'>" . htmlspecialchars($day_diff, ENT_NOQUOTES) . "</td>\n";
             echo "<td class='srDateLast'>" . htmlspecialchars($last_date_seen, ENT_NOQUOTES) . "</td>\n";
             echo "<td class='srDateNext'>" . htmlspecialchars($next_appt_date, ENT_NOQUOTES) . "</td>\n";
-        }
-
-        else { // alternate search results style
+        } else { // alternate search results style
             foreach ($extracols as $field_id => $frow) {
                 echo "<td class='srMisc'>";
                 echo generate_display_field($frow, $iter[$field_id]);
@@ -510,7 +508,7 @@ $(document).ready(function(){
     $(".oneresult").mouseout(function() { $(this).removeClass("highlight"); });
     $(".oneresult").click(function() { SelectPatient(this); });
     // $(".event").dblclick(function() { EditEvent(this); });
-    <?php if($print_patients) { ?>
+    <?php if ($print_patients) { ?>
       var win = top.printLogPrint ? top : opener.top;
       win.printLogPrint(window);
     <?php } ?>

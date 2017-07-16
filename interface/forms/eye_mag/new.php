@@ -39,13 +39,19 @@ $returnurl = 'encounter_top.php';
 
 $pid = $_REQUEST['pid'];
 
-if (!$pid) { $pid = $_SESSION['pid'];
-} else { $_SESSION['pid'] = $pid; }
+if (!$pid) {
+    $pid = $_SESSION['pid'];
+} else {
+    $_SESSION['pid'] = $pid; }
+
 if (!$user) $user = $_SESSION['authUser'];
 if (!$group) $group = $_SESSION['authProvider'];
 
-if (!$_SESSION['encounter']) { $encounter = date("Ymd");
-} else { $encounter=$_SESSION['encounter'];}
+if (!$_SESSION['encounter']) {
+    $encounter = date("Ymd");
+} else {
+    $encounter=$_SESSION['encounter'];}
+
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, array($pid,$encounter));
 $encounter_date = $encounter_data['date'];
@@ -61,7 +67,7 @@ if ($erow['form_id'] > '0') {
     formJump('./view_form.php?formname='.$form_folder.'&id='.attr($erow['form_id']).'&pid='.attr($pid));
     formFooter();
     exit;
-}  else {
+} else {
     $id = $erow2['count']++;
     $providerid = findProvider(attr($pid), $encounter);
     $newid = formSubmit($table_name, $_POST, $id, $providerid);

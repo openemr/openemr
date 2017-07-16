@@ -32,7 +32,7 @@ class MemCacheProxy extends CacheMemCache
     {
         if (class_exists('Memcache')) {
             $memcache = new Memcache();
-            foreach ( array_keys($server_array) as $host ) {
+            foreach (array_keys($server_array) as $host) {
                 // print "adding server $host " . $server_array[$host];
                 $memcache->addServer($host, $server_array [$host]);
             }

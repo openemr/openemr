@@ -87,10 +87,9 @@ $N = 7;
                     ?>
         <div class="panel panel-primary" >
                 <header class="panel-heading"><?php echo xlt('Profile Demographics'); ?>
-                <?php if( $pending )
+                <?php if ($pending)
                     echo '<button type="button" id="editDems" class="btn btn-danger btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Pending Review') . '</button>';
-                else
-                    echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
+                else echo '<button type="button" id="editDems" class="btn btn-success btn-xs pull-right" style="color:white;font-size:14px">' . xlt('Revise') . '</button>';
                         ?>
                 </header>
                 <div class="panel-body " id="dempanel">
@@ -136,7 +135,7 @@ $N = 7;
         <?php
         echo "<div class='immunizations'><h4>" . xlt('Patient Immunization') . '</h4>';
         $result = FetchSection::getImmunizations($pid);
-        foreach( $result as $row ){
+        foreach ($result as $row) {
             echo text($row{'administered_formatted'}) . ' : ';
             echo text($row['code_text']) . ' : ';
             echo text($row['note']) . ' : ';

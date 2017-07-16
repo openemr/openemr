@@ -29,10 +29,10 @@ class C_FormSOAP extends Controller
     {
         if (is_numeric($form_id)) {
             $form = new FormSOAP($form_id);
-        }
-        else {
+        } else {
             $form = new FormSOAP();
         }
+
         $dbconn = $GLOBALS['adodb']['db'];
         $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
@@ -48,6 +48,7 @@ class C_FormSOAP extends Controller
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         if (empty($_POST['id'])) {
             addForm(
                 $GLOBALS['encounter'],
@@ -59,6 +60,7 @@ class C_FormSOAP extends Controller
             );
             $_POST['process'] = "";
         }
+
         return;
     }
 }

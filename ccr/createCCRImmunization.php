@@ -25,7 +25,6 @@
     $row = sqlFetchArray($result);
 
 do {
-
     $e_Immunization = $ccr->createElement('Immunization');
     $e_Immunizations->appendChild($e_Immunization);
 
@@ -80,5 +79,4 @@ do {
         
     $e_Value = $ccr->createElement('Value', 'None');
     $e_Code->appendChild($e_Value);
-
 } while ($row = sqlFetchArray($result));

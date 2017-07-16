@@ -25,7 +25,6 @@
     $value = sqlFetchArray($result);
 
 do {
-    
     $e_Medication = $ccr->createElement('Medication');
     $e_Medications->appendChild($e_Medication);
 
@@ -143,5 +142,4 @@ do {
 
     $e_Number = $ccr->createElement('Number', $value['refills']);
     $e_Refill->appendChild($e_Number);
-
 } while ($value = sqlFetchArray($result));

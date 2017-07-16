@@ -169,6 +169,7 @@ if ($_POST['bn_save']) {
         $field_id  = $frow['field_id'];
         $newdata[$field_id] = get_layout_form_value($frow);
     }
+
     newInsuranceData(
         $ptid,
         $newdata['type'],
@@ -205,6 +206,7 @@ if ($_POST['bn_save']) {
     if ($result['errmsg']) {
         die(text($result['errmsg']));
     }
+
     echo "<html><body><script language='JavaScript'>\n";
     echo "if (top.restoreSession) top.restoreSession(); else opener.top.restoreSession();\n";
     echo "document.location.href = 'list_requests.php';\n";
@@ -316,6 +318,7 @@ foreach ($insurance_layout as $lorow) {
             );
             if (isset($tmp['option_id'])) $newvalue = $tmp['option_id'];
         }
+
         // Some data types like insurance provider are pretty hopeless, so let the display
         // logic generate a "Fix me" message and the user can translate it.
     }

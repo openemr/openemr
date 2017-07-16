@@ -75,11 +75,9 @@ class ORDataObject
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br>";
                 if (is_callable(array($this,$func))) {
-
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
                         call_user_func(array(&$this,$func), $field);
-
                     }
                 }
             }
@@ -93,11 +91,9 @@ class ORDataObject
                 $func = "set_" . $field_name;
                 //echo "f: $field m: $func status: " .  (is_callable(array($this,$func))? "yes" : "no") . "<br>";
                 if (is_callable(array($this,$func))) {
-
                     if (!empty($field)) {
                         //echo "s: $field_name to: $field <br>";
                         call_user_func(array(&$this,$func), $field);
-
                     }
                 }
             }
@@ -116,35 +112,36 @@ class ORDataObject
     {
         if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
-            && !empty($this->_table))                                               {
-
+            && !empty($this->_table)) {
             return $GLOBALS['static']['enums'][$this->_table][$field_name];
-        }
-        else {
+        } else {
             $cols = $this->_db->MetaColumns($this->_table);
             if ($cols && !$cols->EOF) {
                 //why is there a foreach here? at some point later there will be a scheme to autoload all enums
                 //for an object rather than 1x1 manually as it is now
-                foreach($cols as $col) {
+                foreach ($cols as $col) {
                     if ($col->name == $field_name && $col->type == "enum") {
-                        for($idx=0;$idx<count($col->enums);$idx++)
-                                {
+                        for ($idx=0; $idx<count($col->enums); $idx++) {
                             $col->enums[$idx]=str_replace("'", "", $col->enums[$idx]);
                         }
+
                         $enum = $col->enums;
                         //for future use
                         //$enum[$col->name] = $enum_types[1];
                     }
                 }
+
                 array_unshift($enum, " ");
 
                //keep indexing consistent whether or not a blank is present
                 if (!$blank) {
                     unset($enum[0]);
                 }
+
                 $enum = array_flip($enum);
                 $GLOBALS['static']['enums'][$this->_table][$field_name] = $enum;
             }
+
             return $enum;
         }
     }
@@ -155,13 +152,16 @@ class ORDataObject
         if ($blank) {
             $ar[0] = " ";
         }
+
         if (!is_array($obj_ar)) return $ar;
-        foreach($obj_ar as $obj) {
+        foreach ($obj_ar as $obj) {
             $ar[$obj->$value_func()] = $obj->$name_func();
         }
+
         if ($reverse) {
             $ar = array_flip($ar);
         }
+
         return $ar;
     }
 } // end of ORDataObject

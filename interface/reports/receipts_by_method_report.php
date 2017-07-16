@@ -82,8 +82,7 @@ function thisLineItem(
         // Save everything for later sorting.
         $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
         $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
-    }
-    else { // details not wanted
+    } else { // details not wanted
         if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
         $insarray[$rowmethod][0] += $rowpayamount;
         $insarray[$rowmethod][1] += $rowadjamount;
@@ -129,6 +128,7 @@ function showLineItem(
  </tr>
 <?php
         }
+
         $methodpaytotal = 0;
         $methodadjtotal  = 0;
         $paymethod = $rowmethod;
@@ -172,6 +172,7 @@ if ($showing_ppd) {
         );
         echo "   " . $insrow['policy_number'];
     }
+
     echo "  </td>\n";
 
     echo "  <td class='dehead'>\n";
@@ -192,6 +193,7 @@ if ($showing_ppd) {
  </tr>
 <?php
     }
+
     $methodpaytotal += $rowpayamount;
     $grandpaytotal  += $rowpayamount;
     $methodadjtotal += $rowadjamount;
@@ -206,6 +208,7 @@ function payerCmp($a, $b)
         if ($a[$i] < $b[$i]) return -1;
         if ($a[$i] > $b[$i]) return  1;
     }
+
     return 0;
 }
 
@@ -329,6 +332,7 @@ function sel_procedure() {
                     if ($key == $form_report_by) echo ' selected';
                     echo ">" . xl($value) . "</option>\n";
                 }
+
                 echo "   </select>&nbsp;\n"; ?>
             </td>
 
@@ -507,11 +511,13 @@ if ($_POST['form_refresh']) {
         "( s.deposit_date IS NULL AND a.post_time >= '$from_date 00:00:00' AND " .
         "a.post_time <= '$to_date 23:59:59' ) )";
     }
+
     // If a procedure code was specified.
     if ($form_proc_code && $form_proc_codetype) {
       // if a code_type is entered into the ar_activity table, then use it. If it is not entered in, then do not use it.
         $query .= " AND ( a.code_type = '$form_proc_codetype' OR a.code_type = '' ) AND a.code LIKE '$form_proc_code%'";
     }
+
     // If a facility was specified.
     if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
     //
@@ -520,6 +526,7 @@ if ($_POST['form_refresh']) {
     } else {
         $query .= " ORDER BY s.reference, s.deposit_date, a.post_time, a.pid, a.encounter, fe.id";
     }
+
     //
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
@@ -530,6 +537,7 @@ if ($_POST['form_refresh']) {
         } else {
             $thedate = substr($row['post_time'], 0, 10);
         }
+
       // Compute reporting key: insurance company name or payment method.
         if ($form_report_by == '1') {
             if (empty($row['payer_id'])) {
@@ -538,19 +546,20 @@ if ($_POST['form_refresh']) {
                 if (empty($row['name'])) $rowmethod = xl('Unnamed insurance company');
                 else $rowmethod = $row['name'];
             }
-        }
-        else {
+        } else {
             if (empty($row['session_id'])) {
                 $rowmethod = trim($row['memo']);
             } else {
                 $rowmethod = trim($row['reference']);
             }
+
             if ($form_report_by != '3') {
                 // Extract only the first word as the payment method because any
                 // following text will be some petty detail like a check number.
                 $rowmethod = substr($rowmethod, 0, strcspn($rowmethod, ' /'));
             }
         }
+
       //
         thisLineItem(
             $row['pid'],
@@ -567,7 +576,6 @@ if ($_POST['form_refresh']) {
 
   // Not payer summary.
     if ($form_report_by != '1' || $_POST['form_details']) {
-
         if ($form_report_by == '1') { // by payer with details
             // Sort and dump saved info, and consolidate items with all key
             // fields being the same.
@@ -577,8 +585,7 @@ if ($_POST['form_refresh']) {
                 if (empty($a[4])) $a[4] = xl('Patient');
                 if (empty($b)) {
                     $b = $a;
-                }
-                else {
+                } else {
                     $match = true;
                     foreach (array(4,3,0,1,2,7) as $i) if ($a[$i] != $b[$i]) $match = false;
                     if ($match) {
@@ -590,6 +597,7 @@ if ($_POST['form_refresh']) {
                     }
                 }
             }
+
             if (!empty($b)) {
                 showLineItem($b[0], $b[1], $b[2], $b[3], $b[4], $b[5], $b[6], $b[7], $b[8]);
             }
@@ -609,9 +617,7 @@ if ($_POST['form_refresh']) {
   </td>
  </tr>
 <?php
-    }
-
-  // Payer summary: need to sort and then print it all.
+    } // Payer summary: need to sort and then print it all.
     else {
         ksort($insarray);
         foreach ($insarray as $key => $value) {

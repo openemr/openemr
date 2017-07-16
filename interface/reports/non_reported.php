@@ -44,6 +44,7 @@ function getLoggedInUserFacility()
     while ($arow = sqlFetchArray($res)) {
         return $arow;
     }
+
     return null;
 }
 
@@ -70,31 +71,37 @@ function mapCodeType($incode)
              break;
              // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
     }
+
     return $outcode;
 }
 
 
-if(isset($_POST['form_from_date'])) {
+if (isset($_POST['form_from_date'])) {
     $from_date = $_POST['form_from_date'] !== "" ?
     fixDate($_POST['form_from_date'], date('Y-m-d')) :
     0;
 }
-if(isset($_POST['form_to_date'])) {
+
+if (isset($_POST['form_to_date'])) {
     $to_date =$_POST['form_to_date'] !== "" ?
     fixDate($_POST['form_to_date'], date('Y-m-d')) :
     0;
 }
+
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
 //
-if (empty($form_code) ) {
+if (empty($form_code)) {
     $query_codes = '';
 } else {
     $query_codes = 'c.id in (';
-    foreach( $form_code as $code ){ $query_codes .= $code . ","; }
+    foreach ($form_code as $code) {
+        $query_codes .= $code . ","; }
+
       $query_codes = substr($query_codes, 0, -1);
       $query_codes .= ') and ';
 }
+
 //
 function tr($a)
 {
@@ -125,24 +132,29 @@ if ($_POST['form_get_hl7']==='true') {
     $query .= "concat(p.fname, ' ',p.mname,' ', p.lname) as patientname, ".
     "l.date as issuedate, "  ;
 }
+
   $query .=
   "l.id as issueid, l.title as issuetitle, DATE_FORMAT(l.begdate,'%Y%m%d%H%i') as begin_date ". // Ensoftek: Jul-2015: Get begin date
   "from lists l, patient_data p, codes c ".
   "where ".
   "c.reportable=1 and ".
   "l.id not in (select lists_id from syndromic_surveillance) and ";
-if($from_date!=0) {
+if ($from_date!=0) {
     $query .= "l.date >= '$from_date' " ;
 }
-if($from_date!=0 and $to_date!=0) {
+
+if ($from_date!=0 and $to_date!=0) {
     $query .= " and " ;
 }
-if($to_date!=0) {
+
+if ($to_date!=0) {
     $query .= "l.date <= '$to_date' ";
 }
-if($from_date!=0 or $to_date!=0) {
+
+if ($from_date!=0 or $to_date!=0) {
     $query .= " and " ;
 }
+
   $query .= "l.pid=p.pid and ".
   $query_codes .
   "l.diagnosis LIKE 'ICD9:%' and ".
@@ -350,6 +362,7 @@ while ($crow = sqlFetchArray($cres)) {
         echo ">" . $crow['name'] . "\n";
     }
 }
+
  echo "   </select>\n";
 ?>
           </td>

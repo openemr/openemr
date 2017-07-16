@@ -4,8 +4,8 @@ include_once('../../globals.php');
 <?php
 if ($_POST['export']) {
     $temp = tmpfile();
-    if ($temp === false) {echo "<h1>" . xl("failed") . "</h1>";}
-    else {
+    if ($temp === false) {
+        echo "<h1>" . xl("failed") . "</h1>";} else {
         $query1 = "select id, category from ".mitigateSqlTableUpperCase("form_CAMOS_category");
         $statement1 = sqlStatement($query1);
         while ($result1 = sqlFetchArray($statement1)) {
@@ -30,6 +30,7 @@ if ($_POST['export']) {
                 }
             }
         }
+
         rewind($temp);
             header("Pragma: public");
             header("Expires: 0");
@@ -39,16 +40,18 @@ if ($_POST['export']) {
     
         fpassthru($temp);
         fclose($temp);
-    }
+        }
 }
+
 if ($_POST['import']) {
 ?>
 <?php
     $fname = '';
-foreach($_FILES as $file) {
+foreach ($_FILES as $file) {
     $fname = $file['tmp_name'];
 //		echo "<p>tmp filename: ".$file['tmp_name']."</p>";
 }
+
     $handle = @fopen($fname, "r");
 if ($handle === false) {
     echo "<h1>" . xl('Error opening uploaded file for reading') . "</h1>";
@@ -63,7 +66,6 @@ if ($handle === false) {
     while (!feof($handle)) {
         $buffer = fgets($handle);
         if (preg_match('/<category>(.*?)<\/category>/', $buffer, $matches)) {
-
             $category = add_escape_custom(trim($matches[1])); //trim in case someone edited by hand and added spaces
             $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_category")." where category like \"$category\"");
             if ($result = sqlFetchArray($statement)) {
@@ -78,8 +80,8 @@ if ($handle === false) {
                 }
             }
         }
-        if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
 
+        if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
             $subcategory = add_escape_custom(trim($matches[1]));
             $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_subcategory")." where subcategory " .
                 "like \"$subcategory\" and category_id = $category_id");
@@ -96,9 +98,9 @@ if ($handle === false) {
                 }
             }
         }
+
         if ((preg_match('/<(item)>(.*?)<\/item>/', $buffer, $matches)) ||
         (preg_match('/<(content)>(.*?)<\/content>/s', $buffer, $matches))) {
-
             $mode = $matches[1];
             $value = add_escape_custom(trim($matches[2]));
             $insert_value = '';
@@ -120,21 +122,24 @@ if ($handle === false) {
                             "$subcategory_id)";
                             sqlInsert($inner_query);
                             $inserted_duplicate = true;
-                        } else {$postfix++;}
+                        } else {
+                            $postfix++;}
                     }
                 } else {
                     $query = "INSERT INTO ".mitigateSqlTableUpperCase("form_CAMOS_item")." (user, item, subcategory_id) ".
                     "values ('".$_SESSION['authUser']."', \"$value\", $subcategory_id)";
                     sqlInsert($query);
                 }
-                if ($postfix == 0) {$insert_value = $value;}
+
+                if ($postfix == 0) {
+                    $insert_value = $value;}
+
                 $statement = sqlStatement("select id from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where item like \"$insert_value\" " .
                 "and subcategory_id = $subcategory_id");
                 if ($result = sqlFetchArray($statement)) {
                     $item_id = $result['id'];
                 }
-            }
-            elseif ($mode == 'content') {
+            } elseif ($mode == 'content') {
                 $statement = sqlStatement("select content from ".mitigateSqlTableUpperCase("form_CAMOS_item")." where id = ".$item_id);
                 if ($result = sqlFetchArray($statement)) {
                     //$content = "/*old*/\n\n".$result['content']."\n\n/*new*/\n\n$value";
@@ -142,11 +147,13 @@ if ($handle === false) {
                 } else {
                     $content = $value;
                 }
+
                 $query = "UPDATE ".mitigateSqlTableUpperCase("form_CAMOS_item")." set content = \"$content\" where id = ".$item_id;
                 sqlInsert($query);
             }
         }
     }
+
     fclose($handle);
 }
 }

@@ -135,11 +135,11 @@ foreach ($_REQUEST as $key => $value) {
     if ($fldname == 'pubpid') {
         $relevance .= " + 1000 * ( ".add_escape_custom($fldname)." LIKE ? )";
         array_push($sqlBindArray, $value);
-    }
-    else {
+    } else {
         $relevance .= " + ( ".add_escape_custom($fldname)." LIKE ? )";
         array_push($sqlBindArray, $value);
     }
+
     $where .= " OR ".add_escape_custom($fldname)." LIKE ?";
     array_push($sqlBindArraySpecial, $value);
     echo "<input type='hidden' name='".htmlspecialchars($key, ENT_QUOTES)."' value='".htmlspecialchars($value, ENT_QUOTES)."' />\n";
@@ -155,7 +155,7 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
 $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
 $rez = sqlStatement($sql, $sqlBindArray);
 $result = array();
-while ($row = sqlFetchArray($rez)) $result[] = $row;
+while ($row = sqlFetchArray($rez))$result[] = $row;
 _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
 ?>
 
@@ -231,6 +231,7 @@ if ($result) {
             $relevance -= 999;
             $pubpid_matched = true;
         }
+
         echo "<tr id='" . htmlspecialchars($iter['pid'], ENT_QUOTES) . "' class='oneresult";
         // Highlight entries where all fields matched.
         echo $numfields <= $iter['relevance'] ? " topresult" : "";

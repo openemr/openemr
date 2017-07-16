@@ -240,6 +240,7 @@ function generate_order_summary($orderid)
 if (!empty($_POST['bn_show_sendable'])) {
     $query .= "AND do_not_send = 0 ";
 }
+
   $query .= "ORDER BY procedure_order_seq";
   $res = sqlStatement($query, array($orderid));
 
@@ -280,9 +281,11 @@ while ($row = sqlFetchArray($res)) {
             $days = $answer % 7;
             $answer = $weeks . 'wks ' . $days . 'days';
         }
+
         if ($notes) $notes .= '<br />';
         $notes .= text($qrow['question_text'] . ': ' . $answer);
     }
+
     if ($notes === '') $notes = '&nbsp;';
 
     ++$encount;

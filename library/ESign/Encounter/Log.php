@@ -75,7 +75,7 @@ class Encounter_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if ( $GLOBALS['esign_all'] ) {
+        if ($GLOBALS['esign_all']) {
             $viewable = true;
         }
         

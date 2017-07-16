@@ -71,7 +71,7 @@ class ActionRouter implements IRouter
         $qs = "";
         $d = "";
         if (is_array($params)) {
-            foreach ( $params as $key => $val ) {
+            foreach ($params as $key => $val) {
                 // if no val, the omit the equal sign (this might be used in rest-type requests)
                 $qs .= $d . $key . (strlen($val) ? ("=" . urlencode($val)) : "");
                 $d = $this->delim;
@@ -145,8 +145,7 @@ class ActionRouter implements IRouter
     {
         if (strcmp($this->_mode, $value) == 0)
             return true;
-        else
-            return false;
+        else return false;
     }
     
     /**

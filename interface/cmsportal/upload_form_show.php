@@ -29,10 +29,10 @@ $uploadid = $_REQUEST['id'];
 
 if (!empty($_REQUEST['messageid'])) {
     $result = cms_portal_call(array('action' => 'getmsgup', 'uploadid' => $uploadid));
-}
-else {
+} else {
     $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
 }
+
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }

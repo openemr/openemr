@@ -37,6 +37,7 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
     if (!acl_check('patients', 'sign')) {
         die(xl('Not authorized to sign results'));
     }
+
   // When signing results we are careful to sign only those reports that were
   // in the sending form. While this will usually be all the reports linked to
   // the order it's possible for a new report to come in while viewing these,
@@ -101,8 +102,7 @@ body {
 <?php
 if (empty($_POST['form_sign'])) {
     generate_order_report($orderid, true, true, $finals_only);
-}
-else {
+} else {
 ?>
 <script language='JavaScript'>
  if (opener.document.forms && opener.document.forms[0]) {

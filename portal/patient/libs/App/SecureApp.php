@@ -39,8 +39,7 @@ class SecureApp implements IAuthenticatable
      */
     public function __construct()
     {
-        if (!self::$USERS)
-        {
+        if (!self::$USERS) {
             self::$USERS = array(
                 "demo"=>password_hash("pass", PASSWORD_BCRYPT),
                 "admin"=>password_hash("pass", PASSWORD_BCRYPT)
@@ -85,10 +84,8 @@ class SecureApp implements IAuthenticatable
      */
     public function Login($username, $password)
     {
-        foreach (self::$USERS as $un=>$pw)
-        {
-            if ($username == $un && password_verify($password, $pw))
-            {
+        foreach (self::$USERS as $un=>$pw) {
+            if ($username == $un && password_verify($password, $pw)) {
                 $this->Username = $username;
                 break;
             }

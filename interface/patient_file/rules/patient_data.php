@@ -102,8 +102,7 @@ if ($_POST['form_complete']) {
         // Insert new row of data into rule_patient_data table
         sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
         "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result));
-    }
-    else { // $form_mode == "edit"
+    } else { // $form_mode == "edit"
         // Modify selected row in rule_patient_data table
         sqlStatement("UPDATE `rule_patient_data` " .
         "SET `date`=?, `complete`=?, `result`=? " .
@@ -206,15 +205,14 @@ if (sqlNumRows($res) >= 1) { //display table ?>
     while ($row = sqlFetchArray($res)) {
         if (isset($entryID) && ($entryID == $row['id'])) {
             echo "<tr class='text' style='background-color:LightGrey'>";
-        }
-        else {
+        } else {
             echo "<tr class='text'>";
         }
+
         if (isset($entryID) && ($entryID == $row['id'])) {
             // hide the edit button
             echo "<td>&nbsp;</td>";
-        }
-        else { // show the edit button
+        } else { // show the edit button
             echo "<td><a href='patient_data.php?category=" .
             attr($category) . "&item=" .
             attr($item) . "&entryID=" .
@@ -223,6 +221,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
             "<span>" . xlt('Edit') . "</span></a>" .
             "</td>";
         }
+
         echo "<td>" . text($row['date']) . "</td>";
         echo "<td align='center'>" . text($row['complete']) . "</td>";
         echo "<td>" . nl2br(htmlspecialchars($row['result'], ENT_NOQUOTES)) . "</td>";

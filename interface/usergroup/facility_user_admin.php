@@ -128,7 +128,7 @@ $l_res = sqlStatement("SELECT * FROM layout_options " .
                       "WHERE form_id = 'FACUSR' AND uor > 0 AND field_id != '' " .
                       "ORDER BY group_name, seq");
 $l_arr = array();
-for($i=0; $row=sqlFetchArray($l_res); $i++) {
+for ($i=0; $row=sqlFetchArray($l_res); $i++) {
     $l_arr[$i]=$row;
 }
 ?>

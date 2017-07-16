@@ -62,9 +62,11 @@ function row_delete($table, $where)
             if ($logstring) $logstring .= " ";
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
+
         newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
+
     if ($count) {
         $query = "DELETE FROM $table WHERE $where";
         echo $query . "<br>\n";
@@ -263,13 +265,12 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                                   // This should not happen but if it does, apply old logic.
                         if (preg_match("/To copay/", $reason)) {
                             $reason_type = 2;
-                        }
-                        else if (preg_match("/To ded'ble/", $reason)) {
+                        } else if (preg_match("/To ded'ble/", $reason)) {
                             $reason_type = 3;
                         }
+
                                   $info_msg .= xl("No adjustment reason type found for") . " \"$reason\". ";
-                    }
-                    else {
+                    } else {
                                   $reason_type = $tmp['option_value'];
                     }
                 }
@@ -300,26 +301,23 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                     if ($reason_type == '2') {
                         $reason = $_POST['form_insurance'] . " coins: $thisadj";
                         $thisadj = 0;
-                    }
-                    else if ($reason_type == '3') {
+                    } else if ($reason_type == '3') {
                         $reason = $_POST['form_insurance'] . " dedbl: $thisadj";
                         $thisadj = 0;
-                    }
-                    else if ($reason_type == '4') {
+                    } else if ($reason_type == '4') {
                         $reason = $_POST['form_insurance'] . " ptresp: $thisadj $reason";
                         $thisadj = 0;
-                    }
-                    else if ($reason_type == '5') {
+                    } else if ($reason_type == '5') {
                         $reason = $_POST['form_insurance'] . " note: $thisadj $reason";
                         $thisadj = 0;
-                    }
-                    else {
+                    } else {
                         // An adjustment reason including "Ins" is assumed to be assigned by
                         // insurance, and in that case we identify which one by appending
                         // Ins1, Ins2 or Ins3.
                         if (strpos(strtolower($reason), 'ins') !== false)
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
+
                     arPostAdjustment(
                         $patient_id,
                         $encounter_id,
@@ -347,6 +345,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
             if ($_POST['form_secondary']) {
                   arSetupSecondary($patient_id, $encounter_id, $debug);
             }
+
             echo "<script language='JavaScript'>\n";
             echo " if (opener.document.forms[0] !== undefined) {\n";
             echo "   if (opener.document.forms[0].form_amount) {\n";
@@ -357,6 +356,7 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
         } else {
             echo "<script language='JavaScript'>\n";
         }
+
         if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
         if (! $debug) echo " window.close();\n";
         echo "</script></body></html>\n";
@@ -593,6 +593,7 @@ foreach ($codes as $code => $cdata) {
         if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
             $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
         }
+
         $tmpchg = "";
         $tmpadj = "";
       /*****************************************************************
@@ -622,6 +623,7 @@ foreach ($codes as $code => $cdata) {
         if (!$ddata['plv']) echo 'Pt/';
         else echo 'Ins' . $ddata['plv'] . '/';
     }
+
     echo $ddata['src'];
     ?>
    </td>

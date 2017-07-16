@@ -13,7 +13,7 @@ class Controller_detail extends BaseController
     {
         $ruleId = _get('id');
         $rule = $this->getRuleManager()->getRule($ruleId);
-        if ( is_null($rule) ) {
+        if (is_null($rule)) {
             $this->redirect("index.php?action=browse!list");
         } else {
             $this->viewBean->rule = $rule;

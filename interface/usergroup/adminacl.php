@@ -19,6 +19,7 @@ if (!acl_check('admin', 'acl')) {
     echo "(" . xl('ACL Administration Not Authorized') . ")";
     exit;
 }
+
 //ensure phpgacl is installed
 if (!isset($phpgacl_location)) {
     echo "(" . xl('PHP-gacl is not installed') . ")";

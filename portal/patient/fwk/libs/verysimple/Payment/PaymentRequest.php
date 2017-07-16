@@ -88,7 +88,7 @@ class PaymentRequest
      */
     function Read($arr)
     {
-        foreach ( get_object_vars($this) as $prop ) {
+        foreach (get_object_vars($this) as $prop) {
             if (array_key_exists($prop, $arr)) {
                 $this->$prop = $arr [$prop];
             }

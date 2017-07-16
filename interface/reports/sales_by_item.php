@@ -36,11 +36,10 @@ require_once "$srcdir/options.inc.php";
 $form_provider  = $_POST['form_provider'];
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $form_details  = $_POST['form_details']      ? true : false;
-}
-else
-{
+} else {
     $form_details = false;
 }
+
 function bucks($amount)
 {
     if ($amount) echo oeFormatMoney($amount);
@@ -51,6 +50,7 @@ function display_desc($desc)
     if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
         $desc = $matches[1];
     }
+
     return $desc;
 }
 
@@ -88,8 +88,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                     bucks($producttotal);
                     echo '"' . "\n";
                 }
-            }
-            else {
+            } else {
         ?>
        <tr bgcolor="#ddddff">
         <td class="detail">
@@ -100,7 +99,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
         <?php if ($_POST['form_details']) echo xlt('Total for') . ' ';
         echo text(display_desc($product)); ?>
   </td>
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
   &nbsp;
   </td>
@@ -118,6 +117,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <?php
             } // End not csv export
         }
+
         $producttotal = 0;
         $productqty = 0;
         $product = $rowproduct;
@@ -138,7 +138,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
             <?php echo xlt('Total for category') . ' ';
             echo text(display_desc($category)); ?>
   </td>
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -156,6 +156,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 <?php
             } // End not csv export
         }
+
         $cattotal = 0;
         $catqty = 0;
         $category = $rowcat;
@@ -167,22 +168,24 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
             echo '"' . display_desc($category) . '",';
             echo '"' . display_desc($product) . '",';
             echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
-            if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) {
+            if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
                 echo '"' . $pat_name . '",';
             }
-            if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
+
+            if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
                 echo '"' . display_desc($invnumber) . '",';
             }
-            if($GLOBALS['sales_report_invoice'] == 1) {
+
+            if ($GLOBALS['sales_report_invoice'] == 1) {
                 echo '"' . $patient_id . '",';
             }
+
            // echo '"' . display_desc($invnumber) . '",';
             echo '"' . display_desc($qty) . '",';
             echo '"';
             bucks($rowamount);
             echo '"' . "\n";
-        }
-        else {
+        } else {
         ?>
 
      <tr>
@@ -197,26 +200,27 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
   <td>
         <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
-        <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+        <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
-    <?php } if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) { ?>
+    <?php } if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) { ?>
   <td>
     <?php echo text($pat_name); ?>
   </td>
     <?php } ?>
   <td class="detail">
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
    <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr($patient_id); ?>&enc=<?php echo attr($encounter_id); ?>'>
     <?php echo text($invnumber); ?></a>
     <?php }
-if($GLOBALS['sales_report_invoice'] == 1 ) {
+
+if ($GLOBALS['sales_report_invoice'] == 1) {
     echo text($patient_id);
 }
     ?>
       </td>
-        <?php if($GLOBALS['sales_report_invoice'] == 0) {?>
+        <?php if ($GLOBALS['sales_report_invoice'] == 0) {?>
   <td>
    &nbsp;
   </td>
@@ -229,7 +233,6 @@ if($GLOBALS['sales_report_invoice'] == 1 ) {
       </td>
      </tr>
     <?php
-
         } // End not csv export
     } // end details
     $producttotal += $rowamount;
@@ -259,19 +262,21 @@ if ($_POST['form_csvexport']) {
         echo '"Category",';
         echo '"Item",';
         echo '"Date",';
-        if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) {
+        if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
             echo '"Name",';
         }
-        if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
+
+        if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
             echo '"Invoice",';
         }
-        if($GLOBALS['sales_report_invoice'] == 1) {
+
+        if ($GLOBALS['sales_report_invoice'] == 1) {
              echo '"ID",';
         }
+
         echo '"Qty",';
         echo '"Amount"' . "\n";
-    }
-    else {
+    } else {
         echo '"Category",';
         echo '"Item",';
         echo '"Qty",';
@@ -399,6 +404,7 @@ $('.datepicker').datetimepicker({
                 if ($provid == $_REQUEST['form_provider']) echo " selected";
                 echo ">" . text($row['lname']) . ", " . text($row['fname']) . "\n";
             }
+
             echo "   </select>\n";
         } else {
             echo "<input type='hidden' name='form_provider' value='" . attr($_SESSION['authUserID']) . "'>";
@@ -461,30 +467,32 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
  <th>
     <?php if ($form_details) echo xlt('Date'); ?>
  </th>
-    <?php if($GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 2) {?>
   <th>
    &nbsp;
   </th>
     <?php } ?>
  <th>
     <?php
-    if($GLOBALS['sales_report_invoice'] == 0) {
+    if ($GLOBALS['sales_report_invoice'] == 0) {
         if ($form_details) echo ' ';
         ?>
    </th>
    <th>
         <?php
         if ($form_details) echo xlt('Invoice');  }
-    if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) {
+
+    if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
         if ($form_details) echo xlt('Name');
     } ?>
   </th>
   <th>
     <?php
-    if($GLOBALS['sales_report_invoice'] == 2) {
+    if ($GLOBALS['sales_report_invoice'] == 2) {
         if ($form_details) echo xlt('Invoice');
     }
-    if($GLOBALS['sales_report_invoice'] == 1) {
+
+    if ($GLOBALS['sales_report_invoice'] == 1) {
         if ($form_details) echo xlt('ID');
     }
     ?>
@@ -531,10 +539,12 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $query .= " AND fe.facility_id = ?";
         array_push($sqlBindArray, $form_facility);
     }
+
     if ($form_provider) {
         $query .= " AND fe.provider_id = ?";
         array_push($sqlBindArray, $form_provider);
     }
+
     $query .= " ORDER BY lo.title, b.code, fe.date, fe.id";
     //
     $res = sqlStatement($query, $sqlBindArray);
@@ -550,6 +560,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $row['invoice_refno']
         );
     }
+
     //
     $sqlBindArray = array();
     $query = "SELECT s.sale_date, s.fee, s.quantity, s.pid, s.encounter, " .
@@ -566,10 +577,12 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $query .= " AND fe.facility_id = ?";
         array_push($sqlBindArray, $form_facility);
     }
+
     if ($form_provider) {
         $query .= " AND fe.provider_id = ?";
         array_push($sqlBindArray, $form_provider);
     }
+
     $query .= " ORDER BY d.name, fe.date, fe.id";
     //
     $res = sqlStatement($query, $sqlBindArray);
@@ -594,8 +607,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             bucks($producttotal);
             echo '"' . "\n";
         }
-    }
-    else {
+    } else {
 ?>
 
  <tr bgcolor="#ddddff">
@@ -607,7 +619,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     <?php if ($_POST['form_details']) echo xlt('Total for') . ' ';
     echo text(display_desc($product)); ?>
   </td>
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -631,7 +643,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     <?php echo xlt('Total for category') . ' ';
     echo text(display_desc($category)); ?>
   </b></td>
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -651,7 +663,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   <td class="detail" colspan="4"><b>
     <?php echo xlt('Grand Total'); ?>
   </b></td>
-    <?php if($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+    <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -671,12 +683,11 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     ?>
 <div align='right'><span class='title' ><?php echo xlt('Report Date'). ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
 <?php
-
     } // End not csv export
 }
 
 if (! $_POST['form_csvexport']) {
-    if($_POST['form_refresh']){
+    if ($_POST['form_refresh']) {
 ?>
 
 </tbody>

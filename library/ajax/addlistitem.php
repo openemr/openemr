@@ -74,10 +74,10 @@ while ($lrow = sqlFetchArray($lres)) {
     // translate title if translate-lists flag set and not english
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
         echo '"title":"' . xl($lrow['title']) .'"}';
-    }
-    else {
+    } else {
         echo '"title":"'.$lrow['title'].'"}';
     }
 }
+
 echo "]}";
 exit;

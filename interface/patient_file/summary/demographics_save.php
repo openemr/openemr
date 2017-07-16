@@ -6,7 +6,7 @@ include_once("$srcdir/options.inc.php");
 
 // Check authorization.
 if ($pid) {
-    if ( !acl_check('patients', 'demo', '', 'write') )
+    if (!acl_check('patients', 'demo', '', 'write'))
     die(xlt('Updating demographics is not authorized.'));
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
@@ -30,7 +30,6 @@ $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_name, seq");
 while ($frow = sqlFetchArray($fres)) {
-
     $data_type = $frow['data_type'];
     $field_id = $frow['field_id'];
     // $value  = '';
@@ -42,12 +41,11 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
     //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
-    if (isset($_POST["form_$field_id"])){
+    if (isset($_POST["form_$field_id"])) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
-
-
 }
+
 updatePatientData($pid, $newdata['patient_data']);
 updateEmployerData($pid, $newdata['employer_data']);
 

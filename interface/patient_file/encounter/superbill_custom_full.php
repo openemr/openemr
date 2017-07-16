@@ -37,6 +37,7 @@ function bucks($amount)
         $amount = oeFormatMoney($amount);
         return $amount;
     }
+
     return '';
 }
 
@@ -72,8 +73,7 @@ if (isset($mode) && $thisauthwrite) {
     if ($mode == "delete") {
         sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id));
         $code_id = 0;
-    }
-    else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
+    } else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
         $crow = sqlQuery("SELECT COUNT(*) AS count FROM codes WHERE " .
             "code_type = '"    . ffescape($code_type)    . "' AND " .
             "code = '"         . ffescape($code)         . "' AND " .
@@ -81,8 +81,7 @@ if (isset($mode) && $thisauthwrite) {
             "id != '"          . add_escape_custom($code_id) . "'");
         if ($crow['count']) {
             $alertmsg = xl('Cannot add/update this entry because a duplicate already exists!');
-        }
-        else {
+        } else {
             $sql =
                 "code = '"         . ffescape($code)         . "', " .
                 "code_type = '"    . ffescape($code_type)    . "', " .
@@ -100,10 +99,10 @@ if (isset($mode) && $thisauthwrite) {
                 sqlStatement($query, array($code_id));
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND " .
                     "pr_selector = ''", array($code_id));
-            }
-            else {
+            } else {
                 $code_id = sqlInsert("INSERT INTO codes SET $sql");
             }
+
             if (!$alertmsg) {
                 foreach ($_POST['fee'] as $key => $value) {
                     $value = $value + 0;
@@ -113,6 +112,7 @@ if (isset($mode) && $thisauthwrite) {
                             "?, '', ?, ?)", array($code_id,$key,$value));
                     }
                 }
+
                 $code = $code_type = $code_text = $modifier = $superbill = "";
                 $code_id = 0;
                 $related_code = '';
@@ -122,8 +122,7 @@ if (isset($mode) && $thisauthwrite) {
                 $reportable = 0;
             }
         }
-    }
-    else if ($mode == "edit") { // someone clicked [Edit]
+    } else if ($mode == "edit") { // someone clicked [Edit]
         $sql = "SELECT * FROM codes WHERE id = ?";
         $results = sqlStatement($sql, array($code_id));
         while ($row = sqlFetchArray($results)) {
@@ -140,8 +139,7 @@ if (isset($mode) && $thisauthwrite) {
             $reportable   = 0 + $row['reportable'];
             $financial_reporting  = 0 + $row['financial_reporting'];
         }
-    }
-    else if ($mode == "modify") { // someone clicked [Modify]
+    } else if ($mode == "modify") { // someone clicked [Modify]
         // this is to modify external code types, of which the modifications
         // are stored in the codes table
         $code_type_name_external = $_POST['code_type_name_external'];
@@ -163,10 +161,10 @@ if (isset($mode) && $thisauthwrite) {
             $financial_reporting  = $row['financial_reporting'];
         }
     }
-    // If codes history is enabled in the billing globals save data to codes history table
-    if  ($GLOBALS['save_codes_history'] && $alertmsg=='' &&
-        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ){
 
+    // If codes history is enabled in the billing globals save data to codes history table
+    if ($GLOBALS['save_codes_history'] && $alertmsg=='' &&
+        ( $mode == "add" || $mode == "modify_complete" || $mode == "delete" ) ) {
         $action_type= empty($_POST['code_id']) ? 'new' : $mode;
         $action_type= ($action_type=='add') ? 'update' : $action_type ;
         $code       = $_POST['code'];
@@ -183,7 +181,7 @@ if (isset($mode) && $thisauthwrite) {
         $code_sql= sqlFetchArray(sqlStatement("SELECT (ct_label) FROM code_types WHERE ct_id=?", array($code_type)));
         $code_name='';
 
-        if ($code_sql){
+        if ($code_sql) {
             $code_name=$code_sql['ct_label'];
         }
 
@@ -193,7 +191,7 @@ if (isset($mode) && $thisauthwrite) {
 
         $categorey_name='';
 
-        if ($categorey_sql){
+        if ($categorey_sql) {
             $categorey_name=$categorey_sql['title'];
         }
 
@@ -225,6 +223,7 @@ if (isset($_REQUEST['filter'])) {
         array_push($filter_key, $var_key);
     }
 }
+
 $search = $_REQUEST['search'];
 $search_reportable = $_REQUEST['search_reportable'];
 $search_financial_reporting = $_REQUEST['search_financial_reporting'];
@@ -234,6 +233,7 @@ $filter_elements = array();
 if (!empty($search_reportable)) {
     $filter_elements['reportable'] = $search_reportable;
 }
+
 if (!empty($search_financial_reporting)) {
     $filter_elements['financial_reporting'] = $search_financial_reporting;
 }
@@ -411,7 +411,7 @@ if ($fend > $count) $fend = $count;
 
                         <?php $external_sets = array(); ?>
                         <?php foreach ($code_types as $key => $value) { ?>
-                            <?php if ( !($value['external']) ) { ?>
+                            <?php if (!($value['external'])) { ?>
                                 <?php if ($mode != "modify") { ?>
                                     <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
                                 <?php } ?>
@@ -454,7 +454,7 @@ if ($fend > $count) $fend = $count;
                     <?php } ?>
 
                     &nbsp;&nbsp;
-                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null) ) echo ' checked'; ?> />
+                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) echo ' checked'; ?> />
                     <?php echo xlt('Active'); ?>
                 </td>
             </tr>
@@ -538,6 +538,7 @@ if ($fend > $count) $fend = $count;
                 $taxline .= " />\n";
                 $taxline .=  text(xl_list_label($prow['title'])) . "\n";
             }
+
             if ($taxline) {
                 ?>
                 <tr>
@@ -645,7 +646,7 @@ if ($fend > $count) $fend = $count;
 
     if (!empty($all)) {
         $count = 0;
-        foreach($all as $iter) {
+        foreach ($all as $iter) {
             $count++;
 
             $has_fees = false;
@@ -663,10 +664,10 @@ if ($fend > $count) $fend = $count;
                 // If there is no entry in codes sql table, then default to active
                 //  (this is reason for including NULL below)
                 echo "  <td class='text'>" . ( ($iter["active"] || $iter["active"]==null) ? xlt('Yes') : xlt('No')) . "</td>\n";
-            }
-            else {
+            } else {
                 echo "  <td class='text'>" . ( ($iter["active"]) ? xlt('Yes') : xlt('No')) . "</td>\n";
             }
+
             echo "  <td class='text'>" . ($iter["reportable"] ? xlt('Yes') : xlt('No')) . "</td>\n";
             echo "  <td class='text'>" . ($iter["financial_reporting"] ? xlt('Yes') : xlt('No')) . "</td>\n";
             echo "  <td class='text'>" . text($iter['code_type_name']) . "</td>\n";
@@ -682,6 +683,7 @@ if ($fend > $count) $fend = $count;
                     $code_description = lookup_code_descriptions($reltype.":".$relcode);
                     echo text($relcode) . ' ' . text(trim($code_description)) . '<br />';
                 }
+
                 echo "</td>\n";
             }
 
@@ -692,6 +694,7 @@ if ($fend > $count) $fend = $count;
             while ($prow = sqlFetchArray($pres)) {
                 echo "<td class='text' align='right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
             }
+
             if ($thisauthwrite) {
                 if ($iter["code_external"] > 0) {
                     echo "  <td align='right'><a class='link' href='javascript:submitModify(\"" . attr($iter['code_type_name']) . "\",\"" . attr($iter['code']) . "\",\"" . attr($iter['id']) . "\")'>[" . xlt('Modify') . "]</a></td>\n";
@@ -700,8 +703,8 @@ if ($fend > $count) $fend = $count;
                     echo "  <td align='right'><a class='link' href='javascript:submitEdit(" . attr($iter['id']) . ")'>[" . xlt('Edit') . "]</a></td>\n";
                 }
             }
-            echo " </tr>\n";
 
+            echo " </tr>\n";
         }
     }
 

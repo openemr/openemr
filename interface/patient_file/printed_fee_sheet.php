@@ -27,6 +27,7 @@ function genColumn($ix)
         if ($cmd == '*C') { // column break
             return++$ix;
         }
+
         if ($cmd == '*B') { // Borderless and empty
             $html .= " <tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
         } else if ($cmd == '*G') {
@@ -34,14 +35,12 @@ function genColumn($ix)
             if (!$title)
                 $title = '&nbsp;';
             $html .= " <tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
-        }
-        else if ($cmd == '*H') {
+        } else if ($cmd == '*H') {
             $title = htmlspecialchars($a[1]);
             if (!$title)
                 $title = '&nbsp;';
             $html .= " <tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
-        }
-        else {
+        } else {
             $title = htmlspecialchars($a[1]);
             if (!$title)
                 $title = '&nbsp;';
@@ -54,14 +53,15 @@ function genColumn($ix)
                     $code = '&nbsp;';
                 $html .= " <td class='fscode' style='vertical-align:middle' nowrap>$code</td>\n";
                 $html .= " <td colspan='3' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
-            }
-            else {
+            } else {
                 $html .= " <td colspan='2' class='fscode' style='vertical-align:middle' nowrap>" . $b[0] . '/' . $b[1] . "</td>\n";
                 $html .= " <td colspan='2' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
             }
+
             $html .= " </tr>\n";
         }
     }
+
     return $ix;
 }
 
@@ -87,12 +87,9 @@ if (empty($_GET['fill'])) {
 // Show based on session array or single pid?
 $pid_list = array();
 
-if(!empty($_SESSION['pidList']) and $form_fill == 2)
-{
+if (!empty($_SESSION['pidList']) and $form_fill == 2) {
     $pid_list = $_SESSION['pidList'];
-}
-else if ($form_fill == 1)
-{
+} else if ($form_fill == 1) {
     array_push($pid_list, $pid); //get from active PID
 } else {
     array_push($pid_list, ''); // empty element for blank form
@@ -135,6 +132,7 @@ if (empty($SBCODES)) {
             $last_category = $fs_category;
             $SBCODES[] = '*G|' . substr($fs_category, 1);
         }
+
         $SBCODES[] = " |" . substr($fs_option, 1);
     }
 
@@ -172,8 +170,7 @@ if (empty($SBCODES)) {
     // Extra stuff for the labs section.
     $SBCODES[] = '*G|' . xl('Notes');
     $percol = intval((count($SBCODES) + 2) / 3);
-    while (count($SBCODES) < $percol * 3)
-        $SBCODES[] = '*B|';
+    while (count($SBCODES) < $percol * 3)$SBCODES[] = '*B|';
 
     // Adjust lines per page to distribute lines evenly among the pages.
     $pages = intval(($percol + $lines_in_stats + $lines_per_page - 1) / $lines_per_page);
@@ -192,6 +189,7 @@ if (empty($SBCODES)) {
         array_splice($SBCODES, $lines_this_page * 1 + $page_start_index, 0, '*C|');
         $page_start_index += $lines_this_page * 3 + 3;
     }
+
     array_splice($SBCODES, $lines * 2 + $page_start_index, 0, '*C|');
     array_splice($SBCODES, $lines * 1 + $page_start_index, 0, '*C|');
 }
@@ -330,7 +328,6 @@ if (empty($frow)) {
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
 
 foreach ($pid_list as $pid) {
-
     if ($form_fill) {
         // Get the patient's name and chart number.
         $patdata = getPatientData($pid);
@@ -340,7 +337,6 @@ foreach ($pid_list as $pid) {
     $cindex = 0;
 
     while (--$pages >= 0) {
-
         $html .= genFacilityTitle(xl('Superbill/Fee Sheet'), -1);
 
         $html .="
@@ -535,7 +531,6 @@ foreach ($pid_list as $pid) {
 </table>";
 
         $html .= "</div>";  //end of div.pageLetter
-
     } // end while
     $pages = $saved_pages; //RESET
 }

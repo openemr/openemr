@@ -43,15 +43,17 @@ abstract class AbstractAmcReport implements RsReportIF
     {
         // require all .php files in the report's sub-folder
         $className = get_class($this);
-        foreach ( glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename) {
             require_once($filename);
         }
+
         // require common .php files
-        foreach ( glob(dirname(__FILE__)."/../reports/common/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../reports/common/*.php") as $filename) {
             require_once($filename);
         }
+
         // require clinical types
-        foreach ( glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename ) {
+        foreach (glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename) {
             require_once($filename);
         }
 
@@ -86,12 +88,12 @@ abstract class AbstractAmcReport implements RsReportIF
         }
 
         $numerator = $this->createNumerator();
-        if ( !$numerator instanceof AmcFilterIF ) {
+        if (!$numerator instanceof AmcFilterIF) {
             throw new Exception("Numerator must be an instance of AmcFilterIF");
         }
         
         $denominator = $this->createDenominator();
-        if ( !$denominator instanceof AmcFilterIF ) {
+        if (!$denominator instanceof AmcFilterIF) {
             throw new Exception("Denominator must be an instance of AmcFilterIF");
         }
 
@@ -106,27 +108,25 @@ abstract class AbstractAmcReport implements RsReportIF
         
         $numeratorObjects = 0;
         $denominatorObjects = 0;
-        foreach ( $this->_amcPopulation as $patient )
-        {
+        foreach ($this->_amcPopulation as $patient) {
             // If begin measurement is empty, then make the begin
             //  measurement the patient dob.
             $tempBeginMeasurement = "";
             if (empty($this->_beginMeasurement)) {
                 $tempBeginMeasurement = $patient->dob;
-            }
-            else {
+            } else {
                 $tempBeginMeasurement = $this->_beginMeasurement;
             }
 
             // Count Denominators
             if ($object_to_count == "patients") {
                 // Counting patients
-                if ( !$denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement) ) {
+                if (!$denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                     continue;
                 }
+
                 $denominatorObjects++;
-            }
-            else {
+            } else {
                 // Counting objects other than patients
                 //   First, collect the pertinent objects
                 $objects = $this->collectObjects($patient, $object_to_count, $tempBeginMeasurement, $this->_endMeasurement);
@@ -134,7 +134,7 @@ abstract class AbstractAmcReport implements RsReportIF
                 $objects_pass=array();
                 foreach ($objects as $object) {
                     $patient->object=$object;
-                    if ( $denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement) ) {
+                    if ($denominator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $denominatorObjects++;
                         array_push($objects_pass, $object);
                     }
@@ -144,51 +144,41 @@ abstract class AbstractAmcReport implements RsReportIF
             // Count Numerators
             if ($object_to_count == "patients") {
                 // Counting patients
-                if ( !$numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement) ) {
-
-
+                if (!$numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                     // If itemization is turned on, then record the "failed" item
                     if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
                     }
 
                     continue;
-                }
-                else {
+                } else {
                     $numeratorObjects++;
 
                     // If itemization is turned on, then record the "passed" item
                     if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
                     }
-
                 }
-            }
-            else {
+            } else {
                 // Counting objects other than patients
                 //   test each object that passed the above denominator testing
                 foreach ($objects_pass as $object) {
                     $patient->object=$object;
-                    if ( $numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement) ) {
+                    if ($numerator->test($patient, $tempBeginMeasurement, $this->_endMeasurement)) {
                         $numeratorObjects++;
 
                         // If itemization is turned on, then record the "passed" item
                         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                             insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $patient->id);
                         }
-
-                    }
-                    else {
-
+                    } else {
                         // If itemization is turned on, then record the "failed" item
                         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
                             insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 0, $patient->id);
                         }
-
                     }
                 }
             }
-
         }
 
         // Deal with the manually added labs for the electronic labs AMC measure
@@ -326,7 +316,7 @@ abstract class AbstractAmcReport implements RsReportIF
         }
 
         $rez = sqlStatement($sql, $sqlBindArray);
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             if ('transitions-out' == $object_label) {
                 $fres = sqlStatement(
                     "SELECT field_id, field_value FROM lbt_data WHERE form_id = ?",
@@ -336,6 +326,7 @@ abstract class AbstractAmcReport implements RsReportIF
                     $row[$frow['field_id']] = $frow['field_value'];
                 }
             }
+
             $results[$iter]=$row;
         }
 

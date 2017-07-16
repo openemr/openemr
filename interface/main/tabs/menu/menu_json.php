@@ -17,8 +17,7 @@ require_once("menu_db.php");
 use OpenEMR\Menu\MainMenuRole;
 
 $menu_parsed=load_menu("default");
-if(count($menu_parsed)==0)
-{
+if (count($menu_parsed)==0) {
     // Use a json file to build menu rather than database
     // Note this is currently the standard mechanism
 

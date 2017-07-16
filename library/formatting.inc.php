@@ -35,12 +35,10 @@ function oeFormatShortDate($date = 'today', $showYear = true)
             if ($showYear) {
                 $newDate .= '/' . substr($date, 0, 4);
             }
-        }
-        else if (!$showYear) { // $GLOBALS['date_display_format'] == 0
+        } else if (!$showYear) { // $GLOBALS['date_display_format'] == 0
             // need to remove the year
             $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
-        }
-        else { // $GLOBALS['date_display_format'] == 0
+        } else { // $GLOBALS['date_display_format'] == 0
             // keep the year (so will simply be the original $date)
             $newDate = $date;
         }
@@ -57,13 +55,13 @@ function oeFormatShortDate($date = 'today', $showYear = true)
 function oeFormatTime($time, $format = "")
 {
     $formatted = $time;
-    if ( $format == "" ) {
+    if ($format == "") {
         $format = $GLOBALS['time_display_format'];
     }
 
-    if ( $format == 0 ) {
+    if ($format == 0) {
         $formatted = date("H:i", strtotime($time));
-    } else if ( $format == 1 ) {
+    } else if ($format == 1) {
         $formatted = date("g:i a", strtotime($time));
     }
 
@@ -84,9 +82,11 @@ function oeFormatPatientNote($note)
         if (preg_match('/^\d\d\d\d-\d\d-\d\d/', substr($note, $i))) {
             $note = substr($note, 0, $i) . oeFormatShortDate(substr($note, $i, 10)) . substr($note, $i + 10);
         }
+
         $i = strpos("\n", $note, $i);
         if ($i !== false) ++$i;
     }
+
     return $note;
 }
 
@@ -103,27 +103,22 @@ function DateFormatRead($mode = 'legacy')
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
     //This will show the date as per the global settings.
-    if($GLOBALS['date_display_format']==0) {
+    if ($GLOBALS['date_display_format']==0) {
         if ($mode == 'legacy') {
             return "%Y-%m-%d";
-        }
-        else { //$mode=='jquery-datetimepicker'
+        } else { //$mode=='jquery-datetimepicker'
             return "Y-m-d";
         }
-    }
-    else if($GLOBALS['date_display_format']==1) {
+    } else if ($GLOBALS['date_display_format']==1) {
         if ($mode == 'legacy') {
             return "%m/%d/%Y";
-        }
-        else { //$mode=='jquery-datetimepicker'
+        } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
-    }
-    else if($GLOBALS['date_display_format']==2) {
+    } else if ($GLOBALS['date_display_format']==2) {
         if ($mode == 'legacy') {
             return "%d/%m/%Y";
-        }
-        else { //$mode=='jquery-datetimepicker'
+        } else { //$mode=='jquery-datetimepicker'
             return "d/m/Y";
         }
     }
@@ -134,24 +129,19 @@ function DateToYYYYMMDD($DateValue)
 //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
  //But in database the date can be stored only in the yyyy-mm-dd format.
  //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
-    if(trim($DateValue)=='')
-     {
+    if (trim($DateValue)=='') {
         return '';
     }
 
-    if($GLOBALS['date_display_format']==0)
-     {
+    if ($GLOBALS['date_display_format']==0) {
         return $DateValue;
-    }
-    else if($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2)
-     {
+    } else if ($GLOBALS['date_display_format']==1 || $GLOBALS['date_display_format']==2) {
         $DateValueArray=explode('/', $DateValue);
-        if($GLOBALS['date_display_format']==1)
-        {
+        if ($GLOBALS['date_display_format']==1) {
             return $DateValueArray[2].'-'.$DateValueArray[0].'-'.$DateValueArray[1];
         }
-        if($GLOBALS['date_display_format']==2)
-        {
+
+        if ($GLOBALS['date_display_format']==2) {
             return $DateValueArray[2].'-'.$DateValueArray[1].'-'.$DateValueArray[0];
         }
     }
@@ -178,8 +168,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
         $nowDay   = substr($nowYMD, 6, 2);
         $nowMonth = substr($nowYMD, 4, 2);
         $nowYear  = substr($nowYMD, 0, 4);
-    }
-    else {
+    } else {
         $nowDay   = date("d");
         $nowMonth = date("m");
         $nowYear  = date("Y");
@@ -194,8 +183,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
         $days  = $days % 7;
         $age   = "$weeks " . ($weeks == 1 ? xl('week') : xl('weeks')) .
              " $days " . ($days  == 1 ? xl('day') : xl('days'));
-    }
-    else {
+    } else {
         // Years or months.
         $dayDiff   = $nowDay   - $dobDay;
         $monthDiff = $nowMonth - $dobMonth;
@@ -205,8 +193,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
         if ($format == 1 || ($format == 0 && $ageInMonths >= 24)) {
             $age = $yearDiff;
             if ($monthDiff < 0 || ($monthDiff == 0 && $dayDiff < 0)) --$age;
-        }
-        else {
+        } else {
             $age = $ageInMonths;
             if ($format == 0) {
                 $age .= ' ' . $ageInMonths == 1 ? xl('month') : xl('months');

@@ -49,16 +49,17 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     global $mainQrdaRaceCodeArr, $mainEthiCodeArr, $from_date, $to_date;
         
     //Patient Info
-    if($patient_id != ""){
+    if ($patient_id != "") {
         $patientRow = getPatData($patient_id);
     }
+
     //User Info
     $userRow = getUsrDataCheck($provider_id);
     $facility_name = $userRow['facility'];
     $facility_id = $userRow['facility_id'];
         
     //Facility Info
-    if($facility_id != "")
+    if ($facility_id != "")
     $facilResRow = getFacilDataChk($facility_id);
         
     ####################### HEADER ELEMENTS START ##########################################
@@ -108,23 +109,22 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
         
     $xml->add_patientAddress($patientRow);
         
-    if($patientRow['phone_home'] != "")
+    if ($patientRow['phone_home'] != "")
     $xml->self_customTag('telecom', array('value' => $patientRow['phone_home'], 'use'=>'HP'));
-    else
-    $xml->self_customTag('telecom', array('nullFlavor' => "UNK"));
+    else $xml->self_customTag('telecom', array('nullFlavor' => "UNK"));
         
     $xml->open_customTag('patient');
         
     $patNameArr = array('fname' =>$patientRow['fname'], 'lname'=>$patientRow['lname']);
     $xml->add_patName($patNameArr);
         
-    if($patientRow['sex'] == "Male") $gender = "M";
-    else if($patientRow['sex'] == "Female") $gender = "F";
+    if ($patientRow['sex'] == "Male") $gender = "M";
+    else if ($patientRow['sex'] == "Female") $gender = "F";
     $xml->self_customTag('administrativeGenderCode', array('codeSystem' => '2.16.840.1.113883.18.2', 'code' =>$gender));
         
     $xml->self_customTag('birthTime', array('value' =>date('Ymd', strtotime($patientRow['DOB']))));
         
-    if($mainQrdaRaceCodeArr[$patientRow['race']] == "") $mainQrdaRaceCodeArr[$patientRow['race']] = "2131-1";
+    if ($mainQrdaRaceCodeArr[$patientRow['race']] == "") $mainQrdaRaceCodeArr[$patientRow['race']] = "2131-1";
     $xml->self_customTag('raceCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainQrdaRaceCodeArr[$patientRow['race']]));
     $xml->self_customTag('ethnicGroupCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainEthiCodeArr[$patientRow['ethnicity']]));
         
@@ -148,10 +148,9 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $npi_provider = empty($userRow['npi']) ? "FakeNPI" : $userRow['npi'];
     $xml->self_customTag('id', array('root' =>'2.16.840.1.113883.4.6', 'extension' => $npi_provider));
     $xml->add_patientAddress($facilResRow);
-    if(!empty($userRow['phone']))
+    if (!empty($userRow['phone']))
     $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
-    else
-    $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
 
         
         
@@ -187,10 +186,9 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $assignedEntityId = getUuid();
     $xml->self_customId($assignedEntityId);
     $xml->add_facilAddress($facilResRow);
-    if(!empty($facilResRow['phone']))
+    if (!empty($facilResRow['phone']))
     $xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use'=>'WP'));
-    else
-    $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
         
     $xml->open_customTag('assignedPerson');
 
@@ -226,11 +224,9 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $npi_provider = empty($userRow['npi']) ? "FakeNPI" :$userRow['npi'] ;
     $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.6', 'extension' =>$npi_provider));
 
-    if($userRow['phone'] != ""){
+    if ($userRow['phone'] != "") {
         $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
-    }
-    else
-    $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    } else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
 
     $xml->open_customTag('assignedPerson');
 
@@ -244,7 +240,7 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $xml->open_customTag('representedOrganization');
 
     $tin_provider = $userRow['federaltaxid'];
-    if($tin_provider != ""){
+    if ($tin_provider != "") {
         $xml->self_customTag('id', array('root' => '2.16.840.1.113883.4.2', 'extension' =>$tin_provider));
     }
 
@@ -361,11 +357,10 @@ function getAllImmunization($xml, $patient_id)
     global $from_date, $to_date;
     $medArr = allImmuPat($patient_id, $from_date, $to_date);
         
-    foreach($medArr as $medRow){
-            
+    foreach ($medArr as $medRow) {
         $vset = sqlStatement("select * from valueset where code =".add_escape_custom($medRow['cvx_code'])." and code_type = 'cvx' and nqf_code =".add_escape_custom($xml->nqf_code));
-        foreach($vset as $v){
-            if(!empty($v['valueset'])){
+        foreach ($vset as $v) {
+            if (!empty($v['valueset'])) {
             //Entry open
                 $xml->open_entry();
             
@@ -381,10 +376,9 @@ function getAllImmunization($xml, $patient_id)
                 $arr = array('code'=>'416118004', 'codeSystemName'=>'SNOMED CT', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName' => 'Administration');
                 $xml->self_codeCustom($arr);
             
-                if($medRow['status'] == "" || $medRow['status'] == "not_completed")
+                if ($medRow['status'] == "" || $medRow['status'] == "not_completed")
                 $statusChk = "active";
-                else
-                $statusChk = "completed";
+                else $statusChk = "completed";
             
                 $arr = array('code'=>"completed");
                 $xml->self_customTag('statusCode', $arr);
@@ -472,11 +466,11 @@ function getAllPhysicalExams($xml, $patient_id)
                   'bpd' => array('name' => 'Blood Pressure Diastolic','category'=> 'Blood Pressure','unit' => 'mmHg','code' => '8462-4'),
                   'bmi' => array('name' => 'Body Mass Index','category' => 'Body Mass Index', 'unit' => 'kg/m2','code' => '39156-5'));
         
-    foreach($vitArr as $vitRow){
+    foreach ($vitArr as $vitRow) {
         //Entry open
-        foreach($measures as $measure_key => $measure){
+        foreach ($measures as $measure_key => $measure) {
             $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($measure['code'],$xml->nqf_code));
-            if(!empty($vset['valueset'])){
+            if (!empty($vset['valueset'])) {
                 $xml->open_entry();
             
             //observation Open
@@ -524,9 +518,9 @@ function getAllRiskCatAssessment($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("risk_category", $patient_id, $from_date, $to_date);
-    foreach($procArr as $procRow){
+    foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($procRow['procedure_code'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
             
@@ -573,9 +567,9 @@ function getAllProcedures($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("Procedure", $patient_id, $from_date, $to_date);
-    foreach($procArr as $procRow){
+    foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
             
@@ -627,9 +621,9 @@ function getAllLabTests($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("laboratory_test", $patient_id, $from_date, $to_date);
-    foreach($procArr as $procRow){
+    foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
                     
@@ -673,9 +667,9 @@ function getAllInterventionProcedures($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
     $procArr = allProcPat("intervention", $patient_id, $from_date, $to_date);
-    foreach($procArr as $procRow){
+    foreach ($procArr as $procRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($procRow['procedure_code'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
                     
@@ -722,9 +716,9 @@ function getAllOrderMedications($xml, $patient_id)
     global $from_date, $to_date;
     $medArr = allOrderMedsPat($patient_id, $from_date, $to_date);
         
-    foreach($medArr as $medRow){
+    foreach ($medArr as $medRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($medRow['rxnorm_drugcode'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
             
@@ -807,9 +801,9 @@ function getAllActiveMedications($xml, $patient_id)
     global $from_date, $to_date;
     $medArr = allActiveMedsPat($patient_id, $from_date, $to_date);
     
-    foreach($medArr as $medRow){
+    foreach ($medArr as $medRow) {
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ? ", array($medRow['rxnorm_drugcode'],$xml->nqf_code));
-        if(!empty($vset['valueset'])){
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
                     
@@ -893,7 +887,7 @@ function getAllMedicalProbs($xml, $patient_id)
     global $from_date, $to_date;
     $diagArr = allListsPat('medical_problem', $patient_id, $from_date, $to_date);
         
-    foreach($diagArr as $diagRow){
+    foreach ($diagArr as $diagRow) {
         $diagExpArr = explode(";", $diagRow['diagnosis']);
         /*foreach($diagExpArr as $diagExpVal){
             $diagDisp = explode(":", $diagExpVal);
@@ -905,8 +899,7 @@ function getAllMedicalProbs($xml, $patient_id)
         $diagDispCode = str_replace(".", "", $diagDisp[1]);
             
         $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($diagDispCode,$xml->nqf_code));
-        if(!empty($vset['valueset'])){
-            
+        if (!empty($vset['valueset'])) {
             //Entry open
             $xml->open_entry();
             
@@ -929,7 +922,7 @@ function getAllMedicalProbs($xml, $patient_id)
             
             $activeChk = "active";
             $endate = $diagRow['begdate'];
-            if($diagRow['enddate']!= ""){
+            if ($diagRow['enddate']!= "") {
                 $activeChk = "completed";
                 $endate = $diagRow['enddate'];
             }
@@ -989,13 +982,12 @@ function getAllPatientEncounters($xml, $patient_id)
     global $encCheckUniqId, $from_date, $to_date,$EncounterCptCodes;
     $encArr = allEncPat($patient_id, $from_date, $to_date);
         
-    foreach($encArr as $encRow){
-            
+    foreach ($encArr as $encRow) {
         $encRow['encounter'];
         $cpt_code = $EncounterCptCodes[str_replace(' ', '_', strtolower($encRow['pc_catname']))];
         $cpt_code = empty($cpt_code) ? '99201' : $cpt_code;
         $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?", array('99201',$xml->nqf_code));
-        foreach ($vset as $v){
+        foreach ($vset as $v) {
             //Entry open
             $xml->open_entry();
             
@@ -1031,11 +1023,10 @@ function getAllPatientEncounters($xml, $patient_id)
     }
         
     $encArr = allProcPat("enc_checkup_procedure", $patient_id, $from_date, $to_date);
-    foreach($encArr as $encRow){
-                
+    foreach ($encArr as $encRow) {
         $encRow['encounter'];
         $vset = sqlStatement("select * from valueset where code = ? and nqf_code = ?", array($encRow['procedure_code'],$xml->nqf_code));
-        foreach ($vset as $v){
+        foreach ($vset as $v) {
             //Entry open
             $xml->open_entry();
                     
@@ -1277,7 +1268,7 @@ function getMeasureSection($xml, $rule_id)
 function downloadQRDACat1($xml, $patient_id, $rule_id)
 {
     //Patient Info
-    if($patient_id != ""){
+    if ($patient_id != "") {
         $patientRow = getPatData($patient_id);
         $patFname = $patientRow['fname'];
         $patLname = $patientRow['lname'];
@@ -1286,9 +1277,10 @@ function downloadQRDACat1($xml, $patient_id, $rule_id)
     //QRDA File Download Folder in site/cqm_qrda folder
     $qrda_fname = $patFname."_".$patLname."_NQF_".$rule_id.".xml";
     global $qrda_file_path;
-    if(!file_exists($qrda_file_path)){
+    if (!file_exists($qrda_file_path)) {
         mkdir($qrda_file_path, 0777, true);
     }
+
     $qrda_file_name = $qrda_file_path.$qrda_fname;
     $fileQRDAOPen = fopen($qrda_file_name, "w");
     fwrite($fileQRDAOPen, trim($xml->getXml()));
@@ -1309,7 +1301,7 @@ function patCharactersticQRDA($xml, $patient_id)
     $tobacco = explode(':', $query['codes']);
     $tobacco_code = $tobacco[1];
     $vset = sqlQuery("select * from valueset where code = ? and nqf_code = ?", array($tobacco_code,$xml->nqf_code));
-    if(!empty($vset['valueset'])){
+    if (!empty($vset['valueset'])) {
         //Entry open
         $xml->open_entry();
         

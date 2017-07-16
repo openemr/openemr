@@ -23,7 +23,6 @@
 
 $result = getActorData();
 while ($row = sqlFetchArray($result[0])) {
-
     $e_Actor = $ccr->createElement('Actor');
     $e_Actors->appendChild($e_Actor);
 
@@ -128,7 +127,6 @@ while ($row = sqlFetchArray($result[0])) {
 
     $e_ActorID = $ccr->createElement('ActorID', $authorID);
     $e_Actor->appendChild($e_ActorID);
-
 }
 
 $row1 = sqlFetchArray($result[1]);
@@ -289,7 +287,6 @@ $row1 = sqlFetchArray($result[1]);
     $e_Actor->appendChild($e_ActorID);
   
 while ($row2 = sqlFetchArray($result[2])) {
-
     $e_Actor = $ccr->createElement('Actor');
     $e_Actors->appendChild($e_Actor);
 

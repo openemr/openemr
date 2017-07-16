@@ -29,15 +29,15 @@ $landingpage = "../index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $user = $_SESSION['sessionUser'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 $ignoreAuth = true;
 global $ignoreAuth;
 
@@ -92,7 +92,9 @@ $auth_demo     = true; //acl_check('patients'  , 'demo');
 $esignApi = new Api();
 
 $printable = empty($_GET['printable']) ? false : true;
-if ($PDF_OUTPUT) { $printable = true; }
+if ($PDF_OUTPUT) {
+    $printable = true; }
+
 unset($_GET['printable']);
 
 // Number of columns in tables for insurance and encounter forms.
@@ -112,11 +114,11 @@ function getContent()
         $i = stripos($content, " src='/", $i + 1);
         if ($i === false) break;
         if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root)
-        {
+        substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
+
     return $content;
 }
 
@@ -128,11 +130,11 @@ function postToGet($arin)
             foreach ($val as $k => $v) {
                 $getstring .= urlencode($key . "[]") . "=" . urlencode($v) . "&";
             }
-        }
-        else {
+        } else {
             $getstring .= urlencode($key) . "=" . urlencode($val) . "&";
         }
     }
+
     return $getstring;
 }
 ?>
@@ -486,40 +488,43 @@ if (file_exists(dirname(__FILE__) . "/../../forms/track_anything/style.css")) { 
 <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
 
 <?php
-if (sizeof($_GET) > 0) { $ar = $_GET; }
-else { $ar = $_POST; }
+if (sizeof($_GET) > 0) {
+    $ar = $_GET; } else {
+    $ar = $_POST; }
 
-if ($printable) {
-  /*******************************************************************
-  $titleres = getPatientData($pid, "fname,lname,providerID");
-  $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-  *******************************************************************/
-    $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-    if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
-    } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-    }
-  /******************************************************************/
-    $db = $GLOBALS['adodb']['db'];
-    $results = $db->Execute($sql);
-    $facility = array();
-    if (!$results->EOF) {
-        $facility = $results->fields;
-    }
-  // Setup Headers and Footers for html2PDF only Download
-  // in HTML view it's just one line at the top of page 1
-    echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
-    echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+    if ($printable) {
+      /*******************************************************************
+      $titleres = getPatientData($pid, "fname,lname,providerID");
+      $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+      *******************************************************************/
+        $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
+        if ($_SESSION['pc_facility']) {
+            $sql = "select * from facility where id=" . $_SESSION['pc_facility'];
+        } else {
+            $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
+        }
 
-  // Use logo if it exists as 'practice_logo.gif' in the site dir
-  // old code used the global custom dir which is no longer a valid
-    $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
-    if (file_exists($practice_logo)) {
-        echo "<img src='$practice_logo' align='left'><br />\n";
-    }
-?>
-<h2><?php echo $facility['name'] ?></h2>
+      /******************************************************************/
+        $db = $GLOBALS['adodb']['db'];
+        $results = $db->Execute($sql);
+        $facility = array();
+        if (!$results->EOF) {
+            $facility = $results->fields;
+        }
+
+      // Setup Headers and Footers for html2PDF only Download
+      // in HTML view it's just one line at the top of page 1
+        echo '<page_header style="text-align:right;"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . $titleres['DOB_TS'] . '</page_header>    ';
+        echo '<page_footer style="text-align:right;">' . xlt('Generated on') . ' ' . oeFormatShortDate() . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+
+      // Use logo if it exists as 'practice_logo.gif' in the site dir
+      // old code used the global custom dir which is no longer a valid
+        $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+        if (file_exists($practice_logo)) {
+            echo "<img src='$practice_logo' align='left'><br />\n";
+        }
+    ?>
+    <h2><?php echo $facility['name'] ?></h2>
 <?php echo $facility['street'] ?><br>
 <?php echo $facility['city'] ?>, <?php echo $facility['state'] ?> <?php echo $facility['postal_code'] ?><br clear='all'>
 <?php echo $facility['phone'] ?><br>
@@ -529,15 +534,13 @@ if ($printable) {
 <br><br>
 
 <?php
+    } else { // not printable
+    ?>
 
-}
-else { // not printable
-?>
+    <!-- old href was here
+    <br><br> -->
 
-<!-- old href was here
-<br><br> -->
-
-<a href="./report/portal_custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
+    <a href="./report/portal_custom_report.php?printable=1&<?php print postToGet($ar); ?>" class='link_submit' target='new' onclick='top.restoreSession()'>
 <button><?php xl('Printable Version', 'e'); ?></button>
 </a><br>
 <!--<div class="report_search_bar" style="width:100%;" id="search_options">
@@ -565,7 +568,7 @@ else { // not printable
         <span class="text"><b><?php //echo xlt('Search In'); ?>:</b></span>
         <br>
         <?php
-/*         $form_id_arr = array();
+    /*         $form_id_arr = array();
         $form_dir_arr = array();
         $last_key ='';
         //ksort($ar);
@@ -588,27 +591,26 @@ else { // not printable
           echo "</select>";
         } */
         ?>
-      </td>
-      <td style="padding-left:10px;;width:30%;">
+          </td>
+          <td style="padding-left:10px;;width:30%;">
         <span id ='alert_msg' style='color:red;'></span>
-      </td>
-    </tr>
-  </table>
-</div>-->
-<?php
-} // end not printable ?>
+          </td>
+        </tr>
+      </table>
+    </div>-->
+    <?php
+    } // end not printable ?>
 
 <?php
 
 // include ALL form's report.php files
 $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$pid' AND deleted=0");
-while($result = sqlFetchArray($inclookupres)) {
+while ($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
     if (substr($formdir, 0, 3) == 'LBF')
     include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-    else
-    include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+    else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
 }
 
 // For each form field from patient_report.php...
@@ -619,9 +621,7 @@ foreach ($ar as $key => $val) {
     // These are the top checkboxes (demographics, allergies, etc.).
     //
     if (stristr($key, "include_")) {
-
         if ($val == "demographics") {
-
             echo "<hr />";
             echo "<div class='text demographics' id='DEM'>\n";
             print "<h1>".xl('Patient Data').":</h1>";
@@ -632,9 +632,7 @@ foreach ($ar as $key => $val) {
             display_layout_rows('DEM', $result1, $result2);
             echo "   </table>\n";
             echo "</div>\n";
-
         } elseif ($val == "history") {
-
             echo "<hr />";
             echo "<div class='text history' id='HIS'>\n";
             //if (acl_check('patients', 'med')) {
@@ -650,9 +648,7 @@ foreach ($ar as $key => $val) {
             // } elseif ($val == "employer") {
             //   print "<br><span class='bold'>".xl('Employer Data').":</span><br>";
             //   printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
-
         } elseif ($val == "insurance") {
-
             echo "<hr />";
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
@@ -663,9 +659,7 @@ foreach ($ar as $key => $val) {
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
             printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
-
         } elseif ($val == "billing") {
-
             echo "<hr />";
             echo "<div class='text billing'>";
             print "<h1>".xl('Billing Information').":</h1>";
@@ -694,6 +688,7 @@ foreach ($ar as $key => $val) {
                         }
                     }
                 }
+
                 echo "<tr><td>&nbsp;</td></tr>";
                 echo "<tr><td class=bold>".xl('Sub-Total')."</td><td class=text>" . oeFormatMoney($total + abs($copays)) . "</td></tr>";
                 echo "<tr><td class=bold>".xl('Paid')."</td><td class=text>" . oeFormatMoney(abs($copays)) . "</td></tr>";
@@ -705,6 +700,7 @@ foreach ($ar as $key => $val) {
             } else {
                 printPatientBilling($pid);
             }
+
             echo "</div>\n"; // end of billing DIV
 
     /****
@@ -725,9 +721,7 @@ foreach ($ar as $key => $val) {
             printListData($pid, "medical_problem", "1");
 
     ****/
-
         } elseif ($val == "immunizations") {
-
             //if (acl_check('patients', 'med')) {
                 echo "<hr />";
                 echo "<div class='text immunizations'>\n";
@@ -743,27 +737,27 @@ foreach ($ar as $key => $val) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
                 if ($GLOBALS['use_custom_immun_list']) {
                      $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
-                }
-                else {
+                } else {
                     if (!empty($row['code_text_short'])) {
                         $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
-                    }
-                    else {
+                    } else {
                          $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
                     }
                 }
+
                 echo $row['administered_date'] . " - " . $vaccine_display;
                 if ($row['immunization_note']) {
                      echo " - " . $row['immunization_note'];
                 }
+
                 echo "<br>\n";
             }
+
                 echo "</div>\n";
             //}
 
         // communication report
         } elseif ($val == "batchcom") {
-
             echo "<hr />";
             echo "<div class='text transactions'>\n";
             print "<h1>".xl('Patient Communication sent').":</h1>";
@@ -773,35 +767,28 @@ foreach ($ar as $key => $val) {
             while ($row=sqlFetchArray($result)) {
                 echo $row{'batchcom_data'}.", By: ".$row{'user_name'}."<br>Text:<br> ".$row{'msg_txt'}."<br>\n";
             }
+
             echo "</div>\n";
-
         } elseif ($val == "notes") {
-
             echo "<hr />";
             echo "<div class='text notes'>\n";
             print "<h1>".xl('Patient Notes').":</h1>";
             printPatientNotes($pid);
             echo "</div>";
-
         } elseif ($val == "transactions") {
-
             echo "<hr />";
             echo "<div class='text transactions'>\n";
             print "<h1>".xl('Patient Transactions').":</h1>";
             printPatientTransactions($pid);
             echo "</div>";
-
         }
-
     } else {
-
         // Documents is an array of checkboxes whose values are document IDs.
         //
         if ($key == "documents") {
-
             echo "<hr />";
             echo "<div class='text documents'>";
-            foreach($val as $valkey => $valvalue) {
+            foreach ($val as $valkey => $valvalue) {
                 $document_id = $valvalue;
                 if (!is_numeric($document_id)) continue;
                 $d = new Document($document_id);
@@ -824,27 +811,29 @@ foreach ($ar as $key => $val) {
                     echo '<td>'.$note->get_note().'<br><br></td>';
                     echo '</tr>';
                 }
+
                 if (!empty($notes)) echo "</table>";
 
                 $url_file = $d->get_url_filepath();
-                if($couch_docid && $couch_revid){
+                if ($couch_docid && $couch_revid) {
                     $url_file = $d->get_couch_url($pid, $encounter);
                 }
+
                 // Collect filename and path
                 $from_all = explode("/", $url_file);
                 $from_filename = array_pop($from_all);
                 $from_pathname_array = array();
-                for ($i=0;$i<$d->get_path_depth();$i++) {
+                for ($i=0; $i<$d->get_path_depth(); $i++) {
                     $from_pathname_array[] = array_pop($from_all);
                 }
+
                 $from_pathname_array = array_reverse($from_pathname_array);
                 $from_pathname = implode("/", $from_pathname_array);
 
-                if($couch_docid && $couch_revid) {
+                if ($couch_docid && $couch_revid) {
                     $from_file = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
-                }
-                else {
+                } else {
                     $from_file = $GLOBALS["fileroot"] . "/sites/" . $_SESSION['site_id'] .
                     '/documents/' . $from_pathname . '/' . $from_filename;
                     $to_file = substr($from_file, 0, strrpos($from_file, '.')) . '_converted.jpg';
@@ -860,15 +849,12 @@ foreach ($ar as $key => $val) {
                         $asize = getimagesize($from_file);
                         if ($asize[0] > 750) echo " class='bigimage'";
                         echo " /><br><br>";
-                    }
-                    else {
+                    } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
                         "/controller.php?document&retrieve&patient_id=&document_id=" .
                         $document_id . "&as_file=false'><br><br>";
                     }
-                }
-                else {
-
+                } else {
           // Most clinic documents are expected to be PDFs, and in that happy case
           // we can avoid the lengthy image conversion process.
                     if ($PDF_OUTPUT && $extension == ".pdf") {
@@ -878,26 +864,25 @@ foreach ($ar as $key => $val) {
                                 // $pdf->setDefaultFont('Arial');
                                 $pdf->writeHTML($content, false);
                                 $pagecount = $pdf->pdf->setSourceFile($from_file);
-                        for($i = 0; $i < $pagecount; ++$i){
+                        for ($i = 0; $i < $pagecount; ++$i) {
                             $pdf->pdf->AddPage();
                             $itpl = $pdf->pdf->importPage($i + 1, '/MediaBox');
                             $pdf->pdf->useTemplate($itpl);
                         }
+
                                 // Make sure whatever follows is on a new page.
                                 $pdf->pdf->AddPage();
                                 // Resume output buffering and the above-closed tags.
                                 ob_start();
                                 echo "<div><div class='text documents'>\n";
-                    }
-                    else {
+                    } else {
                                 if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
                         if (is_file($to_file)) {
                             if ($PDF_OUTPUT) {
                                 // OK to link to the image file because it will be accessed by the
                                 // HTML2PDF parser and not the browser.
                                 echo "<img src='$to_file'><br><br>";
-                            }
-                            else {
+                            } else {
                                 echo "<img src='" . $GLOBALS['webroot'] .
                                   "/controller.php?document&retrieve&patient_id=&document_id=" .
                                   $document_id . "&as_file=false&original_file=false'><br><br>";
@@ -905,7 +890,7 @@ foreach ($ar as $key => $val) {
                         } else {
                             echo "<b>NOTE</b>: " . xl('Document') . "'" . $fname . "' " .
                               xl('cannot be converted to JPEG. Perhaps ImageMagick is not installed?') . "<br><br>";
-                            if($couch_docid && $couch_revid) {
+                            if ($couch_docid && $couch_revid) {
                                 unlink($from_file);
                             }
                         }
@@ -913,15 +898,13 @@ foreach ($ar as $key => $val) {
                 } // end if-else
             } // end Documents loop
             echo "</div>";
-        }
-
-        // Procedures is an array of checkboxes whose values are procedure order IDs.
+        } // Procedures is an array of checkboxes whose values are procedure order IDs.
         //
         else if ($key == "procedures") {
             if ($auth_med) {
                 echo "<hr />";
                 echo "<div class='text documents'>";
-                foreach($val as $valkey => $poid) {
+                foreach ($val as $valkey => $poid) {
                     echo "<h1>" . xlt('Procedure Order') . ":</h1>";
                     echo "<br />\n";
                     // Need to move the inline styles from this function to the stylesheet, but until
@@ -929,11 +912,10 @@ foreach ($ar as $key => $val) {
                     generate_order_report($poid, false, !$PDF_OUTPUT);
                     echo "<br />\n";
                 }
+
                 echo "</div>";
             }
-        }
-
-        else if (strpos($key, "issue_") === 0) {
+        } else if (strpos($key, "issue_") === 0) {
             // display patient Issues
 
             if ($first_issue) {
@@ -942,6 +924,7 @@ foreach ($ar as $key => $val) {
                 echo "<hr />";
                 echo "<h1>".xl("Issues")."</h1>";
             }
+
             preg_match('/^(.*)_(\d+)$/', $key, $res);
             $rowid = $res[2];
             $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
@@ -953,6 +936,7 @@ foreach ($ar as $key => $val) {
                 echo "<div class='issue_type'>" . $disptype . ":</div>\n";
                 $prevIssueType = $irow['type'];
             }
+
             echo "<div class='text issue'>";
             echo "<span class='issue_title'>" . $irow['title'] . ":</span>";
             echo "<span class='issue_comments'> " . $irow['comments'] . "</span>\n";
@@ -965,6 +949,7 @@ foreach ($ar as $key => $val) {
                     echo "<span class='italic'>".$dcode."</span>: ";
                     echo lookup_code_descriptions($dcode)."<br>\n";
                 }
+
                 //echo $diagnosis." -- ".lookup_code_descriptions($diagnosis)."\n";
                 echo "</div>";
             }
@@ -974,15 +959,13 @@ foreach ($ar as $key => $val) {
                 echo "   <table>\n";
                 display_layout_rows('GCA', sqlQuery("SELECT * FROM lists_ippf_gcac WHERE id = '$rowid'"));
                 echo "   </table>\n";
-            }
-            else if ($irow['type'] == 'contraceptive') {
+            } else if ($irow['type'] == 'contraceptive') {
                 echo "   <table>\n";
                 display_layout_rows('CON', sqlQuery("SELECT * FROM lists_ippf_con WHERE id = '$rowid'"));
                 echo "   </table>\n";
             }
 
             echo "</div>\n"; //end the issue DIV
-
         } else {
             // we have an "encounter form" form field whose name is like
             // dirname_formid, with a value which is the encounter ID.
@@ -1001,8 +984,7 @@ foreach ($ar as $key => $val) {
                 if ($res[1] == 'newpatient') {
                     echo "<div class='text encounter'>\n";
                     echo "<h1>" . xl($formres["form_name"]) . "</h1>";
-                }
-                else {
+                } else {
                     echo "<div class='text encounter_form'>";
                     echo "<h1>" . xl_form_title($formres["form_name"]) . "</h1>";
                 }
@@ -1013,6 +995,7 @@ foreach ($ar as $key => $val) {
                     // display the provider info
                     echo ' '. xl('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));
                 }
+
                 echo "<br>\n";
 
                 // call the report function for the form
@@ -1021,11 +1004,10 @@ foreach ($ar as $key => $val) {
                 <?php
                 if (substr($res[1], 0, 3) == 'LBF')
                   call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
-                else
-                  call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                else call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
 
                 $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                if ( $esign->isLogViewable("report") ) {
+                if ($esign->isLogViewable("report")) {
                     $esign->renderLog();
                 }
                 ?>
@@ -1053,13 +1035,9 @@ foreach ($ar as $key => $val) {
                 }
 
                 print "</div>";
-
             } // end auth-check for encounter forms
-
         } // end if('issue_')... else...
-
     } // end if('include_')... else...
-
 } // end $ar loop
 
 if ($printable)
@@ -1075,8 +1053,7 @@ if ($PDF_OUTPUT) {
     $pdf->writeHTML($content, false);
     if ($PDF_OUTPUT == 1) {
         $pdf->Output('report.pdf', $GLOBALS['pdf_output']); // D = Download, I = Inline
-    }
-    else {
+    } else {
         // This is the case of writing the PDF as a message to the CMS portal.
         $ptdata = getPatientData($pid, 'cmsportal_login');
         $contents = $pdf->Output('', true);
@@ -1096,8 +1073,7 @@ if ($PDF_OUTPUT) {
         echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
         echo "</body></html>\n";
     }
-}
-else {
+} else {
 ?>
 </body>
 </html>

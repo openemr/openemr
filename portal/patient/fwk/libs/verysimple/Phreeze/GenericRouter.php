@@ -103,7 +103,7 @@ class GenericRouter implements IRouter
         }
         
         // loop through the route map for wild cards:
-        foreach ( $this->routeMap as $key => $value ) {
+        foreach ($this->routeMap as $key => $value) {
             $unalteredKey = $key;
             
             // convert wild cards to RegEx.
@@ -157,10 +157,11 @@ class GenericRouter implements IRouter
             }
             
             // strip trailing slash
-            while ( substr($this->uri, - 1) == '/' ) {
+            while (substr($this->uri, - 1) == '/') {
                 $this->uri = substr($this->uri, 0, - 1);
             }
         }
+
         return $this->uri;
     }
     
@@ -182,7 +183,7 @@ class GenericRouter implements IRouter
         $url = rtrim($url, '/');
         
         // enumerate all of the routes in the map and look for the first one that matches
-        foreach ( $this->routeMap as $key => $value ) {
+        foreach ($this->routeMap as $key => $value) {
             list ( $routeController, $routeMethod ) = explode(".", $value ["route"]);
             
             $routeRequestMethodArr = explode(":", $key, 2);
@@ -193,7 +194,6 @@ class GenericRouter implements IRouter
             // 2. the requestMethod is either a match or one or the other is a wildcard
             // 3. the number of parameters is equal
             if ($routeController == $controller && $routeMethod == $method && ($requestMethod == "" || $routeRequestMethod == "*" || $routeRequestMethod == $requestMethod) && (! array_key_exists("params", $value) || count($params) == count($value ["params"]))) {
-                
                 $keyArr = explode('/', $key);
                 
                 // strip the request method off the key:
@@ -204,16 +204,17 @@ class GenericRouter implements IRouter
                 // example: path is user/(:num)/events and parameters are [userCode]=>111
                 // this would yield an array of [0]=>user, [1]=>111, [2]=>events
                 if (array_key_exists("params", $value)) {
-                    foreach ( $value ["params"] as $rKey => $rVal ) {
+                    foreach ($value ["params"] as $rKey => $rVal) {
                         if (! array_key_exists($rKey, $params)) {
                             throw new Exception("Missing parameter '$rKey' for route $controller.$method");
                         }
+
                         $keyArr [$value ["params"] [$rKey]] = $params [$rKey];
                     }
                 }
                 
                 // put the url together:
-                foreach ( $keyArr as $urlPiece ) {
+                foreach ($keyArr as $urlPiece) {
                     $url = $url . ($urlPiece != '' ? "/$urlPiece" : '');
                 }
                 
@@ -263,8 +264,7 @@ class GenericRouter implements IRouter
         if (isset($this->matchedRoute ["params"] [$paramKey])) {
             $indexLocation = $this->matchedRoute ["params"] [$paramKey];
             $returnVal = $params [$indexLocation];
-        } else
-            $returnVal = RequestUtil::Get($paramKey);
+        } else $returnVal = RequestUtil::Get($paramKey);
         
         return $returnVal != '' ? $returnVal : $default;
     }

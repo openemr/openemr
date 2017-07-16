@@ -93,8 +93,8 @@ class MultipledbController extends BaseController
         $this->checkAcl('write');
         $id = substr((int)$_SESSION['multiple_edit_id'], 0, 11);
         $db = array();
-        if($_REQUEST['db']){
-            foreach($_REQUEST['db'] as $key => $value){
+        if ($_REQUEST['db']) {
+            foreach ($_REQUEST['db'] as $key => $value) {
                 $db[$key] = htmlentities($value, ENT_QUOTES | ENT_IGNORE, "UTF-8");
             }
 
@@ -149,6 +149,7 @@ class MultipledbController extends BaseController
             $sm = $this->getServiceLocator();
             $this->MultipledbTable = $sm->get('Multipledb\Model\MultipledbTable');
         }
+
         return $this->MultipledbTable;
     }
 
@@ -164,12 +165,12 @@ class MultipledbController extends BaseController
 
     public function checkAcl($mode = null)
     {
-        if($mode == 'view' or $mode == 'write'){
-            if(!acl_check('admin', 'multipledb', false, $mode)){
+        if ($mode == 'view' or $mode == 'write') {
+            if (!acl_check('admin', 'multipledb', false, $mode)) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
-        }else{
-            if(!acl_check('admin', 'multipledb')){
+        } else {
+            if (!acl_check('admin', 'multipledb')) {
                 $this->redirect()->toRoute("multipledb", array("action"=>"error"));
             }
         }

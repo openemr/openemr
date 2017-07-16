@@ -45,7 +45,8 @@ class VersionRepository extends EntityRepository
             $updateInformation = $this->_em->persist($objectToBeUpdated);
             $this->_em->flush();
             $response = true;
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $response;
     }

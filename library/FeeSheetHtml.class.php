@@ -56,11 +56,11 @@ class FeeSheetHtml extends FeeSheet
         if ($GLOBALS['gbl_restrict_provider_facility']) {
             $query .= " AND ( facility_id = 0 OR facility_id = ? )";
             $query .= " ORDER BY lname, fname";
-        }
-        // If not restricting then sort the matching providers first.
+        } // If not restricting then sort the matching providers first.
         else {
             $query .= " ORDER BY (facility_id = ?) DESC, lname, fname";
         }
+
         $res = sqlStatement($query, $sqlarr);
         $s .= "<option value=''>" . text($toptext) . "</option>";
         while ($row = sqlFetchArray($res)) {
@@ -72,8 +72,10 @@ class FeeSheetHtml extends FeeSheet
                 // Mark providers in the matching facility with an asterisk.
                 $s .= "* ";
             }
+
             $s .= text($row['lname'] . ", " . $row['fname']) . "</option>";
         }
+
         return $s;
     }
 
@@ -98,7 +100,7 @@ class FeeSheetHtml extends FeeSheet
             // Normally would use generate_select_list() but it's not flexible enough here.
             $s .= "<select name='" . attr($tagname) . "'";
             if (!$disabled) $s .= " onchange='warehouse_changed(this);'";
-            if ($disabled ) $s .= " disabled";
+            if ($disabled) $s .= " disabled";
             $s .= ">";
             $s .= "<option value=''>" . text($toptext) . "</option>";
             $lres = sqlStatement("SELECT * FROM list_options " .
@@ -107,24 +109,24 @@ class FeeSheetHtml extends FeeSheet
                   $s .= "<option value='" . attr($lrow['option_id']) . "'";
                 if ($disabled) {
                     if ($lrow['option_id'] == $default) $s .= " selected";
-                }
-                else {
+                } else {
                     $has_inventory = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     if (((strlen($default) == 0 && $lrow['is_default']) ||
                        (strlen($default)  > 0 && $lrow['option_id'] == $default)) &&
-                      ($is_sold || $has_inventory))
-                    {
+                      ($is_sold || $has_inventory)) {
                         $s .= " selected";
-                    }
-                    else {
+                    } else {
                         // Disable this warehouse option if not selected and has no inventory.
                         if (!$has_inventory) $s .= " disabled";
                     }
                 }
+
                     $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
             }
+
             $s .= "</select>";
         }
+
         return $s;
     }
 
@@ -136,7 +138,7 @@ class FeeSheetHtml extends FeeSheet
         // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
         $s = "<select name='" . attr($tagname) . "'";
         if (!$disabled) $s .= " onchange='pricelevel_changed(this);'";
-        if ($disabled ) $s .= " disabled";
+        if ($disabled) $s .= " disabled";
         $s .= ">";
         $s .= "<option value=''>" . text($toptext) . "</option>";
         $lres = sqlStatement(
@@ -155,8 +157,10 @@ class FeeSheetHtml extends FeeSheet
             ) {
                 $s .= " selected";
             }
+
             $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
         }
+
         $s .= "</select>";
         return $s;
     }
@@ -193,6 +197,7 @@ class FeeSheetHtml extends FeeSheet
                 }
             }
         }
+
         return $s;
     }
 
@@ -213,6 +218,7 @@ class FeeSheetHtml extends FeeSheet
             if ($key == $pricelevel) $s .= ' selected';
             $s .= ">" . text(xl_list_label($val)) . "</option>";
         }
+
         $s .= "</select>";
         return $s;
     }
@@ -362,6 +368,7 @@ function jsLineItemValidation(f) {
  }
 ";
         }
+
         $s .= "
  // End contraception validation.
  if (f.ippfconmeth) {

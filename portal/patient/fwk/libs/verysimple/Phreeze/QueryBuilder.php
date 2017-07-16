@@ -69,7 +69,7 @@ class QueryBuilder
         }
         
         // first we just add the basic columns of this object
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             $this->AddFieldMap($fm);
         }
         
@@ -81,7 +81,7 @@ class QueryBuilder
         // each keymap in this object that is eagerly loaded, we want to join into the query.
         // each of these tables, then might have eagerly loaded keymaps as well, so we'll use
         // recursion to eagerly load as much of the graph as is desired
-        foreach ( $kms as $km ) {
+        foreach ($kms as $km) {
             if ($km->LoadType == KM_LOAD_EAGER || $km->LoadType == KM_LOAD_INNER) {
                 // check that we didn't eagerly join this already.
                 // TODO: use aliases to support multiple eager joins to the same table
@@ -97,7 +97,7 @@ class QueryBuilder
                 // lastly we need to add the join information for this foreign field map
                 $jointype = $km->LoadType == KM_LOAD_INNER ? "inner" : "left";
                 
-                foreach ( $ffms as $ffm ) {
+                foreach ($ffms as $ffm) {
                     if (! isset($this->Joins [$ffm->TableName])) {
                         $this->Joins [$ffm->TableName] = " " . $jointype . " join `" . $ffm->TableName . "` on `" . $fms [$km->KeyProperty]->TableName . "`.`" . $fms [$km->KeyProperty]->ColumnName . "` = `" . $ffms [$km->ForeignKeyProperty]->TableName . "`.`" . $ffms [$km->ForeignKeyProperty]->ColumnName . "`";
                     }
@@ -144,11 +144,10 @@ class QueryBuilder
             // this by simply adding in referenced to foreign field in the order you want
             // the tables to be joined
             // for ($i = count($tablenames) -1; $i > 0 ; $i--) // this iterates backwards
-            for($i = 1; $i < count($tablenames); $i ++) // this iterates forwards
-            {
+            for ($i = 1; $i < count($tablenames); $i ++) { // this iterates forwards
                 try {
                     $sql .= $this->Joins [$tablenames [$i]];
-                } catch ( Exception $ex ) {
+                } catch (Exception $ex) {
                     // if 'undefined index' occurs here, there is likely a foreign field in the fieldmap that does not have it's related keymap set to KM_LOAD_EAGER
                     throw new Exception("An invalid join was attempted from table '" . $tablenames [$i] . "'. Please verify that the KeyMap fetching strategy for table '" . $tablenames [0] . "' has been properly configured.");
                 }
@@ -174,11 +173,11 @@ class QueryBuilder
         $sql = trim($sql);
         
         // remove if the query is surrounded by parenths
-        while ( substr($sql, 0, 1) == "(" && substr($sql, 0, - 1) == ")" ) {
+        while (substr($sql, 0, 1) == "(" && substr($sql, 0, - 1) == ")") {
             $sql = trim(substr($sql, 1, - 1));
         }
         
-        while ( strtolower(substr($sql, 0, 5)) == "where" ) {
+        while (strtolower(substr($sql, 0, 5)) == "where") {
             $sql = trim(substr($sql, 5));
         }
         
@@ -201,7 +200,7 @@ class QueryBuilder
         
         if (count($ands)) {
             $wdelim = ($where) ? " and " : "";
-            foreach ( $ands as $c ) {
+            foreach ($ands as $c) {
                 $tmp = $c->GetWhere();
                 $buff = $this->RemoveWherePrefix($tmp);
                 if ($buff) {
@@ -215,7 +214,7 @@ class QueryBuilder
             $where = trim($where) ? "(" . $where . ")" : ""; // no primary criteria. kinda strange
             $wdelim = $where ? " or " : "";
             
-            foreach ( $ors as $c ) {
+            foreach ($ors as $c) {
                 $tmp = $c->GetWhere();
                 $buff = $this->RemoveWherePrefix($tmp);
                 if ($buff) {

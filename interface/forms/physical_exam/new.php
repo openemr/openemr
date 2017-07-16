@@ -40,13 +40,16 @@ function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp)
             $sel = 'selected';
             $diagnosis = '';
         }
+
         echo "   <option value='$diag' $sel>$diag</option>\n";
     }
+
  // If the diagnosis was not in the standard list then it must have been
  // there before and then removed.  In that case show it in parentheses.
     if ($diagnosis) {
         echo "   <option value='$diagnosis' selected>($diagnosis)</option>\n";
     }
+
     echo "   <option value='*'>-- Edit --</option>\n";
     echo "   </select></td>\n";
 
@@ -74,7 +77,6 @@ $formid = $_GET['id'];
 // If Save was clicked, save the info.
 //
 if ($_POST['bn_save']) {
-
  // We are to update/insert multiple table rows for the form.
  // Each has 2 checkboxes, a dropdown and a text input field.
  // Skip rows that have no entries.
@@ -84,8 +86,7 @@ if ($_POST['bn_save']) {
     if ($formid) {
         $query = "DELETE FROM form_physical_exam WHERE forms_id = '$formid'";
         sqlStatement($query);
-    }
-    else {
+    } else {
         $formid = addForm($encounter, "Physical Exam", 0, "physical_exam", $pid, $userauthorized);
         $query = "UPDATE forms SET form_id = id WHERE id = '$formid' AND form_id = 0";
         sqlStatement($query);
@@ -177,16 +178,17 @@ foreach ($pelines as $sysname => $sysarray) {
         echo " <tr><td colspan='6'>\n";
         echo "   &nbsp;<br><b>" .xl('Treatment:'). "</b>\n";
         echo " </td></tr>\n";
-    }
-    else {
+    } else {
         $sysnamedisp = xl($sysname);
     }
+
     foreach ($sysarray as $line_id => $description) {
         if ($sysname != '*') {
             showExamLine($line_id, $description, $rows[$line_id], $sysnamedisp);
         } else {
             showTreatmentLine($line_id, $description, $rows[$line_id]);
         }
+
         $sysnamedisp = '';
        // TBD: Delete $rows[$line_id] if it exists.
     } // end of line

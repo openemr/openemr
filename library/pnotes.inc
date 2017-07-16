@@ -48,16 +48,14 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
   // Set the activity part of query
     if ($activity=='1') {
         $activity_query = " pnotes.message_status != 'Done' AND pnotes.activity = 1 AND ";
-    }
-    else if ($activity=='0') {
+    } else if ($activity=='0') {
         $activity_query = " (pnotes.message_status = 'Done' OR pnotes.activity = 0) AND ";
-    }
-    else { //$activity=='all'
+    } else { //$activity=='all'
         $activity_query = " ";
     }
 
   // Set whether to show chosen user or all users
-    if ($show_all == 'yes' ) {
+    if ($show_all == 'yes') {
         $usrvar='_%';
     } else {
         $usrvar=$user;
@@ -77,19 +75,19 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
             " ".escape_sort_order($sortorder).
             " limit ".escape_limit($begin).", ".escape_limit($listnumber);
     }
+
     $result = sqlStatement($sql, array($usrvar));
 
   // return the results
     if ($count) {
-        if(sqlNumRows($result) != 0) {
+        if (sqlNumRows($result) != 0) {
             $total = sqlNumRows($result);
-        }
-        else {
+        } else {
             $total = 0;
         }
+
         return $total;
-    }
-    else {
+    } else {
         return $result;
     }
 }
@@ -113,43 +111,43 @@ function getPnotesByDate(
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $docid);
-    }
-    else if ($orderid) {
+    } else if ($orderid) {
         $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $orderid);
-    }
-    else {
+    } else {
         $sql = "SELECT $cols FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid != p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $pid);
     }
+
     $sql .= " AND deleted != 1"; // exclude ALL deleted notes
     if ($activity != "all") {
         if ($activity == '0') {
             // only return inactive
             $sql .= " AND (activity = '0' OR message_status = 'Done') ";
-        }
-        else { // $activity == '1'
+        } else { // $activity == '1'
             // only return active
             $sql .= " AND activity = '1' AND message_status != 'Done' ";
         }
     }
+
     if ($username) {
         $sql .= " AND assigned_to LIKE ?";
         array_push($sqlParameterArray, $username);
     }
+
     if ($status)
     $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
     $sql .= " ORDER BY date DESC";
-    if($limit != "all")
+    if ($limit != "all")
     $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
     $all=array();
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
     $all[$iter] = $row;
     return $all;
 }
@@ -174,52 +172,53 @@ function getSentPnotesByDate(
         "WHERE p.date LIKE ? AND r.type1 = 1 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $docid);
-    }
-    else if ($orderid) {
+    } else if ($orderid) {
         $sql = "SELECT $cols FROM pnotes AS p, gprelations AS r " .
         "WHERE p.date LIKE ? AND r.type1 = 2 AND " .
         "r.id1 = ? AND r.type2 = 6 AND p.id = r.id2 AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $orderid);
-    }
-    else {
+    } else {
         $sql = "SELECT $cols FROM pnotes AS p " .
         "WHERE date LIKE ? AND pid LIKE ? AND p.pid = p.user";
         array_push($sqlParameterArray, '%'.$date.'%', $pid);
     }
+
     $sql .= " AND deleted != 1"; // exclude ALL deleted notes
     if ($activity != "all") {
         if ($activity == '0') {
             // only return inactive
             $sql .= " AND (activity = '0' OR message_status = 'Done') ";
-        }
-        else { // $activity == '1'
+        } else { // $activity == '1'
             // only return active
             $sql .= " AND activity = '1' AND message_status != 'Done' ";
         }
     }
+
     if ($username) {
         $sql .= " AND assigned_to LIKE ?";
         array_push($sqlParameterArray, $username);
     }
+
     if ($status)
     $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
     $sql .= " ORDER BY date DESC";
-    if($limit != "all")
+    if ($limit != "all")
     $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
     $all=array();
-    for ($iter = 0;$row = sqlFetchArray($res);$iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
     $all[$iter] = $row;
     return $all;
 }
 
 function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
     SELECT
       p.id,
@@ -245,17 +244,19 @@ function getPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
     $limit
   ";
     $res = sqlStatement($sql, array($pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
 function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
     SELECT
       pr.id,
@@ -281,17 +282,19 @@ function getPatientNotifications($pid = '', $limit = '', $offset = 0, $search = 
     $limit
   ";
     $res = sqlStatement($sql, array($pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
 function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 {
-    if($limit){
+    if ($limit) {
         $limit = "LIMIT ".escape_limit($offset).", ".escape_limit($limit);
     }
+
     $sql = "
     SELECT
       p.id,
@@ -319,9 +322,10 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
     $limit
   ";
     $res = sqlStatement($sql, array($pid,$pid));
-    for($iter = 0;$row = sqlFetchArray($res);$iter++){
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
+
     return $all;
 }
 
@@ -335,21 +339,20 @@ function getPnotesByPid($pid, $activity = "1", $cols = "*", $limit = 10, $start 
           " AND message_status != 'Done' ".
           " AND deleted != 1 ".
           " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
-    }
-    else if ($activity == '0') {
+    } else if ($activity == '0') {
         // return only inactive
         $res = sqlStatement("SELECT $cols FROM pnotes WHERE pid LIKE ? " .
           "AND (activity = '0' ".
           " OR message_status = 'Done') ".
           " AND deleted != 1 ".
           " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
-    }
-    else { // $activity == "all"
+    } else { // $activity == "all"
         // return both active and inactive
         $res = sqlStatement("SELECT $cols FROM pnotes WHERE pid LIKE ? " .
           " AND deleted != 1 ".
           " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
     }
+
     for ($iter = 0; $row = sqlFetchArray($res); $iter++)
     $all[$iter] = $row;
     return $all;
@@ -446,8 +449,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
             "assigned_to = ?, message_status = ? WHERE id = ?",
             array($body, $activity, $title, $assigned_to, $message_status, $id)
         );
-    }
-    else {
+    } else {
         sqlStatement(
             "UPDATE pnotes SET " .
             "body = ?, activity = ?, title= ?, " .
@@ -461,8 +463,7 @@ function updatePnoteMessageStatus($id, $message_status)
 {
     if ($message_status == "Done") {
         sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
-    }
-    else {
+    } else {
         sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
     }
 }
@@ -480,7 +481,7 @@ function updatePnotePatient($id, $patient_id)
     $activity = $assigned_to ? '1' : '0';
 
     $pid = $row['pid'];
-    if($pid != 0 || (int)$patient_id < 1) die("updatePnotePatient invalid operation");
+    if ($pid != 0 || (int)$patient_id < 1) die("updatePnotePatient invalid operation");
 
     $pid = (int) $patient_id;
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $_SESSION['authUser'] .")";

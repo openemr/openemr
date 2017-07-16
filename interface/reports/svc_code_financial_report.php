@@ -148,6 +148,7 @@ $('.datepicker').datetimepicker({
                 if ($provid == $_POST['form_provider']) echo " selected";
                 echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
             }
+
                             echo "   </select>\n";
                             ?>
                 </td>
@@ -205,6 +206,7 @@ $('.datepicker').datetimepicker({
 
 <?php
 }
+
    // end not export
 
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
@@ -229,15 +231,18 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $query .= " AND fe.facility_id = ?";
         array_push($sqlBindArray, $form_facility);
     }
+
     // If a provider was specified.
     if ($form_provider) {
         $query .= " AND b.provider_id = ?";
         array_push($sqlBindArray, $form_provider);
     }
+
     // If selected important codes
-    if($_POST['form_details']) {
+    if ($_POST['form_details']) {
         $query .= " AND c.financial_reporting = '1'";
     }
+
     $query .= " GROUP BY b.code ORDER BY b.code, fe.date, fe.id ";
     $res = sqlStatement($query, $sqlBindArray);
     $grand_total_units  = 0;
@@ -259,6 +264,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         $row['financial_reporting'] = $erow['financial_reporting'];
         $rows[$erow['pid'] . '|' . $erow['code'] . '|' . $erow['units']] = $row;
     }
+
     if ($_POST['form_csvexport']) {
       // CSV headers:
         if (true) {
@@ -294,14 +300,18 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 </thead>
 <?php
     }
+
             $orow = -1;
 
     foreach ($rows as $key => $row) {
         $print = '';
         $csv = '';
 
-        if($row['financial_reporting']){ $bgcolor = "#FFFFDD";
-        }else { $bgcolor = "#FFDDDD";  }
+        if ($row['financial_reporting']) {
+            $bgcolor = "#FFFFDD";
+        } else {
+            $bgcolor = "#FFDDDD";  }
+
         $print = "<tr bgcolor='$bgcolor'><td class='detail'>".text($row['Procedure codes'])."</td><td class='detail'>".text($row['Units'])."</td><td class='detail'>".text(oeFormatMoney($row['Amt Billed']))."</td><td class='detail'>".text(oeFormatMoney($row['Paid Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Adjustment Amt']))."</td><td class='detail'>".text(oeFormatMoney($row['Balance Amt']))."</td>";
 
         $csv = '"' . text($row['Procedure codes']) . '","' . text($row['Units']) . '","' . text(oeFormatMoney($row['Amt Billed'])) . '","' . text(oeFormatMoney($row['Paid Amt'])) . '","' . text(oeFormatMoney($row['Adjustment Amt'])) . '","' . text(oeFormatMoney($row['Balance Amt'])) . '"' . "\n";
@@ -313,10 +323,12 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
                                        $grand_total_amt_adjustment  += $row['Adjustment Amt'];
                                        $grand_total_amt_balance  += $row['Balance Amt'];
 
-        if ($_POST['form_csvexport']) { echo $csv; }
-        else { echo $print;
-        }
+        if ($_POST['form_csvexport']) {
+            echo $csv; } else {
+            echo $print;
+            }
     }
+
     if (!$_POST['form_csvexport']) {
         echo "<tr bgcolor='#ffffff'>\n";
         echo " <td class='detail'>" . xlt("Grand Total") . "</td>\n";
@@ -337,8 +349,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 }
 
 if (! $_POST['form_csvexport']) {
-    if ( $_POST['form_refresh'] && count($print) != 1)
-    {
+    if ($_POST['form_refresh'] && count($print) != 1) {
         echo "<span style='font-size:10pt;'>";
            echo xlt('No matches found. Try search again.');
            echo "</span>";

@@ -71,9 +71,9 @@ if ($error) {
         echo "force_submit = true;\n";
         echo "f.create.value = '" . xl('Force Create New Patient') . "';\n";
     }
+
     $message = addslashes($message);
     echo "show_matches('$fname', '$mname', '$lname', '$pubpid', '$ss', '$message')\n";
-}
-else {
+} else {
     echo "f.submit()\n";
 }

@@ -44,6 +44,7 @@ class ExceptionThrower
                 self::$IGNORE_DEPRECATED = true;
             }
         }
+
         set_error_handler(array (
                 "ExceptionThrower",
                 "HandleError"

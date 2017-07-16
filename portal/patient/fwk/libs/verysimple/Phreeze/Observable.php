@@ -42,7 +42,7 @@ abstract class Observable implements IObservable
      */
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        foreach ( $this->_observers as $observer ) {
+        foreach ($this->_observers as $observer) {
             $observer->Observe($obj, $ltype);
         }
     }

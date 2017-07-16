@@ -2,19 +2,21 @@
 require_once("language.inc.php");
 
 
-if ($_POST['add']){
+if ($_POST['add']) {
     //validate
     if ($_POST['constant_name'] == "") {
             echo htmlspecialchars(xl('Constant name is blank'), ENT_NOQUOTES).'<br>';
             $err='y';
     }
+
     $sql="SELECT * FROM lang_constants WHERE constant_name=? limit 1" ;
     $res=SqlQuery($sql, array($_POST['constant_name']));
-    if ( $res ) {
+    if ($res) {
         echo htmlspecialchars(xl('Data Alike is already in database, please change constant name'), ENT_NOQUOTES).'<br>';
         $err='y';
     }
-    if ($err=='y'){
+
+    if ($err=='y') {
         $val_constant=$_POST['constant_name'];
     } else {
             //insert into the main table

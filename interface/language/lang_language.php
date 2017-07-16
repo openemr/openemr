@@ -1,6 +1,6 @@
 <?php
 
-if ($_POST['add']){
+if ($_POST['add']) {
     //validate
     $pat="^[a-z]{2}\$";
     if (!check_pattern($_POST['lang_code'], $pat)) {
@@ -10,11 +10,12 @@ if ($_POST['add']){
 
     $sql="SELECT * FROM lang_languages WHERE lang_code LIKE ? or lang_description LIKE ? limit 1" ;
     $res=SqlQuery($sql, array("%".$_POST['lang_code']."%","%".$_POST['lang_name']));
-    if ( $res ) {
+    if ($res) {
         echo htmlspecialchars(xl("Data Alike is already in database, please change code and/or description"), ENT_NOQUOTES).'<br>';
         $err='y';
     }
-    if ($err=='y'){
+
+    if ($err=='y') {
         $val_lang_code=$_POST['lang_code'];
         $val_lang_name=$_POST['lang_name'];
     } else {

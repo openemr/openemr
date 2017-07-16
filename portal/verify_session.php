@@ -39,14 +39,14 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 //
 
 $ignoreAuth=true; // ignore the standard authentication for a regular OpenEMR user

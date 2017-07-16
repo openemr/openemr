@@ -75,10 +75,12 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
             ) continue;
             if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
         }
+
         $fields['RXTYPE']=$RXTYPE;
 
         $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $_SESSION['userauthorized']);
     }
+
     exit;
 } elseif ($_REQUEST['mode'] =="remove") {
     $query ="DELETE FROM form_eye_mag_dispense where id=?";
@@ -107,6 +109,7 @@ if ($_REQUEST['REFTYPE']) {
     } else {
         $encounter = $_REQUEST['encounter'];
     }
+
     $query = "SELECT * FROM form_eye_mag JOIN forms on forms.form_id = form_eye_mag.id
     where form_eye_mag.pid =? and forms.encounter=? and forms.deleted !='1'";
 
@@ -132,16 +135,17 @@ if ($_REQUEST['REFTYPE']) {
         if ($wearing['RX_TYPE']=='0') {
             $Single="checked='checked'";
             $RXTYPE="Single";
-        } elseif ($wearing['RX_TYPE']=='1'){
+        } elseif ($wearing['RX_TYPE']=='1') {
             $Bifocal ="checked='checked'";
             $RXTYPE="Bifocal";
-        } elseif ($wearing['RX_TYPE']=='2'){
+        } elseif ($wearing['RX_TYPE']=='2') {
             $Trifocal ="checked='checked'";
             $RXTYPE="Trifocal";
-        } elseif ($wearing['RX_TYPE']=='3'){
+        } elseif ($wearing['RX_TYPE']=='3') {
             $Progressive ="checked='checked'";
             $RXTYPE="Progressive";
         }
+
         //do LT and Lens materials
     } elseif ($REFTYPE =="AR") {
             $ODSPH = $data['ARODSPH'];
@@ -229,16 +233,18 @@ if ($_REQUEST['REFTYPE']) {
             $row['Field'] == 'REFDATE'
             )
             continue;
-            if (isset(${$row['Field']})) $fields[$row['Field']] = ${$row['Field']};
+            if (isset(${$row['Field']})) {
+                $fields[$row['Field']] = $$row['Field']};
         }
+
         $fields['RXTYPE']=$RXTYPE;
         $fields['REFDATE'] = $data['date'];
 
         $insert_this_id = formSubmit($table_name, $fields, $form_id, $_SESSION['userauthorized']);
     }
 }
-if ($_REQUEST['dispensed']) {
 
+if ($_REQUEST['dispensed']) {
     $query = "SELECT * from form_eye_mag_dispense where pid =? ORDER BY date DESC";
     $dispensed = sqlStatement($query, array($_REQUEST['pid']));
     ?><html>
@@ -529,6 +535,7 @@ if ($_REQUEST['dispensed']) {
     <?php
     exit;
 }
+
    ob_start();
     ?>
     <html>
@@ -800,8 +807,7 @@ if ($_REQUEST['dispensed']) {
                                                 if ($ODHPD||$ODHBASE||$ODVPD||$ODVBASE||$ODSLABOFF||$ODVERTEXDIST||
                                                             $OSHPD||$OSHBASE||$OSVPD||$OSVBASE||$OSSLABOFF||$OSVERTEXDIST||
                                                             $ODMPDD||$ODMPDN||$OSMPDD||$OSMPDN||$BPDD||$BPDN||
-                                                            $LENS_MATERIAL||$LENS_TREATMENTS)
-                                                        {
+                                                            $LENS_MATERIAL||$LENS_TREATMENTS) {
                                                           $detailed = '1';
                                                     ?><i class="fa fa-minus-square-o"></i><?php
                                                 } else {
@@ -967,7 +973,8 @@ if ($_REQUEST['dispensed']) {
                                 <?php } ?>
 
                         <?php echo xlt('Provider'); ?>: <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
-                        if ($prov_data['suffix']) { echo ", ".$prov_data['suffix'];} ?><br />
+                        if ($prov_data['suffix']) {
+                            echo ", ".$prov_data['suffix'];} ?><br />
                                 <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked"></small>
                             </td>
                         </tr>
@@ -986,7 +993,8 @@ if ($_REQUEST['dispensed']) {
                         });
                     });
                 });
-                <?php if (!$detailed) { echo "$('.header').trigger('click');"; } ?>
+                <?php if (!$detailed) {
+                    echo "$('.header').trigger('click');"; } ?>
 
                 $("input[name$='PD']").blur(function() {
                                                                        //make it all caps

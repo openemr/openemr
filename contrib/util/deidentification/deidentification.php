@@ -141,7 +141,7 @@ function removeColumn($con, $table, $column, $value = '')
 {
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
-    if($query) print("\n Query '$removeSS' completed! \n");
+    if ($query) print("\n Query '$removeSS' completed! \n");
 }
 
 /* This function replaces the first and last name of the patient with a auto generated name
@@ -163,9 +163,10 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 
     $removeLname = ("Select lname, pid, id, ss, street, sex from patient_data ");
     $query = mysqli_query($con, $removeLname);
-    while($result = mysqli_fetch_array($query))
-    {
-        if ($DEBUG===true) {if($i ===10)break;}
+    while ($result = mysqli_fetch_array($query)) {
+        if ($DEBUG===true) {
+            if ($i ===10)break;}
+
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
@@ -186,11 +187,9 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 
         $string = "update patient_data set lname = '$last_name', ";
 
-        if($result['sex'] === 'Male'){
-
+        if ($result['sex'] === 'Male') {
             $string .= " fname = '$first_name_male', ";
-        }
-        else{
+        } else {
             $string .= " fname = '$first_name_female', ";
         }
 
@@ -215,9 +214,6 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
         $string = '';
         deIdInsuranceDataTable($con, $result['pid']);
         //now update insurace
-
-
-
     }
 
     return $i;
@@ -241,16 +237,14 @@ function deIdInsuranceDataTable($con, $pid)
 
     //for each insurance type:
     //see if a insured name exists.  if it does, update the table with the new information
-    foreach($type as $ty){
-
+    foreach ($type as $ty) {
         //see if a first name exists, if it does then replace it
         $query = "select subscriber_lname from insurance_data where pid = '{$pid}' and type = '{$ty}' ";
         $result = mysqli_query($con, $query);
         $result = mysqli_fetch_array($result);
-        if($result['subscriber_lname'] === '' || $result === null){
+        if ($result['subscriber_lname'] === '' || $result === null) {
             continue;
-        }else{
-
+        } else {
             $string = "update insurance_data set 
               subscriber_lname = '{$demographic_array['lname']}',
               subscriber_fname = '{$demographic_array['fname']}',
@@ -287,8 +281,7 @@ function deIdFacilityTable($con)
 
     $query = "select * from facility";
     $result = mysqli_query($con, $query);
-    while($row = mysqli_fetch_array($result)){
-
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update facility set 
           
               `name`    = 'Facility_{$row['id']}',
@@ -298,9 +291,6 @@ function deIdFacilityTable($con)
 
         mysqli_query($con, $string) or print "Error altering facility table \n";
         $string = '';
-
-
-
     }
 
     echo "Successfully deid'ed Facility Table";
@@ -337,30 +327,23 @@ function deIdUsersTable($con)
 
 
 
-    while($row = mysqli_fetch_array($result)){
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if(strpos($row['newcrop_user_role'], 'doctor') !==false){
-
+        if (strpos($row['newcrop_user_role'], 'doctor') !==false) {
             $string .= "fname = 'Doctor.{$row['id']}', 
                        lname = 'Doctor.{$row['id']}' ";
-
-
-        }else if(strpos($row['newcrop_user_role'], 'nurse') !==false){
-
+        } else if (strpos($row['newcrop_user_role'], 'nurse') !==false) {
             $string .= "fname = 'Nurse.{$row['id']}', 
                        lname = 'Nurse.{$row['id']}' ";
-
-        }else{
-
+        } else {
             $string .= "fname = 'noNewCrop', 
                        lname = 'Nurse{$row['id']}'";
-
         }
+
         $string .= " where `id` = {$row['id']} ";
         mysqli_query($con, $string) or print "Error altering users table \n";
         //$string = '';
-
     }
 
     echo "successfuly altered user table \n ";

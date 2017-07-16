@@ -23,13 +23,13 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
-        if (strpos($method, "database") ) {
+        if (strpos($method, "database")) {
             $exploded = explode("::", $value);
-            if ( $exploded[0] == "LIFESTYLE" ) {
+            if ($exploded[0] == "LIFESTYLE") {
                 return RuleCriteriaType::from(RuleCriteriaType::lifestyle);
             }
 
-            if ( $exploded[0] == 'CUSTOM' ) {
+            if ($exploded[0] == 'CUSTOM') {
                 return RuleCriteriaType::from(RuleCriteriaType::custom_bucket);
             } else {
                 return RuleCriteriaType::from(RuleCriteriaType::custom);
@@ -47,12 +47,12 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
     {
         $exploded = explode("::", $value);
 
-        if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             $type = $exploded[1];
             return new RuleCriteriaLifestyle($type, sizeof($exploded) > 2 ? $exploded[2] : null);
         }
 
-        if ( $ruleCriteriaType->code == RuleCriteriaType::custom_bucket ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::custom_bucket) {
             $category = $exploded[1];
             $item = $exploded[2];
             $completed = $exploded[3] == "YES";
@@ -67,7 +67,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
             );
         }
 
-        if ( $ruleCriteriaType->code == RuleCriteriaType::custom ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::custom) {
             $table = $exploded[1];
             $column = $exploded[2];
             $valueComparator = $exploded[3];
@@ -93,15 +93,15 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
      */
     function newInstance($ruleCriteriaType)
     {
-        if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::lifestyle) {
             return new RuleCriteriaLifestyle(null, null);
         }
 
-        if ( $ruleCriteriaType->code == RuleCriteriaType::custom_bucket ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::custom_bucket) {
             return new RuleCriteriaDatabaseBucket("", "", true, "", "");
         }
 
-        if ( $ruleCriteriaType->code == RuleCriteriaType::custom ) {
+        if ($ruleCriteriaType->code == RuleCriteriaType::custom) {
             $table = "";
             $column = "";
             $valueComparator = "";

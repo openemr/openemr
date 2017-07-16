@@ -95,8 +95,10 @@ if ($form_step == 0) {
             // Entries with no matching address book entry will be disabled.
             echo " disabled";
         }
+
         echo ">" . text($key) . ": " . text($value) . "</option>";
     }
+
     echo "</td>\n";
     echo " </tr>\n";
 
@@ -118,6 +120,7 @@ if ($form_step == 0) {
         echo "<option value='" . attr($grow['procedure_type_id']) . "'>" .
         text($grow['name']) . "</option>";
     }
+
     echo "</td>\n";
     echo " </tr>\n";
 
@@ -150,11 +153,9 @@ if ($form_step == 1) {
         $fhcsv = fopen($_FILES['userfile']['tmp_name'], "r");
 
         if ($fhcsv) {
-
             // Vendor = Pathgroup
             //
             if ($form_vendor == '1235186800') {
-
                 if ($form_action == 1) { // load compendium
                     // Mark all "ord" rows having the indicated parent as inactive.
                     sqlStatement(
@@ -190,8 +191,7 @@ if ($form_step == 1) {
                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?",
                                     array($form_group, $acsv[1], $lab_id, $acsv[0], 'ord')
                                 );
-                            }
-                            else {
+                            } else {
                                   $ptid = $trow['procedure_type_id'];
                                   sqlStatement(
                                       "UPDATE procedure_type SET " .
@@ -200,6 +200,7 @@ if ($form_step == 1) {
                                       array($form_group, $acsv[1], $lab_id, $acsv[0], 'ord', $ptid)
                                   );
                             }
+
                                                 sqlStatement(
                                                     "UPDATE procedure_type SET activity = 0 WHERE " .
                                                     "parent = ? AND procedure_type = 'res'",
@@ -223,8 +224,7 @@ if ($form_step == 1) {
                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?",
                                     array($ptid, $acsv[3], $lab_id, $acsv[2], 'res')
                                 );
-                            }
-                            else {
+                            } else {
                                   $resid = $trow['procedure_type_id'];
                                   sqlStatement(
                                       "UPDATE procedure_type SET " .
@@ -267,6 +267,7 @@ if ($form_step == 1) {
                             $seq = 0;
                             $last_code = $code;
                         }
+
                         ++$seq;
 
                         $required = 0 + $acsv[4];
@@ -294,8 +295,7 @@ if ($form_step == 1) {
                 activity = 1, seq = ?",
                                         array($lab_id, $code, $acsv[1], $acsv[2], $required, $maxsize, $fldtype, $acsv[3], $seq)
                                     );
-                        }
-                        else {
+                        } else {
                                       sqlStatement(
                                           "UPDATE procedure_questions SET " .
                                           "question_text = ?, required = ?, maxsize = ?, fldtype = ?, " .
@@ -307,7 +307,6 @@ if ($form_step == 1) {
                                           $acsv[1])
                                       );
                         }
-
                     } // end while
                 } // end load questions
 
@@ -334,11 +333,11 @@ if ($form_step == 1) {
                         );
                         if (empty($qrow['procedure_code'])) {
                                     continue; // should not happen
-                        }
-                        else {
+                        } else {
                             if ($qrow['activity'] == '1' && $qrow['options'] !== '') {
                                 $options = $qrow['options'] . ';' . $options;
                             }
+
                                       sqlStatement(
                                           "UPDATE procedure_questions SET " .
                                           "options = ? WHERE " .
@@ -386,8 +385,7 @@ if ($form_step == 1) {
                                                   "activity = 1",
                                                   array($form_group, trim($acsv[1]), $lab_id, $ordercode, 'ord')
                                               );
-                        }
-                        else {
+                        } else {
                                                 sqlStatement(
                                                     "UPDATE procedure_type SET " .
                                                     "parent = ?, name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?, " .
@@ -398,9 +396,7 @@ if ($form_step == 1) {
                                                 );
                         }
                     }
-                }
-
-                else if ($form_action == 2) { // load questions
+                } else if ($form_action == 2) { // load questions
                     // Mark the vendor's current questions inactive.
                     sqlStatement(
                         "DELETE FROM procedure_questions WHERE lab_id = ?",
@@ -435,6 +431,7 @@ if ($form_step == 1) {
                             $seq = 0;
                             $last_code = $pcode;
                         }
+
                         ++$seq;
 
                         // Figure out field type.
@@ -459,11 +456,11 @@ if ($form_step == 1) {
                                         "fldtype = ?, required = ?, options = ?, seq = ?, activity = 1",
                                         array($lab_id, $pcode, $qcode, trim($acsv[2]), $fldtype, $required, $options, $seq)
                                     );
-                        }
-                        else {
+                        } else {
                             if ($qrow['activity'] == '1' && $qrow['options'] !== '' && $options !== '') {
                                 $options = $qrow['options'] . ';' . $options;
                             }
+
                                       sqlStatement(
                                           "UPDATE procedure_questions SET " .
                                           "question_text = ?, fldtype = ?, required = ?, options = ?, activity = 1 WHERE " .
@@ -476,16 +473,15 @@ if ($form_step == 1) {
             } // End YPMG
 
             fclose($fhcsv);
-        }
-        else {
+        } else {
             echo xlt('Internal error accessing uploaded file!');
             $form_step = -1;
         }
-    }
-    else {
+    } else {
         echo xlt('Upload failed!');
         $form_step = -1;
     }
+
     $auto_continue = true;
 }
 

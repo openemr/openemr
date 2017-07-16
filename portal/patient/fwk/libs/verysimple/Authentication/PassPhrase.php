@@ -95,14 +95,14 @@ class PassPhrase
         $num_cons = count($cons);
         $password = "";
         
-        for($i = 0; $i < $length; $i ++) {
+        for ($i = 0; $i < $length; $i ++) {
             $password .= $cons [rand(0, $num_cons - 1)] . $vowels [rand(0, $num_vowels - 1)];
         }
         
         $newpass = substr($password, 0, $length);
         
         // ensure this is not a potentially offensive password
-        foreach ( $badwords as $badword ) {
+        foreach ($badwords as $badword) {
             if (strpos($newpass, $badword) !== false) {
                 return PassPhrase::GetRandomPassPhrase($length);
             }

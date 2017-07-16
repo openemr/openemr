@@ -48,17 +48,13 @@ function getIdealYSteps($a)
 {
     if ($a>1000) {
         return 200;
-    }
-    else if ($a>500) {
+    } else if ($a>500) {
         return 100;
-    }
-    else if ($a>100) {
+    } else if ($a>100) {
         return 20;
-    }
-    else if ($a>50) {
+    } else if ($a>50) {
         return 10;
-    }
-    else {
+    } else {
         return 5;
     }
 }
@@ -82,8 +78,7 @@ function graphsGetValues($name)
             "ORDER BY f.date",
             array($pid, $table, $name)
         );
-    }
-    else {
+    } else {
         // Collect the pertinent info and ranges
         //  (Note am skipping values of zero, this could be made to be
         //   optional in the future when using lab values)
@@ -94,6 +89,7 @@ function graphsGetValues($name)
         "WHERE " . add_escape_custom($name) . " != 0 " .
         "AND pid = ? ORDER BY date", array($pid));
     }
+
     return $values;
 }
 
@@ -105,8 +101,7 @@ if ($is_lbf) {
         $titleGraphLine1 = xl("BP Systolic");
         $titleGraphLine2 = xl("BP Diastolic");
     }
-}
-else {
+} else {
     switch ($name) {
         case "weight":
              $titleGraph = $title." (".xl("lbs").")";
@@ -179,8 +174,7 @@ else {
 if ($table) {
   // Like below, but for LBF data.
     $values = graphsGetValues($name);
-}
-else {
+} else {
     exit;
 }
 
@@ -200,8 +194,7 @@ if ($is_lbf) {
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
     }
-}
-else {
+} else {
     if ($name == "bps" || $name == "bpd") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
@@ -220,18 +213,18 @@ while ($row = sqlFetchArray($values)) {
         if ($multiplier) {
             // apply unit conversion multiplier
             $y=$row["$name"]*$multiplier;
-        }
-        else if ($isConvertFtoC ) {
+        } else if ($isConvertFtoC) {
             // apply temp F to C conversion
             $y=convertFtoC($row["$name"]);
-        }
-        else {
+        } else {
            // no conversion, so use raw value
             $y=$row["$name"];
         }
+
         $data[$x][$name] = $y;
     }
 }
+
 if ($isBP) {
   //set up the other blood pressure line
     while ($row = sqlFetchArray($values_alt)) {
@@ -240,15 +233,14 @@ if ($isBP) {
             if ($multiplier) {
                 // apply unit conversion multiplier
                 $y=$row["$name_alt"]*$multiplier;
-            }
-            else if ($isConvertFtoC ) {
+            } else if ($isConvertFtoC) {
                 // apply temp F to C conversion
                 $y=convertFtoC($row["$name_alt"]);
-            }
-            else {
+            } else {
                // no conversion, so use raw value
                 $y=$row["$name_alt"];
             }
+
             $data[$x][$name_alt] = $y;
         }
     }
@@ -258,8 +250,7 @@ if ($isBP) {
 $data_final = "";
 if ($isBP) {
     $data_final .= xl('Date') . "\t" . $titleGraphLine1 . "\t" . $titleGraphLine2 . "\n";
-}
-else {
+} else {
     $data_final .= xl('Date') . "\t" . $titleGraph . "\n";
 }
 

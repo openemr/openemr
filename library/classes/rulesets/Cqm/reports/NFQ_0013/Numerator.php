@@ -45,7 +45,7 @@ class NFQ_0013_Numerator implements CqmFilterIF
                  "AND ( enc_category_map.rule_enc_id = 'enc_outpatient' OR enc_category_map.rule_enc_id = 'enc_nurs_fac' )";
         $res = sqlStatement($query, array( $patient->id, $beginDate, $endDate ));
         $number = sqlNumRows($res);
-        if ( $number > 0 ) {
+        if ($number > 0) {
             return true;
         }
         

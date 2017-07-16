@@ -86,8 +86,10 @@ $res = sqlQuery("select * from users where username='".$_SESSION{"authUser"}."'"
     $width_column = "100px";
     if (!$GLOBALS['tiny_logo_1'] || !$GLOBALS['tiny_logo_2']) $width_column = "50px"; ?>
     <td align="left" style="width:<?php echo attr($width_column) ?>">
-        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1'])  {echo $tinylogocode1;
-} if ($GLOBALS['tiny_logo_2']) {echo $tinylogocode2;} ?></span></div>
+        <div class="tinylogocontainer"><span><?php if ($GLOBALS['tiny_logo_1']) {
+            echo $tinylogocode1;
+} if ($GLOBALS['tiny_logo_2']) {
+    echo $tinylogocode2;} ?></span></div>
     </td>
 <?php } ?>
 
