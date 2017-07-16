@@ -305,7 +305,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
         <?php echo oeFormatShortDate(substr($row['edate'], 0, 10)) ?>
    </td>
    <td>
-        <?php echo htmlspecialchars( $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'] ) ?>
+        <?php echo htmlspecialchars($row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname']) ?>
    </td>
    <td>
         <?php echo $row['pubpid'] ?>
@@ -354,7 +354,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) {
 ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
 </div>
 <?php
 }

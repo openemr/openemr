@@ -136,10 +136,10 @@ class EncounterccdadispatchController extends AbstractActionController
                     $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
                     $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
                     try {
-                        $event = isset ($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
+                        $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                         $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                        newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId  );
+                        newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                     }
                     catch (Exception $e) {
 
@@ -175,10 +175,10 @@ class EncounterccdadispatchController extends AbstractActionController
                 $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
                 $ccdaDocumentId = $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
                 try {
-                    $event = isset ($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
+                    $event = isset($parameterArray['event']) ? $parameterArray['event'] : 'patient-record';
                     $menu_item = isset($parameterArray['menu_item']) ? $parameterArray['menu_item'] : 'Dashboard';
 
-                    newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId  );
+                    newEvent($event, $this->patient_username, '', 1, '', $this->patient_id, $log_from = 'patient-portal', $menu_item, $ccdaDocumentId);
                 }
                 catch (Exception $e) {
 

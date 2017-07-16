@@ -43,7 +43,7 @@ if (isset($_GET['auth']) && ($_GET['auth'] == "login") && isset($_POST['authUser
         $_SESSION['language_choice'] = 1;
     }
     // set language direction according to language choice. Later in globals.php we'll override main theme name if needed.
-    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']  );
+    $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
 
     if(!validate_user_password($_POST['authUser'], $clearPass, $_POST['authProvider']) ||  !verify_user_gacl_group($_POST['authUser']))
     {

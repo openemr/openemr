@@ -113,7 +113,7 @@ class TherapyGroupsController extends BaseController
 
         if(isset($_POST['save'])){
 
-            $isEdit = empty( $_POST['group_id']) ? false : true;
+            $isEdit = empty($_POST['group_id']) ? false : true;
 
             // for new group - checking if already exist same name
             if($_POST['save'] != 'save_anyway' && $this->alreadyExist($_POST, $isEdit)){

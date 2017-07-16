@@ -28,12 +28,12 @@ require_once("$phpgacl_location/gacl_api.class.php");
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out( xl('Clinical Decision Rules Alert Manager') ); ?></td>
+        <td class="title"><?php echo out(xl('Clinical Decision Rules Alert Manager')); ?></td>
         
   </tr>
   <tr>
         <td>
-            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Save') ); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out( xl('Reset') ); ?></span></a>
+            <a href="javascript:document.cdralertmgr.submit();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Save')); ?></span></a><a href="javascript:document.cdralertmgr.reset();" class="css_button" onclick="top.restoreSession()"><span><?php echo out(xl('Reset')); ?></span></a>
         </td>
   </tr>        
 </table>
@@ -43,22 +43,22 @@ require_once("$phpgacl_location/gacl_api.class.php");
 <form name="cdralertmgr" method="post" action="index.php?action=alerts!submitactmgr" onsubmit="return top.restoreSession()">
 <table cellpadding="1" cellspacing="0" class="showborder">
         <tr class="showborder_head">
-                <th width="250px"><?php echo out( xl('Title') ); ?></th>
+                <th width="250px"><?php echo out(xl('Title')); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out( xl('Active Alert') ); ?></th>
+                <th width="10px"><?php echo out(xl('Active Alert')); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out( xl('Passive Alert') ); ?></th>
+                <th width="10px"><?php echo out(xl('Passive Alert')); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="10px"><?php echo out( xl('Patient Reminder') ); ?></th>
+                <th width="10px"><?php echo out(xl('Patient Reminder')); ?></th>
                 <th width="40px">&nbsp;</th>
-                <th width="100px"><?php echo out( xl('Access Control') ); ?> <span title='<?php echo out( xl('User is required to have this access control for Active Alerts and Passive Alerts') ); ?>'>?</span></th>
+                <th width="100px"><?php echo out(xl('Access Control')); ?> <span title='<?php echo out(xl('User is required to have this access control for Active Alerts and Passive Alerts')); ?>'>?</span></th>
                 <th></th>
         </tr>
         <?php $index = -1; ?>
         <?php foreach($viewBean->rules as $rule) {?>
         <?php $index++; ?>
         <tr height="22">
-                <td><?php echo out( xl($rule->get_rule()) );?></td>
+                <td><?php echo out(xl($rule->get_rule()));?></td>
                 <td>&nbsp;</td>
                 <?php if ($rule->active_alert_flag() == "1"){  ?>
                     <td><input type="checkbox" name="active[<?php echo $index ?>]" checked="yes"></td>

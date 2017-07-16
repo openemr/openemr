@@ -74,8 +74,10 @@ function collect_issue_type_category()
 }
 
 // Build the $ISSUE_TYPES array (see script header for description)
-$res = sqlStatement("SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
-  array(collect_issue_type_category()));
+$res = sqlStatement(
+    "SELECT * FROM `issue_types` WHERE active = 1 AND `category`=? ORDER BY `ordering`",
+    array(collect_issue_type_category())
+);
 while($row = sqlFetchArray($res)){
     $ISSUE_TYPES[$row['type']] = array(
     xl($row['plural']),
@@ -131,7 +133,7 @@ function reappearList($id)
 
 function getListTouch($patient_id, $type)
 {
-    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
+    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type));
 
     if (!empty($ret)) {
         return $ret['date'];
@@ -143,13 +145,13 @@ function getListTouch($patient_id, $type)
 
 function setListTouch($patient_id, $type)
 {
-    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
+    $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type));
 
     if (!empty($ret)) {
                 // Already touched, so can exit
         return;
     }
     else {
-        sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type) );
+        sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type));
     }
 }

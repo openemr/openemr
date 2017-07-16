@@ -56,14 +56,14 @@ class Form_Log implements LogIF
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();
-        return $this->_viewer->render( $this );
+        return $this->_viewer->render($this);
     }
     
     public function getHtml(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();
-        return $this->_viewer->getHtml( $this );
+        return $this->_viewer->getHtml($this);
     }
     
     public function getViewScript()

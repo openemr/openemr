@@ -119,7 +119,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer( $installSettings );
+$installer = new Installer($installSettings);
 if ( ! $installer->quick_install() ) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

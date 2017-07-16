@@ -38,7 +38,7 @@ if (!isset($_SESSION['itsme'])) {
     exit;
 }
     //
-require_once (dirname( __FILE__ )."/lib/appsql.class.php" );
+require_once(dirname(__FILE__)."/lib/appsql.class.php");
 $logit = new ApplicationTable();
     //some validation
 if (!isset($_POST['uname']) || empty($_POST['uname'])) {
@@ -126,7 +126,7 @@ else {
     $_SESSION['portal_username']=$_POST['uname'];
     $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if ($userData = sqlQuery($sql, array($auth['pid']) )) { // if query gets executed
+if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
 
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'].':not active patient'), '', '0');
@@ -165,7 +165,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']) )) { // if query gets execute
 
         // Update the password and continue (patient is authorized)
             privStatement("UPDATE ".TBL_PAT_ACC_ON
-                  ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']) );
+                  ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']));
             $authorizedPortal = true;
             $logit->portalLog('password update', $auth['pid'], ($_SESSION['portal_username'].': '.$_SESSION['ptName'].':success'));
         }

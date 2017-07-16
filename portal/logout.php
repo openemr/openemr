@@ -21,7 +21,7 @@
  * @link http://www.open-emr.org
  *
  */
-require_once (dirname( __FILE__ )."/lib/appsql.class.php" );
+require_once(dirname(__FILE__)."/lib/appsql.class.php");
 
 //continue session
 session_start();

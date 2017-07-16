@@ -101,7 +101,7 @@ class edih_x12_file
                 $this->text = ($text) ? $f_text : '';
                 $this->length = ($f_text) ? strlen($f_text) : 0;
                 if ($this->isx12) {
-                    $this->delimiters = $this->edih_x12_delimiters( substr($f_text, 0, 126) );
+                    $this->delimiters = $this->edih_x12_delimiters(substr($f_text, 0, 126));
                     $this->version = substr($f_text, 84, 5);
                     if ($mk_segs) {
                         $this->segments = $this->edih_x12_segments($f_text);
@@ -152,7 +152,7 @@ class edih_x12_file
         $this->constructing = true;
         //
         if ($type) { $ret_ar['type'] = $this->edih_x12_type($file_text); }
-        if ($delimiters) { $ret_ar['delimiters'] = $this->edih_x12_delimiters( substr($file_text, 0, 126) ); }
+        if ($delimiters) { $ret_ar['delimiters'] = $this->edih_x12_delimiters(substr($file_text, 0, 126)); }
         if ($segments) { $ret_ar['segments'] = $this->edih_x12_segments($file_text); }
         //
         $this->constructing = false;
@@ -329,7 +329,7 @@ class edih_x12_file
                 // called after file scan, but no segment array exists
                 $f_text =& $file_text;
                 if ( !$dt ) {
-                    $delims = $this->edih_x12_delimiters( substr($f_text, 0, 126) );
+                    $delims = $this->edih_x12_delimiters(substr($f_text, 0, 126));
                     $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
                     $de = ( isset($delims['e']) ) ? $delims['e'] : '';
                 }
@@ -410,7 +410,7 @@ class edih_x12_file
         }
         // x12 type information collected
         if ( count($tp_tmp) ) {
-            $tp3 = array_values( array_unique($tp_tmp) );
+            $tp3 = array_values(array_unique($tp_tmp));
             // mixed should not happen -- concatenated ISA envelopes of different types?
             $tpstr = ( count($tp3) > 1 ) ? 'mixed|' . implode("|", $tp3) : $tp3[0];
             //$this->message[] = 'edih_x12_type: ' . $tpstr;
@@ -801,9 +801,9 @@ class edih_x12_file
                 $env_ar['ISA'][$icn]['gscount'] = $seg_ar[1];
                 $iea_ct++;
                 //
-                if ( count( $env_ar['GS'] ) != $seg_ar[1] ) {
+                if ( count($env_ar['GS']) != $seg_ar[1] ) {
                     $this->message[] = 'edih_x12_envelopes: GS count mismatch in ISA '.$icn.PHP_EOL;
-                    $gsct = count( $env_ar['GS'] );
+                    $gsct = count($env_ar['GS']);
                     $this->message[] = 'GS group count: '.$gsct.' IEA01: '.$seg_ar[1].' segment: '.$seg_text;
                 }
                 if ($env_ar['ISA'][$icn]['icn'] !== $seg_ar[2]) {
@@ -849,7 +849,7 @@ class edih_x12_file
                 if ( isset($this->delimiters['t']) ) {
                     $dt = $this->delimiters['t'];
                 } else {
-                    $delims = $this->edih_x12_delimiters( substr($f_str, 0, 126) );
+                    $delims = $this->edih_x12_delimiters(substr($f_str, 0, 126));
                     $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
                 }
             }
@@ -858,7 +858,7 @@ class edih_x12_file
             if ( isset($this->delimiters['t']) ) {
                 $dt = $this->delimiters['t'];
             } else {
-                $delims = $this->edih_x12_delimiters( substr($f_str, 0, 126) );
+                $delims = $this->edih_x12_delimiters(substr($f_str, 0, 126));
                 $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
             }
         } else {
@@ -1160,7 +1160,7 @@ class edih_x12_file
             $seg_ar = $this->segments;
         } elseif ( $this->text ) {
             if ( !$de ) {
-                $delims = $this->edih_x12_delimiters( substr($this->text, 0, 126) );
+                $delims = $this->edih_x12_delimiters(substr($this->text, 0, 126));
                 $dt = ( isset($delims['t']) ) ? $delims['t'] : '';
                 $de = ( isset($delims['e']) ) ? $delims['e'] : '';
             }
@@ -1306,7 +1306,7 @@ break;
                 } elseif ($icnpos < 106) {
                     $isapos = 0;
                 } else {
-                    $isapos = strrpos($f_str, $dt.'ISA'.$de, ($icnpos - strlen($f_str)) ) + 1;
+                    $isapos = strrpos($f_str, $dt.'ISA'.$de, ($icnpos - strlen($f_str))) + 1;
                 }
                 $ieapos = strpos($f_str, $de.$icn.$dt, $isapos);
                 $ieapos = strpos($f_str, $dt, $ieapos) + 1;
@@ -1326,7 +1326,7 @@ break;
                 }
                 $gepos = strpos($srchstr, $dt.'GE'.$dt, $gspos);
                 $gepos = strpos($srchstr, $dt, $gepos+1) + 1;
-                $segidx = ($prskeys) ? substr_count ($f_str, $dt, 0, $gspos+2) + 1 : 0;
+                $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $gspos+2) + 1 : 0;
                 //
                 $srchstr = substr($srchstr, $gspos, $gepos-$gspos);
             }
@@ -1346,7 +1346,7 @@ break;
                 }
                 $sepos = strpos($srchstr, $seg_se, $stpos);
                 $sepos = strpos($srchstr, $dt, $sepos+1);
-                $segidx = ($prskeys) ? substr_count ($f_str, $dt, 0, $stpos+2) + 1 : 0;
+                $segidx = ($prskeys) ? substr_count($f_str, $dt, 0, $stpos+2) + 1 : 0;
                 //
                 $srchstr = substr($srchstr, $stpos, $sepos-$stpos);
             }
@@ -1360,7 +1360,7 @@ break;
                 }
                 $sttp = $this->gstype_ar[$ft];
                 $seg_st = $dt.'ST'.$de.$sttp.$de;
-                $stpos = strrpos($f_str, $seg_st, ($trpos - strlen($f_str)) );
+                $stpos = strrpos($f_str, $seg_st, ($trpos - strlen($f_str)));
                 $sepos = strpos($f_str, $dt.'SE'.$de, $stpos);
                 $sepos = strpos($f_str, $dt, $sepos+1);
                 //

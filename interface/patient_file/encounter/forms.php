@@ -69,13 +69,17 @@ if (!empty($_GET['attachid'])) {
     foreach ($attachid as $aid) {
         $aid = intval($aid);
         if (!$aid) continue;
-        $tmp = sqlQuery("SELECT COUNT(*) AS count FROM procedure_order WHERE " .
-        "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-        array($aid, $pid));
+        $tmp = sqlQuery(
+            "SELECT COUNT(*) AS count FROM procedure_order WHERE " .
+            "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
+            array($aid, $pid)
+        );
         if (!empty($tmp['count'])) {
-              sqlStatement("UPDATE procedure_order SET encounter_id = ? WHERE " .
-              "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
-              array($encounter, $aid, $pid));
+              sqlStatement(
+                  "UPDATE procedure_order SET encounter_id = ? WHERE " .
+                  "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
+                  array($encounter, $aid, $pid)
+              );
               addForm($encounter, "Procedure Order", $aid, "procedure_order", $pid, $userauthorized);
         }
     }
@@ -245,11 +249,13 @@ jQuery(document).ready( function($) {
 <?php
   // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
-    $ares = sqlStatement("SELECT procedure_order_id, date_ordered " .
-    "FROM procedure_order WHERE " .
-    "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
-    "ORDER BY procedure_order_id",
-    array($pid));
+    $ares = sqlStatement(
+        "SELECT procedure_order_id, date_ordered " .
+        "FROM procedure_order WHERE " .
+        "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
+        "ORDER BY procedure_order_id",
+        array($pid)
+    );
     echo "  // Ask about attaching orphaned orders to this encounter.\n";
     echo "  var attachid = '';\n";
     while ($arow = sqlFetchArray($ares)) {
@@ -520,7 +526,7 @@ if ( $esignApi->lockEncounters() &&
 isset($GLOBALS['encounter']) &&
 !empty($GLOBALS['encounter']) ) {
 
-    $esign = $esignApi->createEncounterESign( $GLOBALS['encounter'] );
+    $esign = $esignApi->createEncounterESign($GLOBALS['encounter']);
     if ( $esign->isLocked() ) {
         $encounterLocked = true;
     }
@@ -665,7 +671,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 
     // Check for no access to the patient's squad.
     $result = getPatientData($pid, "fname,lname,squad");
-    echo htmlspecialchars( xl('for', '', ' ', ' ') . $result['fname'] . " " . $result['lname'] );
+    echo htmlspecialchars(xl('for', '', ' ', ' ') . $result['fname'] . " " . $result['lname']);
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
@@ -681,7 +687,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
     echo '<span class="title">' . oeFormatShortDate($encounter_date) . " " . xlt("Group Encounter") . '</span>';
     // Check for no access to the patient's squad.
     $result = getGroup($groupId);
-    echo htmlspecialchars( xl('for ', '', ' ', ' ') . $result['group_name'] );
+    echo htmlspecialchars(xl('for ', '', ' ', ' ') . $result['group_name']);
     if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
         $pass_sens_squad = false;
     }
@@ -697,7 +703,7 @@ if ($attendant_type == 'pid' && is_numeric($pid)) {
 <div style='margin-top:8px;'>
 <?php
 // ESign for entire encounter
-$esign = $esignApi->createEncounterESign( $encounter );
+$esign = $esignApi->createEncounterESign($encounter);
 if ( $esign->isButtonViewable() ) {
     echo $esign->buttonHtml();
 }
@@ -880,9 +886,11 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
 
         if (substr($formdir, 0, 3) == 'LBF') {
           // Skip LBF forms that we are not authorized to see.
-            $lrow = sqlQuery("SELECT * FROM list_options WHERE " .
-            "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
-            array($formdir));
+            $lrow = sqlQuery(
+                "SELECT * FROM list_options WHERE " .
+                "list_id = 'lbfnames' AND option_id = ? AND activity = 1",
+                array($formdir)
+            );
             if (!empty($lrow)) {
                 $jobj = json_decode($lrow['notes'], true);
                 if (!empty($jobj['aco'])) {
@@ -923,7 +931,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         $form_name = ($formdir == 'newpatient') ? xl('Patient Encounter') : xl_form_title($iter['form_name']);
 
         // Create the ESign instance for this form
-        $esign = $esignApi->createFormESign( $iter['id'], $formdir, $encounter );
+        $esign = $esignApi->createFormESign($iter['id'], $formdir, $encounter);
         echo "<tr>";
         echo "<td style='border-bottom:1px solid'>";
         // a link to edit the form
@@ -975,7 +983,7 @@ if ( ($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encount
         else {
             $form_author = $user['fname'] . "  " . $user['lname'];
         }
-        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>". xl('by')." ". htmlspecialchars( $form_author ) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
+        echo "<a href='#' onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos'><b>$form_name</b> <span class='text'>". xl('by')." ". htmlspecialchars($form_author) . "</span> (<span id=spanid_$divnos class=\"indicator\">" . xl('Collapse') . "</span>)</a></div>";
 
         echo "</td>\n";
         echo "</tr>";

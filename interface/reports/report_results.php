@@ -35,7 +35,7 @@ require_once "$srcdir/report_database.inc";
 
 <head>
 
-<title><?php echo htmlspecialchars( xl('Report Results/History'), ENT_NOQUOTES); ?></title>
+<title><?php echo htmlspecialchars(xl('Report Results/History'), ENT_NOQUOTES); ?></title>
 
 <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -88,7 +88,7 @@ require_once "$srcdir/report_database.inc";
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php echo htmlspecialchars( xl('Report History/Results'), ENT_NOQUOTES); ?></span>
+<span class='title'><?php echo htmlspecialchars(xl('Report History/Results'), ENT_NOQUOTES); ?></span>
 
 <form method='post' name='theform' id='theform' action='report_results.php' onsubmit='return top.restoreSession()'>
 
@@ -103,23 +103,23 @@ require_once "$srcdir/report_database.inc";
 
                    <tr>
                       <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_begin_date'], ENT_QUOTES); ?>'
+                         <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo htmlspecialchars($_POST['form_begin_date'], ENT_QUOTES); ?>'
                             class='datepicker form-control'
-                            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                            title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                       </td>
                    </tr>
 
                 <tr>
                         <td class='control-label'>
-                                <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                                <?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars( $_POST['form_end_date'], ENT_QUOTES); ?>'
+                           <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo htmlspecialchars($_POST['form_end_date'], ENT_QUOTES); ?>'
                                 class='datepicker form-control'
-                                title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                                title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                         </td>
                 </tr>
     </table>
@@ -158,15 +158,15 @@ require_once "$srcdir/report_database.inc";
 
  <thead>
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Title'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Date'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Date'), ENT_NOQUOTES); ?>
   </th>
 
   <th align='center'>
-    <?php echo htmlspecialchars( xl('Status'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Status'), ENT_NOQUOTES); ?>
   </th>
 
  </thead>

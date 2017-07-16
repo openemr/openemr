@@ -69,13 +69,14 @@ $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
     require_once("$srcdir/html2pdf/vendor/autoload.php");
-    $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                       $GLOBALS['pdf_size'],
-                       $GLOBALS['pdf_language'],
-                       true, // default unicode setting is true
-                       'UTF-8', // default encoding setting is UTF-8
-                       array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
-          );
+    $pdf = new HTML2PDF(
+        $GLOBALS['pdf_layout'],
+        $GLOBALS['pdf_size'],
+        $GLOBALS['pdf_language'],
+        true, // default unicode setting is true
+        'UTF-8', // default encoding setting is UTF-8
+        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin'])
+    );
     ob_start();
 }
 
@@ -656,11 +657,11 @@ foreach ($ar as $key => $val) {
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
             print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
 
         } elseif ($val == "billing") {
@@ -745,7 +746,7 @@ foreach ($ar as $key => $val) {
                 }
                 else {
                     if (!empty($row['code_text_short'])) {
-                        $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                        $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
                     }
                     else {
                          $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
@@ -1023,7 +1024,7 @@ foreach ($ar as $key => $val) {
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
 
-                $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
+                $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                 if ( $esign->isLogViewable("report") ) {
                     $esign->renderLog();
                 }
@@ -1034,15 +1035,17 @@ foreach ($ar as $key => $val) {
 
                 if ($res[1] == 'newpatient') {
                     // display billing info
-                    $bres = sqlStatement("SELECT b.date, b.code, b.code_text " .
-                      "FROM billing AS b, code_types AS ct WHERE " .
-                      "b.pid = ? AND " .
-                      "b.encounter = ? AND " .
-                      "b.activity = 1 AND " .
-                      "b.code_type = ct.ct_key AND " .
-                      "ct.ct_diag = 0 " .
-                      "ORDER BY b.date",
-                      array($pid, $form_encounter));
+                    $bres = sqlStatement(
+                        "SELECT b.date, b.code, b.code_text " .
+                        "FROM billing AS b, code_types AS ct WHERE " .
+                        "b.pid = ? AND " .
+                        "b.encounter = ? AND " .
+                        "b.activity = 1 AND " .
+                        "b.code_type = ct.ct_key AND " .
+                        "ct.ct_diag = 0 " .
+                        "ORDER BY b.date",
+                        array($pid, $form_encounter)
+                    );
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
                             $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";

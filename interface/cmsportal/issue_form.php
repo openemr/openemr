@@ -239,10 +239,12 @@ $(document).ready(function() {
 <select name='issueid' onchange='myRestoreSession();this.form.submit();'>
  <option value='0'><?php echo xlt('Add New Issue'); ?></option>
 <?php
-$ires = sqlStatement("SELECT id, title, begdate " .
-  "FROM lists WHERE pid = ? AND type = ? AND activity > 0 " .
-  "AND enddate IS NULL ORDER BY enddate, title",
-  array($ptid, $result['fields']['type']));
+$ires = sqlStatement(
+    "SELECT id, title, begdate " .
+    "FROM lists WHERE pid = ? AND type = ? AND activity > 0 " .
+    "AND enddate IS NULL ORDER BY enddate, title",
+    array($ptid, $result['fields']['type'])
+);
 while ($irow = sqlFetchArray($ires)) {
     echo " <option value='" . attr($irow['id']) . "'";
     if ($irow['id'] == $issueid) echo " selected";
@@ -256,9 +258,9 @@ while ($irow = sqlFetchArray($ires)) {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php

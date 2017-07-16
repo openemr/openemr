@@ -165,7 +165,7 @@ class HTML_TreeMenu
                     $data['text'] = $aNode['text'] ? $aNode['text'] : $aNode['name'];
 
                     // Add the item to the proper node
-                    $thisNode = &$curNode[$aNode['level']]->addItem( new HTML_TreeNode( $data, $events ) );
+                    $thisNode = &$curNode[$aNode['level']]->addItem(new HTML_TreeNode($data, $events));
                     $curNode[$aNode['level']+1] = &$thisNode;
                 }
                 break;
@@ -631,14 +631,16 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
 
         $html  = "\n";
         $html .= '<script language="javascript" type="text/javascript">' . "\n\t";
-        $html .= sprintf('%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
-                         $menuObj,
-                         $this->images,
-                         $menuObj,
-                         $this->linkTarget,
-                         $this->defaultClass,
-                         $this->usePersistence ? 'true' : 'false',
-                         $this->noTopLevelImages ? 'true' : 'false');
+        $html .= sprintf(
+            '%s = new TreeMenu("%s", "%s", "%s", "%s", %s, %s);',
+            $menuObj,
+            $this->images,
+            $menuObj,
+            $this->linkTarget,
+            $this->defaultClass,
+            $this->usePersistence ? 'true' : 'false',
+            $this->noTopLevelImages ? 'true' : 'false'
+        );
 
         $html .= "\n";
 
@@ -673,23 +675,27 @@ class HTML_TreeMenu_DHTML extends HTML_TreeMenu_Presentation
 
         $expanded  = $this->isDynamic ? ($nodeObj->expanded  ? 'true' : 'false') : 'true';
         $isDynamic = $this->isDynamic ? ($nodeObj->isDynamic ? 'true' : 'false') : 'false';
-        $html = sprintf("\t %s = %s.addItem(new TreeNode('%s', %s, %s, %s, %s, '%s', '%s', %s));\n",
-                        $return,
-                        $prefix,
-                        str_replace("'", "\\'", $nodeObj->text),
-                        !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
-                        !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
-                        $expanded,
-                        $isDynamic,
-                        $nodeObj->cssClass,
-                        $nodeObj->linkTarget,
-                        !empty($nodeObj->expandedIcon) ? "'" . $nodeObj->expandedIcon . "'" : 'null');
+        $html = sprintf(
+            "\t %s = %s.addItem(new TreeNode('%s', %s, %s, %s, %s, '%s', '%s', %s));\n",
+            $return,
+            $prefix,
+            str_replace("'", "\\'", $nodeObj->text),
+            !empty($nodeObj->icon) ? "'" . $nodeObj->icon . "'" : 'null',
+            !empty($nodeObj->link) ? "'" . attr($nodeObj->link) . "'" : 'null',
+            $expanded,
+            $isDynamic,
+            $nodeObj->cssClass,
+            $nodeObj->linkTarget,
+            !empty($nodeObj->expandedIcon) ? "'" . $nodeObj->expandedIcon . "'" : 'null'
+        );
 
         foreach ($nodeObj->events as $event => $handler) {
-            $html .= sprintf("\t %s.setEvent('%s', '%s');\n",
-                             $return,
-                             $event,
-                             str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler));
+            $html .= sprintf(
+                "\t %s.setEvent('%s', '%s');\n",
+                $return,
+                $event,
+                str_replace(array("\r", "\n", "'"), array('\r', '\n', "\'"), $handler)
+            );
         }
 
         if ($this->maxDepth > 0 and $currentDepth == $this->maxDepth) {

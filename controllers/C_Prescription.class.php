@@ -45,8 +45,8 @@ class C_Prescription extends Controller
         $this->assign("WEIGHT_LOSS_CLINIC", $GLOBALS['weight_loss_clinic']);
         $this->assign("SIMPLIFIED_PRESCRIPTIONS", $GLOBALS['simplified_prescriptions']);
         $this->pconfig = $GLOBALS['oer_config']['prescriptions'];
-        $this->assign("CSS_HEADER", $GLOBALS['css_header'] );
-        $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+        $this->assign("CSS_HEADER", $GLOBALS['css_header']);
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
         $this->RxList = new RxList();
 
         if ($GLOBALS['inhouse_pharmacy']) {
@@ -270,7 +270,7 @@ class C_Prescription extends Controller
 
     function multiprintfax_header(& $pdf, $p)
     {
-        return $this->multiprint_header( $pdf, $p );
+        return $this->multiprint_header($pdf, $p);
     }
 
     function multiprint_header(& $pdf, $p)
@@ -483,7 +483,7 @@ class C_Prescription extends Controller
 
     function multiprintfax_footer(& $pdf)
     {
-        return $this->multiprint_footer( $pdf );
+        return $this->multiprint_footer($pdf);
     }
 
     function multiprint_footer(& $pdf)
@@ -491,16 +491,16 @@ class C_Prescription extends Controller
         if($this->pconfig['use_signature'] && ( $this->is_faxing || $this->is_print_to_fax ) ) {
             $sigfile = str_replace('{userid}', $_SESSION{"authUser"}, $this->pconfig['signature']);
             if (file_exists($sigfile)) {
-                $pdf->ezText( xl('Signature') . ": ", 12);
+                $pdf->ezText(xl('Signature') . ": ", 12);
                 // $pdf->ezImage($sigfile, "", "", "none", "left");
                 $pdf->ezImage($sigfile, "", "", "none", "center");
-                $pdf->ezText( xl('Date') . ": " . date('Y-m-d'), 12);
+                $pdf->ezText(xl('Date') . ": " . date('Y-m-d'), 12);
                 if ( $this->is_print_to_fax ) {
                     $pdf->ezText(xl('Please do not accept this prescription unless it was received via facsimile.'));
                 }
 
                 $addenumFile = $this->pconfig['addendum_file'];
-                if ( file_exists( $addenumFile ) ) {
+                if ( file_exists($addenumFile) ) {
                     $pdf->ezText('');
                     $f = fopen($addenumFile, "r");
                     while ( $line = fgets($f, 1000) ) {
@@ -560,7 +560,7 @@ class C_Prescription extends Controller
 
     function multiprintfax_body(& $pdf, $p)
     {
-        return $this->multiprint_body( $pdf, $p );
+        return $this->multiprint_body($pdf, $p);
     }
 
     function multiprint_body(& $pdf, $p)
@@ -605,7 +605,7 @@ class C_Prescription extends Controller
     function multiprintfax_action($id = "")
     {
         $this->is_print_to_fax=true;
-        return $this->multiprint_action( $id );
+        return $this->multiprint_action($id);
     }
 
     function multiprint_action($id = "")
@@ -615,8 +615,7 @@ class C_Prescription extends Controller
             $this->function_argument_error();
         }
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
-        );
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         $pdf->selectFont('Helvetica');
 
         // $print_header = true;
@@ -734,7 +733,7 @@ class C_Prescription extends Controller
                 elseif ($phar->get_transmit_method() == TRANSMIT_FAX) {
                     $faxNum= $phar->get_fax();
                     if(!empty($faxNum)) {
-                        return $this->_fax_prescription ($p, $faxNum);
+                        return $this->_fax_prescription($p, $faxNum);
                     }
                     // return $this->assign("process_result","No fax server is currently setup.");
                     // else default is printing,
@@ -752,8 +751,7 @@ class C_Prescription extends Controller
     function _print_prescription($p, & $toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
-        );
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
 
         $pdf->selectFont('Helvetica');
 
@@ -787,8 +785,7 @@ class C_Prescription extends Controller
     function _print_prescription_old($p, & $toFile)
     {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']
-                      );
+        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
         $pdf->selectFont('Helvetica');
         if(!empty($this->pconfig['logo'])) {
             $pdf->ezImage($this->pconfig['logo'], "", "", "none", "left");

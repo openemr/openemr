@@ -164,8 +164,8 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
     if ($_POST['form_details']) {
         if ($_POST['form_csvexport']) {
-            echo '"' . display_desc($category ) . '",';
-            echo '"' . display_desc($product  ) . '",';
+            echo '"' . display_desc($category) . '",';
+            echo '"' . display_desc($product) . '",';
             echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
             if($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2 ) {
                 echo '"' . $pat_name . '",';
@@ -177,7 +177,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                 echo '"' . $patient_id . '",';
             }
            // echo '"' . display_desc($invnumber) . '",';
-            echo '"' . display_desc($qty      ) . '",';
+            echo '"' . display_desc($qty) . '",';
             echo '"';
             bucks($rowamount);
             echo '"' . "\n";
@@ -539,9 +539,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'],
-        $row['title'], $row['code'] . ' ' . $row['code_text'],
-        substr($row['date'], 0, 10), $row['units'], $row['fee'], $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['title'],
+            $row['code'] . ' ' . $row['code_text'],
+            substr($row['date'], 0, 10),
+            $row['units'],
+            $row['fee'],
+            $row['invoice_refno']
+        );
     }
     //
     $sqlBindArray = array();
@@ -567,8 +574,16 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     //
     $res = sqlStatement($query, $sqlBindArray);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'], xl('Products'), $row['name'],
-        substr($row['date'], 0, 10), $row['quantity'], $row['fee'], $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            xl('Products'),
+            $row['name'],
+            substr($row['date'], 0, 10),
+            $row['quantity'],
+            $row['fee'],
+            $row['invoice_refno']
+        );
     }
 
     if ($_POST['form_csvexport']) {
@@ -669,7 +684,7 @@ if (! $_POST['form_csvexport']) {
 </div> <!-- report results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 

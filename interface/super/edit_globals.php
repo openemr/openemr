@@ -54,7 +54,7 @@ function checkCreateCDB()
         if(!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')){
             $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/', 0777, true);
             if(!$directory_created){
-                echo htmlspecialchars( xl("Failed to create temporary folder. CouchDB will not work."), ENT_NOQUOTES);
+                echo htmlspecialchars(xl("Failed to create temporary folder. CouchDB will not work."), ENT_NOQUOTES);
             }
         }
         $couch = new CouchDB();
@@ -232,14 +232,14 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
    */
 
   // Get all the globals from DB
-    $old_globals = sqlGetAssoc( 'SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true );
+    $old_globals = sqlGetAssoc('SELECT gl_name, gl_index, gl_value FROM `globals` ORDER BY gl_name, gl_index', false, true);
 
     $i = 0;
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
             list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
             if($fldtype == 'pwd'){
-                $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ?", array($fldid) );
+                $pass = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = ?", array($fldid));
                 $fldvalueold = $pass['gl_value'];
             }
 
@@ -248,11 +248,11 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                 if (isset($_POST["form_$i"])) {
                     $fldindex = 0;
 
-                    sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ) );
+                    sqlStatement("DELETE FROM globals WHERE gl_name = ?", array( $fldid ));
 
                     foreach ($_POST["form_$i"] as $fldvalue) {
                         $fldvalue = trim($fldvalue);
-                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue )  );
+                        sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?,?,?)', array( $fldid, $fldindex, $fldvalue ));
                         ++$fldindex;
                     }
                 }
@@ -270,7 +270,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                 // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
 
                 if(
-                   !isset( $old_globals[$fldid]) // if the key not found in database - update database
+                   !isset($old_globals[$fldid]) // if the key not found in database - update database
                     ||
                    ( isset($old_globals[$fldid]) && $old_globals[ $fldid ]['gl_value'] !== $fldvalue ) // if the value in database is different
                 ) {
@@ -288,8 +288,8 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                               break;
                     }
                       // Replace old values
-                      sqlStatement( 'DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ) );
-                      sqlStatement( 'INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue )  );
+                      sqlStatement('DELETE FROM `globals` WHERE gl_name = ?', array( $fldid ));
+                      sqlStatement('INSERT INTO `globals` ( gl_name, gl_index, gl_value ) VALUES ( ?, ?, ? )', array( $fldid, 0, $fldvalue ));
                 } else {
                     //error_log("No need to update $fldid");
                 }
@@ -420,10 +420,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         if ($userMode) {
             echo "<tr>";
             echo "<th>&nbsp</th>";
-            echo "<th>" . htmlspecialchars( xl('User Specific Setting'), ENT_NOQUOTES) . "</th>";
-            echo "<th>" . htmlspecialchars( xl('Default Setting'), ENT_NOQUOTES) . "</th>";
+            echo "<th>" . htmlspecialchars(xl('User Specific Setting'), ENT_NOQUOTES) . "</th>";
+            echo "<th>" . htmlspecialchars(xl('Default Setting'), ENT_NOQUOTES) . "</th>";
             echo "<th>&nbsp</th>";
-            echo "<th>" . htmlspecialchars( xl('Set to Default'), ENT_NOQUOTES) . "</th>";
+            echo "<th>" . htmlspecialchars(xl('Set to Default'), ENT_NOQUOTES) . "</th>";
             echo "</tr>";
         }
 
@@ -482,10 +482,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 else if ($fldtype == 'bool') {
                     if ($userMode) {
                         if ($globalValue == 1) {
-                            $globalTitle = htmlspecialchars( xl('Checked'), ENT_NOQUOTES);
+                            $globalTitle = htmlspecialchars(xl('Checked'), ENT_NOQUOTES);
                         }
                         else {
-                            $globalTitle = htmlspecialchars( xl('Not Checked'), ENT_NOQUOTES);
+                            $globalTitle = htmlspecialchars(xl('Not Checked'), ENT_NOQUOTES);
                         }
                     }
                               echo "  <input type='checkbox' name='form_$i' id='form_$i' value='1'";

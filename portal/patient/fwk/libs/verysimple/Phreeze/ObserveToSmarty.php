@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("IObserver.php");
+require_once("IObserver.php");
 
 /**
  * ObserverToBrowser is an implementation of IObserver that outputs all
@@ -27,8 +27,8 @@ class ObserveToSmarty implements IObserver
     }
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        if (is_object ( $obj ) || is_array ( $obj )) {
-            $msg = "<pre>" . print_r ( $obj, 1 ) . "</pre>";
+        if (is_object($obj) || is_array($obj)) {
+            $msg = "<pre>" . print_r($obj, 1) . "</pre>";
         } else {
             $msg = $obj;
         }
@@ -54,6 +54,6 @@ class ObserveToSmarty implements IObserver
                 break;
         }
         
-        $this->_smarty->assign ( str_pad ( $this->_counter ++, 3, "0", STR_PAD_LEFT ) . "_" . $desc, $msg );
+        $this->_smarty->assign(str_pad($this->_counter ++, 3, "0", STR_PAD_LEFT) . "_" . $desc, $msg);
     }
 }

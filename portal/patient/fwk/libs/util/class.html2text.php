@@ -17,6 +17,6 @@ class html2text
      */
     public function get_text()
     {
-        return convert_html_to_text ( $this->html );
+        return convert_html_to_text($this->html);
     }
 }

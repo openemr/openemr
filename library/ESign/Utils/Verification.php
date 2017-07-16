@@ -30,12 +30,12 @@ class Utils_Verification implements VerificationIF
     public function hash($data)
     {
         $string = "";
-        if ( is_array( $data ) ) {
-            $string = $this->stringifyArray( $data );
+        if ( is_array($data) ) {
+            $string = $this->stringifyArray($data);
         } else {
             $string = $data;
         }
-        $hash = sha1( $string );
+        $hash = sha1($string);
         return $hash;
     }
 
@@ -44,8 +44,8 @@ class Utils_Verification implements VerificationIF
         $string = "";
         foreach ( $arr as $part ) {
             
-            if ( is_array( $part ) ) {
-                $string .= $this->stringifyArray( $part );
+            if ( is_array($part) ) {
+                $string .= $this->stringifyArray($part);
             } else {
                 $string .= $part;
             }
@@ -55,7 +55,7 @@ class Utils_Verification implements VerificationIF
     
     public function verify($data, $hash)
     {
-        $currentHash = $this->hash( $data );
+        $currentHash = $this->hash($data);
         if ( $currentHash == $hash ) {
             return true;
         }

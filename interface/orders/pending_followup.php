@@ -35,9 +35,9 @@ function thisLineItem($row, $codetype, $code)
         echo '"' . addslashes($row['pubpid'        ]) . '",';
         echo '"' . addslashes($row['date_ordered'  ]) . '",';
         echo '"' . addslashes($row['procedure_name']) . '",';
-        echo '"' . addslashes($provname             ) . '",';
-        echo '"' . addslashes($code                 ) . '",';
-        echo '"' . addslashes($code_text            ) . '"' . "\n";
+        echo '"' . addslashes($provname) . '",';
+        echo '"' . addslashes($code) . '",';
+        echo '"' . addslashes($code_text) . '"' . "\n";
     }
     else {
     ?>
@@ -148,13 +148,13 @@ foreach($fres as $frow) {
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
-  <td class="dehead"><?php xl('Patient', 'e'  ) ?></td>
-  <td class="dehead"><?php xl('ID', 'e'       ) ?></td>
-  <td class="dehead"><?php xl('Ordered', 'e'  ) ?></td>
+  <td class="dehead"><?php xl('Patient', 'e') ?></td>
+  <td class="dehead"><?php xl('ID', 'e') ?></td>
+  <td class="dehead"><?php xl('Ordered', 'e') ?></td>
   <td class="dehead"><?php xl('Procedure', 'e') ?></td>
-  <td class="dehead"><?php xl('Provider', 'e' ) ?></td>
-  <td class="dehead"><?php xl('Code', 'e' ) ?></td>
-  <td class="dehead"><?php xl('Service', 'e'   ) ?></td>
+  <td class="dehead"><?php xl('Provider', 'e') ?></td>
+  <td class="dehead"><?php xl('Code', 'e') ?></td>
+  <td class="dehead"><?php xl('Service', 'e') ?></td>
  </tr>
 <?php
 } // end not export

@@ -39,7 +39,7 @@ abstract class BaseController
     public function emit_json($object)
     {
         header('Content-type: application/json');
-        echo json_encode( $object );
+        echo json_encode($object);
     }
 
     public function set_view($view, $template = '')

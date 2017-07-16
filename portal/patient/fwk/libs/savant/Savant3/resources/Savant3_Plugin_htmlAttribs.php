@@ -49,12 +49,12 @@ class Savant3_Plugin_htmlAttribs extends Savant3_Plugin
                 continue;
             }
             
-            if (is_array ( $val )) {
-                $val = implode ( ' ', $val );
+            if (is_array($val)) {
+                $val = implode(' ', $val);
             }
             
-            $key = htmlspecialchars ( $key );
-            $val = htmlspecialchars ( $val );
+            $key = htmlspecialchars($key);
+            $val = htmlspecialchars($val);
             
             $xhtml .= " $key=\"$val\"";
         }

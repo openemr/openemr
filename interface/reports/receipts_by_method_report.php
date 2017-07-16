@@ -62,8 +62,17 @@ function thisLineItem(
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
 
     if ($form_report_by != '1') { // reporting by method or check number
-        showLineItem($patient_id, $encounter_id, $memo, $transdate,
-        $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
+        showLineItem(
+            $patient_id,
+            $encounter_id,
+            $memo,
+            $transdate,
+            $rowmethod,
+            $rowpayamount,
+            $rowadjamount,
+            $payer_type,
+            $irnumber
+        );
         return;
     }
 
@@ -155,8 +164,12 @@ if ($showing_ppd) {
     echo "  <td class='dehead'>\n";
     if ($payer_type) {
         $ptarr = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
-        $insrow = getInsuranceDataByDate($patient_id, $dos,
-        $ptarr[$payer_type], "policy_number");
+        $insrow = getInsuranceDataByDate(
+            $patient_id,
+            $dos,
+            $ptarr[$payer_type],
+            "policy_number"
+        );
         echo "   " . $insrow['policy_number'];
     }
     echo "  </td>\n";
@@ -459,8 +472,17 @@ if ($_POST['form_refresh']) {
         $res = sqlStatement($query);
         while ($row = sqlFetchArray($res)) {
             $rowmethod = $form_report_by == 1 ? 'Patient' : 'Co-Pay';
-            thisLineItem($row['pid'], $row['encounter'], $row['code_text'],
-            substr($row['date'], 0, 10), $rowmethod, 0 - $row['fee'], 0, 0, $row['invoice_refno']);
+            thisLineItem(
+                $row['pid'],
+                $row['encounter'],
+                $row['code_text'],
+                substr($row['date'], 0, 10),
+                $rowmethod,
+                0 - $row['fee'],
+                0,
+                0,
+                $row['invoice_refno']
+            );
         }
     } // end if not form_proc_code
 
@@ -530,9 +552,17 @@ if ($_POST['form_refresh']) {
             }
         }
       //
-        thisLineItem($row['pid'], $row['encounter'], $row['code'], $thedate,
-        $rowmethod, $row['pay_amount'], $row['adj_amount'], $row['payer_type'],
-        $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['code'],
+            $thedate,
+            $rowmethod,
+            $row['pay_amount'],
+            $row['adj_amount'],
+            $row['payer_type'],
+            $row['invoice_refno']
+        );
     }
 
   // Not payer summary.
@@ -623,7 +653,7 @@ if ($_POST['form_refresh']) {
 </div>
 <?php } else { ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
 </div>
 <?php } ?>
 

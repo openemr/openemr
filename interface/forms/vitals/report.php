@@ -1,7 +1,7 @@
 <?php
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
-include_once ($GLOBALS['fileroot']."/library/patient.inc");
+include_once($GLOBALS['fileroot']."/library/patient.inc");
 
 
 function US_weight($pounds, $mode = 1)

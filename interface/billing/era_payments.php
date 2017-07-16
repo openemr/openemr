@@ -104,18 +104,18 @@ function Validate()
  {
   if(document.getElementById('uploadedfile').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Please Choose a file'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Please Choose a file'), ENT_QUOTES) ?>");
     return false;
    }
   if(document.getElementById('hidden_type_code').value=='')
    {
-    alert("<?php echo htmlspecialchars( xl('Select Insurance, by typing'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Select Insurance, by typing'), ENT_QUOTES) ?>");
     document.getElementById('type_code').focus();
     return false;
    }
   if(document.getElementById('hidden_type_code').value!=document.getElementById('div_insurance_or_patient').innerHTML)
    {
-    alert("<?php echo htmlspecialchars( xl('Take Insurance, from Drop Down'), ENT_QUOTES) ?>");
+    alert("<?php echo htmlspecialchars(xl('Take Insurance, from Drop Down'), ENT_QUOTES) ?>");
     document.getElementById('type_code').focus();
     return false;
    }
@@ -175,7 +175,7 @@ document.onclick=HideTheAjaxDivs;
 <form enctype="multipart/form-data" method='post'  action='era_payments.php'  style="display:inline"  >
 <table width="455" border="0"  cellspacing="0" cellpadding="0">
   <tr>
-    <td colspan="3" align="left"><b><?php echo htmlspecialchars( xl('Payments'), ENT_QUOTES) ?></b></td>
+    <td colspan="3" align="left"><b><?php echo htmlspecialchars(xl('Payments'), ENT_QUOTES) ?></b></td>
   </tr>
   <tr height="15">
     <td colspan="3" align="left" ></td>
@@ -183,9 +183,9 @@ document.onclick=HideTheAjaxDivs;
   <tr>
     <td colspan="3" align="left">
         <ul class="tabNav">
-         <li><a href='new_payment.php'><?php echo htmlspecialchars( xl('New Payment'), ENT_QUOTES) ?></a></li>
-         <li><a href='search_payments.php'><?php echo htmlspecialchars( xl('Search Payment'), ENT_QUOTES) ?></a></li>
-         <li class='current'><a href='era_payments.php'><?php echo htmlspecialchars( xl('ERA Posting'), ENT_QUOTES) ?></a></li>
+         <li><a href='new_payment.php'><?php echo htmlspecialchars(xl('New Payment'), ENT_QUOTES) ?></a></li>
+         <li><a href='search_payments.php'><?php echo htmlspecialchars(xl('Search Payment'), ENT_QUOTES) ?></a></li>
+         <li class='current'><a href='era_payments.php'><?php echo htmlspecialchars(xl('ERA Posting'), ENT_QUOTES) ?></a></li>
         </ul>   </td>
   </tr>
   <tr>
@@ -200,7 +200,7 @@ document.onclick=HideTheAjaxDivs;
         </tr>
       <tr>
         <td  align="left"></td>
-        <td colspan="3"  align="left"><font class='title'><?php echo htmlspecialchars( xl('ERA'), ENT_QUOTES) ?></font></td>
+        <td colspan="3"  align="left"><font class='title'><?php echo htmlspecialchars(xl('ERA'), ENT_QUOTES) ?></font></td>
       </tr>
       <tr height="5">
         <td  align="left" ></td>
@@ -208,7 +208,7 @@ document.onclick=HideTheAjaxDivs;
       </tr>
       <tr>
         <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
+        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES).':' ?></td>
         <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='check_date' id='check_date' value="<?php echo formData('check_date') ?>"  class="class1 text " onKeyDown="PreventIt(event)" />
         </td>
         <td  align="left"  class="text"><input type="hidden" name="MAX_FILE_SIZE" value="5000000" />
@@ -216,21 +216,21 @@ document.onclick=HideTheAjaxDivs;
         </tr>
       <tr>
         <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
+        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Post To Date'), ENT_QUOTES).':' ?></td>
         <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='post_to_date' id='post_to_date'  value="<?php echo formData('post_to_date') ?>" class="class1 text "   onKeyDown="PreventIt(event)"  />
         </td>
-        <td  align="left"  class="text"><input type='checkbox' name='form_without' value='1' <?php echo $_REQUEST['form_without']*1==1 || ($_REQUEST['form_without']*1==0 && !isset($_FILES['form_erafile'])) ? "checked" : '' ?>/> <?php echo htmlspecialchars( xl('Without Update'), ENT_QUOTES); ?></td>
+        <td  align="left"  class="text"><input type='checkbox' name='form_without' value='1' <?php echo $_REQUEST['form_without']*1==1 || ($_REQUEST['form_without']*1==0 && !isset($_FILES['form_erafile'])) ? "checked" : '' ?>/> <?php echo htmlspecialchars(xl('Without Update'), ENT_QUOTES); ?></td>
         </tr>
       <tr>
         <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
+        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Deposit Date'), ENT_QUOTES).':' ?></td>
         <td  align="left"  class="text"><input type='text' size='6' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="text " value="<?php echo formData('deposit_date') ?>"    />
         </td>
         <td  align="left"  class="text"></td>
         </tr>
       <tr>
         <td  align="left"  class="text"></td>
-        <td  align="left"  class="text"><?php echo htmlspecialchars( xl('Insurance'), ENT_QUOTES).':' ?></td>
+        <td  align="left"  class="text"><?php echo htmlspecialchars(xl('Insurance'), ENT_QUOTES).':' ?></td>
         <td colspan="2"  align="left"  class="text">
 
 
@@ -261,7 +261,7 @@ document.onclick=HideTheAjaxDivs;
       <tr height="5">
         <td colspan="4"  align="center" ><table  border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td><a href="#" onClick="javascript:return Validate();" class="css_button"><span><?php echo htmlspecialchars( xl('Process ERA File'), ENT_QUOTES);?></span></a></td>
+    <td><a href="#" onClick="javascript:return Validate();" class="css_button"><span><?php echo htmlspecialchars(xl('Process ERA File'), ENT_QUOTES);?></span></a></td>
   </tr>
 </table></td>
         </tr>

@@ -198,7 +198,7 @@ function deliver_document($task)
     $mail->MsgHTML("<html><HEAD> <TITLE>Fax Central openEMR</TITLE> <BASE HREF='http://www.oculoplasticsllc.com'> </HEAD><body><div class='wrapper'>".$cover_page."</div></body></html>");
     $mail->IsHTML(true);
     $mail->AltBody = $cover_page;
-    $mail->AddAttachment( $file_to_attach, $file_name );
+    $mail->AddAttachment($file_to_attach, $file_name);
     if ($mail->Send()) {
         return true;
     } else {
@@ -304,14 +304,15 @@ function make_document($task)
         sqlQuery($sql, array("%".$filename));
     }
 
-    $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                         $GLOBALS['pdf_size'],
-                         $GLOBALS['pdf_language'],
-                         true, // default unicode setting is true
-                         'UTF-8', // default encoding setting is UTF-8
-                         array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                         $_SESSION['language_direction'] == 'rtl' ? true : false
-                      );
+    $pdf = new HTML2PDF(
+        $GLOBALS['pdf_layout'],
+        $GLOBALS['pdf_size'],
+        $GLOBALS['pdf_language'],
+        true, // default unicode setting is true
+        'UTF-8', // default encoding setting is UTF-8
+        array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+        $_SESSION['language_direction'] == 'rtl' ? true : false
+    );
 
     ob_start();
     ?><html>

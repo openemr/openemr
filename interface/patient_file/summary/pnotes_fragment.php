@@ -59,8 +59,16 @@
     $pres = getPatientData($pid, "lname, fname");
     $patientname = $pres['lname'] . ", " . $pres['fname'];
     //retrieve all active notes
-    $result = getPnotesByDate("", 1, "id,date,body,user,title,assigned_to,message_status",
-    $pid, "$N", 0, '', $docid);
+    $result = getPnotesByDate(
+        "",
+        1,
+        "id,date,body,user,title,assigned_to,message_status",
+        $pid,
+        "$N",
+        0,
+        '',
+        $docid
+    );
 
     if ($result != null) {
         $notes_count = 0;//number of notes so far displayed
@@ -146,8 +154,16 @@ if (acl_check('patients', 'notes', '', array('write', 'addonly'))) {
     <table width='100%' border='0' cellspacing='1' cellpadding='1' style='border-collapse:collapse;' >
     <?php
     //retrieve all active notes
-    $result_sent = getSentPnotesByDate("", 1, "id,date,body,user,title,assigned_to,pid",
-    $pid, "$M", 0, '', $docid);
+    $result_sent = getSentPnotesByDate(
+        "",
+        1,
+        "id,date,body,user,title,assigned_to,pid",
+        $pid,
+        "$M",
+        0,
+        '',
+        $docid
+    );
     if ($result_sent != null) {
         $notes_sent_count = 0;//number of notes so far displayed
         echo "<tr class='text' style='border-bottom:2px solid #000;' >\n";

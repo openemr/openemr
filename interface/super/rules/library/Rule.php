@@ -80,7 +80,7 @@ class Rule
     function addRuleType($ruleType)
     {
         if ( !$this->hasRuleType($ruleType) ) {
-            array_push($this->ruleTypes, $ruleType->code );
+            array_push($this->ruleTypes, $ruleType->code);
         }
     }
 
@@ -101,27 +101,27 @@ class Rule
 
     function isActiveAlert()
     {
-        return $this->hasRuleType( RuleType::from(RuleType::ActiveAlert) );
+        return $this->hasRuleType(RuleType::from(RuleType::ActiveAlert));
     }
 
     function isPassiveAlert()
     {
-        return $this->hasRuleType( RuleType::from(RuleType::PassiveAlert) );
+        return $this->hasRuleType(RuleType::from(RuleType::PassiveAlert));
     }
 
     function isCqm()
     {
-        return $this->hasRuleType( RuleType::from(RuleType::CQM) );
+        return $this->hasRuleType(RuleType::from(RuleType::CQM));
     }
 
     function isAmc()
     {
-        return $this->hasRuleType( RuleType::from(RuleType::AMC) );
+        return $this->hasRuleType(RuleType::from(RuleType::AMC));
     }
 
     function isReminder()
     {
-        return $this->hasRuleType( RuleType::from(RuleType::PatientReminder) );
+        return $this->hasRuleType(RuleType::from(RuleType::PatientReminder));
     }
 
     /**
@@ -172,7 +172,7 @@ class Rule
     {
         $labels = array();
         foreach( $this->ruleTypes as $ruleType ) {
-            array_push( $labels, RuleType::from($ruleType)->lbl );
+            array_push($labels, RuleType::from($ruleType)->lbl);
         }
         return $labels;
     }

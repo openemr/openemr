@@ -484,7 +484,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                     <!-- start  HPI Right -->
                     <div id="HPI_right" name="HPI_right" class="exam_section_right borderShadow">
-                        <?php display_draw_section ("HPI", $encounter, $pid); ?>
+                        <?php display_draw_section("HPI", $encounter, $pid); ?>
                       <!-- start    QP_HPI_Build -->
                       <div id="QP_HPI" name="QP_HPI" class="QP_class left">
                         <div id="HPI_text_list" name="HPI_text_list">
@@ -1973,7 +1973,7 @@ if ($refresh and $refresh != 'fullscreen') {
                     </div>
                   </div>
                   <div id="EXT_right" name="EXT_right" class="exam_section_right borderShadow text_clinical">
-                        <?php display_draw_section ("EXT", $encounter, $pid); ?>
+                        <?php display_draw_section("EXT", $encounter, $pid); ?>
                       <div id="PRIORS_EXT_left_text" name="PRIORS_EXT_left_text" class="PRIORS_class PRIORS">
                           <i class="fa fa-spinner fa-spin"></i>
                       </div>
@@ -2190,7 +2190,7 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="PRIORS_ANTSEG_left_text" name="PRIORS_ANTSEG_left_text" class="PRIORS_class PRIORS">
                                       <i class="fa fa-spinner fa-spin"></i>
                       </div>
-                        <?php display_draw_section ("ANTSEG", $encounter, $pid); ?>
+                        <?php display_draw_section("ANTSEG", $encounter, $pid); ?>
                       <div id="QP_ANTSEG" name="QP_ANTSEG" class="QP_class">
                           <input type="hidden" id="ANTSEG_prefix" name="ANTSEG_prefix" value="">
                           <div class="qp10">
@@ -2343,7 +2343,7 @@ if ($refresh and $refresh != 'fullscreen') {
                          name="PRIORS_RETINA_left_text"
                          class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
-                    <?php display_draw_section ("RETINA", $encounter, $pid); ?>
+                    <?php display_draw_section("RETINA", $encounter, $pid); ?>
                     <div id="QP_RETINA" name="QP_RETINA" class="QP_class">
                       <input type="hidden" id="RETINA_prefix" name="RETINA_prefix" value="" />
                       <div class="qp10">
@@ -3072,7 +3072,7 @@ if ($refresh and $refresh != 'fullscreen') {
                   <div id="NEURO_right" class="exam_section_right borderShadow text_clinical">
                     <div id="PRIORS_NEURO_left_text" name="PRIORS_NEURO_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
-                    <?php display_draw_section ("NEURO", $encounter, $pid); ?>
+                    <?php display_draw_section("NEURO", $encounter, $pid); ?>
                     <div id="QP_NEURO" name="QP_NEURO" class="QP_class">
                       <input type="hidden" id="NEURO_ACT_zone" name="NEURO_ACT_zone" value="<?php echo $ACT_SHOW; ?>">
                       <input type="hidden" id="NEURO_ACT_strab" name="NEURO_ACT_strab" value="">
@@ -3211,7 +3211,7 @@ if ($refresh and $refresh != 'fullscreen') {
                        */
                     ?>
                   <div id="IMPPLAN_right" class="exam_section_right borderShadow text_clinical">
-                    <?php display_draw_section ("IMPPLAN", $encounter, $pid); ?>
+                    <?php display_draw_section("IMPPLAN", $encounter, $pid); ?>
 
                     <div id="PRIORS_IMPPLAN_left_text" name="PRIORS_IMPPLAN_left_text" class="PRIORS_class PRIORS"><i class="fa fa-spinner fa-spin"></i>
                     </div>
@@ -3378,7 +3378,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                         echo "    <option value=''> " . text($prow['title']) . "\n";
                                         $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
                                         "WHERE superbill = ? AND active = 1 " .
-                                        "ORDER BY code_text", array($prow['option_id']) );
+                                        "ORDER BY code_text", array($prow['option_id']));
                                         while ($row = sqlFetchArray($res)) {
                                             $ctkey = alphaCodeType($row['code_type']);
                                             if ($code_types[$ctkey]['nofs']) continue;

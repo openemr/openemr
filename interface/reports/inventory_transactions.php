@@ -150,16 +150,16 @@ if ($form_action == 'export') {
     header("Content-Disposition: attachment; filename=inventory_transactions.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo '"' . xl('Date'       ) . '",';
+    echo '"' . xl('Date') . '",';
     echo '"' . xl('Transaction') . '",';
-    echo '"' . xl('Product'    ) . '",';
-    echo '"' . xl('Lot'        ) . '",';
-    echo '"' . xl('Warehouse'  ) . '",';
-    echo '"' . xl('Who'        ) . '",';
-    echo '"' . xl('Qty'        ) . '",';
-    echo '"' . xl('Amount'     ) . '",';
-    echo '"' . xl('Billed'     ) . '",';
-    echo '"' . xl('Notes'      ) . '"' . "\n";
+    echo '"' . xl('Product') . '",';
+    echo '"' . xl('Lot') . '",';
+    echo '"' . xl('Warehouse') . '",';
+    echo '"' . xl('Who') . '",';
+    echo '"' . xl('Qty') . '",';
+    echo '"' . xl('Amount') . '",';
+    echo '"' . xl('Billed') . '",';
+    echo '"' . xl('Notes') . '"' . "\n";
 } // end export
 else {
 ?>

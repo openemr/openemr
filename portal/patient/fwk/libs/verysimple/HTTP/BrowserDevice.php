@@ -86,14 +86,14 @@ class BrowserDevice
         $this->SupportsJS = true;
         $this->SupportsCSS = true;
         
-        $this->UserAgent = isset ( $_SERVER ['HTTP_USER_AGENT'] ) ? $_SERVER ['HTTP_USER_AGENT'] : "";
-        $wap = isset ( $_SERVER ['HTTP_X_WAP_PROFILE'] ) ? $_SERVER ['HTTP_X_WAP_PROFILE'] : "";
+        $this->UserAgent = isset($_SERVER ['HTTP_USER_AGENT']) ? $_SERVER ['HTTP_USER_AGENT'] : "";
+        $wap = isset($_SERVER ['HTTP_X_WAP_PROFILE']) ? $_SERVER ['HTTP_X_WAP_PROFILE'] : "";
         
         if (! $this->UserAgent) {
             $this->IsConsole = true;
         } else {
             foreach ( BrowserDevice::$MOBILE_DEVICE_PATTERNS as $key => $val ) {
-                if (preg_match ( '/' . $key . '/i', $this->UserAgent )) {
+                if (preg_match('/' . $key . '/i', $this->UserAgent)) {
                     $this->IsMobile = true;
                     $this->Vendor = $val;
                     break;
@@ -103,7 +103,7 @@ class BrowserDevice
             if ($this->IsMobile == false) {
                 
                 foreach ( BrowserDevice::$DESKTOP_DEVICE_PATTERNS as $key => $val ) {
-                    if (preg_match ( '/' . $key . '/i', $this->UserAgent )) {
+                    if (preg_match('/' . $key . '/i', $this->UserAgent)) {
                         $this->Vendor = $val;
                         break;
                     }
@@ -120,10 +120,10 @@ class BrowserDevice
      */
     public static function GetInstance()
     {
-        if (! isset ( self::$instance )) {
+        if (! isset(self::$instance)) {
             $c = __CLASS__;
             self::$instance = new $c ();
-            self::$instance->Detect ();
+            self::$instance->Detect();
         }
         
         return self::$instance;

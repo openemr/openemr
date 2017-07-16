@@ -46,8 +46,9 @@ function _LBFgcac_recent_default($name)
     if ($formid) return '';
 
     $query = _LBFgcac_query_recent(
-    "d.field_id = '$name' " .
-    "ORDER BY f.form_id DESC LIMIT 1");
+        "d.field_id = '$name' " .
+        "ORDER BY f.form_id DESC LIMIT 1"
+    );
     $row = sqlQuery($query);
 
     if (empty($row['field_value'])) return '';
@@ -104,8 +105,9 @@ function LBFgcac_javascript()
 
   // Query complications from the two weeks prior to this visit.
     $res = sqlStatement(_LBFgcac_query_recent(
-    "f.form_id != '$formid' AND " .
-    "d.field_id = 'complications'"));
+        "f.form_id != '$formid' AND " .
+        "d.field_id = 'complications'"
+    ));
 
   // This JavaScript function is to enable items in the "Main complications"
   // list that have been selected, and to disable all others.

@@ -58,19 +58,19 @@ class RuleCriteriaType
     private static function map()
     {
         $map = array(
-            self::ageMin   =>  new RuleCriteriaType( self::ageMin, xl('Age min'), 'age_min' ),
-            self::ageMax   =>  new RuleCriteriaType( self::ageMax, xl('Age max'), 'age_max' ),
-            self::sex       =>  new RuleCriteriaType( self::sex, xl('Sex'), 'sex' ),
+            self::ageMin   =>  new RuleCriteriaType(self::ageMin, xl('Age min'), 'age_min'),
+            self::ageMax   =>  new RuleCriteriaType(self::ageMax, xl('Age max'), 'age_max'),
+            self::sex       =>  new RuleCriteriaType(self::sex, xl('Sex'), 'sex'),
 
-            self::issue     =>  new RuleCriteriaType( self::issue, xl('Medical issue'), 'lists' ),
-            self::diagnosis =>  new RuleCriteriaType( self::diagnosis, xl('Diagnosis'), 'lists' ),
-            self::medication=>  new RuleCriteriaType( self::medication, xl('Medication'), 'lists' ),
-            self::allergy   =>  new RuleCriteriaType( self::allergy, xl('Allergy'), 'lists' ),
-            self::surgery   =>  new RuleCriteriaType( self::surgery, xl('Surgery'), 'lists' ),
+            self::issue     =>  new RuleCriteriaType(self::issue, xl('Medical issue'), 'lists'),
+            self::diagnosis =>  new RuleCriteriaType(self::diagnosis, xl('Diagnosis'), 'lists'),
+            self::medication=>  new RuleCriteriaType(self::medication, xl('Medication'), 'lists'),
+            self::allergy   =>  new RuleCriteriaType(self::allergy, xl('Allergy'), 'lists'),
+            self::surgery   =>  new RuleCriteriaType(self::surgery, xl('Surgery'), 'lists'),
 
-            self::lifestyle =>  new RuleCriteriaType( self::lifestyle, xl('Lifestyle'), 'database' ),
-            self::custom    =>  new RuleCriteriaType( self::custom, xl('Custom Table'), 'database' ),
-            self::custom_bucket  =>  new RuleCriteriaType( self::custom_bucket, xl('Custom'), 'database' )
+            self::lifestyle =>  new RuleCriteriaType(self::lifestyle, xl('Lifestyle'), 'database'),
+            self::custom    =>  new RuleCriteriaType(self::custom, xl('Custom Table'), 'database'),
+            self::custom_bucket  =>  new RuleCriteriaType(self::custom_bucket, xl('Custom'), 'database')
         );
         return $map;
     }

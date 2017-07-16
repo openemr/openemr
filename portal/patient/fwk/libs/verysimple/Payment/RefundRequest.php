@@ -32,7 +32,7 @@ class RefundRequest
      */
     final function __construct()
     {
-        $this->Init ();
+        $this->Init();
     }
     
     /**

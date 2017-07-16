@@ -47,10 +47,10 @@ class TextImageWriter
                     0
             );
         
-        $im = self::GetErrorImage ( $message, $width, $height, $backgroundColor, $fontColor, $fontId );
-        header ( 'Content-type: image/png' );
-        imagepng ( $im );
-        imagedestroy ( $im );
+        $im = self::GetErrorImage($message, $width, $height, $backgroundColor, $fontColor, $fontId);
+        header('Content-type: image/png');
+        imagepng($im);
+        imagedestroy($im);
     }
     
     /**
@@ -82,14 +82,14 @@ class TextImageWriter
                     0
             );
         
-        $msg = str_replace ( "\n", "", $message );
-        $im = imagecreate ( $width, $height );
-        $bgColor = imagecolorallocate ( $im, $backgroundColor [0], $backgroundColor [1], $backgroundColor [2] );
-        $fontColor = imagecolorallocate ( $im, $fontColor [0], $fontColor [1], $fontColor [2] );
-        $lines = explode ( "\r", wordwrap ( $msg, ($width / 5), "\r" ) );
+        $msg = str_replace("\n", "", $message);
+        $im = imagecreate($width, $height);
+        $bgColor = imagecolorallocate($im, $backgroundColor [0], $backgroundColor [1], $backgroundColor [2]);
+        $fontColor = imagecolorallocate($im, $fontColor [0], $fontColor [1], $fontColor [2]);
+        $lines = explode("\r", wordwrap($msg, ($width / 5), "\r"));
         $count = 0;
         foreach ( $lines as $line ) {
-            imagestring ( $im, $fontId, 2, 2 + ($count * 12), $line, $fontColor );
+            imagestring($im, $fontId, 2, 2 + ($count * 12), $line, $fontColor);
             $count ++;
         }
         return $im;

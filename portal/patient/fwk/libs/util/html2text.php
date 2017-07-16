@@ -26,19 +26,19 @@
  */
 function convert_html_to_text($html)
 {
-    $html = fix_newlines ( $html );
+    $html = fix_newlines($html);
     
-    $doc = new DOMDocument ();
-    if (! $doc->loadHTML ( $html ))
-        throw new Html2TextException ( "Could not load HTML - badly formed?", $html );
+    $doc = new DOMDocument();
+    if (! $doc->loadHTML($html))
+        throw new Html2TextException("Could not load HTML - badly formed?", $html);
     
-    $output = iterate_over_node ( $doc );
+    $output = iterate_over_node($doc);
     
     // remove leading and trailing spaces on each line
-    $output = preg_replace ( "/[ \t]*\n[ \t]*/im", "\n", $output );
+    $output = preg_replace("/[ \t]*\n[ \t]*/im", "\n", $output);
     
     // remove leading and trailing whitespace
-    $output = trim ( $output );
+    $output = trim($output);
     
     return $output;
 }
@@ -56,9 +56,9 @@ function convert_html_to_text($html)
 function fix_newlines($text)
 {
     // replace \r\n to \n
-    $text = str_replace ( "\r\n", "\n", $text );
+    $text = str_replace("\r\n", "\n", $text);
     // remove \rs
-    $text = str_replace ( "\r", "\n", $text );
+    $text = str_replace("\r", "\n", $text);
     
     return $text;
 }
@@ -74,7 +74,7 @@ function next_child_name($node)
     }
     $nextName = null;
     if ($nextNode instanceof DOMElement && $nextNode != null) {
-        $nextName = strtolower ( $nextNode->nodeName );
+        $nextName = strtolower($nextNode->nodeName);
     }
     
     return $nextName;
@@ -91,7 +91,7 @@ function prev_child_name($node)
     }
     $nextName = null;
     if ($nextNode instanceof DOMElement && $nextNode != null) {
-        $nextName = strtolower ( $nextNode->nodeName );
+        $nextName = strtolower($nextNode->nodeName);
     }
     
     return $nextName;
@@ -99,17 +99,17 @@ function prev_child_name($node)
 function iterate_over_node($node)
 {
     if ($node instanceof DOMText) {
-        return preg_replace ( "/\\s+/im", " ", $node->wholeText );
+        return preg_replace("/\\s+/im", " ", $node->wholeText);
     }
     if ($node instanceof DOMDocumentType) {
         // ignore
         return "";
     }
     
-    $nextName = next_child_name ( $node );
-    $prevName = prev_child_name ( $node );
+    $nextName = next_child_name($node);
+    $prevName = prev_child_name($node);
     
-    $name = strtolower ( $node->nodeName );
+    $name = strtolower($node->nodeName);
     
     // start whitespace
     switch ($name) {
@@ -150,9 +150,9 @@ function iterate_over_node($node)
     // $output .= "[$name,$nextName]";
     
     for($i = 0; $i < $node->childNodes->length; $i ++) {
-        $n = $node->childNodes->item ( $i );
+        $n = $node->childNodes->item($i);
         
-        $text = iterate_over_node ( $n );
+        $text = iterate_over_node($n);
         
         $output .= $text;
     }
@@ -191,10 +191,10 @@ function iterate_over_node($node)
         
         case "a" :
             // links are returned in [text](link) format
-            $href = $node->getAttribute ( "href" );
+            $href = $node->getAttribute("href");
             if ($href == null) {
                 // it doesn't link anywhere
-                if ($node->getAttribute ( "name" ) != null) {
+                if ($node->getAttribute("name") != null) {
                     $output = "[$output]";
                 }
             } else {
@@ -230,7 +230,7 @@ class Html2TextException extends Exception
     var $more_info;
     public function __construct($message = "", $more_info = "")
     {
-        parent::__construct ( $message );
+        parent::__construct($message);
         $this->more_info = $more_info;
     }
 }

@@ -25,16 +25,16 @@ class CreditCardUtil
     {
         $dashSeparatedNumber = "";
         
-        if (strlen ( $cc_num ) == 15) {
-            $firstFour = substr ( $cc_num, 0, 4 );
-            $secondSix = substr ( $cc_num, 4, 6 );
-            $thirdFive = substr ( $cc_num, 10, 5 );
+        if (strlen($cc_num) == 15) {
+            $firstFour = substr($cc_num, 0, 4);
+            $secondSix = substr($cc_num, 4, 6);
+            $thirdFive = substr($cc_num, 10, 5);
             $dashSeparatedNumber = $firstFour . "-" . $secondSix . "-" . $thirdFive;
         } else {
-            $firstFour = substr ( $cc_num, 0, 4 );
-            $secondFour = substr ( $cc_num, 4, 4 );
-            $thirdFour = substr ( $cc_num, 8, 4 );
-            $fourthFour = substr ( $cc_num, 12, 4 );
+            $firstFour = substr($cc_num, 0, 4);
+            $secondFour = substr($cc_num, 4, 4);
+            $thirdFour = substr($cc_num, 8, 4);
+            $fourthFour = substr($cc_num, 12, 4);
             $dashSeparatedNumber = $firstFour . "-" . $secondFour . "-" . $thirdFour . "-" . $fourthFour;
         }
         
@@ -48,7 +48,7 @@ class CreditCardUtil
      */
     static function StripNonNumeric($num)
     {
-        return preg_replace ( '{\D}', '', $num );
+        return preg_replace('{\D}', '', $num);
     }
     
     /**
@@ -59,7 +59,7 @@ class CreditCardUtil
      */
     static function IsValidMod10($str)
     {
-        if (strspn ( $str, "0123456789" ) != strlen ( $str )) {
+        if (strspn($str, "0123456789") != strlen($str)) {
             return false;
         }
         
@@ -86,7 +86,7 @@ class CreditCardUtil
                 9
         ); // for odd indices
         $sum = 0;
-        $last = strlen ( $str ) - 1;
+        $last = strlen($str) - 1;
         
         for($i = 0; $i <= $last; $i ++) {
             $sum += $map [$str [$last - $i] + ($i & 1) * 10];
@@ -103,14 +103,14 @@ class CreditCardUtil
      */
     static function GetType($num)
     {
-        $firstOne = substr ( $num, 0, 1 );
+        $firstOne = substr($num, 0, 1);
         
-        if (strlen ( $num ) < 4)
+        if (strlen($num) < 4)
             return "";
         if ($firstOne == 4)
             return "Visa";
         
-        $firstTwo = substr ( $num, 0, 2 );
+        $firstTwo = substr($num, 0, 2);
         if ($firstTwo == 34 || $firstTwo == 37)
             return "AmEx";
         if ($firstTwo >= 51 && $firstTwo <= 55)
@@ -118,13 +118,13 @@ class CreditCardUtil
         if ($firstTwo == 36 || $firstTwo == 38 || $firstTwo == 54 || $firstTwo == 55)
             return "Diners Club";
         
-        $firstThree = substr ( $num, 0, 3 );
+        $firstThree = substr($num, 0, 3);
         if ($firstThree >= 300 && $firstThree <= 305)
             return "Carte Blanche";
         if ($firstThree >= 644 && $firstThree <= 649)
             return "Discover";
         
-        $firstFour = substr ( $num, 0, 4 );
+        $firstFour = substr($num, 0, 4);
         if ($firstFour == 6011)
             return "Discover";
         if ($firstFour == 2014 || $firstFour == 2149)
@@ -132,7 +132,7 @@ class CreditCardUtil
         if ($firstFour == 6011)
             return "Discover";
         
-        $firstSix = substr ( $num, 0, 6 );
+        $firstSix = substr($num, 0, 6);
         if ($firstSix >= 622126 && $firstSix <= 622925)
             return "Discover";
         

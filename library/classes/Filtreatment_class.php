@@ -44,9 +44,9 @@ class Filtreatment
     function __construct()
     {
         if ( get_magic_quotes_gpc() ) {
-            if ( !defined('MAGICQUOTES') ) define ('MAGICQUOTES', true);
+            if ( !defined('MAGICQUOTES') ) define('MAGICQUOTES', true);
         } else {
-            if ( !defined('MAGICQUOTES') ) define ('MAGICQUOTES', false);
+            if ( !defined('MAGICQUOTES') ) define('MAGICQUOTES', false);
         }
     }
 
@@ -332,8 +332,11 @@ break;
         */
         if (preg_match_all("/<(.+?)>/si", $str, $matches)) {
             for ($i = 0; $i < count($matches['0']); $i++) {
-                $str = str_replace($matches['1'][$i],
-                html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset), $str);
+                $str = str_replace(
+                    $matches['1'][$i],
+                    html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset),
+                    $str
+                );
             }
         }
 

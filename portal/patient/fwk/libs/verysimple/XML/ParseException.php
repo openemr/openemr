@@ -22,7 +22,7 @@ class ParseException extends Exception
      */
     public function __construct($message, $code = 0)
     {
-        parent::__construct ( $message, $code );
+        parent::__construct($message, $code);
     }
     
     /**
@@ -30,7 +30,7 @@ class ParseException extends Exception
      */
     public function __toString()
     {
-        $pair = explode ( "]", $this->message );
-        return "ParseException" . (count ( $pair ) > 1 ? $pair [1] : $pair [0]);
+        $pair = explode("]", $this->message);
+        return "ParseException" . (count($pair) > 1 ? $pair [1] : $pair [0]);
     }
 }

@@ -53,16 +53,16 @@ if ($PDF_OUTPUT) {
     $pdf = new mPDF(
         $GLOBALS['pdf_language'], // codepage or language/codepage or language - this can help auto determine many other options such as RTL
         $GLOBALS['pdf_size'], // Globals default is 'letter'
-       '9', // default font size (pt)
+        '9', // default font size (pt)
         '', // default_font. will set explicitly in script.
-       $GLOBALS['pdf_left_margin'],
-       $GLOBALS['pdf_right_margin'],
-       $GLOBALS['pdf_top_margin'],
-       $GLOBALS['pdf_bottom_margin'],
-       '', // default header margin
-       '', // default footer margin
-       $GLOBALS['pdf_layout']
-        ); // Globals default is 'P'
+        $GLOBALS['pdf_left_margin'],
+        $GLOBALS['pdf_right_margin'],
+        $GLOBALS['pdf_top_margin'],
+        $GLOBALS['pdf_bottom_margin'],
+        '', // default header margin
+        '', // default footer margin
+        $GLOBALS['pdf_layout']
+    ); // Globals default is 'P'
       
       $pdf->shrink_tables_to_fit = 1;
       $keep_table_proportions = true;
@@ -399,11 +399,11 @@ foreach ($ar as $key => $val) {
             echo "<div class='text insurance'>";
             echo "<h1>".xl('Insurance Data').":</h1>";
             print "<br><span class=bold>".xl('Primary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             print "<span class=bold>".xl('Secondary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
             print "<span class=bold>".xl('Tertiary Insurance Data').":</span><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
             echo "</div>";
 
         } elseif ($val == "billing") {
@@ -424,7 +424,7 @@ foreach ($ar as $key => $val) {
                     foreach ($billing as $b) {
                         echo "<tr>\n";
                         echo "<td class=text>";
-                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars( $b['code_text'] ) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                        echo $b['code_type'] . ":\t" . $b['code'] . "&nbsp;". $b['modifier'] . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars($b['code_text']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
                         echo "</td>\n";
                         echo "<td class=text>";
                         echo oeFormatMoney($b['fee']);
@@ -488,7 +488,7 @@ foreach ($ar as $key => $val) {
                     }
                     else {
                         if (!empty($row['code_text_short'])) {
-                            $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                            $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
                         }
                         else {
                             $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
@@ -770,7 +770,7 @@ foreach ($ar as $key => $val) {
                 else
                   call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
 
-                $esign = $esignApi->createFormESign( $formId, $res[1], $form_encounter );
+                $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                 if ( $esign->isLogViewable("report") ) {
                     $esign->renderLog();
                 }
@@ -781,15 +781,17 @@ foreach ($ar as $key => $val) {
 
                 if ($res[1] == 'newpatient') {
                     // display billing info
-                    $bres = sqlStatement("SELECT b.date, b.code, b.code_text " .
-                      "FROM billing AS b, code_types AS ct WHERE " .
-                      "b.pid = ? AND " .
-                      "b.encounter = ? AND " .
-                      "b.activity = 1 AND " .
-                      "b.code_type = ct.ct_key AND " .
-                      "ct.ct_diag = 0 " .
-                      "ORDER BY b.date",
-                      array($pid, $form_encounter));
+                    $bres = sqlStatement(
+                        "SELECT b.date, b.code, b.code_text " .
+                        "FROM billing AS b, code_types AS ct WHERE " .
+                        "b.pid = ? AND " .
+                        "b.encounter = ? AND " .
+                        "b.activity = 1 AND " .
+                        "b.code_type = ct.ct_key AND " .
+                        "ct.ct_diag = 0 " .
+                        "ORDER BY b.date",
+                        array($pid, $form_encounter)
+                    );
                     while ($brow=sqlFetchArray($bres)) {
                         echo "<div class='bold' style='display: inline-block'>&nbsp;".xl('Procedure').": </div><div class='text' style='display: inline-block'>" .
                             $brow['code'] . " " . htmlspecialchars($brow['code_text']) . "</div><br>\n";
@@ -867,7 +869,7 @@ else {
 </body>
 <?php if (!$printable) { // Set up translated strings for use by interactive search ?>
 <script type="text/javascript">
-var xl_string = <?php echo json_encode( array(
+var xl_string = <?php echo json_encode(array(
     'spcl_chars' => xla('Special characters are not allowed').'.',
     'not_found'  => xla('No results found').'.',
     'results'    => xla('Showing result'),

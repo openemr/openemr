@@ -31,13 +31,13 @@ class RuleAction
 
     function getTitle()
     {
-        return getLabel( $this->category, 'rule_action_category' ) . " - " . getLabel( $this->item, 'rule_action' );
+        return getLabel($this->category, 'rule_action_category') . " - " . getLabel($this->item, 'rule_action');
     }
 
     function getCategoryLabel()
     {
         if ( !$this->categoryLbl ) {
-            $this->categoryLbl = getLabel( $this->category, 'rule_action_category');
+            $this->categoryLbl = getLabel($this->category, 'rule_action_category');
         }
         return $this->categoryLbl;
     }
@@ -45,7 +45,7 @@ class RuleAction
     function getItemLabel()
     {
         if ( !$this->itemLbl ) {
-            $this->itemLbl = getLabel( $this->item, 'rule_action');
+            $this->itemLbl = getLabel($this->item, 'rule_action');
         }
         return $this->itemLbl;
     }

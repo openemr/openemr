@@ -6,19 +6,19 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( src_dir() . "/clinical_rules.php");
+require_once(src_dir() . "/clinical_rules.php");
 
 class Controller_browse extends BaseController
 {
 
     function _action_list()
     {
-        $this->set_view( "list.php" );
+        $this->set_view("list.php");
     }
     
     function _action_plans_config()
     {
-        $this->set_view( "plans_config.php" );
+        $this->set_view("plans_config.php");
     }
 
     function _action_getrows()
@@ -38,6 +38,6 @@ class Controller_browse extends BaseController
             $rows[] = $row;
         }
 
-        $this->emit_json( $rows );
+        $this->emit_json($rows);
     }
 }

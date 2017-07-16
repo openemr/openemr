@@ -3,7 +3,7 @@
 
 /** import supporting libraries */
 require_once("verysimple/Phreeze/Controller.php");
-require_once (dirname( __FILE__ )."/../../../lib/appsql.class.php" );
+require_once(dirname(__FILE__)."/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
@@ -111,7 +111,7 @@ class AppBaseController extends Controller
 
         if ($exception)
         {
-            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1) );
+            $err->stackTrace = explode("\n#", substr($exception->getTraceAsString(), 1));
         }
 
         @header('HTTP/1.1 401 Unauthorized');

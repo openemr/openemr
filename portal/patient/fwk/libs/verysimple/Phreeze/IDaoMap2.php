@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("FieldMap.php");
-require_once ("KeyMap.php");
+require_once("FieldMap.php");
+require_once("KeyMap.php");
 
 /**
  * IDaoMap2 is an interface for a mapped object that can be persisted by Phreeze

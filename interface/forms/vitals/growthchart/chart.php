@@ -31,8 +31,8 @@
 //  page2.css
 //
 
-include_once ("../../../../interface/globals.php");
-include_once ($GLOBALS['fileroot']."/library/patient.inc");
+include_once("../../../../interface/globals.php");
+include_once($GLOBALS['fileroot']."/library/patient.inc");
 $chartpath = $GLOBALS['fileroot']."/interface/forms/vitals/growthchart/";
 
 $name = "";

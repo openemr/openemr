@@ -46,7 +46,7 @@ function edih_parse_date($strdate)
         $cy = (string)$gtdt['year'];
         $dt1 = substr($cy, 0, 2) . $strdate;
     } elseif (strpos($strdate, '-') >= 6) {
-        $dt1 = substr($strdate, 0, strpos($strdate, '-') - 1  );
+        $dt1 = substr($strdate, 0, strpos($strdate, '-') - 1);
     } elseif (strlen($strdate) == 8) {
         $dt1 = $strdate;
     } else {
@@ -250,7 +250,7 @@ function edih_837_csv_data($obj837)
         //$ret_ar[$icn]['type'] = $ft;
         foreach($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
-                $ret_ar[$icn]['type'] = csv_file_type( $gs['type'] );
+                $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
                 $gsdate = $gs['date'];
                 break;
             }
@@ -389,7 +389,7 @@ function edih_277_csv_data($obj277)
     $env_ar = $obj277->edih_envelopes();
     //
     if ( !isset($env_ar['ST']) ) {
-        csv_edihist_log( 'edih_277_csv_data: envelope error');
+        csv_edihist_log('edih_277_csv_data: envelope error');
         return $ret_ar;
     }
     if ( !isset($env_ar['GS']) ) {
@@ -655,7 +655,7 @@ function edih_278_csv_data($obj278)
     $fn = $obj278->edih_filename();
     $seg_ar = $obj278->edih_segments();
     $env_ar = $obj278->edih_envelopes();
-    $ft = csv_file_type( $obj278->edih_type() );
+    $ft = csv_file_type($obj278->edih_type());
     //
     // $ft: 'HI'=>'278'
     if ( !isset($env_ar['ST']) ) {
@@ -765,7 +765,7 @@ function edih_278_csv_data($obj278)
                     } elseif ( $loopid == '2000D') {
                         $ret_ar[$icn]['claim'][$cdx]['PtName'] = $nm103;  //$ptname = $nm1;
                         $loopid = '2010D';
-                    } elseif ( strpos( '|2000E', $loopid) ) {
+                    } elseif ( strpos('|2000E', $loopid) ) {
                         $loopid = '2000E';
                         $loopid = (strpos('|71|72|73|77|AAJ|DD|DK|DN|FA|G3|P3|QB|QV|SJ', $nm101) ) ? '2010EA' : $loopid;
                         $loopid = (strpos('|45|FS|ND|PW|R3', $nm101) ) ? '2010EB' : $loopid;
@@ -881,7 +881,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
         return $info_ar;
     }
     //
-    $batch_srch = csv_search_record($ft, 'claim', array('s_val'=>$rsp_trace, 's_col'=>4, 'r_cols'=>'All'), '1' );
+    $batch_srch = csv_search_record($ft, 'claim', array('s_val'=>$rsp_trace, 's_col'=>4, 'r_cols'=>'All'), '1');
     if (is_array($batch_srch) && count($batch_srch[0])) {
         $info_ar['pt_name'] = $batch_srch[0][0]; // $batch_srch['PtName'];
         $info_ar['clm01'] = ($rtp == 'f837') ? $batch_srch[0][2] : $batch_srch[0][4]; // $batch_srch['CLM01'] : $batch_srch['BHT03'];
@@ -931,7 +931,7 @@ function edih_997_csv_data($obj997)
         
         foreach($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
-                $ret_ar[$icn]['type'] = csv_file_type( $gs['type'] );
+                $ret_ar[$icn]['type'] = csv_file_type($gs['type']);
                 $rspdate = $gs['date'];
                 break;
             }
@@ -1126,7 +1126,7 @@ function edih_271_csv_data($obj270)
     $fn = $obj270->edih_filename();
     $seg_ar = $obj270->edih_segments();
     $env_ar = $obj270->edih_envelopes();
-    $ft = csv_file_type( $obj270->edih_type() );
+    $ft = csv_file_type($obj270->edih_type());
     //
     // $rsptype = array('HS'=>'270', 'HB'=>'271', 'HC'=>'837', 'HR'=>'276', 'HI'=>'278');
     if ( !isset($env_ar['ST']) ) {
@@ -1422,7 +1422,7 @@ function edih_parse_select($file_path)
         $csvdata = edih_278_csv_data($x12_obj);
     } else {
         // debug
-        csv_edihist_log( 'edih_parse_select(): unsupported file type '.$ft.' name: '.basename($file_path));
+        csv_edihist_log('edih_parse_select(): unsupported file type '.$ft.' name: '.basename($file_path));
     }
     //
     return $csvdata;

@@ -27,14 +27,14 @@ namespace SMA_Common;
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 }
 else {
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if ( ! isset($_SESSION['authUserID']) ){
         $landingpage = "index.php";
         header('Location: '.$landingpage);
@@ -261,18 +261,18 @@ class Model extends SMA_Common\Model
 {
     public function getAuthUsers()
     {
-        $response = sqlStatementNoLog( "SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'" );
+        $response = sqlStatementNoLog("SELECT patient_data.pid as recip_id, Concat_Ws(' ', patient_data.fname, patient_data.lname) as username FROM patient_data WHERE allow_patient_portal = 'YES'");
         $resultpd = array ();
         while( $row = sqlFetchArray($response) ){
             $resultpd[] = $row;
         }
-        $response = sqlStatementNoLog( "SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1" );
+        $response = sqlStatementNoLog("SELECT users.id as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  FROM users WHERE authorized = 1");
         $result = array ();
         while( $row = sqlFetchArray($response) ){
             $result[] = $row;
         }
 
-        return json_encode( array_merge($result, $resultpd) );
+        return json_encode(array_merge($result, $resultpd));
     }
     public function getMessages($limit = CHAT_HISTORY, $reverse = true)
     {
@@ -282,7 +282,7 @@ class Model extends SMA_Common\Model
         $result = array();
         while($row = sqlFetchArray($response)) {
             if(IS_PORTAL){
-                $u = json_decode( $row['recip_id'], true );
+                $u = json_decode($row['recip_id'], true);
                 if(!is_array($u)) continue;
                 if( (in_array(C_USER, $u)) || $row['sender_id'] == C_USER ){
                      $result[] = $row; // only current patient messages
@@ -296,7 +296,7 @@ class Model extends SMA_Common\Model
 
     public function addMessage($username, $message, $ip, $senderid = 0, $recipid = '')
     {
-        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid) );
+        return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid));
     }
 
     public function removeMessages()
@@ -330,7 +330,7 @@ class Model extends SMA_Common\Model
     public function updateOnline($hash, $ip, $username = '', $userid = 0)
     {
         return sqlStatementNoLog("REPLACE INTO onsite_online
-            VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid) ) or die(mysql_error());
+            VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid)) or die(mysql_error());
     }
 
     public function clearOffline($timeRange = CHAT_ONLINE_RANGE)

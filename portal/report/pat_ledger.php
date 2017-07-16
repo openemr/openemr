@@ -609,8 +609,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                 $credits = GetAllCredits($prev_encounter_id, $form_pid);
                 if(count($credits) > 0) {
                     if(!$hdr_printed) {
-                        PrintEncHeader($prev_row{'date'},
-                        $prev_row{'reason'}, $prev_row{'provider_id'});
+                        PrintEncHeader(
+                            $prev_row{'date'},
+                            $prev_row{'reason'},
+                            $prev_row{'provider_id'}
+                        );
                     }
                     PrintCreditDetail($credits, $form_pid);
                 }
@@ -622,8 +625,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         if($erow{'id'}) {
             // Now print an encounter heading line -
             if(!$hdr_printed) {
-                PrintEncHeader($erow{'date'},
-                $erow{'reason'}, $erow{'provider_id'});
+                PrintEncHeader(
+                    $erow{'date'},
+                    $erow{'reason'},
+                    $erow{'provider_id'}
+                );
                 $hdr_printed = true;
             }
 
@@ -663,8 +669,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         $credits = GetAllCredits($prev_encounter_id, $form_pid);
         if(count($credits) > 0) {
             if(!$hdr_printed) {
-                PrintEncHeader($prev_row{'date'},
-                $prev_row{'reason'}, $prev_row{'provider_id'});
+                PrintEncHeader(
+                    $prev_row{'date'},
+                    $prev_row{'reason'},
+                    $prev_row{'provider_id'}
+                );
             }
             PrintCreditDetail($credits, $form_pid);
         }
@@ -729,7 +738,7 @@ if (! $_REQUEST['form_csvexport']) {
 
     if (!$_REQUEST['form_refresh'] && !$_REQUEST['form_csvexport']) { ?>
     <div class='text'>
-            <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
+            <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
     </div>
         <?php } ?>
 </form>

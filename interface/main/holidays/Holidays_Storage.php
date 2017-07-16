@@ -55,7 +55,7 @@ class Holidays_Storage
     {
         $holidays= array();
         $sql = 'SELECT * FROM openemr_postcalendar_events WHERE (pc_catid = ? OR pc_catid = ?) AND pc_eventDate >= ? AND pc_eventDate <= ?';
-        $res=sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date) );
+        $res=sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY,self::CALENDAR_CATEGORY_CLOSED,$start_date,$end_date));
         while ($row = sqlFetchArray($res)) {
             $holidays[] = $row['pc_eventDate'];
         }
@@ -89,7 +89,8 @@ class Holidays_Storage
                 2 //SHARING_PUBLIC
             );
 
-            $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+            $pc_eid = sqlInsert(
+                "INSERT INTO openemr_postcalendar_events ( " .
                 "pc_catid,  pc_aid, pc_pid, pc_title, pc_time, " .
                 "pc_eventDate,  pc_duration, " . "pc_recurrspec,  pc_alldayevent, " . " pc_eventstatus, pc_facility,pc_sharing" .
                 ") VALUES (?,?,?,?,NOW(),?,?,?,?,?,?,?)",

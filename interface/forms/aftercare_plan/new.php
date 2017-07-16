@@ -71,7 +71,7 @@ echo "<form method='post' name='my_form' " .
 ?>
 <table  border="0">
 <tr>
-<td align="left" class="forms" class="forms"><?php echo xlt('Client Name' ); ?>:</td>
+<td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
             <label class="forms-data"> <?php if (is_numeric($pid)) {
 

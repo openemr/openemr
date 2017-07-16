@@ -29,9 +29,11 @@ require_once("./gen_hl7_order.inc.php");
  */
 function getListItem($listid, $value)
 {
-    $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        array($listid, $value)
+    );
     $tmp = xl_list_label($lrow['title']);
     if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
     return $tmp;
@@ -246,10 +248,10 @@ if ($s) {
     }
     echo "<table width='100%'>\n";
     echo " <tr class='head'>\n";
-    echo "  <td>" . xlt('Delete'  ) . "</th>\n";
+    echo "  <td>" . xlt('Delete') . "</th>\n";
     echo "  <td>" . xlt('Lab/File') . "</th>\n";
-    echo "  <td>" . xlt('Message' ) . "</th>\n";
-    echo "  <td>" . xlt('Match'   ) . "</th>\n";
+    echo "  <td>" . xlt('Message') . "</th>\n";
+    echo "  <td>" . xlt('Match') . "</th>\n";
     echo " </tr>\n";
     echo $s;
     echo "</table>\n";
@@ -354,22 +356,22 @@ foreach (array(
 <table width='100%' cellpadding='1' cellspacing='2'>
 
  <tr class='head'>
-  <td colspan='2'><?php echo xlt('Patient'  ); ?></td>
-  <td colspan='2'><?php echo xlt('Order'    ); ?></td>
+  <td colspan='2'><?php echo xlt('Patient'); ?></td>
+  <td colspan='2'><?php echo xlt('Order'); ?></td>
   <td colspan='2'><?php echo xlt('Procedure'); ?></td>
-  <td colspan='2'><?php echo xlt('Report'   ); ?></td>
+  <td colspan='2'><?php echo xlt('Report'); ?></td>
  </tr>
 
  <tr class='head'>
-  <td><?php echo xlt('Name'       ); ?></td>
-  <td><?php echo xlt('ID'         ); ?></td>
-  <td><?php echo xlt('Date'       ); ?></td>
-  <td><?php echo xlt('ID'         ); ?></td>
-  <td><?php echo xlt('Code'       ); ?></td>
+  <td><?php echo xlt('Name'); ?></td>
+  <td><?php echo xlt('ID'); ?></td>
+  <td><?php echo xlt('Date'); ?></td>
+  <td><?php echo xlt('ID'); ?></td>
+  <td><?php echo xlt('Code'); ?></td>
   <td><?php echo xlt('Description'); ?></td>
-  <td><?php echo xlt('Date'       ); ?></td>
-  <td><?php echo xlt('Status'     ); ?></td>
-  <!-- <td><?php echo xlt('Reviewed'   ); ?></td> -->
+  <td><?php echo xlt('Date'); ?></td>
+  <td><?php echo xlt('Status'); ?></td>
+  <!-- <td><?php echo xlt('Reviewed'); ?></td> -->
  </tr>
 
 <?php

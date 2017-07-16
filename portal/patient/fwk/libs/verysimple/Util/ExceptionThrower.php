@@ -36,7 +36,7 @@ class ExceptionThrower
     static function Start($level = null)
     {
         if ($level == null) {
-            if (defined ( "E_DEPRECATED" )) {
+            if (defined("E_DEPRECATED")) {
                 $level = E_ALL & ~ E_DEPRECATED;
             } else {
                 // php 5.2 and earlier don't support E_DEPRECATED
@@ -44,10 +44,10 @@ class ExceptionThrower
                 self::$IGNORE_DEPRECATED = true;
             }
         }
-        set_error_handler ( array (
+        set_error_handler(array (
                 "ExceptionThrower",
                 "HandleError"
-        ), $level );
+        ), $level);
     }
     
     /**
@@ -55,7 +55,7 @@ class ExceptionThrower
      */
     static function Stop()
     {
-        restore_error_handler ();
+        restore_error_handler();
     }
     
     /**
@@ -74,11 +74,11 @@ class ExceptionThrower
     static function HandleError($code, $string, $file, $line, $context)
     {
         // ignore supressed errors
-        if (error_reporting () == 0)
+        if (error_reporting() == 0)
             return;
-        if (self::$IGNORE_DEPRECATED && strpos ( $string, "deprecated" ) === true)
+        if (self::$IGNORE_DEPRECATED && strpos($string, "deprecated") === true)
             return true;
         
-        throw new Exception ( $string . " in " . basename ( $file ) . " at line $line", $code );
+        throw new Exception($string . " in " . basename($file) . " at line $line", $code);
     }
 }

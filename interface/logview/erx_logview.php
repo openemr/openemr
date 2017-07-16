@@ -104,7 +104,7 @@ if(array_key_exists('search_logs', $_REQUEST)) {
 
             if($file != '.' && $file != '..' && $file_as_in_folder == $file) {
                 $check_for_file = 1;
-                $fd = fopen ($error_log_path.'/'.$file, 'r');
+                $fd = fopen($error_log_path.'/'.$file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path.'/'.$file));
 ?>
                 <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo htmlspecialchars($file, ENT_QUOTES); ?>"><?php echo htmlspecialchars($file, ENT_NOQUOTES); ?></a></p>

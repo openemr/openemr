@@ -254,7 +254,7 @@ if ($form_step == 4) {
         $file_list = array('.');    // archive entire directory
         $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
         if (!create_tar_archive($arch_file, "gz", $file_list))
-        die (xl("An error occurred while dumping phpGACL web directory tree"));
+        die(xl("An error occurred while dumping phpGACL web directory tree"));
         chdir($cur_dir);
         $auto_continue = true;
     }
@@ -595,7 +595,7 @@ if ($cmd) {
 // If a file was flagged to be gzip-compressed after this cmd, do it.
 if ($file_to_compress) {
     if (!gz_compress_file($file_to_compress))
-    die (xl("Error in gzip compression of file: ") . $file_to_compress);
+    die(xl("Error in gzip compression of file: ") . $file_to_compress);
 }
 ?>
 

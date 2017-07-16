@@ -38,7 +38,7 @@ else {
 }
 function getAuthUsers()
 {
-    $response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
+    $response = sqlStatement("SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'");
     $resultpd = array ();
     while( $row = sqlFetchArray($response) ){
         $resultpd[] = $row;

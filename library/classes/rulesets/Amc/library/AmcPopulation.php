@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( "AmcPatient.php" );
+require_once("AmcPatient.php");
 /*	Defines a population of patients
  * 
  */
@@ -18,7 +18,7 @@ class AmcPopulation extends RsPopulation
     public function __construct(array $patientIdArray)
     {
         foreach ( $patientIdArray as $patientId ) {
-            $this->_patients[]= new AmcPatient( $patientId );
+            $this->_patients[]= new AmcPatient($patientId);
         }
     }
 
@@ -34,7 +34,7 @@ class AmcPopulation extends RsPopulation
                 $this->_patients[$offset] = $value;
             }
         } else {
-            throw new Exception( "Value must be an instance of AmcPatient" );
+            throw new Exception("Value must be an instance of AmcPatient");
         }
     }
 }

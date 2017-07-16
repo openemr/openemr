@@ -66,7 +66,7 @@ function validEmail($email)
 
 function messageCreate($uname, $pass, $site)
 {
-    $message = htmlspecialchars( xl("Patient Portal Web Address"), ENT_NOQUOTES) . ":<br>";
+    $message = htmlspecialchars(xl("Patient Portal Web Address"), ENT_NOQUOTES) . ":<br>";
     if ($site == "on") {
         if ($GLOBALS['portal_onsite_enable']) {
             $message .= "<a href='" . htmlspecialchars($GLOBALS['portal_onsite_address'], ENT_QUOTES) . "'>" .
@@ -95,7 +95,7 @@ function messageCreate($uname, $pass, $site)
 
 function emailLogin($patient_id, $message)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
         return false;
     }
@@ -130,7 +130,7 @@ function emailLogin($patient_id, $message)
 
 function displayLogin($patient_id, $message, $emailFlag)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ($emailFlag) {
         $message = "<br><br>" .
                    htmlspecialchars(xl("Email was sent to following address"), ENT_NOQUOTES) . ": " .

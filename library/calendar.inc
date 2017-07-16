@@ -103,7 +103,7 @@ function getUserFacilities($uID)
 		  left join facility f on (uf.facility_id = f.id)
 		  where uf.tablename='users' 
 		  and uf.table_id = ? 
-	    ", array($uID) );
+	    ", array($uID));
     }
     $returnVal = array();
     while ($row = sqlFetchArray($rez))
@@ -159,13 +159,13 @@ function newCalendarItem(
     $groupname
 ) {
     
-    sqlQuery("insert into calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now()", array($pid, $time, $reason, $owner, $groupname) );
+    sqlQuery("insert into calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now()", array($pid, $time, $reason, $owner, $groupname));
 }
 
 //delete a calendar entry item
 function deleteCalendarItem($calid, $pid)
 {
-    sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid) );
+    sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid));
 }
 
 
@@ -179,7 +179,7 @@ function saveCalendarUpdate(
     $groupname
 ) {
     
-    sqlQuery("update calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now() where id=?", array($pid, $time, $reason, $owner, $groupname, $calid) );
+    sqlQuery("update calendar set pid=?,time=?,reason=?,owner=?,groupname=?,date=now() where id=?", array($pid, $time, $reason, $owner, $groupname, $calid));
 }
 
 

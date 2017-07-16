@@ -193,7 +193,7 @@ class ImmunizationController extends AbstractActionController
             $new_search     = $request->getPost('form_new_search', null);
             //endpagination
 
-            if ( empty ($form_code) ) {
+            if ( empty($form_code) ) {
                 $query_codes = '';
             }
             else {
@@ -630,7 +630,7 @@ class ImmunizationController extends AbstractActionController
                     $patient_id = $r['patientid'];
                 }
                 header('Content-type: text/plain');
-                header('Content-Disposition: attachment; filename=' . $filename );
+                header('Content-Disposition: attachment; filename=' . $filename);
 
                 // put the content in the file
                 echo($content);

@@ -6,7 +6,7 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( library_src( 'RuleCriteriaFactory.php') );
+require_once(library_src('RuleCriteriaFactory.php'));
 
 /**
  * Description of RuleCriteraFilterFactory

@@ -15,7 +15,7 @@ class RsHelper
             if ( $result instanceof RsResultIF ) {
                 $formattedResults []= $result->format();
             } else {
-                throw new Exception( "Result must be an instance of RsResultIF" );
+                throw new Exception("Result must be an instance of RsResultIF");
             }
         }
 

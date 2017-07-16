@@ -26,7 +26,7 @@
  * @param
  *            wrapper class for moving some care coordination zend product
  */
-require_once ( dirname( __FILE__ ) . '/../../library/sql.inc' );
+require_once(dirname(__FILE__) . '/../../library/sql.inc');
 class ApplicationTable
 {
 
@@ -54,16 +54,16 @@ class ApplicationTable
         $result = false;
 
         try{
-            $return = sqlStatement( $sql, $params );
+            $return = sqlStatement($sql, $params);
             $result = true;
         } catch( Exception $e ){
             if( $error ){
-                $this->errorHandler( $e, $sql, $params );
+                $this->errorHandler($e, $sql, $params);
             }
         }
 
         if( $log ){
-            auditSQLEvent( $sql, $result, $params );
+            auditSQLEvent($sql, $result, $params);
         }
         return $return;
     }
@@ -81,19 +81,19 @@ class ApplicationTable
         try{
             $sql = "Select * From onsite_portal_activity As pa Where  pa.patient_id = ? And  pa.activity = ? And  pa.require_audit = ? ".
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date DESC LIMIT 1"; // @todo setup condional for limit
-            $return = sqlStatementNoLog( $sql, $audit );
+            $return = sqlStatementNoLog($sql, $audit);
             $result = true;
         } catch( Exception $e ){
             if( $error ){
-                $this->errorHandler( $e, $logsql, $audit );
+                $this->errorHandler($e, $logsql, $audit);
             }
         }
 
         if( $oelog ){
-            auditSQLEvent( $sql, $result, $audit );
+            auditSQLEvent($sql, $result, $audit);
         }
         if( $rtn == 'last' ){
-            return sqlFetchArray( $return );
+            return sqlFetchArray($return);
         } else
             return $return;
     }
@@ -144,7 +144,7 @@ class ApplicationTable
         $audit['narrative'] = $auditvals['narrative'] ? $auditvals['narrative'] : "";
         $audit['table_action'] = $auditvals['table_action'] ? $auditvals['table_action'] : "";
         if($auditvals['activity'] == 'profile')
-            $audit['table_args'] = serialize( $auditvals['table_args'] );
+            $audit['table_args'] = serialize($auditvals['table_args']);
         else
             $audit['table_args'] = $auditvals['table_args'];
         $audit['action_user'] = $auditvals['action_user'] ? $auditvals['action_user'] : "";
@@ -164,16 +164,16 @@ class ApplicationTable
                                         "action_user=?, action_taken_time=?, checksum=? ";
                 $logsql .= "where id=".$rec ." And patient_id=".$audit['patient_id'];
             }
-            $return = sqlStatementNoLog( $logsql, $audit );
+            $return = sqlStatementNoLog($logsql, $audit);
             $result = true;
         } catch( Exception $e ){
             if( $error ){
-                $this->errorHandler( $e, $logsql, $audit );
+                $this->errorHandler($e, $logsql, $audit);
             }
         }
 
         if( $oelog ){
-            $this->portalLog( 'profile audit transaction', $audit['patient_id'], $logsql, $audit, $result, 'See portal audit activity');
+            $this->portalLog('profile audit transaction', $audit['patient_id'], $logsql, $audit, $result, 'See portal audit activity');
             //auditSQLEvent( $logsql, $result, $audit );
         }
         return $return;
@@ -181,31 +181,31 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $groupname = isset( $GLOBALS['groupname'] ) ? $GLOBALS['groupname'] : 'none';
-        $user = isset( $_SESSION['portal_username'] ) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
-        $log_from = isset( $_SESSION['portal_username'] ) ? 'onsite-portal' : 'portal-dashboard';
-        if(!isset( $_SESSION['portal_username'] ) && !isset( $_SESSION['authUser'] ) )
+        $groupname = isset($GLOBALS['groupname']) ? $GLOBALS['groupname'] : 'none';
+        $user = isset($_SESSION['portal_username']) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
+        $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
+        if(!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser']) )
             $log_from = 'portal-login';
-        $user_notes .= isset( $_SESSION['whereto'] ) ? (' Module:' . $_SESSION['whereto']) : "";
+        $user_notes .= isset($_SESSION['whereto']) ? (' Module:' . $_SESSION['whereto']) : "";
 
         $processed_binds = "";
-        if( is_array( $binds ) ){
+        if( is_array($binds) ){
             $first_loop = true;
             foreach( $binds as $value_bind ){
                 if( $first_loop ){
-                    $processed_binds .= "'" . add_escape_custom( $value_bind ) . "'";
+                    $processed_binds .= "'" . add_escape_custom($value_bind) . "'";
                     $first_loop = false;
                 } else{
-                    $processed_binds .= ",'" . add_escape_custom( $value_bind ) . "'";
+                    $processed_binds .= ",'" . add_escape_custom($value_bind) . "'";
                 }
             }
-            if( ! empty( $processed_binds ) ){
+            if( ! empty($processed_binds) ){
                 $processed_binds = "(" . $processed_binds . ")";
                 $comments .= " " . $processed_binds;
             }
         }
 
-        $this->portalNewEvent( $event, $user, $groupname, $success, $comments, $patient_id, $log_from, $user_notes, $ccda_doc_id );
+        $this->portalNewEvent($event, $user, $groupname, $success, $comments, $patient_id, $log_from, $user_notes, $ccda_doc_id);
     }
     /**
      * Function errorHandler
@@ -221,17 +221,17 @@ class ApplicationTable
     public function errorHandler($e, $sql, $binds = '')
     {
         $trace = $e->getTraceAsString();
-        $nLast = strpos( $trace, '[internal function]' );
-        $trace = substr( $trace, 0, ( $nLast - 3 ) );
+        $nLast = strpos($trace, '[internal function]');
+        $trace = substr($trace, 0, ( $nLast - 3 ));
         $logMsg = '';
         do{
-            $logMsg .= "\r Exception: " . self::escapeHtml( $e->getMessage() );
+            $logMsg .= "\r Exception: " . self::escapeHtml($e->getMessage());
         } while( $e = $e->getPrevious() );
         /**
          * List all Params
          */
         $processedBinds = "";
-        if( is_array( $binds ) ){
+        if( is_array($binds) ){
             $firstLoop = true;
             foreach( $binds as $valueBind ){
                 if( $firstLoop ){
@@ -241,15 +241,15 @@ class ApplicationTable
                     $processedBinds .= ",'" . $valueBind . "'";
                 }
             }
-            if( ! empty( $processedBinds ) ){
+            if( ! empty($processedBinds) ){
                 $processedBinds = "(" . $processedBinds . ")";
             }
         }
         echo '<pre><span style="color: red;">';
         echo 'ERROR : ' . $logMsg;
         echo "\r\n";
-        echo 'SQL statement : ' . self::escapeHtml( $sql );
-        echo self::escapeHtml( $processedBinds );
+        echo 'SQL statement : ' . self::escapeHtml($sql);
+        echo self::escapeHtml($processedBinds);
         echo '</span></pre>';
         echo '<pre>';
         echo $trace;
@@ -259,11 +259,11 @@ class ApplicationTable
          */
         $logMsg .= "\n SQL statement : $sql" . $processedBinds;
         $logMsg .= "\n $trace";
-        error_log( "ERROR: " . $logMsg, 0 );
+        error_log("ERROR: " . $logMsg, 0);
     }
     public function escapeHtml($string)
     {
-        return htmlspecialchars( $string, ENT_QUOTES );
+        return htmlspecialchars($string, ENT_QUOTES);
     }
     /*
      * Retrive the data format from GLOBALS
@@ -291,32 +291,32 @@ class ApplicationTable
     {
         if( ! $input_date ) return;
 
-        $input_date = preg_replace( '/T|Z/', ' ', $input_date );
+        $input_date = preg_replace('/T|Z/', ' ', $input_date);
 
-        $temp = explode( ' ', $input_date ); // split using space and consider the first portion, in case of date with time
+        $temp = explode(' ', $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
-        $output_format = ApplicationTable::dateFormat( $output_format );
-        $input_format = ApplicationTable::dateFormat( $input_format );
+        $output_format = ApplicationTable::dateFormat($output_format);
+        $input_format = ApplicationTable::dateFormat($input_format);
 
-        preg_match( "/[^ymd]/", $output_format, $date_seperator_output );
+        preg_match("/[^ymd]/", $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];
-        $output_date_arr = explode( $seperator_output, $output_format );
+        $output_date_arr = explode($seperator_output, $output_format);
 
-        preg_match( "/[^ymd]/", $input_format, $date_seperator_input );
+        preg_match("/[^ymd]/", $input_format, $date_seperator_input);
         $seperator_input = $date_seperator_input[0];
-        $input_date_array = explode( $seperator_input, $input_format );
+        $input_date_array = explode($seperator_input, $input_format);
 
-        preg_match( "/[^1234567890]/", $input_date, $date_seperator_input );
+        preg_match("/[^1234567890]/", $input_date, $date_seperator_input);
         $seperator_input = $date_seperator_input[0];
-        $input_date_arr = explode( $seperator_input, $input_date );
+        $input_date_arr = explode($seperator_input, $input_date);
 
         foreach( $output_date_arr as $key => $format ){
-            $index = array_search( $format, $input_date_array );
+            $index = array_search($format, $input_date_array);
             $output_date_arr[$key] = $input_date_arr[$index];
         }
 
-        $output_date = implode( $seperator_output, $output_date_arr );
+        $output_date = implode($seperator_output, $output_date_arr);
 
         $output_date = $temp[1] ? $output_date . " " . $temp[1] : $output_date; // append the time, if exists, with the new formatted date
         return $output_date;
@@ -335,28 +335,28 @@ class ApplicationTable
     public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
         $adodb = $GLOBALS['adodb']['db'];
-        $crt_user = isset( $_SERVER['SSL_CLIENT_S_DN_CN'] ) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
+        $crt_user = isset($_SERVER['SSL_CLIENT_S_DN_CN']) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
 
         $encrypt_comment = 'No';
-        if( ! empty( $comments ) ){
+        if( ! empty($comments) ){
             if( $GLOBALS["enable_auditlog_encryption"] ){
-                $comments = aes256Encrypt( $comments );
+                $comments = aes256Encrypt($comments);
                 $encrypt_comment = 'Yes';
             }
         }
-        $sql = "insert into log ( date, event, user, groupname, success, comments, log_from, crt_user, patient_id, user_notes) " . "values ( NOW(), " . $adodb->qstr( $event ) . "," .
-            $adodb->qstr( $user ) . "," . $adodb->qstr( $groupname ) . "," . $adodb->qstr( $success ) . "," .
-            $adodb->qstr( $comments ) . "," . $adodb->qstr( $log_from ) . "," . $adodb->qstr( $crt_user ) . "," .
-            $adodb->qstr( $patient_id ) . "," . $adodb->qstr( $user_notes ) .")";
+        $sql = "insert into log ( date, event, user, groupname, success, comments, log_from, crt_user, patient_id, user_notes) " . "values ( NOW(), " . $adodb->qstr($event) . "," .
+            $adodb->qstr($user) . "," . $adodb->qstr($groupname) . "," . $adodb->qstr($success) . "," .
+            $adodb->qstr($comments) . "," . $adodb->qstr($log_from) . "," . $adodb->qstr($crt_user) . "," .
+            $adodb->qstr($patient_id) . "," . $adodb->qstr($user_notes) .")";
 
-        $ret = sqlInsertClean_audit( $sql );
+        $ret = sqlInsertClean_audit($sql);
 
         $last_log_id = $GLOBALS['adodb']['db']->Insert_ID();
-        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) " . " VALUES ( " . $adodb->qstr( $last_log_id ) . "," . $adodb->qstr( $encrypt_comment ) . "," . "'')";
-        sqlInsertClean_audit( $encryptLogQry );
+        $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'')";
+        sqlInsertClean_audit($encryptLogQry);
 
         if( ( $patient_id == "NULL" ) || ( $patient_id == null ) ) $patient_id = 0;
 
-        send_atna_audit_msg( $user, $groupname, $event, $patient_id, $success, $comments );
+        send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
     }
 }// app query class

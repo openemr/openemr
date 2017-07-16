@@ -190,7 +190,7 @@ function setTotalItemsReportDatabase($report_id, $total_items)
 function updateReportDatabase($report_id, $items_processed)
 {
   // Update the items that have been processed
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id));
 }
 
 /**
@@ -205,13 +205,13 @@ function finishReportDatabase($report_id, $data)
 {
 
   // Record the data
-    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", array($data,$report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='data'", array($data,$report_id));
 
   // Record the finish date/time
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"date_report_complete",date("Y-m-d H:i:s")));
 
   // Set progress to complete
-    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", array($report_id) );
+    sqlStatement("UPDATE `report_results` SET `field_value`='complete' WHERE `report_id`=? AND `field_id`='progress'", array($report_id));
 }
 
 /**

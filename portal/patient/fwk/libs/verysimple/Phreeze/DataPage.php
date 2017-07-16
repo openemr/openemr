@@ -47,11 +47,11 @@ class DataPage implements Iterator
      */
     public function Next()
     {
-        return next ( $this->Rows );
+        return next($this->Rows);
     }
     public function rewind()
     {
-        reset ( $this->Rows );
+        reset($this->Rows);
     }
     
     /**
@@ -60,15 +60,15 @@ class DataPage implements Iterator
      */
     public function current()
     {
-        return current ( $this->Rows );
+        return current($this->Rows);
     }
     public function key()
     {
-        return key ( $this->Rows );
+        return key($this->Rows);
     }
     public function valid()
     {
-        return $this->current () !== false;
+        return $this->current() !== false;
     }
     
     /**
@@ -92,7 +92,7 @@ class DataPage implements Iterator
         if ($asSimpleObject) {
             $arr = array ();
             foreach ( $this->Rows as $row ) {
-                $arr [] = $row->ToObject ( $options );
+                $arr [] = $row->ToObject($options);
             }
         } else {
             $arr = $this->Rows;

@@ -33,7 +33,7 @@ class PQRIXml extends XmlWriterOemr
     function add_file_audit_data()
     {
 
-        $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}) );
+        $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}));
 
 
         $this->push('file_audit_data');

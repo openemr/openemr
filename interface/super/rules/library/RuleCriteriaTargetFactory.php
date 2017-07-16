@@ -6,7 +6,7 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( library_src( 'RuleCriteriaFactory.php') );
+require_once(library_src('RuleCriteriaFactory.php'));
 
 /**
  * Description of RuleCriteriaTargetFactory
@@ -27,9 +27,9 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory
     function modify($criteria, $ruleId)
     {
         // get interval
-        $result = sqlQuery( self::SQL_RULE_INTERVAL, array($ruleId) );
+        $result = sqlQuery(self::SQL_RULE_INTERVAL, array($ruleId));
         $criteria->interval = $result['interval'] ? $result['interval'] : 1;
-        $criteria->intervalType = $result['value'] ? TimeUnit::from( $result['value'] ) : TimeUnit::from( TimeUnit::Month );
+        $criteria->intervalType = $result['value'] ? TimeUnit::from($result['value']) : TimeUnit::from(TimeUnit::Month);
     }
 
     /**
@@ -41,7 +41,7 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory
     {
         $criteria = parent::buildNewInstance($ruleId, $criteriaType);
         $criteria->interval = 1;
-        $criteria->intervalType = TimeUnit::from( TimeUnit::Month );
+        $criteria->intervalType = TimeUnit::from(TimeUnit::Month);
         return $criteria;
     }
 }

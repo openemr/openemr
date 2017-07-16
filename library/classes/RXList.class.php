@@ -54,7 +54,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 while (!feof($fp)) {
                     $buffer .= fgets($fp, 4096);
                 }
-                fclose ($fp);
+                fclose($fp);
                 return $buffer;
             } // end checking for successful open
         } // end function RxList::getPage
@@ -82,7 +82,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
         {
             $pos = 0;
             $token = 0;
-            unset ($tokens);
+            unset($tokens);
             $in_token = false;
             while ($pos < strlen($page)) {
                 switch(substr($page, $pos, 1)) {
@@ -168,9 +168,9 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                             and ($ending != ""))
                         {
                             //print "tokens[$pos] = ".htmlentities($tokens[$pos])."<BR>\n";
-                    if ((!(strpos(strtoupper($tokens[$pos]), "</A>"   ) === false)) or
+                    if ((!(strpos(strtoupper($tokens[$pos]), "</A>") === false)) or
                                 (!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false)) or
-                                (!(strpos(strtoupper($tokens[$pos]), "</TD>"  ) === false)))
+                                (!(strpos(strtoupper($tokens[$pos]), "</TD>") === false)))
                             {
                         // Find where anchor is
                         $my_pos = strpos(strtoupper($tokens[$pos]), "<");

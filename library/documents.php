@@ -80,7 +80,7 @@ function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $pa
  */
 function document_category_to_id($category_title)
 {
-    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", array($category_title) );
+    $ret = sqlQuery("SELECT `id` FROM `categories` WHERE `name`=?", array($category_title));
     if ($ret['id']) {
         return $ret['id'];
     }

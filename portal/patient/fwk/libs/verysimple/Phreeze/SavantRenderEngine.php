@@ -1,7 +1,7 @@
 <?php
 /** @package    verysimple::Phreeze */
-require_once ("IRenderEngine.php");
-require_once ('savant/Savant3.php');
+require_once("IRenderEngine.php");
+require_once('savant/Savant3.php');
 
 /**
  * Implementation of IRenderEngine that uses Savant as the template language
@@ -27,16 +27,16 @@ class SavantRenderEngine implements IRenderEngine
      */
     function __construct($templatePath = '', $compilePath = '')
     {
-        $this->savant = new Savant3 ( array (
+        $this->savant = new Savant3(array (
                 'exceptions' => true
-        ) );
+        ));
         
         // normalize the path
-        if (substr ( $templatePath, - 1 ) != '/' && substr ( $templatePath, - 1 ) != '\\')
+        if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\')
             $templatePath .= "/";
         
         if ($templatePath)
-            $this->savant->setPath ( 'template', $templatePath );
+            $this->savant->setPath('template', $templatePath);
     }
     
     /**
@@ -53,17 +53,17 @@ class SavantRenderEngine implements IRenderEngine
     public function display($template)
     {
         // strip off .tpl from the end for backwards compatibility with older apps
-        if (substr ( $template, - 4 ) == '.tpl')
-            $template = substr ( $template, 0, - 4 );
+        if (substr($template, - 4) == '.tpl')
+            $template = substr($template, 0, - 4);
             
             // these two are special templates used by the Phreeze controller and dispatcher
         if ($template == "_redirect") {
-            header ( "Location: " . $this->savant->url );
-            die ();
+            header("Location: " . $this->savant->url);
+            die();
         } elseif ($template == "_error") {
-            $this->savant->display ( '_error' . self::$TEMPLATE_EXTENSION );
+            $this->savant->display('_error' . self::$TEMPLATE_EXTENSION);
         } else {
-            $this->savant->display ( $template . self::$TEMPLATE_EXTENSION );
+            $this->savant->display($template . self::$TEMPLATE_EXTENSION);
         }
     }
     
@@ -80,7 +80,7 @@ class SavantRenderEngine implements IRenderEngine
      */
     public function fetch($template)
     {
-        return $this->savant->fetch ( $template . self::$TEMPLATE_EXTENSION );
+        return $this->savant->fetch($template . self::$TEMPLATE_EXTENSION);
     }
     
     /**
@@ -89,8 +89,8 @@ class SavantRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists ( $key, $this->savant ))
-            unset ( $this->savant [$key] );
+        if (array_key_exists($key, $this->savant))
+            unset($this->savant [$key]);
     }
     
     /**
@@ -99,7 +99,7 @@ class SavantRenderEngine implements IRenderEngine
      */
     function clearAll()
     {
-        throw new Exception ( 'clearAll not implemented for SavantRenderEngine' );
+        throw new Exception('clearAll not implemented for SavantRenderEngine');
     }
     
     /**
@@ -108,6 +108,6 @@ class SavantRenderEngine implements IRenderEngine
      */
     function getAll()
     {
-        return get_object_vars ( $this->savant );
+        return get_object_vars($this->savant);
     }
 }

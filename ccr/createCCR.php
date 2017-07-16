@@ -178,7 +178,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
                             unlink($xmlName);
             }
             $ccr->save($xmlName);
-            $zip->addFile($xmlName, basename($xmlName) );
+            $zip->addFile($xmlName, basename($xmlName));
             $zip->close();
             header("Pragma: public");
             header("Expires: 0");
@@ -267,11 +267,13 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
             if (file_exists($xmlName)) {
                 unlink($xmlName);
             }
-            $e_styleSheet = $ccd->createProcessingInstruction('xml-stylesheet',
-            'type="text/xsl" href="stylesheet/cda.xsl"');
+            $e_styleSheet = $ccd->createProcessingInstruction(
+                'xml-stylesheet',
+                'type="text/xsl" href="stylesheet/cda.xsl"'
+            );
             $ccd->insertBefore($e_styleSheet, $ccd->firstChild);
             $ccd->save($xmlName);
-            $zip->addFile($xmlName, basename($xmlName) );
+            $zip->addFile($xmlName, basename($xmlName));
             $zip->close();
             header("Pragma: public");
             header("Expires: 0");
@@ -378,7 +380,7 @@ if($_POST['ccrAction']) {
     if (substr($raw, 0, 4)=="send") {
         $send_to = trim(stripslashes(substr($raw, 5)));
         if (!PHPMailer::ValidateAddress($send_to)) {
-            echo(htmlspecialchars( xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
+            echo(htmlspecialchars(xl('Invalid recipient address. Please try again.'), ENT_QUOTES));
             return;
         }
         createCCR($_POST['ccrAction'], $raw, $_POST['requested_by']);

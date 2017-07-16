@@ -162,7 +162,7 @@ function tableHasIndex($tblname, $colname)
  */
 function tableHasEngine($tblname, $engine)
 {
-    $row = sqlQuery( 'SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ) );
+    $row = sqlQuery('SELECT 1 FROM information_schema.tables WHERE table_name=? AND engine=? AND table_type="BASE TABLE"', array($tblname,$engine ));
     return (empty($row)) ? false : true;
 }
 
@@ -202,11 +202,11 @@ function clickOptionsMigrate()
             $parts[1] = trim(str_replace("\r\n", "", $parts[1]));
             if ($parts[0] != $prev) {
                 $sql1 = "INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES (?,?,?)";
-                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_", " ", $parts[0])).' Issue List') );
+                SqlStatement($sql1, array('lists',$parts[0].'_issue_list',ucwords(str_replace("_", " ", $parts[0])).' Issue List'));
                 $seq = 10;
             }
             $sql2 = "INSERT INTO list_options (`list_id`,`option_id`,`title`,`seq`) VALUES (?,?,?,?)";
-            SqlStatement($sql2, array($parts[0].'_issue_list', $parts[1], $parts[1], $seq) );
+            SqlStatement($sql2, array($parts[0].'_issue_list', $parts[1], $parts[1], $seq));
             $seq = $seq + 10;
             $prev = $parts[0];
         }
@@ -292,7 +292,7 @@ function getTablesList($arg = array())
         $binds[] = $arg['table_name'];
         $sql .= ' AND table_name=?';
     }
-    $res = sqlStatement( $sql, $binds );
+    $res = sqlStatement($sql, $binds);
 
     $records = array();
     while($row = sqlFetchArray($res)) {
@@ -310,7 +310,7 @@ function getTablesList($arg = array())
  */
 function MigrateTableEngine($table, $engine)
 {
-    $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
+    $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine);
     return true;
 }
 
@@ -429,7 +429,7 @@ function upgradeFromSqlFile($filename)
     $line = "";
     $skipping = false;
 
-    while (!feof ($fd)){
+    while (!feof($fd)){
         $line = fgets($fd, 2048);
         $line = rtrim($line);
 
@@ -623,11 +623,12 @@ function upgradeFromSqlFile($filename)
         // convert all *text types to use default null setting
         else if (preg_match('/^#IfTextNullFixNeeded/', $line)) {
             $items_to_convert = sqlStatement(
-            "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
+                "SELECT col.`table_name`, col.`column_name`, col.`data_type`, col.`column_comment` 
           FROM `information_schema`.`columns` col INNER JOIN `information_schema`.`tables` tab 
           ON tab.TABLE_CATALOG=col.TABLE_CATALOG AND tab.table_schema=col.table_schema AND tab.table_name=col.table_name
           WHERE col.`data_type` IN ('tinytext', 'text', 'mediumtext', 'longtext') 
-          AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'");
+          AND col.is_nullable='NO' AND col.table_schema=database() AND tab.table_type='BASE TABLE'"
+            );
             if(sqlNumRows($items_to_convert) == 0) {
                 $skipping = true;
             } else {
@@ -648,7 +649,7 @@ function upgradeFromSqlFile($filename)
         }
         // perform special actions if table has specific engine
         else if (preg_match('/^#IfTableEngine\s+(\S+)\s+(MyISAM|InnoDB)/', $line, $matches)) {
-            $skipping = !tableHasEngine( $matches[1], $matches[2] );
+            $skipping = !tableHasEngine($matches[1], $matches[2]);
             if ($skipping) echo "<font color='green'>Skipping section $line</font><br />\n";
         }
         // find MyISAM tables and attempt to convert them
@@ -656,7 +657,7 @@ function upgradeFromSqlFile($filename)
             //tables that need to skip InnoDB migration (stay at MyISAM for now)
             $tables_skip_migration = array('form_eye_mag');
 
-            $tables_list = getTablesList( array('engine'=>'MyISAM'));
+            $tables_list = getTablesList(array('engine'=>'MyISAM'));
             if( count($tables_list)==0 ) {
                 $skipping = true;
             } else {
@@ -664,15 +665,15 @@ function upgradeFromSqlFile($filename)
                 echo '<font color="black">Starting migration to InnoDB, please wait.</font><br />',"\n";
                 foreach( $tables_list as $k=>$t ) {
                     if (in_array($t, $tables_skip_migration)) {
-                        printf( '<font color="green">Table %s was purposefully skipped and NOT migrated to InnoDB.</font><br />', $t );
+                        printf('<font color="green">Table %s was purposefully skipped and NOT migrated to InnoDB.</font><br />', $t);
                         continue;
                     }
-                    $res = MigrateTableEngine( $t, 'InnoDB' );
+                    $res = MigrateTableEngine($t, 'InnoDB');
                     if( $res === true) {
-                        printf( '<font color="green">Table %s migrated to InnoDB.</font><br />', $t );
+                        printf('<font color="green">Table %s migrated to InnoDB.</font><br />', $t);
                     } else {
-                        printf( '<font color="red">Error migrating table %s to InnoDB</font><br />', $t );
-                        error_log( sprintf( 'Error migrating table %s to InnoDB', $t ));
+                        printf('<font color="red">Error migrating table %s to InnoDB</font><br />', $t);
+                        error_log(sprintf('Error migrating table %s to InnoDB', $t));
                     }
                 }
             }

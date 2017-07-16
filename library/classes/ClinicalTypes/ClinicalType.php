@@ -11,7 +11,7 @@ require_once(dirname(__FILE__) . "/../../forms.inc");
 require_once(dirname(__FILE__) . "/../../patient.inc");
 require_once(dirname(__FILE__) . "/../../lists.inc");
 require_once(dirname(__FILE__) . "/../rulesets/library/RsPatient.php");
-require_once( 'codes.php' );
+require_once('codes.php');
 
 abstract class ClinicalType
 {
@@ -32,7 +32,7 @@ abstract class ClinicalType
     public function __construct($optionId)
     {
         $this->_optionId = $optionId;
-        $result = $this->getListOptionById( $optionId );
+        $result = $this->getListOptionById($optionId);
         $this->_title = $result['title'];
         $this->_notes = $result['notes'];
     }
@@ -70,8 +70,8 @@ abstract class ClinicalType
                  "FROM `list_options` " .
                  "WHERE list_id = ? " .
                  "AND option_id = ? AND activity = 1";
-        $results = sqlStatement( $query, array( $this->getListId(), $id ) );
-        $arr = sqlFetchArray( $results );
+        $results = sqlStatement($query, array( $this->getListId(), $id ));
+        $arr = sqlFetchArray($results);
         return $arr;
     }
 }

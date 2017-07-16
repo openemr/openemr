@@ -46,7 +46,7 @@ if( $db_email_msg['sms_gateway_type']=='CLICKATELL' )
 }
 
 // get notification settings
-$vectNotificationSettings = cron_GetNotificationSettings( );
+$vectNotificationSettings = cron_GetNotificationSettings();
 $SMS_GATEWAY_USENAME = $vectNotificationSettings['SMS_gateway_username'];
 $SMS_GATEWAY_PASSWORD = $vectNotificationSettings['SMS_gateway_password'];
 $SMS_GATEWAY_APIKEY = $vectNotificationSettings['SMS_gateway_apikey'];
@@ -56,7 +56,7 @@ $CRON_TIME = $vectNotificationSettings['Send_SMS_Before_Hours'];
 //echo "\nDEBUG :: user=".$vectNotificationSettings['SMS_gateway_username']."\n";
 
 // create sms object
-$mysms = new sms( $SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY );
+$mysms = new sms($SMS_GATEWAY_USENAME, $SMS_GATEWAY_PASSWORD, $SMS_GATEWAY_APIKEY);
 
 $db_patient = cron_getAlertpatientData($TYPE);
 echo "\n<br>Total ".count($db_patient)." Records Found";
@@ -105,8 +105,12 @@ for( $p=0; $p<count($db_patient); $p++ )
         // send sms to patinet - if not in test mode
         if( $bTestRun == 0 )
         {
-            cron_SendSMS( $prow['phone_cell'], $db_email_msg['email_subject'],
-                $db_email_msg['message'], $db_email_msg['email_sender'] );
+            cron_SendSMS(
+                $prow['phone_cell'],
+                $db_email_msg['email_subject'],
+                $db_email_msg['message'],
+                $db_email_msg['email_sender']
+            );
         }
 
         // larry :: debug

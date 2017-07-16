@@ -63,7 +63,7 @@ class ESign
     public function isLogViewable($mode = "default")
     {
         $viewable = false;
-        if ( count( $this->_signable->getSignatures() ) > 0 ) {
+        if ( count($this->_signable->getSignatures()) > 0 ) {
             // If we have signatures, always show the log.
             $viewable = true;
         } else {
@@ -82,7 +82,7 @@ class ESign
 
     public function renderLog()
     {
-        $this->_log->render( $this->_signable );
+        $this->_log->render($this->_signable);
     }
 
     public function buttonHtml()

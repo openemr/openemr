@@ -318,17 +318,17 @@ foreach($newpatient as $patient){
 
     print "<div id='superbill_patientdata'>";
     print "<h1>".xlt('Patient Data').":</h1>";
-    printRecDataOne($patient_data_array, getRecPatientData ($pids[$iCounter]), $N);
+    printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);
     print "</div>";
 
     print "<div id='superbill_insurancedata'>";
     print "<h1>".xlt('Insurance Data').":</h1>";
     print "<h2>".xlt('Primary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter], "primary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "primary"), $N);
     print "<h2>".xlt('Secondary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter], "secondary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "secondary"), $N);
     print "<h2>".xlt('Tertiary').":</h2>";
-    printRecDataOne($insurance_data_array, getRecInsuranceData ($pids[$iCounter], "tertiary"), $N);
+    printRecDataOne($insurance_data_array, getRecInsuranceData($pids[$iCounter], "tertiary"), $N);
     print "</div>";
 
     print "<div id='superbill_billingdata'>";

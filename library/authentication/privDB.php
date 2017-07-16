@@ -72,11 +72,11 @@ function privStatement($sql, $params = null)
 {
     if(is_array($params))
     {
-        $recordset = getPrivDB()->Execute( $sql, $params );
+        $recordset = getPrivDB()->Execute($sql, $params);
     }
     else
     {
-        $recordset = getPrivDB()->Execute( $sql );
+        $recordset = getPrivDB()->Execute($sql);
     }
     if ($recordset === false) {
         

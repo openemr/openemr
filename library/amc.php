@@ -125,7 +125,7 @@ function amcAddForce($amc_id, $complete, $patient_id, $object_category = '', $ob
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    sqlStatement("DELETE FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id) );
+    sqlStatement("DELETE FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -135,7 +135,7 @@ function amcRemove($amc_id, $patient_id, $object_category = '', $object_id = '0'
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='')", array($amc_id,$patient_id,$object_category,$object_id) );
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='')", array($amc_id,$patient_id,$object_category,$object_id));
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -147,7 +147,7 @@ function amcComplete($amc_id, $patient_id, $object_category = '', $object_id = '
 //   $date_created - date created.
 function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='') AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created) );
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND (`date_completed` IS NULL OR `date_completed`='') AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
 }
 
 // Function to remove completion date/flag from  an item in the amc_misc_data sql table
@@ -157,7 +157,7 @@ function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id) );
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
 }
 
 // Function to remove completion date/flag from  an item in the amc_misc_data sql table
@@ -169,7 +169,7 @@ function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id =
 //   $date_created - date created.
 function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = '')
 {
-    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created) );
+    sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", array($amc_id,$patient_id,$object_category,$object_id,$date_created));
 }
 
 // Function to complete an item from the amc_misc_data sql table
@@ -179,7 +179,7 @@ function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcCollect($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-    return sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id) );
+    return sqlQuery("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", array($amc_id,$patient_id,$object_category,$object_id));
 }
 
 // Function to support the AMC tracking report
@@ -202,7 +202,7 @@ function amcTrackingRequest($amc_id, $start = '', $end = '', $provider_id = '')
     else {
         // Look at one provider
         $rez = sqlStatement("SELECT `pid`, `fname`, `lname` FROM `patient_data` " .
-        "WHERE providerID=?", array($provider) );
+        "WHERE providerID=?", array($provider));
         for($iter=0; $row=sqlFetchArray($rez); $iter++) {
              $patients[$iter]=$row;
         }
@@ -355,7 +355,7 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id) );
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NOW() WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id));
 }
 // Function to set summary of care provided for a encounter/patient from the amc_misc_data sql table
 //   $amc_id     - amc rule id
@@ -364,5 +364,5 @@ function amcSoCProvided($amc_id, $patient_id, $object_category = '', $object_id 
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 function amcNoSoCProvided($amc_id, $patient_id, $object_category = '', $object_id = '0')
 {
-         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id) );
+         sqlStatement("UPDATE `amc_misc_data` SET `soc_provided` = NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? ", array($amc_id,$patient_id,$object_category,$object_id));
 }

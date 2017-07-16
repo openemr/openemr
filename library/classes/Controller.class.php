@@ -108,7 +108,7 @@ class Controller extends Smarty
             $obj_name = "C_" . $c_name;
             $c_obj = new $obj_name();
 
-        if (empty ($c_action)) {
+        if (empty($c_action)) {
             $c_action = "default";
         }
 

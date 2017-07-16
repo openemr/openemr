@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("ICache.php");
+require_once("ICache.php");
 
 /**
  * CacheRam is an implementation of a Cache that doesn't actually cache at all

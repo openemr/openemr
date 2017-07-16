@@ -193,8 +193,11 @@ if ($_POST['form_save']) {
         ")");
 
         $phone_parts = array();
-        preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $_POST['form_phone'],
-        $phone_parts);
+        preg_match(
+            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
+            $_POST['form_phone'],
+            $phone_parts
+        );
 
         sqlInsert("INSERT INTO phone_numbers ( " .
         "id, country_code, area_code, prefix, number, type, foreign_id " .
@@ -222,7 +225,7 @@ if ($_POST['form_save']) {
 
  // Query x12_partners.
  $xres = sqlStatement(
-  "SELECT id, name FROM x12_partners ORDER BY name"
+     "SELECT id, name FROM x12_partners ORDER BY name"
  );
 ?>
 <div id="form_entry">

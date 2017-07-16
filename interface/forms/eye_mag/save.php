@@ -279,7 +279,7 @@ if ($_REQUEST['unlock'] == '1') {
             $_REQUEST['LOCKEDBY'] = $_REQUEST['uniqueID'];
             //update table
             $query = "update ".$table_name." set LOCKED=?,LOCKEDBY=? where id=?";
-            sqlQuery ($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
+            sqlQuery($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
             //go on to save what we want...
         }
     } elseif (!$lock['LOCKED']) { // it is not locked yet
@@ -325,14 +325,15 @@ if ($_REQUEST["mode"] == "new")             {
 
         /***********/
 
-        $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                         $GLOBALS['pdf_size'],
-                         $GLOBALS['pdf_language'],
-                         true, // default unicode setting is true
-                         'UTF-8', // default encoding setting is UTF-8
-                         array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                         $_SESSION['language_direction'] == 'rtl' ? true : false
-                      );
+        $pdf = new HTML2PDF(
+            $GLOBALS['pdf_layout'],
+            $GLOBALS['pdf_size'],
+            $GLOBALS['pdf_language'],
+            true, // default unicode setting is true
+            'UTF-8', // default encoding setting is UTF-8
+            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+            $_SESSION['language_direction'] == 'rtl' ? true : false
+        );
         ob_start();
         ?>
         <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
@@ -567,7 +568,7 @@ if ($_REQUEST["mode"] == "new")             {
                         sqlStatement('UPDATE prescriptions SET '
                         . 'medication = 0 where patient_id = ? '
                         . " and upper(trim(drug)) = ? "
-                        . ' and medication = 1', array($pid,strtoupper($_REQUEST['form_title'])) );
+                        . ' and medication = 1', array($pid,strtoupper($_REQUEST['form_title'])));
                     }
                 } else {
                     $query =  "INSERT INTO lists ( " .

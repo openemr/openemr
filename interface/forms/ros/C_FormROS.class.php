@@ -1,6 +1,6 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormROS.class.php");
 
 class C_FormROS extends Controller

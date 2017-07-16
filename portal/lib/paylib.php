@@ -21,17 +21,17 @@
  * @link http://www.open-emr.org
  */
 session_start();
-if( isset( $_SESSION['pid'] ) && isset( $_SESSION['patient_portal_onsite_two'] ) ){
+if( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ){
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else{
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../../interface/globals.php" );
-    if( ! isset( $_SESSION['authUserID'] ) ){
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
+    if( ! isset($_SESSION['authUserID']) ){
         $landingpage = "index.php";
-        header( 'Location: ' . $landingpage );
+        header('Location: ' . $landingpage);
         exit();
     }
 }
@@ -48,7 +48,7 @@ if ($_POST['mode'] == 'portal-save') {
     $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
     $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
     $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
-    $s = SaveAudit( $form_pid, $amts, $cc );
+    $s = SaveAudit($form_pid, $amts, $cc);
     if($s) echo 'failed';
     echo true;
 }
@@ -59,7 +59,7 @@ else if ($_POST['mode'] == 'review-save') {
     $upay = isset($_POST['form_upay']) ? $_POST['form_upay'] : '';
     $cc = isset($_POST['extra_values']) ? $_POST['extra_values'] : '';
     $amts = isset($_POST['inv_values']) ? $_POST['inv_values'] : '';
-    $s = CloseAudit( $form_pid, $amts, $cc );
+    $s = CloseAudit($form_pid, $amts, $cc);
     if($s) echo 'failed';
     echo true;
 }
@@ -81,11 +81,11 @@ function SaveAudit($pid, $amts, $cc)
         $audit['action_taken_time'] = "";
         $audit['checksum'] = aes256Encrypt($cc);
 
-        $edata = $appsql->getPortalAudit( $pid, 'review', 'payment' );
+        $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
-        if( $edata['id'] > 0 ) $appsql->portalAudit( 'update', $edata['id'], $audit );
+        if( $edata['id'] > 0 ) $appsql->portalAudit('update', $edata['id'], $audit);
         else{
-            $appsql->portalAudit( 'insert', '', $audit );
+            $appsql->portalAudit('insert', '', $audit);
         }
     } catch( Exception $ex ){
         return $ex;
@@ -106,13 +106,13 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['narrative'] = "Payment authorized.";
         $audit['table_action'] = "update";
         $audit['table_args'] = $amts;
-        $audit['action_user'] = isset( $_SESSION['authUserID'] ) ? $_SESSION['authUserID'] : "0";
-        $audit['action_taken_time'] = date( "Y-m-d H:i:s" );
+        $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+        $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $audit['checksum'] = aes256Encrypt($cc);
 
-        $edata = $appsql->getPortalAudit( $pid, 'review', 'payment' );
+        $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
-        if( $edata['id'] > 0 ) $appsql->portalAudit( 'update', $edata['id'], $audit );
+        if( $edata['id'] > 0 ) $appsql->portalAudit('update', $edata['id'], $audit);
     } catch( Exception $ex ){
         return $ex;
     }

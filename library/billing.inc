@@ -13,7 +13,7 @@ function getBillingByPid($pid, $cols = "*")
 
 function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
 {
-    $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter,$pid) );
+    $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter,$pid));
 
     $all=array();
     for($iter=0; $row=sqlFetchArray($res); $iter++)
@@ -196,7 +196,7 @@ function updateClaim(
         "x12_partner_id = '$partner_id'";
         ****/
         sqlBeginTrans();
-        $version = sqlQuery( "SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ) );
+        $version = sqlQuery("SELECT IFNULL(MAX(version),0) + 1 AS increment FROM claims WHERE patient_id = ? AND encounter_id = ?", array( $patient_id, $encounter_id ));
         if($crossover<>1)
         {
             $sql .= "INSERT INTO claims SET " .
@@ -247,18 +247,20 @@ function isEncounterBilled($pid, $encounter)
 {
     $billed = -1; // no chargeable services yet
 
-    $bres = sqlStatement("SELECT " .
-    "billing.billed FROM billing, code_types WHERE " .
-    "billing.pid = ? AND " .
-    "billing.encounter = ? AND " .
-    "billing.activity = 1 AND " .
-    "code_types.ct_key = billing.code_type AND " .
-    "code_types.ct_fee = 1 " .
-    "UNION " .
-    "SELECT billed FROM drug_sales WHERE " .
-    "pid = ? AND " .
-    "encounter = ?",
-    array($pid, $encounter, $pid, $encounter));
+    $bres = sqlStatement(
+        "SELECT " .
+        "billing.billed FROM billing, code_types WHERE " .
+        "billing.pid = ? AND " .
+        "billing.encounter = ? AND " .
+        "billing.activity = 1 AND " .
+        "code_types.ct_key = billing.code_type AND " .
+        "code_types.ct_fee = 1 " .
+        "UNION " .
+        "SELECT billed FROM drug_sales WHERE " .
+        "pid = ? AND " .
+        "encounter = ?",
+        array($pid, $encounter, $pid, $encounter)
+    );
 
     while ($brow = sqlFetchArray($bres)) {
         if ($brow['billed'] == 0) {
@@ -287,9 +289,11 @@ function getCopay($patient_id, $encdate)
 // Get the total co-pay amount paid by the patient for an encounter
 function getPatientCopay($patient_id, $encounter)
 {
-        $resMoneyGot = sqlStatement("SELECT sum(pay_amount) as PatientPay FROM ar_activity where ".
-          "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
-          array($patient_id,$encounter));
+        $resMoneyGot = sqlStatement(
+            "SELECT sum(pay_amount) as PatientPay FROM ar_activity where ".
+            "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
+            array($patient_id,$encounter)
+        );
          //new fees screen copay gives account_code='PCP'
         $rowMoneyGot = sqlFetchArray($resMoneyGot);
         $Copay=$rowMoneyGot['PatientPay'];
@@ -300,11 +304,13 @@ function getPatientCopay($patient_id, $encounter)
 //
 function getInvoiceRefNumber()
 {
-    $trow = sqlQuery("SELECT lo.notes " .
-    "FROM users AS u, list_options AS lo " .
-    "WHERE u.username = ? AND " .
-    "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
-    array($_SESSION['authUser']));
+    $trow = sqlQuery(
+        "SELECT lo.notes " .
+        "FROM users AS u, list_options AS lo " .
+        "WHERE u.username = ? AND " .
+        "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool AND lo.activity = 1 LIMIT 1",
+        array($_SESSION['authUser'])
+    );
     return empty($trow['notes']) ? '' : $trow['notes'];
 }
 
@@ -319,11 +325,13 @@ function updateInvoiceRefNumber()
     if (preg_match('/^(.*?)(\d+)(\D*)$/', $irnumber, $matches)) {
         $newdigs = sprintf('%0' . strlen($matches[2]) . 'd', $matches[2] + 1);
         $newnumber = $matches[1] . $newdigs . $matches[3];
-        sqlStatement("UPDATE users AS u, list_options AS lo " .
-        "SET lo.notes = ? WHERE " .
-        "u.username = ? AND " .
-        "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
-        array($newnumber, $_SESSION['authUser']));
+        sqlStatement(
+            "UPDATE users AS u, list_options AS lo " .
+            "SET lo.notes = ? WHERE " .
+            "u.username = ? AND " .
+            "lo.list_id = 'irnpool' AND lo.option_id = u.irnpool",
+            array($newnumber, $_SESSION['authUser'])
+        );
     }
     return $irnumber;
 }
@@ -340,22 +348,26 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
 
     if (!$time) {
         // Get last checkout timestamp.
-        $corow = sqlQuery("(SELECT bill_date FROM billing WHERE " .
-        "pid = ? AND encounter = ? AND activity = 1 AND bill_date IS NOT NULL) " .
-        "UNION " .
-        "(SELECT bill_date FROM drug_sales WHERE " .
-        "pid = ? AND encounter = ? AND bill_date IS NOT NULL) " .
-        "ORDER BY bill_date DESC LIMIT 1",
-        array($patient_id, $encounter_id, $patient_id, $encounter_id));
+        $corow = sqlQuery(
+            "(SELECT bill_date FROM billing WHERE " .
+            "pid = ? AND encounter = ? AND activity = 1 AND bill_date IS NOT NULL) " .
+            "UNION " .
+            "(SELECT bill_date FROM drug_sales WHERE " .
+            "pid = ? AND encounter = ? AND bill_date IS NOT NULL) " .
+            "ORDER BY bill_date DESC LIMIT 1",
+            array($patient_id, $encounter_id, $patient_id, $encounter_id)
+        );
         if (!empty($corow['bill_date'])) {
               $date_original = $corow['bill_date'];
         }
     }
     else if ($time == 'all') {
-        $row = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
-        "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-        "pid = ? AND encounter = ?",
-        array($patient_id, $encounter_id));
+        $row = sqlQuery(
+            "SELECT SUM(pay_amount) AS payments, " .
+            "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+            "pid = ? AND encounter = ?",
+            array($patient_id, $encounter_id)
+        );
         $adjustments = $row['adjustments'];
         $payments = $row['payments'];
     }
@@ -364,18 +376,22 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
     }
   // Get its charges and adjustments.
     if ($date_original) {
-        $row = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
-        "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
-        "pid = ? AND encounter = ? AND post_time = ?",
-        array($patient_id, $encounter_id, $date_original));
+        $row = sqlQuery(
+            "SELECT SUM(pay_amount) AS payments, " .
+            "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
+            "pid = ? AND encounter = ? AND post_time = ?",
+            array($patient_id, $encounter_id, $date_original)
+        );
         $adjustments = $row['adjustments'];
         $payments = $row['payments'];
     }
 
   // Get old invoice reference number.
-    $encrow = sqlQuery("SELECT invoice_refno FROM form_encounter WHERE " .
-    "pid = ? AND encounter = ? LIMIT 1",
-    array($patient_id, $encounter_id));
+    $encrow = sqlQuery(
+        "SELECT invoice_refno FROM form_encounter WHERE " .
+        "pid = ? AND encounter = ? LIMIT 1",
+        array($patient_id, $encounter_id)
+    );
     $old_invoice_refno = $encrow['invoice_refno'];
   //
     $usingirnpools = getInvoiceRefNumber();
@@ -402,42 +418,58 @@ function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
         // Purge means delete adjustments and payments from the last checkout
         // and re-open the visit.
         if ($date_original) {
-            sqlStatement("DELETE FROM ar_activity WHERE " .
-            "pid = ? AND encounter = ? AND post_time = ?",
-            array($patient_id, $encounter_id, $date_original));
-            sqlStatement("UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
-              "pid = ? AND encounter = ? AND activity = 1 AND " .
-              "bill_date IS NOT NULL AND bill_date = ?",
-              array($patient_id, $encounter_id, $date_original));
-            sqlStatement("update drug_sales SET billed = 0, bill_date = NULL WHERE " .
-              "pid = ? AND encounter = ? AND " .
-              "bill_date IS NOT NULL AND bill_date = ?",
-              array($patient_id, $encounter_id, $date_original));
+            sqlStatement(
+                "DELETE FROM ar_activity WHERE " .
+                "pid = ? AND encounter = ? AND post_time = ?",
+                array($patient_id, $encounter_id, $date_original)
+            );
+            sqlStatement(
+                "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
+                "pid = ? AND encounter = ? AND activity = 1 AND " .
+                "bill_date IS NOT NULL AND bill_date = ?",
+                array($patient_id, $encounter_id, $date_original)
+            );
+            sqlStatement(
+                "update drug_sales SET billed = 0, bill_date = NULL WHERE " .
+                "pid = ? AND encounter = ? AND " .
+                "bill_date IS NOT NULL AND bill_date = ?",
+                array($patient_id, $encounter_id, $date_original)
+            );
         }
         else {
             if ($time == 'all') {
-                sqlStatement("DELETE FROM ar_activity WHERE " .
-                "pid = ? AND encounter = ?",
-                array($patient_id, $encounter_id));
+                sqlStatement(
+                    "DELETE FROM ar_activity WHERE " .
+                    "pid = ? AND encounter = ?",
+                    array($patient_id, $encounter_id)
+                );
             }
-            sqlStatement("UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
-            "pid = ? AND encounter = ? AND activity = 1",
-              array($patient_id, $encounter_id));
-            sqlStatement("update drug_sales SET billed = 0, bill_date = NULL WHERE " .
-              "pid = ? AND encounter = ?",
-              array($patient_id, $encounter_id));
+            sqlStatement(
+                "UPDATE billing SET billed = 0, bill_date = NULL WHERE " .
+                "pid = ? AND encounter = ? AND activity = 1",
+                array($patient_id, $encounter_id)
+            );
+            sqlStatement(
+                "update drug_sales SET billed = 0, bill_date = NULL WHERE " .
+                "pid = ? AND encounter = ?",
+                array($patient_id, $encounter_id)
+            );
         }
-        sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
-        "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
-        "WHERE pid = ? AND encounter = ?",
-        array($patient_id, $encounter_id));
+        sqlStatement(
+            "UPDATE form_encounter SET last_level_billed = 0, " .
+            "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
+            "WHERE pid = ? AND encounter = ?",
+            array($patient_id, $encounter_id)
+        );
     }
     else if ($usingirnpools) {
         // Non-purge means just assign a new invoice reference number.
         $new_invoice_refno = add_escape_custom(updateInvoiceRefNumber());
-        sqlStatement("UPDATE form_encounter " .
-        "SET invoice_refno = ? " .
-        "WHERE pid = ? AND encounter = ?",
-        array($new_invoice_refno, $patient_id, $encounter_id));
+        sqlStatement(
+            "UPDATE form_encounter " .
+            "SET invoice_refno = ? " .
+            "WHERE pid = ? AND encounter = ?",
+            array($new_invoice_refno, $patient_id, $encounter_id)
+        );
     }
 }

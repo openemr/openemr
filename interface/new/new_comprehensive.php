@@ -28,10 +28,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once ("$srcdir/patientvalidation.inc.php");
+require_once("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
-if (!acl_check('patients', 'demo', '', array('write','addonly') ))
+if (!acl_check('patients', 'demo', '', array('write','addonly')))
   die("Adding demographics is not authorized.");
 
 $CPR = 4; // cells per row

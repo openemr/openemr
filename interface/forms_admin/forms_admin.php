@@ -14,20 +14,20 @@ require_once("$phpgacl_location/gacl_api.class.php");
 require_once("$srcdir/registry.inc");
 
 if ($_GET['method'] == "enable"){
-    updateRegistered ( $_GET['id'], "state=1" );
+    updateRegistered($_GET['id'], "state=1");
 }
 elseif ($_GET['method'] == "disable"){
-    updateRegistered ( $_GET['id'], "state=0" );
+    updateRegistered($_GET['id'], "state=0");
 }
 elseif ($_GET['method'] == "install_db"){
-    $dir = getRegistryEntry ( $_GET['id'], "directory" );
-    if (installSQL ("$srcdir/../interface/forms/{$dir['directory']}"))
-        updateRegistered ( $_GET['id'], "sql_run=1" );
+    $dir = getRegistryEntry($_GET['id'], "directory");
+    if (installSQL("$srcdir/../interface/forms/{$dir['directory']}"))
+        updateRegistered($_GET['id'], "sql_run=1");
     else
         $err = xl('ERROR: could not open table.sql, broken form?');
 }
 elseif ($_GET['method'] == "register"){
-    registerForm ( $_GET['name'] ) or $err=xl('error while registering form!');
+    registerForm($_GET['name']) or $err=xl('error while registering form!');
 }
 $bigdata = getRegistered("%") or $bigdata = false;
 
@@ -85,8 +85,10 @@ $color="#CCCCCC";
 if ($bigdata != false)
 foreach($bigdata as $registry)
 {
-    $priority_category = sqlQuery("select priority, category, nickname, aco_spec from registry where id = ?",
-    array($registry['id']));
+    $priority_category = sqlQuery(
+        "select priority, category, nickname, aco_spec from registry where id = ?",
+        array($registry['id'])
+    );
 ?>
   <tr>
     <td bgcolor="<?php echo $color; ?>" width="2%">

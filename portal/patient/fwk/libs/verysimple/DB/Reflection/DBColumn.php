@@ -1,6 +1,6 @@
 <?php
 /** @package    verysimple::DB::Reflection */
-require_once ('verysimple/Phreeze/FieldMap.php');
+require_once('verysimple/Phreeze/FieldMap.php');
 
 /**
  * DBcolumn is an object representation of column
@@ -39,31 +39,31 @@ class DBColumn
     function __construct($table, $row)
     {
         // typical type is something like varchar(40)
-        $typesize = explode ( "(", $row ["Type"] );
+        $typesize = explode("(", $row ["Type"]);
         
-        $tmp = isset ( $typesize [1] ) ? str_replace ( ")", "", $typesize [1] ) : "";
-        $sizesign = explode ( " ", $tmp );
+        $tmp = isset($typesize [1]) ? str_replace(")", "", $typesize [1]) : "";
+        $sizesign = explode(" ", $tmp);
         
         $this->Table = & $table;
         $this->Name = $row ["Field"];
         $this->NameWithoutPrefix = $row ["Field"];
         $this->Type = $typesize [0];
-        $this->Unsigned = isset ( $sizesign [1] );
+        $this->Unsigned = isset($sizesign [1]);
         $this->Null = $row ["Null"];
         $this->Key = $row ["Key"];
         $this->Default = $row ["Default"];
         $this->Extra = $row ["Extra"];
         
         // enums are a little different because they contain a list of legal values instead of a size limit
-        if ($this->IsEnum ()) {
+        if ($this->IsEnum()) {
             // enum size is in the format 'val1','val2',...
-            $this->Size = explode ( "','", substr ( $sizesign [0], 1, - 1 ) );
+            $this->Size = explode("','", substr($sizesign [0], 1, - 1));
             $this->MaxSize = 0;
         } else {
             $this->Size = $sizesign [0];
             // size may be saved for decimals as "n,n" so we need to convert that to an int
-            $tmp = explode ( ",", $this->Size );
-            $this->MaxSize = count ( $tmp ) > 1 ? ($tmp [0] + $tmp [1]) : $this->Size;
+            $tmp = explode(",", $this->Size);
+            $this->MaxSize = count($tmp) > 1 ? ($tmp [0] + $tmp [1]) : $this->Size;
         }
         
         // if ($this->Key == "MUL") print " ########################## " . print_r($row,1) . " ########################## ";
@@ -86,7 +86,7 @@ class DBColumn
      */
     function GetEnumValues()
     {
-        return $this->IsEnum () ? $this->Size : array ();
+        return $this->IsEnum() ? $this->Size : array ();
     }
     
     /**
@@ -96,7 +96,7 @@ class DBColumn
      */
     function GetPhreezeType()
     {
-        return FieldMap::GetConstantFromType ( $this->Type );
+        return FieldMap::GetConstantFromType($this->Type);
     }
     
     /**

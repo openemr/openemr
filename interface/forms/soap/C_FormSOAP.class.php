@@ -1,6 +1,6 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSOAP.class.php");
 
 class C_FormSOAP extends Controller

@@ -143,8 +143,10 @@ function postcalendar_adminapi_buildAdminList($args)
                     $output->FormCheckbox('pc_event_id[]', false, $eid);
                 $output->Text('</td>');
                 $output->Text('<td  align="left" valign="top" width="100%">');
-                    $output->URL(pnModURL(__POSTCALENDAR__, 'admin', 'edit', array('pc_event_id'=>$eid)),
-                                 pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title)));
+                    $output->URL(
+                        pnModURL(__POSTCALENDAR__, 'admin', 'edit', array('pc_event_id'=>$eid)),
+                        pnVarPrepHTMLDisplay(postcalendar_removeScriptTags($title))
+                    );
                 $output->Text('</td>');
                 $output->Text('<td  align="left" valign="top" nowrap>');
                     $output->Text($timestamp);

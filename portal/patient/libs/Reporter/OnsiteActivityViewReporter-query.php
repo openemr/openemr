@@ -26,7 +26,7 @@
 /**
  * import supporting libraries
  */
-require_once ( "verysimple/Phreeze/Reporter.php" );
+require_once("verysimple/Phreeze/Reporter.php");
 
 /**
  * This is an example Reporter based on the OnsiteActivityView object.

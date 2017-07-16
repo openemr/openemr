@@ -48,7 +48,7 @@ function checkUserSetting($label, $value, $user = null)
 
     $user = effectiveUser($user);
 
-    $curval = getUserSetting ($label, $user);
+    $curval = getUserSetting($label, $user);
     if (is_null($curval)) {
         return false;
     } else {
@@ -75,10 +75,10 @@ function setUserSetting($label, $value, $user = null, $createDefault = true, $ov
   // Check for a custom settings
     if (is_null($cur_value)) {
         sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
-        "VALUES (?,?,?)", array($user, $label, $value) );
+        "VALUES (?,?,?)", array($user, $label, $value));
     } elseif ( ($cur_value !== $value) && $overwrite ) {
         sqlStatement("UPDATE user_settings SET setting_value=? " .
-        "WHERE setting_user=? AND setting_label=?", array($value, $user, $label) );
+        "WHERE setting_user=? AND setting_label=?", array($value, $user, $label));
     }
 
   // Call self to create default token
@@ -98,7 +98,7 @@ function removeUserSetting($label, $user = null)
 
   // mdsupport - DELETE has implicit select, no need to check and delete
     sqlQuery("DELETE FROM user_settings " .
-      "WHERE setting_user=? AND setting_label=?", array($user, $label) );
+      "WHERE setting_user=? AND setting_label=?", array($user, $label));
 }
 
 function getUserIDInfo($id)

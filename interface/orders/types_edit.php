@@ -215,8 +215,15 @@ if ($typeid) {
   <td width='1%' nowrap><b><?php echo xlt('Procedure Type'); ?>:</b></td>
   <td>
 <?php
-echo generate_select_list('form_procedure_type', 'proc_type', $row['procedure_type'],
-  xl('The type of this entity'), ' ', '', 'proc_type_changed()');
+echo generate_select_list(
+    'form_procedure_type',
+    'proc_type',
+    $row['procedure_type'],
+    xl('The type of this entity'),
+    ' ',
+    '',
+    'proc_type_changed()'
+);
 ?>
   </td>
  </tr>
@@ -309,10 +316,12 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'body_site',
   <td width='1%' nowrap><b><?php echo xlt('Specimen Type'); ?>:</b></td>
   <td>
 <?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
-  'list_id' => 'proc_specimen',
-  'description' => xl('Specimen Type')),
-  $row['specimen']);
+generate_form_field(
+    array('data_type' => 1, 'field_id' => 'specimen',
+    'list_id' => 'proc_specimen',
+    'description' => xl('Specimen Type')),
+    $row['specimen']
+);
 ?>
   </td>
  </tr>
@@ -321,10 +330,12 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'specimen',
   <td width='1%' nowrap><b><?php echo xlt('Administer Via'); ?>:</b></td>
   <td>
 <?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'route_admin',
-  'list_id' => 'proc_route',
-  'description' => xl('Route of administration, if applicable')),
-  $row['route_admin']);
+generate_form_field(
+    array('data_type' => 1, 'field_id' => 'route_admin',
+    'list_id' => 'proc_route',
+    'description' => xl('Route of administration, if applicable')),
+    $row['route_admin']
+);
 ?>
   </td>
  </tr>
@@ -333,10 +344,12 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'route_admin',
   <td width='1%' nowrap><b><?php echo xlt('Laterality'); ?>:</b></td>
   <td>
 <?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
-  'list_id' => 'proc_lat',
-  'description' => xl('Laterality of this procedure, if applicable')),
-  $row['laterality']);
+generate_form_field(
+    array('data_type' => 1, 'field_id' => 'laterality',
+    'list_id' => 'proc_lat',
+    'description' => xl('Laterality of this procedure, if applicable')),
+    $row['laterality']
+);
 ?>
   </td>
  </tr>
@@ -345,10 +358,12 @@ generate_form_field(array('data_type' => 1, 'field_id' => 'laterality',
   <td width='1%' nowrap><b><?php echo xlt('Default Units'); ?>:</b></td>
   <td>
 <?php
-generate_form_field(array('data_type' => 1, 'field_id' => 'units',
-  'list_id' => 'proc_unit',
-  'description' => xl('Optional default units for manual entry of results')),
-  $row['units']);
+generate_form_field(
+    array('data_type' => 1, 'field_id' => 'units',
+    'list_id' => 'proc_unit',
+    'description' => xl('Optional default units for manual entry of results')),
+    $row['units']
+);
 ?>
   </td>
  </tr>

@@ -108,7 +108,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_body_composition WHERE " .
+    $row = sqlQuery("SELECT * FROM form_body_composition WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 else {

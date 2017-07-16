@@ -525,14 +525,14 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 			<table>
 				<thead>
 
-					<th style='width:12%;'>	". htmlspecialchars( xl('Facility Name'), ENT_NOQUOTES) ."</th>
-					<th style='width:9%;' >	". htmlspecialchars( xl('Facility NPI'), ENT_NOQUOTES) ."</th>
-					<th style='width:15%;'>	". htmlspecialchars( xl('Insurance Comp'), ENT_NOQUOTES) ."</th>
-					<th style='width:8%;' >	". htmlspecialchars( xl('Policy No'), ENT_NOQUOTES) ."</th>
-					<th style='width:16%;'>	". htmlspecialchars( xl('Patient Name'), ENT_NOQUOTES) ."</th>
-					<th style='width:7%;' >	". htmlspecialchars( xl('DOB'), ENT_NOQUOTES) ."</th>
-					<th style='width:6%;' >	". htmlspecialchars( xl('Gender'), ENT_NOQUOTES) ."</th>
-					<th style='width:9%;' >	". htmlspecialchars( xl('SSN'), ENT_NOQUOTES) ."</th>
+					<th style='width:12%;'>	". htmlspecialchars(xl('Facility Name'), ENT_NOQUOTES) ."</th>
+					<th style='width:9%;' >	". htmlspecialchars(xl('Facility NPI'), ENT_NOQUOTES) ."</th>
+					<th style='width:15%;'>	". htmlspecialchars(xl('Insurance Comp'), ENT_NOQUOTES) ."</th>
+					<th style='width:8%;' >	". htmlspecialchars(xl('Policy No'), ENT_NOQUOTES) ."</th>
+					<th style='width:16%;'>	". htmlspecialchars(xl('Patient Name'), ENT_NOQUOTES) ."</th>
+					<th style='width:7%;' >	". htmlspecialchars(xl('DOB'), ENT_NOQUOTES) ."</th>
+					<th style='width:6%;' >	". htmlspecialchars(xl('Gender'), ENT_NOQUOTES) ."</th>
+					<th style='width:9%;' >	". htmlspecialchars(xl('SSN'), ENT_NOQUOTES) ."</th>
 					<th style='width:2%;' >	&nbsp;			  </th>
 				</thead>
 
@@ -572,17 +572,17 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
         $elig[17] = "30";                       // Service Type
         $elig[18] = $row['pubpid'];                     // Patient Account Number pubpid
 
-        echo "	<tr id='PR".$i."_". htmlspecialchars( $row['policy_number'], ENT_QUOTES)."'>
-				<td class ='detail' style='width:12%;'>". htmlspecialchars( $row['facility_name'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:9%;'>".  htmlspecialchars( $row['facility_npi'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:15%;'>". htmlspecialchars( $row['payer_name'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:8%;'>".  htmlspecialchars( $row['policy_number'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:16%;'>". htmlspecialchars( $row['subscriber_lname']." ".$row['subscriber_fname'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:7%;'>".  htmlspecialchars( $row['subscriber_dob'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:6%;'>".  htmlspecialchars( $row['subscriber_sex'], ENT_NOQUOTES) ."</td>
-				<td class ='detail' style='width:9%;'>".  htmlspecialchars( $row['subscriber_ss'], ENT_NOQUOTES) ."</td>
+        echo "	<tr id='PR".$i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES)."'>
+				<td class ='detail' style='width:12%;'>". htmlspecialchars($row['facility_name'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['facility_npi'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:15%;'>". htmlspecialchars($row['payer_name'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:8%;'>".  htmlspecialchars($row['policy_number'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:16%;'>". htmlspecialchars($row['subscriber_lname']." ".$row['subscriber_fname'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:7%;'>".  htmlspecialchars($row['subscriber_dob'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:6%;'>".  htmlspecialchars($row['subscriber_sex'], ENT_NOQUOTES) ."</td>
+				<td class ='detail' style='width:9%;'>".  htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES) ."</td>
 				<td class ='detail' style='width:2%;'>
-					<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars( $row['policy_number'], ENT_QUOTES) . "\")'>
+					<img src='../../images/deleteBtn.png' title=' .htmlspecialchars( xl('Delete Row'), ENT_QUOTES) . ' style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i."_". htmlspecialchars($row['policy_number'], ENT_QUOTES) . "\")'>
 				</td>
 			</tr>
 		";
@@ -595,7 +595,7 @@ function show_elig($res, $X12info, $segTer, $compEleSep)
 
         echo "	<tr>
 				<td class='norecord' colspan=9>
-					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>". htmlspecialchars( xl('No records found'), ENT_NOQUOTES) . "</div>
+					<div style='padding:5px;font-family:arial;font-size:13px;text-align:center;'>". htmlspecialchars(xl('No records found'), ENT_NOQUOTES) . "</div>
 				</td>
 			</tr>	";
     }
@@ -622,30 +622,30 @@ function show_eligibility_information($pid)
 			AND	 		eligv.eligibility_check_date = (SELECT max(eligibility_check_date)
 										FROM eligibility_verification
 										WHERE	insurance_id = eligv.insurance_id)";
-    $result         = sqlStatement($query, array($pid) );
+    $result         = sqlStatement($query, array($pid));
 
     $row = sqlFetchArray($result);
 
         $showString="";
     $showString .=  "<br><div class='text'>" .
             "<b>" .
-            htmlspecialchars( xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['name']) ? htmlspecialchars( $row['name'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Insurance Provider'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['name']) ? htmlspecialchars($row['name'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>\n" .
             "<b>" .
-            htmlspecialchars( xl('Status'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['ResponseMessage']) ? htmlspecialchars( $row['ResponseMessage'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Status'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['ResponseMessage']) ? htmlspecialchars($row['ResponseMessage'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>\n" .
             "<b>" .
-            htmlspecialchars( xl('Last Verified On'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['VerificationDate']) ? htmlspecialchars( $row['VerificationDate'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            htmlspecialchars(xl('Last Verified On'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['VerificationDate']) ? htmlspecialchars($row['VerificationDate'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "<br>" .
-            "<b>" . htmlspecialchars( xl('Copay'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['copay']) ? htmlspecialchars( $row['copay'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars( xl('Deductible'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductible']) ? htmlspecialchars( $row['deductible'], ENT_NOQUOTES) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
-            "<br><b>" . htmlspecialchars( xl('Deductible Met'), ENT_NOQUOTES) . ":</b> " .
-            (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? htmlspecialchars( xl('Yes'), ENT_NOQUOTES) : htmlspecialchars( xl('No'), ENT_NOQUOTES)) : htmlspecialchars( xl('n/a'), ENT_NOQUOTES)) .
+            "<b>" . htmlspecialchars(xl('Copay'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['copay']) ? htmlspecialchars($row['copay'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
+            "<br><b>" . htmlspecialchars(xl('Deductible'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['deductible']) ? htmlspecialchars($row['deductible'], ENT_NOQUOTES) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
+            "<br><b>" . htmlspecialchars(xl('Deductible Met'), ENT_NOQUOTES) . ":</b> " .
+            (!empty($row['deductiblemet']) ? ($row['deductiblemet'] == 'Y' ? htmlspecialchars(xl('Yes'), ENT_NOQUOTES) : htmlspecialchars(xl('No'), ENT_NOQUOTES)) : htmlspecialchars(xl('n/a'), ENT_NOQUOTES)) .
             "</div>";
 
     echo $showString;
@@ -666,7 +666,7 @@ function eligibility_response_save($segmentVal, $vendorID)
 				WHERE	 response_description = ? and
 					 response_vendor_id	  = ?";
 
-    $resCount = sqlStatement($query, array($segmentVal, $vendorID) );
+    $resCount = sqlStatement($query, array($segmentVal, $vendorID));
 
 
     if(isset($resCount))
@@ -685,7 +685,7 @@ function eligibility_response_save($segmentVal, $vendorID)
 								response_vendor_id	 = ?,
 								response_create_date = now(),
 								response_modify_date = now()";
-        $res    = sqlStatement($query, array($segmentVal, $vendorID) );
+        $res    = sqlStatement($query, array($segmentVal, $vendorID));
     }
 }
 
@@ -703,7 +703,7 @@ function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
 				WHERE	 response_description = ? and
 						 response_vendor_id	  = ?";
 
-    $resId  = sqlStatement($query, array($segmentVal, $x12PartnerId) );
+    $resId  = sqlStatement($query, array($segmentVal, $x12PartnerId));
 
     // For fetching the insuarace data Id
 
@@ -712,7 +712,7 @@ function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
 				WHERE	 type = 'primary' and
 						 pid = ?";
 
-    $insId  = sqlStatement($query, array($patientId) );
+    $insId  = sqlStatement($query, array($patientId));
 
     if(isset($resId))
     {
@@ -765,7 +765,7 @@ function eligibility_information($insuranceId)
 			FROM		eligibility_verification
 			WHERE	    insuranceid = ?";
 
-    $result         = sqlStatement($query, array($insuranceId) );
+    $result         = sqlStatement($query, array($insuranceId));
     $row        = sqlFetchArray($result);
     return $row;
 }

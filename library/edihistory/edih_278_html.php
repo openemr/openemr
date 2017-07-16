@@ -427,8 +427,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 if ( $elem02 == 'D8' && $elem03) {
                     $var = edih_format_date($elem03);
                 } elseif ( $elem02 == 'RD8' && $elem03) {
-                    $var = edih_format_date( substr($elem03, 0, 8) );
-                    $var .= ' - '.edih_format_date( substr($elem03, -8) );
+                    $var = edih_format_date(substr($elem03, 0, 8));
+                    $var .= ' - '.edih_format_date(substr($elem03, -8));
                 }
                 if ($loopid == '2000E') {
                     $evt_html .= "<tr class='$cls'><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
@@ -455,8 +455,8 @@ function edih_278_transaction_html($obj278, $bht03)
                         $hi_str .= (isset($a[1]) && $a[1]) ? '[ '.$a[1].' ]' : '[]';
                         if (isset($a[2]) && isset($a[3]) ) {
                             $hi_str .= ($a[2] == 'D8') ? ' '.edih_format_date($a[3]) : '';
-                            $hi_str .= ($a[2] == 'RD8') ? edih_format_date( substr($a[3], 0, 8) ) : "";
-                            $hi_str .= ($a[2] == 'RD8') ? edih_format_date( substr($a[3], -8) ) : "";
+                            $hi_str .= ($a[2] == 'RD8') ? edih_format_date(substr($a[3], 0, 8)) : "";
+                            $hi_str .= ($a[2] == 'RD8') ? edih_format_date(substr($a[3], -8)) : "";
                         }
                     } else {
                         $hi_str .= $hi.' ';
@@ -629,8 +629,8 @@ function edih_278_transaction_html($obj278, $bht03)
                 if ( $elem03 == 'D8' && $elem04) {
                     $elem04 = edih_format_date($elem04);
                 } elseif ( $elem03 == 'RD8' && $elem04) {
-                    $var = edih_format_date( substr($dtp03, 0, 8) );
-                    $elem04 = $var.' - '.edih_format_date( substr($elem04, -8) );
+                    $var = edih_format_date(substr($dtp03, 0, 8));
+                    $elem04 = $var.' - '.edih_format_date(substr($elem04, -8));
                 }
                 $elem07 = (isset($sar[7]) && $sar[7]) ? $cd27x->get_271_code('HCR04', $sar[8]) : "";
                 $elem08 = (isset($sar[8]) && $sar[8]) ? $cd27x->get_271_code('CR608', $sar[8]) : "";    // certification type code
@@ -686,7 +686,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
 
                 $elem01 = '';
-                if ( isset($sar[1]) && strpos($sar[1], $ds ) ) {
+                if ( isset($sar[1]) && strpos($sar[1], $ds) ) {
                     $ar01 = explode($ds, $sar[1]);
                     $ct = count($ar01);
                     $elem01 = (isset($ar01[0]) && $ar01[0]) ? $cd27x->get_271_code('SV101', $ar01[0]) : "";
@@ -726,7 +726,7 @@ function edih_278_transaction_html($obj278, $bht03)
                 //
 
                 $elem01 = '';
-                if ( isset($sar[1]) && strpos($sar[1], $ds ) ) {
+                if ( isset($sar[1]) && strpos($sar[1], $ds) ) {
                     $ar01 = explode($ds, $sar[1]);
                     $ct = count($ar01);
                     $elem01 = (isset($ar01[0]) && $ar01[0]) ? $cd27x->get_271_code('SV101', $ar01[0]) : "";
@@ -791,7 +791,7 @@ function edih_278_html($filename, $bht03 = '')
     $html_str = '';
     //
     if (!$filename) {
-        csv_edihist_log ("edih_278_html: called with no file arguments");
+        csv_edihist_log("edih_278_html: called with no file arguments");
         $html_str .= "Error, no file given<br />".PHP_EOL;
         return $html_str;
     } else {

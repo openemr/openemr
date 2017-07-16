@@ -19,7 +19,7 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         $date_array = array();
         foreach ( $this->getApplicableEncounters() as $encType )
         {
-            $dates = Helper::fetchEncounterDates( $encType, $patient, $beginDate, $endDate );
+            $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
             $date_array = array_merge($date_array, $dates);
         }
 
@@ -31,14 +31,14 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         foreach ( $date_array as $date )
         {
             // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-            $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
-            $beginMinus24Months = strtotime( '-24 month', strtotime ( $date ) );
-            $beginMinus24Months = date( 'Y-m-d 00:00:00', $beginMinus24Months );
+            $date = date('Y-m-d 23:59:59', strtotime($date));
+            $beginMinus24Months = strtotime('-24 month', strtotime($date));
+            $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
             // this is basically a check to see if the patient is an reported as an active smoker on their last encounter
-            if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date ) ) {
+            if ( Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date) ) {
                 return true;
             }
-            else if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date ) ) {
+            else if ( Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date) ) {
                 return false;
             }
             else {

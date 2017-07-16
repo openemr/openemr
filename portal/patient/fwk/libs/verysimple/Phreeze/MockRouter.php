@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ('IRouter.php');
+require_once('IRouter.php');
 
 /**
  * Mock router for unit testing purposes
@@ -39,7 +39,7 @@ class MockRouter implements IRouter
     {
         $this->stripApi = $strip_api;
         $this->delim = $delim;
-        return $this->GetUrl ( $controller, $method, $params );
+        return $this->GetUrl($controller, $method, $params);
     }
     
     /**
@@ -89,7 +89,7 @@ class MockRouter implements IRouter
      */
     public function GetUrlParam($paramKey, $default = '')
     {
-        return array_key_exists ( $paramKey, $this->_params ) ? $this->_params [$paramKey] : "";
+        return array_key_exists($paramKey, $this->_params) ? $this->_params [$paramKey] : "";
     }
     
     /**

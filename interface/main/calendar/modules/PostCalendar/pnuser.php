@@ -62,12 +62,14 @@ function postcalendar_user_view()
          $viewtype,
          $jumpday,
          $jumpmonth,
-         $jumpyear) = pnVarCleanFromInput('Date',
-                                          'print',
-                                          'viewtype',
-                                          'jumpday',
-                                          'jumpmonth',
-                                          'jumpyear');
+         $jumpyear) = pnVarCleanFromInput(
+             'Date',
+             'print',
+             'viewtype',
+             'jumpday',
+             'jumpmonth',
+             'jumpyear'
+         );
     $Date =postcalendar_getDate();
     if(!isset($viewtype))   $viewtype = _SETTING_DEFAULT_VIEW;
     
@@ -86,8 +88,17 @@ function postcalendar_user_view()
 function postcalendar_user_display($args)
 {
     list($eid, $viewtype, $tplview,
-         $pc_username, $Date, $print, $category, $topic, $pc_facility) = pnVarCleanFromInput('eid', 'viewtype', 'tplview',
-                                                         'pc_username', 'Date', 'print', 'pc_category', 'pc_topic', 'pc_facility');
+         $pc_username, $Date, $print, $category, $topic, $pc_facility) = pnVarCleanFromInput(
+             'eid',
+             'viewtype',
+             'tplview',
+             'pc_username',
+             'Date',
+             'print',
+             'pc_category',
+             'pc_topic',
+             'pc_facility'
+         );
     // added to allow the view & providers to remain as the user last saw it -- JRM
     if ($_SESSION['viewtype']) $viewtype = $_SESSION['viewtype'];
     if ($_SESSION['pc_username']) $pc_username = $_SESSION['pc_username'];
@@ -383,8 +394,14 @@ function postcalendar_user_submit($args)
     $event_city          = pnVarCleanFromInput('event_city');
     $event_state         = pnVarCleanFromInput('event_state');
     $event_postal        = pnVarCleanFromInput('event_postal');
-    $event_location_info = serialize(compact('event_location', 'event_street1', 'event_street2',
-                                           'event_city', 'event_state', 'event_postal'));
+    $event_location_info = serialize(compact(
+        'event_location',
+        'event_street1',
+        'event_street2',
+        'event_city',
+        'event_state',
+        'event_postal'
+    ));
     // contact data
     $event_contname      = pnVarCleanFromInput('event_contname');
     $event_conttel       = pnVarCleanFromInput('event_conttel');
@@ -409,8 +426,13 @@ function postcalendar_user_submit($args)
         $event_repeat_on_num = $category['event_repeat_on_num'];
         $event_repeat_on_day = $category['event_repeat_on_day'];
         $event_repeat_on_freq = $category['event_repeat_on_freq'];
-        $event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+        $event_recurrspec = serialize(compact(
+            'event_repeat_freq',
+            'event_repeat_freq_type',
+            'event_repeat_on_num',
+            'event_repeat_on_day',
+            'event_repeat_on_freq'
+        ));
 
         // event end information
         $multiple = $category['end_date_freq']." ";
@@ -457,8 +479,13 @@ function postcalendar_user_submit($args)
         $event_repeat_on_num = pnVarCleanFromInput('event_repeat_on_num');
         $event_repeat_on_day = pnVarCleanFromInput('event_repeat_on_day');
         $event_repeat_on_freq = pnVarCleanFromInput('event_repeat_on_freq');
-        $event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+        $event_recurrspec = serialize(compact(
+            'event_repeat_freq',
+            'event_repeat_freq_type',
+            'event_repeat_on_num',
+            'event_repeat_on_day',
+            'event_repeat_on_freq'
+        ));
 
         // event end information
         $event_endmonth     = pnVarCleanFromInput('event_endmonth');
@@ -493,14 +520,56 @@ function postcalendar_user_submit($args)
 
     if(!isset($pc_event_id) || empty($pc_event_id) || $data_loaded) {
         // lets wrap all the data into array for passing to submit and preview functions
-        $eventdata = compact('event_subject', 'event_desc', 'event_sharing', 'event_category', 'event_topic',
-        'event_startmonth', 'event_startday', 'event_startyear', 'event_starttimeh', 'event_starttimem', 'event_startampm',
-        'event_endmonth', 'event_endday', 'event_endyear', 'event_endtype', 'event_dur_hours', 'event_dur_minutes',
-        'event_duration', 'event_allday', 'event_location', 'event_street1', 'event_street2', 'event_city', 'event_state',
-        'event_postal', 'event_location_info', 'event_contname', 'event_conttel', 'event_contemail',
-        'event_website', 'event_fee', 'event_repeat', 'event_repeat_freq', 'event_repeat_freq_type',
-        'event_repeat_on_num', 'event_repeat_on_day', 'event_repeat_on_freq', 'event_recurrspec', 'uname', "event_userid", "event_pid",
-        'Date', 'year', 'month', 'day', 'pc_html_or_text', 'event_patient_name', 'event_pid');
+        $eventdata = compact(
+            'event_subject',
+            'event_desc',
+            'event_sharing',
+            'event_category',
+            'event_topic',
+            'event_startmonth',
+            'event_startday',
+            'event_startyear',
+            'event_starttimeh',
+            'event_starttimem',
+            'event_startampm',
+            'event_endmonth',
+            'event_endday',
+            'event_endyear',
+            'event_endtype',
+            'event_dur_hours',
+            'event_dur_minutes',
+            'event_duration',
+            'event_allday',
+            'event_location',
+            'event_street1',
+            'event_street2',
+            'event_city',
+            'event_state',
+            'event_postal',
+            'event_location_info',
+            'event_contname',
+            'event_conttel',
+            'event_contemail',
+            'event_website',
+            'event_fee',
+            'event_repeat',
+            'event_repeat_freq',
+            'event_repeat_freq_type',
+            'event_repeat_on_num',
+            'event_repeat_on_day',
+            'event_repeat_on_freq',
+            'event_recurrspec',
+            'uname',
+            "event_userid",
+            "event_pid",
+            'Date',
+            'year',
+            'month',
+            'day',
+            'pc_html_or_text',
+            'event_patient_name',
+            'event_pid'
+        );
         $eventdata['is_update'] = $is_update;
         $eventdata['pc_event_id'] = $pc_event_id;
         $eventdata['data_loaded'] = true;
@@ -818,14 +887,55 @@ function postcalendar_user_submit($args)
     
                 //$_SESSION['category'] = "";
                 // lets wrap all the data into array for passing to submit and preview functions
-                $eventdata = compact('event_subject', 'event_desc', 'event_sharing', 'event_category', 'event_topic',
-                'event_startmonth', 'event_startday', 'event_startyear', 'event_starttimeh', 'event_starttimem', 'event_startampm',
-                'event_endmonth', 'event_endday', 'event_endyear', 'event_endtype', 'event_dur_hours', 'event_dur_minutes',
-                'event_duration', 'event_allday', 'event_location', 'event_street1', 'event_street2', 'event_city', 'event_state',
-                'event_postal', 'event_location_info', 'event_contname', 'event_conttel', 'event_contemail',
-                'event_website', 'event_fee', 'event_repeat', 'event_repeat_freq', 'event_repeat_freq_type',
-                'event_repeat_on_num', 'event_repeat_on_day', 'event_repeat_on_freq', 'event_recurrspec', 'uname',
-                'Date', 'year', 'month', 'day', 'pc_html_or_text', 'is_update', 'pc_event_id', 'event_patient_name');
+                $eventdata = compact(
+                    'event_subject',
+                    'event_desc',
+                    'event_sharing',
+                    'event_category',
+                    'event_topic',
+                    'event_startmonth',
+                    'event_startday',
+                    'event_startyear',
+                    'event_starttimeh',
+                    'event_starttimem',
+                    'event_startampm',
+                    'event_endmonth',
+                    'event_endday',
+                    'event_endyear',
+                    'event_endtype',
+                    'event_dur_hours',
+                    'event_dur_minutes',
+                    'event_duration',
+                    'event_allday',
+                    'event_location',
+                    'event_street1',
+                    'event_street2',
+                    'event_city',
+                    'event_state',
+                    'event_postal',
+                    'event_location_info',
+                    'event_contname',
+                    'event_conttel',
+                    'event_contemail',
+                    'event_website',
+                    'event_fee',
+                    'event_repeat',
+                    'event_repeat_freq',
+                    'event_repeat_freq_type',
+                    'event_repeat_on_num',
+                    'event_repeat_on_day',
+                    'event_repeat_on_freq',
+                    'event_recurrspec',
+                    'uname',
+                    'Date',
+                    'year',
+                    'month',
+                    'day',
+                    'pc_html_or_text',
+                    'is_update',
+                    'pc_event_id',
+                    'event_patient_name'
+                );
                 //if no using the no_nav format then show form again after submit
                 if (pnVarCleanFromInput("no_nav") == 1) {
                     return $output->GetOutput();

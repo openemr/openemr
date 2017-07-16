@@ -60,8 +60,8 @@ if ($_POST['form_save']) {
 }
 
  $dres = sqlStatement(
-  "SELECT * FROM form_physical_exam_diagnoses WHERE " .
-  "line_id = '$line_id' ORDER BY ordering, diagnosis"
+     "SELECT * FROM form_physical_exam_diagnoses WHERE " .
+     "line_id = '$line_id' ORDER BY ordering, diagnosis"
  );
 ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php  echo $line_id ?>'

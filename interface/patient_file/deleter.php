@@ -116,7 +116,7 @@ function delete_drug_sales($patient_id, $encounter_id = 0)
         row_delete("drug_sales", "encounter = '" . add_escape_custom($encounter_id) . "'");
     }
     else {
-        row_delete("drug_sales", "pid = '" . add_escape_custom($patient_id ) . "'");
+        row_delete("drug_sales", "pid = '" . add_escape_custom($patient_id) . "'");
     }
 }
 
@@ -301,29 +301,35 @@ if ($_POST['form_submit']) {
                           die(xlt('Unable to match this payment in ar_activity') . ": " . text($tpmt));
                 }
                 // Delete the payment.
-                row_delete("ar_activity",
-                "pid = '" . add_escape_custom($patient_id) . "' AND " .
-                "encounter = '" . add_escape_custom($payrow['encounter']) . "' AND " .
-                "payer_type = 0 AND " .
-                "pay_amount != 0.00 AND " .
-                "adj_amount = 0.00 AND " .
-                "session_id = '" . add_escape_custom($ref_id) . "'");
+                row_delete(
+                    "ar_activity",
+                    "pid = '" . add_escape_custom($patient_id) . "' AND " .
+                    "encounter = '" . add_escape_custom($payrow['encounter']) . "' AND " .
+                    "payer_type = 0 AND " .
+                    "pay_amount != 0.00 AND " .
+                    "adj_amount = 0.00 AND " .
+                    "session_id = '" . add_escape_custom($ref_id) . "'"
+                );
                 if ($ref_id) {
-                        row_delete("ar_session",
-                          "patient_id = '" . add_escape_custom($patient_id) ."' AND " .
-                          "session_id = '" . add_escape_custom($ref_id) . "'");
+                        row_delete(
+                            "ar_session",
+                            "patient_id = '" . add_escape_custom($patient_id) ."' AND " .
+                            "session_id = '" . add_escape_custom($ref_id) . "'"
+                        );
                 }
             }
             else {
                 // Encounter is 0! Seems this happens for pre-payments.
                 $tpmt = sprintf("%01.2f", $payrow['amount1'] + $payrow['amount2']);
-                row_delete("ar_session",
-                "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
-                "payer_id = 0 AND " .
-                "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
-                "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
-                "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
-                "ORDER BY session_id DESC LIMIT 1");
+                row_delete(
+                    "ar_session",
+                    "patient_id = '" . add_escape_custom($patient_id) . "' AND " .
+                    "payer_id = 0 AND " .
+                    "reference = '" . add_escape_custom($payrow['source']) . "' AND " .
+                    "pay_total = '" . add_escape_custom($tpmt) . "' AND " .
+                    "(SELECT COUNT(*) FROM ar_activity where ar_activity.session_id = ar_session.session_id) = 0 " .
+                    "ORDER BY session_id DESC LIMIT 1"
+                );
             }
             row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
         }
@@ -332,15 +338,18 @@ if ($_POST['form_submit']) {
         if (!acl_check('acct', 'disc')) die("Not authorized!");
         list($patient_id, $encounter_id) = explode(".", $billing);
         sqlStatement("DELETE FROM ar_activity WHERE " .
-        "pid = ? AND encounter = ? ", array($patient_id, $encounter_id) );
+        "pid = ? AND encounter = ? ", array($patient_id, $encounter_id));
         sqlStatement("DELETE ar_session FROM ar_session LEFT JOIN " .
         "ar_activity ON ar_session.session_id = ar_activity.session_id " .
         "WHERE ar_activity.session_id IS NULL");
-        row_modify("billing", "activity = 0",
-        "pid = '" . add_escape_custom($patient_id) . "'  AND " .
-        "encounter = '" . add_escape_custom($encounter_id) . "' AND " .
-        "code_type = 'COPAY' AND " .
-        "activity = 1");
+        row_modify(
+            "billing",
+            "activity = 0",
+            "pid = '" . add_escape_custom($patient_id) . "'  AND " .
+            "encounter = '" . add_escape_custom($encounter_id) . "' AND " .
+            "code_type = 'COPAY' AND " .
+            "activity = 1"
+        );
         sqlStatement("UPDATE form_encounter SET last_level_billed = 0, " .
         "last_level_closed = 0, stmt_count = 0, last_stmt_date = NULL " .
         "WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));

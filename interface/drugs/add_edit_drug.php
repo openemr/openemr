@@ -237,20 +237,26 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
                         $taxrates .= "$key:";
                     }
                 }
-                sqlInsert("INSERT INTO drug_templates ( " .
-                "drug_id, selector, dosage, period, quantity, refills, taxrates " .
-                ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
-                array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
-                trim($iter['quantity']), trim($iter['refills']), $taxrates));
+                sqlInsert(
+                    "INSERT INTO drug_templates ( " .
+                    "drug_id, selector, dosage, period, quantity, refills, taxrates " .
+                    ") VALUES ( ?, ?, ?, ?, ?, ?, ? )",
+                    array($drug_id, $selector, trim($iter['dosage']), trim($iter['period']),
+                    trim($iter['quantity']),
+                    trim($iter['refills']),
+                    $taxrates)
+                );
 
                 // Add prices for this drug ID and selector.
                 foreach ($iter['price'] as $key => $value) {
                          $value = $value + 0;
                     if ($value) {
-                         sqlStatement("INSERT INTO prices ( " .
-                           "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-                           "?, ?, ?, ? )",
-                           array($drug_id, $selector, $key, $value));
+                         sqlStatement(
+                             "INSERT INTO prices ( " .
+                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
+                             "?, ?, ?, ? )",
+                             array($drug_id, $selector, $key, $value)
+                         );
                     }
                 } // end foreach price
             } // end if selector is present
@@ -371,14 +377,16 @@ else {
 <?php
   // One column header per warehouse title.
   $pwarr = array();
-  $pwres = sqlStatement("SELECT lo.option_id, lo.title, " .
-    "pw.pw_min_level, pw.pw_max_level " .
-    "FROM list_options AS lo " .
-    "LEFT JOIN product_warehouse AS pw ON " .
-    "pw.pw_drug_id = ? AND " .
-    "pw.pw_warehouse = lo.option_id WHERE " .
-    "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-    array($drug_id));
+  $pwres = sqlStatement(
+      "SELECT lo.option_id, lo.title, " .
+      "pw.pw_min_level, pw.pw_max_level " .
+      "FROM list_options AS lo " .
+      "LEFT JOIN product_warehouse AS pw ON " .
+      "pw.pw_drug_id = ? AND " .
+      "pw.pw_warehouse = lo.option_id WHERE " .
+      "lo.list_id = 'warehouse' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
+      array($drug_id)
+  );
   while ($pwrow = sqlFetchArray($pwres)) {
       $pwarr[] = $pwrow;
       echo "     <td valign='top' nowrap>" .
@@ -486,11 +494,11 @@ foreach ($pwarr as $pwrow) {
   <td>
    <table border='0' width='100%'>
     <tr>
-     <td class='drugsonly'><b><?php echo xlt('Name'    ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Name'); ?></b></td>
      <td class='drugsonly'><b><?php echo xlt('Schedule'); ?></b></td>
      <td class='drugsonly'><b><?php echo xlt('Interval'); ?></b></td>
-     <td class='drugsonly'><b><?php echo xlt('Qty'     ); ?></b></td>
-     <td class='drugsonly'><b><?php echo xlt('Refills' ); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Qty'); ?></b></td>
+     <td class='drugsonly'><b><?php echo xlt('Refills'); ?></b></td>
 <?php
   // Show a heading for each price level.  Also create an array of prices
   // for new template lines.
@@ -521,17 +529,26 @@ if ($tres) {
         $selector = $trow['selector'];
       // Get array of prices.
         $prices = array();
-        $pres = sqlStatement("SELECT lo.option_id, p.pr_price " .
-        "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-        "p.pr_id = ? AND p.pr_selector = ? AND " .
-        "p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
-        array($drug_id, $selector));
+        $pres = sqlStatement(
+            "SELECT lo.option_id, p.pr_price " .
+            "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
+            "p.pr_id = ? AND p.pr_selector = ? AND " .
+            "p.pr_level = lo.option_id " .
+            "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
+            array($drug_id, $selector)
+        );
         while ($prow = sqlFetchArray($pres)) {
             $prices[$prow['option_id']] = $prow['pr_price'];
         }
-        writeTemplateLine($selector, $trow['dosage'], $trow['period'],
-        $trow['quantity'], $trow['refills'], $prices, $trow['taxrates']);
+        writeTemplateLine(
+            $selector,
+            $trow['dosage'],
+            $trow['period'],
+            $trow['quantity'],
+            $trow['refills'],
+            $prices,
+            $trow['taxrates']
+        );
     }
 }
 for ($i = 0; $i < $blank_lines; ++$i) {

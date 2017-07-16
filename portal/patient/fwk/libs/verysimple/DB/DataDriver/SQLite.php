@@ -1,9 +1,9 @@
 <?php
 /** @package verysimple::DB::DataDriver */
-require_once ("IDataDriver.php");
-require_once ("verysimple/DB/ISqlFunction.php");
-require_once ("verysimple/DB/DatabaseException.php");
-require_once ("verysimple/DB/DatabaseConfig.php");
+require_once("IDataDriver.php");
+require_once("verysimple/DB/ISqlFunction.php");
+require_once("verysimple/DB/DatabaseException.php");
+require_once("verysimple/DB/DatabaseConfig.php");
 
 /**
  * An implementation of IDataDriver that communicates with
@@ -28,7 +28,7 @@ class DataDriverSQLite implements IDataDriver
     }
     function Ping($connection)
     {
-        throw new DatabaseException ( "Not Implemented" );
+        throw new DatabaseException("Not Implemented");
     }
     
     /**
@@ -36,22 +36,22 @@ class DataDriverSQLite implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! class_exists ( "SQLite3" ))
-            throw new DatabaseException ( 'SQLite3 extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR );
+        if (! class_exists("SQLite3"))
+            throw new DatabaseException('SQLite3 extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
         
-        if (! $connection = new SQLite3 ( $connectionstring, SQLITE3_OPEN_READWRITE, $password )) {
-            throw new DatabaseException ( "Error connecting to database: Unable to open the database file.", DatabaseException::$CONNECTION_ERROR );
+        if (! $connection = new SQLite3($connectionstring, SQLITE3_OPEN_READWRITE, $password)) {
+            throw new DatabaseException("Error connecting to database: Unable to open the database file.", DatabaseException::$CONNECTION_ERROR);
         }
         
         // charset is ignored with sqlite
         
         if ($bootstrap) {
-            $statements = explode ( ';', $bootstrap );
+            $statements = explode(';', $bootstrap);
             foreach ( $statements as $sql ) {
                 try {
-                    $this->Execute ( $connection, $sql );
+                    $this->Execute($connection, $sql);
                 } catch ( Exception $ex ) {
-                    throw new DatabaseException ( "problem with bootstrap sql: " . $ex->getMessage (), DatabaseException::$ERROR_IN_QUERY );
+                    throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }
         }
@@ -64,7 +64,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function Close($connection)
     {
-        @$connection->close (); // ignore warnings
+        @$connection->close(); // ignore warnings
     }
     
     /**
@@ -72,8 +72,8 @@ class DataDriverSQLite implements IDataDriver
      */
     function Query($connection, $sql)
     {
-        if (! $rs = $connection->query ( $sql )) {
-            throw new DatabaseException ( $connection->lastErrorMsg (), DatabaseException::$ERROR_IN_QUERY );
+        if (! $rs = $connection->query($sql)) {
+            throw new DatabaseException($connection->lastErrorMsg(), DatabaseException::$ERROR_IN_QUERY);
         }
         
         return $rs;
@@ -84,7 +84,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function Execute($connection, $sql)
     {
-        return $connection->exec ( $sql );
+        return $connection->exec($sql);
     }
     
     /**
@@ -92,7 +92,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function Fetch($connection, $rs)
     {
-        return $rs->fetchArray ( SQLITE3_ASSOC );
+        return $rs->fetchArray(SQLITE3_ASSOC);
     }
     
     /**
@@ -100,7 +100,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function GetLastInsertId($connection)
     {
-        return $connection->lastInsertRowID ();
+        return $connection->lastInsertRowID();
     }
     
     /**
@@ -108,7 +108,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function GetLastError($connection)
     {
-        return $connection->lastErrorMsg ();
+        return $connection->lastErrorMsg();
     }
     
     /**
@@ -116,7 +116,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function Release($connection, $rs)
     {
-        $rs->finalize ();
+        $rs->finalize();
     }
     
     /**
@@ -125,7 +125,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function Escape($val)
     {
-        return str_replace ( "'", "''", $val );
+        return str_replace("'", "''", $val);
     }
     
     /**
@@ -137,9 +137,9 @@ class DataDriverSQLite implements IDataDriver
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
         
         if ($val instanceof ISqlFunction)
-            return $val->GetQuotedSql ( $this );
+            return $val->GetQuotedSql($this);
         
-        return "'" . $this->Escape ( $val ) . "'";
+        return "'" . $this->Escape($val) . "'";
     }
     
     /**
@@ -148,13 +148,13 @@ class DataDriverSQLite implements IDataDriver
     function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
     {
         if ($ommitEmptyTables)
-            throw new DatabaseException ( "SQLite DataDriver doesn't support returning only non-empty tables.  Set ommitEmptyTables arg to false to use this method." );
+            throw new DatabaseException("SQLite DataDriver doesn't support returning only non-empty tables.  Set ommitEmptyTables arg to false to use this method.");
         
-        $rs = $this->Query ( $connection, "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name" );
+        $rs = $this->Query($connection, "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name");
         
         $tables = array ();
         
-        while ( $row = $this->Fetch ( $connection, $rs ) ) {
+        while ( $row = $this->Fetch($connection, $rs) ) {
             $tables [] = $row ['name'];
         }
         
@@ -167,8 +167,8 @@ class DataDriverSQLite implements IDataDriver
     function Optimize($connection, $table)
     {
         if ($table)
-            throw new DatabaseException ( "SQLite optimization is database-wide.  Call Optimize() with a blank/null table arg to use this method." );
-        $this->Execute ( $connection, "VACUUM" );
+            throw new DatabaseException("SQLite optimization is database-wide.  Call Optimize() with a blank/null table arg to use this method.");
+        $this->Execute($connection, "VACUUM");
     }
     
     /**
@@ -176,7 +176,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function StartTransaction($connection)
     {
-        throw new Exception ( 'Transaction support is not implemented for this DataDriver' );
+        throw new Exception('Transaction support is not implemented for this DataDriver');
     }
     
     /**
@@ -184,7 +184,7 @@ class DataDriverSQLite implements IDataDriver
      */
     function CommitTransaction($connection)
     {
-        throw new Exception ( 'Transaction support is not implemented for this DataDriver' );
+        throw new Exception('Transaction support is not implemented for this DataDriver');
     }
     
     /**
@@ -192,6 +192,6 @@ class DataDriverSQLite implements IDataDriver
      */
     function RollbackTransaction($connection)
     {
-        throw new Exception ( 'Transaction support is not implemented for this DataDriver' );
+        throw new Exception('Transaction support is not implemented for this DataDriver');
     }
 }

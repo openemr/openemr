@@ -134,7 +134,7 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
   "si.id = '$id' AND si.activity = '1'");
  ****/
 
-    $row = sqlQuery ("SELECT form_encounter.onset_date AS occdate, si.* " .
+    $row = sqlQuery("SELECT form_encounter.onset_date AS occdate, si.* " .
     "FROM forms, form_encounter, form_soccer_injury AS si WHERE " .
     "forms.formdir = 'soccer_injury' AND " .
     "forms.form_id = '$id' AND " .

@@ -67,7 +67,7 @@ if ($erow['form_id'] > '0') {
     $newid = formSubmit($table_name, $_POST, $id, $providerid);
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir) values (NOW(),?,?,?,?,?,?,?,?)";//activity=1, date = NOW()
-    $answer = sqlInsert( $sql, array($encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder));
+    $answer = sqlInsert($sql, array($encounter,$form_name,$newid,$pid,$user,$group,$providerid,$form_folder));
 }
  
     formHeader("Redirecting....");

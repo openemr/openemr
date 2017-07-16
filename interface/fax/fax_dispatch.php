@@ -154,8 +154,14 @@ if ($_POST['form_save']) {
                 $form_note_message = strip_escape_custom($form_note_message);
                 if ($form_note_message) $note .= "\n" . $form_note_message;
                 // addPnote() will do its own addslashes().
-                $noteid = addPnote($_POST['form_pid'], $note, $userauthorized, '1',
-                $_POST['form_note_type'], $_POST['form_note_to']);
+                $noteid = addPnote(
+                    $_POST['form_pid'],
+                    $note,
+                    $userauthorized,
+                    '1',
+                    $_POST['form_note_type'],
+                    $_POST['form_note_to']
+                );
                 // Link the new patient note to the document.
                 setGpRelation(1, $newid, 6, $noteid);
             } // end post patient note
@@ -188,8 +194,14 @@ if ($_POST['form_save']) {
                 "'" . $_POST['form_copy_sn_comments'] . "' " .
                 ")";
                 $formid = sqlInsert($query);
-                addForm($encounter_id, "Scanned Notes", $formid, "scanned_notes",
-                $patient_id, $userauthorized);
+                addForm(
+                    $encounter_id,
+                    "Scanned Notes",
+                    $formid,
+                    "scanned_notes",
+                    $patient_id,
+                    $userauthorized
+                );
                 //
                 $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/$patient_id/encounters";
                 $imagepath = "$imagedir/${encounter_id}_$formid.jpg";
@@ -213,8 +225,14 @@ if ($_POST['form_save']) {
                 $form_note_message = strip_escape_custom($form_note_message);
                 if ($form_note_message) $note .= "\n" . $form_note_message;
                 // addPnote() will do its own addslashes().
-                addPnote($patient_id, $note, $userauthorized, '1',
-                $_POST['form_note_type'], $_POST['form_note_to']);
+                addPnote(
+                    $patient_id,
+                    $note,
+                    $userauthorized,
+                    '1',
+                    $_POST['form_note_type'],
+                    $_POST['form_note_to']
+                );
             } // end post patient note
         }
 
@@ -261,9 +279,12 @@ if ($_POST['form_save']) {
 
         // Send the fax as the cover page followed by the selected pages.
         $info_msg .= mergeTiffs();
-        $tmp0 = exec("sendfax -A -n $form_finemode -d " .
-        escapeshellarg($form_fax) . " $tmpfn2 '$faxcache/temp.tif'",
-        $tmp1, $tmp2);
+        $tmp0 = exec(
+            "sendfax -A -n $form_finemode -d " .
+            escapeshellarg($form_fax) . " $tmpfn2 '$faxcache/temp.tif'",
+            $tmp1,
+            $tmp2
+        );
         if ($tmp2) {
               $info_msg .= "sendfax returned $tmp2: $tmp0 ";
         }

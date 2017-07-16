@@ -49,12 +49,12 @@ class RuleType
     private static function map()
     {
         $map = array(
-            self::ActiveAlert  =>  new RuleType( self::ActiveAlert, xl( 'Active Alert' ) ),
-            self::PassiveAlert   =>  new RuleType( self::PassiveAlert, xl( 'Passive Alert' ) ),
+            self::ActiveAlert  =>  new RuleType(self::ActiveAlert, xl('Active Alert')),
+            self::PassiveAlert   =>  new RuleType(self::PassiveAlert, xl('Passive Alert')),
             // not yet supported
 //            self::CQM   =>  new RuleType( self::CQM, xl( 'CQM' ) ),
 //            self::AMC   =>  new RuleType( self::AMC, xl( 'AMC' ) ),
-            self::PatientReminder   =>  new RuleType( self::PatientReminder, xl( 'Patient Reminder' ) )
+            self::PatientReminder   =>  new RuleType(self::PatientReminder, xl('Patient Reminder'))
         );
         return $map;
     }

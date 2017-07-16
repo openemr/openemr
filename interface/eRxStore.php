@@ -42,8 +42,7 @@ class eRxStore
     {
         $return = sqlQuery('SELECT `name`, `federal_ein`, `street`, `city`, `state`, `postal_code`, `country_code`, `phone`, `fax`
 			FROM `facility`
-			WHERE `primary_business_entity` = \'1\';'
-        );
+			WHERE `primary_business_entity` = \'1\';');
 
         return $return;
     }
@@ -66,7 +65,8 @@ class eRxStore
      */
     public function getUserById($id)
     {
-        return sqlQuery('SELECT id, username, lname, fname, mname, title, federaldrugid, upin, state_license_number, npi, newcrop_user_role
+        return sqlQuery(
+            'SELECT id, username, lname, fname, mname, title, federaldrugid, upin, state_license_number, npi, newcrop_user_role
 			FROM users
 			WHERE id = ?;',
             array($id)
@@ -80,7 +80,8 @@ class eRxStore
      */
     public function getUserFacility($id)
     {
-        return sqlQuery('SELECT facility.id, facility.name, facility.street, facility.city, facility.state, facility.postal_code, facility.country_code, facility.phone, facility.fax
+        return sqlQuery(
+            'SELECT facility.id, facility.name, facility.street, facility.city, facility.state, facility.postal_code, facility.country_code, facility.phone, facility.fax
 			FROM users
 				LEFT JOIN facility ON facility.id = users.facility_id
 			WHERE users.id = ?;',
@@ -95,7 +96,8 @@ class eRxStore
      */
     public function getPatientByPatientId($patientId)
     {
-        return sqlQuery('SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
+        return sqlQuery(
+            'SELECT pid, fname, mname, lname, street, city, state, postal_code, country_code, phone_home, DATE_FORMAT(DOB,\'%Y%m%d\') AS date_of_birth, sex
 			FROM patient_data
 			WHERE pid = ?;',
             array($patientId)
@@ -104,7 +106,8 @@ class eRxStore
 
     public function getPatientHealthplansByPatientId($patientId)
     {
-        return sqlStatement('SELECT `ins`.`name`
+        return sqlStatement(
+            'SELECT `ins`.`name`
 			FROM (
 				SELECT
 					`id`.`type`,
@@ -123,7 +126,8 @@ class eRxStore
 
     public function getPatientAllergiesByPatientId($patientId)
     {
-        return sqlStatement('SELECT id, lists.title as title1, list_options.title as title2, comments
+        return sqlStatement(
+            'SELECT id, lists.title as title1, list_options.title as title2, comments
 			FROM lists
 				LEFT JOIN list_options ON lists.outcome = list_options.option_id
 					AND list_options.list_id = \'outcome\'
@@ -148,7 +152,8 @@ class eRxStore
      */
     public function getLastSOAP($process, $patientId)
     {
-        $return = sqlQuery('SELECT updated
+        $return = sqlQuery(
+            'SELECT updated
 			FROM erx_ttl_touch
 			WHERE patient_id = ?
 				AND process = ?;',
@@ -170,7 +175,8 @@ class eRxStore
      */
     public function setLastSOAP($process, $patientId)
     {
-        sqlQuery('REPLACE INTO erx_ttl_touch
+        sqlQuery(
+            'REPLACE INTO erx_ttl_touch
 			SET patient_id = ?,
 				process = ?,
 				updated = NOW();',
@@ -188,7 +194,8 @@ class eRxStore
      */
     public function updatePrescriptionsActiveByPatientId($patientId, $active = 0)
     {
-        sqlQuery('UPDATE prescriptions
+        sqlQuery(
+            'UPDATE prescriptions
 			SET active = ?
 			WHERE patient_id = ?
 				AND erx_source=\'1\'',
@@ -201,7 +208,8 @@ class eRxStore
 
     public function updatePrescriptionsUploadActiveByPatientIdPrescriptionId($upload, $active, $patientId, $prescriptionId)
     {
-        sqlQuery('UPDATE prescriptions
+        sqlQuery(
+            'UPDATE prescriptions
 			SET erx_uploaded = ?,
 				active = ?
 			WHERE patient_id = ?
@@ -222,7 +230,8 @@ class eRxStore
      */
     public function getPrescriptionById($prescriptionId)
     {
-        return sqlQuery('SELECT p.note, p.dosage, p.substitute, p.per_refill, p.form, p.route, p.size, p.interval, p.drug, p.quantity,
+        return sqlQuery(
+            'SELECT p.note, p.dosage, p.substitute, p.per_refill, p.form, p.route, p.size, p.interval, p.drug, p.quantity,
 			p.id AS prescid, l1.title AS title1, l2.title AS title2, l3.title AS title3, l4.title AS title4,
 			DATE_FORMAT(date_added,\'%Y%m%d\') AS date_added, CONCAT_WS(fname, \' \', mname, \' \', lname) AS docname
 			FROM prescriptions AS p
@@ -244,7 +253,8 @@ class eRxStore
 
     public function selectMedicationsNotUploadedByPatientId($patientId, $uploadActive, $limit)
     {
-        return sqlStatement('SELECT id, begdate, title
+        return sqlStatement(
+            'SELECT id, begdate, title
 			FROM lists
 			WHERE type = \'medication\'
 				AND pid = ?
@@ -268,7 +278,8 @@ class eRxStore
 
     public function selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $limit)
     {
-        return sqlStatement('SELECT id
+        return sqlStatement(
+            'SELECT id
 			FROM prescriptions
 			WHERE patient_id = ?
 				AND erx_source = \'0\'
@@ -292,7 +303,8 @@ class eRxStore
      */
     public function selectOptionIdByTitle($listId, $title)
     {
-        $return = sqlQuery('SELECT option_id
+        $return = sqlQuery(
+            'SELECT option_id
 			FROM list_options
 			WHERE list_id = ? AND activity = 1
 				AND title = ?;',
@@ -315,7 +327,8 @@ class eRxStore
      */
     public function selectOptionIdsByListId($listId)
     {
-        $return = sqlQuery('SELECT option_id
+        $return = sqlQuery(
+            'SELECT option_id
 			FROM list_options
 			WHERE list_id = ? AND activity = 1
 			ORDER BY ABS(option_id) DESC
@@ -336,7 +349,8 @@ class eRxStore
      */
     public function selectUserIdByUserName($name)
     {
-        $return = sqlQuery('SELECT id
+        $return = sqlQuery(
+            'SELECT id
 			FROM users
 			WHERE username = ?;',
             array($name)
@@ -353,7 +367,8 @@ class eRxStore
      */
     public function insertListOptions($listId, $optionId, $title)
     {
-        sqlQuery('INSERT INTO list_options
+        sqlQuery(
+            'INSERT INTO list_options
 				(list_id, option_id, title, seq)
 			VALUES
 				(?, ?, ?, ?);',
@@ -374,7 +389,8 @@ class eRxStore
      */
     public function selectPrescriptionIdByGuidPatientId($prescriptionGuid, $patientId)
     {
-        return sqlStatement('SELECT id
+        return sqlStatement(
+            'SELECT id
 			FROM prescriptions
 			WHERE prescriptionguid = ?
 				AND prescriptionguid IS NOT NULL
@@ -400,7 +416,8 @@ class eRxStore
      */
     public function insertPrescriptions($prescriptionData, $encounter, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId)
     {
-        return sqlInsert('INSERT INTO `prescriptions`
+        return sqlInsert(
+            'INSERT INTO `prescriptions`
 				(
 					`datetime`,
 					`erx_source`,
@@ -466,7 +483,8 @@ class eRxStore
      */
     public function updatePrescriptions($prescriptionData, $providerId, $authUserId, $formOptionId, $routeOptionId, $unitsOptionId, $intervalOptionId)
     {
-        sqlQuery('UPDATE prescriptions SET
+        sqlQuery(
+            'UPDATE prescriptions SET
 				`datetime` = NOW(),
 				`erx_source` = \'1\',
 				`active` = \'1\',
@@ -517,7 +535,8 @@ class eRxStore
      */
     public function selectAllergyErxSourceByPatientIdName($patientId, $name)
     {
-        $return = sqlQuery('SELECT erx_source
+        $return = sqlQuery(
+            'SELECT erx_source
 			FROM lists
 			WHERE pid = ?
 				AND type = \'allergy\'
@@ -549,7 +568,8 @@ class eRxStore
      */
     public function insertAllergy($name, $allergyId, $patientId, $authUserId, $outcome)
     {
-        sqlQuery('INSERT INTO lists
+        sqlQuery(
+            'INSERT INTO lists
 				(
 					date, type, erx_source, begdate,
 					title, external_allergyid, pid, user, outcome
@@ -580,7 +600,8 @@ class eRxStore
      */
     public function updateAllergyOutcomeExternalIdByPatientIdName($outcome, $externalId, $patientId, $name)
     {
-        sqlQuery('UPDATE lists
+        sqlQuery(
+            'UPDATE lists
 			SET outcome = ?,
 				erx_source = \'1\',
 				external_allergyid = ?
@@ -604,7 +625,8 @@ class eRxStore
      */
     public function updateAllergyOutcomeByPatientIdExternalIdName($outcome, $patientId, $externalId, $name)
     {
-        sqlQuery('UPDATE lists
+        sqlQuery(
+            'UPDATE lists
 			SET outcome = ?
 			WHERE pid = ?
 				AND erx_source = \'1\'
@@ -621,7 +643,8 @@ class eRxStore
 
     public function updateAllergyUploadedByPatientIdAllergyId($uploaded, $patientId, $allergyId)
     {
-        sqlQuery('UPDATE lists
+        sqlQuery(
+            'UPDATE lists
 			SET erx_uploaded = ?
 			WHERE type = \'allergy\'
 				AND pid = ?
@@ -641,7 +664,8 @@ class eRxStore
      */
     public function selectActiveAllergiesByPatientId($patientId)
     {
-        return sqlStatement('SELECT id, title
+        return sqlStatement(
+            'SELECT id, title
 			FROM lists
 			WHERE pid = ?
 				AND type = \'allergy\'
@@ -662,7 +686,8 @@ class eRxStore
      */
     public function updateAllergyEndDateByPatientIdListId($patientId, $listId)
     {
-        sqlQuery('UPDATE lists
+        sqlQuery(
+            'UPDATE lists
 			SET enddate = now()
 			WHERE pid = ?
 				AND id = ?
@@ -681,7 +706,8 @@ class eRxStore
      */
     public function updateErxUploadedByListId($listId, $erx = 0)
     {
-        sqlQuery('UPDATE lists
+        sqlQuery(
+            'UPDATE lists
 			SET erx_uploaded = ?
 			WHERE id = ?;',
             array(
@@ -698,7 +724,8 @@ class eRxStore
      */
     public function getPatientImportStatusByPatientId($patientId)
     {
-        $return = sqlquery('SELECT soap_import_status
+        $return = sqlquery(
+            'SELECT soap_import_status
 			FROM patient_data
 			WHERE pid = ?;',
             array($patientId)
@@ -713,7 +740,8 @@ class eRxStore
      */
     public function updatePatientImportStatusByPatientId($patientId, $status)
     {
-        sqlQuery('UPDATE patient_data
+        sqlQuery(
+            'UPDATE patient_data
 			SET soap_import_status = ?
 			WHERE pid = ?;',
             array(

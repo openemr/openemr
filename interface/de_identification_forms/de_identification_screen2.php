@@ -131,7 +131,7 @@ if($deIdentificationStatus == 0)
     {
         //call procedure - execute in background
         $sh_cmd='./de_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
-        system ($sh_cmd);
+        system($sh_cmd);
 
 
         $query = "SELECT status FROM de_identification_status ";

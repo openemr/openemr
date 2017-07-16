@@ -48,41 +48,41 @@ function getPatientDateOfLastEncounter($nPid)
     return( "00-00-0000" );
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get last saved id for intakeverslag
-$vectIntakeverslagQuery = sqlQuery( "SELECT id FROM form_intakeverslag
+$vectIntakeverslagQuery = sqlQuery("SELECT id FROM form_intakeverslag
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectPO = sqlQuery( "SELECT id FROM form_psychiatrisch_onderzoek
+$vectPO = sqlQuery("SELECT id FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosaveBAV = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
+$vectAutosaveBAV = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_brief_aan_verwijzer
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 //fetch data from INTAKE-VERSLAG
-$obj_iv = formFetch( "form_intakeverslag", $vectIntakeverslagQuery['id'] );
+$obj_iv = formFetch("form_intakeverslag", $vectIntakeverslagQuery['id']);
 // fetch data from PSYCHIATRISCH ONDERZOEK
-$obj_po = formFetch( "form_psychiatrisch_onderzoek", $vectPO['id'] );
+$obj_po = formFetch("form_psychiatrisch_onderzoek", $vectPO['id']);
 // fetch data from brief_aan_verwijzer
-$obj_bav = formFetch( "form_brief_aan_verwijzer", $vectAutosaveBAV['id'] );
+$obj_bav = formFetch("form_brief_aan_verwijzer", $vectAutosaveBAV['id']);
 
 /////////////////
 // here we mix the data

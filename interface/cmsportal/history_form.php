@@ -131,15 +131,17 @@ function validate() {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php
-$lores = sqlStatement("SELECT * FROM layout_options " .
-  "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
-  array('HIS'));
+$lores = sqlStatement(
+    "SELECT * FROM layout_options " .
+    "WHERE form_id = ? AND uor > 0 ORDER BY group_name, seq",
+    array('HIS')
+);
 
 while ($lorow = sqlFetchArray($lores)) {
     $data_type  = $lorow['data_type'];

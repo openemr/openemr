@@ -139,8 +139,8 @@ class sms
     */
     function _auth()
     {
-        $comm = sprintf ("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
-        $this->session = $this->_parse_auth ($this->_execgw($comm));
+        $comm = sprintf("%s/auth?api_id=%s&user=%s&password=%s", $this->base_s, $this->api_id, $this->user, $this->password);
+        $this->session = $this->_parse_auth($this->_execgw($comm));
     }
 
     /**
@@ -150,8 +150,8 @@ class sms
     */
     function getbalance()
     {
-        $comm = sprintf ("%s/getbalance?session_id=%s", $this->base, $this->session);
-        return $this->_parse_getbalance ($this->_execgw($comm));
+        $comm = sprintf("%s/getbalance?session_id=%s", $this->base, $this->session);
+        return $this->_parse_getbalance($this->_execgw($comm));
     }
 
     /**
@@ -167,27 +167,27 @@ class sms
 
         /* Check SMS credits balance */
         if ($this->getbalance() < $this->balace_limit) {
-            die ("You have reach the SMS credit limit!");
+            die("You have reach the SMS credit limit!");
         };
 
         /* Check SMS $text length */
         if ($this->unicode == true) {
             $this->_chk_mbstring();
-            if (mb_strlen ($text) > 210) {
-                die ("Your unicode message is too long! (Current lenght=".mb_strlen ($text).")");
+            if (mb_strlen($text) > 210) {
+                die("Your unicode message is too long! (Current lenght=".mb_strlen($text).")");
             }
             /* Does message need to be concatenate */
-            if (mb_strlen ($text) > 70) {
+            if (mb_strlen($text) > 70) {
                 $concat = "&concat=3";
             } else {
                 $concat = "";
             }
         } else {
-            if (strlen ($text) > 459) {
-                die ("Your message is too long! (Current lenght=".strlen ($text).")");
+            if (strlen($text) > 459) {
+                die("Your message is too long! (Current lenght=".strlen($text).")");
             }
             /* Does message need to be concatenate */
-            if (strlen ($text) > 160) {
+            if (strlen($text) > 160) {
                 $concat = "&concat=3";
             } else {
                 $concat = "";
@@ -195,11 +195,11 @@ class sms
         }
 
         /* Check $to and $from is not empty */
-        if (empty ($to)) {
-            die ("You not specify destination address (TO)!");
+        if (empty($to)) {
+            die("You not specify destination address (TO)!");
         }
-        if (empty ($from)) {
-            die ("You not specify source address (FROM)!");
+        if (empty($from)) {
+            die("You not specify source address (FROM)!");
         }
 
         /* Reformat $to number */
@@ -207,7 +207,8 @@ class sms
         $to = str_replace($cleanup_chr, "", $to);
 
         /* Send SMS now */
-        $comm = sprintf ("%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
+        $comm = sprintf(
+            "%s/sendmsg?session_id=%s&to=%s&from=%s&text=%s&callback=%s&unicode=%s%s",
             $this->base,
             $this->session,
             rawurlencode($to),
@@ -217,7 +218,7 @@ class sms
             $this->unicode,
             $concat
         );
-        return $this->_parse_send ($this->_execgw($comm));
+        return $this->_parse_send($this->_execgw($comm));
     }
 
     /**
@@ -233,12 +234,12 @@ class sms
             return rawurlencode($text);
         } else {
             //unicode encoding
-            $uni_text_len = mb_strlen ($text, "UTF-8");
+            $uni_text_len = mb_strlen($text, "UTF-8");
             $out_text = "";
 
             //encode each character in text
             for ($i=0; $i<$uni_text_len; $i++) {
-                $out_text .= $this->uniord(mb_substr ($text, $i, 1, "UTF-8"));
+                $out_text .= $this->uniord(mb_substr($text, $i, 1, "UTF-8"));
             }
 
             return $out_text;
@@ -279,10 +280,12 @@ class sms
     */
     function token_pay($token)
     {
-        $comm = sprintf ("%s/http/token_pay?session_id=%s&token=%s",
-        $this->base,
-        $this->session,
-        $token);
+        $comm = sprintf(
+            "%s/http/token_pay?session_id=%s&token=%s",
+            $this->base,
+            $this->session,
+            $token
+        );
 
         return $this->_execgw($comm);
     }
@@ -297,7 +300,7 @@ class sms
             return $this->_curl($command);
         if ($this->sending_method == "fopen")
             return $this->_fopen($command);
-        die ("Unsupported sending method!");
+        die("Unsupported sending method!");
     }
 
     /**
@@ -307,16 +310,16 @@ class sms
     function _curl($command)
     {
         $this->_chk_curl();
-        $ch = curl_init ($command);
-        curl_setopt ($ch, CURLOPT_HEADER, 0);
-        curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        $ch = curl_init($command);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         if ($this->curl_use_proxy) {
-            curl_setopt ($ch, CURLOPT_PROXY, $this->curl_proxy);
-            curl_setopt ($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
+            curl_setopt($ch, CURLOPT_PROXY, $this->curl_proxy);
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $this->curl_proxyuserpwd);
         }
-        $result=curl_exec ($ch);
-        curl_close ($ch);
+        $result=curl_exec($ch);
+        curl_close($ch);
         return $result;
     }
 
@@ -327,15 +330,15 @@ class sms
     function _fopen($command)
     {
         $result = '';
-        $handler = @fopen ($command, 'r');
+        $handler = @fopen($command, 'r');
         if ($handler) {
             while ($line = @fgets($handler, 1024)) {
                 $result .= $line;
             }
-            fclose ($handler);
+            fclose($handler);
             return $result;
         } else {
-            die ("Error while executing fopen sending method!<br>Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
+            die("Error while executing fopen sending method!<br>Please check does PHP have OpenSSL support and check does PHP version is greater than 4.3.0.");
         }
     }
 
@@ -348,7 +351,7 @@ class sms
         $session = substr($result, 4);
         $code = substr($result, 0, 2);
         if ($code!="OK") {
-            die ("Error in SMS authorization! ($result)");
+            die("Error in SMS authorization! ($result)");
         }
         return $session;
     }
@@ -361,7 +364,7 @@ class sms
     {
         $code = substr($result, 0, 2);
         if ($code!="ID") {
-            die ("Error sending SMS! ($result)");
+            die("Error sending SMS! ($result)");
         } else {
             $code = "OK";
         }
@@ -385,7 +388,7 @@ class sms
     function _chk_curl()
     {
         if (!extension_loaded('curl')) {
-            die ("This SMS API class can not work without CURL PHP module! Try using fopen sending method.");
+            die("This SMS API class can not work without CURL PHP module! Try using fopen sending method.");
         }
     }
 
@@ -396,7 +399,7 @@ class sms
     function _chk_mbstring()
     {
         if (!extension_loaded('mbstring')) {
-            die ("Error. This SMS API class is setup to use Multibyte String Functions module - mbstring, but module not found. Please try to set unicode=false in class or install mbstring module into PHP.");
+            die("Error. This SMS API class is setup to use Multibyte String Functions module - mbstring, but module not found. Please try to set unicode=false in class or install mbstring module into PHP.");
         }
     }
 }

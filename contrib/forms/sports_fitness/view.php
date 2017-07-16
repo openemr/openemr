@@ -111,7 +111,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_sports_fitness WHERE " .
+    $row = sqlQuery("SELECT * FROM form_sports_fitness WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 ?>

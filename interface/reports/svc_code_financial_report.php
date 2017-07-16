@@ -348,7 +348,7 @@ if (! $_POST['form_csvexport']) {
 
     if (!$_POST['form_refresh'] && !$_POST['form_csvexport']) { ?>
     <div class='text'>
-            <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
+            <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
     </div>
         <?php } ?>
 </form>

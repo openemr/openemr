@@ -139,7 +139,7 @@ require_once("$srcdir/acl_upgrade_fx.php");
 
 //Ensure that phpGACL has been installed
 include_once('library/acl.inc');
-if (isset ($phpgacl_location)) {
+if (isset($phpgacl_location)) {
     include_once("$phpgacl_location/gacl_api.class.php");
     $gacl = new gacl_api();
 }

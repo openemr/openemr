@@ -24,11 +24,11 @@ class McryptUtil
     static function Init()
     {
         if (! McryptUtil::$IV) {
-            if (! function_exists ( "mcrypt_get_iv_size" )) {
-                throw new Exception ( "The mcrypt extension does not appear to be enabled." );
+            if (! function_exists("mcrypt_get_iv_size")) {
+                throw new Exception("The mcrypt extension does not appear to be enabled.");
             }
-            $iv_size = mcrypt_get_iv_size ( McryptUtil::$CIPHER, McryptUtil::$MODE );
-            McryptUtil::$IV = mcrypt_create_iv ( $iv_size, MCRYPT_RAND );
+            $iv_size = mcrypt_get_iv_size(McryptUtil::$CIPHER, McryptUtil::$MODE);
+            McryptUtil::$IV = mcrypt_create_iv($iv_size, MCRYPT_RAND);
         }
     }
     
@@ -45,11 +45,11 @@ class McryptUtil
      */
     static function Encrypt($data, $key, $encode = true)
     {
-        McryptUtil::Init ();
+        McryptUtil::Init();
         
-        $encrypted = mcrypt_encrypt ( McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV );
+        $encrypted = mcrypt_encrypt(McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV);
         
-        return ($encode) ? base64_encode ( $encrypted ) : $encrypted;
+        return ($encode) ? base64_encode($encrypted) : $encrypted;
     }
     
     /**
@@ -67,14 +67,14 @@ class McryptUtil
      */
     static function Decrypt($data, $key, $decode = true, $strip_nulls = true)
     {
-        McryptUtil::Init ();
+        McryptUtil::Init();
         
         if ($decode)
-            $data = base64_decode ( $data );
+            $data = base64_decode($data);
         
-        $decrypted = mcrypt_decrypt ( McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV );
+        $decrypted = mcrypt_decrypt(McryptUtil::$CIPHER, $key, $data, McryptUtil::$MODE, McryptUtil::$IV);
         
         // mcrypt pads the end of the block with null chars, so we need to strip them
-        return $strip_nulls ? rtrim ( $decrypted, "\0" ) : $decrypted;
+        return $strip_nulls ? rtrim($decrypted, "\0") : $decrypted;
     }
 }

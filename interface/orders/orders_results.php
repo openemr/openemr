@@ -597,8 +597,14 @@ while ($row = sqlFetchArray($res)) {
             echo "</td>\n";
 
             echo "  <td>";
-            echo generate_select_list("form_report_status[$lino]", 'proc_rep_status',
-            $report_status, xl('Report Status'), ' ', 'cellselect');
+            echo generate_select_list(
+                "form_report_status[$lino]",
+                'proc_rep_status',
+                $report_status,
+                xl('Report Status'),
+                ' ',
+                'cellselect'
+            );
             echo "</td>\n";
         }
         else {
@@ -616,8 +622,14 @@ while ($row = sqlFetchArray($res)) {
         "</td>\n";
 
         echo "  <td>";
-        echo generate_select_list("form_result_abnormal[$lino]", 'proc_res_abnormal',
-        $result_abnormal, xl('Indicates abnormality'), ' ', 'cellselect');
+        echo generate_select_list(
+            "form_result_abnormal[$lino]",
+            'proc_res_abnormal',
+            $result_abnormal,
+            xl('Indicates abnormality'),
+            ' ',
+            'cellselect'
+        );
         echo "</td>\n";
 
         echo "  <td>";
@@ -666,8 +678,13 @@ while ($row = sqlFetchArray($res)) {
         htmlspecialchars($result_text) .
         "</td></tr>\n" .
         "<tr><td class='bold' width='1%' nowrap>" . xlt('Status') . ": </td>" .
-        "<td>" . generate_select_list("form_result_status[$lino]", 'proc_res_status',
-          $result_status, xl('Result Status'), '') . "</td></tr>\n" .
+        "<td>" . generate_select_list(
+            "form_result_status[$lino]",
+            'proc_res_status',
+            $result_status,
+            xl('Result Status'),
+            ''
+        ) . "</td></tr>\n" .
           "<tr><td class='bold' nowrap>" . xlt('Facility') . ": </td>" .     // Ensoftek: Changed Facility to Text Area as the field procedure_result-->facility is now multi-line
           "<td><textarea rows='3' cols='15' name='form_facility[$lino]'" .
           " title='" . xla('Supplier facility name') . "'" .

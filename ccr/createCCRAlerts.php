@@ -88,7 +88,7 @@ do {
     $e_ExactDateTime = $ccr->createElement('ExactDateTime', $row['date']);
     $e_DateTime->appendChild($e_ExactDateTime);
     
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_EnvironmentalAgent->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', $row['alert_title']);

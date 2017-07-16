@@ -49,7 +49,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
             $type = $exploded[1];
-            return new RuleCriteriaLifestyle( $type, sizeof( $exploded ) > 2 ? $exploded[2] : null );
+            return new RuleCriteriaLifestyle($type, sizeof($exploded) > 2 ? $exploded[2] : null);
         }
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::custom_bucket ) {
@@ -58,8 +58,13 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
             $completed = $exploded[3] == "YES";
             $frequencyComparator = $exploded[4];
             $frequency = $exploded[5];
-            return new RuleCriteriaDatabaseBucket( $category, $item, $completed,
-                    $frequencyComparator, $frequency );
+            return new RuleCriteriaDatabaseBucket(
+                $category,
+                $item,
+                $completed,
+                $frequencyComparator,
+                $frequency
+            );
         }
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::custom ) {
@@ -69,9 +74,14 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
             $value = $exploded[4];
             $frequencyComparator = $exploded[5];
             $frequency = $exploded[6];
-            return new RuleCriteriaDatabaseCustom( $table, $column,
-                    $valueComparator, $value,
-                    $frequencyComparator, $frequency );
+            return new RuleCriteriaDatabaseCustom(
+                $table,
+                $column,
+                $valueComparator,
+                $value,
+                $frequencyComparator,
+                $frequency
+            );
         }
 
         return null;
@@ -84,11 +94,11 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
     function newInstance($ruleCriteriaType)
     {
         if ( $ruleCriteriaType->code == RuleCriteriaType::lifestyle ) {
-            return new RuleCriteriaLifestyle( null, null );
+            return new RuleCriteriaLifestyle(null, null);
         }
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::custom_bucket ) {
-            return new RuleCriteriaDatabaseBucket( "", "", true, "", "" );
+            return new RuleCriteriaDatabaseBucket("", "", true, "", "");
         }
 
         if ( $ruleCriteriaType->code == RuleCriteriaType::custom ) {
@@ -98,7 +108,7 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
             $value = "";
             $frequencyComparator = "";
             $frequency = "";
-            return new RuleCriteriaDatabaseCustom( "", "", "", "", "", "");
+            return new RuleCriteriaDatabaseCustom("", "", "", "", "", "");
         }
 
         return null;

@@ -38,9 +38,14 @@ use OpenEMR\Core\Header;
 function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 {
     $cd = strtotime($givendate);
-    $newdate = date('Y-m-d H:i:s', mktime(date('h', $cd),
-    date('i', $cd), date('s', $cd), date('m', $cd)+$mth,
-    date('d', $cd)+$day, date('Y', $cd)+$yr));
+    $newdate = date('Y-m-d H:i:s', mktime(
+        date('h', $cd),
+        date('i', $cd),
+        date('s', $cd),
+        date('m', $cd)+$mth,
+        date('d', $cd)+$day,
+        date('Y', $cd)+$yr
+    ));
     return $newdate;
 }
     $type = $_POST["type"];
@@ -686,7 +691,7 @@ if ($_POST['form_refresh'])
             <td>&nbsp;</td>
             <td align="center">
             <span onclick="javascript:Toggle_trGrpHeader2(<?php echo $row_id; ?>,<?php echo $img_id; ?>);"><img src="../pic/blue-down-arrow.gif" id="<?php echo $img_id;
-            $img_id++; ?>" title="<?php echo htmlspecialchars( xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
+            $img_id++; ?>" title="<?php echo htmlspecialchars(xl('Click here to view patient details'), ENT_QUOTES); ?>" /></span>
             </td></tr>
             <table width="100%" align="center" id = "<?php echo $row_id;
             $row_id++;?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
@@ -939,7 +944,7 @@ if ($_POST['form_refresh'])
                         <td>
                         <?php
                         if ($row["amount_administered"] > 0) {
-                            echo htmlspecialchars( $row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']), ENT_NOQUOTES);
+                            echo htmlspecialchars($row["amount_administered"] . " " . generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['amount_administered_unit']), ENT_NOQUOTES);
                         }else{
                             echo "&nbsp;";
                         }

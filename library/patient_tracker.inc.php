@@ -151,7 +151,7 @@ function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null,
       //set null to $provider id if it's 'all'
         $provider_id = null;
     }
-    $events = fetchAppointments( $from_date, $to_date, $form_patient_id, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true, 0, null, $form_patient_name);
+    $events = fetchAppointments($from_date, $to_date, $form_patient_id, $provider_id, $facility_id, $form_apptstatus, null, null, $form_apptcat, true, 0, null, $form_patient_name);
     return $events;
 }
 
@@ -215,16 +215,20 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
 
     if (empty($tracker)) {
         #Add a new tracker.
-        $tracker_id = sqlInsert("INSERT INTO `patient_tracker` " .
+        $tracker_id = sqlInsert(
+            "INSERT INTO `patient_tracker` " .
                             "(`date`, `apptdate`, `appttime`, `eid`, `pid`, `original_user`, `encounter`, `lastseq`) " .
                             "VALUES (?,?,?,?,?,?,?,'1')",
-                            array($datetime,$apptdate,$appttime,$eid,$pid,$user,$enc_id));
+            array($datetime,$apptdate,$appttime,$eid,$pid,$user,$enc_id)
+        );
         #If there is a status or a room, then add a tracker item.
         if (!empty($status) || !empty($room)) {
-            sqlInsert("INSERT INTO `patient_tracker_element` " .
-              "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
-              "VALUES (?,?,?,?,?,'1')",
-              array($tracker_id,$datetime,$user,$status,$room));
+            sqlInsert(
+                "INSERT INTO `patient_tracker_element` " .
+                "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
+                "VALUES (?,?,?,?,?,'1')",
+                array($tracker_id,$datetime,$user,$status,$room)
+            );
         }
     }
     else {
@@ -233,13 +237,17 @@ function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status 
         if (($status != $tracker['laststatus']) || ($room != $tracker['lastroom'])) {
             #Status or room has changed, so need to update tracker.
             #Update lastseq in tracker.
-             sqlStatement("UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?",
-                   array(($tracker['lastseq']+1),$tracker_id));
+             sqlStatement(
+                 "UPDATE `patient_tracker` SET  `lastseq` = ? WHERE `id` = ?",
+                 array(($tracker['lastseq']+1),$tracker_id)
+             );
             #Add a tracker item.
-            sqlInsert("INSERT INTO `patient_tracker_element` " .
+            sqlInsert(
+                "INSERT INTO `patient_tracker_element` " .
                 "(`pt_tracker_id`, `start_datetime`, `user`, `status`, `room`, `seq`) " .
                 "VALUES (?,?,?,?,?,?)",
-                array($tracker_id,$datetime,$user,$status,$room,($tracker['lastseq']+1)));
+                array($tracker_id,$datetime,$user,$status,$room,($tracker['lastseq']+1))
+            );
         }
         if (!empty($enc_id)) {
             #enc_id (encounter number) is not blank, so update this in tracker.
@@ -289,14 +297,16 @@ function collect_Tracker_Elements($trackerid)
 #used to determine check in time 
 function collect_checkin($trackerid)
 {
-    $tracker = sqlQuery("SELECT patient_tracker_element.start_datetime " .
+    $tracker = sqlQuery(
+        "SELECT patient_tracker_element.start_datetime " .
                                    "FROM patient_tracker_element " .
                                    "INNER JOIN list_options " .
                                    "ON patient_tracker_element.status = list_options.option_id " .
                                    "WHERE  list_options.list_id = 'apptstat' " .
                                    "AND list_options.toggle_setting_1 = '1' AND list_options.activity = 1 " .
                                    "AND patient_tracker_element.pt_tracker_id = ?",
-                                   array($trackerid));
+        array($trackerid)
+    );
     if (empty($tracker['start_datetime'])) {
         return false;
     }
@@ -308,14 +318,16 @@ function collect_checkin($trackerid)
 #used to determine check out time
 function collect_checkout($trackerid)
 {
-    $tracker = sqlQuery("SELECT patient_tracker_element.start_datetime " .
+    $tracker = sqlQuery(
+        "SELECT patient_tracker_element.start_datetime " .
                                    "FROM patient_tracker_element " .
                                    "INNER JOIN list_options " .
                                    "ON patient_tracker_element.status = list_options.option_id " .
                                    "WHERE  list_options.list_id = 'apptstat' " .
                                    "AND list_options.toggle_setting_2 = '1' AND list_options.activity = 1 " .
                                    "AND patient_tracker_element.pt_tracker_id = ?",
-                                   array($trackerid));
+        array($trackerid)
+    );
     if (empty($tracker['start_datetime'])) {
         return false;
     }

@@ -48,16 +48,16 @@ function getPatientDateOfLastEncounter($nPid)
     return( "00-00-0000" );
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 
 if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 )
@@ -66,7 +66,7 @@ if( $vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0 
 
 } else
 {
-    $obj = formFetch("form_psychiatrisch_onderzoek", $_GET["id"] );
+    $obj = formFetch("form_psychiatrisch_onderzoek", $_GET["id"]);
 }
 
 $tmpDate = stripslashes($obj{"datum_onderzoek"});

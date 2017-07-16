@@ -1471,7 +1471,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
             $trans_ar = array();
             foreach($env_ar['ST'] as $st) {
                 if ($st['trace'] != $chk) { continue; }
-                $trans_ar[] = $obj835->edih_x12_slice( array('trace'=>$chk) );
+                $trans_ar[] = $obj835->edih_x12_slice(array('trace'=>$chk));
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not get envelopes information for $fn");
@@ -1491,7 +1491,7 @@ function edih_835_html($filename, $trace = '', $clm01 = '', $summary = false)
         if (isset($env_ar['ST']) && count($env_ar['ST'])) {
             $trans_ar = array();
             foreach($env_ar['ST'] as $st) {
-                $trans_ar[] = $obj835->edih_x12_slice( array('trace'=>$st['trace']) );
+                $trans_ar[] = $obj835->edih_x12_slice(array('trace'=>$st['trace']));
             }
         } else {
             csv_edihist_log("edih_835_transaction_html: Did not envelopes information for $fn");

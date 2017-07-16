@@ -408,8 +408,8 @@ function edih_277_transaction_html($obj277, $bht03, $accordion = false)
                 if ( $elem02 == 'D8' && $elem03) {
                     $var = edih_format_date($elem03);
                 } elseif ( $elem02 == 'RD8' && $elem03) {
-                    $var = edih_format_date( substr($elem03, 0, 8) );
-                    $var .= ' - '.edih_format_date( substr($elem03, -8) );
+                    $var = edih_format_date(substr($elem03, 0, 8));
+                    $var .= ' - '.edih_format_date(substr($elem03, -8));
                 }
                 //
                 if ($loopid == '2200D' || $loopid == '2220D') {
@@ -505,7 +505,7 @@ function edih_277_html($filename, $bht03 = '')
     if ( $filename ) {
         $fn = $filename;
     } else {
-        csv_edihist_log ("edih_277_html: called with no file arguments");
+        csv_edihist_log("edih_277_html: called with no file arguments");
         $html_str .= "Error, no file given<br />".PHP_EOL;
         return $html_str;
     }

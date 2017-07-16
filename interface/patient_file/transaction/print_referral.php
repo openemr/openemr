@@ -16,38 +16,38 @@ include_once("$srcdir/patient.inc");
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
 $TEMPLATE_LABELS = array(
-  'label_clinic_id'             => htmlspecialchars( xl('Clinic ID')),
-  'label_control_no'            => htmlspecialchars( xl('Control No.')),
-  'label_date'                  => htmlspecialchars( xl('Date')),
-  'label_webpage_title'         => htmlspecialchars( xl('Referral Form')),
-  'label_form1_title'           => htmlspecialchars( xl('REFERRAL FORM')),
-  'label_name'                  => htmlspecialchars( xl('Name')),
-  'label_age'                   => htmlspecialchars( xl('Age')),
-  'label_gender'                => htmlspecialchars( xl('Gender')),
-  'label_address'               => htmlspecialchars( xl('Address')),
-  'label_postal'                => htmlspecialchars( xl('Postal')),
-  'label_phone'                 => htmlspecialchars( xl('Phone')),
-  'label_ref_reason'            => htmlspecialchars( xl('Reference Reason')),
-  'label_diagnosis'             => htmlspecialchars( xl('Diagnosis')),
-  'label_ref_class'             => htmlspecialchars( xl('Reference classification (risk level)')),
-  'label_dr_name_sig'           => htmlspecialchars( xl('Doctor\'s name and signature')),
-  'label_refer_to'              => htmlspecialchars( xl('Referred to')),
-  'label_clinic'                => htmlspecialchars( xl('Health centre/clinic')),
-  'label_history_summary'       => htmlspecialchars( xl('Client medical history summary')),
-  'label_bp'                    => htmlspecialchars( xl('Blood pressure')),
-  'label_ht'                    => htmlspecialchars( xl('Height')),
-  'label_wt'                    => htmlspecialchars( xl('Weight')),
-  'label_ref_name_sig'          => htmlspecialchars( xl('Referer name and signature')),
-  'label_special_name_sig'      => htmlspecialchars( xl('Specialist name and signature')),
-  'label_form2_title'           => htmlspecialchars( xl('COUNTER REFERRAL FORM')),
-  'label_findings'              => htmlspecialchars( xl('Findings')),
-  'label_final_diagnosis'       => htmlspecialchars( xl('Final Diagnosis')),
-  'label_services_provided'     => htmlspecialchars( xl('Services provided')),
-  'label_recommendations'       => htmlspecialchars( xl('Recommendations and treatment')),
-  'label_scripts_and_referrals' => htmlspecialchars( xl('Prescriptions and other referrals')),
-  'label_subhead_clinic'        => htmlspecialchars( xl('Clinic Copy')),
-  'label_subhead_patient'       => htmlspecialchars( xl('Client Copy')),
-  'label_subhead_referred'      => htmlspecialchars( xl('For Referred Organization/Practitioner'))
+  'label_clinic_id'             => htmlspecialchars(xl('Clinic ID')),
+  'label_control_no'            => htmlspecialchars(xl('Control No.')),
+  'label_date'                  => htmlspecialchars(xl('Date')),
+  'label_webpage_title'         => htmlspecialchars(xl('Referral Form')),
+  'label_form1_title'           => htmlspecialchars(xl('REFERRAL FORM')),
+  'label_name'                  => htmlspecialchars(xl('Name')),
+  'label_age'                   => htmlspecialchars(xl('Age')),
+  'label_gender'                => htmlspecialchars(xl('Gender')),
+  'label_address'               => htmlspecialchars(xl('Address')),
+  'label_postal'                => htmlspecialchars(xl('Postal')),
+  'label_phone'                 => htmlspecialchars(xl('Phone')),
+  'label_ref_reason'            => htmlspecialchars(xl('Reference Reason')),
+  'label_diagnosis'             => htmlspecialchars(xl('Diagnosis')),
+  'label_ref_class'             => htmlspecialchars(xl('Reference classification (risk level)')),
+  'label_dr_name_sig'           => htmlspecialchars(xl('Doctor\'s name and signature')),
+  'label_refer_to'              => htmlspecialchars(xl('Referred to')),
+  'label_clinic'                => htmlspecialchars(xl('Health centre/clinic')),
+  'label_history_summary'       => htmlspecialchars(xl('Client medical history summary')),
+  'label_bp'                    => htmlspecialchars(xl('Blood pressure')),
+  'label_ht'                    => htmlspecialchars(xl('Height')),
+  'label_wt'                    => htmlspecialchars(xl('Weight')),
+  'label_ref_name_sig'          => htmlspecialchars(xl('Referer name and signature')),
+  'label_special_name_sig'      => htmlspecialchars(xl('Specialist name and signature')),
+  'label_form2_title'           => htmlspecialchars(xl('COUNTER REFERRAL FORM')),
+  'label_findings'              => htmlspecialchars(xl('Findings')),
+  'label_final_diagnosis'       => htmlspecialchars(xl('Final Diagnosis')),
+  'label_services_provided'     => htmlspecialchars(xl('Services provided')),
+  'label_recommendations'       => htmlspecialchars(xl('Recommendations and treatment')),
+  'label_scripts_and_referrals' => htmlspecialchars(xl('Prescriptions and other referrals')),
+  'label_subhead_clinic'        => htmlspecialchars(xl('Clinic Copy')),
+  'label_subhead_patient'       => htmlspecialchars(xl('Client Copy')),
+  'label_subhead_referred'      => htmlspecialchars(xl('For Referred Organization/Practitioner'))
 );
 
 if (!is_file($template_file)) die("$template_file does not exist!");
@@ -84,10 +84,10 @@ if ($patient_id) {
 if (empty($trow['refer_from'])) $trow['refer_from'] = 0;
 if (empty($trow['refer_to'  ])) $trow['refer_to'  ] = 0;
 
-$frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']) );
+$frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']));
 if (empty($frrow)) $frrow = array();
 
-$torow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_to']) );
+$torow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_to']));
 if (empty($torow)) $torow = array(
   'organization' => '',
   'street' => '',
@@ -99,7 +99,7 @@ if (empty($torow)) $torow = array(
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
   "pid = ? AND date <= ? " .
-  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59") );
+  "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59"));
 if (empty($vrow)) $vrow = array(
   'bps' => '',
   'bpd' => '',
@@ -137,8 +137,11 @@ while ($frow = sqlFetchArray($fres)) {
     $field_id  = $frow['field_id'];
     $currvalue = '';
     if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
-    $s = str_replace("{ref_$field_id}",
-    generate_display_field($frow, $currvalue), $s);
+    $s = str_replace(
+        "{ref_$field_id}",
+        generate_display_field($frow, $currvalue),
+        $s
+    );
 }
 
 foreach ($patdata as $key => $value) {

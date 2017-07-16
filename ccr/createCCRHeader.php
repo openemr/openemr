@@ -55,7 +55,7 @@ global $pid;
            $e_ActorLink = $ccr->createElement('ActorLink');
            $e_From->appendChild($e_ActorLink);
 
-           $e_ActorID = $ccr->createElement('ActorID', $authorID );
+           $e_ActorID = $ccr->createElement('ActorID', $authorID);
            $e_ActorLink->appendChild($e_ActorID);
 
            $e_ActorRole = $ccr->createElement('ActorRole');

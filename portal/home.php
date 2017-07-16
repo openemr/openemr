@@ -22,7 +22,7 @@
  */
  require_once("verify_session.php");
  require_once("$srcdir/patient.inc");
- require_once ("lib/portal_mail.inc");
+ require_once("lib/portal_mail.inc");
 
  if(!isset($_SESSION['portal_init'])) $_SESSION['portal_init'] = true;
  $whereto = 'profilepanel';

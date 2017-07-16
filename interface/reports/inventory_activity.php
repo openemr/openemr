@@ -248,7 +248,7 @@ function thisLineItem(
     if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
         if ($form_action == 'export') {
             if ($product_first) {
-                echo '"'  . esc4Export($product )  . '"';
+                echo '"'  . esc4Export($product)  . '"';
                 echo ',"' . esc4Export($warehouse) . '"';
             } else {
                 echo '"'  . esc4Export($warehouse) . '"';
@@ -341,29 +341,29 @@ if ($form_action == 'export') {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($product_first) {
-        echo '"' . esc4export(xl('Product'  )) . '",';
+        echo '"' . esc4export(xl('Product')) . '",';
         echo '"' . esc4export(xl('Warehouse')) . '",';
     } else {
         echo '"' . esc4export(xl('Warehouse')) . '",';
-        echo '"' . esc4export(xl('Product'  )) . '",';
+        echo '"' . esc4export(xl('Product')) . '",';
     }
     if ($_POST['form_details']) {
-        echo '"' . esc4export(xl('Date'         )) . '",';
-        echo '"' . esc4export(xl('Invoice'      )) . '",';
-        echo '"' . esc4export(xl('Sales'        )) . '",';
+        echo '"' . esc4export(xl('Date')) . '",';
+        echo '"' . esc4export(xl('Invoice')) . '",';
+        echo '"' . esc4export(xl('Sales')) . '",';
         echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases'    )) . '",';
-        echo '"' . esc4export(xl('Transfers'    )) . '",';
-        echo '"' . esc4export(xl('Adjustments'  )) . '"' . "\n";
+        echo '"' . esc4export(xl('Purchases')) . '",';
+        echo '"' . esc4export(xl('Transfers')) . '",';
+        echo '"' . esc4export(xl('Adjustments')) . '"' . "\n";
     }
     else {
-        echo '"' . esc4export(xl('Start'        )) . '",';
-        echo '"' . esc4export(xl('Sales'        )) . '",';
+        echo '"' . esc4export(xl('Start')) . '",';
+        echo '"' . esc4export(xl('Sales')) . '",';
         echo '"' . esc4export(xl('Distributions')) . '",';
-        echo '"' . esc4export(xl('Purchases'    )) . '",';
-        echo '"' . esc4export(xl('Transfers'    )) . '",';
-        echo '"' . esc4export(xl('Adjustments'  )) . '",';
-        echo '"' . esc4export(xl('End'          )) . '"' . "\n";
+        echo '"' . esc4export(xl('Purchases')) . '",';
+        echo '"' . esc4export(xl('Transfers')) . '",';
+        echo '"' . esc4export(xl('Adjustments')) . '",';
+        echo '"' . esc4export(xl('End')) . '"' . "\n";
     }
 } // end export
 else {
@@ -634,10 +634,17 @@ if ($form_action) { // if submit or export
             if (!empty($row['destroy_date']) && $row['on_hand'] != 0
             && $row['destroy_date'] <= $form_to_date)
             {
-                thisLineItem($row['drug_id'], $row['warehouse_id'], 0,
-                  0, $row['name'], $row['title'], $row['destroy_date'],
-                  array(0, 0, 0, 0, 0 - $row['on_hand']),
-                  xl('Destroyed'));
+                thisLineItem(
+                    $row['drug_id'],
+                    $row['warehouse_id'],
+                    0,
+                    0,
+                    $row['name'],
+                    $row['title'],
+                    $row['destroy_date'],
+                    array(0, 0, 0, 0, 0 - $row['on_hand']),
+                    xl('Destroyed')
+                );
             }
         }
 
@@ -659,9 +666,17 @@ if ($form_action) { // if submit or export
             else // no pid, distributor, source lot or fee: must be an adjustment
             $qtys[4] = 0 - $row['quantity'];
         }
-        thisLineItem($row['drug_id'], $row['warehouse_id'], $row['pid'] + 0,
-        $row['encounter'] + 0, $row['name'], $row['title'], $row['sale_date'],
-        $qtys, $row['invoice_refno']);
+        thisLineItem(
+            $row['drug_id'],
+            $row['warehouse_id'],
+            $row['pid'] + 0,
+            $row['encounter'] + 0,
+            $row['name'],
+            $row['title'],
+            $row['sale_date'],
+            $qtys,
+            $row['invoice_refno']
+        );
     }
 
   // Generate totals for last product and warehouse.

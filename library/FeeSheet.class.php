@@ -105,8 +105,10 @@ class FeeSheet
         // Get the user's default warehouse and an indicator if there's a choice of warehouses.
         $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse' AND activity = 1");
         $this->got_warehouses = $wrow['count'] > 1;
-        $wrow = sqlQuery("SELECT default_warehouse FROM users WHERE username = ?",
-        array($_SESSION['authUser']));
+        $wrow = sqlQuery(
+            "SELECT default_warehouse FROM users WHERE username = ?",
+            array($_SESSION['authUser'])
+        );
         $this->default_warehouse = empty($wrow['default_warehouse']) ? '' : $wrow['default_warehouse'];
 
         // Get some info about this visit.
@@ -115,7 +117,7 @@ class FeeSheet
           "FROM form_encounter AS fe " .
           "LEFT JOIN openemr_postcalendar_categories AS opc ON opc.pc_catid = fe.pc_catid " .
           "LEFT JOIN facility AS fac ON fac.id = fe.facility_id " .
-          "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($this->pid, $this->encounter) );
+          "WHERE fe.pid = ? AND fe.encounter = ? LIMIT 1", array($this->pid, $this->encounter));
         $this->visit_date    = substr($visit_row['date'], 0, 10);
         $this->provider_id   = $visit_row['provider_id'];
         if (empty($this->provider_id)) $this->provider_id = $this->findProvider();
@@ -160,9 +162,11 @@ class FeeSheet
   //
     public function findProvider()
     {
-        $find_provider = sqlQuery("SELECT provider_id FROM form_encounter " .
-        "WHERE pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-        array($this->pid, $this->encounter));
+        $find_provider = sqlQuery(
+            "SELECT provider_id FROM form_encounter " .
+            "WHERE pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
+            array($this->pid, $this->encounter)
+        );
         $providerid = $find_provider['provider_id'];
         if (!$providerid) {
             $get_authorized = $_SESSION['userauthorized'];
@@ -172,7 +176,7 @@ class FeeSheet
         }
         if (!$providerid) {
             $find_provider = sqlQuery("SELECT providerID FROM patient_data " .
-            "WHERE pid = ?", array($this->pid) );
+            "WHERE pid = ?", array($this->pid));
             $providerid = $find_provider['providerID'];
         }
         return intval($providerid);
@@ -182,24 +186,35 @@ class FeeSheet
   //
     public function logFSMessage($action)
     {
-        newEvent('fee-sheet', $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-        $action, $this->pid, $this->encounter);
+        newEvent(
+            'fee-sheet',
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            $action,
+            $this->pid,
+            $this->encounter
+        );
     }
 
   // Compute a current checksum of this encounter's Fee Sheet data from the database.
   //
     public function visitChecksum($saved = false)
     {
-        $rowb = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
-        "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
-        "))) AS checksum FROM billing WHERE " .
-        "pid = ? AND encounter = ? AND activity = 1",
-        array($this->pid, $this->encounter));
-        $rowp = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
-        "sale_id, inventory_id, prescription_id, quantity, fee, sale_date, billed" .
-        "))) AS checksum FROM drug_sales WHERE " .
-        "pid = ? AND encounter = ?",
-        array($this->pid, $this->encounter));
+        $rowb = sqlQuery(
+            "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+            "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
+            "))) AS checksum FROM billing WHERE " .
+            "pid = ? AND encounter = ? AND activity = 1",
+            array($this->pid, $this->encounter)
+        );
+        $rowp = sqlQuery(
+            "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
+            "sale_id, inventory_id, prescription_id, quantity, fee, sale_date, billed" .
+            "))) AS checksum FROM drug_sales WHERE " .
+            "pid = ? AND encounter = ?",
+            array($this->pid, $this->encounter)
+        );
         $ret = intval($rowb['checksum']) ^ intval($rowp['checksum']);
         if (CHECKSUM_LOGGING) {
             $comment = "Checksum = '$ret'";
@@ -351,9 +366,11 @@ class FeeSheet
         // the option is chosen to use or auto-generate Contraception forms.
         // It adds contraceptive method and effectiveness to relevant lines.
         if ($GLOBALS['ippf_specific'] && $GLOBALS['gbl_new_acceptor_policy'] && $codetype == 'MA') {
-            $codesrow = sqlQuery("SELECT related_code, cyp_factor FROM codes WHERE " .
-            "code_type = ? AND code = ? LIMIT 1",
-            array($code_types[$codetype]['id'], $code));
+            $codesrow = sqlQuery(
+                "SELECT related_code, cyp_factor FROM codes WHERE " .
+                "code_type = ? AND code = ? LIMIT 1",
+                array($code_types[$codetype]['id'], $code)
+            );
             $this->checkRelatedForContraception($codesrow['related_code'], $codesrow['cyp_factor']);
             if ($this->line_contra_code) {
                   $li['hidden']['method'  ] = $this->line_contra_code;
@@ -448,7 +465,7 @@ class FeeSheet
         $pricelevel   = isset($args['pricelevel']) ? $args['pricelevel'] : $this->patient_pricelevel;
         $warehouse_id = isset($args['warehouse_id']) ? $args['warehouse_id'] : '';
 
-        $drow = sqlQuery("SELECT name, related_code FROM drugs WHERE drug_id = ?", array($drug_id) );
+        $drow = sqlQuery("SELECT name, related_code FROM drugs WHERE drug_id = ?", array($drug_id));
         $code_text = $drow['name'];
 
         // If no warehouse ID passed, use the logged-in user's default.
@@ -585,8 +602,19 @@ class FeeSheet
                     if ($warehouse_id && $warehouse_id != $dirow['warehouse_id']) {
                         // Changing warehouse so check inventory in the new warehouse.
                         // Nothing is updated by this call.
-                        if (!sellDrug($drug_id, $units, 0, $this->pid, $this->encounter, 0,
-                        $this->visit_date, '', $warehouse_id, true, $expiredlots)) {
+                        if (!sellDrug(
+                            $drug_id,
+                            $units,
+                            0,
+                            $this->pid,
+                            $this->encounter,
+                            0,
+                            $this->visit_date,
+                            '',
+                            $warehouse_id,
+                            true,
+                            $expiredlots
+                        )) {
                             $insufficient = $drug_id;
                         }
                     }
@@ -600,8 +628,19 @@ class FeeSheet
             // Otherwise it's a new item...
             else {
                 // This only checks for sufficient inventory, nothing is updated.
-                if (!sellDrug($drug_id, $units, 0, $this->pid, $this->encounter, 0,
-                $this->visit_date, '', $warehouse_id, true, $expiredlots)) {
+                if (!sellDrug(
+                    $drug_id,
+                    $units,
+                    0,
+                    $this->pid,
+                    $this->encounter,
+                    0,
+                    $this->visit_date,
+                    '',
+                    $warehouse_id,
+                    true,
+                    $expiredlots
+                )) {
                     $insufficient = $drug_id;
                 }
             }
@@ -665,32 +704,44 @@ class FeeSheet
                 }
                 if (!$id) {
                     // adding new copay from fee sheet into ar_session and ar_activity tables
-                    $session_id = idSqlStatement("INSERT INTO ar_session " .
-                    "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
-                    "adjustment_code, post_to_date) " .
-                    "VALUES ('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
-                    array($_SESSION['authId'], $fee, $this->pid));
+                    $session_id = idSqlStatement(
+                        "INSERT INTO ar_session " .
+                        "(payer_id, user_id, pay_total, payment_type, description, patient_id, payment_method, " .
+                        "adjustment_code, post_to_date) " .
+                        "VALUES ('0',?,?,'patient','COPAY',?,'','patient_payment',now())",
+                        array($_SESSION['authId'], $fee, $this->pid)
+                    );
                     sqlBeginTrans();
                     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE " .
                       "pid = ? AND encounter = ?", array($this->pid, $this->encounter));
-                    SqlStatement("INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
-                      "payer_type, post_time, post_user, session_id, " .
-                      "pay_amount, account_code) VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
-                      array($this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
-                      $_SESSION['authId'], $session_id, $fee));
+                    SqlStatement(
+                        "INSERT INTO ar_activity (pid, encounter, sequence_no, code_type, code, modifier, " .
+                        "payer_type, post_time, post_user, session_id, " .
+                        "pay_amount, account_code) VALUES (?,?,?,?,?,?,0,now(),?,?,?,'PCP')",
+                        array($this->pid, $this->encounter, $sequence_no['increment'], $ct0, $cod0, $mod0,
+                        $_SESSION['authId'],
+                        $session_id,
+                        $fee)
+                    );
                     sqlCommitTrans();
                 }
                 else {
                     // editing copay saved to ar_session and ar_activity
                     $session_id = $id;
-                    $res_amount = sqlQuery("SELECT pay_amount FROM ar_activity WHERE pid=? AND encounter=? AND session_id=?",
-                    array($this->pid, $this->encounter, $session_id));
+                    $res_amount = sqlQuery(
+                        "SELECT pay_amount FROM ar_activity WHERE pid=? AND encounter=? AND session_id=?",
+                        array($this->pid, $this->encounter, $session_id)
+                    );
                     if ($fee != $res_amount['pay_amount']) {
-                              sqlStatement("UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
-                                array($_SESSION['authId'], $fee, $session_id));
-                              sqlStatement("UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
-                                "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
-                                array($ct0, $cod0, $mod0, $_SESSION['authId'], $fee, $this->pid, $this->encounter, $session_id));
+                              sqlStatement(
+                                  "UPDATE ar_session SET user_id=?,pay_total=?,modified_time=now(),post_to_date=now() WHERE session_id=?",
+                                  array($_SESSION['authId'], $fee, $session_id)
+                              );
+                              sqlStatement(
+                                  "UPDATE ar_activity SET code_type=?, code=?, modifier=?, post_user=?, post_time=now(),".
+                                  "pay_amount=?, modified_time=now() WHERE pid=? AND encounter=? AND account_code='PCP' AND session_id=?",
+                                  array($ct0, $cod0, $mod0, $_SESSION['authId'], $fee, $this->pid, $this->encounter, $session_id)
+                              );
                     }
                 }
                 if (!$cod0){
@@ -726,8 +777,10 @@ class FeeSheet
                     deleteBilling($id);
                 }
                 else {
-                    $tmp = sqlQuery("SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
-                    array($id));
+                    $tmp = sqlQuery(
+                        "SELECT * FROM billing WHERE id = ? AND (billed = 0 or billed is NULL) AND activity = 1",
+                        array($id)
+                    );
                     if (!empty($tmp)) {
                               $tmparr = array('code' => $code, 'authorized' => $auth);
                               if (isset($iter['units'    ])) $tmparr['units'      ] = $units;
@@ -753,17 +806,34 @@ class FeeSheet
             else if (!$del) {
                 $this->logFSMessage(xl('Service added'));
                 $code_text = lookup_code_descriptions($code_type.":".$code);
-                addBilling($this->encounter, $code_type, $code, $code_text, $this->pid, $auth,
-                $provid, $modifier, $units, $fee, $ndc_info, $justify, 0, $notecodes, $pricelevel);
+                addBilling(
+                    $this->encounter,
+                    $code_type,
+                    $code,
+                    $code_text,
+                    $this->pid,
+                    $auth,
+                    $provid,
+                    $modifier,
+                    $units,
+                    $fee,
+                    $ndc_info,
+                    $justify,
+                    0,
+                    $notecodes,
+                    $pricelevel
+                );
             }
         } // end for
 
         // if modifier is not inserted during loop update the record using the first
         // non-empty modifier and code
         if($copay_update == true && $update_session_id != '' && $mod0 != '') {
-            sqlStatement("UPDATE ar_activity SET code_type = ?, code = ?, modifier = ?".
-            " WHERE pid = ? AND encounter = ? AND account_code = 'PCP' AND session_id = ?",
-            array($ct0, $cod0, $mod0, $this->pid, $this->encounter, $update_session_id));
+            sqlStatement(
+                "UPDATE ar_activity SET code_type = ?, code = ?, modifier = ?".
+                " WHERE pid = ? AND encounter = ? AND account_code = 'PCP' AND session_id = ?",
+                array($ct0, $cod0, $mod0, $this->pid, $this->encounter, $update_session_id)
+            );
         }
 
         // Doing similarly to the above but for products.
@@ -797,8 +867,10 @@ class FeeSheet
                         $this->logFSMessage(xl('Product deleted'));
                         sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", array($sale_id));
                         if (!empty($tmprow['inventory_id'])) {
-                            sqlStatement("UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
-                              array($tmprow['quantity'], $tmprow['inventory_id']));
+                            sqlStatement(
+                                "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
+                                array($tmprow['quantity'], $tmprow['inventory_id'])
+                            );
                         }
                     }
                     if ($rxid) {
@@ -821,11 +893,15 @@ class FeeSheet
                                                   if ('pricelevel' == $key) $this->logFSMessage(xl('Price level changed'));
                                                   if ('selector'   == $key) $this->logFSMessage(xl('Template selector changed'));
                                                   if ('quantity'   == $key) $this->logFSMessage(xl('Quantity changed'));
-                                                  sqlStatement("UPDATE drug_sales SET `$key` = ? WHERE sale_id = ?",
-                                                    array($value, $sale_id));
+                                                  sqlStatement(
+                                                      "UPDATE drug_sales SET `$key` = ? WHERE sale_id = ?",
+                                                      array($value, $sale_id)
+                                                  );
                                 if ($key == 'quantity' && $tmprow['inventory_id']) {
-                                                                            sqlStatement("UPDATE drug_inventory SET on_hand = on_hand - ? WHERE inventory_id = ?",
-                                                                              array($units - $tmprow['quantity'], $tmprow['inventory_id']));
+                                                                            sqlStatement(
+                                                                                "UPDATE drug_inventory SET on_hand = on_hand - ? WHERE inventory_id = ?",
+                                                                                array($units - $tmprow['quantity'], $tmprow['inventory_id'])
+                                                                            );
                                 }
                             }
                         }
@@ -834,12 +910,26 @@ class FeeSheet
                             // Not setting $somechange because this alone does not affect a prescription.
                             $this->logFSMessage(xl('Warehouse changed'));
                             sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", array($sale_id));
-                            sqlStatement("UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
-                              array($units, $tmprow['inventory_id']));
+                            sqlStatement(
+                                "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
+                                array($units, $tmprow['inventory_id'])
+                            );
                             $tmpnull = null;
-                            $sale_id = sellDrug($drug_id, $units, $fee, $this->pid, $this->encounter,
-                              (empty($iter['rx']) ? 0 : $rxid), $this->visit_date, '', $warehouse_id,
-                              false, $tmpnull, $pricelevel, $selector);
+                            $sale_id = sellDrug(
+                                $drug_id,
+                                $units,
+                                $fee,
+                                $this->pid,
+                                $this->encounter,
+                                (empty($iter['rx']) ? 0 : $rxid),
+                                $this->visit_date,
+                                '',
+                                $warehouse_id,
+                                false,
+                                $tmpnull,
+                                $pricelevel,
+                                $selector
+                            );
                         }
                     }
                           // Delete Rx if $rxid and flag not set.
@@ -855,8 +945,21 @@ class FeeSheet
                 $somechange = true;
                 $this->logFSMessage(xl('Product added'));
                 $tmpnull = null;
-                $sale_id = sellDrug($drug_id, $units, $fee, $this->pid, $this->encounter, 0,
-                $this->visit_date, '', $warehouse_id, false, $tmpnull, $pricelevel, $selector);
+                $sale_id = sellDrug(
+                    $drug_id,
+                    $units,
+                    $fee,
+                    $this->pid,
+                    $this->encounter,
+                    0,
+                    $this->visit_date,
+                    '',
+                    $warehouse_id,
+                    false,
+                    $tmpnull,
+                    $pricelevel,
+                    $selector
+                );
                 if (!$sale_id) die(xlt("Insufficient inventory for product ID") . " \"" . text($drug_id) . "\".");
             }
 
@@ -866,12 +969,14 @@ class FeeSheet
                 // replace it, otherwise we'll make a new one.
                 if (empty($rxid)) $rxid = '';
                 // Get default drug attributes; prefer the template with the matching selector.
-                $drow = sqlQuery("SELECT dt.*, " .
-                "d.name, d.form, d.size, d.unit, d.route, d.substitute " .
-                "FROM drugs AS d, drug_templates AS dt WHERE " .
-                "d.drug_id = ? AND dt.drug_id = d.drug_id " .
-                "ORDER BY (dt.selector = ?) DESC, dt.quantity, dt.dosage, dt.selector LIMIT 1",
-                array($drug_id, $selector));
+                $drow = sqlQuery(
+                    "SELECT dt.*, " .
+                    "d.name, d.form, d.size, d.unit, d.route, d.substitute " .
+                    "FROM drugs AS d, drug_templates AS dt WHERE " .
+                    "d.drug_id = ? AND dt.drug_id = d.drug_id " .
+                    "ORDER BY (dt.selector = ?) DESC, dt.quantity, dt.dosage, dt.selector LIMIT 1",
+                    array($drug_id, $selector)
+                );
                 if (!empty($drow)) {
                         $rxobj = new Prescription($rxid);
                         $rxobj->set_patient_id($this->pid);
@@ -899,8 +1004,10 @@ class FeeSheet
                         $oldrxid = $rxid;
                         $rxid = 0 + $rxobj->get_id();
                     if ($rxid != $oldrxid) {
-                        sqlStatement("UPDATE drug_sales SET prescription_id = ? WHERE sale_id = ?",
-                          array($rxid, $sale_id));
+                        sqlStatement(
+                            "UPDATE drug_sales SET prescription_id = ? WHERE sale_id = ?",
+                            array($rxid, $sale_id)
+                        );
                     }
                 }
             }
@@ -909,13 +1016,17 @@ class FeeSheet
         // Set default and/or supervising provider for the encounter.
         if (isset($main_provid) && $main_provid != $this->provider_id) {
             $this->logFSMessage(xl('Default provider changed'));
-            sqlStatement("UPDATE form_encounter SET provider_id = ? WHERE pid = ? AND encounter = ?",
-            array($main_provid, $this->pid, $this->encounter));
+            sqlStatement(
+                "UPDATE form_encounter SET provider_id = ? WHERE pid = ? AND encounter = ?",
+                array($main_provid, $this->pid, $this->encounter)
+            );
             $this->provider_id = $main_provid;
         }
         if (isset($main_supid) && $main_supid != $this->supervisor_id) {
-            sqlStatement("UPDATE form_encounter SET supervisor_id = ? WHERE pid = ? AND encounter = ?",
-            array($main_supid, $this->pid, $this->encounter));
+            sqlStatement(
+                "UPDATE form_encounter SET supervisor_id = ? WHERE pid = ? AND encounter = ?",
+                array($main_supid, $this->pid, $this->encounter)
+            );
             $this->supervisor_id = $main_supid;
         }
 
@@ -923,19 +1034,27 @@ class FeeSheet
         // generally useful.  It provides the ability to mark an encounter as billed
         // directly from the Fee Sheet, if there are no charges.
         if ($mark_as_closed) {
-            $tmp1 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
-            "pid = ? AND encounter = ? AND billed = 0",
-            array($this->pid, $this->encounter));
-            $tmp2 = sqlQuery("SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
-              "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
-              array($this->pid, $this->encounter));
+            $tmp1 = sqlQuery(
+                "SELECT SUM(ABS(fee)) AS sum FROM drug_sales WHERE " .
+                "pid = ? AND encounter = ? AND billed = 0",
+                array($this->pid, $this->encounter)
+            );
+            $tmp2 = sqlQuery(
+                "SELECT SUM(ABS(fee)) AS sum FROM billing WHERE " .
+                "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
+                array($this->pid, $this->encounter)
+            );
             if ($tmp1['sum'] + $tmp2['sum'] == 0) {
-                  sqlStatement("update drug_sales SET billed = 1 WHERE " .
-                    "pid = ? AND encounter = ? AND billed = 0",
-                    array($this->pid, $this->encounter));
-                    sqlStatement("UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
-                    "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
-                    array($this->pid, $this->encounter));
+                  sqlStatement(
+                      "update drug_sales SET billed = 1 WHERE " .
+                      "pid = ? AND encounter = ? AND billed = 0",
+                      array($this->pid, $this->encounter)
+                  );
+                    sqlStatement(
+                        "UPDATE billing SET billed = 1, bill_date = NOW() WHERE " .
+                        "pid = ? AND encounter = ? AND billed = 0 AND activity = 1",
+                        array($this->pid, $this->encounter)
+                    );
             }
             else {
                   // Would be good to display an error message here... they clicked
@@ -955,13 +1074,15 @@ class FeeSheet
     public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
     {
         if (!empty($ippfconmeth)) {
-            $csrow = sqlQuery("SELECT f.form_id, ld.field_value FROM forms AS f " .
-            "LEFT JOIN lbf_data AS ld ON ld.form_id = f.form_id AND ld.field_id = 'newmethod' " .
-            "WHERE " .
-            "f.pid = ? AND f.encounter = ? AND " .
-            "f.formdir = 'LBFccicon' AND f.deleted = 0 " .
-            "ORDER BY f.form_id DESC LIMIT 1",
-            array($this->pid, $this->encounter));
+            $csrow = sqlQuery(
+                "SELECT f.form_id, ld.field_value FROM forms AS f " .
+                "LEFT JOIN lbf_data AS ld ON ld.form_id = f.form_id AND ld.field_id = 'newmethod' " .
+                "WHERE " .
+                "f.pid = ? AND f.encounter = ? AND " .
+                "f.formdir = 'LBFccicon' AND f.deleted = 0 " .
+                "ORDER BY f.form_id DESC LIMIT 1",
+                array($this->pid, $this->encounter)
+            );
             if (isset($newmauser)) {
                   // pastmodern is 0 iff new to modern contraception
                   $pastmodern = $newmauser == '2' ? 0 : 1;
@@ -1000,8 +1121,10 @@ class FeeSheet
         if (!empty($pricelevel)) {
             if ($this->patient_pricelevel != $pricelevel) {
                 $this->logFSMessage(xl('Price level changed'));
-                sqlStatement("UPDATE patient_data SET pricelevel = ? WHERE pid = ?",
-                array($pricelevel, $this->pid));
+                sqlStatement(
+                    "UPDATE patient_data SET pricelevel = ? WHERE pid = ?",
+                    array($pricelevel, $this->pid)
+                );
                 $this->patient_pricelevel = $pricelevel;
             }
         }
@@ -1016,19 +1139,23 @@ class FeeSheet
         global $code_types;
         list($codetype, $code, $selector) = explode(':', $codes);
         if ($codetype == 'PROD') {
-            $crow = sqlQuery("SELECT sale_id " .
-            "FROM drug_sales WHERE pid = ? AND encounter = ? AND drug_id = ? " .
-            "LIMIT 1",
-            array($this->pid, $this->encounter, $code));
+            $crow = sqlQuery(
+                "SELECT sale_id " .
+                "FROM drug_sales WHERE pid = ? AND encounter = ? AND drug_id = ? " .
+                "LIMIT 1",
+                array($this->pid, $this->encounter, $code)
+            );
             $this->code_is_in_fee_sheet = !empty($crow['sale_id']);
             $cbarray = array($codetype, $code, $selector);
         }
         else {
-            $crow = sqlQuery("SELECT c.id AS code_id, b.id " .
-            "FROM codes AS c " .
-            "LEFT JOIN billing AS b ON b.pid = ? AND b.encounter = ? AND b.code_type = ? AND b.code = c.code AND b.activity = 1 " .
-            "WHERE c.code_type = ? AND c.code = ? LIMIT 1",
-            array($this->pid, $this->encounter, $codetype, $code_types[$codetype]['id'], $code));
+            $crow = sqlQuery(
+                "SELECT c.id AS code_id, b.id " .
+                "FROM codes AS c " .
+                "LEFT JOIN billing AS b ON b.pid = ? AND b.encounter = ? AND b.code_type = ? AND b.code = c.code AND b.activity = 1 " .
+                "WHERE c.code_type = ? AND c.code = ? LIMIT 1",
+                array($this->pid, $this->encounter, $codetype, $code_types[$codetype]['id'], $code)
+            );
             $this->code_is_in_fee_sheet = !empty($crow['id']);
             $cbarray = array($codetype, $code);
         }

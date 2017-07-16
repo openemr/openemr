@@ -25,6 +25,6 @@ class RuleFilters
      */
     function add($criteria)
     {
-        array_push( $this->criteria, $criteria );
+        array_push($this->criteria, $criteria);
     }
 }

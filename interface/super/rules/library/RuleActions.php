@@ -24,6 +24,6 @@ class RuleActions
      */
     function add($action)
     {
-        array_push( $this->actions, $action );
+        array_push($this->actions, $action);
     }
 }

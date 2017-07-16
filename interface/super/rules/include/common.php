@@ -25,7 +25,7 @@ function implode_funcs($glue, array $pieces, array $funcs)
         $new_pieces []= $new_piece;
     }
 
-    return implode( $glue, $new_pieces );
+    return implode($glue, $new_pieces);
 }
 
 /**
@@ -89,12 +89,12 @@ function css_src($file)
 
 function controller_basedir()
 {
-    return realpath( base_dir() . '/controllers/' );
+    return realpath(base_dir() . '/controllers/');
 }
 function controller_dir($controller)
 {
     $dir = controller_basedir() . '/'. $controller;
-    if ( realpath( $dir . '/../') != controller_basedir() )  {
+    if ( realpath($dir . '/../') != controller_basedir() )  {
         throw Exception("Invalid controller '$controller'");
     }
     return $dir;

@@ -46,16 +46,16 @@ class CriteriaFilter
     public function GetWhere($criteria)
     {
         if ($this->Type != self::$TYPE_SEARCH)
-            throw new Exception ( 'Unsupported Filter Type' );
+            throw new Exception('Unsupported Filter Type');
             
             // normalize property names as an array
-        $propertyNames = (is_array ( $this->PropertyNames )) ? $this->PropertyNames : explode ( ',', $this->PropertyNames );
+        $propertyNames = (is_array($this->PropertyNames)) ? $this->PropertyNames : explode(',', $this->PropertyNames);
         
         $where = ' (';
         $orDelim = '';
         foreach ( $propertyNames as $propName ) {
-            $dbfield = $criteria->GetFieldFromProp ( $propName );
-            $where .= $orDelim . $criteria->Escape ( $dbfield ) . " like " . $criteria->GetQuotedSql ( $this->Value ) . "";
+            $dbfield = $criteria->GetFieldFromProp($propName);
+            $where .= $orDelim . $criteria->Escape($dbfield) . " like " . $criteria->GetQuotedSql($this->Value) . "";
             $orDelim = ' or ';
         }
         $where .= ') ';

@@ -80,7 +80,7 @@ function edih_upload_sftp()
             // check for null byte in file name, linux hidden file, directory
             if (strpos($fa['name'], '.') === 0 || strpos($fa['name'], "\0") !== false || strpos($fa['name'], "./") !== false ) {
                 //$html_str .= "Error: uploaded_file error for " . $fa['name'] . "<br />". PHP_EOL;
-                $fname = preg_replace( "/[^a-zA-Z0-9_.-]/", "_", $fa['name'] );
+                $fname = preg_replace("/[^a-zA-Z0-9_.-]/", "_", $fa['name']);
                 $f_ar['reject'][] = array('name'=>$fname,'comment'=>'null byte, hidden, invalid');
                 csv_edihist_log('edih_upload_sftp: null byte, hidden, invalid '.$fname);
                 unset($fn_ar[$idx]);
@@ -216,15 +216,15 @@ if (php_sapi_name() == 'cli') {
     $backpic = "";
     $ignoreAuth=1;
 }
-$get_count = extract( $_GET, EXTR_OVERWRITE);
+$get_count = extract($_GET, EXTR_OVERWRITE);
 // Following breaks link to OpenEMR structure dependency - assumes phpseclib is subdir
 $script_dir = dirname(__FILE__);
 ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/phpseclib");
-require_once ("$script_dir/phpseclib/Net/SFTP.php");
+require_once("$script_dir/phpseclib/Net/SFTP.php");
 function get_openemr_globals($libdir)
 {
     if (!isset($site)) $_GET['site'] = 'default';
-    require_once ("$libdir/../interface/globals.php");
+    require_once("$libdir/../interface/globals.php");
 }
 function sftp_status($msg, $val)
 {
@@ -251,7 +251,7 @@ $pathmap = array(
 $exitcd = 0;
 // Perform parameter-driven actions
 if (isset($ppid)) {
-    if (!isset($srcdir)) get_openemr_globals ($script_dir);
+    if (!isset($srcdir)) get_openemr_globals($script_dir);
     $rsql = "SELECT * FROM procedure_providers WHERE protocol=? ";
     $rprm = array('SFTP');
     if ($ppid !="*") {
@@ -334,5 +334,5 @@ if (!$exitcd) foreach ($sftp_hosts as $sftp_host) {
 }
 if (php_sapi_name() == 'cli') {
     fwrite(($exitcd ? STDERR : STDOUT), xl($exitmsgs[$exitcd]).PHP_EOL);
-    exit ($exitcd);
+    exit($exitcd);
 }

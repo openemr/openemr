@@ -17,7 +17,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 function brief_aan_verwijzer_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
-    $data = formFetch( "form_psychiatrisch_onderzoek", $id );
+    $data = formFetch("form_psychiatrisch_onderzoek", $id);
     if( $data )
     {
         print "<table>";

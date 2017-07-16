@@ -4,8 +4,8 @@
 /**
  * include required files
  */
-require_once ("SearchEngine.php");
-require_once ('SOAP/Client.php'); // PEAR::SOAP::Client
+require_once("SearchEngine.php");
+require_once('SOAP/Client.php'); // PEAR::SOAP::Client
 
 /**
  * This is an implmentation of a SearchRank/SearchEngine for Google.
@@ -39,7 +39,7 @@ class Google extends SearchEngine
      */
     function GetLinks($url, $max = 10)
     {
-        return $this->DoSearch ( "link:" . $url, 0, $max );
+        return $this->DoSearch("link:" . $url, 0, $max);
     }
     
     /**
@@ -51,7 +51,7 @@ class Google extends SearchEngine
      */
     function GetLinkCount($url)
     {
-        return $this->GetLinks ( $url, 1 )->estimatedTotalResultsCount;
+        return $this->GetLinks($url, 1)->estimatedTotalResultsCount;
     }
     
     /**
@@ -71,14 +71,14 @@ class Google extends SearchEngine
         $result_counter = 0;
         $page_size = 10;
         
-        $rank = new SearchRank ();
+        $rank = new SearchRank();
         
         $rank->Query = $query;
         
         while ( $rank->Position == 0 && $result_counter <= $maxresults ) {
             $current_page ++;
             
-            $result = $this->DoSearch ( $query, $result_counter, $page_size );
+            $result = $this->DoSearch($query, $result_counter, $page_size);
             
             // only loop through as many results as we have
             if ($result->estimatedTotalResultsCount < $maxresults) {
@@ -92,7 +92,7 @@ class Google extends SearchEngine
                 $rank->TopRankedTitle = $result->resultElements [0]->title;
             }
             
-            $cp_rank = $this->GetPositionOnPage ( $url, $result );
+            $cp_rank = $this->GetPositionOnPage($url, $result);
             
             if ($cp_rank->Position) {
                 // we found a match
@@ -119,15 +119,15 @@ class Google extends SearchEngine
      */
     function GetPositionOnPage($url, &$result)
     {
-        $rank = new SearchRank ();
+        $rank = new SearchRank();
         $counter = 0;
         
         foreach ( $result->resultElements as $element ) {
             $counter ++;
             // print "<div>$url :: $counter = ".$element->URL."</div>";
-            $normalizedurl = str_replace ( "/", "\\/", $url );
+            $normalizedurl = str_replace("/", "\\/", $url);
             
-            if ($rank->Position == 0 && preg_match ( "/$normalizedurl/i", $element->URL )) {
+            if ($rank->Position == 0 && preg_match("/$normalizedurl/i", $element->URL)) {
                 $rank->Position = ( int ) $counter;
                 $rank->Title = $element->title;
                 $rank->Snippet = $element->snippet;
@@ -161,17 +161,17 @@ class Google extends SearchEngine
         while ( $continue ) {
             $counter ++;
             try {
-                $result = $this->_googleSoap ( $query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe );
+                $result = $this->_googleSoap($query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe);
                 $continue = false;
             } catch ( exception $ex ) {
                 $this->FailedRequests ++;
                 
-                if (preg_match ( "/Daily limit/i", $ex->getMessage () ) || preg_match ( "/Invalid/i", $ex->getMessage () )) {
+                if (preg_match("/Daily limit/i", $ex->getMessage()) || preg_match("/Invalid/i", $ex->getMessage())) {
                     throw $ex;
                 }
                 
                 if ($counter > 2) {
-                    throw new Exception ( "Tried to contact Google API $counter times without success:" . $ex->getMessage () );
+                    throw new Exception("Tried to contact Google API $counter times without success:" . $ex->getMessage());
                 }
             }
         }
@@ -184,17 +184,17 @@ class Google extends SearchEngine
      */
     private function _googleSoap($query, $start = 0, $max = 10, $filter = false, $restrict = "", $safe = false, $lr = "", $ie = "", $oe = "")
     {
-        $wsdl = new SOAP_WSDL ( 'http://api.google.com/GoogleSearch.wsdl' );
-        $soapclient = $wsdl->getProxy ();
+        $wsdl = new SOAP_WSDL('http://api.google.com/GoogleSearch.wsdl');
+        $soapclient = $wsdl->getProxy();
         
-        if (get_class ( $soapclient ) != "SOAP_Fault") {
-            $result = $soapclient->doGoogleSearch ( $this->Key, $query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe );
+        if (get_class($soapclient) != "SOAP_Fault") {
+            $result = $soapclient->doGoogleSearch($this->Key, $query, $start, $max, $filter, $restrict, $safe, $lr, $ie, $oe);
         } else {
-            throw new Exception ( "SOAP_Fault: " . $soapclient->message );
+            throw new Exception("SOAP_Fault: " . $soapclient->message);
         }
         
-        if (PEAR::isError ( $result )) {
-            throw new Exception ( "PEAR Exception: " . $result->message );
+        if (PEAR::isError($result)) {
+            throw new Exception("PEAR Exception: " . $result->message);
         } else {
             return $result;
         }

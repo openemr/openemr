@@ -63,53 +63,53 @@ if ($_POST['form_create']) {
   // ===================
 
     newPatientData(
-    $_POST["db_id"],
-    $_POST["title"],
-    $form_fname,
-    $form_lname,
-    $form_mname,
-    $form_sex, // sex
-    $form_dob, // dob
-    $form_street, // street
-    $form_postcode, // postal_code
-    $form_city, // city
-    "", // state
-    $form_countrycode, // country_code
-    "", // ss
-    "", // occupation
-    "", // phone_home
-    "", // phone_biz
-    "", // phone_contact
-    "", // status
-    "", // contact_relationship
-    "", // referrer
-    "", // referrerID
-    "", // email
-    "", // language
-    "", // ethnoracial
-    "", // interpreter
-    "", // migrantseasonal
-    "", // family_size
-    "", // monthly_income
-    "", // homeless
-    "", // financial_review
-    "$mypubpid",
-    $pid,
-    "", // providerID
-    "", // genericname1
-    "", // genericval1
-    "", // genericname2
-    "", // genericval2
-    "", //billing_note
-    "", // phone_cell
-    "", // hipaa_mail
-    "", // hipaa_voice
-    0,  // squad
-    0,  // $pharmacy_id = 0,
-    "", // $drivers_license = "",
-    "", // $hipaa_notice = "",
-    "", // $hipaa_message = "",
-    $_POST['regdate']
+        $_POST["db_id"],
+        $_POST["title"],
+        $form_fname,
+        $form_lname,
+        $form_mname,
+        $form_sex, // sex
+        $form_dob, // dob
+        $form_street, // street
+        $form_postcode, // postal_code
+        $form_city, // city
+        "", // state
+        $form_countrycode, // country_code
+        "", // ss
+        "", // occupation
+        "", // phone_home
+        "", // phone_biz
+        "", // phone_contact
+        "", // status
+        "", // contact_relationship
+        "", // referrer
+        "", // referrerID
+        "", // email
+        "", // language
+        "", // ethnoracial
+        "", // interpreter
+        "", // migrantseasonal
+        "", // family_size
+        "", // monthly_income
+        "", // homeless
+        "", // financial_review
+        "$mypubpid",
+        $pid,
+        "", // providerID
+        "", // genericname1
+        "", // genericval1
+        "", // genericname2
+        "", // genericval2
+        "", //billing_note
+        "", // phone_cell
+        "", // hipaa_mail
+        "", // hipaa_voice
+        0,  // squad
+        0,  // $pharmacy_id = 0,
+        "", // $drivers_license = "",
+        "", // $hipaa_notice = "",
+        "", // $hipaa_message = "",
+        $_POST['regdate']
     );
 
     newEmployerData($pid);

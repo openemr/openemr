@@ -532,14 +532,16 @@ foreach($registry_form_name as $var) {
   <td class='text'><?php echo xlt('Order Descriptions'); ?></td>
  </tr>
 <?php
-$res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
-  "FROM procedure_order AS po " .
-  "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
-  "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
-  "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
-  "WHERE po.patient_id = ? " .
-  "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
-  array($pid));
+$res = sqlStatement(
+    "SELECT po.procedure_order_id, po.date_ordered, fe.date " .
+    "FROM procedure_order AS po " .
+    "LEFT JOIN forms AS f ON f.pid = po.patient_id AND f.formdir = 'procedure_order' AND " .
+    "f.form_id = po.procedure_order_id AND f.deleted = 0 " .
+    "LEFT JOIN form_encounter AS fe ON fe.pid = f.pid AND fe.encounter = f.encounter " .
+    "WHERE po.patient_id = ? " .
+    "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
+    array($pid)
+);
 while($row = sqlFetchArray($res)) {
     $poid = $row['procedure_order_id'];
     echo " <tr>\n";
@@ -548,9 +550,11 @@ while($row = sqlFetchArray($res)) {
     echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
     echo "  <td class='text'>";
-    $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
-    "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
-    array($poid));
+    $opres = sqlStatement(
+        "SELECT procedure_code, procedure_name FROM procedure_order_code " .
+        "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
+        array($poid)
+    );
     while($oprow = sqlFetchArray($opres)) {
         $tmp = $oprow['procedure_name'];
         if (empty($tmp)) $tmp = $oprow['procedure_code'];
@@ -655,7 +659,7 @@ initReport = function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                     if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                       alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                       alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
                             return false;
                     }
                 }
@@ -694,7 +698,7 @@ initReport = function(){
         function() {
                 if(document.getElementById('show_date').checked == true){
                         if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
+                                alert('<?php echo addslashes(xl('Please select a start date and end date')) ?>');
                                 return false;
                         }
                 }

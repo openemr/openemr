@@ -72,14 +72,16 @@ if ( $_POST['with_out_facility'] ) {
 //$to_date   = fixDate($_POST['form_to_date'], '');
 $provider  = $_POST['form_provider'];
 $facility  = $_POST['form_facility'];  //(CHEMED) facility filter
-$form_orderby = getComparisonOrder( $_REQUEST['form_orderby'] ) ?  $_REQUEST['form_orderby'] : 'date';
+$form_orderby = getComparisonOrder($_REQUEST['form_orderby']) ?  $_REQUEST['form_orderby'] : 'date';
 
 // Reminders related stuff
 $incl_reminders = isset($_POST['incl_reminders']) ? 1 : 0;
 function fetch_rule_txt($list_id, $option_id)
 {
-    $rs = sqlQuery('SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
-            array($list_id, $option_id));
+    $rs = sqlQuery(
+        'SELECT title, seq from list_options WHERE list_id = ? AND option_id = ? AND activity = 1',
+        array($list_id, $option_id)
+    );
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
@@ -91,13 +93,13 @@ function fetch_reminders($pid, $appt_date)
     $seq_act = array();
     foreach ($rems as $ix => $rem) {
         $rem_out = array();
-        $rule_txt = fetch_rule_txt ('rule_reminder_due_opt', $rem['due_status']);
+        $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);
         $seq_due[$ix] = $rule_txt['seq'];
         $rem_out['due_txt'] = $rule_txt['title'];
-        $rule_txt = fetch_rule_txt ('rule_action_category', $rem['category']);
+        $rule_txt = fetch_rule_txt('rule_action_category', $rem['category']);
         $seq_cat[$ix] = $rule_txt['seq'];
         $rem_out['cat_txt'] = $rule_txt['title'];
-        $rule_txt = fetch_rule_txt ('rule_action', $rem['item']);
+        $rule_txt = fetch_rule_txt('rule_action', $rem['item']);
         $seq_act[$ix] = $rule_txt['seq'];
         $rem_out['act_txt'] = $rule_txt['title'];
         $rems_out[$ix] = $rem_out;
@@ -409,14 +411,14 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     if( isset($_POST['with_out_facility']) ){
         $with_out_facility = $_POST['with_out_facility'];
     }
-    $appointments = fetchAppointments( $from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat );
+    $appointments = fetchAppointments($from_date, $to_date, $patient, $provider, $facility, $form_apptstatus, $with_out_provider, $with_out_facility, $form_apptcat);
 
     if ( $show_available_times ) {
-        $availableSlots = getAvailableSlots( $from_date, $to_date, $provider, $facility );
-        $appointments = array_merge( $appointments, $availableSlots );
+        $availableSlots = getAvailableSlots($from_date, $to_date, $provider, $facility);
+        $appointments = array_merge($appointments, $availableSlots);
     }
 
-    $appointments = sortAppointments( $appointments, $form_orderby );
+    $appointments = sortAppointments($appointments, $form_orderby);
     $pid_list = array();  // Initialize list of PIDs for Superbill option
     $totalAppontments = count($appointments);
 
@@ -465,7 +467,7 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 
     <?php if ($patient_id && $incl_reminders) {
         // collect reminders first, so can skip it if empty
-        $rems = fetch_reminders ($patient_id, $appointment['pc_eventDate']);
+        $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
 } ?>
     <?php if ($patient_id && (!empty($rems) || !empty($appointment['pc_hometext']))) { // Not display of available slot or not showing reminders and comments empty ?>
     <tr valign='top' id='p2.<?php echo attr($patient_id) ?>' >

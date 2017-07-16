@@ -63,7 +63,7 @@ class Installer
 
     public function login_is_valid()
     {
-        if ( ($this->login == '') || (! isset( $this->login )) ) {
+        if ( ($this->login == '') || (! isset($this->login)) ) {
             $this->error_message = "login is invalid: '$this->login'";
             return false;
         }
@@ -114,7 +114,7 @@ class Installer
 
     public function root_database_connection()
     {
-        $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
+        $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ( $this->dbh ) {
             if (! $this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
@@ -129,7 +129,7 @@ class Installer
 
     public function user_database_connection()
     {
-        $this->dbh = $this->connect_to_database( $this->server, $this->login, $this->pass, $this->port, $this->dbname );
+        $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
         if ( ! $this->dbh ) {
             $this->error_message = "unable to connect to database as user: '$this->login'";
             return false;
@@ -167,7 +167,7 @@ class Installer
 
     public function grant_privileges()
     {
-        return $this->execute_sql( "GRANT ALL PRIVILEGES ON $this->dbname.* TO '$this->login'@'$this->loginhost' IDENTIFIED BY '$this->pass'" );
+        return $this->execute_sql("GRANT ALL PRIVILEGES ON $this->dbname.* TO '$this->login'@'$this->loginhost' IDENTIFIED BY '$this->pass'");
     }
 
     public function disconnect()
@@ -218,7 +218,7 @@ class Installer
             return false;
         }
 
-        while (!feof ($fd)){
+        while (!feof($fd)){
             $line = fgets($fd, 1024);
             $line = rtrim($line);
             if (substr($line, 0, 2) == "--") // Kill comments
@@ -231,7 +231,7 @@ class Installer
             $chr = substr($query, strlen($query)-1, 1);
             if ($chr == ";") { // valid query, execute
                     $query = rtrim($query, ";");
-                if ( ! $this->execute_sql( $query ) ){
+                if ( ! $this->execute_sql($query) ){
                     return false;
                 }
                     $query = "";
@@ -304,7 +304,7 @@ class Installer
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
             $destination_directory = $GLOBALS['OE_SITE_DIR'];
-            if ( ! $this->recurse_copy( $source_directory, $destination_directory ) ) {
+            if ( ! $this->recurse_copy($source_directory, $destination_directory) ) {
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
@@ -563,11 +563,11 @@ if ($it_died != 0) {
                 $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
             }
             // Load ICD-9 codes if present.
-            if (file_exists( $this->icd9 )) {
+            if (file_exists($this->icd9)) {
                 $dumpfiles[ $this->icd9 ] = "ICD-9";
             }
             // Load CVX codes if present
-            if (file_exists( $this->cvx )) {
+            if (file_exists($this->cvx)) {
                 $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
             }
             $this->dumpfiles = $dumpfiles;

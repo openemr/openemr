@@ -23,21 +23,21 @@ if( $_GET["mode"] == "new" )
     if( $_GET["id"] != '' )
     {
         $_GET["id"] = '0';
-        $newid = formSubmit( "form_intakeverslag", $_POST, $_GET["id"], $userauthorized );
+        $newid = formSubmit("form_intakeverslag", $_POST, $_GET["id"], $userauthorized);
       // moved here ?
-        addForm( $encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized );
+        addForm($encounter, "Psychiatric Intake", $newid, "intakeverslag", $pid, $userauthorized);
       
     } else
     {
         $_POST['autosave_flag'] = 0;
-        $newid = formUpdate( "form_intakeverslag", $_POST, $_GET["saveid"], $userauthorized );
+        $newid = formUpdate("form_intakeverslag", $_POST, $_GET["saveid"], $userauthorized);
     }
     
     
 
 } elseif( $_GET["mode"] == "update" )
 {
-    sqlQuery( "UPDATE form_intakeverslag 
+    sqlQuery("UPDATE form_intakeverslag 
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 
                 authorized=$userauthorized, activity=1, date = NOW(), 
                 intakedatum='".$_POST["intakedatum"]."',
@@ -59,7 +59,7 @@ if( $_GET["mode"] == "new" )
                 behandelvoorstel='".$_POST["behandelvoorstel"]."',
                 autosave_flag=0, 
                 autosave_datetime=0 
-                  WHERE id = ".$_GET["id"].";" );
+                  WHERE id = ".$_GET["id"].";");
 }
 
 $_SESSION["encounter"] = $encounter;

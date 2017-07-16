@@ -8,7 +8,8 @@
 //
 if(!extension_loaded("curl")) {
     throw(new Exception(
-        "Curl extension is required"));
+        "Curl extension is required"
+    ));
 }
 class LabExchangeClient
 {
@@ -62,12 +63,19 @@ class LabExchangeClient
                 // curl_setopt($curl, CURLOPT_PUT, TRUE);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                file_put_contents($tmpfile = tempnam("/tmp", "put_"),
-                    $encoded);
-                curl_setopt($curl, CURLOPT_INFILE, $fp = fopen($tmpfile,
-                    'r'));
-                curl_setopt($curl, CURLOPT_INFILESIZE,
-                    filesize($tmpfile));
+                file_put_contents(
+                    $tmpfile = tempnam("/tmp", "put_"),
+                    $encoded
+                );
+                curl_setopt($curl, CURLOPT_INFILE, $fp = fopen(
+                    $tmpfile,
+                    'r'
+                ));
+                curl_setopt(
+                    $curl,
+                    CURLOPT_INFILESIZE,
+                    filesize($tmpfile)
+                );
                 break;
             case "DELETE":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
@@ -78,13 +86,17 @@ class LabExchangeClient
         }
         
         // Send credentials.
-        curl_setopt($curl, CURLOPT_USERPWD,
-            $pwd = "{$this->SiteId}:{$this->Token}");
+        curl_setopt(
+            $curl,
+            CURLOPT_USERPWD,
+            $pwd = "{$this->SiteId}:{$this->Token}"
+        );
         
         // Do the request. If FALSE, then an exception occurred.
         if(false === ($result = curl_exec($curl)))
             throw(new Exception(
-                "Curl failed with error " . curl_error($curl)));
+                "Curl failed with error " . curl_error($curl)
+            ));
         
         // Get result code.
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

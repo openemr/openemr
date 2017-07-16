@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("IObserver.php");
+require_once("IObserver.php");
 
 /**
  * IObservable defines an interface for an object that can have listeners attached

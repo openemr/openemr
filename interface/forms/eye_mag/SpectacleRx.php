@@ -110,7 +110,7 @@ if ($_REQUEST['REFTYPE']) {
     $query = "SELECT * FROM form_eye_mag JOIN forms on forms.form_id = form_eye_mag.id
     where form_eye_mag.pid =? and forms.encounter=? and forms.deleted !='1'";
 
-    $data =  sqlQuery($query, array($id,$encounter) );
+    $data =  sqlQuery($query, array($id,$encounter));
 
     if ($REFTYPE =="W") {
         //we have rx_number 1-5 to process...

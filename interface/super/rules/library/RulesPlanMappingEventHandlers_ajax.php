@@ -25,8 +25,8 @@
  * @link    http://www.open-emr.org
  */
 
-require_once( dirname(__FILE__) . "/../../../globals.php" );
-require_once( dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php" );
+require_once(dirname(__FILE__) . "/../../../globals.php");
+require_once(dirname(__FILE__) . "/RulesPlanMappingEventHandlers.php");
 
 $action = $_GET["action"];
 switch ($action) {

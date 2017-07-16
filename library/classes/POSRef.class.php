@@ -27,7 +27,7 @@ class POSRef
     {
         $this->pos_ref = array();
         $this->pos_ref = POSRef::init_pos();
-        $this->pos_ref = array_merge ($this->pos_ref, $this->state_overides($state));
+        $this->pos_ref = array_merge($this->pos_ref, $this->state_overides($state));
     }
 
     function init_pos()

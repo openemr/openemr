@@ -1,6 +1,6 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormPriorAuth.class.php");
 
 class C_FormPriorAuth extends Controller

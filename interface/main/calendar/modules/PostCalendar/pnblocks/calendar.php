@@ -359,12 +359,14 @@ function postcalendar_calendarblock_update($blockinfo)
          $vars['pcbeventoverview'],
          $vars['pcbnextevents'],
          $vars['pcbeventsrange'],
-         $vars['pcbshowsslinks']) = pnVarCleanFromInput('pcbshowcalendar',
-                                                        'pcbeventslimit',
-                                                        'pcbeventoverview',
-                                                        'pcbnextevents',
-                                                        'pcbeventsrange',
-                                                        'pcbshowsslinks');
+         $vars['pcbshowsslinks']) = pnVarCleanFromInput(
+             'pcbshowcalendar',
+             'pcbeventslimit',
+             'pcbeventoverview',
+             'pcbnextevents',
+             'pcbeventsrange',
+             'pcbshowsslinks'
+         );
     // set up defaults if not defined
     if(!isset($vars['pcbshowcalendar']))  { $vars['pcbshowcalendar']  = 0; }
     if(!isset($vars['pcbeventslimit']))   { $vars['pcbeventslimit']   = 5; }

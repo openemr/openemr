@@ -46,13 +46,13 @@ class TimeUnit
     private static function map()
     {
         $map = array(
-            'minute'        =>  new TimeUnit( 'minute', xl( 'Minutes' ) ),
-            'hour'          =>  new TimeUnit( 'hour', xl( 'Hours' ) ),
-            'day'           =>  new TimeUnit( 'day', xl('Days' ) ),
-            'week'          =>  new TimeUnit( 'week', xl('Weeks' ) ),
-            'month'         =>  new TimeUnit( 'month', xl('Months' ) ),
-            'year'          =>  new TimeUnit( 'year', xl('Years' ) ),
-            'flu_season'    =>  new TimeUnit( 'flu_season', xl('Flu season' ) )
+            'minute'        =>  new TimeUnit('minute', xl('Minutes')),
+            'hour'          =>  new TimeUnit('hour', xl('Hours')),
+            'day'           =>  new TimeUnit('day', xl('Days')),
+            'week'          =>  new TimeUnit('week', xl('Weeks')),
+            'month'         =>  new TimeUnit('month', xl('Months')),
+            'year'          =>  new TimeUnit('year', xl('Years')),
+            'flu_season'    =>  new TimeUnit('flu_season', xl('Flu season'))
         );
         return $map;
     }

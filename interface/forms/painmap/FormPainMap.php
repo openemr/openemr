@@ -11,7 +11,7 @@
  * @brief This file ontains the FormPainMap class, used to model the data contents of a clickmap based form.
  */
 /* include the class we are extending. */
-require_once ($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
+require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
 
 /**
  * @class FormPainMap

@@ -116,14 +116,14 @@ class AclController extends AbstractActionController
         }
 
         $acl_view = new ViewModel(
-                                  array(
+            array(
                                         'user_groups'  => $user_groups,
                                         'listenerObject' => $this->listenerObject,
                                         'module_data'  => $module_data,
                                         'module_id'    => $module_id,
                                         'acl_data'     => $saved_ACL
                                     )
-                                );
+        );
         return $acl_view;
     }
     
@@ -267,7 +267,7 @@ class AclController extends AbstractActionController
                 echo '<li id="'.$category['parent_id']."-".$category['id'].'" value="'.$escapeHtml($category['name']).'" '.$escapeHtml($class).' ><div onclick="selectThis(\''.$escapeHtml($category['parent_id']).'-'.$escapeHtml($category['id']).'\');rebuild();" class="list">'.$escapeHtml($category['name'])."</div>";
                 if ($currLevel > $prevLevel) { $prevLevel = $currLevel; }
                 $currLevel++;
-                $this->createTreeView ($array, $categoryId, $currLevel, $prevLevel);
+                $this->createTreeView($array, $categoryId, $currLevel, $prevLevel);
                 $currLevel--;
             }
         }

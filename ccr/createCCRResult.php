@@ -76,7 +76,7 @@ do {
     $e_Text = $ccr->createElement('Text', 'Observation');
     $e_Type->appendChild($e_Text);
 
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_Test->appendChild($e_Description);
 
     $e_Text = $ccr->createElement('Text', $row['name']);
@@ -97,23 +97,23 @@ do {
     $e_ActorID = $ccr->createElement('ActorID', $uuid);
     $e_Actor->appendChild($e_ActorID);
     
-    $e_TestResult = $ccr->createElement('TestResult' );
+    $e_TestResult = $ccr->createElement('TestResult');
     $e_Test->appendChild($e_TestResult);
 
     $e_Value = $ccr->createElement('Value', $row['result']);
     $e_TestResult->appendChild($e_Value);
 
-    $e_Code = $ccr->createElement('Code' );
+    $e_Code = $ccr->createElement('Code');
     $e_TestResult->appendChild($e_Code);
 
     $e_Value = $ccr->createElement('Value', 'Value');
     $e_Code->appendChild($e_Value);
     
-    $e_Description = $ccr->createElement('Description' );
+    $e_Description = $ccr->createElement('Description');
     $e_TestResult->appendChild($e_Description);
     
     $e_Text = $ccr->createElement('Text', $row['result']);
-    $e_Description->appendChild( $e_Text);
+    $e_Description->appendChild($e_Text);
     
     //if($row['abnormal'] == '' ) {
         $e_NormalResult = $ccr->createElement('NormalResult');

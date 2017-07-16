@@ -108,8 +108,11 @@ if ($input_catid) {
  if ($_REQUEST['searchdays']) $searchdays = $_REQUEST['searchdays'];
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-     $_REQUEST['startdate'], $matches))
+if ($_REQUEST['startdate'] && preg_match(
+    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+    $_REQUEST['startdate'],
+    $matches
+))
 {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
@@ -118,8 +121,10 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 
  // Get an end date - actually the date after the end date.
  preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
- $edate = date("Y-m-d",
-  mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1]));
+ $edate = date(
+     "Y-m-d",
+     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+ );
 
  // compute starting time slot number and number of slots.
  $slotstime = strtotime("$sdate 00:00:00");
@@ -186,8 +191,13 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                     // Skip the event if a repeat frequency > 1 was specified and this is
                     // not the desired occurrence.
                     if (! $repeatix) {
-                        doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
-                         $row['pc_duration'], $row['pc_prefcatid']);
+                        doOneDay(
+                            $row['pc_catid'],
+                            $thistime,
+                            $row['pc_startTime'],
+                            $row['pc_duration'],
+                            $row['pc_prefcatid']
+                        );
                     }
                     if (++$repeatix >= $repeatfreq) $repeatix = 0;
 
@@ -250,8 +260,13 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
                     $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
                 }
             } else {
-                doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
-                 $row['pc_duration'], $row['pc_prefcatid']);
+                doOneDay(
+                    $row['pc_catid'],
+                    $thistime,
+                    $row['pc_startTime'],
+                    $row['pc_duration'],
+                    $row['pc_prefcatid']
+                );
             }
         }
 
@@ -377,8 +392,8 @@ form {
 <div id="searchResultsHeader">
 <table class='table table-bordered'>
  <tr>
-  <th class="srDate"><?php xl ('Day', 'e'); ?></th>
-  <th class="srTimes"><?php xl ('Available Times', 'e'); ?></th>
+  <th class="srDate"><?php xl('Day', 'e'); ?></th>
+  <th class="srTimes"><?php xl('Available Times', 'e'); ?></th>
  </tr>
 </table>
 </div>

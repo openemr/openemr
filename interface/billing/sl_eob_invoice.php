@@ -218,8 +218,13 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                 echo xl("This module is in test mode. The database will not be changed.", '', '<p><b>', "</b><p>\n");
             }
 
-            $session_id = arGetSession($form_payer_id, $form_reference,
-              $form_check_date, $form_deposit_date, $form_pay_total);
+            $session_id = arGetSession(
+                $form_payer_id,
+                $form_reference,
+                $form_check_date,
+                $form_deposit_date,
+                $form_pay_total
+            );
               // The sl_eob_search page needs its invoice links modified to invoke
               // javascript to load form parms for all the above and submit.
               // At the same time that page would be modified to work off the
@@ -272,8 +277,18 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                     if (! $thisins) $thisins = 0;
 
                 if ($thispay) {
-                    arPostPayment($patient_id, $encounter_id, $session_id,
-                      $thispay, $code, $payer_type, '', $debug, '', $thiscodetype);
+                    arPostPayment(
+                        $patient_id,
+                        $encounter_id,
+                        $session_id,
+                        $thispay,
+                        $code,
+                        $payer_type,
+                        '',
+                        $debug,
+                        '',
+                        $thiscodetype
+                    );
                     $paytotal += $thispay;
                 }
 
@@ -305,8 +320,18 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                         if (strpos(strtolower($reason), 'ins') !== false)
                         $reason .= ' ' . $_POST['form_insurance'];
                     }
-                    arPostAdjustment($patient_id, $encounter_id, $session_id,
-                      $thisadj, $code, $payer_type, $reason, $debug, '', $thiscodetype);
+                    arPostAdjustment(
+                        $patient_id,
+                        $encounter_id,
+                        $session_id,
+                        $thisadj,
+                        $code,
+                        $payer_type,
+                        $reason,
+                        $debug,
+                        '',
+                        $thiscodetype
+                    );
                 }
             }
 

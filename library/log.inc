@@ -490,8 +490,14 @@ function create_tls_conn($host, $port, $localcert, $cafile)
     $flags = STREAM_CLIENT_CONNECT;
 
     $olderr = error_reporting(0);
-    $conn = stream_socket_client('tls://' . $host . ":" . $port, $errno, $errstr,
-                                 $timeout, $flags, $ctx);
+    $conn = stream_socket_client(
+        'tls://' . $host . ":" . $port,
+        $errno,
+        $errstr,
+        $timeout,
+        $flags,
+        $ctx
+    );
     error_reporting($olderr);
     return $conn;
 }
@@ -683,7 +689,7 @@ function auditSQLEvent($statement, $outcome, $binds = null)
         }
     }
     else {
-        $startparen = stripos($truncated_sql, "(" );
+        $startparen = stripos($truncated_sql, "(");
         $startset = stripos($truncated_sql, " set ");
         $startvalues = stripos($truncated_sql, " values ");
 
@@ -718,7 +724,7 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     if ($querytype == "select") {
         if ($event == "other")
             return;
-        if (stripos($statement, "SELECT count(" ) === 0)
+        if (stripos($statement, "SELECT count(") === 0)
             return;
         if (stripos($statement, "select username, password from users") === 0)
             return;
@@ -891,17 +897,20 @@ function aes256Encrypt($sValue)
         base64_encode(
             mcrypt_encrypt(
                 MCRYPT_RIJNDAEL_256,
-                $sSecretKey, $sValue,
+                $sSecretKey,
+                $sValue,
                 MCRYPT_MODE_ECB,
                 mcrypt_create_iv(
                     mcrypt_get_iv_size(
                         MCRYPT_RIJNDAEL_256,
                         MCRYPT_MODE_ECB
                     ),
-                    MCRYPT_RAND)
+                    MCRYPT_RAND
                 )
-            ), "\0"
-        );
+            )
+        ),
+        "\0"
+    );
 }
 
 //July 1, 2014: Ensoftek: Function to AES256 decrypt a given string
@@ -921,7 +930,8 @@ function aes256Decrypt($sValue)
                 ),
                 MCRYPT_RAND
             )
-        ), "\0"
+        ),
+        "\0"
     );
 }
 

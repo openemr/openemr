@@ -93,7 +93,7 @@ function end_group()
 }
 
 $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
-$formid   = isset($_GET['id']      ) ? intval($_GET['id']) : 0;
+$formid   = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $portalid = isset($_GET['portalid']) ? intval($_GET['portalid']) : 0;
 
 // Get some info about this form.
@@ -110,7 +110,7 @@ if (!empty($jobj['aco'    ])) $LBF_ACO = explode('|', $jobj['aco']);
 
 // Check access control.
 if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
-    $auth_aco_write   = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write'  );
+    $auth_aco_write   = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write');
     $auth_aco_addonly = acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'addonly');
     if (!$auth_aco_write && !($auth_aco_addonly && !$formid)) {
         die(xlt('Access denied'));
@@ -139,7 +139,7 @@ if ($_POST['bn_save']) {
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
     "edit_options != 'H' AND edit_options NOT LIKE '%0%' " .
-    "ORDER BY group_name, seq", array($formname) );
+    "ORDER BY group_name, seq", array($formname));
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         $data_type = $frow['data_type'];
@@ -170,26 +170,32 @@ if ($_POST['bn_save']) {
             }
             else {
                 $esc_field_id = escape_sql_column_name($field_id, array('patient_data'));
-                sqlStatement("UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
-                array($value, $pid));
+                sqlStatement(
+                    "UPDATE patient_data SET `$esc_field_id` = ? WHERE pid = ?",
+                    array($value, $pid)
+                );
             }
             continue;
         }
         else if ($source == 'E') {
             // Save to shared_attributes. Can't delete entries for empty fields because with the P option
             // it's important to know when a current empty value overrides a previous value.
-            sqlStatement("REPLACE INTO shared_attributes SET " .
-            "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
-            "user_id = ?, field_value = ?",
-            array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value));
+            sqlStatement(
+                "REPLACE INTO shared_attributes SET " .
+                "pid = ?, encounter = ?, field_id = ?, last_update = NOW(), " .
+                "user_id = ?, field_value = ?",
+                array($pid, $encounter, $field_id, $_SESSION['authUserID'], $value)
+            );
             continue;
         }
         else if ($source == 'V') {
             // Save to form_encounter.
             $esc_field_id = escape_sql_column_name($field_id, array('form_encounter'));
-            sqlStatement("UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
-            "pid = ? AND encounter = ?",
-            array($value, $pid, $encounter));
+            sqlStatement(
+                "UPDATE form_encounter SET `$esc_field_id` = ? WHERE " .
+                "pid = ? AND encounter = ?",
+                array($value, $pid, $encounter)
+            );
             continue;
         }
         // It's a normal form field, save to lbf_data.
@@ -207,9 +213,11 @@ if ($_POST['bn_save']) {
         }
         else { // new form
             if ($value !== '') {
-                sqlStatement("INSERT INTO lbf_data " .
-                "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                array($newid, $field_id, $value));
+                sqlStatement(
+                    "INSERT INTO lbf_data " .
+                    "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
+                    array($newid, $field_id, $value)
+                );
             }
         }
     }
@@ -446,7 +454,7 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
 
   $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = ? AND uor > 0 " .
-    "ORDER BY group_name, seq", array($formname) );
+    "ORDER BY group_name, seq", array($formname));
   $last_group = '';
   $cell_count = 0;
   $item_count = 0;
@@ -511,10 +519,12 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                 if ($source == 'F' && !$formid) {
                     // Form attribute for new form, get value from most recent form instance.
                     // Form attributes of existing forms are expected to have existing values.
-                    $tmp = sqlQuery("SELECT encounter, form_id FROM forms WHERE " .
-                      "pid = ? AND formdir = ? AND deleted = 0 " .
-                      "ORDER BY date DESC LIMIT 1",
-                      array($pid, $formname));
+                    $tmp = sqlQuery(
+                        "SELECT encounter, form_id FROM forms WHERE " .
+                        "pid = ? AND formdir = ? AND deleted = 0 " .
+                        "ORDER BY date DESC LIMIT 1",
+                        array($pid, $formname)
+                    );
                     if (!empty($tmp['encounter'])) {
                                 $currvalue = lbf_current_value($frow, $tmp['form_id'], $tmp['encounter']);
                     }
@@ -523,14 +533,16 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                     // Visit attribute, get most recent value as of this visit.
                     // Even if the form already exists for this visit it may have a readonly value that only
                     // exists in a previous visit and was created from a different form.
-                    $tmp = sqlQuery("SELECT sa.field_value FROM form_encounter AS e1 " .
-                      "JOIN form_encounter AS e2 ON " .
-                      "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
-                      "JOIN shared_attributes AS sa ON " .
-                      "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
-                      "WHERE e1.pid = ? AND e1.encounter = ? " .
-                      "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
-                      array($field_id, $pid, $encounter));
+                    $tmp = sqlQuery(
+                        "SELECT sa.field_value FROM form_encounter AS e1 " .
+                        "JOIN form_encounter AS e2 ON " .
+                        "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
+                        "JOIN shared_attributes AS sa ON " .
+                        "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
+                        "WHERE e1.pid = ? AND e1.encounter = ? " .
+                        "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
+                        array($field_id, $pid, $encounter)
+                    );
                     if (isset($tmp['field_value'])) $currvalue = $tmp['field_value'];
                 }
             } // End "P" option logic.
@@ -567,14 +579,16 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                       echo ' (' . htmlspecialchars(xl('Current')) . ')';
                 }
                 echo "&nbsp;</td>\n";
-                $hres = sqlStatement("SELECT f.form_id, fe.date " .
-                  "FROM forms AS f, form_encounter AS fe WHERE " .
-                  "f.pid = ? AND f.formdir = ? AND " .
-                  "f.form_id != ? AND f.deleted = 0 AND " .
-                  "fe.pid = f.pid AND fe.encounter = f.encounter " .
-                  "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
-                  "LIMIT ?",
-                  array($pid, $formname, $formid, $formhistory));
+                $hres = sqlStatement(
+                    "SELECT f.form_id, fe.date " .
+                    "FROM forms AS f, form_encounter AS fe WHERE " .
+                    "f.pid = ? AND f.formdir = ? AND " .
+                    "f.form_id != ? AND f.deleted = 0 AND " .
+                    "fe.pid = f.pid AND fe.encounter = f.encounter " .
+                    "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
+                    "LIMIT ?",
+                    array($pid, $formname, $formid, $formhistory)
+                );
                 // For some readings like vitals there may be multiple forms per encounter.
                 // We sort these sensibly, however only the encounter date is shown here;
                 // at some point we may wish to show also the data entry date/time.

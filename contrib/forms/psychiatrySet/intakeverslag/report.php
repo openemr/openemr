@@ -17,7 +17,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 function intakeverslag_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
-    $data = formFetch( "form_intakeverslag", $id );
+    $data = formFetch("form_intakeverslag", $id);
     if( $data )
     {
         print "<table>";

@@ -50,7 +50,7 @@ if ( !$result ) //If there are no disclosures recorded
     echo xlt('Available Tracks') . ":";
     echo $result;
     echo "<ul>";
-    $result=sqlStatement($spell, array($pid, 'track_anything') );
+    $result=sqlStatement($spell, array($pid, 'track_anything'));
     while($myrow = sqlFetchArray($result)){
         $formname = $myrow['form_name'];
         $thedate = $myrow['maxdate'];

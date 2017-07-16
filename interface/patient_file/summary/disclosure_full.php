@@ -29,7 +29,7 @@ require_once("$srcdir/log.inc");
 require_once("$srcdir/options.inc.php");
 
 //retrieve the user name
-$res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}) );
+$res = sqlQuery("select username from users where username=?", array($_SESSION{"authUser"}));
 $uname=$res{"username"};
 //if the mode variable is set to disclosure, retrieve the values from 'disclosure_form ' in record_disclosure.php to store it in database.
 if (isset($_POST["mode"]) and  $_POST["mode"] == "disclosure"){
@@ -95,7 +95,7 @@ $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CON
   " LEFT JOIN users u ON u.username = el.user " .
   " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id='disclosure_type' AND activity = 1)" .
   " ORDER BY el.date DESC ";
-$r2= sqlStatement($disclQry, array($pid) );
+$r2= sqlStatement($disclQry, array($pid));
 $totalRecords=sqlNumRows($r2);
 
 //echo "select id,event,recipient,description,date from extended_log where patient_id=$pid AND event in (select option_id from list_options where list_id='disclosure_type') order by date desc limit $offset ,$N";
@@ -105,7 +105,7 @@ $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date
   " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
   " ORDER BY date DESC LIMIT $offset, $N";
 
-$r1= sqlStatement($disclInnerQry, array($pid) );
+$r1= sqlStatement($disclInnerQry, array($pid));
 $n=sqlNumRows($r1);
 $noOfRecordsLeft=($totalRecords - $offset);
 if ($n>0){?>

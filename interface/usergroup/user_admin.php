@@ -372,15 +372,23 @@ foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key =>
  <td class="text"><?php xl('Default Warehouse', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('default_warehouse', 'warehouse',
-  $iter['default_warehouse'], '');
+echo generate_select_list(
+    'default_warehouse',
+    'warehouse',
+    $iter['default_warehouse'],
+    ''
+);
 ?>
  </td>
  <td class="text"><?php xl('Invoice Refno Pool', 'e'); ?>: </td>
  <td class='text'>
 <?php
-echo generate_select_list('irnpool', 'irnpool', $iter['irnpool'],
-  xl('Invoice reference number pool, if used'));
+echo generate_select_list(
+    'irnpool',
+    'irnpool',
+    $iter['irnpool'],
+    xl('Invoice reference number pool, if used')
+);
 ?>
  </td>
 </tr>

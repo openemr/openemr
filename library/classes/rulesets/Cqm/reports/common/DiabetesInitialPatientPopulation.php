@@ -15,7 +15,7 @@ class DiabetesInitialPatientPopulation implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $age = $patient->calculateAgeOnDate( $beginDate );
+        $age = $patient->calculateAgeOnDate($beginDate);
         if ( $age >= 17 &&
             $age <= 74 ) {
             return true;

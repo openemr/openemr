@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class Encounter extends ClinicalType
 {
@@ -33,11 +33,11 @@ class Encounter extends ClinicalType
     
     public static function getEncounterTypes()
     {
-        $oClass = new ReflectionClass( 'Encounter' );
+        $oClass = new ReflectionClass('Encounter');
         $constants = $oClass->getConstants();
         $encounters = array();
         foreach ( $constants as $constant ) {
-            if ( strpos( $constant, 'enc' ) === 0 ) {
+            if ( strpos($constant, 'enc') === 0 ) {
                 $encounters[]= $constant;
             }
         }
@@ -58,11 +58,11 @@ class Encounter extends ClinicalType
      */
     public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null)
     {
-        $encounters = getEncounters( $patient->id, $beginDate, $endDate, $this->getOptionId() );
+        $encounters = getEncounters($patient->id, $beginDate, $endDate, $this->getOptionId());
         $dates = array();
         foreach ( $encounters as $encounter )
         {
-            $dateRow = getEncounterDateByEncounter( $encounter['encounter'] );
+            $dateRow = getEncounterDateByEncounter($encounter['encounter']);
             $dates []= $dateRow['date'];
         }
         return $dates;
@@ -70,10 +70,10 @@ class Encounter extends ClinicalType
     
     public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
     {
-        $encounters = getEncounters( $patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId() );
-        ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count( $encounters );
+        $encounters = getEncounters($patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId());
+        ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count($encounters);
         $requiredCount = 1;
-        if ( isset( $options[self::OPTION_ENCOUNTER_COUNT]  ) ) {
+        if ( isset($options[self::OPTION_ENCOUNTER_COUNT]) ) {
             $requiredCount = $options[self::OPTION_ENCOUNTER_COUNT];
         }
         if ( $totalNumberAppt < $requiredCount ) {

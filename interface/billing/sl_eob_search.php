@@ -24,19 +24,19 @@
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
-require_once ("../globals.php");
-require_once ("$srcdir/patient.inc");
-require_once ("$srcdir/invoice_summary.inc.php");
-require_once ("$srcdir/appointments.inc.php");
-require_once ($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once ("$srcdir/parse_era.inc.php");
-require_once ("$srcdir/sl_eob.inc.php");
-require_once ("$srcdir/api.inc");
-require_once ("$srcdir/forms.inc");
-require_once ("$srcdir/../controllers/C_Document.class.php");
-require_once ("$srcdir/documents.php");
-require_once ("$srcdir/options.inc.php");
-require_once ("$srcdir/acl.inc");
+require_once("../globals.php");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/invoice_summary.inc.php");
+require_once("$srcdir/appointments.inc.php");
+require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once("$srcdir/parse_era.inc.php");
+require_once("$srcdir/sl_eob.inc.php");
+require_once("$srcdir/api.inc");
+require_once("$srcdir/forms.inc");
+require_once("$srcdir/../controllers/C_Document.class.php");
+require_once("$srcdir/documents.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/acl.inc");
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 
@@ -47,8 +47,8 @@ $eracount = 0;
 /* Load dependencies only if we need them */
 if (! empty($GLOBALS['portal_onsite_two_enable'])) {
     /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-    require_once ("../../portal/lib/portal_mail.inc");
-    require_once ("../../portal/lib/appsql.class.php");
+    require_once("../../portal/lib/portal_mail.inc");
+    require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0)
     {
@@ -160,7 +160,7 @@ function validEmail($email)
 
 function emailLogin($patient_id, $message)
 {
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id));
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
         return false;
     }
@@ -253,14 +253,15 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     if ($GLOBALS['statement_appearance'] == '1') {
         require_once("$srcdir/html2pdf/vendor/autoload.php");
-        $pdf2 = new HTML2PDF ($GLOBALS['pdf_layout'],
-        $GLOBALS['pdf_size'],
-        $GLOBALS['pdf_language'],
-                           true, // default unicode setting is true
-                           'UTF-8', // default encoding setting is UTF-8
-                           array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                           $_SESSION['language_direction'] == 'rtl' ? true : false
-                           );
+        $pdf2 = new HTML2PDF(
+            $GLOBALS['pdf_layout'],
+            $GLOBALS['pdf_size'],
+            $GLOBALS['pdf_language'],
+            true, // default unicode setting is true
+            'UTF-8', // default encoding setting is UTF-8
+            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+            $_SESSION['language_direction'] == 'rtl' ? true : false
+        );
         ob_start();
         echo readfile($file_to_send, "r");//this file contains the HTML to be converted to pdf.
         //echo $file;
@@ -949,7 +950,7 @@ while ($row = sqlFetchArray($t_res)) {
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
         <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
-        <?php if ( function_exists('is_auth_portal') ? is_auth_portal( $row['pid'] ) : false){
+        <?php if ( function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false){
             echo(' PPt');
             echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");
             $is_portal = true;
@@ -958,7 +959,7 @@ while ($row = sqlFetchArray($t_res)) {
     <?php } ?>
   <td class="detail" align="left">
     <?php
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']) );
+    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($row['pid']));
     if ( $patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && validEmail($patientData['email'])) {
         echo xlt("YES");
     } else {

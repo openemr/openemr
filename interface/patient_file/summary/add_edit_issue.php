@@ -291,7 +291,7 @@ if ($_POST['form_save']) {
             sqlStatement('UPDATE prescriptions SET '
             . 'medication = 0 where patient_id = ? '
             . " and upper(trim(drug)) = ? "
-            . ' and medication = 1', array($thispid,strtoupper($_POST['form_title'])) );
+            . ' and medication = 1', array($thispid,strtoupper($_POST['form_title'])));
         }
 
     } else {

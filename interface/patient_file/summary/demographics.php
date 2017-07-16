@@ -97,7 +97,7 @@ function get_document_by_catg($pid, $doc_catg)
         "AND cd.document_id = d.id " .
         "AND c.id = cd.category_id " .
         "AND c.name LIKE ? " .
-        "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg) );
+        "ORDER BY d.date DESC LIMIT 1", array($pid, $doc_catg));
     }
 
     return($result['id']);
@@ -128,8 +128,8 @@ function image_widget($doc_id, $doc_catg)
             "&patient_id=$pid&document_id=$doc_id'" .
             " onclick='top.restoreSession()' class='css_button_small'>" .
             "<span>" .
-            htmlspecialchars( xl("View"), ENT_QUOTES )."</a> &nbsp;" .
-            htmlspecialchars( "$doc_catg - $image_file", ENT_QUOTES ) .
+            htmlspecialchars(xl("View"), ENT_QUOTES)."</a> &nbsp;" .
+            htmlspecialchars("$doc_catg - $image_file", ENT_QUOTES) .
             "</span> </td>";
     }
         echo "<table><tr>";
@@ -550,7 +550,7 @@ if($GLOBALS['portal_offsite_enable'] && $GLOBALS['portal_offsite_address']):
         endif; // portal_offsite_enable
 if (!($portalUserSetting)): // Show that the patient has not authorized portal access ?>
             <td style='padding-left:1em;'>
-                <?php echo htmlspecialchars( xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
+                <?php echo htmlspecialchars(xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
             </td>
         <?php endif;
         //Patient Portal
@@ -683,9 +683,18 @@ if ($GLOBALS['patient_id_category_name']) {
                                 else {
                                     $forceExpandAlways = false;
                                 }
-                                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-                                  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-                                  $widgetAuth, $fixedWidth, $forceExpandAlways);
+                                expand_collapse_widget(
+                                    $widgetTitle,
+                                    $widgetLabel,
+                                    $widgetButtonLabel,
+                                    $widgetButtonLink,
+                                    $widgetButtonClass,
+                                    $linkMethod,
+                                    $bodyClass,
+                                    $widgetAuth,
+                                    $fixedWidth,
+                                    $forceExpandAlways
+                                );
                                 ?>
         <br>
 <?php
@@ -750,9 +759,17 @@ $linkMethod = "html";
 $bodyClass = "";
 $widgetAuth = acl_check('patients', 'demo', '', 'write');
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
          <div id="DEM" >
           <ul class="tabNav">
@@ -775,7 +792,7 @@ foreach (array('primary','secondary','tertiary') as $instype) {
     $query = "SELECT * FROM insurance_data WHERE " .
     "pid = ? AND type = ? " .
     "ORDER BY date DESC";
-    $res = sqlStatement($query, array($pid, $instype) );
+    $res = sqlStatement($query, array($pid, $instype));
     while( $row = sqlFetchArray($res) ) {
         if ($row['provider'] ) $insurance_count++;
     }
@@ -792,9 +809,17 @@ if ( $insurance_count > 0 ) {
     $bodyClass = "";
     $widgetAuth = acl_check('patients', 'demo', '', 'write');
     $fixedWidth = true;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-    $widgetAuth, $fixedWidth);
+    expand_collapse_widget(
+        $widgetTitle,
+        $widgetLabel,
+        $widgetButtonLabel,
+        $widgetButtonLink,
+        $widgetButtonClass,
+        $linkMethod,
+        $bodyClass,
+        $widgetAuth,
+        $fixedWidth
+    );
 
     if ( $insurance_count > 0 ) {
     ?>
@@ -807,7 +832,7 @@ if ( $insurance_count > 0 ) {
             $query = "SELECT * FROM insurance_data WHERE " .
             "pid = ? AND type = ? " .
             "ORDER BY date DESC";
-            $res = sqlStatement($query, array($pid, $instype) );
+            $res = sqlStatement($query, array($pid, $instype));
 
             $enddate = 'Present';
 
@@ -828,7 +853,7 @@ if ( $insurance_count > 0 ) {
         }
                     // Display the eligibility tab
                     echo "<li><a href='#'>" .
-                        htmlspecialchars( xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
+                        htmlspecialchars(xl('Eligibility'), ENT_NOQUOTES) . "</a></li>";
 
                     ?></ul><?php
 
@@ -843,7 +868,7 @@ if ( $insurance_count > 0 ) {
                         $query = "SELECT * FROM insurance_data WHERE " .
                         "pid = ? AND type = ? " .
                         "ORDER BY date DESC";
-                        $res = sqlStatement($query, array($pid, $instype) );
+                        $res = sqlStatement($query, array($pid, $instype));
                         while( $row = sqlFetchArray($res) ) {
                             if ($row['provider'] ) {
                                 ?>
@@ -990,9 +1015,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = acl_check('patients', 'notes', '', 'write');
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
@@ -1035,9 +1068,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = acl_check('patients', 'disclosure', '', 'write');
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
@@ -1061,7 +1102,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $fixedWidth = false;
         expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
         $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
-        $result = sqlStatement($sql, array($pid) );
+        $result = sqlStatement($sql, array($pid));
 
         if (sqlNumRows($result) == 0) {
                 echo " <table><tr>\n";
@@ -1097,7 +1138,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
             "JOIN procedure_order ON  procedure_report.procedure_order_id = procedure_order.procedure_order_id " .
             "WHERE procedure_order.patient_id = ? " .
             "ORDER BY procedure_report.date_collected DESC ";
-  $existLabdata = sqlQuery($spruch, array($pid) );
+  $existLabdata = sqlQuery($spruch, array($pid));
 if ($existLabdata) {
     $widgetAuth = true;
 }
@@ -1105,9 +1146,17 @@ else {
     $widgetAuth = false;
 }
   $fixedWidth = true;
-  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-    $widgetAuth, $fixedWidth);
+  expand_collapse_widget(
+      $widgetTitle,
+      $widgetLabel,
+      $widgetButtonLabel,
+      $widgetButtonLink,
+      $widgetButtonClass,
+      $linkMethod,
+      $bodyClass,
+      $widgetAuth,
+      $fixedWidth
+  );
 ?>
       <br/>
       <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
@@ -1128,7 +1177,7 @@ else {
   $linkMethod = "html";
   $bodyClass = "notab";
   // check to see if any vitals exist
-  $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid) );
+  $existVitals = sqlQuery("SELECT * FROM form_vitals WHERE pid=?", array($pid));
 if ($existVitals) {
     $widgetAuth = true;
 }
@@ -1136,9 +1185,17 @@ else {
     $widgetAuth = false;
 }
   $fixedWidth = true;
-  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-    $widgetAuth, $fixedWidth);
+  expand_collapse_widget(
+      $widgetTitle,
+      $widgetLabel,
+      $widgetButtonLabel,
+      $widgetButtonLink,
+      $widgetButtonClass,
+      $linkMethod,
+      $bodyClass,
+      $widgetAuth,
+      $fixedWidth
+  );
 ?>
       <br/>
       <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>
@@ -1175,14 +1232,23 @@ else {
 if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
   // check to see if any instances exist for this patient
     $existVitals = sqlQuery(
-    "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
-    array($pid, $vitals_form_id));
+        "SELECT * FROM forms WHERE pid = ? AND formdir = ? AND deleted = 0",
+        array($pid, $vitals_form_id)
+    );
     $widgetAuth = $existVitals;
 }
     $fixedWidth = true;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-      $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-      $widgetAuth, $fixedWidth);
+    expand_collapse_widget(
+        $widgetTitle,
+        $widgetLabel,
+        $widgetButtonLabel,
+        $widgetButtonLink,
+        $widgetButtonClass,
+        $linkMethod,
+        $bodyClass,
+        $widgetAuth,
+        $fixedWidth
+    );
 ?>
        <br/>
        <div style='margin-left:10px' class='text'>
@@ -1220,9 +1286,17 @@ if (!$LBF_ACO || acl_check($LBF_ACO[0], $LBF_ACO[1], '', 'write')) {
         $bodyClass = "notab-right";
         $widgetAuth = false;
         $fixedWidth = false;
-        expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-                $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-                $widgetAuth, $fixedWidth);
+        expand_collapse_widget(
+            $widgetTitle,
+            $widgetLabel,
+            $widgetButtonLabel,
+            $widgetButtonLink,
+            $widgetButtonClass,
+            $linkMethod,
+            $bodyClass,
+            $widgetAuth,
+            $fixedWidth
+        );
 ?>
 <br />
 <?php
@@ -1259,7 +1333,7 @@ foreach ($photos as $photo_doc_id) {
         if ($myrow2) {
             $parentId = $myrow2['id'];
             $query = "SELECT id, name FROM categories WHERE parent=?";
-            $resNew1 = sqlStatement($query, array($parentId) );
+            $resNew1 = sqlStatement($query, array($parentId));
             while ($myrows3 = sqlFetchArray($resNew1)) {
                 $categoryId = $myrows3['id'];
                 $nameDoc = $myrows3['name'];
@@ -1270,7 +1344,7 @@ foreach ($photos as $photo_doc_id) {
                    "WHERE categories_to_documents.category_id=? " .
                    "AND documents.foreign_id=? " .
                    "ORDER BY documents.date DESC";
-                $resNew2 = sqlStatement($query, array($categoryId, $pid) );
+                $resNew2 = sqlStatement($query, array($categoryId, $pid));
                 $limitCounter = 0; // limit to one entry per category
                 while (($myrows4 = sqlFetchArray($resNew2)) && ($limitCounter == 0)) {
                     $dateTimeDoc = $myrows4['date'];
@@ -1548,7 +1622,7 @@ foreach ($photos as $photo_doc_id) {
         "ORDER BY e.pc_eventDate $direction , e.pc_startTime DESC " .
         "LIMIT " . $showpast;
 
-        $pres = sqlStatement($query, array($pid) );
+        $pres = sqlStatement($query, array($pid));
 
       // appointments expand collapse widget
         $widgetTitle = xl("Past Appointments");
@@ -1621,12 +1695,20 @@ foreach ($photos as $photo_doc_id) {
                 "FROM forms " .
                 "WHERE pid = ? " .
                 "AND formdir = ? ";
-                $existTracks = sqlQuery($spruch, array($pid, "track_anything") );
+                $existTracks = sqlQuery($spruch, array($pid, "track_anything"));
 
                 $fixedWidth = false;
-                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-                $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-                $widgetAuth, $fixedWidth);
+                expand_collapse_widget(
+                    $widgetTitle,
+                    $widgetLabel,
+                    $widgetButtonLabel,
+                    $widgetButtonLink,
+                    $widgetButtonClass,
+                    $linkMethod,
+                    $bodyClass,
+                    $widgetAuth,
+                    $fixedWidth
+                );
         ?>
       <br/>
       <div style='margin-left:10px' class='text'><img src='../../pic/ajax-loader.gif'/></div><br/>

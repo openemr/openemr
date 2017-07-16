@@ -92,7 +92,7 @@ class Savant3_Error
         
         // add a backtrace
         if ($conf ['trace'] === true) {
-            $this->trace = debug_backtrace ();
+            $this->trace = debug_backtrace();
         }
     }
     
@@ -106,9 +106,9 @@ class Savant3_Error
      */
     public function __toString()
     {
-        ob_start ();
-        echo get_class ( $this ) . ': ';
-        print_r ( get_object_vars ( $this ) );
-        return ob_get_clean ();
+        ob_start();
+        echo get_class($this) . ': ';
+        print_r(get_object_vars($this));
+        return ob_get_clean();
     }
 }

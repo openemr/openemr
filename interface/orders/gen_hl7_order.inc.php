@@ -118,9 +118,11 @@ function loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) $date = date('Y-m-d');
     $payers = array();
-    $dres = sqlStatement("SELECT * FROM insurance_data WHERE " .
-    "pid = ? AND date <= ? ORDER BY type ASC, date DESC",
-    array($pid, $date));
+    $dres = sqlStatement(
+        "SELECT * FROM insurance_data WHERE " .
+        "pid = ? AND date <= ? ORDER BY type ASC, date DESC",
+        array($pid, $date)
+    );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($dres)) {
         if (strcmp($prevtype, $drow['type']) == 0) continue;
@@ -129,8 +131,10 @@ function loadPayerInfo($pid, $date = '')
         // that indicates no insurance as of the given date.
         if (empty($drow['provider'])) continue;
         $ins = count($payers);
-        $crow = sqlQuery("SELECT * FROM insurance_companies WHERE id = ?",
-        array($drow['provider']));
+        $crow = sqlQuery(
+            "SELECT * FROM insurance_companies WHERE id = ?",
+            array($drow['provider'])
+        );
         $orow = new InsuranceCompany($drow['provider']);
         $payers[$ins] = array();
         $payers[$ins]['data']    = $drow;
@@ -158,32 +162,36 @@ function gen_hl7_order($orderid, &$out)
     $today = time();
     $out = '';
 
-    $porow = sqlQuery("SELECT " .
-    "po.date_collected, po.date_ordered, po.order_priority, " .
-    "pp.*, " .
-    "pd.pid, pd.pubpid, pd.fname, pd.lname, pd.mname, pd.DOB, pd.ss, " .
-    "pd.phone_home, pd.phone_biz, pd.sex, pd.street, pd.city, pd.state, pd.postal_code, " .
-    "f.encounter, u.fname AS docfname, u.lname AS doclname, u.npi AS docnpi " .
-    "FROM procedure_order AS po, procedure_providers AS pp, " .
-    "forms AS f, patient_data AS pd, users AS u " .
-    "WHERE " .
-    "po.procedure_order_id = ? AND " .
-    "pp.ppid = po.lab_id AND " .
-    "f.formdir = 'procedure_order' AND " .
-    "f.form_id = po.procedure_order_id AND " .
-    "pd.pid = f.pid AND " .
-    "u.id = po.provider_id",
-    array($orderid));
+    $porow = sqlQuery(
+        "SELECT " .
+        "po.date_collected, po.date_ordered, po.order_priority, " .
+        "pp.*, " .
+        "pd.pid, pd.pubpid, pd.fname, pd.lname, pd.mname, pd.DOB, pd.ss, " .
+        "pd.phone_home, pd.phone_biz, pd.sex, pd.street, pd.city, pd.state, pd.postal_code, " .
+        "f.encounter, u.fname AS docfname, u.lname AS doclname, u.npi AS docnpi " .
+        "FROM procedure_order AS po, procedure_providers AS pp, " .
+        "forms AS f, patient_data AS pd, users AS u " .
+        "WHERE " .
+        "po.procedure_order_id = ? AND " .
+        "pp.ppid = po.lab_id AND " .
+        "f.formdir = 'procedure_order' AND " .
+        "f.form_id = po.procedure_order_id AND " .
+        "pd.pid = f.pid AND " .
+        "u.id = po.provider_id",
+        array($orderid)
+    );
     if (empty($porow)) return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
 
-    $pcres = sqlStatement("SELECT " .
-    "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
-    "FROM procedure_order_code AS pc " .
-    "WHERE " .
-    "pc.procedure_order_id = ? AND " .
-    "pc.do_not_send = 0 " .
-    "ORDER BY pc.procedure_order_seq",
-    array($orderid));
+    $pcres = sqlStatement(
+        "SELECT " .
+        "pc.procedure_code, pc.procedure_name, pc.procedure_order_seq, pc.diagnoses " .
+        "FROM procedure_order_code AS pc " .
+        "WHERE " .
+        "pc.procedure_order_id = ? AND " .
+        "pc.do_not_send = 0 " .
+        "ORDER BY pc.procedure_order_seq",
+        array($orderid)
+    );
 
   // Message Header
     $out .= "MSH" .
@@ -364,18 +372,20 @@ function gen_hl7_order($orderid, &$out)
         }
 
         // Order entry questions and answers.
-        $qres = sqlStatement("SELECT " .
-        "a.question_code, a.answer, q.fldtype " .
-        "FROM procedure_answers AS a " .
-        "LEFT JOIN procedure_questions AS q ON " .
-        "q.lab_id = ? " .
-        "AND q.procedure_code = ? AND " .
-        "q.question_code = a.question_code " .
-        "WHERE " .
-        "a.procedure_order_id = ? AND " .
-        "a.procedure_order_seq = ? " .
-        "ORDER BY q.seq, a.answer_seq",
-        array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']));
+        $qres = sqlStatement(
+            "SELECT " .
+            "a.question_code, a.answer, q.fldtype " .
+            "FROM procedure_answers AS a " .
+            "LEFT JOIN procedure_questions AS q ON " .
+            "q.lab_id = ? " .
+            "AND q.procedure_code = ? AND " .
+            "q.question_code = a.question_code " .
+            "WHERE " .
+            "a.procedure_order_id = ? AND " .
+            "a.procedure_order_seq = ? " .
+            "ORDER BY q.seq, a.answer_seq",
+            array($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq'])
+        );
         $setid2 = 0;
         while ($qrow = sqlFetchArray($qres)) {
               // Formatting of these answer values may be lab-specific and we'll figure
@@ -477,7 +487,12 @@ function send_hl7_order($ppid, $out)
     }
 
   // Falling through to here indicates success.
-    newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-    "ID: $msgid Protocol: $protocol Host: $remote_host");
+    newEvent(
+        "proc_order_xmit",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "ID: $msgid Protocol: $protocol Host: $remote_host"
+    );
     return '';
 }

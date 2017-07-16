@@ -95,12 +95,14 @@ list($module,
      $op,
      $name,
      $file,
-     $type,) = pnVarCleanFromInput('module',
-                                  'func',
-                                  'op',
-                                  'name',
-                                  'file',
-                                  'type');
+     $type,) = pnVarCleanFromInput(
+         'module',
+         'func',
+         'op',
+         'name',
+         'file',
+         'type'
+     );
 
 // Defaults for variables
 if (isset($catid)) { pnVarCleanFromInput('catid'); }

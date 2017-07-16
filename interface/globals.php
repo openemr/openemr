@@ -242,10 +242,10 @@ $GLOBALS['twigLoader'] = $twigLoader;
 $GLOBALS['twig'] = $twigEnv;
 
 // This will open the openemr mysql connection.
-require_once (dirname(__FILE__) . "/../library/sql.inc");
+require_once(dirname(__FILE__) . "/../library/sql.inc");
 
 // Include the version file
-require_once (dirname(__FILE__) . "/../version.php");
+require_once(dirname(__FILE__) . "/../version.php");
 
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
@@ -375,13 +375,13 @@ if (!empty($glrow)) {
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
-    if (isset( $_SESSION['language_direction'] )) {
+    if (isset($_SESSION['language_direction'])) {
         if ($_SESSION['language_direction'] == 'rtl' &&
         !strpos($GLOBALS['css_header'], 'rtl')  ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
-    } elseif (isset( $_SESSION['language_choice'] )) {
+    } elseif (isset($_SESSION['language_choice'])) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
         if ($_SESSION['language_direction'] == 'rtl' &&
@@ -413,7 +413,7 @@ if (!empty($glrow)) {
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
         }
     }
-    unset( $temp_css_theme_name, $new_theme,$rtl_override);
+    unset($temp_css_theme_name, $new_theme,$rtl_override);
     // end of RTL section
 
   //

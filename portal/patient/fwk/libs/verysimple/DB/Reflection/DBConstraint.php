@@ -44,12 +44,12 @@ class DBConstraint
         $this->ReferenceTable = $this->Table->Schema->Tables [$this->ReferenceTableName];
         // print "<p><b>" . $this->Table->Name . " constraint references " . $reftable->Name . "</b></p>";
         
-        $this->NameNoPrefix = $this->Table->RemovePrefix ( $this->Name );
-        $this->KeyColumnNoPrefix = $this->Table->RemovePrefix ( $this->KeyColumn );
-        $this->ReferenceKeyColumnNoPrefix = $this->ReferenceTable->RemovePrefix ( $this->ReferenceKeyColumn );
+        $this->NameNoPrefix = $this->Table->RemovePrefix($this->Name);
+        $this->KeyColumnNoPrefix = $this->Table->RemovePrefix($this->KeyColumn);
+        $this->ReferenceKeyColumnNoPrefix = $this->ReferenceTable->RemovePrefix($this->ReferenceKeyColumn);
         
         // intelligently decide what a good name for this constraint might be
-        $tmp1 = str_replace ( "__", "_", str_replace ( $this->ReferenceTableName, "", str_replace ( "_id", "", $this->KeyColumnNoPrefix ) ) . "_" );
+        $tmp1 = str_replace("__", "_", str_replace($this->ReferenceTableName, "", str_replace("_id", "", $this->KeyColumnNoPrefix)) . "_");
         $tmp2 = $this->ReferenceTableName;
         $this->GetterName = ($tmp1 == "_") ? $tmp2 : ($tmp1 . $tmp2);
     }

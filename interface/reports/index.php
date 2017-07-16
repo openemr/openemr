@@ -1,7 +1,7 @@
 <?php
 
-require_once (dirname(__FILE__) . "/../globals.php");
-require_once (dirname(__FILE__) . "/../../library/adodb/adodb-pager.inc.php");
+require_once(dirname(__FILE__) . "/../globals.php");
+require_once(dirname(__FILE__) . "/../../library/adodb/adodb-pager.inc.php");
 
 //get db connection setup in sql.inc
 $db = $GLOBALS['adodb']['db'];

@@ -64,9 +64,11 @@ function addPortalMailboxMail(
         $replyid = $master_note;
     }
 
-    return sqlInsert("INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
+    return sqlInsert(
+        "INSERT INTO onsite_mail (date, body, owner, user, groupname, " .
             "authorized, activity, title, assigned_to, message_status, mail_chain, sender_id, sender_name, recipient_id, recipient_name, reply_mail_chain) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)",
-            array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid) );
+        array($datetime, $body, $owner, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note,$sid,$sn,$rid,$rn,$replyid)
+    );
 }
 
 function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search = '')
@@ -225,13 +227,13 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 function updatePortalMailMessageStatus($id, $message_status)
 {
     if ($message_status == "Done") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
+        sqlStatement("update onsite_mail set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
     }
     elseif($message_status == "Delete") {
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id) );
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1', deleted = '1',delete_date = ? where mail_chain = ? OR id = ?", array($message_status, date('Y-m-d H:i:s'), $id, $id));
     }
     else{
-        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
+        sqlStatement("update onsite_mail set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
     }
 }
 

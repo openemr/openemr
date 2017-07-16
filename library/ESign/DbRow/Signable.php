@@ -51,11 +51,22 @@ abstract class DbRow_Signable implements SignableIF
         $statement .= "JOIN users U ON E.uid = U.id ";
         $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
-        $result = sqlStatement( $statement, array( $this->_tableId, $this->_tableName ) );
+        $result = sqlStatement($statement, array( $this->_tableId, $this->_tableName ));
         
-        while ( $row = sqlFetchArray( $result ) ) {
-            $signature = new Signature( $row['id'], $row['tid'], $row['table'], $row['is_lock'],
-                $row['uid'], $row['fname'], $row['lname'], $row['datetime'], $row['hash'], $row['amendment'], $row['signature_hash'] );
+        while ( $row = sqlFetchArray($result) ) {
+            $signature = new Signature(
+                $row['id'],
+                $row['tid'],
+                $row['table'],
+                $row['is_lock'],
+                $row['uid'],
+                $row['fname'],
+                $row['lname'],
+                $row['datetime'],
+                $row['hash'],
+                $row['amendment'],
+                $row['signature_hash']
+            );
             $this->_signatures[]= $signature;
         }
         
@@ -75,7 +86,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-        $row = sqlQuery( $statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ) );
+        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
         $hash = null;
         if ( $row && isset($row['hash']) ) {
             $hash = $row['hash'];
@@ -98,7 +109,7 @@ abstract class DbRow_Signable implements SignableIF
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
         $statement .= "WHERE E.tid = ? AND E.table = ? AND is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1 ";
-        $row = sqlQuery( $statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ) );
+        $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ));
         if ( $row && $row['is_lock'] == SignatureIF::ESIGN_LOCK ) {
             return true;
         }
@@ -118,7 +129,7 @@ abstract class DbRow_Signable implements SignableIF
         }
         
         // Create a hash of the signable object so we can verify it's integrity
-        $hash = $this->_verification->hash( $this->getData() );
+        $hash = $this->_verification->hash($this->getData());
         
         // Crate a hash of the signature data itself. This is the same data as Signature::getData() method
         $signature = array(
@@ -128,14 +139,14 @@ abstract class DbRow_Signable implements SignableIF
             $isLock,
             $hash,
             $amendment );
-        $signatureHash = $this->_verification->hash( $signature );
+        $signatureHash = $this->_verification->hash($signature);
         
         // Append the hash of the signature data to the insert array before we insert
         $signature[]= $signatureHash;
-        $id = sqlInsert( $statement, $signature );
+        $id = sqlInsert($statement, $signature);
         
         if ( $id === false ) {
-            throw new \Exception( "Error occured while attempting to insert a signature into the database." );
+            throw new \Exception("Error occured while attempting to insert a signature into the database.");
         }
         
         return $id;
@@ -150,11 +161,11 @@ abstract class DbRow_Signable implements SignableIF
             $signatures = $this->getSignatures();
         
             // SignableIF is locked, so if it has any signatures, make sure it hasn't been edited since lock
-            if ( count( $signatures ) ) {
+            if ( count($signatures) ) {
                 
                 // Verify the data of the SignableIF object
                 $lastLockHash = $this->getLastLockHash();
-                $valid = $this->_verification->verify( $this->getData(), $lastLockHash );
+                $valid = $this->_verification->verify($this->getData(), $lastLockHash);
                 
                 if ( $valid === true ) {
                     

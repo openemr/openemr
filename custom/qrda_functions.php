@@ -175,7 +175,7 @@ function allEncPat($patient_id, $from_date, $to_date)
     $encArr = array();
     $patQry = "SELECT fe.encounter, fe.date,fe.pc_catid,opc.pc_catname FROM form_encounter fe inner join openemr_postcalendar_categories opc on opc.pc_catid = fe.pc_catid WHERE fe.pid = ? AND (DATE(fe.date) BETWEEN ? AND ?)";
     $patRes = sqlStatement($patQry, array($patient_id, $from_date, $to_date));
-    while( $patRow = sqlFetchArray($patRes ) ){
+    while( $patRow = sqlFetchArray($patRes) ){
         $encArr[] = $patRow;
     }
 
@@ -228,7 +228,7 @@ function allProcPat($proc_type = "Procedure", $patient_id, $from_date, $to_date)
             "WHERE poc.procedure_order_title = ? AND po.patient_id = ? ".
             "AND (po.date_ordered BETWEEN ? AND ?)";
     $procRes = sqlStatement($procQry, array($proc_type, $patient_id, $from_date, $to_date));
-    while( $procRow = sqlFetchArray($procRes ) ){
+    while( $procRow = sqlFetchArray($procRes) ){
         $procArr[] = $procRow;
     }
 
@@ -244,7 +244,7 @@ function allVitalsPat($patient_id, $from_date, $to_date)
             "WHERE v.pid = ? ".
             "AND (v.date BETWEEN ? AND ?)";
     $vitRes = sqlStatement($vitQry, array($patient_id, $from_date, $to_date));
-    while( $vitRow = sqlFetchArray($vitRes ) ){
+    while( $vitRow = sqlFetchArray($vitRes) ){
         $vitArr[] = $vitRow;
     }
 
@@ -258,7 +258,7 @@ function allImmuPat($patient_id, $from_date, $to_date)
             "WHERE patient_id = ? ".
             "AND (administered_date BETWEEN ? AND ?)";
     $immRes = sqlStatement($immQry, array($patient_id, $from_date, $to_date));
-    while( $immRow = sqlFetchArray($immRes ) ){
+    while( $immRow = sqlFetchArray($immRes) ){
         $immArr[] = $immRow;
     }
 

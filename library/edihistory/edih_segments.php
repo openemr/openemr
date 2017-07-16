@@ -1084,7 +1084,7 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
     }
     // if the segments are from a slice or transaction
     // a multidimensional array  segs[i][j] must be flattened
-    $ar_sngl = csv_singlerecord_test ( $segments );
+    $ar_sngl = csv_singlerecord_test($segments);
     // false when segments are a transaction or trace only
     if (!$ar_sngl) {
         //
@@ -1126,15 +1126,15 @@ function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = fa
             break;
         case 'HB':
             $capstr = "Eligibility Report "; //$cls = "txt271";
-            $trn_html = edih_271_text( $segments, $de);
+            $trn_html = edih_271_text($segments, $de);
             break;
         case 'HI':
             $capstr = "Authorization "; //$cls = "txt278";
-            $trn_html = edih_278_text( $segments, $de, $errs);
+            $trn_html = edih_278_text($segments, $de, $errs);
             break;
         case 'FA':
             $capstr = "Batch Acknowledgment "; //$cls = "txt997";
-            $trn_html = edih_997_text( $segments, $de);
+            $trn_html = edih_997_text($segments, $de);
             break;
         default:
             $capstr = "x12 $ftype "; //$cls = "txt_x12";

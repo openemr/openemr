@@ -905,20 +905,24 @@ function pnModCallHooks($hookobject, $hookaction, $hookid, $extrainfo)
         if ($hookarea == 'GUI') {
             if (pnModAvailable($hookmodule, $hooktype) &&
                 pnModLoad($hookmodule, $hooktype)) {
-                $output .= pnModFunc($hookmodule,
-                                     $hooktype,
-                                     $hookfunc,
-                                     array('objectid' => $hookid,
-                                           'extrainfo' => $extrainfo));
+                $output .= pnModFunc(
+                    $hookmodule,
+                    $hooktype,
+                    $hookfunc,
+                    array('objectid' => $hookid,
+                    'extrainfo' => $extrainfo)
+                );
             }
         } else {
             if (pnModAvailable($hookmodule, $hooktype) &&
                 pnModAPILoad($hookmodule, $hooktype)) {
-                $extrainfo = pnModAPIFunc($hookmodule,
-                                          $hooktype,
-                                          $hookfunc,
-                                          array('objectid' => $hookid,
-                                                'extrainfo' => $extrainfo));
+                $extrainfo = pnModAPIFunc(
+                    $hookmodule,
+                    $hooktype,
+                    $hookfunc,
+                    array('objectid' => $hookid,
+                    'extrainfo' => $extrainfo)
+                );
             }
         }
     }

@@ -12,13 +12,13 @@ class Controller_edit extends BaseController
     function _action_summary()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         if (is_null($rule)) {
             $rule = $this->getRuleManager()->newRule();
         }
 
         $this->viewBean->rule = $rule;
-        $this->set_view( "summary.php" );
+        $this->set_view("summary.php");
     }
 
     function _action_submit_summary()
@@ -32,7 +32,7 @@ class Controller_edit extends BaseController
         $web_ref = _post('fld_web_reference');
         if ( is_null($rule_id)) {
             // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummary( $ruleId, $types, $title, $developer, $funding, $release, $web_ref );
+            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
 
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=$ruleId");
@@ -44,17 +44,17 @@ class Controller_edit extends BaseController
     function _action_intervals()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
 
         $this->viewBean->rule = $rule;
-        $this->set_view( "intervals.php" );
+        $this->set_view("intervals.php");
     }
 
     function _action_submit_intervals()
     {
         // parse results from response
         $ruleId = _post('id');
-        $rule = $this->getRuleManager()->getRule($ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
 
         // new intervals object
         $intervals = new ReminderIntervals();
@@ -65,17 +65,17 @@ class Controller_edit extends BaseController
                 $timeKey = $amtKey . "-timeunit";
 
                 $amt = _post($amtKey);
-                $timeUnit = TimeUnit::from( _post($timeKey) );
+                $timeUnit = TimeUnit::from(_post($timeKey));
 
                 if ( $amt && $timeUnit ) {
-                    $detail = new ReminderIntervalDetail($type, $range, $amt, $timeUnit );
+                    $detail = new ReminderIntervalDetail($type, $range, $amt, $timeUnit);
                     $intervals->addDetail($detail);
                     $change = true;
                 }
             }
         }
         if ( $change ) {
-            $this->getRuleManager()->updateIntervals( $rule, $intervals );
+            $this->getRuleManager()->updateIntervals($rule, $intervals);
         }
 
         $this->redirect("index.php?action=detail!view&id=$ruleId");
@@ -84,9 +84,9 @@ class Controller_edit extends BaseController
     function _action_filter()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
-        $criteria = $this->getRuleManager()->getRuleFilterCriteria( $rule, $guid );
+        $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
 
         $this->viewBean->type = "filter";
         $this->viewBean->rule = $rule;
@@ -94,22 +94,22 @@ class Controller_edit extends BaseController
 
         $this->addHelper("common.php");
 
-        $this->set_view( $criteria->getView(), "criteria.php" );
+        $this->set_view($criteria->getView(), "criteria.php");
     }
 
     function _action_delete_filter()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
-        $this->getRuleManager()->deleteRuleFilter( $rule, $guid );
+        $this->getRuleManager()->deleteRuleFilter($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
     function _action_target()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
         $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $guid);
 
@@ -119,22 +119,22 @@ class Controller_edit extends BaseController
 
         $this->addHelper("common.php");
 
-        $this->set_view( $criteria->getView(), "criteria.php" );
+        $this->set_view($criteria->getView(), "criteria.php");
     }
 
     function _action_delete_target()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
-        $this->getRuleManager()->deleteRuleTarget( $rule, $guid );
+        $this->getRuleManager()->deleteRuleTarget($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
     function _action_codes()
     {
         $search = _get('q');
-        $codes = $this->getCodeManager()->search( $search );
+        $codes = $this->getCodeManager()->search($search);
         foreach( $codes as $code ) {
             echo $code->display() . "|". $code->id . "\n";
         }
@@ -142,7 +142,7 @@ class Controller_edit extends BaseController
 
     function _action_categories()
     {
-        $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
+        $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action_category' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
@@ -151,7 +151,7 @@ class Controller_edit extends BaseController
 
     function _action_items()
     {
-        $stmts = sqlStatement( "SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
+        $stmts = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = 'rule_action' AND activity = 1");
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = array( "code" => $row['option_id'], "lbl" => xl_list_label($row['title']) );
         }
@@ -162,7 +162,7 @@ class Controller_edit extends BaseController
     {
         $columns = array();
         $table = _get('table');
-        $stmts = sqlStatement( "SHOW COLUMNS FROM " . $table );
+        $stmts = sqlStatement("SHOW COLUMNS FROM " . $table);
         for($iter=0; $row=sqlFetchArray($stmts); $iter++) {
             $columns[] = $row['Field'];
         }
@@ -174,14 +174,14 @@ class Controller_edit extends BaseController
         // parse results from response
         $ruleId = _post('id');
         $groupId = _post('group_id');
-        $rule = $this->getRuleManager()->getRule($ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
 
         $guid = _post('guid');
         $type = _post('type');
         if ( $type == "filter" ) {
-            $criteria = $this->getRuleManager()->getRuleFilterCriteria( $rule, $guid );
+            $criteria = $this->getRuleManager()->getRuleFilterCriteria($rule, $guid);
         } else {
-            $criteria = $this->getRuleManager()->getRuleTargetCriteria( $rule, $guid );
+            $criteria = $this->getRuleManager()->getRuleTargetCriteria($rule, $guid);
         }
 
         if ( is_null($criteria) ) {
@@ -194,9 +194,9 @@ class Controller_edit extends BaseController
             $dbView = $criteria->getDbView();
 
             if ( $type == "filter" ) {
-                $this->ruleManager->updateFilterCriteria( $rule, $criteria );
+                $this->ruleManager->updateFilterCriteria($rule, $criteria);
             } else {
-                $this->ruleManager->updateTargetCriteria( $rule, $criteria );
+                $this->ruleManager->updateTargetCriteria($rule, $criteria);
             }
         }
         $this->redirect("index.php?action=detail!view&id=$ruleId");
@@ -205,21 +205,21 @@ class Controller_edit extends BaseController
     function _action_action()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
-        $action = $this->getRuleManager()->getRuleAction( $rule, $guid );
+        $action = $this->getRuleManager()->getRuleAction($rule, $guid);
         $this->viewBean->action = $action;
         $this->viewBean->rule = $rule;
         $this->addHelper("common.php");
-        $this->set_view( "action.php" );
+        $this->set_view("action.php");
     }
 
     function _action_delete_action()
     {
         $ruleId = _get('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $guid = _get('guid');
-        $action = $this->getRuleManager()->deleteRuleAction( $rule, $guid );
+        $action = $this->getRuleManager()->deleteRuleAction($rule, $guid);
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
@@ -227,20 +227,20 @@ class Controller_edit extends BaseController
     {
         $ruleId = _get('id');
         $groupId = _get('group_id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $action = new RuleAction();
         $action->id = $ruleId;
         $action->groupId = $groupId;
         $this->viewBean->action = $action;
         $this->viewBean->rule = $rule;
         $this->addHelper("common.php");
-        $this->set_view( "action.php" );
+        $this->set_view("action.php");
     }
 
     function _action_submit_action()
     {
         $ruleId = _post('id');
-        $rule = $this->getRuleManager()->getRule( $ruleId );
+        $rule = $this->getRuleManager()->getRule($ruleId);
         $groupId = _post('group_id');
         $guid = _post('guid');
 
@@ -254,7 +254,7 @@ class Controller_edit extends BaseController
         $customOption = _post("fld_custom_input") == "yes" ? 1 : 0;
 
         $action = $this->getRuleManager()->getRuleAction($rule, $guid);
-        if ( is_null( $action ) ) {
+        if ( is_null($action) ) {
             $action = new RuleAction();
             $action->id = $ruleId;
         }
@@ -270,7 +270,7 @@ class Controller_edit extends BaseController
         $action->reminderMessage = $message;
         $action->targetCriteria = $fld_target_criteria;
 
-        $this->getRuleManager()->updateRuleAction( $action );
+        $this->getRuleManager()->updateRuleAction($action);
         $this->redirect("index.php?action=detail!view&id=$ruleId");
     }
 
@@ -292,7 +292,7 @@ class Controller_edit extends BaseController
         $this->viewBean->groupId = $groupId;
         $this->viewBean->type = $type;
         $this->addHelper("common.php");
-        $this->set_view( "add_criteria.php" );
+        $this->set_view("add_criteria.php");
     }
 
     function _action_choose_criteria()
@@ -305,10 +305,10 @@ class Controller_edit extends BaseController
         $rule = $this->getRuleManager()->getRule($id);
 
         if ( $type == "filter") {
-            $criteria = $this->getRuleManager()->createFilterRuleCriteria( $rule, $criteriaType );
+            $criteria = $this->getRuleManager()->createFilterRuleCriteria($rule, $criteriaType);
         }
         if ( $type == "target") {
-            $criteria = $this->getRuleManager()->createTargetRuleCriteria( $rule, $criteriaType );
+            $criteria = $this->getRuleManager()->createTargetRuleCriteria($rule, $criteriaType);
         }
 
         $criteria->groupId = $groupId;
@@ -318,6 +318,6 @@ class Controller_edit extends BaseController
 
         $this->addHelper("common.php");
 
-        $this->set_view( $criteria->getView(), "criteria.php" );
+        $this->set_view($criteria->getView(), "criteria.php");
     }
 }

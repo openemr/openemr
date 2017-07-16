@@ -28,30 +28,39 @@ function addwhere($where, $colname, $value)
  // search parameters passed by our opener (ins_search.php).
 
  $where = '';
- $where = addwhere($where, 'i.name', $_REQUEST['form_name']  );
- $where = addwhere($where, 'i.attn', $_REQUEST['form_attn']  );
+ $where = addwhere($where, 'i.name', $_REQUEST['form_name']);
+ $where = addwhere($where, 'i.attn', $_REQUEST['form_attn']);
  $where = addwhere($where, 'i.cms_id', $_REQUEST['form_cms_id']);
- $where = addwhere($where, 'a.line1', $_REQUEST['form_addr1'] );
- $where = addwhere($where, 'a.line2', $_REQUEST['form_addr2'] );
- $where = addwhere($where, 'a.city', $_REQUEST['form_city']  );
- $where = addwhere($where, 'a.state', $_REQUEST['form_state'] );
- $where = addwhere($where, 'a.zip', $_REQUEST['form_zip']   );
+ $where = addwhere($where, 'a.line1', $_REQUEST['form_addr1']);
+ $where = addwhere($where, 'a.line2', $_REQUEST['form_addr2']);
+ $where = addwhere($where, 'a.city', $_REQUEST['form_city']);
+ $where = addwhere($where, 'a.state', $_REQUEST['form_state']);
+ $where = addwhere($where, 'a.zip', $_REQUEST['form_zip']);
 
  $phone_parts = array();
 
  // Search by area code if there is one.
- if (preg_match("/(\d\d\d)/",
-  $_REQUEST['form_phone'], $phone_parts))
+ if (preg_match(
+     "/(\d\d\d)/",
+     $_REQUEST['form_phone'],
+     $phone_parts
+ ))
   $where = addwhere($where, 'p.area_code', $phone_parts[1]);
 
  // If there is also an exchange, search for that too.
- if (preg_match("/\d\d\d\D*(\d\d\d)/",
-  $_REQUEST['form_phone'], $phone_parts))
+ if (preg_match(
+     "/\d\d\d\D*(\d\d\d)/",
+     $_REQUEST['form_phone'],
+     $phone_parts
+ ))
   $where = addwhere($where, 'p.prefix', $phone_parts[1]);
 
  // If the last 4 phone number digits are given, search for that too.
- if (preg_match("/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-  $_REQUEST['form_phone'], $phone_parts))
+ if (preg_match(
+     "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
+     $_REQUEST['form_phone'],
+     $phone_parts
+ ))
   $where = addwhere($where, 'p.number', $phone_parts[1]);
 
  $query = "SELECT " .

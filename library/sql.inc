@@ -181,7 +181,7 @@ function sqlStatement($statement, $binds = false)
   // Use adodb Execute with binding and return a recordset.
   //   Note that the auditSQLEvent function is embedded
   //    in the Execute command.
-    $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds );
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
@@ -212,7 +212,7 @@ function sqlStatementNoLog($statement, $binds = false)
     if (empty($binds)) $binds = false;
 
   // Use adodb ExecuteNoLog with binding and return a recordset.
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
@@ -281,7 +281,7 @@ function sqlFetchArray($r)
 function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols = false)
 {
 
-    return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
+    return $GLOBALS['adodb']['db']->getAssoc($sql, $bindvars, $forceArray, $first2Cols);
 }
 
 /**
@@ -329,7 +329,7 @@ function sqlQuery($statement, $binds = false)
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
 
-    $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds );
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
 
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
@@ -361,7 +361,7 @@ function sqlQueryNoLog($statement, $binds = false)
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
 
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
         HelpfulDie("query failed: $statement", getSqlLastError());
@@ -394,7 +394,7 @@ function sqlQueryNoLogIgnoreError($statement, $binds = false)
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
 
-    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog( $statement, $binds );
+    $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
     if ($recordset === false) {
         // ignore the error and return FALSE
@@ -584,7 +584,7 @@ function sqlQ($statement, $binds = false)
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
 
-    $recordset = $GLOBALS['adodb']['db']->Execute( $statement, $binds ) or
+    $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds) or
     HelpfulDie("query failed: $statement", getSqlLastError());
     return $recordset;
 }

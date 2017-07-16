@@ -1,9 +1,9 @@
 <?php
 /** @package verysimple::DB::DataDriver */
-require_once ("IDataDriver.php");
-require_once ("verysimple/DB/ISqlFunction.php");
-require_once ("verysimple/DB/DatabaseException.php");
-require_once ("verysimple/DB/DatabaseConfig.php");
+require_once("IDataDriver.php");
+require_once("verysimple/DB/ISqlFunction.php");
+require_once("verysimple/DB/DatabaseException.php");
+require_once("verysimple/DB/DatabaseConfig.php");
 
 /**
  * An implementation of IDataDriver that communicates with
@@ -50,7 +50,7 @@ class DataDriverMySQLi implements IDataDriver
     }
     function Ping($connection)
     {
-        return mysqli_ping ( $connection );
+        return mysqli_ping($connection);
     }
     
     /**
@@ -58,35 +58,35 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! function_exists ( "mysqli_connect" ))
-            throw new DatabaseException ( 'mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR );
+        if (! function_exists("mysqli_connect"))
+            throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
             
             // if the port is provided in the connection string then strip it out and provide it as a separate param
-        $hostAndPort = explode ( ":", $connectionstring );
+        $hostAndPort = explode(":", $connectionstring);
         $host = $hostAndPort [0];
-        $port = count ( $hostAndPort ) > 1 ? $hostAndPort [1] : null;
+        $port = count($hostAndPort) > 1 ? $hostAndPort [1] : null;
         
-        $connection = mysqli_connect ( $host, $username, $password, $database, $port );
+        $connection = mysqli_connect($host, $username, $password, $database, $port);
         
-        if (mysqli_connect_errno ()) {
-            throw new DatabaseException ( "Error connecting to database: " . mysqli_connect_error (), DatabaseException::$CONNECTION_ERROR );
+        if (mysqli_connect_errno()) {
+            throw new DatabaseException("Error connecting to database: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
         }
         
         if ($charset) {
-            mysqli_set_charset ( $connection, $charset );
+            mysqli_set_charset($connection, $charset);
             
-            if (mysqli_connect_errno ()) {
-                throw new DatabaseException ( "Unable to set charset: " . mysqli_connect_error (), DatabaseException::$CONNECTION_ERROR );
+            if (mysqli_connect_errno()) {
+                throw new DatabaseException("Unable to set charset: " . mysqli_connect_error(), DatabaseException::$CONNECTION_ERROR);
             }
         }
         
         if ($bootstrap) {
-            $statements = explode ( ';', $bootstrap );
+            $statements = explode(';', $bootstrap);
             foreach ( $statements as $sql ) {
                 try {
-                    $this->Execute ( $connection, $sql );
+                    $this->Execute($connection, $sql);
                 } catch ( Exception $ex ) {
-                    throw new DatabaseException ( "problem with bootstrap sql: " . $ex->getMessage (), DatabaseException::$ERROR_IN_QUERY );
+                    throw new DatabaseException("problem with bootstrap sql: " . $ex->getMessage(), DatabaseException::$ERROR_IN_QUERY);
                 }
             }
         }
@@ -99,7 +99,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Close($connection)
     {
-        @mysqli_close ( $connection ); // ignore warnings
+        @mysqli_close($connection); // ignore warnings
     }
     
     /**
@@ -107,8 +107,8 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Query($connection, $sql)
     {
-        if (! $rs = @mysqli_query ( $connection, $sql )) {
-            throw new DatabaseException ( mysqli_error ( $connection ), DatabaseException::$ERROR_IN_QUERY );
+        if (! $rs = @mysqli_query($connection, $sql)) {
+            throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
         }
         
         return $rs;
@@ -119,11 +119,11 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Execute($connection, $sql)
     {
-        if (! $result = @mysqli_query ( $connection, $sql )) {
-            throw new DatabaseException ( mysqli_error ( $connection ), DatabaseException::$ERROR_IN_QUERY );
+        if (! $result = @mysqli_query($connection, $sql)) {
+            throw new DatabaseException(mysqli_error($connection), DatabaseException::$ERROR_IN_QUERY);
         }
         
-        return mysqli_affected_rows ( $connection );
+        return mysqli_affected_rows($connection);
     }
     
     /**
@@ -131,7 +131,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Fetch($connection, $rs)
     {
-        return mysqli_fetch_assoc ( $rs );
+        return mysqli_fetch_assoc($rs);
     }
     
     /**
@@ -139,7 +139,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function GetLastInsertId($connection)
     {
-        return (mysqli_insert_id ( $connection ));
+        return (mysqli_insert_id($connection));
     }
     
     /**
@@ -147,7 +147,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function GetLastError($connection)
     {
-        return mysqli_error ( $connection );
+        return mysqli_error($connection);
     }
     
     /**
@@ -155,7 +155,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Release($connection, $rs)
     {
-        mysqli_free_result ( $rs );
+        mysqli_free_result($rs);
     }
     
     /**
@@ -166,7 +166,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Escape($val)
     {
-        return str_replace ( self::$BAD_CHARS, self::$GOOD_CHARS, $val );
+        return str_replace(self::$BAD_CHARS, self::$GOOD_CHARS, $val);
         // return mysqli_real_escape_string($val);
     }
     
@@ -179,9 +179,9 @@ class DataDriverMySQLi implements IDataDriver
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
         
         if ($val instanceof ISqlFunction)
-            return $val->GetQuotedSql ( $this );
+            return $val->GetQuotedSql($this);
         
-        return "'" . $this->Escape ( $val ) . "'";
+        return "'" . $this->Escape($val) . "'";
     }
     
     /**
@@ -189,12 +189,12 @@ class DataDriverMySQLi implements IDataDriver
      */
     function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
     {
-        $sql = "SHOW TABLE STATUS FROM `" . $this->Escape ( $dbname ) . "`";
-        $rs = $this->Query ( $connection, $sql );
+        $sql = "SHOW TABLE STATUS FROM `" . $this->Escape($dbname) . "`";
+        $rs = $this->Query($connection, $sql);
         
         $tables = array ();
         
-        while ( $row = $this->Fetch ( $connection, $rs ) ) {
+        while ( $row = $this->Fetch($connection, $rs) ) {
             if ($ommitEmptyTables == false || $rs ['Data_free'] > 0) {
                 $tables [] = $row ['Name'];
             }
@@ -209,13 +209,13 @@ class DataDriverMySQLi implements IDataDriver
     function Optimize($connection, $table)
     {
         $result = "";
-        $rs = $this->Query ( $connection, "optimize table `" . $this->Escape ( $table ) . "`" );
+        $rs = $this->Query($connection, "optimize table `" . $this->Escape($table) . "`");
         
-        while ( $row = $this->Fetch ( $connection, $rs ) ) {
+        while ( $row = $this->Fetch($connection, $rs) ) {
             $tbl = $row ['Table'];
-            if (! isset ( $results [$tbl] ))
+            if (! isset($results [$tbl]))
                 $results [$tbl] = "";
-            $result .= trim ( $results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"" );
+            $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
         
         return $result;
@@ -226,8 +226,8 @@ class DataDriverMySQLi implements IDataDriver
      */
     function StartTransaction($connection)
     {
-        $this->Execute ( $connection, "SET AUTOCOMMIT=0" );
-        $this->Execute ( $connection, "START TRANSACTION" );
+        $this->Execute($connection, "SET AUTOCOMMIT=0");
+        $this->Execute($connection, "START TRANSACTION");
     }
     
     /**
@@ -235,8 +235,8 @@ class DataDriverMySQLi implements IDataDriver
      */
     function CommitTransaction($connection)
     {
-        $this->Execute ( $connection, "COMMIT" );
-        $this->Execute ( $connection, "SET AUTOCOMMIT=1" );
+        $this->Execute($connection, "COMMIT");
+        $this->Execute($connection, "SET AUTOCOMMIT=1");
     }
     
     /**
@@ -244,7 +244,7 @@ class DataDriverMySQLi implements IDataDriver
      */
     function RollbackTransaction($connection)
     {
-        $this->Execute ( $connection, "ROLLBACK" );
-        $this->Execute ( $connection, "SET AUTOCOMMIT=1" );
+        $this->Execute($connection, "ROLLBACK");
+        $this->Execute($connection, "SET AUTOCOMMIT=1");
     }
 }

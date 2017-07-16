@@ -137,7 +137,7 @@ if ($upgrade != 1) {
     }
     $query = "";
     $line = "";
-    while (!feof ($fd)){
+    while (!feof($fd)){
         $line = fgets($fd, 1024);
         $line = rtrim($line);
         if (substr($line, 0, 2) == "--") // Kill comments
@@ -240,10 +240,16 @@ fclose($fd);
     $d = getcwd();
     $dn = dirname($d);
     $contents = file_get_contents($d.'/interface/globals.php');
-    $contents = preg_replace('/\$webserver_root\s+=\s+[\"\'].*?[\"\'];/',
-        "\$webserver_root = '".$dn."/".$newname."';", $contents);
-    $contents = preg_replace('/\$web_root\s+=\s+[\"\'].*?[\"\'];/',
-        "\$web_root = '/".$newname."';", $contents);
+    $contents = preg_replace(
+        '/\$webserver_root\s+=\s+[\"\'].*?[\"\'];/',
+        "\$webserver_root = '".$dn."/".$newname."';",
+        $contents
+    );
+    $contents = preg_replace(
+        '/\$web_root\s+=\s+[\"\'].*?[\"\'];/',
+        "\$web_root = '/".$newname."';",
+        $contents
+    );
     file_put_contents($d.'/interface/globals.php', $contents);
   if (rename($d, $dn.'/'.$newname)) {
       echo "<br/><a href='http://localhost/".$newname."'>click here</a>";

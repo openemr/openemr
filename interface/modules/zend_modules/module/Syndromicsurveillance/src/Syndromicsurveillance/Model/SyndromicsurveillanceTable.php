@@ -482,7 +482,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         }
         //send the header here
         header('Content-type: text/plain');
-        header('Content-Disposition: attachment; filename=' . $filename );
+        header('Content-Disposition: attachment; filename=' . $filename);
           
         // put the content in the file
         echo($content);

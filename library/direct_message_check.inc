@@ -75,8 +75,14 @@ function phimail_connect(&$phimail_error)
         $fp = false;
         while ($socket_tries < 3 && !$fp) {
             $socket_tries++;
-            $fp = @stream_socket_client($server, $err1, $err2, 10,
-            STREAM_CLIENT_CONNECT, $context);
+            $fp = @stream_socket_client(
+                $server,
+                $err1,
+                $err2,
+                10,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
         }
         if (!$fp) {
             if ($err1 == '111') $err2 = xl('Server may be offline');
@@ -172,10 +178,18 @@ function phimail_check()
                 xl('unknown (see log)') : $user_row['username'];
                    $fail_notice = xl('Sent by:') . ' ' . $fail_user . '(' . $msg['user_id'] . ') ' . xl('on') . ' ' . $msg['create_ts']
                 . "\n" . xl('Sent to:') . ' ' . $msg['recipient'] . "\n" . xl('Server message:') . ' ' . $ret;
-                phimail_notify( xl('Direct Messaging Send Failure.'), $fail_notice);
-                   $pnote_id = addPnote($msg['patient_id'],
-                xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
-                0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
+                phimail_notify(xl('Direct Messaging Send Failure.'), $fail_notice);
+                   $pnote_id = addPnote(
+                       $msg['patient_id'],
+                       xl("FAILURE NOTICE: Direct Message Send Failed.") . "\n\n$fail_notice\n",
+                       0,
+                       1,
+                       "Unassigned",
+                       $notifyUsername,
+                       "",
+                       "New",
+                       "phimail-service"
+                   );
             }
 
          //done with this status message
@@ -253,7 +267,7 @@ function phimail_check()
                    $all_doc_ids[] = $idnum;
                    $url=$doc_id['url'];
                    $url=substr($url, strrpos($url, "/")+1);
-                   $att_detail = "\n" . xl ("Document") . " $idnum (\"$url\"; $mime_type_main; " .
+                   $att_detail = "\n" . xl("Document") . " $idnum (\"$url\"; $mime_type_main; " .
                   filesize($body) . " bytes) Main message body";
             }
 
@@ -293,7 +307,7 @@ function phimail_check()
                 $all_doc_ids[] = $idnum;
                 $url=$att_doc_id['url'];
                 $url=substr($url, strrpos($url, "/")+1);
-                $att_detail = $att_detail . "\n" . xl ("Document") . " $idnum (\"$url\"; $attmime; " .
+                $att_detail = $att_detail . "\n" . xl("Document") . " $idnum (\"$url\"; $attmime; " .
                 filesize($attdata) . " bytes) " . trim($attinfo[$attnum]['desc']);
             }
 
@@ -315,8 +329,17 @@ function phimail_check()
                 case "text/plain":
                     $body_text = @file_get_contents($body); //this was not uploaded as a document
                     unlink($body);
-                    $pnote_id = addPnote(0, xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
-                      0, 1, "Unassigned", $notifyUsername, "", "New", "phimail-service");
+                    $pnote_id = addPnote(
+                        0,
+                        xl("Direct Message Received.") . "\n$hdrs\n$body_text$att_detail",
+                        0,
+                        1,
+                        "Unassigned",
+                        $notifyUsername,
+                        "",
+                        "New",
+                        "phimail-service"
+                    );
                     break;
 
                 default:
@@ -394,7 +417,7 @@ function phimail_read_blob($fp, $len)
         $fn = $fpath . "/" . $name . "." . $dup++ . ".dat";
     }
 
-    $ff = @fopen ($fn, "w");
+    $ff = @fopen($fn, "w");
     if(!$ff) return false;
 
     $bytes_left=$len;

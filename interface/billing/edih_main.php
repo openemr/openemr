@@ -48,8 +48,8 @@ define('SITE_IN', 1);
 // Try to prevent search for too short encounter value
 if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) define("ENCOUNTER_MIN_DIGIT_LENGTH", 1);
 // these delimiters are hardcoded into OpenEMR batch files
-if (!defined("SEG_ELEM_DELIM")) define( "SEG_ELEM_DELIM", "*");
-if (!defined("SEG_TERM_DELIM")) define( "SEG_TERM_DELIM", "~");
+if (!defined("SEG_ELEM_DELIM")) define("SEG_ELEM_DELIM", "*");
+if (!defined("SEG_TERM_DELIM")) define("SEG_TERM_DELIM", "~");
 //clearinghouse practice
 if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
 //
@@ -199,28 +199,28 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
         $la = filter_input(INPUT_GET, 'loglist', FILTER_DEFAULT);
         $html_str = edih_disp_logfiles();
 
-    } elseif ( isset( $_GET['archivelog']) ) {
+    } elseif ( isset($_GET['archivelog']) ) {
         // Notes tab  [archive log files if older than 7 days]
         // ========= log user access for user commands ===========
         csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
         // =====================================
         $html_str = edih_disp_logfiles();
 
-    } elseif ( isset( $_GET['logshowfile']) ) {
+    } elseif ( isset($_GET['logshowfile']) ) {
         // New Files tab  [ Process New ]
         // ========= log user access for user commands ===========
         csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
         // =====================================
         $html_str = edih_disp_log();
 
-    } elseif ( isset( $_GET['ProcessFiles']) ) {
+    } elseif ( isset($_GET['ProcessFiles']) ) {
         // New Files tab  [ Process New ]
         // ========= log user access for user commands ===========
         csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
         // =====================================
         $html_str = edih_disp_file_process();
 
-    } elseif ( isset( $_GET['gtbl']) ) {
+    } elseif ( isset($_GET['gtbl']) ) {
         // get from a csv_table
         // ========= log user access for user commands ===========
         csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));
@@ -232,7 +232,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
         } elseif ($gtb == 'claim') {
             $html_str = edih_disp_x12trans();
         } elseif ($gtb == 'hist') {
-            $chkd = (isset( $_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_DEFAULT) : '';
+            $chkd = (isset($_GET['chkdenied'])) ? filter_input(INPUT_GET, 'chkdenied', FILTER_DEFAULT) : '';
             if ($chkd == 'yes') {
                 $html_str = edih_disp_denied_claims();
             } else {
@@ -269,7 +269,7 @@ if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
             $html_str = "alert('$html_str')";
         }
 
-    } elseif ( isset( $_GET['chkdenied']) ) {
+    } elseif ( isset($_GET['chkdenied']) ) {
         // files csv table
         // ========= log user access for user commands ===========
         csv_edihist_log("User: ".$_SERVER['REMOTE_ADDR'].' - '.date("F j, Y, g:i a"));

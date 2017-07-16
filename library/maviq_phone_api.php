@@ -60,12 +60,19 @@ class MaviqClient
                 // curl_setopt($curl, CURLOPT_PUT, TRUE);
                 curl_setopt($curl, CURLOPT_POSTFIELDS, $encoded);
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
-                file_put_contents($tmpfile = tempnam("/tmp", "put_"),
-                    $encoded);
-                curl_setopt($curl, CURLOPT_INFILE, $fp = fopen($tmpfile,
-                    'r'));
-                curl_setopt($curl, CURLOPT_INFILESIZE,
-                    filesize($tmpfile));
+                file_put_contents(
+                    $tmpfile = tempnam("/tmp", "put_"),
+                    $encoded
+                );
+                curl_setopt($curl, CURLOPT_INFILE, $fp = fopen(
+                    $tmpfile,
+                    'r'
+                ));
+                curl_setopt(
+                    $curl,
+                    CURLOPT_INFILESIZE,
+                    filesize($tmpfile)
+                );
                 break;
             case "DELETE":
                 curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "DELETE");
@@ -76,13 +83,17 @@ class MaviqClient
         }
             
         // send credentials
-        curl_setopt($curl, CURLOPT_USERPWD,
-            $pwd = "{$this->SiteId}:{$this->Token}");
+        curl_setopt(
+            $curl,
+            CURLOPT_USERPWD,
+            $pwd = "{$this->SiteId}:{$this->Token}"
+        );
             
         // do the request. If FALSE, then an exception occurred
         if(false === ($result = curl_exec($curl)))
             throw(new Exception(
-                "Curl failed with error " . curl_error($curl)));
+                "Curl failed with error " . curl_error($curl)
+            ));
             
         // get result code
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);

@@ -51,9 +51,9 @@ abstract class RuleCriteria
 
     function getCharacteristics()
     {
-        $characteristics = $this->optional ? xl ( "Optional" ) : xl ( "Required" );
+        $characteristics = $this->optional ? xl("Optional") : xl("Required");
         $characteristics .= " ";
-        $characteristics .= $this->inclusion ? xl( "Inclusion" ) : xl( "Exclusion" );
+        $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
 
         return $characteristics;
     }
@@ -66,11 +66,11 @@ abstract class RuleCriteria
 
     function getInterval()
     {
-        if ( is_null($this->interval) || is_null( $this->intervalType ) ) {
+        if ( is_null($this->interval) || is_null($this->intervalType) ) {
             return null;
         }
-        return xl( $this->interval ) . " x " . " "
-             . xl( $this->intervalType->lbl );
+        return xl($this->interval) . " x " . " "
+             . xl($this->intervalType->lbl);
     }
 
     protected function getLabel($value, $list_id)
@@ -122,7 +122,7 @@ abstract class RuleCriteria
         $optional = "yes" == _post("fld_optional");
         $groupId = _post("group_id");
         $interval = _post("fld_target_interval");
-        $intervalType = TimeUnit::from( _post("fld_target_interval_type") );
+        $intervalType = TimeUnit::from(_post("fld_target_interval_type"));
 
         $this->groupId = $groupId;
         $this->optional = $optional;

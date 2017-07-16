@@ -61,23 +61,29 @@ if ($mode == 'new')
 {
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     $encounter = generate_id();
-    addForm($encounter, "New Therapy Group Encounter",
-    sqlInsert("INSERT INTO form_groups_encounter SET " .
-      "date = '" . add_escape_custom($date) . "', " .
-      "onset_date = '" . add_escape_custom($onset_date) . "', " .
-      "reason = '" . add_escape_custom($reason) . "', " .
-      "facility = '" . add_escape_custom($facility) . "', " .
-      "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
-      "facility_id = '" . add_escape_custom($facility_id) . "', " .
-      "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
-      "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-      "referral_source = '" . add_escape_custom($referral_source) . "', " .
-      "group_id = '" . add_escape_custom($group_id) . "', " .
-      "encounter = '" . add_escape_custom($encounter) . "', " .
-      "pos_code = '" . add_escape_custom($pos_code) . "', " .
-      "provider_id = '" . add_escape_custom($provider_id) . "'," .
-      "counselors = '" . add_escape_custom($counselors) . "'"),
-    "newGroupEncounter", null, $userauthorized, $date);
+    addForm(
+        $encounter,
+        "New Therapy Group Encounter",
+        sqlInsert("INSERT INTO form_groups_encounter SET " .
+        "date = '" . add_escape_custom($date) . "', " .
+        "onset_date = '" . add_escape_custom($onset_date) . "', " .
+        "reason = '" . add_escape_custom($reason) . "', " .
+        "facility = '" . add_escape_custom($facility) . "', " .
+        "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
+        "facility_id = '" . add_escape_custom($facility_id) . "', " .
+        "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
+        "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
+        "referral_source = '" . add_escape_custom($referral_source) . "', " .
+        "group_id = '" . add_escape_custom($group_id) . "', " .
+        "encounter = '" . add_escape_custom($encounter) . "', " .
+        "pos_code = '" . add_escape_custom($pos_code) . "', " .
+        "provider_id = '" . add_escape_custom($provider_id) . "'," .
+        "counselors = '" . add_escape_custom($counselors) . "'"),
+        "newGroupEncounter",
+        null,
+        $userauthorized,
+        $date
+    );
 }
 else if ($mode == 'update')
 {

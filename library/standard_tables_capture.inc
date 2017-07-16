@@ -374,7 +374,7 @@ function icd_import($type)
                     $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 0";
                     sqlQuery($run_sql);
                     $run_sql = "UPDATE " . $incoming[$this_key]['#TABLENAME#'] . " SET active = 1, revision = ? WHERE revision = 0";
-                    sqlQuery($run_sql, array($next_rev) );
+                    sqlQuery($run_sql, array($next_rev));
                     break;
                 }
             }
@@ -382,7 +382,7 @@ function icd_import($type)
         closedir($handle);
     }
     else {
-        echo htmlspecialchars( xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: No ICD import directory.'), ENT_NOQUOTES)."<br>";
         return;
     }
 
@@ -456,23 +456,23 @@ function temp_dir_cleanup($type)
 function update_tracker_table($type, $revision, $version, $file_checksum)
 {
     if ($type == 'RXNORM') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
     else if ($type == 'SNOMED') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'SNOMED',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
     else if ($type == 'ICD9') {
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD9',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
     else if($type == 'CQM_VALUESET'){
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'CQM_VALUESET',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
     else { // $type == 'ICD10')
-        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum) );
+        sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'ICD10',?,?,?)", array($revision, $version, $file_checksum));
         return true;
     }
     return false;
@@ -501,14 +501,14 @@ function handle_zip_file($mode, $file)
 {
         // 1. copy the file to temp directory
     if (!temp_copy($file, $mode)) {
-        echo htmlspecialchars( xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to copy the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;
     }
 
         // 2. unarchive the file
     if (!temp_unarchive($file, $mode)) {
-        echo htmlspecialchars( xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
+        echo htmlspecialchars(xl('ERROR: Unable to extract the file.'), ENT_NOQUOTES)."<br>";
         temp_dir_cleanup($mode);
         exit;
     }

@@ -304,8 +304,8 @@ if(count($dataSheet) > 0){
     }
 }
 
-$from_date = date('Y', strtotime($target_date ))."-01-01";
-$to_date =  date('Y', strtotime($target_date ))."-12-31";
+$from_date = date('Y', strtotime($target_date))."-01-01";
+$to_date =  date('Y', strtotime($target_date))."-12-31";
 $xml = new QRDAXml();
 
 #################################################################################################
@@ -627,14 +627,14 @@ if(count($dataSheet) > 0){
         $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
 
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . htmlspecialchars( xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
+            $tdTitle .= " " . htmlspecialchars(xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
         }
         if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . htmlspecialchars( xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+            $tdTitle .= " " . htmlspecialchars(xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
         }
 
         if ( !(empty($row['concatenated_label'])) ) {
-            $tdTitle .= ", " . htmlspecialchars( xl( $row['concatenated_label'] ), ENT_NOQUOTES) . " ";
+            $tdTitle .= ", " . htmlspecialchars(xl($row['concatenated_label']), ENT_NOQUOTES) . " ";
         }
 
         $tdVersionNeutral = getUuid();
@@ -777,14 +777,14 @@ if(count($dataSheet) > 0){
 
         $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
         if (!empty($row['cqm_pqri_code'])) {
-            $tdTitle .= " " . text( xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
+            $tdTitle .= " " . text(xl('PQRI') . ":" . $row['cqm_pqri_code']) . " ";
         }
         if (!empty($row['cqm_nqf_code'])) {
-            $tdTitle .= " " . text( xl('NQF') . ":" . $row['cqm_nqf_code']) . " ";
+            $tdTitle .= " " . text(xl('NQF') . ":" . $row['cqm_nqf_code']) . " ";
         }
 
         if ( !(empty($row['concatenated_label'])) ) {
-            $tdTitle .= ", " . text( xl( $row['concatenated_label'] )) . " ";
+            $tdTitle .= ", " . text(xl($row['concatenated_label'])) . " ";
         }
 
         ###########################################################

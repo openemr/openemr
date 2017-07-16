@@ -39,7 +39,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         $this->_formId = $formId;
         $this->_formDir = $formDir;
         $this->_encounterId = $encounterId;
-        parent::__construct( $formId, 'forms' );
+        parent::__construct($formId, 'forms');
     }
     
     protected function getLastLockHash()
@@ -55,7 +55,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
                 $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
                 $statement .= "WHERE E.tid = ? AND E.table = ? ";
                 $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-                $row = sqlQuery( $statement, array( $this->_tableId, $this->_tableName ) );
+                $row = sqlQuery($statement, array( $this->_tableId, $this->_tableName ));
                 $hash = null;
                 if ( $row && isset($row['hash']) ) {
                     $hash = $row['hash'];
@@ -87,7 +87,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
             $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";
-            $row = sqlQuery( $statement, array( $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ) );
+            $row = sqlQuery($statement, array( $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ));
             if ( $row && $row['is_lock'] == SignatureIF::ESIGN_LOCK ) {
                 $locked = true;
             }
@@ -109,8 +109,10 @@ class Form_Signable extends DbRow_Signable implements SignableIF
     {
       // Use default standards based on formdir value
       // Exceptions are specified in formdir_keys list
-        $row = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
-            array('formdir_keys', $this->_formDir));
+        $row = sqlQuery(
+            "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? AND activity = 1",
+            array('formdir_keys', $this->_formDir)
+        );
         if (isset($row['title'])) {
             $excp = json_decode("{".$row['title']."}");
         }
@@ -119,14 +121,17 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         $limit = (isset($excp->limit) ? $excp->limit : 1);
       
       // Get form data based on key from forms table
-        $sql = sprintf("SELECT fd.* FROM %s fd
+        $sql = sprintf(
+            "SELECT fd.* FROM %s fd
       		INNER JOIN forms f ON fd.%s = f.form_id
       		WHERE f.id = ?",
-            escape_table_name($tbl), escape_sql_column_name($id, array($tbl)));
+            escape_table_name($tbl),
+            escape_sql_column_name($id, array($tbl))
+        );
         if ($limit <> '*') {
             $sql .= ' LIMIT '.escape_limit($limit);
         }
-        $rs = sqlStatement($sql, array( $this->_formId ) );
+        $rs = sqlStatement($sql, array( $this->_formId ));
         if (sqlNumRows($rs) == 1) { // maintain legacy hash
             $frs = sqlFetchArray($rs);
         } else {

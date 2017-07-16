@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class Characteristic extends ClinicalType
 {
@@ -29,16 +29,16 @@ class Characteristic extends ClinicalType
         }
         else if ( $this->getOptionId() == self::TOBACCO_USER )
         {
-            $tobaccoHistory = getHistoryData( $patient->id, "tobacco", $beginDate, $endDate );
+            $tobaccoHistory = getHistoryData($patient->id, "tobacco", $beginDate, $endDate);
             
-            if ( isset( $tobaccoHistory['tobacco'] ) ) {
-                $tmp = explode( '|', $tobaccoHistory['tobacco'] );
+            if ( isset($tobaccoHistory['tobacco']) ) {
+                $tmp = explode('|', $tobaccoHistory['tobacco']);
                 $tobaccoStatus = $tmp[1];
                 if ( $tobaccoStatus == 'currenttobacco' ) {
                     $return = true;
                 } else if ( $tobaccoStatus == 'quittobacco' ) {
                     $quitDate = $tmp[2];
-                    if ( strtotime( $quitDate ) > strtotime( $beginDate ) ) {
+                    if ( strtotime($quitDate) > strtotime($beginDate) ) {
                         $return = true;
                     }
                 }
@@ -46,13 +46,13 @@ class Characteristic extends ClinicalType
         }
         else if ( $this->getOptionId() == self::TOBACCO_NON_USER )
         {
-            $tobaccoHistory = getHistoryData( $patient->id, "tobacco", $beginDate, $endDate );
-            if ( isset( $tobaccoHistory['tobacco'] ) ) {
-                $tmp = explode( '|', $tobaccoHistory['tobacco'] );
+            $tobaccoHistory = getHistoryData($patient->id, "tobacco", $beginDate, $endDate);
+            if ( isset($tobaccoHistory['tobacco']) ) {
+                $tmp = explode('|', $tobaccoHistory['tobacco']);
                 $tobaccoStatus = $tmp[1];
                 if ( $tobaccoStatus == 'quittobacco' ) {
                     $quitDate = $tmp[2];
-                    if ( strtotime( $quitDate ) < strtotime( $beginDate ) ) {
+                    if ( strtotime($quitDate) < strtotime($beginDate) ) {
                         $return = true;
                     }
                 } else if ( $tobaccoStatus == 'nevertobacco' ) {

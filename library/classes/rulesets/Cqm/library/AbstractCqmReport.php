@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( dirname(__FILE__)."/../../../../clinical_rules.php" );
+require_once(dirname(__FILE__)."/../../../../clinical_rules.php");
 
 abstract class AbstractCqmReport implements RsReportIF
 {
@@ -22,24 +22,24 @@ abstract class AbstractCqmReport implements RsReportIF
     public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
-        $className = get_class( $this );
-        foreach ( glob( dirname(__FILE__)."/../reports/".$className."/*.php" ) as $filename ) {
-            require_once( $filename );
+        $className = get_class($this);
+        foreach ( glob(dirname(__FILE__)."/../reports/".$className."/*.php") as $filename ) {
+            require_once($filename);
         }
         // require common .php files
-        foreach ( glob( dirname(__FILE__)."/../reports/common/*.php" ) as $filename ) {
-            require_once( $filename );
+        foreach ( glob(dirname(__FILE__)."/../reports/common/*.php") as $filename ) {
+            require_once($filename);
         }
         // require clinical types
-        foreach ( glob( dirname(__FILE__)."/../../../ClinicalTypes/*.php" ) as $filename ) {
-            require_once( $filename );
+        foreach ( glob(dirname(__FILE__)."/../../../ClinicalTypes/*.php") as $filename ) {
+            require_once($filename);
         }
 
-        $this->_cqmPopulation = new CqmPopulation( $patientIdArray );
+        $this->_cqmPopulation = new CqmPopulation($patientIdArray);
         $this->_rowRule = $rowRule;
-        $this->_ruleId = isset( $rowRule['id'] ) ? $rowRule['id'] : '';
+        $this->_ruleId = isset($rowRule['id']) ? $rowRule['id'] : '';
         // Calculate measurement period
-        $tempDateArray = explode( "-", $dateTarget );
+        $tempDateArray = explode("-", $dateTarget);
         $tempYear = $tempDateArray[0];
         $this->_beginMeasurement = $tempDateArray[0] . "-01-01 00:00:00";
         $this->_endMeasurement = $tempDateArray[0] . "-12-31 23:59:59";
@@ -65,7 +65,7 @@ abstract class AbstractCqmReport implements RsReportIF
     public function execute()
     {
         $populationCriterias = $this->createPopulationCriteria();
-        if ( !is_array( $populationCriterias ) ) {
+        if ( !is_array($populationCriterias) ) {
             $tmpPopulationCriterias = array();
             $tmpPopulationCriterias[]= $populationCriterias;
             $populationCriterias = $tmpPopulationCriterias;
@@ -83,21 +83,21 @@ abstract class AbstractCqmReport implements RsReportIF
             {
                 $initialPatientPopulationFilter = $populationCriteria->createInitialPatientPopulation();
                 if ( !$initialPatientPopulationFilter instanceof CqmFilterIF ) {
-                    throw new Exception( "InitialPatientPopulation must be an instance of CqmFilterIF" );
+                    throw new Exception("InitialPatientPopulation must be an instance of CqmFilterIF");
                 }
                 $denominator = $populationCriteria->createDenominator();
                 if ( !$denominator instanceof CqmFilterIF ) {
-                    throw new Exception( "Denominator must be an instance of CqmFilterIF" );
+                    throw new Exception("Denominator must be an instance of CqmFilterIF");
                 }
                 $numerators = $populationCriteria->createNumerators();
-                if ( !is_array( $numerators ) ) {
+                if ( !is_array($numerators) ) {
                     $tmpNumerators = array();
                     $tmpNumerators[]= $numerators;
                     $numerators = $tmpNumerators;
                 }
                 $exclusion = $populationCriteria->createExclusion();
                 if ( !$exclusion instanceof CqmFilterIF ) {
-                    throw new Exception( "Exclusion must be an instance of CqmFilterIF" );
+                    throw new Exception("Exclusion must be an instance of CqmFilterIF");
                 }
 
                 //Denominator Exception added
@@ -106,17 +106,17 @@ abstract class AbstractCqmReport implements RsReportIF
                     $denomExept = true;
                 }
 
-                $totalPatients = count( $this->_cqmPopulation );
+                $totalPatients = count($this->_cqmPopulation);
                 $initialPatientPopulation = 0;
                 $denominatorPatientPopulation = 0;
                 $exclusionsPatientPopulation = 0;
                 $exceptionsPatientPopulation = 0; // this is a bridge to no where variable (calculated but not used below). Will keep for now, though.
                 $patExclArr = array();
                 $patExceptArr = array();
-                $numeratorPatientPopulations = $this->initNumeratorPopulations( $numerators );
+                $numeratorPatientPopulations = $this->initNumeratorPopulations($numerators);
                 foreach ( $this->_cqmPopulation as $patient )
                 {
-                    if ( !$initialPatientPopulationFilter->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
+                    if ( !$initialPatientPopulationFilter->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
                     {
                         continue;
                     }
@@ -128,14 +128,14 @@ abstract class AbstractCqmReport implements RsReportIF
                         insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 3, $patient->id);
                     }
                     
-                    if ( !$denominator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
+                    if ( !$denominator->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
                     {
                         continue;
                     }
                             
                     $denominatorPatientPopulation++;
 
-                    if ( $exclusion->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
+                    if ( $exclusion->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
                     {
                         $exclusionsPatientPopulation++;
                         $patExclArr[] = $patient->id;
@@ -144,7 +144,7 @@ abstract class AbstractCqmReport implements RsReportIF
                     //Denominator Exception added
                     if($denomExept){
                         $denom_exception = $populationCriteria->createDenominatorException();
-                        if ( $denom_exception->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) )
+                        if ( $denom_exception->test($patient, $this->_beginMeasurement, $this->_endMeasurement) )
                         {
                             $exceptionsPatientPopulation++; // this is a bridge to no where variable (not used below). Will keep for now, though.
                             $patExceptArr[] = $patient->id;
@@ -152,7 +152,7 @@ abstract class AbstractCqmReport implements RsReportIF
                     }
                      
                     foreach ( $numerators as $numerator ) {
-                        $this->testNumerator( $patient, $numerator, $numeratorPatientPopulations );
+                        $this->testNumerator($patient, $numerator, $numeratorPatientPopulations);
                     }
                 }
                 
@@ -178,9 +178,19 @@ abstract class AbstractCqmReport implements RsReportIF
                         }
                     }
 
-                    $percentage = calculate_percentage( $pass_filt, $exclude_filt, $pass_targ );
-                    $this->_resultsArray[]= new CqmResult( $this->_rowRule, $title, $populationCriteria->getTitle(),
-                        $totalPatients, $pass_filt, $exclude_filt, $pass_targ, $percentage, $initialPatientPopulation, $exceptionsPatientPopulation);
+                    $percentage = calculate_percentage($pass_filt, $exclude_filt, $pass_targ);
+                    $this->_resultsArray[]= new CqmResult(
+                        $this->_rowRule,
+                        $title,
+                        $populationCriteria->getTitle(),
+                        $totalPatients,
+                        $pass_filt,
+                        $exclude_filt,
+                        $pass_targ,
+                        $percentage,
+                        $initialPatientPopulation,
+                        $exceptionsPatientPopulation
+                    );
                 }
             }
         }
@@ -201,7 +211,7 @@ abstract class AbstractCqmReport implements RsReportIF
     {
         if ( $numerator instanceof CqmFilterIF  )
         {
-            if ( $numerator->test( $patient, $this->_beginMeasurement, $this->_endMeasurement ) ) {
+            if ( $numerator->test($patient, $this->_beginMeasurement, $this->_endMeasurement) ) {
 
                 $numeratorPatientPopulations[$numerator->getTitle()]++;
 
@@ -221,7 +231,7 @@ abstract class AbstractCqmReport implements RsReportIF
         }
         else
         {
-            throw new Exception( "Numerator must be an instance of CqmFilterIF" );
+            throw new Exception("Numerator must be an instance of CqmFilterIF");
         }
     }
 }

@@ -58,7 +58,7 @@ function upgradeFromSqlFile_de($filename)
     $skipping = false;
     $proc = 0;
 
-    while (!feof ($fd)){
+    while (!feof($fd)){
         $line = fgets($fd, 2048);
         $line = rtrim($line);
 
@@ -120,7 +120,7 @@ function upgradeFromSqlFile_de($filename)
 
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
-if (! $dh) die( xl("Cannot read", "e")." ".$sqldir);
+if (! $dh) die(xl("Cannot read", "e")." ".$sqldir);
 closedir($dh);
 ?>
 <html>

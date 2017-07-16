@@ -318,8 +318,8 @@ if ($_POST['form_action'] == "save") {
 
             // this difference means that some providers from current was UNCHECKED
             // so we must delete this event for them
-            $r1 = array_diff ($providers_current, $providers_new);
-            if (count ($r1)) {
+            $r1 = array_diff($providers_current, $providers_new);
+            if (count($r1)) {
                 foreach ($r1 as $to_be_removed) {
                     sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid='$to_be_removed' AND pc_multiple={$row['pc_multiple']}");
                 }
@@ -327,8 +327,8 @@ if ($_POST['form_action'] == "save") {
 
             // this difference means that some providers was added
             // so we must insert this event for them
-            $r2 = array_diff ($providers_new, $providers_current);
-            if (count ($r2)) {
+            $r2 = array_diff($providers_new, $providers_current);
+            if (count($r2)) {
                 foreach ($r2 as $to_be_inserted) {
                     sqlInsert("INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility)
                 VALUES ( " .
@@ -436,7 +436,7 @@ if ($_POST['form_action'] == "save") {
         if (is_array($_POST['form_provider_ae'])) {
 
             // obtain the next available unique key to group multiple providers around some event
-            $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+            $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
@@ -530,17 +530,22 @@ if ($_POST['form_action'] == "save") {
               $facility_id = $tmprow['facility_id'];
               $conn = $GLOBALS['adodb']['db'];
               $encounter = $conn->GenID("sequences");
-              addForm($encounter, "New Patient Encounter",
-                sqlInsert("INSERT INTO form_encounter SET " .
+              addForm(
+                  $encounter,
+                  "New Patient Encounter",
+                  sqlInsert("INSERT INTO form_encounter SET " .
                   "date = '$event_date', " .
                   "onset_date = '$event_date', " .
                   "reason = '" . add_escape_custom($_POST['form_comments']) . "', " .
                   "facility = '$facility', " .
                   "facility_id = '$facility_id', " .
                   "pid = '" . $_POST['form_pid'] . "', " .
-                  "encounter = '$encounter'"
-                ),
-                "newpatient", $_POST['form_pid'], "1", "NOW()", $username
+                  "encounter = '$encounter'"),
+                  "newpatient",
+                  $_POST['form_pid'],
+                  "1",
+                  "NOW()",
+                  $username
               );
               $info_msg .= "New encounter $encounter was created. ";
         }

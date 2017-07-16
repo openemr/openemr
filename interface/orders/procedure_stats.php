@@ -487,7 +487,7 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('Negatives'));
         }
         else if ($value == '.age') { // Age
-            genHeadCell(xl('0-10' ), true);
+            genHeadCell(xl('0-10'), true);
             genHeadCell(xl('11-14'), true);
             genHeadCell(xl('15-19'), true);
             genHeadCell(xl('20-24'), true);
@@ -495,7 +495,7 @@ if ($_POST['form_submit']) {
             genHeadCell(xl('30-34'), true);
             genHeadCell(xl('35-39'), true);
             genHeadCell(xl('40-44'), true);
-            genHeadCell(xl('45+'  ), true);
+            genHeadCell(xl('45+'), true);
         }
         else if ($arr_show[$value]['list_id']) {
             foreach ($arr_titles[$value] as $key => $dummy) {

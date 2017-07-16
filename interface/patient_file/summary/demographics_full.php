@@ -22,7 +22,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/erx_javascript.inc.php");
 require_once("$srcdir/validation/LBF_Validation.php");
-require_once ("$srcdir/patientvalidation.inc.php");
+require_once("$srcdir/patientvalidation.inc.php");
 
  // Session pid must be right or bad things can happen when demographics are saved!
  //
@@ -44,7 +44,7 @@ if ($pid) {
     if ($result['squad'] && ! acl_check('squads', $result['squad']))
     die(xlt('You are not authorized to access this squad.'));
 } else {
-    if (!acl_check('patients', 'demo', '', array('write','addonly') ))
+    if (!acl_check('patients', 'demo', '', array('write','addonly')))
     die(xlt('Adding demographics is not authorized.'));
 }
 

@@ -778,8 +778,14 @@ if ($_POST['form_refresh'] || $_POST['form_export'] || $_POST['form_csvexport'])
         $row['ladate'] = $ladate;
 
       // Compute number of days since last activity.
-        $latime = mktime(0, 0, 0, substr($ladate, 5, 2),
-        substr($ladate, 8, 2), substr($ladate, 0, 4));
+        $latime = mktime(
+            0,
+            0,
+            0,
+            substr($ladate, 5, 2),
+            substr($ladate, 8, 2),
+            substr($ladate, 0, 4)
+        );
         $row['inactive_days'] = floor((time() - $latime) / (60 * 60 * 24));
 
       // Look up insurance policy number if we need it.
@@ -975,8 +981,14 @@ else {
         $balance = $row['charges'] + $row['adjustments'] - $row['paid'];
         if ($form_age_cols) {
             $agedate = $is_ageby_lad ? $row['ladate'] : $row['dos'];
-            $agetime = mktime(0, 0, 0, substr($agedate, 5, 2),
-            substr($agedate, 8, 2), substr($agedate, 0, 4));
+            $agetime = mktime(
+                0,
+                0,
+                0,
+                substr($agedate, 5, 2),
+                substr($agedate, 8, 2),
+                substr($agedate, 0, 4)
+            );
             $days = floor((time() - $agetime) / (60 * 60 * 24));
             $agecolno = min($form_age_cols - 1, max(0, floor($days / $form_age_inc)));
             $ptrow['agedbal'][$agecolno] += $balance;

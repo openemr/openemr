@@ -53,7 +53,7 @@ function patient_reminder_widget($patient_id, $dateTarget = '')
 
     if (empty($listReminders)) {
         // No reminders to show.
-        echo htmlspecialchars( xl('No active patient reminders.'), ENT_NOQUOTES);
+        echo htmlspecialchars(xl('No active patient reminders.'), ENT_NOQUOTES);
         return;
     }
 
@@ -69,10 +69,10 @@ function patient_reminder_widget($patient_id, $dateTarget = '')
         echo "</span></td><td style='padding:0 1em 0 1em;'><span class='small'>";
         // show reminder sent date
         if (empty($reminder['date_sent'])) {
-            echo htmlspecialchars( xl('Reminder Not Sent Yet'), ENT_NOQUOTES);
+            echo htmlspecialchars(xl('Reminder Not Sent Yet'), ENT_NOQUOTES);
         }
         else {
-            echo htmlspecialchars( xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
+            echo htmlspecialchars(xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
         }
         echo "</span></td></tr>";
     }
@@ -255,13 +255,13 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
         // See if a reminder already exist
         $sql = "SELECT `id`, `pid`, `due_status`, `category`, `item` FROM `patient_reminders` WHERE " .
         "`active`='1' AND `pid`=? AND `category`=? AND `item`=?";
-        $result = sqlQueryCdrEngine($sql, array($reminder['pid'], $reminder['category'], $reminder['item']) );
+        $result = sqlQueryCdrEngine($sql, array($reminder['pid'], $reminder['category'], $reminder['item']));
 
         if (empty($result)) {
             // It does not yet exist, so add a new reminder
             $sql = "INSERT INTO `patient_reminders` (`pid`, `due_status`, `category`, `item`, `date_created`) " .
             "VALUES (?, ?, ?, ?, NOW())";
-            sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']) );
+            sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']));
             $logging['number_new_reminders']++;
         }
         else {
@@ -276,11 +276,11 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
                 // First, inactivate the previous reminder
                 $sql = "UPDATE `patient_reminders` SET `active` = '0', `reason_inactivated` = 'due_status_update', " .
                 "`date_inactivated` = NOW() WHERE `id`=?";
-                sqlStatementCdrEngine($sql, array($result['id']) );
+                sqlStatementCdrEngine($sql, array($result['id']));
                 // Then, add the new reminder
                 $sql = "INSERT INTO `patient_reminders` (`pid`, `due_status`, `category`, `item`, `date_created`) " .
                 "VALUES (?, ?, ?, ?, NOW())";
-                sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']) );
+                sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']));
             }
         }
     }
@@ -305,7 +305,7 @@ function update_reminders($dateTarget = '', $patient_id = '', $start = null, $ba
             // The sql reminder was not confirmed, so inactivate it
             $sql = "UPDATE `patient_reminders` SET `active` = '0', `reason_inactivated` = 'auto', " .
             "`date_inactivated` = NOW() WHERE `id`=?";
-            sqlStatementCdrEngine($sql, array($row['id']) );
+            sqlStatementCdrEngine($sql, array($row['id']));
             $logging['number_inactivated_reminders']++;
         }
     }
@@ -352,7 +352,7 @@ function send_reminders()
 
         // Collect patient information that reminder is going to.
         $sql = "SELECT `fname`, `lname`, `email`, `phone_home`, `hipaa_voice`, `hipaa_allowemail` from `patient_data` where `pid`=?";
-        $result = sqlQueryCdrEngine($sql, array($reminder['pid']) );
+        $result = sqlQueryCdrEngine($sql, array($reminder['pid']));
         $patientfname = $result['fname'];
         $patientlname = $result['lname'];
         $patientemail = $result['email'];
@@ -376,7 +376,7 @@ function send_reminders()
             $mail->Subject = "Clinic Reminder";
             if ($mail->Send()) {
                 // deal with and keep track of this successful email
-                sqlStatementCdrEngine("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
+                sqlStatementCdrEngine("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']));
                 $logging['number_success_emails']++;
             }
             else {

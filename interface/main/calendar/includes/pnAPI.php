@@ -46,7 +46,7 @@ if (phpversion() >= "4.2.0") {
                                 '_GLOBALS' );
 
         foreach( $supers as $__s) {
-            if ( (isset($$__s) == true) && (is_array( $$__s ) == true) ) extract( $$__s, EXTR_OVERWRITE );
+            if ( (isset($$__s) == true) && (is_array($$__s) == true) ) extract($$__s, EXTR_OVERWRITE);
         }
         unset($supers);
     }
@@ -63,7 +63,7 @@ if (phpversion() >= "4.2.0") {
                                  );
 
         foreach( $supers as $__s) {
-            if ( (isset($$__s) == true) && (is_array( $$__s ) == true) ) extract( $$__s, EXTR_OVERWRITE );
+            if ( (isset($$__s) == true) && (is_array($$__s) == true) ) extract($$__s, EXTR_OVERWRITE);
         }
         unset($supers);
     }
@@ -431,7 +431,7 @@ function pnInit()
     }
 
     // Load global language defines
-    if (isset ($lang) && file_exists('language/' . pnVarPrepForOS($lang) . '/global.php')) {
+    if (isset($lang) && file_exists('language/' . pnVarPrepForOS($lang) . '/global.php')) {
         $currentlang = $lang;
     } else {
         $currentlang = pnConfigGetVar('language');
@@ -652,15 +652,18 @@ function pnVarPrepForDisplay()
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
 
-        $ourvar = preg_replace_callback($search, function ($m) {
+        $ourvar = preg_replace_callback(
+            $search,
+            function ($m) {
 
-            $output = "";
-            for ($i = 0; $i < (strlen($m[0])); $i++) {
-                $output .= '&#' . ord($m[0][$i]) . ';';
-            }
-            return $output;
-        },
-        $ourvar);
+                $output = "";
+                for ($i = 0; $i < (strlen($m[0])); $i++) {
+                    $output .= '&#' . ord($m[0][$i]) . ';';
+                }
+                return $output;
+            },
+            $ourvar
+        );
 
 
         // Add to array
@@ -723,20 +726,25 @@ function pnVarPrepHTMLDisplay()
 
         // Prepare var
         $ourvar = htmlspecialchars($ourvar);
-        $ourvar = preg_replace_callback($search,
+        $ourvar = preg_replace_callback(
+            $search,
             function ($matches) {
                 return "&#" .
                 sprintf("%03d", ord($matches[1])) .
                 ";&#064;&#" .
                 sprintf("%03d", ord($matches[2])) . ";";
             },
-            $ourvar);
+            $ourvar
+        );
 
         // Fix the HTML that we want
-        $ourvar = preg_replace_callback('/\022([^\024]*)\024/',
+        $ourvar = preg_replace_callback(
+            '/\022([^\024]*)\024/',
             function ($matches) {
                 return '<' . strtr("$matches[1]", array('&gt;' => '>', '&lt;' => '<', '&quot;' => '\"')) . '>';
-            }, $ourvar);
+            },
+            $ourvar
+        );
 
         // Fix entities if required
         if (pnConfigGetVar('htmlentities')) {
@@ -1381,8 +1389,8 @@ function pnMailHackAttempt(
 
     }
         $output         =        "Attention site admin of ".pnConfigGetVar('sitename').",\n";
-        $output        .=        "On ".ml_ftime( _DATEBRIEF, ( GetUserTime( time( ) ) ) );
-        $output        .=        " at ". ml_ftime( _TIMEBRIEF, ( GetUserTime( time( ) ) ) );
+        $output        .=        "On ".ml_ftime(_DATEBRIEF, ( GetUserTime(time()) ));
+        $output        .=        " at ". ml_ftime(_TIMEBRIEF, ( GetUserTime(time()) ));
         $output        .=        " the Postnuke code has detected that somebody tried to"
                            ." send information to your site that may have been intended"
                            ." as a hack. Do not panic, it may be harmless: maybe this"
@@ -1410,16 +1418,16 @@ function pnMailHackAttempt(
         $output        .=        "IP numbers: [note: when you are dealing with a real cracker "
                            ."these IP numbers might not be from the actual computer he is "
                            ."working on]"
-                           ."\n\t IP according to HTTP_CLIENT_IP: ".getenv( 'HTTP_CLIENT_IP' )
-                           ."\n\t IP according to REMOTE_ADDR: ".getenv( 'REMOTE_ADDR' )
-                           ."\n\t IP according to GetHostByName(\$REMOTE_ADDR): ".GetHostByName( $REMOTE_ADDR )
+                           ."\n\t IP according to HTTP_CLIENT_IP: ".getenv('HTTP_CLIENT_IP')
+                           ."\n\t IP according to REMOTE_ADDR: ".getenv('REMOTE_ADDR')
+                           ."\n\t IP according to GetHostByName(\$REMOTE_ADDR): ".GetHostByName($REMOTE_ADDR)
                            ."\n\n";
 
         $output .=        "\n=====================================\n";
         $output .=        "Information in the \$_REQUEST array\n";
         $output .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_rv ) ) {
+    while ( list ( $key, $value ) = each($_rv) ) {
         $output .= "REQUEST * $key : $value\n";
     }
 
@@ -1429,7 +1437,7 @@ function pnMailHackAttempt(
         $output .=        "in the URL string or in a 'GET' type form.\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_gv ) ) {
+    while ( list ( $key, $value ) = each($_gv) ) {
         $output .= "GET * $key : $value\n";
     }
 
@@ -1438,7 +1446,7 @@ function pnMailHackAttempt(
         $output        .=        "This is about visible and invisible form elements.\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_pv ) ) {
+    while ( list ( $key, $value ) = each($_pv) ) {
         $output .= "POST * $key : $value\n";
     }
 
@@ -1450,7 +1458,7 @@ function pnMailHackAttempt(
         $output        .=        "HTTP_USER_AGENT: ".$HTTP_USER_AGENT ."\n";
 
         $browser = (array) get_browser();
-    while ( list ( $key, $value ) = each ( $browser ) ) {
+    while ( list ( $key, $value ) = each($browser) ) {
         $output .= "BROWSER * $key : $value\n";
     }
 
@@ -1458,7 +1466,7 @@ function pnMailHackAttempt(
         $output        .=        "Information in the \$_SERVER array\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_sv ) ) {
+    while ( list ( $key, $value ) = each($_sv) ) {
         $output .= "SERVER * $key : $value\n";
     }
 
@@ -1466,7 +1474,7 @@ function pnMailHackAttempt(
         $output        .=        "Information in the \$_ENV array\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_ev ) ) {
+    while ( list ( $key, $value ) = each($_ev) ) {
         $output .= "ENV * $key : $value\n";
     }
 
@@ -1474,7 +1482,7 @@ function pnMailHackAttempt(
         $output        .=  "Information in the \$_COOKIE array\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_cv ) )  {
+    while ( list ( $key, $value ) = each($_cv) )  {
         $output .= "COOKIE * $key : $value\n";
     }
 
@@ -1482,7 +1490,7 @@ function pnMailHackAttempt(
         $output        .=        "Information in the \$_FILES array\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_fv ) ) {
+    while ( list ( $key, $value ) = each($_fv) ) {
         $output .= "FILES * $key : $value\n";
     }
 
@@ -1492,7 +1500,7 @@ function pnMailHackAttempt(
         $output .=  "  starting with PNSV are PostNukeSessionVariables.\n";
         $output        .=        "=====================================\n";
 
-    while ( list ( $key, $value ) = each ( $_snv ) ) {
+    while ( list ( $key, $value ) = each($_snv) ) {
         $output .= "SESSION * $key : $value\n";
     }
 
@@ -1502,7 +1510,7 @@ function pnMailHackAttempt(
         $headers = "From: $sitename <$adminmail>\n"
                           ."X-Priority: 1 (Highest)\n";
 
-        pnMail($adminmail, 'Attempted hack on your site? (type: '.$hack_type.')', $output, $headers );
+        pnMail($adminmail, 'Attempted hack on your site? (type: '.$hack_type.')', $output, $headers);
 
         return;
 }

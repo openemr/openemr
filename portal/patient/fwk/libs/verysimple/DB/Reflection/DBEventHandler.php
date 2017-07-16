@@ -4,14 +4,14 @@
 /**
  * import supporting libraries
  */
-require_once ('verysimple/DB/DatabaseException.php');
+require_once('verysimple/DB/DatabaseException.php');
 
-define ( "DBH_LOG_NONE", 1 );
-define ( "DBH_LOG_INFO", 2 );
-define ( "DBH_LOG_DEBUG", 4 );
-define ( "DBH_LOG_QUERY", 8 );
-define ( "DBH_LOG_WARNING", 16 );
-define ( "DBH_LOG_ERROR", 32 );
+define("DBH_LOG_NONE", 1);
+define("DBH_LOG_INFO", 2);
+define("DBH_LOG_DEBUG", 4);
+define("DBH_LOG_QUERY", 8);
+define("DBH_LOG_WARNING", 16);
+define("DBH_LOG_ERROR", 32);
 
 /**
  * DBEventHandler is an optional parameter that can be used to hook into events in the
@@ -79,6 +79,6 @@ class DBEventHandler
      */
     function Crash($code, $message = "", $data = "")
     {
-        throw new DatabaseException ( $message, $code, $data );
+        throw new DatabaseException($message, $code, $data);
     }
 }

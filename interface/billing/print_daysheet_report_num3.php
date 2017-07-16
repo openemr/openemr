@@ -373,12 +373,12 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if ($old_pid == $new_old_pid) {
                     if ($line_total != 0) {
                         print "<td width=100><br><span class=text><b><center>" . xlt('Total') . "</b></center>";
-                        Printf ("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total)). "</center></td>";
+                        Printf("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total)). "</center></td>";
                     }
                     else
                     {
                         print "<td width=100><br><span class=text><b><center>" . xlt('Total') . "</b></center>";
-                        Printf ("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total_pay)). "</center></td>";
+                        Printf("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total_pay)). "</center></td>";
                     }
                     $line_total = 0;
                     $line_total_pay = 0;
@@ -742,13 +742,13 @@ if ($totals_only != 1) {
 
     if ($line_total != 0) {
         print "<td width=100><br><span class=text><b><center>" . xlt('Total') . "</b></center>";
-        Printf ("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total)). "</center></span></td>\n<br>";
+        Printf("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total)). "</center></span></td>\n<br>";
         print "</tr><tr>\n";
     }
     else
              {
         print "<td width=100><br><span class=text><b><center>" . xlt('Total') . "</b></center>";
-        Printf ("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total_pay)). "</center></td>\n<br>";
+        Printf("<br></span></td><td width=100><span class=text><center>"." %1\$.2f", text($line_total_pay)). "</center></td>\n<br>";
         print "</tr><tr>\n";
     }
 }
@@ -764,12 +764,12 @@ for ($i=1 ; $i<$k; ) {
     print "<table border=1><tr>\n";
     print "<br><br>";
 
-    Printf ("<td width=70><span class=text><b><center>". xlt("User") . ' ' . "</center></b><center>".text($user_info[user][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' . "</center></b><center>"." %1\$.2f", text($user_info[fee][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[insadj][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($user_info[inspay][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[patadj][$i])). "</center>";
-    Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($user_info[patpay][$i])). "</center>";
+    Printf("<td width=70><span class=text><b><center>". xlt("User") . ' ' . "</center></b><center>".text($user_info[user][$i])). "</center>";
+    Printf("<td width=140><span class=text><b><center>". xlt("Charges") . ' ' . "</center></b><center>"." %1\$.2f", text($user_info[fee][$i])). "</center>";
+    Printf("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[insadj][$i])). "</center>";
+    Printf("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($user_info[inspay][$i])). "</center>";
+    Printf("<td width=140><span class=text><b><center>". xlt("Patient Adj").'. '."</center></b><center>"."%1\$.2f", text($user_info[patadj][$i])). "</center>";
+    Printf("<td width=140><span class=text><b><center>". xlt("Patient Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($user_info[patpay][$i])). "</center>";
 
     $gtotal_fee = $gtotal_fee + $user_info[fee][$i];
     $gtotal_insadj = $gtotal_insadj + $user_info[insadj][$i];
@@ -784,12 +784,12 @@ for ($i=1 ; $i<$k; ) {
 print "<table border=1><tr>\n";
 print "<br><br>";
 
-Printf ("<td width=70><span class=text><b><center>". xlt("Grand Totals") . ' ');
-Printf ("<td width=140><span class=text><b><center>". xlt("Total Charges") . ' ' . "</center></b><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_insadj)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_inspay)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Patient Adj").'.'."</center></b><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
-Printf ("<td width=140><span class=text><b><center>". xlt("Patient Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
+Printf("<td width=70><span class=text><b><center>". xlt("Grand Totals") . ' ');
+Printf("<td width=140><span class=text><b><center>". xlt("Total Charges") . ' ' . "</center></b><center>"." %1\$.2f", text($gtotal_fee)). "</center>";
+Printf("<td width=140><span class=text><b><center>". xlt("Insurance Adj").'. '."</center></b><center>"."%1\$.2f", text($gtotal_insadj)). "</center>";
+Printf("<td width=140><span class=text><b><center>". xlt("Insurance Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_inspay)). "</center>";
+Printf("<td width=140><span class=text><b><center>". xlt("Patient Adj").'.'."</center></b><center>"."%1\$.2f", text($gtotal_patadj)). "</center>";
+Printf("<td width=140><span class=text><b><center>". xlt("Patient Payments") . ' ' . "</center></b><center>"."%1\$.2f", text($gtotal_patpay)). "</center>";
 
 print "</br></td>";
 print "</table>";

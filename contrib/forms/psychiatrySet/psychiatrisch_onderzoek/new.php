@@ -48,25 +48,25 @@ function getPatientDateOfLastEncounter($nPid)
     return( "00-00-0000" );
 }
 
-$m_strEventDate = getPatientDateOfLastEncounter( $result['pid'] );
+$m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
 
 // get last saved id for intakeverslag
-$vectIntakeverslagQuery = sqlQuery( "SELECT id FROM form_intakeverslag
+$vectIntakeverslagQuery = sqlQuery("SELECT id FROM form_intakeverslag
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=0
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // get autosave id for Psychiatrisch Onderzoek
-$vectAutosavePO = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosavePO = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 //fetch data from INTAKE-VERSLAG
 $obj_iv = formFetch("form_intakeverslag", $vectIntakeverslagQuery['id']);

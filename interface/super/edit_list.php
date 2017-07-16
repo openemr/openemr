@@ -173,7 +173,7 @@ if ($_POST['formaction']=='save' && $list_id) {
                   !empty($id) &&
                   $id != 0 &&
                   $ok_map_cvx_codes == 1 ) {
-                    sqlStatement ("UPDATE `immunizations` " .
+                    sqlStatement("UPDATE `immunizations` " .
                                   "SET `cvx_code`='".$value."' " .
                                  "WHERE `immunization_id`='".$id."'");
                 }
@@ -231,8 +231,7 @@ else if ($_POST['formaction']=='addlist') {
                 "'".$newlistID."',".
                 "'".$_POST['newlistname']."', ".
                 "'".($row['maxseq']+1)."',".
-                "'1', '0')"
-                );
+                "'1', '0')");
 }
 else if ($_POST['formaction']=='deletelist') {
     // delete the lists options
@@ -300,7 +299,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
 
   // if not english and translating lists then show the translation
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-         echo "  <td align='center' class='translation'>" . (htmlspecialchars( xl($title), ENT_QUOTES)) . "</td>\n";
+         echo "  <td align='center' class='translation'>" . (htmlspecialchars(xl($title), ENT_QUOTES)) . "</td>\n";
     }
     echo "  <td align='center' class='optcell'>";
     echo "<input type='text' name='opt[$opt_line_no][seq]' value='" .
@@ -375,7 +374,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         echo "  <td align='center' class='optcell'>";
         echo "<input type='text' size='10' name='opt[$opt_line_no][value]' " .
          "value='" . htmlspecialchars($value, ENT_QUOTES) . "' onclick='sel_cvxcode(this)' " .
-         "title='" . htmlspecialchars( xl('Click to select or change CVX code'), ENT_QUOTES) . "'/>";
+         "title='" . htmlspecialchars(xl('Click to select or change CVX code'), ENT_QUOTES) . "'/>";
         echo "</td>\n";
     }
 
@@ -534,46 +533,133 @@ function writeCTLine($ct_array)
 
     echo " <tr bgcolor='$bgcolor'>\n";
 
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_active',
-    xl('Is this code type active?'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_key', 6, 15,
-    xl('Unique human-readable identifier for this type'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_id', 2, 11,
-    xl('Unique numeric identifier for this type'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_label', 6, 30,
-    xl('Label for this type'));
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_active',
+        xl('Is this code type active?')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_key',
+        6,
+        15,
+        xl('Unique human-readable identifier for this type')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_id',
+        2,
+        11,
+        xl('Unique numeric identifier for this type')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_label',
+        6,
+        30,
+        xl('Label for this type')
+    );
   // if not english and translating lists then show the translation
     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
          echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
     }
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_seq', 2, 3,
-    xl('Numeric display order'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_mod', 1, 2,
-    xl('Length of modifier, 0 if none'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_just', 4, 15,
-    xl('If billing justification is used enter the name of the diagnosis code type.'));
-    echo ctGenCell($opt_line_no, $ct_array, 'ct_mask', 6, 9,
-    xl('Specifies formatting for codes. # = digit, @ = alpha, * = any character. Empty if not used.'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_claim',
-    xl('Is this code type used in claims?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_fee',
-    xl('Are fees charged for this type?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_rel',
-    xl('Does this type allow related codes?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_nofs',
-    xl('Is this type hidden in the fee sheet?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_proc',
-    xl('Is this a procedure/service type?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_diag',
-    xl('Is this a diagnosis type?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_term',
-    xl('Is this a Clinical Term code type?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_problem',
-    xl('Is this a Medical Problem code type?'));
-    echo ctGenCBox($opt_line_no, $ct_array, 'ct_drug',
-    xl('Is this a Medication type?'));
-    echo ctSelector($opt_line_no, $ct_array, 'ct_external',
-    $cd_external_options, xl('Is this using external sql tables? If it is, then choose the format.'));
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_seq',
+        2,
+        3,
+        xl('Numeric display order')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_mod',
+        1,
+        2,
+        xl('Length of modifier, 0 if none')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_just',
+        4,
+        15,
+        xl('If billing justification is used enter the name of the diagnosis code type.')
+    );
+    echo ctGenCell(
+        $opt_line_no,
+        $ct_array,
+        'ct_mask',
+        6,
+        9,
+        xl('Specifies formatting for codes. # = digit, @ = alpha, * = any character. Empty if not used.')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_claim',
+        xl('Is this code type used in claims?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_fee',
+        xl('Are fees charged for this type?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_rel',
+        xl('Does this type allow related codes?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_nofs',
+        xl('Is this type hidden in the fee sheet?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_proc',
+        xl('Is this a procedure/service type?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_diag',
+        xl('Is this a diagnosis type?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_term',
+        xl('Is this a Clinical Term code type?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_problem',
+        xl('Is this a Medical Problem code type?')
+    );
+    echo ctGenCBox(
+        $opt_line_no,
+        $ct_array,
+        'ct_drug',
+        xl('Is this a Medication type?')
+    );
+    echo ctSelector(
+        $opt_line_no,
+        $ct_array,
+        'ct_external',
+        $cd_external_options,
+        xl('Is this using external sql tables? If it is, then choose the format.')
+    );
     echo " </tr>\n";
 }
 
@@ -1055,10 +1141,20 @@ if ($list_id) {
                          WHERE lo.list_id = '{$list_id}' AND lo.edit_options = 1
                          ORDER BY seq,title");
         while ($row = sqlFetchArray($res)) {
-              writeOptionLine($row['option_id'], $row['title'], $row['seq'],
-              $row['is_default'], $row['option_value'], $row['mapping'],
-              $row['notes'], $row['codes'], $row['toggle_setting_1'], $row['toggle_setting_2'],
-              $row['activity'], $row['subtype']);
+              writeOptionLine(
+                  $row['option_id'],
+                  $row['title'],
+                  $row['seq'],
+                  $row['is_default'],
+                  $row['option_value'],
+                  $row['mapping'],
+                  $row['notes'],
+                  $row['codes'],
+                  $row['toggle_setting_1'],
+                  $row['toggle_setting_2'],
+                  $row['activity'],
+                  $row['subtype']
+              );
         }
         for ($i = 0; $i < 3; ++$i) {
               writeOptionLine('', '', '', '', 0);

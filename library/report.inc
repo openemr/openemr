@@ -225,7 +225,7 @@ function lbt_current_value($frow, $formid)
     $currvalue = '';
     if ($formid) {
         $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
-        "form_id = ? AND field_id = ?", array($formid, $field_id) );
+        "form_id = ? AND field_id = ?", array($formid, $field_id));
         if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
     }
     return $currvalue;
@@ -346,15 +346,17 @@ function printPatientForms($pid, $cols)
             if ($result{"form_name"} == "New Patient Encounter") {
                 // display billing info
                 echo "<br/>";
-                $bres = sqlStatement("SELECT b.date, b.code, b.code_text " .
-                  "FROM billing AS b, code_types AS ct WHERE " .
-                  "b.pid = ? AND " .
-                  "b.encounter = ? AND " .
-                  "b.activity = 1 AND " .
-                  "b.code_type = ct.ct_key AND " .
-                  "ct.ct_diag = 0 " .
-                  "ORDER BY b.date",
-                  array($pid, $result['encounter']));
+                $bres = sqlStatement(
+                    "SELECT b.date, b.code, b.code_text " .
+                    "FROM billing AS b, code_types AS ct WHERE " .
+                    "b.pid = ? AND " .
+                    "b.encounter = ? AND " .
+                    "b.activity = 1 AND " .
+                    "b.code_type = ct.ct_key AND " .
+                    "ct.ct_diag = 0 " .
+                    "ORDER BY b.date",
+                    array($pid, $result['encounter'])
+                );
                 while ($brow=sqlFetchArray($bres)) {
                     echo "<span class='bold'>&nbsp;".xl('Procedure').": </span><span class='text'>" .
                         $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
@@ -374,7 +376,7 @@ function getRecHistoryData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from history_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from history_data where pid=? order by date", array($pid));
 
     while($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
@@ -399,7 +401,7 @@ function getRecEmployerData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from employer_data where pid=? order by date", array($pid));
 
     while($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
@@ -424,7 +426,7 @@ function getRecPatientData($pid)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select * from patient_data where pid=? order by date", array($pid) );
+    $res = sqlStatement("select * from patient_data where pid=? order by date", array($pid));
 
     while($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {
@@ -449,7 +451,7 @@ function getRecInsuranceData($pid, $ins_type)
     //column name->dates->values
     //$return{"lname"}[0..n]{"date"}
     //$return{"lname"}[0..n]{"value"}
-    $res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type) );
+    $res = sqlStatement("select *, ic.name as provider_name from insurance_data left join insurance_companies as ic on ic.id = provider where pid=? and type=? order by date", array($pid,$ins_type));
 
     while($result = sqlFetchArray($res)) {
         foreach ($result as $key => $val) {

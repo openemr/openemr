@@ -94,7 +94,7 @@ class Holidays_Controller
     {
         $file=array();
         if (file_exists($this->target_file)){
-            $file['date']= date ("d/m/Y H:i:s", filemtime($this->target_file));
+            $file['date']= date("d/m/Y H:i:s", filemtime($this->target_file));
         }
         return $file;
     }

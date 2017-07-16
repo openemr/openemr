@@ -293,20 +293,20 @@ if ($_POST['form_submit']) {
 
   // Generate headings.
     genStartRow("bgcolor='#dddddd'");
-    genHeadCell(xl('Method'         ));
-    genHeadCell(xl('New Clients'    ), true);
-    genHeadCell(xl('Old Clients'    ), true);
-    genHeadCell(xl('Total Clients'  ), true);
-    genHeadCell(xl('Contra Clients' ), true);
+    genHeadCell(xl('Method'));
+    genHeadCell(xl('New Clients'), true);
+    genHeadCell(xl('Old Clients'), true);
+    genHeadCell(xl('Total Clients'), true);
+    genHeadCell(xl('Contra Clients'), true);
   // genHeadCell(xl('O.A.F.V.'       ), true);
-    genHeadCell(xl('Pap Smear'      ), true);
-    genHeadCell(xl('Preg Test'      ), true);
-    genHeadCell(xl('Dr Check'       ), true);
-    genHeadCell(xl('Dr Visit'       ), true);
-    genHeadCell(xl('Advice'         ), true);
+    genHeadCell(xl('Pap Smear'), true);
+    genHeadCell(xl('Preg Test'), true);
+    genHeadCell(xl('Dr Check'), true);
+    genHeadCell(xl('Dr Visit'), true);
+    genHeadCell(xl('Advice'), true);
     genHeadCell(xl('Couns by Method'), true);
-    genHeadCell(xl('Infert Couns'   ), true);
-    genHeadCell(xl('STD/AIDS Couns' ), true);
+    genHeadCell(xl('Infert Couns'), true);
+    genHeadCell(xl('STD/AIDS Couns'), true);
     genEndRow();
 
     $encount = 0;

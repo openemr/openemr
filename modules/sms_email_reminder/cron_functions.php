@@ -32,7 +32,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
 
         //echo "function called";exit;
-        if( strlen( $format )==0 )  $format="text/html";
+        if( strlen($format)==0 )  $format="text/html";
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
         
@@ -52,7 +52,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
             //WriteLog($cnt);
         }
         $mstatus = true;
-        $mstatus = @mail( $to, $subject, $vBody, $headers );
+        $mstatus = @mail($to, $subject, $vBody, $headers);
         // larry :: debug
         //echo "\nDEBUG :email: send email from=".$from." to=".$to." sbj=".$subject." body=".$vBody." head=".$headers."\n";
         //echo "\nDEBUG :email: send status=".$mstatus."\n";
@@ -61,7 +61,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
         // larry :: debug
         //echo "\nDEBUG :: use smtp method\n";
 
-        if( !class_exists( "smtp_class" ) )
+        if( !class_exists("smtp_class") )
         {
             include("../../library/classes/smtp/smtp.php");
             include("../../library/classes/smtp/sasl.php");
@@ -71,8 +71,8 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line=__LINE__;
         $strTo = $to;
         $recipient_line=__LINE__;
-        if( strlen( $strFrom ) == 0 ) return( false );
-        if( strlen( $strTo ) == 0 ) return( false );
+        if( strlen($strFrom) == 0 ) return( false );
+        if( strlen($strTo) == 0 ) return( false );
         
         //if( !$smtp )
         $smtp=new smtp_class;
@@ -119,7 +119,8 @@ function cron_SendMail($to, $subject, $vBody, $from)
                 "Subject: $subject",
                 "Date Time :". date("d M, Y  h:i:s")
                 ),
-            $vBody ) )
+            $vBody
+        ) )
         {
             echo "Message sent to $to OK.\n";
             $mstatus = true;
@@ -129,7 +130,7 @@ function cron_SendMail($to, $subject, $vBody, $from)
              $mstatus = false;
         }
         
-        unset( $smtp );
+        unset($smtp);
     }
     
     return $mstatus;
@@ -165,7 +166,7 @@ function WriteLog($data)
 ////////////////////////////////////////////////////////////////////
 // define my_print_r - used for debuging - if not defined 
 ////////////////////////////////////////////////////////////////////
-if( !function_exists( 'my_print_r' ) )
+if( !function_exists('my_print_r') )
 {
     function my_print_r($data)
     {
@@ -196,7 +197,7 @@ function cron_SendSMS($to, $subject, $vBody, $from)
     // larry :: todo - find out about the billing inclusion ?
     // $mysms->getbalance();
     // $mysms->token_pay("1234567890123456"); //spend voucher with SMS credits
-    $mysms->send( $to, $from, $vBody );
+    $mysms->send($to, $from, $vBody);
     return $mstatus;
 }
 
@@ -313,7 +314,7 @@ function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 
     $sql_loginsert = "INSERT INTO `notification_log` ( `iLogId` , `pid` , `pc_eid` , `sms_gateway_type` , `message` , `email_sender` , `email_subject` , `type` , `patient_info` , `smsgateway_info` , `pc_eventDate` , `pc_endDate` , `pc_startTime` , `pc_endTime` , `dSentDateTime` ) VALUES ";
     $sql_loginsert .= "(NULL , '$prow[pid]', '$prow[pc_eid]', '$db_email_msg[sms_gateway_type]', '$db_email_msg[message]', '$db_email_msg[email_sender]', '$db_email_msg[email_subject]', '$db_email_msg[type]', '$patient_info', '$smsgateway_info', '$prow[pc_eventDate]', '$prow[pc_endDate]', '$prow[pc_startTime]', '$prow[pc_endTime]', '".date("Y-m-d H:i:s")."')";
-    $db_loginsert = ( sqlStatement( $sql_loginsert ) );
+    $db_loginsert = ( sqlStatement($sql_loginsert) );
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -349,7 +350,7 @@ function cron_setmessage($prow, $db_email_msg)
 function cron_GetNotificationSettings()
 {
     $strQuery = "select * from notification_settings where type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray( sqlStatement( $strQuery ) );
+    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
 
     return( $vectNotificationSettings );
 }

@@ -65,14 +65,14 @@ abstract class RuleCriteriaFactory
             return null;
         }
 
-        $builder = $this->getBuilderFor( $criteriaType );
-        if ( is_null( $builder ) ) {
+        $builder = $this->getBuilderFor($criteriaType);
+        if ( is_null($builder) ) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
-        $criteria = $builder->build( $criteriaType, $value, $methodDetail );
-        if ( is_null( $criteria ) ) {
+        $criteria = $builder->build($criteriaType, $value, $methodDetail);
+        if ( is_null($criteria) ) {
             return null;
         }
         $criteria->inclusion = $inclusion;
@@ -92,14 +92,14 @@ abstract class RuleCriteriaFactory
     function buildNewInstance($ruleId, $criteriaType)
     {
         $strategyMap = $this->getStrategyMap();
-        $builder = $this->getBuilderFor( $criteriaType );
-        if ( is_null( $builder ) ) {
+        $builder = $this->getBuilderFor($criteriaType);
+        if ( is_null($builder) ) {
             // if no builder, then its an unrecognized critiera
             return null;
         }
 
-        $criteria = $builder->newInstance( $criteriaType );
-        if ( is_null( $criteria ) ) {
+        $criteria = $builder->newInstance($criteriaType);
+        if ( is_null($criteria) ) {
             return null;
         }
         $criteria->criteriaType = $criteriaType;

@@ -12,10 +12,10 @@
  */
 
 /* Include the class we're extending. */
-require_once ($GLOBALS['fileroot'] . "/interface/clickmap/C_AbstractClickmap.php");
+require_once($GLOBALS['fileroot'] . "/interface/clickmap/C_AbstractClickmap.php");
 
 /* included so that we can instantiate FormPainMap in createModel, to model the data contained in this form. */
-require_once ("FormPainMap.php");
+require_once("FormPainMap.php");
 
 /**
  * @class C_FormPainMap

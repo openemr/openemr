@@ -178,7 +178,7 @@ if ($_POST['bn_save']) {
 $siinjtime = '';
 $siampm = '';
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_soccer_injury WHERE " .
+    $row = sqlQuery("SELECT * FROM form_soccer_injury WHERE " .
     "id = '$formid' AND activity = '1'") ;
     $siinjtime = substr($row['siinjtime'], 0, 5);
     $siampm = 'am';

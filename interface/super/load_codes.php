@@ -97,18 +97,24 @@ if (!empty($_POST['bn_upload'])) {
                 $seen_codes[$code] = 1;
                 ++$inscount;
                 if (!$form_replace) {
-                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
-                    array($code_type_id, $code));
+                    $tmp = sqlQuery(
+                        "SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
+                        array($code_type_id, $code)
+                    );
                     if ($tmp['id']) {
-                              sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
-                                array($a[14], $code_type_id, $code));
+                              sqlStatementNoLog(
+                                  "UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
+                                  array($a[14], $code_type_id, $code)
+                              );
                               ++$repcount;
                               continue;
                     }
                 }
-                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
-                "fee = 0, units = 0",
-                array($code_type_id, $code, $a[14]));
+                sqlStatementNoLog(
+                    "INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
+                    "fee = 0, units = 0",
+                    array($code_type_id, $code, $a[14])
+                );
                 ++$inscount;
             }
 

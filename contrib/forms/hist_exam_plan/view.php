@@ -66,7 +66,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_hist_exam_plan WHERE " .
+    $row = sqlQuery("SELECT * FROM form_hist_exam_plan WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 ?>

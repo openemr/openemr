@@ -44,13 +44,32 @@ if (isset($mode)) {
         $provid = $tmp['id'] ? $tmp['id'] : $_SESSION["authUserID"];
 
         if (strtolower($type) == "copay") {
-            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($payment_method),
-                $pid, $userauthorized, $provid, $modifier, $units,
-                sprintf("%01.2f", 0 - $code));
+            addBilling(
+                $encounter,
+                $type,
+                sprintf("%01.2f", $code),
+                strip_escape_custom($payment_method),
+                $pid,
+                $userauthorized,
+                $provid,
+                $modifier,
+                $units,
+                sprintf("%01.2f", 0 - $code)
+            );
         }
         elseif (strtolower($type) == "other") {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,
-                $provid, $modifier, $units, sprintf("%01.2f", $fee));
+            addBilling(
+                $encounter,
+                $type,
+                $code,
+                strip_escape_custom($text),
+                $pid,
+                $userauthorized,
+                $provid,
+                $modifier,
+                $units,
+                sprintf("%01.2f", $fee)
+            );
         }
         else {
             $ndc_info = '';
@@ -61,8 +80,19 @@ if (isset($mode)) {
                 "ORDER BY date DESC LIMIT 1");
                     if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
             }
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,
-            $provid, $modifier, $units, $fee, $ndc_info);
+            addBilling(
+                $encounter,
+                $type,
+                $code,
+                strip_escape_custom($text),
+                $pid,
+                $userauthorized,
+                $provid,
+                $modifier,
+                $units,
+                $fee,
+                $ndc_info
+            );
         }
     }
     elseif ($mode == "justify") {
@@ -196,7 +226,7 @@ if (!$thisauth) {
 <font class=more><?php echo $tmore;?></font></a>
 
 <?php
-if( !empty( $_GET["back"] ) || !empty( $_POST["back"] ) ){
+if( !empty($_GET["back"]) || !empty($_POST["back"]) ){
     print "&nbsp;<a href=\"superbill_codes.php\" target=\"$target\" onclick=\"top.restoreSession()\"><font class=more>$tback</font></a>";
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }

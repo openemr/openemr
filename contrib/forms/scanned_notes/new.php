@@ -95,12 +95,16 @@ $imageurl = "$web_root/sites/" . $_SESSION['site_id'] .
   "/documents/$pid/encounters/${encounter}_$formid.jpg";
 
 if ($formid) {
-    $row = sqlQuery("SELECT * FROM form_scanned_notes WHERE " .
-    "id = ? AND activity = '1'",
-    array($formid));
-    $formrow = sqlQuery("SELECT id FROM forms WHERE " .
-    "form_id = ? AND formdir = 'scanned_notes'",
-    array($formid));
+    $row = sqlQuery(
+        "SELECT * FROM form_scanned_notes WHERE " .
+        "id = ? AND activity = '1'",
+        array($formid)
+    );
+    $formrow = sqlQuery(
+        "SELECT id FROM forms WHERE " .
+        "form_id = ? AND formdir = 'scanned_notes'",
+        array($formid)
+    );
 }
 ?>
 <html>

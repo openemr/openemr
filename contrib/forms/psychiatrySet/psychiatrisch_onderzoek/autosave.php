@@ -21,13 +21,13 @@ foreach ($_POST as $k => $var)
 
 /////////////////
 // here we check to se if there was an autosave version prior to the real save 
-$vectAutosave = sqlQuery( "SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
+$vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_psychiatrisch_onderzoek
                             WHERE pid = ".$_SESSION["pid"].
                             " AND groupname='".$_SESSION["authProvider"].
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1
                             AND autosave_flag=1 
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 
 // if yes then update this else insert
 if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
@@ -52,14 +52,14 @@ if( $vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$newid.";";
 
-    sqlQuery( $strSql );
+    sqlQuery($strSql);
 
 //echo "DEBUG :: id=$newid, sql=$strSql<br>";
 
 } else
 {
-    $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );
-    addForm( $encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized );
+    $newid = formSubmit("form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized);
+    addForm($encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized);
     
     //echo "Debug :: insert<br>";
 }
@@ -72,7 +72,7 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_psychiatrisch_onderzoek
                             "' AND user='".$_SESSION["authUser"]."' AND
                             authorized=$userauthorized AND activity=1 AND id=$newid
                             AND autosave_flag=1 
-                            ORDER by id DESC limit 1" );
+                            ORDER by id DESC limit 1");
 //$timestamp = mysql_result($result, 0);
 
 //output timestamp

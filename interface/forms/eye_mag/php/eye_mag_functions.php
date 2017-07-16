@@ -1539,7 +1539,7 @@ function build_PMSFH($pid)
             $subtype="";
         }
         $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? " .
-            $subtype." ".$order, array($pid,$focusISSUE) );
+            $subtype." ".$order, array($pid,$focusISSUE));
         $row_counter='0';
         while ($row = sqlFetchArray($pres)) {
             $rowid = $row['id'];
@@ -1621,7 +1621,7 @@ function build_PMSFH($pid)
     }
     //Build the SocHx portion of $PMSFH for this patient.
     //$given ="coffee,tobacco,alcohol,sleep_patterns,exercise_patterns,seatbelt_use,counseling,hazardous_activities,recreational_drugs";
-    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", array($pid) );
+    $result1 = sqlQuery("select * from history_data where pid=? order by date DESC limit 0,1", array($pid));
 
     $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
@@ -5129,7 +5129,7 @@ function findProvider($pid, $encounter)
 {
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($pid,$encounter) );
+        "ORDER BY id DESC LIMIT 1", array($pid,$encounter));
     $providerid = $find_provider['provider_id'];
     if($providerid < '1') {
        //find the default providerID from the calendar
@@ -5140,7 +5140,7 @@ function findProvider($pid, $encounter)
         if (($new_providerid < '1')||(!$new_providerid)) {
             $get_authorized = $_SESSION['userauthorized'];
             if($get_authorized ==1) {
-                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", array($pid) );
+                $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", array($pid));
                 $new_providerid = $find_provider2['providerID'];
             }
         }

@@ -27,7 +27,7 @@
 include_once("../../globals.php");
 include_once("$srcdir/options.inc.php");
 
-if ( isset($_POST['mode'] )) {
+if ( isset($_POST['mode'])) {
     $currentUser = $_SESSION['authUserID'];
     $created_time = date('Y-m-d H:i');
     if ( $_POST["amendment_id"] == "" ) {
@@ -41,7 +41,7 @@ if ( isset($_POST['mode'] )) {
 			created_by = ?,
 			created_time = ?";
         $sqlBindArray = array(
-            DateToYYYYMMDD( $_POST['amendment_date']),
+            DateToYYYYMMDD($_POST['amendment_date']),
             $_POST['form_amendment_by'],
             $_POST['form_amendment_status'],
             $pid,
@@ -200,11 +200,11 @@ $(document).ready(function() {
             <td>
             <?php if ( ! $onlyRead ) { ?>
                 <input type='text' size='10' class='datepicker' name="amendment_date" id="amendment_date"
-                    value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                    value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
             <?php } else  { ?>
                 <input type='text' size='10' name="amendment_date" id="amendment_date" readonly
-                    value='<?php echo $amendment_date ? htmlspecialchars( oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
+                    value='<?php echo $amendment_date ? htmlspecialchars(oeFormatShortDate($amendment_date), ENT_QUOTES) : oeFormatShortDate(); ?>'
                 />
             <?php } ?>
             </td>

@@ -105,12 +105,14 @@ function pnSessionSetup()
     ini_set('session.auto_start', 1);
 
     // Session handlers
-    session_set_save_handler("pnSessionOpen",
-                             "pnSessionClose",
-                             "pnSessionRead",
-                             "pnSessionWrite",
-                             "pnSessionDestroy",
-                             "pnSessionGC");
+    session_set_save_handler(
+        "pnSessionOpen",
+        "pnSessionClose",
+        "pnSessionRead",
+        "pnSessionWrite",
+        "pnSessionDestroy",
+        "pnSessionGC"
+    );
     return true;
 }
 

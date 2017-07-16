@@ -54,7 +54,7 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
- if (!acl_check('patients', 'appt', '', array('write','wsome') ))
+ if (!acl_check('patients', 'appt', '', array('write','wsome')))
    die(xl('Access not allowed'));
 
 /* Things that might be passed by our opener. */
@@ -143,7 +143,7 @@ else {
         if (is_array($_POST['form_provider'])) {
 
             // obtain the next available unique key to group multiple providers around some event
-            $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+            $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
             $max = sqlFetchArray($q);
             $new_multiple_value = $max['max'] + 1;
 
@@ -194,7 +194,7 @@ else {
 
         if ($patient_dob && $_POST['form_pid']) {
             sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
-                                    "pid = ?", array($patient_dob,$_POST['form_pid']) );
+                                    "pid = ?", array($patient_dob,$_POST['form_pid']));
         }
 
         // Manage tracker status.
@@ -266,21 +266,21 @@ else {
         $facility = sqlQuery("SELECT pc_facility, pc_multiple, pc_aid, facility.name
                             FROM openemr_postcalendar_events
                               LEFT JOIN facility ON (openemr_postcalendar_events.pc_facility = facility.id)
-                              WHERE pc_eid = ?", array($eid) );
+                              WHERE pc_eid = ?", array($eid));
             // if ( !$facility['pc_facility'] ) {
         if ( is_array($facility) && !$facility['pc_facility'] ) {
-            $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']) );
+            $qmin = sqlQuery("SELECT facility_id as minId, facility FROM users WHERE id = ?", array($facility['pc_aid']));
             $min  = $qmin['minId'];
             $min_name = $qmin['facility'];
 
             // multiple providers case
             if ( $GLOBALS['select_multi_providers'] ) {
                 $mul  = $facility['pc_multiple'];
-                sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min,$mul) );
+                sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", array($min,$mul));
             }
             // EOS multiple
 
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min,$eid) );
+            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", array($min,$eid));
             $e2f = $min;
             $e2f_name = $min_name;
         } else {
@@ -422,7 +422,7 @@ else {
         if ($eid) {
 
             // what is multiple key around this $eid?
-            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
             // ====================================
             // multiple providers
@@ -430,7 +430,7 @@ else {
             if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
 
                 // obtain current list of providers regarding the multiple key
-                $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']) );
+                $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
                 while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
 
                 // get the new list of providers from the submitted form
@@ -444,7 +444,7 @@ else {
                         // update the provider's original event
                         // get the original event's repeat specs
                         $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                        " WHERE pc_aid = ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
                         $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                         $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                         if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
@@ -453,11 +453,11 @@ else {
                         // mod original event recur specs to exclude this date
                         sqlStatement("UPDATE openemr_postcalendar_events SET " .
                             " pc_recurrspec = ? ".
-                            " WHERE pc_aid = ? AND pc_multiple=?", array(serialize($oldRecurrspec),$provider,$row['pc_multiple']) );
+                            " WHERE pc_aid = ? AND pc_multiple=?", array(serialize($oldRecurrspec),$provider,$row['pc_multiple']));
                     }
 
                     // obtain the next available unique key to group multiple providers around some event
-                    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                    $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
                     $max = sqlFetchArray($q);
                     $new_multiple_value = $max['max'] + 1;
 
@@ -504,7 +504,7 @@ else {
                     }
 
                     // obtain the next available unique key to group multiple providers around some event
-                    $q = sqlStatement ("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
+                    $q = sqlStatement("SELECT MAX(pc_multiple) as max FROM openemr_postcalendar_events");
                     $max = sqlFetchArray($q);
                     $new_multiple_value = $max['max'] + 1;
 
@@ -532,10 +532,10 @@ else {
 
                     // this difference means that some providers from current was UNCHECKED
                     // so we must delete this event for them
-                    $r1 = array_diff ($providers_current, $providers_new);
-                    if (count ($r1)) {
+                    $r1 = array_diff($providers_current, $providers_new);
+                    if (count($r1)) {
                         foreach ($r1 as $to_be_removed) {
-                            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']) );
+                            sqlQuery("DELETE FROM openemr_postcalendar_events WHERE pc_aid=? AND pc_multiple=?", array($to_be_removed,$row['pc_multiple']));
                         }
                     }
 
@@ -549,8 +549,8 @@ else {
 
                     // this difference means that some providers were added
                     // so we must insert this event for them
-                    $r2 = array_diff ($providers_new, $providers_current);
-                    if (count ($r2)) {
+                    $r2 = array_diff($providers_new, $providers_current);
+                    if (count($r2)) {
                         foreach ($r2 as $to_be_inserted) {
                             $args = $_POST;
                             // specify some special variables needed for the INSERT
@@ -605,7 +605,7 @@ else {
 
                 if ($_POST['recurr_affect'] == 'current') {
                     // get the original event's repeat specs
-                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
@@ -614,7 +614,7 @@ else {
                     // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? ".
-                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid) );
+                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
 
                     // insert a new event on this date with POST form data
                     $args = $_POST;
@@ -636,7 +636,7 @@ else {
                     $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? ".
-                    " WHERE pc_eid = ?", array($selected_date,$eid) );
+                    " WHERE pc_eid = ?", array($selected_date,$eid));
 
                     // insert a new event starting on this date with POST form data
                     $args = $_POST;
@@ -719,11 +719,11 @@ else {
         if ($GLOBALS['select_multi_providers']) {
 
             // what is multiple key around this $eid?
-            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
 
             // obtain current list of providers regarding the multiple key
             $providers_current = array();
-            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']) );
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
             while ($current = sqlFetchArray($up)) { $providers_current[] = $current['pc_aid']; }
 
             // establish a WHERE clause
@@ -736,7 +736,7 @@ else {
                     // update the provider's original event
                     // get the original event's repeat specs
                     $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events ".
-                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']) );
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
                     $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                     $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
                     if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
@@ -745,7 +745,7 @@ else {
                     // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                         " pc_recurrspec = ? ".
-                        " WHERE ". $whereClause, array(serialize($oldRecurrspec)) );
+                        " WHERE ". $whereClause, array(serialize($oldRecurrspec)));
                 }
             }
             else if ($_POST['recurr_affect'] == 'future') {
@@ -780,14 +780,14 @@ else {
                 // mod original event recur specs to exclude this date
 
                 // get the original event's repeat specs
-                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
                 $oldRecurrspec = unserialize($origEvent['pc_recurrspec']);
                 $selected_date = date("Ymd", strtotime($_POST['selected_date']));
                 if ($oldRecurrspec['exdate'] != "") { $oldRecurrspec['exdate'] .= ",".$selected_date; }
                 else { $oldRecurrspec['exdate'] .= $selected_date; }
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? ".
-                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid) );
+                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
             }
 
             else if ($_POST['recurr_affect'] == 'future') {
@@ -795,12 +795,12 @@ else {
                 $selected_date = date("Ymd", (strtotime($_POST['selected_date'])-24*60*60));
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? ".
-                    " WHERE pc_eid = ?", array($selected_date,$eid) );
+                    " WHERE pc_eid = ?", array($selected_date,$eid));
             }
 
             else {
                 // fully delete the event from the database
-                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+                sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
             }
         }
     }
@@ -867,7 +867,7 @@ else {
         $row = sqlQuery("SELECT e.*, u.fname, u.mname, u.lname " .
           "FROM openemr_postcalendar_events AS e " .
           "LEFT OUTER JOIN users AS u ON u.id = e.pc_informant " .
-          "WHERE pc_eid = ?", array($eid) );
+          "WHERE pc_eid = ?", array($eid));
         $informant = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname'];
 
         // instead of using the event's starting date, keep what has been provided
@@ -915,14 +915,15 @@ else {
             $pref_facility = sqlFetchArray(sqlStatement("SELECT facility_id, facility FROM users WHERE id = $userid"));
             *************************************************************/
             if ($_SESSION['pc_facility']) {
-                $pref_facility = sqlFetchArray(sqlStatement("
+                $pref_facility = sqlFetchArray(sqlStatement(
+                    "
 		        SELECT f.id as facility_id,
 		        f.name as facility
 		        FROM facility f
 		        WHERE f.id = ?
 	          ",
-                array($_SESSION['pc_facility'])
-                  ));
+                    array($_SESSION['pc_facility'])
+                ));
             } else {
                 $pref_facility = sqlFetchArray(sqlStatement("
             SELECT u.facility_id,
@@ -930,7 +931,7 @@ else {
             FROM users u
             LEFT JOIN facility f on (u.facility_id = f.id)
             WHERE u.id = ?
-            ", array($userid) ));
+            ", array($userid)));
             }
              /************************************************************/
              $e2f = $pref_facility['facility_id'];
@@ -942,7 +943,7 @@ else {
  // If we have a patient ID, get the name and phone numbers to display.
     if ($patientid) {
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
-         "FROM patient_data WHERE pid = ?", array($patientid) );
+         "FROM patient_data WHERE pid = ?", array($patientid));
         $patientname = $prow['lname'] . ", " . $prow['fname'];
         if ($prow['phone_home']) $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
         if ($prow['phone_biz']) $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
@@ -1566,12 +1567,12 @@ if  ($GLOBALS['select_multi_providers']) {
     if ($eid) {
         if ( $multiple_value ) {
             // find all the providers around multiple key
-            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = ?", array($multiple_value) );
+            $qall = sqlStatement("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_multiple = ?", array($multiple_value));
             while ($r = sqlFetchArray($qall)) {
                 $providers_array[] = $r['providers'];
             }
         } else {
-            $qall = sqlStatement ("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+            $qall = sqlStatement("SELECT pc_aid AS providers FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
             $providers_array = sqlFetchArray($qall);
         }
     }
@@ -1600,7 +1601,7 @@ if  ($GLOBALS['select_multi_providers']) {
 
     if ($eid) {
         // get provider from existing event
-        $qprov = sqlStatement ("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid) );
+        $qprov = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
         $provider = sqlFetchArray($qprov);
         $defaultProvider = $provider['pc_aid'];
     }
@@ -1642,7 +1643,7 @@ if  ($GLOBALS['select_multi_providers']) {
         if (count($_SESSION['pc_username']) >= 1) {
             // get the numeric ID of the first provider in the array
             $pc_username = $_SESSION['pc_username'];
-            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0]) ));
+            $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", array($pc_username[0])));
             $defaultProvider = $firstProvider['id'];
         }
       // if we clicked on a provider's schedule to add the event, use THAT.

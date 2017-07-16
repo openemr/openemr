@@ -403,8 +403,14 @@ if ($_POST['form_refresh']) {
                 }
             }
           //
-            $key = sprintf("%08u%s%08u%08u%06u", $row['docid'], $thedate,
-            $patient_id, $encounter_id, ++$irow);
+            $key = sprintf(
+                "%08u%s%08u%08u%06u",
+                $row['docid'],
+                $thedate,
+                $patient_id,
+                $encounter_id,
+                ++$irow
+            );
             $arows[$key] = array();
             $arows[$key]['transdate'] = $thedate;
             $arows[$key]['amount'] = $row['fee'];
@@ -510,8 +516,14 @@ if ($_POST['form_refresh']) {
         }
         //
         $docid = empty($row['encounter_id']) ? $row['docid'] : $row['encounter_id'];
-        $key = sprintf("%08u%s%08u%08u%06u", $docid, $thedate,
-        $patient_id, $encounter_id, ++$irow);
+        $key = sprintf(
+            "%08u%s%08u%08u%06u",
+            $docid,
+            $thedate,
+            $patient_id,
+            $encounter_id,
+            ++$irow
+        );
         $arows[$key] = array();
         $arows[$key]['transdate'] = $thedate;
         $arows[$key]['amount'] = 0 - $row['pay_amount'];

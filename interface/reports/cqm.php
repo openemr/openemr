@@ -360,12 +360,12 @@ else {
         <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                    <tr>
                       <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Begin Date'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Begin Date'), ENT_NOQUOTES); ?>:
                       </td>
                       <td>
-                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars( $begin_date, ENT_QUOTES); ?>'
+                         <input <?php echo $dis_text; ?> type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo htmlspecialchars($begin_date, ENT_QUOTES); ?>'
                             class='datepicker form-control'
-                            title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                            title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                             <?php if (empty($report_id)) { ?>
                             <?php } ?>
                       </td>
@@ -375,15 +375,15 @@ else {
                 <tr>
                         <td class='control-label'>
                             <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
-                                <?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?>:
+                                <?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?>:
                             <?php } else { ?>
-                                <?php echo htmlspecialchars( xl('Target Date'), ENT_NOQUOTES); ?>:
+                                <?php echo htmlspecialchars(xl('Target Date'), ENT_NOQUOTES); ?>:
                             <?php } ?>
                         </td>
                         <td>
-                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo htmlspecialchars( $target_date, ENT_QUOTES); ?>'
+                           <input <?php echo $dis_text; ?> type='text' name='form_target_date' id="form_target_date" size='20' value='<?php echo htmlspecialchars($target_date, ENT_QUOTES); ?>'
                                 class='datepicker form-control'
-                                title='<?php echo htmlspecialchars( xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
+                                title='<?php echo htmlspecialchars(xl('yyyy-mm-dd hh:mm:ss'), ENT_QUOTES); ?>'>
                             <?php if (empty($report_id)) { ?>
                             <?php } ?>
                         </td>
@@ -454,22 +454,22 @@ else {
                 <?php } else { ?>
                     <tr>
                         <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Plan Set'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Plan Set'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                                  <select <?php echo $dis_text; ?> id='form_plan_filter' name='form_plan_filter' class='form-control'>
-                                 <option value=''>-- <?php echo htmlspecialchars( xl('Ignore'), ENT_NOQUOTES); ?> --</option>
+                                 <option value=''>-- <?php echo htmlspecialchars(xl('Ignore'), ENT_NOQUOTES); ?> --</option>
                                     <?php if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) { ?>
                                    <option value='cqm' <?php if ($plan_filter == "cqm") echo "selected"; ?>>
-                                    <?php echo htmlspecialchars( xl('All Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
+                                    <?php echo htmlspecialchars(xl('All Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                    <option value='cqm_2011' <?php if ($plan_filter == "cqm_2011") echo "selected"; ?>>
-                                    <?php echo htmlspecialchars( xl('2011 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
+                                    <?php echo htmlspecialchars(xl('2011 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                    <option value='cqm_2014' <?php if ($plan_filter == "cqm_2014") echo "selected"; ?>>
-                                    <?php echo htmlspecialchars( xl('2014 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
+                                    <?php echo htmlspecialchars(xl('2014 Official Clinical Quality Measures (CQM) Measure Groups'), ENT_NOQUOTES); ?></option>
                                     <?php } ?>
                                     <?php if ($type_report == "standard") { ?>
                                    <option value='normal' <?php if ($plan_filter == "normal") echo "selected"; ?>>
-                                    <?php echo htmlspecialchars( xl('Active Plans'), ENT_NOQUOTES); ?></option>
+                                    <?php echo htmlspecialchars(xl('Active Plans'), ENT_NOQUOTES); ?></option>
                                     <?php } ?>
                         </td>
                     </tr>
@@ -477,7 +477,7 @@ else {
 
                 <tr>
             <td class='control-label'>
-                <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
+                <?php echo htmlspecialchars(xl('Provider'), ENT_NOQUOTES); ?>:
             </td>
             <td>
                 <?php
@@ -491,21 +491,21 @@ else {
                  $ures = sqlStatement($query);
 
                  echo "   <select " . $dis_text . " id='form_provider' name='form_provider' class='form-control'>\n";
-                 echo "    <option value=''>-- " . htmlspecialchars( xl('All (Cumulative)'), ENT_NOQUOTES) . " --\n";
+                 echo "    <option value=''>-- " . htmlspecialchars(xl('All (Cumulative)'), ENT_NOQUOTES) . " --\n";
 
                                  echo "    <option value='collate_outer'";
                                  if ($provider == 'collate_outer') echo " selected";
-                                 echo ">-- " . htmlspecialchars( xl('All (Collated Format A)'), ENT_NOQUOTES) . " --\n";
+                                 echo ">-- " . htmlspecialchars(xl('All (Collated Format A)'), ENT_NOQUOTES) . " --\n";
 
                                  echo "    <option value='collate_inner'";
                                  if ($provider == 'collate_inner') echo " selected";
-                                 echo ">-- " . htmlspecialchars( xl('All (Collated Format B)'), ENT_NOQUOTES) . " --\n";
+                                 echo ">-- " . htmlspecialchars(xl('All (Collated Format B)'), ENT_NOQUOTES) . " --\n";
 
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
-                    echo "    <option value='".htmlspecialchars( $provid, ENT_QUOTES)."'";
+                    echo "    <option value='".htmlspecialchars($provid, ENT_QUOTES)."'";
                     if ($provid == $provider) echo " selected";
-                    echo ">" . htmlspecialchars( $urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
+                    echo ">" . htmlspecialchars($urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
                 }
 
                  echo "   </select>\n";
@@ -516,7 +516,7 @@ else {
 
                 <tr>
                         <td class='control-label'>
-                            <?php echo htmlspecialchars( xl('Provider Relationship'), ENT_NOQUOTES); ?>:
+                            <?php echo htmlspecialchars(xl('Provider Relationship'), ENT_NOQUOTES); ?>:
                         </td>
                         <td>
                                 <?php
@@ -538,8 +538,8 @@ else {
                 <?php if (($type_report == "amc") || ($type_report == "amc_2011") || ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2")) { ?>
                   <tr>
                         <td>
-                                <?php echo htmlspecialchars( xl('Number labs'), ENT_NOQUOTES); ?>:<br>
-                               (<?php echo htmlspecialchars( xl('Non-electronic'), ENT_NOQUOTES); ?>)
+                                <?php echo htmlspecialchars(xl('Number labs'), ENT_NOQUOTES); ?>:<br>
+                               (<?php echo htmlspecialchars(xl('Non-electronic'), ENT_NOQUOTES); ?>)
                         </td>
                         <td>
                                <input <?php echo $dis_text; ?> type="text" id="labs_manual_entry" name="labs_manual_entry" class='form-control' value="<?php echo htmlspecialchars($labs_manual, ENT_QUOTES); ?>">
@@ -618,55 +618,55 @@ if (!empty($report_id)) {
 
 <thead>
  <th>
-    <?php echo htmlspecialchars( xl('Title'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Title'), ENT_NOQUOTES); ?>
  </th>
 
  <th>
     <?php
       if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014')
-          echo htmlspecialchars( xl('Initial Patient Population'), ENT_NOQUOTES);
+          echo htmlspecialchars(xl('Initial Patient Population'), ENT_NOQUOTES);
     else
-          echo htmlspecialchars( xl('Total Patients'), ENT_NOQUOTES);
+          echo htmlspecialchars(xl('Total Patients'), ENT_NOQUOTES);
     ?>
   </th>
 
   <th>
     <?php if ($type_report == "amc") { ?>
-    <?php echo htmlspecialchars( xl('Denominator'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Denominator'), ENT_NOQUOTES); ?></a>
     <?php } else { ?>
-    <?php echo htmlspecialchars( xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Applicable Patients') .' (' . xl('Denominator') . ')', ENT_NOQUOTES); ?></a>
     <?php } ?>
   </th>
 
     <?php if ($type_report != "amc") { ?>
    <th>
-    <?php echo htmlspecialchars( xl('Denominator Exclusion'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Denominator Exclusion'), ENT_NOQUOTES); ?></a>
    </th>
     <?php }?>
     <?php if($type_report == 'cqm' || $type_report == 'cqm_2011' || $type_report == 'cqm_2014') {?>
    <th>
-    <?php echo htmlspecialchars( xl('Denominator Exception'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Denominator Exception'), ENT_NOQUOTES); ?></a>
    </th>
     <?php } ?>
 
   <th>
     <?php if ($type_report == "amc") { ?>
-    <?php echo htmlspecialchars( xl('Numerator'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Numerator'), ENT_NOQUOTES); ?></a>
     <?php } else { ?>
-    <?php echo htmlspecialchars( xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Passed Patients') . ' (' . xl('Numerator') . ')', ENT_NOQUOTES); ?></a>
     <?php } ?>
   </th>
 
   <th>
     <?php if ($type_report == "amc") { ?>
-    <?php echo htmlspecialchars( xl('Failed'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Failed'), ENT_NOQUOTES); ?></a>
     <?php } else { ?>
-    <?php echo htmlspecialchars( xl('Failed Patients'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Failed Patients'), ENT_NOQUOTES); ?></a>
     <?php } ?>
   </th>
 
   <th>
-    <?php echo htmlspecialchars( xl('Performance Percentage'), ENT_NOQUOTES); ?></a>
+    <?php echo htmlspecialchars(xl('Performance Percentage'), ENT_NOQUOTES); ?></a>
   </th>
 
  </thead>
@@ -699,28 +699,28 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         $tempCqmAmcString = "";
         if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == "cqm_2014")) {
             if (!empty($row['cqm_pqri_code'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('PQRI') . ":" . $row['cqm_pqri_code'], ENT_NOQUOTES) . " ";
             }
             if (!empty($row['cqm_nqf_code'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('NQF') . ":" . $row['cqm_nqf_code'], ENT_NOQUOTES) . " ";
             }
         }
         if ($type_report == "amc") {
             if (!empty($row['amc_code'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
             }
             if (!empty($row['amc_code_2014'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
             }
         }
         if ($type_report == "amc_2011") {
             if (!empty($row['amc_code'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2011') . ":" . $row['amc_code'], ENT_NOQUOTES) . " ";
             }
         }
         if ( ($type_report == "amc_2014_stage1") || ($type_report == "amc_2014_stage2") ) {
             if (!empty($row['amc_code_2014'])) {
-                $tempCqmAmcString .= " " . htmlspecialchars( xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
+                $tempCqmAmcString .= " " . htmlspecialchars(xl('AMC-2014') . ":" . $row['amc_code_2014'], ENT_NOQUOTES) . " ";
             }
         }
 
@@ -729,7 +729,7 @@ if (isset($row['is_main']) || isset($row['is_sub'])) {
         }
 
         if ( !(empty($row['concatenated_label'])) ) {
-            echo ", " . htmlspecialchars( xl( $row['concatenated_label'] ), ENT_NOQUOTES) . " ";
+            echo ", " . htmlspecialchars(xl($row['concatenated_label']), ENT_NOQUOTES) . " ";
         }
 
     }
@@ -809,14 +809,14 @@ else if (isset($row['is_provider'])) {
         echo "<tr><td>&nbsp</td></tr>";
     }
     echo "<td class='detail' align='center'><b>";
-    echo htmlspecialchars( xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
+    echo htmlspecialchars(xl("Provider").": " . $row['prov_lname'] . "," . $row['prov_fname'], ENT_NOQUOTES);
     if (!empty($row['npi']) || !empty($row['federaltaxid'])) {
         echo " (";
         if (!empty($row['npi'])) {
-            echo " " . htmlspecialchars( xl('NPI') . ":" . $row['npi'], ENT_NOQUOTES) . " ";
+            echo " " . htmlspecialchars(xl('NPI') . ":" . $row['npi'], ENT_NOQUOTES) . " ";
         }
         if (!empty($row['federaltaxid'])) {
-            echo " " . htmlspecialchars( xl('TID') . ":" . $row['federaltaxid'], ENT_NOQUOTES) . " ";
+            echo " " . htmlspecialchars(xl('TID') . ":" . $row['federaltaxid'], ENT_NOQUOTES) . " ";
         }
            echo ")";
     }
@@ -829,10 +829,10 @@ else { // isset($row['is_plan'])
         echo "<tr><td>&nbsp</td></tr>";
     }
     echo "<td class='detail' align='center'><b>";
-    echo htmlspecialchars( xl("Plan"), ENT_NOQUOTES) . ": ";
+    echo htmlspecialchars(xl("Plan"), ENT_NOQUOTES) . ": ";
     echo generate_display_field(array('data_type'=>'1','list_id'=>'clinical_plans'), $row['id']);
     if (!empty($row['cqm_measure_group'])) {
-        echo " (". htmlspecialchars( xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
+        echo " (". htmlspecialchars(xl('Measure Group Code') . ": " . $row['cqm_measure_group'], ENT_NOQUOTES) . ")";
     }
     echo "</b></td>";
     $firstPlanFlag = false;
@@ -848,7 +848,7 @@ else { // isset($row['is_plan'])
 </div>  <!-- end of search results -->
 <?php } else { ?>
 <div id="instructions_text" class='text'>
-    <?php echo htmlspecialchars( xl('Please input search criteria above, and click Submit to start report.'), ENT_NOQUOTES); ?>
+    <?php echo htmlspecialchars(xl('Please input search criteria above, and click Submit to start report.'), ENT_NOQUOTES); ?>
 </div>
 <?php } ?>
 

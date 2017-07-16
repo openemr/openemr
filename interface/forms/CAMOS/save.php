@@ -19,8 +19,8 @@ if ($_GET["mode"] == "delete") {
                 //   before being submitted to the database. Will also continue to support placeholder conversion on report
                 //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
                 //   version 4.0).
-                $content = strip_escape_custom( $_POST['textarea_'.${id}] );
-                $content = add_escape_custom( replace($pid, $encounter, $content) );
+                $content = strip_escape_custom($_POST['textarea_'.${id}]);
+                $content = add_escape_custom(replace($pid, $encounter, $content));
                 sqlInsert("update ".mitigateSqlTableUpperCase("form_CAMOS")." set content='$content' where id=$id");
             }
         }

@@ -57,7 +57,7 @@ if ($_POST['form_save']) {
     "destroy_method = '"  . add_escape_custom($_POST['form_method'])    . "', " .
     "destroy_witness = '" . add_escape_custom($_POST['form_witness'])   . "', " .
     "destroy_notes = '"   . add_escape_custom($_POST['form_notes'])     . "' "  .
-    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
+    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
 
   // Close this window and redisplay the updated list of drugs.
   //

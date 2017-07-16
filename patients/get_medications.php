@@ -10,17 +10,17 @@
 
     $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
     
-    $res = sqlStatement($sql, array($pid) );
+    $res = sqlStatement($sql, array($pid));
 
 if(sqlNumRows($res)>0)
 {
     ?>
     <table class="class1">
         <tr class="header">
-        <th><?php echo htmlspecialchars( xl('Drug'), ENT_NOQUOTES); ?></th>
-        <th><?php echo htmlspecialchars( xl('Start Date'), ENT_NOQUOTES); ?></th>
-        <th><?php echo htmlspecialchars( xl('End Date'), ENT_NOQUOTES); ?></th>
-        <th><?php echo htmlspecialchars( xl('Referrer'), ENT_NOQUOTES); ?></th>
+        <th><?php echo htmlspecialchars(xl('Drug'), ENT_NOQUOTES); ?></th>
+        <th><?php echo htmlspecialchars(xl('Start Date'), ENT_NOQUOTES); ?></th>
+        <th><?php echo htmlspecialchars(xl('End Date'), ENT_NOQUOTES); ?></th>
+        <th><?php echo htmlspecialchars(xl('Referrer'), ENT_NOQUOTES); ?></th>
         </tr>
     <?php
     $even=false;
@@ -43,6 +43,6 @@ if(sqlNumRows($res)>0)
 }
 else
 {
-    echo htmlspecialchars( xl("No Results"), ENT_NOQUOTES);
+    echo htmlspecialchars(xl("No Results"), ENT_NOQUOTES);
 }
 ?>

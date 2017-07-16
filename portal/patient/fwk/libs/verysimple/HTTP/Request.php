@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("RequestUtil.php");
+require_once("RequestUtil.php");
 
 /**
  * Static utility class for processing form post/request data

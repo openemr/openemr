@@ -25,7 +25,7 @@ function checkWarehouseUsed($warehouse_id)
     global $drug_id;
     $row = sqlQuery("SELECT count(*) AS count FROM drug_inventory WHERE " .
     "drug_id = ? AND " .
-    "destroy_date IS NULL AND warehouse_id = ?", array($drug_id,$warehouse_id) );
+    "destroy_date IS NULL AND warehouse_id = ?", array($drug_id,$warehouse_id));
     return $row['count'];
 }
 
@@ -219,7 +219,7 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // If a transfer, make sure there is sufficient quantity in the source lot.
     if ($_POST['form_save'] && $form_source_lot && $form_quantity) {
         $srow = sqlQuery("SELECT on_hand FROM drug_inventory WHERE " .
-        "drug_id = ? AND inventory_id = ?", array($drug_id,$form_source_lot) );
+        "drug_id = ? AND inventory_id = ?", array($drug_id,$form_source_lot));
         if ($srow['on_hand'] < $form_quantity) {
               $info_msg = xl('Transfer failed, insufficient quantity in source lot');
         }
@@ -241,12 +241,12 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
                     "vendor_id = '"    . add_escape_custom($_POST['form_vendor_id'])     . "', " .
                     "warehouse_id = '" . add_escape_custom($_POST['form_warehouse_id'])  . "', " .
                     "on_hand = on_hand + '" . add_escape_custom($form_quantity)            . "' "  .
-                    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id) );
+                    "WHERE drug_id = ? AND inventory_id = ?", array($drug_id,$lot_id));
                 }
             }
             else {
                 sqlStatement("DELETE FROM drug_inventory WHERE drug_id = ? " .
-                "AND inventory_id = ?", array($drug_id,$lot_id) );
+                "AND inventory_id = ?", array($drug_id,$lot_id));
             }
         }
         // Destination lot will be created.
@@ -294,14 +294,14 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
             if ($form_source_lot) {
                   sqlStatement("UPDATE drug_inventory SET " .
                     "on_hand = on_hand - ? " .
-                    "WHERE inventory_id = ?", array($form_quantity,$form_source_lot) );
+                    "WHERE inventory_id = ?", array($form_quantity,$form_source_lot));
 
                 foreach (array('lot_number', 'manufacturer', 'expiration', 'vendor_id') as $item) {
                             sqlStatement("UPDATE drug_inventory AS di1, drug_inventory AS di2 " .
                               "SET di1.".add_escape_custom($item)." = di2.".add_escape_custom($item)." " .
                               "WHERE di1.inventory_id = ? AND " .
                               "di2.inventory_id = ? AND " .
-                              "( di1.".add_escape_custom($item)." IS NULL OR di1.".add_escape_custom($item)." = '' OR di1.".add_escape_custom($item)." = '0' )", array($lot_id,$form_source_lot) );
+                              "( di1.".add_escape_custom($item)." IS NULL OR di1.".add_escape_custom($item)." = '' OR di1.".add_escape_custom($item)." = '0' )", array($lot_id,$form_source_lot));
                 }
             }
         }
@@ -356,10 +356,12 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   <td>
 <?php
 // Address book entries for vendors.
-generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
-  'list_id' => '', 'edit_options' => 'V',
-  'description' => xl('Address book entry for the vendor')),
-  $row['vendor_id']);
+generate_form_field(
+    array('data_type' => 14, 'field_id' => 'vendor_id',
+    'list_id' => '', 'edit_options' => 'V',
+    'description' => xl('Address book entry for the vendor')),
+    $row['vendor_id']
+);
 ?>
   </td>
  </tr>
@@ -370,8 +372,11 @@ generate_form_field(array('data_type' => 14, 'field_id' => 'vendor_id',
 <?php
   // generate_select_list("form_warehouse_id", 'warehouse',
   //   $row['warehouse_id'], xl('Location of this lot'), xl('Unassigned'));
-if (!genWarehouseList("form_warehouse_id", $row['warehouse_id'],
-    xl('Location of this lot')))
+if (!genWarehouseList(
+    "form_warehouse_id",
+    $row['warehouse_id'],
+    xl('Location of this lot')
+))
 {
     $info_msg = xl('This product allows only one lot per warehouse.');
 }

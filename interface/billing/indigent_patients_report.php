@@ -202,8 +202,7 @@ if ($_POST['form_refresh']) {
     "FROM form_encounter AS e, patient_data AS p, insurance_data AS i " .
     "WHERE p.pid = e.pid AND i.pid = e.pid AND i.type = 'primary' " .
     "AND i.provider = ''$where " .
-    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date"
-    );
+    "ORDER BY p.lname, p.fname, p.mname, p.pid, e.date");
 
     $total_amount = 0;
     $total_paid   = 0;

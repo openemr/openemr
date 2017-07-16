@@ -476,9 +476,9 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
     // edih_view.php is supposed to use CCYY-MM-DD
     $dts = $dt4 = $dte = '';
     if ( preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $datestart) ) {
-        $dts = implode('', preg_split("/\D/", $datestart) );
+        $dts = implode('', preg_split("/\D/", $datestart));
         if ( $dateend && preg_match('/(19|20)\d{2}\D[01][0-9]\D[0-3][0-9]/', $dateend) ) {
-            $dte = implode('', preg_split("/\D/", $dateend) );
+            $dte = implode('', preg_split("/\D/", $dateend));
         } else {
             $dt4 = date_create(date('Y-m-d'));
             $dte = date_format($dt4, 'Ymd');
@@ -521,7 +521,7 @@ function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', 
         csv_edihist_log("edih_csv_to_html: period $period modstr $modstr dtstr1 $dtstr1");
         //
         if ($is_period && $modstr) {
-            $dtpd1 = date_create( $dtstr1 );
+            $dtpd1 = date_create($dtstr1);
             $dtm = date_modify($dtpd1, $modstr);
             $dtpd2 = $dtm->format('Ymd');
             $dtpdlbl = $dtm->format('Y-m-d');

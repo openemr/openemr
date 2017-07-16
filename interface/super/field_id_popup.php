@@ -104,17 +104,17 @@ function gsr_fixup(&$row, $fldid, $default = '')
 function gen_sel_row($row)
 {
     echo " <tr class='oneresult' onclick='selectField(";
-    echo '"' . gsr_fixup($row, 'field_id'      ) . '",';
-    echo '"' . gsr_fixup($row, 'title'         ) . '",';
-    echo '"' . gsr_fixup($row, 'data_type'     ) . '",';
-    echo '"' . gsr_fixup($row, 'uor'           ) . '",';
+    echo '"' . gsr_fixup($row, 'field_id') . '",';
+    echo '"' . gsr_fixup($row, 'title') . '",';
+    echo '"' . gsr_fixup($row, 'data_type') . '",';
+    echo '"' . gsr_fixup($row, 'uor') . '",';
     echo '"' . gsr_fixup($row, 'fld_length', 20) . '",';
     echo '"' . gsr_fixup($row, 'max_length', 0) . '",';
-    echo '"' . gsr_fixup($row, 'list_id'       ) . '",';
+    echo '"' . gsr_fixup($row, 'list_id') . '",';
     echo '"' . gsr_fixup($row, 'titlecols', 1) . '",';
     echo '"' . gsr_fixup($row, 'datacols', 3) . '",';
-    echo '"' . gsr_fixup($row, 'edit_options'  ) . '",';
-    echo '"' . gsr_fixup($row, 'description'   ) . '",';
+    echo '"' . gsr_fixup($row, 'edit_options') . '",';
+    echo '"' . gsr_fixup($row, 'description') . '",';
     echo '"' . gsr_fixup($row, 'fld_rows', 0) . '"';
     echo ")'>";
     echo "<td>" . text($row['field_id']) . "</td>";
@@ -195,10 +195,10 @@ li {
 <h1>
 <?php
 // F should never happen, but just in case.
-if ($source == 'F') echo xlt('Fields in This Form' ); else
-if ($source == 'D') echo xlt('Demographics Fields' ); else
-if ($source == 'H') echo xlt('History Fields'      ); else
-if ($source == 'E') echo xlt('Visit Attributes'    ); else
+if ($source == 'F') echo xlt('Fields in This Form'); else
+if ($source == 'D') echo xlt('Demographics Fields'); else
+if ($source == 'H') echo xlt('History Fields'); else
+if ($source == 'E') echo xlt('Visit Attributes'); else
 if ($source == 'V') echo xlt('Visit Form Attributes');
 ?>
 </h1>
@@ -212,14 +212,18 @@ if ($source == 'V') {
 }
 else {
     if ($source == 'D' || $source == 'H') {
-        $res = sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
-        array($source == 'D' ? 'DEM' : 'HIS'));
+        $res = sqlStatement(
+            "SELECT * FROM layout_options " .
+            "WHERE form_id = ? AND uor > 0 ORDER BY field_id",
+            array($source == 'D' ? 'DEM' : 'HIS')
+        );
     }
     else {
-        $res = sqlStatement("SELECT * FROM layout_options WHERE " .
-        "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
-        array('LBF%', 'E'));
+        $res = sqlStatement(
+            "SELECT * FROM layout_options WHERE " .
+            "form_id LIKE ? AND uor > 0 AND source = ? ORDER BY field_id, form_id",
+            array('LBF%', 'E')
+        );
     }
     $last_field_id = '';
     while ($row = sqlFetchArray($res)) {

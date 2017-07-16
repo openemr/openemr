@@ -117,10 +117,14 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
   // Remove any existing procedures and their answers for this order and
   // replace them from the form.
 
-    sqlStatement("DELETE FROM procedure_answers WHERE procedure_order_id = ?",
-    array($formid));
-    sqlStatement("DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
-    array($formid));
+    sqlStatement(
+        "DELETE FROM procedure_answers WHERE procedure_order_id = ?",
+        array($formid)
+    );
+    sqlStatement(
+        "DELETE FROM procedure_order_code WHERE procedure_order_id = ?",
+        array($formid)
+    );
 
     for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
         $ptid = $_POST['form_proc_type'][$i] + 0;
@@ -129,15 +133,17 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
         $prefix = "ans$i" . "_";
 
         sqlBeginTrans();
-        $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
-        $poseq = sqlInsert("INSERT INTO procedure_order_code SET ".
-        "procedure_order_id = ?, " .
-        "diagnoses = ?, " .
-        "procedure_order_title = ?, " .
-        "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
-        "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
-        "procedure_order_seq = ? ",
-        array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment']));
+        $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
+        $poseq = sqlInsert(
+            "INSERT INTO procedure_order_code SET ".
+            "procedure_order_id = ?, " .
+            "diagnoses = ?, " .
+            "procedure_order_title = ?, " .
+            "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
+            "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
+            "procedure_order_seq = ? ",
+            array($formid, strip_escape_custom($_POST['form_proc_type_diag'][$i]), strip_escape_custom($_POST['form_proc_order_title'][$i]), $ptid, $ptid, $procedure_order_seq['increment'])
+        );
           sqlCommitTrans();
 
         $qres = sqlStatement("SELECT " .
@@ -166,14 +172,16 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
             foreach ($data as $datum) {
                   // Note this will auto-assign the seq value.
                   sqlBeginTrans();
-                  $answer_seq = sqlQuery( "SELECT IFNULL(MAX(answer_seq),0) + 1 AS increment FROM procedure_answers WHERE procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? ", array($formid, $poseq, $qcode));
-                  sqlStatement("INSERT INTO procedure_answers SET ".
-                  "procedure_order_id = ?, " .
-                  "procedure_order_seq = ?, " .
-                  "question_code = ?, " .
-                  "answer_seq = ?, " .
-                  "answer = ?",
-                  array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum)));
+                  $answer_seq = sqlQuery("SELECT IFNULL(MAX(answer_seq),0) + 1 AS increment FROM procedure_answers WHERE procedure_order_id = ? AND procedure_order_seq = ? AND question_code = ? ", array($formid, $poseq, $qcode));
+                  sqlStatement(
+                      "INSERT INTO procedure_answers SET ".
+                      "procedure_order_id = ?, " .
+                      "procedure_order_seq = ?, " .
+                      "question_code = ?, " .
+                      "answer_seq = ?, " .
+                      "answer = ?",
+                      array($formid, $poseq, $qcode, $answer_seq['increment'], strip_escape_custom($datum))
+                  );
                   sqlCommitTrans();
             }
         }
@@ -204,17 +212,21 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM procedure_order WHERE " .
-    "procedure_order_id = ?",
-    array($formid)) ;
+    $row = sqlQuery(
+        "SELECT * FROM procedure_order WHERE " .
+        "procedure_order_id = ?",
+        array($formid)
+    ) ;
 }
 
-$enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, fe.date FROM " .
-  "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
-  "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
-  "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-  "fe.id = f.form_id LIMIT 1",
-  array($pid, $encounter));
+$enrow = sqlQuery(
+    "SELECT p.fname, p.mname, p.lname, fe.date FROM " .
+    "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
+    "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
+    "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
+    "fe.id = f.form_id LIMIT 1",
+    array($pid, $encounter)
+);
 ?>
 <html>
 <head>
@@ -509,7 +521,8 @@ $(document).ready(function() {
 
             $oparr = array();
             if ($formid) {
-                $opres = sqlStatement("SELECT " .
+                $opres = sqlStatement(
+                    "SELECT " .
                     "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
                     "pc.diagnoses, pc.procedure_order_title, " .
                     // In case of duplicate procedure codes this gets just one.
@@ -520,7 +533,8 @@ $(document).ready(function() {
                     "FROM procedure_order_code AS pc " .
                     "WHERE pc.procedure_order_id = ? " .
                     "ORDER BY pc.procedure_order_seq",
-                    array($row['lab_id'], $formid));
+                    array($row['lab_id'], $formid)
+                );
                 while ($oprow = sqlFetchArray($opres)) {
                     $oparr[] = $oprow;
                 }

@@ -401,9 +401,17 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
             $bodyClass = "notab";
             $widgetAuth = false;
             $fixedWidth = true;
-            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-            $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-            $widgetAuth, $fixedWidth);
+            expand_collapse_widget(
+                $widgetTitle,
+                $widgetLabel,
+                $widgetButtonLabel,
+                $widgetButtonLink,
+                $widgetButtonClass,
+                $linkMethod,
+                $bodyClass,
+                $widgetAuth,
+                $fixedWidth
+            );
             ?>
            <br/>
            <div style='margin-left:3em; margin-right:3em; padding:1em; border:1px solid blue;' class='text'>
@@ -525,9 +533,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
- $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 <span class="text"><?php echo xlt('Download all patient documents');?></span>
 <br /><br />
@@ -548,9 +564,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 
                     <br/>
@@ -589,9 +613,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
@@ -611,9 +643,17 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $bodyClass = "notab";
   $widgetAuth = false;
   $fixedWidth = true;
-  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-    $widgetAuth, $fixedWidth);
+  expand_collapse_widget(
+      $widgetTitle,
+      $widgetLabel,
+      $widgetButtonLabel,
+      $widgetButtonLink,
+      $widgetButtonClass,
+      $linkMethod,
+      $bodyClass,
+      $widgetAuth,
+      $fixedWidth
+  );
 ?>
       <br/>
       <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
@@ -635,9 +675,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 
 <br/>
@@ -658,7 +706,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
       "ORDER BY e.pc_eventDate, e.pc_startTime";
       //echo $query;
-     $res = sqlStatement($query, array($pid) );
+     $res = sqlStatement($query, array($pid));
 
     // appointments expand collapse widget
     $widgetTitle = xl("Appointments");

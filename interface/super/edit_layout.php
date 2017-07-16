@@ -120,8 +120,13 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 
     if ($add && !$column_exists) {
         sqlStatement("ALTER TABLE `$tablename` ADD `$field_id` TEXT");
-        newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-        "$tablename ADD $field_id");
+        newEvent(
+            "alter_table",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            "$tablename ADD $field_id"
+        );
     }
     else if (!$add && $column_exists) {
         // Do not drop a column that has any data.
@@ -129,8 +134,13 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
         "`$field_id` IS NOT NULL AND `$field_id` != '' LIMIT 1");
         if (!isset($tmp['field_id'])) {
             sqlStatement("ALTER TABLE `$tablename` DROP `$field_id`");
-            newEvent("alter_table", $_SESSION['authUser'], $_SESSION['authProvider'], 1,
-            "$tablename DROP $field_id ");
+            newEvent(
+                "alter_table",
+                $_SESSION['authUser'],
+                $_SESSION['authProvider'],
+                1,
+                "$tablename DROP $field_id "
+            );
         }
     }
 }
@@ -204,21 +214,21 @@ else if ($_POST['formaction'] == "addfield" && $layout_id) {
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
-      "'"  . formTrim($_POST['layout_id']      ) . "'" .
-      ",'" . formTrim($_POST['newsource']      ) . "'" .
-      ",'" . formTrim($_POST['newid']          ) . "'" .
-      ",'" . formTrim($_POST['newtitle']       ) . "'" .
+      "'"  . formTrim($_POST['layout_id']) . "'" .
+      ",'" . formTrim($_POST['newsource']) . "'" .
+      ",'" . formTrim($_POST['newid']) . "'" .
+      ",'" . formTrim($_POST['newtitle']) . "'" .
       ",'" . formTrim($_POST['newfieldgroupid']) . "'" .
-      ",'" . formTrim($_POST['newseq']         ) . "'" .
-      ",'" . formTrim($_POST['newuor']         ) . "'" .
-      ",'" . formTrim($_POST['newlengthWidth']      ) . "'" .
-      ",'" . formTrim($_POST['newlengthHeight']      ) . "'" .
-      ",'" . formTrim($_POST['newtitlecols']   ) . "'" .
-      ",'" . formTrim($_POST['newdatacols']    ) . "'" .
+      ",'" . formTrim($_POST['newseq']) . "'" .
+      ",'" . formTrim($_POST['newuor']) . "'" .
+      ",'" . formTrim($_POST['newlengthWidth']) . "'" .
+      ",'" . formTrim($_POST['newlengthHeight']) . "'" .
+      ",'" . formTrim($_POST['newtitlecols']) . "'" .
+      ",'" . formTrim($_POST['newdatacols']) . "'" .
       ",'$data_type'"                                  .
       ",'" . formTrim($_POST['newedit_options']) . "'" .
-      ",'" . formTrim($_POST['newdefault']     ) . "'" .
-      ",'" . formTrim($_POST['newdesc']        ) . "'" .
+      ",'" . formTrim($_POST['newdefault']) . "'" .
+      ",'" . formTrim($_POST['newdesc']) . "'" .
       ",'"    . formTrim($_POST['newmaxSize'])    . "'"                                 .
       ",'" . $listval . "'" .
       ",'" . formTrim($_POST['newbackuplistid']) . "'" .
@@ -266,8 +276,7 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
     // layout_id
     $results = sqlStatement("select distinct(group_name) as gname ".
                         " from layout_options where ".
-                        " form_id = '".$_POST['layout_id']."'"
-                        );
+                        " form_id = '".$_POST['layout_id']."'");
     $maxnum = '1';
     while ($result = sqlFetchArray($results)) {
         $tmp = substr($result['gname'], 0, 1);
@@ -283,24 +292,24 @@ else if ($_POST['formaction'] == "addgroup" && $layout_id) {
       ", titlecols, datacols, data_type, edit_options, default_value, description" .
       ", max_length, list_id, list_backup_id " .
       ") VALUES ( " .
-      "'"  . formTrim($_POST['layout_id']      ) . "'" .
-      ",'" . formTrim($_POST['gnewsource']      ) . "'" .
-      ",'" . formTrim($_POST['gnewid']          ) . "'" .
-      ",'" . formTrim($_POST['gnewtitle']       ) . "'" .
+      "'"  . formTrim($_POST['layout_id']) . "'" .
+      ",'" . formTrim($_POST['gnewsource']) . "'" .
+      ",'" . formTrim($_POST['gnewid']) . "'" .
+      ",'" . formTrim($_POST['gnewtitle']) . "'" .
       ",'" . formTrim($maxnum . $_POST['newgroupname']) . "'" .
-      ",'" . formTrim($_POST['gnewseq']         ) . "'" .
-      ",'" . formTrim($_POST['gnewuor']         ) . "'" .
-      ",'" . formTrim($_POST['gnewlengthWidth']      ) . "'" .
-      ",'" . formTrim($_POST['gnewlengthHeight']      ) . "'" .
-      ",'" . formTrim($_POST['gnewtitlecols']   ) . "'" .
-      ",'" . formTrim($_POST['gnewdatacols']    ) . "'" .
+      ",'" . formTrim($_POST['gnewseq']) . "'" .
+      ",'" . formTrim($_POST['gnewuor']) . "'" .
+      ",'" . formTrim($_POST['gnewlengthWidth']) . "'" .
+      ",'" . formTrim($_POST['gnewlengthHeight']) . "'" .
+      ",'" . formTrim($_POST['gnewtitlecols']) . "'" .
+      ",'" . formTrim($_POST['gnewdatacols']) . "'" .
       ",'$data_type'"                                   .
       ",'" . formTrim($_POST['gnewedit_options']) . "'" .
-      ",'" . formTrim($_POST['gnewdefault']     ) . "'" .
-      ",'" . formTrim($_POST['gnewdesc']        ) . "'" .
+      ",'" . formTrim($_POST['gnewdefault']) . "'" .
+      ",'" . formTrim($_POST['gnewdesc']) . "'" .
       ",'"    . formTrim($_POST['gnewmaxSize'])    . "'"                                  .
       ",'" . $listval       . "'" .
-      ",'" . formTrim($_POST['gnewbackuplistid']        ) . "'" .
+      ",'" . formTrim($_POST['gnewbackuplistid']) . "'" .
       " )");
     addOrDeleteColumn($layout_id, formTrim($_POST['gnewid']), true);
 }
@@ -316,8 +325,7 @@ else if ($_POST['formaction'] == "deletegroup" && $layout_id) {
     // Delete an entire group from the form
     sqlStatement("DELETE FROM layout_options WHERE ".
                 " form_id = '".$_POST['layout_id']."' ".
-                " AND group_name = '".$_POST['deletegroupname']."'"
-                );
+                " AND group_name = '".$_POST['deletegroupname']."'");
 }
 
 else if ($_POST['formaction'] == "movegroup" && $layout_id) {
@@ -700,9 +708,9 @@ function writeFieldLine($linedata)
         "  <td align='left'>\n" .
         "   <select name='fld[$fld_line_no][condition_operator][$i]'>\n";
         foreach (array(
-        'eq' => xl('Equals'         ),
-        'ne' => xl('Does not equal' ),
-        'se' => xl('Is selected'    ),
+        'eq' => xl('Equals'),
+        'ne' => xl('Does not equal'),
+        'se' => xl('Is selected'),
         'ns' => xl('Is not selected'),
         ) as $key => $value) {
             $extra_html .= "    <option value='$key'";
@@ -728,7 +736,7 @@ function writeFieldLine($linedata)
             "   <select name='fld[$fld_line_no][condition_andor][$i]'>\n";
             foreach (array(
             'and' => xl('And'),
-            'or'  => xl('Or' ),
+            'or'  => xl('Or'),
             ) as $key => $value) {
                 $extra_html .= "    <option value='$key'";
                 if ($key == $condition['andor']) $extra_html .= " selected";
@@ -888,7 +896,7 @@ function extAddCondition(lino, btnelem) {
   tdplus.innerHTML =
     "<select name='fld[" + lino + "][condition_andor][" + i + "]'>" +
     "<option value='and'><?php echo xls('And') ?></option>" +
-    "<option value='or' ><?php echo xls('Or' ) ?></option>" +
+    "<option value='or' ><?php echo xls('Or') ?></option>" +
     "</select>";
 
   // Add the new row.
@@ -904,9 +912,9 @@ function extAddCondition(lino, btnelem) {
     "</td>" +
     "<td align='left'>" +
     "<select name='fld[" + lino + "][condition_operator][" + i + "]'>" +
-    "<option value='eq'><?php echo xls('Equals'         ) ?></option>" +
-    "<option value='ne'><?php echo xls('Does not equal' ) ?></option>" +
-    "<option value='se'><?php echo xls('Is selected'    ) ?></option>" +
+    "<option value='eq'><?php echo xls('Equals') ?></option>" +
+    "<option value='ne'><?php echo xls('Does not equal') ?></option>" +
+    "<option value='se'><?php echo xls('Is selected') ?></option>" +
     "<option value='ns'><?php echo xls('Is not selected') ?></option>" +
     "</select>" +
     "</td>" +

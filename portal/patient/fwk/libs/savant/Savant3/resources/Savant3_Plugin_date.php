@@ -90,16 +90,16 @@ class Savant3_Plugin_date extends Savant3_Plugin
      */
     function date($datestring, $format = null)
     {
-        settype ( $format, 'string' );
+        settype($format, 'string');
         
-        if (is_null ( $format )) {
+        if (is_null($format)) {
             $format = $this->default;
         }
         
         // does the format string have a % sign in it?
-        if (strpos ( $format, '%' ) === false) {
+        if (strpos($format, '%') === false) {
             // no, look for a custom format string
-            if (! empty ( $this->custom [$format] )) {
+            if (! empty($this->custom [$format])) {
                 // found a custom format string
                 $format = $this->custom [$format];
             } else {
@@ -109,8 +109,8 @@ class Savant3_Plugin_date extends Savant3_Plugin
         }
         
         // convert the date string to the specified format
-        if (trim ( $datestring != '' )) {
-            return strftime ( $format, strtotime ( $datestring ) );
+        if (trim($datestring != '')) {
+            return strftime($format, strtotime($datestring));
         } else {
             // no datestring, return VOID
             return;

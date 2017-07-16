@@ -62,7 +62,7 @@ class UserController extends AppBaseController
         $rid=0;
         if (isset($_GET['id']) )
             $rid = (int) $_GET['id'];
-        $this->Assign ( 'recid', $rid );
+        $this->Assign('recid', $rid);
         $this->Render();
     }
 
@@ -74,7 +74,7 @@ class UserController extends AppBaseController
         try
         {
             $criteria = new UserCriteria();
-            $recnum = RequestUtil::Get ( 'recId' );
+            $recnum = RequestUtil::Get('recId');
             $criteria->Id_Equals = $recnum;
 
             $output = new stdClass();

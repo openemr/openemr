@@ -93,7 +93,7 @@ if ($saved){
         !empty($_POST['sync'])
         ){
     echo "<p style='color:red'>" .
-        xlt('Operation Failed' );
+        xlt('Operation Failed');
     "</p>\n";
 }
 ?>

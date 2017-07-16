@@ -39,11 +39,11 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
 
     function getRequirements()
     {
-        $requirements .= xl( "Completed" ) . ": ";
-        $requirements .= $this->completed ? xl( "Yes" ) : xl( "No" );
+        $requirements .= xl("Completed") . ": ";
+        $requirements .= $this->completed ? xl("Yes") : xl("No");
         $requirements .= " | ";
-        $requirements .= xl( "Frequency" ) . ": ";
-        $requirements .= $this->decodeComparator( $this->frequencyComparator ) . " "
+        $requirements .= xl("Frequency") . ": ";
+        $requirements .= $this->decodeComparator($this->frequencyComparator) . " "
                        . $this->frequency . " ";
         return $requirements;
     }
@@ -105,19 +105,17 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
         $dbLbl = getLabel($category, 'rule_action_category');
         if ( $category && $dbLbl != $categoryLbl ) {
             // update
-            sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
+            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action_category' AND option_id = ?", array(
                 $categoryLbl,
-                $category )
-            );
+                $category ));
         }
 
         $dbLbl = getLabel($item, 'rule_action');
         if ( $item && $dbLbl != $itemLbl ) {
             // update
-            sqlStatement( "UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
+            sqlStatement("UPDATE list_options SET title = ? WHERE list_id = 'rule_action' AND option_id = ?", array(
                 $itemLbl,
-                $item )
-            );
+                $item ));
         }
 
         $this->category = $category;

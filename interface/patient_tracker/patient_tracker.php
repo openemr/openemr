@@ -58,7 +58,7 @@ $datetime = date("Y-m-d H:i:s");
 
 # go get the information and process it
 $appointments = fetch_Patient_Tracker_Events($from_date, $to_date, $provider, $facility, $form_apptstatus, $form_apptcat, $form_patient_name, $form_patient_id);
-$appointments = sortAppointments( $appointments, 'time' );
+$appointments = sortAppointments($appointments, 'time');
 
 //grouping of the count of every status
 $appointments_status = getApptStatus($appointments);
@@ -78,7 +78,7 @@ $appointments_status = getApptStatus($appointments);
 // xl('Coding done')
 // xl('Canceled < 24h')
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", array('apptstat'));
-while ( $lrow = sqlFetchArray ( $lres ) ) {
+while ( $lrow = sqlFetchArray($lres) ) {
     // if exists, remove the legend character
     if($lrow['title'][1] == ' '){
         $splitTitle = explode(' ', $lrow['title']);

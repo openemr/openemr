@@ -73,7 +73,7 @@ $current_name = '';
 $current_checksum = '';
 
 // Ordering by the imported_date with tiebreaker being the revision_date
-$sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name`, `file_checksum` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db) );
+$sqlReturn = sqlQuery("SELECT DATE_FORMAT(`revision_date`,'%Y-%m-%d') as `revision_date`, `revision_version`, `name`, `file_checksum` FROM `standardized_tables_track` WHERE upper(`name`) = ? ORDER BY `imported_date` DESC, `revision_date` DESC", array($db));
 if (!empty($sqlReturn)) {
     $installed_flag = 1;
     $current_name = $sqlReturn['name'];
@@ -220,7 +220,7 @@ if (is_dir($mainPATH)) {
                 // (and if a hit, then it is a pass)
                 // (even if two duplicate files that are in different releases, will still work since chooses most recent)
                 $file_checksum = md5(file_get_contents($file));
-                $sqlReturn = sqlQuery($qry_str, array($db, basename($file), $file_checksum) );
+                $sqlReturn = sqlQuery($qry_str, array($db, basename($file), $file_checksum));
 
                 if (!empty($sqlReturn)) {
                     $version = $sqlReturn['load_source'];
@@ -321,7 +321,7 @@ if ($supported_file === 1) {
   // Determine and enforce only a certain number of files to be staged
     if ($success_flag === 1) {
         $number_files = 1;
-        $sql_query_ret = sqlStatement("SELECT * FROM `supported_external_dataloads` WHERE `load_type` = ? AND `load_source` = ? AND `load_release_date` = ?", array($db,$file_revision,$file_revision_date) );
+        $sql_query_ret = sqlStatement("SELECT * FROM `supported_external_dataloads` WHERE `load_type` = ? AND `load_source` = ? AND `load_release_date` = ?", array($db,$file_revision,$file_revision_date));
         $number_files_temp = sqlNumRows($sql_query_ret);
         if ($number_files_temp > 1) {
             // To ensure number_files is set to 1 for imports that are not tracked in the supported_external_dataloads table

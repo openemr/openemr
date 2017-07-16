@@ -22,7 +22,7 @@
 *   auth.inc verifies for user authentication information & login session variables. 
 *  Pass these variables $webserver_root & $_GLOBALS[backup_log_dir] as parameters for CRON.
 */
-include_once ("$argv[1]/library/sqlconf.php");
+include_once("$argv[1]/library/sqlconf.php");
 $backuptime=date("Ymd_His");
 $BACKUP_EVENTLOG_DIR = $argv[2] . "/emr_eventlog_backup";
 if (!file_exists($BACKUP_EVENTLOG_DIR))

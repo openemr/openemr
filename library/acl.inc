@@ -129,7 +129,7 @@
   //   gdlog      Group detailed log of appointment in patient record
   //   gm         Send message from the permanent group therapist to the personal therapist
 
-if (isset ($phpgacl_location)) {
+if (isset($phpgacl_location)) {
     $GLOBALS['phpgacl_location_global'] = $phpgacl_location;
     require_once("$phpgacl_location/gacl.class.php");
     $gacl_object = new gacl();
@@ -249,8 +249,8 @@ function acl_check($section, $value, $user = '', $return_value = '')
         return 'write';
     }
     else if ($section == 'encounters') {
-        if (strpos($value, 'coding' ) === 0) return 'write';
-        if (strpos($value, 'notes'  ) === 0) return 'write';
+        if (strpos($value, 'coding') === 0) return 'write';
+        if (strpos($value, 'notes') === 0) return 'write';
         if ($value == 'relaxed') return 'write';
     }
     else if ($section != 'admin') {
@@ -329,7 +329,7 @@ function acl_get_sensitivities()
 function aco_exist($section_name, $aco_name)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $aco_id = $gacl->get_object_id($section_name, $aco_name, 'ACO');
@@ -346,7 +346,7 @@ function aco_exist($section_name, $aco_name)
 function acl_get_group_title_list()
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $parent_id = $gacl->get_root_group_id();
@@ -370,7 +370,7 @@ function acl_get_group_title_list()
 function acl_get_group_titles($user_name)
 {
     global $phpgacl_location, $section_aro_value;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $user_aro_id = $gacl->get_object_id($section_aro_value, $user_name, 'ARO');
@@ -415,8 +415,13 @@ function add_user_aros($username, $group)
     }
     $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
-    set_user_aro($current_user_groups, $username, $user_data["fname"],
-    $user_data["mname"], $user_data["lname"]);
+    set_user_aro(
+        $current_user_groups,
+        $username,
+        $user_data["fname"],
+        $user_data["mname"],
+        $user_data["lname"]
+    );
     return;
 }
 
@@ -446,8 +451,13 @@ function remove_user_aros($username, $group)
     }
     $user_data = sqlFetchArray(sqlStatement("select * from users where username='" .
     $username . "'"));
-    set_user_aro($new_user_groups, $username, $user_data["fname"],
-    $user_data["mname"], $user_data["lname"]);
+    set_user_aro(
+        $new_user_groups,
+        $username,
+        $user_data["fname"],
+        $user_data["mname"],
+        $user_data["lname"]
+    );
     return;
 }
 
@@ -465,7 +475,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
 {
     global $phpgacl_location, $section_aro_value;
 
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
 
@@ -582,7 +592,7 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
 function acl_exist($title, $name, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         if (!$name) {
@@ -621,21 +631,39 @@ function acl_exist($title, $name, $return_value)
 function acl_add($acl_title, $acl_name, $return_value, $note)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $group_id = $gacl->get_group_id($acl_name, $acl_title, 'ARO');
         if ($group_id) {
             //group already exist, so just create acl
-            $gacl->add_acl(array("placeholder"=>array("filler")),
-             null, array($group_id), null, null, 1, 1, $return_value, $note);
+            $gacl->add_acl(
+                array("placeholder"=>array("filler")),
+                null,
+                array($group_id),
+                null,
+                null,
+                1,
+                1,
+                $return_value,
+                $note
+            );
         }
         else {
             //create group, then create acl
             $parent_id = $gacl->get_root_group_id();
             $aro_id = $gacl->add_group($acl_name, $acl_title, $parent_id, 'ARO');
-            $gacl->add_acl(array("placeholder"=>array("filler")),
-             null, array($aro_id), null, null, 1, 1, $return_value, $note);
+            $gacl->add_acl(
+                array("placeholder"=>array("filler")),
+                null,
+                array($aro_id),
+                null,
+                null,
+                1,
+                1,
+                $return_value,
+                $note
+            );
         }
         return;
     }
@@ -653,7 +681,7 @@ function acl_add($acl_title, $acl_name, $return_value, $note)
 function acl_remove($acl_title, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
       //First, delete the acl
@@ -679,7 +707,7 @@ function acl_remove($acl_title, $return_value)
 function acl_add_acos($acl_title, $return_value, $aco_id)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -705,7 +733,7 @@ function acl_add_acos($acl_title, $return_value, $aco_id)
 function acl_remove_acos($acl_title, $return_value, $aco_id)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -744,7 +772,7 @@ function acl_remove_acos($acl_title, $return_value, $aco_id)
 function acl_count_acos($acl_title, $return_value)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         include_once("$phpgacl_location/gacl_api.class.php");
         $gacl = new gacl_api();
         $acl_id = $gacl->search_acl(false, false, false, false, $acl_title, false, false, false, $return_value);
@@ -924,8 +952,10 @@ function acl_check_issue($type, $user = '', $return_value = '')
   //
 function acl_check_cat_name($catname, $user = '', $return_value = '')
 {
-    $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
-    array($catname));
+    $tmp = sqlQuery(
+        "SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
+        array($catname)
+    );
     if (empty($tmp['aco_spec'])) return true;
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
 }

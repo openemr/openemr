@@ -15,10 +15,10 @@ class Codes
     public static function lookup($clinicalType, $codeType = null)
     {
         if ( $codeType != null ) {
-            if ( isset( self::$_codes[$clinicalType][$codeType] ) ) {
+            if ( isset(self::$_codes[$clinicalType][$codeType]) ) {
                 return self::$_codes[$clinicalType][$codeType];
             }
-        } else if ( isset( self::$_codes[$clinicalType] ) ) {
+        } else if ( isset(self::$_codes[$clinicalType]) ) {
             return self::$_codes[$clinicalType];
         }
          

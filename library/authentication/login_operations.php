@@ -103,7 +103,7 @@ function validate_user_password($username, &$password, $provider)
     $userInfo = privQuery($getUserSQL, array($username));
 
     if ($userInfo['active'] != 1) {
-        newEvent( 'login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
+        newEvent('login', $username, $provider, 0, "failure: $ip. user not active or not found in users table");
         $password='';
         return false;
     }
@@ -122,10 +122,10 @@ function validate_user_password($username, &$password, $provider)
             $_SESSION['userauthorized'] = $userInfo['authorized'];
             // Some users may be able to authorize without being providers:
             if ($userInfo['see_auth'] > '2') $_SESSION['userauthorized'] = '1';
-            newEvent( 'login', $username, $provider, 1, "success: $ip");
+            newEvent('login', $username, $provider, 1, "success: $ip");
             $valid=true;
         } else {
-            newEvent( 'login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
+            newEvent('login', $username, $provider, 0, "failure: $ip. user not in group: $provider");
             $valid=false;
         }
 
@@ -138,9 +138,9 @@ function validate_user_password($username, &$password, $provider)
 function verify_user_gacl_group($user)
 {
     global $phpgacl_location;
-    if (isset ($phpgacl_location)) {
+    if (isset($phpgacl_location)) {
         if (acl_get_group_titles($user) == 0) {
-            newEvent( 'login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
+            newEvent('login', $user, $provider, 0, "failure: $ip. user not in any phpGACL groups. (bad username?)");
             return false;
         }
     }

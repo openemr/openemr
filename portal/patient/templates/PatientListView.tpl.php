@@ -23,7 +23,7 @@
  */
 
     //require_once ("./../verify_session.php");
-    require_once ( "../../library/options.inc.php" );
+    require_once("../../library/options.inc.php");
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Patient Data"));
     $this->assign('nav', 'patientdata');
     /*

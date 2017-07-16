@@ -1,6 +1,6 @@
 <?php
 /** @package    verysimple::Phreeze */
-require_once ("IRenderEngine.php");
+require_once("IRenderEngine.php");
 
 /**
  * PHPRenderEngine is an implementation of IRenderEngine
@@ -40,7 +40,7 @@ class PHPRenderEngine implements IRenderEngine
     {
         $this->templatePath = $templatePath;
 
-        if (substr ( $this->templatePath, - 1 ) != '/' && substr ( $this->templatePath, - 1 ) != '\\')
+        if (substr($this->templatePath, - 1) != '/' && substr($this->templatePath, - 1) != '\\')
             $this->templatePath .= "/";
     }
 
@@ -59,24 +59,24 @@ class PHPRenderEngine implements IRenderEngine
     {
         // these two are special templates used by the Phreeze controller and dispatcher
         if ($template == "_redirect.tpl") {
-            header ( "Location: " . $this->model ['url'] );
-            die ();
+            header("Location: " . $this->model ['url']);
+            die();
         } elseif ($template == "_error.tpl") {
-            die ( "<h4>" . $this->model ['message'] . "</h4>" . $this->model ['stacktrace'] );
+            die("<h4>" . $this->model ['message'] . "</h4>" . $this->model ['stacktrace']);
         } else {
-            if ($this->verifyExtension && substr ( $template, - 4 ) != '.php')
+            if ($this->verifyExtension && substr($template, - 4) != '.php')
                 $template .= ".php";
 
             $path = $this->templatePath . $template;
 
-            if (! is_readable ( $path )) {
-                throw new Exception ( "The template file '" . htmlspecialchars ( $path ) . "' was not found." );
+            if (! is_readable($path)) {
+                throw new Exception("The template file '" . htmlspecialchars($path) . "' was not found.");
             }
 
             // make this available at the scope of the included file
             $engine = $this;
             $model = $this->model;
-            include_once ($path);
+            include_once($path);
         }
     }
 
@@ -93,12 +93,12 @@ class PHPRenderEngine implements IRenderEngine
      */
     public function fetch($template)
     {
-        ob_start ();
+        ob_start();
 
-        $this->display ( $template );
-        $buffer = ob_get_contents ();
+        $this->display($template);
+        $buffer = ob_get_contents();
 
-        ob_end_clean ();
+        ob_end_clean();
 
         return $buffer;
     }
@@ -109,8 +109,8 @@ class PHPRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists ( $key, $this->model ))
-            unset ( $this->model [$key] );
+        if (array_key_exists($key, $this->model))
+            unset($this->model [$key]);
     }
 
     /**

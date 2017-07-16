@@ -284,8 +284,8 @@ function edih_271_transaction_html($obj271, $bht03)
                 if ( $dtp02 == 'D8' && $dtp03) {
                     $var = edih_format_date($dtp03);
                 } elseif ( $dtp02 == 'RD8' && $dtp03) {
-                    $var = edih_format_date( substr($dtp03, 0, 8) );
-                    $var .= ' - '.edih_format_date( substr($dtp03, -8) );
+                    $var = edih_format_date(substr($dtp03, 0, 8));
+                    $var .= ' - '.edih_format_date(substr($dtp03, -8));
                 }
                 if ($loopid == '2100C') {
                     $sbr_nm1_html .= "<tr><td>&gt;</td><td>$idtype</td><td colspan=2>$var</td></tr>" .PHP_EOL;
@@ -308,8 +308,8 @@ function edih_271_transaction_html($obj271, $bht03)
                     if ($sar[7] == 'D8') {
                         $var = edih_format_date($sar[8]);
                     } elseif ($sar[7] == 'RD8') {
-                        $var = edih_format_date( substr($sar[8], 0, 8) );
-                        $var .= ' - '.edih_format_date( substr($sar[8], -8) );
+                        $var = edih_format_date(substr($sar[8], 0, 8));
+                        $var .= ' - '.edih_format_date(substr($sar[8], -8));
                     }
                 }
                 if ($loopid == '2100C') {
@@ -551,7 +551,7 @@ function edih_271_html($filename, $bht03 = '')
             $html_str .= "<p>edih_271_html: file parse error</p>".PHP_EOL;
         }
     } else {
-        csv_edihist_log ("edih_271_html: error in file arguments");
+        csv_edihist_log("edih_271_html: error in file arguments");
         $html_str .= "Error: invalid file name<br />".PHP_EOL;
         return $html_str;
     }

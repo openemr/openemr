@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("EmailMessage");
+require_once("EmailMessage");
 
 /**
  * Generic interface for sending Email.

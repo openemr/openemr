@@ -98,7 +98,7 @@ class InstallerController extends AbstractActionController
                     //TODO what if same name is already there for another module
                     $data['modules'] = array_merge($data['modules'], array($request->getPost('mod_name')));
                     //recreate the config file
-                    if(is_writable ($fileName)){
+                    if(is_writable($fileName)){
                         if(!$module_exist_in_config){
                             $content = "<?php return array(";
                             $content .= $this->getContent($data);
@@ -126,14 +126,14 @@ class InstallerController extends AbstractActionController
         $status  = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
             if ($request->getPost('modAction') == "enable"){
-                $resp = $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=0" );
+                $resp = $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), "mod_active=0");
                 if($resp['status'] == 'failure' && $resp['code'] == '200'){
                     $status = $resp['value'];
                 } else {
                     $status = $this->listenerObject->z_xlt("Success");
                 }
             } elseif ($request->getPost('modAction') == "disable"){
-                $resp = $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), "mod_active=1" );
+                $resp = $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), "mod_active=1");
                 if($resp['status'] == 'failure' && $resp['code'] == '200'){
                     $plural = "Module";
                     if(count($resp['value']) > 1){
@@ -146,12 +146,12 @@ class InstallerController extends AbstractActionController
                     $status = $this->listenerObject->z_xlt("Success");
                 }
             } elseif ($request->getPost('modAction') == "install"){
-                $dirModule = $this->getInstallerTable()->getRegistryEntry( $request->getPost('modId'), "mod_directory" );
+                $dirModule = $this->getInstallerTable()->getRegistryEntry($request->getPost('modId'), "mod_directory");
                 $mod_enc_menu = $request->getPost('mod_enc_menu');
                 $mod_nick_name = $request->getPost('mod_nick_name');
-                if ($this->getInstallerTable()->installSQL ($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['customModDir']."/".$dirModule -> modDirectory)){
+                if ($this->getInstallerTable()->installSQL($GLOBALS['srcdir']."/../".$GLOBALS['baseModDir'].$GLOBALS['customModDir']."/".$dirModule -> modDirectory)){
                     $values = array($mod_nick_name, $mod_enc_menu);
-                    $this -> getInstallerTable() -> updateRegistered ( $request->getPost('modId'), '', $values);
+                    $this -> getInstallerTable() -> updateRegistered($request->getPost('modId'), '', $values);
                     $status = $this->listenerObject->z_xlt("Success");
                 } else {
                     $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql").', ' . $this->listenerObject->z_xlt("broken form") . "?";

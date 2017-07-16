@@ -148,9 +148,9 @@ class PhoneNumber extends ORDataObject
     function set_phone($num)
     {
         if (strlen($num) == 10 && is_numeric($num)) {
-            $this->area_code = substr ($num, 0, 3);
-            $this->prefix = substr ($num, 3, 3);
-            $this->number = substr ($num, 6, 4);
+            $this->area_code = substr($num, 0, 3);
+            $this->prefix = substr($num, 3, 3);
+            $this->number = substr($num, 6, 4);
         }
         elseif (strlen($num) == 12) {
             $nums = explode("-", $num);

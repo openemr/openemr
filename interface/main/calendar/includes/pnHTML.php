@@ -509,7 +509,7 @@ class pnHTML
         $url = preg_replace('!^/*!', '', $url);
 
         // Make redirect line
-        if (empty ($path))
+        if (empty($path))
         {
             $output = "Location: http://$server/$url";
         } else {
@@ -668,7 +668,7 @@ class pnHTML
      */
     function URL($url, $text)
     {
-        if (empty ($url))
+        if (empty($url))
         {
             return;
         }
@@ -712,8 +712,8 @@ class pnHTML
     {
 
         // Wrap the user table in our own invisible table to make the title sit properly
-        $output = '<table border="'.$border.'"'.((empty ($width)) ? '' : ' width="'.$width.'"').' cellpadding="'.$cellpadding.'" cellspacing="'.$cellspacing."\">\n";
-        if (!empty ($title))
+        $output = '<table border="'.$border.'"'.((empty($width)) ? '' : ' width="'.$width.'"').' cellpadding="'.$cellpadding.'" cellspacing="'.$cellspacing."\">\n";
+        if (!empty($title))
         {
             if ($this->GetInputMode() == _PNH_PARSEINPUT)
             {
@@ -730,12 +730,12 @@ class pnHTML
         $output .= '<table border="' . $border . '" width="100%">';
 
         // Add column headers
-        if (!empty ($headers))
+        if (!empty($headers))
         {
             $output .= '<tr>';
             foreach ($headers as $head)
             {
-                if (empty ($head))
+                if (empty($head))
                 {
                     $head = '&nbsp;';
                 }
@@ -863,7 +863,7 @@ class pnHTML
      */
     function TableAddRow($row, $align = 'center', $valign = 'middle')
     {
-        if (empty ($row))
+        if (empty($row))
         {
             return;
         }
@@ -883,8 +883,8 @@ class pnHTML
                     $rowitem['content'] = pnVarPrepForDisplay($rowitem['content']);
                 }
                 $output .= '<td'
-                    .((empty ($rowitem['align'])) ? '' : ' align="'.$rowitem['align'].'"')
-                    .((empty ($rowitem['valign'])) ? '' : ' valign="'.$rowitem['valign'].'"')
+                    .((empty($rowitem['align'])) ? '' : ' align="'.$rowitem['align'].'"')
+                    .((empty($rowitem['valign'])) ? '' : ' valign="'.$rowitem['valign'].'"')
                     .'>'.$rowitem['content'].'</td>'
                 ;
             }
@@ -929,7 +929,7 @@ class pnHTML
         $output = '<form'
             .' action="'.pnVarPrepForDisplay($action).'"'
             .' method="post"'
-            .' enctype="'.((empty ($this->fileupload)) ? 'application/x-www-form-urlencoded' : 'multipart/form-data').'"'
+            .' enctype="'.((empty($this->fileupload)) ? 'application/x-www-form-urlencoded' : 'multipart/form-data').'"'
             .'>'
         ;
         if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
@@ -976,7 +976,7 @@ class pnHTML
             .' type="submit"'
             .' value="'.pnVarPrepForDisplay($label).'"'
             .' align="middle"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
@@ -1005,7 +1005,7 @@ class pnHTML
      */
     function FormText($fieldname, $contents = '', $size = 16, $maxlength = 64, $password = false, $accesskey = '')
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1017,7 +1017,7 @@ class pnHTML
             .' value="'.pnVarPrepForDisplay($contents).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
             .' maxlength="'.pnVarPrepForDisplay($maxlength).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
@@ -1046,7 +1046,7 @@ class pnHTML
      */
     function FormTextArea($fieldname, $contents = '', $rows = 6, $cols = 40, $wrap = 'soft', $accesskey = '')
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1057,7 +1057,7 @@ class pnHTML
             .' wrap="'.(($wrap = 'soft') ? 'soft' : 'hard').'"' // not proper HTML, but too useful to abandon yet
             .' rows="'.pnVarPrepForDisplay($rows).'"'
             .' cols="'.pnVarPrepForDisplay($cols).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .'>'
             .pnVarPrepForDisplay($contents)
@@ -1082,7 +1082,7 @@ class pnHTML
      */
     function FormHidden($fieldname, $value = '')
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1140,7 +1140,7 @@ class pnHTML
      */
     function FormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1170,7 +1170,7 @@ class pnHTML
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
             .(($multiple == 1) ? ' multiple="multiple"' : '')
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' ' . $disable_text
             .'>'
@@ -1179,7 +1179,7 @@ class pnHTML
         {
             $output .= '<option'
                 .' value="'.pnVarPrepForDisplay($datum['id']).'"'
-                .((empty ($datum['selected'])) ? '' : ' selected="selected"')
+                .((empty($datum['selected'])) ? '' : ' selected="selected"')
                 .'>'
                 .pnVarPrepForDisplay($datum['name'])
                 .'</option>'
@@ -1210,7 +1210,7 @@ class pnHTML
      */
     function FormCheckbox($fieldname, $checked = false, $value = '1', $type = 'checkbox', $accesskey = '')
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1221,7 +1221,7 @@ class pnHTML
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' value="'.pnVarPrepForDisplay($value).'"'
             .(($checked) ? ' checked="checked"' : '')
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;
@@ -1248,7 +1248,7 @@ class pnHTML
      */
     function FormFile($fieldname, $size = 32, $maxsize = 1000000, $accesskey = '')
     {
-        if (empty ($fieldname))
+        if (empty($fieldname))
         {
             return;
         }
@@ -1259,7 +1259,7 @@ class pnHTML
             .' name="'.pnVarPrepForDisplay($fieldname).'"'
             .' id="'.pnVarPrepForDisplay($fieldname).'"'
             .' size="'.pnVarPrepForDisplay($size).'"'
-            .((empty ($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
+            .((empty($accesskey)) ? '' : ' accesskey="'.pnVarPrepForDisplay($accesskey).'"')
             .' tabindex="'.$this->tabindex.'"'
             .' />'
         ;

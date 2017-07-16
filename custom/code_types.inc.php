@@ -462,7 +462,7 @@ function code_set_search($form_code_type, $search_term = "", $count = false, $ac
                  "dt.selector LIKE ? ) " .
                  "AND d.drug_id = dt.drug_id " .
                  "ORDER BY d.name, dt.selector, dt.drug_id $limit_query";
-        $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%") );
+        $res = sqlStatement($query, array("%".$search_term."%", "%".$search_term."%"));
     }
     else { // Start a codes search
         // We are looking up the external table id here.  An "unset" value gets treated as 0(zero) without this test.  This way we can differentiate between "unset" and explicitly zero.

@@ -25,13 +25,13 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $_SESSION['whereto'] = 'profilepanel';
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['portal_username']);
 } else {
     session_destroy();
     $ignoreAuth = false;
-    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -40,11 +40,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     define('IS_DASHBOARD', $_SESSION['authUser']);
     define('IS_PORTAL', false);
 }
-require_once ("$srcdir/acl.inc");
-require_once ("$srcdir/patient.inc");
-require_once ("$srcdir/options.inc.php");
-require_once ("$srcdir/classes/Document.class.php");
-require_once ("./../lib/portal_mail.inc");
+require_once("$srcdir/acl.inc");
+require_once("$srcdir/patient.inc");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/classes/Document.class.php");
+require_once("./../lib/portal_mail.inc");
 
 $docid = empty($_REQUEST['docid']) ? 0 : intval($_REQUEST['docid']);
 $orderid = empty($_REQUEST['orderid']) ? 0 : intval($_REQUEST['orderid']);

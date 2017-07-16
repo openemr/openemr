@@ -44,24 +44,30 @@ function calendar_arrived($form_pid)
 {
     $Today=date('Y-m-d');
     //Take all recurring events relevent for today.
-    $result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_recurrtype != '0' and pc_pid = ? and pc_endDate != '0000-00-00'
+    $result_event=sqlStatement(
+        "SELECT * FROM openemr_postcalendar_events WHERE pc_recurrtype != '0' and pc_pid = ? and pc_endDate != '0000-00-00'
 		and pc_eventDate < ? and pc_endDate >= ? ",
-        array($form_pid,$Today,$Today));
+        array($form_pid,$Today,$Today)
+    );
     if(sqlNumRows($result_event)==0)//no repeating appointment
      {
-        $result_event=sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
-            array($form_pid,$Today));
+        $result_event=sqlStatement(
+            "SELECT * FROM openemr_postcalendar_events WHERE pc_pid =?	and pc_eventDate = ?",
+            array($form_pid,$Today)
+        );
         if(sqlNumRows($result_event)==0)//no appointment
          {
-            echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
+            echo "<br><br><br>".htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES).". ".htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES).".";
             die;
         }
         else//one appointment
          {
              $enc = todaysEncounterCheck($form_pid);//create encounter
              $zero_enc=0;
-             sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
-                 array($form_pid,$Today));
+             sqlStatement(
+                 "UPDATE openemr_postcalendar_events SET pc_apptstatus ='@' WHERE pc_pid =? and pc_eventDate = ?",
+                 array($form_pid,$Today)
+             );
         }
     }
     else//repeating appointment set
@@ -81,8 +87,10 @@ function calendar_arrived($form_pid)
                     }
                     else
                     {
-                        sqlStatement("UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?",
-                         array($exist_eid));
+                        sqlStatement(
+                            "UPDATE openemr_postcalendar_events SET pc_apptstatus = '@' WHERE pc_eid = ?",
+                            array($exist_eid)
+                        );
                     }
                      $enc = todaysEncounterCheck($form_pid);//create encounter
                      $zero_enc=0;
@@ -90,7 +98,7 @@ function calendar_arrived($form_pid)
                 }
                 elseif($pc_eventDate>$Today)//the frequency does not match today,no need to increment furthur.
                  {
-                    echo "<br><br><br>".htmlspecialchars( xl('Sorry No Appointment is Fixed'), ENT_QUOTES ).". ".htmlspecialchars( xl('No Encounter could be created'), ENT_QUOTES ).".";
+                    echo "<br><br><br>".htmlspecialchars(xl('Sorry No Appointment is Fixed'), ENT_QUOTES).". ".htmlspecialchars(xl('No Encounter could be created'), ENT_QUOTES).".";
                     die;
                     break;
                 }
@@ -123,8 +131,13 @@ function calendar_arrived($form_pid)
                 else { // pc_recurrtype is 1
                           $pc_eventDate_array = explode('-', $pc_eventDate);
                           // Find the next day as per the frequency definition.
-                          $pc_eventDate =& __increment($pc_eventDate_array[2], $pc_eventDate_array[1], $pc_eventDate_array[0],
-                    $pc_recurrspec_array['event_repeat_freq'], $pc_recurrspec_array['event_repeat_freq_type']);
+                          $pc_eventDate =& __increment(
+                              $pc_eventDate_array[2],
+                              $pc_eventDate_array[1],
+                              $pc_eventDate_array[0],
+                              $pc_recurrspec_array['event_repeat_freq'],
+                              $pc_recurrspec_array['event_repeat_freq_type']
+                          );
                 }
 
             }
@@ -155,7 +168,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     }
     $dos = $enc_date ? $enc_date : $today;
     $visit_reason = $reason ? $reason : 'Please indicate visit reason';
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
@@ -163,20 +176,27 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     $visit_cat = $cat ? $cat : '(NULL)';
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
-    addForm($encounter, "New Patient Encounter",
-    sqlInsert("INSERT INTO form_encounter SET " .
-      "date = ?, " .
-      "reason = ?, " .
-      "facility = ?, " .
-      "facility_id = ?, " .
-      "billing_facility = ?, " .
+    addForm(
+        $encounter,
+        "New Patient Encounter",
+        sqlInsert(
+            "INSERT INTO form_encounter SET " .
+            "date = ?, " .
+            "reason = ?, " .
+            "facility = ?, " .
+            "facility_id = ?, " .
+            "billing_facility = ?, " .
             "provider_id = ?, " .
-      "pid = ?, " .
-      "encounter = ?," .
+            "pid = ?, " .
+            "encounter = ?," .
             "pc_catid = ?",
             array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$patient_id,$encounter,$visit_cat)
-    ),
-    "newpatient", $patient_id, "1", "NOW()", $username
+        ),
+        "newpatient",
+        $patient_id,
+        "1",
+        "NOW()",
+        $username
     );
     return $encounter;
 }
@@ -205,7 +225,7 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
     }
     $dos = $enc_date ? $enc_date : $today;
     $visit_reason = $reason ? $reason : 'Please indicate visit reason';
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]) );
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", array($_SESSION["authUserID"]));
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
@@ -213,22 +233,31 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
     $visit_cat = $cat ? $cat : '(NULL)';
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
-    addForm($encounter, "New Therapy Group Encounter",
-    sqlInsert("INSERT INTO form_groups_encounter SET " .
-        "date = ?, " .
-        "reason = ?, " .
-        "facility = ?, " .
-        "facility_id = ?, " .
-        "billing_facility = ?, " .
-        "provider_id = ?, " .
-        "group_id = ?, " .
-        "encounter = ?," .
-        "pc_catid = ? ," .
-        "appt_id = ? ," .
-        "counselors = ? ",
-        array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$group_id,$encounter,$visit_cat, $eid, $counselors)
-    ),
-    "newGroupEncounter", null, "1", "NOW()", $username, "", $group_id
+    addForm(
+        $encounter,
+        "New Therapy Group Encounter",
+        sqlInsert(
+            "INSERT INTO form_groups_encounter SET " .
+            "date = ?, " .
+            "reason = ?, " .
+            "facility = ?, " .
+            "facility_id = ?, " .
+            "billing_facility = ?, " .
+            "provider_id = ?, " .
+            "group_id = ?, " .
+            "encounter = ?," .
+            "pc_catid = ? ," .
+            "appt_id = ? ," .
+            "counselors = ? ",
+            array($dos,$visit_reason,$facility,$facility_id,$billing_facility,$visit_provider,$group_id,$encounter,$visit_cat, $eid, $counselors)
+        ),
+        "newGroupEncounter",
+        null,
+        "1",
+        "NOW()",
+        $username,
+        "",
+        $group_id
     );
     return $encounter;
 }
@@ -282,14 +311,21 @@ function todaysEncounter($patient_id, $reason = '')
     $conn = $GLOBALS['adodb']['db'];
     $encounter = $conn->GenID("sequences");
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
-    addForm($encounter, "New Patient Encounter",
-    sqlInsert("INSERT INTO form_encounter SET date = ?, onset_date = ?, "  .
-      "reason = ?, facility = ?, facility_id = ?, pid = ?, encounter = ?, " .
-      "provider_id = ?",
-      array($today, $today, $reason, $facility, $facility_id, $patient_id,
-        $encounter, $provider_id)
-    ),
-    "newpatient", $patient_id, $userauthorized, "NOW()", $username
+    addForm(
+        $encounter,
+        "New Patient Encounter",
+        sqlInsert(
+            "INSERT INTO form_encounter SET date = ?, onset_date = ?, "  .
+            "reason = ?, facility = ?, facility_id = ?, pid = ?, encounter = ?, " .
+            "provider_id = ?",
+            array($today, $today, $reason, $facility, $facility_id, $patient_id,
+            $encounter, $provider_id)
+        ),
+        "newpatient",
+        $patient_id,
+        $userauthorized,
+        "NOW()",
+        $username
     );
     return $encounter;
 }
@@ -362,9 +398,11 @@ function check_event_exist($eid)
     $pc_facility=$origEvent['pc_facility'];
     $pc_billing_location=$origEvent['pc_billing_location'];
     $pc_recurrspec_array = unserialize($origEvent['pc_recurrspec']);
-    $origEvent = sqlStatement("SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? ".
+    $origEvent = sqlStatement(
+        "SELECT * FROM openemr_postcalendar_events WHERE pc_eid != ? and pc_catid=? and pc_aid=? ".
         "and pc_pid=? and pc_eventDate=? and pc_startTime=? and pc_endTime=? and pc_facility=? and pc_billing_location=?",
-        array($eid,$pc_catid,$pc_aid,$pc_pid,$pc_eventDate,$pc_startTime,$pc_endTime,$pc_facility,$pc_billing_location));
+        array($eid,$pc_catid,$pc_aid,$pc_pid,$pc_eventDate,$pc_startTime,$pc_endTime,$pc_facility,$pc_billing_location)
+    );
     if(sqlNumRows($origEvent)>0)
      {
         $origEventRow=sqlFetchArray($origEvent);
@@ -401,7 +439,8 @@ function InsertEvent($args, $from = 'general')
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
     ;
     if($from == 'general'){
-        $pc_eid = sqlInsert("INSERT INTO openemr_postcalendar_events ( " .
+        $pc_eid = sqlInsert(
+            "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
             "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
             "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -423,7 +462,8 @@ function InsertEvent($args, $from = 'general')
             return $pc_eid;
 
     }elseif($from == 'payment'){
-        sqlStatement("INSERT INTO openemr_postcalendar_events ( " .
+        sqlStatement(
+            "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, " .
             "pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
             "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
@@ -432,7 +472,11 @@ function InsertEvent($args, $from = 'general')
             array($args['form_category'],$args['new_multiple_value'],$args['form_provider'],$form_pid,$args['form_title'],
                 $args['event_date'],$args['form_enddate'],$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
                 $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'], $args['locationspec'],
-                1,1,(int)$args['facility'],(int)$args['billing_facility']));
+            1,
+            1,
+            (int)$args['facility'],
+            (int)$args['billing_facility'])
+        );
     }
 }
 //================================================================================================================

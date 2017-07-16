@@ -35,11 +35,11 @@ class RuleCriteriaAge extends RuleCriteria
 
     function getTitle()
     {
-        $title = xl( "Age" );
+        $title = xl("Age");
         if ( $this->type == "min" ) {
-            $title .= " " . xl( "Min" );
+            $title .= " " . xl("Min");
         } else {
-            $title .= " " . xl( "Max" );
+            $title .= " " . xl("Max");
         }
 
         $title .= " (" . $this->timeUnit->lbl . ")";
@@ -49,9 +49,9 @@ class RuleCriteriaAge extends RuleCriteria
     function getType()
     {
         if ( $this->type == "min" ) {
-            return xl( "Min" );
+            return xl("Min");
         } else {
-            return xl( "Max" );
+            return xl("Max");
         }
     }
 
@@ -74,9 +74,9 @@ class RuleCriteriaAge extends RuleCriteria
     {
         parent::updateFromRequest();
         $age = _post("fld_value");
-        $timeUnit = TimeUnit::from( _post("fld_timeunit") );
+        $timeUnit = TimeUnit::from(_post("fld_timeunit"));
         if ( $timeUnit == null ) {
-            $timeUnit = TimeUnit::from( _post("fld_target_interval_type") );
+            $timeUnit = TimeUnit::from(_post("fld_target_interval_type"));
         }
 
         $this->value = $age;

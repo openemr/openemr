@@ -122,7 +122,7 @@ function csv_edihist_log($msg_str)
     } else {
         //
         $fnctn = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'];
-        csv_edihist_log ('invalid message string '.$fnctn);
+        csv_edihist_log('invalid message string '.$fnctn);
     }
     //
     return $rslt;  // number of characters written
@@ -140,7 +140,7 @@ function csv_log_html($logname = '')
     $html_str = "<div class='filetext'>".PHP_EOL."<ol class='logview'>".PHP_EOL;
     $fp = csv_edih_basedir().DS.'log'.DS.$logname;
     if ( is_file($fp) ) {
-        $fh = fopen( $fp, 'r');
+        $fh = fopen($fp, 'r');
         if ($fh !== false) {
             while (($buffer = fgets($fh)) !== false) {
                 $html_str .= "<li>".$buffer."</li>".PHP_EOL;
@@ -219,7 +219,7 @@ function csv_log_manage($list = true)
                 $zip->close();
                 $dte = $datetime1->format('Ymd');
                 $ok = rename($dir.DS.$archname, $dir.DS.$dte.'_'.$archname);
-                csv_edihist_log('csv_log_archive: rename full archive '.$dte.'_'.$archname );
+                csv_edihist_log('csv_log_archive: rename full archive '.$dte.'_'.$archname);
                 if ($ok) {
                     $ok = $zip->open($archname, ZipArchive::CREATE);
                     if (!$ok) {
@@ -235,9 +235,9 @@ function csv_log_manage($list = true)
                     if (is_file($dir.DS.$lg)) {
                         $a = $zip->addFile($dir.DS.$lg, $lg);
                         if ($a) {
-                            csv_edihist_log('csv_log_archive: add to archive '.$lg );
+                            csv_edihist_log('csv_log_archive: add to archive '.$lg);
                         } else {
-                            csv_edihist_log('csv_log_archive: error archiving '.$lg );
+                            csv_edihist_log('csv_log_archive: error archiving '.$lg);
                         }
                     }
                 }
@@ -278,7 +278,7 @@ function csv_notes_file($content = '', $open = true)
     //$fp = $GLOBALS['OE_EDIH_DIR'].'/edi_notes.txt';
     $fp = csv_edih_basedir().DS.'archive'.DS.'edi_notes.txt';
     if (! is_writable($fp) ) {
-        $fh = fopen( $fp, 'a+b');
+        $fh = fopen($fp, 'a+b');
         fclose($fh);
     }
     // for retrieving notes
@@ -533,7 +533,7 @@ function csv_clear_tmpdir()
     //
     $tmpdir = csv_edih_tmpdir();
     if ( basename($tmpdir) != 'tmp' ) {
-        csv_edihist_log ( 'tmp dir not /edi/history/tmp');
+        csv_edihist_log('tmp dir not /edi/history/tmp');
         return false;
     }
     $tmp_files = scandir($tmpdir);
@@ -559,7 +559,7 @@ function csv_clear_tmpdir()
     }
     $tmp_files = scandir($tmpdir);
     if (count($tmp_files) > 2) {
-        csv_edihist_log ('tmp dir contents remain in ... /edi/history/tmp');
+        csv_edihist_log('tmp dir contents remain in ... /edi/history/tmp');
         return false;
     } else {
         return true;
@@ -587,12 +587,12 @@ function csv_check_x12_obj($filepath, $type = '')
         $x12obj = new edih_x12_file($fp);
         if ( 'edih_x12_file' == get_class($x12obj) ) {
             if ($x12obj->edih_valid() == 'ovigs') {
-                $ok = count( $x12obj->edih_segments() );
-                $ok = ($ok) ?  count( $x12obj->edih_envelopes() ) : false;
-                $ok = ($ok) ?  count( $x12obj->edih_delimiters() ) : false;
+                $ok = count($x12obj->edih_segments());
+                $ok = ($ok) ?  count($x12obj->edih_envelopes()) : false;
+                $ok = ($ok) ?  count($x12obj->edih_delimiters()) : false;
                 if (!$ok) {
                     csv_edihist_log("csv_check_x12_obj: object missing properties [$filepath]");
-                    csv_edihist_log( $x12obj->edih_message() );
+                    csv_edihist_log($x12obj->edih_message());
                     return false;
                 }
             } else {
@@ -922,7 +922,7 @@ function csv_processed_files_list($type)
     //
     //$idx = 0;
     if (is_file($csv_file)) {
-        if (($fh1 = fopen( $csv_file, "r" )) !== false) {
+        if (($fh1 = fopen($csv_file, "r")) !== false) {
             while (($data = fgetcsv($fh1, 1024, ",")) !== false) {
                 $processed_files[] = $data[$csv_col];
                 //
@@ -932,7 +932,7 @@ function csv_processed_files_list($type)
             }
             fclose($fh1);
         } else {
-            csv_edihist_log ("csv_list_processed_files: failed to access $csv_file" );
+            csv_edihist_log("csv_list_processed_files: failed to access $csv_file");
             return false;
         }
     } else {
@@ -1195,7 +1195,7 @@ function csv_table_header($file_type, $csv_type)
     //
     $hdr = array();
     if (!$ft || !$ct ) {
-        csv_edihist_log ('csv_table_header error: incorrect file ['.$file_type.']or csv ['.$csv_type.'] type');
+        csv_edihist_log('csv_table_header error: incorrect file ['.$file_type.']or csv ['.$csv_type.'] type');
         return $hdr;
     }
     //
@@ -1249,7 +1249,7 @@ break;
         }
     } else {
         // unexpected error
-        csv_edihist_log ('edih_csv_table_header() error: failed to match file type ['.$ft.'] or csv type ['.$ct.']');
+        csv_edihist_log('edih_csv_table_header() error: failed to match file type ['.$ft.'] or csv type ['.$ct.']');
         return false;
     }
     if (count($hdr) ) {
@@ -1320,7 +1320,7 @@ function csv_convert_bytes($bytes)
 {
     $sizes = array('Bytes', 'KB', 'MB', 'GB', 'TB');
     if ($bytes == 0) { return 'n/a'; }
-    $i = floor( log($bytes) / log(1024) );
+    $i = floor(log($bytes) / log(1024));
     //$i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
     if ($i == 0) {
         return $bytes.' '.$sizes[$i];
@@ -1340,7 +1340,7 @@ function csv_singlerecord_test($array)
     // the two versions of count() are compared
     // if the array has a sub-array, count recursive is greater
     if ( is_array($array) ) {
-        $is_sngl = count($array, COUNT_RECURSIVE ) == count( $array, COUNT_NORMAL);
+        $is_sngl = count($array, COUNT_RECURSIVE) == count($array, COUNT_NORMAL);
     } else {
         $is_sngl = false;
     }
@@ -1514,7 +1514,7 @@ function edih_csv_write($csv_data)
             $chrs = 0;
             $rws = 0;
             //
-            $fh = fopen( $fp, 'ab');
+            $fh = fopen($fp, 'ab');
             if (is_resource($fh)) {
                 // to assure proper order of data in each row, the
                 // csv row is assembled by matching keys to the header row
@@ -1523,7 +1523,7 @@ function edih_csv_write($csv_data)
                     for ($i=0; $i<$ct; $i++) {
                         $csvrow[$i] = $row[$order_ar[$i]];
                     }
-                    $chrs += fputcsv ( $fh, $csvrow );
+                    $chrs += fputcsv($fh, $csvrow);
                     $rws++;
                 }
             } else {

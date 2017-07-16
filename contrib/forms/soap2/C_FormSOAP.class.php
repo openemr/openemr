@@ -1,6 +1,6 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSOAP.class.php");
 
 class C_FormSOAP extends Controller
@@ -49,8 +49,14 @@ class C_FormSOAP extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "SOAP", $this->form->id, "soap2",
-            $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "SOAP",
+                $this->form->id,
+                "soap2",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
         return;

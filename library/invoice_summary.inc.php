@@ -46,7 +46,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
     "date, code_type, code, modifier, code_text, fee " .
     "FROM billing WHERE " .
     "pid = ? AND encounter = ? AND " .
-    "activity = 1 AND fee != 0.00 ORDER BY id", array($patient_id,$encounter_id) );
+    "activity = 1 AND fee != 0.00 ORDER BY id", array($patient_id,$encounter_id));
 
     while ($row = sqlFetchArray($res)) {
         $amount = sprintf('%01.2f', $row['fee']);
@@ -81,7 +81,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
     "WHERE " .
     "s.pid = ? AND s.encounter = ? AND s.fee != 0 " .
     "ORDER BY s.sale_id";
-    $res = sqlStatement($query, array($patient_id,$encounter_id) );
+    $res = sqlStatement($query, array($patient_id,$encounter_id));
     while ($row = sqlFetchArray($res)) {
         $amount = sprintf('%01.2f', $row['fee']);
         $code = 'PROD:' . $row['drug_id'];
@@ -107,7 +107,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
     "LEFT OUTER JOIN ar_session AS s ON s.session_id = a.session_id " .
     "LEFT OUTER JOIN insurance_companies AS i ON i.id = s.payer_id " .
     "WHERE a.pid = ? AND a.encounter = ? " .
-    "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter_id) );
+    "ORDER BY s.check_date, a.sequence_no", array($patient_id,$encounter_id));
     while ($row = sqlFetchArray($res)) {
         $code = $row['code'];
         if (! $code) $code = "Unknown";
@@ -124,7 +124,7 @@ function ar_get_invoice_summary($patient_id, $encounter_id, $with_detail = false
             $tmp = array();
             $paydate = empty($row['deposit_date']) ? substr($row['post_time'], 0, 10) : $row['deposit_date'];
             if ($row['pay_amount'] != 0) $tmp['pmt'] = $row['pay_amount'];
-            if ( isset($row['reason_code'] ) ) {
+            if ( isset($row['reason_code']) ) {
                 $tmp['msp'] = $row['reason_code'];
             }
             if ($row['adj_amount'] != 0 || $row['pay_amount'] == 0) {
@@ -162,7 +162,7 @@ function ar_responsible_party($patient_id, $encounter_id)
     $row = sqlQuery("SELECT date, last_level_billed, last_level_closed " .
     "FROM form_encounter WHERE " .
     "pid = ? AND encounter = ? " .
-    "ORDER BY id DESC LIMIT 1", array($patient_id,$encounter_id) );
+    "ORDER BY id DESC LIMIT 1", array($patient_id,$encounter_id));
     if (empty($row)) return -1;
     $next_level = $row['last_level_closed'] + 1;
     if ($next_level <= $row['last_level_billed'])

@@ -34,7 +34,7 @@ include_once("$srcdir/options.inc.php");
 // increase to a high number to make the mini frame more useful.
 $N = 50;
 
-$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", array($_SESSION['authUser']) );
+$atemp = sqlQuery("SELECT see_auth FROM users WHERE username = ?", array($_SESSION['authUser']));
 $see_auth = $atemp['see_auth'];
 
 $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
@@ -43,10 +43,10 @@ $imauthorized = $_SESSION['userauthorized'] || $see_auth > 2;
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
     $retVal = getProviderId($_SESSION['authUser']);
     newEvent("authorize", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $_GET["pid"]);
-    sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]) );
-    sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]) );
-    sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]) );
-    sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pid"]) );
+    sqlStatement("update billing set authorized=1 where pid=?", array($_GET["pid"]));
+    sqlStatement("update forms set authorized=1 where pid=?", array($_GET["pid"]));
+    sqlStatement("update pnotes set authorized=1 where pid=?", array($_GET["pid"]));
+    sqlStatement("update transactions set authorized=1 where pid=?", array($_GET["pid"]));
 }
 ?>
 <html>
@@ -104,7 +104,7 @@ if ($imauthorized && $see_auth > 1) {
     if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user " .
     "from billing LEFT JOIN users as u on billing.user = u.id where " .
     "billing.authorized = 0 and billing.activity = 1 and " .
-    "groupname = ?", array($groupname) ))
+    "groupname = ?", array($groupname)))
     {
           for ($iter = 0;$row = sqlFetchArray($res);$iter++)
         $result1[$iter] = $row;
@@ -119,7 +119,7 @@ if ($imauthorized && $see_auth > 1) {
 
 //fetch transaction information:
     if ($res = sqlStatement("select * from transactions where " .
-    "authorized = 0 and groupname = ?", array($groupname) ))
+    "authorized = 0 and groupname = ?", array($groupname)))
     {
           for ($iter = 0;$row = sqlFetchArray($res);$iter++)
         $result2[$iter] = $row;
@@ -135,7 +135,7 @@ if ($imauthorized && $see_auth > 1) {
     if (empty($GLOBALS['ignore_pnotes_authorization'])) {
           //fetch pnotes information:
         if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
-        "groupname = ?", array($groupname) ))
+        "groupname = ?", array($groupname)))
           {
             for ($iter = 0;$row = sqlFetchArray($res);$iter++)
               $result3[$iter] = $row;
@@ -151,7 +151,7 @@ if ($imauthorized && $see_auth > 1) {
 
 //fetch forms information:
     if ($res = sqlStatement("select * from forms where authorized = 0 and " .
-    "groupname = ?", array($groupname) ))
+    "groupname = ?", array($groupname)))
     {
           for ($iter = 0;$row = sqlFetchArray($res);$iter++)
         $result4[$iter] = $row;
@@ -211,7 +211,9 @@ if ($authorize) {
         ****/
         // Don't use sqlQuery because there might be no match.
         $providerName = sqlFetchArray(sqlStatement(
-        "select lname from users where id = ?", array($name['providerID']) ));
+            "select lname from users where id = ?",
+            array($name['providerID'])
+        ));
       
         echo "<td valign=top><span class=bold>".htmlspecialchars(xl('Provider'), ENT_NOQUOTES).":</span><span class=text><br>" .
           htmlspecialchars($providerName{"lname"}, ENT_NOQUOTES) . "</td>\n";

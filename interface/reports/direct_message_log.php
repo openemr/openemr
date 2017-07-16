@@ -138,8 +138,10 @@ else $logtop = 0;
 if (!$logtop)
  $res = sqlStatement("SELECT * FROM `direct_message_log` ORDER BY `id` DESC LIMIT 100");
 else
- $res = sqlStatement("SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-    array($logtop-99,$logtop));
+ $res = sqlStatement(
+     "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
+     array($logtop-99,$logtop)
+ );
 
  $logstart = 0;
 while ($row = sqlFetchArray($res)) {

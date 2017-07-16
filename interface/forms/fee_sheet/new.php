@@ -435,8 +435,14 @@ if (!$alertmsg && ($_POST['bn_save'] || $_POST['bn_save_close'])) {
     $main_provid = 0 + $_POST['ProviderID'];
     $main_supid  = 0 + $_POST['SupervisorID'];
 
-    $fs->save($_POST['bill'], $_POST['prod'], $main_provid, $main_supid,
-    $_POST['default_warehouse'], $_POST['bn_save_close']);
+    $fs->save(
+        $_POST['bill'],
+        $_POST['prod'],
+        $main_provid,
+        $main_supid,
+        $_POST['default_warehouse'],
+        $_POST['bn_save_close']
+    );
 
   // Note: Taxes are computed at checkout time (in pos_checkout.php which
   // also posts to SL).  Currently taxes with insurance claims make no sense,
@@ -752,7 +758,7 @@ while ($prow = sqlFetchArray($pres)) {
     echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
     $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
     "WHERE superbill = ? AND active = 1 " .
-    "ORDER BY code_text", array($prow['option_id']) );
+    "ORDER BY code_text", array($prow['option_id']));
     while ($row = sqlFetchArray($res)) {
         $ctkey = $fs->alphaCodeType($row['code_type']);
         if ($code_types[$ctkey]['nofs']) continue;
@@ -974,9 +980,11 @@ if ($billresult) {
     }
 }
 
-$resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
-  "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
-  array($fs->pid, $fs->encounter)); //new fees screen copay gives account_code='PCP'
+$resMoneyGot = sqlStatement(
+    "SELECT pay_amount as PatientPay,session_id as id,date(post_time) as date ".
+    "FROM ar_activity where pid =? and encounter =? and payer_type=0 and account_code='PCP'",
+    array($fs->pid, $fs->encounter)
+); //new fees screen copay gives account_code='PCP'
 while($rowMoneyGot = sqlFetchArray($resMoneyGot)){
     $PatientPay=$rowMoneyGot['PatientPay']*-1;
     $id=$rowMoneyGot['id'];
@@ -1036,7 +1044,7 @@ if ($_POST['bill']) {
 $query = "SELECT ds.*, di.warehouse_id FROM drug_sales AS ds, drug_inventory AS di WHERE " .
   "ds.pid = ? AND ds.encounter = ?  AND di.inventory_id = ds.inventory_id " .
   "ORDER BY sale_id";
-$sres = sqlStatement($query, array($fs->pid, $fs->encounter) );
+$sres = sqlStatement($query, array($fs->pid, $fs->encounter));
 // $prod_lino = 0;
 while ($srow = sqlFetchArray($sres)) {
   // ++$prod_lino;
@@ -1106,8 +1114,10 @@ if ($_POST['newcodes'] && !$alertmsg) {
         list($newtype, $newcode) = explode('|', $codestring);
         if ($newtype == 'MA') {
             list($code, $modifier) = explode(":", $newcode);
-            $tmp = sqlQuery("SELECT sex FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
-            array($code_types[$newtype]['id'], $code));
+            $tmp = sqlQuery(
+                "SELECT sex FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
+                array($code_types[$newtype]['id'], $code)
+            );
             if ($tmp['sex'] == '1' && $fs->patient_male || $tmp['sex'] == '2' && !$fs->patient_male) {
                   $alertmsg = xl('Service is not compatible with the sex of this client.');
             }
@@ -1122,7 +1132,7 @@ if ($_POST['newcodes'] && !$alertmsg) {
         $newsel  = $arrcode[2];
         if ($newtype == 'COPAY') {
             $tmp = sqlQuery("SELECT copay FROM insurance_data WHERE pid = ? " .
-            "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($fs->pid) );
+            "AND type = 'primary' ORDER BY date DESC LIMIT 1", array($fs->pid));
             $code = formatMoneyNumber(0 + $tmp['copay']);
             $fs->addServiceLineItem(array(
               'codetype'    => $newtype,
@@ -1155,7 +1165,7 @@ if ($_POST['newcodes'] && !$alertmsg) {
             if ($newtype == 'HCPCS' && $ndc_applies) {
                 $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                 "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
-                "ORDER BY date DESC LIMIT 1", array($newtype,$code) );
+                "ORDER BY date DESC LIMIT 1", array($newtype,$code));
                 if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
             }
             $fs->addServiceLineItem(array(

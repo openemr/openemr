@@ -13,7 +13,7 @@
 
 
 $depth = '../../../';
-require_once ($depth.'interface/globals.php');
+require_once($depth.'interface/globals.php');
 require_once("content_parser.php");
 ?>
 <?php
@@ -382,7 +382,8 @@ function getFormData($start_date, $end_date, $lname, $fname)
         "(t1.pid = t3.pid) where " .
         $date_clause .
         $name_clause .
-        "order by date,pid");
+        "order by date,pid"
+    );
     while ($results1 = sqlFetchArray($query1)) {
         if (!$dates[$results1['datekey']]) {
             $dates[$results1['datekey']] = array();
@@ -405,8 +406,10 @@ function getFormData($start_date, $end_date, $lname, $fname)
         $query2 = sqlStatement("select * from billing where encounter = ".
             $results1['enc']." and pid = ".$results1['pid']." and code_type like 'ICD9' and activity=1");
         while ($results2 = sqlFetchArray($query2)) {
-            array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['billing'],
-            $results2['code'].' '.$results2['code_text']);
+            array_push(
+                $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['billing'],
+                $results2['code'].' '.$results2['code_text']
+            );
         }
         if (strtolower($results1['form_name']) == 'vitals') { // deal with Vitals
             $query2 = sqlStatement("select * from form_vitals where id = " .
@@ -440,8 +443,10 @@ function getFormData($start_date, $end_date, $lname, $fname)
                     if (!$dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']]) {
                         $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']] = array();
                     }
-                    array_push($dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']],
-                        preg_replace(array("/\n+/","/patientname/i"), array(' ',$results1['fname'].' '.$results1['lname']), $results2['content']));
+                    array_push(
+                        $dates[$results1['datekey']][$results1['pid'].'_'.$results1['enc']]['other'][$results2['category']],
+                        preg_replace(array("/\n+/","/patientname/i"), array(' ',$results1['fname'].' '.$results1['lname']), $results2['content'])
+                    );
                 }
             }
         }

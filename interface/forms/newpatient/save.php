@@ -55,23 +55,29 @@ if ($mode == 'new')
 {
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     $encounter = generate_id();
-    addForm($encounter, "New Patient Encounter",
-    sqlInsert("INSERT INTO form_encounter SET " .
-      "date = '" . add_escape_custom($date) . "', " .
-      "onset_date = '" . add_escape_custom($onset_date) . "', " .
-      "reason = '" . add_escape_custom($reason) . "', " .
-      "facility = '" . add_escape_custom($facility) . "', " .
-      "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
-      "facility_id = '" . add_escape_custom($facility_id) . "', " .
-      "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
-      "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-      "referral_source = '" . add_escape_custom($referral_source) . "', " .
-      "pid = '" . add_escape_custom($pid) . "', " .
-      "encounter = '" . add_escape_custom($encounter) . "', " .
-      "pos_code = '" . add_escape_custom($pos_code) . "', " .
-      "external_id = '" . add_escape_custom($external_id) . "', " .
-      "provider_id = '" . add_escape_custom($provider_id) . "'"),
-    "newpatient", $pid, $userauthorized, $date);
+    addForm(
+        $encounter,
+        "New Patient Encounter",
+        sqlInsert("INSERT INTO form_encounter SET " .
+        "date = '" . add_escape_custom($date) . "', " .
+        "onset_date = '" . add_escape_custom($onset_date) . "', " .
+        "reason = '" . add_escape_custom($reason) . "', " .
+        "facility = '" . add_escape_custom($facility) . "', " .
+        "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
+        "facility_id = '" . add_escape_custom($facility_id) . "', " .
+        "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
+        "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
+        "referral_source = '" . add_escape_custom($referral_source) . "', " .
+        "pid = '" . add_escape_custom($pid) . "', " .
+        "encounter = '" . add_escape_custom($encounter) . "', " .
+        "pos_code = '" . add_escape_custom($pos_code) . "', " .
+        "external_id = '" . add_escape_custom($external_id) . "', " .
+        "provider_id = '" . add_escape_custom($provider_id) . "'"),
+        "newpatient",
+        $pid,
+        $userauthorized,
+        $date
+    );
 }
 else if ($mode == 'update')
 {

@@ -467,7 +467,7 @@ function getAllPhysicalExams($xml, $patient_id)
 {
     global $encCheckUniqId, $from_date, $to_date;
         
-    $vitArr   = allVitalsPat( $patient_id, $from_date, $to_date);
+    $vitArr   = allVitalsPat($patient_id, $from_date, $to_date);
     $measures = array('bps' => array('name' => 'Blood Pressure Systolic','category' => 'Blood Pressure','unit' => 'mmHg','code' => '8480-6'),
                   'bpd' => array('name' => 'Blood Pressure Diastolic','category'=> 'Blood Pressure','unit' => 'mmHg','code' => '8462-4'),
                   'bmi' => array('name' => 'Body Mass Index','category' => 'Body Mass Index', 'unit' => 'kg/m2','code' => '39156-5'));

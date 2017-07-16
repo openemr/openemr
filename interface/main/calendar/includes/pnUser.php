@@ -223,7 +223,7 @@ function pnUserGetVars($uid)
     $corevars = $result->GetRowAssoc(false);
     $result->Close();
 
-    $vars = array_merge ($vars, $corevars);
+    $vars = array_merge($vars, $corevars);
 
     // Aliasing if required
     if (empty($vars['uid'])) {

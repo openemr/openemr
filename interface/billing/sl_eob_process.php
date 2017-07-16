@@ -71,7 +71,7 @@ function writeDetailLine(
     else $last_invnumber = $invnumber;
     if ($code == $last_code) $code = '&nbsp;';
     else $last_code = $code;
-    if ($amount ) $amount  = sprintf("%.2f", $amount );
+    if ($amount ) $amount  = sprintf("%.2f", $amount);
     if ($balance) $balance = sprintf("%.2f", $balance);
     $dline =
     " <tr bgcolor='$bgcolor'>\n" .
@@ -103,8 +103,17 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
         }
         $amount = sprintf("%.2f", $ddata['chg'] - $ddata['pmt']);
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
-        writeDetailLine($bgcolor, 'olddetail', $ptname, $invnumber,
-            $code, $ddate, $description, $amount, $invoice_total);
+        writeDetailLine(
+            $bgcolor,
+            'olddetail',
+            $ptname,
+            $invnumber,
+            $code,
+            $ddate,
+            $description,
+            $amount,
+            $invoice_total
+        );
     }
 }
 
@@ -119,7 +128,7 @@ function era_callback_check(&$out)
     {
         $StringToEcho="<br/><br/><br/><br/><br/><br/>";
         $StringToEcho.="<table border='1' cellpadding='0' cellspacing='0'  width='750'>";
-        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars( xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars( xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars( xl('Check Amount'), ENT_QUOTES)."</td></tr>";
+        $StringToEcho.="<tr bgcolor='#cccccc'><td width='50'></td><td class='dehead' width='150' align='center'>".htmlspecialchars(xl('Check Number'), ENT_QUOTES)."</td><td class='dehead' width='400'  align='center'>".htmlspecialchars(xl('Payee Name'), ENT_QUOTES)."</td><td class='dehead'  width='150' align='center'>".htmlspecialchars(xl('Check Amount'), ENT_QUOTES)."</td></tr>";
         $WarningFlag=false;
         for ($check_count=1;$check_count<=$out['check_count'];$check_count++)
         {
@@ -146,7 +155,7 @@ function era_callback_check(&$out)
         }
         $StringToEcho.="<tr bgcolor='#cccccc'><td colspan='4' align='center'><input type='submit'  name='CheckSubmit' value='Submit'/></td></tr>";
         if($WarningFlag==true)
-        $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars( xl('Warning, Check Number already exist in the database'), ENT_QUOTES)."</td></tr>";
+        $StringToEcho.="<tr bgcolor='#ff0000'><td colspan='4' align='center'>".htmlspecialchars(xl('Warning, Check Number already exist in the database'), ENT_QUOTES)."</td></tr>";
         $StringToEcho.="</table>";
     }
     else
@@ -179,11 +188,17 @@ function era_callback(&$out)
     $chk_123=str_replace(' ', '_', $chk_123);
     if(isset($_REQUEST['chk'.$chk_123])){
         if ($encount == 0) {
-            writeMessageLine('#ffffff', 'infdetail',
-                "Payer: " . htmlspecialchars($out['payer_name'], ENT_QUOTES));
+            writeMessageLine(
+                '#ffffff',
+                'infdetail',
+                "Payer: " . htmlspecialchars($out['payer_name'], ENT_QUOTES)
+            );
             if ($debug) {
-                writeMessageLine('#ffffff', 'infdetail',
-                    "WITHOUT UPDATE is selected; no changes will be applied.");
+                writeMessageLine(
+                    '#ffffff',
+                    'infdetail',
+                    "WITHOUT UPDATE is selected; no changes will be applied."
+                );
             }
         }
 
@@ -218,13 +233,19 @@ function era_callback(&$out)
         if ($csc == '2' || $csc == '20') $inslabel = 'Ins2';
         if ($csc == '3' || $csc == '21') $inslabel = 'Ins3';
         $primary = ($inslabel == 'Ins1');
-        writeMessageLine($bgcolor, 'infdetail',
-        "Claim status $csc: " . $claim_status_codes[$csc]);
+        writeMessageLine(
+            $bgcolor,
+            'infdetail',
+            "Claim status $csc: " . $claim_status_codes[$csc]
+        );
 
     // Show an error message if the claim is missing or already posted.
         if ($inverror) {
-            writeMessageLine($bgcolor, 'errdetail',
-            "The following claim is not in our database");
+            writeMessageLine(
+                $bgcolor,
+                'errdetail',
+                "The following claim is not in our database"
+            );
         }
         else {
             // Skip this test. Claims can get multiple CLPs from the same payer!
@@ -253,13 +274,19 @@ function era_callback(&$out)
                     updateClaim(true, $pid, $encounter, $_REQUEST['InsId'], substr($inslabel, 3), 7, 0, $code_value);
                 }
             }
-            writeMessageLine($bgcolor, 'errdetail',
-            "Not posting adjustments for denied claims, please follow up manually!");
+            writeMessageLine(
+                $bgcolor,
+                'errdetail',
+                "Not posting adjustments for denied claims, please follow up manually!"
+            );
         }
         else if ($csc == '22') {
             $inverror = true;
-            writeMessageLine($bgcolor, 'errdetail',
-            "Payment reversals are not automated, please enter manually!");
+            writeMessageLine(
+                $bgcolor,
+                'errdetail',
+                "Payment reversals are not automated, please enter manually!"
+            );
         }
 
         if ($out['warnings']) {
@@ -297,8 +324,11 @@ function era_callback(&$out)
                 // Check for sanity in amount charged.
                 $prevchg = sprintf("%.2f", $prev['chg'] + $prev['adj']);
                 if ($prevchg != abs($svc['chg'])) {
-                    writeMessageLine($bgcolor, 'errdetail',
-                    "EOB charge amount " . $svc['chg'] . " for this code does not match our invoice");
+                    writeMessageLine(
+                        $bgcolor,
+                        'errdetail',
+                        "EOB charge amount " . $svc['chg'] . " for this code does not match our invoice"
+                    );
                     $error = true;
                 }
 
@@ -326,14 +356,33 @@ function era_callback(&$out)
                 // was inserted, or in red if we are in error mode).
                 $description = "CPT4:$codekey Added by $inslabel $production_date";
                 if (!$error && !$debug) {
-                    arPostCharge($pid, $encounter, 0, $svc['chg'], 1, $service_date,
-                    $codekey, $description, $debug, '', $codetype);
+                    arPostCharge(
+                        $pid,
+                        $encounter,
+                        0,
+                        $svc['chg'],
+                        1,
+                        $service_date,
+                        $codekey,
+                        $description,
+                        $debug,
+                        '',
+                        $codetype
+                    );
                     $invoice_total += $svc['chg'];
                 }
                 $class = $error ? 'errdetail' : 'newdetail';
-                writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-                $codekey, $production_date, $description,
-                $svc['chg'], ($error ? '' : $invoice_total));
+                writeDetailLine(
+                    $bgcolor,
+                    $class,
+                    $patient_name,
+                    $invnumber,
+                    $codekey,
+                    $production_date,
+                    $description,
+                    $svc['chg'],
+                    ($error ? '' : $invoice_total)
+                );
 
             }
 
@@ -355,8 +404,11 @@ function era_callback(&$out)
                     $svc['adj'][] = array('group_code' => 'CO', 'reason_code' => 'A2',
                     'amount' => $contract_adj);
                 }
-                writeMessageLine($bgcolor, 'infdetail',
-                'Allowed amount is ' . sprintf("%.2f", $svc['allowed']));
+                writeMessageLine(
+                    $bgcolor,
+                    'infdetail',
+                    'Allowed amount is ' . sprintf("%.2f", $svc['allowed'])
+                );
             }
 
             // Report miscellaneous remarks.
@@ -370,15 +422,33 @@ function era_callback(&$out)
             // i.e. a payment reversal.
             if ($svc['paid']) {
                 if (!$error && !$debug) {
-                    arPostPayment($pid, $encounter, $InsertionId[$out['check_number']], $svc['paid'], //$InsertionId[$out['check_number']] gives the session id
-                    $codekey, substr($inslabel, 3), $out['check_number'], $debug, '', $codetype);
+                    arPostPayment(
+                        $pid,
+                        $encounter,
+                        $InsertionId[$out['check_number']],
+                        $svc['paid'], //$InsertionId[$out['check_number']] gives the session id
+                        $codekey,
+                        substr($inslabel, 3),
+                        $out['check_number'],
+                        $debug,
+                        '',
+                        $codetype
+                    );
                     $invoice_total -= $svc['paid'];
                 }
                 $description = "$inslabel/" . $out['check_number'] . ' payment';
                 if ($svc['paid'] < 0) $description .= ' reversal';
-                writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-                $codekey, $check_date, $description,
-                0 - $svc['paid'], ($error ? '' : $invoice_total));
+                writeDetailLine(
+                    $bgcolor,
+                    $class,
+                    $patient_name,
+                    $invnumber,
+                    $codekey,
+                    $check_date,
+                    $description,
+                    0 - $svc['paid'],
+                    ($error ? '' : $invoice_total)
+                );
             }
 
             // Post and report adjustments from this ERA.  Posted adjustment reasons
@@ -412,8 +482,18 @@ function era_callback(&$out)
                     $reason .= sprintf("%.2f", $adj['amount']);
                     // Post a zero-dollar adjustment just to save it as a comment.
                     if (!$error && !$debug) {
-                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], 0, $codekey, //$InsertionId[$out['check_number']] gives the session id
-                        substr($inslabel, 3), $reason, $debug, '', $codetype);
+                        arPostAdjustment(
+                            $pid,
+                            $encounter,
+                            $InsertionId[$out['check_number']],
+                            0,
+                            $codekey, //$InsertionId[$out['check_number']] gives the session id
+                            substr($inslabel, 3),
+                            $reason,
+                            $debug,
+                            '',
+                            $codetype
+                        );
                     }
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
@@ -421,14 +501,31 @@ function era_callback(&$out)
                 // Other group codes for primary insurance are real adjustments.
                 else {
                     if (!$error && !$debug) {
-                        arPostAdjustment($pid, $encounter, $InsertionId[$out['check_number']], $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
-                        $codekey, substr($inslabel, 3),
-                        "Adjust code " . $adj['reason_code'], $debug, '', $codetype);
+                        arPostAdjustment(
+                            $pid,
+                            $encounter,
+                            $InsertionId[$out['check_number']],
+                            $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
+                            $codekey,
+                            substr($inslabel, 3),
+                            "Adjust code " . $adj['reason_code'],
+                            $debug,
+                            '',
+                            $codetype
+                        );
                         $invoice_total -= $adj['amount'];
                     }
-                    writeDetailLine($bgcolor, $class, $patient_name, $invnumber,
-                    $codekey, $production_date, $description,
-                    0 - $adj['amount'], ($error ? '' : $invoice_total));
+                    writeDetailLine(
+                        $bgcolor,
+                        $class,
+                        $patient_name,
+                        $invnumber,
+                        $codekey,
+                        $production_date,
+                        $description,
+                        0 - $adj['amount'],
+                        ($error ? '' : $invoice_total)
+                    );
                 }
             }
 
@@ -457,8 +554,11 @@ function era_callback(&$out)
                 sqlStatement("UPDATE form_encounter " .
                 "SET last_level_closed = $level_done,last_level_billed=".$level_done." WHERE " .
                 "pid = '$pid' AND encounter = '$encounter'");
-                writeMessageLine($bgcolor, 'infdetail',
-                'This claim is processed by Insurance '.$level_done.' and automatically forwarded to Insurance '.($level_done+1) .' for processing. ');
+                writeMessageLine(
+                    $bgcolor,
+                    'infdetail',
+                    'This claim is processed by Insurance '.$level_done.' and automatically forwarded to Insurance '.($level_done+1) .' for processing. '
+                );
             }
             else {
                 sqlStatement("UPDATE form_encounter " .
@@ -471,8 +571,11 @@ function era_callback(&$out)
 
                 if($out['crossover']<>1)
                 {
-                    writeMessageLine($bgcolor, 'infdetail',
-                    'This claim is now re-queued for secondary paper billing');
+                    writeMessageLine(
+                        $bgcolor,
+                        'infdetail',
+                        'This claim is now re-queued for secondary paper billing'
+                    );
                 }
             }
         }
@@ -534,25 +637,25 @@ else
 
      <tr bgcolor="#cccccc">
       <td class="dehead">
-    <?php echo htmlspecialchars( xl('Patient'), ENT_QUOTES) ?>
+    <?php echo htmlspecialchars(xl('Patient'), ENT_QUOTES) ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars( xl('Invoice'), ENT_QUOTES) ?>
+    <?php echo htmlspecialchars(xl('Invoice'), ENT_QUOTES) ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars( xl('Code'), ENT_QUOTES) ?>
+    <?php echo htmlspecialchars(xl('Code'), ENT_QUOTES) ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars( xl('Date'), ENT_QUOTES) ?>
+    <?php echo htmlspecialchars(xl('Date'), ENT_QUOTES) ?>
       </td>
       <td class="dehead">
-    <?php echo htmlspecialchars( xl('Description'), ENT_QUOTES) ?>
+    <?php echo htmlspecialchars(xl('Description'), ENT_QUOTES) ?>
       </td>
       <td class="dehead" align="right">
-    <?php echo htmlspecialchars( xl('Amount'), ENT_QUOTES) ?>&nbsp;
+    <?php echo htmlspecialchars(xl('Amount'), ENT_QUOTES) ?>&nbsp;
       </td>
       <td class="dehead" align="right">
-    <?php echo htmlspecialchars( xl('Balance'), ENT_QUOTES) ?>&nbsp;
+    <?php echo htmlspecialchars(xl('Balance'), ENT_QUOTES) ?>&nbsp;
       </td>
      </tr>
 
@@ -564,7 +667,7 @@ else
     $alertmsg = parse_era($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.edi", 'era_callback');
     if(!$debug)
     {
-          $StringIssue=htmlspecialchars( xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';
+          $StringIssue=htmlspecialchars(xl("Total Distribution for following check number is not full"), ENT_QUOTES).': ';
           $StringPrint='No';
         foreach($InsertionId as $key => $value)
             {

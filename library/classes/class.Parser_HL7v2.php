@@ -45,14 +45,14 @@ class Parser_HL7v2
                 case 'EVN':
                     $this->message_type = trim($type);
                     call_user_func_array(
-                    array(&$this, '_'.$type),
-                    array(
+                        array(&$this, '_'.$type),
+                        array(
                         // All but type
                         substr(
                             $segment,
                             -(strlen($segment)-3)
                         )
-                    )
+                        )
                     );
                     $this->map[$count]['type'] = $type;
                     $this->map[$count]['position'] = 0;
@@ -102,7 +102,7 @@ class Parser_HL7v2
 
     function _EVN($segment)
     {
-        $composites = $this->__parse_segment ($segment);
+        $composites = $this->__parse_segment($segment);
         if ($this->options['debug']) {
             print "<b>EVN segment</b><br/>\n";
             foreach ($composites as $k => $v) {
@@ -123,7 +123,7 @@ class Parser_HL7v2
     {
         // Get separator
         $this->field_separator = substr($segment, 0, 1);
-        $composites = $this->__parse_segment ($segment);
+        $composites = $this->__parse_segment($segment);
         if ($this->options['debug']) {
             print "<b>MSH segment</b><br/>\n";
             foreach ($composites as $k => $v) {

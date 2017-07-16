@@ -25,7 +25,7 @@
 
     $sql = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' ORDER BY begdate";
 
-    $res = sqlStatement($sql, array($pid) );
+    $res = sqlStatement($sql, array($pid));
 
 if(sqlNumRows($res)>0)
 {

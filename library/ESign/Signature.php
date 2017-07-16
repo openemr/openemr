@@ -122,6 +122,6 @@ class Signature implements SignatureIF
     
     public function verify()
     {
-        return $this->_verification->verify( $this->getData(), $this->signatureHash );
+        return $this->_verification->verify($this->getData(), $this->signatureHash);
     }
 }

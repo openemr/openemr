@@ -49,15 +49,15 @@ class DBSet
         $reftable = $this->Table->Schema->Tables [$this->SetTableName];
         // print "<p><b>" . $this->Table->Name . " set references " . $reftable->Name . "</b></p>";
         
-        $this->SetPrimaryKey = $reftable->GetPrimaryKeyName ( false );
+        $this->SetPrimaryKey = $reftable->GetPrimaryKeyName(false);
         
-        $this->NameNoPrefix = $this->Table->RemovePrefix ( $this->Name );
-        $this->KeyColumnNoPrefix = $this->Table->RemovePrefix ( $this->KeyColumn );
-        $this->SetKeyColumnNoPrefix = $reftable->RemovePrefix ( $this->SetKeyColumn );
-        $this->SetPrimaryKeyNoPrefix = $reftable->RemovePrefix ( $this->SetPrimaryKey );
+        $this->NameNoPrefix = $this->Table->RemovePrefix($this->Name);
+        $this->KeyColumnNoPrefix = $this->Table->RemovePrefix($this->KeyColumn);
+        $this->SetKeyColumnNoPrefix = $reftable->RemovePrefix($this->SetKeyColumn);
+        $this->SetPrimaryKeyNoPrefix = $reftable->RemovePrefix($this->SetPrimaryKey);
         
         // intelligently decide what a good name for this set would be
-        $tmp1 = str_replace ( "__", "_", str_replace ( $this->Table->Name, "", str_replace ( "_id", "", $this->SetKeyColumnNoPrefix ) ) . "_" );
+        $tmp1 = str_replace("__", "_", str_replace($this->Table->Name, "", str_replace("_id", "", $this->SetKeyColumnNoPrefix)) . "_");
         $tmp2 = $this->SetTableName . "s";
         $this->GetterName = ($tmp1 == "_") ? $tmp2 : ($tmp1 . $tmp2);
     }

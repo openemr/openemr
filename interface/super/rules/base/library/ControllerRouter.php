@@ -19,21 +19,21 @@ class ControllerRouter
      */
     function route()
     {
-        $actionParam = _get( "action" );
+        $actionParam = _get("action");
         $paramParts = explode("!", $actionParam);
         $controller = $paramParts[0];
         $action = $paramParts[1];
 
         $controllerDir = controller_dir($controller);
         $controllerFile = $controllerDir . "/controller.php";
-        require_once( $controllerFile );
+        require_once($controllerFile);
         $controllerClassName = "Controller_$controller";
         $controllerInstance = new $controllerClassName();
 
         $actionRouter = new ActionRouter(
-                $controllerInstance,
-                $action,
-                $controllerDir
+            $controllerInstance,
+            $action,
+            $controllerDir
         );
 
         $actionRouter->route();

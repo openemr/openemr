@@ -61,7 +61,7 @@ while ($file = sqlFetchArray($fres)) {
     $path .= convert_safe_file_dir_name($cat['name'])."/";
     // create the folder structure at the temporary dir
     if (!is_dir($tmp."/".$pid."/".$path)) {
-        if (!mkdir($tmp."/".$pid."/".$path, 0777, true )){
+        if (!mkdir($tmp."/".$pid."/".$path, 0777, true)){
             echo xlt("Error creating directory!")."<br />";
         }
     }

@@ -35,9 +35,14 @@ use OpenEMR\Core\Header;
 function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 {
     $cd = strtotime($givendate);
-    $newdate = date('Y-m-d H:i:s', mktime(date('h', $cd),
-    date('i', $cd), date('s', $cd), date('m', $cd)+$mth,
-    date('d', $cd)+$day, date('Y', $cd)+$yr));
+    $newdate = date('Y-m-d H:i:s', mktime(
+        date('h', $cd),
+        date('i', $cd),
+        date('s', $cd),
+        date('m', $cd)+$mth,
+        date('d', $cd)+$day,
+        date('Y', $cd)+$yr
+    ));
     return $newdate;
 }
     if($_POST['date_from'] != "")
@@ -463,7 +468,7 @@ else
             for($i = 0; $i < count($sort); $i++) {
                 if($sortby == $sort[$i]) {
                     switch($sortorder) {
-                        case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars( xl('Sort Up'), ENT_QUOTES)."\"></a>";
+                        case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
 break;
                         case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
 break;

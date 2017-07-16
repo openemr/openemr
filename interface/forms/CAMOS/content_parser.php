@@ -25,7 +25,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
     include_once("../../../library/api.inc");
-    require ("../vitals/C_FormVitals.class.php");
+    require("../vitals/C_FormVitals.class.php");
     $c = new C_FormVitals();
     echo $c->default_action_process($_POST);
 }
@@ -190,11 +190,13 @@ function process_commands(&$string_to_process, &$camos_return_data)
             //this is for embedded prescriptions, test orders etc... usually within a soap note or something
             //data collected here will be returned so that save.php can give it special treatment and insert
             //into the database after the main form data is submitted so it will be in a sensible order
-            array_push($camos_return_data,
-            array("category" => trim($comm_array[1]),
-            "subcategory" => trim($comm_array[2]),
-            "item" => trim($comm_array[3]),
-            "content" => trim($comm_array[4])));
+            array_push(
+                $camos_return_data,
+                array("category" => trim($comm_array[1]),
+                "subcategory" => trim($comm_array[2]),
+                "item" => trim($comm_array[3]),
+                "content" => trim($comm_array[4]))
+            );
         }
     }
     $string_to_process = remove_comments($string_to_process);
@@ -222,7 +224,8 @@ function replace($pid, $enc, $content)
         "t2.date " .
         "from patient_data as t1 join form_encounter as t2 on " .
         "(t1.pid = t2.pid) " .
-        "where t2.pid = ".$pid." and t2.encounter = ".$enc);
+        "where t2.pid = ".$pid." and t2.encounter = ".$enc
+    );
     if ($results = sqlFetchArray($query1)) {
         $fname = $results['fname'];
         $mname = $results['mname'];
@@ -239,8 +242,11 @@ function replace($pid, $enc, $content)
     if ($results = sqlFetchArray($query1)) {
         $doctorname = "Dr. ".$results['lname'];
     }
-    $ret = preg_replace(array("/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"),
-    array($name,$age,strtolower($gender),$doctorname), $content);
+    $ret = preg_replace(
+        array("/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"),
+        array($name,$age,strtolower($gender),$doctorname),
+        $content
+    );
     return $ret;
 }
 function patient_age($birthday, $date)

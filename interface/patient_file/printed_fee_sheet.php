@@ -102,7 +102,7 @@ else if ($form_fill == 1)
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
 if (file_exists("../../custom/fee_sheet_codes.php"))
-    include_once ("../../custom/fee_sheet_codes.php");
+    include_once("../../custom/fee_sheet_codes.php");
 
 // TBD: Move these to globals.php, or make them user-specific.
 $fontsize = 7;

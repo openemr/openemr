@@ -95,7 +95,7 @@ $my_authorized = isset($_POST["authorized"]) ? $_POST["authorized"] : '';
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
 $left_margin = isset($_POST["left_margin"]) ? $_POST["left_margin"] : $GLOBALS['cms_left_margin_default'];
-$top_margin  = isset($_POST["top_margin"] ) ? $_POST["top_margin" ] : $GLOBALS['cms_top_margin_default'];
+$top_margin  = isset($_POST["top_margin"]) ? $_POST["top_margin" ] : $GLOBALS['cms_top_margin_default'];
 
 $ofrom_date  = $from_date;
 $oto_date    = $to_date;
@@ -322,18 +322,18 @@ function MarkAsCleared(Type)
    }
    if(Type==1)
     {
-     Message='<?php echo htmlspecialchars( xl('After saving your batch, click [View Log] to check for errors.'), ENT_QUOTES); ?>';
+     Message='<?php echo htmlspecialchars(xl('After saving your batch, click [View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
    if(Type==2)
     {
-     Message='<?php echo htmlspecialchars( xl('After saving the PDF, click [View Log] to check for errors.'), ENT_QUOTES); ?>';
+     Message='<?php echo htmlspecialchars(xl('After saving the PDF, click [View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
    if(Type==3)
     {
-     Message='<?php echo htmlspecialchars( xl('After saving the TEXT file(s), click [View Log] to check for errors.'), ENT_QUOTES); ?>';
+     Message='<?php echo htmlspecialchars(xl('After saving the TEXT file(s), click [View Log] to check for errors.'), ENT_QUOTES); ?>';
     }
-  if(confirm(Message + "\n\n\n<?php echo addslashes( xl('Total') ); ?>" + ' ' + CheckBoxBillingCount + ' ' +  "<?php echo addslashes( xl('Selected') ); ?>\n" +
-  "<?php echo addslashes( xl('Would You Like them to be Marked as Cleared.') ); ?>"))
+  if(confirm(Message + "\n\n\n<?php echo addslashes(xl('Total')); ?>" + ' ' + CheckBoxBillingCount + ' ' +  "<?php echo addslashes(xl('Selected')); ?>\n" +
+  "<?php echo addslashes(xl('Would You Like them to be Marked as Cleared.')); ?>"))
    {
     document.getElementById('HiddenMarkAsCleared').value='yes';
   }
@@ -677,8 +677,8 @@ if ($ret = getBillsBetween("%"))
         ?>
     <tr ><td colspan='9' align="right" ><table width="250" border="0" cellspacing="0" cellpadding="0">
       <tr>
-        <td width="100" id='ExpandAll'><a  onclick="expandcollapse('expand');" class='small'  href="JavaScript:void(0);"><?php echo '('.htmlspecialchars( xl('Expand All'), ENT_QUOTES).')' ?></a></td>
-    <td width="100" id='CollapseAll'><a  onclick="expandcollapse('collapse');" class='small'  href="JavaScript:void(0);"><?php echo '('.htmlspecialchars( xl('Collapse All'), ENT_QUOTES).')' ?></a></td>
+        <td width="100" id='ExpandAll'><a  onclick="expandcollapse('expand');" class='small'  href="JavaScript:void(0);"><?php echo '('.htmlspecialchars(xl('Expand All'), ENT_QUOTES).')' ?></a></td>
+    <td width="100" id='CollapseAll'><a  onclick="expandcollapse('collapse');" class='small'  href="JavaScript:void(0);"><?php echo '('.htmlspecialchars(xl('Collapse All'), ENT_QUOTES).')' ?></a></td>
     <td width="50">&nbsp;</td>
   </tr>
 </table>
@@ -707,7 +707,7 @@ if ($ret = getBillsBetween("%"))
             $res = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
             "encounter = ? AND " .
             "pid=? AND " .
-            "activity = 1", array($iter['enc_encounter'],$iter['enc_pid']) );
+            "activity = 1", array($iter['enc_encounter'],$iter['enc_pid']));
             if ($res['count'] > 0) continue;
         }
 
@@ -750,7 +750,7 @@ if ($ret = getBillsBetween("%"))
                 $res = sqlQuery("select count(*) as count from billing where " .
                 "encounter = ? and " .
                 "pid=? and " .
-                "activity = 1 and authorized = 0", array($iter['enc_encounter'],$iter['enc_pid']) );
+                "activity = 1 and authorized = 0", array($iter['enc_encounter'],$iter['enc_pid']));
                 if ($res['count'] > 0) {
                         $skipping = true;
                         $last_encounter_id = $this_encounter_id;
@@ -768,7 +768,7 @@ if ($ret = getBillsBetween("%"))
             "pid = ? and " .
             "type='primary' and " .
             "subscriber_lname is not null and " .
-            "subscriber_lname != '' limit 1", array($iter['enc_pid']) );
+            "subscriber_lname != '' limit 1", array($iter['enc_pid']));
             $namecolor = ($res['count'] > 0) ? "black" : "#ff7777";
 
             $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
@@ -787,7 +787,7 @@ if ($ret = getBillsBetween("%"))
 
                //Encounter details are stored to javacript as array.
               $result4 = sqlStatement("SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
-                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($iter['enc_pid']) );
+                " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($iter['enc_pid']));
                if(sqlNumRows($result4)>0)
                 ?>
                 <script language='JavaScript'>
@@ -802,7 +802,7 @@ if ($ret = getBillsBetween("%"))
                 ?>
                 EncounterIdArray[<?php echo attr($iter['enc_pid']); ?>][Count]='<?php echo htmlspecialchars($rowresult4['encounter'], ENT_QUOTES); ?>';
                 EncounterDateArray[<?php echo attr($iter['enc_pid']); ?>][Count]='<?php echo htmlspecialchars(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date']))), ENT_QUOTES); ?>';
-                CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count]='<?php echo htmlspecialchars( xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
+                CalendarCategoryArray[<?php echo attr($iter['enc_pid']); ?>][Count]='<?php echo htmlspecialchars(xl_appt_category($rowresult4['pc_catname']), ENT_QUOTES); ?>';
                 EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count]='<?php echo htmlspecialchars($rowresult4['billing_note'], ENT_QUOTES); ?>';
                 Count++;
                 <?php
@@ -834,7 +834,7 @@ if ($ret = getBillsBetween("%"))
                  "], CalendarCategoryArray[" . $iter['enc_pid'] . "])\">[" . xlt('To Dems') . "]</a>";
                 $divnos=$divnos+1;
                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a  onclick='divtoggle(\"spanid_$divnos\",\"divid_$divnos\");' class='small' id='aid_$divnos' href=\"JavaScript:void(0);".
-                "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars( xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';
+                "\">(<span id=spanid_$divnos class=\"indicator\">" . htmlspecialchars(xl('Expand'), ENT_QUOTES) . '</span>)<br></a>';
                 if($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3){
                     $lhtml .= '<span style="margin-left: 20px; font-weight bold; color: red">'.text($billing_note).'</span>';
                 }
@@ -854,7 +854,7 @@ if ($ret = getBillsBetween("%"))
                     "id.date <= ? " .
                     "ORDER BY id.type ASC, id.date DESC";
 
-                    $result = sqlStatement($query, array($iter['enc_pid'],$raw_encounter_date) );
+                    $result = sqlStatement($query, array($iter['enc_pid'],$raw_encounter_date));
                     $count = 0;
                     $default_x12_partner = $iter['ic_x12id'];
                     $prevtype = '';
@@ -900,7 +900,7 @@ if ($ret = getBillsBetween("%"))
                     "patient_id = ? AND " .
                     "encounter_id = ? " .
                     "ORDER BY version";
-                    $cres = sqlStatement($query, array($iter['enc_pid'],$iter['enc_encounter']) );
+                    $cres = sqlStatement($query, array($iter['enc_pid'],$iter['enc_encounter']));
 
                     $lastcrow = false;
 
@@ -913,7 +913,7 @@ if ($ret = getBillsBetween("%"))
                         "ic.id = id.provider " .
                         "ORDER BY id.type ASC, id.date DESC";
 
-                        $irow= sqlQuery($query, array($iter['enc_pid'],$crow['payer_id'],$raw_encounter_date) );
+                        $irow= sqlQuery($query, array($iter['enc_pid'],$crow['payer_id'],$raw_encounter_date));
 
                         if ($crow['bill_process']) {
                             $lhtml .= "<br>\n&nbsp;" .
@@ -928,14 +928,14 @@ if ($ret = getBillsBetween("%"))
                                 $lhtml .= "<br>\n&nbsp;" .
                                 text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) .
                                 text(substr($crow['bill_time'], 10, 6)) . " " .
-                                htmlspecialchars( xl("Marked as cleared"), ENT_QUOTES);
+                                htmlspecialchars(xl("Marked as cleared"), ENT_QUOTES);
                                 ++$lcount;
                             }
                             else {
                                 $lhtml .= "<br>\n&nbsp;" .
                                 text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) .
                                 text(substr($crow['bill_time'], 10, 6)) . " " .
-                                htmlspecialchars( xl("Re-opened"), ENT_QUOTES);
+                                htmlspecialchars(xl("Re-opened"), ENT_QUOTES);
                                 ++$lcount;
                             }
                         }
@@ -943,14 +943,14 @@ if ($ret = getBillsBetween("%"))
                             $lhtml .= "<br>\n&nbsp;" .
                             text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) .
                             text(substr($crow['bill_time'], 10, 6)) . " " .
-                            htmlspecialchars( xl("This claim has been forwarded to next level."), ENT_QUOTES);
+                            htmlspecialchars(xl("This claim has been forwarded to next level."), ENT_QUOTES);
                             ++$lcount;
                         }
                         else if ($crow['status'] == 7) {
                             $lhtml .= "<br>\n&nbsp;" .
                             text(oeFormatShortDate(substr($crow['bill_time'], 0, 10))) .
                             text(substr($crow['bill_time'], 10, 6)) . " " .
-                            htmlspecialchars( xl("This claim has been denied.Reason:-"), ENT_QUOTES);
+                            htmlspecialchars(xl("This claim has been denied.Reason:-"), ENT_QUOTES);
                             if($crow['process_file'])
                              {
                                 $code_array=explode(',', $crow['process_file']);
@@ -960,17 +960,17 @@ if ($ret = getBillsBetween("%"))
                                     $reason_array=explode('_', $code_value);
                                     if(!isset($adjustment_reasons[$reason_array[3]]))
                                      {
-                                        $lhtml .=htmlspecialchars( xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars( xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars( xl("the Denial code is"), ENT_QUOTES).' ['.text($reason_array[2]).' '.text($reason_array[3]).']';
+                                        $lhtml .=htmlspecialchars(xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars(xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars(xl("the Denial code is"), ENT_QUOTES).' ['.text($reason_array[2]).' '.text($reason_array[3]).']';
                                     }
                                     else
                                      {
-                                        $lhtml .=htmlspecialchars( xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars( xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars( xl("the Denial Group code is"), ENT_QUOTES).' ['.text($reason_array[2]).'] '.htmlspecialchars( xl("and the Reason is"), ENT_QUOTES).':- '.text($adjustment_reasons[$reason_array[3]]);
+                                        $lhtml .=htmlspecialchars(xl("For code"), ENT_QUOTES).' ['.text($reason_array[0]).'] '.htmlspecialchars(xl("and modifier"), ENT_QUOTES).' ['.text($reason_array[1]).'] '.htmlspecialchars(xl("the Denial Group code is"), ENT_QUOTES).' ['.text($reason_array[2]).'] '.htmlspecialchars(xl("and the Reason is"), ENT_QUOTES).':- '.text($adjustment_reasons[$reason_array[3]]);
                                     }
                                 }
                             }
                             else
                              {
-                                $lhtml .=htmlspecialchars( xl("Not Specified."), ENT_QUOTES);
+                                $lhtml .=htmlspecialchars(xl("Not Specified."), ENT_QUOTES);
                             }
                             ++$lcount;
                         }
@@ -1082,9 +1082,11 @@ if ($ret = getBillsBetween("%"))
         if($last_encounter_id != $this_encounter_id){
             $rhtml2 = "";
             $rowcnt = 0;
-            $resMoneyGot = sqlStatement("SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where ".
-            "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
-            array($iter['enc_pid'],$iter['enc_encounter']));
+            $resMoneyGot = sqlStatement(
+                "SELECT pay_amount as PatientPay,date(post_time) as date FROM ar_activity where ".
+                "pid = ? and encounter = ? and payer_type=0 and account_code='PCP'",
+                array($iter['enc_pid'],$iter['enc_encounter'])
+            );
               //new fees screen copay gives account_code='PCP'
             if(sqlNumRows($resMoneyGot) > 0){
                   $lcount += 2;

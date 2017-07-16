@@ -1,5 +1,5 @@
 <?php
-require_once (dirname(__FILE__) . "/../lists.inc");
+require_once(dirname(__FILE__) . "/../lists.inc");
 //below is required for the set_medication() function
 
 // Below list of terms are deprecated, but we keep this list
@@ -161,7 +161,7 @@ class Prescription extends ORDataObject
         $this->unit_array = load_drug_attributes('drug_units');
 
         $this->substitute_array = array("",xl("substitution allowed"),
-            xl ("do not substitute"));
+            xl("do not substitute"));
 
         $this->medication_array = array(0 => xl('No'), 1 => xl('Yes'));
 

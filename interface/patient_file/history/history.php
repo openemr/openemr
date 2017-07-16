@@ -53,7 +53,7 @@ $(document).ready(function(){
             }
             ?>
 
-            <?php if (acl_check('patients', 'med', '', array('write','addonly') )) { ?>
+            <?php if (acl_check('patients', 'med', '', array('write','addonly'))) { ?>
                 <div class="page-header">
                     <h1><?php echo htmlspecialchars(getPatientName($pid), ENT_NOQUOTES);?> <small><?php echo xl("History & Lifestyle");?></small></h1>
                 </div>

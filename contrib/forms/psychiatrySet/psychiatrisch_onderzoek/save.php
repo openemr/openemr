@@ -24,9 +24,9 @@ if( $_GET["mode"] == "new" )
     {
         echo "lalala 1";
         $_GET["id"] = '0';
-        $newid = formSubmit( "form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized );
+        $newid = formSubmit("form_psychiatrisch_onderzoek", $_POST, $_GET["id"], $userauthorized);
       // add new form ???
-        addForm( $encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized );
+        addForm($encounter, "Psychiatric Examination", $newid, "psychiatrisch_onderzoek", $pid, $userauthorized);
       
     } else
     {
@@ -56,7 +56,7 @@ if( $_GET["mode"] == "new" )
                 autosave_datetime=NOW() 
                   WHERE id = ".$_GET["id"].";";
 
-    sqlQuery( $strSql );
+    sqlQuery($strSql);
 
 }
 

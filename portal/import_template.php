@@ -51,7 +51,7 @@ if (!empty($_FILES["tplFile"])) {
     $tplFile = $_FILES["tplFile"];
 
     if ($tplFile["error"] !== UPLOAD_ERR_OK) {
-        header( "refresh:2;url= import_template_ui.php" );
+        header("refresh:2;url= import_template_ui.php");
         echo "<p>". xlt("An error occurred: Missing file to upload: Use back button!") . "</p>";
         exit;
     }

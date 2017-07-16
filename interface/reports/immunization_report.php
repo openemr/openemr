@@ -39,7 +39,7 @@ if(isset($_POST['form_to_date'])) {
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
 //
-if (empty ($form_code) ) {
+if (empty($form_code) ) {
     $query_codes = '';
 } else {
     $query_codes = 'c.id in (';
@@ -247,7 +247,7 @@ if ($_POST['form_get_hl7']==='true') {
 
   // send the header here
     header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename=' . $filename );
+    header('Content-Disposition: attachment; filename=' . $filename);
 
   // put the content in the file
     echo($content);
@@ -464,7 +464,7 @@ while ($row = sqlFetchArray($res)) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xl('Click Refresh to view all results, or please input search criteria above to view specific results.', 'e' ); ?>
+    <?php echo xl('Click Refresh to view all results, or please input search criteria above to view specific results.', 'e'); ?>
 </div>
 <?php } ?>
 </form>

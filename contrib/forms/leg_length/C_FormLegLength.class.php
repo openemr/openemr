@@ -5,7 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormLegLength.class.php");
 
 class C_FormLegLength extends Controller
@@ -54,8 +54,14 @@ class C_FormLegLength extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Extremities measurements", $this->form->id, "leg_length",
-            $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "Extremities measurements",
+                $this->form->id,
+                "leg_length",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
         return;

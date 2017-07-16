@@ -25,14 +25,14 @@ session_start();
 if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two']) ) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $_SESSION['pid']);
 }
 else {
     session_destroy();
     $ignoreAuth = false;
-    require_once ( dirname( __FILE__ ) . "/../interface/globals.php" );
+    require_once(dirname(__FILE__) . "/../interface/globals.php");
     if ( ! isset($_SESSION['authUserID']) ){
         $landingpage = "index.php";
         header('Location: '.$landingpage);
@@ -44,7 +44,7 @@ else {
 // give me something to do.
 $dowhat = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 if( $dowhat && $GLOBALS['ccda_alt_service_enable'] >= 1 ){ // do I need this?
-    require_once ("./../ccdaservice/ssmanager.php");
+    require_once("./../ccdaservice/ssmanager.php");
     if(!runCheck()){ // woops, try again
         if(!runCheck())
             die("Document service start failed. Click back to return home."); // nuts! give up
@@ -77,10 +77,10 @@ $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray);
 // disposal decisions will be here.
 $h='';
 if (!$parameterArray ['view']){
-    header ( 'Content-Type: application/xml' );
+    header('Content-Type: application/xml');
 }
 else $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
-print_r ( $h.$ccdaxml.$h );
+print_r($h.$ccdaxml.$h);
 //service_shutdown(1); //In ssmanager  0= terminate and disable 1 = soft=terminate but still active w/no restart, > 1 just restart based on B.S timer
 exit;
 

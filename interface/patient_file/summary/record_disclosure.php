@@ -106,7 +106,7 @@ else {?> <span class="title"><?php echo htmlspecialchars(xl('Record Disclosure')
         <td><!--retrieve disclosures from extended_log table for modifications-->
         <?php
         if($editlid){
-            $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid) );
+            $dres=sqlQuery("select date,recipient,description,event from extended_log where id=?", array($editlid));
                        $description=$dres{"description"};
             $app_event=$dres{"event"};
             $disc_date=$dres{"date"};

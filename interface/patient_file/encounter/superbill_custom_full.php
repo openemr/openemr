@@ -70,7 +70,7 @@ if (isset($mode) && $thisauthwrite) {
     }
 
     if ($mode == "delete") {
-        sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id) );
+        sqlStatement("DELETE FROM codes WHERE id = ?", array($code_id));
         $code_id = 0;
     }
     else if ($mode == "add" || $mode == "modify_complete") { // this covers both adding and modifying
@@ -97,9 +97,9 @@ if (isset($mode) && $thisauthwrite) {
                 "reportable = "    . add_escape_custom($reportable);
             if ($code_id) {
                 $query = "UPDATE codes SET $sql WHERE id = ?";
-                sqlStatement($query, array($code_id) );
+                sqlStatement($query, array($code_id));
                 sqlStatement("DELETE FROM prices WHERE pr_id = ? AND " .
-                    "pr_selector = ''", array($code_id) );
+                    "pr_selector = ''", array($code_id));
             }
             else {
                 $code_id = sqlInsert("INSERT INTO codes SET $sql");
@@ -110,7 +110,7 @@ if (isset($mode) && $thisauthwrite) {
                     if ($value) {
                         sqlStatement("INSERT INTO prices ( " .
                             "pr_id, pr_selector, pr_level, pr_price ) VALUES ( " .
-                            "?, '', ?, ?)", array($code_id,$key,$value) );
+                            "?, '', ?, ?)", array($code_id,$key,$value));
                     }
                 }
                 $code = $code_type = $code_text = $modifier = $superbill = "";
@@ -125,7 +125,7 @@ if (isset($mode) && $thisauthwrite) {
     }
     else if ($mode == "edit") { // someone clicked [Edit]
         $sql = "SELECT * FROM codes WHERE id = ?";
-        $results = sqlStatement($sql, array($code_id) );
+        $results = sqlStatement($sql, array($code_id));
         while ($row = sqlFetchArray($results)) {
             $code         = $row['code'];
             $code_text    = $row['code_text'];
@@ -199,11 +199,13 @@ if (isset($mode) && $thisauthwrite) {
 
         $date=date('Y-m-d H:i:s');
         $date=oeFormatShortDate($date);
-        $results =  sqlStatement("INSERT INTO codes_history ( " .
+        $results =  sqlStatement(
+            "INSERT INTO codes_history ( " .
             "date, code, modifier, active,diagnosis_reporting,financial_reporting,category,code_type_name,".
             "code_text,code_text_short,prices,action_type, update_by ) VALUES ( " .
             "?, ?,? ,? ,? ,? ,? ,? ,? ,? ,? ,? ,?)",
-            array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser']) );
+            array($date,$code,$modifier,$active,$reportable,$financial_reporting,$categorey_name,$code_name,$code_text,'',$fee,$action_type,$_SESSION['authUser'])
+        );
     }
 }
 
@@ -288,7 +290,7 @@ if ($fend > $count) $fend = $count;
                 ?>
             }
             if (!codetype) {
-                alert('<?php echo addslashes( xl('This code type does not accept relations.') ); ?>');
+                alert('<?php echo addslashes(xl('This code type does not accept relations.')); ?>');
                 return;
             }
             dlgopen('find_code_popup.php', '_blank', 500, 400);
@@ -297,12 +299,12 @@ if ($fend > $count) $fend = $count;
         // Some validation for saving a new code entry.
         function validEntry(f) {
             if (!f.code.value) {
-                alert('<?php echo addslashes( xl('No code was specified!') ); ?>');
+                alert('<?php echo addslashes(xl('No code was specified!')); ?>');
                 return false;
             }
             <?php if ($GLOBALS['ippf_specific']) { ?>
             if (f.code_type.value == 12 && !f.related_code.value) {
-                alert('<?php echo addslashes( xl('A related IPPF code is required!') ); ?>');
+                alert('<?php echo addslashes(xl('A related IPPF code is required!')); ?>');
                 return false;
             }
             <?php } ?>
@@ -320,7 +322,7 @@ if ($fend > $count) $fend = $count;
         function submitUpdate() {
             var f = document.forms[0];
             if (! parseInt(f.code_id.value)) {
-                alert('<?php echo addslashes( xl('Cannot update because you are not editing an existing entry!') ); ?>');
+                alert('<?php echo addslashes(xl('Cannot update because you are not editing an existing entry!')); ?>');
                 return;
             }
             if (!validEntry(f)) return;
@@ -514,7 +516,7 @@ if ($fend > $count) $fend = $count;
                     $pres = sqlStatement("SELECT lo.option_id, lo.title, p.pr_price " .
                         "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
                         "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
-                        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id) );
+                        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id));
                     for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
                         if ($i) echo "&nbsp;&nbsp;";
                         echo text(xl_list_label($prow['title'])) . " ";

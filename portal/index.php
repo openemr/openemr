@@ -38,7 +38,7 @@
     ini_set("error_log", E_ERROR || ~E_NOTICE);
     //exit if portal is turned off
 if ( !(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable']) ) {
-    echo htmlspecialchars( xl('Patient Portal is turned off'), ENT_NOQUOTES);
+    echo htmlspecialchars(xl('Patient Portal is turned off'), ENT_NOQUOTES);
     exit;
 }
 
@@ -51,7 +51,7 @@ if ( !(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite
     //
     // collect default language id (skip this if this is a password update)
 if (!(isset($_SESSION['password_update']))) {
-    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']) );
+    $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
     for ($iter = 0;$row = sqlFetchArray($res2);$iter++) {
         $result2[$iter] = $row;
     }
@@ -84,7 +84,7 @@ if (!(isset($_SESSION['password_update']))) {
                  "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                  "ld.lang_id = ? " .
                  "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-            $res3=SqlStatement($sql, array($mainLangID) );
+            $res3=SqlStatement($sql, array($mainLangID));
         }
         for ($iter = 0;$row = sqlFetchArray($res3);$iter++) {
             $result3[$iter] = $row;
@@ -115,7 +115,7 @@ if (!(isset($_SESSION['password_update']))) {
         function process() {
 
             if (!(validate())) {
-                alert ('<?php echo addslashes( xl('Field(s) are missing!') ); ?>');
+                alert ('<?php echo addslashes(xl('Field(s) are missing!')); ?>');
                 return false;
             }
         }
@@ -134,15 +134,15 @@ if (!(isset($_SESSION['password_update']))) {
         function process_new_pass() {
 
             if (!(validate_new_pass())) {
-                alert ('<?php echo addslashes( xl('Field(s) are missing!') ); ?>');
+                alert ('<?php echo addslashes(xl('Field(s) are missing!')); ?>');
                 return false;
             }
             if (document.getElementById('pass_new').value != document.getElementById('pass_new_confirm').value) {
-                alert ('<?php echo addslashes( xl('The new password fields are not the same.') ); ?>');
+                alert ('<?php echo addslashes(xl('The new password fields are not the same.')); ?>');
                 return false;
             }
             if (document.getElementById('pass').value == document.getElementById('pass_new').value) {
-                alert ('<?php echo addslashes( xl('The new password can not be the same as the current password.') ); ?>');
+                alert ('<?php echo addslashes(xl('The new password can not be the same as the current password.')); ?>');
                 return false;
             }
         }
@@ -247,7 +247,7 @@ if (!(isset($_SESSION['password_update']))) {
                     <td>
                         <select name=languageChoice size="1">
                             <?php
-                            echo "<option selected='selected' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."'>" . htmlspecialchars( xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
+                            echo "<option selected='selected' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."'>" . htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
                                     if ( !$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language

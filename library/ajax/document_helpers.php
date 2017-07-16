@@ -21,7 +21,7 @@
  */
 
 
-require_once (dirname(__FILE__) . "/../../interface/globals.php");
+require_once(dirname(__FILE__) . "/../../interface/globals.php");
 
 $term = isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : '';
 

@@ -228,16 +228,20 @@ function doSubs($s)
             $data = '';
             $currvalue = '';
             $title = '';
-            $frow = sqlQuery("SELECT * FROM layout_options " .
-            "WHERE form_id = ? AND field_id = ? LIMIT 1",
-            array($formname, $fieldid));
+            $frow = sqlQuery(
+                "SELECT * FROM layout_options " .
+                "WHERE form_id = ? AND field_id = ? LIMIT 1",
+                array($formname, $fieldid)
+            );
             if (!empty($frow)) {
-                $ldrow = sqlQuery("SELECT ld.field_value " .
-                "FROM lbf_data AS ld, forms AS f WHERE " .
-                "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
-                "ld.form_id = f.form_id AND ld.field_id = ? " .
-                "ORDER BY f.form_id DESC LIMIT 1",
-                array($pid, $encounter, $formname, $fieldid));
+                $ldrow = sqlQuery(
+                    "SELECT ld.field_value " .
+                    "FROM lbf_data AS ld, forms AS f WHERE " .
+                    "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+                    "ld.form_id = f.form_id AND ld.field_id = ? " .
+                    "ORDER BY f.form_id DESC LIMIT 1",
+                    array($pid, $encounter, $formname, $fieldid)
+                );
                 if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
                         $title = $frow['title'];
@@ -257,9 +261,11 @@ function doSubs($s)
             $data = '';
             $currvalue = '';
             $title = '';
-            $frow = sqlQuery("SELECT * FROM layout_options " .
-            "WHERE form_id = ? AND field_id = ? LIMIT 1",
-            array($formname, $fieldid));
+            $frow = sqlQuery(
+                "SELECT * FROM layout_options " .
+                "WHERE form_id = ? AND field_id = ? LIMIT 1",
+                array($formname, $fieldid)
+            );
             if (!empty($frow)) {
                 $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
                 if (isset($tmprow[$fieldid])) {

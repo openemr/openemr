@@ -43,7 +43,7 @@ class C_Document extends Controller
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
         $this->assign("category_name", $category_name);
-        $this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
+        $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
         $this->assign("patient_id", $patient_id);
 
     // Added by Rod to support document template download from general_upload.html.
@@ -145,11 +145,17 @@ class C_Document extends Controller
                         $fname = $_POST['destination'];
                     }
                     $d = new Document();
-                    $rc = $d->createDocument($patient_id, $category_id, $fname,
-                      $_FILES['file']['type'][$key], $filetext,
-                      empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
-                      empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
-                      $non_HTTP_owner, $_FILES['file']['tmp_name'][$key]);
+                    $rc = $d->createDocument(
+                        $patient_id,
+                        $category_id,
+                        $fname,
+                        $_FILES['file']['type'][$key],
+                        $filetext,
+                        empty($_GET['higher_level_path']) ? '' : $_GET['higher_level_path'],
+                        empty($_POST['path_depth']) ? 1 : $_POST['path_depth'],
+                        $non_HTTP_owner,
+                        $_FILES['file']['tmp_name'][$key]
+                    );
                     if ($rc) {
                         $error .= $rc . "\n";
                     }
@@ -290,7 +296,7 @@ class C_Document extends Controller
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . $d->get_id() . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));
         $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . $d->get_id() . "&process=true");
-        $this->assign("hide_encryption", $GLOBALS['hide_document_encryption'] );
+        $this->assign("hide_encryption", $GLOBALS['hide_document_encryption']);
 
         // Added by Rod to support document delete:
         $delete_string = '';
@@ -313,7 +319,7 @@ class C_Document extends Controller
         $issues_options = "<option value='0'>-- " . xl('Select Issue') . " --</option>";
         $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
             "pid = ? " . // AND enddate IS NULL " .
-            "ORDER BY type, begdate", array($patient_id) );
+            "ORDER BY type, begdate", array($patient_id));
         while ($irow = sqlFetchArray($ires)) {
             $desc = $irow['type'];
             if ($ISSUE_TYPES[$desc]) $desc = $ISSUE_TYPES[$desc][2];
@@ -392,25 +398,25 @@ class C_Document extends Controller
 
     function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
-        $td = mcrypt_module_open( $cypher, '', $mode, '');
-        $iv = mcrypt_create_iv( mcrypt_enc_get_iv_size( $td ), MCRYPT_RAND );
-        mcrypt_generic_init( $td, $key, $iv );
-        $crypttext = mcrypt_generic( $td, $plaintext );
-        mcrypt_generic_deinit( $td );
+        $td = mcrypt_module_open($cypher, '', $mode, '');
+        $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($td), MCRYPT_RAND);
+        mcrypt_generic_init($td, $key, $iv);
+        $crypttext = mcrypt_generic($td, $plaintext);
+        mcrypt_generic_deinit($td);
         return $iv.$crypttext;
     }
 
     function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
         $plaintext = '';
-        $td = mcrypt_module_open( $cypher, '', $mode, '' );
-        $ivsize = mcrypt_enc_get_iv_size( $td) ;
-        $iv = substr( $crypttext, 0, $ivsize );
-        $crypttext = substr( $crypttext, $ivsize );
+        $td = mcrypt_module_open($cypher, '', $mode, '');
+        $ivsize = mcrypt_enc_get_iv_size($td) ;
+        $iv = substr($crypttext, 0, $ivsize);
+        $crypttext = substr($crypttext, $ivsize);
         if( $iv )
         {
-            mcrypt_generic_init( $td, $key, $iv );
-            $plaintext = mdecrypt_generic( $td, $crypttext );
+            mcrypt_generic_init($td, $key, $iv);
+            $plaintext = mdecrypt_generic($td, $crypttext);
         }
         return $plaintext;
     }
@@ -500,20 +506,20 @@ class C_Document extends Controller
             fclose($fh);
             $f = fopen($tmpcouchpath, "r");
             if ( $doEncryption ) {
-                $filetext = fread( $f, filesize($tmpcouchpath) );
-                    $ciphertext = $this->encrypt( $filetext, $passphrase );
+                $filetext = fread($f, filesize($tmpcouchpath));
+                    $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
                     $tmpfilename = "/encrypted_".$d->get_url_file();
-                    $tmpfile = fopen( $tmpfilepath.$tmpfilename, "w+" );
-                fwrite( $tmpfile, $ciphertext );
-                fclose( $tmpfile );
-                header('Content-Disposition: attachment; filename='.$tmpfilename );
-                    header("Content-Type: application/octet-stream" );
-                    header("Content-Length: " . filesize( $tmpfilepath.$tmpfilename ) );
+                    $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
+                fwrite($tmpfile, $ciphertext);
+                fclose($tmpfile);
+                header('Content-Disposition: attachment; filename='.$tmpfilename);
+                    header("Content-Type: application/octet-stream");
+                    header("Content-Length: " . filesize($tmpfilepath.$tmpfilename));
                     ob_clean();
                 flush();
-                readfile( $tmpfilepath.$tmpfilename );
-                unlink( $tmpfilepath.$tmpfilename );
+                readfile($tmpfilepath.$tmpfilename);
+                unlink($tmpfilepath.$tmpfilename);
             } else {
                 header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
                     header("Content-Type: " . $d->get_mimetype());
@@ -574,7 +580,7 @@ class C_Document extends Controller
                 //normal case when serving the file referenced in database
                 if($disable_exit == true) {
                     $f = fopen($url, "r");
-                    $filetext = fread( $f, filesize($url) );
+                    $filetext = fread($f, filesize($url));
                     return $filetext;
                 }
                     header('Content-Description: File Transfer');
@@ -584,20 +590,20 @@ class C_Document extends Controller
                     header('Pragma: public');
                     $f = fopen($url, "r");
                 if ( $doEncryption ) {
-                            $filetext = fread( $f, filesize($url) );
-                    $ciphertext = $this->encrypt( $filetext, $passphrase );
+                            $filetext = fread($f, filesize($url));
+                    $ciphertext = $this->encrypt($filetext, $passphrase);
                     $tmpfilepath = $GLOBALS['temporary_files_dir'];
                     $tmpfilename = "/encrypted_".$d->get_url_file();
-                    $tmpfile = fopen( $tmpfilepath.$tmpfilename, "w+" );
-                        fwrite( $tmpfile, $ciphertext );
-                        fclose( $tmpfile );
-                        header('Content-Disposition: attachment; filename='.$tmpfilename );
-                        header("Content-Type: application/octet-stream" );
-                        header("Content-Length: " . filesize( $tmpfilepath.$tmpfilename ) );
+                    $tmpfile = fopen($tmpfilepath.$tmpfilename, "w+");
+                        fwrite($tmpfile, $ciphertext);
+                        fclose($tmpfile);
+                        header('Content-Disposition: attachment; filename='.$tmpfilename);
+                        header("Content-Type: application/octet-stream");
+                        header("Content-Length: " . filesize($tmpfilepath.$tmpfilename));
                         ob_clean();
                         flush();
-                        readfile( $tmpfilepath.$tmpfilename );
-                        unlink( $tmpfilepath.$tmpfilename );
+                        readfile($tmpfilepath.$tmpfilename);
+                        unlink($tmpfilepath.$tmpfilename);
                 } else {
                     header("Content-Disposition: " . ($as_file ? "attachment" : "inline") . "; filename=\"" . basename_international($d->get_url()) . "\"");
                     header("Content-Type: " . $d->get_mimetype());
@@ -915,8 +921,8 @@ class C_Document extends Controller
                 return;
             }
         }
-        $d = new Document( $document_id );
-        $current_hash = sha1_file( $url );
+        $d = new Document($document_id);
+        $current_hash = sha1_file($url);
         $messages = xl('Current Hash').": ".$current_hash."<br>";
         $messages .= xl('Stored Hash').": ".$d->get_hash()."<br>";
         if ( $d->get_hash() == '' ) {
@@ -954,7 +960,7 @@ class C_Document extends Controller
 
         if (is_numeric($document_id)) {
             $messages = '';
-            $d = new Document( $document_id );
+            $d = new Document($document_id);
             $file_name = $d->get_url_file();
             if ( $docname != '' &&
                  $docname != $file_name ) {
@@ -962,10 +968,10 @@ class C_Document extends Controller
                 $old_url = $this->_check_relocation($d->get_url());
                 $new_url = $this->_check_relocation($d->get_url(), null, $docname);
                 $messages .= sprintf("%s -> %s<br>", $old_url, $new_url);
-                if ( rename( $old_url, $new_url ) ) {
+                if ( rename($old_url, $new_url) ) {
                     // check the "converted" file, and delete it if it exists. It will be regenerated when report is run
-                    if ( file_exists( $old_url ) ) {
-                        unlink( $old_url );
+                    if ( file_exists($old_url) ) {
+                        unlink($old_url);
                     }
                     $d->url = $new_url;
                     $d->persist();
@@ -1188,7 +1194,7 @@ class C_Document extends Controller
           $from_name = $GLOBALS["practice_return_email_path"];
           $from =  $GLOBALS["practice_return_email_path"];
           $mail->AddReplyTo($from, $from_name);
-          $mail->SetFrom($from, $from );
+          $mail->SetFrom($from, $from);
           $to = $email ;
         $to_name =$email;
           $mail->AddAddress($to, $to_name);
@@ -1228,7 +1234,7 @@ class C_Document extends Controller
 
         if (is_numeric($document_id)) {
             $messages = '';
-            $d = new Document( $document_id );
+            $d = new Document($document_id);
             $file_name = $d->get_url_file();
             if (!is_numeric($encounter_id)) {
                 $encounter_id = 0;
@@ -1262,7 +1268,7 @@ class C_Document extends Controller
 						encounter = ?";
                 $bindArray = array($event_date,$file_name,$facility,$_POST['visit_category_id'],(int)$facility_id,(int)$billingFacilityID,(int)$provider_id,$patient_id,$encounter);
                 $formID = sqlInsert($query, $bindArray);
-                addForm($encounter, "New Patient Encounter", $formID, "newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username );
+                addForm($encounter, "New Patient Encounter", $formID, "newpatient", $patient_id, "1", date("Y-m-d H:i:s"), $username);
                 $d->set_encounter_id($encounter);
                 $this->image_result_indication($d->id, $encounter);
 

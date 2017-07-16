@@ -189,10 +189,14 @@ function create_client_cert()
     if ($_POST["client_cert_email"]) {    $email = formData('client_cert_email', 'P', true);  }
     $opensslconf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";
     $serial = 0;
-    $data = create_user_certificate($user, $email, $serial,
-                                    $GLOBALS['certificate_authority_crt'],
-                                    $GLOBALS['certificate_authority_key'],
-                                    $GLOBALS['client_certificate_valid_in_days']);
+    $data = create_user_certificate(
+        $user,
+        $email,
+        $serial,
+        $GLOBALS['certificate_authority_crt'],
+        $GLOBALS['certificate_authority_key'],
+        $GLOBALS['client_certificate_valid_in_days']
+    );
     if ($data === false) {
         $error_msg .= xl('Error, unable to create client certificate.', 'e');
         return;
@@ -277,8 +281,15 @@ function create_and_download_certificates()
     openssl_x509_export_to_file($ca_crt, $tempDir . "/CertificateAuthority.crt");
 
     /* Create the Server certificate */
-    $arr = create_csr($commonName, $emailAddress, $countryName, $stateOrProvinceName,
-                      $localityName, $organizationName, $organizationalUnitName);
+    $arr = create_csr(
+        $commonName,
+        $emailAddress,
+        $countryName,
+        $stateOrProvinceName,
+        $localityName,
+        $organizationName,
+        $organizationalUnitName
+    );
     if ($arr === false) {
         $error_msg .= xl('Error, unable to create the Server certificate.', 'e');
         delete_certificates();
@@ -305,10 +316,14 @@ function create_and_download_certificates()
         $serial = $row['id'];
     }
 
-    $user_cert = create_user_certificate("admin", $emailAddress, $serial,
-                                         $tempDir . "/CertificateAuthority.crt",
-                                         $tempDir . "/CertificateAuthority.key",
-                                         $clientCertValidity);
+    $user_cert = create_user_certificate(
+        "admin",
+        $emailAddress,
+        $serial,
+        $tempDir . "/CertificateAuthority.crt",
+        $tempDir . "/CertificateAuthority.key",
+        $clientCertValidity
+    );
     if ($user_cert === false) {
         $error_msg .= xl('Error, unable to create the admin.p12 certificate.', 'e');
         delete_certificates();

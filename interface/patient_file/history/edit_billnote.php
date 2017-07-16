@@ -49,11 +49,11 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     $fenote = trim($_POST['form_note']);
     if ($_POST['form_submit']) {
         sqlStatement("UPDATE form_encounter " .
-        "SET billing_note = ? WHERE id = ?", array($fenote,$feid) );
+        "SET billing_note = ? WHERE id = ?", array($fenote,$feid));
     }
     else {
         $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-        " WHERE id = ?", array($feid) );
+        " WHERE id = ?", array($feid));
         $fenote = $tmp['billing_note'];
     }
   // escape and format note for viewing
@@ -68,7 +68,7 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
 }
 
 $tmp = sqlQuery("SELECT billing_note FROM form_encounter " .
-  " WHERE id = ?", array($feid) );
+  " WHERE id = ?", array($feid));
 $fenote = $tmp['billing_note'];
 ?>
 
@@ -77,9 +77,9 @@ $fenote = $tmp['billing_note'];
 <center>
 <textarea name='form_note' style='width:100%'><?php echo htmlspecialchars($fenote, ENT_NOQUOTES); ?></textarea>
 <p>
-<input type='submit' name='form_submit' value='<?php echo htmlspecialchars( xl('Save'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_submit' value='<?php echo htmlspecialchars(xl('Save'), ENT_QUOTES); ?>' />
 &nbsp;&nbsp;
-<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars( xl('Cancel'), ENT_QUOTES); ?>' />
+<input type='submit' name='form_cancel' value='<?php echo htmlspecialchars(xl('Cancel'), ENT_QUOTES); ?>' />
 </center>
 </form>
 </body>

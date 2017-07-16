@@ -97,7 +97,7 @@ function newEncounter() {
 
 <br>
 <div style="text-align:center" class="buttons">
-  <a href='javascript:;' class='css_button' id='back'><span><?php echo htmlspecialchars( xl('Back'), ENT_NOQUOTES); ?></span></a>
+  <a href='javascript:;' class='css_button' id='back'><span><?php echo htmlspecialchars(xl('Back'), ENT_NOQUOTES); ?></span></a>
 </div>
 <br>
 <br>
@@ -165,7 +165,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
     if($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
     $condition .= "and erx_uploaded != '1' ";
     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
-    "ORDER BY begdate", array($pid,$focustype) );
+    "ORDER BY begdate", array($pid,$focustype));
 
   // if no issues (will place a 'None' text vs. toggle algorithm here)
     if (sqlNumRows($pres) < 1) {
@@ -190,7 +190,7 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         $disptitle = trim($row['title']) ? $row['title'] : "[Missing Title]";
 
         $ierow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-        "list_id = ?", array($rowid) );
+        "list_id = ?", array($rowid));
 
         // encount is used to toggle the color of the table-row output below
         ++$encount;

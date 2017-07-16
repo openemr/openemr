@@ -6,7 +6,7 @@
 /**
  * include required files
  */
-require_once ("SearchRank.php");
+require_once("SearchRank.php");
 
 /**
  * This is a base class for providing SearchEngine functionality
@@ -36,7 +36,7 @@ class SearchEngine
         $this->Key = $key;
         $this->Pass = $pass;
         
-        $this->Init ();
+        $this->Init();
     }
     
     /**

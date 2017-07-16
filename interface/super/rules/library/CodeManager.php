@@ -37,8 +37,10 @@ class CodeManager
      */
     function search($searchTerm)
     {
-        $stmt = sqlStatement( self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
-                array( "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%" ) );
+        $stmt = sqlStatement(
+            self::SQL_SELECT . " " . self::SQL_WHERE_SEARCH,
+            array( "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%", "%$searchTerm%" )
+        );
 
         $codes = array();
 
@@ -48,7 +50,7 @@ class CodeManager
             $code->text = $row['code_text'];
             $code->id = $row['id'];
             $code->codeType = $row['code_type'];
-            array_push( $codes, $code );
+            array_push($codes, $code);
         }
 
         return $codes;
@@ -59,7 +61,7 @@ class CodeManager
      */
     function get($id)
     {
-        $row = sqlQuery( self::SQL_SELECT . " " . self::SQL_WHERE_GET, array( $id ) );
+        $row = sqlQuery(self::SQL_SELECT . " " . self::SQL_WHERE_GET, array( $id ));
         if (!$row) {
             return null;
         }

@@ -29,7 +29,7 @@ class RuleCriteriaDiagnosis extends RuleCriteria
     {
         $codeManager = new CodeManager();
         $code = $codeManager->get($this->id);
-        if ( is_null( $code ) ) {
+        if ( is_null($code) ) {
             return $this->codeType . ":" . $this->id;
         }
         return $code->display();

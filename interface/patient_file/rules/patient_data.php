@@ -30,7 +30,7 @@ require_once("$srcdir/options.inc.php");
 function validate(f) {
   var bValid = true;
   if (f.form_date.value == "") {
-    alert("<?php echo htmlspecialchars( xl('Please enter a date.'), ENT_QUOTES); ?>");
+    alert("<?php echo htmlspecialchars(xl('Please enter a date.'), ENT_QUOTES); ?>");
     f.form_date.focus();
     f.form_date.style.backgroundColor="red";
     return false;
@@ -42,7 +42,7 @@ function validate(f) {
     var now = new Date();
     if ( d > now &&
         f.form_complete.value == "YES" ) {
-        alert("<?php echo htmlspecialchars( xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
+        alert("<?php echo htmlspecialchars(xl('You cannot enter a future date with a completed value of YES.'), ENT_QUOTES); ?>");
         f.form_date.focus();
         f.form_date.style.backgroundColor="red";
         return false;
@@ -81,7 +81,7 @@ $(document).ready(function(){
 
 // Ensure user is authorized
 if (!acl_check('patients', 'med')) {
-    echo "<p>(" . htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES) . ")</p>\n";
+    echo "<p>(" . htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES) . ")</p>\n";
     echo "</body>\n</html>\n";
     exit();
 }
@@ -101,13 +101,13 @@ if ($_POST['form_complete']) {
     if (!isset($form_entryID)) {
         // Insert new row of data into rule_patient_data table
         sqlInsert("INSERT INTO `rule_patient_data` (`date`, `pid`, `category`, `item`, `complete`, `result`) " .
-        "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result) );
+        "VALUES (?,?,?,?,?,?)", array($form_date, $pid, $form_category, $form_item, $form_complete, $form_result));
     }
     else { // $form_mode == "edit"
         // Modify selected row in rule_patient_data table
         sqlStatement("UPDATE `rule_patient_data` " .
         "SET `date`=?, `complete`=?, `result`=? " .
-        "WHERE `id`=?", array($form_date,$form_complete,$form_result,$form_entryID) );
+        "WHERE `id`=?", array($form_date,$form_complete,$form_result,$form_entryID));
     }
 
   // Close this window and refresh the patient summary display.
@@ -129,7 +129,7 @@ if (isset($_GET['entryID'])) $entryID = trim($_GET['entryID']);
 if (isset($entryID)) {
     $selectedEntry = sqlQuery("SELECT `date`, `complete`, `result` " .
     "FROM `rule_patient_data` " .
-    "WHERE `id`=?", array($entryID) );
+    "WHERE `id`=?", array($entryID));
     $form_date = $selectedEntry['date'];
     $form_complete = $selectedEntry['complete'];
     $form_result = $selectedEntry['result'];
@@ -140,8 +140,8 @@ if (isset($entryID)) {
 <tr>
 <td><span class="title"><?php echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $category) .
 " - " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $item); ?></span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="javascript:submitme();" class="css_button"><span><?php echo htmlspecialchars( xl('Save'), ENT_NOQUOTES);?></span></a></td>
-<td><a href="#" id="cancel" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars( xl('Cancel'), ENT_NOQUOTES);?></span></a></td>
+<td><a href="javascript:submitme();" class="css_button"><span><?php echo htmlspecialchars(xl('Save'), ENT_NOQUOTES);?></span></a></td>
+<td><a href="#" id="cancel" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Cancel'), ENT_NOQUOTES);?></span></a></td>
 </tr>
 </table>
 
@@ -153,7 +153,7 @@ if (isset($entryID)) {
     echo xlt('Date/Time');
     echo ":</td><td class='text'>";
     echo "<input type='text' size='16' class='datetimepicker' name='form_date' id='form_date' " .
-      "value='" . attr( $form_date) . "' " .
+      "value='" . attr($form_date) . "' " .
       "title='" . xla('yyyy-mm-dd hh:mm:ss') . "' />";
     echo "</td></tr>";
 
@@ -188,7 +188,7 @@ if (isset($entryID)) {
 $res = sqlStatement("SELECT `id`, `date`, `complete`, `result` " .
   "FROM `rule_patient_data` " .
   "WHERE `category`=? AND `item`=? AND `pid`=? " .
-  "ORDER BY `date` DESC", array($category,$item,$pid) );
+  "ORDER BY `date` DESC", array($category,$item,$pid));
 ?>
 <hr />
 <br>
@@ -225,7 +225,7 @@ if (sqlNumRows($res) >= 1) { //display table ?>
         }
         echo "<td>" . text($row['date']) . "</td>";
         echo "<td align='center'>" . text($row['complete']) . "</td>";
-        echo "<td>" . nl2br( htmlspecialchars( $row['result'], ENT_NOQUOTES) ) . "</td>";
+        echo "<td>" . nl2br(htmlspecialchars($row['result'], ENT_NOQUOTES)) . "</td>";
         echo "</tr>";
     } ?>
   </table>

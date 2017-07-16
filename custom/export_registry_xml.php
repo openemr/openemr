@@ -145,8 +145,8 @@ foreach ($dataSheet as $row) {
                 $physician_ids['tin'] = $row['federaltaxid'];
             }
         }
-         $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date ));
-         $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date ));
+         $physician_ids['encounter-from-date'] = '01-01-' . date('Y', strtotime($target_date));
+         $physician_ids['encounter-to-date'] = '12-31-' . date('Y', strtotime($target_date));
 
          $xml->open_provider($physician_ids);
          $firstProviderFlag = false;
@@ -186,11 +186,11 @@ $xml->close_submission();
 <?php html_header_show();?>
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
-<title><?php echo htmlspecialchars( xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
+<title><?php echo htmlspecialchars(xl('Export PQRI Report'), ENT_NOQUOTES); ?></title>
 </head>
 <body>
 
-<p><?php echo htmlspecialchars( xl('The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.'), ENT_NOQUOTES); ?></p>
+<p><?php echo htmlspecialchars(xl('The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.'), ENT_NOQUOTES); ?></p>
 
 <center>
 <form>
@@ -199,7 +199,7 @@ $xml->close_submission();
 <?php echo $xml->getXml(); ?>
 </textarea>
 
-<p><input type='button' value='<?php echo htmlspecialchars( xl('OK'), ENT_QUOTES); ?>' onclick='window.close()' /></p>
+<p><input type='button' value='<?php echo htmlspecialchars(xl('OK'), ENT_QUOTES); ?>' onclick='window.close()' /></p>
 </form>
 </center>
 

@@ -68,18 +68,20 @@ function graphsGetValues($name)
     global $is_lbf, $pid, $table;
     if ($is_lbf) {
         // Like below, but for LBF data.
-        $values = sqlStatement("SELECT " .
-        "ld.field_value AS " . add_escape_custom($name) . ", " .
-        "f.date " .
-        "FROM forms AS f, lbf_data AS ld WHERE " .
-        "f.pid = ? AND " .
-        "f.formdir = ? AND " .
-        "f.deleted = 0 AND " .
-        "ld.form_id = f.form_id AND " .
-        "ld.field_id = ? AND " .
-        "ld.field_value != '0' " .
-        "ORDER BY f.date",
-        array($pid, $table, $name));
+        $values = sqlStatement(
+            "SELECT " .
+            "ld.field_value AS " . add_escape_custom($name) . ", " .
+            "f.date " .
+            "FROM forms AS f, lbf_data AS ld WHERE " .
+            "f.pid = ? AND " .
+            "f.formdir = ? AND " .
+            "f.deleted = 0 AND " .
+            "ld.form_id = f.form_id AND " .
+            "ld.field_id = ? AND " .
+            "ld.field_value != '0' " .
+            "ORDER BY f.date",
+            array($pid, $table, $name)
+        );
     }
     else {
         // Collect the pertinent info and ranges

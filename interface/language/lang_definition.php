@@ -53,7 +53,7 @@
                 "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " .
                 "ld.lang_id=? " .
                 "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-                $res=SqlStatement($sql, array($mainLangID) );
+                $res=SqlStatement($sql, array($mainLangID));
             }
           // collect the default selected language id, and then display list
             $tempLangID = isset($_POST['language_select']) ? $_POST['language_select'] : $mainLangID;
@@ -99,14 +99,14 @@ if ($_POST['load']) {
     
             // insert into the main language tables
             $sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES (?,?,?)";
-            SqlStatement($sql, array($key, $_POST['lang_id'], $value) );
+            SqlStatement($sql, array($key, $_POST['lang_id'], $value));
         
             // insert each entry into the log table - to allow persistant customizations
             $sql = "SELECT lang_description, lang_code FROM lang_languages WHERE lang_id=? LIMIT 1";
-            $res = SqlStatement($sql, array($_POST['lang_id']) );
+            $res = SqlStatement($sql, array($_POST['lang_id']));
             $row_l = SqlFetchArray($res);
             $sql = "SELECT constant_name FROM lang_constants WHERE cons_id=? LIMIT 1";
-            $res = SqlStatement($sql, array($key) );
+            $res = SqlStatement($sql, array($key));
             $row_c = SqlFetchArray($res);
             insert_language_log($row_l['lang_description'], $row_l['lang_code'], $row_c['constant_name'], $value);
       
@@ -122,18 +122,18 @@ if ($_POST['load']) {
     
             // only continue if the definition is new
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? ".$case_sensitive_collation;
-            $res_test = SqlStatement($sql, array($key, $value) );
+            $res_test = SqlStatement($sql, array($key, $value));
             if (!SqlFetchArray($res_test)) {
                 // insert into the main language tables
                 $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
-                SqlStatement($sql, array($value, $key) );
+                SqlStatement($sql, array($value, $key));
     
                 // insert each entry into the log table - to allow persistant customizations
                 $sql = "SELECT ll.lang_description, ll.lang_code, lc.constant_name ";
                 $sql .= "FROM lang_definitions AS ld, lang_languages AS ll, lang_constants AS lc ";
                 $sql .= "WHERE ld.def_id=? ";
                 $sql .= "AND ll.lang_id = ld.lang_id AND lc.cons_id = ld.cons_id LIMIT 1";
-                $res = SqlStatement($sql, array($key) );
+                $res = SqlStatement($sql, array($key));
                 $row = SqlFetchArray($res);
                 insert_language_log($row['lang_description'], $row['lang_code'], $row['constant_name'], $value);
       
@@ -167,7 +167,7 @@ if ($_POST['edit']){
                 array_push($bind_sql_array, $lang_id);
         $sql .= "OR ll.lang_id=? ";
         $what = "SELECT * from lang_languages where lang_id=? LIMIT 1";
-        $res = SqlStatement($what, array($lang_id) );
+        $res = SqlStatement($what, array($lang_id));
         $row = SqlFetchArray($res);
         $lang_name = $row['lang_description'];
     }
@@ -189,7 +189,7 @@ if ($_POST['edit']){
             } else {
                 $cons_name = "def_id[" . $row['def_id'] . "]";
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
-                    $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def) );
+                    $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
                     if (SqlFetchArray($res2)) $isShow = true;
             }
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name, ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'], ENT_QUOTES) . '">';
@@ -226,7 +226,7 @@ if ($_POST['edit']){
                 $cons_name="def_id[".$row['def_id']."]";
                 ;
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
-                    $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def) );
+                    $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
                     if (SqlFetchArray($res2)) $isShow = true;
             }
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.htmlspecialchars($cons_name, ENT_QUOTES).'" value="'.htmlspecialchars($row['definition'], ENT_QUOTES).'">';

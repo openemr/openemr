@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("verysimple/HTTP/Request.php");
+require_once("verysimple/HTTP/Request.php");
 
 /**
  * Static utility class for processing form input

@@ -134,8 +134,14 @@ function create_user_certificate($commonName, $emailAddress, $serial, $cacert, $
         $serial = $row['id'];
     }
 
-    $cert = openssl_csr_sign($csr, file_get_contents($cacert), file_get_contents($cakey),
-                             $valid_days, $config, $serial);
+    $cert = openssl_csr_sign(
+        $csr,
+        file_get_contents($cacert),
+        file_get_contents($cakey),
+        $valid_days,
+        $config,
+        $serial
+    );
 
     if ($cert === false) {
         return false;

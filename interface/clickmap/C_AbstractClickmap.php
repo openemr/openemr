@@ -18,7 +18,7 @@
 require_once(dirname(__FILE__).'/../globals.php');
 
 /* For the addform() function */
-require_once ($GLOBALS['srcdir'] . '/forms.inc');
+require_once($GLOBALS['srcdir'] . '/forms.inc');
 
 /**
  * @class C_AbstractClickmap
@@ -164,12 +164,13 @@ abstract class C_AbstractClickmap extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
         if(empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'],
-                    $this->model->getTitle(),
-                    $this->model->id,
-                    $this->model->getCode(),
-                    $GLOBALS['pid'],
-                    $_SESSION['userauthorized']
+            addForm(
+                $GLOBALS['encounter'],
+                $this->model->getTitle(),
+                $this->model->id,
+                $this->model->getCode(),
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
             );
             $_POST['process'] = "";
         }

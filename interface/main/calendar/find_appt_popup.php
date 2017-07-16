@@ -34,7 +34,7 @@
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
  // check access controls
- if (!acl_check('patients', 'appt', '', array('write','wsome') ))
+ if (!acl_check('patients', 'appt', '', array('write','wsome')))
   die(xlt('Access not allowed'));
 
  // If the caller is updating an existing event, then get its ID so
@@ -82,7 +82,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 
  $catslots = 1;
 if ($input_catid) {
-    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid) );
+    $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
     if ($srow['pc_duration']) $catslots = ceil($srow['pc_duration'] / $slotsecs);
 }
 
@@ -92,8 +92,11 @@ if ($input_catid) {
  if ($_REQUEST['searchdays']) $searchdays = $_REQUEST['searchdays'];
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-     $_REQUEST['startdate'], $matches))
+if ($_REQUEST['startdate'] && preg_match(
+    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+    $_REQUEST['startdate'],
+    $matches
+))
 {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
@@ -102,8 +105,10 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
 
  // Get an end date - actually the date after the end date.
  preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", $sdate, $matches);
- $edate = date("Y-m-d",
-  mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1]));
+ $edate = date(
+     "Y-m-d",
+     mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+ );
 
  // compute starting time slot number and number of slots.
  $slotstime = strtotime("$sdate 00:00:00");
@@ -172,8 +177,13 @@ if ($_REQUEST['startdate'] && preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
         $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
         foreach($events2 as $row) {
              $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-             doOneDay($row['pc_catid'], $thistime, $row['pc_startTime'],
-             $row['pc_duration'], $row['pc_prefcatid']);
+             doOneDay(
+                 $row['pc_catid'],
+                 $thistime,
+                 $row['pc_startTime'],
+                 $row['pc_duration'],
+                 $row['pc_prefcatid']
+             );
         }
         //////
 

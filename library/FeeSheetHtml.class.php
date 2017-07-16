@@ -139,11 +139,13 @@ class FeeSheetHtml extends FeeSheet
         if ($disabled ) $s .= " disabled";
         $s .= ">";
         $s .= "<option value=''>" . text($toptext) . "</option>";
-        $lres = sqlStatement("SELECT lo.*, p.pr_price " .
-        "FROM list_options AS lo " .
-        "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
-        array($pr_id, $pr_selector));
+        $lres = sqlStatement(
+            "SELECT lo.*, p.pr_price " .
+            "FROM list_options AS lo " .
+            "LEFT JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = ? AND p.pr_level = lo.option_id " .
+            "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title",
+            array($pr_id, $pr_selector)
+        );
         while ($lrow = sqlFetchArray($lres)) {
             $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
             $s .= "<option value='" . attr($lrow['option_id']) . "'";
@@ -166,10 +168,12 @@ class FeeSheetHtml extends FeeSheet
     {
         $s = '';
         if ($GLOBALS['gbl_new_acceptor_policy'] == '1') {
-            $csrow = sqlQuery("SELECT COUNT(*) AS count FROM forms AS f WHERE " .
-            "f.pid = ? AND f.encounter = ? AND " .
-            "f.formdir = 'LBFccicon' AND f.deleted = 0",
-            array($this->pid, $this->encounter));
+            $csrow = sqlQuery(
+                "SELECT COUNT(*) AS count FROM forms AS f WHERE " .
+                "f.pid = ? AND f.encounter = ? AND " .
+                "f.formdir = 'LBFccicon' AND f.deleted = 0",
+                array($this->pid, $this->encounter)
+            );
             // Do it only if a contraception form does not already exist for this visit.
             // Otherwise assume that whoever created it knows what they were doing.
             if ($csrow['count'] == 0) {

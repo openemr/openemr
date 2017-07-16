@@ -1145,9 +1145,9 @@ class Date_Calc
             }
         }
 
-        return ( floor((  146097 * $century)    /  4 ) +
-                floor(( 1461 * $year)        /  4 ) +
-                floor(( 153 * $month +  2) /  5 ) +
+        return ( floor((  146097 * $century)    /  4) +
+                floor(( 1461 * $year)        /  4) +
+                floor(( 153 * $month +  2) /  5) +
                     $day +  1721119);
     } // end func dateToDays
 

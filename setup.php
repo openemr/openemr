@@ -31,7 +31,7 @@ if ($response !== true) {
 }
 
 $COMMAND_LINE = php_sapi_name() == 'cli';
-require_once (dirname(__FILE__) . '/library/authentication/password_hashing.php');
+require_once(dirname(__FILE__) . '/library/authentication/password_hashing.php');
 require_once dirname(__FILE__) . '/library/classes/Installer.class.php';
 
 //turn off PHP compatibility warnings
@@ -86,7 +86,7 @@ if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
 // checking, then can be manually disabled here.
 $checkPermissions = true;
 
-$installer = new Installer( $_REQUEST );
+$installer = new Installer($_REQUEST);
 global $OE_SITE_DIR; // The Installer sets this
 
 $docsDirectory = "$OE_SITE_DIR/documents";

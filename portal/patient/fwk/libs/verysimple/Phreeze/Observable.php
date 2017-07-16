@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("IObservable.php");
+require_once("IObservable.php");
 
 /**
  * Observable is an abstract implementation of IObservable
@@ -43,7 +43,7 @@ abstract class Observable implements IObservable
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
         foreach ( $this->_observers as $observer ) {
-            $observer->Observe ( $obj, $ltype );
+            $observer->Observe($obj, $ltype);
         }
     }
 }

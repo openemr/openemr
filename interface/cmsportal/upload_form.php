@@ -63,8 +63,13 @@ if ($_POST['bn_save']) {
             if ($result['errmsg']) die(text($result['errmsg']));
             $d = new Document();
             // With JSON-over-HTTP we would need to base64_decode the contents.
-            $rc = $d->createDocument($ptid, $catid, $filename, $result['mimetype'],
-            $result['contents']);
+            $rc = $d->createDocument(
+                $ptid,
+                $catid,
+                $filename,
+                $result['mimetype'],
+                $result['contents']
+            );
             if ($rc) die(text(xl('Error saving document') . ": $rc"));
         }
     }

@@ -114,9 +114,9 @@ function smart_resize_image(
     if ($proportional) {
         if      ($width  == 0)  $factor = $height/$height_old;
         elseif  ($height == 0)  $factor = $width/$width_old;
-        else                    $factor = min( $width / $width_old, $height / $height_old );
-        $final_width  = round( $width_old * $factor );
-        $final_height = round( $height_old * $factor );
+        else                    $factor = min($width / $width_old, $height / $height_old);
+        $final_width  = round($width_old * $factor);
+        $final_height = round($height_old * $factor);
     }
     else {
         $final_width = ( $width <= 0 ) ? $width_old : $width;
@@ -138,7 +138,7 @@ break;
         default: return false;
     }
             # This is the resizing/resampling/transparency-preserving magic
-            $image_resized = imagecreatetruecolor( $final_width, $final_height );
+            $image_resized = imagecreatetruecolor($final_width, $final_height);
     if ( ($info[2] == IMAGETYPE_GIF) || ($info[2] == IMAGETYPE_PNG) ) {
         $transparency = imagecolortransparent($image);
         $palletsize = imagecolorstotal($image);

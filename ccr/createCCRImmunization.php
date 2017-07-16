@@ -61,7 +61,7 @@ do {
     $e_Product->appendChild($e_ProductName);
 
     $e_Text = $ccr->createElement('Text', $row['title']);
-    $e_ProductName->appendChild( $e_Text);
+    $e_ProductName->appendChild($e_Text);
 
     $e_Directions = $ccr->createElement('Directions');
     $e_Immunization->appendChild($e_Directions);

@@ -293,15 +293,15 @@ class Userforms extends UserAudit
             <h6><?php echo htmlspecialchars(xl('Insurance Data').":", ENT_QUOTES);?></h6>
             <br><span class=bold><?php echo htmlspecialchars(xl('Primary Insurance Data').":", ENT_QUOTES);?></span><br>
             <?php
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             ?>
             <span class=bold><?php echo htmlspecialchars(xl('Secondary Insurance Data').":", ENT_QUOTES);?></span><br>
         <?php
-        printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
+        printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
         ?>
         <span class=bold><?php echo htmlspecialchars(xl('Tertiary Insurance Data').":", ENT_QUOTES);?></span><br>
         <?php
-        printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
+        printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
         ?>
         </div>
         <?php
@@ -330,7 +330,7 @@ class Userforms extends UserAudit
             <tr>
             <td class=text>
             <?php
-            echo htmlspecialchars($b['code_type'], ENT_QUOTES) . ":\t" .htmlspecialchars( $b['code'], ENT_QUOTES) . "&nbsp;". htmlspecialchars($b['modifier'], ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars($b['code_text'], ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            echo htmlspecialchars($b['code_type'], ENT_QUOTES) . ":\t" .htmlspecialchars($b['code'], ENT_QUOTES) . "&nbsp;". htmlspecialchars($b['modifier'], ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;" . htmlspecialchars($b['code_text'], ENT_QUOTES) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             ?>
             </td>
             <td class=text>
@@ -458,9 +458,9 @@ class Userforms extends UserAudit
                 }
 
                 try {
-                    $event = isset ($data['event']) ? $data['event'] : 'patient-record';
+                    $event = isset($data['event']) ? $data['event'] : 'patient-record';
                     $menu_item = isset($data['menu_item']) ? $data['menu_item'] : 'Dashboard';
-                    newEvent($event, 1, '', 1, '', $pid, $log_from = 'patient-portal', $menu_item  );
+                    newEvent($event, 1, '', 1, '', $pid, $log_from = 'patient-portal', $menu_item);
                 }catch (Exception $e) {
 
                 }
@@ -569,7 +569,7 @@ class Userforms extends UserAudit
                 $all[$iter] = $row;
             }
 
-            $responseString = $this->arrayToXml($all );
+            $responseString = $this->arrayToXml($all);
 
             return $responseString;
         }

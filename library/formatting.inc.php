@@ -8,10 +8,12 @@
 
 function oeFormatMoney($amount, $symbol = false)
 {
-    $s = number_format($amount,
-    $GLOBALS['currency_decimals'],
-    $GLOBALS['currency_dec_point'],
-    $GLOBALS['currency_thousands_sep']);
+    $s = number_format(
+        $amount,
+        $GLOBALS['currency_decimals'],
+        $GLOBALS['currency_dec_point'],
+        $GLOBALS['currency_thousands_sep']
+    );
   // If the currency symbol exists and is requested, prepend it.
     if ($symbol && !empty($GLOBALS['gbl_currency_symbol']))
     $s = $GLOBALS['gbl_currency_symbol'] . " $s";
@@ -60,9 +62,9 @@ function oeFormatTime($time, $format = "")
     }
 
     if ( $format == 0 ) {
-        $formatted = date( "H:i", strtotime( $time ) );
+        $formatted = date("H:i", strtotime($time));
     } else if ( $format == 1 ) {
-        $formatted = date( "g:i a", strtotime( $time ) );
+        $formatted = date("g:i a", strtotime($time));
     }
 
     return $formatted;
@@ -191,7 +193,7 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
         $weeks = intval($days / 7);
         $days  = $days % 7;
         $age   = "$weeks " . ($weeks == 1 ? xl('week') : xl('weeks')) .
-             " $days " . ($days  == 1 ? xl('day' ) : xl('days' ));
+             " $days " . ($days  == 1 ? xl('day') : xl('days'));
     }
     else {
         // Years or months.

@@ -253,193 +253,301 @@ else {
  // Set permissions for administrators.
  //
  $gacl->add_acl(
-  array(
-   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb'),
-   'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'lists'=>array('default','state','country','language','ethrace'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
-   'sensitivities'=>array('normal', 'high'),
-   'nationnotes'=>array('nn_configure'),
-   'patientportal'=>array('portal'),
-   'menus'=>array('modle'),
-   'groups'=>array('gadd','gcalendar','glog','gdlog','gm')
-  ),
-  null, array($admin), null, null,
-  1, 1, 'write', 'Administrators can do anything'
+     array(
+     'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+     'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb'),
+     'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
+     'lists'=>array('default','state','country','language','ethrace'),
+     'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+     'sensitivities'=>array('normal', 'high'),
+     'nationnotes'=>array('nn_configure'),
+     'patientportal'=>array('portal'),
+     'menus'=>array('modle'),
+     'groups'=>array('gadd','gcalendar','glog','gdlog','gm')
+     ),
+     null,
+     array($admin),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Administrators can do anything'
  );
      // xl('Administrators can do anything')
 
  // Set permissions for physicians.
  //
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($doc), null, null,
-  1, 1, 'view', 'Things that physicians can only read'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($doc),
+     null,
+     null,
+     1,
+     1,
+     'view',
+     'Things that physicians can only read'
  );
      // xl('Things that physicians can only read')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($doc), null, null,
-  1, 1, 'addonly', 'Things that physicians can read and enter but not modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($doc),
+     null,
+     null,
+     1,
+     1,
+     'addonly',
+     'Things that physicians can read and enter but not modify'
  );
      // xl('Things that physicians can read and enter but not modify')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($doc), null, null,
-  1, 1, 'wsome', 'Things that physicians can read and partly modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($doc),
+     null,
+     null,
+     1,
+     1,
+     'wsome',
+     'Things that physicians can read and partly modify'
  );
      // xl('Things that physicians can read and partly modify')
 
  $gacl->add_acl(
-  array(
-   'acct'=>array('disc', 'rep'),
-   'admin'=>array('drugs'),
-   'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
+     array(
+     'acct'=>array('disc', 'rep'),
+     'admin'=>array('drugs'),
+     'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
+     'patients' => array('appt', 'demo', 'med', 'trans', 'docs', 'notes', 'sign', 'reminder', 'alert',
      'disclosure', 'rx', 'amendment', 'lab'),
-   'sensitivities'=>array('normal', 'high')
-  ),
-  null, array($doc), null, null,
-  1, 1, 'write', 'Things that physicians can read and modify'
+     'sensitivities'=>array('normal', 'high')
+     ),
+     null,
+     array($doc),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Things that physicians can read and modify'
  );
      // xl('Things that physicians can read and modify')
 
  // Set permissions for clinicians.
  //
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($clin), null, null,
-  1, 1, 'view', 'Things that clinicians can only read'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($clin),
+     null,
+     null,
+     1,
+     1,
+     'view',
+     'Things that clinicians can only read'
  );
      // xl('Things that clinicians can only read')
  $gacl->add_acl(
-  array(
-   'encounters'=>array('notes', 'relaxed'),
-   'patients'=>array('demo', 'med', 'docs', 'notes'),
-   'sensitivities'=>array('normal')
-  ),
-  null, array($clin), null, null,
-  1, 1, 'addonly', 'Things that clinicians can read and enter but not modify'
+     array(
+     'encounters'=>array('notes', 'relaxed'),
+     'patients'=>array('demo', 'med', 'docs', 'notes'),
+     'sensitivities'=>array('normal')
+     ),
+     null,
+     array($clin),
+     null,
+     null,
+     1,
+     1,
+     'addonly',
+     'Things that clinicians can read and enter but not modify'
  );
      // xl('Things that clinicians can read and enter but not modify')
 
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($clin), null, null,
-  1, 1, 'wsome', 'Things that clinicians can read and partly modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($clin),
+     null,
+     null,
+     1,
+     1,
+     'wsome',
+     'Things that clinicians can read and partly modify'
  );
      // xl('Things that clinicians can read and partly modify')
  $gacl->add_acl(
-  array(
-   'admin'=>array('drugs'),
-   'encounters'=>array('coding'),
-   'patients'=>array('appt')
-  ),
-  null, array($clin), null, null,
-  1, 1, 'write', 'Things that clinicians can read and modify'
+     array(
+     'admin'=>array('drugs'),
+     'encounters'=>array('coding'),
+     'patients'=>array('appt')
+     ),
+     null,
+     array($clin),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Things that clinicians can read and modify'
  );
      // xl('Things that clinicians can read and modify')
 
  // Set permissions for front office staff.
  //
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($front), null, null,
-  1, 1, 'view', 'Things that front office can only read'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($front),
+     null,
+     null,
+     1,
+     1,
+     'view',
+     'Things that front office can only read'
  );
      // xl('Things that front office can only read')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($front), null, null,
-  1, 1, 'addonly', 'Things that front office can read and enter but not modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($front),
+     null,
+     null,
+     1,
+     1,
+     'addonly',
+     'Things that front office can read and enter but not modify'
  );
      // xl('Things that front office can read and enter but not modify')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($front), null, null,
-  1, 1, 'wsome', 'Things that front office can read and partly modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($front),
+     null,
+     null,
+     1,
+     1,
+     'wsome',
+     'Things that front office can read and partly modify'
  );
      // xl('Things that front office can read and partly modify')
  $gacl->add_acl(
-  array(
-   'patients'=>array('appt', 'demo', 'trans', 'notes')
-  ),
-  null, array($front), null, null,
-  1, 1, 'write', 'Things that front office can read and modify'
+     array(
+     'patients'=>array('appt', 'demo', 'trans', 'notes')
+     ),
+     null,
+     array($front),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Things that front office can read and modify'
  );
      // xl('Things that front office can read and modify')
 
  // Set permissions for back office staff.
  //
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($back), null, null,
-  1, 1, 'view', 'Things that back office can only read'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($back),
+     null,
+     null,
+     1,
+     1,
+     'view',
+     'Things that back office can only read'
  );
      // xl('Things that back office can only read')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($back), null, null,
-  1, 1, 'addonly', 'Things that back office can read and enter but not modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($back),
+     null,
+     null,
+     1,
+     1,
+     'addonly',
+     'Things that back office can read and enter but not modify'
  );
      // xl('Things that back office can read and enter but not modify')
  $gacl->add_acl(
-  array(
-   'placeholder'=>array('filler')
-  ),
-  null, array($back), null, null,
-  1, 1, 'wsome', 'Things that back office can read and partly modify'
+     array(
+     'placeholder'=>array('filler')
+     ),
+     null,
+     array($back),
+     null,
+     null,
+     1,
+     1,
+     'wsome',
+     'Things that back office can read and partly modify'
  );
      // xl('Things that back office can read and partly modify')
  $gacl->add_acl(
-  array(
-   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('practice', 'superbill'),
-   'encounters'=>array('auth_a', 'coding_a', 'date_a'),
-   'patients'=>array('appt', 'demo')
-  ),
-  null, array($back), null, null,
-  1, 1, 'write', 'Things that back office can read and modify'
+     array(
+     'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+     'admin'=>array('practice', 'superbill'),
+     'encounters'=>array('auth_a', 'coding_a', 'date_a'),
+     'patients'=>array('appt', 'demo')
+     ),
+     null,
+     array($back),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Things that back office can read and modify'
  );
      // xl('Things that back office can read and modify')
 
  // Set permissions for Emergency Login.
  //
  $gacl->add_acl(
-  array(
-   'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
-   'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
-   'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
-   'lists'=>array('default','state','country','language','ethrace'),
-   'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
-   'sensitivities'=>array('normal', 'high'),
-   'nationnotes'=>array('nn_configure'),
-   'patientportal'=>array('portal'),
-   'menus'=>array('modle')
-  ),
-  null, array($breakglass), null, null,
-  1, 1, 'write', 'Emergency Login user can do anything'
+     array(
+     'acct'=>array('bill', 'disc', 'eob', 'rep', 'rep_a'),
+     'admin'=>array('calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl'),
+     'encounters'=>array('auth_a', 'coding_a', 'notes_a', 'date_a'),
+     'lists'=>array('default','state','country','language','ethrace'),
+     'patients'=>array('appt', 'demo', 'med', 'trans', 'docs', 'notes'),
+     'sensitivities'=>array('normal', 'high'),
+     'nationnotes'=>array('nn_configure'),
+     'patientportal'=>array('portal'),
+     'menus'=>array('modle')
+     ),
+     null,
+     array($breakglass),
+     null,
+     null,
+     1,
+     1,
+     'write',
+     'Emergency Login user can do anything'
  );
      // xl('Emergency Login user can do anything')
 

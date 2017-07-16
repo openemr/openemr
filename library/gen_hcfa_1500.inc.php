@@ -593,8 +593,11 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
         put_hcfa($lino, 45, 4, $tmp);
 
         // 24f. Charges
-        put_hcfa($lino, 50, 8, str_replace('.', ' ',
-        sprintf('%8.2f', $claim->cptCharges($hcfa_proc_index))));
+        put_hcfa($lino, 50, 8, str_replace(
+            '.',
+            ' ',
+            sprintf('%8.2f', $claim->cptCharges($hcfa_proc_index))
+        ));
 
         // 24g. Days or Units
         put_hcfa($lino, 59, 3, $claim->cptUnits($hcfa_proc_index));
@@ -640,8 +643,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
   // so in general box 30 will not equal box 28 minus box 29.
     if(!hcfa_1500_version_02_12())  // Box 30 Reserved for NUCC Use in 02/12
     {
-        put_hcfa(56, 71, 8, str_replace('.', ' ', sprintf('%8.2f',
-        $clm_total_charges - $clm_amount_paid - $clm_amount_adjusted)));
+        put_hcfa(56, 71, 8, str_replace('.', ' ', sprintf(
+            '%8.2f',
+            $clm_total_charges - $clm_amount_paid - $clm_amount_adjusted
+        )));
     }
 
   // 33. Billing Provider: Phone Number

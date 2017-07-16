@@ -5,7 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormROM.class.php");
 
 class C_FormROM extends Controller
@@ -54,8 +54,14 @@ class C_FormROM extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Range of Motion", $this->form->id, "rom",
-            $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "Range of Motion",
+                $this->form->id,
+                "rom",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
         return;

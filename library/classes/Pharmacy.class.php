@@ -9,9 +9,9 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
 **************************************************************************/
 
 
-define ("TRANSMIT_PRINT", 1);
-define ("TRANSMIT_EMAIL", 2);
-define ("TRANSMIT_FAX", 3);
+define("TRANSMIT_PRINT", 1);
+define("TRANSMIT_EMAIL", 2);
+define("TRANSMIT_FAX", 3);
 
 /**
  * class Pharmacy

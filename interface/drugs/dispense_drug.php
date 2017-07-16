@@ -137,7 +137,7 @@ if (! $sale_id) {
   "d.drug_id = i.drug_id AND " .
   "r.id = s.prescription_id AND " .
   "p.pid = s.pid AND " .
-  "u.id = r.provider_id", array($sale_id) );
+  "u.id = r.provider_id", array($sale_id));
 
  $dconfig = $GLOBALS['oer_config']['druglabels'];
 

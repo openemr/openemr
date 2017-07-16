@@ -6,7 +6,7 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-require_once( library_src( 'RuleCriteriaBuilder.php') );
+require_once(library_src('RuleCriteriaBuilder.php'));
 /**
  * Description of RuleCriteriaAgeBuilder
  *
@@ -37,9 +37,9 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
     {
         $method = $ruleCriteriaType->method;
         $criteria = new RuleCriteriaAge(
-                $method == 'age_max' ? 'max' : 'min',
-                $value,
-                TimeUnit::from($methodDetail)
+            $method == 'age_max' ? 'max' : 'min',
+            $value,
+            TimeUnit::from($methodDetail)
         );
         
         $criteria->value = $value;
@@ -53,11 +53,11 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
     function newInstance($criteriaType)
     {
         if ( $criteriaType->code == RuleCriteriaType::ageMin ) {
-            return new RuleCriteriaAge( 'min' );
+            return new RuleCriteriaAge('min');
         }
 
         if ( $criteriaType->code == RuleCriteriaType::ageMax ) {
-            return new RuleCriteriaAge( 'max' );
+            return new RuleCriteriaAge('max');
         }
 
         return null;

@@ -80,9 +80,11 @@ if ($mode) {
         }
         else { // new form
             if ($value !== '') {
-                sqlStatement("INSERT INTO lbt_data " .
-                "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
-                array($newid, $field_id, $value));
+                sqlStatement(
+                    "INSERT INTO lbt_data " .
+                    "( form_id, field_id, field_value ) VALUES ( ?, ?, ? )",
+                    array($newid, $field_id, $value)
+                );
             }
         }
     }
@@ -177,7 +179,7 @@ $(document).ready(function() {
   }
 });
 
-var mypcc = '<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
+var mypcc = '<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>';
 
 $(document).ready(function(){
   $("#send_sum_flag").click(function() {
@@ -252,7 +254,7 @@ function sel_related(e) {
 // Process click on Delete link.
 function deleteme() {
 // onclick='return deleteme()'
- dlgopen('../deleter.php?transaction=<?php echo htmlspecialchars( $transid, ENT_QUOTES); ?>', '_blank', 500, 450);
+ dlgopen('../deleter.php?transaction=<?php echo htmlspecialchars($transid, ENT_QUOTES); ?>', '_blank', 500, 450);
  return false;
 }
 
@@ -459,7 +461,7 @@ while ($frow = sqlFetchArray($fres)) {
                                         }
                                         else if ($field_id == 'body' && $transid > 0 ) {
                                              $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                              "pid = ? ORDER BY date DESC LIMIT 1", array($pid) );
+                                              "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
                                             if (!empty($tmp)) $currvalue = $tmp['reason'];
                                         }
                                     }

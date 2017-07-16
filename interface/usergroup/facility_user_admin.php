@@ -118,10 +118,10 @@ $(document).ready(function(){
 
 <?php
 // Collect user information
-$user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]) );
+$user_info = sqlQuery("select * from `users` WHERE `id` = ?", array($_GET["user_id"]));
 
 // Collect facility information
-$fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]) );
+$fac_info = sqlQuery("select * from `facility` where `id` = ?", array($_GET["fac_id"]));
 
 // Collect layout information and store them in an array
 $l_res = sqlStatement("SELECT * FROM layout_options " .
@@ -180,7 +180,7 @@ for($i=0; $row=sqlFetchArray($l_res); $i++) {
     <td style="width:270px;">
                 <?php
                 $entry_data = sqlQuery("SELECT `field_value` FROM `facility_user_ids` " .
-                                       "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']) );
+                                       "WHERE `uid` = ? AND `facility_id` = ? AND `field_id` = ?", array($user_info['id'],$fac_info['id'],$layout_entry['field_id']));
                 echo "<td><span class='text'>" . generate_form_field($layout_entry, $entry_data['field_value']) . "&nbsp;</td>";
                 ?>
     </td>

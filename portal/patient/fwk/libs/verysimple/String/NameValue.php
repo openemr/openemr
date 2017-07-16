@@ -26,9 +26,9 @@ class NameValue
      */
     function __construct($line = "", $delim = "=", $nameonly = false)
     {
-        $keyval = explode ( $delim, $line );
+        $keyval = explode($delim, $line);
         $this->Name = $keyval [0];
-        $this->Value = $nameonly == false && isset ( $keyval [1] ) ? $keyval [1] : $keyval [0];
+        $this->Value = $nameonly == false && isset($keyval [1]) ? $keyval [1] : $keyval [0];
     }
     
     /**
@@ -47,15 +47,15 @@ class NameValue
     {
         $return = array ();
         
-        $lines = str_replace ( "\r\n", "\n", $lines );
-        $lines = str_replace ( "\r", "\n", $lines );
-        $arr = explode ( "\n", $lines );
+        $lines = str_replace("\r\n", "\n", $lines);
+        $lines = str_replace("\r", "\n", $lines);
+        $arr = explode("\n", $lines);
         
         if ($lines == "")
             return $return;
         
         foreach ( $arr as $line ) {
-            $return [] = new NameValue ( $line, $delim, $nameonly );
+            $return [] = new NameValue($line, $delim, $nameonly);
         }
         
         return $return;

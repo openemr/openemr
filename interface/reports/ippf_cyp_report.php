@@ -75,10 +75,10 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
     if ($_POST['form_details']) {
         if ($_POST['form_csvexport']) {
-            echo '"' . display_desc($product         ) . '",';
+            echo '"' . display_desc($product) . '",';
             echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
             echo '"' . display_desc($invnumber) . '",';
-            echo '"' . display_desc($qty      ) . '",';
+            echo '"' . display_desc($qty) . '",';
             echo '"' . formatcyp($rowcyp) . '",';
             echo '"' . formatcyp($rowresult) . '"' . "\n";
         }
@@ -274,10 +274,15 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   //
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'],
-        $row['code'] . ' ' . $row['code_text'],
-        substr($row['date'], 0, 10), $row['units'], $row['cyp_factor'],
-        $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['code'] . ' ' . $row['code_text'],
+            substr($row['date'], 0, 10),
+            $row['units'],
+            $row['cyp_factor'],
+            $row['invoice_refno']
+        );
     }
   //
     $query = "SELECT s.sale_date, s.quantity, s.pid, s.encounter, " .
@@ -296,9 +301,15 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
   //
     $res = sqlStatement($query);
     while ($row = sqlFetchArray($res)) {
-        thisLineItem($row['pid'], $row['encounter'], $row['name'],
-        substr($row['date'], 0, 10), $row['quantity'], $row['cyp_factor'],
-        $row['invoice_refno']);
+        thisLineItem(
+            $row['pid'],
+            $row['encounter'],
+            $row['name'],
+            substr($row['date'], 0, 10),
+            $row['quantity'],
+            $row['cyp_factor'],
+            $row['invoice_refno']
+        );
     }
 
     if ($_POST['form_csvexport']) {

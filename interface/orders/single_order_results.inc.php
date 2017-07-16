@@ -24,9 +24,11 @@ require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
 function getListItem($listid, $value)
 {
-    $lrow = sqlQuery("SELECT title FROM list_options " .
-    "WHERE list_id = ? AND option_id = ? AND activity = 1",
-    array($listid, $value));
+    $lrow = sqlQuery(
+        "SELECT title FROM list_options " .
+        "WHERE list_id = ? AND option_id = ? AND activity = 1",
+        array($listid, $value)
+    );
     $tmp = xl_list_label($lrow['title']);
     if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
     return $tmp;
@@ -144,10 +146,12 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         $tmp = text("$procedure_code: $procedure_name");
         // Get the LOINC code if one exists in the compendium for this order type.
         if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-            $trow = sqlQuery("SELECT standard_code FROM procedure_type WHERE " .
-            "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
-            "ORDER BY procedure_type_id LIMIT 1",
-            array($lab_id, $procedure_code));
+            $trow = sqlQuery(
+                "SELECT standard_code FROM procedure_type WHERE " .
+                "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
+                "ORDER BY procedure_type_id LIMIT 1",
+                array($lab_id, $procedure_code)
+            );
             if (!empty($trow['standard_code'])) {
                   $tmp = "<a href='javascript:educlick(\"LOINC\",\"" . attr($trow['standard_code']) .
                     "\")'>$tmp</a>";
@@ -271,20 +275,22 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     $thisauth = acl_check('patients', 'med');
     if (!$thisauth) return xl('Not authorized');
 
-    $orow = sqlQuery("SELECT " .
-    "po.procedure_order_id, po.date_ordered, po.control_id, " .
-    "po.order_status, po.specimen_type, po.patient_id, " .
-    "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, pd.language, " .
-    "fe.date, " .
-    "pp.name AS labname, " .
-    "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
-    "FROM procedure_order AS po " .
-    "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
-    "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
-    "LEFT JOIN users AS u ON u.id = po.provider_id " .
-    "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
-    "WHERE po.procedure_order_id = ?",
-    array($orderid));
+    $orow = sqlQuery(
+        "SELECT " .
+        "po.procedure_order_id, po.date_ordered, po.control_id, " .
+        "po.order_status, po.specimen_type, po.patient_id, " .
+        "pd.pubpid, pd.lname, pd.fname, pd.mname, pd.cmsportal_login, pd.language, " .
+        "fe.date, " .
+        "pp.name AS labname, " .
+        "u.lname AS ulname, u.fname AS ufname, u.mname AS umname " .
+        "FROM procedure_order AS po " .
+        "LEFT JOIN patient_data AS pd ON pd.pid = po.patient_id " .
+        "LEFT JOIN procedure_providers AS pp ON pp.ppid = po.lab_id " .
+        "LEFT JOIN users AS u ON u.id = po.provider_id " .
+        "LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id " .
+        "WHERE po.procedure_order_id = ?",
+        array($orderid)
+    );
 
     $patient_id = $orow['patient_id'];
     $language = $orow['language'];

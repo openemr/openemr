@@ -78,7 +78,7 @@ class ActionRouter
         $helpers = $viewBean->helpers;
         if ( !is_null($helpers) ) {
             foreach( $helpers as $helper ) {
-                $helperPath = $this->resolveHelper( $helper );
+                $helperPath = $this->resolveHelper($helper);
                 if ( !is_null($helperPath) ) {
                     require_once($helperPath);
                 }
@@ -94,7 +94,7 @@ class ActionRouter
         $viewBean->_webRoot = $this->webRoot;
         $viewBean->_view_body = $view_location;
 
-        $template = $this->resolveTemplate( $result->_template );
+        $template = $this->resolveTemplate($result->_template);
         require($template);
 
         return $result;

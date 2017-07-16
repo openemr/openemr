@@ -32,8 +32,8 @@ class Router
     public function route()
     {
         $request = new Request();
-        $moduleParam = $request->getParam( 'module' );
-        $Module = ucfirst( $moduleParam );
+        $moduleParam = $request->getParam('module');
+        $Module = ucfirst($moduleParam);
         require_once $GLOBALS['srcdir'].'/ESign/'.$Module.'/Controller.php';
         $controllerClass = "\\ESign\\".$Module."_Controller";
         $controller = new $controllerClass( $request );

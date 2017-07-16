@@ -112,15 +112,15 @@ class CouchDB
     {
         // First translit string to ASCII, as this characters are most probably
         // supported everywhere
-        $string = iconv( 'UTF-8', 'ASCII//TRANSLIT', $string );
+        $string = iconv('UTF-8', 'ASCII//TRANSLIT', $string);
 
         // And then still replace any obscure characters by _ to ensure nothing
         // "bad" happens with this string.
-        $string = preg_replace( '([^A-Za-z0-9.-]+)', $replace, $string );
+        $string = preg_replace('([^A-Za-z0-9.-]+)', $replace, $string);
 
         // Additionally we convert the string to lowercase, so that we get case
         // insensitive fetching
-        return strtolower( $string );
+        return strtolower($string);
     }
 
     function send($method, $url, $post_data = null)

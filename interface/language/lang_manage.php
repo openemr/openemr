@@ -37,10 +37,10 @@ if ($_POST['check'] || $_POST['synchronize']){
         if (!$checkOnly) {
             // add the new language (first collect the language code)
             $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description=? ".$case_sensitive_collation." LIMIT 1";
-            $res = SqlStatement($sql, array($var) );
+            $res = SqlStatement($sql, array($var));
             $row = SqlFetchArray($res);
             $sql="INSERT INTO lang_languages SET lang_code=?, lang_description=?";
-            SqlStatement($sql, array($row['lang_code'], $var) );
+            SqlStatement($sql, array($row['lang_code'], $var));
             echo htmlspecialchars(xl('Synchronized new custom language:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
         $difference = 1;
@@ -68,7 +68,7 @@ if ($_POST['check'] || $_POST['synchronize']){
         if (!$checkOnly) {
             // add the new constant
             $sql="INSERT INTO lang_constants SET constant_name=?";
-            SqlStatement($sql, array($var) );
+            SqlStatement($sql, array($var));
             echo htmlspecialchars(xl('Synchronized new custom constant:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR><BR>";
         }
         $difference = 1;
@@ -83,26 +83,26 @@ if ($_POST['check'] || $_POST['synchronize']){
       
         // collect language id
         $sql = "SELECT lang_id FROM lang_languages WHERE lang_description=? ".$case_sensitive_collation." LIMIT 1";
-        $res2 = SqlStatement($sql, array($row['lang_description']) );
+        $res2 = SqlStatement($sql, array($row['lang_description']));
         $row2 = SqlFetchArray($res2);
         $language_id=$row2['lang_id'];
       
         // collect constant id
         $sql = "SELECT cons_id FROM lang_constants WHERE constant_name=? ".$case_sensitive_collation." LIMIT 1";
-        $res2 = SqlStatement($sql, array($row['constant_name']) );
+        $res2 = SqlStatement($sql, array($row['constant_name']));
         $row2 = SqlFetchArray($res2);
         $constant_id=$row2['cons_id'];
       
         // collect definition id (if it exists)
         $sql = "SELECT def_id FROM lang_definitions WHERE cons_id=? AND lang_id=? LIMIT 1";
-        $res2 = SqlStatement($sql, array($constant_id, $language_id) );
+        $res2 = SqlStatement($sql, array($constant_id, $language_id));
         $row2 = SqlFetchArray($res2);
         $def_id=$row2['def_id'];
     
         if ($def_id) {
             //definition exist, so check to see if different
             $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? ".$case_sensitive_collation;
-            $res_test = SqlStatement($sql, array($def_id, $row['definition']) );
+            $res_test = SqlStatement($sql, array($def_id, $row['definition']));
             if (SqlFetchArray($res_test)) {
             //definition not different
                 continue;
@@ -116,7 +116,7 @@ if ($_POST['check'] || $_POST['synchronize']){
                 if (!$checkOnly) {
                     //add new definition
                     $sql = "UPDATE `lang_definitions` SET `definition`=? WHERE `def_id`=? LIMIT 1";
-                    SqlStatement($sql, array($row['definition'], $def_id) );
+                    SqlStatement($sql, array($row['definition'], $def_id));
                     echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
                     " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
                     " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).
@@ -133,7 +133,7 @@ if ($_POST['check'] || $_POST['synchronize']){
             if (!$checkOnly) {
                 //add new definition
                 $sql = "INSERT INTO lang_definitions (cons_id,lang_id,definition) VALUES (?,?,?)";
-                SqlStatement($sql, array($constant_id, $language_id, $row['definition']) );
+                SqlStatement($sql, array($constant_id, $language_id, $row['definition']));
                 echo htmlspecialchars(xl('Synchronized new definition (Language, Constant, Definition):'), ENT_NOQUOTES).
                 " ".htmlspecialchars($row['lang_description'], ENT_NOQUOTES).
                 " ".htmlspecialchars($row['constant_name'], ENT_NOQUOTES).

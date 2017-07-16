@@ -189,7 +189,7 @@ class GlobalConfig
 
             if (self::$LEVEL_2_CACHE)
             {
-                $this->phreezer->SetLevel2CacheProvider( self::$LEVEL_2_CACHE, self::$LEVEL_2_CACHE_TEMP_PATH );
+                $this->phreezer->SetLevel2CacheProvider(self::$LEVEL_2_CACHE, self::$LEVEL_2_CACHE_TEMP_PATH);
                 $this->phreezer->ValueCacheTimeout = self::$LEVEL_2_CACHE_TIMEOUT;
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormEvaluation.class.php");
 
 class C_FormEvaluation extends Controller
@@ -60,7 +60,7 @@ class C_FormEvaluation extends Controller
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling( date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
+                addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
 
         }

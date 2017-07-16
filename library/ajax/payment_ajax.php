@@ -41,9 +41,9 @@ function AjaxDropDownCode()
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerInsurance'><table width='552' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
-		<td width='50'>".htmlspecialchars( xl('Code'), ENT_QUOTES)."</td>
-		<td width='300'>".htmlspecialchars( xl('Name'), ENT_QUOTES)."</td>
-	    <td width='200'>".htmlspecialchars( xl('Address'), ENT_QUOTES)."</td>
+		<td width='50'>".htmlspecialchars(xl('Code'), ENT_QUOTES)."</td>
+		<td width='300'>".htmlspecialchars(xl('Name'), ENT_QUOTES)."</td>
+	    <td width='200'>".htmlspecialchars(xl('Address'), ENT_QUOTES)."</td>
 	  </tr>".
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
         //PlaceValues(event,'&nbsp;','')==>Used while -->KEY PRESS<-- over list.List vanishes and the clicked one gets listed in the parent page's text box.
@@ -116,11 +116,11 @@ function AjaxDropDownCode()
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerPatient'><table width='452' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
-		<td width='50'>".htmlspecialchars( xl('Code'), ENT_QUOTES)."</td>
-		<td width='100'>".htmlspecialchars( xl('Last Name'), ENT_QUOTES)."</td>
-	    <td width='100'>".htmlspecialchars( xl('First Name'), ENT_QUOTES)."</td>
-	    <td width='100'>".htmlspecialchars( xl('Middle Name'), ENT_QUOTES)."</td>
-	    <td width='100'>".htmlspecialchars( xl('Date of Birth'), ENT_QUOTES)."</td>
+		<td width='50'>".htmlspecialchars(xl('Code'), ENT_QUOTES)."</td>
+		<td width='100'>".htmlspecialchars(xl('Last Name'), ENT_QUOTES)."</td>
+	    <td width='100'>".htmlspecialchars(xl('First Name'), ENT_QUOTES)."</td>
+	    <td width='100'>".htmlspecialchars(xl('Middle Name'), ENT_QUOTES)."</td>
+	    <td width='100'>".htmlspecialchars(xl('Date of Birth'), ENT_QUOTES)."</td>
 	  </tr>".
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
         "<tr class='text' height='20'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"
@@ -176,8 +176,8 @@ function AjaxDropDownCode()
         $CountIndex=1;
         $StringForAjax="<div id='AjaxContainerEncounter'><table width='202' border='1' cellspacing='0' cellpadding='0'>
 	  <tr class='text' bgcolor='#dddddd'>
-		<td width='100'>".htmlspecialchars( xl('Encounter'), ENT_QUOTES)."</td>
-		<td width='100'>".htmlspecialchars( xl('Date'), ENT_QUOTES)."</td>
+		<td width='100'>".htmlspecialchars(xl('Encounter'), ENT_QUOTES)."</td>
+		<td width='100'>".htmlspecialchars(xl('Date'), ENT_QUOTES)."</td>
 	  </tr>".
         //ProcessKeyForColoring(event,$CountIndex)==>Shows the navigation in the listing by change of colors and focus.Happens when down or up arrow is pressed.
         "<tr class='text' height='20'  bgcolor='$bgcolor' id=\"tr_insurance_$CountIndex\"

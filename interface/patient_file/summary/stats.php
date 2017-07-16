@@ -41,7 +41,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     if($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key=='allergy')
     $query .= "and erx_uploaded != '1' ";
     $query .= "ORDER BY begdate";
-    $pres = sqlStatement($query, array($pid, $key) );
+    $pres = sqlStatement($query, array($pid, $key));
     if($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
         $display_current_medications_below=0;
     ?>
@@ -61,8 +61,17 @@ if ($_POST['embeddedScreen']) {
     $widgetButtonClass = '';
     $bodyClass = "summary_item small";
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink,
-    $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget(
+        $widgetTitle,
+        $widgetLabel,
+        $widgetButtonLabel,
+        $widgetButtonLink,
+        $widgetButtonClass,
+        $linkMethod,
+        $bodyClass,
+        $widgetAuth,
+        $fixedWidth
+    );
 }
       $res=sqlStatement("select * from prescriptions where patient_id=? and active='1'", array($pid));
 ?>
@@ -108,7 +117,7 @@ while($row_currentMed=sqlFetchArray($res)) {
                 $query_uploaded .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
                 $query_uploaded .= "and erx_uploaded != '1' ";
                 $query_uploaded .= "ORDER BY begdate";
-                $res_uploaded = sqlStatement($query_uploaded, array($pid) );
+                $res_uploaded = sqlStatement($query_uploaded, array($pid));
                 if(sqlNumRows($res_uploaded) == 0) {
                     $erx_upload_complete = 1;
                     continue;
@@ -150,11 +159,11 @@ while($row_currentMed=sqlFetchArray($res)) {
         if (sqlNumRows($pres) == 0) {
             if ( getListTouch($pid, $key) ) {
                 // Data entry has happened to this type, so can display an explicit None.
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td></tr>\n";
+                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES) . "</td></tr>\n";
             }
             else {
                 // Data entry has not happened to this type, so show 'Nothing Recorded"
-                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('Nothing Recorded'), ENT_NOQUOTES) . "</td></tr>\n";
+                echo "  <tr><td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('Nothing Recorded'), ENT_NOQUOTES) . "</td></tr>\n";
             }
         }
 
@@ -174,7 +183,7 @@ while($row_currentMed=sqlFetchArray($res)) {
                 if (!empty($row['reaction'])) {
                     $reaction = " (" . $row['reaction'] . ")";
                 }
-                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars( $row['title'] . $reaction, ENT_NOQUOTES) . "</td>\n";
+                echo "  <td colspan='$numcols' style='color:red;font-weight:bold;'>&nbsp;&nbsp;" . htmlspecialchars($row['title'] . $reaction, ENT_NOQUOTES) . "</td>\n";
             }
             else {
                 echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
@@ -198,13 +207,13 @@ while($row_currentMed=sqlFetchArray($res)) {
 //
 $need_head = true;
 foreach (array('treatment_protocols','injury_log') as $formname) {
-    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_".$formname) )) > 0) {
+    if (sqlNumRows(sqlStatement("SHOW TABLES LIKE ?", array("form_".$formname))) > 0) {
         $dres = sqlStatement("SELECT tp.id, tp.value FROM forms, " .
                             "form_" . add_escape_custom($formname) .
                 " AS tp WHERE forms.pid = ? AND " .
                             "forms.formdir = ? AND tp.id = forms.form_id AND " .
                             "tp.rownbr = -1 AND tp.colnbr = -1 AND tp.value LIKE '0%' " .
-                            "ORDER BY tp.value DESC", array($pid, $formname) );
+                            "ORDER BY tp.value DESC", array($pid, $formname));
         if (sqlNumRows($dres) > 0 && $need_head) {
             $need_head = false;
             echo " <tr>\n";
@@ -267,11 +276,11 @@ else { ?>
          " and i1.added_erroneously = 0".
          " order by i1.administered_date desc";
 
-  $result = sqlStatement($sql, array($pid) );
+  $result = sqlStatement($sql, array($pid));
 
 if (sqlNumRows($result) == 0) {
     echo " <table><tr>\n";
-    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars( xl('None'), ENT_NOQUOTES) . "</td>\n";
+    echo "  <td colspan='$numcols' class='text'>&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES) . "</td>\n";
     echo " </tr></table>\n";
 }
 
@@ -287,7 +296,7 @@ while ($row=sqlFetchArray($result)){
     }
     else {
         if (!(empty($row['cvx_text']))) {
-            echo htmlspecialchars( xl($row['cvx_text']), ENT_NOQUOTES );
+            echo htmlspecialchars(xl($row['cvx_text']), ENT_NOQUOTES);
         }
         else {
             echo generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
@@ -420,7 +429,7 @@ if($erx_upload_complete == 1){
     $query_uploaded_old = "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND ";
     $query_uploaded_old .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
     $query_uploaded_old .= "ORDER BY begdate";
-    $res_uploaded_old = sqlStatement($query_uploaded_old, array($pid) );
+    $res_uploaded_old = sqlStatement($query_uploaded_old, array($pid));
     echo "<table>";
     while ($row = sqlFetchArray($res_uploaded_old)) {
     // output each issue for the $ISSUE_TYPE

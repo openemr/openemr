@@ -25,7 +25,7 @@ class DatabaseException extends Exception
     public function __construct($message, $code = 0, $data = "")
     {
         // make sure everything is assigned properly
-        parent::__construct ( $message, $code );
+        parent::__construct($message, $code);
         
         $this->data = $data;
     }

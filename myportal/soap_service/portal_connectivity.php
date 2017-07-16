@@ -43,7 +43,6 @@ function portal_connection()
     $client     = new SoapClient(null, array(
             'location' => $GLOBALS['portal_offsite_address_patient_link']."/webservice/webserver.php",
             'uri'      => "urn://portal/req"
-        )
-    );
+        ));
     return $client;
 }

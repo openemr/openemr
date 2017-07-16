@@ -323,17 +323,19 @@ function match_patient($ptarr)
     $in_lname = $ptarr['lname'];
     $in_dob = $ptarr['DOB'];
     $patient_id = 0;
-    $res = sqlStatement("SELECT pid FROM patient_data WHERE " .
-    "((ss IS NULL OR ss = '' OR '' = ?) AND " .
-    "fname IS NOT NULL AND fname != '' AND fname = ? AND " .
-    "lname IS NOT NULL AND lname != '' AND lname = ? AND " .
-    "DOB IS NOT NULL AND DOB = ?) OR " .
-    "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ? AND (" .
-    "fname IS NOT NULL AND fname != '' AND fname = ? OR " .
-    "lname IS NOT NULL AND lname != '' AND lname = ? OR " .
-    "DOB IS NOT NULL AND DOB = ?)) " .
-    "ORDER BY ss DESC, pid DESC LIMIT 2",
-    array($in_ss, $in_fname, $in_lname, $in_dob, $in_ss, $in_fname, $in_lname, $in_dob));
+    $res = sqlStatement(
+        "SELECT pid FROM patient_data WHERE " .
+        "((ss IS NULL OR ss = '' OR '' = ?) AND " .
+        "fname IS NOT NULL AND fname != '' AND fname = ? AND " .
+        "lname IS NOT NULL AND lname != '' AND lname = ? AND " .
+        "DOB IS NOT NULL AND DOB = ?) OR " .
+        "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ? AND (" .
+        "fname IS NOT NULL AND fname != '' AND fname = ? OR " .
+        "lname IS NOT NULL AND lname != '' AND lname = ? OR " .
+        "DOB IS NOT NULL AND DOB = ?)) " .
+        "ORDER BY ss DESC, pid DESC LIMIT 2",
+        array($in_ss, $in_fname, $in_lname, $in_dob, $in_ss, $in_fname, $in_lname, $in_dob)
+    );
     if (sqlNumRows($res) > 1) {
         // Multiple matches, so ambiguous.
         $patient_id = -1;
@@ -345,13 +347,15 @@ function match_patient($ptarr)
     }
     else {
         // No match good enough, figure out if there's enough ambiguity to ask the user.
-        $tmp = sqlQuery("SELECT pid FROM patient_data WHERE " .
-        "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ?) OR " .
-        "(fname IS NOT NULL AND fname != '' AND fname = ? AND " .
-        "lname IS NOT NULL AND lname != '' AND lname = ?) OR " .
-        "(DOB IS NOT NULL AND DOB = ?) " .
-        "LIMIT 1",
-        array($in_ss, $in_fname, $in_lname, $in_dob));
+        $tmp = sqlQuery(
+            "SELECT pid FROM patient_data WHERE " .
+            "(ss IS NOT NULL AND ss != '' AND REPLACE(ss, '-', '') = ?) OR " .
+            "(fname IS NOT NULL AND fname != '' AND fname = ? AND " .
+            "lname IS NOT NULL AND lname != '' AND lname = ?) OR " .
+            "(DOB IS NOT NULL AND DOB = ?) " .
+            "LIMIT 1",
+            array($in_ss, $in_fname, $in_lname, $in_dob)
+        );
         if (!empty($tmp['pid'])) {
               $patient_id = -1;
         }
@@ -387,10 +391,12 @@ function match_provider($arr)
             $where = "lname = ? AND fname = ?";
             $qarr = array($op_lname, $op_fname);
         }
-        $oprow = sqlQuery("SELECT id, username FROM users WHERE " .
-        "username IS NOT NULL AND username != '' AND $where " .
-        "ORDER BY active DESC, authorized DESC, username, id LIMIT 1",
-        $qarr);
+        $oprow = sqlQuery(
+            "SELECT id, username FROM users WHERE " .
+            "username IS NOT NULL AND username != '' AND $where " .
+            "ORDER BY active DESC, authorized DESC, username, id LIMIT 1",
+            $qarr
+        );
         if (!empty($oprow)) return $oprow;
     }
     return false;
@@ -495,8 +501,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     $d5 = substr($hl7, 7, 1); // typically &
 
   // We'll need the document category IDs for any embedded documents.
-    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?",
-    array($GLOBALS['lab_results_category_name']));
+    $catrow = sqlQuery(
+        "SELECT id FROM categories WHERE name = ?",
+        array($GLOBALS['lab_results_category_name'])
+    );
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
         ': ' . $GLOBALS['lab_results_category_name'], true);
@@ -504,8 +512,10 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
-        $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?",
-        array($GLOBALS['gbl_mdm_category_name']));
+        $catrow = sqlQuery(
+            "SELECT id FROM categories WHERE name = ?",
+            array($GLOBALS['gbl_mdm_category_name'])
+        );
         if (!empty($catrow['id'])) $mdm_category_id = $catrow['id'];
     }
 
@@ -526,8 +536,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $amain = array();
 
             if ('MDM' == $msgtype && !$dryrun) {
-                $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
-                $oprow ? $oprow['username'] : 0);
+                $rc = rhl7FlushMDM(
+                    $patient_id,
+                    $mdm_docname,
+                    $mdm_datetime,
+                    $mdm_text,
+                    $mdm_category_id,
+                    $oprow ? $oprow['username'] : 0
+                );
                 if ($rc) return rhl7LogMsg($rc);
                 $patient_id = 0;
             }
@@ -553,8 +569,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $context = $a[0];
 
             if ('MDM' == $msgtype && !$dryrun) {
-                $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
-                $oprow ? $oprow['username'] : 0);
+                $rc = rhl7FlushMDM(
+                    $patient_id,
+                    $mdm_docname,
+                    $mdm_datetime,
+                    $mdm_text,
+                    $mdm_category_id,
+                    $oprow ? $oprow['username'] : 0
+                );
                 if ($rc) return rhl7LogMsg($rc);
             }
 
@@ -705,10 +727,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $porow = false;
 
                 if (!$in_orderid && $external_order_id) {
-                    $porow = sqlQuery("SELECT * FROM procedure_order " .
-                    "WHERE lab_id = ? AND control_id = ? " .
-                    "ORDER BY procedure_order_id DESC LIMIT 1",
-                    array($lab_id, $external_order_id));
+                    $porow = sqlQuery(
+                        "SELECT * FROM procedure_order " .
+                        "WHERE lab_id = ? AND control_id = ? " .
+                        "ORDER BY procedure_order_id DESC LIMIT 1",
+                        array($lab_id, $external_order_id)
+                    );
                 }
                 if (!empty($porow)) {
                     $in_orderid = intval($porow['procedure_order_id']);
@@ -722,10 +746,12 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $encounter_id = 0;
                     $provider_id = 0;
                     // Look for the most recent encounter within 30 days of the report date.
-                    $encrow = sqlQuery("SELECT encounter FROM form_encounter WHERE " .
-                    "pid = ? AND date <= ? AND DATE_ADD(date, INTERVAL 30 DAY) > ? " .
-                    "ORDER BY date DESC, encounter DESC LIMIT 1",
-                    array($patient_id, $date_report, $date_report));
+                    $encrow = sqlQuery(
+                        "SELECT encounter FROM form_encounter WHERE " .
+                        "pid = ? AND date <= ? AND DATE_ADD(date, INTERVAL 30 DAY) > ? " .
+                        "ORDER BY date DESC, encounter DESC LIMIT 1",
+                        array($patient_id, $date_report, $date_report)
+                    );
                     if (!empty($encrow)) {
                               $encounter_id = intval($encrow['encounter']);
                               $provider_id = intval($encrow['provider_id']);
@@ -737,17 +763,22 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     }
                     if (!$dryrun) {
                               // Now create the procedure order.
-                              $in_orderid = sqlInsert("INSERT INTO procedure_order SET " .
-                                "date_ordered   = ?, " .
-                                "provider_id    = ?, " .
-                                "lab_id         = ?, " .
-                                "date_collected = ?, " .
-                                "date_transmitted = ?, " .
-                                "patient_id     = ?, " .
-                                "encounter_id   = ?, " .
-                                "control_id     = ?",
-                                array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
-                                rhl7DateTime($a[7]), $patient_id, $encounter_id, $external_order_id));
+                              $in_orderid = sqlInsert(
+                                  "INSERT INTO procedure_order SET " .
+                                  "date_ordered   = ?, " .
+                                  "provider_id    = ?, " .
+                                  "lab_id         = ?, " .
+                                  "date_collected = ?, " .
+                                  "date_transmitted = ?, " .
+                                  "patient_id     = ?, " .
+                                  "encounter_id   = ?, " .
+                                  "control_id     = ?",
+                                  array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
+                                  rhl7DateTime($a[7]),
+                                  $patient_id,
+                                  $encounter_id,
+                                  $external_order_id)
+                              );
                               // If an encounter was identified then link the order to it.
                         if ($encounter_id && $in_orderid) {
                                               addForm($encounter_id, "Procedure Order", $in_orderid, "procedure_order", $patient_id);
@@ -807,14 +838,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 if (!$dryrun) {
 
                     sqlBeginTrans();
-                    $procedure_order_seq = sqlQuery( "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
-                    sqlInsert("INSERT INTO procedure_order_code SET " .
-                    "procedure_order_id = ?, " .
-                    "procedure_order_seq = ?, " .
-                    "procedure_code = ?, " .
-                    "procedure_name = ?, " .
-                    "procedure_source = '2'",
-                    array($in_orderid, $procedure_order_seq['increment'], $in_procedure_code, $in_procedure_name));
+                    $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
+                    sqlInsert(
+                        "INSERT INTO procedure_order_code SET " .
+                        "procedure_order_id = ?, " .
+                        "procedure_order_seq = ?, " .
+                        "procedure_code = ?, " .
+                        "procedure_name = ?, " .
+                        "procedure_source = '2'",
+                        array($in_orderid, $procedure_order_seq['increment'], $in_procedure_code, $in_procedure_name)
+                    );
                     $pcrow = sqlQuery($pcquery, $pcqueryargs);
                     sqlCommitTrans();
                 }
@@ -899,8 +932,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 }
                 if (!$dryrun) {
                     $d = new Document();
-                    $rc = $d->createDocument($porow['patient_id'], $results_category_id, // TBD: Make sure not 0
-                    $filename, rhl7MimeType($fileext), $data);
+                    $rc = $d->createDocument(
+                        $porow['patient_id'],
+                        $results_category_id, // TBD: Make sure not 0
+                        $filename,
+                        rhl7MimeType($fileext),
+                        $data
+                    );
                     if ($rc) return rhl7LogMsg($rc);
                     $ares['document_id'] = $d->get_id();
                 }
@@ -977,8 +1015,13 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             if ($data === false) return rhl7LogMsg(xl('ZEF segment internal error'));
             if (!$dryrun) {
                 $d = new Document();
-                $rc = $d->createDocument($porow['patient_id'], $results_category_id, // TBD: Make sure not 0
-                $filename, rhl7MimeType($fileext), $data);
+                $rc = $d->createDocument(
+                    $porow['patient_id'],
+                    $results_category_id, // TBD: Make sure not 0
+                    $filename,
+                    rhl7MimeType($fileext),
+                    $data
+                );
                 if ($rc) return rhl7LogMsg($rc);
                 $ares['document_id'] = $d->get_id();
             }
@@ -1021,8 +1064,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
 
     if ('MDM' == $msgtype && !$dryrun) {
         // Write documents.
-        $rc = rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_category_id,
-        $oprow ? $oprow['username'] : 0);
+        $rc = rhl7FlushMDM(
+            $patient_id,
+            $mdm_docname,
+            $mdm_datetime,
+            $mdm_text,
+            $mdm_category_id,
+            $oprow ? $oprow['username'] : 0
+        );
         if ($rc) return rhl7LogMsg($rc);
     }
 

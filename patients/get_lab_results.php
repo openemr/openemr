@@ -39,15 +39,15 @@
         ?>
         <table class="class1">
           <tr class="header">
-            <th><?php echo htmlspecialchars( xl('Order Date'), ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Order Name'), ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Result Name'), ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Abnormal'), ENT_NOQUOTES); ?></th>
-            <th><?php echo htmlspecialchars( xl('Value'), ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Range'), ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Units'), ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Result Status'), ENT_NOQUOTES); ?></th>
-                            <th><?php echo htmlspecialchars( xl('Report Status'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars(xl('Order Date'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars(xl('Order Name'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars(xl('Result Name'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars(xl('Abnormal'), ENT_NOQUOTES); ?></th>
+            <th><?php echo htmlspecialchars(xl('Value'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars(xl('Range'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars(xl('Units'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars(xl('Result Status'), ENT_NOQUOTES); ?></th>
+                            <th><?php echo htmlspecialchars(xl('Report Status'), ENT_NOQUOTES); ?></th>
           </tr>
         <?php
         $even=false;
@@ -114,6 +114,6 @@
     }
     else
     {
-        echo htmlspecialchars( xl("No Results"), ENT_NOQUOTES);
+        echo htmlspecialchars(xl("No Results"), ENT_NOQUOTES);
     }
 ?>

@@ -32,10 +32,10 @@ class DBKey
     {
         $this->Table = & $table;
         $this->Name = $keyname;
-        $this->KeyColumn = str_replace ( "`", "", $columnname );
+        $this->KeyColumn = str_replace("`", "", $columnname);
         $this->KeyComment = $this->Table->Columns [$this->KeyColumn]->Comment;
         
-        $this->NameNoPrefix = $this->Table->RemovePrefix ( $this->Name );
+        $this->NameNoPrefix = $this->Table->RemovePrefix($this->Name);
         $this->GetterName = $this->NameNoPrefix;
     }
 }

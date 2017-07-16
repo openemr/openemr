@@ -71,7 +71,7 @@ if (isset($_POST["mode"]))
               <tr>
                 <td  class='text'><table width="799" border="0" cellspacing="0" cellpadding="0" style="border:1px solid black" >
               <tr>
-                <td width="45" align="left" class="text">&nbsp;<?php echo htmlspecialchars( xl('Patient'), ENT_QUOTES).':' ?>
+                <td width="45" align="left" class="text">&nbsp;<?php echo htmlspecialchars(xl('Patient'), ENT_QUOTES).':' ?>
                 </td>
                 <td width="265"><input type="hidden" id="hidden_ajax_patient_close_value" value="<?php echo $Message=='' ? htmlspecialchars($NameNew) : '' ;?>" />
                 <input name='patient_code'  style="width:265px"   id='patient_code' class="text"  onKeyDown="PreventIt(event)"  
@@ -80,12 +80,12 @@ if (isset($_POST["mode"]))
                 style="border:1px solid black; ; padding-left:5px; width:55px; height:17px;"><?php echo $Message=='' ? htmlspecialchars(formData('hidden_patient_code')) : '' ;?></div>
                 </td>
                 <td width="84" class="text">&nbsp;<input type="radio" name="RadioPaid" onClick="SearchOnceMore()" <?php echo $_REQUEST['RadioPaid']=='Non_Paid'
-                || $_REQUEST['RadioPaid']=='' ? 'checked' : '' ; ?>  value="Non_Paid" id="Non_Paid"  /><?php echo htmlspecialchars( xl('Non Paid'), ENT_QUOTES) ?></td>
+                || $_REQUEST['RadioPaid']=='' ? 'checked' : '' ; ?>  value="Non_Paid" id="Non_Paid"  /><?php echo htmlspecialchars(xl('Non Paid'), ENT_QUOTES) ?></td>
                 <td width="168" class="text"><input type="radio" name="RadioPaid" onClick="SearchOnceMore()" 
                 <?php echo $_REQUEST['RadioPaid']=='Show_Primary_Complete' ? 'checked' : '' ; ?>  value="Show_Primary_Complete" 
-                id="Show_Primary_Complete" /><?php echo htmlspecialchars( xl('Show Primary Complete'), ENT_QUOTES) ?></td>
+                id="Show_Primary_Complete" /><?php echo htmlspecialchars(xl('Show Primary Complete'), ENT_QUOTES) ?></td>
                 <td width="157" class="text"><input type="radio" name="RadioPaid" onClick="SearchOnceMore()" 
-                <?php echo $_REQUEST['RadioPaid']=='Show_Paid' ? 'checked' : '' ; ?>  value="Show_Paid" id="Show_Paid" /><?php echo htmlspecialchars( xl('Show All Transactions'), ENT_QUOTES) ?>
+                <?php echo $_REQUEST['RadioPaid']=='Show_Paid' ? 'checked' : '' ; ?>  value="Show_Paid" id="Show_Paid" /><?php echo htmlspecialchars(xl('Show All Transactions'), ENT_QUOTES) ?>
                 </td>
               </tr>
               <tr>
@@ -125,21 +125,21 @@ if (isset($_POST["mode"]))
                 <td colspan="14"></td>
               </tr>
               <tr class="text" bgcolor="#dddddd">
-                <td width="55" class="left top" ><?php echo htmlspecialchars( xl('Post For'), ENT_QUOTES) ?></td>
-                <td width="80" class="left top" ><?php echo htmlspecialchars( xl('Service Date'), ENT_QUOTES) ?></td>
-                <td width="65" class="left top" ><?php echo htmlspecialchars( xl('Encounter'), ENT_QUOTES) ?></td>
-                <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Service Code'), ENT_QUOTES) ?></td>
-                <td width="55" class="left top" ><?php echo htmlspecialchars( xl('Charge'), ENT_QUOTES) ?></td>
-                <td width="40" class="left top" ><?php echo htmlspecialchars( xl('Copay'), ENT_QUOTES) ?></td>
-                <td width="45" class="left top" ><?php echo htmlspecialchars( xl('Remdr'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Allowed'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Payment'), ENT_QUOTES) ?></td>
-                <td width="70" class="left top" ><?php echo htmlspecialchars( xl('Adj Amount'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Deductible'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Takeback'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('MSP Code'), ENT_QUOTES) ?></td>
-                <td width="60" class="left top" ><?php echo htmlspecialchars( xl('Follow Up'), ENT_QUOTES) ?></td>
-                <td width="209" class="left top right" ><?php echo htmlspecialchars( xl('Follow Up Reason'), ENT_QUOTES) ?></td>
+                <td width="55" class="left top" ><?php echo htmlspecialchars(xl('Post For'), ENT_QUOTES) ?></td>
+                <td width="80" class="left top" ><?php echo htmlspecialchars(xl('Service Date'), ENT_QUOTES) ?></td>
+                <td width="65" class="left top" ><?php echo htmlspecialchars(xl('Encounter'), ENT_QUOTES) ?></td>
+                <td width="70" class="left top" ><?php echo htmlspecialchars(xl('Service Code'), ENT_QUOTES) ?></td>
+                <td width="55" class="left top" ><?php echo htmlspecialchars(xl('Charge'), ENT_QUOTES) ?></td>
+                <td width="40" class="left top" ><?php echo htmlspecialchars(xl('Copay'), ENT_QUOTES) ?></td>
+                <td width="45" class="left top" ><?php echo htmlspecialchars(xl('Remdr'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Allowed'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Payment'), ENT_QUOTES) ?></td>
+                <td width="70" class="left top" ><?php echo htmlspecialchars(xl('Adj Amount'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Deductible'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Takeback'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('MSP Code'), ENT_QUOTES) ?></td>
+                <td width="60" class="left top" ><?php echo htmlspecialchars(xl('Follow Up'), ENT_QUOTES) ?></td>
+                <td width="209" class="left top right" ><?php echo htmlspecialchars(xl('Follow Up Reason'), ENT_QUOTES) ?></td>
               </tr>
                 <?php
                 do
@@ -285,7 +285,7 @@ if (isset($_POST["mode"]))
                  id="Takeback<?php echo $CountIndex; ?>"  
                  onChange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo $CountIndex; ?>);UpdateTotalValues(<?php echo $CountIndexAbove*1+1; ?>,<?php echo $TotalRows; ?>,'Takeback','initialtakebacktotal');RestoreValues(<?php echo $CountIndex; ?>)"  
                   type="text"   style="width:60px;text-align:right; font-size:12px" /></td>
-                <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenReasonCode<?php echo $CountIndex; ?>" id="HiddenReasonCode<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list( "ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--" ); ?></td>                          
+                <td align="left" class="<?php echo $StringClass; ?>" ><input name="HiddenReasonCode<?php echo $CountIndex; ?>" id="HiddenReasonCode<?php echo $CountIndex; ?>"  value="<?php echo htmlspecialchars($ReasonCodeDB); ?>" type="hidden"/><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "", "MSP Code", "--"); ?></td>                          
                 <td align="center" class="<?php echo $StringClass; ?>" ><input type="checkbox" id="FollowUp<?php echo $CountIndex; ?>" 
                  name="FollowUp<?php echo $CountIndex; ?>" value="y" onClick="ActionFollowUp(<?php echo $CountIndex; ?>)"  /></td> 
                 <td class="<?php echo $StringClass; ?> right" ><input  onKeyDown="PreventIt(event)" id="FollowUpReason<?php echo $CountIndex; ?>"   

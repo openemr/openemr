@@ -91,7 +91,7 @@ function ros_report($pid, $encounter, $cols, $id)
 
             if ($value == "on") { $value = "yes"; }
                 
-            printf ("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xl($key), xl($value));
+            printf("<td><span class=bold>%s: </span><span class=text>%s</span></td>", xl($key), xl($value));
             $count++;
 
             if ($count == $cols) {

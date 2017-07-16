@@ -90,7 +90,7 @@ if ($_POST['bn_save']) {
 }
 
 if ($formid) {
-    $row = sqlQuery ("SELECT * FROM form_specialist_notes WHERE " .
+    $row = sqlQuery("SELECT * FROM form_specialist_notes WHERE " .
     "id = '$formid' AND activity = '1'") ;
 }
 ?>

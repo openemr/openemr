@@ -13,8 +13,10 @@ require_once("../../globals.php");
 
 $ptid     = $_GET['ptid'] + 0;
 $encid    = $_GET['encid'] + 0;
-$formname = strtr($_GET['formname'],
-  array('.' => '', '\\' => '', '/' => '', '\'' => '', '"' => '', "\r" => '', "\n" => ''));
+$formname = strtr(
+    $_GET['formname'],
+    array('.' => '', '\\' => '', '/' => '', '\'' => '', '"' => '', "\r" => '', "\n" => '')
+);
 $formid   = $_GET['formid'] + 0;
 
 if (substr($formname, 0, 3) == 'LBF') {

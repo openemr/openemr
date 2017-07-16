@@ -29,18 +29,18 @@ class ReminderIntervals
     function addDetail($detail)
     {
         $details = $this->detailMap[ $detail->intervalType->code ];
-        if ( is_null( $details ) ) {
+        if ( is_null($details) ) {
             $details = array();
         }
-        array_push( $details, $detail );
+        array_push($details, $detail);
         $this->detailMap[ $detail->intervalType->code ] = $details;
     }
 
     function getTypes()
     {
         $types = array();
-        foreach ( array_keys( $this->detailMap ) as $code )  {
-            array_push( $types, ReminderIntervalType::from( $code ) );
+        foreach ( array_keys($this->detailMap) as $code )  {
+            array_push($types, ReminderIntervalType::from($code));
         }
         return $types;
     }

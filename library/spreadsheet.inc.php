@@ -122,8 +122,10 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         }
         // If adding a new form...
         else {
-            $tmprow = sqlQuery("SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
-            array($thisenc));
+            $tmprow = sqlQuery(
+                "SELECT pid FROM form_encounter WHERE encounter = ? ORDER BY id DESC LIMIT 1",
+                array($thisenc)
+            );
             $thispid = $tmprow['pid'];
             sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
             $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
@@ -136,8 +138,14 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
               "'$form_completed|$start_date|$template_name' " .
               ")");
             sqlStatement("UNLOCK TABLES");
-            addForm($thisenc, $spreadsheet_title, $formid, "$spreadsheet_form_name",
-              $thispid, $userauthorized);
+            addForm(
+                $thisenc,
+                $spreadsheet_title,
+                $formid,
+                "$spreadsheet_form_name",
+                $thispid,
+                $userauthorized
+            );
         }
         $saveid = $formid;
     }

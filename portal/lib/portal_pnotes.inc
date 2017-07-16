@@ -51,9 +51,11 @@ function addPortalMailboxPnote(
 
     $body = $newtext;
 
-    return sqlInsert("INSERT INTO pnotes (date, body, pid, user, groupname, " .
+    return sqlInsert(
+        "INSERT INTO pnotes (date, body, pid, user, groupname, " .
             "authorized, activity, title, assigned_to, message_status, portal_relation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            array($datetime, $body, $pid, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note) );
+        array($datetime, $body, $pid, $user, 'Default', $authorized, $activity, $title, $assigned_to, $message_status,$master_note)
+    );
 }
 
 function getPortalPatientNotes($pid = '', $limit = '', $offset = 0, $search = '')
@@ -170,10 +172,10 @@ function getPortalPatientSentNotes($pid = '', $limit = '', $offset = 0, $search 
 function updatePortalPnoteMessageStatus($id, $message_status)
 {
     if ($message_status == "Done") {
-        sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id) );
+        sqlStatement("update pnotes set message_status = ?, activity = '0' where id = ?", array($message_status, $id));
     }
     else {
-        sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
+        sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id));
     }
 }
 function getMails($pid, $dotype, $nsrch, $nfsrch)

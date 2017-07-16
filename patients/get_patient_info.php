@@ -125,7 +125,7 @@ else {
             $_SESSION['portal_username']=$_POST['uname'];
     $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
-if ($userData = sqlQuery($sql, array($auth['pid']) )) { // if query gets executed
+if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
 
     if (empty($userData)) {
                         // no records for this pid, so escape
@@ -158,7 +158,7 @@ if ($userData = sqlQuery($sql, array($auth['pid']) )) { // if query gets execute
 
             // Update the password and continue (patient is authorized)
             privStatement("UPDATE ".TBL_PAT_ACC_ON
-                  ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']) );
+                  ."  SET ".COL_POR_PWD."=?,".COL_POR_SALT."=?,".COL_POR_PWD_STAT."=1 WHERE id=?", array($new_hash,$new_salt,$auth['id']));
             $authorizedPortal = true;
         }
     }

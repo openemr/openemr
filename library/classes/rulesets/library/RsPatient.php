@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( dirname(__FILE__)."/../../../patient.inc" );
+require_once(dirname(__FILE__)."/../../../patient.inc");
 
 class RsPatient
 {
@@ -16,7 +16,7 @@ class RsPatient
     public function __construct($id)
     {
         $this->id = $id;
-        $this->dob = $this->get_DOB( $id );
+        $this->dob = $this->get_DOB($id);
     }
 
     /* Function to get patient dob
@@ -25,7 +25,7 @@ class RsPatient
      */
     private function get_DOB($patient_id)
     {
-        $dob = getPatientData( $patient_id, "DOB as TS_DOB" );
+        $dob = getPatientData($patient_id, "DOB as TS_DOB");
         $dob = $dob['TS_DOB'];
         $date = ($dob . ' 00:00:00'); // MYSQL Date Format
         return $date;

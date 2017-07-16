@@ -140,10 +140,10 @@ if ($form_key) {
 <div id="searchResults">
  <table>
   <tr>
-   <th><?php echo xlt('Name' ); ?></th>
+   <th><?php echo xlt('Name'); ?></th>
    <th><?php echo xlt('Phone'); ?></th>
-   <th><?php echo xlt('SS'   ); ?></th>
-   <th><?php echo xlt('DOB'  ); ?></th>
+   <th><?php echo xlt('SS'); ?></th>
+   <th><?php echo xlt('DOB'); ?></th>
    <th><?php echo xlt('Address'); ?></th>
   </tr>
   <tr>
@@ -168,9 +168,9 @@ while ($row = sqlFetchArray($res)) {
      "'" . addslashes($row['pid']) . "'"  .
      ")\">\n";
     echo "   <td>" . text($row['lname'] . ", " . $row['fname']) . "</td>\n";
-    echo "   <td>" . text($phone        ) . "</td>\n";
-    echo "   <td>" . text($row['ss']    ) . "</td>\n";
-    echo "   <td>" . text($row['DOB']   ) . "</td>\n";
+    echo "   <td>" . text($phone) . "</td>\n";
+    echo "   <td>" . text($row['ss']) . "</td>\n";
+    echo "   <td>" . text($row['DOB']) . "</td>\n";
     echo "   <td>" . text($row['street'] . ' ' . $row['postal_code']) . "</td>\n";
     echo "  </tr>\n";
 }

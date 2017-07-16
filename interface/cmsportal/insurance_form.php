@@ -170,35 +170,35 @@ if ($_POST['bn_save']) {
         $newdata[$field_id] = get_layout_form_value($frow);
     }
     newInsuranceData(
-    $ptid,
-    $newdata['type'],
-    $newdata['provider'],
-    $newdata['policy_number'],
-    $newdata['group_number'],
-    $newdata['plan_name'],
-    $newdata['subscriber_lname'],
-    $newdata['subscriber_mname'],
-    $newdata['subscriber_fname'],
-    $newdata['subscriber_relationship'],
-    '',                                    // subscriber_ss
-    fixDate($newdata['subscriber_DOB']),
-    $newdata['subscriber_street'],
-    $newdata['subscriber_postal_code'],
-    $newdata['subscriber_city'],
-    $newdata['subscriber_state'],
-    '',                                    // subscriber_country
-    $newdata['subscriber_phone'],
-    $newdata['subscriber_employer'],
-    '',                                    // subscriber_employer_street
-    '',                                    // subscriber_employer_city
-    '',                                    // subscriber_employer_postal_code
-    '',                                    // subscriber_employer_state
-    '',                                    // subscriber_employer_country
-    '',                                    // copay
-    $newdata['subscriber_sex'],
-    fixDate($newdata['date']),
-    'TRUE',                                // accept_assignment
-    ''                                     // policy_type
+        $ptid,
+        $newdata['type'],
+        $newdata['provider'],
+        $newdata['policy_number'],
+        $newdata['group_number'],
+        $newdata['plan_name'],
+        $newdata['subscriber_lname'],
+        $newdata['subscriber_mname'],
+        $newdata['subscriber_fname'],
+        $newdata['subscriber_relationship'],
+        '',                                    // subscriber_ss
+        fixDate($newdata['subscriber_DOB']),
+        $newdata['subscriber_street'],
+        $newdata['subscriber_postal_code'],
+        $newdata['subscriber_city'],
+        $newdata['subscriber_state'],
+        '',                                    // subscriber_country
+        $newdata['subscriber_phone'],
+        $newdata['subscriber_employer'],
+        '',                                    // subscriber_employer_street
+        '',                                    // subscriber_employer_city
+        '',                                    // subscriber_employer_postal_code
+        '',                                    // subscriber_employer_state
+        '',                                    // subscriber_employer_country
+        '',                                    // copay
+        $newdata['subscriber_sex'],
+        fixDate($newdata['date']),
+        'TRUE',                                // accept_assignment
+        ''                                     // policy_type
     );
   // Finally, delete the request from the portal.
     $result = cms_portal_call(array('action' => 'delpost', 'postid' => $postid));
@@ -285,9 +285,9 @@ function validate() {
 
 <table width='100%' cellpadding='1' cellspacing='2'>
  <tr class='head'>
-  <th align='left'><?php echo xlt('Field'        ); ?></th>
+  <th align='left'><?php echo xlt('Field'); ?></th>
   <th align='left'><?php echo xlt('Current Value'); ?></th>
-  <th align='left'><?php echo xlt('New Value'    ); ?></th>
+  <th align='left'><?php echo xlt('New Value'); ?></th>
  </tr>
 
 <?php
@@ -309,9 +309,11 @@ foreach ($insurance_layout as $lorow) {
   // Translate $newvalue for certain field types including lists.
     if ($newvalue !== '') {
         if ($list_id) {
-            $tmp = sqlQuery("SELECT option_id FROM list_options WHERE " .
-            "list_id = ? AND title = ? AND activity = 1 ORDER BY option_id LIMIT 1",
-            array($list_id, $newvalue));
+            $tmp = sqlQuery(
+                "SELECT option_id FROM list_options WHERE " .
+                "list_id = ? AND title = ? AND activity = 1 ORDER BY option_id LIMIT 1",
+                array($list_id, $newvalue)
+            );
             if (isset($tmp['option_id'])) $newvalue = $tmp['option_id'];
         }
         // Some data types like insurance provider are pretty hopeless, so let the display

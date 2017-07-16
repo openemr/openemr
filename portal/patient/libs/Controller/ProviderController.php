@@ -54,12 +54,12 @@ class ProviderController extends AppBaseController
         if (isset($_SESSION['authUser']) )
             $cuser = $_SESSION['authUser'];
         else{
-            header( "refresh:5;url= ./provider" );
+            header("refresh:5;url= ./provider");
             echo 'Shared session not allowed with Portal!!!  <br>Onsite portal is using this session<br>Waiting until Onsite Portal is logged out........';
             exit;
         }
-        $this->Assign ( 'cpid', $GLOBALS['pid'] );
-        $this->Assign ( 'cuser', $cuser );
+        $this->Assign('cpid', $GLOBALS['pid']);
+        $this->Assign('cuser', $cuser);
 
         $this->Render();
     }

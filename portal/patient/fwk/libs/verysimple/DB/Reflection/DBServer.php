@@ -4,8 +4,8 @@
 /**
  * import supporting libraries
  */
-require_once ("DBConnection.php");
-require_once ("DBSchema.php");
+require_once("DBConnection.php");
+require_once("DBSchema.php");
 
 /**
  * DBServer is an object representation of a MySQL Server
@@ -41,11 +41,11 @@ class DBServer
      */
     function GetSchema()
     {
-        $this->Connection->Connect ();
+        $this->Connection->Connect();
         
-        $schema = new DBSchema ( $this );
+        $schema = new DBSchema($this);
         
-        $this->Connection->Disconnect ();
+        $this->Connection->Disconnect();
         
         return $schema;
     }

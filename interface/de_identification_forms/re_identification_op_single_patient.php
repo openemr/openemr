@@ -75,7 +75,7 @@ $res = sqlStatement($query);
 
 //call procedure - execute in background
 $sh_cmd='./re_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
-system ($sh_cmd);
+system($sh_cmd);
 
 ?>
     <table>

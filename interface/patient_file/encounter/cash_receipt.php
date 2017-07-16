@@ -131,26 +131,26 @@ foreach ($ar as $key => $val) {
         if ($val == "demographics") {
 
             print "<br><font class=bold>".xl('Patient Data').":</font><br>";
-            printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
+            printRecDataOne($patient_data_array, getRecPatientData($pid), $N);
 
         } elseif ($val == "history") {
 
             print "<br><font class=bold>".xl('History Data').":</font><br>";
-            printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
+            printRecDataOne($history_data_array, getRecHistoryData($pid), $N);
 
         } elseif ($val == "employer") {
 
             print "<br><font class=bold>".xl('Employer Data').":</font><br>";
-            printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
+            printRecDataOne($employer_data_array, getRecEmployerData($pid), $N);
 
         } elseif ($val == "insurance") {
 
             print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
             print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid, "tertiary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
 
         } elseif ($val == "billing") {
 

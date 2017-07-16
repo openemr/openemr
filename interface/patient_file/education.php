@@ -122,14 +122,14 @@ if ($_POST['bn_submit']) {
         <div class='row'>
             <div class='col-xs-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type='hidden' name='type'     value='<?php echo attr($codetype ); ?>' />
+                    <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
-                    <input type='hidden' name='language' value='<?php echo attr($language ); ?>' />
+                    <input type='hidden' name='language' value='<?php echo attr($language); ?>' />
                     <div class='form-group'>
                         <label for="source"><?php echo xlt('Select source'); ?></label>
                         <select name='source' id='source' class='form-control'>
                             <option value='MLP'  ><?php echo xlt('MedlinePlus Connect'); ?></option>
-                            <option value='Local'><?php echo xlt('Local Content'      ); ?></option>
+                            <option value='Local'><?php echo xlt('Local Content'); ?></option>
                         </select>
                     </div>
                     <div class='form-group'>

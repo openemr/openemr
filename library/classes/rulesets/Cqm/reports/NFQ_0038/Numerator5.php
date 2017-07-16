@@ -15,7 +15,7 @@ class NFQ_0038_Numerator5 implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Immunizations::checkHepB( $patient, $beginDate, $endDate ) ) {
+        if ( Immunizations::checkHepB($patient, $beginDate, $endDate) ) {
             return true;
         }
         return false;

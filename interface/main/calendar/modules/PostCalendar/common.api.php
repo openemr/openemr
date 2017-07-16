@@ -663,8 +663,16 @@ function postcalendar_userapi_submitEvent($args)
     }
 
     // get rid of variables we no longer need to save memory
-    unset($event_startyear,$event_startmonth,$event_startday,$event_endyear,$event_endmonth,
-          $event_endday,$event_starttimeh,$event_starttimem);
+    unset(
+        $event_startyear,
+        $event_startmonth,
+        $event_startday,
+        $event_endyear,
+        $event_endmonth,
+        $event_endday,
+        $event_starttimeh,
+        $event_starttimem
+    );
 
     //pennfirm users need to be able to enter apps for different providers, this isn't aoplicable
     /*if(pnUserLoggedIn()) {
@@ -684,12 +692,30 @@ function postcalendar_userapi_submitEvent($args)
          $event_location_info,$event_conttel,$event_contname,
          $event_contemail,$event_website,$event_fee,$event_status,
          $event_recurrspec,$event_duration,$event_sharing,$event_userid,$event_pid,
-         $pc_event_id) = @pnVarPrepForStore($event_subject, $event_desc, $event_topic, $startDate, $endDate,
-         $event_repeat, $startTime, $event_allday, $event_category,
-         $event_location_info, $event_conttel, $event_contname,
-         $event_contemail, $event_website, $event_fee, $event_status,
-         $event_recurrspec, $event_duration, $event_sharing, $event_userid, $event_pid,
-         $pc_event_id);
+         $pc_event_id) = @pnVarPrepForStore(
+             $event_subject,
+             $event_desc,
+             $event_topic,
+             $startDate,
+             $endDate,
+             $event_repeat,
+             $startTime,
+             $event_allday,
+             $event_category,
+             $event_location_info,
+             $event_conttel,
+             $event_contname,
+             $event_contemail,
+             $event_website,
+             $event_fee,
+             $event_status,
+             $event_recurrspec,
+             $event_duration,
+             $event_sharing,
+             $event_userid,
+             $event_pid,
+             $pc_event_id
+         );
 
     if(!isset($is_update)) { $is_update = false; }
     if($is_update) {
@@ -809,10 +835,14 @@ function pc_notify($eid, $is_update)
     $message .= "PostCalendar $modversion\n";
     $message .= "http://www.postcalendar.tv";
 
-    mail(_SETTING_NOTIFY_EMAIL, $subject, $message,
-          "From: " . _SETTING_NOTIFY_EMAIL . "\r\n"
+    mail(
+        _SETTING_NOTIFY_EMAIL,
+        $subject,
+        $message,
+        "From: " . _SETTING_NOTIFY_EMAIL . "\r\n"
           ."X-Mailer: PHP/" . phpversion() . "\r\n"
-          ."X-Mailer: PostCalendar/$modversion" );
+        ."X-Mailer: PostCalendar/$modversion"
+    );
 
     return true;
 }
@@ -935,7 +965,7 @@ function findFirstInDay($day, $date)
             //this happens because people want to be able to set 8:00 - 8:15 and 8:15 - 8:30 without a conflict
             //even though that is technially impossible, so we pretend, however here we weed out the 0
             //length blocks so that won't be seen
-            $date_sec = strtotime ($date);
+            $date_sec = strtotime($date);
             if ($duration > 0) {
                 $times[] = array ("startTime" => $free_time, "endTime" => ($date_sec+$duration));
             }
@@ -1512,7 +1542,7 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
 
     $result = $dbconn->Execute($sql);
     if($dbconn->ErrorNo() != 0) {
-        die ($dbconn->ErrorMsg());
+        die($dbconn->ErrorMsg());
     }
     $event = array();
     if(!isset($result)) {

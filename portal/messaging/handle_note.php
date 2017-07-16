@@ -23,11 +23,11 @@
 session_start();
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $ignoreAuth = true;
-    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
     session_destroy();
     $ignoreAuth = false;
-    require_once (dirname(__FILE__) . "/../../interface/globals.php");
+    require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (! isset($_SESSION['authUserID'])) {
         $landingpage = "index.php";
         header('Location: ' . $landingpage);
@@ -35,8 +35,8 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     }
 }
 
-require_once (dirname(__FILE__) . "/../lib/portal_mail.inc");
-require_once ("$srcdir/pnotes.inc");
+require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
+require_once("$srcdir/pnotes.inc");
 
 $task = $_POST['task'];
 if (! $task)

@@ -5,7 +5,7 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormNursingNotes.class.php");
 
 class C_FormNursingNotes extends Controller
@@ -54,8 +54,14 @@ class C_FormNursingNotes extends Controller
             $GLOBALS['encounter'] = date("Ymd");
         }
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Nursing Notes", $this->form->id, "nursing_notes",
-            $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "Nursing Notes",
+                $this->form->id,
+                "nursing_notes",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
         return;

@@ -180,7 +180,7 @@ function edih_archive_date($period)
         }
         //
         if ($modstr) {
-            $dtpd1 = date_create( $dtstr1 );
+            $dtpd1 = date_create($dtstr1);
             $dtm = date_modify($dtpd1, $modstr);
             $dtpd2 = $dtm->format('Ymd');
         } else {
@@ -1018,7 +1018,7 @@ function edih_archive_main($period)
         }
     } else {
         // should have been created at setup
-        if (!mkdir ($archive_dir, 0755)) {
+        if (!mkdir($archive_dir, 0755)) {
             csv_edihist_log("edih_archive_main: archive directory does not exist");
             $out_html = "Archive: archive directory does not exist<br>" .PHP_EOL;
             return $out_html;
@@ -1057,14 +1057,14 @@ function edih_archive_main($period)
         // copy existing csv files -- continue to next type if no files_csv
         $iscpc = $iscpf = false;
         if (is_file($files_csv)) {
-            $iscpf = copy ($files_csv, $fn_files_old);
+            $iscpf = copy($files_csv, $fn_files_old);
             csv_edihist_log("edih_archive_main: copy $ft files csv to tmp dir");
         } else {
             csv_edihist_log("edih_archive_main: $ft files csv does not exist");
             continue;
         }
         if (is_file($claims_csv)) {
-            $iscpc = copy ($claims_csv, $fn_claims_old);
+            $iscpc = copy($claims_csv, $fn_claims_old);
             csv_edihist_log("edih_archive_main: copy $ft claims csv to tmp dir");
         } else {
             if ($ft == 'f997') {

@@ -34,13 +34,17 @@ if ($createvisit) {
     $thisenc = todaysEncounter($thispid, $irow['title']);
 
   // If the encounter is not already linked to the specified issue, link it.
-    $tmp = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
-    "pid = ? AND list_id = ? AND encounter = ?",
-    array($thispid, $issue, $thisenc));
+    $tmp = sqlQuery(
+        "SELECT count(*) AS count FROM issue_encounter WHERE " .
+        "pid = ? AND list_id = ? AND encounter = ?",
+        array($thispid, $issue, $thisenc)
+    );
     if (empty($tmp['count'])) {
-        sqlStatement("INSERT INTO issue_encounter " .
-        "( pid, list_id, encounter ) VALUES ( ?, ?, ? )",
-        array($thispid, $issue, $thisenc));
+        sqlStatement(
+            "INSERT INTO issue_encounter " .
+            "( pid, list_id, encounter ) VALUES ( ?, ?, ? )",
+            array($thispid, $issue, $thisenc)
+        );
     }
 ?>
 

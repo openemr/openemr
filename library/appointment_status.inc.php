@@ -30,9 +30,25 @@ function updateAppointmentStatus($pid, $encdate, $newstatus)
         // Some tests for illogical changes.
         if ($appt_status == '$') return;
         if ($newstatus == '<' && $appt_status == '>') return;
-        $encounter = todaysEncounterCheck($pid, $tmp['pc_eventDate'], $tmp['pc_hometext'], $tmp['pc_facility'],
-        $tmp['pc_billing_location'], $tmp['pc_aid'], $tmp['pc_catid'], false);
-        manage_tracker_status($tmp['pc_eventDate'], $tmp['pc_startTime'], $appt_eid, $pid,
-          $_SESSION["authUser"], $newstatus, $tmp['pc_room'], $encounter);
+        $encounter = todaysEncounterCheck(
+            $pid,
+            $tmp['pc_eventDate'],
+            $tmp['pc_hometext'],
+            $tmp['pc_facility'],
+            $tmp['pc_billing_location'],
+            $tmp['pc_aid'],
+            $tmp['pc_catid'],
+            false
+        );
+        manage_tracker_status(
+            $tmp['pc_eventDate'],
+            $tmp['pc_startTime'],
+            $appt_eid,
+            $pid,
+            $_SESSION["authUser"],
+            $newstatus,
+            $tmp['pc_room'],
+            $encounter
+        );
     }
 }

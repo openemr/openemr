@@ -43,7 +43,7 @@ function thisLineItem($row)
         echo '"' . addslashes($row['pubpid'        ]) . '",';
         echo '"' . addslashes(oeFormatShortDate($row['date_ordered'  ])) . '",';
         echo '"' . addslashes($row['organization'  ]) . '",';
-        echo '"' . addslashes($provname             ) . '",';
+        echo '"' . addslashes($provname) . '",';
         echo '"' . addslashes($row['priority_name' ]) . '",';
         echo '"' . addslashes($row['status_name'   ]) . '"' . "\n";
     }
@@ -160,13 +160,13 @@ else { // not export
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
-  <td class="dehead"><?php xl('Patient', 'e'  ) ?></td>
-  <td class="dehead"><?php xl('ID', 'e'       ) ?></td>
-  <td class="dehead"><?php xl('Ordered', 'e'  ) ?></td>
-  <td class="dehead"><?php xl('From', 'e'     ) ?></td>
-  <td class="dehead"><?php xl('Provider', 'e' ) ?></td>
-  <td class="dehead"><?php xl('Priority', 'e' ) ?></td>
-  <td class="dehead"><?php xl('Status', 'e'   ) ?></td>
+  <td class="dehead"><?php xl('Patient', 'e') ?></td>
+  <td class="dehead"><?php xl('ID', 'e') ?></td>
+  <td class="dehead"><?php xl('Ordered', 'e') ?></td>
+  <td class="dehead"><?php xl('From', 'e') ?></td>
+  <td class="dehead"><?php xl('Provider', 'e') ?></td>
+  <td class="dehead"><?php xl('Priority', 'e') ?></td>
+  <td class="dehead"><?php xl('Status', 'e') ?></td>
  </tr>
 <?php
 } // end not export

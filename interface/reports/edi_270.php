@@ -126,7 +126,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 																	)
 																)
 							LEFT JOIN insurance_companies as c ON (c.id = i.provider)
-							WHERE %s ", $where );
+							WHERE %s ", $where);
 
     // Run the query
     $res            = sqlStatement($query, $sqlBindArray);
@@ -143,7 +143,8 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
     if (isset($_POST['form_savefile']) && !empty($_POST['form_savefile']) && $res) {
         header('Content-Type: text/plain');
-        header(sprintf('Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
+        header(sprintf(
+            'Content-Disposition: attachment; filename="elig-270..%s.%s.txt"',
             $from_date,
             $to_date
         ));
@@ -156,7 +157,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
     <head>
 
-        <title><?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
+        <title><?php echo htmlspecialchars(xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></title>
 
         <?php Header::setupHeader('datetime-picker'); ?>
 
@@ -189,9 +190,9 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
         <script type="text/javascript">
 
-            var mypcc = "<?php echo htmlspecialchars( $GLOBALS['phone_country_code'], ENT_QUOTES); ?>";
-            var stringDelete = "<?php echo htmlspecialchars( xl('Do you want to remove this record?'), ENT_QUOTES); ?>?";
-            var stringBatch  = "<?php echo htmlspecialchars( xl('Please select X12 partner, required to create the 270 batch'), ENT_QUOTES); ?>";
+            var mypcc = "<?php echo htmlspecialchars($GLOBALS['phone_country_code'], ENT_QUOTES); ?>";
+            var stringDelete = "<?php echo htmlspecialchars(xl('Do you want to remove this record?'), ENT_QUOTES); ?>?";
+            var stringBatch  = "<?php echo htmlspecialchars(xl('Please select X12 partner, required to create the 270 batch'), ENT_QUOTES); ?>";
 
             // for form refresh
 
@@ -280,12 +281,12 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
         <!-- Required for the popup date selectors -->
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-        <span class='title'><?php echo htmlspecialchars( xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars( xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
+        <span class='title'><?php echo htmlspecialchars(xl('Report'), ENT_NOQUOTES); ?> - <?php echo htmlspecialchars(xl('Eligibility 270 Inquiry Batch'), ENT_NOQUOTES); ?></span>
 
         <div id="report_parameters_daterange">
-            <?php echo htmlspecialchars( date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .
-                " &nbsp; " . htmlspecialchars( xl('to'), ENT_NOQUOTES) .
-                "&nbsp; ". htmlspecialchars( date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
+            <?php echo htmlspecialchars(date("d F Y", strtotime($form_from_date)), ENT_NOQUOTES) .
+                " &nbsp; " . htmlspecialchars(xl('to'), ENT_NOQUOTES) .
+                "&nbsp; ". htmlspecialchars(date("d F Y", strtotime($form_to_date)), ENT_NOQUOTES); ?>
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
@@ -301,13 +302,13 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
                                             <?php xl('From', 'e'); ?>:
                                         </td>
                                         <td>
-                                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars( $from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
+                                           <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo htmlspecialchars($from_date, ENT_QUOTES) ?>' title='yyyy-mm-dd'>
                                         </td>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars( xl('To'), ENT_NOQUOTES); ?>:
+                                            <?php echo htmlspecialchars(xl('To'), ENT_NOQUOTES); ?>:
                                         </td>
                                         <td>
-                                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars( $to_date, ENT_QUOTES) ?>'
+                                           <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo htmlspecialchars($to_date, ENT_QUOTES) ?>'
                                             title='yyyy-mm-dd'>
                                         </td>
                                         <td>&nbsp;</td>
@@ -315,21 +316,21 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
                                     <tr>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars( xl('Facility'), ENT_NOQUOTES); ?>:
+                                            <?php echo htmlspecialchars(xl('Facility'), ENT_NOQUOTES); ?>:
                                         </td>
                                         <td>
                                             <?php dropdown_facility($form_facility, 'form_facility', false);  ?>
                                         </td>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars( xl('Provider'), ENT_NOQUOTES); ?>:
+                                            <?php echo htmlspecialchars(xl('Provider'), ENT_NOQUOTES); ?>:
                                         </td>
                                         <td>
                                             <select name='form_users' class='form-control' onchange='form.submit();'>
-                                                <option value=''>-- <?php echo htmlspecialchars( xl('All'), ENT_NOQUOTES); ?> --</option>
+                                                <option value=''>-- <?php echo htmlspecialchars(xl('All'), ENT_NOQUOTES); ?> --</option>
                                                 <?php foreach($providers as $user): ?>
-                                                    <option value='<?php echo htmlspecialchars( $user['id'], ENT_QUOTES); ?>'
+                                                    <option value='<?php echo htmlspecialchars($user['id'], ENT_QUOTES); ?>'
                                                         <?php echo $form_provider == $user['id'] ? " selected " : null; ?>
-                                                    ><?php echo htmlspecialchars( $user['fname']." ".$user['lname'], ENT_NOQUOTES); ?></option>
+                                                    ><?php echo htmlspecialchars($user['fname']." ".$user['lname'], ENT_NOQUOTES); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </td>
@@ -339,24 +340,24 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
 
                                     <tr>
                                         <td class='control-label'>
-                                            <?php echo htmlspecialchars( xl('X12 Partner'), ENT_NOQUOTES); ?>:
+                                            <?php echo htmlspecialchars(xl('X12 Partner'), ENT_NOQUOTES); ?>:
                                         </td>
                                         <td colspan='5'>
                                             <select name='form_x12' id='form_x12' class='form-control' onchange='return toggleMessage("emptyVald","form_x12");' >
-                                                        <option value=''>--<?php echo htmlspecialchars( xl('select'), ENT_NOQUOTES); ?>--</option>
+                                                        <option value=''>--<?php echo htmlspecialchars(xl('select'), ENT_NOQUOTES); ?>--</option>
                                                         <?php
                                                         if(isset($clearinghouses) && !empty($clearinghouses))
                                                         {
                                                             foreach($clearinghouses as $clearinghouse): ?>
-                                                                    <option value='<?php echo htmlspecialchars( $clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
+                                                                    <option value='<?php echo htmlspecialchars($clearinghouse['id']."|".$clearinghouse['id_number']."|".$clearinghouse['x12_sender_id']."|".$clearinghouse['x12_receiver_id']."|".$clearinghouse['x12_version']."|".$clearinghouse['processing_format'], ENT_QUOTES); ?>'
                                                                         <?php echo $clearinghouse['id'] == $X12info[0] ? " selected " : null; ?>
-                                                                    ><?php echo htmlspecialchars( $clearinghouse['name'], ENT_NOQUOTES); ?></option>
+                                                                    ><?php echo htmlspecialchars($clearinghouse['name'], ENT_NOQUOTES); ?></option>
                                                         <?php	endforeach;
                                                         }
 
                                                         ?>
                                                 </select>
-                                                <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars( xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
+                                                <span id='emptyVald' style='color:red;font-size:12px;'> * <?php echo htmlspecialchars(xl('Clearing house info required for EDI 270 batch creation.'), ENT_NOQUOTES); ?></span>
                                         </td>
                                     </tr>
                                 </table>
@@ -386,7 +387,7 @@ if($exclude_policy != ""){  $arrayExplode   =   explode(",", $exclude_policy);
             </div>
 
             <div class='text'>
-                <?php echo htmlspecialchars( xl('Please choose date range criteria above, and click Refresh to view results.'), ENT_NOQUOTES); ?>
+                <?php echo htmlspecialchars(xl('Please choose date range criteria above, and click Refresh to view results.'), ENT_NOQUOTES); ?>
             </div>
 
         </form>

@@ -15,8 +15,7 @@ $res = $facilityService->getFacilityForUserFormatted($_SESSION['authId']);
 $res2 = sqlQuery("select concat(p.lname,', ',p.fname,' ',p.mname) patient_name ".
                 ",date_format(p.DOB,'%c/%e/%Y') as patient_DOB ".
                 ",concat(p.street,'\n',p.city,', ',p.state,' ',p.postal_code) as patient_address".
-                " from patient_data p where p.pid = ?", array($pid)
-                );
+                " from patient_data p where p.pid = ?", array($pid));
 
 //collect immunizations
 $res3 = getImmunizationList($pid, $_GET['sortby'], false);
@@ -47,7 +46,7 @@ function convertToDataArray($data_array)
         }
         else {
             if (!empty($row['code_text_short'])) {
-                $vaccine_display = htmlspecialchars( xl($row['code_text_short']), ENT_NOQUOTES);
+                $vaccine_display = htmlspecialchars(xl($row['code_text_short']), ENT_NOQUOTES);
             }
             else {
                 $vaccine_display = generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']);
@@ -126,9 +125,9 @@ function printHTML($res, $res2, $data)
   //convert end of line characters to html (escape for html output first)
     $patterns = array ('/\n/');
     $replace = array ('<br>');
-    $res['facility_address'] = htmlspecialchars( $res['facility_address'], ENT_NOQUOTES);
+    $res['facility_address'] = htmlspecialchars($res['facility_address'], ENT_NOQUOTES);
     $res['facility_address'] = preg_replace($patterns, $replace, $res['facility_address']);
-    $res2['patient_address'] = htmlspecialchars( $res2['patient_address'], ENT_NOQUOTES);
+    $res2['patient_address'] = htmlspecialchars($res2['patient_address'], ENT_NOQUOTES);
     $res2['patient_address'] = preg_replace($patterns, $replace, $res2['patient_address']);
 
   //deal with bug (last array index is empty)
@@ -198,7 +197,7 @@ function printHTML($res, $res2, $data)
       width: 100%;
     }
   </style>
-  <title><?php xl ('Shot Record', 'e'); ?></title>
+  <title><?php xl('Shot Record', 'e'); ?></title>
   </head>
   <body>
 
@@ -213,12 +212,12 @@ function printHTML($res, $res2, $data)
         echo "<div class='clinicAddress'>" . $res['facility_address'] . "</div>\n";
 
         //display patient information (Note patient address is already escaped)
-        echo "<div class='patientAddress'>" . htmlspecialchars( $res2['patient_name'], ENT_NOQUOTES) . "<br>" .
-        htmlspecialchars( xl('Date of Birth') . ": " . $res2['patient_DOB'], ENT_NOQUOTES) . "<br>" .
+        echo "<div class='patientAddress'>" . htmlspecialchars($res2['patient_name'], ENT_NOQUOTES) . "<br>" .
+        htmlspecialchars(xl('Date of Birth') . ": " . $res2['patient_DOB'], ENT_NOQUOTES) . "<br>" .
         $res2['patient_address'] . "</div>\n";
 
         //display table title
-        echo "<div class='tabletitle'>" . htmlspecialchars( $title, ENT_NOQUOTES) . "</div>\n";
+        echo "<div class='tabletitle'>" . htmlspecialchars($title, ENT_NOQUOTES) . "</div>\n";
 
         echo "<table cellspacing='0' cellpadding='0'>\n";
 
@@ -230,7 +229,7 @@ function printHTML($res, $res2, $data)
             $patterns = array ('/\n/');
             $replace = array (' ');
             $key = preg_replace($patterns, $replace, $key);
-            echo "<th>".htmlspecialchars( $key, ENT_NOQUOTES)."</th>\n";
+            echo "<th>".htmlspecialchars($key, ENT_NOQUOTES)."</th>\n";
         }
         echo "</tr>\n";
 
@@ -265,13 +264,13 @@ function printHTML($res, $res2, $data)
         echo "</table>\n";
 
         //display signature line
-        echo "<div class='sign'>" . htmlspecialchars( xl('Signature'), ENT_NOQUOTES) .
+        echo "<div class='sign'>" . htmlspecialchars(xl('Signature'), ENT_NOQUOTES) .
         ":________________________________" . "</div>\n";
 
         if ($countTotalPages > 1) {
             //display page number if greater than one page
             echo "<div class='pageNumber'>" .
-            htmlspecialchars( xl('Page') . " " . ($i+1) . "/" . $countTotalPages, ENT_NOQUOTES) .
+            htmlspecialchars(xl('Page') . " " . ($i+1) . "/" . $countTotalPages, ENT_NOQUOTES) .
             "</div>\n";
         }
 

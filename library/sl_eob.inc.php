@@ -119,7 +119,7 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
     if (empty($time)) $time = date('Y-m-d H:i:s');
 
     sqlBeginTrans();
-    $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_user, " .
     "session_id, memo, pay_amount " .
@@ -174,18 +174,20 @@ function arPostCharge($patient_id, $encounter_id, $session_id, $amount, $units, 
         $modifier = substr($code, $tmp+1);
     }
 
-    addBilling($encounter_id,
-    $codetype,
-    $codeonly,
-    $description,
-    $patient_id,
-    0,
-    0,
-    $modifier,
-    $units,
-    $amount,
-    '',
-    '');
+    addBilling(
+        $encounter_id,
+        $codetype,
+        $codeonly,
+        $description,
+        $patient_id,
+        0,
+        0,
+        $modifier,
+        $units,
+        $amount,
+        '',
+        ''
+    );
 }
 
   // Post an adjustment, new style.
@@ -202,7 +204,7 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
     if (empty($time)) $time = date('Y-m-d H:i:s');
 
     sqlBeginTrans();
-    $sequence_no = sqlQuery( "SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
+    $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
     $query = "INSERT INTO ar_activity ( " .
     "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_user, post_time, " .
     "session_id, memo, adj_amount " .
@@ -233,7 +235,7 @@ function arGetPayerID($patient_id, $date_of_service, $payer_type)
     $query = "SELECT provider FROM insurance_data WHERE " .
     "pid = ? AND type = ? AND date <= ? " .
     "ORDER BY date DESC LIMIT 1";
-    $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service) );
+    $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service));
     if (empty($nprow)) return 0;
     return $nprow['provider'];
 }

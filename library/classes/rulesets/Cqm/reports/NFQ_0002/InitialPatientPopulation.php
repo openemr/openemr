@@ -30,7 +30,7 @@ class NFQ_0002_InitialPatientPopulation implements CqmFilterIF
     
     public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        $age = $patient->calculateAgeOnDate( $beginDate );
+        $age = $patient->calculateAgeOnDate($beginDate);
         if (  $age >= 2 && $age < 18  ) {
             //Children 2-18 years of age who had an outpatient or emergency department (ED) visit with a diagnosis of pharyngitis during the measurement period and an antibiotic ordered on or three days after the visit
             $antibiotics = implode(',', Codes::lookup(Medication::ANTIBIOTIC_FOR_PHARYNGITIS, 'RXNORM'));
@@ -40,7 +40,7 @@ class NFQ_0002_InitialPatientPopulation implements CqmFilterIF
                      "WHERE opc.pc_catname = 'Office Visit' AND fe.pid = ? AND (fe.date BETWEEN ? AND ? ) ".
                      " AND p.rxnorm_drugcode in ( $antibiotics ) AND DATEDIFF(fe.date,p.date_added) <= 3";
             
-            $check = sqlQuery( $query, array($patient->id, $beginDate, $endDate) );
+            $check = sqlQuery($query, array($patient->id, $beginDate, $endDate));
             if ($check['drug'] != ""){
                 if(Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate))
                     return true;

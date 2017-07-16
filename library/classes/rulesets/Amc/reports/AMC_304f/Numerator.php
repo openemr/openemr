@@ -18,7 +18,7 @@ class AMC_304f_Numerator implements AmcFilterIF
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // For all record request need to be completed within three business days
-        $amcResults = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate) );
+        $amcResults = sqlStatement("SELECT * FROM `amc_misc_data` WHERE `amc_id`=? AND `pid`=? AND `date_created`>=? AND `date_created`<=?", array('provide_rec_pat_amc',$patient->id,$beginDate,$endDate));
 
         while ($res = sqlFetchArray($amcResults)) {
         

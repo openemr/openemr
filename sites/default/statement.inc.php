@@ -134,7 +134,7 @@ function create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']) );
+        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $direction, $providerID);
 
@@ -300,8 +300,15 @@ function create_HTML_statement($stmt)
         $count++;
     }
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n", $label_ptname, $stmt['patient'],
-    $label_today, oeFormatShortDate($stmt['today']), $label_due, $stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
     $out .= sprintf("%-s\n", $label_call);
@@ -579,8 +586,12 @@ function create_statement($stmt)
     $out .= "\n";
     $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
     $out .= "\n";
-    $out .= sprintf("%s_____________________  %s______ %s___________________%s\n\n",
-    $label_cardnum, $label_expiry, $label_sign);
+    $out .= sprintf(
+        "%s_____________________  %s______ %s___________________%s\n\n",
+        $label_cardnum,
+        $label_expiry,
+        $label_sign
+    );
     $out .= sprintf("-----------------------------------------------------------------\n");
     $out .= sprintf("%-20s %s\n", null, $label_retpay);
     $out .= "\n";
@@ -693,8 +704,15 @@ function create_statement($stmt)
         $out .= sprintf("%-46s\n", $dun_message);
     }
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n", $label_ptname, $stmt['patient'],
-    $label_today, oeFormatShortDate($stmt['today']), $label_due, $stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
     $out .= sprintf("%-s\n", $label_call);
@@ -775,7 +793,7 @@ function osp_create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']) );
+        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
     echo report_header_2($stmt, $direction, $providerID);
 
@@ -941,8 +959,15 @@ function osp_create_HTML_statement($stmt)
         $count++;
     }
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n", $label_ptname, $stmt['patient'],
-    $label_today, oeFormatShortDate($stmt['today']), $label_due, $stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
     $out .= sprintf("%-s\n", $label_call);

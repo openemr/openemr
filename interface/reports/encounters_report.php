@@ -390,8 +390,11 @@ if ($res) {
         if ($form_details) {
             // Fetch all other forms for this encounter.
             $encnames = '';
-            $encarr = getFormByEncounter($patient_id, $row['encounter'],
-            "formdir, user, form_name, form_id");
+            $encarr = getFormByEncounter(
+                $patient_id,
+                $row['encounter'],
+                "formdir, user, form_name, form_id"
+            );
             if($encarr!='') {
                 foreach ($encarr as $enc) {
                     if ($enc['formdir'] == 'newpatient') continue;
@@ -404,8 +407,11 @@ if ($res) {
             $coded = "";
             $billed_count = 0;
             $unbilled_count = 0;
-            if ($billres = getBillingByEncounter($row['pid'], $row['encounter'],
-            "code_type, code, code_text, billed"))
+            if ($billres = getBillingByEncounter(
+                $row['pid'],
+                $row['encounter'],
+                "code_type, code, code_text, billed"
+            ))
             {
                 foreach ($billres as $billrow) {
                     // $title = addslashes($billrow['code_text']);
@@ -427,10 +433,10 @@ if ($res) {
             }
 
             // Compute billing status.
-            if ($billed_count && $unbilled_count) $status = xl('Mixed' );
+            if ($billed_count && $unbilled_count) $status = xl('Mixed');
             else if ($billed_count              ) $status = xl('Closed');
-            else if ($unbilled_count            ) $status = xl('Open'  );
-            else                                  $status = xl('Empty' );
+            else if ($unbilled_count            ) $status = xl('Open');
+            else                                  $status = xl('Empty');
         ?>
        <tr bgcolor='<?php echo $bgcolor ?>'>
   <td>
@@ -480,7 +486,7 @@ if ($res) {
 </div>  <!-- end encresults -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xlt('Please input search criteria above, and click Submit to view results.' ); ?>
+    <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?>
 </div>
 <?php } ?>
 

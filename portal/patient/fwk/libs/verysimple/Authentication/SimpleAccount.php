@@ -1,6 +1,6 @@
 <?php
 /** @package    verysimple::Authentication */
-require_once ("IAuthenticatable.php");
+require_once("IAuthenticatable.php");
 
 /**
  * simple implementation of IAuthenticatable for using a basic

@@ -40,7 +40,7 @@ require_once("../../custom/code_types.inc.php");
 function getLoggedInUserFacility()
 {
     $sql = "SELECT f.name, f.facility_npi FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-    $res = sqlStatement($sql, array($_SESSION['authUserID']) );
+    $res = sqlStatement($sql, array($_SESSION['authUserID']));
     while ($arow = sqlFetchArray($res)) {
         return $arow;
     }
@@ -87,7 +87,7 @@ if(isset($_POST['form_to_date'])) {
 //
 $form_code = isset($_POST['form_code']) ? $_POST['form_code'] : array();
 //
-if (empty ($form_code) ) {
+if (empty($form_code) ) {
     $query_codes = '';
 } else {
     $query_codes = 'c.id in (';
@@ -246,7 +246,7 @@ if ($_POST['form_get_hl7']==='true') {
 
   // send the header here
     header('Content-type: text/plain');
-    header('Content-Disposition: attachment; filename=' . $filename );
+    header('Content-Disposition: attachment; filename=' . $filename);
 
   // put the content in the file
     echo($content);

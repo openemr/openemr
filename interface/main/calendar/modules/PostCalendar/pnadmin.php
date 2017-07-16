@@ -92,22 +92,30 @@ EOF;
     if(!isset($sdir)) $sdir = 1;
     if(!isset($offset))  $offset = 0;
 
-    $result = pnModAPIFunc(__POSTCALENDAR__, 'admin', 'getAdminListEvents',
-                           array('type'=>$type,
+    $result = pnModAPIFunc(
+        __POSTCALENDAR__,
+        'admin',
+        'getAdminListEvents',
+        array('type'=>$type,
                                  'sdir'=>$sdir,
                                  'sort'=>$sort,
                                  'offset'=>$offset,
-                                 'offset_increment'=>$offset_increment));
+        'offset_increment'=>$offset_increment)
+    );
 
-    $output .= pnModAPIFunc(__POSTCALENDAR__, 'admin', 'buildAdminList',
-                              array('type'=>$type,
+    $output .= pnModAPIFunc(
+        __POSTCALENDAR__,
+        'admin',
+        'buildAdminList',
+        array('type'=>$type,
                                     'title'=>$title,
                                     'sdir'=>$sdir,
                                     'sort'=>$sort,
                                     'offset'=>$offset,
                                     'offset_increment'=>$offset_increment,
                                     'function'=>$function,
-                                    'result'=>$result));
+        'result'=>$result)
+    );
 
     $output .= "</body></html>";
     return $output;
@@ -337,8 +345,14 @@ function postcalendar_admin_submit($args)
     $event_city         = pnVarCleanFromInput('event_city');
     $event_state        = pnVarCleanFromInput('event_state');
     $event_postal       = pnVarCleanFromInput('event_postal');
-    $event_location_info = serialize(compact('event_location', 'event_street1', 'event_street2',
-                                             'event_city', 'event_state', 'event_postal'));
+    $event_location_info = serialize(compact(
+        'event_location',
+        'event_street1',
+        'event_street2',
+        'event_city',
+        'event_state',
+        'event_postal'
+    ));
     // contact data
     $event_contname     = pnVarCleanFromInput('event_contname');
     $event_conttel      = pnVarCleanFromInput('event_conttel');
@@ -353,8 +367,13 @@ function postcalendar_admin_submit($args)
     $event_repeat_on_num = pnVarCleanFromInput('event_repeat_on_num');
     $event_repeat_on_day = pnVarCleanFromInput('event_repeat_on_day');
     $event_repeat_on_freq = pnVarCleanFromInput('event_repeat_on_freq');
-    $event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+    $event_recurrspec = serialize(compact(
+        'event_repeat_freq',
+        'event_repeat_freq_type',
+        'event_repeat_on_num',
+        'event_repeat_on_day',
+        'event_repeat_on_freq'
+    ));
 
     $pc_html_or_text = pnVarCleanFromInput('pc_html_or_text');
     $form_action = pnVarCleanFromInput('form_action');
@@ -369,14 +388,52 @@ function postcalendar_admin_submit($args)
 
     // lets wrap all the data into array for passing to submit and preview functions
     if(!isset($pc_event_id) || empty($pc_event_id) || $data_loaded) {
-        $eventdata = compact('event_subject', 'event_desc', 'event_sharing', 'event_category', 'event_topic',
-        'event_startmonth', 'event_startday', 'event_startyear', 'event_starttimeh', 'event_starttimem', 'event_startampm',
-        'event_endmonth', 'event_endday', 'event_endyear', 'event_endtype', 'event_dur_hours', 'event_dur_minutes',
-        'event_duration', 'event_allday', 'event_location', 'event_street1', 'event_street2', 'event_city', 'event_state',
-        'event_postal', 'event_location_info', 'event_contname', 'event_conttel', 'event_contemail',
-        'event_website', 'event_fee', 'event_repeat', 'event_repeat_freq', 'event_repeat_freq_type',
-        'event_repeat_on_num', 'event_repeat_on_day', 'event_repeat_on_freq', 'event_recurrspec', 'uname',
-        'Date', 'year', 'month', 'day', 'pc_html_or_text');
+        $eventdata = compact(
+            'event_subject',
+            'event_desc',
+            'event_sharing',
+            'event_category',
+            'event_topic',
+            'event_startmonth',
+            'event_startday',
+            'event_startyear',
+            'event_starttimeh',
+            'event_starttimem',
+            'event_startampm',
+            'event_endmonth',
+            'event_endday',
+            'event_endyear',
+            'event_endtype',
+            'event_dur_hours',
+            'event_dur_minutes',
+            'event_duration',
+            'event_allday',
+            'event_location',
+            'event_street1',
+            'event_street2',
+            'event_city',
+            'event_state',
+            'event_postal',
+            'event_location_info',
+            'event_contname',
+            'event_conttel',
+            'event_contemail',
+            'event_website',
+            'event_fee',
+            'event_repeat',
+            'event_repeat_freq',
+            'event_repeat_freq_type',
+            'event_repeat_on_num',
+            'event_repeat_on_day',
+            'event_repeat_on_freq',
+            'event_recurrspec',
+            'uname',
+            'Date',
+            'year',
+            'month',
+            'day',
+            'pc_html_or_text'
+        );
         $eventdata['is_update'] = $is_update;
         $eventdata['pc_event_id'] = $pc_event_id;
         $eventdata['data_loaded'] = true;
@@ -556,14 +613,54 @@ function postcalendar_admin_submit($args)
                 $is_update = false;
                 $pc_event_id = 0;
                 // lets wrap all the data into array for passing to submit and preview functions
-                $eventdata = compact('event_subject', 'event_desc', 'event_sharing', 'event_category', 'event_topic',
-                'event_startmonth', 'event_startday', 'event_startyear', 'event_starttimeh', 'event_starttimem', 'event_startampm',
-                'event_endmonth', 'event_endday', 'event_endyear', 'event_endtype', 'event_dur_hours', 'event_dur_minutes',
-                'event_duration', 'event_allday', 'event_location', 'event_street1', 'event_street2', 'event_city', 'event_state',
-                'event_postal', 'event_location_info', 'event_contname', 'event_conttel', 'event_contemail',
-                'event_website', 'event_fee', 'event_repeat', 'event_repeat_freq', 'event_repeat_freq_type',
-                'event_repeat_on_num', 'event_repeat_on_day', 'event_repeat_on_freq', 'event_recurrspec', 'uname',
-                'Date', 'year', 'month', 'day', 'pc_html_or_text', 'is_update', 'pc_event_id');
+                $eventdata = compact(
+                    'event_subject',
+                    'event_desc',
+                    'event_sharing',
+                    'event_category',
+                    'event_topic',
+                    'event_startmonth',
+                    'event_startday',
+                    'event_startyear',
+                    'event_starttimeh',
+                    'event_starttimem',
+                    'event_startampm',
+                    'event_endmonth',
+                    'event_endday',
+                    'event_endyear',
+                    'event_endtype',
+                    'event_dur_hours',
+                    'event_dur_minutes',
+                    'event_duration',
+                    'event_allday',
+                    'event_location',
+                    'event_street1',
+                    'event_street2',
+                    'event_city',
+                    'event_state',
+                    'event_postal',
+                    'event_location_info',
+                    'event_contname',
+                    'event_conttel',
+                    'event_contemail',
+                    'event_website',
+                    'event_fee',
+                    'event_repeat',
+                    'event_repeat_freq',
+                    'event_repeat_freq_type',
+                    'event_repeat_on_num',
+                    'event_repeat_on_day',
+                    'event_repeat_on_freq',
+                    'event_recurrspec',
+                    'uname',
+                    'Date',
+                    'year',
+                    'month',
+                    'day',
+                    'pc_html_or_text',
+                    'is_update',
+                    'pc_event_id'
+                );
             }
         }
     }
@@ -794,12 +891,27 @@ function postcalendar_admin_updateconfig()
          $pcAllowDirectSubmit, $pcListHowManyEvents, $pcDisplayTopics,
          $pcEventDateFormat, $pcTemplate, $pcAllowSiteWide,
          $pcAllowUserCalendar, $pcTimeIncrement,$pcUseCache, $pcCacheLifetime,
-         $pcDefaultView, $pcNotifyAdmin, $pcNotifyEmail) = pnVarCleanFromInput('pcTime24Hours',
-         'pcEventsOpenInNewWindow', 'pcUseInternationalDates', 'pcFirstDayOfWeek',
-         'pcDayHighlightColor', 'pcUsePopups', 'pcAllowDirectSubmit',
-         'pcListHowManyEvents', 'pcDisplayTopics', 'pcEventDateFormat',
-         'pcTemplate', 'pcAllowSiteWide', 'pcAllowUserCalendar', 'pcTimeIncrement',
-         'pcUseCache', 'pcCacheLifetime', 'pcDefaultView', 'pcNotifyAdmin', 'pcNotifyEmail');
+         $pcDefaultView, $pcNotifyAdmin, $pcNotifyEmail) = pnVarCleanFromInput(
+             'pcTime24Hours',
+             'pcEventsOpenInNewWindow',
+             'pcUseInternationalDates',
+             'pcFirstDayOfWeek',
+             'pcDayHighlightColor',
+             'pcUsePopups',
+             'pcAllowDirectSubmit',
+             'pcListHowManyEvents',
+             'pcDisplayTopics',
+             'pcEventDateFormat',
+             'pcTemplate',
+             'pcAllowSiteWide',
+             'pcAllowUserCalendar',
+             'pcTimeIncrement',
+             'pcUseCache',
+             'pcCacheLifetime',
+             'pcDefaultView',
+             'pcNotifyAdmin',
+             'pcNotifyEmail'
+         );
 
     // make sure we enter something into the DB
     if(!isset($pcTime24Hours))           { $pcTime24Hours = '0'; }
@@ -997,18 +1109,47 @@ EOF;
         $new_event_repeat_freq_type,$new_event_repeat_on_num,$new_event_repeat_on_day,
         $new_event_repeat_on_freq,$new_durationh,$new_durationm,$new_limitid,$new_end_date_flag,
         $new_end_date_type,$new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence
-        ) = pnVarCleanFromInput('id', 'del', 'name', 'value_cat_type', 'desc', 'color',
-                            'event_repeat', 'event_repeat_freq', 'event_repeat_freq_type',
-                            'event_repeat_on_num', 'event_repeat_on_day',
-                            'event_repeat_on_freq', 'durationh', 'durationm',
-                            'end_date_flag', 'end_date_type', 'end_date_freq',
-                            'end_all_day', 'active', 'sequence', 'newname', 'newdesc', 'newcolor',
-                            'newevent_repeat', 'newevent_repeat_freq',
-                            'newevent_repeat_freq_type', 'newevent_repeat_on_num',
-                            'newevent_repeat_on_day', 'newevent_repeat_on_freq',
-                            'newdurationh', 'newdurationm', 'newlimitid', 'newend_date_flag',
-                            'newend_date_type', 'newend_date_freq', 'newend_all_day', 'newvalue_cat_type', 'newactive', 'newsequence'
-                            );
+        ) = pnVarCleanFromInput(
+            'id',
+            'del',
+            'name',
+            'value_cat_type',
+            'desc',
+            'color',
+            'event_repeat',
+            'event_repeat_freq',
+            'event_repeat_freq_type',
+            'event_repeat_on_num',
+            'event_repeat_on_day',
+            'event_repeat_on_freq',
+            'durationh',
+            'durationm',
+            'end_date_flag',
+            'end_date_type',
+            'end_date_freq',
+            'end_all_day',
+            'active',
+            'sequence',
+            'newname',
+            'newdesc',
+            'newcolor',
+            'newevent_repeat',
+            'newevent_repeat_freq',
+            'newevent_repeat_freq_type',
+            'newevent_repeat_on_num',
+            'newevent_repeat_on_day',
+            'newevent_repeat_on_freq',
+            'newdurationh',
+            'newdurationm',
+            'newlimitid',
+            'newend_date_flag',
+            'newend_date_type',
+            'newend_date_freq',
+            'newend_all_day',
+            'newvalue_cat_type',
+            'newactive',
+            'newsequence'
+        );
     //data validation
     foreach($name as $i=>$item)
     {
@@ -1047,11 +1188,21 @@ EOF;
         }
     }
     $new_duration = ($new_durationh * (60 * 60)) + ($new_durationm * 60);
-    $event_recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+    $event_recurrspec = serialize(compact(
+        'event_repeat_freq',
+        'event_repeat_freq_type',
+        'event_repeat_on_num',
+        'event_repeat_on_day',
+        'event_repeat_on_freq'
+    ));
 
-    $new_event_recurrspec = serialize(compact('new_event_repeat_freq', 'new_event_repeat_freq_type', 'new_event_repeat_on_num',
-                                          'new_event_repeat_on_day', 'new_event_repeat_on_freq'));
+    $new_event_recurrspec = serialize(compact(
+        'new_event_repeat_freq',
+        'new_event_repeat_freq_type',
+        'new_event_repeat_on_num',
+        'new_event_repeat_on_day',
+        'new_event_repeat_on_freq'
+    ));
     if(is_array($del)) {
         $dels = implode(',', $del);
         $delText = _PC_DELETE_CATS . $dels .'.';
@@ -1124,15 +1275,40 @@ function postcalendar_admin_categoriesUpdate()
         $new_event_repeat,$new_event_recurrspec,$new_event_recurrfreq,
         $new_duration,$new_dailylimitid,$new_end_date_flag,$new_end_date_type,
         $new_end_date_freq,$new_end_all_day,$new_value_cat_type,$newactive,$newsequence
-        ) = pnVarCleanFromInput('id', 'del', 'name', 'value_cat_type', 'desc', 'color', 'event_repeat',
-                            'event_recurrspec', 'dels', 'durationh', 'durationm',
-                            'end_date_flag', 'end_date_type', 'end_date_freq', 'end_all_day', 'active', 'sequence',
-                            'newname', 'newdesc', 'newcolor',
-                            'newevent_repeat', 'newevent_recurrspec',
-                            'newevent_recurrfreq', 'newduration', 'newlimitid',
-                            'newend_date_flag', 'newend_date_type',
-                            'newend_date_freq', 'newend_all_day', 'newvalue_cat_type', 'newactive', 'newsequence'
-                            );
+        ) = pnVarCleanFromInput(
+            'id',
+            'del',
+            'name',
+            'value_cat_type',
+            'desc',
+            'color',
+            'event_repeat',
+            'event_recurrspec',
+            'dels',
+            'durationh',
+            'durationm',
+            'end_date_flag',
+            'end_date_type',
+            'end_date_freq',
+            'end_all_day',
+            'active',
+            'sequence',
+            'newname',
+            'newdesc',
+            'newcolor',
+            'newevent_repeat',
+            'newevent_recurrspec',
+            'newevent_recurrfreq',
+            'newduration',
+            'newlimitid',
+            'newend_date_flag',
+            'newend_date_type',
+            'newend_date_freq',
+            'newend_all_day',
+            'newvalue_cat_type',
+            'newactive',
+            'newsequence'
+        );
 
     $id = unserialize($id);
     $del = unserialize($del);
@@ -1170,8 +1346,13 @@ function postcalendar_admin_categoriesUpdate()
                 $event_repeat_on_day = $event_recurrspec_array['event_repeat_on_day'][$i];
                 $event_repeat_on_freq = $event_recurrspec_array['event_repeat_on_freq'][$i];
 
-                $recurrspec = serialize(compact('event_repeat_freq', 'event_repeat_freq_type', 'event_repeat_on_num',
-                                          'event_repeat_on_day', 'event_repeat_on_freq'));
+                $recurrspec = serialize(compact(
+                    'event_repeat_freq',
+                    'event_repeat_freq_type',
+                    'event_repeat_on_num',
+                    'event_repeat_on_day',
+                    'event_repeat_on_freq'
+                ));
 
                 $dur = ( ($durationh[$i]*(60 * 60)) + ($durationm[$i] * 60));
 
@@ -1219,12 +1400,17 @@ function postcalendar_admin_categoriesUpdate()
         $new_event_recurrspec['event_repeat_on_freq'] = $unpacked['new_event_repeat_on_freq'];
         $new_event_recurrspec = serialize($new_event_recurrspec);
 
-        if(!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'addCategories',
+        if(!pnModAPIFunc(
+            __POSTCALENDAR__,
+            'admin',
+            'addCategories',
             array('name'=>$newname,'desc'=>$newdesc,'value_cat_type'=>$new_value_cat_type,'color'=>$newcolor,'active'=>$newactive,'sequence'=>$newsequence,
             'repeat'=>$new_event_repeat,'spec'=>$new_event_recurrspec,
             'recurrfreq'=>$new_recurrfreq,'duration'=>$new_duration,'limitid'=>$new_dailylimitid,
             'end_date_flag'=>$new_end_date_flag,'end_date_type'=>$new_end_date_flag,
-            'end_date_freq'=>$new_end_date_freq,'end_all_day'=>$new_end_all_day))) {
+            'end_date_freq'=>$new_end_date_freq,
+            'end_all_day'=>$new_end_all_day)
+        )) {
             $e .= 'INSERT FAILED';
         }
     }
@@ -2035,10 +2221,22 @@ function postcalendar_admin_categoryLimitsUpdate()
     list($id,$del,$catId,$startTimeH,$startTimeM,$endTimeH,$endTimeM,$limit,
         $newCatId,$newStartTimeH,$newStartTimeM,$newEndTimeH,
         $newEndTimeM,$newLimit,
-        ) = pnVarCleanFromInput('id', 'del', 'catid', 'starttimeh', 'starttimem',
-                            'endtimeh', 'endtimem', 'limit',
-                            'newcatid', 'newstarttimeh', 'newstarttimem', 'newendtimeh',
-                            'newendtimem', 'newlimit');
+        ) = pnVarCleanFromInput(
+            'id',
+            'del',
+            'catid',
+            'starttimeh',
+            'starttimem',
+            'endtimeh',
+            'endtimem',
+            'limit',
+            'newcatid',
+            'newstarttimeh',
+            'newstarttimem',
+            'newendtimeh',
+            'newendtimem',
+            'newlimit'
+        );
     $updates = array();
     if(isset($id)) {
         foreach($id as $k=>$i) {
@@ -2081,9 +2279,13 @@ function postcalendar_admin_categoryLimitsUpdate()
         $start = date("H:i:s", mktime($newStartTimeH, $newStartTimeM, 0));
         $end = date("H:i:s", mktime($newEndTimeH, $newEndTimeM, 0));
 
-        if(!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'addCategoryLimit',
+        if(!pnModAPIFunc(
+            __POSTCALENDAR__,
+            'admin',
+            'addCategoryLimit',
             array('catid'=>$newCatId,'starttime'=>$start,'endtime'=>$end,
-            'limit'=>$newLimit))) {
+            'limit'=>$newLimit)
+        )) {
             $e .= 'INSERT FAILED';
         }
     }

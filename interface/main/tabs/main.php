@@ -119,7 +119,7 @@ var webroot_url="<?php echo $web_root; ?>";
 
 <script type="text/javascript">
 // Create translations to be used in the menuActionClick() function in below js/tabs_view_model.js script
-var xl_strings_tabs_view_model = <?php echo json_encode( array(
+var xl_strings_tabs_view_model = <?php echo json_encode(array(
     'encounter_locked' => xla('This encounter is locked. No new forms can be added.'),
     'must_select_patient'  => $GLOBALS['enable_group_therapy'] ? xla('You must first select or add a patient or therapy group.') : xla('You must first select or add a patient.'),
     'must_select_encounter'    => xla('You must first select or create an encounter.')
@@ -180,8 +180,10 @@ $GLOBALS['allow_issue_menu_link'] = ((acl_check('encounters', 'notes', '', 'writ
 <?php // mdsupport - app settings
     $disp_mainBox = '';
 if (isset($_SESSION['app1'])) {
-    $rs = sqlquery("SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-        array('apps', $_SESSION['app1']));
+    $rs = sqlquery(
+        "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
+        array('apps', $_SESSION['app1'])
+    );
     if ($rs['app_url'] != "main/main_screen.php") {
         echo '<iframe name="app1" src="../../'.attr($rs['app_url']).'"
     			style="position:absolute; left:0; top:0; height:100%; width:100%; border:none;" />';

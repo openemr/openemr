@@ -210,34 +210,35 @@ class UserAudit extends UserMail
                     elseif($table=='insurance_data'){
                         for($i=1;$i<=3;$i++){
                             newInsuranceData(
-                              $pid,
-                              $newdata[${ins.$i._type}]['type'],
-                              $newdata[${ins.$i._type}]['provider'],
-                              $newdata[${ins.$i._type}]['policy_number'],
-                              $newdata[${ins.$i._type}]['group_number'],
-                              $newdata[${ins.$i._type}]['plan_name'],
-                              $newdata[${ins.$i._type}]['subscriber_lname'],
-                              $newdata[${ins.$i._type}]['subscriber_mname'],
-                              $newdata[${ins.$i._type}]['subscriber_fname'],
-                              $newdata[${ins.$i._type}]['subscriber_relationship'],
-                              $newdata[${ins.$i._type}]['subscriber_ss'],
-                              $newdata[${ins.$i._type}]['subscriber_DOB'],
-                              $newdata[${ins.$i._type}]['subscriber_street'],
-                              $newdata[${ins.$i._type}]['subscriber_postal_code'],
-                              $newdata[${ins.$i._type}]['subscriber_city'],
-                              $newdata[${ins.$i._type}]['subscriber_state'],
-                              $newdata[${ins.$i._type}]['subscriber_country'],
-                              $newdata[${ins.$i._type}]['subscriber_phone'],
-                              $newdata[${ins.$i._type}]['subscriber_employer'],
-                              $newdata[${ins.$i._type}]['subscriber_employer_street'],
-                              $newdata[${ins.$i._type}]['subscriber_employer_city'],
-                              $newdata[${ins.$i._type}]['subscriber_employer_postal_code'],
-                              $newdata[${ins.$i._type}]['subscriber_employer_state'],
-                              $newdata[${ins.$i._type}]['subscriber_employer_country'],
-                              $newdata[${ins.$i._type}]['copay'],
-                              $newdata[${ins.$i._type}]['subscriber_sex'],
-                              $newdata[${ins.$i._type}]['date'],
-                              $newdata[${ins.$i._type}]['accept_assignment']);
+                                $pid,
+                                $newdata[${ins.$i._type}]['type'],
+                                $newdata[${ins.$i._type}]['provider'],
+                                $newdata[${ins.$i._type}]['policy_number'],
+                                $newdata[${ins.$i._type}]['group_number'],
+                                $newdata[${ins.$i._type}]['plan_name'],
+                                $newdata[${ins.$i._type}]['subscriber_lname'],
+                                $newdata[${ins.$i._type}]['subscriber_mname'],
+                                $newdata[${ins.$i._type}]['subscriber_fname'],
+                                $newdata[${ins.$i._type}]['subscriber_relationship'],
+                                $newdata[${ins.$i._type}]['subscriber_ss'],
+                                $newdata[${ins.$i._type}]['subscriber_DOB'],
+                                $newdata[${ins.$i._type}]['subscriber_street'],
+                                $newdata[${ins.$i._type}]['subscriber_postal_code'],
+                                $newdata[${ins.$i._type}]['subscriber_city'],
+                                $newdata[${ins.$i._type}]['subscriber_state'],
+                                $newdata[${ins.$i._type}]['subscriber_country'],
+                                $newdata[${ins.$i._type}]['subscriber_phone'],
+                                $newdata[${ins.$i._type}]['subscriber_employer'],
+                                $newdata[${ins.$i._type}]['subscriber_employer_street'],
+                                $newdata[${ins.$i._type}]['subscriber_employer_city'],
+                                $newdata[${ins.$i._type}]['subscriber_employer_postal_code'],
+                                $newdata[${ins.$i._type}]['subscriber_employer_state'],
+                                $newdata[${ins.$i._type}]['subscriber_employer_country'],
+                                $newdata[${ins.$i._type}]['copay'],
+                                $newdata[${ins.$i._type}]['subscriber_sex'],
+                                $newdata[${ins.$i._type}]['date'],
+                                $newdata[${ins.$i._type}]['accept_assignment']
+                            );
                         }
                     }
                     elseif($table=='openemr_postcalendar_events'){
@@ -256,8 +257,7 @@ class UserAudit extends UserMail
                          "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_catid'])             . "', " .
                          "1, " .
                          "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_aid'])."', " .
-                         "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_facility'])               . "')"
-                        );
+                         "'" . add_escape_custom($newdata['openemr_postcalendar_events']['pc_facility'])               . "')");
                     }
                     elseif($table=='ar_session'){
                         sqlInsert("INSERT INTO ar_session ( " .
@@ -273,8 +273,7 @@ class UserAudit extends UserMail
                          "'" . add_escape_custom($newdata['ar_session']['description']) . "', " .
                          "NOW(), " .
                          "'" . add_escape_custom($pid) . "', " .
-                         "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')"
-                        );
+                         "'" . add_escape_custom($newdata['ar_session']['payment_method']) . "')");
                     }
                     elseif($table=='documents_legal_master'){
                         $master_doc_id = sqlInsert("INSERT INTO documents_legal_master ( " .
@@ -294,8 +293,7 @@ class UserAudit extends UserMail
                          "'" . add_escape_custom($newdata['documents_legal_master']['content']) . "', " .
                          "'" . add_escape_custom($newdata['documents_legal_master']['dlm_savedsign']) . "', " .
                          "'" . add_escape_custom($newdata['documents_legal_master']['dlm_review']) . "', " .
-                         "'" . add_escape_custom($newdata['documents_legal_master']['dlm_upload_type']) . "')"
-                        );
+                         "'" . add_escape_custom($newdata['documents_legal_master']['dlm_upload_type']) . "')");
                              $last_insert_ids['dlm_id'] = $master_doc_id;
                     }
                     elseif($table=='documents_legal_detail'){
@@ -322,8 +320,7 @@ class UserAudit extends UserMail
                                 "'" . add_escape_custom($newdata['documents_legal_detail']['dld_file_for_pdf_generation']) . "', " .
                                 "'" . add_escape_custom($newdata['documents_legal_detail']['dld_denial_reason']) . "', " .
                                 "'" . add_escape_custom($newdata['documents_legal_detail']['dld_moved']) . "', " .
-                                "'" . add_escape_custom($newdata['documents_legal_detail']['dld_patient_comments']) . "')"
-                        );
+                                "'" . add_escape_custom($newdata['documents_legal_detail']['dld_patient_comments']) . "')");
                     }
                     elseif($table=='patient_access_offsite'){
                         $query = sqlStatement("SELECT * FROM patient_access_offsite WHERE portal_username = '".$newdata['patient_access_offsite']['portal_username']."'");
@@ -334,8 +331,7 @@ class UserAudit extends UserMail
                               "'" . add_escape_custom($pid) . "', " .
                               "'" . add_escape_custom($newdata['patient_access_offsite']['portal_username']) . "', " .
                               "'" . add_escape_custom($newdata['patient_access_offsite']['portal_pwd']) . "', ".
-                              "0)"
-                            );
+                              "0)");
                             sqlQuery("UPDATE audit_details SET field_value = ? WHERE id = ?", array($this->generatePassword(),$newdata['patient_access_offsite']['pass_id']));
                         }
                     }

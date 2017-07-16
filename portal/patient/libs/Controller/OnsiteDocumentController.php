@@ -59,16 +59,16 @@ class OnsiteDocumentController extends AppBaseController
         $recid = $pid = $user = $encounter =  0;
         $docid = "";
 
-        if( isset( $_GET['pid'] ) ) $pid = ( int ) $_GET['pid'];
-        if( isset( $_GET['user'] ) ) $user = $_GET['user'];
-        if( isset( $_GET['docid'] ) ) $docid = $_GET['docid'];
-        if( isset( $_GET['enc'] ) ) $encounter = ( int ) $_GET['enc'];
-        if( isset( $_GET['recid'] ) )  $recid = ( int ) $_GET['recid'];
-        $this->Assign( 'recid', $recid );
-        $this->Assign( 'cpid', $pid );
-        $this->Assign( 'cuser', $user );
-        $this->Assign( 'encounter', $encounter );
-        $this->Assign( 'docid', $docid );
+        if( isset($_GET['pid']) ) $pid = ( int ) $_GET['pid'];
+        if( isset($_GET['user']) ) $user = $_GET['user'];
+        if( isset($_GET['docid']) ) $docid = $_GET['docid'];
+        if( isset($_GET['enc']) ) $encounter = ( int ) $_GET['enc'];
+        if( isset($_GET['recid']) )  $recid = ( int ) $_GET['recid'];
+        $this->Assign('recid', $recid);
+        $this->Assign('cpid', $pid);
+        $this->Assign('cuser', $user);
+        $this->Assign('encounter', $encounter);
+        $this->Assign('docid', $docid);
 
         $this->Render();
     }
@@ -81,9 +81,9 @@ class OnsiteDocumentController extends AppBaseController
         try
         {
             $criteria = new OnsiteDocumentCriteria();
-            $pid = RequestUtil::Get( 'patientId' );
+            $pid = RequestUtil::Get('patientId');
             $criteria->Pid_Equals = $pid;
-            $recid = RequestUtil::Get( 'recid' );
+            $recid = RequestUtil::Get('recid');
             if( $recid > 0 ){
                 $criteria->Id_Equals = $recid;
             }
@@ -153,14 +153,14 @@ class OnsiteDocumentController extends AppBaseController
     public function SingleView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if( isset( $_GET['id'] ) ) $rid = ( int ) $_GET['id'];
-        if( isset( $_GET['pid'] ) ) $pid = ( int ) $_GET['pid'];
-        if( isset( $_GET['user'] ) ) $user = $_GET['user'];
-        if( isset( $_GET['enc'] ) ) $encounter = $_GET['enc'];
-        $this->Assign( 'recid', $rid );
-        $this->Assign( 'cpid', $pid );
-        $this->Assign( 'cuser', $user );
-        $this->Assign( 'encounter', $encounter );
+        if( isset($_GET['id']) ) $rid = ( int ) $_GET['id'];
+        if( isset($_GET['pid']) ) $pid = ( int ) $_GET['pid'];
+        if( isset($_GET['user']) ) $user = $_GET['user'];
+        if( isset($_GET['enc']) ) $encounter = $_GET['enc'];
+        $this->Assign('recid', $rid);
+        $this->Assign('cpid', $pid);
+        $this->Assign('cuser', $user);
+        $this->Assign('encounter', $encounter);
         $this->Render();
     }
     /**

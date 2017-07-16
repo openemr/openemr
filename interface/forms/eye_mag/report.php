@@ -142,22 +142,22 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
         */
         ?>
       <div class="borderShadow">
-        <?php display_draw_section ("VISION", $encounter, $pid); ?>
+        <?php display_draw_section("VISION", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("NEURO", $encounter, $pid); ?>
+        <?php display_draw_section("NEURO", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("EXT", $encounter, $pid); ?>
+        <?php display_draw_section("EXT", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("ANTSEG", $encounter, $pid); ?>
+        <?php display_draw_section("ANTSEG", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("RETINA", $encounter, $pid); ?>
+        <?php display_draw_section("RETINA", $encounter, $pid); ?>
     </div>
     <div class="borderShadow">
-        <?php display_draw_section ("IMPPLAN", $encounter, $pid); ?>
+        <?php display_draw_section("IMPPLAN", $encounter, $pid); ?>
     </div>
         <?php
     } else if ($choice == 'TEXT') {
@@ -1251,7 +1251,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
           </td>
           <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("EXT", $encounter, $pid);
+                display_draw_image("EXT", $encounter, $pid);
                 ?>
           </td>
         </tr>
@@ -1343,7 +1343,7 @@ if ($ANTSEG_COMMENTS) { ?>
                 </td>
                 <td style="text-align:center;padding:1px;vertical-align:middle;">
                         <?php
-                        display_draw_image ("ANTSEG", $encounter, $pid);
+                        display_draw_image("ANTSEG", $encounter, $pid);
                         ?>
                 </td>
               </tr>
@@ -1548,7 +1548,7 @@ if ($ANTSEG_COMMENTS) { ?>
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("NEURO", $encounter, $pid);
+                display_draw_image("NEURO", $encounter, $pid);
                 ?>
             </td>
           </tr>
@@ -1622,7 +1622,7 @@ if ($ANTSEG_COMMENTS) { ?>
             </td>
             <td style="text-align:center;padding:1px;vertical-align:middle;">
                 <?php
-                display_draw_image ("RETINA", $encounter, $pid);
+                display_draw_image("RETINA", $encounter, $pid);
                 ?>
               </td>
             </tr>
@@ -1901,7 +1901,7 @@ if ($ANTSEG_COMMENTS) { ?>
         </td>
         <td style="text-align:center;vertical-align:bottom;padding:1px;">
             <?php
-            display_draw_image ("IMPPLAN", $encounter, $pid);
+            display_draw_image("IMPPLAN", $encounter, $pid);
 
             if ($PDF_OUTPUT) {
               //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
