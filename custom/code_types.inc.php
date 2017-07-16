@@ -119,7 +119,7 @@ define('DISPLAY_DESCRIPTION',"display_description");
  * @param type $version_order       How to choose between different revisions of codes
  * @param type $joins               An array which describes additional tables to join as part of a code search.
  */
-function define_external_table(&$results, $index, $table_name,$col_code, $col_description,$col_description_brief,$filter_clauses=array(),$version_order="",$joins=array(),$display_desc="")
+function define_external_table(&$results, $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = array(), $version_order = "", $joins = array(), $display_desc = "")
 {
     $results[$index]=array(EXT_TABLE_NAME=>$table_name,
                            EXT_COL_CODE=>$col_code,
@@ -203,7 +203,7 @@ function fees_are_used()
  * @param  boolean $fee_sheet Will ignore code types that are not shown in the fee sheet
  * @return boolean
  */
-function modifiers_are_used($fee_sheet=false)
+function modifiers_are_used($fee_sheet = false)
 {
     global $code_types;
     foreach ($code_types as $value) {
@@ -276,7 +276,7 @@ function check_is_code_type_justify($key)
  * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
  * @return  boolean
  */
-function check_code_set_filters($key,$filters=array())
+function check_code_set_filters($key, $filters = array())
 {
     global $code_types;
  
@@ -303,7 +303,7 @@ function check_code_set_filters($key,$filters=array())
  * @param  string       $return_format  format or returned code types ('array' or 'csv')
  * @return string/array
  */
-function collect_codetypes($category,$return_format="array")
+function collect_codetypes($category, $return_format = "array")
 {
     global $code_types;
 
@@ -368,7 +368,7 @@ function collect_codetypes($category,$return_format="array")
  * @param  boolean   $active          if true, then will only return active entries (not pertinent for PROD code sets)
  * @return recordset                  will contain only one item (row).
  */
-function return_code_information($form_code_type,$code,$active=true)
+function return_code_information($form_code_type, $code, $active = true)
 {
     return code_set_search($form_code_type,$code,false,$active,true);
 }
@@ -392,7 +392,7 @@ function return_code_information($form_code_type,$code,$active=true)
 * @param array         $filter_elements  Array that contains elements to filter
 * @return recordset/integer              Will contain either a integer(if counting) or the results (recordset)
 */
-function main_code_set_search($form_code_type,$search_term,$limit=null,$category=null,$active=true,$modes=null,$count=false,$start=null,$number=null,$filter_elements=array())
+function main_code_set_search($form_code_type, $search_term, $limit = null, $category = null, $active = true, $modes = null, $count = false, $start = null, $number = null, $filter_elements = array())
 {
 
   // check for a category
@@ -435,7 +435,7 @@ function main_code_set_search($form_code_type,$search_term,$limit=null,$category
  * @param  array     $return_query    This is a mode that will only return the query (everything except for the LIMIT is included) (returned as an array to include the query string and binding array)
  * @return recordset/integer/array
  */
-function code_set_search($form_code_type,$search_term="",$count=false,$active=true,$return_only_one=false,$start=null,$number=null,$filter_elements=array(),$limit=null,$mode='default',$return_query=false)
+function code_set_search($form_code_type, $search_term = "", $count = false, $active = true, $return_only_one = false, $start = null, $number = null, $filter_elements = array(), $limit = null, $mode = 'default', $return_query = false)
 {
     global $code_types,$code_external_tables;
 
@@ -650,7 +650,7 @@ function code_set_search($form_code_type,$search_term="",$count=false,$active=tr
  * @param  string $desc_detail Can choose either the normal description('code_text') or the brief description('code_text_short').
  * @return string         Is of the form "description;description; etc.".
  */
-function lookup_code_descriptions($codes,$desc_detail="code_text")
+function lookup_code_descriptions($codes, $desc_detail = "code_text")
 {
     global $code_types, $code_external_tables;
 
@@ -757,7 +757,7 @@ function lookup_code_descriptions($codes,$desc_detail="code_text")
 * @param string $is_hit_mode This is a mode that simply returns the name of the mode if results were found
 * @return recordset/integer/string
 */
-function sequential_code_set_search($form_code_type,$search_term,$limit=null,$modes=null,$count=false,$active=true,$start=null,$number=null,$filter_elements=array(),$is_hit_mode=false)
+function sequential_code_set_search($form_code_type, $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array(), $is_hit_mode = false)
 {
   // Set the default behavior that is described in above function comments
     if (empty($modes)) {
@@ -797,7 +797,7 @@ function sequential_code_set_search($form_code_type,$search_term,$limit=null,$mo
 * @param array $filter_elements Array that contains elements to filter
 * @return recordset/integer
 */
-function multiple_code_set_search($form_code_types=array(),$search_term,$limit=null,$modes=null,$count=false,$active=true,$start=null,$number=null,$filter_elements=array())
+function multiple_code_set_search($form_code_types = array(), $search_term, $limit = null, $modes = null, $count = false, $active = true, $start = null, $number = null, $filter_elements = array())
 {
 
     if (empty($form_code_types)) {
@@ -878,7 +878,7 @@ function multiple_code_set_search($form_code_types=array(),$search_term,$limit=n
 * @param  boolean  $return_only_one  if true, then will only return one perfect matching item
 * @return recordset/integer
 */
-function limit_query_string($limit=null,$start=null,$number=null,$return_only_one=false)
+function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false)
 {
     if ( !is_null($start) && !is_null($number) ) {
         // For pagination of results

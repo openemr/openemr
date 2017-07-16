@@ -30,7 +30,7 @@ require_once("$srcdir/../custom/code_types.inc.php");
  * @param type $search_query        The text to search on.
  * @return array
  */
-function diagnosis_search($search_type_id,$search_type,$search_query)
+function diagnosis_search($search_type_id, $search_type, $search_query)
 {
     $retval=array();
     $search=main_code_set_search($search_type,$search_query,20);

@@ -13,7 +13,7 @@ function getNextAppointment($pid)
 
 
 //this function returns calendar data given date and provider
-function getCalendarDay($datetime,$owner,$groupname)
+function getCalendarDay($datetime, $owner, $groupname)
 {
     $query = "select * from calendar where time like '$datetime%' and owner like '$owner' and groupname like '$groupname' order by time";
     $rez = sqlStatement($query);
@@ -25,7 +25,7 @@ function getCalendarDay($datetime,$owner,$groupname)
 }
 
 //toggle the status of a noshow calendar entry
-function toggleNoShow( $cid)
+function toggleNoShow($cid)
 {
     $rez = sqlStatement("select noshow from calendar where id=$cid");
     $row=sqlFetchArray($rez);
@@ -163,7 +163,7 @@ function newCalendarItem(
 }
 
 //delete a calendar entry item
-function deleteCalendarItem( $calid,$pid)
+function deleteCalendarItem($calid, $pid)
 {
     sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid) );
 }
@@ -184,7 +184,7 @@ function saveCalendarUpdate(
 
 
 //replicated functionality of postcalendar_getDate
-function pc_getDate($format='%Y%m%d')
+function pc_getDate($format = '%Y%m%d')
 {
 //    list($Date,$jumpday,$jumpmonth,$jumpyear) = pnVarCleanFromInput('Date','jumpday','jumpmonth','jumpyear');
     if(!isset($Date)) {

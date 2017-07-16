@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
     require_once("../drugs/drugs.inc.php");
   require_once("../../custom/code_types.inc.php");
     $comarr = array('allow_sms'=>xl('Allow SMS'),'allow_voice'=>xl('Allow Voice Message'),'allow_mail'=>xl('Allow Mail Message'),'allow_email'=>xl('Allow Email'));
-function add_date($givendate,$day=0,$mth=0,$yr=0)
+function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 {
     $cd = strtotime($givendate);
     $newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),

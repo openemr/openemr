@@ -178,7 +178,7 @@ class Note extends ORDataObject
 	*	@param int $fid foreign id that should be used so that this note can be related (joined) on it later
 	*/
 
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;

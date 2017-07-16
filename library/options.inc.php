@@ -2384,7 +2384,7 @@ function disp_end_group()
     }
 }
 
-function display_layout_rows($formtype, $result1, $result2='')
+function display_layout_rows($formtype, $result1, $result2 = '')
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
@@ -2484,7 +2484,7 @@ function display_layout_rows($formtype, $result1, $result2='')
     disp_end_group();
 }
 
-function display_layout_tabs($formtype, $result1, $result2='')
+function display_layout_tabs($formtype, $result1, $result2 = '')
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
@@ -2507,7 +2507,7 @@ function display_layout_tabs($formtype, $result1, $result2='')
     }
 }
 
-function display_layout_tabs_data($formtype, $result1, $result2='')
+function display_layout_tabs_data($formtype, $result1, $result2 = '')
 {
     global $item_count, $cell_count, $last_group, $CPR,$condition_str;
 
@@ -2628,7 +2628,7 @@ function display_layout_tabs_data($formtype, $result1, $result2='')
     }
 }
 
-function get_conditions_str($condition_str,$frow)
+function get_conditions_str($condition_str, $frow)
 {
     $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
     foreach ($conditions as $condition) {
@@ -2645,7 +2645,7 @@ function get_conditions_str($condition_str,$frow)
     }
     return $condition_str;
 }
-function display_layout_tabs_data_editable($formtype, $result1, $result2='')
+function display_layout_tabs_data_editable($formtype, $result1, $result2 = '')
 {
     global $item_count, $cell_count, $last_group, $CPR,$condition_str;
 
@@ -2764,7 +2764,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2='')
 // From the currently posted HTML form, this gets the value of the
 // field corresponding to the provided layout_options table row.
 //
-function get_layout_form_value($frow, $prefix='form_')
+function get_layout_form_value($frow, $prefix = 'form_')
 {
 
     $maxlength = empty($frow['max_length']) ? 0 : intval($frow['max_length']);
@@ -2950,8 +2950,8 @@ function dropdown_facility(
     $name = 'form_facility',
     $allow_unspecified = true,
     $allow_allfacilities = true,
-    $disabled='',
-    $onchange=''
+    $disabled = '',
+    $onchange = ''
 ) {
 
     global $facilityService;
@@ -3031,7 +3031,7 @@ function dropdown_facility(
 // $fixedWidth is to flag whether width is fixed
 // $forceExpandAlways is a flag to force the widget to always be expanded
 //
-function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways=false)
+function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false)
 {
     if ($fixedWidth) {
         echo "<div class='section-header'>";
@@ -3110,7 +3110,7 @@ function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $butt
 }
 
 //billing_facility fuction will give the dropdown list which contain billing faciliies.
-function billing_facility($name,$select)
+function billing_facility($name, $select)
 {
     global $facilityService;
 
@@ -3240,7 +3240,7 @@ function lbf_current_value($frow, $formid, $encounter)
 // the drawable image field type in a form.
 // A TRUE argument makes the widget controls smaller.
 //
-function lbf_canvas_head($small=true)
+function lbf_canvas_head($small = true)
 {
     $s = <<<EOD
 <link  href="{$GLOBALS['assets_static_relative']}/literallycanvas-0-4-13/css/literallycanvas.css" rel="stylesheet" />

@@ -410,7 +410,7 @@ class pnHTML
      * @param string $urltemplate template for url, will replace '%%' with item number
      * @param integer $perpage number of links to display (default=10)
      */
-    function Pager($startnum, $total, $urltemplate, $perpage=10)
+    function Pager($startnum, $total, $urltemplate, $perpage = 10)
     {
         // Quick check to ensure that we have work to do
         if ($total <= $perpage)
@@ -488,7 +488,7 @@ class pnHTML
      * otherwise null
      * @todo This function is broken, do not use it!
      */
-    function Redirect($url, $waittime=3)
+    function Redirect($url, $waittime = 3)
     {
         global $HTTP_SERVER_VARS;
 
@@ -535,7 +535,7 @@ class pnHTML
      *
      * @access public
      */
-    function ConfirmAction($confirm_text, $confirm_url, $cancel_text, $cancel_url, $arg=array ())
+    function ConfirmAction($confirm_text, $confirm_url, $cancel_text, $cancel_url, $arg = array ())
     {
         $compoutput = new pnHTML();
         $compoutput->FormStart($confirm_url);
@@ -641,7 +641,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function Linebreak($numbreaks=1)
+    function Linebreak($numbreaks = 1)
     {
         $out = '';
         for ($i=0; $i<$numbreaks; $i++)
@@ -708,7 +708,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableStart($title='', $headers=array(), $border=0, $width='100%', $cellpadding=0, $cellspacing=0)
+    function TableStart($title = '', $headers = array(), $border = 0, $width = '100%', $cellpadding = 0, $cellspacing = 0)
     {
 
         // Wrap the user table in our own invisible table to make the title sit properly
@@ -764,7 +764,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableRowStart($align='center', $valign='middle')
+    function TableRowStart($align = 'center', $valign = 'middle')
     {
         $output = '<tr align="'.$align.'" valign="'.$valign.'">';
         if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
@@ -786,7 +786,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableColStart($colspan=1, $align='center', $valign='middle', $rowspan=1)
+    function TableColStart($colspan = 1, $align = 'center', $valign = 'middle', $rowspan = 1)
     {
         $output = '<td colspan="'.$colspan.'" rowspan="'.$rowspan.'" align="'.$align.'" valign="'.$valign.'">';
         if ($this->GetOutputMode() == _PNH_RETURNOUTPUT)
@@ -861,7 +861,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function TableAddRow($row, $align='center', $valign='middle')
+    function TableAddRow($row, $align = 'center', $valign = 'middle')
     {
         if (empty ($row))
         {
@@ -969,7 +969,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormSubmit($label='Submit', $accesskey='')
+    function FormSubmit($label = 'Submit', $accesskey = '')
     {
         $this->tabindex++;
         $output = '<input'
@@ -1003,7 +1003,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormText($fieldname, $contents='', $size=16, $maxlength=64, $password=false, $accesskey='')
+    function FormText($fieldname, $contents = '', $size = 16, $maxlength = 64, $password = false, $accesskey = '')
     {
         if (empty ($fieldname))
         {
@@ -1044,7 +1044,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormTextArea($fieldname, $contents='', $rows=6, $cols=40, $wrap='soft', $accesskey='')
+    function FormTextArea($fieldname, $contents = '', $rows = 6, $cols = 40, $wrap = 'soft', $accesskey = '')
     {
         if (empty ($fieldname))
         {
@@ -1080,7 +1080,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormHidden($fieldname, $value='')
+    function FormHidden($fieldname, $value = '')
     {
         if (empty ($fieldname))
         {
@@ -1138,7 +1138,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormSelectMultiple($fieldname, $data, $multiple=0, $size=1, $selected = '', $accesskey='', $disable = false, $readonly = false)
+    function FormSelectMultiple($fieldname, $data, $multiple = 0, $size = 1, $selected = '', $accesskey = '', $disable = false, $readonly = false)
     {
         if (empty ($fieldname))
         {
@@ -1208,7 +1208,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormCheckbox($fieldname, $checked=false, $value='1', $type='checkbox', $accesskey='')
+    function FormCheckbox($fieldname, $checked = false, $value = '1', $type = 'checkbox', $accesskey = '')
     {
         if (empty ($fieldname))
         {
@@ -1246,7 +1246,7 @@ class pnHTML
      * @return string An HTML string if <code>ReturnHTML()</code> has been called,
      * otherwise null
      */
-    function FormFile($fieldname, $size=32, $maxsize=1000000, $accesskey='')
+    function FormFile($fieldname, $size = 32, $maxsize = 1000000, $accesskey = '')
     {
         if (empty ($fieldname))
         {

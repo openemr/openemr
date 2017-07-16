@@ -51,7 +51,7 @@ require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 
-function createCCR($action,$raw="no",$requested_by="")
+function createCCR($action, $raw = "no", $requested_by = "")
 {
 
     $authorID = getUuid();
@@ -135,7 +135,7 @@ function createCCR($action,$raw="no",$requested_by="")
     }
 }
     
-function gnrtCCR($ccr,$raw="no",$requested_by="")
+function gnrtCCR($ccr, $raw = "no", $requested_by = "")
 {
     global $pid;
 
@@ -211,7 +211,7 @@ function gnrtCCR($ccr,$raw="no",$requested_by="")
     }
 }
     
-function viewCCD($ccr,$raw="no",$requested_by="")
+function viewCCD($ccr, $raw = "no", $requested_by = "")
 {
     global $pid;
         

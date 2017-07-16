@@ -2,7 +2,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
-function assessment_intake_report( $pid, $encounter, $cols, $id)
+function assessment_intake_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     print "Assessment Intake Report";

@@ -18,13 +18,13 @@ abstract class RuleCriteriaBuilder
     /**
      * @return RuleCriteriaType
      */
-    abstract function resolveRuleCriteriaType( $method, $methodDetail, $value  );
+    abstract function resolveRuleCriteriaType($method, $methodDetail, $value);
     
     /**
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    abstract function build( $ruleCriteriaType, $value, $methodDetail );
+    abstract function build($ruleCriteriaType, $value, $methodDetail);
 
-    abstract function newInstance( $criteriaType );
+    abstract function newInstance($criteriaType);
 }

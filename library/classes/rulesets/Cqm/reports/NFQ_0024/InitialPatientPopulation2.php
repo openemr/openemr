@@ -13,7 +13,7 @@ class NFQ_0024_InitialPatientPopulation2 implements CqmFilterIF
         return "Initial Patient Population 2";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // filter for Patient characteristic: birth date (age) >=2 and <=16 years
         $age = intval($patient->calculateAgeOnDate( $beginDate ));

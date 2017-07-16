@@ -7,7 +7,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function snellen_report( $pid, $encounter, $cols, $id)
+function snellen_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $cols = 2;

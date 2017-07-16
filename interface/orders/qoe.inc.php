@@ -29,7 +29,7 @@
  * @param  string  $formseq  Zero-relative occurrence number in the form.
  * @return string            The generated HTML.
  */
-function generate_qoe_html($ptid=0, $orderid=0, $dbseq=0, $formseq=0)
+function generate_qoe_html($ptid = 0, $orderid = 0, $dbseq = 0, $formseq = 0)
 {
     global $rootdir, $qoe_init_javascript;
 

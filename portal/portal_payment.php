@@ -65,7 +65,7 @@ if( $edata ){
     $invdata = json_decode($edata['table_args'],true);
     echo "<script  type='text/javascript'>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
-function bucks( $amount )
+function bucks($amount)
 {
     if( $amount ){
         $amount = oeFormatMoney( $amount );
@@ -73,7 +73,7 @@ function bucks( $amount )
     }
     return '';
 }
-function rawbucks( $amount )
+function rawbucks($amount)
 {
     if( $amount ){
         $amount = sprintf( "%.2f", $amount );
@@ -85,7 +85,7 @@ function rawbucks( $amount )
 // Display a row of data for an encounter.
 //
 $var_index = 0;
-function echoLine( $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0 )
+function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
 {
     global $var_index;
     $var_index ++;
@@ -108,7 +108,7 @@ function echoLine( $iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounte
 
 // We use this to put dashes, colons, etc. back into a timestamp.
 //
-function decorateString( $fmt, $str )
+function decorateString($fmt, $str)
 {
     $res = '';
     while( $fmt ){
@@ -126,7 +126,7 @@ function decorateString( $fmt, $str )
 
 // Compute taxes from a tax rate string and a possibly taxable amount.
 //
-function calcTaxes( $row, $amount )
+function calcTaxes($row, $amount)
 {
     $total = 0;
     if( empty( $row['taxrates'] ) ) return $total;

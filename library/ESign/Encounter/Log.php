@@ -41,21 +41,21 @@ class Encounter_Log implements LogIF
      *
      * @param unknown $encounterId
      */
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_viewer = new Viewer();
         $this->_viewer->encounterId = $encounterId;
         $this->_viewer->logId = "encounter-".$encounterId;
     }
     
-    public function render( SignableIF $signable )
+    public function render(SignableIF $signable)
     {
         $this->_viewer->signatures = $signable->getSignatures();
         $this->_viewer->verified = $signable->verify();
         return $this->_viewer->render( $this );
     }
     
-    public function getHtml( SignableIF $signable )
+    public function getHtml(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();

@@ -12,7 +12,7 @@ class ConfigTree extends Tree
     /*
 	*	This just sits on top of the parent constructor, only a shell so that the _table var gets set
 	*/
-    function __construct($root,$root_type = ROOT_TYPE_ID)
+    function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_table = "config";
         parent::__construct($root,$root_type);

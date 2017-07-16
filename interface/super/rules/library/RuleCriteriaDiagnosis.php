@@ -18,7 +18,7 @@ class RuleCriteriaDiagnosis extends RuleCriteria
     var $codeType;
     var $id;
 
-    function __construct( $title, $codeType='', $id='' )
+    function __construct($title, $codeType = '', $id = '')
     {
         $this->title = $title;
         $this->codeType = $codeType;

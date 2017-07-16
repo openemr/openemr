@@ -50,7 +50,7 @@ class hcfa_info
      * @param type $width  How many characters max to print on
      * @param type $info   The text to print on the form at the specified location
      */
-    public function __construct($row,$column,$width,$info)
+    public function __construct($row, $column, $width, $info)
     {
         $this->row=$row;
         $this->column=$column;
@@ -85,7 +85,7 @@ class hcfa_info
  * @param type $second
  * @return int
  */
-function cmp_hcfa_info($first,$second)
+function cmp_hcfa_info($first, $second)
 {
     $first_value=$first->get_position();
     $second_value=$second->get_position();
@@ -103,7 +103,7 @@ function cmp_hcfa_info($first,$second)
  * @param type $number
  * @param type $diag
  */
-function add_diagnosis(&$hcfa_entries,$number,$diag)
+function add_diagnosis(&$hcfa_entries, $number, $diag)
 {
     /*
      * The diagnoses go across the page.
@@ -131,7 +131,7 @@ function add_diagnosis(&$hcfa_entries,$number,$diag)
  * @param type $claim
  * @param string $log
  */
-function process_diagnoses_02_12(&$claim,&$log)
+function process_diagnoses_02_12(&$claim, &$log)
 {
 
     $hcfa_entries=array();

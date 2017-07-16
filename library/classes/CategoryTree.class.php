@@ -12,13 +12,13 @@ class CategoryTree extends Tree
     /*
 	*	This just sits on top of the parent constructor, only a shell so that the _table var gets set
 	*/
-    function __construct($root,$root_type = ROOT_TYPE_ID)
+    function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_table = "categories";
         parent::__construct($root,$root_type);
     }
 
-    function _get_categories_array($patient_id, $user='')
+    function _get_categories_array($patient_id, $user = '')
     {
         $categories = array();
         $sql = "SELECT c.id, c.name, c.aco_spec, d.id AS document_id, d.type, d.url, d.docdate"

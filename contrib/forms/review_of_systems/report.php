@@ -2,7 +2,7 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 
-function review_of_systems_report( $pid, $encounter, $cols, $id)
+function review_of_systems_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_review_of_systems", $id);

@@ -342,7 +342,7 @@ function cssFooter()
     <?php
 }
 
-function cssPage($image1,$image2)
+function cssPage($image1, $image2)
 {
     ?>
     <div class='paddingdiv' id='page1'>

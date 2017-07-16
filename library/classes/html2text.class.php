@@ -299,7 +299,7 @@ class html2text
      *  @access public
      *  @return void
      */
-    function __construct( $source = '', $from_file = false )
+    function __construct($source = '', $from_file = false)
     {
         if ( !empty($source) ) {
             $this->set_html($source, $from_file);
@@ -315,7 +315,7 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_html( $source, $from_file = false )
+    function set_html($source, $from_file = false)
     {
         $this->html = $source;
 
@@ -374,7 +374,7 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_allowed_tags( $allowed_tags = '' )
+    function set_allowed_tags($allowed_tags = '')
     {
         if ( !empty($allowed_tags) ) {
             $this->allowed_tags = $allowed_tags;
@@ -387,7 +387,7 @@ class html2text
      *  @access public
      *  @return void
      */
-    function set_base_url( $url = '' )
+    function set_base_url($url = '')
     {
         if ( empty($url) ) {
             if ( !empty($_SERVER['HTTP_HOST']) ) {
@@ -416,7 +416,7 @@ class html2text
      *  @access private
      *  @return void
      */
-    function _convert($ll=true)
+    function _convert($ll = true)
     {
         // Variables used for building the link list
         $this->_link_count = 0;
@@ -464,7 +464,7 @@ class html2text
      *  @access private
      *  @return string
      */
-    function _build_link_list( $link, $display )
+    function _build_link_list($link, $display)
     {
         if ( substr($link, 0, 7) == 'http://' || substr($link, 0, 8) == 'https://' ||
              substr($link, 0, 7) == 'mailto:' ) {

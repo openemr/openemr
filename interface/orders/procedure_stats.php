@@ -83,7 +83,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 // Compute age in years given a DOB and "as of" date.
 //
-function getAge($dob, $asof='')
+function getAge($dob, $asof = '')
 {
     if (empty($asof)) $asof = date('Y-m-d');
     $a1 = explode('-', substr($dob , 0, 10));
@@ -124,7 +124,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right=false, $class='')
+function genAnyCell($data, $right = false, $class = '')
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -145,7 +145,7 @@ function genAnyCell($data, $right=false, $class='')
     }
 }
 
-function genHeadCell($data, $right=false)
+function genHeadCell($data, $right = false)
 {
     genAnyCell($data, $right, 'dehead');
 }

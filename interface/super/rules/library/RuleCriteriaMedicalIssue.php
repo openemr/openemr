@@ -14,7 +14,7 @@ require_once( library_src( 'RuleCriteriaSimpleText.php') );
  */
 class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText
 {
-    function __construct( $title, $value='' )
+    function __construct($title, $value = '')
     {
         parent::__construct($title, $value);
     }

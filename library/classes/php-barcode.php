@@ -128,7 +128,7 @@ class Barcode
     }
 
     // convert a bit string to an array of array of bit char
-    private static function bitStringTo2DArray( $digit )
+    private static function bitStringTo2DArray($digit)
     {
         $d = array();
         $len = strlen($digit);
@@ -243,13 +243,13 @@ class Barcode
         );
     }
 
-    private static function _rotate($x1, $y1, $cos, $sin , &$x, &$y)
+    private static function _rotate($x1, $y1, $cos, $sin, &$x, &$y)
     {
         $x = $x1 * $cos - $y1 * $sin;
         $y = $x1 * $sin + $y1 * $cos;
     }
 
-    public static function rotate($x1, $y1, $angle , &$x, &$y)
+    public static function rotate($x1, $y1, $angle, &$x, &$y)
     {
         $angle = deg2rad(-$angle);
         $cos = cos($angle);
@@ -1057,7 +1057,7 @@ class BarcodeDatamatrix
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], $row, $col-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], $row, $col, $totalRows, $totalCols);
     }
-    private static function patternShapeSpecial1(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    private static function patternShapeSpecial1(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1,  1, $totalRows, $totalCols);
@@ -1068,7 +1068,7 @@ class BarcodeDatamatrix
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 2, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 3, $totalCols-1, $totalRows, $totalCols);
     }
-    private static function patternShapeSpecial2(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    private static function patternShapeSpecial2(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
@@ -1079,7 +1079,7 @@ class BarcodeDatamatrix
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 0, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 1, $totalCols-1, $totalRows, $totalCols);
     }
-    private static function patternShapeSpecial3(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    private static function patternShapeSpecial3(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-3,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-2,  0, $totalRows, $totalCols);
@@ -1090,7 +1090,7 @@ class BarcodeDatamatrix
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[6], 2, $totalCols-1, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[7], 3, $totalCols-1, $totalRows, $totalCols);
     }
-    private static function patternShapeSpecial4(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols )
+    private static function patternShapeSpecial4(&$datamatrix, &$assigned, $bits, $totalRows, $totalCols)
     {
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[0], $totalRows-1,  0, $totalRows, $totalCols);
         self::placeBitInDatamatrix($datamatrix, $assigned, $bits[1], $totalRows-1, $totalCols-1, $totalRows, $totalCols);

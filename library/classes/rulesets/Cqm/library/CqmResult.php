@@ -20,7 +20,7 @@ class CqmResult implements RsResultIF
     public $numerator; // Number of patients that pass target
     public $percentage; // Calculated percentage
 
-    public function __construct( $rowRule, $numeratorLabel, $populationLabel, $totalPatients, $denominator, $denom_exclusion, $numerator, $percentage,$ipp,$denom_exception)
+    public function __construct($rowRule, $numeratorLabel, $populationLabel, $totalPatients, $denominator, $denom_exclusion, $numerator, $percentage, $ipp, $denom_exception)
     {
         $this->rule = $rowRule;
         $this->numeratorLabel = $numeratorLabel;

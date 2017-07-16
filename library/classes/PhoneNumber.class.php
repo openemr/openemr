@@ -32,7 +32,7 @@ class PhoneNumber extends ORDataObject
     /**
      * Constructor sets all Prescription attributes to their default value
      */
-    function __construct($id = "",$foreign_id = "")
+    function __construct($id = "", $foreign_id = "")
     {
         $this->id = $id;
         $this->foreign_id = $foreign_id;
@@ -193,7 +193,7 @@ class PhoneNumber extends ORDataObject
         }
     }
 
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;

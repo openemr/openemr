@@ -73,17 +73,17 @@ abstract class RuleCriteria
              . xl( $this->intervalType->lbl );
     }
 
-    protected function getLabel( $value, $list_id )
+    protected function getLabel($value, $list_id)
     {
         return getLabel($value, $list_id);
     }
 
-    protected function getLayoutLabel( $value, $form_id )
+    protected function getLayoutLabel($value, $form_id)
     {
         return getLayoutLabel($value, $form_id);
     }
     
-    protected function decodeComparator( $comparator )
+    protected function decodeComparator($comparator)
     {
         switch ( $comparator ) {
             case "eq": return "";

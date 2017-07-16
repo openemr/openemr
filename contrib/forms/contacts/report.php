@@ -2,7 +2,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
-function contacts_report( $pid, $encounter, $cols, $id)
+function contacts_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_contacts", $id);

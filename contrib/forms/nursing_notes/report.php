@@ -7,7 +7,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"] . "/api.inc");
-function nursing_notes_report( $pid, $encounter, $cols, $id)
+function nursing_notes_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_nursing_notes", $id);

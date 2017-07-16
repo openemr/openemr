@@ -35,7 +35,7 @@ function checkWarehouseUsed($warehouse_id)
 // Returns the number of warehouses allowed.
 // For these purposes the "unassigned" option is considered a warehouse.
 //
-function genWarehouseList($tag_name, $currvalue, $title, $class='')
+function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 {
     global $drug_id;
 

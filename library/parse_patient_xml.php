@@ -25,7 +25,7 @@
 
 
 
-function parseXmlStream($content,$field_mapping)
+function parseXmlStream($content, $field_mapping)
 {
     $res = array();
     $xml = new DOMDocument;
@@ -198,7 +198,7 @@ function insert_patient($audit_master_id)
     sqlQuery("UPDATE audit_master SET approval_status=2 WHERE id=?",array($audit_master_id));
 }
 
-function createAuditArray($am_id,$table_name)
+function createAuditArray($am_id, $table_name)
 {
     if(strpos($table_name,',')){
         $tables = explode(',',$table_name);

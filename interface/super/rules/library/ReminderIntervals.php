@@ -26,7 +26,7 @@ class ReminderIntervals
      * Adds a ReminderIntervalDetail to the collection, which is a map
      * @param ReminderIntervalDetail $detail
      */
-    function addDetail( $detail )
+    function addDetail($detail)
     {
         $details = $this->detailMap[ $detail->intervalType->code ];
         if ( is_null( $details ) ) {
@@ -51,7 +51,7 @@ class ReminderIntervals
      * @param ReminderIntervalRange $range
      * @return array
      */
-    function getDetailFor( $type, $range = null )
+    function getDetailFor($type, $range = null)
     {
         $details = $this->detailMap[ $type->code ];
         if (is_null($range) ) {
@@ -67,7 +67,7 @@ class ReminderIntervals
         return null;
     }
 
-    function displayDetails( $type )
+    function displayDetails($type)
     {
         $details = $this->getDetailFor($type);
         $display = "";

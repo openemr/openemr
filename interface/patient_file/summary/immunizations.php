@@ -256,7 +256,7 @@ function getImmunizationObservationResults()
     return $imm_obs_data;
 }
 
-function saveImmunizationObservationResults($id,$immunizationdata)
+function saveImmunizationObservationResults($id, $immunizationdata)
 {
     $imm_obs_data = getImmunizationObservationResults();
     if(count($imm_obs_data) > 0) {

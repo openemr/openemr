@@ -43,7 +43,7 @@ class Signature implements SignatureIF
 
     private $_verification = null;
     
-    public function __construct( $id, $tid, $table, $isLock, $uid, $firstName, $lastName, $datetime, $hash, $amendment = null, $signatureHash = null )
+    public function __construct($id, $tid, $table, $isLock, $uid, $firstName, $lastName, $datetime, $hash, $amendment = null, $signatureHash = null)
     {
         $this->id = $id;
         $this->tid = $tid;

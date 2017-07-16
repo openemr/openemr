@@ -401,7 +401,7 @@ class UserService extends Userforms
 //Accepts an array and returns the result in xml format.Format is as follows
 
 
-    public function function_return_to_xml($var=array())
+    public function function_return_to_xml($var = array())
     {
 
         $doc = new DOMDocument();
@@ -532,7 +532,7 @@ class UserService extends Userforms
 //The results will be stored in the key, which is received from portal.
 
 
-    public static function batch_despatch($var,$func,$data_credentials)
+    public static function batch_despatch($var, $func, $data_credentials)
     {
         global $pid;
         if(UserService::valid($data_credentials)){

@@ -44,7 +44,7 @@ function getErxCredentials()
     return $cred;
 }
 
-function validation($val_check,$val,$msg)
+function validation($val_check, $val, $msg)
 {
     if(!$val)
     $msg .= $val_check.' '.xl('missing').'<br>';
@@ -69,7 +69,7 @@ function stripPhoneSlashes($str)
     return $str;
 }
 
-function trimData($str,$length)
+function trimData($str, $length)
 {
     $str=substr($str,0,($length-1));
     return $str;
@@ -96,7 +96,7 @@ function stringToNumeric($str)
     $str=substr($str,0,($length-1));
     return $str;
 }
-function credentials($doc,$r)
+function credentials($doc, $r)
 {
     global $msg;
     $cred=getErxCredentials();
@@ -132,7 +132,7 @@ function credentials($doc,$r)
     $r->appendChild( $b );
 }
 
-function user_role($doc,$r)
+function user_role($doc, $r)
 {
     global $msg;
     $userRole=sqlQuery("select * from users where username=?",array($_SESSION['authUser']));
@@ -164,7 +164,7 @@ function user_role($doc,$r)
     $r->appendChild( $b );
 }
 
-function destination($doc,$r,$page='',$pid)
+function destination($doc, $r, $page = '', $pid)
 {
     global $msg,$page;
     $userRole=sqlQuery("select * from users where username=?",array($_SESSION['authUser']));
@@ -186,7 +186,7 @@ function destination($doc,$r,$page='',$pid)
     $r->appendChild( $b );
 }
 
-function account($doc,$r)
+function account($doc, $r)
 {
     global $msg, $facilityService;
     $erxSiteID= $facilityService->getPrimaryBusinessEntity();
@@ -278,7 +278,7 @@ function account($doc,$r)
     $r->appendChild( $b );
 }
 
-function location($doc,$r)
+function location($doc, $r)
 {
     global $msg;
     $userRole=sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?",array($_SESSION['authUser']));
@@ -369,7 +369,7 @@ function location($doc,$r)
     $r->appendChild( $b );
 }
 
-function LicensedPrescriber($doc,$r)
+function LicensedPrescriber($doc, $r)
 {
     global $msg;
     $user_details = sqlQuery("SELECT * FROM users WHERE id = ?",array($_SESSION['authUserID']));
@@ -424,7 +424,7 @@ function LicensedPrescriber($doc,$r)
     $r->appendChild( $b );
 }
 
-function Staff($doc,$r)
+function Staff($doc, $r)
 {
     global $msg;
     $user_details = sqlQuery("SELECT * FROM users WHERE id = ?",array($_SESSION['authUserID']));
@@ -458,7 +458,7 @@ function Staff($doc,$r)
     $r->appendChild( $b );
 }
 
-function SupervisingDoctor($doc,$r)
+function SupervisingDoctor($doc, $r)
 {
     global $msg;
     $user_details = sqlQuery("SELECT * FROM users WHERE id = ?",array($_SESSION['authUserID']));
@@ -513,7 +513,7 @@ function SupervisingDoctor($doc,$r)
     $r->appendChild( $b );
 }
 
-function MidlevelPrescriber($doc,$r)
+function MidlevelPrescriber($doc, $r)
 {
     global $msg;
     $user_details = sqlQuery("SELECT * FROM users WHERE id = ?",array($_SESSION['authUserID']));
@@ -570,7 +570,7 @@ function MidlevelPrescriber($doc,$r)
     $r->appendChild( $b );
 }
 
-function Patient($doc,$r,$pid)
+function Patient($doc, $r, $pid)
 {
     global $msg,$warning_msg,$dem_check;
     $patient_data=sqlQuery("select *, DATE_FORMAT(DOB,'%Y%m%d') AS date_of_birth from patient_data where pid=?",array($pid));
@@ -687,7 +687,7 @@ function Patient($doc,$r,$pid)
     return $allergyId;
 }
 
-function OutsidePrescription($doc,$r,$pid,$prescid)
+function OutsidePrescription($doc, $r, $pid, $prescid)
 {
     global $msg;
     if($prescid)
@@ -751,7 +751,7 @@ function OutsidePrescription($doc,$r,$pid,$prescid)
     }
 }
 
-function PatientMedication($doc,$r,$pid,$med_limit)
+function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active='';
@@ -811,7 +811,7 @@ function PatientMedication($doc,$r,$pid,$med_limit)
     return $uploaded_med_arr;
 }
 
-function PatientFreeformAllergy($doc,$r,$pid)
+function PatientFreeformAllergy($doc, $r, $pid)
 {
     $res=sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
@@ -885,7 +885,7 @@ function PatientFreeformHealthplans($doc, $r, $pid)
     }
 }
 
-function PrescriptionRenewalResponse($doc,$r,$pid)
+function PrescriptionRenewalResponse($doc, $r, $pid)
 {
     $b = $doc->createElement( "PrescriptionRenewalResponse" );
         $renewalRequestIdentifier = $doc->createElement( "renewalRequestIdentifier" );
@@ -958,7 +958,7 @@ function erx_error_log($message)
     fclose($f);
 }
 
-function stripStrings($str,$pattern)
+function stripStrings($str, $pattern)
 {
     $result = $str;
     foreach($pattern as $key=>$value){

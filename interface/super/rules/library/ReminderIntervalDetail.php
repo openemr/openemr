@@ -37,7 +37,7 @@ class ReminderIntervalDetail
      * @param integer $amount
      * @param TimeUnit $unit
      */
-    function __construct( $type, $range, $amount, $unit )
+    function __construct($type, $range, $amount, $unit)
     {
         $this->intervalType = $type;
         $this->intervalRange = $range;

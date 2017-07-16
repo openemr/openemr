@@ -8,7 +8,7 @@
 
     require_once( $GLOBALS['fileroot'] . "/library/options.inc.php" );
 
-function getLabel( $value, $list_id )
+function getLabel($value, $list_id)
 {
     // get from list_options
     $result = generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $value);
@@ -20,7 +20,7 @@ function getLabel( $value, $list_id )
     return $value;
 }
 
-function getLayoutLabel( $value, $form_id )
+function getLayoutLabel($value, $form_id)
 {
     // get from layout_options
     $sql = sqlStatement(
@@ -35,7 +35,7 @@ function getLayoutLabel( $value, $form_id )
     return $value;
 }
 
-function getListOptions( $list_id )
+function getListOptions($list_id)
 {
     $options = array();
     $sql = sqlStatement(
@@ -50,7 +50,7 @@ function getListOptions( $list_id )
     return $options;
 }
 
-function getListOptionsArray( $list_id )
+function getListOptionsArray($list_id)
 {
     $optionsArray = array();
     foreach ( getListOptions($list_id) as $option ) {

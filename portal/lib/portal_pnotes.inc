@@ -30,7 +30,7 @@ function addPortalMailboxPnote(
     $newtext,
     $authorized = '0',
     $activity = '1',
-    $title='Unassigned',
+    $title = 'Unassigned',
     $assigned_to = '',
     $datetime = '',
     $message_status = "New",
@@ -176,7 +176,7 @@ function updatePortalPnoteMessageStatus($id, $message_status)
         sqlStatement("update pnotes set message_status = ?, activity = '1' where id = ?", array($message_status, $id) );
     }
 }
-function getMails($pid,$dotype,$nsrch,$nfsrch)
+function getMails($pid, $dotype, $nsrch, $nfsrch)
 {
 
     if($pid){
@@ -217,7 +217,7 @@ function getMailDetails($id)
     }
 }
 
-function sendMail($pid,$note,$title='Unassigned',$to, $noteid)
+function sendMail($pid, $note, $title = 'Unassigned', $to, $noteid)
 {
     if($pid){
         addPortalMailboxPnote($pid,$note,'1','1',$title,$to,'','New',$noteid);
@@ -228,7 +228,7 @@ function sendMail($pid,$note,$title='Unassigned',$to, $noteid)
 }
 
 
-function updateStatus($id,$status)
+function updateStatus($id, $status)
 {
     if($pid){
         updatePortalPnoteMessageStatus($id,$status);

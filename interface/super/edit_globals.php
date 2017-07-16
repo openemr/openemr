@@ -74,7 +74,7 @@ function checkCreateCDB()
  * Update background_services table for a specific service following globals save.
  * @author EMR Direct
  */
-function updateBackgroundService($name,$active,$interval)
+function updateBackgroundService($name, $active, $interval)
 {
    //order important here: next_run change dependent on _old_ value of execute_interval so it comes first
     $sql = 'UPDATE background_services SET active=?, '

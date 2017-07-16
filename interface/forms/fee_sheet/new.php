@@ -57,7 +57,7 @@ $price_levels_are_used = $tmp['count'] > 1;
 
 // Format a money amount with decimals but no other decoration.
 // Second argument is used when extra precision is required.
-function formatMoneyNumber($value, $extradecimals=0)
+function formatMoneyNumber($value, $extradecimals = 0)
 {
     return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
 }

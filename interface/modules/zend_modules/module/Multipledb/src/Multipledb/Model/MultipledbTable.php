@@ -70,7 +70,7 @@ class MultipledbTable
         }
     }
 
-    public function storeMultipledb($id = 0,$db = array())
+    public function storeMultipledb($id = 0, $db = array())
     {
 
         if($db['password']){

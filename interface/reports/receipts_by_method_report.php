@@ -55,8 +55,8 @@ function thisLineItem(
     $rowmethod,
     $rowpayamount,
     $rowadjamount,
-    $payer_type=0,
-    $irnumber=''
+    $payer_type = 0,
+    $irnumber = ''
 ) {
 
     global $form_report_by, $insarray, $grandpaytotal, $grandadjtotal;
@@ -91,8 +91,8 @@ function showLineItem(
     $rowmethod,
     $rowpayamount,
     $rowadjamount,
-    $payer_type=0,
-    $irnumber=''
+    $payer_type = 0,
+    $irnumber = ''
 ) {
 
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,

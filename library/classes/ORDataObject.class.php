@@ -112,7 +112,7 @@ class ORDataObject
      * @param boolean $blank optional value to include a empty element at position 0, default is true
      * @return array array of values as name to index pairs found in the db enumeration of this field
      */
-    function _load_enum($field_name,$blank = true)
+    function _load_enum($field_name, $blank = true)
     {
         if (!empty($GLOBALS['static']['enums'][$this->_table][$field_name])
             && is_array($GLOBALS['static']['enums'][$this->_table][$field_name])
@@ -149,7 +149,7 @@ class ORDataObject
         }
     }
 
-    function _utility_array($obj_ar,$reverse=false,$blank=true, $name_func="get_name", $value_func="get_id")
+    function _utility_array($obj_ar, $reverse = false, $blank = true, $name_func = "get_name", $value_func = "get_id")
     {
         $ar = array();
         if ($blank) {

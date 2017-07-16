@@ -115,7 +115,7 @@ class Holidays_Controller
      * @param $end_date
      * @return array
      */
-    public function get_holidays_by_date_range($start_date,$end_date)
+    public function get_holidays_by_date_range($start_date, $end_date)
     {
         $holidays = array();
         $holidays = Holidays_Storage::get_holidays_by_dates($start_date,$end_date);

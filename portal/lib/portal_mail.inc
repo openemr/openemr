@@ -26,16 +26,16 @@ function addPortalMailboxMail(
     $newtext,
     $authorized = '0',
     $activity = '1',
-    $title='Unassigned',
+    $title = 'Unassigned',
     $assigned_to = '',
     $datetime = '',
     $message_status = "New",
     $master_note = '0',
-    $sid='',
-    $sn='',
-    $rid='',
-    $rn='',
-    $replyid=0
+    $sid = '',
+    $sn = '',
+    $rid = '',
+    $rn = '',
+    $replyid = 0
 ) {
 
     if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
@@ -235,7 +235,7 @@ function updatePortalMailMessageStatus($id, $message_status)
     }
 }
 
-function getMails($owner,$dotype,$nsrch,$nfsrch)
+function getMails($owner, $dotype, $nsrch, $nfsrch)
 {
     if($owner){
         if($dotype == "inbox"){
@@ -286,7 +286,7 @@ function getMailDetails($id)
     }
 }
 
-function sendMail($owner,$note,$title='Unassigned',$to, $noteid,$sid,$sn,$rid,$rn,$status='New',$replyid)
+function sendMail($owner, $note, $title = 'Unassigned', $to, $noteid, $sid, $sn, $rid, $rn, $status = 'New', $replyid)
 {
     if($owner){
         addPortalMailboxMail($owner,$note,'1','1',$title,$to,'',$status,$noteid,$sid,$sn,$rid,$rn,$replyid);
@@ -296,7 +296,7 @@ function sendMail($owner,$note,$title='Unassigned',$to, $noteid,$sid,$sn,$rid,$r
     }
 }
 
-function updateStatus($id,$status)
+function updateStatus($id, $status)
 {
         updatePortalMailMessageStatus($id,$status);
         return 1;

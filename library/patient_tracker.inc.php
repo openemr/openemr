@@ -27,7 +27,7 @@
 */
 require_once(dirname(__FILE__) . '/appointments.inc.php');
 
-function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec=false)
+function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_sec = false)
 {
 
     $tracker_time_calc = strtotime($tracker_to_time) - strtotime($tracker_from_time);
@@ -144,7 +144,7 @@ function get_Tracker_Time_Interval($tracker_from_time, $tracker_to_time, $allow_
     return $tracker_time ;
 }
 
-function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat =null, $form_patient_name = null, $form_patient_id = null)
+function fetch_Patient_Tracker_Events($from_date, $to_date, $provider_id = null, $facility_id = null, $form_apptstatus = null, $form_apptcat = null, $form_patient_name = null, $form_patient_id = null)
 {
     # used to determine which providers to display in the Patient Tracker
     if ($provider_id == 'ALL'){
@@ -179,7 +179,7 @@ function is_checkout($option)
 # This function will return false for both below scenarios:
 #   1. The tracker item does not exist
 #   2. If the tracker item does exist, but the encounter has not been set
-function is_tracker_encounter_exist($apptdate,$appttime,$pid,$eid)
+function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
 {
   #Check to see if there is an encounter in the patient_tracker table.
     $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND `appttime` = ? " .
@@ -190,7 +190,7 @@ function is_tracker_encounter_exist($apptdate,$appttime,$pid,$eid)
 
  # this function will return the tracker id that is managed
  # or will return false if no tracker id was managed (in the case of a recurrent appointment)
-function manage_tracker_status($apptdate,$appttime,$eid,$pid,$user,$status='',$room='',$enc_id='')
+function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status = '', $room = '', $enc_id = '')
 {
 
   #First ensure the eid is not a recurrent appointment. If it is, then do not do anything and return false.
@@ -324,7 +324,7 @@ function collect_checkout($trackerid)
     }
 }
 
-function random_drug_test($tracker_id,$percentage,$yearly_limit)
+function random_drug_test($tracker_id, $percentage, $yearly_limit)
 {
 
 # Check if randomization has not yet been done (is random_drug_test NULL). If already done, then exit.

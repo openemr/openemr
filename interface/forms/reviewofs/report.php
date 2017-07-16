@@ -2,7 +2,7 @@
 //------------Forms generated from formsWiz
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
-function reviewofs_report( $pid, $encounter, $cols, $id)
+function reviewofs_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_reviewofs", $id);

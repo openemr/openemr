@@ -481,7 +481,7 @@ function findPosX(id)
 <?php //DYNAMIC FORM RETREIVAL
 include_once("$srcdir/registry.inc");
 
-function myGetRegistered($state="1", $limit="unlimited", $offset="0")
+function myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
     global $attendant_type;
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .

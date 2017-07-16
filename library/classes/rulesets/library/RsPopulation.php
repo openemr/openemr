@@ -17,7 +17,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     /*
      * initialize the patient population
      */
-    public function __construct( array $patientIdArray )
+    public function __construct(array $patientIdArray)
     {
         foreach ( $patientIdArray as $patientId ) {
             $this->_patients[]= new RsPatient( $patientId );
@@ -64,7 +64,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     /*
      * ArrayAccess Interface
      */
-    public function offsetSet($offset,$value)
+    public function offsetSet($offset, $value)
     {
         if ($value instanceof CqmPatient ) {
             if ( $offset == "" ) {
@@ -77,17 +77,17 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
         }
     }
 
-    public function offsetExists( $offset )
+    public function offsetExists($offset)
     {
         return isset($this->_patients[$offset]);
     }
 
-    public function offsetUnset( $offset )
+    public function offsetUnset($offset)
     {
         unset($this->_patients[$offset]);
     }
 
-    public function offsetGet( $offset )
+    public function offsetGet($offset)
     {
         return isset($this->_patients[$offset]) ? $this->container[$offset] : null;
     }

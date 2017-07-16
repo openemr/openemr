@@ -39,7 +39,7 @@ class ParticipantsController extends BaseController
         $this->groupModel = $this->loadModel('therapy_groups');
     }
 
-    public function index($groupId ,$data = array())
+    public function index($groupId, $data = array())
     {
 
         if(isset($_POST['save'])){

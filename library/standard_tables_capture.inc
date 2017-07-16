@@ -26,7 +26,7 @@
 
 // Function to copy a package to temp
 // $type (RXNORM, SNOMED etc.)
-function temp_copy($filename,$type)
+function temp_copy($filename, $type)
 {
 
     if(!file_exists($filename)) {
@@ -49,7 +49,7 @@ function temp_copy($filename,$type)
 
 // Function to unarchive a package
 // $type (RXNORM, SNOMED etc.)
-function temp_unarchive($filename,$type)
+function temp_unarchive($filename, $type)
 {
     $filename = $GLOBALS['temporary_files_dir']."/".$type."/".basename($filename);
     if(!file_exists($filename)) {
@@ -155,7 +155,7 @@ function rxnorm_import($is_windows_flag)
 }
 
 // Function to import SNOMED tables
-function snomed_import($us_extension=false)
+function snomed_import($us_extension = false)
 {
 
     // set up array
@@ -453,7 +453,7 @@ function temp_dir_cleanup($type)
 
 // Function to update version tracker table if successful
 // $type (RXNORM etc.)
-function update_tracker_table($type,$revision,$version,$file_checksum)
+function update_tracker_table($type, $revision, $version, $file_checksum)
 {
     if ($type == 'RXNORM') {
         sqlStatement("INSERT INTO `standardized_tables_track` (`imported_date`,`name`,`revision_date`, `revision_version`, `file_checksum`) VALUES (NOW(),'RXNORM',?,?,?)", array($revision, $version, $file_checksum) );

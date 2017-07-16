@@ -25,7 +25,7 @@ class PhysicalExam extends ClinicalType
         return "medical_problem"; // TODO this may not be the correct type for BMI icd9 codes
     }
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         $data = Codes::lookup( $this->getOptionId() );
         $type = $this->getListType();

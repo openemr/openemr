@@ -28,7 +28,7 @@ class NFQ_0028_2014_DenominatorException implements CqmFilterIF
         return "DenominatorException";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         
         // Diagnosis Limited Life Expectancy

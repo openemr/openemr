@@ -14,7 +14,7 @@ class Parser_HL7v2
     var $MSH;
     var $EVN;
 
-    function __construct( $message, $_options = null )
+    function __construct($message, $_options = null)
     {
         // Assume separator is a pipe
         $this->message = $message;

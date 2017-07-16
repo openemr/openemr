@@ -407,7 +407,7 @@ class EncounterccdadispatchController extends AbstractActionController
         return $output;
     }
     
-    public function create_data($pid, $encounter, $sections, $send=0,$components)
+    public function create_data($pid, $encounter, $sections, $send = 0, $components)
     {
         global $assignedEntity;
         global $representedOrganization;
@@ -499,7 +499,7 @@ class EncounterccdadispatchController extends AbstractActionController
         return $tmpfile;
     }
     
-    public function download_file($tmpfile,$practice_filename,$file_size)
+    public function download_file($tmpfile, $practice_filename, $file_size)
     {
         ob_clean();
         header("Cache-Control: public");
@@ -510,7 +510,7 @@ class EncounterccdadispatchController extends AbstractActionController
         readfile($tmpfile);
     }
     
-    public function getContinuityCareDocument($pid,$encounter,$components_list)
+    public function getContinuityCareDocument($pid, $encounter, $components_list)
     {
         $ccd = '';
         if(in_array('allergies',$components_list))
@@ -536,7 +536,7 @@ class EncounterccdadispatchController extends AbstractActionController
         return $ccd;
     }
     
-    public function getDischargeSummary($pid,$encounter)
+    public function getDischargeSummary($pid, $encounter)
     {
         $discharge_summary = '';
         
@@ -562,7 +562,7 @@ class EncounterccdadispatchController extends AbstractActionController
     
     * $return   string  $procedure_notes      XML which contains the details collected from the patient.
     */
-    public function getProcedureNotes($pid,$encounter)
+    public function getProcedureNotes($pid, $encounter)
     {
         $procedure_notes = '<procedure_notes>';
         $procedure_notes .= $this->getEncounterccdadispatchTable()->getComplications($pid,$encounter);
@@ -648,7 +648,7 @@ class EncounterccdadispatchController extends AbstractActionController
     * $return   string  $history_and_physical_notes      XML which contains the details collected from the patient.
     */
     
-    public function getHistoryAndPhysicalNotes($pid, $encounter,$components_list)
+    public function getHistoryAndPhysicalNotes($pid, $encounter, $components_list)
     {
         $history_and_physical_notes = '';
         $history_and_physical_notes .= "<history_physical>";

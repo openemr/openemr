@@ -82,7 +82,7 @@ function escape_sort_order($s)
  * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
  * @return  string                 Escaped table name variable.
  */
-function escape_sql_column_name($s,$tables,$long=false)
+function escape_sql_column_name($s, $tables, $long = false)
 {
 
       // If the $tables is empty, then process them all
@@ -189,7 +189,7 @@ function mitigateSqlTableUpperCase($s)
  * @param   boolean  $case_sens_match  Use case sensitive match (this is default).
  * @return  string                     Escaped/sanitized sql identifier variable.
  */
-function escape_identifier($s,$whitelist_items,$die_if_no_match=false,$case_sens_match=true)
+function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true)
 {
     if (is_array($whitelist_items)) {
         // Only return an item within the whitelist_items
@@ -234,7 +234,7 @@ function escape_identifier($s,$whitelist_items,$die_if_no_match=false,$case_sens
  * @param bool $istrim whether to use trim() on the data.
  * @return string variable requested, or empty string
  */
-function formData($name, $type='P', $isTrim=false)
+function formData($name, $type = 'P', $isTrim = false)
 {
     if ($type == 'P')
     $s = isset($_POST[$name]) ? $_POST[$name] : '';
@@ -256,7 +256,7 @@ function formData($name, $type='P', $isTrim=false)
  * @param bool $istrim whether to use trim() on the data.
  * @return string
  */
-function formDataCore($s, $isTrim=false)
+function formDataCore($s, $isTrim = false)
 {
       //trim if selected
     if ($isTrim) {$s = trim($s);}

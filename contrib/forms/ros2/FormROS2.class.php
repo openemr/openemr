@@ -41,7 +41,7 @@ class FormROS2 extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormROS2($id= "", $_prefix = "")
+    function FormROS2($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

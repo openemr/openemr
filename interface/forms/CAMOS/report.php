@@ -3,7 +3,7 @@
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once("../../../library/api.inc");
 include_once("content_parser.php");
-function CAMOS_report( $pid, $encounter, $cols, $id)
+function CAMOS_report($pid, $encounter, $cols, $id)
 {
     $data = formFetch("form_CAMOS", $id);
     if ($data) {

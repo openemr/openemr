@@ -32,7 +32,7 @@ $age = getPatientAge($result["DOB_YMD"]);
 
 ////////////////////////////////////////////////////////////////////
 // Function:	getPatientDateOfLastEncounter
-function getPatientDateOfLastEncounter( $nPid )
+function getPatientDateOfLastEncounter($nPid)
 {
     $strEventDate = sqlQuery("SELECT MAX(pc_eventDate) AS max
                   FROM openemr_postcalendar_events

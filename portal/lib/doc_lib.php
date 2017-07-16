@@ -85,7 +85,7 @@ catch(Exception $e){
     die(xlt("no signature in document"));
 }
 // not currently used but meant to be.
-function doc_toDoc( $htmlin )
+function doc_toDoc($htmlin)
 {
     header( "Content-type: application/vnd.oasis.opendocument.text" );
     header( "Content-Disposition: attachment;Filename=document_name.html" );

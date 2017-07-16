@@ -97,7 +97,7 @@ class C_Prescription extends Controller
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_edit.html");
     }
 
-    function edit_action($id = "",$patient_id="",$p_obj = null)
+    function edit_action($id = "", $patient_id = "", $p_obj = null)
     {
 
         if ($p_obj != null && get_class($p_obj) == "prescription") {
@@ -120,7 +120,7 @@ class C_Prescription extends Controller
         $this->default_action();
     }
 
-    function list_action($id,$sort = "")
+    function list_action($id, $sort = "")
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -139,7 +139,7 @@ class C_Prescription extends Controller
                 $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_list.html");
     }
 
-    function block_action($id,$sort = "")
+    function block_action($id, $sort = "")
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -155,7 +155,7 @@ class C_Prescription extends Controller
         $this->display($GLOBALS['template_dir'] . "prescription/" . $this->template_mod . "_block.html");
     }
 
-    function fragment_action($id,$sort = "")
+    function fragment_action($id, $sort = "")
     {
         if (empty($id)) {
             $this->function_argument_error();
@@ -481,7 +481,7 @@ class C_Prescription extends Controller
         echo ("<body>\n");
     }
 
-    function multiprintfax_footer( & $pdf )
+    function multiprintfax_footer(& $pdf)
     {
         return $this->multiprint_footer( $pdf );
     }
@@ -821,7 +821,7 @@ class C_Prescription extends Controller
         return;
     }
 
-    function _email_prescription($p,$email)
+    function _email_prescription($p, $email)
     {
         if (empty($email)) {
             $this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
@@ -877,7 +877,7 @@ class C_Prescription extends Controller
         $_POST['process'] = "";
     }
 
-    function _fax_prescription($p,$faxNum)
+    function _fax_prescription($p, $faxNum)
     {
         $err = "Sent fax";
         //strip - ,(, ), and ws

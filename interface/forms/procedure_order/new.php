@@ -68,7 +68,7 @@ function QuotedOrNull($fld)
     return "'$fld'";
 }
 
-function getListOptions($list_id , $fieldnames=array('option_id', 'title', 'seq'))
+function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq'))
 {
     $output =  array();
     $query = sqlStatement("SELECT ".implode(',',$fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));

@@ -24,7 +24,7 @@ class LabExchangeClient
         $this->Endpoint = $endpoint;
     }
     
-    public function sendRequest($path, $method="GET", $vars=array())
+    public function sendRequest($path, $method = "GET", $vars = array())
     {
     
         echo "Path: {$path}\n";

@@ -13,7 +13,7 @@ class NFQ_0038_Numerator7 implements CqmFilterIF
         return "Numerator 7";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if ( Immunizations::checkPheumococcal( $patient, $beginDate, $endDate ) ) {
             return true;

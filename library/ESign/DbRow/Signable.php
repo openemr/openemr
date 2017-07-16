@@ -36,7 +36,7 @@ abstract class DbRow_Signable implements SignableIF
     private $_tableName = null;
     private $_verification = null;
 
-    public function __construct( $tableId, $tableName )
+    public function __construct($tableId, $tableName)
     {
         $this->_tableId = $tableId;
         $this->_tableName = $tableName;
@@ -106,7 +106,7 @@ abstract class DbRow_Signable implements SignableIF
         return false;
     }
 
-    public function sign( $userId, $lock = false, $amendment = null )
+    public function sign($userId, $lock = false, $amendment = null)
     {
         $statement = "INSERT INTO `esign_signatures` ( `tid`, `table`, `uid`, `datetime`, `is_lock`, `hash`, `amendment`, `signature_hash` ) ";
         $statement .= "VALUES ( ?, ?, ?, NOW(), ?, ?, ?, ? ) ";

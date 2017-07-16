@@ -53,7 +53,7 @@ function postcalendar_admin_listhidden()
 function postcalendar_admin_listqueued()
 {
     return postcalendar_admin_showlist('',_EVENT_QUEUED,'listqueued',_PC_QUEUED_ADMIN); }
-function postcalendar_admin_showlist($e='',$type,$function,$title,$msg='')
+function postcalendar_admin_showlist($e = '', $type, $function, $title, $msg = '')
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
     $header = <<<EOF
@@ -572,7 +572,7 @@ function postcalendar_admin_submit($args)
     return $output;
 }
 
-function postcalendar_admin_modifyconfig($msg='',$showMenu=true)
+function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
@@ -871,7 +871,7 @@ function postcalendar_admin_updateconfig()
     return postcalendar_admin_modifyconfig('<center>'._PC_UPDATED.'</center>');
 }
 
-function postcalendar_admin_categoriesOld($msg='',$e='')
+function postcalendar_admin_categoriesOld($msg = '', $e = '')
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
@@ -1237,7 +1237,7 @@ function postcalendar_admin_categoriesUpdate()
 /**
 * Creates a new category
 */
-function postcalendar_admin_categories($msg='',$e='',$args)
+function postcalendar_admin_categories($msg = '', $e = '', $args)
 {
     if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
     extract($args);
@@ -1478,7 +1478,7 @@ function postcalendar_admin_categories($msg='',$e='',$args)
 /**
  * Main administration menu
  */
-function postcalendar_adminmenu($upgraded=false)
+function postcalendar_adminmenu($upgraded = false)
 {
     if(!PC_ACCESS_ADMIN) { return _POSTCALENDAR_NOAUTH; }
 
@@ -1927,7 +1927,7 @@ function postcalendar_admin_categoryDetail($args)
     return $output->GetOutput();
 }
 
-function postcalendar_admin_categoryLimits($msg='',$e='',$args)
+function postcalendar_admin_categoryLimits($msg = '', $e = '', $args)
 {
     if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
     extract($args);

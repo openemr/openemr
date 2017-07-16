@@ -25,7 +25,7 @@ class ReportManager
         }
     }
 
-    public function runReport( $rowRule, $patients, $dateTarget, $options=array() )
+    public function runReport($rowRule, $patients, $dateTarget, $options = array())
     {
         $ruleId = $rowRule['id'];
         $patientData = array();

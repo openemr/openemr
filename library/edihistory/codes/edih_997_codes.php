@@ -33,7 +33,7 @@
  * @param string  the code
  * @return string
  */
-function edih_997_code_text( $ak_seg_field, $ak_code )
+function edih_997_code_text($ak_seg_field, $ak_code)
 {
     // the Availity 997 file has codes with certain errors
     // which correspond to the messages in these arrays

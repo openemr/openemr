@@ -16,7 +16,7 @@ abstract class RuleCriteriaSimpleText extends RuleCriteria
     var $title;
     var $value;
 
-    function __construct( $title, $value )
+    function __construct($title, $value)
     {
         $this->title = $title;
         $this->value = $value;

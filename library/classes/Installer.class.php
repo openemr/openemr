@@ -5,7 +5,7 @@
 class Installer
 {
 
-    public function __construct( $cgi_variables )
+    public function __construct($cgi_variables)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -198,7 +198,7 @@ class Installer
         return $sql_results;
     }
 
-    public function load_file($filename,$title)
+    public function load_file($filename, $title)
     {
         $sql_results = ''; // information string which is returned
         $sql_results .= "Creating $title tables...\n";
@@ -498,7 +498,7 @@ if ($it_died != 0) {
         return true;
     }
 
-    private function execute_sql( $sql )
+    private function execute_sql($sql)
     {
         $this->error_message = '';
         if ( ! $this->dbh ) {
@@ -515,7 +515,7 @@ if ($it_died != 0) {
         }
     }
 
-    private function connect_to_database( $server, $user, $password, $port, $dbname='' )
+    private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
         if ($server == "localhost")
         $dbh = mysqli_connect($server, $user, $password, $dbname);

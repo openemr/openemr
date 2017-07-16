@@ -22,7 +22,7 @@
 
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
-function track_anything_report( $pid, $encounter, $cols, $id)
+function track_anything_report($pid, $encounter, $cols, $id)
 {
     #$patient_report_flag = 'no';
     echo "<div id='track_anything'>";

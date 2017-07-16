@@ -294,7 +294,7 @@ class Model extends SMA_Common\Model
         return $result;
     }
 
-    public function addMessage($username, $message, $ip, $senderid=0, $recipid='')
+    public function addMessage($username, $message, $ip, $senderid = 0, $recipid = '')
     {
         return sqlQueryNoLog("INSERT INTO onsite_messages VALUES (NULL, ?, ?, ?, NOW(), ?, ?)", array($username,$message,$ip,$senderid,$recipid) );
     }
@@ -327,7 +327,7 @@ class Model extends SMA_Common\Model
         return $result;
     }
 
-    public function updateOnline($hash, $ip, $username='', $userid=0)
+    public function updateOnline($hash, $ip, $username = '', $userid = 0)
     {
         return sqlStatementNoLog("REPLACE INTO onsite_online
             VALUES ( ?, ?, NOW(), ?, ? )", array($hash, $ip, $username, $userid) ) or die(mysql_error());

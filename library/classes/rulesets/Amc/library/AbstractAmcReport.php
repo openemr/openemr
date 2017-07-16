@@ -39,7 +39,7 @@ abstract class AbstractAmcReport implements RsReportIF
 
     protected $_manualLabNumber;
 
-    public function __construct( array $rowRule, array $patientIdArray, $dateTarget, $options )
+    public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
     {
         // require all .php files in the report's sub-folder
         $className = get_class( $this );
@@ -201,7 +201,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_resultsArray[]= $result;
     }
 
-    private function collectObjects($patient,$object_label,$begin,$end)
+    private function collectObjects($patient, $object_label, $begin, $end)
     {
 
         $results = array();

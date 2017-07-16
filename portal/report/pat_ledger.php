@@ -47,7 +47,7 @@ $type_form = $_GET['form'];
 
 //if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
 
-function GetAllUnapplied($pat='',$from_dt='',$to_dt='')
+function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
     $all = array();
     if(!$pat) return($all);
@@ -102,7 +102,7 @@ function List_Look($thisData, $thisList)
     return $dispValue;
 }
 
-function GetAllCredits($enc = '', $pat='')
+function GetAllCredits($enc = '', $pat = '')
 {
     $all = array();
     if(!$enc || !$pat) return($all);
@@ -143,7 +143,7 @@ function PrintEncFooter()
     echo "<td class='detail' style='text-align: right;'>".text(oeFormatMoney($enc_bal))."</td>";
     echo "</tr>\n";
 }
-function PrintCreditDetail($detail, $pat, $unassigned=false)
+function PrintCreditDetail($detail, $pat, $unassigned = false)
 {
     global $enc_pmt, $total_pmt, $enc_adj, $total_adj, $enc_bal, $total_bal;
     global $bgcolor, $orow, $enc_units, $enc_chg;

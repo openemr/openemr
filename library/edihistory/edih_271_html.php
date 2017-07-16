@@ -502,7 +502,7 @@ function edih_271_transaction_html($obj271, $bht03)
  *
  * @return string  either an error message or an html table
  */
-function edih_271_html($filename, $bht03='' )
+function edih_271_html($filename, $bht03 = '')
 {
     // create a display for an individual 277 response
     $html_str = '';

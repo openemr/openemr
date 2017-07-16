@@ -26,19 +26,19 @@ class RuleTargetActionGroup
      */
     var $ruleActions;
     
-    public function __construct( $groupId = null )
+    public function __construct($groupId = null)
     {
         $this->groupId = $groupId;
         $this->ruleActions = new RuleActions();
         $this->ruleTargets = new RuleTargets();
     }
     
-    public function setRuleTargets( RuleTargets $ruleTargets )
+    public function setRuleTargets(RuleTargets $ruleTargets)
     {
         $this->ruleTargets = $ruleTargets;
     }
     
-    public function setRuleActions( RuleActions $ruleActions )
+    public function setRuleActions(RuleActions $ruleActions)
     {
         $this->ruleActions = $ruleActions;
     }

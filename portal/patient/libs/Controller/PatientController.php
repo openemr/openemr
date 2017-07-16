@@ -344,7 +344,7 @@ class PatientController extends AppBaseController
             $this->RenderExceptionJSON( $ex );
         }
     }
-    public function CloseAudit( $p )
+    public function CloseAudit($p)
     {
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();

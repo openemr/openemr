@@ -1025,15 +1025,15 @@ function addBilling2(
     $code,
     $code_text,
     $pid,
-    $authorized="0",
+    $authorized = "0",
     $provider,
-    $modifier="",
-    $units="",
-    $fee="0.00",
-    $ndc_info='',
-    $justify='',
-    $billed=0,
-    $notecodes=''
+    $modifier = "",
+    $units = "",
+    $fee = "0.00",
+    $ndc_info = '',
+    $justify = '',
+    $billed = 0,
+    $notecodes = ''
 ) {
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, " .

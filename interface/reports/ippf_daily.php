@@ -46,7 +46,7 @@ function genEndRow()
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right=false, $class='')
+function genAnyCell($data, $right = false, $class = '')
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -67,7 +67,7 @@ function genAnyCell($data, $right=false, $class='')
     }
 }
 
-function genHeadCell($data, $right=false)
+function genHeadCell($data, $right = false)
 {
     genAnyCell($data, $right, 'dehead');
 }

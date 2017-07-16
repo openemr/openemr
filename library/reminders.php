@@ -39,7 +39,7 @@ require_once(dirname(__FILE__) . "/maviq_phone_api.php");
  * @param  integer  $patient_id  pid of selected patient
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  */
-function patient_reminder_widget($patient_id,$dateTarget='')
+function patient_reminder_widget($patient_id, $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -101,7 +101,7 @@ function patient_reminder_widget($patient_id,$dateTarget='')
  * @param  boolean  $also_send   if TRUE, then will also call send_reminder when done
  * @return array                 see above for data structure of returned array
  */
-function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id=null, $also_send=false)
+function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $report_id = null, $also_send = false)
 {
 
   // Default to a batchsize, if empty
@@ -197,7 +197,7 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id
  * @param  integer  $batchSize   number of patients to batch (when batching process)
  * @return array                 see above for data structure of returned array
  */
-function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSize=null)
+function update_reminders($dateTarget = '', $patient_id = '', $start = null, $batchSize = null)
 {
 
     $logging = array();
@@ -441,7 +441,7 @@ function send_reminders()
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.
  * @return array                 Returns an array of reminders.
  */
-function fetch_reminders($patient_id='',$type='',$due_status='',$select='*')
+function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
 {
 
     $arraySqlBind = array();

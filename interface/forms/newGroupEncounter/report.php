@@ -28,7 +28,7 @@
 include_once(dirname(__file__)."/../../globals.php");
 require_once("$srcdir/group.inc");
 
-function newGroupEncounter_report( $group_id, $encounter, $cols, $id)
+function newGroupEncounter_report($group_id, $encounter, $cols, $id)
 {
     $res = sqlStatement("select * from form_groups_encounter where group_id=? and id=?", array($group_id,$id) );
     print "<table><tr><td>\n";

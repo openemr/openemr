@@ -27,7 +27,7 @@
 
 // Post a payment to the payments table.
 //
-function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amount2, $timestamp, $auth="")
+function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amount2, $timestamp, $auth = "")
 {
 
     if (empty($auth)) {
@@ -65,7 +65,7 @@ function frontPayment($patient_id, $encounter, $method, $source, $amount1, $amou
 //===============================================================================
 //This section handles the common functins of payment screens.
 //===============================================================================
-function DistributionInsert($CountRow,$created_time,$user_id)
+function DistributionInsert($CountRow, $created_time, $user_id)
 {
 //Function inserts the distribution.Payment,Adjustment,Deductible,Takeback & Follow up reasons are inserted as seperate rows.
  //It automatically pushes to next insurance for billing.

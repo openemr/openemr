@@ -177,7 +177,7 @@ function getProviders()
 // logged-in user.  This was created to support genFacilityTitle() but
 // may find additional uses.
 //
-function getFacility($facid=0)
+function getFacility($facid = 0)
 {
     global $facilityService;
 
@@ -199,7 +199,7 @@ function getFacility($facid=0)
 // Generate a report title including report name and facility name, address
 // and phone.
 //
-function genFacilityTitle($repname='', $facid=0)
+function genFacilityTitle($repname = '', $facid = 0)
 {
     $s = '';
     $s .= "<table class='ftitletable'>\n";
@@ -274,7 +274,7 @@ function getServiceFacilities($first = '')
 }
 
 //(CHEMED) facility filter
-function getProviderInfo($providerID = "%", $providers_only = true, $facility = '' )
+function getProviderInfo($providerID = "%", $providers_only = true, $facility = '')
 {
     $param1 = "";
     if ($providers_only === 'any') {
@@ -383,7 +383,7 @@ function getEthnoRacials()
     return $returnval;
 }
 
-function getHistoryData($pid, $given = "*", $dateStart='',$dateEnd='')
+function getHistoryData($pid, $given = "*", $dateStart = '', $dateEnd = '')
 {
 
     if ($dateStart && $dateEnd) {
@@ -438,7 +438,7 @@ function getEmployerData($pid, $given = "*")
     return sqlQuery($sql, array($pid) );
 }
 
-function _set_patient_inc_count($limit, $count, $where, $whereBindArray=array())
+function _set_patient_inc_count($limit, $count, $where, $whereBindArray = array())
 {
   // When the limit is exceeded, find out what the unlimited count would be.
     $GLOBALS['PATIENT_INC_COUNT'] = $count;
@@ -468,7 +468,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray=array())
  * @param string $start
  * @return array
  */
-function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $names = getPatientNameSplit($term);
 
@@ -585,7 +585,7 @@ function getPatientNameSplit($term)
     return $n; // associative array containing names
 }
 
-function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
 
     $sqlBindArray = array();
@@ -610,7 +610,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     return $returnval;
 }
 
-function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $layoutCols = sqlStatement( "SELECT field_id FROM layout_options WHERE form_id='DEM' AND group_name not like (? ) AND uor !=0", array("%".Employer."%") );
 
@@ -638,9 +638,9 @@ function getByPatientDemographicsFilter(
     $searchTerm = "%",
     $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS",
     $orderby = "lname ASC, fname ASC",
-    $limit="all",
-    $start="0",
-    $search_service_code=''
+    $limit = "all",
+    $start = "0",
+    $search_service_code = ''
 ) {
 
     $layoutCols = explode( '~', $searchFields );
@@ -734,7 +734,7 @@ function getPatientName($pid)
 }
 
 /* find patient data by DOB */
-function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $DOB = fixDate($DOB, $DOB);
     $sqlBindArray = array();
@@ -762,7 +762,7 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 }
 
 /* find patient data by SSN */
-function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $sqlBindArray = array();
     $where = "ss LIKE ?";
@@ -779,7 +779,7 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
 }
 
 //(CHEMED) Search by phone number
-function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit="all", $start="0")
+function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, providerID", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
     $phone = preg_replace( "/[[:punct:]]/","", $phone );
     $sqlBindArray = array();
@@ -796,7 +796,7 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     return $returnval;
 }
 
-function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit="all", $start="0")
+function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id ASC", $limit = "all", $start = "0")
 {
     $sql="select $given from patient_data order by $orderby";
 
@@ -812,7 +812,7 @@ function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id A
 
 //----------------------input functions
 function newPatientData(
-    $db_id="",
+    $db_id = "",
     $title = "",
     $fname = "",
     $lname = "",
@@ -849,7 +849,7 @@ function newPatientData(
     $genericval1 = "",
     $genericname2 = "",
     $genericval2 = "",
-    $billing_note="",
+    $billing_note = "",
     $phone_cell = "",
     $hipaa_mail = "",
     $hipaa_voice = "",
@@ -954,7 +954,7 @@ function newPatientData(
 //   yyyy/mm/dd
 //   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
 //
-function fixDate($date, $default="0000-00-00")
+function fixDate($date, $default = "0000-00-00")
 {
     $fixed_date = $default;
     $date = trim($date);
@@ -993,7 +993,7 @@ function pdValueOrNull($key, $value)
 
 // Create or update patient data from an array.
 //
-function updatePatientData($pid, $new, $create=false)
+function updatePatientData($pid, $new, $create = false)
 {
   /*******************************************************************
     $real = getPatientData($pid);
@@ -1067,7 +1067,7 @@ function newEmployerData(
 
 // Create or update employer data from an array.
 //
-function updateEmployerData($pid, $new, $create=false)
+function updateEmployerData($pid, $new, $create = false)
 {
     $colnames = array('name','street','city','state','postal_code','country');
 
@@ -1266,7 +1266,7 @@ function updateInsuranceData($id, $new)
     sqlStatement($sql);
 }
 
-function newHistoryData($pid, $new=false)
+function newHistoryData($pid, $new = false)
 {
     $arraySqlBind = array();
     $sql = "insert into history_data set pid = ?, date = NOW()";
@@ -1280,7 +1280,7 @@ function newHistoryData($pid, $new=false)
     return sqlInsert($sql, $arraySqlBind );
 }
 
-function updateHistoryData($pid,$new)
+function updateHistoryData($pid, $new)
 {
         $real = getHistoryData($pid);
         while(list($key, $value) = each ($new))
@@ -1305,7 +1305,7 @@ function updateHistoryData($pid,$new)
 //   in years  if > 2 years old
 // given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
 // (optional) nowYMD is a date in YYYYMMDD format
-function getPatientAge($dobYMD, $nowYMD=null)
+function getPatientAge($dobYMD, $nowYMD = null)
 {
     // strip any dashes from the DOB
     $dobYMD = preg_replace("/-/", "", $dobYMD);
@@ -1356,7 +1356,7 @@ function getPatientAge($dobYMD, $nowYMD=null)
  *      age - decimal age in years
  *      age_in_months - decimal age in months
  *      ageinYMD - formatted string #y #m #d */
-function parseAgeInfo($dob,$target)
+function parseAgeInfo($dob, $target)
 {
     // Prepare dob (expected in order Y M D, remove whatever delimiters might be there
     $dateDOB = preg_replace("/[-\s\/]/", "", $dob);
@@ -1376,7 +1376,7 @@ function parseAgeInfo($dob,$target)
  *      age_in_months - decimal age in months
  *      ageinYMD - formatted string #y #m #d
  */
-function getPatientAgeYMD($dob, $date=null)
+function getPatientAgeYMD($dob, $date = null)
 {
 
     if ($date == null) {
@@ -1457,7 +1457,7 @@ function getPatientAgeYMD($dob, $date=null)
 //   in years  if > 2 years old
 // given YYYYMMDD from MySQL DATE_FORMAT(DOB,'%Y%m%d')
 // (optional) nowYMD is a date in YYYYMMDD format
-function getPatientAgeInDays($dobYMD, $nowYMD=null)
+function getPatientAgeInDays($dobYMD, $nowYMD = null)
 {
     $age = -1;
 
@@ -1494,7 +1494,7 @@ function getPatientAgeInDays($dobYMD, $nowYMD=null)
  * @param type $asOfYMD
  * @return string suitable for displaying patient's age based on preferences
  */
-function getPatientAgeDisplay($dobYMD, $asOfYMD=null)
+function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
 {
     if($GLOBALS['age_display_format']=='1')
     {
@@ -1748,7 +1748,7 @@ function getEffectiveInsurances($patient_id, $encdate)
  * @param boolean Indicates if amounts owed by insurance are to be included.
  * @return number The balance.
  */
-function get_patient_balance($pid, $with_insurance=false)
+function get_patient_balance($pid, $with_insurance = false)
 {
     $balance = 0;
     $feres = sqlStatement("SELECT date, encounter, last_level_billed, " .
@@ -1797,7 +1797,7 @@ function get_patient_balance($pid, $with_insurance=false)
 //    If deceased, then will return the number of
 //      days that patient has been deceased.
 //    If not deceased, then will return false.
-function is_patient_deceased($pid,$date='')
+function is_patient_deceased($pid, $date = '')
 {
 
   // Set date to current if not set

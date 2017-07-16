@@ -43,7 +43,7 @@ class Form_Log implements LogIF
      * @param unknown $formDir
      * @param unknown $encounterId
      */
-    public function __construct( $formId, $formDir, $encounterId )
+    public function __construct($formId, $formDir, $encounterId)
     {
         $this->_viewer = new Viewer();
         $this->_viewer->formId = $formId;
@@ -52,14 +52,14 @@ class Form_Log implements LogIF
         $this->_viewer->logId = $formDir."-".$formId;
     }
     
-    public function render( SignableIF $signable )
+    public function render(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();
         return $this->_viewer->render( $this );
     }
     
-    public function getHtml( SignableIF $signable )
+    public function getHtml(SignableIF $signable)
     {
         $this->_viewer->verified = $signable->verify();
         $this->_viewer->signatures = $signable->getSignatures();

@@ -44,7 +44,7 @@ class FormSnellen extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormSnellen($id= "", $_prefix = "")
+    function FormSnellen($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

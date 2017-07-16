@@ -93,7 +93,7 @@ $form_encounter_layout = array(
 
 $source = empty($_REQUEST['source']) ? 'D' : $_REQUEST['source'];
 
-function gsr_fixup(&$row, $fldid, $default='')
+function gsr_fixup(&$row, $fldid, $default = '')
 {
     if (isset($row[$fldid])) {
         return addslashes($row[$fldid]);

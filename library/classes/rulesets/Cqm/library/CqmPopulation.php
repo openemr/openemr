@@ -15,7 +15,7 @@ class CqmPopulation extends RsPopulation
     /*
      * initialize the patient population
      */
-    public function __construct( array $patientIdArray )
+    public function __construct(array $patientIdArray)
     {
         foreach ( $patientIdArray as $patientId ) {
             $this->_patients[]= new CqmPatient( $patientId );
@@ -25,7 +25,7 @@ class CqmPopulation extends RsPopulation
     /*
      * ArrayAccess Interface
      */
-    public function offsetSet($offset,$value)
+    public function offsetSet($offset, $value)
     {
         if ($value instanceof CqmPatient ) {
             if ( $offset == "" ) {

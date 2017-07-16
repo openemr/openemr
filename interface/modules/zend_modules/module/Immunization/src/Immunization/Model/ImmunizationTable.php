@@ -62,7 +62,7 @@ class ImmunizationTable extends AbstractTableGateway
     * @param type $form_data
     * @return type
     */
-    public function immunizedPatientDetails($form_data,$getCount=null)
+    public function immunizedPatientDetails($form_data, $getCount = null)
     {
         $query_data = array();
         $query_codes     = $form_data['query_codes'];
@@ -177,7 +177,7 @@ class ImmunizationTable extends AbstractTableGateway
         return $result;
     }
   
-    public function getNotes($option_id,$list_id)
+    public function getNotes($option_id, $list_id)
     {
         if($option_id) {
             $query   = "SELECT 
@@ -199,7 +199,7 @@ class ImmunizationTable extends AbstractTableGateway
     * @param type $id
     * @return type Array $val
     */
-    public function getImmunizationObservationResultsData($pid,$id)
+    public function getImmunizationObservationResultsData($pid, $id)
     {
         $sql    = " SELECT 
                        * 
@@ -214,7 +214,7 @@ class ImmunizationTable extends AbstractTableGateway
         return $val;
     }
   
-    public function getCodes($option_id,$list_id)
+    public function getCodes($option_id, $list_id)
     {
         if($option_id) {
             $query   = "SELECT 

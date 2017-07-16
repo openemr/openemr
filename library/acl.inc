@@ -783,7 +783,7 @@ function remove_element($arr, $val)
   * $param String $section_identifier ACL Section id
   * @return boolean
   */
-function zh_acl_check($user_id,$section_identifier)
+function zh_acl_check($user_id, $section_identifier)
 {
     $sql_user_acl = " SELECT
                         COUNT(allowed) AS count
@@ -855,7 +855,7 @@ function zh_acl_check($user_id,$section_identifier)
   // This generates an HTML options list for all ACOs.
   // The caller inserts this between <select> and </select> tags.
   //
-function gen_aco_html_options($default='')
+function gen_aco_html_options($default = '')
 {
     global $phpgacl_location;
     require_once("$phpgacl_location/gacl_api.class.php");
@@ -887,7 +887,7 @@ function gen_aco_html_options($default='')
   // Permissions check for an ACO in "section|aco" format.
   // Note $return_value may be an array of return values.
   //
-function acl_check_aco_spec($aco_spec, $user='', $return_value='')
+function acl_check_aco_spec($aco_spec, $user = '', $return_value = '')
 {
     if (empty($aco_spec)) return true;
     $tmp = explode('|', $aco_spec);
@@ -901,7 +901,7 @@ function acl_check_aco_spec($aco_spec, $user='', $return_value='')
   // Permissions check for a specified encounter form type.
   // Note $return_value may be an array of return values.
   //
-function acl_check_form($formdir, $user='', $return_value='')
+function acl_check_form($formdir, $user = '', $return_value = '')
 {
     require_once(dirname(__FILE__) . '/registry.inc');
     $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
@@ -911,7 +911,7 @@ function acl_check_form($formdir, $user='', $return_value='')
   // Permissions check for a specified issue type.
   // Note $return_value may be an array of return values.
   //
-function acl_check_issue($type, $user='', $return_value='')
+function acl_check_issue($type, $user = '', $return_value = '')
 {
     require_once(dirname(__FILE__) . '/lists.inc');
     global $ISSUE_TYPES;
@@ -922,7 +922,7 @@ function acl_check_issue($type, $user='', $return_value='')
   // Permissions check for a specified document category name.
   // Note $return_value may be an array of return values.
   //
-function acl_check_cat_name($catname, $user='', $return_value='')
+function acl_check_cat_name($catname, $user = '', $return_value = '')
 {
     $tmp = sqlQuery("SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
     array($catname));

@@ -47,12 +47,12 @@ class Phimail extends AbstractPlugin
         return phimail_connect($err);
     }
   
-    public function phimail_write($fp,$text)
+    public function phimail_write($fp, $text)
     {
         phimail_write($fp,$text);
     }
   
-    public function phimail_write_expect_OK($fp,$text)
+    public function phimail_write_expect_OK($fp, $text)
     {
         return phimail_write_expect_OK($fp,$text);
     }

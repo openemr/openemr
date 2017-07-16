@@ -2,7 +2,7 @@
 
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
-function individual_treatment_plan_report( $pid, $encounter, $cols, $id)
+function individual_treatment_plan_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     print "Individual Treatment Plan";

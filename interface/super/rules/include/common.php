@@ -14,7 +14,7 @@
  * @param <type> $pieces
  * @param <type> $funcs
  */
-function implode_funcs( $glue, array $pieces, array $funcs )
+function implode_funcs($glue, array $pieces, array $funcs)
 {
     $new_pieces = array();
     foreach ( $pieces as $piece ) {
@@ -34,7 +34,7 @@ function implode_funcs( $glue, array $pieces, array $funcs )
  * @param <type> $default
  * @return <type>
  */
-function _get( $var, $default='' )
+function _get($var, $default = '')
 {
     $val = $_GET[$var];
     return isset($val) && $val != '' ? $val : $default;
@@ -46,7 +46,7 @@ function _get( $var, $default='' )
  * @param <type> $default
  * @return <type>
  */
-function _post( $var, $default='' )
+function _post($var, $default = '')
 {
     $val = $_POST[$var];
     return isset($val) && $val != '' ? $val : $default;
@@ -72,17 +72,17 @@ function library_dir()
     return base_dir() . '/library';
 }
 
-function library_src( $file )
+function library_src($file)
 {
     return library_dir() . "/$file";
 }
 
-function js_src( $file )
+function js_src($file)
 {
     echo _base_url() . '/www/js/' . $file;
 }
 
-function css_src( $file )
+function css_src($file)
 {
     echo _base_url() . '/www/css/' . $file;
 }
@@ -91,7 +91,7 @@ function controller_basedir()
 {
     return realpath( base_dir() . '/controllers/' );
 }
-function controller_dir( $controller )
+function controller_dir($controller)
 {
     $dir = controller_basedir() . '/'. $controller;
     if ( realpath( $dir . '/../') != controller_basedir() )  {

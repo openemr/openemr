@@ -28,7 +28,7 @@
 
 // ISA Segment  - EDI-270 format
 
-function create_ISA($row,$X12info,$segTer,$compEleSep)
+function create_ISA($row, $X12info, $segTer, $compEleSep)
 {
 
     $ISA     =  array();
@@ -80,7 +80,7 @@ function create_ISA($row,$X12info,$segTer,$compEleSep)
 
 // GS Segment  - EDI-270 format
 
-function create_GS($row,$X12info,$segTer,$compEleSep)
+function create_GS($row, $X12info, $segTer, $compEleSep)
 {
 
     $GS    = array();
@@ -112,7 +112,7 @@ function create_GS($row,$X12info,$segTer,$compEleSep)
 
 // ST Segment  - EDI-270 format
 
-function create_ST($row,$X12info,$segTer,$compEleSep)
+function create_ST($row, $X12info, $segTer, $compEleSep)
 {
 
     $ST    =    array();
@@ -134,7 +134,7 @@ function create_ST($row,$X12info,$segTer,$compEleSep)
 
 // BHT Segment  - EDI-270 format
 
-function create_BHT($row,$X12info,$segTer,$compEleSep)
+function create_BHT($row, $X12info, $segTer, $compEleSep)
 {
 
     $BHT    =   array();
@@ -163,7 +163,7 @@ function create_BHT($row,$X12info,$segTer,$compEleSep)
 
 // HL Segment  - EDI-270 format
 
-function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
+function create_HL($row, $nHlCounter, $X12info, $segTer, $compEleSep)
 {
 
     $HL         = array();
@@ -201,7 +201,7 @@ function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
 
 // NM1 Segment  - EDI-270 format
 
-function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
+function create_NM1($row, $nm1Cast, $X12info, $segTer, $compEleSep)
 {
 
     $NM1        = array();
@@ -254,7 +254,7 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
 
 // REF Segment  - EDI-270 format
 
-function create_REF($row,$ref,$X12info,$segTer,$compEleSep)
+function create_REF($row, $ref, $X12info, $segTer, $compEleSep)
 {
 
     $REF    =   array();
@@ -280,7 +280,7 @@ function create_REF($row,$ref,$X12info,$segTer,$compEleSep)
 
 // TRN Segment - EDI-270 format
 
-function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep)
+function create_TRN($row, $tracno, $refiden, $X12info, $segTer, $compEleSep)
 {
 
     $TRN    =   array();
@@ -304,7 +304,7 @@ function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep)
 
 // DMG Segment - EDI-270 format
 
-function create_DMG($row,$X12info,$segTer,$compEleSep)
+function create_DMG($row, $X12info, $segTer, $compEleSep)
 {
 
     $DMG    =   array();
@@ -324,7 +324,7 @@ function create_DMG($row,$X12info,$segTer,$compEleSep)
 
 // DTP Segment - EDI-270 format
 
-function create_DTP($row,$qual,$X12info,$segTer,$compEleSep)
+function create_DTP($row, $qual, $X12info, $segTer, $compEleSep)
 {
 
     $DTP    =   array();
@@ -349,7 +349,7 @@ function create_DTP($row,$qual,$X12info,$segTer,$compEleSep)
 
 // EQ Segment - EDI-270 format
 
-function create_EQ($row,$X12info,$segTer,$compEleSep)
+function create_EQ($row, $X12info, $segTer, $compEleSep)
 {
 
     $EQ         =   array();
@@ -367,7 +367,7 @@ function create_EQ($row,$X12info,$segTer,$compEleSep)
 
 // SE Segment - EDI-270 format
 
-function create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep)
+function create_SE($row, $segmentcount, $X12info, $segTer, $compEleSep)
 {
 
     $SE     =   array();
@@ -387,7 +387,7 @@ function create_SE($row,$segmentcount,$X12info,$segTer,$compEleSep)
 
 // GE Segment - EDI-270 format
 
-function create_GE($row,$X12info,$segTer,$compEleSep)
+function create_GE($row, $X12info, $segTer, $compEleSep)
 {
 
     $GE     =   array();
@@ -407,7 +407,7 @@ function create_GE($row,$X12info,$segTer,$compEleSep)
 
 // IEA Segment - EDI-270 format
 
-function create_IEA($row,$X12info,$segTer,$compEleSep)
+function create_IEA($row, $X12info, $segTer, $compEleSep)
 {
 
     $IEA    =   array();
@@ -442,7 +442,7 @@ function translate_relationship($relationship)
 
 // EDI-270 Batch file Generation
 
-function print_elig($res,$X12info,$segTer,$compEleSep)
+function print_elig($res, $X12info, $segTer, $compEleSep)
 {
 
     $i=1;
@@ -517,7 +517,7 @@ function print_elig($res,$X12info,$segTer,$compEleSep)
 
 // Report Generation
 
-function show_elig($res,$X12info,$segTer,$compEleSep)
+function show_elig($res, $X12info, $segTer, $compEleSep)
 {
 
     $i=0;
@@ -656,7 +656,7 @@ function show_eligibility_information($pid)
 
 // Function to save the values in eligibility_response table
 
-function eligibility_response_save($segmentVal,$vendorID)
+function eligibility_response_save($segmentVal, $vendorID)
 {
 
     $resCount = 0;
@@ -691,7 +691,7 @@ function eligibility_response_save($segmentVal,$vendorID)
 
 // Function to save the values in eligibility_verification table
 
-function eligibility_verification_save($segmentVal,$x12PartnerId,$patientId)
+function eligibility_verification_save($segmentVal, $x12PartnerId, $patientId)
 {
 
     $resCount = 0;

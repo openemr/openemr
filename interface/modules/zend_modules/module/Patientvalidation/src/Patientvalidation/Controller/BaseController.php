@@ -131,7 +131,7 @@ class BaseController extends AbstractActionController
      * @return \Zend\Stdlib\ResponseInterface
      * @comment to use this function return this $response in your controller
      */
-    public function responseWithNoLayout($data, $convertToJson=true, $responsecode=200)
+    public function responseWithNoLayout($data, $convertToJson = true, $responsecode = 200)
     {
 
         $response = $this->getResponse();

@@ -24,7 +24,7 @@
  * @param $title
  * @return array of validation rules and forms names
  */
-function collectValidationPageRules($title,$active=true)
+function collectValidationPageRules($title, $active = true)
 {
 
     // Note from Rod: Not sure what the purpose is of $active because nothing calls it with a false value.

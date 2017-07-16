@@ -1327,7 +1327,7 @@ function &postcalendar_userapi_pcGetEvents($args)
 // Given an array of events, an array of days, and a view type
 // fill days with events (recurring is the challenge)
 //===========================
-function calculateEvents($days,$events,$viewtype)
+function calculateEvents($days, $events, $viewtype)
 {
   //
     $date =postcalendar_getDate();
@@ -1528,7 +1528,7 @@ function calculateEvents($days,$events,$viewtype)
     return $days;
 }
 
-function fillBlocks($td,$ar)
+function fillBlocks($td, $ar)
 {
     if (strlen ($td) > 0 && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = array();

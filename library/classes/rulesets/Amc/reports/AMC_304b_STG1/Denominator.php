@@ -31,7 +31,7 @@ class AMC_304b_STG1_Denominator implements AmcFilterIF
         return "AMC_304b_STG1 Denominator";
     }
 
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // Check if prescription is for a controlled substance
         $controlledSubstanceCheck = amcCollect('e_prescribe_cont_subst_amc',$patient->id,'prescriptions',$patient->object['id']);

@@ -50,7 +50,7 @@ class FormHPI extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormHPI($id= "", $_prefix = "")
+    function FormHPI($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

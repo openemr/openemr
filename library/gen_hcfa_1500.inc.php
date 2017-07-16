@@ -33,7 +33,7 @@ $hcfa_proc_index = 0;
  * @param type $strip   regular expression for what to strip from the data. period and has are the defaults
  *                      02/12 version needs to include periods in the diagnoses hence the need to override
  */
-function put_hcfa($line, $col, $maxlen, $data,$strip='/[.#]/')
+function put_hcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
 {
     global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data;
     if ($line < $hcfa_curr_line)

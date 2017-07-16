@@ -38,7 +38,7 @@ class C_Document extends Controller
         $this->Document = new Document();
     }
 
-    function upload_action($patient_id,$category_id)
+    function upload_action($patient_id, $category_id)
     {
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
@@ -272,7 +272,7 @@ class C_Document extends Controller
         return $this->list_action();
     }
 
-    function view_action($patient_id="",$doc_id)
+    function view_action($patient_id = "", $doc_id)
     {
         // Added by Rod to support document delete:
         global $gacl_object, $phpgacl_location;
@@ -390,7 +390,7 @@ class C_Document extends Controller
         return $this->list_action($patient_id);
     }
 
-    function encrypt( $plaintext, $key, $cypher = 'tripledes', $mode = 'cfb' )
+    function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
         $td = mcrypt_module_open( $cypher, '', $mode, '');
         $iv = mcrypt_create_iv( mcrypt_enc_get_iv_size( $td ), MCRYPT_RAND );
@@ -400,7 +400,7 @@ class C_Document extends Controller
         return $iv.$crypttext;
     }
 
-    function decrypt( $crypttext, $key, $cypher = 'tripledes', $mode = 'cfb' )
+    function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
         $plaintext = '';
         $td = mcrypt_module_open( $cypher, '', $mode, '' );
@@ -420,7 +420,7 @@ class C_Document extends Controller
      * In case that file isn't download this function will return thumbnail image (if exist).
      * @param (boolean) $show_original - enable to show the original image (not thumbnail) in inline status.
      * */
-    function retrieve_action($patient_id="",$document_id,$as_file=true,$original_file=true,$disable_exit=false,$show_original=false)
+    function retrieve_action($patient_id = "", $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false)
     {
 
         $encrypted = $_POST['encrypted'];
@@ -637,7 +637,7 @@ class C_Document extends Controller
         }
     }
 
-    function queue_action($patient_id="")
+    function queue_action($patient_id = "")
     {
         $messages = $this->_tpl_vars['messages'];
         $queue_files = array();
@@ -782,7 +782,7 @@ class C_Document extends Controller
             $_POST['process'] = "";
     }
 
-    function move_action_process($patient_id="",$document_id)
+    function move_action_process($patient_id = "", $document_id)
     {
         if ($_POST['process'] != "true")
             return;
@@ -865,7 +865,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id,$document_id);
     }
 
-    function validate_action_process($patient_id="", $document_id)
+    function validate_action_process($patient_id = "", $document_id)
     {
 
                 $d = new Document($document_id);
@@ -940,7 +940,7 @@ class C_Document extends Controller
 
     // Added by Rod for metadata update.
     //
-    function update_action_process($patient_id="", $document_id)
+    function update_action_process($patient_id = "", $document_id)
     {
 
         if ($_POST['process'] != "true") {
@@ -1033,7 +1033,7 @@ class C_Document extends Controller
      *      Modified to only deal with base file name when renaming, to avoid issues with directory
      *      names with dots.
      */
-    function _rename_file($fname, $self=false)
+    function _rename_file($fname, $self = false)
     {
         // Allow same routine for new file name check
         if (!file_exists($fname)) return($fname);
@@ -1082,7 +1082,7 @@ class C_Document extends Controller
         }
     }
 
-    function &_array_recurse($array,$categories = array())
+    function &_array_recurse($array, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1165,7 +1165,7 @@ class C_Document extends Controller
     }
 
     //function for logging  the errors in writing file to CouchDB/Hard Disk
-    function document_upload_download_log($patientid,$content)
+    function document_upload_download_log($patientid, $content)
     {
         $log_path = $GLOBALS['OE_SITE_DIR']."/documents/couchdb/";
         $log_file = 'log.txt';
@@ -1176,7 +1176,7 @@ class C_Document extends Controller
         fclose($LOG);
     }
 
-    function document_send($email,$body,$attfile,$pname)
+    function document_send($email, $body, $attfile, $pname)
     {
         if (empty($email)) {
             $this->assign("process_result","Email could not be sent, the address supplied: '$email' was empty or invalid.");
@@ -1213,7 +1213,7 @@ class C_Document extends Controller
         //$this->_last_node = &$node1;
 
 // Function to tag a document to an encounter.
-    function tag_action_process($patient_id="", $document_id)
+    function tag_action_process($patient_id = "", $document_id)
     {
         if ($_POST['process'] != "true") {
             die("process is '" . text($_POST['process']) . "', expected 'true'");
@@ -1282,7 +1282,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function image_procedure_action($patient_id="",$document_id)
+    function image_procedure_action($patient_id = "", $document_id)
     {
 
         $img_procedure_id = $_POST['image_procedure_id'];
@@ -1308,7 +1308,7 @@ class C_Document extends Controller
         return $this->view_action($patient_id, $document_id);
     }
 
-    function clear_procedure_tag_action($patient_id="",$document_id)
+    function clear_procedure_tag_action($patient_id = "", $document_id)
     {
         if(is_numeric($document_id)){
             sqlStatement("delete from procedure_result where document_id = ?",$document_id);
@@ -1329,7 +1329,7 @@ class C_Document extends Controller
         return $map;
     }
 
-    function image_result_indication($doc_id,$encounter,$image_procedure_id = 0)
+    function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?",array($doc_id));
         $narration = isset($doc_notes['note']) ? 'With Narration': 'Without Narration';
@@ -1382,7 +1382,7 @@ class C_Document extends Controller
     }
 
 //clear encounter tag function
-    function clear_encounter_tag_action($patient_id="",$document_id)
+    function clear_encounter_tag_action($patient_id = "", $document_id)
     {
         if (is_numeric($document_id)) {
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?",array($patient_id,$document_id));

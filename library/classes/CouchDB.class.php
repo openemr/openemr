@@ -95,7 +95,7 @@ class CouchDB
         return json_decode($resp);
     }
 
-    function DeleteDoc($db,$docid,$revid)
+    function DeleteDoc($db, $docid, $revid)
     {
         $resp = $this->send("DELETE", "/".$db."/".$docid."?rev=".$revid);
         return true;
@@ -108,7 +108,7 @@ class CouchDB
         return json_decode($resp); // string(47) "{"_id":"123","_rev":"2039697587","data":"Foo"}"
     }
 
-    function stringToId( $string, $replace = '_' )
+    function stringToId($string, $replace = '_')
     {
         // First translit string to ASCII, as this characters are most probably
         // supported everywhere

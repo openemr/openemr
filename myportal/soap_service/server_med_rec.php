@@ -488,7 +488,7 @@ class Userforms extends UserAudit
 		  </note>';
     }
 
-    public function checkModuleInstalled($moduleName  = 'Carecoordination')
+    public function checkModuleInstalled($moduleName = 'Carecoordination')
     {
         $sql = "SELECT mod_id FROM modules WHERE mod_name = ? AND mod_active = '1'";
         $res = sqlStatement($sql, array($moduleName));
@@ -584,7 +584,7 @@ class Userforms extends UserAudit
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    function transmitCCD($data  = array())
+    function transmitCCD($data = array())
     {
         $ccd = $data['ccd'];
         $recipient =  $data['recipient'];

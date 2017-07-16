@@ -29,7 +29,7 @@ class NFQ_0101_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         $riskCatAssessQry = "SELECT count(*) as cnt FROM form_encounter fe ".
                             "INNER JOIN openemr_postcalendar_categories opc ON fe.pc_catid = opc.pc_catid ".

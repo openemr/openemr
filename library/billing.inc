@@ -11,7 +11,7 @@ function getBillingByPid($pid, $cols = "*")
     return  sqlQuery("select $cols from billing where pid ='$pid' and activity=1 order by date DESC limit 0,1");
 }
 
-function getBillingByEncounter($pid,$encounter, $cols = "code_type, code, code_text")
+function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
 {
     $res = sqlStatement("select $cols from billing where encounter = ? and pid=? and activity=1 order by code_type, date ASC", array($encounter,$pid) );
 
@@ -29,16 +29,16 @@ function addBilling(
     $code,
     $code_text,
     $pid,
-    $authorized="0",
+    $authorized = "0",
     $provider,
-    $modifier="",
-    $units="",
-    $fee="0.00",
-    $ndc_info='',
-    $justify='',
-    $billed=0,
-    $notecodes='',
-    $pricelevel=''
+    $modifier = "",
+    $units = "",
+    $fee = "0.00",
+    $ndc_info = '',
+    $justify = '',
+    $billed = 0,
+    $notecodes = '',
+    $pricelevel = ''
 ) {
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, " .
@@ -99,14 +99,14 @@ function updateClaim(
     $newversion,
     $patient_id,
     $encounter_id,
-    $payer_id=-1,
-    $payer_type=-1,
-    $status=-1,
-    $bill_process=-1,
-    $process_file='',
-    $target='',
-    $partner_id=-1,
-    $crossover=0
+    $payer_id = -1,
+    $payer_type = -1,
+    $status = -1,
+    $bill_process = -1,
+    $process_file = '',
+    $target = '',
+    $partner_id = -1,
+    $crossover = 0
 ) {
 
     if (!$newversion) {
@@ -331,7 +331,7 @@ function updateInvoiceRefNumber()
 // Common function for voiding a receipt or checkout.  When voiding a checkout you can specify
 // $time as a timestamp (yyyy-mm-dd hh:mm:ss) or 'all'; default is the last checkout.
 //
-function doVoid($patient_id, $encounter_id, $purge=false, $time='')
+function doVoid($patient_id, $encounter_id, $purge = false, $time = '')
 {
     $what_voided = $purge ? 'checkout' : 'receipt';
     $date_original = '';

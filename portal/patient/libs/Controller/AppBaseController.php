@@ -73,7 +73,7 @@ class AppBaseController extends Controller
      * @param string $prop
      * @param string $default
      */
-    protected function SafeGetVal($json, $prop, $default='')
+    protected function SafeGetVal($json, $prop, $default = '')
     {
         return (property_exists($json,$prop))
             ? $json->$prop

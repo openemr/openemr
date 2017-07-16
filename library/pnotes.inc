@@ -42,7 +42,7 @@ function getPnoteById($id, $cols = "*")
  * @param string $listnumber number of rows to return.
  * @return int The number of rows retrieved, or 0 if $count was true.
  */
-function getPnotesByUser($activity="1",$show_all="no",$user='',$count=false,$sortby='',$sortorder='',$begin='',$listnumber='')
+function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count = false, $sortby = '', $sortorder = '', $begin = '', $listnumber = '')
 {
 
   // Set the activity part of query
@@ -326,7 +326,7 @@ function getPatientSentNotes($pid = '', $limit = '', $offset = 0, $search = '')
 }
 
 // activity can be 0, 1, or 'all'
-function getPnotesByPid($pid, $activity = "1", $cols = "*", $limit=10, $start=0)
+function getPnotesByPid($pid, $activity = "1", $cols = "*", $limit = 10, $start = 0)
 {
     if ($activity == '1') {
         // return only active
@@ -373,11 +373,11 @@ function addPnote(
     $newtext,
     $authorized = '0',
     $activity = '1',
-    $title= 'Unassigned',
+    $title = 'Unassigned',
     $assigned_to = '',
     $datetime = '',
     $message_status = 'New',
-    $background_user=""
+    $background_user = ""
 ) {
 
     if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
@@ -401,7 +401,7 @@ function addMailboxPnote(
     $newtext,
     $authorized = '0',
     $activity = '1',
-    $title='Unassigned',
+    $title = 'Unassigned',
     $assigned_to = '',
     $datetime = '',
     $message_status = "New"

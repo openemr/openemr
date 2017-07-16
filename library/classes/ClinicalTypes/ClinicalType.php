@@ -29,7 +29,7 @@ abstract class ClinicalType
     private $_title;
     private $_notes;
     
-    public function __construct( $optionId )
+    public function __construct($optionId)
     {
         $this->_optionId = $optionId;
         $result = $this->getListOptionById( $optionId );
@@ -46,7 +46,7 @@ abstract class ClinicalType
      * 
      * @return true if type applies, false ow
      */
-    abstract public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null );
+    abstract public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null);
     abstract public function getListId();
     
     public function getOptionId()
@@ -64,7 +64,7 @@ abstract class ClinicalType
         return array();
     }
     
-    private function getListOptionById( $id )
+    private function getListOptionById($id)
     {
         $query = "SELECT * " .
                  "FROM `list_options` " .

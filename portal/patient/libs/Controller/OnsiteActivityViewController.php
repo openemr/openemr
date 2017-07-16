@@ -146,7 +146,7 @@ class OnsiteActivityViewController extends AppBaseController
             $this->RenderExceptionJSON( $ex );
         }
     }
-    public function CreateView( $viewcriteria )
+    public function CreateView($viewcriteria)
     {
         $sql = "CREATE OR REPLACE VIEW onsite_activity_view As Select
   onsite_portal_activity.status,

@@ -222,7 +222,7 @@ class PortalPatientController extends AppBaseController
             $this->RenderExceptionJSON( $ex );
         }
     }
-    public function SaveAudit( $p )
+    public function SaveAudit($p)
     {
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();

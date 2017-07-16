@@ -29,7 +29,7 @@ require_once("$srcdir/../custom/code_types.inc.php");
 
 class code_info
 {
-    function __construct($c,$ct,$desc,$selected=true)
+    function __construct($c, $ct, $desc, $selected = true)
     {
         $this->code=$c;
         $this->code_type=$ct;
@@ -76,7 +76,7 @@ class code_info
  */
 class procedure extends code_info
 {
-    function __construct($c,$ct,$desc,$fee,$justify,$modifiers,$units,$mod_size,$selected=true)
+    function __construct($c, $ct, $desc, $fee, $justify, $modifiers, $units, $mod_size, $selected = true)
     {
         parent::__construct($c,$ct,$desc,$selected);
         $this->fee=$fee;
@@ -103,7 +103,7 @@ class procedure extends code_info
  */
 class encounter_info
 {
-    function __construct($id,$date)
+    function __construct($id, $date)
     {
         $this->id=$id;
         $this->date=$date;

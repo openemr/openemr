@@ -21,7 +21,7 @@ function effectiveUser($user)
  * @param int $defaultUser - user id to check as alternative/default
  * @return Effective user setting for $label (NULL if does not exist)
  */
-function getUserSetting($label, $user=null, $defaultUser=0)
+function getUserSetting($label, $user = null, $defaultUser = 0)
 {
 
     $user = effectiveUser($user);
@@ -43,7 +43,7 @@ function getUserSetting($label, $user=null, $defaultUser=0)
  * @param int $user - user id number from users table
  * @return boolean - true if setting exist and false if does not exist
  */
-function checkUserSetting($label, $value, $user=null)
+function checkUserSetting($label, $value, $user = null)
 {
 
     $user = effectiveUser($user);
@@ -65,7 +65,7 @@ function checkUserSetting($label, $value, $user=null)
  * @param boolean $createDefault - If no current global default value, create one.
  * @param boolean $overwrite - If this is set to true, then overwrite the current setting
  */
-function setUserSetting($label, $value, $user=null, $createDefault=true, $overwrite=true)
+function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
 {
 
     $user = effectiveUser($user);
@@ -91,7 +91,7 @@ function setUserSetting($label, $value, $user=null, $createDefault=true, $overwr
 //This will remove the selected user setting from the 'user_settings' table.
 // $label is used to determine which setting to remove
 // $user is the user id number from users table
-function removeUserSetting($label,$user=null)
+function removeUserSetting($label, $user = null)
 {
 
     $user = effectiveUser($user);

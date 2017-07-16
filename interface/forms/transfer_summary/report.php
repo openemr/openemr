@@ -23,7 +23,7 @@
  
 include_once(dirname(__FILE__).'/../../globals.php');
 include_once($GLOBALS["srcdir"]."/api.inc");
-function transfer_summary_report( $pid, $encounter, $cols, $id)
+function transfer_summary_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_transfer_summary", $id);

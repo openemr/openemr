@@ -150,7 +150,7 @@ class CommonPlugin extends AbstractPlugin
         return $audit_master_id;
     }
   
-    public function getList($list_id,$selected='',$opt='')
+    public function getList($list_id, $selected = '', $opt = '')
     {
         $appTable = new ApplicationTable();
         $this->listenerObject = new Listener;
@@ -195,7 +195,7 @@ class CommonPlugin extends AbstractPlugin
         return $escapeHtml($string);
     }
   
-    public function getListtitle($listId,$listOptionId)
+    public function getListtitle($listId, $listOptionId)
     {
         $appTable = new ApplicationTable();
         $sql = "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? ";

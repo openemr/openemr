@@ -32,7 +32,7 @@ use OpenEMR\Core\Header;
     $search_options = array("Demographics"=>xl("Demographics"),"Problems"=>xl("Problems"),"Medications"=>xl("Medications"),"Allergies"=>xl("Allergies"),"Lab results"=>xl("Lab Results"),"Communication"=>xl("Communication"));
     $comarr = array("allow_sms"=>xl("Allow SMS"),"allow_voice"=>xl("Allow Voice Message"),"allow_mail"=>xl("Allow Mail Message"),"allow_email"=>xl("Allow Email"));
     $_POST['form_details'] = true;
-function add_date($givendate,$day=0,$mth=0,$yr=0)
+function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 {
     $cd = strtotime($givendate);
     $newdate = date('Y-m-d H:i:s', mktime(date('h',$cd),

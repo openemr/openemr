@@ -30,7 +30,7 @@ function getFormsByPid($pid, $cols = "*")
     return sqlQuery("select $cols from forms where pid ='$pid'");
 }
 
-function getFormByEncounter($attendant_id,$encounter, $cols="form_id, form_name", $name="")
+function getFormByEncounter($attendant_id, $encounter, $cols = "form_id, form_name", $name = "")
 {
     global $attendant_type;
     $arraySqlBind = array();
@@ -66,9 +66,9 @@ function addForm(
     $formdir,
     $pid,
     $authorized = "0",
-    $date="NOW()",
-    $user="",
-    $group="",
+    $date = "NOW()",
+    $user = "",
+    $group = "",
     $therapy_group = 'not_given'
 ) {
 
@@ -100,7 +100,7 @@ function authorizeForm($id, $authorized = "1")
     sqlQuery("update forms set authorized = '$authorized' where id = '$id'");
 }
 
-function getEncounters($pid,$dateStart='',$dateEnd='',$encounterRuleType='')
+function getEncounters($pid, $dateStart = '', $dateEnd = '', $encounterRuleType = '')
 {
 
         $arraySqlBind = array();
@@ -160,12 +160,12 @@ function getProviderIdOfEncounter($encounter)
         return $res['provider_id'];
 }
 
-function getFormNameByFormdirAndFormid($formdir,$form_id)
+function getFormNameByFormdirAndFormid($formdir, $form_id)
 {
         return sqlQuery("select form_name from forms where formdir='$formdir' and form_id='$form_id'");
 }
 
-function getFormIdByFormdirAndFormid($formdir,$form_id)
+function getFormIdByFormdirAndFormid($formdir, $form_id)
 {
     $result = sqlQuery("select id from forms where formdir = ? and form_id =? ", array( $formdir, $form_id ) );
     return $result['id'];
@@ -176,7 +176,7 @@ function getFormNameByFormdir($formdir)
     return sqlQuery("select form_name from forms where formdir='$formdir'");
 }
 
-function getDocumentsByEncounter($patientID = null,$encounterID = null)
+function getDocumentsByEncounter($patientID = null, $encounterID = null)
 {
     $allDocuments = null;
     $currentEncounter = ( $encounterID ) ? $encounterID : $_SESSION['encounter'];

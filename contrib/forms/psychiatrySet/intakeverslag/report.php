@@ -14,7 +14,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 // Purpose:	callback func?
 // Input:	pid? encounter, cols, id ?
 ////////////////////////////////////////////////////////////////////
-function intakeverslag_report( $pid, $encounter, $cols, $id )
+function intakeverslag_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch( "form_intakeverslag", $id );

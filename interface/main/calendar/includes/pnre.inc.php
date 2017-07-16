@@ -1,6 +1,6 @@
 <?php
 
-function pnSecAuthAction($a,$b,$c,$d)
+function pnSecAuthAction($a, $b, $c, $d)
 {
 //	echo "forcing auth to true";
     return true;
@@ -22,7 +22,7 @@ function pnSecAuthAction($a,$b,$c,$d)
  * @returns string
  * @return an encrypted key for use in authorisation of operations
  */
-function pnSecGenAuthKey($modname='')
+function pnSecGenAuthKey($modname = '')
 {
 
     if (empty($modname)) {

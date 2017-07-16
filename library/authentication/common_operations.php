@@ -44,7 +44,7 @@ define("COL_SALT_H2","salt_history2");
  * @param type $username
  * @param type $password  Passing by reference so additional copy is not created in memory
  */
-function initializePassword($username,$userid,&$password)
+function initializePassword($username, $userid, &$password)
 {
 
     $salt=oemr_password_salt();
@@ -71,7 +71,7 @@ function initializePassword($username,$userid,&$password)
  * @param type $username
  * @param type $userid
  */
-function purgeCompatabilityPassword($username,$userid)
+function purgeCompatabilityPassword($username, $userid)
 {
     $purgeSQL = " UPDATE " . TBL_USERS
                 ." SET ". COL_PWD . "='NoLongerUsed' "
@@ -87,7 +87,7 @@ function purgeCompatabilityPassword($username,$userid)
  * @param type $password
  * @return boolean  returns true if the password for the given user is correct, false otherwise.
  */
-function confirm_user_password($username,&$password)
+function confirm_user_password($username, &$password)
 {
     $getUserSecureSQL= " SELECT " . implode(",",array(COL_ID,COL_PWD,COL_SALT))
                        ." FROM ".TBL_USERS_SECURE

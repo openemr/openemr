@@ -29,7 +29,7 @@ require_once $GLOBALS['srcdir'].'/ESign/ViewableIF.php';
 
 class Viewer extends Abstract_Model
 {
-    public function __construct( array $args = null )
+    public function __construct(array $args = null)
     {
         parent::__construct( $args );
         
@@ -37,14 +37,14 @@ class Viewer extends Abstract_Model
         $this->pushArgs( true );
     }
     
-    protected function setAttributes( array $attributes )
+    protected function setAttributes(array $attributes)
     {
         foreach ( $attributes as $key => $value ) {
             $this->{$key} = $value;
         }
     }
     
-    public function render( ViewableIF $viewable, array $attributes = null )
+    public function render(ViewableIF $viewable, array $attributes = null)
     {
         if ( $attributes ) {
             $this->setAttributes( $attributes );
@@ -52,7 +52,7 @@ class Viewer extends Abstract_Model
         include $viewable->getViewScript();
     }
     
-    public function getHtml( ViewableIF $viewable, array $attributes = null )
+    public function getHtml(ViewableIF $viewable, array $attributes = null)
     {
         ob_start();
         $this->render( $viewable, $attributes );

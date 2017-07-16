@@ -33,7 +33,7 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
 {
     private $_encounterId = null;
     
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_encounterId = $encounterId;
         parent::__construct( $encounterId, 'form_encounter' );

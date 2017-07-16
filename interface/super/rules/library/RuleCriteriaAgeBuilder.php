@@ -18,7 +18,7 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
     /**
      * @return RuleCriteriaType
      */
-    function resolveRuleCriteriaType( $method, $methodDetail, $value )
+    function resolveRuleCriteriaType($method, $methodDetail, $value)
     {
         if (strpos($method, "age_max") ) {
             return RuleCriteriaType::from(RuleCriteriaType::ageMax);
@@ -33,7 +33,7 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
      * @param RuleCriteriaType $ruleCriteriaType
      * @return RuleCriteria
      */
-    function build( $ruleCriteriaType, $value, $methodDetail )
+    function build($ruleCriteriaType, $value, $methodDetail)
     {
         $method = $ruleCriteriaType->method;
         $criteria = new RuleCriteriaAge(
@@ -50,7 +50,7 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
      *
      * @param RuleCriteriaType $criteriaType
      */
-    function newInstance( $criteriaType )
+    function newInstance($criteriaType)
     {
         if ( $criteriaType->code == RuleCriteriaType::ageMin ) {
             return new RuleCriteriaAge( 'min' );

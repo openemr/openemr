@@ -20,7 +20,7 @@ class Code
     var $text;
     var $codeType;
 
-    function __construct( $id, $code, $text, $codeType )
+    function __construct($id, $code, $text, $codeType)
     {
         $this->id = $id;
         $this->code = $code;

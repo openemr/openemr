@@ -57,7 +57,7 @@ function make_statement($stmt)
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
  *  @return outputs to be displayed however requested
  */
-function report_header_2($stmt,$direction='',$providerID='1')
+function report_header_2($stmt, $direction = '', $providerID = '1')
 {
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
     if ($_SESSION['pc_facility']) {

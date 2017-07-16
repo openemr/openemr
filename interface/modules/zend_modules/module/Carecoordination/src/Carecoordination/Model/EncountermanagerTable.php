@@ -33,7 +33,7 @@ use DOMPDF;
 
 class EncountermanagerTable extends AbstractTableGateway
 {
-    public function getEncounters($data,$getCount=null)
+    public function getEncounters($data, $getCount = null)
     {
         $query_data = array();
         $query  =   "SELECT pd.fname, pd.lname, pd.mname, date(fe.date) as date, fe.pid, fe.encounter,
@@ -176,7 +176,7 @@ class EncountermanagerTable extends AbstractTableGateway
      * @param string requested_by user | patient
      * @return string result of operation
      */
-    public function transmitCCD($data  = array())
+    public function transmitCCD($data = array())
     {
         $appTable         = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
@@ -350,7 +350,7 @@ class EncountermanagerTable extends AbstractTableGateway
     * @param	String		direct address
     *
     */
-    public function AddNewUSer($data  = array())
+    public function AddNewUSer($data = array())
     {
         $fname          = $data['fname'];
         $lname          = $data['lname'];

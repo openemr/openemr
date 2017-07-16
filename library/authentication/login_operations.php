@@ -31,7 +31,7 @@ require_once("$srcdir/authentication/common_operations.php");
  *                          as soon as we are done with it.
  * @param type $provider
  */
-function validate_user_password($username,&$password,$provider)
+function validate_user_password($username, &$password, $provider)
 {
     $ip=$_SERVER['REMOTE_ADDR'];
 

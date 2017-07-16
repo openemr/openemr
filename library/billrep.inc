@@ -191,7 +191,7 @@ function getBillsListBetween(
     return $string;
 }
 
-function billCodesList($list,$skip = "()")
+function billCodesList($list, $skip = "()")
 {
     if ($list == "()")
     return;

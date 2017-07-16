@@ -127,7 +127,7 @@ class InstModuleTable
    * @param unknown_type $base
    * @return boolean
    */
-    public function register($directory,$rel_path,$state=0, $base = "custom_modules" )
+    public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
     {
         $sql = "SELECT mod_active FROM modules WHERE mod_directory = ?";
         $params = array(
@@ -234,7 +234,7 @@ class InstModuleTable
    * @param string $cols
    * @return Ambigous <boolean, unknown>
    */
-    function getRegistryEntry( $id, $cols = "" )
+    function getRegistryEntry($id, $cols = "")
     {
         $sql = "SELECT mod_directory FROM modules WHERE mod_id = ?";
         $results   = $this->applicationTable->zQuery($sql, array($id));
@@ -255,7 +255,7 @@ class InstModuleTable
    * @param int         $id     Module PK
    * @param string  $mod    Status
    */
-    public function updateRegistered( $id, $mod = '', $values = '' )
+    public function updateRegistered($id, $mod = '', $values = '')
     {
         if($mod == "mod_active=1"){
             $resp = $this->checkDependencyOnEnable($id);
@@ -299,7 +299,7 @@ class InstModuleTable
    * Function to get ACL objects for module
    * @param int         $mod_id     Module PK
    */
-    public function getSettings($type,$mod_id)
+    public function getSettings($type, $mod_id)
     {
         if($type=='ACL')
         $type = 1;
@@ -460,7 +460,7 @@ class InstModuleTable
   /**
    * Function to get Status of a Hook
    */
-    public function getHookStatus($modId,$hookId,$hangerId)
+    public function getHookStatus($modId, $hookId, $hangerId)
     {
         if($modId && $hookId && $hangerId){
             $sql = "select * FROM modules_hooks_settings 
@@ -483,7 +483,7 @@ class InstModuleTable
   /**
    * Function to Delete Hooks
    */
-    public function saveHooks($modId,$hookId,$hangerId)
+    public function saveHooks($modId, $hookId, $hangerId)
     {
         if($modId){
             $sql = "INSERT INTO modules_hooks_settings(mod_id, enabled_hooks, attached_to) VALUES (?,?,?) ";
@@ -494,7 +494,7 @@ class InstModuleTable
   /**
    * Save Module Hook settings
    */
-    public function saveModuleHookSettings($modId,$hook)
+    public function saveModuleHookSettings($modId, $hook)
     {
         $sql = "INSERT INTO modules_settings SET mod_id = ?,
                                               fld_type = 3,
@@ -693,7 +693,7 @@ class InstModuleTable
         }
     }
   
-    public function checkModuleHookExists($mod_id,$hookId)
+    public function checkModuleHookExists($mod_id, $hookId)
     {
         $sql = "SELECT obj_name FROM modules_settings WHERE mod_id = ? AND fld_type = '3' AND obj_name = ? ";
         $res  = $this->applicationTable->zQuery($sql, array($mod_id, $hookId));
@@ -730,7 +730,7 @@ class InstModuleTable
         return $aclArray;
     }
   
-    public function insertAclSections($acl_data,$mod_dir,$module_id)
+    public function insertAclSections($acl_data, $mod_dir, $module_id)
     {
         $obj    = new ApplicationTable;
         foreach($acl_data as $acl){
@@ -798,7 +798,7 @@ class InstModuleTable
   /**
    * Function to Save Module Hooks
    */
-    public function saveModuleHooks($modId,$hookId,$hookTitle,$hookPath)
+    public function saveModuleHooks($modId, $hookId, $hookTitle, $hookPath)
     {
         if($modId){
             $sql = "INSERT INTO modules_settings(mod_id, fld_type, obj_name, menu_name, path) VALUES (?,'3',?,?,?) ";

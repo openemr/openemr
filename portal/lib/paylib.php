@@ -63,7 +63,7 @@ else if ($_POST['mode'] == 'review-save') {
     if($s) echo 'failed';
     echo true;
 }
-function SaveAudit( $pid, $amts, $cc )
+function SaveAudit($pid, $amts, $cc)
 {
     $appsql = new ApplicationTable();
     try{
@@ -92,7 +92,7 @@ function SaveAudit( $pid, $amts, $cc )
     }
     return 0;
 }
-function CloseAudit( $pid, $amts, $cc, $action='payment posted', $paction='notify patient')
+function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'notify patient')
 {
     $appsql = new ApplicationTable();
     try{

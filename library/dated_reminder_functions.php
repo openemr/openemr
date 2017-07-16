@@ -25,7 +25,7 @@
  *
  * @returns array reminders for specified user, defaults to current user if none specified
  */
-function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false)
+function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 {
         if(!$userID) $userID = $_SESSION['authId'];
         global $hasAlerts;
@@ -91,7 +91,7 @@ function RemindersArray($days_to_show,$today,$alerts_to_show,$userID = false)
  * @param defaults to current user if none specified
  * @returns int with number of due reminders for specified user
  */
-function GetDueReminderCount($days_to_show,$today,$userID = false)
+function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
     if(!$userID) $userID = $_SESSION['authId'];
         
@@ -144,7 +144,7 @@ function GetAllReminderCount($userID = false)
 // @ getRemindersHTML(array $reminders)
 // @ returns HTML as a string, for printing 
 // ------------------------------------------------   
-function getRemindersHTML($reminders = array(),$today)
+function getRemindersHTML($reminders = array(), $today)
 {
     global $hasAlerts;
 // --- initialize the string as blank
@@ -193,7 +193,7 @@ function getRemindersHTML($reminders = array(),$today)
 // @ setReminderAsProccessed(int $rID)
 // @ marks reminder as processed
 // ------------------------------------------------   
-function setReminderAsProcessed($rID,$userID = false)
+function setReminderAsProcessed($rID, $userID = false)
 {
     if(!$userID) $userID = $_SESSION['authId'];
     if(is_numeric($rID) and $rID > 0){
@@ -218,7 +218,7 @@ function setReminderAsProcessed($rID,$userID = false)
 // @ getReminderById(int $mID)
 // @ returns an array with message details for forwarding
 // ------------------------------------------------ 
-function getReminderById($mID,$userID = false)
+function getReminderById($mID, $userID = false)
 {
     if(!$userID) $userID = $_SESSION['authId'];
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 
@@ -246,7 +246,7 @@ function getReminderById($mID,$userID = false)
 //                   )
 // @ returns an array with message details for forwarding
 // ------------------------------------------------ 
-function sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority)
+function sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority)
 {
     if(
 // ------- Should run data checks before running this function for more accurate error reporting

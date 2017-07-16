@@ -75,7 +75,7 @@ while ($prefs= sqlFetchArray($result))   {
     $$LOCATION = text($prefs['GOVALUE']);
 }
 
-function eye_mag_report($pid, $encounter, $cols, $id, $formname='eye_mag')
+function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
 {
     global $form_folder;
     global $form_name;
@@ -189,7 +189,7 @@ function left_overs()
  *  It relies on the presence of the PMSFH,IMPPLAN arrays.
  *  Rest of fields are pulled from the DB.
  */
-function narrative($pid, $encounter, $cols, $form_id,$choice='full')
+function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
 {
     global $form_folder;
     global $PDF_OUTPUT;
@@ -1932,7 +1932,7 @@ if ($ANTSEG_COMMENTS) { ?>
     return;
 }
 
-function display_draw_image($zone,$encounter,$pid)
+function display_draw_image($zone, $encounter, $pid)
 {
     global $form_folder;
     global $web_root;

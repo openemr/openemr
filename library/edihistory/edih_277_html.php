@@ -39,7 +39,7 @@
  * @param string   bht03 or clm01 reference for transaction
  * @return string
  */
-function edih_277_transaction_html($obj277, $bht03, $accordion=false)
+function edih_277_transaction_html($obj277, $bht03, $accordion = false)
 {
     // get the transaction segments
     $trans = $obj277->edih_x12_transaction($bht03);
@@ -497,7 +497,7 @@ function edih_277_transaction_html($obj277, $bht03, $accordion=false)
  *
  * @return string  either an error message or a table with the information from the response
  */
-function edih_277_html($filename, $bht03='')
+function edih_277_html($filename, $bht03 = '')
 {
     // create a display for an individual 277 response
     $html_str = '';

@@ -56,7 +56,7 @@ class FormHpTjePrimary extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormHpTjePrimary($id= "", $_prefix = "")
+    function FormHpTjePrimary($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
@@ -688,7 +688,7 @@ class FormHpTjePrimary extends ORDataObject
         return $a;
     }
 
-    function _name_rows($name,$row_array)
+    function _name_rows($name, $row_array)
     {
         $a = array();
         foreach ($row_array as $row) {

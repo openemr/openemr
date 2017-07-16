@@ -21,7 +21,7 @@
  */
 
 
-function diag_code_types($format='json',$sqlEscape=false)
+function diag_code_types($format = 'json', $sqlEscape = false)
 {
     global $code_types;
     $diagCodes=array();

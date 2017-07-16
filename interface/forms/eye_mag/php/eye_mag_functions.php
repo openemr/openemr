@@ -40,7 +40,7 @@ $facilityService = new \services\FacilityService();
  * @param string $type options text(default) image
  * @return string returns the HTML old record/image selector widget for the desired zone and type
  */
-function priors_select($zone,$orig_id,$id_to_show,$pid,$type='text')
+function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
 {
     global $form_folder;
     global $form_name;
@@ -189,7 +189,7 @@ function priors_select($zone,$orig_id,$id_to_show,$pid,$type='text')
  * @param string $pid value = patient id
  * @return true : when called outputs the ZONE specific HTML for a prior record + "priors_select" widget for the desired zone
  */
-function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0')
+function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0')
 {
     global $form_folder;
     global $id;
@@ -1450,7 +1450,7 @@ function display_PRIOR_section($zone,$orig_id,$id_to_show,$pid,$report = '0')
  * @param associative array $PMSFH if it exists
  * @return json encoded string
  */
-function send_json_values($PMSFH="")
+function send_json_values($PMSFH = "")
 {
     global $pid;
     global $form_id;
@@ -1835,7 +1835,7 @@ function build_PMSFH($pid)
  *  @param option string min_height to set min height for the row
  *  @return $display_PMSFH HTML pane when PMSFH is expanded to two panes.
  */
-function display_PMSFH($rows,$view="pending",$min_height="min-height:344px;")
+function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px;")
 {
     global $PMSFH;
     global $pid;
@@ -2087,7 +2087,7 @@ function display_PMSFH($rows,$view="pending",$min_height="min-height:344px;")
  *  @param array $PMSFH
  *  @return $right_panel html
  */
-function show_PMSFH_panel($PMSFH,$columns='1')
+function show_PMSFH_panel($PMSFH, $columns = '1')
 {
     ob_start();
     echo '<div style="font-size:1.2em;padding:25 2 2 5;z-index:1;">
@@ -2505,7 +2505,7 @@ function show_PMSFH_report($PMSFH)
  *  @param string $providerID
  *  @return QP text : when called directly outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_QP($zone,$providerID)
+function display_QP($zone, $providerID)
 {
     global $prov_data;
     if (!$zone || !$providerID) return;
@@ -2593,7 +2593,7 @@ function display_QP($zone,$providerID)
  *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
  *  @return true : when called directly outputs the ZONE specific HTML5 CANVAS widget
  */
-function display_draw_section($zone,$encounter,$pid,$side ='OU',$counter='')
+function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = '')
 {
     global $form_folder;
     $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid ."/";
@@ -2709,7 +2709,7 @@ background-image: none;" />
  * @param string $pid value = patient id
  * @return true : when called directly outputs the ZONE specific HTML for a prior record + widget for the desired zone
  */
-function copy_forward($zone,$copy_from,$copy_to,$pid)
+function copy_forward($zone, $copy_from, $copy_to, $pid)
 {
     global $form_id;
     $query="select form_encounter.date as encounter_date,form_eye_mag.* from form_eye_mag ,forms,form_encounter
@@ -3130,7 +3130,7 @@ function copy_forward($zone,$copy_from,$copy_to,$pid)
  *  @param string $form_id field id in table form_eye_mag
  *  @return object IMPPLAN_items
  */
-function build_IMPPLAN_items($pid,$form_id)
+function build_IMPPLAN_items($pid, $form_id)
 {
     global $form_folder;
     $query ="select * from form_".$form_folder."_impplan where form_id=? and pid=? ORDER BY IMPPLAN_order";
@@ -3227,7 +3227,7 @@ function document_engine($pid)
  *                They allow us to regroup the categories how we like them.
  *  @return array($imaging,$episode)
  */
-function display($pid,$encounter,$category_value)
+function display($pid, $encounter, $category_value)
 {
     global $form_folder;
     global $id;
@@ -3294,7 +3294,7 @@ function display($pid,$encounter,$category_value)
  *
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_top($pid,$encounter,$title="Eye Exam")
+function menu_overhaul_top($pid, $encounter, $title = "Eye Exam")
 {
     global $form_folder;
     global $prov_data;
@@ -3540,7 +3540,7 @@ function menu_overhaul_top($pid,$encounter,$title="Eye Exam")
  *  @param string $encounter is the current encounter number
  *  @return nothing, outputs directly to screen
  */
-function menu_overhaul_left($pid,$encounter)
+function menu_overhaul_left($pid, $encounter)
 {
     global $form_folder;
     global $pat_data;
@@ -3718,7 +3718,7 @@ function menu_overhaul_left($pid,$encounter)
  *  @return nothing, outputs directly to screen
  */
 
-function menu_overhaul_bottom($pid,$encounter)
+function menu_overhaul_bottom($pid, $encounter)
 {
     ?><div class="navbar-custom" style="width:100%;height:25px;position:relative;border-top:1pt solid black;bottom:0px;z-index:1000000;">&nbsp;</div><?php
 }
@@ -3727,7 +3727,7 @@ function menu_overhaul_bottom($pid,$encounter)
  * This was taken from new_form.php and is helping to integrate new menu with openEMR
  * menu seen on encounter page.
  */
-function Menu_myGetRegistered($state="1", $limit="unlimited", $offset="0")
+function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
       "unpackaged, date FROM registry WHERE " .
@@ -3749,7 +3749,7 @@ function Menu_myGetRegistered($state="1", $limit="unlimited", $offset="0")
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
  *  @return outputs directly to screen
  */
-function report_header($pid,$direction='shell')
+function report_header($pid, $direction = 'shell')
 {
     global $form_name;
     global $encounter;
@@ -4189,7 +4189,7 @@ function start_your_engines($FIELDS)
  *  @param string $field, location where to search. In fact any text that refines the search can be contained here.
  *  @return outputs array of $codes matching the $term & $field
  */
-function coding_carburetor($term,$field)
+function coding_carburetor($term, $field)
 {
     if (!$term||!$field) return;
     $codes = array();
@@ -4218,7 +4218,7 @@ function coding_carburetor($term,$field)
  *
  *  This function is not called directly but via the wrapper function start_your_engines().
  */
-function coding_engine($term, $code_found,$location,$side='')
+function coding_engine($term, $code_found, $location, $side = '')
 {
     if (strpos($code_found['code'],":")) {
         list($code_type, $code) = explode(':', $code_found['code']);
@@ -4266,7 +4266,7 @@ function cmp($a, $b)
  *
  *  @return $ranges.  A mysqlArray(max_FIELD,max_date,min_date)
  */
-function display_GlaucomaFlowSheet($pid,$bywhat='byday')
+function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 {
     global $PMSFH;
     global $documents;
@@ -5125,7 +5125,7 @@ function display_GlaucomaFlowSheet($pid,$bywhat='byday')
 }
 
 # gets the provider from the encounter file , or from the logged on user or from the patient file
-function findProvider($pid,$encounter)
+function findProvider($pid, $encounter)
 {
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
@@ -5151,7 +5151,7 @@ function findProvider($pid,$encounter)
     return $providerid;
 }
 
-function generate_lens_treatments($W,$LTs_present)
+function generate_lens_treatments($W, $LTs_present)
 {
     ob_start();
     $query = "SELECT * FROM list_options where list_id =? and activity='1' ORDER BY seq";

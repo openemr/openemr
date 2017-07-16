@@ -3,7 +3,7 @@
 //
 
 
-function registerForm( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
+function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory='$directory'");
     if ($check == false)
@@ -25,7 +25,7 @@ function registerForm( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
     return false;
 }
 
-function updateRegistered( $id, $mod )
+function updateRegistered($id, $mod)
 {
     return sqlInsert("update registry set
 		$mod,
@@ -35,7 +35,7 @@ function updateRegistered( $id, $mod )
 	");
 }
 
-function getRegistered( $state="1", $limit="unlimited", $offset="0")
+function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
     $sql = "select * from registry where state like \"$state\" order by priority, name";
     if ($limit != "unlimited")
@@ -51,7 +51,7 @@ function getRegistered( $state="1", $limit="unlimited", $offset="0")
     return $all;
 }
 
-function getRegistryEntry( $id, $cols = "*" )
+function getRegistryEntry($id, $cols = "*")
 {
     $sql = "select $cols from registry where id='$id'";
     return sqlQuery($sql);
@@ -63,7 +63,7 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
     return sqlQuery($sql, $directory);
 }
 
-function installSQL( $dir )
+function installSQL($dir)
 {
     $sqltext = $dir."/table.sql";
     if ($sqlarray = @file($sqltext))
@@ -94,7 +94,7 @@ function installSQL( $dir )
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered( $directory, $state = 1)
+function isRegistered($directory, $state = 1)
 {
     $sql = "select id from registry where ".
             "directory='".$directory.

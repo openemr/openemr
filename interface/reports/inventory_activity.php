@@ -85,7 +85,7 @@ function thisLineItem(
     $rowwh,
     $transdate,
     $qtys,
-    $irnumber=''
+    $irnumber = ''
 ) {
 
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;

@@ -376,7 +376,7 @@ function pnModGetAdminMods()
  * @returns bool
  * @return true on success, false on failure
  */
-function pnModAPILoad($modname, $type='user')
+function pnModAPILoad($modname, $type = 'user')
 {
     static $loaded = array();
 
@@ -451,7 +451,7 @@ function pnModAPILoad($modname, $type='user')
  * @param directory - directory that module is in (if known)
  * @returns bool
  */
-function pnModDBInfoLoad($modname, $directory='')
+function pnModDBInfoLoad($modname, $directory = '')
 {
     static $loaded = array();
 
@@ -504,7 +504,7 @@ function pnModDBInfoLoad($modname, $directory='')
  * @returns string
  * @return name of module loaded, or false on failure
  */
-function pnModLoad($modname, $type='user')
+function pnModLoad($modname, $type = 'user')
 {
     static $loaded = array();
 
@@ -580,7 +580,7 @@ function pnModLoad($modname, $type='user')
  * @param args - arguments to pass to the function
  * @returns mixed
  */
-function pnModAPIFunc($modname, $type='user', $func='main', $args=array())
+function pnModAPIFunc($modname, $type = 'user', $func = 'main', $args = array())
 {
 
     if (empty($modname)) {
@@ -611,7 +611,7 @@ function pnModAPIFunc($modname, $type='user', $func='main', $args=array())
  * @param args - argument array
  * @returns mixed
  */
-function pnModFunc($modname, $type='user', $func='main', $args=array())
+function pnModFunc($modname, $type = 'user', $func = 'main', $args = array())
 {
 
     if (empty($modname)) {
@@ -643,7 +643,7 @@ function pnModFunc($modname, $type='user', $func='main', $args=array())
  * @returns string
  * @return absolute URL for call
  */
-function pnModURL($modname, $type='user', $func='main', $args=array(), $path = '')
+function pnModURL($modname, $type = 'user', $func = 'main', $args = array(), $path = '')
 {
     if (empty($modname)) {
         return false;

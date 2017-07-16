@@ -69,7 +69,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * functions for php 5.2 compatibility
  */
 if( ! function_exists( 'lcfirst' ) ){
-    function lcfirst( $string )
+    function lcfirst($string)
     {
         return substr_replace( $string, strtolower( substr( $string, 0, 1 ) ), 0, 1 );
     }

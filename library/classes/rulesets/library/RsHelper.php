@@ -8,7 +8,7 @@
 //
 class RsHelper
 {
-    public static function formatClinicalRules( array $results )
+    public static function formatClinicalRules(array $results)
     {
         $formattedResults = array();
         foreach ( $results as $result ) {

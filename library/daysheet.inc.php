@@ -31,7 +31,7 @@
 * @param $strSortType String containing either asc or desc [default to asc]
 * @desc Naturally sorts an array using by the column $strSortBy
 */
-function array_natsort($aryData, $strIndex, $strSortBy, $strSortType=false)
+function array_natsort($aryData, $strIndex, $strSortBy, $strSortType = false)
 {
     //    if the parameters are invalid
     if (!is_array($aryData) || !$strIndex || !$strSortBy)

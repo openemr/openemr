@@ -28,7 +28,7 @@ class NFQ_0013_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // See if BP has been done within the measurement period (on a day of a specified encounter)
         $query = "SELECT form_vitals.bps, form_vitals.bpd " .

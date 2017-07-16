@@ -28,7 +28,7 @@ require_once("../../globals.php");
  * @param $pid   -  patient id.
  * @param $limit -  certain limit up to which the disclosures are to be displyed.
  */
-function getDisclosureByDate($pid,$limit)
+function getDisclosureByDate($pid, $limit)
 {
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user ".

@@ -105,7 +105,7 @@ function decorateString($fmt, $str)
 // Delete and undo product sales for a given patient or visit.
 // This is special because it has to replace the inventory.
 //
-function delete_drug_sales($patient_id, $encounter_id=0)
+function delete_drug_sales($patient_id, $encounter_id = 0)
 {
     $where = $encounter_id ? "ds.encounter = '" . add_escape_custom($encounter_id) . "'" :
     "ds.pid = '" . add_escape_custom($patient_id) . "' AND ds.encounter != 0";

@@ -28,7 +28,7 @@ class NFQ_0384_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         //Patient visits in which pain intensity is quantified
         $riskCatAssessQry = "SELECT count(*) as cnt FROM form_encounter fe ".

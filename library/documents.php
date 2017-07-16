@@ -37,7 +37,7 @@ require_once($GLOBALS['fileroot']."/controllers/C_Document.class.php");
  * @param  int            $path_depth                      Path depth when using the $higher_level_path feature
  * @return array/boolean                                   Array(doc_id,url) of the file as stored in documents table, false = failure
  */
-function addNewDocument($name,$type,$tmp_name,$error,$size,$owner='',$patient_id_or_simple_directory="00",$category_id='1',$higher_level_path='',$path_depth='1')
+function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $patient_id_or_simple_directory = "00", $category_id = '1', $higher_level_path = '', $path_depth = '1')
 {
 
     if (empty($owner)) {

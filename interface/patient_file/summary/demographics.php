@@ -70,7 +70,7 @@ function print_as_money($money)
 }
 
 // get an array from Photos category
-function pic_array($pid,$picture_directory)
+function pic_array($pid, $picture_directory)
 {
     $pics = array();
     $sql_query = "select documents.id from documents join categories_to_documents " .
@@ -85,7 +85,7 @@ function pic_array($pid,$picture_directory)
     return ($pics);
 }
 // Get the document ID of the first document in a specific catg.
-function get_document_by_catg($pid,$doc_catg)
+function get_document_by_catg($pid, $doc_catg)
 {
 
     $result = array();
@@ -104,7 +104,7 @@ function get_document_by_catg($pid,$doc_catg)
 }
 
 // Display image in 'widget style'
-function image_widget($doc_id,$doc_catg)
+function image_widget($doc_id, $doc_catg)
 {
         global $pid, $web_root;
         $docobj = new Document($doc_id);

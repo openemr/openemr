@@ -39,7 +39,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         * @param  array   $inputarr    binded variables array (optional)
         * @return boolean              returns false if error
         */
-    function Execute($sql,$inputarr=false)
+    function Execute($sql, $inputarr = false)
     {
         $retval= parent::Execute($sql,$inputarr);
         if ($retval === false) {
@@ -70,7 +70,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         * @param  array   $inputarr    binded variables array (optional)
         * @return boolean              returns false if error
         */
-    function ExecuteNoLog($sql,$inputarr=false)
+    function ExecuteNoLog($sql, $inputarr = false)
     {
         return parent::Execute($sql,$inputarr);
     }
@@ -89,7 +89,7 @@ class ADODB_mysqli_log extends ADODB_mysqli
         * @param  integer $startID     id to start with for a new sequence (default is 1)
         * @return integer              returns the sequence integer
         */
-    function GenID($seqname='adodbseq',$startID=1)
+    function GenID($seqname = 'adodbseq', $startID = 1)
     {
         // post-nuke sets hasGenID to false
         if (!$this->hasGenID) return false;
@@ -173,7 +173,7 @@ if (!$GLOBALS['dbh']) {
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
 */
-function sqlStatement($statement, $binds=false )
+function sqlStatement($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -206,7 +206,7 @@ function sqlStatement($statement, $binds=false )
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
 */
-function sqlStatementNoLog($statement, $binds=false )
+function sqlStatementNoLog($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -228,7 +228,7 @@ function sqlStatementNoLog($statement, $binds=false )
 * @param  array   $binds      binded variables array (optional)
 * @return recordset/resource
 */
-function sqlStatementCdrEngine($statement, $binds=false )
+function sqlStatementCdrEngine($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -278,7 +278,7 @@ function sqlFetchArray($r)
  * @param boolean $first2Cols
  * @return array
  */
-function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=false )
+function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols = false)
 {
 
     return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
@@ -296,7 +296,7 @@ function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=fals
 * @param  array    $binds      binded variables array (optional)
 * @return integer  Last id generated from the sql insert command
 */
-function sqlInsert($statement, $binds=false)
+function sqlInsert($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -324,7 +324,7 @@ function sqlInsert($statement, $binds=false)
 * @param  array   $binds      binded variables array (optional)
 * @return array
 */
-function sqlQuery($statement, $binds=false)
+function sqlQuery($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -356,7 +356,7 @@ function sqlQuery($statement, $binds=false)
 * @param  array   $binds      binded variables array (optional)
 * @return array
 */
-function sqlQueryNoLog($statement, $binds=false)
+function sqlQueryNoLog($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -389,7 +389,7 @@ function sqlQueryNoLog($statement, $binds=false)
 * @param  array   $binds      binded variables array (optional)
 * @return array
 */
-function sqlQueryNoLogIgnoreError($statement, $binds=false)
+function sqlQueryNoLogIgnoreError($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -417,7 +417,7 @@ function sqlQueryNoLogIgnoreError($statement, $binds=false)
 * @param  array   $binds      binded variables array (optional)
 * @return array
 */
-function sqlQueryCdrEngine($statement, $binds=false )
+function sqlQueryCdrEngine($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -516,7 +516,7 @@ function sqlNumRows($r)
 * @param string $statement
 * @param string $sqlerr
 */
-function HelpfulDie($statement, $sqlerr='')
+function HelpfulDie($statement, $sqlerr = '')
 {
 
     echo "<h2><font color='red'>" . xlt('Query Error') . "</font></h2>";
@@ -579,7 +579,7 @@ function generate_id()
 * @param  array   $binds      binded variables array (optional)
 * @return recordset
 */
-function sqlQ($statement, $binds=false )
+function sqlQ($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -600,7 +600,7 @@ function sqlQ($statement, $binds=false )
 * @param  array    $binds      binded variables array (optional)
 * @return integer  Last id generated from the sql insert command
 */
-function idSqlStatement($statement , $binds=false )
+function idSqlStatement($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -619,7 +619,7 @@ function idSqlStatement($statement , $binds=false )
 * @param  array    $binds      binded variables array (optional)
 * @return integer  Last id generated from the sql insert command
 */
-function sqlInsertClean($statement, $binds=false )
+function sqlInsertClean($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
     if (empty($binds)) $binds = false;
@@ -702,7 +702,7 @@ function sqlBeginTrans()
 /**
  * Commit a transaction
  */
-function sqlCommitTrans($ok=true)
+function sqlCommitTrans($ok = true)
 {
     $GLOBALS['adodb']['db']->CommitTrans();
 }

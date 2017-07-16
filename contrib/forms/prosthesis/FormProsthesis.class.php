@@ -73,7 +73,7 @@ class FormProsthesis extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormProsthesis($id= "", $_prefix = "")
+    function FormProsthesis($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

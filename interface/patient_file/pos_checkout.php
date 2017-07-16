@@ -97,7 +97,7 @@ function receiptDetailLine($svcdate, $description, $amount, $quantity)
 
 // Output HTML for an invoice payment.
 //
-function receiptPaymentLine($paydate, $amount, $description='')
+function receiptPaymentLine($paydate, $amount, $description = '')
 {
     $amount = sprintf('%01.2f', 0 - $amount); // make it negative
     echo " <tr>\n";
@@ -111,7 +111,7 @@ function receiptPaymentLine($paydate, $amount, $description='')
 // Generate a receipt from the last-billed invoice for this patient,
 // or for the encounter specified as a GET parameter.
 //
-function generate_receipt($patient_id, $encounter=0)
+function generate_receipt($patient_id, $encounter = 0)
 {
     global $sl_err, $sl_cash_acc, $css_header, $details, $facilityService;
 

@@ -40,7 +40,7 @@ abstract class Abstract_Controller implements ViewableIF
     protected $_viewer = null;
     protected $_request = null;
     
-    public function __construct( Request $request )
+    public function __construct(Request $request)
     {
         $this->_request = $request;
         $this->_method = $this->_request->getParam( 'method' );
@@ -72,7 +72,7 @@ abstract class Abstract_Controller implements ViewableIF
         return $this->_request;
     }
     
-    protected function setViewScript( $viewScript )
+    protected function setViewScript($viewScript)
     {
         $this->_viewScript = $viewScript;
     }
@@ -109,7 +109,7 @@ class Request
         $this->parseParams();
     }
     
-    public function getParam( $key, $default = '' )
+    public function getParam($key, $default = '')
     {
         if ( isset( $this->_params[$key] ) ) {
             return $this->_params[$key];
@@ -131,7 +131,7 @@ class Response
     public $status = null;
     public $message = null;
     
-    public function __construct( $status, $message )
+    public function __construct($status, $message)
     {
         $this->status = $status;
         $this->message = $message;

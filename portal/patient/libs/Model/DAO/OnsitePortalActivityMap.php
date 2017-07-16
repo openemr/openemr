@@ -50,7 +50,7 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
     /**
      * {@inheritdoc}
      */
-    public static function AddMap($property,FieldMap $map)
+    public static function AddMap($property, FieldMap $map)
     {
         self::GetFieldMaps();
         self::$FM[$property] = $map;
@@ -59,7 +59,7 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
     /**
      * {@inheritdoc}
      */
-    public static function SetFetchingStrategy($property,$loadType)
+    public static function SetFetchingStrategy($property, $loadType)
     {
         self::GetKeyMaps();
         self::$KM[$property]->LoadType = $loadType;

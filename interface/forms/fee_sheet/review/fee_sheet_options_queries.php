@@ -27,7 +27,7 @@
  */
 class fee_sheet_option
 {
-    function __construct($c,$ct,$desc,$price,$category)
+    function __construct($c, $ct, $desc, $price, $category)
     {
         $this->code=$c;
         $this->code_type=$ct;

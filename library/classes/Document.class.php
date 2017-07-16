@@ -449,7 +449,7 @@ class Document extends ORDataObject
 	*	@param int $fid foreign id that should be used so that this document can be related (joined) on it later
 	*/
 
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
@@ -487,7 +487,7 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function get_couch_url($pid,$encounter)
+    function get_couch_url($pid, $encounter)
     {
         $couch_docid = $this->get_couch_docid();
         $couch_url = $this->get_url();
@@ -567,9 +567,9 @@ class Document extends ORDataObject
         $filename,
         $mimetype,
         &$data,
-        $higher_level_path='',
-        $path_depth=1,
-        $owner=0,
+        $higher_level_path = '',
+        $path_depth = 1,
+        $owner = 0,
         $tmpfile = null
     ) {
         // The original code used the encounter ID but never set it to anything.
@@ -738,7 +738,7 @@ class Document extends ORDataObject
    * @param  integer $category_id  The desired document category ID
    * @param  string  $message      Any desired message text for the note.
    */
-    function postPatientNote($provider, $category_id, $message='')
+    function postPatientNote($provider, $category_id, $message = '')
     {
         // Build note text in a way that identifies the new document.
         // See pnotes_full.php which uses this to auto-display the document.

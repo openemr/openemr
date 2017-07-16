@@ -19,7 +19,7 @@ abstract class AbstractCqmReport implements RsReportIF
     protected $_beginMeasurement;
     protected $_endMeasurement;
 
-    public function __construct( array $rowRule, array $patientIdArray, $dateTarget )
+    public function __construct(array $rowRule, array $patientIdArray, $dateTarget)
     {
         // require all .php files in the report's sub-folder
         $className = get_class( $this );
@@ -188,7 +188,7 @@ abstract class AbstractCqmReport implements RsReportIF
         return $this->_resultsArray;
     }
     
-    private function initNumeratorPopulations( array $numerators )
+    private function initNumeratorPopulations(array $numerators)
     {
         $numeratorPatientPopulations = array();
         foreach ( $numerators as $numerator ) {
@@ -197,7 +197,7 @@ abstract class AbstractCqmReport implements RsReportIF
         return $numeratorPatientPopulations;
     }
 
-    private function testNumerator( $patient, $numerator, &$numeratorPatientPopulations )
+    private function testNumerator($patient, $numerator, &$numeratorPatientPopulations)
     {
         if ( $numerator instanceof CqmFilterIF  )
         {

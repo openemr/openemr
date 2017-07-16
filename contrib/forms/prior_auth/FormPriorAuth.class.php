@@ -34,7 +34,7 @@ class FormPriorAuth extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormPriorAuth($id= "", $_prefix = "")
+    function FormPriorAuth($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

@@ -38,7 +38,7 @@ class FormEvaluation extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormEvaluation($id= "", $_prefix = "")
+    function FormEvaluation($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

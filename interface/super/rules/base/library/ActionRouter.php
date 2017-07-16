@@ -54,7 +54,7 @@ class ActionRouter
         }
     }
 
-    function perform( $action )
+    function perform($action)
     {
         $action_method = '_action_' . $action;
 
@@ -100,7 +100,7 @@ class ActionRouter
         return $result;
     }
 
-    function resolveTemplate( $templateName )
+    function resolveTemplate($templateName)
     {
         // try local
         $template_location = $this->path . "/template/" . $templateName;
@@ -120,7 +120,7 @@ class ActionRouter
         }
     }
 
-    function resolveHelper( $name )
+    function resolveHelper($name)
     {
         // try local
         $location = $this->path . "/helper/" . $name;

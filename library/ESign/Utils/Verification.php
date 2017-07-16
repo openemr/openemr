@@ -27,7 +27,7 @@ require_once $GLOBALS['srcdir'].'/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
 {
-    public function hash( $data )
+    public function hash($data)
     {
         $string = "";
         if ( is_array( $data ) ) {
@@ -39,7 +39,7 @@ class Utils_Verification implements VerificationIF
         return $hash;
     }
 
-    protected function stringifyArray( array $arr )
+    protected function stringifyArray(array $arr)
     {
         $string = "";
         foreach ( $arr as $part ) {
@@ -53,7 +53,7 @@ class Utils_Verification implements VerificationIF
         return $string;
     }
     
-    public function verify( $data, $hash )
+    public function verify($data, $hash)
     {
         $currentHash = $this->hash( $data );
         if ( $currentHash == $hash ) {

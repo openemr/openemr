@@ -56,7 +56,7 @@ class Encounter extends ClinicalType
      * 	@param $beginDate beginning of date range to search in, if specified
      * 	@param $endDate end of date range to search in, if specified
      */
-    public function fetchDates( RsPatient $patient, $beginDate = null, $endDate = null )
+    public function fetchDates(RsPatient $patient, $beginDate = null, $endDate = null)
     {
         $encounters = getEncounters( $patient->id, $beginDate, $endDate, $this->getOptionId() );
         $dates = array();
@@ -68,7 +68,7 @@ class Encounter extends ClinicalType
         return $dates;
     }
     
-    public function doPatientCheck( RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginMeasurement = null, $endMeasurement = null, $options = null)
     {
         $encounters = getEncounters( $patient->id, $beginMeasurement, $endMeasurement, $this->getOptionId() );
         ( empty($encounters) ) ? $totalNumberAppt = 0 : $totalNumberAppt = count( $encounters );

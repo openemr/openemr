@@ -500,7 +500,7 @@ break;
 }
     
 
-function edih_835_text($segments, $delimiter, $err_seg='')
+function edih_835_text($segments, $delimiter, $err_seg = '')
 {
     //
     $str_html = '';
@@ -602,7 +602,7 @@ function edih_835_text($segments, $delimiter, $err_seg='')
  * @param string  $delimiter
  * return string
  */
-function edih_277_text($segments, $delimiter, $stpos='')
+function edih_277_text($segments, $delimiter, $stpos = '')
 {
     //
     $str_html = '';
@@ -986,7 +986,7 @@ function edih_997_text($segments, $delimiter)
  * @param string   optional $err_info  the prepared error info from a 997/999 response
  * @return string  html for display of file segments
  */
-function edih_display_text($filepath, $filetype='', $claimid='', $trace=false, $err_info='')
+function edih_display_text($filepath, $filetype = '', $claimid = '', $trace = false, $err_info = '')
 {
     //
     $str_html = '';

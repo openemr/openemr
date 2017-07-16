@@ -4,7 +4,7 @@
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
 
-function ped_GI_report( $pid, $encounter, $cols, $id)
+function ped_GI_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_ped_GI", $id);

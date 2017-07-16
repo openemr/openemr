@@ -18,7 +18,7 @@ class sms
     var $username = "";
     var $password = "";
     
-    function sms( $strUser, $strPass )
+    function sms($strUser, $strPass)
     {
         $this->username = $strUser;
           $this->password = $strPass;

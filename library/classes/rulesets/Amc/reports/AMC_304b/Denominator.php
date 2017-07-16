@@ -18,7 +18,7 @@ class AMC_304b_Denominator implements AmcFilterIF
         return "AMC_304b Denominator";
     }
 
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         //  (basically needs a prescription within the report dates,
         //   which are already filtered for, so all the objects are a positive)

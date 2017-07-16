@@ -114,7 +114,7 @@ function hl7Relation($s)
  * @param  date    $encounter_date  YYYY-MM-DD date.
  * @return array   Array containing an array of data for each payer.
  */
-function loadPayerInfo($pid, $date='')
+function loadPayerInfo($pid, $date = '')
 {
     if (empty($date)) $date = date('Y-m-d');
     $payers = array();

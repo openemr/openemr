@@ -21,7 +21,7 @@ class RuleCriteriaAge extends RuleCriteria
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct( $type, $value = null, $timeUnit = null)
+    function __construct($type, $value = null, $timeUnit = null)
     {
         $this->type = $type;
         $this->value = $value;

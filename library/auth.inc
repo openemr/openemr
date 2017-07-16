@@ -225,7 +225,7 @@ function getUserList($cols = '*', $limit = 'all', $start = '0')
     return $tbl;
 }
 
-function getProviderList($cols = '*', $limit= 'all', $start = '0')
+function getProviderList($cols = '*', $limit = 'all', $start = '0')
 {
     if ($limit = "all")
         $rez = sqlStatement("select $cols from groups order by date DESC");
@@ -298,7 +298,7 @@ function validateGroupStatus($user_to_be_checked, $group_user)
 // Attempt to update the user's password, password history, and password expiration.
 // Verify that the new password does not match the last three passwords used.
 // Return true if successfull, false on failure
-function UpdatePasswordHistory($userid,$pwd)
+function UpdatePasswordHistory($userid, $pwd)
 {
     $result = sqlStatement("select password, pwd_history1, pwd_history2 from users where id = ?",array($userid));
     if ($row = sqlFetchArray($result)) {

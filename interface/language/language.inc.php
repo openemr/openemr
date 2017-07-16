@@ -10,7 +10,7 @@ if (!$thisauth) {
     exit();
 }
 
-function check_pattern($data,$pat)
+function check_pattern($data, $pat)
 {
     if (preg_match("/" . addcslashes($pat, '/') . "/", $data)) { return true ;
     } else { return false; }
@@ -18,7 +18,7 @@ function check_pattern($data,$pat)
 
 // Function to insert/modify items in the language log table, lang_custom
 //
-function insert_language_log($lang_desc,$lang_code,$cons_name,$def)
+function insert_language_log($lang_desc, $lang_code, $cons_name, $def)
 {
     
   // set up the mysql collation string to ensure case is sensitive in the mysql queries

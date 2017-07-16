@@ -38,7 +38,7 @@ require_once(dirname(__FILE__) . "/../library/direct_message_check.inc");
  * @return string result of operation
  */
 
-function transmitCCD($ccd,$recipient,$requested_by,$xml_type="CCD")
+function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
 {
     global $pid;
 

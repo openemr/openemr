@@ -49,7 +49,7 @@ class Documents extends AbstractPlugin
      * @param String $key Encryption Key
      * @return String
      */
-    public function encrypt($plaintext,$key,$cypher = 'tripledes', $mode = 'cfb' )
+    public function encrypt($plaintext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
                 $obj = new \C_Document();
                 $obj->encrypt($plaintext, $key, $cypher, $mode);
@@ -61,7 +61,7 @@ class Documents extends AbstractPlugin
      * @param String $key Decryption Key
      * @return String
      */
-    public function decrypt($crypttext,$key,$cypher = 'tripledes',$mode = 'cfb')
+    public function decrypt($crypttext, $key, $cypher = 'tripledes', $mode = 'cfb')
     {
                 $obj = new \C_Document();
                 $obj->decrypt($crypttext, $key, $cypher, $mode);
@@ -99,7 +99,7 @@ class Documents extends AbstractPlugin
      * @param Json Encoded Data
      * @return Array
      */
-    public function saveCouchDocument($connection,$data)
+    public function saveCouchDocument($connection, $data)
     {
         $couch  = $connection->postDocument($data);
         $id         = $couch[0];
@@ -119,7 +119,7 @@ class Documents extends AbstractPlugin
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */
-    public function getDocument($documentId,$doEncryption =false,$encryption_key = '')
+    public function getDocument($documentId, $doEncryption = false, $encryption_key = '')
     {
                 $obj = new \C_Document();
                 $document = $obj->retrieve_action("", $documentId, true, true, true);

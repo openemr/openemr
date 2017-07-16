@@ -26,7 +26,7 @@ class RuleCriteriaDbView
     {
     }
 
-    function set( $i )
+    function set($i)
     {
         $this->intervalType = $i;
     }

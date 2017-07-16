@@ -46,7 +46,7 @@
  * @param   timestamp  $end    End of date range
  * @return  sql-query          Listing of report results
  */
-function listingReportDatabase($start_date='',$end_date='')
+function listingReportDatabase($start_date = '', $end_date = '')
 {
 
   // set $end_date to today's date if empty
@@ -120,7 +120,7 @@ function bookmarkReportDatabase()
  * @param   integer  $report_id  Report id (if have already bookmarked a report id)
  * @return  integer              Report id that is assigned to the report
  */
-function beginReportDatabase($type,$fields,$report_id=null)
+function beginReportDatabase($type, $fields, $report_id = null)
 {
 
   // Retrieve a new report id, if needed.
@@ -174,7 +174,7 @@ function beginReportDatabase($type,$fields,$report_id=null)
  * @param   integer  $report_id    Report id
  * @param   integer  $total_items  Total number of items that will be processed
  */
-function setTotalItemsReportDatabase($report_id,$total_items)
+function setTotalItemsReportDatabase($report_id, $total_items)
 {
   // Insert the total items that are to be processed
     sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($report_id,"total_items",$total_items));
@@ -187,7 +187,7 @@ function setTotalItemsReportDatabase($report_id,$total_items)
  * @param   integer  $report_id           Report id
  * @param   integer  $items_processed  Number of items that have been processed
  */
-function updateReportDatabase($report_id,$items_processed)
+function updateReportDatabase($report_id, $items_processed)
 {
   // Update the items that have been processed
     sqlStatement("UPDATE `report_results` SET `field_value`=? WHERE `report_id`=? AND `field_id`='progress_items'", array($items_processed,$report_id) );
@@ -201,7 +201,7 @@ function updateReportDatabase($report_id,$items_processed)
  * @param   integer  $report_id  Report id
  * @param   string   $data       Report results/data
  */
-function finishReportDatabase($report_id,$data)
+function finishReportDatabase($report_id, $data)
 {
 
   // Record the data
@@ -277,7 +277,7 @@ function getStatusReportDatabase($report_id)
  * @param   integer  $patient_id        Patient pid
  * @param   integer  $$numerator_label  Numerator label (if applicable)
  */
-function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label='')
+function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_id, $numerator_label = '')
 {
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label,$pass,$patient_id);
     sqlStatementCdrEngine("INSERT INTO `report_itemized` (`report_id`,`itemized_test_id`,`numerator_label`,`pass`,`pid`) VALUES (?,?,?,?,?)", $sqlParameters);
@@ -291,7 +291,7 @@ function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_
  * @param   integer  $numerator_label   Numerator label (if applicable)
  * @return  string/boolean              Rule title for itemization display (false if nothing found)
  */
-function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label='')
+function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label = '')
 {
     $dispTitle = "";
     $report_view = collectReportDatabase($report_id);
@@ -368,7 +368,7 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
  * @param   integer  $fstart            Sql query pagination info
  * @return  array/integer               Array list or a count
  */
-function collectItemizedPatientsCdrReport($report_id,$itemized_test_id,$pass='all',$numerator_label='',$count=false,$sqllimit='all',$fstart=0)
+function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass = 'all', $numerator_label = '', $count = false, $sqllimit = 'all', $fstart = 0)
 {
 
     if ($count) {

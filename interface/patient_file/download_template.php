@@ -54,7 +54,7 @@ function keyReplace(&$s, $data)
 }
 
 // Do some final processing of field data before it's put into the document.
-function dataFixup($data, $title='')
+function dataFixup($data, $title = '')
 {
     global $groupLevel, $groupCount, $itemSeparator;
     if ($data !== '') {

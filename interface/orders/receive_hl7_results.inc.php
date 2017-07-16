@@ -25,7 +25,7 @@ require_once("$srcdir/forms.inc");
 
 $rhl7_return = array();
 
-function rhl7LogMsg($msg, $fatal=true)
+function rhl7LogMsg($msg, $fatal = true)
 {
     global $rhl7_return;
     if ($fatal) {
@@ -60,7 +60,7 @@ function rhl7InsertRow(&$arr, $tablename)
 }
 
 // Write all of the accumulated reports and their results.
-function rhl7FlushMain(&$amain, $commentdelim="\n")
+function rhl7FlushMain(&$amain, $commentdelim = "\n")
 {
     foreach ($amain as $arr) {
         $procedure_report_id = rhl7InsertRow($arr['rep'], 'procedure_report');
@@ -106,7 +106,7 @@ function rhl7FlushMDM($patient_id, $mdm_docname, $mdm_datetime, $mdm_text, $mdm_
     return '';
 }
 
-function rhl7Text($s, $allow_newlines=false)
+function rhl7Text($s, $allow_newlines = false)
 {
     $s = str_replace('\\S\\'  ,'^' , $s);
     $s = str_replace('\\F\\'  ,'|' , $s);
@@ -423,7 +423,7 @@ function create_skeleton_patient($patient_data)
  *                            value is an existing pid or 0 to specify creating a patient
  * @return array              Array of errors and match requests, if any
  */
-function receive_hl7_results(&$hl7, &$matchreq, $lab_id=0, $direction='B', $dryrun=false, $matchresp=null)
+function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $dryrun = false, $matchresp = null)
 {
     global $rhl7_return;
 

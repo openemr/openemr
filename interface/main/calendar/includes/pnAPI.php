@@ -903,7 +903,7 @@ function pnVarCensor()
  * @returns bool
  * @return true if the validation was successful, false otherwise
  */
-function pnVarValidate($var, $type, $args=0)
+function pnVarValidate($var, $type, $args = 0)
 {
     switch ($type) {
         case 'email':
@@ -956,7 +956,7 @@ function pnVarValidate($var, $type, $args=0)
  * @param filename the filename the assertion occurs in
  * @param line the line number the assertion occurs in
  */
-function pnAssert($assertion, $file='Unknown', $line='Unknown', $msg='')
+function pnAssert($assertion, $file = 'Unknown', $line = 'Unknown', $msg = '')
 {
     if ($assertion) {
         return;
@@ -1185,7 +1185,7 @@ if (!function_exists('GetUserTime')) {
  * @returns bool
  * @return true if the email was sent, false if not
  */
-function pnMail($to, $subject, $message, $headers, $debug=0)
+function pnMail($to, $subject, $message, $headers, $debug = 0)
 {
     // Language translations
     switch(pnUserGetLang()) {
@@ -1348,10 +1348,10 @@ function pnPhpVersionCheck($vercheck)
 }
 
 function pnMailHackAttempt(
-    $detecting_file        =        "(no filename available)",
-    $detecting_line        =        "(no line number available)",
-    $hack_type             =        "(no type given)",
-    $message               =        "(no message given)"
+    $detecting_file = "(no filename available)",
+    $detecting_line = "(no line number available)",
+    $hack_type = "(no type given)",
+    $message = "(no message given)"
 ) {
 
 # Backwards compatibility fix with php 4.0.x and 4.1.x or greater Neo

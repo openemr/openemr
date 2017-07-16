@@ -83,7 +83,7 @@ class SecureApp implements IAuthenticatable
      * @param string $username
      * @param string $password
      */
-    public function Login($username,$password)
+    public function Login($username, $password)
     {
         foreach (self::$USERS as $un=>$pw)
         {

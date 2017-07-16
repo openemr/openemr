@@ -23,7 +23,7 @@ class RuleType
     const AMC = "amc";
     const PatientReminder = "patientreminder";
 
-    function __construct( $code, $lbl )
+    function __construct($code, $lbl)
     {
         $this->lbl = $lbl;
         $this->code = $code;
@@ -34,7 +34,7 @@ class RuleType
      * @param string $value
      * @return RuleType
      */
-    public static function from( $code )
+    public static function from($code)
     {
         $map = self::map();
         return $map[$code];

@@ -260,7 +260,7 @@ function todaysTherapyGroupEncounterIf($group_id)
 
 // Get the patient's encounter ID for today, creating it if there is none.
 //
-function todaysEncounter($patient_id, $reason='')
+function todaysEncounter($patient_id, $reason = '')
 {
     global $today, $userauthorized;
 
@@ -385,7 +385,7 @@ function check_event_exist($eid)
 //===============================================================================
 // insert an event
 // $args is mainly filled with content from the POST http var
-function InsertEvent($args,$from = 'general')
+function InsertEvent($args, $from = 'general')
 {
     $pc_recurrtype = '0';
     if ($args['form_repeat'] || $args['days_every_week']) {
@@ -443,7 +443,7 @@ function InsertEvent($args,$from = 'general')
  *  @private
  *  @returns string YYYY-MM-DD
  */
-function &__increment($d,$m,$y,$f,$t)
+function &__increment($d, $m, $y, $f, $t)
 {
 
     if($t == REPEAT_EVERY_DAY) {

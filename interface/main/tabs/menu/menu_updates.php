@@ -207,7 +207,7 @@ function menu_acl_check($arr)
     return false;
 }
 
-function menu_apply_restrictions(&$menu_list_src,&$menu_list_updated)
+function menu_apply_restrictions(&$menu_list_src, &$menu_list_updated)
 {
     for ($idx=0; $idx<count($menu_list_src); $idx++)
     {

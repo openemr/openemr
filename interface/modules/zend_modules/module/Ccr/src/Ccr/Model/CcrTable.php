@@ -174,7 +174,7 @@ class CcrTable extends AbstractTableGateway
   * @param    content         XML     content from the CCR xml
   * @param    field_mapping   Array   fields to be fetched from xml
   */
-    public function parseXmlStream($content,$field_mapping)
+    public function parseXmlStream($content, $field_mapping)
     {
         $res    = array();
         $xml    = new DOMDocument;
@@ -209,7 +209,7 @@ class CcrTable extends AbstractTableGateway
   * @param    am_id         integer     audit master ID
   * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
   */
-    public function createAuditArray($am_id,$table_name)
+    public function createAuditArray($am_id, $table_name)
     {
         $appTable     = new ApplicationTable();
         if(strpos($table_name,',')){

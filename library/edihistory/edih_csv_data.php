@@ -41,7 +41,7 @@
  * @param bool
  * @return string
  */
-function edih_csv_process_html($data_ar, $err_only=false)
+function edih_csv_process_html($data_ar, $err_only = false)
 {
     //
     $str_html = '';
@@ -198,7 +198,7 @@ function edih_csv_process_html($data_ar, $err_only=false)
  *
  * @return string
  */
-function edih_list_denied_claims($filetype, $filename, $trace='')
+function edih_list_denied_claims($filetype, $filename, $trace = '')
 {
     //
     $str_html = '';
@@ -433,7 +433,7 @@ function edih_claim_history($encounter)
  *
  * @return string
  */
-function edih_csv_to_html($file_type, $csv_type, $period='', $datestart='', $dateend='')
+function edih_csv_to_html($file_type, $csv_type, $period = '', $datestart = '', $dateend = '')
 {
     //
     $csv_html = "";

@@ -162,7 +162,7 @@ class sms
     * @return mixed  "OK" or script die
     * @access public
     */
-    function send($to=null, $from=null, $text=null)
+    function send($to = null, $from = null, $text = null)
     {
 
         /* Check SMS credits balance */

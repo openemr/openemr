@@ -40,7 +40,7 @@ require_once(dirname(__FILE__) . "/report_database.inc");
  * @param  string   $end_date    end date (optional)
  * @return sqlret                sql return query
  */
-function listingCDRReminderLog($begin_date='',$end_date='')
+function listingCDRReminderLog($begin_date = '', $end_date = '')
 {
 
     if (empty($end_date)) {
@@ -68,7 +68,7 @@ function listingCDRReminderLog($begin_date='',$end_date='')
  * @param  string   $organize_mode  Way to organize the results (default or plans)
  * @param  string   $user           If a user is set, then will only show rules that user has permission to see.
  */
-function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='')
+function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '')
 {
 
   // Set date to current if not set
@@ -221,7 +221,7 @@ function clinical_summary_widget($patient_id,$mode,$dateTarget='',$organize_mode
  * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
  * @return string                   html display output.
  */
-function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='default',$user='',$test=false)
+function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mode = 'default', $user = '', $test = false)
 {
 
   // Set date to current if not set
@@ -310,7 +310,7 @@ function active_alert_summary($patient_id,$mode,$dateTarget='',$organize_mode='d
  * @param  string   $test           Set to true when only checking if there are alerts (skips the logging then)
  * @return  array/boolean           Array of allergy alerts or FALSE is empty.
  */
-function allergy_conflict($patient_id,$mode,$user,$test=false)
+function allergy_conflict($patient_id, $mode, $user, $test = false)
 {
 
   // Collect allergies
@@ -395,7 +395,7 @@ function allergy_conflict($patient_id,$mode,$user,$test=false)
  * @param  string   $log_trigger     if 'all', then always log. If 'new', then only trigger log when a new item noted.
  * @return array                     array with targets with associated rule.
  */
-function compare_log_alerts($patient_id,$current_targets,$category='clinical_reminder_widget',$userid='',$log_trigger='all')
+function compare_log_alerts($patient_id, $current_targets, $category = 'clinical_reminder_widget', $userid = '', $log_trigger = 'all')
 {
 
     if (empty($userid)) {
@@ -471,7 +471,7 @@ function compare_log_alerts($patient_id,$current_targets,$category='clinical_rem
  * @param  integer      $report_id     id of report in database (if already bookmarked)
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mode='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$batchSize='',$report_id=null)
+function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget = '', $mode = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $batchSize = '', $report_id = null)
 {
 
   // Default to a batchsize, if empty
@@ -605,7 +605,7 @@ function test_rules_clinic_batch_method($provider='',$type='',$dateTarget='',$mo
  * @param  string       $user          If a user is set, then will only show rules that user has permission to see(only applicable for per patient and not when do reports).
  * @return array                       See above for organization structure of the results.
  */
-function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patient_id='',$plan='',$organize_mode='default',$options=array(),$pat_prov_rel='primary',$start=null,$batchSize=null,$user='')
+function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
 
   // If dateTarget is an array, then organize them.
@@ -1046,7 +1046,7 @@ function test_rules_clinic($provider='',$type='',$dateTarget='',$mode='',$patien
  * @param  boolean       $onlyCount     If true, then will just return the total number of applicable records (ignores batching parameters)
  * @return array/integer                Array of patient pid values or number total pertinent patients (if $onlyCount is TRUE)
  */
-function buildPatientArray($patient_id='',$provider='',$pat_prov_rel='primary',$start=null,$batchSize=null,$onlyCount=false)
+function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false)
 {
 
     if (!empty($patient_id)) {
@@ -1130,7 +1130,7 @@ function buildPatientArray($patient_id='',$provider='',$pat_prov_rel='primary',$
  * @param  string         $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  * @return boolean/string              if pass filter then TRUE; if excluded then 'EXCLUDED'; if not pass filter then FALSE
  */
-function test_filter($patient_id,$rule,$dateTarget)
+function test_filter($patient_id, $rule, $dateTarget)
 {
 
   // Set date to current if not set
@@ -1247,7 +1247,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
  */
-function test_targets($patient_id,$rule,$group_id='',$dateTarget)
+function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
 {
 
   // -------- Interval Target ----
@@ -1280,7 +1280,7 @@ function test_targets($patient_id,$rule,$group_id='',$dateTarget)
  * @param  boolean  $configurableOnly true if only want the configurable (per patient) plans (ie. ignore cqm plans)
  * @return array                      active plans
  */
-function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=false)
+function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = false)
 {
 
     if ($configurableOnly) {
@@ -1358,7 +1358,7 @@ function resolve_plans_sql($type='',$patient_id='0',$configurableOnly=false)
  * @param  integer  $patient_id  pid of selected patient. (if set to 0, then will return the default rule).
  * @return array                 a plan
  */
-function collect_plan($plan,$patient_id='0')
+function collect_plan($plan, $patient_id = '0')
 {
 
     return sqlQueryCdrEngine("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan,$patient_id) );
@@ -1372,7 +1372,7 @@ function collect_plan($plan,$patient_id='0')
  * @param  string   $setting     activity of plan (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_plan_activity_patient($plan,$type,$setting,$patient_id)
+function set_plan_activity_patient($plan, $type, $setting, $patient_id)
 {
 
   // Don't allow messing with the default plans here
@@ -1416,7 +1416,7 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id)
  * @param  string   $user             If a user is set, then will only show rules that user has permission to see
  * @return array                      rules
  */
-function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=false,$plan='',$user='')
+function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = false, $plan = '', $user = '')
 {
 
     if ($configurableOnly) {
@@ -1523,7 +1523,7 @@ function resolve_rules_sql($type='',$patient_id='0',$configurableOnly=false,$pla
  * @param  integer  $patient_id  pid of selected patient. (if set to 0, then will return the default rule).
  * @return array                 rule
  */
-function collect_rule($rule,$patient_id='0')
+function collect_rule($rule, $patient_id = '0')
 {
 
     return sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
@@ -1537,7 +1537,7 @@ function collect_rule($rule,$patient_id='0')
  * @param  string   $setting     activity of rule (yes,no,default)
  * @param  integer  $patient_id  pid of selected patient.
  */
-function set_rule_activity_patient($rule,$type,$setting,$patient_id)
+function set_rule_activity_patient($rule, $type, $setting, $patient_id)
 {
 
   // Don't allow messing with the default rules here
@@ -1582,7 +1582,7 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id)
  * @param  string  $reminder_method  string label of filter type
  * @return array                      reminder features
  */
-function resolve_reminder_sql($rule,$reminder_method)
+function resolve_reminder_sql($rule, $reminder_method)
 {
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value` FROM `rule_reminder` " .
     "WHERE `id`=? AND `method`=?", array($rule, $reminder_method) );
@@ -1602,7 +1602,7 @@ function resolve_reminder_sql($rule,$reminder_method)
  * @param  string  $include_flag   to allow selection for included or excluded filters
  * @return array                    filters
  */
-function resolve_filter_sql($rule,$filter_method,$include_flag=1)
+function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
 {
     $sql = sqlStatementCdrEngine("SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
     "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $filter_method, $include_flag) );
@@ -1623,7 +1623,7 @@ function resolve_filter_sql($rule,$filter_method,$include_flag=1)
  * @param  string   $include_flag   to allow selection for included or excluded targets
  * @return array                    targets
  */
-function resolve_target_sql($rule,$group_id='',$target_method,$include_flag=1)
+function resolve_target_sql($rule, $group_id = '', $target_method, $include_flag = 1)
 {
 
     if ($group_id) {
@@ -1649,7 +1649,7 @@ function resolve_target_sql($rule,$group_id='',$target_method,$include_flag=1)
  * @param  integer  $group_id  group id of target group (if blank, then will ignore grouping)
  * @return array               actions
  */
-function resolve_action_sql($rule,$group_id='')
+function resolve_action_sql($rule, $group_id = '')
 {
 
     if ($group_id) {
@@ -1683,7 +1683,7 @@ function resolve_action_sql($rule,$group_id='')
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function database_check($patient_id,$filter,$interval='',$dateTarget='')
+function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
 {
     $isMatch = false; //matching flag
 
@@ -1761,7 +1761,7 @@ function database_check($patient_id,$filter,$interval='',$dateTarget='')
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function procedure_check($patient_id,$filter,$interval='',$dateTarget='')
+function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
 {
     $isMatch = false; //matching flag
 
@@ -1805,7 +1805,7 @@ function procedure_check($patient_id,$filter,$interval='',$dateTarget='')
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if appt exist, otherwise false
  */
-function appointment_check($patient_id,$dateTarget='')
+function appointment_check($patient_id, $dateTarget = '')
 {
     $isMatch = false; //matching flag
 
@@ -1849,7 +1849,7 @@ function appointment_check($patient_id,$dateTarget='')
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function lists_check($patient_id,$filter,$dateTarget)
+function lists_check($patient_id, $filter, $dateTarget)
 {
     $isMatch = false; //matching flag
 
@@ -1890,7 +1890,7 @@ function lists_check($patient_id,$filter,$dateTarget)
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  *
  */
-function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='')
+function exist_database_item($patient_id, $table, $column = '', $data_comp, $data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -1997,7 +1997,7 @@ function exist_database_item($patient_id,$table,$column='',$data_comp,$data='',$
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$result_data='',$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget='')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, $result_data = '', $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -2088,7 +2088,7 @@ function exist_procedure_item($patient_id,$proc_title,$proc_code,$result_comp,$r
  * @param  string   $dateTarget       target date(format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id,$category,$item,$complete,$num_items_comp,$num_items_thres,$intervalType='',$intervalValue='',$dateTarget)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, $intervalType = '', $intervalValue = '', $dateTarget)
 {
 
   // Set the table
@@ -2122,7 +2122,7 @@ function exist_custom_item($patient_id,$category,$item,$complete,$num_items_comp
  * @param  string  $dateTarget  target date(format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function exist_lifestyle_item($patient_id,$lifestyle,$status,$dateTarget)
+function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
 {
 
   // Set date to current if not set
@@ -2160,7 +2160,7 @@ function exist_lifestyle_item($patient_id,$lifestyle,$status,$dateTarget)
  * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-function exist_lists_item($patient_id,$type,$value,$dateTarget)
+function exist_lists_item($patient_id, $type, $value, $dateTarget)
 {
 
   // Set date to current if not set
@@ -2242,7 +2242,7 @@ function exist_lists_item($patient_id,$type,$value,$dateTarget)
  * @param  string  $dateTarget     target date(format Y-m-d H:i:s).
  * @return string                  contains pertinent date interval filter for mysql query
  */
-function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget)
+function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
 {
 
     $dateSql="";
@@ -2331,7 +2331,7 @@ function sql_interval_string($table,$intervalType,$intervalValue,$dateTarget)
  * @param  string  $table  selected mysql table (or EXCEPTION(s))
  * @return string          contains official label of selected element
  */
-function collect_database_label($label,$table)
+function collect_database_label($label, $table)
 {
 
     if ($table == 'PROCEDURE-EXCEPTION') {
@@ -2412,7 +2412,7 @@ function collect_database_label($label,$table)
  * @param  string  $action   array of selected target to test for duplicate
  * @return boolean           true if duplicate, false if not duplicate
  */
-function is_duplicate_action($actions,$action)
+function is_duplicate_action($actions, $action)
 {
     foreach ($actions as $row) {
         if ($row['category'] == $action['category'] &&
@@ -2442,7 +2442,7 @@ function is_duplicate_action($actions,$action)
  * @param  string  $type        either 'patient_reminder' or 'clinical_reminder'
  * @return array                see above for description of returned array
  */
-function calculate_reminder_dates($rule, $dateTarget='',$type)
+function calculate_reminder_dates($rule, $dateTarget = '', $type)
 {
 
   // Set date to current if not set
@@ -2618,7 +2618,7 @@ function convertCompSql($comp)
  * @param  string  $target  date to calculate age on
  * @return float            years(decimal) from dob to target(date)
  */
-function convertDobtoAgeYearDecimal($dob,$target)
+function convertDobtoAgeYearDecimal($dob, $target)
 {
     $ageInfo=parseAgeInfo($dob,$target);
     return $ageInfo['age'];
@@ -2631,7 +2631,7 @@ function convertDobtoAgeYearDecimal($dob,$target)
  * @param  string  $target  date to calculate age on
  * @return float            months(decimal) from dob to target(date)
  */
-function convertDobtoAgeMonthDecimal($dob,$target)
+function convertDobtoAgeMonthDecimal($dob, $target)
 {
     $ageInfo=parseAgeInfo($dob,$target);
     return $ageInfo['age_in_months'];
@@ -2645,7 +2645,7 @@ function convertDobtoAgeMonthDecimal($dob,$target)
  * @param  integer  $pass_target     number of patients that pass target
  * @return string                    Number formatted into a percentage
  */
-function calculate_percentage($pass_filt,$exclude_filt,$pass_targ)
+function calculate_percentage($pass_filt, $exclude_filt, $pass_targ)
 {
     if ($pass_filt > 0) {
         $perc = number_format(($pass_targ/($pass_filt-$exclude_filt))*100,4) . xl('%');

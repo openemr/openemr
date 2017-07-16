@@ -24,7 +24,7 @@ class C_X12Partner extends Controller
         return $this->list_action();
     }
 
-    function edit_action($id = "",$x_obj = null)
+    function edit_action($id = "", $x_obj = null)
     {
         if ($x_obj != null && get_class($x_obj) == "x12partner") {
             $this->x12_partners[0] = $x_obj;

@@ -196,7 +196,7 @@ function postcalendar_removeScriptTags($in)
     return preg_replace("/<script.*?>(.*?)<\/script>/","",$in);
 }
 
-function postcalendar_getDate($format='%Y%m%d')
+function postcalendar_getDate($format = '%Y%m%d')
 {
     list($Date, $jumpday, $jumpmonth, $jumpyear, $jumpdate) =
         pnVarCleanFromInput('Date', 'jumpday', 'jumpmonth', 'jumpyear', 'jumpdate');
@@ -229,7 +229,7 @@ function postcalendar_getDate($format='%Y%m%d')
     return strftime($format,mktime(0,0,0,$m,$d,$y));
 }
 
-function &postcalendar_today($format='%Y%m%d')
+function &postcalendar_today($format = '%Y%m%d')
 {
     $time = time();
     if (pnUserLoggedIn()) {
@@ -787,7 +787,7 @@ function postcalendar_userapi_submitEvent($args)
     }
 }
 
-function pc_notify($eid,$is_update)
+function pc_notify($eid, $is_update)
 {
     if(!(bool)_SETTING_NOTIFY_ADMIN) { return true; }
 
@@ -838,7 +838,7 @@ function findFirstAvailable($period)
     return $available_times;
 }
 
-function findFirstInDay($day,$date)
+function findFirstInDay($day, $date)
 {
     $stack = array();
     $lastcat = 3;
@@ -966,7 +966,7 @@ function postcalendar_adminapi_buildSubmitForm($args)
  *    postcalendar_userapi_buildSubmitForm()
  *    create event submit form
  */
-function postcalendar_userapi_buildSubmitForm($args,$admin=false)
+function postcalendar_userapi_buildSubmitForm($args, $admin = false)
 {
     $_SESSION['category'] = "";
     if(!PC_ACCESS_ADD) { return _POSTCALENDARNOAUTH; }
@@ -1589,7 +1589,7 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
 function postcalendar_adminapi_eventDetail($args)
 {
     return postcalendar_userapi_eventDetail($args,true); }
-function postcalendar_userapi_eventDetail($args,$admin=false)
+function postcalendar_userapi_eventDetail($args, $admin = false)
 {
     if(!(bool)PC_ACCESS_READ) { return _POSTCALENDARNOAUTH; }
     // get the theme globals :: is there a better way to do this?
@@ -1869,32 +1869,32 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
     $smarty->assign_by_ref($var,$hours);
 }
 
-function sort_byCategoryA($a,$b)
+function sort_byCategoryA($a, $b)
 {
     if($a['catname'] < $b['catname']) return -1;
     elseif($a['catname'] > $b['catname']) return 1;
 }
-function sort_byCategoryD($a,$b)
+function sort_byCategoryD($a, $b)
 {
     if($a['catname'] < $b['catname']) return 1;
     elseif($a['catname'] > $b['catname']) return -1;
 }
-function sort_byTitleA($a,$b)
+function sort_byTitleA($a, $b)
 {
     if($a['title'] < $b['title']) return -1;
     elseif($a['title'] > $b['title']) return 1;
 }
-function sort_byTitleD($a,$b)
+function sort_byTitleD($a, $b)
 {
     if($a['title'] < $b['title']) return 1;
     elseif($a['title'] > $b['title']) return -1;
 }
-function sort_byTimeA($a,$b)
+function sort_byTimeA($a, $b)
 {
     if($a['startTime'] < $b['startTime']) return -1;
     elseif($a['startTime'] > $b['startTime']) return 1;
 }
-function sort_byTimeD($a,$b)
+function sort_byTimeD($a, $b)
 {
     if($a['startTime'] < $b['startTime']) return 1;
     elseif($a['startTime'] > $b['startTime']) return -1;

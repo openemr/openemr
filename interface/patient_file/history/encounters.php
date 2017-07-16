@@ -86,7 +86,7 @@ if (isset($_GET['billing']))
 }else $billing_view = ($default_encounter == 0) ? 0 : 1;
 
 //Get Document List by Encounter ID
-function getDocListByEncID($encounter,$raw_encounter_date,$pid)
+function getDocListByEncID($encounter, $raw_encounter_date, $pid)
 {
     global $ISSUE_TYPES, $auth_med;
 
@@ -161,7 +161,7 @@ function showDocument(&$drow)
     echo "</tr>\n";
 }
 
-function generatePageElement($start,$pagesize,$billing,$issue,$text)
+function generatePageElement($start, $pagesize, $billing, $issue, $text)
 {
     if($start<0)
     {

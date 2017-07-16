@@ -27,7 +27,7 @@ class QRDAXml extends XmlWriterOemr
     public $unique_id;
     public $nqf_code;
 
-    function __construct($nqf_code,$indent = '  ')
+    function __construct($nqf_code, $indent = '  ')
     {
         $this->nqf_code = $nqf_code;
         parent::__construct($indent);

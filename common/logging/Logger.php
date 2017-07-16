@@ -55,7 +55,7 @@ class Logger
      *
      * @param $classContext - provided when a class uses the logger.
      */
-    public function __construct($classContext="UnknownClassContext")
+    public function __construct($classContext = "UnknownClassContext")
     {
         if (isset($GLOBALS["log_level"]) && $GLOBALS["log_level"] !== "OFF") {
             $this->classContext = $classContext;

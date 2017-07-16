@@ -35,7 +35,7 @@ class Encounter_Factory implements FactoryIF
 {
     protected $_encounterId = null;
     
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_encounterId = $encounterId;
     }

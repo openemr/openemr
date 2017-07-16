@@ -18,7 +18,7 @@ class AmcResult implements RsResultIF
     public $patientsIncluded; // Number of patients that pass target
     public $percentage; // Calculated percentage
 
-    public function __construct( $rowRule, $totalPatients, $patientsInPopulation, $patientsExcluded, $patientsIncluded, $percentage )
+    public function __construct($rowRule, $totalPatients, $patientsInPopulation, $patientsExcluded, $patientsIncluded, $percentage)
     {
         $this->rule = $rowRule;
 //        $this->numeratorLabel = $numeratorLabel;

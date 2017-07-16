@@ -24,7 +24,7 @@
  *  http://www.gnu.org/copyleft/gpl.html
  *
  */
-function smarty_function_pc_form_nav_close($args=array())
+function smarty_function_pc_form_nav_close($args = array())
 {
     extract($args);
     unset($args);

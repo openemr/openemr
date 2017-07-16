@@ -50,7 +50,7 @@ function get_form_id_of_existing_attendance_form($encounter, $group_id)
  * @param $group_encounter_data
  * @param $appt_data
  */
-function participant_insertions($form_id, $therapy_group, $group_encounter_data,$appt_data)
+function participant_insertions($form_id, $therapy_group, $group_encounter_data, $appt_data)
 {
     $patientData = $_POST['patientData'];
     foreach ($patientData as $pid => $patient){

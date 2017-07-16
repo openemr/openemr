@@ -157,7 +157,7 @@ class Controller extends Smarty
             return $output;
     }
 
-    function _link($action = "default",$inlining = false)
+    function _link($action = "default", $inlining = false)
     {
          $url_parts = explode("&",$_SERVER['REQUEST_URI']);
          $link = array_shift($url_parts);

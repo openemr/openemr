@@ -478,7 +478,7 @@ function edih_archive_move_old($parameters, $filename_ar)
  *
  * @return array
  */
-function edih_archive_csv_array($filetype, $csv_type, $filepath='')
+function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
 {
     //
     $str_out = '';

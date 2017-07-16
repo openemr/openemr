@@ -103,7 +103,7 @@ function nextGroupOrder($order)
 // Call this when adding or removing a layout field.  This will create or drop
 // the corresponding table column when appropriate.  Table columns are not
 // dropped if they contain any non-empty values.
-function addOrDeleteColumn($layout_id, $field_id, $add=true)
+function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
     if (substr($layout_id,0,3) == 'LBF' || substr($layout_id,0,3) == 'LBT' || $layout_id == "FACUSR") return;
 
@@ -385,7 +385,7 @@ $extra_html = '';
 // This is called to generate a select option list for fields within this form.
 // Used for selecting a field for testing in a skip condition.
 //
-function genFieldOptionList($current='')
+function genFieldOptionList($current = '')
 {
     global $layout_id;
     $option_list = "<option value=''>-- " . xlt('Please Select') . " --</option>";

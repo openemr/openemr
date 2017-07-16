@@ -13,7 +13,7 @@ class NFQ_0028b_Denominator implements CqmFilterIF
         return "NFQ 0028b Denominator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
         $date_array = array();

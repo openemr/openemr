@@ -41,7 +41,7 @@ class FormROM extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormROM($id= "", $_prefix = "")
+    function FormROM($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

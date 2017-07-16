@@ -44,7 +44,7 @@ class FormNursingNotes extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormNursingNotes($id= "", $_prefix = "")
+    function FormNursingNotes($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

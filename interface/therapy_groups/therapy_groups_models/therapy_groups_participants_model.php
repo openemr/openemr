@@ -30,7 +30,7 @@ class Therapy_groups_participants
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';
 
-    public function getParticipants($groupId, $onlyActive=false)
+    public function getParticipants($groupId, $onlyActive = false)
     {
 
         $sql = "SELECT gp.*, p.fname, p.lname FROM " . self::TABLE . " AS gp ";
@@ -50,7 +50,7 @@ class Therapy_groups_participants
         return $groupParticipants;
     }
 
-    public function updateParticipant(array $participant, $patientId ,$groupId)
+    public function updateParticipant(array $participant, $patientId, $groupId)
     {
 
         if(empty($participant['group_patient_end'])){
@@ -69,7 +69,7 @@ class Therapy_groups_participants
         return !$result ? false :true;
     }
 
-    public function removeParticipant($groupId,$pid)
+    public function removeParticipant($groupId, $pid)
     {
 
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ? AND pid = ?";

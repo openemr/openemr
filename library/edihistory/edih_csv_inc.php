@@ -106,7 +106,7 @@ if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
  * @param string $msg_str  the log message
  * @return int             number of characters written
  */
-function csv_edihist_log( $msg_str )
+function csv_edihist_log($msg_str)
 {
     //
     //$dir = dirname(__FILE__).DS.'log';
@@ -134,7 +134,7 @@ function csv_edihist_log( $msg_str )
  *
  * @return string
  */
-function csv_log_html($logname='')
+function csv_log_html($logname = '')
 {
     check_file_dir_name($logname);
     $html_str = "<div class='filetext'>".PHP_EOL."<ol class='logview'>".PHP_EOL;
@@ -164,7 +164,7 @@ function csv_log_html($logname='')
  * @param bool
  * @return array (json)
  */
-function csv_log_manage($list=true)
+function csv_log_manage($list = true)
 {
     //
     //$dir = dirname(__FILE__).DS.'log';
@@ -271,7 +271,7 @@ function csv_log_manage($list=true)
  * @param bool
  * @return string
  */
-function csv_notes_file($content='', $open=true)
+function csv_notes_file($content = '', $open = true)
 {
     //
     $str_html = '';
@@ -575,7 +575,7 @@ function csv_clear_tmpdir()
  * @parm string    file x12 type
  * @return object  edih_x12_file class
  */
-function csv_check_x12_obj($filepath, $type='')
+function csv_check_x12_obj($filepath, $type = '')
 {
     //
     $x12obj = false;
@@ -623,7 +623,7 @@ function csv_check_x12_obj($filepath, $type='')
  * @param string $type        optional; one of our file types
  * @return string             either an empty string or a readable filepath
  */
-function csv_check_filepath($filename, $type='ALL')
+function csv_check_filepath($filename, $type = 'ALL')
 {
     //
     // if file is readable, just return it
@@ -663,7 +663,7 @@ function csv_check_filepath($filename, $type='ALL')
  * @param bool      return GS02 code or fXXX
  * @return string   file type or empty
  */
-function csv_file_type($type, $gs_code=false)
+function csv_file_type($type, $gs_code = false)
 {
     //
     if (!$type) {
@@ -715,7 +715,7 @@ function csv_file_type($type, $gs_code=false)
  * @param string $type -- default = ALL or one of batch, ibr, ebr, dpr, f997, f277, era, ack, text
  * @return array
  */
-function csv_parameters($type='ALL')
+function csv_parameters($type = 'ALL')
 {
     //
     // This will need the OpenEMR 'oe_site_dir' to replace global
@@ -768,7 +768,7 @@ function csv_parameters($type='ALL')
  * @param string   default 'json'
  * @return array   json if argument is 'json'
  */
-function csv_table_select_list($outtp='json')
+function csv_table_select_list($outtp = 'json')
 {
     $optlist = array();
     $labels = array('f835'=>'Payments', 'f837'=>'Claims', 'batch'=>'Claims', 'f277'=>'Status', 'f276'=>'Status Req',
@@ -805,7 +805,7 @@ function csv_table_select_list($outtp='json')
  * @param string   default 'json'
  * @return array   json if argument is 'json'
  */
-function csv_archive_select_list($outtp='json')
+function csv_archive_select_list($outtp = 'json')
 {
     //
     $flist = array();
@@ -985,7 +985,7 @@ function csv_newfile_list($type)
  * @param bool              true if only the 1st segmentID is wanted
  * return array|string
  */
-function edih_errseg_parse($err_seg, $id=false)
+function edih_errseg_parse($err_seg, $id = false)
 {
     // ['err_seg'] = '|IK3*segID*segpos*loop*errcode*bht03syn|CTX-IK3*transID*segID*segpos*elempos
     //                |IK4*elempos*errcode*elem*|CTX-IK4*segID*segpos*elempos
@@ -1155,7 +1155,7 @@ function edih_format_percent($str_val)
  * @param string
  * @return string
  */
-function csv_thead_html($file_type, $csv_type, $tblhd=null)
+function csv_thead_html($file_type, $csv_type, $tblhd = null)
 {
     //
     if (is_array($tblhd) & count($tblhd) ) {
@@ -1335,7 +1335,7 @@ function csv_convert_bytes($bytes)
  * @param array
  * @return bool   false if arrayis multidimensional
  */
-function csv_singlerecord_test( $array )
+function csv_singlerecord_test($array)
 {
     // the two versions of count() are compared
     // if the array has a sub-array, count recursive is greater
@@ -1558,7 +1558,7 @@ function edih_csv_write($csv_data)
  * @param mixed $expect
  * @return array
  */
-function csv_search_record($file_type, $csv_type, $search_ar, $expect='1')
+function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
 {
     //
     csv_edihist_log("csv_search_record: ".strval($file_type)." ".strval($csv_type)." ".strval($search_ar['s_val']));
@@ -1635,7 +1635,7 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect='1')
  * @param string                     search type encounter, pid, or clm01
  * @return array|bool                [i] data row array  or empty on error
  */
-function csv_file_by_enctr($clm01, $filetype='f837')
+function csv_file_by_enctr($clm01, $filetype = 'f837')
 {
     //
     // return array of [i](pid_encounter, filename), there may be more than one file
@@ -1770,7 +1770,7 @@ function csv_file_by_controlnum($type, $control_num)
  * @param string     to type (default is f835)
  * @return string    file name or empty string
  */
-function csv_file_by_trace($trace, $from_type='f835', $to_type='f837')
+function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
 {
     // get the file referenced by the trace value
     //
@@ -1858,7 +1858,7 @@ function csv_file_by_trace($trace, $from_type='f835', $to_type='f837')
  *
  * @return array
  */
-function csv_denied_by_file($filetype, $filename, $trace='')
+function csv_denied_by_file($filetype, $filename, $trace = '')
 {
     //
     $ret_ar = array();
@@ -1920,7 +1920,7 @@ function csv_denied_by_file($filetype, $filename, $trace='')
 * @param string $pid_enctr   the value from element CLM01
 * return array               array('pid' => $pid, 'enctr' => $enc)
 */
-function csv_pid_enctr_parse( $pid_enctr )
+function csv_pid_enctr_parse($pid_enctr)
 {
     // evaluate the patient account field
     //

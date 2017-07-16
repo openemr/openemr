@@ -92,7 +92,7 @@ class FeeSheet
 
     public $ALLOW_COPAYS = false;
 
-    function __construct($pid=0, $encounter=0)
+    function __construct($pid = 0, $encounter = 0)
     {
         if (empty($pid)) $pid = $GLOBALS['pid'];
         if (empty($encounter)) $encounter = $GLOBALS['encounter'];
@@ -145,7 +145,7 @@ class FeeSheet
 
   // Compute age in years given a DOB and "as of" date.
   //
-    public static function getAge($dob, $asof='')
+    public static function getAge($dob, $asof = '')
     {
         if (empty($asof)) $asof = date('Y-m-d');
         $a1 = explode('-', substr($dob , 0, 10));
@@ -188,7 +188,7 @@ class FeeSheet
 
   // Compute a current checksum of this encounter's Fee Sheet data from the database.
   //
-    public function visitChecksum($saved=false)
+    public function visitChecksum($saved = false)
     {
         $rowb = sqlQuery("SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
         "id, code, modifier, units, fee, authorized, provider_id, ndc_info, justify, billed" .
@@ -211,7 +211,7 @@ class FeeSheet
 
   // IPPF-specific; get contraception attributes of the related codes.
   //
-    public function checkRelatedForContraception($related_code, $is_initial_consult=false)
+    public function checkRelatedForContraception($related_code, $is_initial_consult = false)
     {
         $this->line_contra_code     = '';
         $this->line_contra_cyp      = 0;
@@ -620,10 +620,10 @@ class FeeSheet
     public function save(
         &$bill,
         &$prod,
-        $main_provid=null,
-        $main_supid=null,
-        $default_warehouse=null,
-        $mark_as_closed=false
+        $main_provid = null,
+        $main_supid = null,
+        $default_warehouse = null,
+        $mark_as_closed = false
     ) {
         global $code_types;
 
@@ -952,7 +952,7 @@ class FeeSheet
 
   // Returns FALSE if user intervention is required to fix a missing or incorrect form.
   //
-    public function doContraceptionForm($ippfconmeth=null, $newmauser=null, $main_provid=0)
+    public function doContraceptionForm($ippfconmeth = null, $newmauser = null, $main_provid = 0)
     {
         if (!empty($ippfconmeth)) {
             $csrow = sqlQuery("SELECT f.form_id, ld.field_value FROM forms AS f " .

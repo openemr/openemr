@@ -29,7 +29,7 @@ require_once("$srcdir/authentication/common_operations.php");
  * @param type $errMsg  why there was a failure
  * @return boolean      is the password good enough?
  */
-function test_password_strength($pwd,&$errMsg)
+function test_password_strength($pwd, &$errMsg)
 {
     $require_strong=$GLOBALS['secure_password'] !=0;
     if($require_strong)
@@ -70,7 +70,7 @@ function test_password_strength($pwd,&$errMsg)
  * @param type $newid           Return by reference of the ID of a created user
  * @return boolean              Was the password successfully updated/created? If false, then $errMsg will tell you why it failed.
  */
-function update_password($activeUser,$targetUser,&$currentPwd,&$newPwd,&$errMsg,$create=false,$insert_sql="",$new_username=null,&$newid=null)
+function update_password($activeUser, $targetUser, &$currentPwd, &$newPwd, &$errMsg, $create = false, $insert_sql = "", $new_username = null, &$newid = null)
 {
     $userSQL="SELECT ".implode(",",array(COL_PWD,COL_SALT,COL_PWD_H1,COL_SALT_H1,COL_PWD_H2,COL_SALT_H2))
             ." FROM ".TBL_USERS_SECURE

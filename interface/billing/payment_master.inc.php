@@ -33,11 +33,11 @@ function generate_list_payment_category(
     $list_id,
     $currvalue,
     $title,
-    $empty_name=' ',
-    $class='',
-    $onchange='',
-    $PaymentType='insurance',
-    $screen='new_payment'
+    $empty_name = ' ',
+    $class = '',
+    $onchange = '',
+    $PaymentType = 'insurance',
+    $screen = 'new_payment'
 ) {
 
     $s = '';

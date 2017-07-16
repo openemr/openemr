@@ -42,16 +42,16 @@ function sellDrug(
     $drug_id,
     $quantity,
     $fee,
-    $patient_id=0,
-    $encounter_id=0,
-    $prescription_id=0,
-    $sale_date='',
-    $user='',
-    $default_warehouse='',
-    $testonly=false,
-    &$expiredlots=null,
-    $pricelevel='',
-    $selector=''
+    $patient_id = 0,
+    $encounter_id = 0,
+    $prescription_id = 0,
+    $sale_date = '',
+    $user = '',
+    $default_warehouse = '',
+    $testonly = false,
+    &$expiredlots = null,
+    $pricelevel = '',
+    $selector = ''
 ) {
 
     if (empty($patient_id))   $patient_id   = $GLOBALS['pid'];
@@ -245,7 +245,7 @@ function sellDrug(
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
-function isUserRestricted($userid=0)
+function isUserRestricted($userid = 0)
 {
     if (!$userid) $userid = $_SESSION['authId'];
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
@@ -255,7 +255,7 @@ function isUserRestricted($userid=0)
 
 // Check if the user has access to the given facility.
 // Do not call this if user is not restricted!
-function isFacilityAllowed($facid, $userid=0)
+function isFacilityAllowed($facid, $userid = 0)
 {
     if (!$userid) $userid = $_SESSION['authId'];
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
@@ -272,7 +272,7 @@ function isFacilityAllowed($facid, $userid=0)
 
 // Check if the user has access to the given warehouse within the given facility.
 // Do not call this if user is not restricted!
-function isWarehouseAllowed($facid, $whid, $userid=0)
+function isWarehouseAllowed($facid, $whid, $userid = 0)
 {
     if (!$userid) $userid = $_SESSION['authId'];
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .

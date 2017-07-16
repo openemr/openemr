@@ -151,7 +151,7 @@ function removeColumn($con, $table, $column, $value = '')
     INPUT: connection, last name array, firstname arrays, debug
     OUTPUT: Number of patients DEID.
 */
-function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false)
+function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 {
 
     removeColumn($con, "patient_data", "ss", "0000-00-00");

@@ -113,7 +113,7 @@ sqlClose();
 // Function:	cron_updateentry
 // Purpose:	update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
-function cron_updateentry($type,$pid,$pc_eid)
+function cron_updateentry($type, $pid, $pc_eid)
 {
 
     $query = "update openemr_postcalendar_events set ";
@@ -136,7 +136,7 @@ function cron_updateentry($type,$pid,$pc_eid)
 // Function:	cron_getPhoneAlertpatientData
 // Purpose:	get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
-function cron_getPhoneAlertpatientData( $type, $trigger_hours )
+function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
 
     //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
@@ -175,7 +175,7 @@ function cron_getPhoneAlertpatientData( $type, $trigger_hours )
 // Function:	cron_InsertNotificationLogEntry
 // Purpose:	insert log entry in table
 ////////////////////////////////////////////////////////////////////
-function cron_InsertNotificationLogEntry($prow,$phone_msg,$phone_gateway)
+function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 {
     $patient_info = $prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."|||".$prow['phone_home'];
 
@@ -190,7 +190,7 @@ function cron_InsertNotificationLogEntry($prow,$phone_msg,$phone_gateway)
 // Function:	WriteLog
 // Purpose:	written log into file
 ////////////////////////////////////////////////////////////////////
-function WriteLog( $data )
+function WriteLog($data)
 {
     $log_file = $GLOBALS['phone_reminder_log_dir'];
 

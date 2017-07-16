@@ -35,7 +35,7 @@ if ($portalsite != "off" && $portalsite != "on") $portalsite = "off";
 
  $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . add_escape_custom($portalsite) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?",array($pid));
 
-function generatePassword($length=6, $strength=1)
+function generatePassword($length = 6, $strength = 1)
 {
     $consonants = 'bdghjmnpqrstvzacefiklowxy';
     $numbers = '0234561789';
@@ -64,7 +64,7 @@ function validEmail($email)
     return false;
 }
 
-function messageCreate($uname,$pass,$site)
+function messageCreate($uname, $pass, $site)
 {
     $message = htmlspecialchars( xl("Patient Portal Web Address"),ENT_NOQUOTES) . ":<br>";
     if ($site == "on") {
@@ -93,7 +93,7 @@ function messageCreate($uname,$pass,$site)
     return $message;
 }
 
-function emailLogin($patient_id,$message)
+function emailLogin($patient_id, $message)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {
@@ -128,7 +128,7 @@ function emailLogin($patient_id,$message)
     }
 }
 
-function displayLogin($patient_id,$message,$emailFlag)
+function displayLogin($patient_id, $message, $emailFlag)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ($emailFlag) {

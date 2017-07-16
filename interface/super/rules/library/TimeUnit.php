@@ -20,7 +20,7 @@ class TimeUnit
     const Month = "month";
     const Year = "year";
 
-    function __construct( $code, $lbl )
+    function __construct($code, $lbl)
     {
         $this->lbl = $lbl;
         $this->code = $code;
@@ -31,7 +31,7 @@ class TimeUnit
      * @param string $value
      * @return ReminderIntervalType
      */
-    public static function from( $code )
+    public static function from($code)
     {
         $map = self::map();
         return $map[$code];

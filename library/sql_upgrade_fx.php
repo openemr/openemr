@@ -278,7 +278,7 @@ function CreateImmunizationManufacturerList()
  * @param array $arg possible arguments: engine, table_name
  * @return SQLStatement
  */
-function getTablesList( $arg = array() )
+function getTablesList($arg = array())
 {
     $binds = array();
     $sql = 'SELECT table_name FROM information_schema.tables WHERE table_schema=database() AND table_type="BASE TABLE"';
@@ -308,7 +308,7 @@ function getTablesList( $arg = array() )
  * @param string $engine
  * ADODB will fail if there was an error during conversion
  */
-function MigrateTableEngine( $table, $engine )
+function MigrateTableEngine($table, $engine)
 {
     $r = sqlStatement('ALTER TABLE `'.$table.'` ENGINE=?', $engine );
     return true;

@@ -346,13 +346,13 @@ function phimail_check()
 /**
  * Helper functions
  */
-function phimail_write($fp,$text)
+function phimail_write($fp, $text)
 {
     fwrite($fp,$text);
     fflush($fp);
 }
 
-function phimail_write_expect_OK($fp,$text)
+function phimail_write_expect_OK($fp, $text)
 {
     phimail_write($fp,$text);
     $ret = fgets($fp,256);
@@ -370,7 +370,7 @@ function phimail_close($fp)
     fclose($fp);
 }
 
-function phimail_logit($success,$text,$pid=0,$event="direct-message-check")
+function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check")
 {
     newEvent($event,"phimail-service",0,$success,$text,$pid);
 }
@@ -380,7 +380,7 @@ function phimail_logit($success,$text,$pid=0,$event="direct-message-check")
  * @param $len number of bytes to read
  * @return the temp filename, or FALSE if failure
  */
-function phimail_read_blob($fp,$len)
+function phimail_read_blob($fp, $len)
 {
 
     $fpath=$GLOBALS['temporary_files_dir'];
@@ -435,7 +435,7 @@ function phimail_extension($mime)
     }
 }
 
-function phimail_service_userID($name='phimail-service')
+function phimail_service_userID($name = 'phimail-service')
 {
     $sql = "SELECT id FROM users WHERE username=?";
     if (($r = sqlStatementNoLog($sql,array($name))) === false ||
@@ -452,7 +452,7 @@ function phimail_service_userID($name='phimail-service')
  * Registers an attachment or non-text message file using the existing Document structure
  * @return Array(doc_id,URL) of the file as stored in documents table, false = failure
  */
-function phimail_store($name,$mime_type,$fn)
+function phimail_store($name, $mime_type, $fn)
 {
 
     // Collect phimail user id
@@ -473,7 +473,7 @@ function phimail_store($name,$mime_type,$fn)
  * (notification email function modified from interface/drugs/dispense_drug.php)
  * @return true if notification successfully sent, false otherwise
  */
-function phimail_notify($subj,$body)
+function phimail_notify($subj, $body)
 {
     $recipient = $GLOBALS['practice_return_email_path'];
     if (empty($recipient)) return false;

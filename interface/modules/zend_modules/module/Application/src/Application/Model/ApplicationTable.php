@@ -162,7 +162,7 @@ class ApplicationTable extends AbstractTableGateway
      * $param String  $section_identifier ACL Section id
      * @return boolean
      */
-    public function zAclCheck($user_id,$section_identifier)
+    public function zAclCheck($user_id, $section_identifier)
     {
         $sql_user_acl   = " SELECT 
                                 COUNT(allowed) AS count 
@@ -363,7 +363,7 @@ class ApplicationTable extends AbstractTableGateway
     * @param String $input_date Date to be converted
     * @param String $date_format Target Date Format
     */
-    public function fixDate($input_date, $output_format=null, $input_format=null)
+    public function fixDate($input_date, $output_format = null, $input_format = null)
     {
         if(!$input_date) return;
         

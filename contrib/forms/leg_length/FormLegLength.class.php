@@ -55,7 +55,7 @@ class FormLegLength extends ORDataObject
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormLegLength($id= "", $_prefix = "")
+    function FormLegLength($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;

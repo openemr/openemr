@@ -54,7 +54,7 @@ function rawbucks($amount)
 // Display a row of data for an encounter.
 //
 $var_index=0;
-function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept,$encounter=0,$copay=0,$patcopay=0)
+function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter = 0, $copay = 0, $patcopay = 0)
 {
     global $var_index;
     $var_index++;

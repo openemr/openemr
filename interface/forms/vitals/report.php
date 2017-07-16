@@ -4,7 +4,7 @@ include_once($GLOBALS["srcdir"]."/api.inc");
 include_once ($GLOBALS['fileroot']."/library/patient.inc");
 
 
-function US_weight($pounds,$mode=1)
+function US_weight($pounds, $mode = 1)
 {
 
     if($mode==1)
@@ -19,7 +19,7 @@ function US_weight($pounds,$mode=1)
     }
 }
 
-function vitals_report( $pid, $encounter, $cols, $id, $print = true)
+function vitals_report($pid, $encounter, $cols, $id, $print = true)
 {
     $count = 0;
     $data = formFetch("form_vitals", $id);

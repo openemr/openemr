@@ -283,7 +283,7 @@ class AclController extends AbstractActionController
      * @param String $li_class <li> Class Name
      *
      **/
-    private function createUserGroups($id="user_group_",$visibility="",$dragabble="draggable",$li_class="")
+    private function createUserGroups($id = "user_group_", $visibility = "", $dragabble = "draggable", $li_class = "")
     {
         /** Html Escape Function */
         $viewHelperManager  = $this->getServiceLocator()->get('ViewHelperManager');

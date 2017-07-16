@@ -134,7 +134,7 @@ while ($lrow = sqlFetchArray($lres)) {
 
 // Compute age in years given a DOB and "as of" date.
 //
-function getAge($dob, $asof='')
+function getAge($dob, $asof = '')
 {
     if (empty($asof)) $asof = date('Y-m-d');
     $a1 = explode('-', substr($dob , 0, 10));
@@ -192,7 +192,7 @@ function getListTitle($list, $option)
 
 // Usually this generates one cell, but allows for two or more.
 //
-function genAnyCell($data, $right=false, $class='', $colspan=1)
+function genAnyCell($data, $right = false, $class = '', $colspan = 1)
 {
     global $cellcount, $form_output;
     if (!is_array($data)) {
@@ -214,7 +214,7 @@ function genAnyCell($data, $right=false, $class='', $colspan=1)
     }
 }
 
-function genHeadCell($data, $right=false, $colspan=1)
+function genHeadCell($data, $right = false, $colspan = 1)
 {
     genAnyCell($data, $right, 'dehead', $colspan);
 }
@@ -473,7 +473,7 @@ function getGcacClientStatus($row)
 
 // Helper function called after the reporting key is determined for a row.
 //
-function loadColumnData($key, $row, $quantity=1)
+function loadColumnData($key, $row, $quantity = 1)
 {
     global $areport, $arr_titles, $form_content, $from_date, $to_date, $arr_show;
 
@@ -542,7 +542,7 @@ function loadColumnData($key, $row, $quantity=1)
 
 // This is called for each IPPF service code that is selected.
 //
-function process_ippf_code($row, $code, $quantity=1)
+function process_ippf_code($row, $code, $quantity = 1)
 {
     global $areport, $arr_titles, $form_by, $form_content;
 

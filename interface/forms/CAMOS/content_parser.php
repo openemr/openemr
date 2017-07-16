@@ -2,7 +2,7 @@
 
 include_once("../../globals.php");
 
-function addAppt($days,$time)
+function addAppt($days, $time)
 {
     $days = formDataCore($days);
     $time = formDataCore($time);
@@ -31,7 +31,7 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp)
 }
 
 //This function was copied from billing.inc and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, $modifier="",$units="",$fee="0.00",$justify)
+function addBilling2($encounter, $code_type, $code, $code_text, $modifier = "", $units = "", $fee = "0.00", $justify)
 {
     $justify_string = '';
     if ($justify)

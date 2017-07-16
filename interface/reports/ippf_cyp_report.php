@@ -24,7 +24,7 @@ function display_desc($desc)
     return $desc;
 }
 
-function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber='')
+function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty, $cypfactor, $irnumber = '')
 {
     global $product, $productcyp, $producttotal, $productqty, $grandtotal, $grandqty;
 

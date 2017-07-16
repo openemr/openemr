@@ -49,7 +49,7 @@ class edih_835_codes
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
-    function __construct($component_separator='', $repetition_separator='')
+    function __construct($component_separator = '', $repetition_separator = '')
     {
         //
         //

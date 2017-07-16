@@ -19,7 +19,7 @@ class Characteristic extends ClinicalType
         return 'Clinical_Rules_Char_Types';
     }
     
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
         $return = false;
         

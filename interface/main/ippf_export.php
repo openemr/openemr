@@ -84,7 +84,7 @@ function LWDate($field)
     return fixDate($field);
 }
 
-function xmlTime($str, $default='9999-12-31T23:59:59')
+function xmlTime($str, $default = '9999-12-31T23:59:59')
 {
     if (empty($default)) $default = '1800-01-01T00:00:00';
     if (strlen($str) < 10 || substr($str, 0, 4) == '0000')
@@ -117,7 +117,7 @@ function getTextListValue($string, $key)
 // Return the mapped list item ID if there is one, else the option_id.
 // Or return 9 if the option_id is empty (unspecified).
 //
-function mappedOption($list_id, $option_id, $default='9')
+function mappedOption($list_id, $option_id, $default = '9')
 {
     if ($option_id === '') return $default;
     $row = sqlQuery("SELECT mapping FROM list_options WHERE " .

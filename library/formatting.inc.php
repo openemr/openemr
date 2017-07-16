@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-function oeFormatMoney($amount, $symbol=false)
+function oeFormatMoney($amount, $symbol = false)
 {
     $s = number_format($amount,
     $GLOBALS['currency_decimals'],
@@ -18,7 +18,7 @@ function oeFormatMoney($amount, $symbol=false)
     return $s;
 }
 
-function oeFormatShortDate($date='today', $showYear = true)
+function oeFormatShortDate($date = 'today', $showYear = true)
 {
     if ($date === 'today') $date = date('Y-m-d');
     if (strlen($date) == 10) {
@@ -52,7 +52,7 @@ function oeFormatShortDate($date='today', $showYear = true)
 
 // 0 - Time format 24 hr
 // 1 - Time format 12 hr
-function oeFormatTime( $time, $format = "" )
+function oeFormatTime($time, $format = "")
 {
     $formatted = $time;
     if ( $format == "" ) {
@@ -96,7 +96,7 @@ function oeFormatClientID($id)
     return $id;
 }
 //----------------------------------------------------
-function DateFormatRead($mode='legacy')
+function DateFormatRead($mode = 'legacy')
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
@@ -163,7 +163,7 @@ function DateToYYYYMMDD($DateValue)
 // $dobYMD is YYYYMMDD or YYYY-MM-DD
 // $nowYMD is same format but optional
 //
-function oeFormatAge($dobYMD, $nowYMD='', $format=0)
+function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
 {
   // Strip any dashes from the dates.
     $dobYMD = preg_replace('/-/', '', $dobYMD);

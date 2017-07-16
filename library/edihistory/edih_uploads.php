@@ -197,7 +197,7 @@ function edih_upload_match_file($param_ar, $fidx)
  * @param string &$html_str -- passed by reference for appending
  * @return array $f_ar -- paths to unpacked files accepted by this function
  */
-function edih_ziptoarray($zipfilename, $param_ar, $single=false)
+function edih_ziptoarray($zipfilename, $param_ar, $single = false)
 {
     // note that this function moves files and set permissions, so platform issues may occur
     //
@@ -503,7 +503,7 @@ function edih_upload_files()
  * @param bool       -- whether to only report errors (ignored)
  * @return string    html formatted messages
  */
-function edih_sort_upload($files_array, $html_out=true, $err_only=true)
+function edih_sort_upload($files_array, $html_out = true, $err_only = true)
 {
     //
     $prc_htm = '';

@@ -25,7 +25,7 @@ function esc4Export($str)
     return str_replace('"', '\\"', $str);
 }
 
-function thisLineItem($row, $xfer=false)
+function thisLineItem($row, $xfer = false)
 {
     global $grandtotal, $grandqty, $encount, $form_action;
 

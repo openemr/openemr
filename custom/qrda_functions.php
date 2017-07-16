@@ -194,7 +194,7 @@ function allListsPat($type, $patient_id, $from_date, $to_date)
     return $diagArr;
 }
 
-function allOrderMedsPat($patient_id,$from_date,$to_date)
+function allOrderMedsPat($patient_id, $from_date, $to_date)
 {
     $medArr = array();
     $medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 0 AND (DATE(date_added) BETWEEN ? AND ?)";
@@ -206,7 +206,7 @@ function allOrderMedsPat($patient_id,$from_date,$to_date)
     return $medArr;
 }
 
-function allActiveMedsPat($patient_id,$from_date,$to_date)
+function allActiveMedsPat($patient_id, $from_date, $to_date)
 {
     $medArr = array();
     $medQry = "SELECT * FROM prescriptions where patient_id = ? AND active = 1 AND (DATE(date_added) BETWEEN ? AND ?)";

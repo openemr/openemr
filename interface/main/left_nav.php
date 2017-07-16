@@ -212,7 +212,7 @@ use ESign\Api;
     $disallowed['eob'] = !(acl_check('acct', 'eob'));
 
  // Helper functions for treeview generation.
-    function genTreeLink($frame, $name, $title, $mono=false)
+    function genTreeLink($frame, $name, $title, $mono = false)
     {
         global $primary_docs, $disallowed;
         if (empty($disallowed[$name])) {
@@ -228,7 +228,7 @@ use ESign\Api;
               $primary_docs[$name][2] . "')\">" . $title . ($name == 'msg' ? ' <span id="reminderCountSpan" class="bold"></span>' : '')."</a></li>";
         }
     }
-    function genMiscLink($frame, $name, $level, $title, $url, $mono=false)
+    function genMiscLink($frame, $name, $level, $title, $url, $mono = false)
     {
         global $disallowed;
         if (empty($disallowed[$name])) {
@@ -244,7 +244,7 @@ use ESign\Api;
               $url . "')\">" . $title . "</a></li>";
         }
     }
-    function genMiscLink2($frame, $name, $level, $title, $url, $mono=false,$mouseovertext="")
+    function genMiscLink2($frame, $name, $level, $title, $url, $mono = false, $mouseovertext = "")
     {
         global $disallowed;
         if (empty($disallowed[$name])) {
@@ -261,7 +261,7 @@ use ESign\Api;
               $url . "')\">" . $title . "</a></li>";
         }
     }
-    function genPopLink($title, $url, $linkid='')
+    function genPopLink($title, $url, $linkid = '')
     {
         echo "<li><a href='' ";
         if ($linkid) echo "id='$linkid' ";
@@ -281,7 +281,7 @@ use ESign\Api;
         }
     }
 
-    function genPopupsList($style='')
+    function genPopupsList($style = '')
     {
           global $disallowed, $webserver_root;
         ?>

@@ -32,7 +32,7 @@ abstract class RuleCriteriaFactory
         $this->strategyMap[ RuleCriteriaType::custom_bucket ] = new RuleCriteriaDatabaseBuilder();
     }
 
-    function resolveCriteriaType( $method, $methodDetail, $ruleValue)
+    function resolveCriteriaType($method, $methodDetail, $ruleValue)
     {
         $strategyMap = $this->getStrategyMap();
         $criteriaType = null;
@@ -117,7 +117,7 @@ abstract class RuleCriteriaFactory
      * @param RuleCriteriaType $criteriaType
      * @return RuleCriteria
      */
-    function getBuilderFor( $criteriaType )
+    function getBuilderFor($criteriaType)
     {
         $map = $this->getStrategyMap();
         return $map[ $criteriaType->code ];

@@ -91,15 +91,15 @@ function sigJsonToImage($json, $options = array())
  */
 function smart_resize_image(
     $file,
-    $string             = null,
-    $width              = 0,
-    $height             = 0,
-    $proportional       = false,
-    $output             = 'file',
-    $delete_original    = true,
+    $string = null,
+    $width = 0,
+    $height = 0,
+    $proportional = false,
+    $output = 'file',
+    $delete_original = true,
     $use_linux_commands = false,
-    $quality            = 100,
-    $cropFromTop        = false
+    $quality = 100,
+    $cropFromTop = false
 ) {
             if ( $height <= 0 && $width <= 0 ) return false;
             if ( $file === null && $string === null ) return false;
@@ -337,7 +337,7 @@ class sigToSvg
      * @param bool $axis False is x-axis, True is y-axis
      * @return int
      */
-    private function getBound($axis=0)
+    private function getBound($axis = 0)
     {
         return round($this->max[(int)$axis] + ($this->options['penWidth'] / 2));
     }

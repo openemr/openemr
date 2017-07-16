@@ -48,7 +48,7 @@ class ApplicationTable
      *            Error Display True / False
      * @return type
      */
-    public function zQuery( $sql, $params = '', $log = false, $error = true )
+    public function zQuery($sql, $params = '', $log = false, $error = true)
     {
         $return = false;
         $result = false;
@@ -67,7 +67,7 @@ class ApplicationTable
         }
         return $return;
     }
-    public function getPortalAudit( $patientid, $action = 'review', $activity='profile', $status='waiting', $auditflg = 1, $rtn = 'last', $oelog = true, $error = true )
+    public function getPortalAudit($patientid, $action = 'review', $activity = 'profile', $status = 'waiting', $auditflg = 1, $rtn = 'last', $oelog = true, $error = true)
     {
         $return = false;
         $result = false;
@@ -128,7 +128,7 @@ class ApplicationTable
      *         $audit['action_taken_time']="";
      *         $audit['checksum']="";
      */
-    public function portalAudit( $type='insert', $rec = '', array $auditvals, $oelog = true, $error = true )
+    public function portalAudit($type = 'insert', $rec = '', array $auditvals, $oelog = true, $error = true)
     {
         $return = false;
         $result = false;
@@ -179,7 +179,7 @@ class ApplicationTable
         return $return;
     }
 
-    public function portalLog( $event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0 )
+    public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
         $groupname = isset( $GLOBALS['groupname'] ) ? $GLOBALS['groupname'] : 'none';
         $user = isset( $_SESSION['portal_username'] ) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
@@ -218,7 +218,7 @@ class ApplicationTable
      * @param string $sql
      * @param array $binds
      */
-    public function errorHandler( $e, $sql, $binds = '' )
+    public function errorHandler($e, $sql, $binds = '')
     {
         $trace = $e->getTraceAsString();
         $nLast = strpos( $trace, '[internal function]' );
@@ -261,7 +261,7 @@ class ApplicationTable
         $logMsg .= "\n $trace";
         error_log( "ERROR: " . $logMsg, 0 );
     }
-    public function escapeHtml( $string )
+    public function escapeHtml($string)
     {
         return htmlspecialchars( $string, ENT_QUOTES );
     }
@@ -271,7 +271,7 @@ class ApplicationTable
      * @param Date format set in GLOBALS
      * @return Date format in PHP
      */
-    public function dateFormat( $format )
+    public function dateFormat($format)
     {
         if( $format == "0" ) $date_format = 'yyyy/mm/dd';
         else if( $format == 1 ) $date_format = 'mm/dd/yyyy';
@@ -287,7 +287,7 @@ class ApplicationTable
      * @param String $date_format
      *            Target Date Format
      */
-    public function fixDate( $input_date, $output_format = null, $input_format = null )
+    public function fixDate($input_date, $output_format = null, $input_format = null)
     {
         if( ! $input_date ) return;
 
@@ -332,7 +332,7 @@ class ApplicationTable
     {
         return generate_id();
     }
-    public function portalNewEvent( $event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from='', $user_notes="", $ccda_doc_id=0 )
+    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
         $adodb = $GLOBALS['adodb']['db'];
         $crt_user = isset( $_SERVER['SSL_CLIENT_S_DN_CN'] ) ? $_SERVER['SSL_CLIENT_S_DN_CN'] : null;

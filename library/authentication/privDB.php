@@ -68,7 +68,7 @@ function getPrivDB()
  * @param type $params
  * @return type
  */
-function privStatement($sql,$params=null)
+function privStatement($sql, $params = null)
 {
     if(is_array($params))
     {
@@ -102,7 +102,7 @@ function privStatement($sql,$params=null)
  * @param type $params
  * @return boolean
  */
-function privQuery($sql,$params=null)
+function privQuery($sql, $params = null)
 {
     $recordset=privStatement($sql,$params);
     if ($recordset->EOF)

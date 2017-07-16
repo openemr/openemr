@@ -175,7 +175,7 @@ class Thumbnail
      *  @param (optional) (int) quality for 'jpeg' type
      *  @return false if failed
      */
-    private function create_file($image_resource, $file_name = null ,$quality = 80)
+    private function create_file($image_resource, $file_name = null, $quality = 80)
     {
         switch ( $this->thumbnail_type )
         {

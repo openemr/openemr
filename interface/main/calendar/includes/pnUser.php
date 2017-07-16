@@ -101,7 +101,7 @@ function pnUserLogIn($uname, $pass, $rememberme)
 /**
  * Compare Passwords
   */
-function comparePasswords($givenpass, $realpass, $username, $cryptSalt='')
+function comparePasswords($givenpass, $realpass, $username, $cryptSalt = '')
 {
     $compare2crypt = true;
     $compare2text = true;
@@ -266,7 +266,7 @@ function pnUserGetVars($uid)
  * @returns string
  * @return the value of the user variable if successful, false otherwise
  */
-function pnUserGetVar($name, $uid=-1)
+function pnUserGetVar($name, $uid = -1)
 {
     static $vars = array();
 

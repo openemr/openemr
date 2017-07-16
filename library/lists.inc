@@ -97,7 +97,7 @@ function getListById($id, $cols = "*")
     return sqlQuery("select $cols from lists where id='$id' order by date DESC limit 0,1");
 }
 
-function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset="0")
+function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
 {
     if($active == "all")
         $sql = "select $cols from lists where pid='$pid' and type='$type' order by date DESC";
@@ -129,7 +129,7 @@ function reappearList($id)
     return true;
 }
 
-function getListTouch($patient_id,$type)
+function getListTouch($patient_id, $type)
 {
     $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
 
@@ -141,7 +141,7 @@ function getListTouch($patient_id,$type)
     }
 }
 
-function setListTouch($patient_id,$type)
+function setListTouch($patient_id, $type)
 {
     $ret = sqlQuery("SELECT `date` FROM `lists_touch` WHERE pid=? AND type=?", array($patient_id,$type) );
 

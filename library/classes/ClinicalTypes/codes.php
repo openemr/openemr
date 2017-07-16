@@ -12,7 +12,7 @@ class Codes
     const CUSTOM = 'CUSTOM';
     const OPTION_ID = 'OPTION_ID'; // This  code maps to an option_id in the list_options table.  The list_id is in the class.
 
-    public static function lookup( $clinicalType, $codeType = null )
+    public static function lookup($clinicalType, $codeType = null)
     {
         if ( $codeType != null ) {
             if ( isset( self::$_codes[$clinicalType][$codeType] ) ) {

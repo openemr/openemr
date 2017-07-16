@@ -15,7 +15,7 @@ General Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function render_select( $args )
+<?php function render_select($args)
 {
     ?>
 <select data-grp-tgt="<?php echo out( $args['target'] ); ?>"
@@ -41,7 +41,7 @@ General Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function textfield_row( $args )
+<?php function textfield_row($args)
 {
     ?>
 <p class="row">
@@ -65,7 +65,7 @@ Compound Helpers
 <!-- -->
 <!-- -->
 <!-- -->
-<?php function common_fields( $args )
+<?php function common_fields($args)
 {
     ?>
     <?php $criteria = $args['criteria'];  ?>
@@ -107,7 +107,7 @@ Compound Helpers
 <!--                  -->
 <!-- render time unit -->
 <!--                  -->
-<?php function timeunit_select( $args )
+<?php function timeunit_select($args)
 {
     require_once($GLOBALS["srcdir"] . "/options.inc.php");
 

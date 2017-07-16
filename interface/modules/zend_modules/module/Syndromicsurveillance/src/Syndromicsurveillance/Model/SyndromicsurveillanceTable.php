@@ -532,7 +532,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         return (str_replace(' ','^',$a));
     }
-    public function getCodes($option_id,$list_id)
+    public function getCodes($option_id, $list_id)
     {
         $appTable  = new ApplicationTable();
         if($option_id) {

@@ -352,7 +352,7 @@ foreach ($output as $datekey => $dailynote) {
         $pdf->ezStream();
     }
 }
-function getFormData($start_date,$end_date,$lname,$fname)
+function getFormData($start_date, $end_date, $lname, $fname)
 {
  //dates in sql format
 

@@ -89,7 +89,7 @@ function oemr_password_salt()
  * @param type $salt
  * @return type
  */
-function oemr_password_hash($plaintext,$salt)
+function oemr_password_hash($plaintext, $salt)
 {
     // if this is a SHA1 salt, the use prepended salt
     if(strpos($salt,SALT_PREFIX_SHA1)===0)

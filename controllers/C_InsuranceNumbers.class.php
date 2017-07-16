@@ -25,7 +25,7 @@ class C_InsuranceNumbers extends Controller
         return $this->list_action();
     }
 
-    function edit_action($id = "",$provider_id="",$p_obj = null)
+    function edit_action($id = "", $provider_id = "", $p_obj = null)
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record

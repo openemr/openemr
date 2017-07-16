@@ -149,7 +149,7 @@ class Prescription extends ORDataObject
     * Constructor sets all Prescription attributes to their default value
     */
 
-    function __construct($id= "", $_prefix = "")
+    function __construct($id = "", $_prefix = "")
     {
 
     // Modified 7-2009 by BM to load the arrays from the lists in lists_options.
@@ -249,7 +249,7 @@ class Prescription extends ORDataObject
         return $_SESSION['encounter'];
     }
 
-    function get_unit_display( $display_form="" )
+    function get_unit_display($display_form = "")
     {
         return( $this->unit_array[$this->unit] );
     }
@@ -272,7 +272,7 @@ class Prescription extends ORDataObject
         return $this->id;
     }
 
-    function get_dosage_display( $display_form="" )
+    function get_dosage_display($display_form = "")
     {
         if( empty($this->form) && empty($this->interval) ) {
             return( $this->dosage );

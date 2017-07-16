@@ -18,7 +18,7 @@ global $EMAIL_NOTIFICATION_HOUR;
 // Input:	to, subject, email body and from 
 // Output:	status - if sent or not
 ////////////////////////////////////////////////////////////////////
-function cron_SendMail( $to, $subject, $vBody, $from )
+function cron_SendMail($to, $subject, $vBody, $from)
 {
     // check if smtp globals set
     if( $GLOBALS['smtp_host_name'] == '' )
@@ -139,7 +139,7 @@ function cron_SendMail( $to, $subject, $vBody, $from )
 // Function:	WriteLog
 // Purpose:	written log into file
 ////////////////////////////////////////////////////////////////////
-function WriteLog( $data )
+function WriteLog($data)
 {
     global $log_folder_path;
     
@@ -179,7 +179,7 @@ if( !function_exists( 'my_print_r' ) )
 // Function:	cron_SendSMS
 // Purpose:	send sms
 ////////////////////////////////////////////////////////////////////
-function cron_SendSMS( $to, $subject, $vBody, $from )
+function cron_SendSMS($to, $subject, $vBody, $from)
 {
     global $mysms;
     $cnt = "";
@@ -204,7 +204,7 @@ function cron_SendSMS( $to, $subject, $vBody, $from )
 // Function:	cron_updateentry
 // Purpose:	update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
-function cron_updateentry($type,$pid,$pc_eid)
+function cron_updateentry($type, $pid, $pc_eid)
 {
     // larry :: this was commented - i remove comment - what it means * in this field ?
     //$set = " pc_apptstatus='*',"; - in this prev version there was a comma - somthing to follow ?
@@ -228,7 +228,7 @@ function cron_updateentry($type,$pid,$pc_eid)
 // Function:	cron_getAlertpatientData
 // Purpose:	get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
-function cron_getAlertpatientData( $type )
+function cron_getAlertpatientData($type)
 {
     // larry :: move this at the top - not in the function body
     global $SMS_NOTIFICATION_HOUR,$EMAIL_NOTIFICATION_HOUR;
@@ -300,7 +300,7 @@ function cron_getNotificationData($type)
 // Function:	cron_InsertNotificationLogEntry
 // Purpose:	insert log entry in table
 ////////////////////////////////////////////////////////////////////
-function cron_InsertNotificationLogEntry($type,$prow,$db_email_msg)
+function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
     if( $type=='SMS' )
@@ -320,7 +320,7 @@ function cron_InsertNotificationLogEntry($type,$prow,$db_email_msg)
 // Function:	cron_setmessage
 // Purpose:	set the message
 ////////////////////////////////////////////////////////////////////
-function cron_setmessage($prow,$db_email_msg)
+function cron_setmessage($prow, $db_email_msg)
 {
     // larry :: debug
     //echo "\nDEBUG :cron_setmessage: set message ".$prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."\n";
@@ -346,7 +346,7 @@ function cron_setmessage($prow,$db_email_msg)
 // Function:	cron_GetNotificationSettings
 // Purpose:	get notification settings
 ////////////////////////////////////////////////////////////////////
-function cron_GetNotificationSettings( )
+function cron_GetNotificationSettings()
 {
     $strQuery = "select * from notification_settings where type='SMS/Email Settings'";
     $vectNotificationSettings = sqlFetchArray( sqlStatement( $strQuery ) );

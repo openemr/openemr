@@ -21,7 +21,7 @@ class C_PatientFinder extends Controller
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
-    function default_action($form_id='',$form_name='',$pid='')
+    function default_action($form_id = '', $form_name = '', $pid = '')
     {
         return $this->find_action($form_id,$form_name,$pid);
     }
@@ -30,7 +30,7 @@ class C_PatientFinder extends Controller
     * Function that will display a patient finder widged, allowing
     *   the user to input search parameters to find a patient id.
     */
-    function find_action($form_id, $form_name,$pid)
+    function find_action($form_id, $form_name, $pid)
     {
         $isPid = false;
         //fix any magic quotes meddling

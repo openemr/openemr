@@ -1,6 +1,6 @@
 <?php
 
-function newEvent($event, $user, $groupname, $success, $comments="", $patient_id=null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
+function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
 {
     $adodb = $GLOBALS['adodb']['db'];
     $crt_user=isset($_SERVER['SSL_CLIENT_S_DN_CN']) ?  $_SERVER['SSL_CLIENT_S_DN_CN'] : null;
@@ -57,7 +57,7 @@ function newEvent($event, $user, $groupname, $success, $comments="", $patient_id
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
 
-function getEventByDate($date, $user="", $cols="DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")
+function getEventByDate($date, $user = "", $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")
 {
     $sql = "SELECT $cols FROM log WHERE date >= '$date 00:00:00' AND date <= '$date 23:59:59'";
     if ($user) $sql .= " AND user LIKE '$user'";
@@ -531,7 +531,7 @@ function send_atna_audit_msg($user, $group, $event, $patient_id, $outcome, $comm
  * successfully completed.  Determine the event type based on
  * the tables present in the SQL query.
  */
-function auditSQLEvent($statement, $outcome, $binds=null)
+function auditSQLEvent($statement, $outcome, $binds = null)
 {
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
     /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
@@ -842,7 +842,7 @@ function auditSQLAuditTamper($enable)
  * @param $comment  - The recipient name and description of the disclosure.
  * @uname           - The username who is recording the disclosure.
  */
-function recordDisclosure($dates,$event,$pid,$recipient,$description,$user)
+function recordDisclosure($dates, $event, $pid, $recipient, $description, $user)
 {
         $adodb = $GLOBALS['adodb']['db'];
         $crt_user= $_SERVER['SSL_CLIENT_S_DN_CN'];
@@ -862,7 +862,7 @@ function recordDisclosure($dates,$event,$pid,$recipient,$description,$user)
  * param $comment - The recipient and the description of the disclosure are appended.
  * $logeventid    - The id of the record which is to be edited.
  */
-function updateRecordedDisclosure($dates,$event,$recipient,$description,$disclosure_id)
+function updateRecordedDisclosure($dates, $event, $recipient, $description, $disclosure_id)
 {
          $adodb = $GLOBALS['adodb']['db'];
          $sql="update extended_log set
@@ -941,7 +941,7 @@ function logCommentEncryptData($log_id)
  * Function used to determine category of the event
  *
  */
-function eventCategoryFinder($sql,$event,$table)
+function eventCategoryFinder($sql, $event, $table)
 {
     if($event == 'delete'){
         if(strpos($sql, "lists:") === 0){

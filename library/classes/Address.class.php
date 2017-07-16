@@ -160,7 +160,7 @@ class Address extends ORDataObject
     {
         return $this->country;
     }
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;

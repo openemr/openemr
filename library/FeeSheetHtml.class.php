@@ -31,7 +31,7 @@ class FeeSheetHtml extends FeeSheet
   // Dynamically generated JavaScript to maintain justification codes.
     public $justinit = "var f = document.forms[0];\n";
 
-    function __construct($pid=0, $encounter=0)
+    function __construct($pid = 0, $encounter = 0)
     {
         parent::__construct($pid, $encounter);
     }
@@ -41,7 +41,7 @@ class FeeSheetHtml extends FeeSheet
   // field, so that we can define providers (for billing purposes)
   // who do not appear in the calendar.
   //
-    public static function genProviderOptionList($toptext, $default=0)
+    public static function genProviderOptionList($toptext, $default = 0)
     {
         $s = '';
         // Get user's default facility, or 0 if none.
@@ -79,7 +79,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Does the above but including <select> ... </select>.
   //
-    public static function genProviderSelect($tagname, $toptext, $default=0, $disabled=false)
+    public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false)
     {
         $s = "   <select name='" . attr($tagname) . "'";
         if ($disabled) $s .= " disabled";
@@ -91,7 +91,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Build a drop-down list of warehouses.
   //
-    public function genWarehouseSelect($tagname, $toptext, $default='', $disabled=false, $drug_id=0, $is_sold=0)
+    public function genWarehouseSelect($tagname, $toptext, $default = '', $disabled = false, $drug_id = 0, $is_sold = 0)
     {
         $s = '';
         if ($this->got_warehouses) {
@@ -131,7 +131,7 @@ class FeeSheetHtml extends FeeSheet
   // Build a drop-down list of price levels.
   // Includes the specified item's price in the "id" of each option.
   //
-    public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector='', $default='', $disabled=false)
+    public function genPriceLevelSelect($tagname, $toptext, $pr_id, $pr_selector = '', $default = '', $disabled = false)
     {
         // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
         $s = "<select name='" . attr($tagname) . "'";
@@ -162,7 +162,7 @@ class FeeSheetHtml extends FeeSheet
   // If Contraception forms can be auto-created by the Fee Sheet we might need
   // to ask about the client's prior contraceptive use.
   //
-    public function generateContraceptionSelector($tagname='newmauser')
+    public function generateContraceptionSelector($tagname = 'newmauser')
     {
         $s = '';
         if ($GLOBALS['gbl_new_acceptor_policy'] == '1') {
@@ -194,7 +194,7 @@ class FeeSheetHtml extends FeeSheet
 
   // Generate a price level drop-down defaulting to the patient's current price level.
   //
-    public function generatePriceLevelSelector($tagname='pricelevel', $disabled=false)
+    public function generatePriceLevelSelector($tagname = 'pricelevel', $disabled = false)
     {
         $s = "<select name='" . attr($tagname) . "'";
         if ($disabled) $s .= " disabled";
@@ -220,7 +220,7 @@ class FeeSheetHtml extends FeeSheet
   // Do not call this javascript function if you are just refreshing the form.
   // The arguments are the names of the form arrays for services and products.
   //
-    public function jsLineItemValidation($bill='bill', $prod='prod')
+    public function jsLineItemValidation($bill = 'bill', $prod = 'prod')
     {
         $s = "
 function jsLineItemValidation(f) {

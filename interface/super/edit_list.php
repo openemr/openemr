@@ -277,7 +277,7 @@ function getCodeDescriptions($codes)
 
 // Write one option line to the form.
 //
-function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping='', $notes='', $codes='',$tog1='', $tog2='', $active='',$subtype='')
+function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = '', $notes = '', $codes = '', $tog1 = '', $tog2 = '', $active = '', $subtype = '')
 {
     global $opt_line_no, $list_id;
     ++$opt_line_no;
@@ -483,7 +483,7 @@ function writeFSLine($category, $option, $codes)
 /**
  * Helper functions for writeITLine() and writeCTLine().
  */
-function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title='')
+function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title = '')
 {
     $value = isset($data_array[$name]) ? $data_array[$name] : '';
     $s = "  <td align='center' class='optcell'";
@@ -496,7 +496,7 @@ function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title='
     return $s;
 }
 
-function ctGenCbox($opt_line_no, $data_array, $name, $title='')
+function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
 {
     $checked = empty($data_array[$name]) ? '' : 'checked ';
     $s = "  <td align='center' class='optcell'";
@@ -508,7 +508,7 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title='')
     return $s;
 }
 
-function ctSelector($opt_line_no, $data_array, $name, $option_array, $title='')
+function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = '')
 {
     $value = isset($data_array[$name]) ? $data_array[$name] : '';
     $s = "  <td title='" . attr($title) . "' align='center' class='optcell'>";

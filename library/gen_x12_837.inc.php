@@ -11,7 +11,7 @@ function stripZipCode($zip)
 {
     return preg_replace('/[-\s]*/','',$zip);
 }
-function gen_x12_837($pid, $encounter, &$log, $encounter_claim=false)
+function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 {
 
     $today = time();

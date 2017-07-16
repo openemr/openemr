@@ -123,7 +123,7 @@ function edih_user_notes()
  *
  * @return string     html heading stanza
  */
-function edih_html_heading($option, $title='')
+function edih_html_heading($option, $title = '')
 {
     //
     //if (!is_string($title)) { $title=''; }

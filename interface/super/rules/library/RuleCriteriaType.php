@@ -31,7 +31,7 @@ class RuleCriteriaType
     var $lbl;
     var $method;
 
-    function __construct( $code, $lbl, $method )
+    function __construct($code, $lbl, $method)
     {
         $this->lbl = $lbl;
         $this->code = $code;
@@ -43,7 +43,7 @@ class RuleCriteriaType
      * @param string $value
      * @return RuleCriteriaType
      */
-    public static function from( $code )
+    public static function from($code)
     {
         $map = self::map();
         return $map[$code];

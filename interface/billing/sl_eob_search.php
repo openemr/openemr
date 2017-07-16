@@ -158,7 +158,7 @@ function validEmail($email)
     return false;
 }
 
-function emailLogin($patient_id,$message)
+function emailLogin($patient_id, $message)
 {
     $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", array($patient_id) );
     if ( $patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email']) ) {

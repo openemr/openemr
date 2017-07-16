@@ -99,25 +99,25 @@ class AclTable extends AbstractTableGateway
         $result = $obj->zQuery($sql,array($module_id));
         return $result;
     }
-    public function deleteGroupACL($module_id,$section_id)
+    public function deleteGroupACL($module_id, $section_id)
     {
         $sql    = "DELETE FROM module_acl_group_settings WHERE module_id = ? AND section_id = ? ";
         $obj    = new ApplicationTable;
         $result = $obj->zQuery($sql,array($module_id,$section_id));
     }
-    public function deleteUserACL($module_id,$section_id)
+    public function deleteUserACL($module_id, $section_id)
     {
         $sql    = "DELETE FROM module_acl_user_settings WHERE module_id = ? AND section_id = ? ";
         $obj    = new ApplicationTable;
         $result = $obj->zQuery($sql,array($module_id,$section_id));
     }
-    public function insertGroupACL($module_id,$group_id,$section_id,$allowed)
+    public function insertGroupACL($module_id, $group_id, $section_id, $allowed)
     {
         $sql    = "INSERT INTO module_acl_group_settings (module_id,group_id,section_id,allowed) VALUES (?,?,?,?)";
         $obj    = new ApplicationTable;
         $result = $obj->zQuery($sql,array($module_id,$group_id,$section_id,$allowed));
     }
-    public function insertuserACL($module_id,$user_id,$section_id,$allowed)
+    public function insertuserACL($module_id, $user_id, $section_id, $allowed)
     {
         $sql    = "INSERT INTO module_acl_user_settings(module_id,user_id,section_id,allowed) VALUES (?,?,?,?)";
         $obj    = new ApplicationTable;
@@ -167,7 +167,7 @@ class AclTable extends AbstractTableGateway
         $max_id++;
         return $max_id;
     }
-    public function saveACLSections($module_id,$parent_id,$section_identifier,$section_name,$section_id)
+    public function saveACLSections($module_id, $parent_id, $section_identifier, $section_name, $section_id)
     {
         $sql        = "INSERT INTO module_acl_sections(section_id,section_name,parent_section,section_identifier,module_id) VALUES(?,?,?,?,?)";
         $obj        = new ApplicationTable;

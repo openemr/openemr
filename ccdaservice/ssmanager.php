@@ -38,7 +38,7 @@ function runCheck()
         return true;
     }
 }
-function service_shutdown($soft=1)
+function service_shutdown($soft = 1)
 {
     if( socket_status( 'localhost', '6661', 'status' ) ){
         // shut down service- this can take a few seconds on windows so throw up notice to user.
@@ -77,7 +77,7 @@ function service_shutdown($soft=1)
         return true;
     }
 }
-function execInBackground( $cmd )
+function execInBackground($cmd)
 {
     if( IS_WINDOWS ){
         chdir(dirname(__FILE__));
@@ -89,7 +89,7 @@ function execInBackground( $cmd )
         exec( $cmd . " > /dev/null &" );
     }
 }
-function socket_status( $ip, $port, $data )
+function socket_status($ip, $port, $data)
 {
     $output = "";
     $socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
@@ -114,7 +114,7 @@ function socket_status( $ip, $port, $data )
     socket_close( $socket );
     return true;
 }
-function service_command( $ip, $port, $doaction )
+function service_command($ip, $port, $doaction)
 {
     $output = "";
     $socket = socket_create( AF_INET, SOCK_STREAM, SOL_TCP );
@@ -139,7 +139,7 @@ function service_command( $ip, $port, $doaction )
     socket_close( $socket );
     return true;
 }
-function server_logit( $success, $text, $pid = 0, $event = "ccdaservice-manager" )
+function server_logit($success, $text, $pid = 0, $event = "ccdaservice-manager")
 {
     $pid = isset($_SESSION['pid'])?$_SESSION['pid']:$pid;
     $event = isset($_SESSION['ptName']) ? ('Ccda Access: ' . $_SESSION['ptName']) : "Ccda Service Access";

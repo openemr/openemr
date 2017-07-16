@@ -23,7 +23,7 @@ class C_InsuranceCompany extends Controller
         return $this->list_action();
     }
 
-    function edit_action($id = "",$patient_id="",$p_obj = null)
+    function edit_action($id = "", $patient_id = "", $p_obj = null)
     {
         if ($p_obj != null && get_class($p_obj) == "insurancecompany") {
             $this->icompanies[0] = $p_obj;

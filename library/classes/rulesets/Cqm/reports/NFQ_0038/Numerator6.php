@@ -13,7 +13,7 @@ class NFQ_0038_Numerator6 implements CqmFilterIF
         return "Numerator 6";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         if ( Immunizations::checkVzv( $patient, $beginDate, $endDate ) ) {
             return true;

@@ -2,7 +2,7 @@
 //------------Forms generated from formsWiz
 include_once("../../globals.php");
 include_once($GLOBALS["srcdir"]."/api.inc");
-function hp_tje_primary_report( $pid, $encounter, $cols, $id)
+function hp_tje_primary_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_hp_tje_primary", $id);

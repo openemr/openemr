@@ -134,7 +134,7 @@ class CarecoordinationTable extends AbstractTableGateway
      *
      * @param	$components		Array of components
      */
-    public function import($xml,$document_id)
+    public function import($xml, $document_id)
     {
         $components = $xml['component']['structuredBody']['component'];
         $components_oids = array(
@@ -252,7 +252,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status,$documentationOf);
     }
 
-    public function update_document_table($document_id,$audit_master_id,$audit_master_approval_status,$documentationOf)
+    public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf)
     {
         $appTable = new ApplicationTable();
         $query = "UPDATE documents 
@@ -1180,7 +1180,7 @@ class CarecoordinationTable extends AbstractTableGateway
      * @param    am_id         integer     audit master ID
      * @param    table_name    string      identifier inserted for each table (eg: prescriptions, list1 ...)
      */
-    public function createAuditArray($am_id,$table_name)
+    public function createAuditArray($am_id, $table_name)
     {
         $appTable = new ApplicationTable();
         if (strpos($table_name, ',')) {
@@ -1218,7 +1218,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $records;
     }
 
-    public function getListTitle($option_id='',$list_id,$codes='')
+    public function getListTitle($option_id = '', $list_id, $codes = '')
     {
         $appTable = new ApplicationTable();
         if ($option_id) {
@@ -1838,7 +1838,7 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->InsertReferrals($arr_referral['referral'], $data['pid'], 1);
     }
 
-    public function InsertReconcilation($pid,$doc_id)
+    public function InsertReconcilation($pid, $doc_id)
     {
         $appTable = new ApplicationTable();
         $query    = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ?";
@@ -1897,7 +1897,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $lab_results;
     }
 
-    public function InsertLabResults($lab_results,$pid)
+    public function InsertLabResults($lab_results, $pid)
     {
         $appTable = new ApplicationTable();
         foreach ($lab_results as $key => $value) {
@@ -1964,7 +1964,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function insert_patient($audit_master_id,$document_id)
+    public function insert_patient($audit_master_id, $document_id)
     {
         require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc");
         $pid = 0;
@@ -2353,7 +2353,7 @@ class CarecoordinationTable extends AbstractTableGateway
             $document_id));
     }
 
-    public function formatDate($unformatted_date,$ymd=1)
+    public function formatDate($unformatted_date, $ymd = 1)
     {
         $day = substr($unformatted_date, 6, 2);
         $month = substr($unformatted_date, 4, 2);
@@ -2367,7 +2367,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $formatted_date;
     }
 
-    public function getOptionId($list_id,$title,$codes)
+    public function getOptionId($list_id, $title, $codes)
     {
         $appTable = new ApplicationTable();
         if ($title) {
@@ -2387,7 +2387,7 @@ class CarecoordinationTable extends AbstractTableGateway
         return $res_cur['option_id'];
     }
 
-    public function InsertEncounter($enc_array,$pid,$revapprove=1)
+    public function InsertEncounter($enc_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         foreach ($enc_array as $key => $value) {
@@ -2578,7 +2578,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertVitals($vitals_array,$pid,$revapprove=1)
+    public function InsertVitals($vitals_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         foreach ($vitals_array as $key => $value) {
@@ -2729,7 +2729,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertProcedures($proc_array,$pid,$revapprove=1)
+    public function InsertProcedures($proc_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         foreach ($proc_array as $key => $value) {
@@ -2866,7 +2866,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertImmunization($imm_array,$pid,$revapprove=1)
+    public function InsertImmunization($imm_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         $qc_select = "SELECT ct_id FROM code_types WHERE ct_key = ?";
@@ -3106,7 +3106,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertPrescriptions($pres_array,$pid,$revapprove=1)
+    public function InsertPrescriptions($pres_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         $oid_route = $unit_option_id = $oidu_unit = '';
@@ -3350,7 +3350,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertAllergies($allergy_array,$pid,$revapprove=1)
+    public function InsertAllergies($allergy_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         foreach ($allergy_array as $key => $value) {
@@ -3511,7 +3511,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertMedicalProblem($med_pblm_array,$pid,$revapprove=1)
+    public function InsertMedicalProblem($med_pblm_array, $pid, $revapprove = 1)
     {
         $appTable = new ApplicationTable();
         foreach ($med_pblm_array as $key => $value) {
@@ -3636,7 +3636,7 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
     }
-    public function InsertCarePlan($care_plan_array,$pid,$revapprove=1)
+    public function InsertCarePlan($care_plan_array, $pid, $revapprove = 1)
     {
         $newid = '';
         $appTable = new ApplicationTable();
@@ -3678,7 +3678,7 @@ class CarecoordinationTable extends AbstractTableGateway
         }
     }
 
-    public function InsertFunctionalCognitiveStatus($functional_cognitive_status_array,$pid,$revapprove=1)
+    public function InsertFunctionalCognitiveStatus($functional_cognitive_status_array, $pid, $revapprove = 1)
     {
         $newid = '';
         $appTable = new ApplicationTable();
