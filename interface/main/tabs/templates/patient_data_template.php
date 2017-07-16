@@ -81,16 +81,16 @@
                     (<span data-bind="text:encounterArray().length"></span>)
                     <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="pastEncounters">
+                <ul class="container dropdown-menu" aria-labelledby="pastEncounters" style="max-width: 400px;">
                     <!-- ko foreach:encounterArray -->
-                    <li style="display: inline-flex;">
-                        <a href="#" data-bind="click:chooseEncounterEvent">
-                            <span data-bind="text:date"></span>
-                            <span data-bind="text:category"></span>
-                        </a>
-                        <a href="#" data-bind="click:reviewEncounterEvent">
+                    <li class="row">
+						<div class="col-sm-8"><a href="#" data-bind="click:chooseEncounterEvent">
+                            <div class="col-sm-4" data-bind="text:date"></div>
+                            <div class="col-sm-8" data-bind="text:category"></div>
+                        </a></div>
+                        <div class="col-sm-4 pull-right"><a href="#" data-bind="click:reviewEncounterEvent">
                             <i class="fa fa-rotate-left"></i>&nbsp;<?php echo xlt("Review");?>
-                        </a>
+                        </a></div>
                     </li>
                     <!-- /ko -->
                 </ul>
