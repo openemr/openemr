@@ -147,7 +147,7 @@
 
  <!-- Visibility MUST be declared on all methods. -->
  <!-- <rule ref="Squiz.Scope.MethodScope"/> SET TO WARNING -->
- <!-- <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/> --><!-- FIXABLE -->
+ <rule ref="Squiz.WhiteSpace.ScopeKeywordSpacing"/>
 
  <!-- Method names SHOULD NOT be prefixed with a single underscore to indicate protected or private visibility. -->
  <!-- checked in Methods/MethodDeclarationSniff -->

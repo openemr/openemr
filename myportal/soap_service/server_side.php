@@ -533,7 +533,7 @@ class UserService extends Userforms
 //The results will be stored in the key, which is received from portal.
 
 
-    static  public function batch_despatch($var,$func,$data_credentials)
+    static public function batch_despatch($var,$func,$data_credentials)
     {
         global $pid;
         if(UserService::valid($data_credentials)){
