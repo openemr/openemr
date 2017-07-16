@@ -1,5 +1,6 @@
 <?php
 namespace Ccr;
+
 use Ccr\Model\Ccr;
 use Ccr\Model\CcrTable;
 use Zend\Db\ResultSet\ResultSet;

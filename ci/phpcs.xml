@@ -116,7 +116,7 @@
 
  <!-- When present, there MUST be one blank line after the namespace declaration. -->
  <!-- checked in Namespaces/NamespaceDeclarationSniff -->
- <!-- <rule ref="PSR2.Namespaces.NamespaceDeclaration"/> --><!-- FIXABLE -->
+ <rule ref="PSR2.Namespaces.NamespaceDeclaration"/>
 
  <!-- When present, all use declarations MUST go after the namespace declaration.
       There MUST be one use keyword per declaration.

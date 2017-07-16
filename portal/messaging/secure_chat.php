@@ -253,6 +253,7 @@ abstract class Helper
 }
 
 namespace SMA_Msg;
+
 use SMA_Common;
 class Model extends SMA_Common\Model
 {

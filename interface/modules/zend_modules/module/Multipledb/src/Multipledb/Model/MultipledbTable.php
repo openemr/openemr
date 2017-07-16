@@ -19,6 +19,7 @@
  */
 
 namespace Multipledb\Model;
+
 use Zend\Db\Sql\Expression;
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Predicate;
