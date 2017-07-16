@@ -139,14 +139,17 @@ class UserAudit extends UserMail
                  $table = $row['table_name'];
                  $cnt = 0;
                 foreach ($validtables as $value) {//Update will execute if and only if all tables are validtables
-                    if ($value==$table)
-                    $cnt++;
+                    if ($value==$table) {
+                        $cnt++;
+                    }
                 }
 
                 if ($cnt>0) {
                     while ($rowfield = sqlFetchArray($resfield)) {
-                         if ($rowfield['field_name'] == 'pid')
-                         continue;
+                        if ($rowfield['field_name'] == 'pid') {
+                            continue;
+                        }
+
                         if ($table=='patient_data') {
                             $newdata['patient_data'][$rowfield['field_name']]=$rowfield['field_value'];
                         }

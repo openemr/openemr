@@ -48,7 +48,10 @@ function era_callback(&$out)
     '_' . ltrim($out['payer_id'], '0');
     list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
     if ($pid && $encounter) {
-        if ($where) $where .= ' OR ';
+        if ($where) {
+            $where .= ' OR ';
+        }
+
         $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
     }
 }
@@ -70,7 +73,10 @@ if ($_FILES['form_erafile']['size']) {
         if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
             $Processed=1;
             $alertmsg .=  xl("and processed.").' ';
-        } else $alertmsg .=  xl("but not yet processed.").' ';
+        } else {
+            $alertmsg .=  xl("but not yet processed.").' ';
+        }
+
         ;
     }
 
@@ -82,7 +88,8 @@ if ($_FILES['form_erafile']['size']) {
 ?>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) {
+    html_header_show();} ?>
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">

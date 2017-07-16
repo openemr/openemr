@@ -44,8 +44,10 @@ class C_PatientFinder extends Controller
         $form_name = preg_replace("/[^A-Za-z0-9\[\]\_\']/iS", "", urldecode($form_name));
         $this->assign('form_id', $form_id);
         $this->assign('form_name', $form_name);
-        if (!empty($pid))
+        if (!empty($pid)) {
             $isPid = true;
+        }
+
         $this->assign('hidden_ispid', $isPid);
 
         return $this->fetch($GLOBALS['template_dir'] . "patient_finder/" . $this->template_mod . "_find.html");
@@ -58,8 +60,9 @@ class C_PatientFinder extends Controller
     function find_action_process()
     {
 
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $isPub = false;
         $search_string = $_POST['searchstring'];

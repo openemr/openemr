@@ -57,11 +57,13 @@ function sigJsonToImage($json, $options = array())
     $pen = imagecolorallocate($img, $options['penColour'][0], $options['penColour'][1], $options['penColour'][2]);
     imagefill($img, 0, 0, $bg);
 
-    if (is_string($json))
+    if (is_string($json)) {
         $json = json_decode(stripslashes($json));
+    }
 
-        foreach ($json as $v)
-            drawThickLine($img, $v->lx * $options['drawMultiplier'], $v->ly * $options['drawMultiplier'], $v->mx * $options['drawMultiplier'], $v->my * $options['drawMultiplier'], $pen, $options['penWidth'] * ($options['drawMultiplier'] / 2));
+    foreach ($json as $v) {
+        drawThickLine($img, $v->lx * $options['drawMultiplier'], $v->ly * $options['drawMultiplier'], $v->mx * $options['drawMultiplier'], $v->my * $options['drawMultiplier'], $pen, $options['penWidth'] * ($options['drawMultiplier'] / 2));
+    }
 
             $imgDest = imagecreatetruecolor($options['imageSize'][0], $options['imageSize'][1]);
 
@@ -101,8 +103,14 @@ function smart_resize_image(
     $quality = 100,
     $cropFromTop = false
 ) {
-            if ($height <= 0 && $width <= 0) return false;
-            if ($file === null && $string === null) return false;
+    if ($height <= 0 && $width <= 0) {
+        return false;
+    }
+
+    if ($file === null && $string === null) {
+        return false;
+    }
+
             # Setting defaults and meta
             $info                         = $file !== null ? getimagesize($file) : getimagesizefromstring($string);
             $image                        = '';
@@ -112,9 +120,14 @@ function smart_resize_image(
             $cropHeight = $cropWidth = 0;
             # Calculating proportionality
     if ($proportional) {
-        if ($width  == 0)  $factor = $height/$height_old;
-        elseif ($height == 0)  $factor = $width/$width_old;
-        else $factor = min($width / $width_old, $height / $height_old);
+        if ($width  == 0) {
+            $factor = $height/$height_old;
+        } elseif ($height == 0) {
+            $factor = $width/$width_old;
+        } else {
+            $factor = min($width / $width_old, $height / $height_old);
+        }
+
         $final_width  = round($width_old * $factor);
         $final_height = round($height_old * $factor);
     } else {
@@ -165,8 +178,11 @@ break;
             imagecopyresampled($image_resized, $image, 0, 0, $cropWidth, $cropHeightFinal, $final_width, $final_height, $width_old - 2 * $cropWidth, $height_old - 2 * $cropHeight);
             # Taking care of original, if needed
     if ($delete_original) {
-        if ($use_linux_commands) exec('rm '.$file);
-        else @unlink($file);
+        if ($use_linux_commands) {
+            exec('rm '.$file);
+        } else {
+            @unlink($file);
+        }
     }
 
             # Preparing a method of providing result
@@ -291,7 +307,9 @@ class sigToSvg
             $this->coords = array_map('array_values', $this->coords); // flatten the array
         } elseif (is_array($json)) {
             $this->coords = array();
-            foreach ($json as $obj) $this->coords[] = array_values((array)$obj);
+            foreach ($json as $obj) {
+                $this->coords[] = array_values((array)$obj);
+            }
         } else {
             throw new Exception('Data passed to constructor is invalid.', 1001);
         }
@@ -323,7 +341,9 @@ class sigToSvg
     private function setMax($coord)
     {
         foreach ($coord as $i => $pt) {
-            if ($pt > $this->max[$i%2]) $this->max[$i%2] = $pt;
+            if ($pt > $this->max[$i%2]) {
+                $this->max[$i%2] = $pt;
+            }
         }
     }
     /**
@@ -366,7 +386,10 @@ class sigToSvg
      */
     public function getImageGz()
     {
-        if (!function_exists('gzencode')) throw new Exception('Cannot get gzip image. Check that Zlib is installed.', 2000);
+        if (!function_exists('gzencode')) {
+            throw new Exception('Cannot get gzip image. Check that Zlib is installed.', 2000);
+        }
+
         return gzencode($this->getImage(), 9);
     }
 }

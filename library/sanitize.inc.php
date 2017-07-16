@@ -70,7 +70,9 @@ function isWhiteFile($file)
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
-        if (in_array($categoryType. '/*', $white_list))return true;
+        if (in_array($categoryType. '/*', $white_list)) {
+            return true;
+        }
     }
 
     return false;

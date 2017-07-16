@@ -40,7 +40,9 @@ function getKittens($catid, $catstring, &$categories)
     }
 
   // If no kitties, then this is a leaf node and should be listed.
-    if (!$childcount) $categories[$catid] = $catstring;
+    if (!$childcount) {
+        $categories[$catid] = $catstring;
+    }
 }
 
 $postid    = empty($_REQUEST['postid'   ]) ? 0 : intval($_REQUEST['postid'   ]);
@@ -52,7 +54,10 @@ if ($_POST['bn_save']) {
     if (is_array($_POST['form_filename'])) {
         foreach ($_POST['form_filename'] as $uploadid => $filename) {
             $catid = $_POST['form_category'][$uploadid];
-            if (!$catid) continue;
+            if (!$catid) {
+                continue;
+            }
+
             echo xlt('Fetching following file from portal') . ": " . $filename . " ...<br />\n";
             flush();
             if ($messageid) {
@@ -61,7 +66,10 @@ if ($_POST['bn_save']) {
                 $result = cms_portal_call(array('action' => 'getupload', 'uploadid' => $uploadid));
             }
 
-            if ($result['errmsg']) die(text($result['errmsg']));
+            if ($result['errmsg']) {
+                die(text($result['errmsg']));
+            }
+
             $d = new Document();
             // With JSON-over-HTTP we would need to base64_decode the contents.
             $rc = $d->createDocument(
@@ -71,7 +79,9 @@ if ($_POST['bn_save']) {
                 $result['mimetype'],
                 $result['contents']
             );
-            if ($rc) die(text(xl('Error saving document') . ": $rc"));
+            if ($rc) {
+                die(text(xl('Error saving document') . ": $rc"));
+            }
         }
     }
 
@@ -98,7 +108,10 @@ $categories = array();
 getKittens(0, '', $categories);
 
 // Get the portal request data.
-if (!$postid && !$messageid) die(xlt('Request ID is missing!'));
+if (!$postid && !$messageid) {
+    die(xlt('Request ID is missing!'));
+}
+
 if ($messageid) {
     $result = cms_portal_call(array('action' => 'getmessage', 'messageid' => $messageid));
 } else {
@@ -188,7 +201,10 @@ if (is_array($result['uploads'])) {
         $i = 0;
         foreach ($categories as $catkey => $catname) {
             echo "<option value='" . attr($catkey) . "'";
-            if (++$i == 1) echo " selected";
+            if (++$i == 1) {
+                echo " selected";
+            }
+
             echo ">" . text($catname) . "</option>\n";
         }
 

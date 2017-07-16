@@ -251,11 +251,17 @@ if (!(isset($_SESSION['password_update']))) {
                             echo "<option selected='selected' value='".htmlspecialchars($defaultLangID, ENT_QUOTES)."'>" . htmlspecialchars(xl('Default') . " - " . xl($defaultLangName), ENT_NOQUOTES) . "</option>\n";
                             foreach ($result3 as $iter) {
                                 if ($GLOBALS['language_menu_showall']) {
-                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                        continue; // skip the dummy language
+                                    }
+
                                     echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                 } else {
                                     if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                            continue; // skip the dummy language
+                                        }
+
                                         echo "<option value='".htmlspecialchars($iter['lang_id'], ENT_QUOTES)."'>".htmlspecialchars($iter['trans_lang_description'], ENT_NOQUOTES)."</option>\n";
                                     }
                                 }
@@ -271,7 +277,8 @@ if (!(isset($_SESSION['password_update']))) {
             <td colspan=2><br><center><input type="submit" value="<?php echo xlt('Log In');?>" /></center></td>
         </tr>
         </table>
-            <?php if (!(empty($hiddenLanguageField))) echo $hiddenLanguageField; ?>
+            <?php if (!(empty($hiddenLanguageField))) {
+                echo $hiddenLanguageField;} ?>
     </form>
 
         <div class="copyright"><?php echo xlt('Powered by');?> OpenEMR</div>

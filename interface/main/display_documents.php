@@ -232,8 +232,9 @@ $display_collapse_msg = "display:inline;";
                 $dates = explode("|", $row['docDates']);
             }
 
-            for ($i = 0; $i < count($notes); $i++)
+            for ($i = 0; $i < count($notes); $i++) {
                 $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . text($notes[$i]) . "<br />";
+            }
             ?>
             <tr class="text">
                 <td><?php echo oeFormatShortDate(date('Y-m-d', strtotime($row['date']))); ?> </td>

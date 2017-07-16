@@ -292,10 +292,11 @@ class HttpRequest
                 fseek($fp, 0);
                 
                 // if the PUT request contains JSON data then add the content type header
-                if (json_encode($data))
+                if (json_encode($data)) {
                     curl_setopt($ch, CURLOPT_HTTPHEADER, array (
                             "Content-Type: application/json"
                     ));
+                }
                 
                 curl_setopt($ch, CURLOPT_INFILE, $fp);
                 curl_setopt($ch, CURLOPT_INFILESIZE, strlen($data));
@@ -324,8 +325,9 @@ class HttpRequest
         $tmp = curl_exec($ch);
         $error = curl_error($ch);
         
-        if ($fp)
+        if ($fp) {
             @fclose($fp); // if a PUT request had body data, close the file stream
+        }
         
         if ($error != "") {
             $tmp .= $error;

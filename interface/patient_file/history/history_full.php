@@ -35,12 +35,14 @@ $CPR = 4; // cells per row
 // Check authorization.
 if (acl_check('patients', 'med')) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    die(htmlspecialchars(xl("Not authorized for this squad."), ENT_NOQUOTES));
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        die(htmlspecialchars(xl("Not authorized for this squad."), ENT_NOQUOTES));
+    }
 }
 
-if (!acl_check('patients', 'med', '', array('write','addonly')))
-  die(htmlspecialchars(xl("Not authorized"), ENT_NOQUOTES));
+if (!acl_check('patients', 'med', '', array('write','addonly'))) {
+    die(htmlspecialchars(xl("Not authorized"), ENT_NOQUOTES));
+}
 ?>
 <html>
 <head>
@@ -173,7 +175,8 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_related(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=REF' ?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) {
+        echo '?codetype=REF'; } ?>', '_blank', 500, 400);
 }
 
 </script>

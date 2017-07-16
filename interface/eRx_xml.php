@@ -46,8 +46,10 @@ function getErxCredentials()
 
 function validation($val_check, $val, $msg)
 {
-    if (!$val)
-    $msg .= $val_check.' '.xl('missing').'<br>';
+    if (!$val) {
+        $msg .= $val_check.' '.xl('missing').'<br>';
+    }
+
     return $msg;
 }
 
@@ -140,14 +142,16 @@ function user_role($doc, $r)
         die;}
 
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
-    if ($userRole['newcrop_user_role'] == 'doctor')
-    $userRole['eRxUser'] = 'LicensedPrescriber';
-    elseif ($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse')
-    $userRole['eRxUser'] = 'Staff';
-    elseif ($userRole['newcrop_user_role'] == 'midlevelPrescriber')
-    $userRole['eRxUser'] = 'MidlevelPrescriber';
-    elseif ($userRole['newcrop_user_role'] == 'supervisingDoctor')
-    $userRole['eRxUser'] = 'SupervisingDoctor';
+    if ($userRole['newcrop_user_role'] == 'doctor') {
+        $userRole['eRxUser'] = 'LicensedPrescriber';
+    } elseif ($userRole['newcrop_user_role'] == 'admin' || $userRole['newcrop_user_role'] == 'manager' || $userRole['newcrop_user_role'] == 'nurse') {
+        $userRole['eRxUser'] = 'Staff';
+    } elseif ($userRole['newcrop_user_role'] == 'midlevelPrescriber') {
+        $userRole['eRxUser'] = 'MidlevelPrescriber';
+    } elseif ($userRole['newcrop_user_role'] == 'supervisingDoctor') {
+        $userRole['eRxUser'] = 'SupervisingDoctor';
+    }
+
     $msg = validation(xl('ERX User'), $userRole['eRxUser'], $msg);
     $b = $doc->createElement("UserRole");
     $user = $doc->createElement("user");
@@ -171,10 +175,11 @@ function destination($doc, $r, $page = '', $pid)
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', $userRole['newcrop_user_role']);
     if (!$page) {
         $page='compose';
-        if ($userRole['newcrop_user_role']=='admin')
-        $page='admin';
-        elseif ($userRole['newcrop_user_role']=='manager')
-        $page='manager';
+        if ($userRole['newcrop_user_role']=='admin') {
+            $page='admin';
+        } elseif ($userRole['newcrop_user_role']=='manager') {
+            $page='manager';
+        }
     }
 
     $b = $doc->createElement("Destination");
@@ -592,8 +597,10 @@ function Patient($doc, $r, $pid)
         $patient_data['lname']=stripSpecialCharacter($patient_data['lname']);
         $patient_data['lname']=trimData($patient_data['lname'], 35);
         //$msg = validation(xl('Patient Last name'),$patient_data['lname'],$msg);
-        if ($patient_data['lname']=='')
-            $dem_check.=htmlspecialchars(xl("Patient Last name is missing"), ENT_NOQUOTES)."<br>";
+    if ($patient_data['lname']=='') {
+        $dem_check.=htmlspecialchars(xl("Patient Last name is missing"), ENT_NOQUOTES)."<br>";
+    }
+
         $last = $doc->createElement("last");
         $last->appendChild(
             $doc->createTextNode($patient_data['lname'])
@@ -602,8 +609,10 @@ function Patient($doc, $r, $pid)
         $patient_data['fname']=stripSpecialCharacter($patient_data['fname']);
         $patient_data['fname']=trimData($patient_data['fname'], 35);
         //$msg = validation(xl('Patient First name'),$patient_data['fname'],$msg);
-        if ($patient_data['fname']=='')
-            $dem_check.=htmlspecialchars(xl("Patient First name is missing"), ENT_NOQUOTES)."<br>";
+    if ($patient_data['fname']=='') {
+        $dem_check.=htmlspecialchars(xl("Patient First name is missing"), ENT_NOQUOTES)."<br>";
+    }
+
         $first = $doc->createElement("first");
         $first->appendChild(
             $doc->createTextNode($patient_data['fname'])
@@ -621,16 +630,20 @@ function Patient($doc, $r, $pid)
         $patient_data['street']=stripSpecialCharacter($patient_data['street']);
         $patient_data['street']=trimData($patient_data['street'], 35);
         $msg = validation(xl('Patient Address'), $patient_data['street'], $msg);
-        if (trim($patient_data['street'])=='')
-            $warning_msg .= "<br>".htmlspecialchars(xl("Patient Address is missing"), ENT_NOQUOTES);
+    if (trim($patient_data['street'])=='') {
+        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Address is missing"), ENT_NOQUOTES);
+    }
+
         $address1 = $doc->createElement("address1");
         $address1->appendChild(
             $doc->createTextNode($patient_data['street'])
         );
         $PatientAddress->appendChild($address1);
         //$msg = validation(xl('Patient City'),$patient_data['city'],$msg);
-        if ($patient_data['city']=='')
-            $dem_check.=htmlspecialchars(xl("Patient City is missing"), ENT_NOQUOTES)."<br>";
+    if ($patient_data['city']=='') {
+        $dem_check.=htmlspecialchars(xl("Patient City is missing"), ENT_NOQUOTES)."<br>";
+    }
+
         $city = $doc->createElement("city");
         $city->appendChild(
             $doc->createTextNode($patient_data['city'])
@@ -653,10 +666,12 @@ function Patient($doc, $r, $pid)
     }
 
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-        if (trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='')
-            $dem_check.=htmlspecialchars(xl("Patient Country is missing. Also you have not set default Patient Country in Global Settings"), ENT_NOQUOTES)."<br>";
-        elseif (trim($patient_data['country_code'])=='')
-            $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
+    if (trim($patient_data['country_code'])=='' && $GLOBALS['erx_default_patient_country']=='') {
+        $dem_check.=htmlspecialchars(xl("Patient Country is missing. Also you have not set default Patient Country in Global Settings"), ENT_NOQUOTES)."<br>";
+    } elseif (trim($patient_data['country_code'])=='') {
+        $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
+    }
+
         $county_code = substr($patient_data['country_code'], 0, 2);
         $country = $doc->createElement("country");
         $country->appendChild(
@@ -676,8 +691,10 @@ function Patient($doc, $r, $pid)
 
     $b->appendChild($PatientContact);
     $PatientCharacteristics = $doc->createElement("PatientCharacteristics");
-        if (trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000')
-            $warning_msg .= "<br>".htmlspecialchars(xl("Patient Date Of Birth is missing"), ENT_NOQUOTES);
+    if (trim($patient_data['date_of_birth'])=='' || $patient_data['date_of_birth']=='00000000') {
+        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Date Of Birth is missing"), ENT_NOQUOTES);
+    }
+
     if ($patient_data['date_of_birth'] && $patient_data['date_of_birth']!='00000000') {
         $dob = $doc->createElement("dob");
         $dob->appendChild(
@@ -686,8 +703,10 @@ function Patient($doc, $r, $pid)
         $PatientCharacteristics->appendChild($dob);
     }
 
-        if (trim($patient_data['sex'])=='')
-            $warning_msg .= "<br>".htmlspecialchars(xl("Patient Gender is missing"), ENT_NOQUOTES);
+    if (trim($patient_data['sex'])=='') {
+        $warning_msg .= "<br>".htmlspecialchars(xl("Patient Gender is missing"), ENT_NOQUOTES);
+    }
+
     if ($patient_data['sex']) {
         $gender_val=substr($patient_data['sex'], 0, 1);
         $gender = $doc->createElement("gender");
@@ -771,8 +790,10 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active='';
-    if ($GLOBALS['erx_upload_active']==1)
+    if ($GLOBALS['erx_upload_active']==1) {
         $active = " and (enddate is null or enddate = '' or enddate = '0000-00-00' )";
+    }
+
     $res_med=sqlStatement("select * from lists where type='medication' and pid=? and title<>''
 	and erx_uploaded='0' $active order by enddate limit 0,$med_limit", array($pid));
     $uploaded_med_arr="";
@@ -958,16 +979,20 @@ function checkError($xml)
     }
 
     curl_close($ch);
-    if (strpos($result, 'RxEntry.aspx'))
+    if (strpos($result, 'RxEntry.aspx')) {
         return '1';
-    else return '0';
+    } else {
+        return '0';
+    }
 }
 
 function erx_error_log($message)
 {
     $date = date("Y-m-d");
-    if (!is_dir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error'))
-    mkdir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error', 0777, true);
+    if (!is_dir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error')) {
+        mkdir($GLOBALS['OE_SITE_DIR'].'/documents/erx_error', 0777, true);
+    }
+
     $filename = $GLOBALS['OE_SITE_DIR']."/documents/erx_error/erx_error"."-".$date.".log";
     $f=fopen($filename, 'a');
     fwrite($f, date("Y-m-d H:i:s")." ==========> ".$message."\r\n");

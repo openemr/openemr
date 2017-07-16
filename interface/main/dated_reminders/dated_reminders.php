@@ -88,7 +88,8 @@ if (isset($_POST['drR'])) {
       </style>
       <script type="text/javascript">
          $(document).ready(function (){
-            <?php if (!$hasAlerts) echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();'; ?>
+            <?php if (!$hasAlerts) {
+                echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();';} ?>
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");

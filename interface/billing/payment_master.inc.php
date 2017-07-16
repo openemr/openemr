@@ -43,12 +43,21 @@ function generate_list_payment_category(
     $s = '';
     $tag_name_esc = htmlspecialchars($tag_name, ENT_QUOTES);
     $s .= "<select name='$tag_name_esc' id='$tag_name_esc'";
-    if ($class) $s .= " class='$class'";
-    if ($onchange) $s .= " onchange='$onchange'";
+    if ($class) {
+        $s .= " class='$class'";
+    }
+
+    if ($onchange) {
+        $s .= " onchange='$onchange'";
+    }
+
     $selectTitle = htmlspecialchars($title, ENT_QUOTES);
     $s .= " title='$selectTitle'>";
     $selectEmptyName = htmlspecialchars(xl($empty_name), ENT_QUOTES);
-    if ($empty_name) $s .= "<option value=''>" . $selectEmptyName . "</option>";
+    if ($empty_name) {
+        $s .= "<option value=''>" . $selectEmptyName . "</option>";
+    }
+
     $lres = sqlStatement("SELECT * FROM list_options " .
     "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
     $got_selected = false;
@@ -62,10 +71,14 @@ function generate_list_payment_category(
             $got_selected = true;
         }
 
-        if (($PaymentType == 'insurance' || $screen=='new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment'))
-        $s .=  " style='background-color:#DEDEDE' ";
-        if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment')
-        $s .=  " style='background-color:#DEDEDE' ";
+        if (($PaymentType == 'insurance' || $screen=='new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment')) {
+            $s .=  " style='background-color:#DEDEDE' ";
+        }
+
+        if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
+            $s .=  " style='background-color:#DEDEDE' ";
+        }
+
         $optionLabel = htmlspecialchars(xl_list_label($lrow['title']), ENT_QUOTES);
         $s .= ">$optionLabel</option>\n";
     }
@@ -192,9 +205,12 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
         <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES).':' ?></td>
         <td align="left">
             <?php
-                if ($PaymentMethod=='' && $screen=='edit_payment')
-                    $blankValue=' ';
-            else $blankValue='';
+            if ($PaymentMethod=='' && $screen=='edit_payment') {
+                $blankValue=' ';
+            } else {
+                $blankValue='';
+            }
+
             echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "class1 text", 'CheckVisible("yes")');
             ?>
       </td>
@@ -225,9 +241,12 @@ if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && 
         <td align="left" ></td>
         <td align="left" class="text"><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES).':' ?></td>
         <td align="left"><?php
-                if ($PaymentType=='' && $screen=='edit_payment')
-                    $blankValue=' ';
-        else $blankValue='';
+        if ($PaymentType=='' && $screen=='edit_payment') {
+            $blankValue=' ';
+        } else {
+            $blankValue='';
+        }
+
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "class1 text", 'PayingEntityAction()');
             ?>
         </td>

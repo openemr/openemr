@@ -359,7 +359,9 @@ class newpatienttoapprove
                 if ($data[1][0]=='calendar_interval'||$data[1][0]=='schedule_start'||$data[1][0]=='schedule_end') {
                     $query="select gl_value from globals where gl_name=?";
                     return array($query,$data[1]);
-                } else return 0;
+                } else {
+                    return 0;
+                }
             break;
             
             case 'B4':

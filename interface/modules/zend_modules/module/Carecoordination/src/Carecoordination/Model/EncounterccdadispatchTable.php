@@ -144,8 +144,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     return false;
                 }
             } elseif ($credentials[4] == 'oemruser') {
-                if ($credentials[9])
-                $pres = $appTable->zQuery("SELECT pid FROM audit_master WHERE id=?", array($credentials[9]));
+                if ($credentials[9]) {
+                    $pres = $appTable->zQuery("SELECT pid FROM audit_master WHERE id=?", array($credentials[9]));
+                }
+
                 $prow = $pres->current();
                 $okO = 1;
             } elseif ($credentials[4] == 'newpatient') {
@@ -205,8 +207,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $portal = $pres->current();
                 }
 
-                if (strtolower($portal['allow_patient_portal'])!='yes')
-                return false;
+                if (strtolower($portal['allow_patient_portal'])!='yes') {
+                    return false;
+                }
             }
 
             $GLOBALS['validated_offsite_portal'] = true;
@@ -429,7 +432,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $query          = "select fname, lname from patient_data WHERE pid = ?";
             $field_name[]   = $params;
         } else {
-            if (!$params) $params = $_SESSION['authUserID'];
+            if (!$params) {
+                $params = $_SESSION['authUserID'];
+            }
+
             $query          = "select fname, lname, organization, street, city, state, zip, phonew1 from users where id = ?";
             $field_name[]   = $params;
         }
@@ -655,13 +661,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
             $unit = $str = $active = '';
           
-                    if ($row['size'] > 0)
-                            $unit = $row['size']." ".\Application\Listener\Listener::z_xlt($row['unit'])." ";
+            if ($row['size'] > 0) {
+                    $unit = $row['size']." ".\Application\Listener\Listener::z_xlt($row['unit'])." ";
+            }
+
                     $str = $unit." ".\Application\Listener\Listener::z_xlt($row['route'])." ".$row['dosage']." ".\Application\Listener\Listener::z_xlt($row['form']." ".$row['interval']);
                     
-                    if ($row['active'] > 0)
-                        $active = 'active';
-            else $active = 'completed';
+            if ($row['active'] > 0) {
+                $active = 'active';
+            } else {
+                $active = 'completed';
+            }
                     
             if ($row['date_added']) {
                 $start_date                     = str_replace('-', '', $row['date_added']);
@@ -835,7 +845,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getProcedures($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND b.encounter = $encounter";
+        if ($encounter) {
+            $wherCon = "AND b.encounter = $encounter";
+        }
         
         $procedure  = '';
         $query      = "select b.id, b.date as proc_date, b.code_text, b.code, fe.date,
@@ -888,7 +900,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getResults($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND po.encounter_id = $encounter";
+        if ($encounter) {
+            $wherCon = "AND po.encounter_id = $encounter";
+        }
+
         $results = '';
         $query = "SELECT prs.result AS result_value, prs.units, prs.range, prs.result_text as order_title, prs.result_code, prs.procedure_result_id,
 	    prs.result_text as result_desc, prs.procedure_result_id AS test_code, poc.procedure_code, po.date_ordered, prs.date AS result_time, prs.abnormal AS abnormal_flag,po.order_status AS order_status
@@ -971,7 +986,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getEncounterHistory($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND fe.encounter = $encounter";
+        if ($encounter) {
+            $wherCon = "AND fe.encounter = $encounter";
+        }
+
         $results = "";
         $query   = "SELECT fe.date, fe.encounter,fe.reason,
 	    f.id as fid, f.name, f.phone, f.street as fstreet, f.city as fcity, f.state as fstate, f.postal_code as fzip, f.country_code, f.phone as fphone,
@@ -1525,7 +1543,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getVitals($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND fe.encounter = $encounter";
+        if ($encounter) {
+            $wherCon = "AND fe.encounter = $encounter";
+        }
+
         $vitals = '';
         $query  = "SELECT DATE(fe.date) AS date, fv.id, temperature, bpd, bps, head_circ, pulse, height, oxygen_saturation, weight, BMI FROM forms AS f
                 JOIN form_encounter AS fe ON fe.encounter = f.encounter AND fe.pid = f.pid
@@ -1739,8 +1760,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     public function getAge($pid, $date)
     {
-        if ($date != '') $date = $date;
-        else $date = date('Y-m-d H:i:s');
+        if ($date != '') {
+            $date = $date;
+        } else {
+            $date = date('Y-m-d H:i:s');
+        }
+
         $age = 0;
         $query      = "select ROUND(DATEDIFF('$date',DOB)/365.25) AS age from patient_data where pid= ? ";
         $appTable   = new ApplicationTable();
@@ -1791,15 +1816,24 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $table_name = $row['form_table'];
             $form_dir = $row['form_dir'];
             if ($form_type == 1) {
-                if ($field_names_type1) $field_names_type1 .= ',';
+                if ($field_names_type1) {
+                    $field_names_type1 .= ',';
+                }
+
                 $field_names_type1 .= $row['ccda_field'];
                 $ret[$row['ccda_component_section']."_".$form_dir] = array($form_type, $table_name, $form_dir, $field_names_type1);
             } else if ($form_type == 2) {
-                if ($field_names_type2) $field_names_type2 .= ',';
+                if ($field_names_type2) {
+                    $field_names_type2 .= ',';
+                }
+
                 $field_names_type2 .= $row['ccda_field'];
                 $ret[$row['ccda_component_section']."_".$form_dir] = array($form_type, $table_name, $form_dir, $field_names_type2);
             } else if ($form_type == 3) {
-                if ($field_names_type3) $field_names_type3 .= ',';
+                if ($field_names_type3) {
+                    $field_names_type3 .= ',';
+                }
+
                 $field_names_type3 .= $row['ccda_field'];
                 $ret[$row['ccda_component_section']."_".$form_dir] = array($form_type, $table_name, $form_dir, $field_names_type3);
             }
@@ -1887,7 +1921,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $formid_list = "";
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $key => $value) {
-                            if ($formid_list) $formid_list .= ',';
+                            if ($formid_list) {
+                                $formid_list .= ',';
+                            }
+
                             $formid_list .= $value;
                         }
                     }
@@ -1902,7 +1939,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     $field_ids      = explode(',', $formTables_details[3]);
                     $fields_str     = '';
                     foreach ($field_ids as $key=>$value) {
-                        if ($fields_str != '') $fields_str .= ",";
+                        if ($fields_str != '') {
+                            $fields_str .= ",";
+                        }
+
                         $fields_str .= "'$value'";
                     }
                     
@@ -1914,7 +1954,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                     
                     foreach ($result as $row) {
                         preg_match('/\.$/', trim($row['field_value']), $matches);
-                        if (count($matches) == 0) $row['field_value'] .= ". ";
+                        if (count($matches) == 0) {
+                            $row['field_value'] .= ". ";
+                        }
+
                         $res[0][$row['field_id']] .= $row['field_value'];
                     }
                 }
@@ -2165,7 +2208,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     */
     public function date_format($date, $format)
     {
-        if (!$date) return;
+        if (!$date) {
+            return;
+        }
+
         $format = $format ? $format : 'm/d/y';
         $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
@@ -2251,7 +2297,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 $form_id = $row['form_id'];
             }
 
-            if ($form_id) $wherCon = "AND f.form_id = $form_id";
+            if ($form_id) {
+                $wherCon = "AND f.form_id = $form_id";
+            }
         }
 
         $planofcare = '';
@@ -2280,12 +2328,14 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         foreach ($res as $row) {
             //$date_formatted = \Application\Model\ApplicationTable::fixDate($row['date'],$GLOBALS['date_display_format'],'yyyy-mm-dd');
             $code_type = '';
-            if ($row['fcp_code_type'] == 'SNOMED-CT')
-            $code_type = '2.16.840.1.113883.6.96';
-            else if ($row['fcp_code_type'] == 'CPT4')
-            $code_type = '2.16.840.1.113883.6.12';
-            else if ($row['fcp_code_type'] == 'LOINC')
-            $code_type = '2.16.840.1.113883.6.1';
+            if ($row['fcp_code_type'] == 'SNOMED-CT') {
+                $code_type = '2.16.840.1.113883.6.96';
+            } else if ($row['fcp_code_type'] == 'CPT4') {
+                $code_type = '2.16.840.1.113883.6.12';
+            } else if ($row['fcp_code_type'] == 'LOINC') {
+                $code_type = '2.16.840.1.113883.6.1';
+            }
+
             $planofcare .= '<item>
         <code>'.htmlspecialchars($row['code'], ENT_QUOTES).'</code>
         <code_text>'.htmlspecialchars($row['codetext'], ENT_QUOTES).'</code_text>
@@ -2312,7 +2362,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getFunctionalCognitiveStatus($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND f.encounter = $encounter";
+        if ($encounter) {
+            $wherCon = "AND f.encounter = $encounter";
+        }
+
         $functional_cognitive = '';
         $query  = "SELECT ffcs.* FROM forms AS f
                 LEFT JOIN form_functional_cognitive_status AS ffcs ON ffcs.id = f.form_id
@@ -2362,7 +2415,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getClinicalInstructions($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "AND f.encounter = $encounter";
+        if ($encounter) {
+            $wherCon = "AND f.encounter = $encounter";
+        }
+
         $query  = "SELECT fci.* FROM forms AS f
                 LEFT JOIN form_clinical_instructions AS fci ON fci.id = f.form_id
                 WHERE f.pid = ? AND f.formdir = ? AND f.deleted = ? $wherCon";
@@ -2380,7 +2436,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getRefferals($pid, $encounter)
     {
         $wherCon = '';
-        if ($encounter) $wherCon = "ORDER BY date DESC LIMIT 1";
+        if ($encounter) {
+            $wherCon = "ORDER BY date DESC LIMIT 1";
+        }
+
         $appTable   = new ApplicationTable();
         $referrals = '';
         $query      = "SELECT field_value FROM transactions JOIN lbt_data ON form_id=id AND field_id = 'body' WHERE pid = ? $wherCon";

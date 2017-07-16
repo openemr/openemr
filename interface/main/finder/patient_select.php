@@ -109,7 +109,8 @@ form {
 <?php } ?>
 
 <script language="JavaScript">
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
 // This is called when forward or backward paging is done.
 //
 function submitList(offset) {
@@ -152,7 +153,10 @@ if ($popup) {
     "ORDER BY group_name, seq");
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
-        if (strpos($field_id, 'em_') === 0) continue;
+        if (strpos($field_id, 'em_') === 0) {
+            continue;
+        }
+
         $data_type = $frow['data_type'];
         if (!empty($_REQUEST[$field_id])) {
             $value = trim($_REQUEST[$field_id]);
@@ -190,7 +194,10 @@ if ($popup) {
     "WHERE $where ORDER BY $orderby LIMIT $fstart, $sqllimit";
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = array();
-    while ($row = sqlFetchArray($rez))$result[] = $row;
+    while ($row = sqlFetchArray($rez)) {
+        $result[] = $row;
+    }
+
     _set_patient_inc_count($sqllimit, count($result), $where, $sqlBindArray);
 } else if ($from_page == "cdr_report") {
   // Collect setting from cdr report
@@ -226,19 +233,19 @@ if ($popup) {
     echo "<input type='hidden' name='patient' value='" . htmlspecialchars($patient, ENT_QUOTES) . "' />\n";
     echo "<input type='hidden' name='findBy'  value='" . htmlspecialchars($findBy, ENT_QUOTES) . "' />\n";
 
-    if ($findBy == "Last")
-      $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
-    else if ($findBy == "ID")
-      $result = getPatientId("$patient", $given, "id ASC, ".$orderby, $sqllimit, $fstart);
-    else if ($findBy == "DOB")
-      $result = getPatientDOB("$patient", $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
-    else if ($findBy == "SSN")
-      $result = getPatientSSN("$patient", $given, "ss ASC, ".$orderby, $sqllimit, $fstart);
-    elseif ($findBy == "Phone")                  //(CHEMED) Search by phone number
-      $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
-    else if ($findBy == "Any")
-      $result = getByPatientDemographics("$patient", $given, $orderby, $sqllimit, $fstart);
-    else if ($findBy == "Filter") {
+    if ($findBy == "Last") {
+        $result = getPatientLnames("$patient", $given, $orderby, $sqllimit, $fstart);
+    } else if ($findBy == "ID") {
+        $result = getPatientId("$patient", $given, "id ASC, ".$orderby, $sqllimit, $fstart);
+    } else if ($findBy == "DOB") {
+        $result = getPatientDOB("$patient", $given, "DOB ASC, ".$orderby, $sqllimit, $fstart);
+    } else if ($findBy == "SSN") {
+        $result = getPatientSSN("$patient", $given, "ss ASC, ".$orderby, $sqllimit, $fstart);
+    } elseif ($findBy == "Phone") {                  //(CHEMED) Search by phone number
+        $result = getPatientPhone("$patient", $given, $orderby, $sqllimit, $fstart);
+    } else if ($findBy == "Any") {
+        $result = getByPatientDemographics("$patient", $given, $orderby, $sqllimit, $fstart);
+    } else if ($findBy == "Filter") {
         $result = getByPatientDemographicsFilter(
             $searchFields,
             "$patient",
@@ -264,7 +271,8 @@ if ($popup) {
     <?php } ?>
   </td>
   <td class='text' align='center'>
-<?php if ($message) echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n"; ?>
+<?php if ($message) {
+    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";} ?>
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
@@ -278,7 +286,9 @@ if ($popup) {
 // $count = $fstart + $GLOBALS['PATIENT_INC_COUNT']; // Why did I do that???
 $count = $GLOBALS['PATIENT_INC_COUNT'];
 $fend = $fstart + $MAXSHOW;
-if ($fend > $count) $fend = $count;
+if ($fend > $count) {
+    $fend = $count;
+}
 ?>
 <?php if ($fstart) { ?>
    <a href="javascript:submitList(-<?php echo $MAXSHOW ?>)">
@@ -523,10 +533,14 @@ var SelectPatient = function (eObj) {
 ?>
     objID = eObj.id;
     var parts = objID.split("~");
-    <?php if (!$popup) echo "top.restoreSession();\n"; ?>
-    <?php if ($popup) echo "opener.";
+    <?php if (!$popup) {
+        echo "top.restoreSession();\n";} ?>
+    <?php if ($popup) {
+        echo "opener.";}
+
     echo $target; ?>.location.href = '<?php echo $newPage; ?>' + parts[0];
-    <?php if ($popup) echo "window.close();\n"; ?>
+    <?php if ($popup) {
+        echo "window.close();\n";} ?>
     return true;
 }
 

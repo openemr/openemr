@@ -247,11 +247,17 @@ function make_document($task)
 
     $from_fax   = preg_replace("/[^0-9]/", "", $facility_data['fax']);
     $from_name  = $from_data['fname']." ".$from_data['lname'];
-    if ($from_data['suffix']) $from_name .=", ".$from_data['suffix'];
+    if ($from_data['suffix']) {
+        $from_name .=", ".$from_data['suffix'];
+    }
+
     $from_fac   = $from_facility['name'];
     $to_fax     = preg_replace("/[^0-9]/", "", $to_data['fax']);
     $to_name    = $to_data['fname']." ".$to_data['lname'];
-    if ($to_data['suffix']) $to_name .=", ".$to_data['suffix'];
+    if ($to_data['suffix']) {
+        $to_name .=", ".$to_data['suffix'];
+    }
+
     $pt_name    = $patientData['fname'].' '.$patientData['lname'];
     $encounter = $task['ENC_ID'];
     $query="select form_encounter.date as encounter_date,form_eye_mag.id as form_id,form_encounter.*, form_eye_mag.*
@@ -365,7 +371,8 @@ function make_document($task)
                 <tr>
                 <td class='col1'><?php echo xlt('Address'); ?>:</td>
                     <td class='col2'>
-                    <?php if ($from_data['name']) echo text($from_data['name'])."<br />"; ?>
+                    <?php if ($from_data['name']) {
+                        echo text($from_data['name'])."<br />";} ?>
                     <?php echo text($from_data['street']); ?><br />
                     <?php echo text($from_data['city']); ?>, <?php echo text($from_data['state'])." ".text($from_data['zip']); ?>
                         <br />
@@ -446,7 +453,10 @@ function make_document($task)
     $wsrlen = strlen($webserver_root);
     while (true) {
         $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) break;
+        if ($i === false) {
+            break;
+        }
+
         if (substr($content, $i+6, $wrlen) === $web_root &&
           substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);

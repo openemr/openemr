@@ -43,9 +43,11 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
 function make_statement($stmt)
 {
     if ($GLOBALS['statement_appearance'] == "1") {
-        if ($_POST['form_portalnotify'] && is_auth_portal($stmt['pid']))
-        return osp_create_HTML_statement($stmt);
-        else return create_HTML_statement($stmt);
+        if ($_POST['form_portalnotify'] && is_auth_portal($stmt['pid'])) {
+            return osp_create_HTML_statement($stmt);
+        } else {
+            return create_HTML_statement($stmt);
+        }
     } else {
         return create_statement($stmt);
     }
@@ -107,10 +109,14 @@ function report_header_2($stmt, $direction = '', $providerID = '1')
 
 function create_HTML_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
   #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
   // Facility (service location)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
@@ -221,8 +227,10 @@ function create_HTML_statement($stmt)
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -268,7 +276,10 @@ function create_HTML_statement($stmt)
   // This generates blank lines until we are at line 20.
   //  At line 20 we start middle third.
 
-    while ($count++ < 16)$out .= "\n";
+    while ($count++ < 16) {
+        $out .= "\n";
+    }
+
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
@@ -363,7 +374,10 @@ function create_HTML_statement($stmt)
         }
     }
 
-    while ($count++ < 29)$out .= "\n";
+    while ($count++ < 29) {
+        $out .= "\n";
+    }
+
     $out .= sprintf("%-10s %s\n", null, $label_retpay);
     $out .= '</pre></div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
@@ -383,8 +397,10 @@ function create_HTML_statement($stmt)
 
     $out .= '</div><br />
    <pre>';
-    if ($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= ' </pre>
   <div style="width:7in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
@@ -483,10 +499,14 @@ function create_HTML_statement($stmt)
 
 function create_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
   #minimum_amount_to _print
-    if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
   // These are your clinics return address, contact etc.  Edit them.
   // TBD: read this from the facility table
@@ -586,8 +606,10 @@ function create_statement($stmt)
     $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
     $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
 
-    if ($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= sprintf("_________________________________________________________________\n");
     $out .= "\n";
     $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
@@ -630,8 +652,10 @@ function create_statement($stmt)
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -677,7 +701,10 @@ function create_statement($stmt)
 
   // This generates blank lines until we are at line 42.
   //
-    while ($count++ < 42)$out .= "\n";
+    while ($count++ < 42) {
+        $out .= "\n";
+    }
+
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
@@ -774,10 +801,14 @@ function create_statement($stmt)
 
 function osp_create_HTML_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
     #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
     // Facility (service location)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
@@ -888,8 +919,10 @@ function osp_create_HTML_statement($stmt)
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -1050,8 +1083,10 @@ function osp_create_HTML_statement($stmt)
     $out .="</td></tr></table>";
 
     $out .= '</div><br />';
-    if ($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= ' </pre>
   <div style="width:8in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";

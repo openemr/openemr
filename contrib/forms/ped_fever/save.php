@@ -10,7 +10,9 @@ foreach ($_POST as $k => $var) {
     echo "$var\n";
 }
 
-if ($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
 
 if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ped_fever", $_POST, $_GET["id"], $userauthorized);

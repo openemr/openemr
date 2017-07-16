@@ -132,8 +132,9 @@ class ImmunizationController extends AbstractActionController
         $params['total_pages'] = $totalpages;
       
         $codes  = $this->getAllCodes($data);
-        if ($codes != '')
-        $form->get('codes')->setValueOptions($codes);
+        if ($codes != '') {
+            $form->get('codes')->setValueOptions($codes);
+        }
         
         $view = new ViewModel(array(
                 'listenerObject'    =>  $this->listenerObject,
@@ -288,17 +289,50 @@ class ImmunizationController extends AbstractActionController
                         $ethnicity_title      = $this->CommonPlugin()->getListtitle('ethnicity', $r['ethnicity']);
                         $guardianarray        = explode(' ', $r['guardiansname']);
                         $guardianname         = $guardianarray[1].'^'.$guardianarray[0];
-                        if ($r['sex']==='Male') $r['sex'] = 'M';
-                        if ($r['sex']==='Female') $r['sex'] = 'F';
-                        if ($r['status']==='married') $r['status'] = 'M';
-                        if ($r['status']==='single') $r['status'] = 'S';
-                        if ($r['status']==='divorced') $r['status'] = 'D';
-                        if ($r['status']==='widowed') $r['status'] = 'W';
-                        if ($r['status']==='separated') $r['status'] = 'A';
-                        if ($r['status']==='domestic partner') $r['status'] = 'P';
-                        if ($r['email']) $email  = '~^NET^Internet^'.$r['email'];
-                        if ($r['race']) $race       = $race_code.'^'.$race_title.'^HL70005';
-                        if ($r['ethnicity']) $ethnicity = $ethnicity_code.'^'.$ethnicity_title.'^CDCREC';
+                        if ($r['sex']==='Male') {
+                            $r['sex'] = 'M';
+                        }
+
+                        if ($r['sex']==='Female') {
+                            $r['sex'] = 'F';
+                        }
+
+                        if ($r['status']==='married') {
+                            $r['status'] = 'M';
+                        }
+
+                        if ($r['status']==='single') {
+                            $r['status'] = 'S';
+                        }
+
+                        if ($r['status']==='divorced') {
+                            $r['status'] = 'D';
+                        }
+
+                        if ($r['status']==='widowed') {
+                            $r['status'] = 'W';
+                        }
+
+                        if ($r['status']==='separated') {
+                            $r['status'] = 'A';
+                        }
+
+                        if ($r['status']==='domestic partner') {
+                            $r['status'] = 'P';
+                        }
+
+                        if ($r['email']) {
+                            $email  = '~^NET^Internet^'.$r['email'];
+                        }
+
+                        if ($r['race']) {
+                            $race       = $race_code.'^'.$race_title.'^HL70005';
+                        }
+
+                        if ($r['ethnicity']) {
+                            $ethnicity = $ethnicity_code.'^'.$ethnicity_title.'^CDCREC';
+                        }
+
                         $r['ss'] = $r['ss'] ? "~".$r['ss']."^^^MAA^SS" : "";
                         $content .= "PID|" . // [[ 3.72 ]]
                             "1|" . // 1. Set id
@@ -375,8 +409,14 @@ class ImmunizationController extends AbstractActionController
                                 "$D" ;
                         }
 
-                        if ($r['guardiansex']==='male') $r['guardiansex'] = 'M';
-                        if ($r['guardiansex']==='female') $r['guardiansex'] = 'F';
+                        if ($r['guardiansex']==='male') {
+                            $r['guardiansex'] = 'M';
+                        }
+
+                        if ($r['guardiansex']==='female') {
+                            $r['guardiansex'] = 'F';
+                        }
+
                         $guardian_relationship_code  = $this->getImmunizationTable()->getNotes($r['guardianrelationship'], 'next_of_kin_relationship');
                         if ($r['guardiansname'] && $r['guardianrelationship']) {
                             $content .=  "NK1|" . // Nearest of kin
@@ -413,14 +453,20 @@ class ImmunizationController extends AbstractActionController
                         }
                     }
 
-                    if ($r['completion_status'] == 'Refused') $r['immunizationid'] = '9999';
+                    if ($r['completion_status'] == 'Refused') {
+                        $r['immunizationid'] = '9999';
+                    }
+
                     if ($r['administered_by_id'] == 0 && $r['information_source'] == 'hist_inf_src_unspecified') {
                         $ordering_provider = "";
                     } else if ($r['ordering_provider']) {
                         $ordering_provider = $r['ordering_provider']."^".$r['ordering_provider_name']."^^^^^NIST-AA-1^L";
                     }
 
-                    if ($r['created_by']) $entered_by = $r['created_by']."^".$r['entered_by_name']."^^^^^NIST-AA-1";
+                    if ($r['created_by']) {
+                        $entered_by = $r['created_by']."^".$r['entered_by_name']."^^^^^NIST-AA-1";
+                    }
+
                     $content .= "ORC" . // ORC mandatory for RXA
                         "|" .
                         "RE|". //1. Order Control
@@ -458,10 +504,22 @@ class ImmunizationController extends AbstractActionController
                     $administered_unit_title       = $this->CommonPlugin()->getListtitle('drug_units', $r['administered_unit']);
                     $manufacturer_code             = $this->getImmunizationTable()->getNotes($r['manufacturer'], 'Immunization_Manufacturer');
                     $immunization_info_source_code = $this->getImmunizationTable()->getNotes($r['information_source'], 'immunization_informationsource');
-                    if ($administered_unit_title) $units   = $administered_unit_title.'^'.$administered_unit_title.'^UCUM^^^';
-                    if ($r['manufacturer']) $manufacturer  = $manufacturer_code . "^" . $r['manufacturer']. "^" . "MVX";
-                    if ($r['information_source']) $information_source = $immunization_info_source_code."^".$r['information_source']."^NIP001";
-                    if ($r['providername'] != null && $r['information_source'] == 'new_immunization_record') $r['providername'] = $r['users_id']."^".$r['providername'];
+                    if ($administered_unit_title) {
+                        $units   = $administered_unit_title.'^'.$administered_unit_title.'^UCUM^^^';
+                    }
+
+                    if ($r['manufacturer']) {
+                        $manufacturer  = $manufacturer_code . "^" . $r['manufacturer']. "^" . "MVX";
+                    }
+
+                    if ($r['information_source']) {
+                        $information_source = $immunization_info_source_code."^".$r['information_source']."^NIP001";
+                    }
+
+                    if ($r['providername'] != null && $r['information_source'] == 'new_immunization_record') {
+                        $r['providername'] = $r['users_id']."^".$r['providername'];
+                    }
+
                     $refusal_reason_code = $this->getImmunizationTable()->getNotes($r['refusal_reason'], 'immunization_refusal_reason');
                     $completion_status   = $this->getImmunizationTable()->getNotes($r['completion_status'], 'Immunization_Completion_Status');
                     if ($r['refusal_reason']) {
@@ -469,7 +527,10 @@ class ImmunizationController extends AbstractActionController
                         $immunization_refusal     = $refusal_reason_code."^".$r['refusal_reason']."^NIP002";
                     }
 
-                    if ($r['code'] == '998') $completion_status = 'NA';
+                    if ($r['code'] == '998') {
+                        $completion_status = 'NA';
+                    }
+
                     $content .= "RXA|" .
                         "0|" . // 1. Give Sub-ID Counter
                         "1|" . // 2. Administrattion Sub-ID Counter

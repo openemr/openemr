@@ -85,20 +85,30 @@ foreach ($parameters['otherid'] as $otherID) {
     // alter the patient's last name to indicate they have been merged into another record
     $newlname = "~~~MERGED~~~".$orow['lname'];
     $sqlstmt = "update patient_data set lname='".$newlname."' where pid='".$otherPID."'";
-    if ($commitchanges == true) $qResults = sqlStatement($sqlstmt);
+    if ($commitchanges == true) {
+        $qResults = sqlStatement($sqlstmt);
+    }
+
     echo "<li>Altered last name of PID ".$otherPID." to '".$newlname."'</li>";
 
     // add patient notes regarding the merged data
     $notetext = "All related patient data has been merged into patient record PID# ".$masterPID;
     echo "<li>Added note about the merge to the PID ".$otherPID."</li>";
-    if ($commitchanges == true) addPnote($otherPID, $notetext);
+    if ($commitchanges == true) {
+        addPnote($otherPID, $notetext);
+    }
 
     $notetext = "All related patient data has been merged from patient record PID# ".$otherPID;
     echo "<li>Added note about the merge to the Master PID ".$masterPID."</li>";
-    if ($commitchanges == true) addPnote($masterPID, $notetext);
+    if ($commitchanges == true) {
+        addPnote($masterPID, $notetext);
+    }
 
     // add a log entry regarding the merged data
-    if ($commitchanges == true) newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
+    if ($commitchanges == true) {
+        newEvent("data_merge", $_SESSION['authUser'], "Default", 1, "Merged PID ".$otherPID." data into master PID ".$masterPID);
+    }
+
     echo "<li>Added entry to log</li>";
 
     echo "<br><br>";

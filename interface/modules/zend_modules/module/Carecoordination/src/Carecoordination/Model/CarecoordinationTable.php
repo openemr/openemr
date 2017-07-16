@@ -239,14 +239,22 @@ class CarecoordinationTable extends AbstractTableGateway
         
         //documentationOf
         $doc_of_str = '';
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']))
-        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']." ";
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']))
-        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']." ";
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']))
-        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']." ";
-        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']))
-        $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']." ";
+        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix'])) {
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['prefix']." ";
+        }
+
+        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given'])) {
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['given']." ";
+        }
+
+        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family'])) {
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['assignedPerson']['name']['family']." ";
+        }
+
+        if (!is_array($xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name'])) {
+            $doc_of_str .= $xml['documentationOf']['serviceEvent']['performer'][0]['assignedEntity']['representedOrganization']['name']." ";
+        }
+
         $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'] = $doc_of_str;
                 
         $documentationOf = $this->ccda_data_array['field_name_value_array']['documentationOf'][1]['assignedPerson'];
@@ -331,11 +339,16 @@ class CarecoordinationTable extends AbstractTableGateway
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['type'] = 'medication';
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['extension'] = $medication_data['substanceAdministration']['id']['extension'];
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['root'] = $medication_data['substanceAdministration']['id']['root'];
-            if ($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'] == '')
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
-            else $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'];
-            if ($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'])
-            $this->ccda_data_array['field_name_value_array']['lists3'][$i]['enddate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'];
+            if ($medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'] == '') {
+                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = date('Y-m-d');
+            } else {
+                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['begdate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['low']['value'];
+            }
+
+            if ($medication_data['substanceAdministration']['effectiveTime'][0]['high']['value']) {
+                $this->ccda_data_array['field_name_value_array']['lists3'][$i]['enddate'] = $medication_data['substanceAdministration']['effectiveTime'][0]['high']['value'];
+            }
+
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route'] = $medication_data['substanceAdministration']['routeCode']['code'];
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['route_display'] = $medication_data['substanceAdministration']['routeCode']['displayName'];
             $this->ccda_data_array['field_name_value_array']['lists3'][$i]['dose'] = $medication_data['substanceAdministration']['doseQuantity']['value'];
@@ -451,8 +464,10 @@ class CarecoordinationTable extends AbstractTableGateway
             $component['section']['text'] = '';
         if ($component['section']['entry'][0]) {
             foreach ($component['section']['entry'] as $key => $value) {
-                if ($key % 3 != 0)
+                if ($key % 3 != 0) {
                     continue; //every third entry section has the procedure details
+                }
+
                 $this->fetch_procedure_value($value);
             }
         } else {
@@ -527,9 +542,12 @@ class CarecoordinationTable extends AbstractTableGateway
                 $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_date'] = $value['observation']['effectiveTime']['value'];
                 $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_value'] = $value['observation']['value']['value'];
                 $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_unit'] = $value['observation']['value']['unit'];
-                if ($value['observation']['referenceRange']['observationRange']['text'])
+                if ($value['observation']['referenceRange']['observationRange']['text']) {
                     $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['text'];
-                else $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['value']['low']['value'] . '-' . $value['observation']['referenceRange']['observationRange']['value']['high']['value'] . ' ' . $value['observation']['referenceRange']['observationRange']['value']['low']['unit'];
+                } else {
+                    $this->ccda_data_array['field_name_value_array']['procedure_result'][$i]['results_range'] = $value['observation']['referenceRange']['observationRange']['value']['low']['value'] . '-' . $value['observation']['referenceRange']['observationRange']['value']['high']['value'] . ' ' . $value['observation']['referenceRange']['observationRange']['value']['low']['unit'];
+                }
+
                 $this->ccda_data_array['entry_identification_array']['procedure_result'][$i] = $i;
                 $i++;
             }
@@ -578,7 +596,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 if ($vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship']) {
                     $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'];
                     $this->ccda_data_array['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'];
-                } else $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'];
+                } else {
+                    $this->ccda_data_array['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'];
+                }
             }
 
             $this->ccda_data_array['entry_identification_array']['vital_sign'][$i] = $i;
@@ -1584,7 +1604,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                                    if ($severity_text) $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
+                                    if ($severity_text) {
+                                        $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
+                                    }
                                 }
 
                                 $reaction_option_id = $this->getOptionId('Reaction', $data['lists2-reaction_text-con'][$i], '');
@@ -1609,7 +1631,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   ?,
                                                   1
                                                  )";
-                                    if ($value['reaction_text']) $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
+                                    if ($value['reaction_text']) {
+                                        $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$data['lists2-reaction_text-con'][$i]));
+                                    }
                                 }
 
                                 $q_upd_allergies = "UPDATE lists
@@ -2037,7 +2061,9 @@ class CarecoordinationTable extends AbstractTableGateway
                         } elseif ($rowfield['field_name'] == 'ethnicity') {
                               $ethnicity_option_id = $this->getOptionId('ethnicity', $rowfield['field_value'], '');
                               $newdata['patient_data'][$rowfield['field_name']] = $ethnicity_option_id;
-                        } else $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
+                        } else {
+                            $newdata['patient_data'][$rowfield['field_name']] = $rowfield['field_value'];
+                        }
                     }
                 } elseif ($table == 'immunization') {
                     $newdata['immunization'][$rowfield['field_name']] = $rowfield['field_value'];
@@ -2201,8 +2227,9 @@ class CarecoordinationTable extends AbstractTableGateway
 
                       $alcohol_date_value = fixDate($alcohol_date);
                 foreach ($alcohol_status as $key => $value) {
-                      if ($alcohol[1] == $key)
-                          $alcohol[1] = strtolower($value) . "alcohol";
+                    if ($alcohol[1] == $key) {
+                        $alcohol[1] = strtolower($value) . "alcohol";
+                    }
                 }
 
                       $alcohol_value = $alcohol[0] . "|" . $alcohol[1] . "|" . $alcohol_date_value;
@@ -2216,8 +2243,9 @@ class CarecoordinationTable extends AbstractTableGateway
 
                       $smoking_date_value = fixDate($smoking_date);
                 foreach ($tobacco_status as $key => $value2) {
-                      if ($tobacco[1] == $key)
-                          $tobacco[1] = strtolower($value2) . "tobacco";
+                    if ($tobacco[1] == $key) {
+                        $tobacco[1] = strtolower($value2) . "tobacco";
+                    }
                 }
 
                       $smoking_value = $tobacco[0] . "|" . $tobacco[1] . "|" . $smoking_date_value;
@@ -3362,8 +3390,9 @@ class CarecoordinationTable extends AbstractTableGateway
 
             if ($revapprove == 1) {
                 if ($value['resolved'] == 1) {
-                    if (!$allergy_enddate_value)
-                     $allergy_enddate_value = date('y-m-d');
+                    if (!$allergy_enddate_value) {
+                        $allergy_enddate_value = date('y-m-d');
+                    }
                 } else {
                     $allergy_enddate_value = (null);
                 }
@@ -3397,7 +3426,9 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-                if ($severity_text) $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
+                if ($severity_text) {
+                    $appTable->zQuery($q_insert_units_option, array($severity_option_id,$severity_text));
+                }
             }
 
             $reaction_option_id = $this->getOptionId('Reaction', $value['reaction_text'], '');
@@ -3422,7 +3453,9 @@ class CarecoordinationTable extends AbstractTableGateway
                               ?,
                               1
                              )";
-                if ($value['reaction_text']) $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$value['reaction_text']));
+                if ($value['reaction_text']) {
+                    $appTable->zQuery($q_insert_units_option, array($reaction_option_id,$value['reaction_text']));
+                }
             }
 
             if ($res_q_sel_allergies->count() == 0) {
@@ -3520,8 +3553,9 @@ class CarecoordinationTable extends AbstractTableGateway
             
             if ($revapprove == 1) {
                 if ($value['resolved'] == 1) {
-                    if (!$med_pblm_enddate_value)
-                     $med_pblm_enddate_value = date('y-m-d');
+                    if (!$med_pblm_enddate_value) {
+                        $med_pblm_enddate_value = date('y-m-d');
+                    }
                 } else {
                     $med_pblm_enddate_value = (null);
                 }
@@ -3667,9 +3701,12 @@ class CarecoordinationTable extends AbstractTableGateway
         }
 
         foreach ($functional_cognitive_status_array as $key => $value) {
-            if ($value['date'] != '')
+            if ($value['date'] != '') {
                 $date = $this->formatDate($value['date']);
-            else $date = date('Y-m-d');
+            } else {
+                $date = date('Y-m-d');
+            }
+
             $query_sel_enc = "SELECT encounter 
                             FROM form_encounter 
                             WHERE date=? AND pid=?";

@@ -196,11 +196,17 @@ li {
 <h1>
 <?php
 // F should never happen, but just in case.
-if ($source == 'F') echo xlt('Fields in This Form');
-else if ($source == 'D') echo xlt('Demographics Fields');
-else if ($source == 'H') echo xlt('History Fields');
-else if ($source == 'E') echo xlt('Visit Attributes');
-else if ($source == 'V') echo xlt('Visit Form Attributes');
+if ($source == 'F') {
+    echo xlt('Fields in This Form');
+} else if ($source == 'D') {
+    echo xlt('Demographics Fields');
+} else if ($source == 'H') {
+    echo xlt('History Fields');
+} else if ($source == 'E') {
+    echo xlt('Visit Attributes');
+} else if ($source == 'V') {
+    echo xlt('Visit Form Attributes');
+}
 ?>
 </h1>
 
@@ -227,7 +233,10 @@ if ($source == 'V') {
 
     $last_field_id = '';
     while ($row = sqlFetchArray($res)) {
-        if ($row['field_id'] === $last_field_id) continue;
+        if ($row['field_id'] === $last_field_id) {
+            continue;
+        }
+
         $last_field_id = $row['field_id'];
         gen_sel_row($row);
     }

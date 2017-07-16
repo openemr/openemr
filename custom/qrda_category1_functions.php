@@ -59,8 +59,9 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $facility_id = $userRow['facility_id'];
         
     //Facility Info
-    if ($facility_id != "")
-    $facilResRow = getFacilDataChk($facility_id);
+    if ($facility_id != "") {
+        $facilResRow = getFacilDataChk($facility_id);
+    }
         
     ####################### HEADER ELEMENTS START ##########################################
 
@@ -109,22 +110,31 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
         
     $xml->add_patientAddress($patientRow);
         
-    if ($patientRow['phone_home'] != "")
-    $xml->self_customTag('telecom', array('value' => $patientRow['phone_home'], 'use'=>'HP'));
-    else $xml->self_customTag('telecom', array('nullFlavor' => "UNK"));
+    if ($patientRow['phone_home'] != "") {
+        $xml->self_customTag('telecom', array('value' => $patientRow['phone_home'], 'use'=>'HP'));
+    } else {
+        $xml->self_customTag('telecom', array('nullFlavor' => "UNK"));
+    }
         
     $xml->open_customTag('patient');
         
     $patNameArr = array('fname' =>$patientRow['fname'], 'lname'=>$patientRow['lname']);
     $xml->add_patName($patNameArr);
         
-    if ($patientRow['sex'] == "Male") $gender = "M";
-    else if ($patientRow['sex'] == "Female") $gender = "F";
+    if ($patientRow['sex'] == "Male") {
+        $gender = "M";
+    } else if ($patientRow['sex'] == "Female") {
+        $gender = "F";
+    }
+
     $xml->self_customTag('administrativeGenderCode', array('codeSystem' => '2.16.840.1.113883.18.2', 'code' =>$gender));
         
     $xml->self_customTag('birthTime', array('value' =>date('Ymd', strtotime($patientRow['DOB']))));
         
-    if ($mainQrdaRaceCodeArr[$patientRow['race']] == "") $mainQrdaRaceCodeArr[$patientRow['race']] = "2131-1";
+    if ($mainQrdaRaceCodeArr[$patientRow['race']] == "") {
+        $mainQrdaRaceCodeArr[$patientRow['race']] = "2131-1";
+    }
+
     $xml->self_customTag('raceCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainQrdaRaceCodeArr[$patientRow['race']]));
     $xml->self_customTag('ethnicGroupCode', array('codeSystem' =>'2.16.840.1.113883.6.238', 'code' => $mainEthiCodeArr[$patientRow['ethnicity']]));
         
@@ -148,9 +158,11 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $npi_provider = empty($userRow['npi']) ? "FakeNPI" : $userRow['npi'];
     $xml->self_customTag('id', array('root' =>'2.16.840.1.113883.4.6', 'extension' => $npi_provider));
     $xml->add_patientAddress($facilResRow);
-    if (!empty($userRow['phone']))
-    $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
-    else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    if (!empty($userRow['phone'])) {
+        $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
+    } else {
+        $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    }
 
         
         
@@ -186,9 +198,11 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
     $assignedEntityId = getUuid();
     $xml->self_customId($assignedEntityId);
     $xml->add_facilAddress($facilResRow);
-    if (!empty($facilResRow['phone']))
-    $xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use'=>'WP'));
-    else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    if (!empty($facilResRow['phone'])) {
+        $xml->self_customTag('telecom', array('value' => $facilResRow['phone'], 'use'=>'WP'));
+    } else {
+        $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    }
         
     $xml->open_customTag('assignedPerson');
 
@@ -226,7 +240,9 @@ function getHeaderQRDA1($xml, $patient_id, $provider_id)
 
     if ($userRow['phone'] != "") {
         $xml->self_customTag('telecom', array('value' => $userRow['phone'], 'use'=>'WP'));
-    } else $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    } else {
+        $xml->self_customTag('telecom', array("nullFlavor" => "UNK"));
+    }
 
     $xml->open_customTag('assignedPerson');
 
@@ -376,9 +392,11 @@ function getAllImmunization($xml, $patient_id)
                 $arr = array('code'=>'416118004', 'codeSystemName'=>'SNOMED CT', 'codeSystem'=>'2.16.840.1.113883.6.96', 'displayName' => 'Administration');
                 $xml->self_codeCustom($arr);
             
-                if ($medRow['status'] == "" || $medRow['status'] == "not_completed")
-                $statusChk = "active";
-                else $statusChk = "completed";
+                if ($medRow['status'] == "" || $medRow['status'] == "not_completed") {
+                    $statusChk = "active";
+                } else {
+                    $statusChk = "completed";
+                }
             
                 $arr = array('code'=>"completed");
                 $xml->self_customTag('statusCode', $arr);

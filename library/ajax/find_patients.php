@@ -19,7 +19,10 @@ require_once("../../interface/globals.php");
 function myGetValue($fldname)
 {
     $val = formData($fldname, 'G', true);
-    if ($val == 'undefined') $val = '';
+    if ($val == 'undefined') {
+        $val = '';
+    }
+
     return $val;
 }
 
@@ -56,7 +59,9 @@ if (!$error && $ss) {
 }
 
 $nametest = "fname LIKE '$fname' AND lname LIKE '$lname'";
-if ($mname != '') $nametest .= " AND mname LIKE '$mname'";
+if ($mname != '') {
+    $nametest .= " AND mname LIKE '$mname'";
+}
 
 if (!$error && ($fname || $lname || $mname)) {
     if (myQueryPatients("$nametest")) {

@@ -40,8 +40,9 @@ class QueryBuilder
     public function AddFieldMap($fm)
     {
         $tablealias = $fm->TableName;
-        if (! array_key_exists($tablealias, $this->Tables))
+        if (! array_key_exists($tablealias, $this->Tables)) {
             $this->Tables [$tablealias] = $fm->TableName;
+        }
             
             // debugging sequence of loading tables
             // print "<div>QueryBuilder->AddFieldMap:" . $tablealias . "-&gt;" . $fm->ColumnName . "</div>";
@@ -227,8 +228,9 @@ class QueryBuilder
         // .. end of stuff that should be in criteria
         
         // prepend the "where" onto the statement
-        if ($where)
+        if ($where) {
             $where = " where (" . trim($where) . ") ";
+        }
         
         return $where;
     }

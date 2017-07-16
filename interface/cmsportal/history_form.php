@@ -58,7 +58,10 @@ if ($_POST['bn_save']) {
 }
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
@@ -168,10 +171,14 @@ while ($lorow = sqlFetchArray($lores)) {
     if ($gotfield || $lorow['uor'] > 1) {
         $list_id = $lorow['list_id'];
         $field_title = $lorow['title'];
-        if ($field_title === '') $field_title = '(' . $field_id . ')';
+        if ($field_title === '') {
+            $field_title = '(' . $field_id . ')';
+        }
 
         $currvalue = '';
-        if (isset($hyrow[$field_id])) $currvalue = $hyrow[$field_id];
+        if (isset($hyrow[$field_id])) {
+            $currvalue = $hyrow[$field_id];
+        }
 
         $newvalue = cms_field_to_lbf($data_type, $reskey, $result['fields']);
 

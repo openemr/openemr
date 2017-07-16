@@ -105,41 +105,62 @@ class CreditCardUtil
     {
         $firstOne = substr($num, 0, 1);
         
-        if (strlen($num) < 4)
+        if (strlen($num) < 4) {
             return "";
-        if ($firstOne == 4)
+        }
+
+        if ($firstOne == 4) {
             return "Visa";
+        }
         
         $firstTwo = substr($num, 0, 2);
-        if ($firstTwo == 34 || $firstTwo == 37)
+        if ($firstTwo == 34 || $firstTwo == 37) {
             return "AmEx";
-        if ($firstTwo >= 51 && $firstTwo <= 55)
+        }
+
+        if ($firstTwo >= 51 && $firstTwo <= 55) {
             return "MasterCard";
-        if ($firstTwo == 36 || $firstTwo == 38 || $firstTwo == 54 || $firstTwo == 55)
+        }
+
+        if ($firstTwo == 36 || $firstTwo == 38 || $firstTwo == 54 || $firstTwo == 55) {
             return "Diners Club";
+        }
         
         $firstThree = substr($num, 0, 3);
-        if ($firstThree >= 300 && $firstThree <= 305)
+        if ($firstThree >= 300 && $firstThree <= 305) {
             return "Carte Blanche";
-        if ($firstThree >= 644 && $firstThree <= 649)
+        }
+
+        if ($firstThree >= 644 && $firstThree <= 649) {
             return "Discover";
+        }
         
         $firstFour = substr($num, 0, 4);
-        if ($firstFour == 6011)
+        if ($firstFour == 6011) {
             return "Discover";
-        if ($firstFour == 2014 || $firstFour == 2149)
+        }
+
+        if ($firstFour == 2014 || $firstFour == 2149) {
             return "enRoute";
-        if ($firstFour == 6011)
+        }
+
+        if ($firstFour == 6011) {
             return "Discover";
+        }
         
         $firstSix = substr($num, 0, 6);
-        if ($firstSix >= 622126 && $firstSix <= 622925)
+        if ($firstSix >= 622126 && $firstSix <= 622925) {
             return "Discover";
+        }
         
-        if ($firstOne == 3)
+        if ($firstOne == 3) {
             return "JCB";
-        if ($firstFour == 2131 || $firstFour == 1800)
+        }
+
+        if ($firstFour == 2131 || $firstFour == 1800) {
             return "JCB";
+        }
+
         return "Other";
     }
 }

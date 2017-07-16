@@ -77,7 +77,9 @@ class OnsitePortalActivityController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 

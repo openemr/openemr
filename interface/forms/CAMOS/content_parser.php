@@ -274,7 +274,11 @@ function patient_age($birthday, $date)
     $year_diff  = $date_year - $birth_year;
     $month_diff = $date_month - $birth_month;
     $day_diff   = $date_day - $birth_day;
-    if ($month_diff < 0) $year_diff--;
-    elseif (($month_diff==0) && ($day_diff < 0)) $year_diff--;
+    if ($month_diff < 0) {
+        $year_diff--;
+    } elseif (($month_diff==0) && ($day_diff < 0)) {
+        $year_diff--;
+    }
+
     return $year_diff;
 }

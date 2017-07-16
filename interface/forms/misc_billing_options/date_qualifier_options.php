@@ -20,7 +20,10 @@ function generateDateQualifierSelect($name, $options, $obj)
     echo     "<select name='".attr($name)."'>";
     for ($idx=0; $idx<count($options); $idx++) {
         echo "<option value='".attr($options[$idx][1])."'";
-        if ($obj[$name]==$options[$idx][1]) echo " selected";
+        if ($obj[$name]==$options[$idx][1]) {
+            echo " selected";
+        }
+
         echo ">".text($options[$idx][0])."</option>";
     }
 
@@ -35,13 +38,19 @@ function genProviderSelect($selname, $toptext, $default = 0, $disabled = false)
     "ORDER BY lname, fname";
     $res = sqlStatement($query);
     echo "<select name='" . attr($selname) . "'";
-    if ($disabled) echo " disabled";
+    if ($disabled) {
+        echo " disabled";
+    }
+
     echo ">";
     echo "<option value=''>" . text($toptext);
     while ($row = sqlFetchArray($res)) {
         $provid = $row['id'];
         echo "<option value='" . attr($provid) . "'";
-        if ($provid == $default) echo " selected";
+        if ($provid == $default) {
+            echo " selected";
+        }
+
         echo ">" . text($row['lname'] . ", " . $row['fname']);
     }
 

@@ -44,7 +44,9 @@ $insarray = array();
 
 function bucks($amount)
 {
-    if ($amount) echo oeFormatMoney($amount);
+    if ($amount) {
+        echo oeFormatMoney($amount);
+    }
 }
 
 function thisLineItem(
@@ -83,7 +85,10 @@ function thisLineItem(
         $insarray[] = array($patient_id, $encounter_id, $memo, $transdate,
         $rowmethod, $rowpayamount, $rowadjamount, $payer_type, $irnumber);
     } else { // details not wanted
-        if (empty($insarray[$rowmethod])) $insarray[$rowmethod] = array(0, 0);
+        if (empty($insarray[$rowmethod])) {
+            $insarray[$rowmethod] = array(0, 0);
+        }
+
         $insarray[$rowmethod][0] += $rowpayamount;
         $insarray[$rowmethod][1] += $rowadjamount;
         $grandpaytotal  += $rowpayamount;
@@ -106,7 +111,9 @@ function showLineItem(
     global $paymethod, $paymethodleft, $methodpaytotal, $methodadjtotal,
     $grandpaytotal, $grandadjtotal, $showing_ppd;
 
-    if (! $rowmethod) $rowmethod = 'Unknown';
+    if (! $rowmethod) {
+        $rowmethod = 'Unknown';
+    }
 
     $invnumber = $irnumber ? $irnumber : "$patient_id.$encounter_id";
 
@@ -205,14 +212,21 @@ if ($showing_ppd) {
 function payerCmp($a, $b)
 {
     foreach (array(4,3,0,1,2,7) as $i) {
-        if ($a[$i] < $b[$i]) return -1;
-        if ($a[$i] > $b[$i]) return  1;
+        if ($a[$i] < $b[$i]) {
+            return -1;
+        }
+
+        if ($a[$i] > $b[$i]) {
+            return  1;
+        }
     }
 
     return 0;
 }
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
@@ -329,7 +343,10 @@ function sel_procedure() {
                 echo "   <select name='form_report_by' class='form-control'>\n";
                 foreach (array(1 => 'Payer', 2 => 'Payment Method', 3 => 'Check Number') as $key => $value) {
                     echo "    <option value='$key'";
-                    if ($key == $form_report_by) echo ' selected';
+                    if ($key == $form_report_by) {
+                        echo ' selected';
+                    }
+
                     echo ">" . xl($value) . "</option>\n";
                 }
 
@@ -341,15 +358,18 @@ function sel_procedure() {
             </td>
 
             <td class='control-label'>
-                <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xl('Procedure/Service') . ':'; ?>
+                <?php if (!$GLOBALS['simplified_demographics']) {
+                    echo '&nbsp;' . xl('Procedure/Service') . ':';} ?>
             </td>
             <td>
                <input type='text' name='form_proc_codefull' class='form-control' size='12' value='<?php echo $form_proc_codefull; ?>' onclick='sel_procedure()'
                 title='<?php xl('Click to select optional procedure code', 'e'); ?>'
-                <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?> />
+                <?php if ($GLOBALS['simplified_demographics']) {
+                    echo "style='display:none'";} ?> />
                                 <br>
           <div class="checkbox">
-                  <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> /><?php echo xl('Details')?></label>
+                  <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+                        echo " checked";} ?> /><?php echo xl('Details')?></label>
           </div>
             </td>
         </tr>
@@ -358,7 +378,8 @@ function sel_procedure() {
             <td>
                <select name='form_use_edate' class='form-control'>
                 <option value='0'><?php xl('Payment Date', 'e'); ?></option>
-                <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php xl('Invoice Date', 'e'); ?></option>
+                <option value='1'<?php if ($form_use_edate) {
+                    echo ' selected'; } ?>><?php xl('Invoice Date', 'e'); ?></option>
                </select>
             </td>
             <td>
@@ -470,7 +491,10 @@ if ($_POST['form_refresh']) {
         "WHERE b.code_type = 'COPAY' AND b.activity = 1 AND b.fee != 0 AND " .
         "fe.date >= '$from_date 00:00:00' AND fe.date <= '$to_date 23:59:59'";
       // If a facility was specified.
-        if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+        if ($form_facility) {
+            $query .= " AND fe.facility_id = '$form_facility'";
+        }
+
         $query .= " ORDER BY fe.date, b.pid, b.encounter, fe.id";
       //
         $res = sqlStatement($query);
@@ -519,7 +543,10 @@ if ($_POST['form_refresh']) {
     }
 
     // If a facility was specified.
-    if ($form_facility) $query .= " AND fe.facility_id = '$form_facility'";
+    if ($form_facility) {
+        $query .= " AND fe.facility_id = '$form_facility'";
+    }
+
     //
     if ($form_use_edate) {
         $query .= " ORDER BY s.reference, fe.date, a.pid, a.encounter, fe.id";
@@ -543,8 +570,11 @@ if ($_POST['form_refresh']) {
             if (empty($row['payer_id'])) {
                 $rowmethod = '';
             } else {
-                if (empty($row['name'])) $rowmethod = xl('Unnamed insurance company');
-                else $rowmethod = $row['name'];
+                if (empty($row['name'])) {
+                    $rowmethod = xl('Unnamed insurance company');
+                } else {
+                    $rowmethod = $row['name'];
+                }
             }
         } else {
             if (empty($row['session_id'])) {
@@ -582,12 +612,20 @@ if ($_POST['form_refresh']) {
             usort($insarray, 'payerCmp');
             $b = array();
             foreach ($insarray as $a) {
-                if (empty($a[4])) $a[4] = xl('Patient');
+                if (empty($a[4])) {
+                    $a[4] = xl('Patient');
+                }
+
                 if (empty($b)) {
                     $b = $a;
                 } else {
                     $match = true;
-                    foreach (array(4,3,0,1,2,7) as $i) if ($a[$i] != $b[$i]) $match = false;
+                    foreach (array(4,3,0,1,2,7) as $i) {
+                        if ($a[$i] != $b[$i]) {
+                            $match = false;
+                        }
+                    }
+
                     if ($match) {
                         $b[5] += $a[5];
                         $b[6] += $a[6];
@@ -621,7 +659,9 @@ if ($_POST['form_refresh']) {
     else {
         ksort($insarray);
         foreach ($insarray as $key => $value) {
-            if (empty($key)) $key = xl('Patient');
+            if (empty($key)) {
+                $key = xl('Patient');
+            }
         ?>
      <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $showing_ppd ? 7 : 4; ?>">

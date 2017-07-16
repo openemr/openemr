@@ -57,8 +57,9 @@ if ($docid) {
  $thisauth = acl_check('patients', 'notes');
 if ($thisauth) {
     $tmp = getPatientData($patient_id, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    $thisauth = 0;
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        $thisauth = 0;
+    }
 }
 
 if (!$thisauth) {

@@ -260,7 +260,8 @@ $facilities = $facilityService->getAllServiceLocations();
 if ($facilities) {
     foreach ($facilities as $iter) {
     ?>
-       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) echo "selected";?>><?php echo text($iter['name']); ?></option>
+       <option value="<?php echo attr($iter['id']); ?>" <?php if ($def_facility == $iter['id']) {
+            echo "selected";}?>><?php echo text($iter['name']); ?></option>
 <?php
     }
 }
@@ -289,7 +290,10 @@ if ($facilities) {
 
                 foreach ($pc->get_pos_ref() as $pos) {
                     echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                    if ($pos["code"] == $result['pos_code']) echo "selected";
+                    if ($pos["code"] == $result['pos_code']) {
+                        echo "selected";
+                    }
+
                     echo ">" . text($pos['code'])  . ": ". xlt($pos['title']);
                     echo "</option>\n";
                 }
@@ -313,13 +317,19 @@ foreach ($sensitivities as $value) {
    // Omit sensitivities to which this user does not have access.
     if (acl_check('sensitivities', $value[1])) {
         echo "       <option value='" . attr($value[1]) . "'";
-        if ($viewmode && $result['sensitivity'] == $value[1]) echo " selected";
+        if ($viewmode && $result['sensitivity'] == $value[1]) {
+            echo " selected";
+        }
+
         echo ">" . xlt($value[3]) . "</option>\n";
     }
 }
 
 echo "       <option value=''";
-if ($viewmode && !$result['sensitivity']) echo " selected";
+if ($viewmode && !$result['sensitivity']) {
+    echo " selected";
+}
+
 echo ">" . xlt('None'). "</option>\n";
 ?>
      </select>
@@ -333,7 +343,8 @@ echo ">" . xlt('None'). "</option>\n";
 ?>
     </tr>
 
-    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if (!$GLOBALS['gbl_visit_referral_source']) {
+        echo " style='visibility:hidden;'";} ?>>
      <td class='bold' nowrap><?php echo xlt('Referral Source'); ?>:</td>
      <td class='text'>
 <?php
@@ -362,7 +373,8 @@ echo ">" . xlt('None'). "</option>\n";
      </td>
     </tr>
 
-    <tr<?php if ($GLOBALS['ippf_specific']) echo " style='visibility:hidden;'"; ?>>
+    <tr<?php if ($GLOBALS['ippf_specific']) {
+        echo " style='visibility:hidden;'";} ?>>
      <td class='bold' nowrap><?php echo xlt('Onset/hosp. date:'); ?></td>
      <td class='text' nowrap><!-- default is blank so that while generating claim the date is blank. -->
       <input type='text' size='10' class='datepicker' name='form_onset_date' id='form_onset_date'
@@ -421,15 +433,22 @@ if ($issuesauth) {
 while ($irow = sqlFetchArray($ires)) {
     $list_id = $irow['id'];
     $tcode = $irow['type'];
-    if ($ISSUE_TYPES[$tcode]) $tcode = $ISSUE_TYPES[$tcode][2];
+    if ($ISSUE_TYPES[$tcode]) {
+        $tcode = $ISSUE_TYPES[$tcode][2];
+    }
+
     echo "    <option value='" . attr($list_id) . "'";
     if ($viewmode) {
         $perow = sqlQuery("SELECT count(*) AS count FROM issue_encounter WHERE " .
         "pid = ? AND encounter = ? AND list_id = ?", array($pid,$encounter,$list_id));
-        if ($perow['count']) echo " selected";
+        if ($perow['count']) {
+            echo " selected";
+        }
     } else {
         // For new encounters the invoker may pass an issue ID.
-        if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) echo " selected";
+        if (!empty($_REQUEST['issue']) && $_REQUEST['issue'] == $list_id) {
+            echo " selected";
+        }
     }
 
     echo ">" . text($tcode) . ": " . text($irow['begdate']) . " " .

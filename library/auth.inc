@@ -102,7 +102,9 @@ if (!isset($_SESSION["last_update"])) {
         //  can be used by scripts that continually request information from the server; for example the Messages
         //  and Reminders automated intermittent requests that happen in the Messages Center script and in
         //  the left navigation menu script.
-        if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) $_SESSION["last_update"] = time();
+        if (empty($GLOBALS['DAEMON_FLAG']) && empty($_REQUEST['skip_timeout_reset'])) {
+            $_SESSION["last_update"] = time();
+        }
     }
 }
 
@@ -202,21 +204,31 @@ function authCheckExpired($user)
 
 function getUserList($cols = '*', $limit = 'all', $start = '0')
 {
-    if ($limit = "all")
+    if ($limit = "all") {
         $rez = sqlStatement("select $cols from users where username != '' order by date DESC");
-    else $rez = sqlStatement("select $cols from users where username != '' order by date DESC limit $limit, $start");
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++)
+    } else {
+        $rez = sqlStatement("select $cols from users where username != '' order by date DESC limit $limit, $start");
+    }
+
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $tbl[$iter] = $row;
+    }
+
     return $tbl;
 }
 
 function getProviderList($cols = '*', $limit = 'all', $start = '0')
 {
-    if ($limit = "all")
+    if ($limit = "all") {
         $rez = sqlStatement("select $cols from groups order by date DESC");
-    else $rez = sqlStatement("select $cols from groups order by date DESC limit $limit, $start");
-    for ($iter = 0; $row = sqlFetchArray($rez); $iter++)
+    } else {
+        $rez = sqlStatement("select $cols from groups order by date DESC limit $limit, $start");
+    }
+
+    for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $tbl[$iter] = $row;
+    }
+
     return $tbl;
 }
 
@@ -243,8 +255,9 @@ function validateGroupStatus($user_to_be_checked, $group_user)
     if (isset($user_to_be_checked) && isset($group_user)) {
         if ($user_to_be_checked == $group_user) {
             return true;
-        } elseif ($_SESSION['authorizeduser'] == 1)
+        } elseif ($_SESSION['authorizeduser'] == 1) {
             return true;
+        }
 
         $query = "SELECT groups.name FROM users,groups WHERE users.username = ? " .
                  "AND users.username = groups.user group by groups.name";

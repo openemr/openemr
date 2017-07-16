@@ -42,8 +42,10 @@ class C_FormEvaluation extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->evaluation = new FormEvaluation($_POST['id']);
         parent::populate_object($this->evaluation);
 

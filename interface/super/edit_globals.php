@@ -37,7 +37,9 @@ $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 if (!$userMode) {
   // Check authorization.
     $thisauth = acl_check('admin', 'super');
-    if (!$thisauth) die(xlt('Not authorized'));
+    if (!$thisauth) {
+        die(xlt('Not authorized'));
+    }
 }
 
 function checkCreateCDB()
@@ -269,7 +271,9 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     $fldvalue = "";
                 }
 
-                if ($fldtype=='pwd') $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
+                if ($fldtype=='pwd') {
+                    $fldvalue = $fldvalue ? SHA1($fldvalue) : $fldvalueold; // TODO: salted passwords?
+                }
 
                 // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
 
@@ -448,7 +452,9 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                 $glres = sqlStatement("SELECT gl_index, gl_value FROM globals WHERE " .
                   "gl_name = ? ORDER BY gl_index", array($fldid));
                 $glarr = array();
-                while ($glrow = sqlFetchArray($glres))$glarr[] = $glrow;
+                while ($glrow = sqlFetchArray($glres)) {
+                    $glarr[] = $glrow;
+                }
 
                 // $fldvalue is meaningful only for the single-value cases.
                 $fldvalue = count($glarr) ? $glarr[0]['gl_value'] : $flddef;
@@ -472,14 +478,19 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                               echo "  <select name='form_$i' id='form_$i'>\n";
                     foreach ($fldtype as $key => $value) {
                         if ($userMode) {
-                            if ($globalValue == $key) $globalTitle = $value;
+                            if ($globalValue == $key) {
+                                $globalTitle = $value;
+                            }
                         }
 
                         echo "   <option value='" . attr($key) . "'";
 
                         //Casting value to string so the comparison will be always the same type and the only thing that will check is the value
                         //Tried to use === but it will fail in already existing variables
-                        if ((string)$key == (string)$fldvalue) echo " selected";
+                        if ((string)$key == (string)$fldvalue) {
+                            echo " selected";
+                        }
+
                         echo ">";
                         echo text($value);
                         echo "</option>\n";
@@ -496,7 +507,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                     }
 
                               echo "  <input type='checkbox' name='form_$i' id='form_$i' value='1'";
-                              if ($fldvalue) echo " checked";
+                    if ($fldvalue) {
+                        echo " checked";
+                    }
+
                               echo " />\n";
                 } else if ($fldtype == 'num') {
                     if ($userMode) {
@@ -531,7 +545,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                               echo "  <select name='form_$i' id='form_$i'>\n";
                     while ($row = sqlFetchArray($res)) {
                         echo "   <option value='" . attr($row['lang_description']) . "'";
-                        if ($row['lang_description'] == $fldvalue) echo " selected";
+                        if ($row['lang_description'] == $fldvalue) {
+                            echo " selected";
+                        }
+
                         echo ">";
                         echo xlt($row['lang_description']);
                         echo "</option>\n";
@@ -543,7 +560,10 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                               echo "  <select name='form_$i' id='form_$i'>\n";
                     foreach (array_keys($code_types) as $code_key) {
                         echo "   <option value='" . attr($code_key) . "'";
-                        if ($code_key == $fldvalue) echo " selected";
+                        if ($code_key == $fldvalue) {
+                            echo " selected";
+                        }
+
                         echo ">";
                         echo xlt($code_types[$code_key]['label']);
                         echo "</option>\n";
@@ -618,14 +638,19 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                             //  lone scripts such as setup.php
                             //  Also skip style_pdf.css which is for PDFs and not screen output
                             if (!preg_match("/^style_.*\.css$/", $tfname) ||
-                              $tfname == 'style_blue.css' || $tfname == 'style_pdf.css')
-                              continue;
+                              $tfname == 'style_blue.css' || $tfname == 'style_pdf.css') {
+                                continue;
+                            }
+
                             echo "<option value='" . attr($tfname) . "'";
                             // Drop the "style_" part and any replace any underscores with spaces
                             $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
                             // Strip the ".css" and uppercase the first character
                             $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) echo " selected";
+                            if ($tfname == $fldvalue) {
+                                echo " selected";
+                            }
+
                             echo ">";
                             echo text($styleDisplayName);
                             echo "</option>\n";
@@ -645,13 +670,19 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                         echo "  <select name='form_$i' id='form_$i'>\n";
                         while (false !== ($tfname = readdir($dh))) {
                             // Only show files that contain tabs_style_ as options
-                            if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) continue;
+                            if (!preg_match("/^tabs_style_.*\.css$/", $tfname)) {
+                                continue;
+                            }
+
                             echo "<option value='" . attr($tfname) . "'";
                             // Drop the "tabs_style_" part and any replace any underscores with spaces
                             $styleDisplayName = str_replace("_", " ", substr($tfname, 11));
                             // Strip the ".css" and uppercase the first character
                             $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                            if ($tfname == $fldvalue) echo " selected";
+                            if ($tfname == $fldvalue) {
+                                echo " selected";
+                            }
+
                             echo ">";
                             echo text($styleDisplayName);
                             echo "</option>\n";
@@ -668,12 +699,21 @@ foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                               echo "  <select name='form_$i' id='form_$i'>\n";
                     for ($h = 0; $h < 24; ++$h) {
                         echo "<option value='$h'";
-                        if ($h == $fldvalue) echo " selected";
+                        if ($h == $fldvalue) {
+                            echo " selected";
+                        }
+
                         echo ">";
-                        if ($h ==  0) echo "12 AM";
-                        else if ($h <  12) echo "$h AM";
-                        else if ($h == 12) echo "12 PM";
-                        else echo ($h - 12) . " PM";
+                        if ($h ==  0) {
+                            echo "12 AM";
+                        } else if ($h <  12) {
+                            echo "$h AM";
+                        } else if ($h == 12) {
+                            echo "12 PM";
+                        } else {
+                            echo ($h - 12) . " PM";
+                        }
+
                         echo "</option>\n";
                     }
 

@@ -31,8 +31,9 @@ require_once("$srcdir/validation/LBF_Validation.php");
 require_once("$srcdir/patientvalidation.inc.php");
 
 // Check authorization.
-if (!acl_check('patients', 'demo', '', array('write','addonly')))
-  die("Adding demographics is not authorized.");
+if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+    die("Adding demographics is not authorized.");
+}
 
 $CPR = 4; // cells per row
 
@@ -378,7 +379,10 @@ $lres = getLayoutRes();
 
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) continue;
+    if (strpos($field_id, 'em_') === 0) {
+        continue;
+    }
+
     $data_type = $lrow['data_type'];
     $fldname = "form_$field_id";
     switch (getSearchClass($data_type)) {
@@ -421,7 +425,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <table width='100%' cellpadding='0' cellspacing='8'>
  <tr>
   <td align='left' valign='top'>
-<?php if ($SHORT_FORM) echo "  <center>\n"; ?>
+<?php if ($SHORT_FORM) {
+    echo "  <center>\n";} ?>
 <?php
 
 function end_cell()
@@ -439,7 +444,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -451,7 +459,9 @@ function end_group()
     if (strlen($last_group) > 0) {
         end_row();
         echo " </table>\n";
-        if (!$SHORT_FORM) echo "</div>\n";
+        if (!$SHORT_FORM) {
+            echo "</div>\n";
+        }
     }
 }
 
@@ -473,9 +483,13 @@ while ($frow = sqlFetchArray($fres)) {
 
     if (strpos($field_id, 'em_') === 0) {
         $tmp = substr($field_id, 3);
-        if (isset($result2[$tmp])) $currvalue = $result2[$tmp];
+        if (isset($result2[$tmp])) {
+            $currvalue = $result2[$tmp];
+        }
     } else {
-        if (isset($result[$field_id])) $currvalue = $result[$field_id];
+        if (isset($result[$field_id])) {
+            $currvalue = $result[$field_id];
+        }
     }
 
   // Handle a data category (group) change.
@@ -484,10 +498,15 @@ while ($frow = sqlFetchArray($fres)) {
             end_group();
             $group_seq++;    // ID for DIV tags
             $group_name = substr($this_group, 1);
-            if (strlen($last_group) > 0) echo "<br />";
+            if (strlen($last_group) > 0) {
+                echo "<br />";
+            }
+
             echo "<span class='bold'><input type='checkbox' name='form_cb_$group_seq' id='form_cb_$group_seq' value='1' " .
             "onclick='return divclick(this,\"div_$group_seq\");'";
-            if ($display_style == 'block') echo " checked";
+            if ($display_style == 'block') {
+                echo " checked";
+            }
 
             // Modified 6-09 by BM - Translate if applicable
             echo " /><b>" . xl_layout_label($group_name) . "</b></span>\n";
@@ -508,14 +527,20 @@ while ($frow = sqlFetchArray($fres)) {
         echo "  <tr>";
     }
 
-    if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+    if ($item_count == 0 && $titlecols == 0) {
+        $titlecols = 1;
+    }
+
     $field_id_label='label_'.$frow['field_id'];
   // Handle starting of a new label cell.
     if ($titlecols > 0) {
         end_cell();
         echo "<td colspan='$titlecols' id='$field_id_label'";
         echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-        if ($cell_count == 2) echo " style='padding-left:10pt'";
+        if ($cell_count == 2) {
+            echo " style='padding-left:10pt'";
+        }
+
         echo ">";
         $cell_count += $titlecols;
     }
@@ -525,8 +550,11 @@ while ($frow = sqlFetchArray($fres)) {
     echo "<b>";
 
   // Modified 6-09 by BM - Translate if applicable
-    if ($frow['title']) echo (xl_layout_label($frow['title']).":");
-    else echo "&nbsp;";
+    if ($frow['title']) {
+        echo (xl_layout_label($frow['title']).":");
+    } else {
+        echo "&nbsp;";
+    }
 
     echo "</b>";
 
@@ -535,7 +563,10 @@ while ($frow = sqlFetchArray($fres)) {
         $id_field_text = "text_".$frow['field_id'];
         end_cell();
         echo "<td colspan='$datacols' class='text data'";
-        if ($cell_count > 0) echo " style='padding-left:5pt'". " id='".$id_field_text."'";
+        if ($cell_count > 0) {
+            echo " style='padding-left:5pt'". " id='".$id_field_text."'";
+        }
+
         echo ">";
         $cell_count += $datacols;
     }
@@ -559,7 +590,10 @@ if (! $GLOBALS['simplified_demographics']) {
 
     echo "<br /><span class='bold'><input type='checkbox' name='form_cb_ins' value='1' " .
     "onclick='return divclick(this,\"div_ins\");'";
-    if ($display_style == 'block') echo " checked";
+    if ($display_style == 'block') {
+        echo " checked";
+    }
+
     echo " /><b>" . xl('Insurance') . "</b></span>\n";
     echo "<div id='div_ins' class='section' style='display:$display_style;'>\n";
 
@@ -575,8 +609,10 @@ if (! $GLOBALS['simplified_demographics']) {
 <?php
 foreach ($insurancei as $iid => $iname) {
     echo "<option value='" . $iid . "'";
-    if (strtolower($iid) == strtolower($result3{"provider"}))
-    echo " selected";
+    if (strtolower($iid) == strtolower($result3{"provider"})) {
+        echo " selected";
+    }
+
     echo ">" . $iname . "</option>\n";
 }
 ?>
@@ -620,7 +656,8 @@ foreach ($insurancei as $iid => $iname) {
      <td><span class=required><?php xl('Group Number', 'e'); ?>: </span></td><td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo $result3{"group_number"}?>" onkeyup='policykeyup(this)'></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";} ?>>
      <td class='required'><?php xl('Subscriber Employer (SE)', 'e'); ?><br><span style='font-weight:normal'>
       (<?php xl('if unemployed enter Student', 'e'); ?>,<br><?php xl('PT Student, or leave blank', 'e'); ?>): </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer
@@ -628,14 +665,16 @@ foreach ($insurancei as $iid => $iname) {
        onchange="capitalizeMe(this);" /></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";} ?>>
      <td><span class=required><?php xl('SE Address', 'e'); ?>: </span></td>
      <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
       value="<?php echo $result3{"subscriber_employer_street"}?>"
        onchange="capitalizeMe(this);" /></td>
     </tr>
 
-    <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+    <tr<?php if ($GLOBALS['omit_employers']) {
+        echo " style='display:none'";} ?>>
      <td colspan="2">
       <table>
        <tr>
@@ -716,7 +755,8 @@ foreach ($insurancei as $iid => $iname) {
         ?>
      <br />
        <span class=required><?php echo ($GLOBALS['phone_country_code'] == '1') ? xl('Zip Code', 'e') : xl('Postal Code', 'e') ?>: </span><input type=entry size=10 name=i<?php echo $i?>subscriber_postal_code value="<?php echo $result3{"subscriber_postal_code"}?>">
-       <span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+       <span class='required'<?php if ($GLOBALS['omit_employers']) {
+            echo " style='display:none'";} ?>>
         <?php xl('Country', 'e'); ?>: </span>
         <?php
       // Modified 7/2009 by BM to incorporate data types
@@ -730,8 +770,10 @@ foreach ($insurancei as $iid => $iname) {
      </span><br />
        <span class='required'><?php xl('Accept Assignment', 'e'); ?>: </span>
        <select name=i<?php echo $i?>accept_assignment>
-       <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php xl('YES', 'e'); ?></option>
-       <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php xl('NO', 'e'); ?></option>
+       <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
+            echo "selected"; }?>><?php xl('YES', 'e'); ?></option>
+       <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
+            echo "selected"; }?>><?php xl('NO', 'e'); ?></option>
      </select>
     </td>
    </tr>
@@ -745,7 +787,8 @@ foreach ($insurancei as $iid => $iname) {
 } // end of "if not simplified_demographics"
 ?>
 
-<?php if (!$SHORT_FORM) echo "  <center>\n"; ?>
+<?php if (!$SHORT_FORM) {
+    echo "  <center>\n";} ?>
 <br />
 <?php if ($WITH_SEARCH) { ?>
 <input type="button" id="search" value=<?php xl('Search', 'e', '\'', '\''); ?>
@@ -833,8 +876,14 @@ enable_modals();
             "ORDER BY group_name, seq");
         while ($mfrow = sqlFetchArray($mfres)) {
             $field_id  = $mfrow['field_id'];
-            if (strpos($field_id, 'em_') === 0) continue;
-            if (!empty($mflist)) $mflist .= ",";
+            if (strpos($field_id, 'em_') === 0) {
+                continue;
+            }
+
+            if (!empty($mflist)) {
+                $mflist .= ",";
+            }
+
             $mflist .= "'" . htmlentities($field_id) . "'";
         }
 ?>
@@ -867,7 +916,10 @@ enable_modals();
 $lres = getLayoutRes();
 while ($lrow = sqlFetchArray($lres)) {
     $field_id  = $lrow['field_id'];
-    if (strpos($field_id, 'em_') === 0) continue;
+    if (strpos($field_id, 'em_') === 0) {
+        continue;
+    }
+
     switch (getSearchClass($lrow['data_type'])) {
         case 1:
             echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";

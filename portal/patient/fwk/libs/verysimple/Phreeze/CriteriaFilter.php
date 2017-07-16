@@ -45,8 +45,9 @@ class CriteriaFilter
      */
     public function GetWhere($criteria)
     {
-        if ($this->Type != self::$TYPE_SEARCH)
+        if ($this->Type != self::$TYPE_SEARCH) {
             throw new Exception('Unsupported Filter Type');
+        }
             
             // normalize property names as an array
         $propertyNames = (is_array($this->PropertyNames)) ? $this->PropertyNames : explode(',', $this->PropertyNames);

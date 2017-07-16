@@ -53,7 +53,9 @@ function thisLineItem($row, $codetype, $code)
     } // End not csv export
 }
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -111,7 +113,10 @@ if ($_POST['form_csvexport']) {
 foreach ($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
+    if ($facid == $form_facility) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
 
@@ -198,7 +203,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
         $relcodes = explode(';', $row['related_code']);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
@@ -211,7 +219,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "fe.date >= '$date_ordered 00:00:00'");
 
             // If there was such a service, then this followup is not pending.
-            if (!empty($brow['count'])) continue;
+            if (!empty($brow['count'])) {
+                continue;
+            }
 
             thisLineItem($row, $codetype, $code);
         }

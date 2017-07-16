@@ -72,8 +72,10 @@ class Criteria
      */
     public function AddFilter(CriteriaFilter $filter)
     {
-        if (! $this->Filters)
+        if (! $this->Filters) {
             $this->Filters = array ();
+        }
+
         $this->Filters [] = $filter;
     }
     
@@ -282,8 +284,9 @@ class Criteria
                         $this->_where_delim = " and";
                     } elseif (substr($prop, - 3) == "_In" && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
-                        if (! is_array($val))
+                        if (! is_array($val)) {
                             $val = explode(',', $val);
+                        }
                             
                             // if the count is zero, technically the user is saying that they don't
                             // want any results. the only way to do that is to make the criteria
@@ -306,8 +309,9 @@ class Criteria
                         $this->_where_delim = " and";
                     } elseif (substr($prop, - 6) == "_NotIn" && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
-                        if (! is_array($val))
+                        if (! is_array($val)) {
                             $val = explode(',', $val);
+                        }
                             
                             // if the count is zero, technically the user is saying that they don't
                             // want any results. the only way to do that is to make the criteria
@@ -481,8 +485,9 @@ class Criteria
      */
     public function __get($key)
     {
-        if (! Phreezer::$COMPAT_VERSION_2)
+        if (! Phreezer::$COMPAT_VERSION_2) {
             throw new Exception("Unknown property: $key");
+        }
     }
     
     /**
@@ -495,7 +500,8 @@ class Criteria
      */
     public function __set($key, $val)
     {
-        if (! Phreezer::$COMPAT_VERSION_2)
+        if (! Phreezer::$COMPAT_VERSION_2) {
             throw new Exception("Unknown property: $key");
+        }
     }
 }

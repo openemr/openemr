@@ -46,7 +46,9 @@ if (phpversion() >= "4.2.0") {
                                 '_GLOBALS' );
 
         foreach ($supers as $__s) {
-            if ((isset($$__s) == true) && (is_array($$__s) == true)) extract($$__s, EXTR_OVERWRITE);
+            if ((isset($$__s) == true) && (is_array($$__s) == true)) {
+                extract($$__s, EXTR_OVERWRITE);
+            }
         }
 
         unset($supers);
@@ -63,7 +65,9 @@ if (phpversion() >= "4.2.0") {
                                  );
 
         foreach ($supers as $__s) {
-            if ((isset($$__s) == true) && (is_array($$__s) == true)) extract($$__s, EXTR_OVERWRITE);
+            if ((isset($$__s) == true) && (is_array($$__s) == true)) {
+                extract($$__s, EXTR_OVERWRITE);
+            }
         }
 
         unset($supers);
@@ -1212,7 +1216,10 @@ function pnMail($to, $subject, $message, $headers, $debug = 0)
     // Language translations
     switch (pnUserGetLang()) {
         case 'rus':
-            if (!empty($headers)) $headers .= "\n";
+            if (!empty($headers)) {
+                $headers .= "\n";
+            }
+
             $headers .= "Content-Type: text/plain; charset=koi8-r";
             $subject = convert_cyr_string($subject, "w", "k");
             $message = convert_cyr_string($message, "w", "k");

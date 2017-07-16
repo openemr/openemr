@@ -16,7 +16,10 @@
 function send_email($subject, $body)
 {
     $recipient = $GLOBALS['practice_return_email_path'];
-    if (empty($recipient)) return;
+    if (empty($recipient)) {
+        return;
+    }
+
     $mail = new PHPMailer();
     $mail->From = $recipient;
     $mail->FromName = 'In-House Pharmacy';
@@ -39,12 +42,25 @@ function send_email($subject, $body)
  $fee             = $_REQUEST['fee'];
  $user            = $_SESSION['authUser'];
 
- if (!acl_check('admin', 'drugs')) die(xl('Not authorized'));
+if (!acl_check('admin', 'drugs')) {
+    die(xl('Not authorized'));
+}
 
- if (!$drug_id) $drug_id = 0;
- if (!$prescription_id) $prescription_id = 0;
- if (!$quantity) $quantity = 0;
- if (!$fee) $fee = 0.00;
+if (!$drug_id) {
+    $drug_id = 0;
+}
+
+if (!$prescription_id) {
+    $prescription_id = 0;
+}
+
+if (!$quantity) {
+    $quantity = 0;
+}
+
+if (!$fee) {
+    $fee = 0.00;
+}
 
  $inventory_id = 0;
  $bad_lot_list = '';
@@ -57,7 +73,9 @@ if (! $sale_id) {
   //
     if ($drug_id) {
         $sale_id = sellDrug($drug_id, $quantity, $fee, $pid, 0, $prescription_id, $today, $user);
-        if (!$sale_id) die(xlt('Inventory is not available for this order.'));
+        if (!$sale_id) {
+            die(xlt('Inventory is not available for this order.'));
+        }
 
        /******************************************************************
      $res = sqlStatement("SELECT * FROM drug_inventory WHERE " .
@@ -112,7 +130,9 @@ if (! $sale_id) {
    ")");
   *******************************************************************/
 
-    if (!$sale_id) die(xlt('Internal error, no drug ID specified!'));
+    if (!$sale_id) {
+        die(xlt('Internal error, no drug ID specified!'));
+    }
 } // end if not $sale_id
 
  // Generate the bottle label for the sale identified by $sale_id.
@@ -143,21 +163,23 @@ if (! $sale_id) {
   $frow['street'] . "\n" .
   $frow['city'] . ', ' . $frow['state'] . ' ' . $frow['postal_code'] .
   '  ' . $frow['phone'] . "\n";
- if ($dconfig['disclaimer']) $header_text .= $dconfig['disclaimer'] . "\n";
+ if ($dconfig['disclaimer']) {
+     $header_text .= $dconfig['disclaimer'] . "\n";
+    }
 
- $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
-  ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
-  $row['name'] . ' ' . $row['size'] . ' ' .
-  generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
-  xl('QTY', '', ' ', ' ') . $row['quantity'] . "\n" .
-  xl('Take', '', '', ' ') . $row['dosage'] . ' ' .
-  generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
-  ($row['dosage'] > 1 ? 's ' : ' ') .
-  generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
-  ' ' .
-  generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) .
-  "\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
-  xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
+    $label_text = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
+    ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
+    $row['name'] . ' ' . $row['size'] . ' ' .
+    generate_display_field(array('data_type'=>'1','list_id'=>'drug_units'), $row['unit']) .
+    xl('QTY', '', ' ', ' ') . $row['quantity'] . "\n" .
+    xl('Take', '', '', ' ') . $row['dosage'] . ' ' .
+    generate_display_field(array('data_type'=>'1','list_id'=>'drug_form'), $row['form']) .
+    ($row['dosage'] > 1 ? 's ' : ' ') .
+    generate_display_field(array('data_type'=>'1','list_id'=>'drug_interval'), $row['interval']) .
+    ' ' .
+    generate_display_field(array('data_type'=>'1','list_id'=>'drug_route'), $row['route']) .
+    "\n" . xl('Lot', '', '', ' ') . $row['lot_number'] . xl('Exp', '', ' ', ' ') . $row['expiration'] . "\n" .
+    xl('NDC', '', '', ' ') . $row['ndc_number'] . ' ' . $row['manufacturer'];
 
  // if ($row['refills']) {
  //  // Find out how many times this prescription has been filled/refilled.
@@ -173,16 +195,16 @@ if (! $sale_id) {
  // printing HTML is much faster and easier if the browser's page setup is
  // configured properly.
  //
- if (false) { // if PDF output is desired
-     $pdf = new Cezpdf($dconfig['paper_size']);
-     $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
-     $pdf->selectFont('Helvetica');
-     $pdf->ezSetDy(20); // dunno why we have to do this...
-     $pdf->ezText($header_text, 7, array('justification'=>'center'));
-     if (!empty($dconfig['logo'])) {
-         $pdf->ezSetDy(-5); // add space (move down) before the image
-         $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
-         $pdf->ezSetDy(8);  // reduce space (move up) after the image
+    if (false) { // if PDF output is desired
+        $pdf = new Cezpdf($dconfig['paper_size']);
+        $pdf->ezSetMargins($dconfig['top'], $dconfig['bottom'], $dconfig['left'], $dconfig['right']);
+        $pdf->selectFont('Helvetica');
+        $pdf->ezSetDy(20); // dunno why we have to do this...
+        $pdf->ezText($header_text, 7, array('justification'=>'center'));
+        if (!empty($dconfig['logo'])) {
+            $pdf->ezSetDy(-5); // add space (move down) before the image
+            $pdf->ezImage($dconfig['logo'], 0, 180, '', 'left');
+            $pdf->ezSetDy(8);  // reduce space (move up) after the image
         }
 
         $pdf->ezText($label_text, 9, array('justification'=>'center'));

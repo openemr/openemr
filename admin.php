@@ -21,8 +21,10 @@ require_once "version.php";
 // lack of context (this code is ran outside of the OpenEMR context).
 
 $webserver_root = dirname(__FILE__);
-if (stripos(PHP_OS, 'WIN') === 0)
-  $webserver_root = str_replace("\\", "/", $webserver_root);
+if (stripos(PHP_OS, 'WIN') === 0) {
+    $webserver_root = str_replace("\\", "/", $webserver_root);
+}
+
 $OE_SITES_BASE = "$webserver_root/sites";
 
 function sqlQuery($statement, $link)
@@ -54,15 +56,30 @@ a, a:visited, a:hover { color:#0000cc; text-decoration:none; }
  </tr>
 <?php
 $dh = opendir($OE_SITES_BASE);
-if (!$dh) die("Cannot read directory '$OE_SITES_BASE'.");
+if (!$dh) {
+    die("Cannot read directory '$OE_SITES_BASE'.");
+}
+
 $siteslist = array();
 
 while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') continue;
-    if ($sfname == 'CVS') continue;
+    if (substr($sfname, 0, 1) == '.') {
+        continue;
+    }
+
+    if ($sfname == 'CVS') {
+        continue;
+    }
+
     $sitedir = "$OE_SITES_BASE/$sfname";
-    if (!is_dir($sitedir)) continue;
-    if (!is_file("$sitedir/sqlconf.php")) continue;
+    if (!is_dir($sitedir)) {
+        continue;
+    }
+
+    if (!is_file("$sitedir/sqlconf.php")) {
+        continue;
+    }
+
     $siteslist[$sfname] = $sfname;
 }
 
@@ -83,8 +100,9 @@ foreach ($siteslist as $sfname) {
 
     if ($config) {
         $dbh = mysqli_connect("$host", "$login", "$pass", $dbase, $port);
-        if (!$dbh)
-        $errmsg = "MySQL connect failed";
+        if (!$dbh) {
+            $errmsg = "MySQL connect failed";
+        }
     }
 
     echo "  <td>$sfname</td>\n";
@@ -134,7 +152,9 @@ foreach ($siteslist as $sfname) {
 
     echo " </tr>\n";
 
-    if ($config && $dbh !== false) mysqli_close($dbh);
+    if ($config && $dbh !== false) {
+        mysqli_close($dbh);
+    }
 }
 ?>
 </table>

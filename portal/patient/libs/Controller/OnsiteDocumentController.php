@@ -59,11 +59,26 @@ class OnsiteDocumentController extends AppBaseController
         $recid = $pid = $user = $encounter =  0;
         $docid = "";
 
-        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
-        if (isset($_GET['user'])) $user = $_GET['user'];
-        if (isset($_GET['docid'])) $docid = $_GET['docid'];
-        if (isset($_GET['enc'])) $encounter = ( int ) $_GET['enc'];
-        if (isset($_GET['recid']))  $recid = ( int ) $_GET['recid'];
+        if (isset($_GET['pid'])) {
+            $pid = ( int ) $_GET['pid'];
+        }
+
+        if (isset($_GET['user'])) {
+            $user = $_GET['user'];
+        }
+
+        if (isset($_GET['docid'])) {
+            $docid = $_GET['docid'];
+        }
+
+        if (isset($_GET['enc'])) {
+            $encounter = ( int ) $_GET['enc'];
+        }
+
+        if (isset($_GET['recid'])) {
+            $recid = ( int ) $_GET['recid'];
+        }
+
         $this->Assign('recid', $recid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -88,10 +103,12 @@ class OnsiteDocumentController extends AppBaseController
             }
 
             $filter = RequestUtil::Get('filter');
-            if ($filter) $criteria->AddFilter(
-                new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
+            if ($filter) {
+                $criteria->AddFilter(
+                    new CriteriaFilter('Id,Pid,Facility,Provider,Encounter,CreateDate,DocType,PatientSignedStatus,PatientSignedTime,AuthorizeSignedTime,
 						AcceptSignedStatus,AuthorizingSignator,ReviewDate,DenialReason,AuthorizedSignature,PatientSignature,FullDocument,FileName,FilePath', '%'.$filter.'%')
-            );
+                );
+            }
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
@@ -111,7 +128,9 @@ class OnsiteDocumentController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 
@@ -144,10 +163,22 @@ class OnsiteDocumentController extends AppBaseController
     public function SingleView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if (isset($_GET['id'])) $rid = ( int ) $_GET['id'];
-        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
-        if (isset($_GET['user'])) $user = $_GET['user'];
-        if (isset($_GET['enc'])) $encounter = $_GET['enc'];
+        if (isset($_GET['id'])) {
+            $rid = ( int ) $_GET['id'];
+        }
+
+        if (isset($_GET['pid'])) {
+            $pid = ( int ) $_GET['pid'];
+        }
+
+        if (isset($_GET['user'])) {
+            $user = $_GET['user'];
+        }
+
+        if (isset($_GET['enc'])) {
+            $encounter = $_GET['enc'];
+        }
+
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);

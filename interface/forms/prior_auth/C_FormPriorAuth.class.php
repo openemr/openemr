@@ -41,8 +41,10 @@ class C_FormPriorAuth extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->prior_auth = new FormPriorAuth($_POST['id']);
         parent::populate_object($this->prior_auth);
 

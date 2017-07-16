@@ -36,8 +36,10 @@ function observation_report($pid, $encounter, $cols, $id)
     
 
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
+    }
+
     if ($data) {
         print "<table style='border-collapse:collapse;border-spacing:0;width: 100%;'>
             <tr>
@@ -51,27 +53,29 @@ function observation_report($pid, $encounter, $cols, $id)
             </tr>";
         foreach ($data as $key => $value) {
             if ($value['code'] == 'SS003') {
-                if ($value['ob_value'] == '261QE0002X')
-                $value['ob_value'] ='Emergency Care';
-                else if ($value['ob_value'] == '261QM2500X')
-                $value['ob_value'] ='Medical Specialty';
-                else if ($value['ob_value'] == '261QP2300X')
-                $value['ob_value'] ='Primary Care';
-                else if ($value['ob_value'] == '261QU0200X')
-                $value['ob_value'] ='Urgent Care';
+                if ($value['ob_value'] == '261QE0002X') {
+                    $value['ob_value'] ='Emergency Care';
+                } else if ($value['ob_value'] == '261QM2500X') {
+                    $value['ob_value'] ='Medical Specialty';
+                } else if ($value['ob_value'] == '261QP2300X') {
+                    $value['ob_value'] ='Primary Care';
+                } else if ($value['ob_value'] == '261QU0200X') {
+                    $value['ob_value'] ='Urgent Care';
+                }
             }
 
             if ($value['code'] == '21612-7') {
-                if ($value['ob_unit'] == 'd')
-                $value['ob_unit'] ='Day';
-                else if ($value['ob_unit'] == 'mo')
-                $value['ob_unit'] ='Month';
-                else if ($value['ob_unit'] == 'UNK')
-                $value['ob_unit'] ='Unknown';
-                else if ($value['ob_unit'] == 'wk')
-                $value['ob_unit'] ='Week';
-                else if ($value['ob_unit'] == 'a')
-                $value['ob_unit'] ='Year';
+                if ($value['ob_unit'] == 'd') {
+                    $value['ob_unit'] ='Day';
+                } else if ($value['ob_unit'] == 'mo') {
+                    $value['ob_unit'] ='Month';
+                } else if ($value['ob_unit'] == 'UNK') {
+                    $value['ob_unit'] ='Unknown';
+                } else if ($value['ob_unit'] == 'wk') {
+                    $value['ob_unit'] ='Week';
+                } else if ($value['ob_unit'] == 'a') {
+                    $value['ob_unit'] ='Year';
+                }
             }
 
             print "<tr>

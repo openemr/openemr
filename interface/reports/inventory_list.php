@@ -15,12 +15,17 @@
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
- if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 function addWarning($msg)
 {
     global $warnings;
-    if ($warnings) $warnings .= '<br />';
+    if ($warnings) {
+        $warnings .= '<br />';
+    }
+
     $warnings .= $msg;
 }
 

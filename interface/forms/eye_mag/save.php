@@ -64,7 +64,10 @@ if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
 
-if (!$id) $id = $_REQUEST['pid'];
+if (!$id) {
+    $id = $_REQUEST['pid'];
+}
+
 $encounter = $_REQUEST['encounter'];
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'];
@@ -230,14 +233,23 @@ if ($_REQUEST['AJAX_PREFS']) {
 /**
  * Create, update or retrieve a form and its values
  */
-if (!$pid) $pid = $_SESSION['pid'];
+if (!$pid) {
+    $pid = $_SESSION['pid'];
+}
+
 $userauthorized = $_SESSION['userauthorized'];
-if ($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
 $form_id        = $_REQUEST['form_id'];
 $zone           = $_REQUEST['zone'];
 
 $providerID  =  findProvider($pid, $encounter);
-if ($providerID =='0') $providerID = $userauthorized;//who is the default provider?
+if ($providerID =='0') {
+    $providerID = $userauthorized;//who is the default provider?
+}
+
 $providerNAME = getProviderName($providerID);
 
 // The form is submitted to be updated or saved in some way.
@@ -292,7 +304,9 @@ if ($_REQUEST['unlock'] == '1') {
         //go on to save what we want...
     }
 
-    if (!$_REQUEST['LOCKEDBY'])  $_REQUEST['LOCKEDBY'] = rand();
+    if (!$_REQUEST['LOCKEDBY']) {
+        $_REQUEST['LOCKEDBY'] = rand();
+    }
 }
 
 if ($_REQUEST["mode"] == "new") {
@@ -347,8 +361,9 @@ if ($_REQUEST["mode"] == "new") {
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
         call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
-        if ($printable)
-        echo "" . xl('Signature') . ": _______________________________<br />";
+        if ($printable) {
+            echo "" . xl('Signature') . ": _______________________________<br />";
+        }
         ?>
       </div> <!-- end of report_custom DIV -->
 
@@ -362,7 +377,10 @@ if ($_REQUEST["mode"] == "new") {
         $wsrlen = strlen($webserver_root);
         while (true) {
             $i = stripos($content, " src='/", $i + 1);
-            if ($i === false) break;
+            if ($i === false) {
+                break;
+            }
+
             if (substr($content, $i+6, $wrlen) === $web_root &&
               substr($content, $i+6, $wsrlen) !== $webserver_root) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
@@ -411,7 +429,10 @@ if ($_REQUEST["mode"] == "new") {
 
   /*** START CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
     if ($_REQUEST['PMSFH_save'] =='1') {
-        if (!$PMSFH) $PMSFH = build_PMSFH($pid);
+        if (!$PMSFH) {
+            $PMSFH = build_PMSFH($pid);
+        }
+
         $issue = $_REQUEST['issue'];
         $deletion = $_REQUEST['deletion'];
         $form_save = $_REQUEST['form_save'];
@@ -492,7 +513,10 @@ if ($_REQUEST["mode"] == "new") {
                 send_json_values($PMSFH);
                 exit;
             } else {
-                if ($_REQUEST['form_title'] =='') return;
+                if ($_REQUEST['form_title'] =='') {
+                    return;
+                }
+
                 $subtype ='';
                 if ($form_type =="POH") {
                     $form_type="medical_problem";
@@ -550,9 +574,17 @@ if ($_REQUEST["mode"] == "new") {
                 }
 
                 $issue = 0 + $issue;
-                if ($_REQUEST['form_reinjury_id'] =="") $form_reinjury_id="0";
-                if ($_REQUEST['form_injury_grade'] =="") $form_injury_grade="0";
-                if ($_REQUEST['form_outcome'] =='') $_REQUEST['form_outcome'] ='0';
+                if ($_REQUEST['form_reinjury_id'] =="") {
+                    $form_reinjury_id="0";
+                }
+
+                if ($_REQUEST['form_injury_grade'] =="") {
+                    $form_injury_grade="0";
+                }
+
+                if ($_REQUEST['form_outcome'] =='') {
+                    $_REQUEST['form_outcome'] ='0';
+                }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
                     $query = "UPDATE lists SET " .
@@ -649,7 +681,10 @@ if ($_REQUEST["mode"] == "new") {
             $result = sqlStatement($sql, array($item['code']));
             while ($res = sqlFetchArray($result)) {
                 $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
-                if (!$item["modifier"]) $modifier = $res["modifier"];
+                if (!$item["modifier"]) {
+                    $modifier = $res["modifier"];
+                }
+
                 $item["units"] = $res["units"];
                 $item["fee"] = $res["pr_price"];
             }
@@ -697,9 +732,13 @@ if ($_REQUEST["mode"] == "new") {
              $row['Field'] == 'LOCKEDBY' or
              $row['Field'] == 'activity' or
              $row['Field'] == 'PLAN' or
-             $row['Field'] == 'Resource')
-              continue;
-            if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
+             $row['Field'] == 'Resource') {
+                continue;
+            }
+
+            if (isset($_POST[$row['Field']])) {
+                $fields[$row['Field']] = $_POST[$row['Field']];
+            }
         }
 
         // orders are checkboxes created from a user defined list in the PLAN area and stored as item1|item2|item3
@@ -746,29 +785,97 @@ if ($_REQUEST["mode"] == "new") {
       * If NOT checked on the form, they are sent via POST and thus are NOT overridden in the DB,
       *  so DB won't change unless we define them into the $fields array as "0"...
       */
-        if (!$_POST['alert']) $fields['alert'] = '0';
-        if (!$_POST['oriented']) $fields['oriented'] = '0';
-        if (!$_POST['confused']) $fields['confused'] = '0';
-        if (!$_POST['PUPIL_NORMAL']) $fields['PUPIL_NORMAL'] = '0';
-        if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
-        if (!$_POST['ACT']) $fields['ACT'] = 'off';
-        if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
-        if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
-        if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';
-        if (!$_POST['CYCLOMYDRIL']) $fields['CYCLOMYDRIL'] = '0';
-        if (!$_POST['NEO25']) $fields['NEO25'] = '0';
-        if (!$_POST['TROPICAMIDE']) $fields['TROPICAMIDE'] = '0';
-        if (!$_POST['BALANCED']) $fields['BALANCED'] = '0';
-        if (!$_POST['ODVF1']) $fields['ODVF1'] = '0';
-        if (!$_POST['ODVF2']) $fields['ODVF2'] = '0';
-        if (!$_POST['ODVF3']) $fields['ODVF3'] = '0';
-        if (!$_POST['ODVF4']) $fields['ODVF4'] = '0';
-        if (!$_POST['OSVF1']) $fields['OSVF1'] = '0';
-        if (!$_POST['OSVF2']) $fields['OSVF2'] = '0';
-        if (!$_POST['OSVF3']) $fields['OSVF3'] = '0';
-        if (!$_POST['OSVF4']) $fields['OSVF4'] = '0';
-        if (!$_POST['TEST']) $fields['Resource'] = '';
-        if (!$fields['PLAN']) $fields['PLAN'] = '0';
+        if (!$_POST['alert']) {
+            $fields['alert'] = '0';
+        }
+
+        if (!$_POST['oriented']) {
+            $fields['oriented'] = '0';
+        }
+
+        if (!$_POST['confused']) {
+            $fields['confused'] = '0';
+        }
+
+        if (!$_POST['PUPIL_NORMAL']) {
+            $fields['PUPIL_NORMAL'] = '0';
+        }
+
+        if (!$_POST['MOTILITYNORMAL']) {
+            $fields['MOTILITYNORMAL'] = '0';
+        }
+
+        if (!$_POST['ACT']) {
+            $fields['ACT'] = 'off';
+        }
+
+        if (!$_POST['DIL_RISKS']) {
+            $fields['DIL_RISKS'] = '0';
+        }
+
+        if (!$_POST['ATROPINE']) {
+            $fields['ATROPINE'] = '0';
+        }
+
+        if (!$_POST['CYCLOGYL']) {
+            $fields['CYCLOGYL'] = '0';
+        }
+
+        if (!$_POST['CYCLOMYDRIL']) {
+            $fields['CYCLOMYDRIL'] = '0';
+        }
+
+        if (!$_POST['NEO25']) {
+            $fields['NEO25'] = '0';
+        }
+
+        if (!$_POST['TROPICAMIDE']) {
+            $fields['TROPICAMIDE'] = '0';
+        }
+
+        if (!$_POST['BALANCED']) {
+            $fields['BALANCED'] = '0';
+        }
+
+        if (!$_POST['ODVF1']) {
+            $fields['ODVF1'] = '0';
+        }
+
+        if (!$_POST['ODVF2']) {
+            $fields['ODVF2'] = '0';
+        }
+
+        if (!$_POST['ODVF3']) {
+            $fields['ODVF3'] = '0';
+        }
+
+        if (!$_POST['ODVF4']) {
+            $fields['ODVF4'] = '0';
+        }
+
+        if (!$_POST['OSVF1']) {
+            $fields['OSVF1'] = '0';
+        }
+
+        if (!$_POST['OSVF2']) {
+            $fields['OSVF2'] = '0';
+        }
+
+        if (!$_POST['OSVF3']) {
+            $fields['OSVF3'] = '0';
+        }
+
+        if (!$_POST['OSVF4']) {
+            $fields['OSVF4'] = '0';
+        }
+
+        if (!$_POST['TEST']) {
+            $fields['Resource'] = '';
+        }
+
+        if (!$fields['PLAN']) {
+            $fields['PLAN'] = '0';
+        }
 
         $success = formUpdate($table_name, $fields, $form_id, $_SESSION['userauthorized']);
 
@@ -903,7 +1010,9 @@ if ($_REQUEST["mode"] == "new") {
  */
 
 if ($_REQUEST['canvas']) {
-    if (!$pid||!$encounter||!$zone||!$_POST["imgBase64"]) exit;
+    if (!$pid||!$encounter||!$zone||!$_POST["imgBase64"]) {
+        exit;
+    }
 
     $side = "OU";
     $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
@@ -948,7 +1057,10 @@ if ($_REQUEST['copy']) {
 
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 function debug($local_var)
@@ -969,8 +1081,14 @@ function row_delete($table, $where)
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') continue;
-            if ($logstring) $logstring .= " ";
+            if (! $value || $value == '0000-00-00 00:00:00') {
+                continue;
+            }
+
+            if ($logstring) {
+                $logstring .= " ";
+            }
+
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
@@ -991,7 +1109,10 @@ function issueTypeIndex($tstr)
     global $ISSUE_TYPES;
     $i = 0;
     foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) break;
+        if ($key == $tstr) {
+            break;
+        }
+
         ++$i;
     }
 

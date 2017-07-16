@@ -112,21 +112,46 @@ function updateClaim(
     if (!$newversion) {
         $sql = "SELECT * FROM claims WHERE patient_id = '$patient_id' AND " .
         "encounter_id = '$encounter_id' AND status > 0 AND status < 4 ";
-        if ($payer_id >= 0) $sql .= "AND payer_id = '$payer_id' ";
+        if ($payer_id >= 0) {
+            $sql .= "AND payer_id = '$payer_id' ";
+        }
+
         $sql .= "ORDER BY version DESC LIMIT 1";
         $row = sqlQuery($sql);
-        if (!$row) return 0;
-        if ($payer_id     < 0) $payer_id     = $row['payer_id'];
-        if ($status       < 0) $status       = $row['status'];
-        if ($bill_process < 0) $bill_process = $row['bill_process'];
-        if ($partner_id   < 0) $partner_id   = $row['x12_partner_id'];
-        if (!$process_file) $process_file = $row['process_file'];
-        if (!$target) $target       = $row['target'];
+        if (!$row) {
+            return 0;
+        }
+
+        if ($payer_id     < 0) {
+            $payer_id     = $row['payer_id'];
+        }
+
+        if ($status       < 0) {
+            $status       = $row['status'];
+        }
+
+        if ($bill_process < 0) {
+            $bill_process = $row['bill_process'];
+        }
+
+        if ($partner_id   < 0) {
+            $partner_id   = $row['x12_partner_id'];
+        }
+
+        if (!$process_file) {
+            $process_file = $row['process_file'];
+        }
+
+        if (!$target) {
+            $target       = $row['target'];
+        }
     }
 
     $claimset = "";
     $billset = "";
-    if (empty($payer_id) || $payer_id < 0) $payer_id = 0;
+    if (empty($payer_id) || $payer_id < 0) {
+        $payer_id = 0;
+    }
 
     if ($status==7) {//$status==7 is the claim denial case.
         $claimset .= ", status = '$status'";
@@ -134,7 +159,9 @@ function updateClaim(
         $claimset .= ", status = '$status'";
         if ($status > 1) {
             $billset .= ", billed = 1";
-            if ($status == 2) $billset  .= ", bill_date = NOW()";
+            if ($status == 2) {
+                $billset  .= ", bill_date = NOW()";
+            }
         } else {
             $billset .= ", billed = 0";
         }
@@ -264,7 +291,9 @@ function isEncounterBilled($pid, $encounter)
         if ($brow['billed'] == 0) {
             $billed = 0;
         } else {
-            if ($billed < 0) $billed = 1;
+            if ($billed < 0) {
+                $billed = 1;
+            }
         }
     }
 
@@ -279,7 +308,10 @@ function getCopay($patient_id, $encdate)
     $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
     "WHERE pid = '$patient_id' AND type = 'primary' " .
     "AND date <= '$encdate' ORDER BY date DESC LIMIT 1");
-    if ($tmp['provider']) return sprintf('%01.2f', 0 + $tmp['copay']);
+    if ($tmp['provider']) {
+        return sprintf('%01.2f', 0 + $tmp['copay']);
+    }
+
     return 0;
 }
 

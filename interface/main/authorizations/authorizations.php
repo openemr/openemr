@@ -104,8 +104,10 @@ if ($imauthorized && $see_auth > 1) {
     "from billing LEFT JOIN users as u on billing.user = u.id where " .
     "billing.authorized = 0 and billing.activity = 1 and " .
     "groupname = ?", array($groupname))) {
-          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-        $result1[$iter] = $row;
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $result1[$iter] = $row;
+        }
+
         if ($result1) {
             foreach ($result1 as $iter) {
                 $authorize{$iter{"pid"}}{"billing"} .= "<span class=text>" .
@@ -118,8 +120,10 @@ if ($imauthorized && $see_auth > 1) {
 //fetch transaction information:
     if ($res = sqlStatement("select * from transactions where " .
     "authorized = 0 and groupname = ?", array($groupname))) {
-          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-        $result2[$iter] = $row;
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $result2[$iter] = $row;
+        }
+
         if ($result2) {
             foreach ($result2 as $iter) {
                 $authorize{$iter{"pid"}}{"transaction"} .= "<span class=text>" .
@@ -133,8 +137,10 @@ if ($imauthorized && $see_auth > 1) {
           //fetch pnotes information:
         if ($res = sqlStatement("select * from pnotes where authorized = 0 and " .
         "groupname = ?", array($groupname))) {
-            for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-              $result3[$iter] = $row;
+            for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+                $result3[$iter] = $row;
+            }
+
             if ($result3) {
                 foreach ($result3 as $iter) {
                     $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=text>" .
@@ -148,8 +154,10 @@ if ($imauthorized && $see_auth > 1) {
 //fetch forms information:
     if ($res = sqlStatement("select * from forms where authorized = 0 and " .
     "groupname = ?", array($groupname))) {
-          for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-        $result4[$iter] = $row;
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $result4[$iter] = $row;
+        }
+
         if ($result4) {
             foreach ($result4 as $iter) {
                 $authorize{$iter{"pid"}}{"forms"} .= "<span class=text>" .
@@ -172,8 +180,9 @@ if ($authorize) {
         $name = getPatientData($ppid);
 
         // If I want to see mine only and this patient is not mine, skip it.
-        if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id'])
-        continue;
+        if ($see_auth == 2 && $_SESSION['authUserID'] != $name['id']) {
+            continue;
+        }
 
         if ($count >= $N) {
             print "<tr><td colspan='5' align='center'><a" .

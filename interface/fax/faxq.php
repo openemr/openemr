@@ -62,9 +62,15 @@
     if ($scandir && $GLOBALS['enable_scanner']) {
         // Get the directory entries, parse and sort by date and time.
         $dh = opendir($scandir);
-        if (! $dh) die("Cannot read $scandir");
+        if (! $dh) {
+            die("Cannot read $scandir");
+        }
+
         while (false !== ($sfname = readdir($dh))) {
-            if (substr($sfname, 0, 1) == '.') continue;
+            if (substr($sfname, 0, 1) == '.') {
+                continue;
+            }
+
             $tmp = stat("$scandir/$sfname");
             $tmp[0] = $sfname; // put filename in slot 0 which we don't otherwise need
             $slines[$tmp[9] . $tmp[1]] = $tmp; // key is file mod time and inode number
@@ -208,7 +214,8 @@ function dosdclick(sfname) {
    <form method='post' action='faxq.php'>
 
    <table width='100%' cellpadding='1' cellspacing='2' id='table_faxin'
-    <?php if (!$GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
+    <?php if (!$GLOBALS['enable_hylafax']) {
+        echo "style='display:none;'";} ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php xl('Document', 'e'); ?></td>
      <td><?php xl('Received', 'e'); ?></td>
@@ -259,7 +266,10 @@ foreach ($dlines as $matches) {
         $ffstatend = $tmp[2];
     }
 
-    if ($ffstatend) $ffstatus .= ': ' . $ffstatend;
+    if ($ffstatend) {
+        $ffstatus .= ': ' . $ffstatend;
+    }
+
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo "    <tr class='detail' bgcolor='$bgcolor'>\n";
     echo "     <td onclick='dojclick(\"$jobid\")'>" .
@@ -276,7 +286,8 @@ foreach ($dlines as $matches) {
    </table>
 
    <table width='100%' cellpadding='1' cellspacing='2' id='table_scanin'
-    <?php if ($GLOBALS['enable_hylafax']) echo "style='display:none;'"; ?>>
+    <?php if ($GLOBALS['enable_hylafax']) {
+        echo "style='display:none;'";} ?>>
     <tr class='head'>
      <td colspan='2' title='Click to view'><?php xl('Filename', 'e'); ?></td>
      <td><?php xl('Scanned', 'e'); ?></td>

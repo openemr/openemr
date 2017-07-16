@@ -1175,18 +1175,24 @@ function test_filter($patient_id, $rule, $dateTarget)
   // -------- Database Filter (inclusion) ------
   // Database Filter
     $filter = resolve_filter_sql($rule, 'filt_database');
-    if ((!empty($filter)) && !database_check($patient_id, $filter, '', $dateTarget)) return false;
+    if ((!empty($filter)) && !database_check($patient_id, $filter, '', $dateTarget)) {
+        return false;
+    }
 
   // -------- Lists Filter (inclusion) ----
   // Set up lists filter, which is fully customizable and currently includes diagnoses, meds,
   //   surgeries and allergies.
     $filter = resolve_filter_sql($rule, 'filt_lists');
-    if ((!empty($filter)) && !lists_check($patient_id, $filter, $dateTarget)) return false;
+    if ((!empty($filter)) && !lists_check($patient_id, $filter, $dateTarget)) {
+        return false;
+    }
 
   // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
   // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
-    if ((!empty($filter)) && !procedure_check($patient_id, $filter, '', $dateTarget)) return false;
+    if ((!empty($filter)) && !procedure_check($patient_id, $filter, '', $dateTarget)) {
+        return false;
+    }
 
   //
   // ----------------- EXCLUSIONS -----------------
@@ -1196,7 +1202,9 @@ function test_filter($patient_id, $rule, $dateTarget)
   // Set up lists EXCLUSION filter, which is fully customizable and currently includes diagnoses, meds,
   //   surgeries and allergies.
     $filter = resolve_filter_sql($rule, 'filt_lists', 0);
-    if ((!empty($filter)) && lists_check($patient_id, $filter, $dateTarget)) return "EXCLUDED";
+    if ((!empty($filter)) && lists_check($patient_id, $filter, $dateTarget)) {
+        return "EXCLUDED";
+    }
 
   // Passed all filters, so return true.
     return true;
@@ -1240,17 +1248,23 @@ function test_targets($patient_id, $rule, $group_id = '', $dateTarget)
   // -------- Database Target ----
   // Database Target (includes)
     $target = resolve_target_sql($rule, $group_id, 'target_database');
-    if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) return false;
+    if ((!empty($target)) && !database_check($patient_id, $target, $interval, $dateTarget)) {
+        return false;
+    }
 
   // -------- Procedure (labs,imaging,test,procedures,etc) Target ----
   // Procedure Target (includes)
     $target = resolve_target_sql($rule, $group_id, 'target_proc');
-    if ((!empty($target)) && !procedure_check($patient_id, $target, $interval, $dateTarget)) return false;
+    if ((!empty($target)) && !procedure_check($patient_id, $target, $interval, $dateTarget)) {
+        return false;
+    }
 
   // -------- Appointment Target ----
   // Appointment Target (includes) (Specialized functionality for appointment reminders)
     $target = resolve_target_sql($rule, $group_id, 'target_appt');
-    if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) return false;
+    if ((!empty($target)) && appointment_check($patient_id, $dateTarget)) {
+        return false;
+    }
 
   // Passed all target tests, so return true.
     return true;
@@ -1690,7 +1704,9 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
                 $isMatch = true;
             } else {
                // If this is a required entry then return false
-                if ($row['required_flag']) return false;
+                if ($row['required_flag']) {
+                    return false;
+                }
             }
         } else if ($temp_df[0] == "LIFESTYLE") {
             // Row description
@@ -1700,7 +1716,9 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
                 $isMatch = true;
             } else {
                // If this is a required entry then return false
-                if ($row['required_flag']) return false;
+                if ($row['required_flag']) {
+                    return false;
+                }
             }
         } else {
             // Default mode
@@ -1708,12 +1726,16 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '')
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
             if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget)) {
                 // Record the match
-                if ($cond_loop > 0) // For multiple condition check
-                  $isMatch = $isMatch && true;
-                else $isMatch = true;
+                if ($cond_loop > 0) { // For multiple condition check
+                    $isMatch = $isMatch && true;
+                } else {
+                    $isMatch = true;
+                }
             } else {
                // If this is a required entry then return false
-                if ($row['required_flag']) return false;
+                if ($row['required_flag']) {
+                    return false;
+                }
             }
         }
 
@@ -1760,7 +1782,9 @@ function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
             $isMatch = true;
         } else {
             // If this is a required entry then return false
-            if ($row['required_flag']) return false;
+            if ($row['required_flag']) {
+                return false;
+            }
         }
     }
 
@@ -1833,7 +1857,9 @@ function lists_check($patient_id, $filter, $dateTarget)
             $isMatch = true;
         } else {
            // If this is a required entry then return false
-            if ($row['required_flag']) return false;
+            if ($row['required_flag']) {
+                return false;
+            }
         }
     }
 
@@ -2162,7 +2188,9 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
             "AND `title` $sqloper " .
             "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
             "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget));
-            if (!empty($response)) return true;
+            if (!empty($response)) {
+                return true;
+            }
         } else {
             // Deal with the set code types (diagnosis column in lists table)
             $response = sqlQueryCdrEngine("SELECT * FROM `lists` " .
@@ -2171,7 +2199,9 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
             "AND `diagnosis` LIKE ? " .
             "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
             "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%".$code_type.":".$code."%",$dateTarget,$dateTarget,$dateTarget));
-            if (!empty($response)) return true;
+            if (!empty($response)) {
+                return true;
+            }
         }
     } else { // count($value_array) == 1
         // Search the title column in lists table
@@ -2191,11 +2221,15 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
         "AND `title` $sqloper ".
         "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
         "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
-        if (!empty($response)) return true;
+        if (!empty($response)) {
+            return true;
+        }
 
         if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
               $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
-              if (!empty($response)) return true;
+            if (!empty($response)) {
+                return true;
+            }
         }
     }
 

@@ -376,7 +376,9 @@ class Prescription extends ORDataObject
         $this->medication = $med;
 
         // Avoid making a mess if we are not using the "medication" issue type.
-        if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) return;
+        if (isset($ISSUE_TYPES) && !$ISSUE_TYPES['medication']) {
+            return;
+        }
 
         //below statements are bypassing the persist() function and being used directly in database statements, hence need to use the functions in library/formdata.inc.php
     // they have already been run through populate() hence stripped of escapes, so now need to be escaped for database (add_escape_custom() function).
@@ -731,7 +733,10 @@ class Prescription extends ORDataObject
 
     function get_dispensation_count()
     {
-        if (empty($this->id)) return 0;
+        if (empty($this->id)) {
+            return 0;
+        }
+
         $refills_row = sqlQuery("SELECT count(*) AS count FROM drug_sales " .
                     "WHERE prescription_id = '" . $this->id . "' AND quantity > 0");
         return $refills_row['count'];

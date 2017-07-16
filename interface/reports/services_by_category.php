@@ -15,15 +15,22 @@ require_once("../../custom/code_types.inc.php");
 //
 function bucks($amount)
 {
-    if (empty($amount)) return '';
+    if (empty($amount)) {
+        return '';
+    }
+
     return oeFormatMoney($amount);
 }
 
 $filter = $_REQUEST['filter'] + 0;
 $where = "c.active = 1";
-if ($filter) $where .= " AND c.code_type = '$filter'";
-if (empty($_REQUEST['include_uncat']))
-  $where .= " AND c.superbill != '' AND c.superbill != '0'";
+if ($filter) {
+    $where .= " AND c.code_type = '$filter'";
+}
+
+if (empty($_REQUEST['include_uncat'])) {
+    $where .= " AND c.superbill != '' AND c.superbill != '0'";
+}
 ?>
 <html>
 <head>
@@ -101,7 +108,10 @@ table.mymaintable td, table.mymaintable th {
             <?php
             foreach ($code_types as $key => $value) {
                 echo "<option value='" . $value['id'] . "'";
-                if ($value['id'] == $filter) echo " selected";
+                if ($value['id'] == $filter) {
+                    echo " selected";
+                }
+
                 echo ">$key</option>\n";
             }
             ?>
@@ -109,7 +119,8 @@ table.mymaintable td, table.mymaintable th {
             </td>
             <td>
         <div class="checkbox">
-                <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
+                <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) {
+                    echo " checked";} ?> />
                 <?php xl('Include Uncategorized', 'e'); ?></label>
         </div>
             </td>

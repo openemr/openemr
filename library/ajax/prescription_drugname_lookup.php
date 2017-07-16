@@ -16,7 +16,10 @@
 include_once("../../interface/globals.php");
 
 $q = formData("q", "G", true);
-if (!$q) return;
+if (!$q) {
+    return;
+}
+
 $limit = $_GET['limit'];
 
 $sql = "select drug_id, name from drugs where ".

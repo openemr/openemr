@@ -60,14 +60,20 @@ function hl7Date($s)
 
 function hl7Time($s)
 {
-    if (empty($s)) return '';
+    if (empty($s)) {
+        return '';
+    }
+
     return date('YmdHis', strtotime($s));
 }
 
 function hl7Sex($s)
 {
     $s = strtoupper(substr($s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') $s = 'U';
+    if ($s !== 'M' && $s !== 'F') {
+        $s = 'U';
+    }
+
     return $s;
 }
 
@@ -101,10 +107,16 @@ function hl7Priority($s)
 function hl7Relation($s)
 {
     $tmp = strtolower($s);
-    if ($tmp == 'self' || $tmp == '') return 'self';
-    else if ($tmp == 'spouse') return 'spouse';
-    else if ($tmp == 'child') return 'child';
-    else if ($tmp == 'other') return 'other';
+    if ($tmp == 'self' || $tmp == '') {
+        return 'self';
+    } else if ($tmp == 'spouse') {
+        return 'spouse';
+    } else if ($tmp == 'child') {
+        return 'child';
+    } else if ($tmp == 'other') {
+        return 'other';
+    }
+
   // Should not get here so this will probably get noticed if we do.
     return $s;
 }
@@ -119,7 +131,10 @@ function hl7Relation($s)
  */
 function loadPayerInfo($pid, $date = '')
 {
-    if (empty($date)) $date = date('Y-m-d');
+    if (empty($date)) {
+        $date = date('Y-m-d');
+    }
+
     $payers = array();
     $dres = sqlStatement(
         "SELECT * FROM insurance_data WHERE " .
@@ -128,11 +143,17 @@ function loadPayerInfo($pid, $date = '')
     );
     $prevtype = ''; // type is primary, secondary or tertiary
     while ($drow = sqlFetchArray($dres)) {
-        if (strcmp($prevtype, $drow['type']) == 0) continue;
+        if (strcmp($prevtype, $drow['type']) == 0) {
+            continue;
+        }
+
         $prevtype = $drow['type'];
         // Very important to check for a missing provider because
         // that indicates no insurance as of the given date.
-        if (empty($drow['provider'])) continue;
+        if (empty($drow['provider'])) {
+            continue;
+        }
+
         $ins = count($payers);
         $crow = sqlQuery(
             "SELECT * FROM insurance_companies WHERE id = ?",
@@ -184,7 +205,9 @@ function gen_hl7_order($orderid, &$out)
         "u.id = po.provider_id",
         array($orderid)
     );
-    if (empty($porow)) return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+    if (empty($porow)) {
+        return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
+    }
 
     $pcres = sqlStatement(
         "SELECT " .
@@ -220,7 +243,10 @@ function gen_hl7_order($orderid, &$out)
     $d1 .                            // Alternate Patient ID (not required)
     $d1 . hl7Text($porow['lname']) .
       $d2 . hl7Text($porow['fname']);
-    if ($porow['mname']) $out .= $d2 . hl7Text($porow['mname']);
+    if ($porow['mname']) {
+        $out .= $d2 . hl7Text($porow['mname']);
+    }
+
     $out .=
     $d1 .
     $d1 . hl7Date($porow['DOB']) .   // DOB
@@ -303,7 +329,10 @@ function gen_hl7_order($orderid, &$out)
     $d1 .
     $d1 . hl7Text($porow['lname']) .
       $d2 . hl7Text($porow['fname']);
-    if ($porow['mname']) $out .= $d2 . hl7Text($porow['mname']);
+    if ($porow['mname']) {
+        $out .= $d2 . hl7Text($porow['mname']);
+    }
+
     $out .=
     $d1 .
     $d1 . hl7Text($porow['street']) .
@@ -362,9 +391,15 @@ function gen_hl7_order($orderid, &$out)
         if (!empty($pcrow['diagnoses'])) {
             $relcodes = explode(';', $pcrow['diagnoses']);
             foreach ($relcodes as $codestring) {
-                if ($codestring === '') continue;
+                if ($codestring === '') {
+                    continue;
+                }
+
                 list($codetype, $code) = explode(':', $codestring);
-                if ($codetype !== 'ICD9') continue;
+                if ($codetype !== 'ICD9') {
+                    continue;
+                }
+
                 $desc = lookup_code_descriptions($codestring);
                 $out .= "DG1" .
                 $d1 . ++$setid2 .                         // Set ID
@@ -435,7 +470,9 @@ function send_hl7_order($ppid, $out)
 
     $pprow = sqlQuery("SELECT * FROM procedure_providers " .
     "WHERE ppid = ?", array($ppid));
-    if (empty($pprow)) return xl('Procedure provider') . " $ppid " . xl('not found');
+    if (empty($pprow)) {
+        return xl('Procedure provider') . " $ppid " . xl('not found');
+    }
 
     $protocol = $pprow['protocol'];
     $remote_host = $pprow['remote_host'];
@@ -443,7 +480,9 @@ function send_hl7_order($ppid, $out)
   // Extract MSH-10 which is the message control ID.
     $segmsh = explode(substr($out, 3, 1), substr($out, 0, strpos($out, $d0)));
     $msgid = $segmsh[9];
-    if (empty($msgid)) return xl('Internal error: Cannot find MSH-10');
+    if (empty($msgid)) {
+        return xl('Internal error: Cannot find MSH-10');
+    }
 
     if ($protocol == 'DL' || $pprow['orders_path'] === '') {
         header("Pragma: public");
@@ -457,7 +496,9 @@ function send_hl7_order($ppid, $out)
     } else if ($protocol == 'SFTP') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
-        if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
+        if ($pprow['orders_path']) {
+            $filename = $pprow['orders_path'] . '/' . $filename;
+        }
 
         // Connect to the server and write the file.
         $sftp = new \phpseclib\Net\SFTP($remote_host);
@@ -471,7 +512,10 @@ function send_hl7_order($ppid, $out)
     } else if ($protocol == 'FS') {
         // Compute the target path/file name.
         $filename = $msgid . '.txt';
-        if ($pprow['orders_path']) $filename = $pprow['orders_path'] . '/' . $filename;
+        if ($pprow['orders_path']) {
+            $filename = $pprow['orders_path'] . '/' . $filename;
+        }
+
         $fh = fopen("$filename", 'w');
         if ($fh) {
             fwrite($fh, $out);

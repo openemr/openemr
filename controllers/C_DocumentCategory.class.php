@@ -64,7 +64,10 @@ class C_DocumentCategory extends Controller
 
     function add_node_action_process()
     {
-        if ($_POST['process'] != "true") return;
+        if ($_POST['process'] != "true") {
+            return;
+        }
+
         $name = $_POST['name'];
         $parent_is = $_POST['parent_is'];
         $parent_name = $this->tree->get_node_name($parent_is);
@@ -89,7 +92,10 @@ class C_DocumentCategory extends Controller
 
     function edit_node_action_process()
     {
-        if ($_POST['process'] != "true") return;
+        if ($_POST['process'] != "true") {
+            return;
+        }
+
         $parent_is = $_POST['parent_is'];
         $this->tree->edit_node($parent_is, $_POST['name'], $_POST['value'], $_POST['aco_spec']);
         $trans_message = xl('Category changed.');
@@ -100,8 +106,10 @@ class C_DocumentCategory extends Controller
 
     function delete_node_action_process($id)
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $category_name = $this->tree->get_node_name($id);
         $category_info = $this->tree->get_node_info($id);
         $parent_name = $this->tree->get_node_name($category_info['parent']);

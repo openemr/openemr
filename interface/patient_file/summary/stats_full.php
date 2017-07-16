@@ -113,11 +113,15 @@ $encount = 0;
 $lasttype = "";
 $first = 1; // flag for first section
 foreach ($ISSUE_TYPES as $focustype => $focustitles) {
-    if (!acl_check_issue($focustype)) continue;
+    if (!acl_check_issue($focustype)) {
+        continue;
+    }
 
     if ($category) {
         // Only show this category
-        if ($focustype != $category) continue;
+        if ($focustype != $category) {
+            continue;
+        }
     }
 
     if ($first) {
@@ -161,8 +165,10 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
 
   // collect issues
     $condition = '';
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication')
-    $condition .= "and erx_uploaded != '1' ";
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype=='medication') {
+        $condition .= "and erx_uploaded != '1' ";
+    }
+
     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition" .
     "ORDER BY begdate", array($pid,$focustype));
 
@@ -175,7 +181,10 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
               // Data entry has not happened to this type, so can show the none selection option.
               echo "<tr><td class='text'><input type='checkbox' class='noneCheck' name='" .
             attr($focustype) . "' value='none'";
-              if (!acl_check_issue($focustype, '', 'write')) echo " disabled";
+            if (!acl_check_issue($focustype, '', 'write')) {
+                echo " disabled";
+            }
+
               echo " /><b>" . xlt("None") . "</b></td></tr>";
         }
     }
@@ -202,7 +211,10 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
             foreach ($diags as $diag) {
                 $codedesc = lookup_code_descriptions($diag);
                 list($codetype, $code) = explode(':', $diag);
-                if ($codetext) $codetext .= "<br />";
+                if ($codetext) {
+                    $codetext .= "<br />";
+                }
+
                 $codetext .= "<a href='javascript:educlick(\"$codetype\",\"$code\")' $colorstyle>" .
                   text($diag . " (" . $codedesc . ")") . "</a>";
             }
@@ -219,8 +231,11 @@ foreach ($ISSUE_TYPES as $focustype => $focustitles) {
         }
 
         $click_class='statrow';
-        if ($row['erx_source']==1 && $focustype=='allergy') $click_class='';
-        elseif ($row['erx_uploaded']==1 && $focustype=='medication') $click_class='';
+        if ($row['erx_source']==1 && $focustype=='allergy') {
+            $click_class='';
+        } elseif ($row['erx_uploaded']==1 && $focustype=='medication') {
+            $click_class='';
+        }
 
         echo " <tr class='$bgclass detail' $colorstyle>\n";
         echo "  <td style='text-align:left' class='$click_class' id='$rowid'>" . text($disptitle) . "</td>\n";

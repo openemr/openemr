@@ -26,7 +26,9 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
 
 $form_replace = !empty($_POST['form_replace']);
 $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
@@ -49,7 +51,10 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 <?php
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    if (empty($code_types[$code_type])) die(xlt('Code type not yet defined') . ": '$code_type'");
+    if (empty($code_types[$code_type])) {
+        die(xlt('Code type not yet defined') . ": '$code_type'");
+    }
+
     $code_type_id = $code_types[$code_type]['id'];
     $tmp_name = $_FILES['form_file']['tmp_name'];
 
@@ -74,7 +79,9 @@ if (!empty($_POST['bn_upload'])) {
             $eres = fopen($tmp_name, 'r');
         }
 
-        if (empty($eres)) die(xlt('Unable to locate the data in this file.'));
+        if (empty($eres)) {
+            die(xlt('Unable to locate the data in this file.'));
+        }
 
         if ($form_replace) {
             sqlStatement("DELETE FROM codes WHERE code_type = ?", array($code_type_id));
@@ -87,11 +94,23 @@ if (!empty($_POST['bn_upload'])) {
         while (($line = fgets($eres)) !== false) {
             if ($code_type == 'RXCUI') {
                 $a = explode('|', $line);
-                if (count($a) < 18) continue;
-                if ($a[17] != '4096') continue;
-                if ($a[11] != 'RXNORM') continue;
+                if (count($a) < 18) {
+                    continue;
+                }
+
+                if ($a[17] != '4096') {
+                    continue;
+                }
+
+                if ($a[11] != 'RXNORM') {
+                    continue;
+                }
+
                 $code = $a[0];
-                if (isset($seen_codes[$code])) continue;
+                if (isset($seen_codes[$code])) {
+                    continue;
+                }
+
                 $seen_codes[$code] = 1;
                 ++$inscount;
                 if (!$form_replace) {

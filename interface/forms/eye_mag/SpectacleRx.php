@@ -53,7 +53,10 @@ $prov_data =  sqlQuery($query, array($providerID));
 
 $practice_data = $facilityService->getPrimaryBusinessEntity();
 
-if (!$_REQUEST['pid']) $_REQUEST['pid'] = $_REQUEST['id'];
+if (!$_REQUEST['pid']) {
+    $_REQUEST['pid'] = $_REQUEST['id'];
+}
+
 $query = "SELECT * FROM patient_data where pid=?";
 $pat_data =  sqlQuery($query, array($_REQUEST['pid']));
 
@@ -72,8 +75,13 @@ if ($_REQUEST['mode'] =="update") {  //store any changed fields in dispense tabl
             $row['Field'] == 'groupname' ||
             $row['Field'] == 'authorized' ||
             $row['Field'] == 'activity'
-            ) continue;
-            if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
+            ) {
+                continue;
+            }
+
+            if (isset($_POST[$row['Field']])) {
+                $fields[$row['Field']] = $_POST[$row['Field']];
+            }
         }
 
         $fields['RXTYPE']=$RXTYPE;
@@ -98,9 +106,17 @@ formHeader("OpenEMR Eye: ".$prov_data[facility]);
 
 if ($_REQUEST['REFTYPE']) {
     $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") $RXTYPE = "Bifocal";
-    if ($REFTYPE == "MR") $RXTYPE = "Bifocal";
-    if ($REFTYPE == "CTL") $RXTYPE = "Bifocal";
+    if ($REFTYPE == "AR") {
+        $RXTYPE = "Bifocal";
+    }
+
+    if ($REFTYPE == "MR") {
+        $RXTYPE = "Bifocal";
+    }
+
+    if ($REFTYPE == "CTL") {
+        $RXTYPE = "Bifocal";
+    }
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
@@ -231,8 +247,10 @@ if ($_REQUEST['REFTYPE']) {
             $row['Field'] == 'activity' ||
             $row['Field'] == 'RXTYPE' ||
             $row['Field'] == 'REFDATE'
-            )
-            continue;
+            ) {
+                continue;
+            }
+
             if (isset(${$row['Field']})) {
                 $fields[$row['Field']] = $$row['Field']};
         }
@@ -362,10 +380,21 @@ if ($_REQUEST['dispensed']) {
                         $Bifocal='';
                         $Trifocal='';
                         $Progressive='';
-                        if ($row['RXTYPE'] == "Single") $Single = "checked='checked'";
-                        if ($row['RXTYPE'] == "Bifocal") $Bifocal = "checked='checked'";
-                        if ($row['RXTYPE'] == "Trifocal") $Trifocal = "checked='checked'";
-                        if ($row['RXTYPE'] == "Progressive") $Progressive = "checked='checked'";
+                        if ($row['RXTYPE'] == "Single") {
+                            $Single = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Bifocal") {
+                            $Bifocal = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Trifocal") {
+                            $Trifocal = "checked='checked'";
+                        }
+
+                        if ($row['RXTYPE'] == "Progressive") {
+                            $Progressive = "checked='checked'";
+                        }
 
                         $row['REFDATE'] = oeFormatShortDate($row['REFDATE']);
                         $row['date'] = oeFormatShortDate(date('Y-m-d', strtotime($row['date'])));

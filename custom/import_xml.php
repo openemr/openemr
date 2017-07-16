@@ -51,8 +51,9 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq)
 }
 
  // Check authorization.
- if (!acl_check('patients', 'demo', '', 'write'))
-  die("Updating demographics is not authorized.");
+if (!acl_check('patients', 'demo', '', 'write')) {
+    die("Updating demographics is not authorized.");
+}
 
 if ($_POST['form_import']) {
     $apatient    = array();
@@ -119,8 +120,9 @@ if ($_POST['form_import']) {
 
     $olddata = getPatientData($pid);
 
-    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad']))
-    die("You are not authorized to access this squad.");
+    if ($olddata['squad'] && ! acl_check('squads', $olddata['squad'])) {
+        die("You are not authorized to access this squad.");
+    }
 
     newPatientData(
         $olddata['id'],
@@ -182,7 +184,10 @@ if ($_POST['form_import']) {
     setInsurance($pid, $ainsurance, $asubscriber, '3');
 
     echo "<html>\n<body>\n<script language='JavaScript'>\n";
-    if ($alertmsg) echo " alert('$alertmsg');\n";
+    if ($alertmsg) {
+        echo " alert('$alertmsg');\n";
+    }
+
     echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
     echo " window.close();\n";
     echo "</script>\n</body>\n</html>\n";

@@ -303,7 +303,10 @@ function edih_835_accounting($segments, $delimiters)
                 }
 
                 for ($k = 2; $k < 20; $k += 3) {
-                    if (!isset($sar[$k])) break;
+                    if (!isset($sar[$k])) {
+                        break;
+                    }
+
                     $k = count($out['svc'][$j]['adj']);
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k] = array();
                     $out[$ck]['clp'][$i]['svc'][$j]['adj'][$k]['group_code']  = $sar[1];
@@ -314,7 +317,10 @@ function edih_835_accounting($segments, $delimiters)
                 $sar = explode($de, $seg);
                 $j = count($out[$ck]['clp'][$i]['svc']);
                 $out[$ck]['clp'][$i]['svc'][$j] = array();
-                if (! $out['loopid']) return 'Unexpected SVC segment';
+                if (! $out['loopid']) {
+                    return 'Unexpected SVC segment';
+                }
+
                 //
                 if (isset($sar[6]) && $sar[6]) {
                     // SVC06 if present is our original procedure code that they are changing.
@@ -328,7 +334,10 @@ function edih_835_accounting($segments, $delimiters)
                     $svc = explode($delimiter3, $seg[1]);
                 }
 
-                if ($svc[0] != 'HC') return 'SVC segment has unexpected qualifier';
+                if ($svc[0] != 'HC') {
+                    return 'SVC segment has unexpected qualifier';
+                }
+
                 // TBD: Other qualifiers are possible; see IG pages 140-141.
                 $j = count($out[$ck]['clp'][$i]['svc']);
                 $out['svc'][$j] = array();

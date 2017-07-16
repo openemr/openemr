@@ -72,7 +72,9 @@ function update_issues($pid, $encounter, $diags)
     $idx_list_id=count($encounter_params)-1;
     foreach ($diags as $diags) {
         // ensure that a problem is allowed to be created from the diagnostic element
-        if ($diags->allowed_to_create_problem_from_diagnosis != "TRUE") continue;
+        if ($diags->allowed_to_create_problem_from_diagnosis != "TRUE") {
+            continue;
+        }
 
         $diagnosis_key=$diags->code_type.":".$diags->code;
         $list_id=null;
@@ -243,7 +245,9 @@ function issue_diagnoses($pid, $encounter)
             $new_info=new code_info($code, $code_type, $title, $res['selected']!=0);
 
             //ensure that a diagnostic element is allowed to be created from a problem element
-            if ($new_info->allowed_to_create_diagnosis_from_problem != "TRUE") continue;
+            if ($new_info->allowed_to_create_diagnosis_from_problem != "TRUE") {
+                continue;
+            }
 
             $new_info->db_id=$db_id;
             $retval[]=$new_info;

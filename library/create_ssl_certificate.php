@@ -42,29 +42,36 @@ function create_csr(
     $organizationalUnitName
 ) {
 
-    if ($commonName == "")
+    if ($commonName == "") {
         return false;
+    }
 
     /* Build the Distinguished Name (DN) for the certificate */
     $dn = array("commonName" => $commonName);
 
-    if ($emailAddress)
+    if ($emailAddress) {
         $dn = array_merge($dn, array("emailAddress" => $emailAddress));
+    }
 
-    if ($countryName)
+    if ($countryName) {
         $dn = array_merge($dn, array("countryName" => $countryName));
+    }
 
-    if ($stateOrProvinceName)
+    if ($stateOrProvinceName) {
         $dn = array_merge($dn, array("stateOrProvinceName" => $stateOrProvinceName));
+    }
 
-    if ($localityName)
+    if ($localityName) {
         $dn = array_merge($dn, array("localityName" => $localityName));
+    }
 
-    if ($organizationName)
+    if ($organizationName) {
         $dn = array_merge($dn, array("organizationName" => $organizationName));
+    }
 
-    if ($organizationalUnitName)
+    if ($organizationalUnitName) {
         $dn = array_merge($dn, array("organizationalUnitName" => $organizationalUnitName));
+    }
 
     /* OpenSSL functions need the path to the openssl.cnf file */
     $opensslConf = $GLOBALS['webserver_root'] . "/library/openssl.cnf";

@@ -75,11 +75,18 @@ function postcalendar_user_view()
              'jumpyear'
          );
     $Date =postcalendar_getDate();
-    if (!isset($viewtype))   $viewtype = _SETTING_DEFAULT_VIEW;
+    if (!isset($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW;
+    }
     
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) $viewtype = $_SESSION['viewtype'];
-    if ($_SESSION['pc_username']) $pc_username = $_SESSION['pc_username'];
+    if ($_SESSION['viewtype']) {
+        $viewtype = $_SESSION['viewtype'];
+    }
+
+    if ($_SESSION['pc_username']) {
+        $pc_username = $_SESSION['pc_username'];
+    }
 
     return postcalendar_user_display(array('viewtype'=>$viewtype,'Date'=>$Date,'print'=>$print)) . postcalendar_footer();
 }
@@ -104,8 +111,13 @@ function postcalendar_user_display($args)
              'pc_facility'
          );
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) $viewtype = $_SESSION['viewtype'];
-    if ($_SESSION['pc_username']) $pc_username = $_SESSION['pc_username'];
+    if ($_SESSION['viewtype']) {
+        $viewtype = $_SESSION['viewtype'];
+    }
+
+    if ($_SESSION['pc_username']) {
+        $pc_username = $_SESSION['pc_username'];
+    }
 
     // funky things happen if the view is 'details' and we don't have an event ID
     // so in such a case, we're going to revert to the 'day' view -- JRM
@@ -118,7 +130,9 @@ function postcalendar_user_display($args)
     if (empty($Date) && empty($viewtype)) {
         return false; }
 
-    if (empty($tplview)) $tplview = 'default';
+    if (empty($tplview)) {
+        $tplview = 'default';
+    }
 
     $uid = pnUserGetVar('uid');
     $theme = pnUserGetTheme();
@@ -379,12 +393,15 @@ function postcalendar_user_submit($args)
 
     //id of the user the event is for
     $event_userid = pnVarCleanFromInput('event_userid');
-    if (!is_numeric($event_userid))
+    if (!is_numeric($event_userid)) {
         $event_userid = 0;
+    }
+
     $event_pid = pnVarCleanFromInput('event_pid');
 
-    if (!is_numeric($event_pid))
+    if (!is_numeric($event_pid)) {
         $event_pid = "";
+    }
 
     // event start information
     $event_startmonth    = pnVarCleanFromInput('event_startmonth');
@@ -1006,10 +1023,17 @@ function postcalendar_user_search()
     $tpl->assign('event_dur_minutes', $event_dur_minutes);
 
     // create default start and end dates for the search form
-    if (isset($start) && $start != "") $tpl->assign('DATE_START', $start);
-    else $tpl->assign('DATE_START', date("m/d/Y"));
-    if (isset($end) && $end!= "") $tpl->assign('DATE_END', $end);
-    else $tpl->assign('DATE_END', date("m/d/Y", strtotime("+7 Days", time())));
+    if (isset($start) && $start != "") {
+        $tpl->assign('DATE_START', $start);
+    } else {
+        $tpl->assign('DATE_START', date("m/d/Y"));
+    }
+
+    if (isset($end) && $end!= "") {
+        $tpl->assign('DATE_END', $end);
+    } else {
+        $tpl->assign('DATE_END', date("m/d/Y", strtotime("+7 Days", time())));
+    }
 
     // then override the setting if we have a value from the submitted form
     $ProviderID = pnVarCleanFromInput("provider_id");
@@ -1051,7 +1075,10 @@ function postcalendar_user_search()
         $fac_options = "<option value=''>" . xl('All Facilities') . "</option>";
         foreach ($facilities as $facility) {
             $selected = "";
-            if ($facility['id'] == $pc_facility) $selected = " SELECTED ";
+            if ($facility['id'] == $pc_facility) {
+                $selected = " SELECTED ";
+            }
+
             $fac_options .= "<option value=\"".$facility['id']."\" ".$selected.">";
             $fac_options .= $facility['name']."</option>";
         }
@@ -1205,7 +1232,10 @@ function postcalendar_user_search()
             $keywords = explode(' ', $k);
             // build our search query
             foreach ($keywords as $word) {
-                if (!empty($sqlKeywords)) $sqlKeywords .= " $k_andor ";
+                if (!empty($sqlKeywords)) {
+                    $sqlKeywords .= " $k_andor ";
+                }
+
                 $sqlKeywords .= '(';
                 $sqlKeywords .= "pd.lname LIKE '%$word%' OR ";
                 $sqlKeywords .= "pd.fname LIKE '%$word%' OR ";
@@ -1227,22 +1257,35 @@ function postcalendar_user_search()
             }
 
             $searchargs = array();
-            if (!empty($sqlKeywords)) $searchargs['s_keywords'] = $sqlKeywords;
-            if (!empty($s_category)) $searchargs['s_category'] = $s_category;
-            if (!empty($s_topic)) $searchargs['s_topic'] = $s_topic;
+            if (!empty($sqlKeywords)) {
+                $searchargs['s_keywords'] = $sqlKeywords;
+            }
+
+            if (!empty($s_category)) {
+                $searchargs['s_category'] = $s_category;
+            }
+
+            if (!empty($s_topic)) {
+                $searchargs['s_topic'] = $s_topic;
+            }
         
             // some new search parameters introduced in the ajax_search form...  JRM March 2008
 
             // the ajax_search form has form parameters for 'start' and 'end' already built in
             // so use them if available
             $tmpDate = pnVarCleanFromInput("start");
-            if (isset($tmpDate) && $tmpDate != "")
-            $searchargs['start'] = pnVarCleanFromInput("start");
-            else $searchargs['start'] = "//";
+            if (isset($tmpDate) && $tmpDate != "") {
+                $searchargs['start'] = pnVarCleanFromInput("start");
+            } else {
+                $searchargs['start'] = "//";
+            }
+
             $tmpDate = pnVarCleanFromInput("end");
-            if (isset($tmpDate) && $tmpDate != "")
-            $searchargs['end'] = pnVarCleanFromInput("end");
-            else $searchargs['end'] = "//";
+            if (isset($tmpDate) && $tmpDate != "") {
+                $searchargs['end'] = pnVarCleanFromInput("end");
+            } else {
+                $searchargs['end'] = "//";
+            }
 
             // we can limit our search by provider -- JRM March 2008
             if (isset($ProviderID) && $ProviderID != "") { // && $ProviderID != "_ALL_") {
@@ -1299,10 +1342,12 @@ function checkCategoryLimits($eventdata)
             foreach ($eventsByDate as $day) {
                 //if event time falls within limit time check
                 //hour from forms is 12 not 24 format, convert here
-                if ($event_startampm == 2 && $event_starttimeh != 12)
+                if ($event_startampm == 2 && $event_starttimeh != 12) {
                     $event_starttimeh += 12;
-                 elseif ($event_startampm == 1 && $event_starttimeh == 12)
+                } elseif ($event_startampm == 1 && $event_starttimeh == 12) {
                     $event_starttimeh -= 12;
+                }
+
                 $event_starttime = date("H:i:00", strtotime($event_starttimeh.":".$event_starttimem.":"."00"));
                 $event_endtime = date("H:i:00", strtotime($event_endtimeh.":".$event_endtimem.":"."00"));
 

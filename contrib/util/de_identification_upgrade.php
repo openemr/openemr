@@ -30,7 +30,10 @@ require_once('../../interface/globals.php');
 function tableExists_de($tblname)
 {
     $row = sqlQuery("SHOW TABLES LIKE '$tblname'");
-    if (empty($row)) return false;
+    if (empty($row)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -62,29 +65,45 @@ function upgradeFromSqlFile_de($filename)
         $line = fgets($fd, 2048);
         $line = rtrim($line);
 
-        if (preg_match('/^\s*--/', $line)) continue;
-        if ($line == "") continue;
+        if (preg_match('/^\s*--/', $line)) {
+            continue;
+        }
+
+        if ($line == "") {
+            continue;
+        }
 
         if (preg_match('/^#IfNotTable\s+(\S+)/', $line, $matches)) {
             $skipping = tableExists_de($matches[1]);
-            if ($skipping) echo "<font color='green'>";
+            if ($skipping) {
+                echo "<font color='green'>";
+            }
+
             echo xl('Skipping section');
             echo " ".$line."</font><br />\n";
         } else if (preg_match('/^#EndIf/', $line)) {
             $skipping = false;
         }
 
-        if (preg_match('/^\s*#/', $line)) continue;
-        if ($skipping) continue;
+        if (preg_match('/^\s*#/', $line)) {
+            continue;
+        }
 
-        if ($proc == 1) $query .= "\n";
+        if ($skipping) {
+            continue;
+        }
+
+        if ($proc == 1) {
+            $query .= "\n";
+        }
+
         $query = $query . $line;
 
         if (substr($query, -1) == '$') {
             $query = rtrim($query, '$');
-            if ($proc == 0)
-            $proc = 1;
-            else {
+            if ($proc == 0) {
+                $proc = 1;
+            } else {
                 $proc = 0; //executes procedures and functions
                 if (!sqlStatement($query)) {
                     echo "<font color='red'>";
@@ -119,7 +138,10 @@ function upgradeFromSqlFile_de($filename)
 
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
-if (! $dh) die(xl("Cannot read", "e")." ".$sqldir);
+if (! $dh) {
+    die(xl("Cannot read", "e")." ".$sqldir);
+}
+
 closedir($dh);
 ?>
 <html>
@@ -154,7 +176,10 @@ if (!empty($_POST['form_submit'])) {
         echo xl("Error");
         echo "\n";
         break;
-    } else echo "<font color='green'>";
+    } else {
+        echo "<font color='green'>";
+    }
+
     echo xl("File privilege granted to OpenEMR user.");
     echo "<br></font>\n";
 

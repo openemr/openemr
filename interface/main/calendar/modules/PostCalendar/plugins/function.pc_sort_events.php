@@ -49,18 +49,33 @@ function smarty_function_pc_sort_events($params, &$smarty)
     
     switch ($sort) {
         case 'category' :
-            if (strtolower($order) == 'asc') $function = 'sort_byCategoryA';
-            if (strtolower($order) == 'desc') $function = 'sort_byCategoryD';
+            if (strtolower($order) == 'asc') {
+                $function = 'sort_byCategoryA';
+            }
+
+            if (strtolower($order) == 'desc') {
+                $function = 'sort_byCategoryD';
+            }
             break;
             
         case 'title' :
-            if (strtolower($order) == 'asc') $function = 'sort_byTitleA';
-            if (strtolower($order) == 'desc') $function = 'sort_byTitleD';
+            if (strtolower($order) == 'asc') {
+                $function = 'sort_byTitleA';
+            }
+
+            if (strtolower($order) == 'desc') {
+                $function = 'sort_byTitleD';
+            }
             break;
             
         case 'time' :
-            if (strtolower($order) == 'asc') $function = 'sort_byTimeA';
-            if (strtolower($order) == 'desc') $function = 'sort_byTimeD';
+            if (strtolower($order) == 'asc') {
+                $function = 'sort_byTimeA';
+            }
+
+            if (strtolower($order) == 'desc') {
+                $function = 'sort_byTimeD';
+            }
             break;
     }
 

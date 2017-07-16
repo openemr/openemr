@@ -7,7 +7,9 @@ include_once("../../library/acl.inc");
 
 // Might want something different here.
 //
-if (! acl_check('acct', 'rep')) die("Unauthorized access.");
+if (! acl_check('acct', 'rep')) {
+    die("Unauthorized access.");
+}
 
 $facilityService = new \services\FacilityService();
 
@@ -29,7 +31,10 @@ $cellcount = 0;
 function genStartRow($att)
 {
     global $cellcount, $form_output;
-    if ($form_output != 3) echo " <tr $att>\n";
+    if ($form_output != 3) {
+        echo " <tr $att>\n";
+    }
+
     $cellcount = 0;
 }
 
@@ -54,12 +59,21 @@ function genAnyCell($data, $right = false, $class = '')
 
     foreach ($data as $datum) {
         if ($form_output == 3) {
-            if ($cellcount) echo ',';
+            if ($cellcount) {
+                echo ',';
+            }
+
             echo '"' . $datum . '"';
         } else {
             echo "  <td";
-            if ($class) echo " class='$class'";
-            if ($right) echo " align='right'";
+            if ($class) {
+                echo " class='$class'";
+            }
+
+            if ($right) {
+                echo " align='right'";
+            }
+
             echo ">$datum</td>\n";
         }
 
@@ -78,7 +92,10 @@ function genNumCell($num, $cnum)
 {
     global $atotals, $form_output;
     $atotals[$cnum] += $num;
-    if (empty($num) && $form_output != 3) $num = '&nbsp;';
+    if (empty($num) && $form_output != 3) {
+        $num = '&nbsp;';
+    }
+
     genAnyCell($num, true, 'detail');
 }
 
@@ -137,7 +154,10 @@ if ($form_output == 3) {
 foreach ($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $_POST['form_facility']) echo " selected";
+    if ($facid == $_POST['form_facility']) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
 
@@ -159,7 +179,10 @@ foreach ($fres as $frow) {
 <?php
 foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
     echo "   <input type='radio' name='form_output' value='$key'";
-    if ($key == $form_output) echo ' checked';
+    if ($key == $form_output) {
+        echo ' checked';
+    }
+
     echo " />$value &nbsp;";
 }
 ?>
@@ -275,14 +298,37 @@ if ($_POST['form_submit']) {
             // Logic for specific services.
             //
             $code = 0 + $row['code'];
-            if ($code == 255004) ++$areport[$method][5];  // pap smear
-            if ($code == 256101) ++$areport[$method][6];  // preg test
-            if ($code == 375008) ++$areport[$method][7];  // dr's check
-            if ($code == 375015) ++$areport[$method][8];  // dr's visit (was 375014)
-            if ($code == 375011) ++$areport[$method][9];  // advice
-            if ($code == 019916) ++$areport[$method][10]; // couns by method
-            if ($code == 039916) ++$areport[$method][11]; // infert couns
-            if ($code == 019911) ++$areport[$method][12]; // std/aids couns
+            if ($code == 255004) {
+                ++$areport[$method][5];  // pap smear
+            }
+
+            if ($code == 256101) {
+                ++$areport[$method][6];  // preg test
+            }
+
+            if ($code == 375008) {
+                ++$areport[$method][7];  // dr's check
+            }
+
+            if ($code == 375015) {
+                ++$areport[$method][8];  // dr's visit (was 375014)
+            }
+
+            if ($code == 375011) {
+                ++$areport[$method][9];  // advice
+            }
+
+            if ($code == 019916) {
+                ++$areport[$method][10]; // couns by method
+            }
+
+            if ($code == 039916) {
+                ++$areport[$method][11]; // infert couns
+            }
+
+            if ($code == 019911) {
+                ++$areport[$method][12]; // std/aids couns
+            }
         }
     } // end while
 

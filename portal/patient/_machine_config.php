@@ -77,7 +77,9 @@ if (! function_exists('lcfirst')) {
 
 // if Multibyte support is specified then we need to check if multibyte functions are available
 // if you receive this error then either install multibyte extensions or set Multibyte to false
-if (GlobalConfig::$CONNECTION_SETTING->Multibyte && ! function_exists('mb_strlen')) die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
+if (GlobalConfig::$CONNECTION_SETTING->Multibyte && ! function_exists('mb_strlen')) {
+    die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
+}
 
 /**
  * level 2 cache

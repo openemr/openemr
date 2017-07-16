@@ -75,10 +75,13 @@ class ExceptionThrower
     static function HandleError($code, $string, $file, $line, $context)
     {
         // ignore supressed errors
-        if (error_reporting() == 0)
+        if (error_reporting() == 0) {
             return;
-        if (self::$IGNORE_DEPRECATED && strpos($string, "deprecated") === true)
+        }
+
+        if (self::$IGNORE_DEPRECATED && strpos($string, "deprecated") === true) {
             return true;
+        }
         
         throw new Exception($string . " in " . basename($file) . " at line $line", $code);
     }

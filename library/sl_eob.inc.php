@@ -51,7 +51,10 @@ function slInvoiceNumber(&$out)
         }
     }
 
-    if ($pid && $encounter) $invnumber = "$pid.$encounter";
+    if ($pid && $encounter) {
+        $invnumber = "$pid.$encounter";
+    }
+
     return array($pid, $encounter, $invnumber);
 }
 
@@ -61,13 +64,18 @@ function slInvoiceNumber(&$out)
   //
 function arGetSession($payer_id, $reference, $check_date, $deposit_date = '', $pay_total = 0)
 {
-    if (empty($deposit_date)) $deposit_date = $check_date;
+    if (empty($deposit_date)) {
+        $deposit_date = $check_date;
+    }
+
     if ($payer_id) {
         $row = sqlQuery("SELECT session_id FROM ar_session WHERE " .
         "payer_id = '$payer_id' AND reference = '$reference' AND " .
         "check_date = '$check_date' AND deposit_date = '$deposit_date' " .
         "ORDER BY session_id DESC LIMIT 1");
-        if (!empty($row['session_id'])) return $row['session_id'];
+        if (!empty($row['session_id'])) {
+            return $row['session_id'];
+        }
     }
 
     return sqlInsert("INSERT INTO ar_session ( " .
@@ -116,7 +124,9 @@ function arPostPayment($patient_id, $encounter_id, $session_id, $amount, $code, 
         $modifier = substr($code, $tmp+1);
     }
 
-    if (empty($time)) $time = date('Y-m-d H:i:s');
+    if (empty($time)) {
+        $time = date('Y-m-d H:i:s');
+    }
 
     sqlBeginTrans();
     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
@@ -203,7 +213,9 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
         $modifier = substr($code, $tmp+1);
     }
 
-    if (empty($time)) $time = date('Y-m-d H:i:s');
+    if (empty($time)) {
+        $time = date('Y-m-d H:i:s');
+    }
 
     sqlBeginTrans();
     $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array($patient_id, $encounter_id));
@@ -231,14 +243,20 @@ function arPostAdjustment($patient_id, $encounter_id, $session_id, $amount, $cod
 
 function arGetPayerID($patient_id, $date_of_service, $payer_type)
 {
-    if ($payer_type < 1 || $payer_type > 3) return 0;
+    if ($payer_type < 1 || $payer_type > 3) {
+        return 0;
+    }
+
     $tmp = array(1 => 'primary', 2 => 'secondary', 3 => 'tertiary');
     $value = $tmp[$payer_type];
     $query = "SELECT provider FROM insurance_data WHERE " .
     "pid = ? AND type = ? AND date <= ? " .
     "ORDER BY date DESC LIMIT 1";
     $nprow = sqlQuery($query, array($patient_id,$value,$date_of_service));
-    if (empty($nprow)) return 0;
+    if (empty($nprow)) {
+        return 0;
+    }
+
     return $nprow['provider'];
 }
 
@@ -259,19 +277,22 @@ function arSetupSecondary($patient_id, $encounter_id, $debug, $crossover = 0)
     "pid = '$patient_id' AND encounter = '$encounter_id'");
     $date_of_service = substr($ferow['date'], 0, 10);
     $new_payer_type = 0 + $ferow['last_level_billed'];
-    if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0)
-    ++$new_payer_type;
+    if ($new_payer_type < 3 && !empty($ferow['last_level_billed']) || $new_payer_type == 0) {
+        ++$new_payer_type;
+    }
 
     $new_payer_id = arGetPayerID($patient_id, $date_of_service, $new_payer_type);
 
     if ($new_payer_id) {
         // Queue up the claim.
-        if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
+        if (!$debug) {
+            updateClaim(true, $patient_id, $encounter_id, $new_payer_id, $new_payer_type, $status, 5, '', 'hcfa', '', $crossover);
+        }
     } else {
       // Just reopen the claim.
-        if (!$debug)
-        updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
+        if (!$debug) {
+            updateClaim(true, $patient_id, $encounter_id, -1, -1, $status, 0, '', '', '', $crossover);
+        }
     }
 
     return xl("Encounter ") . $encounter . xl(" is ready for re-billing.");

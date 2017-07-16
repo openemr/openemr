@@ -41,28 +41,31 @@ function addwhere($where, $colname, $value)
  $phone_parts = array();
 
  // Search by area code if there is one.
- if (preg_match(
-     "/(\d\d\d)/",
-     $_REQUEST['form_phone'],
-     $phone_parts
- ))
-  $where = addwhere($where, 'p.area_code', $phone_parts[1]);
+if (preg_match(
+    "/(\d\d\d)/",
+    $_REQUEST['form_phone'],
+    $phone_parts
+)) {
+    $where = addwhere($where, 'p.area_code', $phone_parts[1]);
+}
 
  // If there is also an exchange, search for that too.
- if (preg_match(
-     "/\d\d\d\D*(\d\d\d)/",
-     $_REQUEST['form_phone'],
-     $phone_parts
- ))
-  $where = addwhere($where, 'p.prefix', $phone_parts[1]);
+if (preg_match(
+    "/\d\d\d\D*(\d\d\d)/",
+    $_REQUEST['form_phone'],
+    $phone_parts
+)) {
+    $where = addwhere($where, 'p.prefix', $phone_parts[1]);
+}
 
  // If the last 4 phone number digits are given, search for that too.
- if (preg_match(
-     "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
-     $_REQUEST['form_phone'],
-     $phone_parts
- ))
-  $where = addwhere($where, 'p.number', $phone_parts[1]);
+if (preg_match(
+    "/\d\d\d\D*\d\d\d\D*(\d\d\d\d)/",
+    $_REQUEST['form_phone'],
+    $phone_parts
+)) {
+    $where = addwhere($where, 'p.number', $phone_parts[1]);
+}
 
  $query = "SELECT " .
   "i.id, i.name, i.attn, " .

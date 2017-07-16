@@ -168,9 +168,17 @@ if ($postid) {
   // echo "<!-- $sql -->\n"; // debugging
 
     $phone = $result['fields']['phone_biz'];
-    if (empty($phone)) $phone = $result['fields']['phone_home'];
-    if (empty($phone)) $phone = $result['fields']['phone_cell'];
-    if (empty($phone)) $phone = $result['fields']['phone_contact'];
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_home'];
+    }
+
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_cell'];
+    }
+
+    if (empty($phone)) {
+        $phone = $result['fields']['phone_contact'];
+    }
 ?>
 
 <div id="searchResults">
@@ -194,19 +202,32 @@ if ($postid) {
 
 <?php
 while ($row = sqlFetchArray($res)) {
-    if ($row['closeness'] == 0) continue;
+    if ($row['closeness'] == 0) {
+        continue;
+    }
+
     if ($row['closeness'] >= 100) {
         ++$login_matches;
         $login_pid = $row['pid'];
     } else {
       // We have a match on login name but this is not one, so ignore it.
-        if ($login_matches) continue;
+        if ($login_matches) {
+            continue;
+        }
     }
 
     $phone = $row['phone_biz'];
-    if (empty($phone)) $phone = $row['phone_home'];
-    if (empty($phone)) $phone = $row['phone_cell'];
-    if (empty($phone)) $phone = $row['phone_contact'];
+    if (empty($phone)) {
+        $phone = $row['phone_home'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_cell'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_contact'];
+    }
 
     echo "  <tr class='oneresult'";
     echo " onclick=\"openPatient(" .

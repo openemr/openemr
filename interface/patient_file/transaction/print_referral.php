@@ -50,7 +50,9 @@ $TEMPLATE_LABELS = array(
   'label_subhead_referred'      => htmlspecialchars(xl('For Referred Organization/Practitioner'))
 );
 
-if (!is_file($template_file)) die("$template_file does not exist!");
+if (!is_file($template_file)) {
+    die("$template_file does not exist!");
+}
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 
@@ -81,44 +83,66 @@ if ($patient_id) {
     $patient_age = '';
 }
 
-if (empty($trow['refer_from'])) $trow['refer_from'] = 0;
-if (empty($trow['refer_to'  ])) $trow['refer_to'  ] = 0;
+if (empty($trow['refer_from'])) {
+    $trow['refer_from'] = 0;
+}
+
+if (empty($trow['refer_to'  ])) {
+    $trow['refer_to'  ] = 0;
+}
 
 $frrow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_from']));
-if (empty($frrow)) $frrow = array();
+if (empty($frrow)) {
+    $frrow = array();
+}
 
 $torow = sqlQuery("SELECT * FROM users WHERE id = ?", array($trow['refer_to']));
-if (empty($torow)) $torow = array(
-  'organization' => '',
-  'street' => '',
-  'city' => '',
-  'state' => '',
-  'zip' => '',
-  'phone' => '',
-);
+if (empty($torow)) {
+    $torow = array(
+    'organization' => '',
+    'street' => '',
+    'city' => '',
+    'state' => '',
+    'zip' => '',
+    'phone' => '',
+    );
+}
 
 $vrow = sqlQuery("SELECT * FROM form_vitals WHERE " .
   "pid = ? AND date <= ? " .
   "ORDER BY date DESC LIMIT 1", array($patient_id, $refer_date." 23:59:59"));
-if (empty($vrow)) $vrow = array(
-  'bps' => '',
-  'bpd' => '',
-  'weight' => '',
-  'height' => '',
-);
+if (empty($vrow)) {
+    $vrow = array(
+    'bps' => '',
+    'bpd' => '',
+    'weight' => '',
+    'height' => '',
+    );
+}
 
 // $facrow = sqlQuery("SELECT name, facility_npi FROM facility ORDER BY " .
 //   "service_location DESC, billing_location DESC, id ASC LIMIT 1");
 $facrow = getFacility(-1);
 
 // Make some items HTML-friendly if they are empty.
-if (empty($trow['id'])) $trow['id'] = '&nbsp;';
-if (empty($patient_id)) $patient_id = '&nbsp;';
-if (empty($facrow['facility_npi'])) $facrow['facility_npi'] = '&nbsp;';
+if (empty($trow['id'])) {
+    $trow['id'] = '&nbsp;';
+}
+
+if (empty($patient_id)) {
+    $patient_id = '&nbsp;';
+}
+
+if (empty($facrow['facility_npi'])) {
+    $facrow['facility_npi'] = '&nbsp;';
+}
 
 $s = '';
 $fh = fopen($template_file, 'r');
-while (!feof($fh))$s .= fread($fh, 8192);
+while (!feof($fh)) {
+    $s .= fread($fh, 8192);
+}
+
 fclose($fh);
 
 $s = str_replace("{header1}", genFacilityTitle($TEMPLATE_LABELS['label_form1_title'], -1), $s);
@@ -136,7 +160,10 @@ while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];
     $currvalue = '';
-    if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
+    if (isset($trow[$field_id])) {
+        $currvalue = $trow[$field_id];
+    }
+
     $s = str_replace(
         "{ref_$field_id}",
         generate_display_field($frow, $currvalue),

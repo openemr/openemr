@@ -85,7 +85,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
     if ($query_param) {
         $query = $query_param;
 
-        if ($bind_param) $sqlBindArray = $bind_param;
+        if ($bind_param) {
+            $sqlBindArray = $bind_param;
+        }
     } else {
         //////
         if ($nextX) {
@@ -103,7 +105,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
             array_push($sqlBindArray, $from_date, $to_date, $from_date, $to_date);
         }
 
-        if ($where_param) $where .= $where_param;
+        if ($where_param) {
+            $where .= $where_param;
+        }
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
@@ -139,7 +143,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         "WHERE $where " .
         "ORDER BY $order_by";
 
-        if ($bind_param) $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+        if ($bind_param) {
+            $sqlBindArray = array_merge($sqlBindArray, $bind_param);
+        }
     }
 
 
@@ -160,8 +166,12 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
     while ($event = sqlFetchArray($res)) {
         ///////
-        if ($nextX) $stopDate = $event['pc_endDate'];
-        else $stopDate = ($event['pc_endDate'] <= $to_date) ? $event['pc_endDate'] : $to_date;
+        if ($nextX) {
+            $stopDate = $event['pc_endDate'];
+        } else {
+            $stopDate = ($event['pc_endDate'] <= $to_date) ? $event['pc_endDate'] : $to_date;
+        }
+
         ///////
         $incX = 0;
         switch ($event['pc_recurrtype']) {
@@ -207,7 +217,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                       //////
                         if ($nextX) {
                             ++$incX;
-                            if ($incX == $nextX) break;
+                            if ($incX == $nextX) {
+                                break;
+                            }
                         }
 
                       //////
@@ -230,7 +242,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
                 list($ny,$nm,$nd) = explode('-', $event['pc_eventDate']);
 
-                if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1;
+                if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
+                    $nd = 1;
+                }
 
                 $occuranceYm = "$ny-$nm"; // YYYY-mm
                 $from_dateYm = substr($from_date, 0, 7); // YYYY-mm
@@ -272,7 +286,9 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                             //////
                             if ($nextX) {
                                 ++$incX;
-                                if ($incX == $nextX) break;
+                                if ($incX == $nextX) {
+                                    break;
+                                }
                             }
 
                             //////
@@ -607,7 +623,10 @@ function fetchAppointmentCategories()
 {
      $catSQL= " SELECT pc_catid as id, pc_catname as category "
             . " FROM openemr_postcalendar_categories WHERE pc_recurrtype=0 and pc_cattype=0";
-    if ($GLOBALS['enable_group_therapy']) $catSQL .= " OR pc_cattype=3";
+    if ($GLOBALS['enable_group_therapy']) {
+        $catSQL .= " OR pc_cattype=3";
+    }
+
     $catSQL .= "  ORDER BY category";
      return sqlStatement($catSQL);
 }

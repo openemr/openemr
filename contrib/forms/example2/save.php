@@ -16,7 +16,9 @@ $form_name = "My Example Form";
 $form_folder = "example";
 
 
-if ($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
 
 if ($_GET["mode"] == "new") {
     /* NOTE - for customization you can replace $_POST with your own array

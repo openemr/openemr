@@ -31,7 +31,10 @@ if (! $encounter) { // comes from globals.php
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) $tmp = '0';
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
     return "'$tmp'";
 }
 
@@ -44,7 +47,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }
@@ -58,7 +64,10 @@ function cbinput($name, $colname)
 {
     global $row;
     $ret  = "<input type='checkbox' name='$name' value='1'";
-    if ($row[$colname]) $ret .= " checked";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
     $ret .= " />";
     return $ret;
 }
@@ -74,7 +83,10 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $tmp = strtotime($_POST['time'] . $_POST['timeampm']);
-    if ($tmp < 0) die("Time is not valid!");
+    if ($tmp < 0) {
+        die("Time is not valid!");
+    }
+
     $siinjtime = date("H:i:s", $tmp);
 
     $simech_other = '';
@@ -216,8 +228,10 @@ if ($formid) {
   <td nowrap>Time</td>
   <td nowrap>
    <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo $siinjtime ?>' />&nbsp;
-   <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') echo ' checked' ?> />am&nbsp;
-   <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') echo ' checked' ?> />pm&nbsp;
+   <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') {
+        echo ' checked'; } ?> />am&nbsp;
+   <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') {
+        echo ' checked'; } ?> />pm&nbsp;
   </td>
  </tr>
 

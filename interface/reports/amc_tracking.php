@@ -218,11 +218,14 @@ $provider  = trim($_POST['form_provider']);
                         </td>
                         <td>
                             <select name='form_rule' class='form-control'>
-                            <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") echo "selected"; ?>>
+                            <option value='send_sum_amc' <?php if ($rule == "send_sum_amc") {
+                                echo "selected";} ?>>
                             <?php echo htmlspecialchars(xl('Send Summaries with Referrals'), ENT_NOQUOTES); ?></option>
-                            <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") echo "selected"; ?>>
+                            <option value='provide_rec_pat_amc' <?php if ($rule == "provide_rec_pat_amc") {
+                                echo "selected";} ?>>
                             <?php echo htmlspecialchars(xl('Patient Requested Medical Records'), ENT_NOQUOTES); ?></option>
-                            <option value='provide_sum_pat_amc' <?php if ($rule == "provide_sum_pat_amc") echo "selected"; ?>>
+                            <option value='provide_sum_pat_amc' <?php if ($rule == "provide_sum_pat_amc") {
+                                echo "selected";} ?>>
                             <?php echo htmlspecialchars(xl('Provide Records to Patient for Visit'), ENT_NOQUOTES); ?></option>
                             </select>
                         </td>
@@ -249,7 +252,10 @@ $provider  = trim($_POST['form_provider']);
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='".htmlspecialchars($provid, ENT_QUOTES)."'";
-                    if ($provid == $_POST['form_provider']) echo " selected";
+                    if ($provid == $_POST['form_provider']) {
+                        echo " selected";
+                    }
+
                     echo ">" . htmlspecialchars($urow['lname'] . ", " . $urow['fname'], ENT_NOQUOTES) . "\n";
                 }
 

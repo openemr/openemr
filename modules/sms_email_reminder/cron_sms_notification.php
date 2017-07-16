@@ -21,7 +21,9 @@ include_once("cron_functions.php");
 
 // check command line for quite option
 $bTestRun = 0;
-if ($argc > 1 && $argv[1] == 'test') $bTestRun = 1;
+if ($argc > 1 && $argv[1] == 'test') {
+    $bTestRun = 1;
+}
 
 $TYPE = "SMS";
 $CRON_TIME = 5;

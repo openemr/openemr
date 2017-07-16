@@ -50,7 +50,10 @@ $finalize   = $_REQUEST['finalize'];
 $id         = $_REQUEST['id'];
 $display    = $_REQUEST['display'];
 $pid        = $_REQUEST['pid'];
-if ($pid =='') $pid = $_SESSION['pid'];
+if ($pid =='') {
+    $pid = $_SESSION['pid'];
+}
+
 $refresh    = $_REQUEST['refresh'];
 if ($_REQUEST['url']) {
     redirector($_REQUEST['url']);
@@ -392,8 +395,10 @@ if ($refresh and $refresh != 'fullscreen') {
                               <ul id="tabs">
                                 <li id="tab0_CC" class="inactive"></li>
                                 <li id="tab1_CC" class="active" ><a class="fa fa-check" href="#tab1"> <?php echo xlt('CC{{Chief Complaint}}'); ?> 1</a></li>
-                                <li id="tab2_CC"><a <?php if ($CC2 >'') echo 'class="fa fa-check"'; ?> href="#tab2"><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
-                                <li id="tab3_CC"><a <?php if ($CC3 >'') echo 'class="fa fa-check"'; ?> href="#tab3"><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
+                                <li id="tab2_CC"><a <?php if ($CC2 >'') {
+                                    echo 'class="fa fa-check"';} ?> href="#tab2"><?php echo xlt('CC{{Chief Complaint}}'); ?> 2</a></li>
+                                <li id="tab3_CC"><a <?php if ($CC3 >'') {
+                                    echo 'class="fa fa-check"';} ?> href="#tab3"><?php echo xlt('CC{{Chief Complaint}}'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -498,9 +503,12 @@ if ($refresh and $refresh != 'fullscreen') {
                           <div id="tabs_wrapper" >
                             <div id="tabs_container">
                               <ul id="tabs">
-                                <li id="tab1_HPI_tab" class="active" ><a type="button" <?php if ($CC1 >'') echo 'class="fa fa-check" '; ?> href="#tab1"> <?php echo xlt('HPI'); ?> 1</a></li>
-                                <li id="tab2_HPI_tab" ><a <?php if ($CC2 >'') echo 'class="fa fa-check"'; ?> href="#tab2"><?php echo xlt('HPI'); ?> 2</a></li>
-                                <li id="tab3_HPI_tab" ><a <?php if ($CC3 >'') echo 'class="fa fa-check"'; ?> href="#tab3"><?php echo xlt('HPI'); ?> 3</a></li>
+                                <li id="tab1_HPI_tab" class="active" ><a type="button" <?php if ($CC1 >'') {
+                                    echo 'class="fa fa-check" ';} ?> href="#tab1"> <?php echo xlt('HPI'); ?> 1</a></li>
+                                <li id="tab2_HPI_tab" ><a <?php if ($CC2 >'') {
+                                    echo 'class="fa fa-check"';} ?> href="#tab2"><?php echo xlt('HPI'); ?> 2</a></li>
+                                <li id="tab3_HPI_tab" ><a <?php if ($CC3 >'') {
+                                    echo 'class="fa fa-check"';} ?> href="#tab3"><?php echo xlt('HPI'); ?> 3</a></li>
                               </ul>
                             </div>
                             <div id="tabs_content_container" class="borderShadow">
@@ -847,11 +855,14 @@ if ($refresh and $refresh != 'fullscreen') {
                     <th class="text_clinical" nowrap><b id="MS_tab"><?php echo xlt('Mental Status'); ?>:</b></th>
                   </div>
                   <br />
-                  <input type="checkbox" name="alert" id="alert" <?php if ($alert) echo "checked='checked'"; ?> value="1">
+                  <input type="checkbox" name="alert" id="alert" <?php if ($alert) {
+                        echo "checked='checked'";} ?> value="1">
                   <label for="alert" class="input-helper input-helper--checkbox"><?php echo xlt('Alert{{Mental Status}}'); ?></label><br />
-                  <input type="checkbox" name="oriented" id="oriented" <?php if ($oriented) echo "checked='checked'"; ?> value="1">
+                  <input type="checkbox" name="oriented" id="oriented" <?php if ($oriented) {
+                        echo "checked='checked'";} ?> value="1">
                   <label for="oriented" class="input-helper input-helper--checkbox"><?php echo xlt('Oriented TPP{{oriented to person and place}}'); ?></label><br />
-                  <input type="checkbox" name="confused" id="confused" <?php if ($confused) echo "checked='checked'"; ?> value="1">
+                  <input type="checkbox" name="confused" id="confused" <?php if ($confused) {
+                        echo "checked='checked'";} ?> value="1">
                   <label for="confused" class="input-helper input-helper--checkbox"><?php echo xlt('Mood/Affect Nml{{Mood and affect normal}}'); ?></label><br />
 
                 </div>
@@ -864,12 +875,29 @@ if ($refresh and $refresh != 'fullscreen') {
                   </div>
                         <?php
                                               //if the prefs show a field, ie visible, the highlight the zone.
-                        if ($W == '1') $button_W = "buttonRefraction_selected";
-                        if ($MR == '1') $button_MR = "buttonRefraction_selected";
-                        if ($CR == '1') $button_AR = "buttonRefraction_selected";
-                        if ($CTL == '1') $button_CTL = "buttonRefraction_selected";
-                        if ($ADDITIONAL == '1') $button_ADDITIONAL = "buttonRefraction_selected";
-                        if ($VAX == '1') $button_VAX = "buttonRefraction_selected";
+                        if ($W == '1') {
+                            $button_W = "buttonRefraction_selected";
+                        }
+
+                        if ($MR == '1') {
+                            $button_MR = "buttonRefraction_selected";
+                        }
+
+                        if ($CR == '1') {
+                            $button_AR = "buttonRefraction_selected";
+                        }
+
+                        if ($CTL == '1') {
+                            $button_CTL = "buttonRefraction_selected";
+                        }
+
+                        if ($ADDITIONAL == '1') {
+                            $button_ADDITIONAL = "buttonRefraction_selected";
+                        }
+
+                        if ($VAX == '1') {
+                            $button_VAX = "buttonRefraction_selected";
+                        }
                         ?>
                   <div class="top_right">
                           <span id="tabs">
@@ -973,8 +1001,14 @@ if ($refresh and $refresh != 'fullscreen') {
                         </span>
                     </div>
                     <?php
-                        if (!$AMSLEROD) $AMSLEROD= "0";
-                        if (!$AMSLEROS) $AMSLEROS= "0";
+                    if (!$AMSLEROD) {
+                        $AMSLEROD= "0";
+                    }
+
+                    if (!$AMSLEROS) {
+                        $AMSLEROS= "0";
+                    }
+
                     if ($AMSLEROD || $AMSLEROS) {
                         $checked = 'value="0"';
                     } else {
@@ -1052,7 +1086,9 @@ if ($refresh and $refresh != 'fullscreen') {
                             }
                         }
 
-                            if (!$bad)  $VFFTCF = "checked";
+                        if (!$bad) {
+                            $VFFTCF = "checked";
+                        }
                         ?>
                     <div id="Lyr60">
                                 <label for="FieldsNormal" class="input-helper input-helper--checkbox"><?php echo xlt('FTCF{{Full to count fingers}}'); ?></label>
@@ -1113,7 +1149,8 @@ if ($refresh and $refresh != 'fullscreen') {
                   <span class="top_left"><b id="pupils"><?php echo xlt('Pupils'); ?>:</b> </span>
                   <div id="Lyr701">
                               <label for="PUPIL_NORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                              <input id="PUPIL_NORMAL" name="PUPIL_NORMAL" type="checkbox"  <?php if ($PUPIL_NORMAL =='1') echo 'checked="checked" value="1"'; ?>>
+                              <input id="PUPIL_NORMAL" name="PUPIL_NORMAL" type="checkbox"  <?php if ($PUPIL_NORMAL =='1') {
+                                    echo 'checked="checked" value="1"';} ?>>
                   </div>
                   <div id="Lyr70">
                     <table>
@@ -1255,13 +1292,17 @@ if ($refresh and $refresh != 'fullscreen') {
                           <td rowspan="6" class="right">
                             <span class="underline bold"><?php echo xlt('Rx Type{{Type of glasses prescription}}'); ?></span><br />
                             <label for="Single_1" class="input-helper input-helper--checkbox"><?php echo xlt('Single'); ?></label>
-                            <input type="radio" value="0" id="Single_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '0') echo 'checked="checked"'; ?> /></span><br /><br />
+                            <input type="radio" value="0" id="Single_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '0') {
+                                echo 'checked="checked"';} ?> /></span><br /><br />
                             <label for="Bifocal_1" class="input-helper input-helper--checkbox"><?php echo xlt('Bifocal'); ?></label>
-                            <input type="radio" value="1" id="Bifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '1') echo 'checked="checked"'; ?> /></span><br /><br />
+                            <input type="radio" value="1" id="Bifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '1') {
+                                echo 'checked="checked"';} ?> /></span><br /><br />
                             <label for="Trifocal_1" class="input-helper input-helper--checkbox"><?php echo xlt('Trifocal'); ?></label>
-                            <input type="radio" value="2" id="Trifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '2') echo 'checked="checked"'; ?> /></span><br /><br />
+                            <input type="radio" value="2" id="Trifocal_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '2') {
+                                echo 'checked="checked"';} ?> /></span><br /><br />
                             <label for="Progressive_1" class="input-helper input-helper--checkbox"><?php echo xlt('Prog.{{Progressive lenses}}'); ?></label>
-                            <input type="radio" value="3" id="Progressive_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '3') echo 'checked="checked"'; ?> /></span><br />
+                            <input type="radio" value="3" id="Progressive_1" name="RX_TYPE_1" <?php if ($RX_TYPE_1 == '3') {
+                                echo 'checked="checked"';} ?> /></span><br />
                           </td>
                         </tr>
                         <tr>
@@ -1370,7 +1411,8 @@ if ($refresh and $refresh != 'fullscreen') {
                     <table id="dry_wet_refraction">
                       <th colspan="5"><?php echo xlt('Manifest (Dry) Refraction'); ?></th>
                       <th NOWRAP colspan="2">
-                        <input type="checkbox" name="BALANCED" id="Balanced" value="on" <?php if ($BALANCED =='on') echo "checked='checked'"; ?> tabindex="10182">
+                        <input type="checkbox" name="BALANCED" id="Balanced" value="on" <?php if ($BALANCED =='on') {
+                            echo "checked='checked'";} ?> tabindex="10182">
                         <label for="Balanced" class="input-helper input-helper--checkbox"><?php echo xlt('Balanced'); ?></label>
                       </th>
 
@@ -1431,16 +1473,19 @@ if ($refresh and $refresh != 'fullscreen') {
                         <td rowspan="2">
                           <ul>
                             <li>
-                            <input type="radio" name="WETTYPE" id="Flash" value="Flash" <?php if ($WETTYPE == "Flash") echo "checked='checked'"; ?>/>
+                            <input type="radio" name="WETTYPE" id="Flash" value="Flash" <?php if ($WETTYPE == "Flash") {
+                                echo "checked='checked'";} ?>/>
                             <label for="Flash" class="input-helper input-helper--checkbox"><?php echo xlt('Flash'); ?></label>
                           </li>
                           <li>
-                            <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") echo "checked='checked'"; ?>>
+                            <input type="radio" name="WETTYPE" id="Auto" value="Auto" <?php if ($WETTYPE == "Auto") {
+                                echo "checked='checked'";} ?>>
                             <label for="Auto" class="input-helper input-helper--checkbox"><?php echo xlt('Auto{{autorefraction}}'); ?></label>
                           </li>
 
                             <li>
-                              <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") echo "checked='checked'"; ?>>
+                              <input type="radio" name="WETTYPE" id="Manual" value="Manual" <?php if ($WETTYPE == "Manual") {
+                                    echo "checked='checked'";} ?>>
                               <label for="Manual" class="input-helper input-helper--checkbox"><?php echo xlt('Manual'); ?></label>
                             </li>
                           </ul>
@@ -1540,11 +1585,17 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLMANUFACTURER_data =sqlStatement($query);
                                     while ($row = sqlFetchArray($CTLMANUFACTURER_data)) {
                                         $CTLMANUFACTURER_list_OD .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLMANUFACTUREROD == $row['option_id']) $CTLMANUFACTURER_list_OD .= "selected";
+                                        if ($CTLMANUFACTUREROD == $row['option_id']) {
+                                            $CTLMANUFACTURER_list_OD .= "selected";
+                                        }
+
                                         $CTLMANUFACTURER_list_OD .= '>'.text(substr($row['title'], 0, 12)).'</option>
                                     ' ;
                                         $CTLMANUFACTURER_list_OS .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLMANUFACTUREROS == $row['option_id']) $CTLMANUFACTURER_list_OS .= "selected";
+                                        if ($CTLMANUFACTUREROS == $row['option_id']) {
+                                            $CTLMANUFACTURER_list_OS .= "selected";
+                                        }
+
                                         $CTLMANUFACTURER_list_OS .= '>'.text(substr($row['title'], 0, 12)).'</option>
                                     ' ;
                                     }
@@ -1554,11 +1605,17 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLSUPPLIER_data =sqlStatement($query);
                                     while ($row = sqlFetchArray($CTLSUPPLIER_data)) {
                                         $CTLSUPPLIER_list_OD .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLSUPPLIEROD == $row['option_id']) $CTLSUPPLIER_list_OD .= "selected";
+                                        if ($CTLSUPPLIEROD == $row['option_id']) {
+                                            $CTLSUPPLIER_list_OD .= "selected";
+                                        }
+
                                         $CTLSUPPLIER_list_OD .= '>'.text(substr($row['title'], 0, 10)).'</option>
                                     ' ;
                                         $CTLSUPPLIER_list_OS .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLSUPPLIEROS == $row['option_id']) $CTLSUPPLIER_list_OS .= "selected";
+                                        if ($CTLSUPPLIEROS == $row['option_id']) {
+                                            $CTLSUPPLIER_list_OS .= "selected";
+                                        }
+
                                         $CTLSUPPLIER_list_OS .= '>'.text(substr($row['title'], 0, 10)).'</option>
                                     ' ;
                                     }
@@ -1568,11 +1625,17 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $CTLBRAND_data =sqlStatement($query);
                                     while ($row = sqlFetchArray($CTLBRAND_data)) {
                                         $CTLBRAND_list_OD .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLBRANDOD == $row['option_id']) $CTLBRAND_list_OD .= "selected";
+                                        if ($CTLBRANDOD == $row['option_id']) {
+                                            $CTLBRAND_list_OD .= "selected";
+                                        }
+
                                         $CTLBRAND_list_OD .= '>'.text(substr($row['title'], 0, 15)).'</option>
                                     ' ;
                                         $CTLBRAND_list_OS .= '<option value="'.attr($row['option_id']).'"';
-                                        if ($CTLBRANDOS == $row['option_id']) $CTLBRAND_list_OS .= "selected";
+                                        if ($CTLBRANDOS == $row['option_id']) {
+                                            $CTLBRAND_list_OS .= "selected";
+                                        }
+
                                         $CTLBRAND_list_OS .= '>'.text(substr($row['title'], 0, 15)).'</option>
                                     ' ;
                                     }
@@ -2113,30 +2176,36 @@ if ($refresh and $refresh != 'fullscreen') {
                               <table id="dil_listbox">
                                 <tr>
                                   <td>
-                                        <input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') echo "checked='checked'"; ?> />
+                                        <input type="checkbox" class="dil_drug" id="CycloMydril" name="CYCLOMYDRIL" value="Cyclomydril" <?php if ($CYCLOMYDRIL == 'Cyclomydril') {
+                                            echo "checked='checked'";} ?> />
                                         <label for="CycloMydril" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('CycloMydril'); ?></label>
                                   </td>
                                   <td>
-                                        <input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') echo "checked='checked'"; ?> />
+                                        <input type="checkbox" class="dil_drug" id="Tropicamide" name="TROPICAMIDE" value="Tropicamide 2.5%" <?php if ($TROPICAMIDE == 'Tropicamide 2.5%') {
+                                            echo "checked='checked'";} ?> />
                                         <label for="Tropicamide" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Tropic 2.5%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>
-                                        <input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') echo "checked='checked'"; ?> />
+                                        <input type="checkbox" class="dil_drug" id="Neo25" name="NEO25" value="Neosynephrine 2.5%"  <?php if ($NEO25 =='Neosynephrine 2.5%') {
+                                            echo "checked='checked'";} ?> />
                                         <label for="Neo25" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 2.5%'); ?></label>
                                   </td>
                                   <td>
-                                        <input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') echo "checked='checked'"; ?> />
+                                        <input type="checkbox" class="dil_drug" id="Neo10" name="NEO10" value="Neosynephrine 10%"  <?php if ($NEO10 =='Neosynephrine 10%') {
+                                            echo "checked='checked'";} ?> />
                                         <label for="Neo10" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Neo 10%'); ?></label>
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>
-                                        <input type="checkbox" class="dil_drug" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') echo "checked='checked'"; ?> />
+                                        <input type="checkbox" class="dil_drug" id="Cyclogyl" name="CYCLOGYL" value="Cyclopentolate 1%"  <?php if ($CYCLOGYL == 'Cyclopentolate 1%') {
+                                            echo "checked='checked'";} ?> />
                                         <label for="Cyclogyl" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Cyclo 1%'); ?></label>
                                   </td>
-                                  <td>      <input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') echo "checked='checked'"; ?> />
+                                  <td>      <input type="checkbox" class="dil_drug" id="Atropine" name="ATROPINE" value="Atropine 1%"  <?php if ($ATROPINE == 'Atropine 1%') {
+                                        echo "checked='checked'";} ?> />
                                         <label for="Atropine" class="input-helper input-helper--checkbox dil_drug_label"><?php echo xlt('Atropine 1%'); ?></label>
                                   </td>
                                 </tr>
@@ -2252,7 +2321,8 @@ if ($refresh and $refresh != 'fullscreen') {
                       <i class="closeButton_2 fa fa-database"title="<?php echo xla('Open/Close the Retinal Exam Quick Picks panel'); ?>" id="BUTTON_QP_RETINA" name="BUTTON_QP_RETINA"></i>
                       <i class="closeButton_3 fa fa-user-md fa-sm fa-2" name="Shorthand_kb" title="<?php echo xla("Open/Close the Shorthand Window and display Shorthand Codes"); ?>"></i>
                       <b><?php echo xlt('Retina'); ?>:</b><div class="kb kb_left" title="<?php echo xla("Retina Default Values"); ?>"><?php echo text('DRET'); ?></div>
-                        <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') echo "checked='checked'"; ?>>
+                        <input type="checkbox" id="DIL_RISKS" name="DIL_RISKS" value="on" <?php if ($DIL_RISKS =='on') {
+                            echo "checked='checked'";} ?>>
                         <label for="DIL_RISKS" class="input-helper input-helper--checkbox"><?php echo xlt('Dilation orders/risks reviewed'); ?></label>
                       <br />
                       <div id="RETINA_left_1" class="text_clinical">
@@ -2466,7 +2536,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <td>
                                     <span id="ACTNORMAL_CHECK" name="ACTNORMAL_CHECK">
                                     <label for="ACT" class="input-helper input-helper--checkbox"><?php echo xlt('Ortho{{orthophoric}}'); ?></label>
-                                    <input type="checkbox" name="ACT" id="ACT" <?php if ($ACT =='on' or $ACT=='1') echo "checked='checked'"; ?> /></span>
+                                    <input type="checkbox" name="ACT" id="ACT" <?php if ($ACT =='on' or $ACT=='1') {
+                                        echo "checked='checked'";} ?> /></span>
                                 </td>
                             </tr>
                             <tr>
@@ -2695,7 +2766,8 @@ if ($refresh and $refresh != 'fullscreen') {
                                 <td class="left"><?php echo xlt('Motility'); ?>:</td>
                                 <td class="right">
                                     <label for="MOTILITYNORMAL" class="input-helper input-helper--checkbox"><?php echo xlt('Normal'); ?></label>
-                                    <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" <?php if ($MOTILITYNORMAL =='on') echo "checked='checked'"; ?>>
+                                    <input id="MOTILITYNORMAL" name="MOTILITYNORMAL" type="checkbox" <?php if ($MOTILITYNORMAL =='on') {
+                                        echo "checked='checked'";} ?>>
                                 </td>
                             </tr>
                             <tr>
@@ -3128,10 +3200,14 @@ if ($refresh and $refresh != 'fullscreen') {
                       <div id="NEURO_P_3">
                         &nbsp;
                         <div class="borderShadow ACT_boxed"><span class="underline"><?php echo xlt('Rx/Distance'); ?></span><br />
-                          <span class="eye_button <?php if ($ACT_SHOW =='SCDIST') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_SCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCDIST').trigger('change');"> <?php echo xlt('scDist{{without correction distance}}'); ?> </span>
-                          <span class="eye_button <?php if ($ACT_SHOW =='CCDIST') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_CCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCDIST').trigger('change');"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </span>
-                          <span class="eye_button <?php if ($ACT_SHOW =='SCNEAR') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_SCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCNEAR').trigger('change');"> <?php echo xlt('scNear{{without correction near}}'); ?> </span>
-                          <span class="eye_button <?php if ($ACT_SHOW =='CCNEAR') echo "eye_button_selected"; ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </span>
+                          <span class="eye_button <?php if ($ACT_SHOW =='SCDIST') {
+                                echo "eye_button_selected";} ?>" id="NEURO_ACT_zone_SCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCDIST').trigger('change');"> <?php echo xlt('scDist{{without correction distance}}'); ?> </span>
+                          <span class="eye_button <?php if ($ACT_SHOW =='CCDIST') {
+                                echo "eye_button_selected";} ?>" id="NEURO_ACT_zone_CCDIST" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCDIST').trigger('change');"> <?php echo xlt('ccDist{{with correction distance}}'); ?> </span>
+                          <span class="eye_button <?php if ($ACT_SHOW =='SCNEAR') {
+                                echo "eye_button_selected";} ?>" id="NEURO_ACT_zone_SCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('SCNEAR').trigger('change');"> <?php echo xlt('scNear{{without correction near}}'); ?> </span>
+                          <span class="eye_button <?php if ($ACT_SHOW =='CCNEAR') {
+                                echo "eye_button_selected";} ?>" id="NEURO_ACT_zone_CCNEAR" name="NEURO_ACT_zone" onclick="$('#NEURO_ACT_zone').val('CCNEAR').trigger('change');"> <?php echo xlt('ccNear{{with correction at near}}'); ?> </span>
                         </div>
                         <div class="borderShadow ACT_boxed"><span class="underline"><?php echo xlt('Position of Gaze'); ?></span><br />
                           <span class="eye_button_blank"> <?php echo xlt('R{{right}}'); ?> </span>
@@ -3253,9 +3329,14 @@ if ($refresh and $refresh != 'fullscreen') {
                        *    e. DoubleClick a DX appends this DX to the bottom of the IMP/Plan list
                        */
 
-                        if (!$PMSFH) $PMSFH = build_PMSFH($pid);
+                        if (!$PMSFH) {
+                            $PMSFH = build_PMSFH($pid);
+                        }
+
                         $total_DX='0';
-                        if (($PMSFH[0]['POH'][0] >'') && ($PMSFH[0]['PMH'][0] >'')) $total_DX ='1';
+                        if (($PMSFH[0]['POH'][0] >'') && ($PMSFH[0]['PMH'][0] >'')) {
+                            $total_DX ='1';
+                        }
 
                         ?>
 
@@ -3403,7 +3484,10 @@ if ($refresh and $refresh != 'fullscreen') {
                                         "ORDER BY code_text", array($prow['option_id']));
                                         while ($row = sqlFetchArray($res)) {
                                             $ctkey = alphaCodeType($row['code_type']);
-                                            if ($code_types[$ctkey]['nofs']) continue;
+                                            if ($code_types[$ctkey]['nofs']) {
+                                                continue;
+                                            }
+
                                             $code_text = (strlen($row['code_text']) > 15) ? substr($row['code_text'], 0, 13).'...' : $row['code_text'];
                                             echo "    <option value='" . attr($ctkey) . "|" .
                                             attr($row['code']) . ':'. attr($row['modifier']) . "|'>" . text($code_text) . "</option>\n";
@@ -3446,12 +3530,18 @@ if ($refresh and $refresh != 'fullscreen') {
                                     $query = "select * from list_options where list_id=? and activity='1' order by seq";
                                     $TODO_data = sqlStatement($query, array("Eye_todo_done_".$providerID));
                                     while ($row = sqlFetchArray($TODO_data)) {
-                                        if ($row['codes'] ==='') continue;
+                                        if ($row['codes'] ==='') {
+                                            continue;
+                                        }
+
                                         list($code_type_here,$code) = explode(":", $row['codes']);
                                         $codedesc = lookup_code_descriptions($row['codes']);
                                         $order   = array("\r\n", "\n","\r");
                                         $codedesc = str_replace($order, '', $codedesc);
-                                        if ($codedesc =='') $codedesc = $row['title'];
+                                        if ($codedesc =='') {
+                                            $codedesc = $row['title'];
+                                        }
+
                                         $codetext = $codedesc ." (".$row['codes'].")";
                                         $checked ='';
                                         if (in_array($row['codes'], $arrTESTS)) {
@@ -3533,8 +3623,11 @@ if ($refresh and $refresh != 'fullscreen') {
                             $query = "SELECT * FROM list_options where list_id =? ORDER BY seq";
                             $TODO_data = sqlStatement($query, array("Eye_todo_done_defaults"));
                             while ($TODO= sqlFetchArray($TODO_data)) {
-                                if ($number_rows > 0) $SQL_INSERT .= ",
+                                if ($number_rows > 0) {
+                                    $SQL_INSERT .= ",
                             ";
+                                }
+
                                 $SQL_INSERT .= "('Eye_todo_done_".add_escape_custom($providerID)."','".add_escape_custom($TODO['option_id'])."','".add_escape_custom($TODO['title'])."','".add_escape_custom($TODO['seq'])."','".add_escape_custom($TODO['mapping'])."','".add_escape_custom($TODO['notes'])."','".add_escape_custom($TODO['codes'])."','".add_escape_custom($TODO['activity'])."','".add_escape_custom($TODO['subtype'])."')";
                                 $number_rows++;
                             }
@@ -3597,7 +3690,8 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td colspan="3" style="padding-left:20px;padding-top:4px;">
-                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) echo $PLAN_arr[count($PLAN_arr)-1]; ?></textarea>
+                                <textarea id="Plan<?php echo $counter; ?>" name="PLAN[]"><?php if (($PLAN) && ($PLAN_arr[count($PLAN_arr)-1] > '')) {
+                                    echo $PLAN_arr[count($PLAN_arr)-1];} ?></textarea>
                               </td>
                             </tr>
                           </table>
@@ -3620,18 +3714,24 @@ if ($refresh and $refresh != 'fullscreen') {
                             </tr>
                             <tr>
                               <td></td>
-                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) echo ", ".text($pcp_data['suffix']); ?></td>
-                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) echo ", ".text($ref_data['suffix']); ?></td>
+                              <td class="bold"><?php echo text($pcp_data['fname'])." ".text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                                    echo ", ".text($pcp_data['suffix']);} ?></td>
+                              <td class="bold"><?php echo text($ref_data['fname'])." ".text($ref_data['lname']); ?><?php if ($ref_data['suffix']) {
+                                    echo ", ".text($ref_data['suffix']);} ?></td>
                             </tr>
                             <tr>
                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>
                               <td>
                                 <?php echo text($pcp_data['phonew1']);
-                                if ($pcp_data['phonew2']) echo "<br />". text($pcp_data['phonew2']); ?>
+                                if ($pcp_data['phonew2']) {
+                                    echo "<br />". text($pcp_data['phonew2']);
+                                } ?>
                               </td>
                               <td>
                                 <?php echo text($ref_data['phonew1']);
-                                if ($pcp_data['phonew2']) echo "<br />". text($pcp_data['phonew2']); ?>
+                                if ($pcp_data['phonew2']) {
+                                    echo "<br />". text($pcp_data['phonew2']);
+                                } ?>
                               </td>
                             </tr>
                             <tr>
@@ -3685,33 +3785,95 @@ if ($refresh and $refresh != 'fullscreen') {
                             <tr>
                               <td class="top bold"><?php echo xlt('Address'); ?>:</td>
                               <td class="top"><?php
-                                  if ($pcp_data['organization'] >'') echo text($pcp_data['organization'])."<br />";
-                                  if ($pcp_data['street'] >'') echo text($pcp_data['street'])."<br />";
-                                  if ($pcp_data['streetb'] >'') echo text($pcp_data['streetb'])."<br />";
-                                  if ($pcp_data['city'] >'') echo text($pcp_data['city']).", ";
-                                  if ($pcp_data['state'] >'') echo text($pcp_data['state'])." ";
-                                  if ($pcp_data['zip'] >'') echo text($pcp_data['zip'])."<br />";
+                                if ($pcp_data['organization'] >'') {
+                                    echo text($pcp_data['organization'])."<br />";
+                                }
 
-                                  if ($pcp_data['street2'] >'') echo "<br />".text($pcp_data['street2'])."<br />";
-                                  if ($pcp_data['streetb2'] >'') echo text($pcp_data['streetb2'])."<br />";
-                                  if ($pcp_data['city2'] >'') echo text($pcp_data['city2']).", ";
-                                  if ($pcp_data['state2'] >'') echo text($pcp_data['state2'])." ";
-                                  if ($pcp_data['zip2'] >'') echo text($pcp_data['zip2'])."<br />";
+                                if ($pcp_data['street'] >'') {
+                                    echo text($pcp_data['street'])."<br />";
+                                }
+
+                                if ($pcp_data['streetb'] >'') {
+                                    echo text($pcp_data['streetb'])."<br />";
+                                }
+
+                                if ($pcp_data['city'] >'') {
+                                    echo text($pcp_data['city']).", ";
+                                }
+
+                                if ($pcp_data['state'] >'') {
+                                    echo text($pcp_data['state'])." ";
+                                }
+
+                                if ($pcp_data['zip'] >'') {
+                                    echo text($pcp_data['zip'])."<br />";
+                                }
+
+                                if ($pcp_data['street2'] >'') {
+                                    echo "<br />".text($pcp_data['street2'])."<br />";
+                                }
+
+                                if ($pcp_data['streetb2'] >'') {
+                                    echo text($pcp_data['streetb2'])."<br />";
+                                }
+
+                                if ($pcp_data['city2'] >'') {
+                                    echo text($pcp_data['city2']).", ";
+                                }
+
+                                if ($pcp_data['state2'] >'') {
+                                    echo text($pcp_data['state2'])." ";
+                                }
+
+                                if ($pcp_data['zip2'] >'') {
+                                    echo text($pcp_data['zip2'])."<br />";
+                                }
                                     ?>
                               </td>
                               <td class="top"><?php
-                                  if ($ref_data['organization'] >'') echo text($ref_data['organization'])."<br />";
-                                  if ($ref_data['street'] >'') echo text($ref_data['street'])."<br />";
-                                  if ($ref_data['streetb'] >'') echo text($ref_data['streetb'])."<br />";
-                                  if ($ref_data['city'] >'') echo text($ref_data['city']).", ";
-                                  if ($ref_data['state'] >'') echo text($ref_data['state'])." ";
-                                  if ($ref_data['zip'] >'') echo text($ref_data['zip'])."<br />";
+                                if ($ref_data['organization'] >'') {
+                                    echo text($ref_data['organization'])."<br />";
+                                }
 
-                                  if ($ref_data['street2'] >'') echo "<br />".text($ref_data['street2'])."<br />";
-                                  if ($ref_data['streetb2'] >'') echo text($ref_data['streetb2'])."<br />";
-                                  if ($ref_data['city2'] >'') echo text($ref_data['city2']).", ";
-                                  if ($ref_data['state2'] >'') echo text($ref_data['state2'])." ";
-                                  if ($ref_data['zip2'] >'') echo text($ref_data['zip2'])."<br />";
+                                if ($ref_data['street'] >'') {
+                                    echo text($ref_data['street'])."<br />";
+                                }
+
+                                if ($ref_data['streetb'] >'') {
+                                    echo text($ref_data['streetb'])."<br />";
+                                }
+
+                                if ($ref_data['city'] >'') {
+                                    echo text($ref_data['city']).", ";
+                                }
+
+                                if ($ref_data['state'] >'') {
+                                    echo text($ref_data['state'])." ";
+                                }
+
+                                if ($ref_data['zip'] >'') {
+                                    echo text($ref_data['zip'])."<br />";
+                                }
+
+                                if ($ref_data['street2'] >'') {
+                                    echo "<br />".text($ref_data['street2'])."<br />";
+                                }
+
+                                if ($ref_data['streetb2'] >'') {
+                                    echo text($ref_data['streetb2'])."<br />";
+                                }
+
+                                if ($ref_data['city2'] >'') {
+                                    echo text($ref_data['city2']).", ";
+                                }
+
+                                if ($ref_data['state2'] >'') {
+                                    echo text($ref_data['state2'])." ";
+                                }
+
+                                if ($ref_data['zip2'] >'') {
+                                    echo text($ref_data['zip2'])."<br />";
+                                }
                                     ?>
                               </td>
                             </tr>

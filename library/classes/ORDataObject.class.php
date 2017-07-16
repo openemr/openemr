@@ -153,7 +153,10 @@ class ORDataObject
             $ar[0] = " ";
         }
 
-        if (!is_array($obj_ar)) return $ar;
+        if (!is_array($obj_ar)) {
+            return $ar;
+        }
+
         foreach ($obj_ar as $obj) {
             $ar[$obj->$value_func()] = $obj->$name_func();
         }

@@ -42,8 +42,10 @@ abstract class Reporter implements Serializable
      */
     public function IsLoaded($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_isLoaded = $value;
+        }
+
         return $this->_isLoaded;
     }
     
@@ -57,8 +59,10 @@ abstract class Reporter implements Serializable
      */
     public function IsPartiallyLoaded($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_isPartiallyLoaded = $value;
+        }
+
         return $this->_isPartiallyLoaded;
     }
     
@@ -72,8 +76,10 @@ abstract class Reporter implements Serializable
      */
     public function CacheLevel($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_cacheLevel = $value;
+        }
+
         return $this->_cacheLevel;
     }
     
@@ -87,8 +93,10 @@ abstract class Reporter implements Serializable
      */
     public function NoCache($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_noCache = $value;
+        }
+
         return $this->_noCache;
     }
     
@@ -208,8 +216,10 @@ abstract class Reporter implements Serializable
      */
     function ToObject($options = null)
     {
-        if ($options === null)
+        if ($options === null) {
             $options = array ();
+        }
+
         $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
         $omit = array_key_exists('omit', $options) ? $options ['omit'] : array ();
         $camelCase = array_key_exists('camelCase', $options) ? $options ['camelCase'] : false;

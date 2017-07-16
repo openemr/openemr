@@ -220,9 +220,13 @@ if ($_POST['form_refresh']) {
         // If a facility is specified, ignore rows that do not match.
         if ($form_facility !== '') {
             if ($form_facility) {
-                if ($row['facility_id'] != $form_facility) continue;
+                if ($row['facility_id'] != $form_facility) {
+                    continue;
+                }
             } else {
-                if (!empty($row['facility_id'])) continue;
+                if (!empty($row['facility_id'])) {
+                    continue;
+                }
             }
         }
 

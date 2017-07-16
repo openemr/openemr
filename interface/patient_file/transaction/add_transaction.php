@@ -36,7 +36,9 @@ $form_id = $title;
 
 // Plugin support.
 $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$form_id.plugin.php";
-if (file_exists($fname)) include_once($fname);
+if (file_exists($fname)) {
+    include_once($fname);
+}
 
 $transid = empty($_REQUEST['transid']) ? 0 : $_REQUEST['transid'] + 0;
 $mode    = empty($_POST['mode' ]) ? '' : $_POST['mode' ];
@@ -86,7 +88,9 @@ if ($mode) {
         }
     }
 
-    if (!$transid) $transid = $newid;
+    if (!$transid) {
+        $transid = $newid;
+    }
 
   // Set the AMC sent records flag
     if (!(empty($_POST['send_sum_flag']))) {
@@ -121,7 +125,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -244,7 +251,8 @@ function set_related(codetype, code, selector, codedesc) {
 // This invokes the find-code popup.
 function sel_related(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) echo '?codetype=REF' ?>', '_blank', 500, 400);
+ dlgopen('../encounter/find_code_popup.php<?php if ($GLOBALS['ippf_specific']) {
+        echo '?codetype=REF'; } ?>', '_blank', 500, 400);
 }
 
 // Process click on Delete link.
@@ -299,7 +307,8 @@ function submitme() {
  }
 }
 
-<?php if (function_exists($form_id . '_javascript')) call_user_func($form_id . '_javascript'); ?>
+<?php if (function_exists($form_id . '_javascript')) {
+    call_user_func($form_id . '_javascript');} ?>
 
 </script>
 
@@ -435,9 +444,15 @@ while ($frow = sqlFetchArray($fres)) {
                                                                   // Cloned from interface/forms/LBF/new.php.
                                                                   $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
                                     foreach ($conditions as $condition) {
-                                        if (empty($condition['id'])) continue;
+                                        if (empty($condition['id'])) {
+                                            continue;
+                                        }
+
                                         $andor = empty($condition['andor']) ? '' : $condition['andor'];
-                                        if ($condition_str) $condition_str .= ",\n";
+                                        if ($condition_str) {
+                                            $condition_str .= ",\n";
+                                        }
+
                                         $condition_str .= "{" .
                                         "target:'"   . addslashes($field_id)              . "', " .
                                         "id:'"       . addslashes($condition['id'])       . "', " .
@@ -448,7 +463,9 @@ while ($frow = sqlFetchArray($fres)) {
                                     }
 
                                                                   $currvalue  = '';
-                                                                  if (isset($trow[$field_id])) $currvalue = $trow[$field_id];
+                                    if (isset($trow[$field_id])) {
+                                        $currvalue = $trow[$field_id];
+                                    }
 
                                                                   // Handle special-case default values.
                                     if (!$currvalue && !$transid && $form_id == 'LBTref') {
@@ -457,7 +474,9 @@ while ($frow = sqlFetchArray($fres)) {
                                         } else if ($field_id == 'body' && $transid > 0) {
                                              $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
                                               "pid = ? ORDER BY date DESC LIMIT 1", array($pid));
-                                            if (!empty($tmp)) $currvalue = $tmp['reason'];
+                                            if (!empty($tmp)) {
+                                                $currvalue = $tmp['reason'];
+                                            }
                                         }
                                     }
 
@@ -468,8 +487,12 @@ while ($frow = sqlFetchArray($fres)) {
                                         $group_name = substr($this_group, 1);
                                         $last_group = $this_group;
                                         $group_seq_esc = attr($group_seq);
-                                        if ($group_seq == 1)   echo "<div class='tab current' id='div_$group_seq_esc'>";
-                                        else echo "<div class='tab' id='div_$group_seq_esc'>";
+                                        if ($group_seq == 1) {
+                                            echo "<div class='tab current' id='div_$group_seq_esc'>";
+                                        } else {
+                                            echo "<div class='tab' id='div_$group_seq_esc'>";
+                                        }
+
                                         echo " <table border='0' cellpadding='0'>\n";
                                         $display_style = 'none';
                                     }
@@ -480,7 +503,9 @@ while ($frow = sqlFetchArray($fres)) {
                                         echo " <tr>";
                                     }
 
-                                                                  if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+                                    if ($item_count == 0 && $titlecols == 0) {
+                                        $titlecols = 1;
+                                    }
 
                                                                   // Handle starting of a new label cell.
                                     if ($titlecols > 0) {
@@ -488,7 +513,10 @@ while ($frow = sqlFetchArray($fres)) {
                                         $titlecols_esc = attr($titlecols);
                                         echo "<td width='70' valign='top' colspan='$titlecols_esc'";
                                         echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-                                        if ($cell_count == 2) echo " style='padding-left:10pt'";
+                                        if ($cell_count == 2) {
+                                            echo " style='padding-left:10pt'";
+                                        }
+
                                         // This ID is used by skip conditions.
                                         echo " id='label_id_" . attr($field_id) . "'";
                                         echo ">";
@@ -500,8 +528,11 @@ while ($frow = sqlFetchArray($fres)) {
                                                                   echo "<b>";
 
                                                                   // Modified 6-09 by BM - Translate if applicable
-                                                                  if ($frow['title']) echo (text(xl_layout_label($frow['title'])) . ":");
-                                    else echo "&nbsp;";
+                                    if ($frow['title']) {
+                                        echo (text(xl_layout_label($frow['title'])) . ":");
+                                    } else {
+                                        echo "&nbsp;";
+                                    }
 
                                                                   echo "</b>";
 
@@ -512,7 +543,10 @@ while ($frow = sqlFetchArray($fres)) {
                                         echo "<td valign='top' colspan='$datacols_esc' class='text'";
                                         // This ID is used by skip conditions.
                                         echo " id='value_id_" . attr($field_id) . "'";
-                                        if ($cell_count > 0) echo " style='padding-left:5pt'";
+                                        if ($cell_count > 0) {
+                                            echo " style='padding-left:5pt'";
+                                        }
+
                                         echo ">";
                                         $cell_count += $datacols;
                                     }

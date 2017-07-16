@@ -54,8 +54,9 @@ require_once($GLOBALS['incdir']."/main/holidays/Holidays_Controller.php");
 require_once($GLOBALS['srcdir'].'/group.inc');
 
  //Check access control
- if (!acl_check('patients', 'appt', '', array('write','wsome')))
-   die(xl('Access not allowed'));
+if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
+    die(xl('Access not allowed'));
+}
 
 /* Things that might be passed by our opener. */
  $eid           = $_GET['eid'];         // only for existing events
@@ -63,19 +64,25 @@ require_once($GLOBALS['srcdir'].'/group.inc');
  $userid        = $_GET['userid'];
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
  //
- if ($date)
-  $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-else $date = date("Y-m-d");
+if ($date) {
+    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
+} else {
+    $date = date("Y-m-d");
+}
+
  //
  $starttimem = '00';
- if (isset($_GET['starttimem']))
-  $starttimem = substr('00' . $_GET['starttimem'], -2);
+if (isset($_GET['starttimem'])) {
+    $starttimem = substr('00' . $_GET['starttimem'], -2);
+}
+
  //
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
     if (isset($_GET['startampm'])) {
-        if ($_GET['startampm'] == '2' && $starttimeh < 12)
-        $starttimeh += 12;
+        if ($_GET['startampm'] == '2' && $starttimeh < 12) {
+            $starttimeh += 12;
+        }
     }
 } else {
     $starttimeh = date("G");
@@ -107,14 +114,15 @@ if ((!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy'])) {
     $have_group_global_enabled = false;
 }
 
-if ($_GET['group'] == true)
+if ($_GET['group'] == true) {
     //groups tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php?group=true");
-elseif ($_GET['prov'])
+} elseif ($_GET['prov']) {
     //providers tab
     $collectthis = '';
-else //patient tab
+} else { //patient tab
     $collectthis = collectValidationPageRules("/interface/main/calendar/add_edit_event.php");
+}
 
 if (empty($collectthis)) {
     $collectthis = "undefined";
@@ -123,10 +131,11 @@ if (empty($collectthis)) {
 }
 ?>
 <?php $disabled = (!$g_edit && $have_group_global_enabled )?' disabled=true; ':'';?>
-<?php if ($disabled) echo '<script>$( document ).ready(function(){
+<?php if ($disabled) {
+    echo '<script>$( document ).ready(function(){
     $("input").prop("disabled", true);
     $("select").prop("disabled", true);
-}) </script>';?>
+}) </script>';}?>
 
     <?php
 
@@ -157,7 +166,9 @@ if (empty($collectthis)) {
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;
                 $pc_eid_temp = InsertEvent($args);
-                if ($pc_eid == null) $pc_eid = $pc_eid_temp;
+                if ($pc_eid == null) {
+                    $pc_eid = $pc_eid_temp;
+                }
             }
 
             return $pc_eid;
@@ -187,7 +198,10 @@ if (empty($collectthis)) {
          $patient_dob = trim($_POST['form_dob']);
          $tmph = $_POST['form_hour'] + 0;
          $tmpm = $_POST['form_minute'] + 0;
-         if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+        if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+            $tmph += 12;
+        }
+
          $appttime = "$tmph:$tmpm:00";
 
         if ($patient_dob && $_POST['form_pid']) {
@@ -307,7 +321,10 @@ if (empty($collectthis)) {
         } else {
             $tmph = $_POST['form_hour'] + 0;
             $tmpm = $_POST['form_minute'] + 0;
-            if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+            if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+                $tmph += 12;
+            }
+
             $duration = abs($_POST['form_duration']); // fixes #395
         }
 
@@ -390,8 +407,12 @@ if (empty($collectthis)) {
             //
         if ($my_recurrtype == 2) { // Added by epsdky 2016 (details in commit)
             if ($_POST['old_repeats'] == 2) {
-                if ($_POST['rt2_flag2']) $recurrspec['rt2_pf_flag'] = "1";
-            } else $recurrspec['rt2_pf_flag'] = "1";
+                if ($_POST['rt2_flag2']) {
+                    $recurrspec['rt2_pf_flag'] = "1";
+                }
+            } else {
+                $recurrspec['rt2_pf_flag'] = "1";
+            }
         } // End of addition by epsdky
             //
             // no recurr specs, this is used for adding a new non-recurring event
@@ -533,7 +554,9 @@ if (empty($collectthis)) {
                     // oct-08 JRM
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
-                        if ($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
+                        if ($my_recurrtype != 3) {
+                            $event_date = fixDate($_POST['event_start_date']);
+                        }
                     }
 
                     // this difference means that some providers were added
@@ -643,7 +666,9 @@ if (empty($collectthis)) {
         // oct-08 JRM
                     if ($_POST['form_date'] == $_POST['selected_date']) {
                         // user has NOT changed the start date of the event (and not recurrtype 3)
-                        if ($my_recurrtype != 3) $event_date = fixDate($_POST['event_start_date']);
+                        if ($my_recurrtype != 3) {
+                            $event_date = fixDate($_POST['event_start_date']);
+                        }
                     }
 
                     // mod the SINGLE event or ALL EVENTS in a repeating series
@@ -783,7 +808,10 @@ if (empty($collectthis)) {
     if ($_POST['form_action'] != "") {
         // Close this window and refresh the calendar (or the patient_tracker) display.
         echo "<html>\n<body>\n<script language='JavaScript'>\n";
-        if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+        if ($info_msg) {
+            echo " alert('" . addslashes($info_msg) . "');\n";
+        }
+
         echo " if (opener && !opener.closed && opener.refreshme) {\n " .
           "  opener.refreshme();\n " . // This is for standard calendar page refresh
           " } else {\n " .
@@ -822,7 +850,10 @@ if (empty($collectthis)) {
     $repeattype = '0';
     $repeatfreq = '0';
     $patientid = '';
-    if ($_REQUEST['patientid']) $patientid = $_REQUEST['patientid'];
+    if ($_REQUEST['patientid']) {
+        $patientid = $_REQUEST['patientid'];
+    }
+
     $patientname = null;
     $patienttitle = array();
     $pcroom = "";
@@ -830,7 +861,10 @@ if (empty($collectthis)) {
     $row = array();
     $informant = "";
     $groupid = '';
-    if ($_REQUEST['groupid']) $groupid = $_REQUEST['groupid'];
+    if ($_REQUEST['groupid']) {
+        $groupid = $_REQUEST['groupid'];
+    }
+
     $groupname = null;
     $group_statuses = getGroupStatuses();
 
@@ -847,7 +881,10 @@ if (empty($collectthis)) {
 
         // instead of using the event's starting date, keep what has been provided
         // via the GET array, see the top of this file
-        if (empty($_GET['date'])) $date = $row['pc_eventDate'];
+        if (empty($_GET['date'])) {
+            $date = $row['pc_eventDate'];
+        }
+
         $eventstartdate = $row['pc_eventDate']; // for repeating event stuff - JRM Oct-08
         $userid = $row['pc_aid'];
         $patientid = $row['pc_pid'];
@@ -876,7 +913,9 @@ if (empty($collectthis)) {
         $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
         $pcroom = $row['pc_room'];
         $hometext = $row['pc_hometext'];
-        if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
+        if (substr($hometext, 0, 6) == ':text:') {
+            $hometext = substr($hometext, 6);
+        }
     } else {
           // a NEW event
           $eventstartdate = $date; // for repeating event stuff - JRM Oct-08
@@ -921,8 +960,13 @@ if (empty($collectthis)) {
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
          "FROM patient_data WHERE pid = ?", array($patientid));
         $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
-        if ($prow['phone_biz']) $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+        if ($prow['phone_home']) {
+            $patienttitle['phone_home'] = xl("Home Phone").": " . $prow['phone_home'];
+        }
+
+        if ($prow['phone_biz']) {
+            $patienttitle['phone_biz'] = xl("Work Phone").": " . $prow['phone_biz'];
+        }
     }
 
  // If we have a group id, get group data
@@ -947,7 +991,9 @@ if (empty($collectthis)) {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) $starttimeh -= 12;
+        if ($starttimeh > 12) {
+            $starttimeh -= 12;
+        }
     }
 
 ?>
@@ -997,25 +1043,33 @@ if ($_GET['group'] == true) {
 
     while ($crow = sqlFetchArray($cres)) {
         $duration = round($crow['pc_duration'] / 60);
-        if ($crow['pc_end_all_day']) $duration = 1440;
+        if ($crow['pc_end_all_day']) {
+            $duration = 1440;
+        }
 
         // This section is to build the list of preferred categories:
         if ($duration) {
             $prefcat_options .= "    <option value='" . attr($crow['pc_catid']) . "'";
             if ($eid) {
-                if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
+                if ($crow['pc_catid'] == $row['pc_prefcatid']) {
+                    $prefcat_options .= " selected";
+                }
             }
 
             $prefcat_options .= ">" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
         }
 
-        if ($crow['pc_cattype'] != $cattype) continue;
+        if ($crow['pc_cattype'] != $cattype) {
+            continue;
+        }
 
         echo " durations[" . attr($crow['pc_catid']) . "] = " . attr($duration) . "\n";
         // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
         $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
         if ($eid) {
-            if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
+            if ($crow['pc_catid'] == $row['pc_catid']) {
+                $catoptions .= " selected";
+            }
         } else {
             if ($crow['pc_catid'] == $default_catid) {
                 $catoptions .= " selected";
@@ -1364,7 +1418,8 @@ if ($_GET['prov']==true) {
         <td width='1%' nowrap>
             &nbsp;&nbsp;
             <input   type='radio' name='form_allday' onclick='set_allday()' value='1' id='rballday1'
-            <?php if ($thisduration == 1440) echo "checked " ?>/>
+            <?php if ($thisduration == 1440) {
+                echo "checked "; } ?>/>
         </td>
         <td colspan='2' nowrap id='tdallday1'>
             <?php echo xlt('All day event'); ?>
@@ -1382,7 +1437,8 @@ if ($_GET['prov']==true) {
         </td>
         <td nowrap>
             &nbsp;&nbsp;
-            <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) echo "checked " ?>/>
+            <input   type='radio' name='form_allday' onclick='set_allday()' value='0' id='rballday2' <?php if ($thisduration != 1440) {
+                echo "checked "; } ?>/>
         </td>
         <td width='1%' nowrap id='tdallday2'>
             <?php echo xlt('Time'); ?>
@@ -1396,7 +1452,8 @@ if ($_GET['prov']==true) {
             </span>
             <select   name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
                 <option value='1'><?php echo xlt('AM'); ?></option>
-                <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php echo xlt('PM'); ?></option>
+                <option value='2'<?php if ($startampm == '2') {
+                    echo " selected"; } ?>><?php echo xlt('PM'); ?></option>
             </select>
         </td>
     </tr>
@@ -1530,8 +1587,11 @@ if ($_GET['group']==true &&  $have_group_global_enabled) {
     ?>
  <tr>
   <td nowrap>
-   <b><?php if ($_GET['group']==true) echo xlt('Coordinating Counselors');
-    else echo xlt('Provider'); ?>:</b>
+   <b><?php if ($_GET['group']==true) {
+        echo xlt('Coordinating Counselors');
+} else {
+    echo xlt('Provider');
+} ?>:</b>
   </td>
   <td nowrap>
 
@@ -1564,11 +1624,16 @@ if ($GLOBALS['select_multi_providers']) {
         echo "    <option value='" . attr($urow['id']) . "'";
 
         if ($userid) {
-            if (in_array($urow['id'], $providers_array) || ($urow['id'] == $userid)) echo " selected";
+            if (in_array($urow['id'], $providers_array) || ($urow['id'] == $userid)) {
+                echo " selected";
+            }
         }
 
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
 
@@ -1626,15 +1691,23 @@ if ($GLOBALS['select_multi_providers']) {
         }
 
       // if we clicked on a provider's schedule to add the event, use THAT.
-        if ($userid) $defaultProvider = $userid;
+        if ($userid) {
+            $defaultProvider = $userid;
+        }
     }
 
     echo "<select     name='form_provider' style='width:100%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['id']) . "'";
-        if ($urow['id'] == $defaultProvider) echo " selected";
+        if ($urow['id'] == $defaultProvider) {
+            echo " selected";
+        }
+
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
 
@@ -1676,7 +1749,8 @@ if ($GLOBALS['select_multi_providers']) {
       repeating mechanism is being used, and load settings accordingly.
       */
         ?>
-   <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) echo " checked" ?>/>
+   <input   type='checkbox' name='form_repeat' id="form_repeat" onclick='set_repeat(this)' value='1'<?php if (isRegularRepeat($repeats)) {
+        echo " checked"; } ?>/>
    <input   type='hidden' name='form_repeat_exdate' id='form_repeat_exdate' value='<?php echo attr($repeatexdate); ?>' /> <!-- dates excluded from the repeat -->
   </td>
   <td nowrap id='tdrepeat1'><?php echo xlt('Repeats'); ?>
@@ -1688,7 +1762,10 @@ if ($GLOBALS['select_multi_providers']) {
 foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'), 5 => xl('5th'), 6 => xl('6th'))
   as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $repeatfreq && isRegularRepeat($repeats)) echo " selected";
+    if ($key == $repeatfreq && isRegularRepeat($repeats)) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -1701,7 +1778,10 @@ foreach (array(1 => xl('every'), 2 => xl('2nd'), 3 => xl('3rd'), 4 => xl('4th'),
 foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('month'), 3 => xl('year'),
    5 => '?', 6 => '?') as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $repeattype && isRegularRepeat($repeats)) echo " selected";
+    if ($key == $repeattype && isRegularRepeat($repeats)) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -1719,7 +1799,8 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
 <tr id="days_every_week_row">
     <td></td>
     <td></td>
-    <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) echo " checked" ?>/></td>
+    <td><input    type='checkbox' id='days_every_week' name='days_every_week' onclick='set_days_every_week()' <?php if (isDaysEveryWeek($repeats)) {
+        echo " checked"; } ?>/></td>
     <td id="days_label"><?php echo xlt('Days Of Week') . ": "; ?></td>
     <td id="days">
         <?php
@@ -1727,7 +1808,10 @@ foreach (array(0 => xl('day') , 4 => xl('workday'), 1 => xl('week'), 2 => xl('mo
                      5 => xl('Th{{Thursday}}'), 6 => xl('Fr{{Friday}}'), 7 => xl('Sa{{Saturday}}')) as $key => $value) {
             echo " <div><input type='checkbox' name='day_". attr($key) ."'";
             //Checks appropriate days according to days in recurrence string.
-            if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) echo " checked";
+            if (in_array($key, explode(',', $repeatfreq)) && isDaysEveryWeek($repeats)) {
+                echo " checked";
+            }
+
             echo " /><label>" . text($value) . "</label></div>\n";
         }
         ?>
@@ -1844,14 +1928,16 @@ if ($repeatexdate != "") {
 <?php } ?>
 
 &nbsp;
-<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) echo " disabled" ?> />
+<input type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete');?>'<?php if (!$eid) {
+    echo " disabled"; } ?> />
 &nbsp;
 <input type='button' id='cancel' value='<?php echo xla('Cancel');?>' />
 &nbsp;
 <input type='button' name='form_duplicate' id='form_duplicate' value='<?php echo xla('Create Duplicate');?>' />
 </p></td></tr></table>
-<?php if ($informant) echo "<p class='text'>" . xlt('Last update by') . " " .
-  text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n"; ?>
+<?php if ($informant) {
+    echo "<p class='text'>" . xlt('Last update by') . " " .
+    text($informant) . " " . xlt('on') . " " . text($row['pc_time']) . "</p>\n";} ?>
 </center>
 </form>
 

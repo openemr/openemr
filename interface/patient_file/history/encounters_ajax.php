@@ -25,6 +25,9 @@ if (substr($formname, 0, 3) == 'LBF') {
 } else {
     include_once("{$GLOBALS['incdir']}/forms/$formname/report.php");
     $report_function = $formname . '_report';
-    if (!function_exists($report_function)) exit;
+    if (!function_exists($report_function)) {
+        exit;
+    }
+
     call_user_func($report_function, $ptid, $encid, 2, $formid);
 }

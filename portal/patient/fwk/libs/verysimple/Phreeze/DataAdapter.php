@@ -59,15 +59,18 @@ class DataAdapter implements IObservable
     function __construct($csetting, $listener = null, IDataDriver $driver = null, $label = null)
     {
         $this->_driver = $driver;
-        if ($this->_driver)
+        if ($this->_driver) {
             DataAdapter::$DRIVER_INSTANCE = $this->_driver;
+        }
         
         $this->_label = $label ? $label : 'db-' . mt_rand(10000, 99999);
         
         $this->ConnectionSetting = & $csetting;
         
-        if ($listener)
+        if ($listener) {
             $this->AttachObserver($listener);
+        }
+
         $this->Observe("DataAdapter ($this->_label) Instantiated", OBSERVE_DEBUG);
         
         // set the singleton reference
@@ -148,8 +151,9 @@ class DataAdapter implements IObservable
         if ($this->_dbopen) {
             $this->Observe("DataAdapter ($this->_label) Connection Already Open", OBSERVE_WARN);
         } else {
-            if (! $this->_driver)
+            if (! $this->_driver) {
                 $this->LoadDriver();
+            }
             
             try {
                 $this->_dbconn = $this->_driver->Open($this->ConnectionSetting->ConnectionString, $this->ConnectionSetting->DBName, $this->ConnectionSetting->Username, $this->ConnectionSetting->Password, $this->ConnectionSetting->Charset, $this->ConnectionSetting->BootstrapSQL);
@@ -322,11 +326,13 @@ class DataAdapter implements IObservable
      */
     function StartTransaction()
     {
-        if ($this->IsTransactionInProgress())
+        if ($this->IsTransactionInProgress()) {
             throw new Exception('Transaction is already in progress.  Commit or rollback must be called before beginning a new transaction');
+        }
         
-        if ($this->ConnectionSetting->IsReadOnlySlave)
+        if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
+        }
         
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.StartTransaction)", OBSERVE_QUERY);
@@ -341,8 +347,9 @@ class DataAdapter implements IObservable
      */
     function CommitTransaction()
     {
-        if ($this->ConnectionSetting->IsReadOnlySlave)
+        if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
+        }
         
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.CommitTransaction)", OBSERVE_QUERY);
@@ -357,8 +364,9 @@ class DataAdapter implements IObservable
      */
     function RollbackTransaction()
     {
-        if ($this->ConnectionSetting->IsReadOnlySlave)
+        if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Transactions are not allowed on a read-only slave');
+        }
         
         $this->RequireConnection(true);
         $this->Observe("DataAdapter ($this->_label) (DataAdapter.RollbackTransaction)", OBSERVE_QUERY);
@@ -398,8 +406,9 @@ class DataAdapter implements IObservable
      */
     public function OptimizeTables()
     {
-        if ($this->ConnectionSetting->IsReadOnlySlave)
+        if ($this->ConnectionSetting->IsReadOnlySlave) {
             throw new Exception('Optimizing tables is allowed on a read-only slave');
+        }
         
         $results = array ();
         $table_names = $this->_driver->GetTableNames($this->_dbconn, $this->GetDBName());
@@ -475,17 +484,20 @@ class DataAdapter implements IObservable
      */
     public static function Escape($val)
     {
-        if (DataAdapter::$ADAPTER_INSTANCE)
+        if (DataAdapter::$ADAPTER_INSTANCE) {
             DataAdapter::$ADAPTER_INSTANCE->LoadDriver();
+        }
             
             // this is an unfortunate leftover from poor design of making this function static
             // we cannon use the driver's escape method without a static reference
-        if (! DataAdapter::$DRIVER_INSTANCE)
+        if (! DataAdapter::$DRIVER_INSTANCE) {
             throw new Exception("DataAdapter must be instantiated before Escape can be called");
+        }
             
             // if magic quotes are enabled, then we need to stip the slashes that php added
-        if (get_magic_quotes_runtime() || get_magic_quotes_gpc())
+        if (get_magic_quotes_runtime() || get_magic_quotes_gpc()) {
             $val = stripslashes($val);
+        }
             
             // $driver->RequireConnection(true);
         return DataAdapter::$DRIVER_INSTANCE->Escape($val);
@@ -500,13 +512,15 @@ class DataAdapter implements IObservable
      */
     public static function GetQuotedSql($val)
     {
-        if (DataAdapter::$ADAPTER_INSTANCE)
+        if (DataAdapter::$ADAPTER_INSTANCE) {
             DataAdapter::$ADAPTER_INSTANCE->LoadDriver();
+        }
             
             // this is an unfortunate leftover from poor design of making this function static
             // we cannon use the driver's escape method without a static reference
-        if (! DataAdapter::$DRIVER_INSTANCE)
+        if (! DataAdapter::$DRIVER_INSTANCE) {
             throw new Exception("DataAdapter must be instantiated before Escape can be called");
+        }
             
             // $driver->RequireConnection(true);
         return DataAdapter::$DRIVER_INSTANCE->GetQuotedSql($val);
@@ -522,8 +536,9 @@ class DataAdapter implements IObservable
     {
         if ($listener) {
             $this->_observers [] = & $listener;
-            if ($this->_masterAdapter)
+            if ($this->_masterAdapter) {
                 $this->_masterAdapter->AttachObserver($listener);
+            }
         }
     }
     
@@ -538,7 +553,8 @@ class DataAdapter implements IObservable
      */
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
-        foreach ($this->_observers as $observer)
+        foreach ($this->_observers as $observer) {
             @$observer->Observe($obj, $ltype);
+        }
     }
 }

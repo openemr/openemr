@@ -35,11 +35,14 @@ if ($docid) {
 }
 
 // Check authorization.
-if (!acl_check('patients', 'notes', '', array('write','addonly')))
+if (!acl_check('patients', 'notes', '', array('write','addonly'))) {
     die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
+
 $tmp = getPatientData($patient_id, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
     die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+}
 
 //the number of records to display per screen
 $N = 25;
@@ -51,17 +54,23 @@ $form_inactive = $_REQUEST['form_inactive'];
 $noteid = $_REQUEST['noteid'];
 $form_doc_only = isset($_POST['mode']) ? (empty($_POST['form_doc_only']) ? 0 : 1) : 1;
 
-if (!isset($offset)) $offset = 0;
+if (!isset($offset)) {
+    $offset = 0;
+}
 
 // if (!isset($active)) $active = "all";
 
 $active = 'all';
 if ($form_active) {
-    if (!$form_inactive) $active = '1';
+    if (!$form_inactive) {
+        $active = '1';
+    }
 } else {
-    if ($form_inactive)
-    $active = '0';
-    else $form_active = $form_inactive = '1';
+    if ($form_inactive) {
+        $active = '0';
+    } else {
+        $form_active = $form_inactive = '1';
+    }
 }
 
 // this code handles changing the state of activity tags when the user updates
@@ -245,9 +254,15 @@ $urlparms = "docid=$docid&orderid=$orderid";
 <?php
 while ($urow = sqlFetchArray($ures)) {
     echo "    <option value='" . htmlspecialchars($urow['username'], ENT_QUOTES) . "'";
-    if ($urow['username'] == $assigned_to) echo " selected";
+    if ($urow['username'] == $assigned_to) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($urow['lname'], ENT_NOQUOTES);
-    if ($urow['fname']) echo htmlspecialchars(", ".$urow['fname'], ENT_NOQUOTES);
+    if ($urow['fname']) {
+        echo htmlspecialchars(", ".$urow['fname'], ENT_NOQUOTES);
+    }
+
     echo "</option>\n";
 }
 ?>

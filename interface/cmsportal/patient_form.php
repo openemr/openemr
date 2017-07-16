@@ -227,11 +227,16 @@ while ($lorow = sqlFetchArray($lores)) {
     $data_type  = $lorow['data_type'];
     $field_id   = $lorow['field_id'];
   // We deal with this one at the end.
-    if ($field_id == 'cmsportal_login') continue;
+    if ($field_id == 'cmsportal_login') {
+        continue;
+    }
+
   // Flamingo translates field names to lower case so we have to match with those.
     $reskey = $field_id;
     foreach ($result['fields'] as $key => $dummy) {
-        if (strcasecmp($key, $field_id) == 0) $reskey = $key;
+        if (strcasecmp($key, $field_id) == 0) {
+            $reskey = $key;
+        }
     }
 
   // Generate form fields for items that are either from the WordPress form
@@ -239,10 +244,14 @@ while ($lorow = sqlFetchArray($lores)) {
     if (isset($result['fields'][$reskey]) || ($lorow['uor'] > 1 && $ptid == 0)) {
         $list_id = $lorow['list_id'];
         $field_title = $lorow['title'];
-        if ($field_title === '') $field_title = '(' . $field_id . ')';
+        if ($field_title === '') {
+            $field_title = '(' . $field_id . ')';
+        }
 
         $currvalue  = '';
-        if (isset($ptrow[$field_id])) $currvalue = $ptrow[$field_id];
+        if (isset($ptrow[$field_id])) {
+            $currvalue = $ptrow[$field_id];
+        }
 
         /*****************************************************************
       $newvalue = '';

@@ -744,8 +744,9 @@ function eligibility_information($insuranceId)
 function getX12Partner()
 {
     $rez = sqlStatement("select * from x12_partners");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -755,8 +756,9 @@ function getUsernames()
 {
     $rez = sqlStatement("select distinct username, lname, fname,id from users " .
         "where authorized = 1 and username != ''");
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }

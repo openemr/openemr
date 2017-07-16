@@ -138,12 +138,18 @@ foreach ($allowed_codes as $code) {
     echo ">\n";
     foreach ($code_types as $key => $value) {
         echo "    <option value='" . attr($key) . "'";
-        if ($default == $key) echo " selected";
+        if ($default == $key) {
+            echo " selected";
+        }
+
         echo ">" . xlt($value['label']) . "</option>\n";
     }
 
     echo "    <option value='PROD'";
-    if ($default == 'PROD') echo " selected";
+    if ($default == 'PROD') {
+        echo " selected";
+    }
+
     echo ">" . xlt("Product") . "</option>\n";
     echo "   </select>&nbsp;&nbsp;\n";
 }
@@ -173,7 +179,9 @@ foreach ($allowed_codes as $code) {
 
 <?php
 if ($_REQUEST['bn_search'] || $_REQUEST['search_term']) {
-    if (!$form_code_type) $form_code_type = $codetype;
+    if (!$form_code_type) {
+        $form_code_type = $codetype;
+    }
 ?>
 
 <table border='0'>

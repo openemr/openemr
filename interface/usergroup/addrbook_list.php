@@ -112,7 +112,8 @@ $res = sqlStatement($query, $sqlBindArray);
   // Generates a select list named form_abook_type:
   echo generate_select_list("form_abook_type", "abook_type", $_REQUEST['form_abook_type'], '', 'All');
 ?>
-   <input type='checkbox' name='form_external' value='1'<?php if ($form_external) echo ' checked'; ?>
+   <input type='checkbox' name='form_external' value='1'<?php if ($form_external) {
+        echo ' checked';} ?>
     title='<?php echo xla("Omit internal users?") ?>' />
     <?php echo xlt('External Only')?>&nbsp;&nbsp;
    <input type='submit' title='<?php echo xla("Use % alone in a field to just sort on that column") ?>' class='button' name='form_search' value='<?php echo xla("Search")?>' />
@@ -145,10 +146,15 @@ while ($row = sqlFetchArray($res)) {
   //$bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     $bgclass = (($encount & 1) ? "evenrow" : "oddrow");
     $username = $row['username'];
-    if (! $row['active']) $username = '--';
+    if (! $row['active']) {
+        $username = '--';
+    }
 
     $displayName = $row['fname'] . ' ' . $row['mname'] . ' ' . $row['lname']; // Person Name
-    if ($row['suffix'] >'') $displayName .=", ".$row['suffix'];
+    if ($row['suffix'] >'') {
+        $displayName .=", ".$row['suffix'];
+    }
+
     if (acl_check('admin', 'practice') || (empty($username) && empty($row['ab_name']))) {
        // Allow edit, since have access or (no item type and not a local user)
         $trTitle = xl('Edit'). ' ' . $displayName;
@@ -188,7 +194,8 @@ while ($row = sqlFetchArray($res)) {
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {

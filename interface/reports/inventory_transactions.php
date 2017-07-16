@@ -16,7 +16,10 @@ require_once("$srcdir/acl.inc");
 
 function bucks($amount)
 {
-    if ($amount != 0) return oeFormatMoney($amount);
+    if ($amount != 0) {
+        return oeFormatMoney($amount);
+    }
+
     return '';
 }
 
@@ -37,7 +40,9 @@ function thisLineItem($row, $xfer = false)
         $dpname = $row['plname'];
         if (!empty($row['pfname'])) {
             $dpname .= ', ' . $row['pfname'];
-            if (!empty($row['pmname'])) $dpname .= ' ' . $row['pmname'];
+            if (!empty($row['pmname'])) {
+                $dpname .= ' ' . $row['pmname'];
+            }
         }
 
         $invnumber = empty($row['invoice_refno']) ?
@@ -50,7 +55,9 @@ function thisLineItem($row, $xfer = false)
             $dpname = $row['dlname'];
             if (!empty($row['dfname'])) {
                 $dpname .= ', ' . $row['dfname'];
-                if (!empty($row['dmname'])) $dpname .= ' ' . $row['dmname'];
+                if (!empty($row['dmname'])) {
+                    $dpname .= ' ' . $row['dmname'];
+                }
             }
         }
     } else if (!empty($row['xfer_inventory_id']) || $xfer) {
@@ -126,7 +133,9 @@ function thisLineItem($row, $xfer = false)
     }
 } // end function
 
-if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));
+if (! acl_check('acct', 'rep')) {
+    die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));
+}
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
@@ -242,7 +251,10 @@ foreach (array(
   '5' => xl('Adjustment'),
 ) as $key => $value) {
     echo "       <option value='$key'";
-    if ($key == $form_trans_type) echo " selected";
+    if ($key == $form_trans_type) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($value, ENT_NOQUOTES) . "</option>\n";
 }
 ?>

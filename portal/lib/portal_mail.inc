@@ -38,10 +38,16 @@ function addPortalMailboxMail(
     $replyid = 0
 ) {
 
-    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+    if (empty($datetime)) {
+        $datetime = date('Y-m-d H:i:s');
+    }
+
     $user = $_SESSION['portal_username'] ? $_SESSION['portal_username'] : $_SESSION['authUser'];
     // make inactive if set as Done
-    if ($message_status == "Done") $activity = 0;
+    if ($message_status == "Done") {
+        $activity = 0;
+    }
+
     $body = $newtext;
     if ($master_note == '0') {
         $n = sqlQueryNoLog("SELECT MAX(id) as newid from onsite_mail");
@@ -100,7 +106,10 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	";
     $all = $row = array();
     $data = array($owner,$owner);
-    if ($search) $data = array($owner,$owner,$owner);
+    if ($search) {
+        $data = array($owner,$owner,$owner);
+    }
+
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
@@ -140,7 +149,10 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	";
     $all = $row = array();
     $data = array($owner,$owner);
-    if ($search) $data = array($owner,$owner,$owner);
+    if ($search) {
+        $data = array($owner,$owner,$owner);
+    }
+
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;

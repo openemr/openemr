@@ -83,7 +83,10 @@ if ($is_expired) {
     }
 } else if (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     $frame1url = "calendar/index.php?pid=" . attr($_GET['pid']);
-    if (isset($_GET['date'])) $frame1url .= "&date=" . attr($_GET['date']);
+    if (isset($_GET['date'])) {
+        $frame1url .= "&date=" . attr($_GET['date']);
+    }
+
     $frame1target = "cal";
 } else {
   // standard layout
@@ -96,7 +99,9 @@ if ($is_expired) {
         '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => ('flb')
         );
         $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']];
-        if (empty($frame1target)) $frame1target = "msc";
+        if (empty($frame1target)) {
+            $frame1target = "msc";
+        }
     } else {
         $frame1url = "main_info.php";
         $frame1target = "cal";
@@ -104,7 +109,9 @@ if ($is_expired) {
 }
 
 $nav_area_width = '130';
-if (!empty($GLOBALS['gbl_nav_area_width'])) $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+if (!empty($GLOBALS['gbl_nav_area_width'])) {
+    $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+}
 
 // This is where will decide whether to use tabs layout or non-tabs layout
 // Will also set Session variables to communicate settings to tab layout

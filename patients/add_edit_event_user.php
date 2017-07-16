@@ -59,19 +59,25 @@ if (!($GLOBALS['portal_onsite_appt_modify'])) {
  $default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
  $patientid     = $_GET['patid'];
  //
- if ($date)
-  $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
-else $date = date("Y-m-d");
+if ($date) {
+    $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
+} else {
+    $date = date("Y-m-d");
+}
+
  //
  $starttimem = '00';
- if (isset($_GET['starttimem']))
-  $starttimem = substr('00' . $_GET['starttimem'], -2);
+if (isset($_GET['starttimem'])) {
+    $starttimem = substr('00' . $_GET['starttimem'], -2);
+}
+
  //
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
     if (isset($_GET['startampm'])) {
-        if ($_GET['startampm'] == '2' && $starttimeh < 12)
-        $starttimeh += 12;
+        if ($_GET['startampm'] == '2' && $starttimeh < 12) {
+            $starttimeh += 12;
+        }
     }
 } else {
     $starttimeh = date("G");
@@ -158,7 +164,10 @@ if ($_POST['form_action'] == "save") {
     } else {
         $tmph = $_POST['form_hour'] + 0;
         $tmpm = $_POST['form_minute'] + 0;
-        if ($_POST['form_ampm'] == '2' && $tmph < 12) $tmph += 12;
+        if ($_POST['form_ampm'] == '2' && $tmph < 12) {
+            $tmph += 12;
+        }
+
         $duration = $_POST['form_duration'];
     }
 
@@ -550,7 +559,10 @@ if ($_POST['form_action'] == "save") {
 if ($_POST['form_action'] != "") {
   // Close this window and refresh the calendar display.
     echo "<html>\n<body>\n<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
 //  echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
 //  echo " if (!opener.closed && opener.refreshme) window.opener.location.reload(true);\n";
 //  echo " opener.refreshme();";
@@ -604,7 +616,9 @@ if ($_POST['form_action'] != "") {
         }
 
         $hometext = $row['pc_hometext'];
-        if (substr($hometext, 0, 6) == ':text:') $hometext = substr($hometext, 6);
+        if (substr($hometext, 0, 6) == ':text:') {
+            $hometext = substr($hometext, 6);
+        }
     } else {
         $patientid=$_GET['pid'];
     }
@@ -614,8 +628,13 @@ if ($_POST['form_action'] != "") {
         $prow = sqlQuery("SELECT lname, fname, phone_home, phone_biz, DOB " .
          "FROM patient_data WHERE pid = '" . $patientid . "'");
         $patientname = $prow['lname'] . ", " . $prow['fname'];
-        if ($prow['phone_home']) $patienttitle .= " H=" . $prow['phone_home'];
-        if ($prow['phone_biz']) $patienttitle  .= " W=" . $prow['phone_biz'];
+        if ($prow['phone_home']) {
+            $patienttitle .= " H=" . $prow['phone_home'];
+        }
+
+        if ($prow['phone_biz']) {
+            $patienttitle  .= " W=" . $prow['phone_biz'];
+        }
     }
 
  // Get the providers list.
@@ -641,7 +660,9 @@ if ($_POST['form_action'] != "") {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12) $starttimeh -= 12;
+        if ($starttimeh > 12) {
+            $starttimeh -= 12;
+        }
     }
 
 ?>
@@ -681,12 +702,17 @@ if ($eid) {
 
 while ($crow = sqlFetchArray($cres)) {
     $duration = round($crow['pc_duration'] / 60);
-    if ($crow['pc_end_all_day']) $duration = 1440;
+    if ($crow['pc_end_all_day']) {
+        $duration = 1440;
+    }
+
     echo " durations[" . $crow['pc_catid'] . "] = $duration\n";
   // echo " rectypes[" . $crow['pc_catid'] . "] = " . $crow['pc_recurrtype'] . "\n";
     $catoptions .= "    <option value='" . $crow['pc_catid'] . "'";
     if ($eid) {
-        if ($crow['pc_catid'] == $row['pc_catid']) $catoptions .= " selected";
+        if ($crow['pc_catid'] == $row['pc_catid']) {
+            $catoptions .= " selected";
+        }
     } else {
         if ($crow['pc_catid'] == $default_catid) {
             $catoptions .= " selected";
@@ -700,7 +726,9 @@ while ($crow = sqlFetchArray($cres)) {
     if ($duration) {
         $prefcat_options .= "    <option value='" . $crow['pc_catid'] . "'";
         if ($eid) {
-            if ($crow['pc_catid'] == $row['pc_prefcatid']) $prefcat_options .= " selected";
+            if ($crow['pc_catid'] == $row['pc_prefcatid']) {
+                $prefcat_options .= " selected";
+            }
         }
 
         $prefcat_options .= ">" . $crow['pc_catname'] . "</option>\n";
@@ -949,7 +977,8 @@ while ($crow = sqlFetchArray($cres)) {
     title='<?php xl('Event start time', 'e'); ?>' readonly/>&nbsp;
    <select name='form_ampm' title='Note: 12:00 noon is PM, not AM' disabled="disabled">
     <option value='1'><?php xl('AM', 'e'); ?></option>
-    <option value='2'<?php if ($startampm == '2') echo " selected" ?>><?php xl('PM', 'e'); ?></option>
+    <option value='2'<?php if ($startampm == '2') {
+        echo " selected"; } ?>><?php xl('PM', 'e'); ?></option>
    </select>
   </td>
  </tr>
@@ -991,9 +1020,15 @@ while ($crow = sqlFetchArray($cres)) {
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . $urow['id'] . "'";
 //            if ($urow['id'] == $_SESSION['authUserID']) echo " selected"; 
-        if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) echo " selected";
+        if (($urow['id'] == $_GET['userid'])||($urow['id']== $userid)) {
+            echo " selected";
+        }
+
         echo ">" . $urow['lname'];
-        if ($urow['fname']) echo ", " . $urow['fname'];
+        if ($urow['fname']) {
+            echo ", " . $urow['fname'];
+        }
+
         echo "</option>\n";
     }
 

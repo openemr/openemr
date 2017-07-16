@@ -215,7 +215,10 @@ if ($_POST['form_save']) {
   // Close this window and tell our opener to select the new company.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " parent.$.fn.fancybox.close();\n";
     echo " top.restoreSession();\n";
     echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".addslashes($ins_name)."');\n";

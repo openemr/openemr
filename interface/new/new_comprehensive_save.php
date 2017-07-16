@@ -32,7 +32,9 @@ $result = sqlQuery("SELECT MAX(pid)+1 AS pid FROM patient_data");
 
 $newpid = 1;
 
-if ($result['pid'] > 1) $newpid = $result['pid'];
+if ($result['pid'] > 1) {
+    $newpid = $result['pid'];
+}
 
 setpid($newpid);
 
@@ -64,7 +66,10 @@ while ($frow = sqlFetchArray($fres)) {
   //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
     if (isset($_POST["form_$field_id"])) {
         $value = get_layout_form_value($frow);
-        if ($field_id == 'pubpid' && empty($value)) $value = $pid;
+        if ($field_id == 'pubpid' && empty($value)) {
+            $value = $pid;
+        }
+
         $newdata[$tblname][$colname] = $value;
     }
 }

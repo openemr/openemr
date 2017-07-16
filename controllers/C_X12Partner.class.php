@@ -55,8 +55,10 @@ class C_X12Partner extends Controller
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->x12_partner[0] = new X12Partner($_POST['id']);

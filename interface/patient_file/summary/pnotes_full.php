@@ -50,11 +50,14 @@ if ($docid) {
 }
 
 // Check authorization.
-if (!acl_check('patients', 'notes', '', array('write','addonly')))
+if (!acl_check('patients', 'notes', '', array('write','addonly'))) {
     die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
+
 $tmp = getPatientData($patient_id, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
     die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+}
 
 //the number of records to display per screen
 $N = 15;
@@ -80,8 +83,13 @@ if ($_REQUEST['s'] == '1') {
     $outbox_style = "style='display:none;border:5px solid #FFFFFF;'";
 }
 
-if (!isset($offset)) $offset = 0;
-if (!isset($offset_sent)) $offset_sent = 0;
+if (!isset($offset)) {
+    $offset = 0;
+}
+
+if (!isset($offset_sent)) {
+    $offset_sent = 0;
+}
 
 // Collect active variable and applicable html code for links
 if ($form_active) {
@@ -397,14 +405,18 @@ if ($result != "") {
                 $linked = "checked";
             } else {
                 // Skip unlinked notes if that is requested.
-                if ($form_doc_only) continue;
+                if ($form_doc_only) {
+                    continue;
+                }
             }
         } else if ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
             } else {
                 // Skip unlinked notes if that is requested.
-                if ($form_doc_only) continue;
+                if ($form_doc_only) {
+                    continue;
+                }
             }
         }
 
@@ -549,14 +561,18 @@ if ($result_sent != "") {
                 $linked = "checked";
             } else {
                 // Skip unlinked notes if that is requested.
-                if ($form_doc_only) continue;
+                if ($form_doc_only) {
+                    continue;
+                }
             }
         } else if ($orderid) {
             if (isGpRelation(2, $orderid, 6, $row_note_id)) {
                 $linked = "checked";
             } else {
                 // Skip unlinked notes if that is requested.
-                if ($form_doc_only) continue;
+                if ($form_doc_only) {
+                    continue;
+                }
             }
         }
 

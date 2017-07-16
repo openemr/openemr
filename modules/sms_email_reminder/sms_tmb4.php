@@ -42,9 +42,11 @@ class sms
         $request .= "&to=".urlencode($phoneNo);
 
             // larry :: default if not defined - TODO  replace
-            if (!$sender)
-                  $request .= "&from=BosmanGGZ";
-        else $request .= "&from=".urlencode($sender);
+        if (!$sender) {
+              $request .= "&from=BosmanGGZ";
+        } else {
+            $request .= "&from=".urlencode($sender);
+        }
         
         $request .= "&route=GD02";
         
@@ -156,7 +158,9 @@ class sms
             fputs($out, $http_header);
             
             /* Get the response */
-            while (!feof($out))$result[] = fgets($out);
+            while (!feof($out)) {
+                $result[] = fgets($out);
+            }
             
             /* Terminate the connection */
             fclose($out);

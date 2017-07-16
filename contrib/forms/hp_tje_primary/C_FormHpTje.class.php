@@ -42,8 +42,10 @@ class C_FormHpTje extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->hptje_primary = new FormHpTjePrimary($_POST['id']);
         parent::populate_object($this->hptje_primary);
 

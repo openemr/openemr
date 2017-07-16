@@ -10,7 +10,9 @@ function parse_era_2100(&$out, $cb)
 {
     if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
         // Production date is posted with adjustments, so make sure it exists.
-        if (!$out['production_date']) $out['production_date'] = $out['check_date'];
+        if (!$out['production_date']) {
+            $out['production_date'] = $out['check_date'];
+        }
 
         // Force the sum of service payments to equal the claim payment
         // amount, and the sum of service adjustments to equal the CLP's
@@ -25,7 +27,9 @@ function parse_era_2100(&$out, $cb)
         foreach ($out['svc'] as $svc) {
             $paytotal -= $svc['paid'];
             foreach ($svc['adj'] as $adj) {
-                if ($adj['group_code'] != 'PR') $adjtotal -= $adj['amount'];
+                if ($adj['group_code'] != 'PR') {
+                    $adjtotal -= $adj['amount'];
+                }
             }
         }
 
@@ -70,7 +74,9 @@ function parse_era($filename, $cb)
     $delimiter3 = '^';
 
     $infh = fopen($filename, 'r');
-    if (! $infh) return "ERA input file open failed";
+    if (! $infh) {
+        return "ERA input file open failed";
+    }
 
     $out = array();
     $out['loopid'] = '';
@@ -79,9 +85,15 @@ function parse_era($filename, $cb)
     $segid = '';
 
     while (true) {
-        if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+        if (strlen($buffer) < 2048 && ! feof($infh)) {
+            $buffer .= fread($infh, 2048);
+        }
+
         $tpos = strpos($buffer, $delimiter1);
-        if ($tpos === false) break;
+        if ($tpos === false) {
+            break;
+        }
+
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
 
@@ -95,13 +107,19 @@ function parse_era($filename, $cb)
         $segid = $seg[0];
 
         if ($segid == 'ISA') {
-            if ($out['loopid']) return 'Unexpected ISA segment';
+            if ($out['loopid']) {
+                return 'Unexpected ISA segment';
+            }
+
             $out['isa_sender_id']      = trim($seg[6]);
             $out['isa_receiver_id']    = trim($seg[8]);
             $out['isa_control_number'] = trim($seg[13]);
             // TBD: clear some stuff if we allow multiple transmission files.
         } else if ($segid == 'GS') {
-            if ($out['loopid']) return 'Unexpected GS segment';
+            if ($out['loopid']) {
+                return 'Unexpected GS segment';
+            }
+
             $out['gs_date'] = trim($seg[4]);
             $out['gs_time'] = trim($seg[5]);
             $out['gs_control_number'] = trim($seg[6]);
@@ -111,19 +129,27 @@ function parse_era($filename, $cb)
             $out['st_control_number'] = trim($seg[2]);
             $out['st_segment_count'] = 0;
         } else if ($segid == 'BPR') {
-            if ($out['loopid']) return 'Unexpected BPR segment';
+            if ($out['loopid']) {
+                return 'Unexpected BPR segment';
+            }
+
             $out['check_amount'] = trim($seg[2]);
             $out['check_date'] = trim($seg[16]); // yyyymmdd
             // TBD: BPR04 is a payment method code.
         } else if ($segid == 'TRN') {
-            if ($out['loopid']) return 'Unexpected TRN segment';
+            if ($out['loopid']) {
+                return 'Unexpected TRN segment';
+            }
+
             $out['check_number'] = trim($seg[2]);
             $out['payer_tax_id'] = substr($seg[3], 1); // 9 digits
             $out['payer_id'] = trim($seg[4]);
             // Note: TRN04 further qualifies the paying entity within the
             // organization identified by TRN03.
         } else if ($segid == 'REF' && $seg[1] == 'EV') {
-            if ($out['loopid']) return 'Unexpected REF|EV segment';
+            if ($out['loopid']) {
+                return 'Unexpected REF|EV segment';
+            }
         } else if ($segid == 'CUR' && ! $out['loopid']) {
             if ($seg[3] && $seg[3] != 1.0) {
                 return("We cannot handle foreign currencies!");
@@ -131,13 +157,19 @@ function parse_era($filename, $cb)
         } else if ($segid == 'REF' && ! $out['loopid']) {
             // ignore
         } else if ($segid == 'DTM' && $seg[1] == '405') {
-            if ($out['loopid']) return 'Unexpected DTM|405 segment';
+            if ($out['loopid']) {
+                return 'Unexpected DTM|405 segment';
+            }
+
             $out['production_date'] = trim($seg[2]); // yyyymmdd
         } //
         // Loop 1000A is Payer Information.
         //
         else if ($segid == 'N1' && $seg[1] == 'PR') {
-            if ($out['loopid']) return 'Unexpected N1|PR segment';
+            if ($out['loopid']) {
+                return 'Unexpected N1|PR segment';
+            }
+
             $out['loopid'] = '1000A';
             $out['payer_name'] = trim($seg[2]);
         } else if ($segid == 'N3' && $out['loopid'] == '1000A') {
@@ -156,7 +188,10 @@ function parse_era($filename, $cb)
         // Loop 1000B is Payee Identification.
         //
         else if ($segid == 'N1' && $seg[1] == 'PE') {
-            if ($out['loopid'] != '1000A') return 'Unexpected N1|PE segment';
+            if ($out['loopid'] != '1000A') {
+                return 'Unexpected N1|PE segment';
+            }
+
             $out['loopid'] = '1000B';
             $out['payee_name']   = trim($seg[2]);
             $out['payee_tax_id'] = trim($seg[4]);
@@ -174,7 +209,10 @@ function parse_era($filename, $cb)
         // about loop 2000 content.
         //
         else if ($segid == 'LX') {
-            if (! $out['loopid']) return 'Unexpected LX segment';
+            if (! $out['loopid']) {
+                return 'Unexpected LX segment';
+            }
+
             parse_era_2100($out, $cb);
             $out['loopid'] = '2000';
         } else if ($segid == 'TS2' && $out['loopid'] == '2000') {
@@ -185,7 +223,10 @@ function parse_era($filename, $cb)
         // Loop 2100 is Claim Payment Information. The good stuff begins here.
         //
         else if ($segid == 'CLP') {
-            if (! $out['loopid']) return 'Unexpected CLP segment';
+            if (! $out['loopid']) {
+                return 'Unexpected CLP segment';
+            }
+
             parse_era_2100($out, $cb);
             $out['loopid'] = '2100';
             $out['warnings'] = '';
@@ -230,7 +271,10 @@ function parse_era($filename, $cb)
             }
 
             for ($k = 2; $k < 20; $k += 3) {
-                if (!$seg[$k]) break;
+                if (!$seg[$k]) {
+                    break;
+                }
+
                 $j = count($out['svc'][$i]['adj']);
                 $out['svc'][$i]['adj'][$j] = array();
                 $out['svc'][$i]['adj'][$j]['group_code']  = $seg[1];
@@ -296,7 +340,10 @@ function parse_era($filename, $cb)
         // Loop 2110 is Service Payment Information.
         //
         else if ($segid == 'SVC') {
-            if (! $out['loopid']) return 'Unexpected SVC segment';
+            if (! $out['loopid']) {
+                return 'Unexpected SVC segment';
+            }
+
             $out['loopid'] = '2110';
             if ($seg[6]) {
                 // SVC06 if present is our original procedure code that they are changing.
@@ -310,7 +357,10 @@ function parse_era($filename, $cb)
                 $svc = explode($delimiter3, $seg[1]);
             }
 
-            if ($svc[0] != 'HC') return 'SVC segment has unexpected qualifier';
+            if ($svc[0] != 'HC') {
+                return 'SVC segment has unexpected qualifier';
+            }
+
             // TBD: Other qualifiers are possible; see IG pages 140-141.
             $i = count($out['svc']);
             $out['svc'][$i] = array();
@@ -341,7 +391,10 @@ function parse_era($filename, $cb)
         } else if ($segid == 'CAS' && $out['loopid'] == '2110') {
             $i = count($out['svc']) - 1;
             for ($k = 2; $k < 20; $k += 3) {
-                if (!$seg[$k]) break;
+                if (!$seg[$k]) {
+                    break;
+                }
+
                 if ($seg[1] == 'CO' && $seg[$k+1] < 0) {
                           $out['warnings'] .= "Negative Contractual Obligation adjustment " .
                     "seems wrong. Inverting, but should be checked!\n";
@@ -372,7 +425,10 @@ function parse_era($filename, $cb)
             // Provider-level adjustments are a General Ledger thing and should not
             // alter the A/R for the claim, so we just report them as notes.
             for ($k = 3; $k < 15; $k += 2) {
-                if (!$seg[$k]) break;
+                if (!$seg[$k]) {
+                    break;
+                }
+
                 $out['warnings'] .= 'PROVIDER LEVEL ADJUSTMENT (not claim-specific): $' .
                     sprintf('%.2f', $seg[$k+1]) . " with reason code " . $seg[$k] . "\n";
                 // Note: For PLB adjustment reason codes see IG pages 165-170.
@@ -388,12 +444,18 @@ function parse_era($filename, $cb)
                 return 'Ending transaction set segment count mismatch';
             }
         } else if ($segid == 'GE') {
-            if ($out['loopid']) return 'Unexpected GE segment';
+            if ($out['loopid']) {
+                return 'Unexpected GE segment';
+            }
+
             if ($out['gs_control_number'] != trim($seg[2])) {
                 return 'Ending functional group control number mismatch';
             }
         } else if ($segid == 'IEA') {
-            if ($out['loopid']) return 'Unexpected IEA segment';
+            if ($out['loopid']) {
+                return 'Unexpected IEA segment';
+            }
+
             if ($out['isa_control_number'] != trim($seg[2])) {
                 return 'Ending interchange control number mismatch';
             }
@@ -404,7 +466,10 @@ function parse_era($filename, $cb)
         ++$out['st_segment_count'];
     }
 
-    if ($segid != 'IEA') return 'Premature end of ERA file';
+    if ($segid != 'IEA') {
+        return 'Premature end of ERA file';
+    }
+
     return '';
 }
 //for getting the check details and provider details
@@ -415,7 +480,9 @@ function parse_era_for_check($filename)
     $delimiter3 = '^';
 
     $infh = fopen($filename, 'r');
-    if (! $infh) return "ERA input file open failed";
+    if (! $infh) {
+        return "ERA input file open failed";
+    }
 
     $out = array();
     $out['loopid'] = '';
@@ -424,9 +491,15 @@ function parse_era_for_check($filename)
     $segid = '';
     $check_count=0;
     while (true) {
-        if (strlen($buffer) < 2048 && ! feof($infh)) $buffer .= fread($infh, 2048);
+        if (strlen($buffer) < 2048 && ! feof($infh)) {
+            $buffer .= fread($infh, 2048);
+        }
+
         $tpos = strpos($buffer, $delimiter1);
-        if ($tpos === false) break;
+        if ($tpos === false) {
+            break;
+        }
+
         $inline = substr($buffer, 0, $tpos);
         $buffer = substr($buffer, $tpos + 1);
 
@@ -469,6 +542,9 @@ function parse_era_for_check($filename)
     $out['check_count']=$check_count;
     era_callback_check($out);
 
-    if ($segid != 'IEA') return 'Premature end of ERA file';
+    if ($segid != 'IEA') {
+        return 'Premature end of ERA file';
+    }
+
     return '';
 }

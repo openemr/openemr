@@ -13,7 +13,9 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 /* for formData() */
 
-if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
+if (!acl_check('admin', 'super')) {
+    die(htmlspecialchars(xl('Not authorized')));
+}
 
 // Prepare array of names of editable files, relative to the site directory.
 $my_files = array(
@@ -35,7 +37,10 @@ while ($lrow = sqlFetchArray($lres)) {
 
 $form_filename = strip_escape_custom($_REQUEST['form_filename']);
 // Sanity check to prevent evildoing.
-if (!in_array($form_filename, $my_files)) $form_filename = '';
+if (!in_array($form_filename, $my_files)) {
+    $form_filename = '';
+}
+
 $filepath = "$OE_SITE_DIR/$form_filename";
 
 $imagedir     = "$OE_SITE_DIR/images";
@@ -72,7 +77,10 @@ if (!empty($_POST['bn_save'])) {
             mkdir($imagedir);
         }
 
-        if (is_file($imagepath)) unlink($imagepath);
+        if (is_file($imagepath)) {
+            unlink($imagepath);
+        }
+
         $tmp_name = $_FILES['form_image']['tmp_name'];
         if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
             die(htmlspecialchars(xl('Unable to create') . " '$imagepath'"));
@@ -93,7 +101,10 @@ if (!empty($_POST['bn_save'])) {
             mkdir($educationdir);
         }
 
-        if (is_file($educationpath)) unlink($educationpath);
+        if (is_file($educationpath)) {
+            unlink($educationpath);
+        }
+
         $tmp_name = $_FILES['form_education']['tmp_name'];
         if (!move_uploaded_file($tmp_name, $educationpath)) {
             die(text(xl('Unable to create') . " '$educationpath'"));
@@ -244,7 +255,10 @@ function msfFileChanged() {
 <?php
 foreach ($my_files as $filename) {
     echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
-    if ($filename == $form_filename) echo " selected";
+    if ($filename == $form_filename) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($filename) . "</option>\n";
 }
 ?>
@@ -273,11 +287,20 @@ foreach ($my_files as $filename) {
 <?php
   // Generate an <option> for each file already in the images directory.
   $dh = opendir($imagedir);
-  if (!$dh) die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
+if (!$dh) {
+    die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
+}
+
   $imagesslist = array();
 while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') continue;
-    if ($sfname == 'CVS') continue;
+    if (substr($sfname, 0, 1) == '.') {
+        continue;
+    }
+
+    if ($sfname == 'CVS') {
+        continue;
+    }
+
     $imageslist[$sfname] = $sfname;
 }
 

@@ -31,7 +31,9 @@
 
 // Collect portalsite parameter (either off for offsite or on for onsite); only allow off or on
 $portalsite = isset($_GET['portalsite']) ? $_GET['portalsite'] : $portalsite = "off";
-if ($portalsite != "off" && $portalsite != "on") $portalsite = "off";
+if ($portalsite != "off" && $portalsite != "on") {
+    $portalsite = "off";
+}
 
  $row = sqlQuery("SELECT pd.*,pao.portal_username,pao.portal_pwd,pao.portal_pwd_status FROM patient_data AS pd LEFT OUTER JOIN patient_access_" . add_escape_custom($portalsite) . "site AS pao ON pd.pid=pao.pid WHERE pd.pid=?", array($pid));
 
@@ -219,8 +221,11 @@ function transmit(){
     ?>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('User Name').':', ENT_QUOTES);?></td>
-            <td><input type="text" name="uname" value="<?php if ($row['portal_username']) echo htmlspecialchars($row['portal_username'], ENT_QUOTES);
-            else echo htmlspecialchars($row['fname'].$row['id'], ENT_QUOTES);?>" size="10" readonly></td>
+            <td><input type="text" name="uname" value="<?php if ($row['portal_username']) {
+                echo htmlspecialchars($row['portal_username'], ENT_QUOTES);
+} else {
+    echo htmlspecialchars($row['fname'].$row['id'], ENT_QUOTES);
+}?>" size="10" readonly></td>
         </tr>
         <tr class="text">
             <td><?php echo htmlspecialchars(xl('Password').':', ENT_QUOTES);?></td>

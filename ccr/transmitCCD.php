@@ -57,26 +57,36 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     }
 
     $config_err = xl("Direct messaging is currently unavailable.")." EC:";
-    if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
+    if ($GLOBALS['phimail_enable']==false) {
+        return("$config_err 1");
+    }
 
     $fp = phimail_connect($err);
-    if ($fp===false) return("$config_err $err");
+    if ($fp===false) {
+        return("$config_err $err");
+    }
 
     $phimail_username = $GLOBALS['phimail_username'];
     $phimail_password = $GLOBALS['phimail_password'];
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-    if ($ret!==true) return("$config_err 4");
+    if ($ret!==true) {
+        return("$config_err 4");
+    }
 
     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-    if ($ret!==true) return( xl("Delivery is not allowed to the specified Direct Address.") );
+    if ($ret!==true) {
+        return( xl("Delivery is not allowed to the specified Direct Address.") );
+    }
 
     $ret=fgets($fp, 1024); //ignore extra server data
 
-    if ($requested_by=="patient")
-    $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
+    if ($requested_by=="patient") {
+        $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
             ($patientName2=="" ? "." : ", " . $patientName2 . ".");
-    else $text_out = xl("A clinical document is attached") .
+    } else {
+        $text_out = xl("A clinical document is attached") .
             ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
+    }
 
     $text_len=strlen($text_out);
     phimail_write($fp, "TEXT $text_len\n");
@@ -87,7 +97,9 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     }
 
     $ret=phimail_write_expect_OK($fp, $text_out);
-    if ($ret!==true) return("$config_err 6");
+    if ($ret!==true) {
+        return("$config_err 6");
+    }
 
     $ccd_out=$ccd->saveXml();
     $ccd_len=strlen($ccd_out);
@@ -100,7 +112,9 @@ function transmitCCD($ccd, $recipient, $requested_by, $xml_type = "CCD")
     }
 
     $ret=phimail_write_expect_OK($fp, $ccd_out);
-    if ($ret!==true) return("$config_err 8");
+    if ($ret!==true) {
+        return("$config_err 8");
+    }
 
     phimail_write($fp, "SEND\n");
     $ret=fgets($fp, 256);

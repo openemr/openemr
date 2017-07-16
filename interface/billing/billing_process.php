@@ -66,7 +66,10 @@ function append_claim(&$segs)
     global $bat_gscount, $bat_yymmdd, $bat_yyyymmdd, $bat_hhmm, $bat_icn;
 
     foreach ($segs as $seg) {
-        if (!$seg) continue;
+        if (!$seg) {
+            continue;
+        }
+
         $elems = explode('*', $seg);
         if ($elems[0] == 'ISA') {
             if (!$bat_content) {
@@ -97,7 +100,10 @@ function append_claim(&$segs)
         if ($elems[0] == 'ST') {
             ++$bat_stcount;
             $bat_content .= sprintf("ST*837*%04d", $bat_stcount);
-            if (!empty($elems[3])) $bat_content .= "*" . $elems[3];
+            if (!empty($elems[3])) {
+                $bat_content .= "*" . $elems[3];
+            }
+
             $bat_content .= "~";
             continue;
         }
@@ -107,7 +113,10 @@ function append_claim(&$segs)
             continue;
         }
 
-        if ($elems[0] == 'GE' || $elems[0] == 'IEA') continue;
+        if ($elems[0] == 'GE' || $elems[0] == 'IEA') {
+            continue;
+        }
+
         $bat_content .= $seg . '~';
     }
 }
@@ -115,7 +124,10 @@ function append_claim(&$segs)
 function append_claim_close()
 {
     global $bat_content, $bat_stcount, $bat_gscount, $bat_icn;
-    if ($bat_gscount) $bat_content .= "GE*$bat_stcount*1~";
+    if ($bat_gscount) {
+        $bat_content .= "GE*$bat_stcount*1~";
+    }
+
     $bat_content .= "IEA*$bat_gscount*$bat_icn~";
 }
 
@@ -233,7 +245,10 @@ function process_form($ar)
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
-                        if ($claim_count++) $pdf->ezNewPage();
+                        if ($claim_count++) {
+                            $pdf->ezNewPage();
+                        }
+
                         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
                         $pdf->ezText($tmplines, 12, array('justification' => 'left', 'leading' => 12));
                     }
@@ -248,7 +263,10 @@ function process_form($ar)
                     fwrite($hlog, $log);
                     $alines = explode("\014", $lines); // form feeds may separate pages
                     foreach ($alines as $tmplines) {
-                        if ($claim_count++) $pdf->ezNewPage();
+                        if ($claim_count++) {
+                            $pdf->ezNewPage();
+                        }
+
                         $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
                         $pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);
                         $pdf->ezText($tmplines, 12, array('justification' => 'left', 'leading' => 12));
@@ -342,7 +360,8 @@ function process_form($ar)
 ?>
 <html>
 <head>
-<?php if (function_exists(html_header_show)) html_header_show(); ?>
+<?php if (function_exists(html_header_show)) {
+    html_header_show();} ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>

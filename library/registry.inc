@@ -8,9 +8,12 @@ function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
     $check = sqlQuery("select state from registry where directory='$directory'");
     if ($check == false) {
         $lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
-        if ($lines)
+        if ($lines) {
             $name = $lines[0];
-        else $name = $directory;
+        } else {
+            $name = $directory;
+        }
+
         return sqlInsert("insert into registry set
 			name='$name',
 			state='$state',
@@ -37,13 +40,19 @@ function updateRegistered($id, $mod)
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
     $sql = "select * from registry where state like \"$state\" order by priority, name";
-    if ($limit != "unlimited")
+    if ($limit != "unlimited") {
         $sql .= " limit $limit, $offset";
+    }
+
     $res = sqlStatement($sql);
-    if ($res)
-    for ($iter=0; $row=sqlFetchArray($res); $iter++) {
-        $all[$iter] = $row;
-    } else return false;
+    if ($res) {
+        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+            $all[$iter] = $row;
+        }
+    } else {
+        return false;
+    }
+
     return $all;
 }
 
@@ -73,7 +82,9 @@ function installSQL($dir)
         }
 
         return true;
-    } else return false;
+    } else {
+        return false;
+    }
 }
 
 
@@ -94,7 +105,10 @@ function isRegistered($directory, $state = 1)
             "directory='".$directory.
             "' and state=".$state;
     $result = sqlQuery($sql);
-    if ($result['id'] != '') return true;
+    if ($result['id'] != '') {
+        return true;
+    }
+
     return false;
 }
 

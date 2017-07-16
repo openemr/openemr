@@ -60,12 +60,16 @@ if ($thistype && !$issue && !acl_check_issue($thistype, '', array('write', 'addo
 }
 
 $tmp = getPatientData($thispid, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-  die(xlt("Not authorized for this squad!"));
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    die(xlt("Not authorized for this squad!"));
+}
 
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 
@@ -75,7 +79,10 @@ function QuotedOrNull($fld)
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) $tmp = '0';
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
     return "'$tmp'";
 }
 
@@ -101,7 +108,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $irow;
     $ret  = "<input type='radio' name='".attr($name)."' value='".attr($value)."'";
-    if ($irow[$colname] == $value) $ret .= " checked";
+    if ($irow[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />".text($desc);
     return $ret;
 }
@@ -117,7 +127,10 @@ function issueTypeIndex($tstr)
     global $ISSUE_TYPES;
     $i = 0;
     foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) break;
+        if ($key == $tstr) {
+            break;
+        }
+
         ++$i;
     }
 
@@ -203,14 +216,21 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2)
   // map issues to a set of display options
     $modeIndexMapping = array();
 
-    foreach ($modeIssueTypes as $akey2 => $isJunk) $modeIndexMapping[$akey2] = 3;
+    foreach ($modeIssueTypes as $akey2 => $isJunk) {
+        $modeIndexMapping[$akey2] = 3;
+    }
 
-    if (array_key_exists("medical_problem", $issueTypeIdx2))
-    $modeIndexMapping[$issueTypeIdx2['medical_problem']] = 0;
-    if (array_key_exists("allergy", $issueTypeIdx2))
-    $modeIndexMapping[$issueTypeIdx2['allergy']] = 1;
-    if (array_key_exists("medication", $issueTypeIdx2))
-    $modeIndexMapping[$issueTypeIdx2['medication']] = 2;
+    if (array_key_exists("medical_problem", $issueTypeIdx2)) {
+        $modeIndexMapping[$issueTypeIdx2['medical_problem']] = 0;
+    }
+
+    if (array_key_exists("allergy", $issueTypeIdx2)) {
+        $modeIndexMapping[$issueTypeIdx2['allergy']] = 1;
+    }
+
+    if (array_key_exists("medication", $issueTypeIdx2)) {
+        $modeIndexMapping[$issueTypeIdx2['medication']] = 2;
+    }
 
     echo "\nvar listBoxOptions2 = new Array();\n\n";
 
@@ -229,7 +249,9 @@ if ($_POST['form_save']) {
     $i = 0;
     $text_type = "unknown";
     foreach ($ISSUE_TYPES as $key => $value) {
-        if ($i++ == $_POST['form_type']) $text_type = $key;
+        if ($i++ == $_POST['form_type']) {
+            $text_type = $key;
+        }
     }
 
     $form_begin = fixDate($_POST['form_begin'], '');
@@ -309,9 +331,17 @@ if ($_POST['form_save']) {
   // For record/reporting purposes, place entry in lists_touch table.
     setListTouch($thispid, $text_type);
 
-    if ($text_type == 'football_injury') issue_football_injury_save($issue);
-    if ($text_type == 'ippf_gcac') issue_ippf_gcac_save($issue);
-    if ($text_type == 'contraceptive') issue_ippf_con_save($issue);
+    if ($text_type == 'football_injury') {
+        issue_football_injury_save($issue);
+    }
+
+    if ($text_type == 'ippf_gcac') {
+        issue_ippf_gcac_save($issue);
+    }
+
+    if ($text_type == 'contraceptive') {
+        issue_ippf_con_save($issue);
+    }
 
   // If requested, link the issue to a specified encounter.
     if ($thisenc) {
@@ -327,7 +357,9 @@ if ($_POST['form_save']) {
   // Close this window and redisplay the updated list of issues.
   //
     echo "<html><body><script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
 
     echo " var myboss = opener ? opener : parent;\n";
     echo " if (myboss.refreshIssue) myboss.refreshIssue($issue,'$tmp_title');\n";
@@ -354,7 +386,10 @@ $type_index = 0;
 
 if (!empty($irow['type'])) {
     foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $irow['type']) break;
+        if ($key == $irow['type']) {
+            break;
+        }
+
         ++$type_index;
     }
 }
@@ -485,8 +520,13 @@ if ($ISSUE_TYPES['football_injury']) {
 
 if ($ISSUE_TYPES['ippf_gcac'] && !$_POST['form_save']) {
     // Generate more of these for gcac and contraceptive fields.
-    if (empty($issue) || $irow['type'] == 'ippf_gcac') issue_ippf_gcac_newtype();
-    if (empty($issue) || $irow['type'] == 'contraceptive') issue_ippf_con_newtype();
+    if (empty($issue) || $irow['type'] == 'ippf_gcac') {
+        issue_ippf_gcac_newtype();
+    }
+
+    if (empty($issue) || $irow['type'] == 'contraceptive') {
+        issue_ippf_con_newtype();
+    }
 }
 ?>
  }
@@ -570,9 +610,13 @@ if ($irow['type'] == 'medical_problem') {
     $url .= collect_codetypes("diagnosis", "csv");
     $tmp  = collect_codetypes("drug", "csv");
     if ($irow['type'] == 'allergy') {
-        if ($tmp) $url .= ",$tmp";
+        if ($tmp) {
+            $url .= ",$tmp";
+        }
     } else if ($irow['type'] == 'medication') {
-        if ($tmp) $url .= ",$tmp&default=$tmp";
+        if ($tmp) {
+            $url .= ",$tmp&default=$tmp";
+        }
     }
 }
 ?>
@@ -640,8 +684,14 @@ foreach ($ISSUE_TYPES as $key => $value) {
         }
     } else {
         echo "   <input type='radio' name='form_type' value='".attr($index)."' onclick='newtype($index)'";
-        if ($index == $type_index) echo " checked";
-        if (!acl_check_issue($key, '', array('write','addonly'))) echo " disabled";
+        if ($index == $type_index) {
+            echo " checked";
+        }
+
+        if (!acl_check_issue($key, '', array('write','addonly'))) {
+            echo " disabled";
+        }
+
         echo " />" . text($value[1]) . "&nbsp;\n";
     }
 
@@ -743,7 +793,10 @@ foreach ($ISSUE_TYPES as $key => $value) {
 <?php
 foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
     echo "   <option value='".attr($key)."'";
-    if ($key == $irow['classification']) echo " selected";
+    if ($key == $irow['classification']) {
+        echo " selected";
+    }
+
     echo ">".text($value)."\n";
 }
 ?>
@@ -785,7 +838,8 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
+ <tr<?php if ($GLOBALS['ippf_specific']) {
+        echo " style='display:none;'";} ?>>
   <td valign='top' nowrap><b><?php echo xlt('Outcome'); ?>:</b></td>
   <td>
     <?php
@@ -794,7 +848,8 @@ foreach ($ISSUE_CLASSIFICATIONS as $key => $value) {
   </td>
  </tr>
 
- <tr<?php if ($GLOBALS['ippf_specific']) echo " style='display:none;'"; ?>>
+ <tr<?php if ($GLOBALS['ippf_specific']) {
+        echo " style='display:none;'";} ?>>
   <td valign='top' nowrap><b><?php echo xlt('Destination'); ?>:</b></td>
   <td>
 <?php if (true) { ?>
@@ -817,10 +872,13 @@ if ($ISSUE_TYPES['football_injury']) {
 }
 
 if ($ISSUE_TYPES['ippf_gcac']) {
-    if (empty($issue) || $irow['type'] == 'ippf_gcac')
-    issue_ippf_gcac_form($issue, $thispid);
-    if (empty($issue) || $irow['type'] == 'contraceptive')
-    issue_ippf_con_form($issue, $thispid);
+    if (empty($issue) || $irow['type'] == 'ippf_gcac') {
+        issue_ippf_gcac_form($issue, $thispid);
+    }
+
+    if (empty($issue) || $irow['type'] == 'contraceptive') {
+        issue_ippf_con_form($issue, $thispid);
+    }
 }
 ?>
 

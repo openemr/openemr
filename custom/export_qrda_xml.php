@@ -604,7 +604,9 @@ if (count($dataSheet) > 0) {
         $numerator_label = $row['numerator_label'];
 
         //CQM Rules 2014 set, 0013 is 0018
-        if ($row['cqm_nqf_code'] == "0013") $row['cqm_nqf_code'] = "0018";
+        if ($row['cqm_nqf_code'] == "0013") {
+            $row['cqm_nqf_code'] = "0018";
+        }
 
         //Table Start
         $xml->open_customTag('table', $tabArr);
@@ -641,11 +643,13 @@ if (count($dataSheet) > 0) {
         $tdVersionNeutral = getUuid();
 
         if ($preDefinedUniqIDRules[$row['cqm_nqf_code']] != "") {
-            if (($row['cqm_nqf_code'] == "0421" ))
+            if (($row['cqm_nqf_code'] == "0421" )) {
                 $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']][$row['numerator_label']];
-            else if ($row['cqm_nqf_code'] == "0024")
+            } else if ($row['cqm_nqf_code'] == "0024") {
                 $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']];
-            else $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']];
+            } else {
+                $tdVersionSpecific = $preDefinedUniqIDRules[$row['cqm_nqf_code']];
+            }
 
             $uniqIdArr[] = $tdVersionSpecific;
         } else {
@@ -676,12 +680,17 @@ if (count($dataSheet) > 0) {
         //All CQM Measures taken here
         foreach ($CQMeausesArr as $cqmKey => $cqmVal) {
             //DENEXCEP(Denominator Exception not needed for some rules are skipping here)
-            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) continue;
+            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) {
+                continue;
+            }
 
             //get Itemized Data
-            if ($cqmKey == "init_patients")
+            if ($cqmKey == "init_patients") {
                 $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
-            else $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            } else {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            }
+
             $fullPatArr = array();
             foreach ($itemPatArr as $itemPatInfo) {
                 $fullPatArr[] = $itemPatInfo['pid'];
@@ -772,7 +781,9 @@ if (count($dataSheet) > 0) {
         }
 
         //CQM Rules 2014 set, 0013 is 0018
-        if ($row['cqm_nqf_code'] == "0013") $row['cqm_nqf_code'] = "0018";
+        if ($row['cqm_nqf_code'] == "0013") {
+            $row['cqm_nqf_code'] = "0018";
+        }
 
         $tdTitle = generate_display_field(array('data_type'=>'1','list_id'=>'clinical_rules'), $row['id']);
         if (!empty($row['cqm_pqri_code'])) {
@@ -875,9 +886,11 @@ if (count($dataSheet) > 0) {
             } else if (($row['cqm_nqf_code'] == "0024")) {
                 $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']][$row['population_label']][$row['numerator_label']]["NUMER"];
             } else {
-                if ($preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"] != "")
+                if ($preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"] != "") {
                     $exDocID = $preDefPopIdArr[$row['cqm_nqf_code']]["NUMER"];
-                else $exDocID = getUuid();
+                } else {
+                    $exDocID = getUuid();
+                }
             }
 
             $xml->self_customId($exDocID);
@@ -901,17 +914,26 @@ if (count($dataSheet) > 0) {
         //All CQM Measures taken here
         foreach ($CQMeausesArr as $cqmKey => $cqmVal) {
             //DENEXCEP(Denominator Exception not needed for some rules are skipping here)
-            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) continue;
+            if ((in_array($row['cqm_nqf_code'], $denExcepNotNeedRules) ) && ($cqmKey == "exception_patients")) {
+                continue;
+            }
 
             //cqm 0024 alllowing only nuemerator 2 and numerator 3 for ipp1,ipp2 and 1pp3 to avoid repeatation
-            if ($row['cqm_nqf_code'] == '0024' && ($row['numerator_label'] == "Numerator 2" || $row['numerator_label'] == "Numerator 3") && $cqmKey != 'numer_patients') continue;
-            if ($row['cqm_nqf_code'] == '0024' && ($row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3")) continue;
+            if ($row['cqm_nqf_code'] == '0024' && ($row['numerator_label'] == "Numerator 2" || $row['numerator_label'] == "Numerator 3") && $cqmKey != 'numer_patients') {
+                continue;
+            }
+
+            if ($row['cqm_nqf_code'] == '0024' && ($row['population_label'] == "Population Criteria 2" || $row['population_label'] == "Population Criteria 3")) {
+                continue;
+            }
 
 
             //get Itemized Data
-            if ($cqmKey == "init_patients")
+            if ($cqmKey == "init_patients") {
                 $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey]);
-            else $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            } else {
+                $itemPatArr = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $cqmItemizedArr[$cqmKey], $numerator_label);
+            }
 
             $fullPatArr = array();
             foreach ($itemPatArr as $itemPatInfo) {
@@ -976,9 +998,11 @@ if (count($dataSheet) > 0) {
                 for (; $strat_count <= 2; $strat_count++) {
                         $strata_value = $stratum[$strat_count][$cqmKey];
 
-                        if ($row['numerator_label'] == "Numerator 2") $strata_value = $stratum[$strat_count]['numer2'];
-
-                    else if ($row['numerator_label'] == "Numerator 3") $strata_value = $stratum[$strat_count]['numer3'];
+                    if ($row['numerator_label'] == "Numerator 2") {
+                        $strata_value = $stratum[$strat_count]['numer2'];
+                    } else if ($row['numerator_label'] == "Numerator 3") {
+                        $strata_value = $stratum[$strat_count]['numer3'];
+                    }
 
                         //entryRelationship Open
                         $xml->open_customTag('entryRelationship', array('typeCode'=>'COMP'));

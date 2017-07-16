@@ -43,9 +43,11 @@ function getPatientDateOfLastEncounter($nPid)
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if ($strEventDate['max'] != "")
-    return( $strEventDate['max'] );
-    else return( "00-00-0000" );
+    if ($strEventDate['max'] != "") {
+        return( $strEventDate['max'] );
+    } else {
+        return( "00-00-0000" );
+    }
 }
 
 $m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
@@ -62,7 +64,9 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
 $obj = formFetch("form_intakeverslag", $vectAutosave['id']);
 
 $tmpDate = stripslashes($obj{"intakedatum"});
-if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') $m_strEventDate = $tmpDate;
+if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
+    $m_strEventDate = $tmpDate;
+}
 
 ?>
 
@@ -91,9 +95,11 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') $m_strEventDate = $tmpDate;
 
 <?php
 
-if ($vectAutosave['id'])
-  $intakeverslag_id = $vectAutosave['id'];
-else $intakeverslag_id = "0";
+if ($vectAutosave['id']) {
+    $intakeverslag_id = $vectAutosave['id'];
+} else {
+    $intakeverslag_id = "0";
+}
 
 ?>
 <script type="text/javascript">

@@ -71,11 +71,12 @@ if (!empty($code_desc)) {
         } elseif ($code[$key] == '21612-7') {
             if (! empty($ob_unit)) {
                 foreach ($ob_unit as $key1 => $val) :
-                    if ($key1 == 0)
-                     $ob_unit_value = $ob_unit[$key1];
-                    else {
-                        if ($key1 == $key)
+                    if ($key1 == 0) {
                         $ob_unit_value = $ob_unit[$key1];
+                    } else {
+                        if ($key1 == $key) {
+                            $ob_unit_value = $ob_unit[$key1];
+                        }
                     }
                 endforeach;
             }

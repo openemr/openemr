@@ -38,8 +38,13 @@ function qescape($str)
 
  $from_date = DateToYYYYMMDD($_POST['form_from_date']);
  $to_date   = DateToYYYYMMDD($_POST['form_to_date']);
- if (empty($to_date) && !empty($from_date)) $to_date = date('Y-12-31');
- if (empty($from_date) && !empty($to_date)) $from_date = date('Y-01-01');
+if (empty($to_date) && !empty($from_date)) {
+    $to_date = date('Y-12-31');
+}
+
+if (empty($from_date) && !empty($to_date)) {
+    $from_date = date('Y-01-01');
+}
 
 $form_provider = empty($_POST['form_provider']) ? 0 : intval($_POST['form_provider']);
 
@@ -269,7 +274,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
-        if ($row['pid'] == $prevpid) continue;
+        if ($row['pid'] == $prevpid) {
+            continue;
+        }
+
         $prevpid = $row['pid'];
         $age = '';
         if ($row['DOB']) {
@@ -278,7 +286,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
                    (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
-            if ($dayDiff < 0) --$ageInMonths;
+            if ($dayDiff < 0) {
+                --$ageInMonths;
+            }
+
             $age = intval($ageInMonths/12);
         }
 

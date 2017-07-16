@@ -15,8 +15,12 @@
     $current_date2 = date('Y-m-d');
     $events = array();
     $apptNum = (int)$GLOBALS['patient_portal_appt_display_num'];
-    if ($apptNum != 0) $apptNum2 = abs($apptNum);
-else $apptNum2 = 20;
+if ($apptNum != 0) {
+    $apptNum2 = abs($apptNum);
+} else {
+    $apptNum2 = 20;
+}
+
     $events = fetchNextXAppts($current_date2, $pid, $apptNum2);
     ///////
 
@@ -30,7 +34,9 @@ foreach ($events as $row) {
     $dispmin  = substr($row['pc_startTime'], 3, 2);
     if ($disphour >= 12) {
         $dispampm = "pm";
-        if ($disphour > 12) $disphour -= 12;
+        if ($disphour > 12) {
+            $disphour -= 12;
+        }
     }
 
     if ($row['pc_hometext'] != "") {

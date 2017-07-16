@@ -47,7 +47,8 @@ $res = sqlStatement($query);
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
 
 // Callback from popups to refresh this display.
 function refreshme() {

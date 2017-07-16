@@ -42,9 +42,11 @@ function getPatientDateOfLastEncounter($nPid)
                   AND pc_eventDate >= '2007-01-01'");
 
   // now check if there was a previous encounter
-    if ($strEventDate['max'] != "")
-    return( $strEventDate['max'] );
-    else return( "00-00-0000" );
+    if ($strEventDate['max'] != "") {
+        return( $strEventDate['max'] );
+    } else {
+        return( "00-00-0000" );
+    }
 }
 
 $m_strEventDate = getPatientDateOfLastEncounter($result['pid']);
@@ -66,7 +68,9 @@ if ($vectAutosave['id'] && $vectAutosave['id'] != "" && $vectAutosave['id'] > 0)
 }
 
 $tmpDate = stripslashes($obj{"datum_onderzoek"});
-if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') $m_strEventDate = $tmpDate;
+if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') {
+    $m_strEventDate = $tmpDate;
+}
 
 ?>
 
@@ -94,9 +98,11 @@ if ($tmpDate && $tmpDate != '0000-00-00 00:00:00') $m_strEventDate = $tmpDate;
 
 <?php
 
-if ($_GET["id"])
-  $psychiatrisch_onderzoek_id = $_GET["id"];
-else $psychiatrisch_onderzoek_id = "0";
+if ($_GET["id"]) {
+    $psychiatrisch_onderzoek_id = $_GET["id"];
+} else {
+    $psychiatrisch_onderzoek_id = "0";
+}
 
 ?>
 <script type="text/javascript">

@@ -58,8 +58,9 @@ class DataDriverMySQLi implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! function_exists("mysqli_connect"))
+        if (! function_exists("mysqli_connect")) {
             throw new DatabaseException('mysqli extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
+        }
             
             // if the port is provided in the connection string then strip it out and provide it as a separate param
         $hostAndPort = explode(":", $connectionstring);
@@ -175,11 +176,13 @@ class DataDriverMySQLi implements IDataDriver
      */
     public function GetQuotedSql($val)
     {
-        if ($val === null)
+        if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
+        }
         
-        if ($val instanceof ISqlFunction)
+        if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
+        }
         
         return "'" . $this->Escape($val) . "'";
     }
@@ -213,8 +216,10 @@ class DataDriverMySQLi implements IDataDriver
         
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
-            if (! isset($results [$tbl]))
+            if (! isset($results [$tbl])) {
                 $results [$tbl] = "";
+            }
+
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
         

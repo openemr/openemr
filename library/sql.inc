@@ -92,29 +92,42 @@ class ADODB_mysqli_log extends ADODB_mysqli
     function GenID($seqname = 'adodbseq', $startID = 1)
     {
         // post-nuke sets hasGenID to false
-        if (!$this->hasGenID) return false;
+        if (!$this->hasGenID) {
+            return false;
+        }
 
         $getnext = sprintf($this->_genIDSQL, $seqname);
         $holdtransOK = $this->_transOK; // save the current status
         $rs = @$this->ExecuteNoLog($getnext);
         if (!$rs) {
-            if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
+            if ($holdtransOK) {
+                $this->_transOK = true; //if the status was ok before reset
+            }
+
             $u = strtoupper($seqname);
             $this->ExecuteNoLog(sprintf($this->_genSeqSQL, $seqname));
             $cnt = $this->GetOne(sprintf($this->_genSeqCountSQL, $seqname));
-            if (!$cnt) $this->ExecuteNoLog(sprintf($this->_genSeq2SQL, $seqname, $startID-1));
+            if (!$cnt) {
+                $this->ExecuteNoLog(sprintf($this->_genSeq2SQL, $seqname, $startID-1));
+            }
+
             $rs = $this->ExecuteNoLog($getnext);
         }
 
         if ($rs) {
             $this->genID = mysqli_insert_id($this->_connectionID);
             $rs->Close();
-        } else $this->genID = 0;
+        } else {
+            $this->genID = 0;
+        }
 
         return $this->genID;
     }
 }
-if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC', 2);
+if (!defined('ADODB_FETCH_ASSOC')) {
+    define('ADODB_FETCH_ASSOC', 2);
+}
+
 $database = NewADOConnection("mysqli_log"); // Use the subclassed driver which logs execute events
 // Below clientFlags flag is telling the mysql connection to allow local_infile setting,
 // which is needed to import data in the Administration->Other->External Data Loads feature.
@@ -175,7 +188,9 @@ if (!$GLOBALS['dbh']) {
 function sqlStatement($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
   // Use adodb Execute with binding and return a recordset.
   //   Note that the auditSQLEvent function is embedded
@@ -209,7 +224,9 @@ function sqlStatement($statement, $binds = false)
 function sqlStatementNoLog($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
   // Use adodb ExecuteNoLog with binding and return a recordset.
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
@@ -232,7 +249,9 @@ function sqlStatementNoLog($statement, $binds = false)
 function sqlStatementCdrEngine($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     if ($GLOBALS['audit_events_cdr']) {
         return sqlStatement($statement, $binds);
@@ -255,13 +274,18 @@ function sqlStatementCdrEngine($statement, $binds = false)
 function sqlFetchArray($r)
 {
   //treat as an adodb recordset
-    if ($r === false)
-    return false;
-    if ($r->EOF)
-    return false;
+    if ($r === false) {
+        return false;
+    }
+
+    if ($r->EOF) {
+        return false;
+    }
+
   //ensure it's an object (ie. is set)
-    if (!is_object($r))
-    return false;
+    if (!is_object($r)) {
+        return false;
+    }
 
     return $r->FetchRow();
 }
@@ -299,7 +323,9 @@ function sqlGetAssoc($sql, $bindvars = false, $forceArray = false, $first2Cols =
 function sqlInsert($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
   //Run a adodb execute
   // Note the auditSQLEvent function is embedded in the
@@ -328,7 +354,9 @@ function sqlInsert($statement, $binds = false)
 function sqlQuery($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds);
 
@@ -336,11 +364,15 @@ function sqlQuery($statement, $binds = false)
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
 
-    if ($recordset->EOF)
-    return false;
+    if ($recordset->EOF) {
+        return false;
+    }
+
     $rez = $recordset->FetchRow();
-    if ($rez == false)
-    return false;
+    if ($rez == false) {
+        return false;
+    }
+
     return $rez;
 }
 
@@ -361,7 +393,9 @@ function sqlQuery($statement, $binds = false)
 function sqlQueryNoLog($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
@@ -369,11 +403,15 @@ function sqlQueryNoLog($statement, $binds = false)
         HelpfulDie("query failed: $statement", getSqlLastError());
     }
 
-    if ($recordset->EOF)
-    return false;
+    if ($recordset->EOF) {
+        return false;
+    }
+
     $rez = $recordset->FetchRow();
-    if ($rez == false)
-    return false;
+    if ($rez == false) {
+        return false;
+    }
+
     return $rez;
 }
 
@@ -395,7 +433,9 @@ function sqlQueryNoLog($statement, $binds = false)
 function sqlQueryNoLogIgnoreError($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     $recordset = $GLOBALS['adodb']['db']->ExecuteNoLog($statement, $binds);
 
@@ -404,11 +444,15 @@ function sqlQueryNoLogIgnoreError($statement, $binds = false)
         return false;
     }
 
-    if ($recordset->EOF)
-    return false;
+    if ($recordset->EOF) {
+        return false;
+    }
+
     $rez = $recordset->FetchRow();
-    if ($rez == false)
-    return false;
+    if ($rez == false) {
+        return false;
+    }
+
     return $rez;
 }
 
@@ -424,7 +468,9 @@ function sqlQueryNoLogIgnoreError($statement, $binds = false)
 function sqlQueryCdrEngine($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     if ($GLOBALS['audit_events_cdr']) {
         return sqlQuery($statement, $binds);
@@ -586,7 +632,9 @@ function generate_id()
 function sqlQ($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     $recordset = $GLOBALS['adodb']['db']->Execute($statement, $binds) or
     HelpfulDie("query failed: $statement", getSqlLastError());
@@ -607,7 +655,9 @@ function sqlQ($statement, $binds = false)
 function idSqlStatement($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     return sqlInsert($statement, $binds);
 }
@@ -626,7 +676,9 @@ function idSqlStatement($statement, $binds = false)
 function sqlInsertClean($statement, $binds = false)
 {
   // Below line is to avoid a nasty bug in windows.
-    if (empty($binds)) $binds = false;
+    if (empty($binds)) {
+        $binds = false;
+    }
 
     return sqlInsert($statement, $binds);
 }
@@ -668,8 +720,10 @@ function get_db()
  */
 function generic_sql_select_db($database, $link = null)
 {
-    if (is_null($link))
-    $link = $GLOBALS['dbh'];
+    if (is_null($link)) {
+        $link = $GLOBALS['dbh'];
+    }
+
     mysqli_select_db($link, $database);
 }
 

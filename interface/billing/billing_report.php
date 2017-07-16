@@ -108,7 +108,8 @@ $oauthorized = $my_authorized;
 
 <html>
 <head>
-<?php if (function_exists('html_header_show')) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) {
+    html_header_show();} ?>
 <link rel="stylesheet" href="<?php echo $css_header; ?>" type="text/css">
 <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker-2-5-4/build/jquery.datetimepicker.min.css">
 
@@ -491,11 +492,13 @@ if (!isset($_REQUEST['mode'])) {//default case
     class='link_submit'  ><?php echo '['.xlt('End Of Day Report').']' ?></a>
     <?php if ($daysheet_total) { ?>
     <span class=text><?php echo xlt('Totals'); ?> </span>
-    <input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') echo "checked";?>>
+    <input type=checkbox  name="end_of_day_totals_only" value="1" <?php if ($obj['end_of_day_totals_only'] === '1') {
+        echo "checked";}?>>
     <?php } ?>
     <?php if ($provider_run) { ?>
     <span class=text><?php echo xlt('Provider'); ?> </span>
-    <input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') echo "checked";?>>
+    <input type=checkbox  name="end_of_day_provider_only" value="1" <?php if ($obj['end_of_day_provider_only'] === '1') {
+        echo "checked";}?>>
     <?php } ?>
     </td>
           </tr>
@@ -707,7 +710,9 @@ if ($ret = getBillsBetween("%")) {
             "encounter = ? AND " .
             "pid=? AND " .
             "activity = 1", array($iter['enc_encounter'],$iter['enc_pid']));
-            if ($res['count'] > 0) continue;
+            if ($res['count'] > 0) {
+                continue;
+            }
         }
 
         $this_encounter_id = $iter['enc_pid'] . "-" . $iter['enc_encounter'];
@@ -787,7 +792,9 @@ if ($ret = getBillsBetween("%")) {
                //Encounter details are stored to javacript as array.
               $result4 = sqlStatement("SELECT fe.encounter,fe.date,fe.billing_note,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe ".
                 " left join openemr_postcalendar_categories on fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? order by fe.date desc", array($iter['enc_pid']));
-               if (sqlNumRows($result4)>0)
+            if (sqlNumRows($result4)>0) {
+                ;
+            }
                 ?>
                 <script language='JavaScript'>
                 Count=0;
@@ -857,7 +864,10 @@ if ($ret = getBillsBetween("%")) {
                     $prevtype = '';
 
                     while ($row = sqlFetchArray($result)) {
-                        if (strcmp($row['type'], $prevtype) == 0) continue;
+                        if (strcmp($row['type'], $prevtype) == 0) {
+                            continue;
+                        }
+
                         $prevtype = $row['type'];
                         if (strlen($row['provider']) > 0) {
                             // This preserves any existing insurance company selection, which is
@@ -865,7 +875,9 @@ if ($ret = getBillsBetween("%")) {
                             $lhtml .= "<option value=\"" . attr(substr($row['type'], 0, 1).$row['id']) . "\"";
                             if (($count == 0 && !$iter['payer_id']) || $row['id'] == $iter['payer_id']) {
                                 $lhtml .= " selected";
-                                if (!is_numeric($default_x12_partner)) $default_x12_partner = $row['ic_x12id'];
+                                if (!is_numeric($default_x12_partner)) {
+                                    $default_x12_partner = $row['ic_x12id'];
+                                }
                             }
 
                             $lhtml .= ">" . text($row['type']) . ": " . text($row['provider']) . "</option>";
@@ -993,14 +1005,17 @@ if ($ret = getBillsBetween("%")) {
                 } // end if ($iter['id'])
         } // end if ($last_encounter_id != $this_encounter_id)
 
-        if ($skipping) continue;
+        if ($skipping) {
+            continue;
+        }
 
         // Collect info related to the missing modifiers test.
         if ($iter['fee'] > 0) {
             ++$mmo_num_charges;
             $tmp = substr($iter['code'], 0, 3);
-            if (($tmp == '992' || $tmp == '993') && empty($iter['modifier']))
-            $mmo_empty_mod = true;
+            if (($tmp == '992' || $tmp == '993') && empty($iter['modifier'])) {
+                $mmo_empty_mod = true;
+            }
         }
 
         ++$rcount;
@@ -1036,7 +1051,10 @@ if ($ret = getBillsBetween("%")) {
 
         $rhtml .= "<td><span class='text'>" .
         ($iter['code_type'] == 'COPAY' ? text(oeFormatMoney($iter['code'])) : text($iter['code']));
-        if ($iter['modifier']) $rhtml .= ":" . text($iter['modifier']);
+        if ($iter['modifier']) {
+            $rhtml .= ":" . text($iter['modifier']);
+        }
+
         $rhtml .= "</span><span style='font-size:8pt;'>$justify</span></td>\n";
 
         $rhtml .= '<td align="right"><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
@@ -1046,16 +1064,24 @@ if ($ret = getBillsBetween("%")) {
 
         $rhtml .= "</span></td>\n";
         $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-        if ($iter['id']) $rhtml .= getProviderName(empty($iter['provider_id']) ? text($iter['enc_provider_id']) : text($iter['provider_id']));
+        if ($iter['id']) {
+            $rhtml .= getProviderName(empty($iter['provider_id']) ? text($iter['enc_provider_id']) : text($iter['provider_id']));
+        }
+
         $rhtml .= "</span></td>\n";
         $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
         if ($GLOBALS['display_units_in_billing'] != 0) {
-            if ($iter['id']) $rhtml .= xlt("Units") . ":" . text($iter{"units"});
+            if ($iter['id']) {
+                $rhtml .= xlt("Units") . ":" . text($iter{"units"});
+            }
         }
 
         $rhtml .= "</span></td>\n";
         $rhtml .= '<td width=100>&nbsp;&nbsp;&nbsp;<span style="font-size:8pt;">';
-        if ($iter['id']) $rhtml .= text(oeFormatSDFT(strtotime($iter{"date"})));
+        if ($iter['id']) {
+            $rhtml .= text(oeFormatSDFT(strtotime($iter{"date"})));
+        }
+
         $rhtml .= "</span></td>\n";
         # This error message is generated if the authorized check box is not checked
         if ($iter['id'] && $iter['authorized'] != 1) {
@@ -1066,7 +1092,10 @@ if ($ret = getBillsBetween("%")) {
 
         if ($iter['id'] && $last_encounter_id != $this_encounter_id) {
             $tmpbpr = $iter['bill_process'];
-            if ($tmpbpr == '0' && $iter['billed']) $tmpbpr = '2';
+            if ($tmpbpr == '0' && $iter['billed']) {
+                $tmpbpr = '2';
+            }
+
             $rhtml .= "<td><input type='checkbox' value='" . attr($tmpbpr) . "' name='claims[" . attr($this_encounter_id) . "][bill]' onclick='set_button_states()' id='CheckBoxBilling" . attr($CheckBoxBilling*1) . "'>&nbsp;</td>\n";
             $CheckBoxBilling++;
         } else {

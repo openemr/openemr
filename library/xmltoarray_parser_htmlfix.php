@@ -109,7 +109,9 @@ class xmltoarray_parser_htmlfix
     function _struct_to_array($values, &$i)
     {
         $child = array();
-        if (isset($values[$i]['value'])) array_push($child, $values[$i]['value']);
+        if (isset($values[$i]['value'])) {
+            array_push($child, $values[$i]['value']);
+        }
         
         while ($i++ < count($values)) {
             if (isset($values[$i])) {

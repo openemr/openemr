@@ -141,7 +141,9 @@ function removeColumn($con, $table, $column, $value = '')
 {
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
-    if ($query) print("\n Query '$removeSS' completed! \n");
+    if ($query) {
+        print("\n Query '$removeSS' completed! \n");
+    }
 }
 
 /* This function replaces the first and last name of the patient with a auto generated name
@@ -165,7 +167,10 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
     $query = mysqli_query($con, $removeLname);
     while ($result = mysqli_fetch_array($query)) {
         if ($DEBUG===true) {
-            if ($i ===10)break;}
+            if ($i ===10) {
+                break;
+            }
+        }
 
         $i++;
         $string = '';

@@ -36,8 +36,9 @@ class DataDriverSQLite implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! class_exists("SQLite3"))
+        if (! class_exists("SQLite3")) {
             throw new DatabaseException('SQLite3 extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
+        }
         
         if (! $connection = new SQLite3($connectionstring, SQLITE3_OPEN_READWRITE, $password)) {
             throw new DatabaseException("Error connecting to database: Unable to open the database file.", DatabaseException::$CONNECTION_ERROR);
@@ -133,11 +134,13 @@ class DataDriverSQLite implements IDataDriver
      */
     public function GetQuotedSql($val)
     {
-        if ($val === null)
+        if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
+        }
         
-        if ($val instanceof ISqlFunction)
+        if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
+        }
         
         return "'" . $this->Escape($val) . "'";
     }
@@ -147,8 +150,9 @@ class DataDriverSQLite implements IDataDriver
      */
     function GetTableNames($connection, $dbname, $ommitEmptyTables = false)
     {
-        if ($ommitEmptyTables)
+        if ($ommitEmptyTables) {
             throw new DatabaseException("SQLite DataDriver doesn't support returning only non-empty tables.  Set ommitEmptyTables arg to false to use this method.");
+        }
         
         $rs = $this->Query($connection, "SELECT name FROM sqlite_master WHERE type='table' and name != 'sqlite_sequence' ORDER BY name");
         
@@ -166,8 +170,10 @@ class DataDriverSQLite implements IDataDriver
      */
     function Optimize($connection, $table)
     {
-        if ($table)
+        if ($table) {
             throw new DatabaseException("SQLite optimization is database-wide.  Call Optimize() with a blank/null table arg to use this method.");
+        }
+
         $this->Execute($connection, "VACUUM");
     }
     

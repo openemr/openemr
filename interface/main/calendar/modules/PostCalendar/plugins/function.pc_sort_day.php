@@ -60,8 +60,13 @@ function smarty_function_pc_sort_day($params, &$smarty)
         list($eh,$em) = explode(':', $end);
     }
     
-    if (strtolower($order) == 'asc') $function = 'sort_byTimeA';
-    if (strtolower($order) == 'desc') $function = 'sort_byTimeD';
+    if (strtolower($order) == 'asc') {
+        $function = 'sort_byTimeA';
+    }
+
+    if (strtolower($order) == 'desc') {
+        $function = 'sort_byTimeD';
+    }
     
     foreach ($value as $events) {
         usort($events, $function);

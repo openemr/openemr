@@ -59,8 +59,9 @@ class Includer
      */
     public static function RequireClass($classname, $classpath = "")
     {
-        if (class_exists($classname))
+        if (class_exists($classname)) {
             return true;
+        }
             
             // normalize this as an array
         $classpaths = is_array($classpath) ? $classpath : array (
@@ -69,13 +70,16 @@ class Includer
         $attempts = "";
         
         foreach ($classpaths as $path) {
-            if (class_exists($classname))
+            if (class_exists($classname)) {
                 break;
+            }
             
             try {
                 // append a directory separater if necessary
-                if ($path && substr($path, - 1) != "/")
+                if ($path && substr($path, - 1) != "/") {
                     $path .= "/";
+                }
+
                 Includer::IncludeFile($path . $classname . ".php");
             } catch (IncludeException $ex) {
                 $attempts .= " " . $ex->getMessage();
@@ -94,8 +98,9 @@ class Includer
     public static function IncludeException($code, $string, $file, $line, $context)
     {
         // check for repressed errors
-        if (error_reporting() == 0)
+        if (error_reporting() == 0) {
             return;
+        }
         
         $tmp1 = explode(")", $string);
         $tmp2 = explode("(", $tmp1 [0]);

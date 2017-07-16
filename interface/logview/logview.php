@@ -92,14 +92,17 @@ function eventTypeChange(eventname)
 <br>
 <?php
 $err_message=0;
-if ($_GET["start_date"])
-$start_date = formData('start_date', 'G');
+if ($_GET["start_date"]) {
+    $start_date = formData('start_date', 'G');
+}
 
-if ($_GET["end_date"])
-$end_date = formData('end_date', 'G');
+if ($_GET["end_date"]) {
+    $end_date = formData('end_date', 'G');
+}
 
-if ($_GET["form_patient"])
-$form_patient = formData('form_patient', 'G');
+if ($_GET["form_patient"]) {
+    $form_patient = formData('form_patient', 'G');
+}
 
 /*
  * Start date should not be greater than end date - Date Validation
@@ -117,7 +120,9 @@ if ($start_date && $end_date) {
 <?php
 $form_user = formData('form_user', 'R');
 $form_pid = formData('form_pid', 'R');
-if ($form_patient == '') $form_pid = '';
+if ($form_patient == '') {
+    $form_pid = '';
+}
 
 $res = sqlStatement("select distinct LEFT(date,10) as date from log order by date desc limit 30");
 for ($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -175,11 +180,20 @@ $direction = formData('direction', 'G') ;
 echo "<select name='form_user'>\n";
 echo " <option value=''>" . xl('All') . "</option>\n";
 while ($urow = sqlFetchArray($ures)) {
-    if (!trim($urow['username'])) continue;
+    if (!trim($urow['username'])) {
+        continue;
+    }
+
     echo " <option value='" . $urow['username'] . "'";
-    if ($urow['username'] == $form_user) echo " selected";
+    if ($urow['username'] == $form_user) {
+        echo " selected";
+    }
+
     echo ">" . $urow['lname'];
-    if ($urow['fname']) echo ", " . $urow['fname'];
+    if ($urow['fname']) {
+        echo ", " . $urow['fname'];
+    }
+
     echo "</option>\n";
 }
 
@@ -196,7 +210,10 @@ $res = sqlStatement("select distinct event from log order by event ASC");
 $ename_list=array();
 $j=0;
 while ($erow = sqlFetchArray($res)) {
-     if (!trim($erow['event'])) continue;
+    if (!trim($erow['event'])) {
+        continue;
+    }
+
      $data = explode('-', $erow['event']);
      $data_c = count($data);
      $ename=$data[0];
@@ -211,7 +228,10 @@ while ($erow = sqlFetchArray($res)) {
 $res1 = sqlStatement("select distinct event from  extended_log order by event ASC");
 // $j=0; // This can't be right!  -- Rod 2013-08-23
 while ($row = sqlFetchArray($res1)) {
-         if (!trim($row['event'])) continue;
+    if (!trim($row['event'])) {
+        continue;
+    }
+
          $new_event = explode('-', $row['event']);
          $no = count($new_event);
          $events=$new_event[0];
@@ -219,8 +239,10 @@ while ($row = sqlFetchArray($res1)) {
         $events.="-".$new_event[$i];
     }
 
-        if ($events=="disclosure")
+    if ($events=="disclosure") {
         $ename_list[$j]=$events;
+    }
+
         $j=$j+1;
 }
 
@@ -231,7 +253,10 @@ echo "<select name='eventname' onchange='eventTypeChange(this.options[this.selec
 echo " <option value=''>" . xl('All') . "</option>\n";
 for ($k=0; $k<$ecount; $k++) {
     echo " <option value='" .$ename_list[$k]. "'";
-    if ($ename_list[$k] == $eventname && $ename_list[$k]!= "") echo " selected";
+    if ($ename_list[$k] == $eventname && $ename_list[$k]!= "") {
+        echo " selected";
+    }
+
     echo ">" . $ename_list[$k];
     echo "</option>\n";
 }
@@ -256,7 +281,10 @@ if ($eventname=="disclosure") {
   echo " <option value=''>" . xl('All') . "</option>\n";
 for ($k=0; $k<$lcount; $k++) {
     echo " <option value='" .$event_types[$k]. "'";
-    if ($event_types[$k] == $type_event && $event_types[$k]!= "") echo " selected";
+    if ($event_types[$k] == $type_event && $event_types[$k]!= "") {
+        echo " selected";
+    }
+
     echo ">" . preg_replace('/^select$/', 'Query', $event_types[$k]); // Convert select to Query for MU2 requirement
     echo "</option>\n";
 }
@@ -271,7 +299,8 @@ echo "</select>\n";
 
 $check_sum = formData('check_sum', 'G');
 ?>
-<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') echo "checked";  ?>"></input>
+<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') {
+    echo "checked";}  ?>"></input>
 </td>
 <td>
 <input type=hidden name="event" value=<?php echo $event ; ?>>

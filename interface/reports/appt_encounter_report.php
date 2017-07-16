@@ -58,19 +58,26 @@ $facilityService = new \services\FacilityService();
 function postError($msg)
 {
     global $errmsg;
-    if ($errmsg) $errmsg .= '<br />';
+    if ($errmsg) {
+        $errmsg .= '<br />';
+    }
+
     $errmsg .= $msg;
 }
 
 function bucks($amount)
 {
-    if ($amount) echo oeFormatMoney($amount);
+    if ($amount) {
+        echo oeFormatMoney($amount);
+    }
 }
 
 function endDoctor(&$docrow)
 {
     global $grand_total_charges, $grand_total_copays, $grand_total_encounters;
-    if (!$docrow['docname']) return;
+    if (!$docrow['docname']) {
+        return;
+    }
 
     echo " <tr class='report_totals'>\n";
     echo "  <td colspan='5'>\n";
@@ -256,12 +263,18 @@ $(document).ready(function() {
                 foreach ($fres as $frow) {
                          $facid = $frow['id'];
                          echo "    <option value='$facid'";
-                         if ($facid == $form_facility) echo " selected";
+                    if ($facid == $form_facility) {
+                        echo " selected";
+                    }
+
                          echo ">" . htmlspecialchars($frow['name']) . "\n";
                 }
 
                  echo "    <option value='0'";
-                 if ($form_facility === '0') echo " selected";
+                if ($form_facility === '0') {
+                    echo " selected";
+                }
+
                  echo ">-- " . xl('Unspecified') . " --\n";
                  echo "   </select>\n";
                 ?>
@@ -284,7 +297,8 @@ $(document).ready(function() {
             <td>
         <div class="checkbox">
                 <label><input type='checkbox' name='form_details'
-                  value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details', 'e') ?></label>
+                  value='1'<?php if ($_POST['form_details']) {
+                        echo " checked";} ?>><?php xl('Details', 'e') ?></label>
         </div>
             </td>
         </tr>
@@ -365,19 +379,29 @@ if ($res) {
        //
         while ($brow = sqlFetchArray($bres)) {
             $code_type = $brow['code_type'];
-            if ($code_types[$code_type]['fee'] && !$brow['billed'])
-             $billed = "";
-            if (!$GLOBALS['simplified_demographics'] && !$brow['authorized'])
-             postError(xl('Needs Auth'));
+            if ($code_types[$code_type]['fee'] && !$brow['billed']) {
+                $billed = "";
+            }
+
+            if (!$GLOBALS['simplified_demographics'] && !$brow['authorized']) {
+                postError(xl('Needs Auth'));
+            }
+
             if ($code_types[$code_type]['just']) {
-                if (! $brow['justify']) postError(xl('Needs Justify'));
+                if (! $brow['justify']) {
+                    postError(xl('Needs Justify'));
+                }
             }
 
             if ($code_types[$code_type]['fee']) {
                 $charges += $brow['fee'];
-                if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) postError(xl('Missing Fee'));
+                if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) {
+                    postError(xl('Missing Fee'));
+                }
             } else {
-                if ($brow['fee'] != 0) postError(xl('Fee is not allowed'));
+                if ($brow['fee'] != 0) {
+                    postError(xl('Fee is not allowed'));
+                }
             }
 
             // Custom logic for IPPF to determine if a GCAC issue applies.
@@ -396,10 +420,18 @@ if ($res) {
                     $tmp = sqlQuery($query);
                     $relcodes = explode(';', $tmp['related_code']);
                     foreach ($relcodes as $codestring) {
-                        if ($codestring === '') continue;
+                        if ($codestring === '') {
+                            continue;
+                        }
+
                         list($codetype, $code) = explode(':', $codestring);
-                        if ($codetype !== 'IPPF') continue;
-                        if (preg_match('/^25222/', $code)) $gcac_related_visit = true;
+                        if ($codetype !== 'IPPF') {
+                            continue;
+                        }
+
+                        if (preg_match('/^25222/', $code)) {
+                            $gcac_related_visit = true;
+                        }
                     }
                 }
             } // End IPPF stuff
@@ -442,15 +474,24 @@ if ($res) {
         } // end if
        /*****************************************************************/
 
-        if (!$billed) postError($GLOBALS['simplified_demographics'] ?
-         xl('Not checked out') : xl('Not billed'));
-        if (!$encounter) postError(xl('No visit'));
+        if (!$billed) {
+            postError($GLOBALS['simplified_demographics'] ?
+            xl('Not checked out') : xl('Not billed'));
+        }
 
-        if (! $charges) $billed = "";
+        if (!$encounter) {
+            postError(xl('No visit'));
+        }
+
+        if (! $charges) {
+            $billed = "";
+        }
 
         $docrow['charges'] += $charges;
         $docrow['copays']  += $copays;
-        if ($encounter) ++$docrow['encounters'];
+        if ($encounter) {
+            ++$docrow['encounters'];
+        }
 
         if ($_POST['form_details']) {
             ?>

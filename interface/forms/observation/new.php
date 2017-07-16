@@ -43,8 +43,10 @@ if ($formid) {
     $sql = "SELECT * FROM `form_observation` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
+    }
+
     $check_res = $all;
 }
 
@@ -235,13 +237,18 @@ $check_res = $formid ? $check_res : array();
                                 $style = 'display: none;';
                             }
                             ?>
-                          <input type="text" name="ob_value[]" id="ob_value_<?php echo $key + 1; ?>" style="width: 60%; <?php echo $style;?>" class="ob_value" value="<?php if ((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
+                          <input type="text" name="ob_value[]" id="ob_value_<?php echo $key + 1; ?>" style="width: 60%; <?php echo $style;?>" class="ob_value" value="<?php if ((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') {
+                                echo text($obj{"ob_value"});} ?>">
                           <select name="ob_value_phin[]" id="ob_value_phin_<?php echo $key + 1; ?>" class="ob_value_phin" <?php if (text($obj{"code"}) != 'SS003') {
 ?> style="display: none;" <?php }?>>
-                              <option value="261QE0002X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') echo 'selected = "selected"' ;?>><?php echo xlt('Emergency Care'); ?></option>
-                              <option value="261QM2500X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') echo 'selected = "selected"' ;?>><?php echo xlt('Medical Specialty'); ?></option>
-                              <option value="261QP2300X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') echo 'selected = "selected"' ;?>><?php echo xlt('Primary Care'); ?></option>
-                              <option value="261QU0200X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
+                              <option value="261QE0002X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Emergency Care'); ?></option>
+                              <option value="261QM2500X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Medical Specialty'); ?></option>
+                              <option value="261QP2300X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Primary Care'); ?></option>
+                              <option value="261QU0200X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Urgent Care'); ?></option>
                           </select>
                         </td>
                         <?php
@@ -255,11 +262,16 @@ $check_res = $formid ? $check_res : array();
                         <td class="forms">
                           <select <?php if (text($obj{"code"}) != '21612-7') {
 ?> style="display: none;" <?php }?>  name="ob_unit[]" id="ob_unit_<?php echo $key + 1; ?>" class="ob_unit">
-                              <option value="d" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') echo 'selected = "selected"' ;?>><?php echo xlt('Day'); ?></option>
-                              <option value="mo" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') echo 'selected = "selected"' ;?>><?php echo xlt('Month'); ?></option>
-                              <option value="UNK" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'UNK') echo 'selected = "selected"' ;?>><?php echo xlt('Unknown'); ?></option>
-                              <option value="wk" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'wk') echo 'selected = "selected"' ;?>><?php echo xlt('Week'); ?></option>
-                              <option value="a" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'a') echo 'selected = "selected"' ;?>><?php echo xlt('Year'); ?></option>
+                              <option value="d" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Day'); ?></option>
+                              <option value="mo" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Month'); ?></option>
+                              <option value="UNK" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'UNK') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Unknown'); ?></option>
+                              <option value="wk" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'wk') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Week'); ?></option>
+                              <option value="a" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'a') {
+                                    echo 'selected = "selected"' ;}?>><?php echo xlt('Year'); ?></option>
                           </select>
                         </td>
                         <td align="left" class="forms"><?php echo xlt('Comments'); ?>:</td>
@@ -298,13 +310,18 @@ $check_res = $formid ? $check_res : array();
                         $style = 'display: none;';
                     }
                         ?>
-                          <input type="text" name="ob_value[]" id="ob_value_1" style="width: 60%;<?php echo $style;?>" class="ob_value" value="<?php if ((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') echo text($obj{"ob_value"}); ?>">
+                          <input type="text" name="ob_value[]" id="ob_value_1" style="width: 60%;<?php echo $style;?>" class="ob_value" value="<?php if ((text($obj{"code"}) == '21612-7' || text($obj{"code"}) == '8661-1') && text($obj{"code"}) != 'SS003') {
+                                echo text($obj{"ob_value"});} ?>">
                           <select name="ob_value_phin[]" id="ob_value_phin_1" class="ob_value_phin" <?php if (text($obj{"code"}) != 'SS003') {
 ?> style="display: none;" <?php }?>>
-                        <option value="261QE0002X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') echo 'selected = "selected"' ;?>><?php echo xlt('Emergency Care'); ?></option>
-                        <option value="261QM2500X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') echo 'selected = "selected"' ;?>><?php echo xlt('Medical Specialty'); ?></option>
-                        <option value="261QP2300X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') echo 'selected = "selected"' ;?>><?php echo xlt('Primary Care'); ?></option>
-                        <option value="261QU0200X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') echo 'selected = "selected"' ;?>><?php echo xlt('Urgent Care'); ?></option>
+                        <option value="261QE0002X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QE0002X') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Emergency Care'); ?></option>
+                        <option value="261QM2500X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QM2500X') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Medical Specialty'); ?></option>
+                        <option value="261QP2300X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QP2300X') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Primary Care'); ?></option>
+                        <option value="261QU0200X" <?php if (text($obj{"code"}) == 'SS003' && text($obj{"ob_value"}) == '261QU0200X') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Urgent Care'); ?></option>
                       </select>
                     </td>
                         <?php
@@ -318,11 +335,16 @@ $check_res = $formid ? $check_res : array();
                 <td class="forms">
                       <select <?php if (text($obj{"code"}) != '21612-7') {
 ?> style="display: none;" <?php }?> name="ob_unit[]" id="ob_unit_1" class="ob_unit">
-                      <option value="d" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') echo 'selected = "selected"' ;?>><?php echo xlt('Day'); ?></option>
-                      <option value="mo" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') echo 'selected = "selected"' ;?>><?php echo xlt('Month'); ?></option>
-                      <option value="UNK" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'UNK') echo 'selected = "selected"' ;?>><?php echo xlt('Unknown'); ?></option>
-                      <option value="wk" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'wk') echo 'selected = "selected"' ;?>><?php echo xlt('Week'); ?></option>
-                      <option value="a" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'a') echo 'selected = "selected"' ;?>><?php echo xlt('Year'); ?></option>
+                      <option value="d" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'd') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Day'); ?></option>
+                      <option value="mo" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'mo') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Month'); ?></option>
+                      <option value="UNK" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'UNK') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Unknown'); ?></option>
+                      <option value="wk" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'wk') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Week'); ?></option>
+                      <option value="a" <?php if (text($obj{"code"}) == '21612-7' && text($obj{"ob_unit"}) == 'a') {
+                            echo 'selected = "selected"' ;}?>><?php echo xlt('Year'); ?></option>
                   </select>
                 </td>
                     <td align="left" class="forms"><?php echo xlt('Comments'); ?>:</td>

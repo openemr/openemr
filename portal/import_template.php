@@ -39,9 +39,11 @@ if ($_POST['mode'] == 'get') {
 if (!isset($_POST['up_dir'])) {
     define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
 } else {
-    if ($_POST['up_dir'] > 0)
+    if ($_POST['up_dir'] > 0) {
         define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/'. $_POST['up_dir'] . '/');
-    else define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
+    } else {
+        define("UPLOAD_DIR", $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/');
+    }
 }
 
 if (!empty($_FILES["tplFile"])) {

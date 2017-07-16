@@ -162,7 +162,9 @@ if (isset($phpgacl_location)) {
  */
 function acl_check($section, $value, $user = '', $return_value = '')
 {
-    if (! $user) $user = $_SESSION['authUser'];
+    if (! $user) {
+        $user = $_SESSION['authUser'];
+    }
 
     // Superuser always gets access to everything.
     if (($section != 'admin' || $value != 'super') && acl_check('admin', 'super', $user)) {
@@ -181,7 +183,10 @@ function acl_check($section, $value, $user = '', $return_value = '')
         $access=false; //flag
         $deny=false; //flag
         foreach ($acl_results as $acl_result) {
-            if (empty($acl_result['acl_id'])) return false; //deny access, since this happens if no pertinent ACL's are returned
+            if (empty($acl_result['acl_id'])) {
+                return false; //deny access, since this happens if no pertinent ACL's are returned
+            }
+
             if (is_array($return_value)) {
                 foreach ($return_value as $single_return_value) {
                     if (empty($single_return_value)) {
@@ -225,7 +230,10 @@ function acl_check($section, $value, $user = '', $return_value = '')
 
       // Now decide whether user has access
       // (Note a denial takes precedence)
-        if (!$deny && $access) return true;
+        if (!$deny && $access) {
+            return true;
+        }
+
         return false;
     }
 
@@ -234,17 +242,36 @@ function acl_check($section, $value, $user = '', $return_value = '')
     // If you want custom access control but don't want to mess with phpGACL,
     // then you could customize the code below instead.
 
-    if ($user == 'admin') return 'write';
-    if ($section == 'admin' && $value == 'super') return 0;
-    if ($_SESSION['userauthorized']) return 'write';
+    if ($user == 'admin') {
+        return 'write';
+    }
+
+    if ($section == 'admin' && $value == 'super') {
+        return 0;
+    }
+
+    if ($_SESSION['userauthorized']) {
+        return 'write';
+    }
 
     if ($section == 'patients') {
-        if ($value == 'med') return 1;
+        if ($value == 'med') {
+            return 1;
+        }
+
         return 'write';
     } else if ($section == 'encounters') {
-        if (strpos($value, 'coding') === 0) return 'write';
-        if (strpos($value, 'notes') === 0) return 'write';
-        if ($value == 'relaxed') return 'write';
+        if (strpos($value, 'coding') === 0) {
+            return 'write';
+        }
+
+        if (strpos($value, 'notes') === 0) {
+            return 'write';
+        }
+
+        if ($value == 'relaxed') {
+            return 'write';
+        }
     } else if ($section != 'admin') {
         return 'write';
     }
@@ -281,7 +308,10 @@ function _acl_squad_compare($a, $b)
 {
     if ($a[2] == $b[2]) {
       // If order value is the same, sort by squad name.
-        if ($a[3] == $b[3]) return 0;
+        if ($a[3] == $b[3]) {
+            return 0;
+        }
+
         return ($a[3] < $b[3]) ? -1 : 1;
     }
 
@@ -570,7 +600,9 @@ function set_user_aro($arr_group_titles, $user_name, $first_name, $middle_name, 
             }
 
         //if array of groups was empty, then we are done, and can break from loop
-            if (empty($arr_group_titles)) break;
+            if (empty($arr_group_titles)) {
+                break;
+            }
         }
 
         return true;
@@ -880,11 +912,13 @@ function zh_acl_check($user_id, $section_identifier)
     $res_group_allowed      = sqlQuery($sql_group_acl_allowed, $groups_sql_param);
     $count_group_allowed    = $res_group_allowed['count'];
 
-    if ($count_user_allowed > 0)
+    if ($count_user_allowed > 0) {
         return true;
-    elseif ($count_group_allowed > 0)
+    } elseif ($count_group_allowed > 0) {
         return true;
-    else return false;
+    } else {
+        return false;
+    }
 }
 
   // This generates an HTML options list for all ACOs.
@@ -900,7 +934,10 @@ function gen_aco_html_options($default = '')
     $list_aco_objects = $gacl->get_objects(null, 0, 'ACO');
     ksort($list_aco_objects);
     foreach ($list_aco_objects as $seckey => $dummy) {
-        if (empty($dummy)) continue;
+        if (empty($dummy)) {
+            continue;
+        }
+
         asort($list_aco_objects[$seckey]);
         $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
         $aco_section_title = $aco_section_data[3];
@@ -911,7 +948,10 @@ function gen_aco_html_options($default = '')
             $aco_title = $aco_data[0][3];
             $optkey = "$seckey|$acokey";
             $s .= "<option value='" . attr($optkey) . "'";
-            if ($optkey == $default) $s .= ' selected';
+            if ($optkey == $default) {
+                $s .= ' selected';
+            }
+
             $s .= ">" . xlt($aco_title) . "</option>";
         }
 
@@ -926,11 +966,19 @@ function gen_aco_html_options($default = '')
   //
 function acl_check_aco_spec($aco_spec, $user = '', $return_value = '')
 {
-    if (empty($aco_spec)) return true;
+    if (empty($aco_spec)) {
+        return true;
+    }
+
     $tmp = explode('|', $aco_spec);
-    if (!is_array($return_value)) $return_value = array($return_value);
+    if (!is_array($return_value)) {
+        $return_value = array($return_value);
+    }
+
     foreach ($return_value as $rv) {
-        if (acl_check($tmp[0], $tmp[1], $user, $rv)) return true;
+        if (acl_check($tmp[0], $tmp[1], $user, $rv)) {
+            return true;
+        }
     }
 
     return false;
@@ -953,7 +1001,10 @@ function acl_check_issue($type, $user = '', $return_value = '')
 {
     require_once(dirname(__FILE__) . '/lists.inc');
     global $ISSUE_TYPES;
-    if (empty($ISSUE_TYPES[$type][5])) return true;
+    if (empty($ISSUE_TYPES[$type][5])) {
+        return true;
+    }
+
     return acl_check_aco_spec($ISSUE_TYPES[$type][5], $user, $return_value);
 }
 
@@ -966,6 +1017,9 @@ function acl_check_cat_name($catname, $user = '', $return_value = '')
         "SELECT aco_spec FROM categories WHERE name = ? ORDER BY id LIMIT 1",
         array($catname)
     );
-    if (empty($tmp['aco_spec'])) return true;
+    if (empty($tmp['aco_spec'])) {
+        return true;
+    }
+
     return acl_check_aco_spec($tmp['aco_spec'], $user, $return_value);
 }

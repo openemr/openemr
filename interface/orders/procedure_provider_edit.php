@@ -104,7 +104,10 @@ if ($_POST['form_save']) {
 if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+    if ($info_msg) {
+        echo " alert('" . addslashes($info_msg) . "');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";
@@ -194,7 +197,10 @@ foreach (array(
   'P' => xl('Production'),
   ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['DorP']) echo " selected";
+    if ($key == $row['DorP']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -214,7 +220,10 @@ foreach (array(
   'FS'   => xl('Local Filesystem'),
   ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['protocol']) echo " selected";
+    if ($key == $row['protocol']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -227,7 +236,10 @@ foreach (array(
   'R' => xl('Results Only'),
   ) as $key => $value) {
     echo "    <option value='" . attr($key) . "'";
-    if ($key == $row['direction']) echo " selected";
+    if ($key == $row['direction']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>

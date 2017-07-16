@@ -229,15 +229,17 @@ class ApplicationTable extends AbstractTableGateway
             $count_group_allowed  = $row['count'];
         }
 
-        if ($count_user_denied > 0)
+        if ($count_user_denied > 0) {
             return false;
-        elseif ($count_user_allowed > 0)
+        } elseif ($count_user_allowed > 0) {
             return true;
-        elseif ($count_group_denied > 0)
+        } elseif ($count_group_denied > 0) {
             return false;
-        elseif ($count_group_allowed > 0)
+        } elseif ($count_group_allowed > 0) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -354,13 +356,16 @@ class ApplicationTable extends AbstractTableGateway
     **/
     public function dateFormat($format)
     {
-        if ($format == "0")
+        if ($format == "0") {
             $date_format = 'yyyy/mm/dd';
-        else if ($format == 1)
+        } else if ($format == 1) {
             $date_format = 'mm/dd/yyyy';
-        else if ($format == 2)
+        } else if ($format == 2) {
             $date_format = 'dd/mm/yyyy';
-        else $date_format = $format;
+        } else {
+            $date_format = $format;
+        }
+
         return $date_format;
     }
     /**
@@ -370,7 +375,9 @@ class ApplicationTable extends AbstractTableGateway
     */
     public function fixDate($input_date, $output_format = null, $input_format = null)
     {
-        if (!$input_date) return;
+        if (!$input_date) {
+            return;
+        }
         
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
         

@@ -79,10 +79,14 @@ class EncountermanagerController extends AbstractActionController
           
             for ($i=0; $i<count($combination); $i++) {
                 if ($i == (count($combination)-1)) {
-                    if ($combination == $pid)
-                    $pids = $pid;
-                    else $pids .= $combination[$i];
-                } else $pids .= $combination[$i].'|';
+                    if ($combination == $pid) {
+                        $pids = $pid;
+                    } else {
+                        $pids .= $combination[$i];
+                    }
+                } else {
+                    $pids .= $combination[$i].'|';
+                }
             }
 
             $components   = $request->getPost('components') ? $request->getPost('components') : $request->getQuery()->components;

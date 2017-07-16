@@ -34,7 +34,9 @@
 <?php
 //If coming from participants controller groupId contains the id.
 //If from group controller it's contained in groupData array.
-if ($groupData['group_id']) $groupId = $groupData['group_id'];
+if ($groupData['group_id']) {
+    $groupId = $groupData['group_id'];
+}
 ?>
 <div class="row" xmlns="http://www.w3.org/1999/html">
     <div class="col-md-7">
@@ -58,8 +60,9 @@ if ($groupData['group_id']) $groupId = $groupData['group_id'];
                 $dispmin  = substr($event['pc_startTime'], 3, 2);
                 if ($disphour >= 12) {
                     $dispampm = "pm";
-                    if ($disphour > 12)
+                    if ($disphour > 12) {
                         $disphour -= 12;
+                    }
                 }
 
                 //Taken from demographics.php - prepares date for add_edit_event url
@@ -73,8 +76,10 @@ if ($groupData['group_id']) $groupId = $groupData['group_id'];
                         </br>
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);
-                            if ($event['pc_recurrtype'] > 0)
+                            if ($event['pc_recurrtype'] > 0) {
                                 echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".xla("Repeating event")."' alt='".xla("Repeating event")."'>";
+                            }
+
                             echo " (  " . text($event['pc_apptstatus']) . "  )" ;?></span>
                         </br>
                         <span><?php echo xlt($event['pc_catname']);?></span>

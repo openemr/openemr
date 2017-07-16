@@ -42,8 +42,10 @@ class VsDateUtil
      */
     static function DstStartNorthAmerica($year = null)
     {
-        if (! $year)
+        if (! $year) {
             $year = date('Y');
+        }
+
         return strtotime('03/01/' . $year . ' second sunday');
     }
     
@@ -55,8 +57,10 @@ class VsDateUtil
      */
     static function DstEndNorthAmerica($year = null)
     {
-        if (! $year)
+        if (! $year) {
             $year = date('Y');
+        }
+
         return strtotime('11/01/' . $year . ' first sunday');
     }
     
@@ -68,8 +72,10 @@ class VsDateUtil
      */
     static function IsDstNorthAmerica($timestamp = null)
     {
-        if (! $timestamp)
+        if (! $timestamp) {
             $timestamp = time();
+        }
+
         return $timestamp > self::DstStartNorthAmerica() && $timestamp < self::DstEndNorthAmerica();
     }
     

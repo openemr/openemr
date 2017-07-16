@@ -58,11 +58,13 @@ class PayPal extends PaymentProcessor
             $nvpStr .= "&REFUNDTYPE=Full";
         }
         
-        if ($req->Memo)
+        if ($req->Memo) {
             $nvpStr .= "&NOTE=" . urlencode($req->Memo);
+        }
         
-        if ($req->InvoiceId)
+        if ($req->InvoiceId) {
             $nvpStr .= "&INVOICEID=" . urlencode($req->InvoiceId);
+        }
             
             // Execute the API operation
         $resp->RawResponse = $this->PPHttpPost('RefundTransaction', $nvpStr);
@@ -176,8 +178,9 @@ class PayPal extends PaymentProcessor
         
         // legit country code list: https://cms.paypal.com/us/cgi-bin/?&cmd=_render-content&content_ID=developer/e_howto_api_nvp_country_codes
         $country = urlencode(strtoupper($req->CustomerCountry)); // US or other valid country code
-        if ($country == "USA")
+        if ($country == "USA") {
             $country = "US";
+        }
             
             // Add request-specific fields to the request string.
         $nvpStr = "&PAYMENTACTION=$paymentType&AMT=$amount&CREDITCARDTYPE=$creditCardType&ACCT=$creditCardNumber" . "&EXPDATE=$padDateMonth$expDateYear&CVV2=$cvv2Number&FIRSTNAME=$firstName&LASTNAME=$lastName" . "&STREET=$address1&CITY=$city&STATE=$state&ZIP=$zip&COUNTRYCODE=$country&CURRENCYCODE=$currencyID" . "&DESC=$orderDesc&INVNUM=$invoiceNum&EMAIL=$email&SOFTDESCRIPTOR=$softdescriptor";

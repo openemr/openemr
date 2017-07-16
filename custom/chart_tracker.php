@@ -37,8 +37,11 @@ $form_curid   = isset($_POST['form_curid'  ]) ? trim($_POST['form_curid'  ]) : '
 $form_newloc  = isset($_POST['form_newloc' ]) ? trim($_POST['form_newloc' ]) : '';
 $form_newuser = isset($_POST['form_newuser']) ? trim($_POST['form_newuser']) : '';
 
-if ($form_newuser) $form_newloc = '';
-else $form_newuser = 0;
+if ($form_newuser) {
+    $form_newloc = '';
+} else {
+    $form_newuser = 0;
+}
 ?>
 <html>
 

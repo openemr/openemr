@@ -118,7 +118,10 @@ class Therapy_Groups
     {
         $sql = 'SELECT ' . $result_columns . ' FROM ' . self::TABLE . ' WHERE ' . $column . ' LIKE ? ';
         // status 20 is 'deleted'
-        if ($onlyActive) $sql .= ' AND group_status = 10 ';
+        if ($onlyActive) {
+            $sql .= ' AND group_status = 10 ';
+        }
+
         $sql .='ORDER BY group_start_date DESC;';
         $search_params = '%' . $search_params . '%';
         $result = sqlStatement($sql, array($search_params));

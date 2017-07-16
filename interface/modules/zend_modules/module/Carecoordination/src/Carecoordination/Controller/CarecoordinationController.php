@@ -377,10 +377,13 @@ class CarecoordinationController extends AbstractActionController
         $components = $this->getCarecoordinationTable()->getCCDAComponents(1);
         $discharge_medication_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_medication');
         $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
-        if (count($discharge_medication_audit)>0)
-         $components['discharge_medication'] = 'Dishcharge Medications';
-        if (count($discharge_summary_audit)>0)
-         $components['discharge_summary'] = 'Dishcharge Summary';
+        if (count($discharge_medication_audit)>0) {
+            $components['discharge_medication'] = 'Dishcharge Medications';
+        }
+
+        if (count($discharge_summary_audit)>0) {
+            $components['discharge_summary'] = 'Dishcharge Summary';
+        }
         
         $components = array_diff($components, array('instructions' => 'Instructions'));
         
@@ -454,9 +457,12 @@ class CarecoordinationController extends AbstractActionController
                                                 </tr></thead>
                                             <tbody>';
                     foreach ($medications_audit['lists3'] as $key => $val) {
-                        if ($val['enddate'] && $val['enddate'] != 0)
-                        $active = 'completed';
-                        else $active = 'active';
+                        if ($val['enddate'] && $val['enddate'] != 0) {
+                            $active = 'completed';
+                        } else {
+                            $active = 'active';
+                        }
+
                         $temp .='<tr class="narr_tr">
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['drug_text']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['rate']." ".$val['rate_unit']." ".$val['route_display']." ".$val['dose']." ".$val['dose_unit']).'</td>
@@ -704,9 +710,12 @@ class CarecoordinationController extends AbstractActionController
                                                 </tr></thead>
                                             <tbody>';
                     foreach ($encounter_audit['encounter'] as $key => $val) {
-                        if ($val['code_text'] != 'NULL')
-                        $encounter_activity = 'Active';
-                        else $encounter_activity = '';
+                        if ($val['code_text'] != 'NULL') {
+                            $encounter_activity = 'Active';
+                        } else {
+                            $encounter_activity = '';
+                        }
+
                         $enc_date = substr($val['date'], 0, 4). "-" .substr($val['date'], 4, 2). "-" .substr($val['date'], 6, 2);
                         $temp .='<tr class="narr_tr">                                    
                                                 <td>'.\Application\Plugin\CommonPlugin::escape($val['pc_catname']).'</td>
@@ -775,9 +784,12 @@ class CarecoordinationController extends AbstractActionController
                                                 </tr></thead>
                                             <tbody>';
                 foreach ($discharge_medication_audit['discharge_medication'] as $key => $val) {
-                    if ($val['enddate'] && $val['enddate'] != 0)
-                    $active = 'completed';
-                    else $active = 'active';
+                    if ($val['enddate'] && $val['enddate'] != 0) {
+                        $active = 'completed';
+                    } else {
+                        $active = 'active';
+                    }
+
                     $temp .='<tr class="narr_tr">
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['drug_text']).'</td>
                                                         <td>'.\Application\Plugin\CommonPlugin::escape($val['rate']." ".$val['rate_unit']." ".$val['route_display']." ".$val['dose']." ".$val['dose_unit']).'</td>

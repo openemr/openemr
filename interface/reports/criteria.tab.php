@@ -188,9 +188,11 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
 
                                 <?php
                                 foreach ($array_query_drop_down as $array_query_drop_down_key => $array_query_drop_down_value) {
-                                    if ($_REQUEST["query_drop_down_master_".$QueryDropDownNamePart]==$array_query_drop_down_key)
+                                    if ($_REQUEST["query_drop_down_master_".$QueryDropDownNamePart]==$array_query_drop_down_key) {
                                         $Selected=' selected ';
-                                    else $Selected='';
+                                    } else {
+                                        $Selected='';
+                                    }
                                     ?>
                                     <option value="<?php echo attr($array_query_drop_down_key) ?>" <?php echo $Selected ?>
                                 ><?php echo text($array_query_drop_down_value) ?></option>
@@ -273,9 +275,11 @@ for ($ThisPageSearchCriteriaIndex=0; $ThisPageSearchCriteriaIndex<sizeof($ThisPa
                                       $ThisPageSearchCriteriaRadioIndex++) {
                                 $RadioNamePart=str_replace('.', '_', $ThisPageSearchCriteriaKey[$ThisPageSearchCriteriaIndex]);
                                 if ($_REQUEST["radio_".$RadioNamePart]==
-                                          $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex][$ThisPageSearchCriteriaRadioIndex])
+                                          $ThisPageSearchCriteriaRadioKey[$ThisPageSearchCriteriaIndex][$ThisPageSearchCriteriaRadioIndex]) {
                                     $Checked=' checked ';
-                                else $Checked='';
+                                } else {
+                                    $Checked='';
+                                }
                             ?>
                             <tr>
                             <td class='text'><input type="radio" name="radio_<?php echo attr($RadioNamePart) ?>"

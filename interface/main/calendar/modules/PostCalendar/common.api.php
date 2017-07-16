@@ -156,8 +156,12 @@ require_once("modules/$pcDir/pcSmarty.class.php");
 function pcDebugVar($in)
 {
     echo '<pre>';
-    if (is_array($in)) print_r($in);
-    else echo $in;
+    if (is_array($in)) {
+        print_r($in);
+    } else {
+        echo $in;
+    }
+
     echo '</pre>';
 }
 function &pcVarPrepForDisplay($s)
@@ -181,12 +185,18 @@ function pcGetTopicName($topicid)
             FROM $topics_table
             WHERE $topics_column[topicid] = '$topicid'";
     $result = $dbconn->Execute($sql);
-    if ($result === false) return '';
-    else return $result->fields[0];
+    if ($result === false) {
+        return '';
+    } else {
+        return $result->fields[0];
+    }
 }
 function &postcalendar_makeValidURL($s)
 {
-    if (empty($s)) return '';
+    if (empty($s)) {
+        return '';
+    }
+
     if (!preg_match('|^http[s]?:\/\/|i', $s)) {
         $s = 'http://'.$s;
     }
@@ -214,13 +224,22 @@ function postcalendar_getDate($format = '%Y%m%d')
                 $time = strtotime($_SESSION['lastcaldate']);
             } else {
                 $time = time();
-                if (pnUserLoggedIn())
+                if (pnUserLoggedIn()) {
                     $time += (pnUserGetVar('timezone_offset') - pnConfigGetVar('timezone_offset')) * 3600;
+                }
             }
 
-            if (!isset($jumpday))   $jumpday   = strftime('%d', $time);
-            if (!isset($jumpmonth)) $jumpmonth = strftime('%m', $time);
-            if (!isset($jumpyear))  $jumpyear  = strftime('%Y', $time);
+            if (!isset($jumpday)) {
+                $jumpday   = strftime('%d', $time);
+            }
+
+            if (!isset($jumpmonth)) {
+                $jumpmonth = strftime('%m', $time);
+            }
+
+            if (!isset($jumpyear)) {
+                $jumpyear  = strftime('%Y', $time);
+            }
         }
 
         // create the correct date string
@@ -465,7 +484,10 @@ function postcalendar_userapi_buildMonthSelect($args)
 
     // create the return object to be inserted into the form
     $output = array();
-    if (!isset($selected)) $selected = '';
+    if (!isset($selected)) {
+        $selected = '';
+    }
+
     for ($c=0,$i=1; $i<=12; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false; } elseif ($i == $pc_month) {
@@ -495,7 +517,10 @@ function postcalendar_userapi_buildDaySelect($args)
 
     // create the return object to be inserted into the form
     $output = array();
-    if (!isset($selected)) $selected = '';
+    if (!isset($selected)) {
+        $selected = '';
+    }
+
     for ($c=0,$i=1; $i<=31; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false; } elseif ($i == $pc_day) {
@@ -529,7 +554,10 @@ function postcalendar_userapi_buildYearSelect($args)
     // maybe this will eventually become a user defined value
     $pc_start_year = date('Y') - 1;
     $pc_end_year = date('Y') + 30;
-    if (!isset($selected)) $selected = '';
+    if (!isset($selected)) {
+        $selected = '';
+    }
+
     for ($c=0,$i=$pc_start_year; $i<=$pc_end_year; $i++,$c++) {
         if ($selected) {
             $sel = $selected == $i ? true : false; } elseif ($i == $pc_year) {
@@ -680,7 +708,10 @@ function postcalendar_userapi_submitEvent($args)
         $endDate = '0000-00-00';
     }
 
-    if (!isset($event_allday)) $event_allday = 0;
+    if (!isset($event_allday)) {
+        $event_allday = 0;
+    }
+
     if ((bool)_SETTING_TIME_24HOUR) {
         $startTime = $event_starttimeh.':'.$event_starttimem.':00';
     } else {
@@ -976,15 +1007,17 @@ function findFirstInDay($day, $date)
                         $closest_start = $estart;
 
                         //echo "set time is " . date("h:i:s A",$i) . " min free: " . (($closest_start - $i)/60)   . " " . date("h:i:s A",$closest_start) .  "<br />";
-                        if ($i < ($eend - $inc))
+                        if ($i < ($eend - $inc)) {
                             $i = ($eend - $inc);
+                        }
                     } elseif ($newfreetime <= $oldfreetime && $oldfreetime == ($outtime_sec - $i)) {
                         $free_time = $i;
                         $closest_start = $estart;
 
                         //echo "time is " . date("h:i:s A",$i) . " min free: " . (($closest_start - $i)/60)   . " " . date("h:i:s A",$closest_start) .  "<br />";
-                        if ($i < ($eend - $inc))
+                        if ($i < ($eend - $inc)) {
                             $i = ($eend - $inc);
+                        }
                     }
 
                     //echo "closest start: " . date("h:i:s A",$closest_start) . "<br />";
@@ -1102,9 +1135,11 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
         $tpl->assign('ProviderID', $event_userid);
         $tpl->assign('provider_id', $event_userid);
     } else {
-        if ($_SESSION['userauthorized'] == 1)
+        if ($_SESSION['userauthorized'] == 1) {
             $tpl->assign('ProviderID', $_SESSION['authUserID']);
-        else $tpl->assign('ProviderID', "");
+        } else {
+            $tpl->assign('ProviderID', "");
+        }
     }
 
     $provinfo = getProviderInfo();
@@ -1257,14 +1292,17 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
         $TimedDurationMinutes[$i] = array('value'=>$i,
                                           'selected'=>($event_dur_minutes==$i ? 'selected':''),
                                           'name'=>sprintf('%02d', $i));
-         if ($TimedDurationMinutes[$i]['selected'] == 'selected')
-             $found_time = true;
+        if ($TimedDurationMinutes[$i]['selected'] == 'selected') {
+            $found_time = true;
+        }
     }
 
-    if (!$found_time)
+    if (!$found_time) {
         $TimedDurationMinutes[$i] = array('value'=>$event_dur_minutes,
                                             'selected'=>'selected',
                                             'name'=>sprintf('%02d', $event_dur_minutes));
+    }
+
     $tpl->assign('TimedDurationMinutes', $TimedDurationMinutes);
     $tpl->assign('hidden_event_dur_minutes', $event_dur_minutes);
     $tpl->assign('InputTimedDurationMinutes', 'event_dur_minutes');
@@ -1440,7 +1478,10 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     }
 
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
-    if (empty($event_repeat_freq) || $event_repeat_freq < 1) $event_repeat_freq = 1;
+    if (empty($event_repeat_freq) || $event_repeat_freq < 1) {
+        $event_repeat_freq = 1;
+    }
+
     $tpl->assign('InputRepeatFreqVal', $event_repeat_freq);
     $tpl->assign('repeat_freq', $repeat_freq);
     unset($in);
@@ -1497,7 +1538,10 @@ function postcalendar_userapi_buildSubmitForm($args, $admin = false)
     }
 
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
-    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) $event_repeat_on_freq = 1;
+    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) {
+        $event_repeat_on_freq = 1;
+    }
+
     $tpl->assign('InputRepeatOnFreqVal', $event_repeat_on_freq);
     $tpl->assign('repeat_on_freq', $repeat_on_freq);
     $tpl->assign('MonthsTitle', _PC_MONTHS);
@@ -1658,10 +1702,13 @@ function &postcalendar_userapi_pcGetEventDetails($eid)
 
     $event['desc'] = $event['hometext'];
     $event['website'] = $event['website'];
-    if (!empty($event['pid']))
-      $event['patient_name'] = getPatientName($event['pid']);
-    if (empty($event['aid']))
-      $event['aid']= -1;
+    if (!empty($event['pid'])) {
+        $event['patient_name'] = getPatientName($event['pid']);
+    }
+
+    if (empty($event['aid'])) {
+        $event['aid']= -1;
+    }
 
     return $event;
 }
@@ -1689,7 +1736,10 @@ function postcalendar_userapi_eventDetail($args, $admin = false)
     $popup = pnVarCleanFromInput('popup');
     extract($args);
     unset($args);
-    if (!isset($cacheid)) $cacheid = null;
+    if (!isset($cacheid)) {
+        $cacheid = null;
+    }
+
     if (!isset($eid)) {
         return false;
     }
@@ -1908,8 +1958,13 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
         list($eh,$em) = explode(':', $end);
     }
 
-    if (strtolower($order) == 'asc') $function = 'sort_byTimeA';
-    if (strtolower($order) == 'desc') $function = 'sort_byTimeD';
+    if (strtolower($order) == 'asc') {
+        $function = 'sort_byTimeA';
+    }
+
+    if (strtolower($order) == 'desc') {
+        $function = 'sort_byTimeD';
+    }
 
     foreach ($value as $events) {
         usort($events, $function);
@@ -1973,33 +2028,51 @@ function postcalendar_smarty_pc_sort_day($params, &$smarty)
 
 function sort_byCategoryA($a, $b)
 {
-    if ($a['catname'] < $b['catname']) return -1;
-    elseif ($a['catname'] > $b['catname']) return 1;
+    if ($a['catname'] < $b['catname']) {
+        return -1;
+    } elseif ($a['catname'] > $b['catname']) {
+        return 1;
+    }
 }
 function sort_byCategoryD($a, $b)
 {
-    if ($a['catname'] < $b['catname']) return 1;
-    elseif ($a['catname'] > $b['catname']) return -1;
+    if ($a['catname'] < $b['catname']) {
+        return 1;
+    } elseif ($a['catname'] > $b['catname']) {
+        return -1;
+    }
 }
 function sort_byTitleA($a, $b)
 {
-    if ($a['title'] < $b['title']) return -1;
-    elseif ($a['title'] > $b['title']) return 1;
+    if ($a['title'] < $b['title']) {
+        return -1;
+    } elseif ($a['title'] > $b['title']) {
+        return 1;
+    }
 }
 function sort_byTitleD($a, $b)
 {
-    if ($a['title'] < $b['title']) return 1;
-    elseif ($a['title'] > $b['title']) return -1;
+    if ($a['title'] < $b['title']) {
+        return 1;
+    } elseif ($a['title'] > $b['title']) {
+        return -1;
+    }
 }
 function sort_byTimeA($a, $b)
 {
-    if ($a['startTime'] < $b['startTime']) return -1;
-    elseif ($a['startTime'] > $b['startTime']) return 1;
+    if ($a['startTime'] < $b['startTime']) {
+        return -1;
+    } elseif ($a['startTime'] > $b['startTime']) {
+        return 1;
+    }
 }
 function sort_byTimeD($a, $b)
 {
-    if ($a['startTime'] < $b['startTime']) return 1;
-    elseif ($a['startTime'] > $b['startTime']) return -1;
+    if ($a['startTime'] < $b['startTime']) {
+        return 1;
+    } elseif ($a['startTime'] > $b['startTime']) {
+        return -1;
+    }
 }
 /**
  *    pc_clean

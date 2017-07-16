@@ -51,7 +51,10 @@ while ($row = sqlFetchArray($res)) {
     if (substr($row['procedure_type'], 0, 3) == 'ord') {
         if ($order && ($labid == 0 || $row['lab_id'] == $labid)) {
             echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
-            if ($chid == $order) echo " checked";
+            if ($chid == $order) {
+                echo " checked";
+            }
+
             echo " />";
         } else {
             echo xl('Yes');

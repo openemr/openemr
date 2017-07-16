@@ -41,8 +41,10 @@ if ($formid) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
+    }
+
     $check_res = $all;
 }
 

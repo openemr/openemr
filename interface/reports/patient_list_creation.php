@@ -45,13 +45,17 @@ function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
     ));
     return $newdate;
 }
-    if ($_POST['date_from'] != "")
-        $sql_date_from = $_POST['date_from'];
-else $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+if ($_POST['date_from'] != "") {
+    $sql_date_from = $_POST['date_from'];
+} else {
+    $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+}
 
-    if ($_POST['date_to'] != "")
-        $sql_date_to = $_POST['date_to'];
-else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
+if ($_POST['date_to'] != "") {
+    $sql_date_to = $_POST['date_to'];
+} else {
+    $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
+}
 
     //echo "<pre>";print_r($_POST);
     $patient_id = trim($_POST["patient_id"]);
@@ -214,9 +218,11 @@ else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
               " &nbsp; to &nbsp; ". text(date($sql_date_to, strtotime($sql_date_to)))."</span>"; ?>
             <span style="margin-left:5px; " ><b><?php echo xlt('Option'); ?>:</b>&nbsp;<?php echo text($_POST['srch_option']);
             if ($_POST['srch_option'] == "Communication" && $_POST['communication'] != "") {
-                if (isset($comarr[$_POST['communication']]))
-                echo "(".text($comarr[$_POST['communication']]).")";
-                else echo "(".xlt('All').")";
+                if (isset($comarr[$_POST['communication']])) {
+                    echo "(".text($comarr[$_POST['communication']]).")";
+                } else {
+                    echo "(".xlt('All').")";
+                }
             }  ?></span>
             </p>
         </div>
@@ -239,7 +245,8 @@ else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
                                 <td class='control-label'>
                                     <select class="form-control" name="srch_option" id="srch_option" onchange="javascript:$('#sortby').val('');$('#sortorder').val('');if(this.value == 'Communication'){ $('#communication').val('');$('#com_pref').show();}else{ $('#communication').val('');$('#com_pref').hide();}">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
-                                        <option <?php if ($_POST['srch_option'] == $skey) echo 'selected'; ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                        <option <?php if ($_POST['srch_option'] == $skey) {
+                                            echo 'selected';} ?> value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -424,10 +431,15 @@ else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
             }
 
             if ($srch_option == "Communication" && strlen($communication) > 0) {
-                if ($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
-                else if ($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
-                else if ($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
-                else if ($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+                if ($communication == "allow_sms") {
+                    $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
+                } else if ($communication == "allow_voice") {
+                    $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
+                } else if ($communication == "allow_mail") {
+                    $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
+                } else if ($communication == "allow_email") {
+                    $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+                }
             }
 
             //Sorting By filter fields
@@ -440,7 +452,9 @@ else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
                 case "Allergies":
                 case "Problems":
                     $sort = array("lists_date","lists_diagnosis","lists_title");
-                    if ($sortby == "")$sortby = $sort[1];
+                    if ($sortby == "") {
+                        $sortby = $sort[1];
+                    }
                     break;
                 case "Lab results":
                     $sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
@@ -449,7 +463,10 @@ else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
                 case "Communication":
                     //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
-                    if ($sortby == "")$sortby = $sort[6];
+                    if ($sortby == "") {
+                        $sortby = $sort[6];
+                    }
+
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
                 case "Demographics":

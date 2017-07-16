@@ -99,7 +99,10 @@ class EncounterccdadispatchController extends AbstractActionController
             if (!$this->sections) {
                 $components0  = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
                 foreach ($components0 as $key => $value) {
-                    if ($str) $str .= '|';
+                    if ($str) {
+                        $str .= '|';
+                    }
+
                     $str .= $key;
                 }
 
@@ -109,7 +112,10 @@ class EncounterccdadispatchController extends AbstractActionController
             if (!$this->components) {
                             $components1  = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
                 foreach ($components1 as $key => $value) {
-                    if ($str1) $str1 .= '|';
+                    if ($str1) {
+                        $str1 .= '|';
+                    }
+
                     $str1 .= $key;
                 }
 
@@ -148,8 +154,10 @@ class EncounterccdadispatchController extends AbstractActionController
                     }
                 }
 
-                if (!$view)
+                if (!$view) {
                     return  "Queued for Transfer";
+                }
+
                 if ($view) {
                     $xml = simplexml_load_string($content);
                     $xsl = new \DOMDocument;
@@ -286,7 +294,10 @@ class EncounterccdadispatchController extends AbstractActionController
         if (!$this->sections) {
             $components0  = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
             foreach ($components0 as $key => $value) {
-                if ($str) $str .= '|';
+                if ($str) {
+                    $str .= '|';
+                }
+
                 $str .= $key;
             }
 
@@ -296,7 +307,10 @@ class EncounterccdadispatchController extends AbstractActionController
         if (!$this->components) {
             $components1  = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
             foreach ($components1 as $key => $value) {
-                if ($str1) $str1 .= '|';
+                if ($str1) {
+                    $str1 .= '|';
+                }
+
                 $str1 .= $key;
             }
 
@@ -309,8 +323,9 @@ class EncounterccdadispatchController extends AbstractActionController
                 $arr = explode('_', $row);
                 $this->patient_id   = $arr[0];
                 $this->encounter_id = ($arr[1] > 0 ? $arr[1] : null);
-                if ($this->latest_ccda)
-                  $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                if ($this->latest_ccda) {
+                    $this->encounter_id = $this->getEncounterccdadispatchTable()->getLatestEncounter($this->patient_id);
+                }
                 
                 $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send, $this->components);
                 $content            = $this->socket_get("$mirth_ip", "6661", $this->data);
@@ -329,8 +344,9 @@ class EncounterccdadispatchController extends AbstractActionController
 		<!--';
                 $content = preg_replace('/<ClinicalDocument.*><!--/', $to_replace, trim($content));
                 $this->getEncounterccdadispatchTable()->logCCDA($this->patient_id, $this->encounter_id, base64_encode($content), $this->createdtime, 0, $_SESSION['authId'], $view, $send, $emr_transfer);
-                if (!$view)
-                echo $this->listenerObject->z_xlt("Queued for Transfer");
+                if (!$view) {
+                    echo $this->listenerObject->z_xlt("Queued for Transfer");
+                }
             }
 
             if ($view && !$downloadccda) {
@@ -346,10 +362,12 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $htmlContent;
             }
 
-            if ($downloadccda)
-            $this->forward()->dispatch('encountermanager', array('action'    => 'downloadall',
+            if ($downloadccda) {
+                $this->forward()->dispatch('encountermanager', array('action'    => 'downloadall',
                                                             'pids'      => $this->params('pids')));
-            else die;
+            } else {
+                die;
+            }
         } else {
             $practice_filename  = "CCDA_{$this->patient_id}.xml";
             $this->create_data($this->patient_id, $this->encounter_id, $this->sections, $send);
@@ -387,13 +405,15 @@ class EncounterccdadispatchController extends AbstractActionController
       
         // Create a TCP Stream Socket
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        if ($socket === false)
-          throw new Exception("Socket Creation Failed");
+        if ($socket === false) {
+            throw new Exception("Socket Creation Failed");
+        }
       
         // Connect to the server.
         $result = socket_connect($socket, $ip, $port);
-        if ($result === false)
-          throw new Exception("Connection Failed");
+        if ($result === false) {
+            throw new Exception("Connection Failed");
+        }
         
         $data = chr(11).$data.chr(28)."\r";
         // Write to socket!
@@ -464,24 +484,42 @@ class EncounterccdadispatchController extends AbstractActionController
         /***************CCDA Header Information***************/
         
         /***************CCDA Body Information***************/
-        if (in_array('encounters', $components_list))
-        $this->data .= $this->getEncounterccdadispatchTable()->getEncounterHistory($pid, $encounter);
-        if (in_array('continuity_care_document', $sections_list))
+        if (in_array('encounters', $components_list)) {
+            $this->data .= $this->getEncounterccdadispatchTable()->getEncounterHistory($pid, $encounter);
+        }
+
+        if (in_array('continuity_care_document', $sections_list)) {
             $this->data .= $this->getContinuityCareDocument($pid, $encounter, $components_list);
-        if (in_array('progress_note', $sections_list))
+        }
+
+        if (in_array('progress_note', $sections_list)) {
             $this->data .= $this->getEncounterccdadispatchTable()->getProgressNotes($pid, $encounter);
-        if (in_array('discharge_summary', $sections_list))
+        }
+
+        if (in_array('discharge_summary', $sections_list)) {
             $this->data .= $this->getDischargeSummary($pid, $encounter);
-        if (in_array('procedure_note', $sections_list))
+        }
+
+        if (in_array('procedure_note', $sections_list)) {
             $this->data .= $this->getProcedureNotes($pid, $encounter);
-        if (in_array('operative_note', $sections_list))
+        }
+
+        if (in_array('operative_note', $sections_list)) {
             $this->data .= $this->getOperativeNotes($pid, $encounter);
-        if (in_array('consultation_note', $sections_list))
+        }
+
+        if (in_array('consultation_note', $sections_list)) {
             $this->data .= $this->getConsultationNote($pid, $encounter);
-        if (in_array('history_physical_note', $sections_list))
+        }
+
+        if (in_array('history_physical_note', $sections_list)) {
             $this->data .= $this->getHistoryAndPhysicalNotes($pid, $encounter, $components_list);
-        if (in_array('unstructured_document', $sections_list))
+        }
+
+        if (in_array('unstructured_document', $sections_list)) {
             $this->data .= $this->getEncounterccdadispatchTable()->getUnstructuredDocuments($pid, $encounter);
+        }
+
         /***************CCDA Body Information***************/
         
         $this->data .="</CCDA>";
@@ -520,24 +558,42 @@ class EncounterccdadispatchController extends AbstractActionController
     public function getContinuityCareDocument($pid, $encounter, $components_list)
     {
         $ccd = '';
-        if (in_array('allergies', $components_list))
+        if (in_array('allergies', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getAllergies($pid, $encounter);
-        if (in_array('medications', $components_list))
+        }
+
+        if (in_array('medications', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getMedications($pid, $encounter);
-        if (in_array('problems', $components_list))
+        }
+
+        if (in_array('problems', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getProblemList($pid, $encounter);
-        if (in_array('procedures', $components_list))
+        }
+
+        if (in_array('procedures', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getProcedures($pid, $encounter);
-        if (in_array('results', $components_list))
+        }
+
+        if (in_array('results', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getResults($pid, $encounter);
-        if (in_array('immunizations', $components_list))
+        }
+
+        if (in_array('immunizations', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getImmunization($pid, $encounter);
-        if (in_array('plan_of_care', $components_list))
+        }
+
+        if (in_array('plan_of_care', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getPlanOfCare($pid, $encounter);
-        if (in_array('functional_status', $components_list))
+        }
+
+        if (in_array('functional_status', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getFunctionalCognitiveStatus($pid, $encounter);
-        if (in_array('instructions', $components_list))
+        }
+
+        if (in_array('instructions', $components_list)) {
             $ccd .= $this->getEncounterccdadispatchTable()->getClinicalInstructions($pid, $encounter);
+        }
+
 //        if(in_array('referral',$components_list))
 //            $ccd .= $this->getEncounterccdadispatchTable()->getRefferals($pid,$encounter);
         return $ccd;
@@ -663,10 +719,14 @@ class EncounterccdadispatchController extends AbstractActionController
         $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getGeneralStatus($pid, $encounter);
         $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getHistoryOfPastIllness($pid, $encounter);
         $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getReviewOfSystems($pid, $encounter);
-        if (in_array('vitals', $components_list))
+        if (in_array('vitals', $components_list)) {
             $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getVitals($pid, $encounter);
-        if (in_array('social_history', $components_list))
+        }
+
+        if (in_array('social_history', $components_list)) {
             $history_and_physical_notes .= $this->getEncounterccdadispatchTable()->getSocialHistory($pid, $encounter);
+        }
+
         $history_and_physical_notes .= "</history_physical>";
         return $history_and_physical_notes;
     }
@@ -679,8 +739,10 @@ class EncounterccdadispatchController extends AbstractActionController
     public function getEncounterccdadispatchTable()
     {
         if (!$this->encounterccdadispatchTable) {
-            if (($this->serviceManager == null))
+            if (($this->serviceManager == null)) {
                 $this->serviceManager = $this->getServiceLocator();
+            }
+
             $this->encounterccdadispatchTable = $this->serviceManager->get('Carecoordination\Model\EncounterccdadispatchTable');
         }
 
@@ -696,7 +758,10 @@ class EncounterccdadispatchController extends AbstractActionController
     public function autosendAction()
     {
         $auto_send   = $this->getEncounterccdadispatchTable()->getSettings('Carecoordination', 'hie_auto_send_id');
-        if ($auto_send != 'yes') return;
+        if ($auto_send != 'yes') {
+            return;
+        }
+
         $view        =  new ViewModel(array(
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,

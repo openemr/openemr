@@ -58,8 +58,9 @@ class ExceptionFormatter
         $calling_line = "[?]";
         $levels = count($tb);
         
-        if ($depth == 0)
+        if ($depth == 0) {
             $depth = $levels;
+        }
         
         for ($x = $levels; $x > 0; $x --) {
             $stack = $tb [$x - 1];

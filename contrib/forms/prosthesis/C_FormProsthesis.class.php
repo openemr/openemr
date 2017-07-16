@@ -40,8 +40,10 @@ class C_FormProsthesis extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->prosthesis = new FormProsthesis($_POST['id']);
         parent::populate_object($this->prosthesis);
 

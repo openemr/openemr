@@ -12,7 +12,10 @@ require_once("$srcdir/acl.inc");
 
 function formatcyp($amount)
 {
-    if ($amount) return sprintf("%.2f", $amount);
+    if ($amount) {
+        return sprintf("%.2f", $amount);
+    }
+
     return '';
 }
 
@@ -34,7 +37,9 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $rowresult = sprintf('%01.2f', $rowcyp * $qty);
 
     $rowproduct = $description;
-    if (! $rowproduct) $rowproduct = 'Unknown';
+    if (! $rowproduct) {
+        $rowproduct = 'Unknown';
+    }
 
     if ($product != $rowproduct) {
         if ($product) {
@@ -51,7 +56,8 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php if ($_POST['form_details']) echo xl('Total for '); echo display_desc($product) ?>
+        <?php if ($_POST['form_details']) {
+            echo xl('Total for ');} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>
@@ -115,7 +121,9 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $grandqty     += $qty;
 } // end function
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
 $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -180,7 +188,10 @@ if ($_POST['form_csvexport']) {
 while ($frow = sqlFetchArray($fres)) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
+    if ($facid == $form_facility) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
 
@@ -199,7 +210,8 @@ while ($frow = sqlFetchArray($fres)) {
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
     title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;
-   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php xl('Details', 'e') ?>
+   <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+        echo " checked";} ?>><?php xl('Details', 'e') ?>
    &nbsp;
    <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
    &nbsp;
@@ -325,7 +337,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
-        <?php if ($_POST['form_details']) echo xl('Total for '); echo display_desc($product) ?>
+        <?php if ($_POST['form_details']) {
+            echo xl('Total for ');} echo display_desc($product) ?>
   </td>
   <td class="dehead" align="right">
         <?php echo $productqty; ?>

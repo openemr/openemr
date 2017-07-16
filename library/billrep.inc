@@ -165,12 +165,15 @@ function getBillsListBetween(
 
 function billCodesList($list, $skip = "()")
 {
-    if ($list == "()")
-    return;
+    if ($list == "()") {
+        return;
+    }
 
-    if ($skip == "()")
-    sqlStatement("update billing set billed=1 where id in $list");
-    else sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
+    if ($skip == "()") {
+        sqlStatement("update billing set billed=1 where id in $list");
+    } else {
+        sqlStatement("update billing set billed=1 where id in $list and id not in $skip");
+    }
 
     return;
 }

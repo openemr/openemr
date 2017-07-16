@@ -370,12 +370,18 @@ foreach ($appointments as $appointment) {
 
         # Collect variables and do some processing
         $docname  = $chk_prov[$appointment['uprovider_id']];
-        if (strlen($docname)<= 3) continue;
+    if (strlen($docname)<= 3) {
+        continue;
+    }
+
         $ptname = $appointment['lname'] . ', ' . $appointment['fname'] . ' ' . $appointment['mname'];
         $appt_enc = $appointment['encounter'];
         $appt_eid = (!empty($appointment['eid'])) ? $appointment['eid'] : $appointment['pc_eid'];
         $appt_pid = (!empty($appointment['pid'])) ? $appointment['pid'] : $appointment['pc_pid'];
-        if ($appt_pid ==0) continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+    if ($appt_pid ==0) {
+        continue; // skip when $appt_pid = 0, since this means it is not a patient specific appt slot
+    }
+
         $status = (!empty($appointment['status'])) ? $appointment['status'] : $appointment['pc_apptstatus'];
         $appt_room = (!empty($appointment['room'])) ? $appointment['room'] : $appointment['pc_room'];
         $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
@@ -395,7 +401,9 @@ foreach ($appointments as $appointment) {
         $to_time = strtotime($newend);
         $from_time = strtotime($datetime);
         $display_check_out = round(abs($from_time - $to_time) / 60, 0);
-        if ($display_check_out >= $GLOBALS['checkout_roll_off']) continue;
+        if ($display_check_out >= $GLOBALS['checkout_roll_off']) {
+            continue;
+        }
     }
 ?>
 <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -416,7 +424,8 @@ foreach ($appointments as $appointment) {
             <?php } ?>
     <?php if ($GLOBALS['ptkr_show_encounter']) { ?>
         <td class="detail" align="center">
-            <?php if ($appt_enc != 0) echo text($appt_enc); ?></a>
+            <?php if ($appt_enc != 0) {
+                echo text($appt_enc);} ?></a>
          </td>
             <?php } ?>
      <td class="detail" align="center">
@@ -517,9 +526,11 @@ if (($yestime == '1') && ($timecheck >=1) && (strtotime($newarrive)!= '')) {
             <?php if (strtotime($newarrive) != '' && $appointment['random_drug_test'] == '1') { ?>
          <td class="detail" align="center">
             <?php if (strtotime($newend) != '') { # the following block allows the check box for drug screens to be disabled once the status is check out ?>
-             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  disabled='disable' class="drug_screen_completed" id="<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>"  <?php if ($appointment['drug_screen_completed'] == "1") {
+                    echo "checked";}?>>
             <?php } else { ?>
-             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") echo "checked";?>>
+             <input type=checkbox  class="drug_screen_completed" id='<?php echo htmlspecialchars($appointment['pt_tracker_id'], ENT_NOQUOTES) ?>' name="drug_screen_completed" <?php if ($appointment['drug_screen_completed'] == "1") {
+                    echo "checked";}?>>
             <?php } ?>
          </td>
             <?php } else {

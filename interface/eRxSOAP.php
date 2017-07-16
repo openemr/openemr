@@ -62,9 +62,11 @@ class eRxSOAP
             $array[$key] = $xmltoarray->fix_html_entities($value);      //returns proper html values
         }
 
-        if (array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet']))
+        if (array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet'])) {
             $array = $array['NewDataSet']['Table'];
-        else $array = false;
+        } else {
+            $array = false;
+        }
 
         return $array;
     }
@@ -138,9 +140,10 @@ class eRxSOAP
      */
     public function getSiteId()
     {
-        if (null === $this->siteId)
+        if (null === $this->siteId) {
             $this->siteId = $this->getStore()
                 ->selectFederalEin();
+        }
 
         return $this->siteId;
     }
@@ -151,9 +154,10 @@ class eRxSOAP
      */
     public function getAuthUserDetails()
     {
-        if (null === $this->authUserDetails)
+        if (null === $this->authUserDetails) {
             $this->authUserDetails = $this->getStore()
                 ->getUserById($this->getAuthUserId());
+        }
 
         return $this->authUserDetails;
     }
@@ -281,12 +285,14 @@ class eRxSOAP
     public function elapsedTTL($process)
     {
         $ttl = $this->getTTL($process);
-        if (false === $ttl || 0 == $ttl)
+        if (false === $ttl || 0 == $ttl) {
             return true;
+        }
 
         $soap = $this->getStore()->getLastSOAP($process, $this->getPatientId());
-        if (false === $soap)
+        if (false === $soap) {
             return true;
+        }
 
         return strtotime('-'.$ttl.' seconds') >= strtotime($soap);
     }
@@ -315,9 +321,11 @@ class eRxSOAP
                 $this->getPatientId()
             );
 
-        if (is_array($status))
+        if (is_array($status)) {
             $return = in_array($currentStatus, $status);
-        else $return = ($currentStatus == $status);
+        } else {
+            $return = ($currentStatus == $status);
+        }
 
         return $return;
     }
@@ -580,11 +588,12 @@ class eRxSOAP
                 }
             }
 
-            if ($noMatch)
+            if ($noMatch) {
                 $store->updateAllergyEndDateByPatientIdListId(
                     $patientId,
                     $row['id']
                 );
+            }
         }
 
         return $this;
@@ -605,8 +614,9 @@ class eRxSOAP
                 ->patientFreeFormAllergyExtendedDetail
                 ->PatientFreeFormAllergyExtendedDetail;
 
-            if (!is_array($response))
+            if (!is_array($response)) {
                 $response = array($response);
+            }
 
             foreach ($response as $response) {
                 $this->getStore()
@@ -708,8 +718,9 @@ class eRxSOAP
                 }
 
                 $result = sqlFetchArray($check);
-                if ($result['id'])
+                if ($result['id']) {
                     $prescriptionId = $result['id'];
+                }
 
                 // Making sure only transmitted prescriptions entry added into amc_misc_data for eRx Numerator
                 if (!empty($med['PharmacyNCPDP'])) {

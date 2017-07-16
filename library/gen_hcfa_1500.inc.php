@@ -36,16 +36,20 @@ $hcfa_proc_index = 0;
 function put_hcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
 {
     global $hcfa_curr_line, $hcfa_curr_col, $hcfa_data;
-    if ($line < $hcfa_curr_line)
-    die("Data item at ($line, $col) precedes current line.");
+    if ($line < $hcfa_curr_line) {
+        die("Data item at ($line, $col) precedes current line.");
+    }
+
     while ($hcfa_curr_line < $line) {
         $hcfa_data .= "\n";
         ++$hcfa_curr_line;
         $hcfa_curr_col = 1;
     }
 
-    if ($col < $hcfa_curr_col)
-    die("Data item at ($line, $col) precedes current column.");
+    if ($col < $hcfa_curr_col) {
+        die("Data item at ($line, $col) precedes current column.");
+    }
+
     while ($hcfa_curr_col < $col) {
         $hcfa_data .= " ";
         ++$hcfa_curr_col;
@@ -74,7 +78,10 @@ function gen_hcfa_1500($pid, $encounter, &$log)
     date('Y-m-d H:i', $today) . ".\n";
 
     while ($hcfa_proc_index < $claim->procCount()) {
-        if ($hcfa_proc_index) $hcfa_data .= "\014"; // append form feed for new page
+        if ($hcfa_proc_index) {
+            $hcfa_data .= "\014"; // append form feed for new page
+        }
+
         gen_hcfa_1500_page($pid, $encounter, $log, $claim);
     }
 
@@ -112,12 +119,20 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
   // a 2-character code and that was not specific enough.
     $ct = $claim->claimTypeRaw();
     $tmpcol = 45;                    // Other
-    if ($ct == 2) $tmpcol =  1; // Medicare
-    else if ($ct == 3) $tmpcol =  8; // Medicaid
-    else if ($ct == 5) $tmpcol = 15; // TriCare (formerly CHAMPUS)
-    else if ($ct == 4) $tmpcol = 24; // Champus VA
-    else if ($ct == 6) $tmpcol = 31; // Group Health Plan (only BCBS?)
-    else if ($ct == 7) $tmpcol = 39; // FECA
+    if ($ct == 2) {
+        $tmpcol =  1; // Medicare
+    } else if ($ct == 3) {
+        $tmpcol =  8; // Medicaid
+    } else if ($ct == 5) {
+        $tmpcol = 15; // TriCare (formerly CHAMPUS)
+    } else if ($ct == 4) {
+        $tmpcol = 24; // Champus VA
+    } else if ($ct == 6) {
+        $tmpcol = 31; // Group Health Plan (only BCBS?)
+    } else if ($ct == 7) {
+        $tmpcol = 39; // FECA
+    }
+
     put_hcfa(8, $tmpcol, 1, 'X');
 
   // Box 1a. Insured's ID Number
@@ -125,8 +140,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
 
   // Box 2. Patient's Name
     $tmp = $claim->patientLastName() . ', ' . $claim->patientFirstName();
-    if ($claim->patientMiddleName())
-    $tmp .= ', ' . substr($claim->patientMiddleName(), 0, 1);
+    if ($claim->patientMiddleName()) {
+        $tmp .= ', ' . substr($claim->patientMiddleName(), 0, 1);
+    }
+
     put_hcfa(10, 1, 28, $tmp);
 
   // Box 3. Patient's Birth Date and Sex
@@ -138,8 +155,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
 
   // Box 4. Insured's Name
     $tmp = $claim->insuredLastName() . ', ' . $claim->insuredFirstName();
-    if ($claim->insuredMiddleName())
-    $tmp .= ', ' . substr($claim->insuredMiddleName(), 0, 1);
+    if ($claim->insuredMiddleName()) {
+        $tmp .= ', ' . substr($claim->insuredMiddleName(), 0, 1);
+    }
+
     put_hcfa(10, 50, 28, $tmp);
 
   // Box 5. Patient's Address
@@ -148,9 +167,14 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
   // Box 6. Patient Relationship to Insured
     $tmp = $claim->insuredRelationship();
     $tmpcol = 47;                         // Other
-    if ($tmp === '18') $tmpcol = 33; // self
-    else if ($tmp === '01') $tmpcol = 38; // spouse
-    else if ($tmp === '19') $tmpcol = 42; // child
+    if ($tmp === '18') {
+        $tmpcol = 33; // self
+    } else if ($tmp === '01') {
+        $tmpcol = 38; // spouse
+    } else if ($tmp === '19') {
+        $tmpcol = 42; // child
+    }
+
     put_hcfa(12, $tmpcol, 1, 'X');
 
   // Box 7. Insured's Address
@@ -164,8 +188,12 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
     if (!hcfa_1500_version_02_12()) {  // Box 8 Reserved for NUCC Use in 02/12
         $tmp = $claim->patientStatus();
         $tmpcol = 47;                        // Other
-        if ($tmp === 'S') $tmpcol = 35; // Single
-        else if ($tmp === 'M') $tmpcol = 41; // Married
+        if ($tmp === 'S') {
+            $tmpcol = 35; // Single
+        } else if ($tmp === 'M') {
+            $tmpcol = 41; // Married
+        }
+
         put_hcfa(14, $tmpcol, 1, 'X');
     }
 
@@ -182,9 +210,13 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
   // Box 8 continued. Patient (Employment) Status
     if (!hcfa_1500_version_02_12()) {  // Box 8 Reserved for NUCC Use in 02/12
         $tmp = $claim->patientOccupation();
-        if ($tmp === 'STUDENT') put_hcfa(16, 41, 1, 'X');
-        else if ($tmp === 'PT STUDENT') put_hcfa(16, 47, 1, 'X');
-        else if ($tmp !== 'UNEMPLOYED') put_hcfa(16, 35, 1, 'X');
+        if ($tmp === 'STUDENT') {
+            put_hcfa(16, 41, 1, 'X');
+        } else if ($tmp === 'PT STUDENT') {
+            put_hcfa(16, 47, 1, 'X');
+        } else if ($tmp !== 'UNEMPLOYED') {
+            put_hcfa(16, 35, 1, 'X');
+        }
     }
 
   // Box 7 continued. Insured's Zip Code and Telephone
@@ -199,8 +231,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
     } else {
         if ($claim->payerCount() > 1) {
             $tmp = $claim->insuredLastName(1) . ', ' . $claim->insuredFirstName(1);
-            if ($claim->insuredMiddleName(1))
-            $tmp .= ', ' . substr($claim->insuredMiddleName(1), 0, 1);
+            if ($claim->insuredMiddleName(1)) {
+                $tmp .= ', ' . substr($claim->insuredMiddleName(1), 0, 1);
+            }
+
             put_hcfa(18, 1, 28, $tmp);
         }
     }
@@ -267,8 +301,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
 
   // Box 10b. Auto Accident
     put_hcfa(22, $claim->isRelatedAuto() ? 35 : 41, 1, 'X');
-    if ($claim->isRelatedAuto())
-    put_hcfa(22, 45, 2, $claim->autoAccidentState());
+    if ($claim->isRelatedAuto()) {
+        put_hcfa(22, 45, 2, $claim->autoAccidentState());
+    }
 
   // Box 11b. Insured's Employer/School Name
     if ($new_medicare_logic) {
@@ -298,7 +333,9 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
         $tmp = '';
         if ($claim->payerSequence() != 'P') {
             $tmp = $claim->planName(1);
-            if (!$tmp) $tmp = $claim->payerName(1);
+            if (!$tmp) {
+                $tmp = $claim->payerName(1);
+            }
         }
     } else {
         $tmp = $claim->planName();
@@ -392,8 +429,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
         # Changed to look first at the misc hcfa billing form to complete this box if nothing on misc hcfa form use referrer
         if (strlen($claim->billingProviderLastName()) !=0) {
             $tmp2 = $claim->billingProviderLastName() . ', ' . $claim->billingProviderFirstName();
-            if ($claim->billingProviderMiddleName())
-            $tmp2 .= ', ' . substr($claim->billingProviderMiddleName(), 0, 1);
+            if ($claim->billingProviderMiddleName()) {
+                $tmp2 .= ', ' . substr($claim->billingProviderMiddleName(), 0, 1);
+            }
+
             put_hcfa(34, 1, 3, $claim->billing_options['provider_qualifier_code']);
             put_hcfa(34, 4, 25, $tmp2);
             if ($claim->billingProviderNPI()) {
@@ -401,8 +440,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
             }
         } else {
             $tmp = $claim->referrerLastName() . ', ' . $claim->referrerFirstName();
-            if ($claim->referrerMiddleName())
-            $tmp .= ', ' . substr($claim->referrerMiddleName(), 0, 1);
+            if ($claim->referrerMiddleName()) {
+                $tmp .= ', ' . substr($claim->referrerMiddleName(), 0, 1);
+            }
+
             put_hcfa(34, 1, 3, 'DN');
             put_hcfa(34, 4, 25, $tmp);
             if ($claim->referrerNPI()) {
@@ -440,7 +481,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
         // Box 21. Diagnoses
         $tmp = $claim->diagArray();
         $diags = array();
-        foreach ($tmp as $diag) $diags[] = $diag;
+        foreach ($tmp as $diag) {
+            $diags[] = $diag;
+        }
+
         if (!empty($diags[0])) {
             put_hcfa(38, 3, 3, substr($diags[0], 0, 3));
             put_hcfa(38, 7, 2, substr($diags[0], 3));
@@ -498,8 +542,10 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
 
         // Compute prior payments and "hard" adjustments.
         for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
-            if ($claim->payerSequence($ins) > $claim->payerSequence())
-            continue; // skip future payers
+            if ($claim->payerSequence($ins) > $claim->payerSequence()) {
+                continue; // skip future payers
+            }
+
             $payerpaid = $claim->payerTotals($ins, $claim->cptKey($hcfa_proc_index));
             $clm_amount_paid += $payerpaid[1];
             $clm_amount_adjusted += $payerpaid[2];

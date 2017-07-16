@@ -68,21 +68,30 @@ if ($_POST['submit']) {
 
     echo "Connecting to MySQL Server...\n";
     flush();
-    if ($server == "localhost")
+    if ($server == "localhost") {
         $dbh = mysql_connect("$server", "$root", "$rootpass");
-    else $dbh = mysql_connect("$server:$port", "$root", "$rootpass");
+    } else {
+        $dbh = mysql_connect("$server:$port", "$root", "$rootpass");
+    }
+
     if ($dbh == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         break;
-    } else echo "OK.<br>\n";
+    } else {
+        echo "OK.<br>\n";
+    }
+
     echo "Creating database...\n";
     flush();
     if (mysql_query("create database $dbname", $dbh) == false) {
         echo "ERROR.  Check your login credentials.\n";
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         break;
-    } else echo "OK.<br>\n";
+    } else {
+        echo "OK.<br>\n";
+    }
+
     echo "Creating user with permissions for database...\n";
     flush();
     if (mysql_query("GRANT ALL PRIVILEGES ON $dbname.* TO '$login'@'$loginhost' IDENTIFIED BY '$pass'", $dbh) == false) {
@@ -90,27 +99,40 @@ if ($_POST['submit']) {
         echo "<p>".mysql_error()." (#".mysql_errno().")\n";
         echo "ERROR.\n";
         break;
-    } else echo "OK.<br>\n";
+    } else {
+        echo "OK.<br>\n";
+    }
+
     echo "Reconnecting as new user...\n";
     mysql_close($dbh);
-} else echo "Connecting to MySQL Server...\n";
+} else {
+    echo "Connecting to MySQL Server...\n";
+}
 
-if ($server == "localhost")
+if ($server == "localhost") {
     $dbh = mysql_connect("$server", "$login", "$pass");
-else $dbh = mysql_connect("$server:$port", "$login", "$pass");
+} else {
+    $dbh = mysql_connect("$server:$port", "$login", "$pass");
+}
 
 if ($dbh == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     break;
-} else echo "OK.<br>\n";
+} else {
+    echo "OK.<br>\n";
+}
+
 echo "Opening database...";
 flush();
 if (mysql_select_db("$dbname", $dbh) == false) {
     echo "ERROR.  Check your login credentials.\n";
     echo "<p>".mysql_error()." (#".mysql_errno().")\n";
     break;
-} else echo "OK.<br>\n";
+} else {
+    echo "OK.<br>\n";
+}
+
     flush();
 if ($upgrade != 1) {
     echo "Creating initial tables...\n";
@@ -128,12 +150,18 @@ if ($upgrade != 1) {
     while (!feof($fd)) {
         $line = fgets($fd, 1024);
         $line = rtrim($line);
-        if (substr($line, 0, 2) == "--") // Kill comments
+        if (substr($line, 0, 2) == "--") { // Kill comments
             continue;
-        if (substr($line, 0, 1) == "#") // Kill comments
+        }
+
+        if (substr($line, 0, 1) == "#") { // Kill comments
             continue;
-        if ($line == "")
+        }
+
+        if ($line == "") {
             continue;
+        }
+
         $query = $query.$line;      // Check for full query
         $chr = substr($query, strlen($query)-1, 1);
         if ($chr == ";") { // valid query, execute

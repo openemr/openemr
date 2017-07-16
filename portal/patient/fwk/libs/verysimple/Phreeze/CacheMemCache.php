@@ -54,8 +54,9 @@ class CacheMemCache implements ICache
         } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
-            if (! $this->_suppressServerErrors)
+            if (! $this->_suppressServerErrors) {
                 throw $ex;
+            }
         }
         
         return $obj;
@@ -74,8 +75,9 @@ class CacheMemCache implements ICache
         } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
-            if (! $this->_suppressServerErrors)
+            if (! $this->_suppressServerErrors) {
                 throw $ex;
+            }
         }
         
         return $result;
@@ -94,8 +96,9 @@ class CacheMemCache implements ICache
         } catch (Exception $ex) {
             ExceptionThrower::Stop();
             $this->LastServerError = $ex->getMessage();
-            if (! $this->_suppressServerErrors)
+            if (! $this->_suppressServerErrors) {
                 throw $ex;
+            }
         }
         
         return $result;

@@ -57,7 +57,10 @@ class Barcode
             $code = $datas;
         }
 
-        if ($code == '') return false;
+        if ($code == '') {
+            return false;
+        }
+
         $code = (string) $code;
 
         $type = strtolower($type);
@@ -108,7 +111,9 @@ class Barcode
                 break;
         }
 
-        if ($digit == '') return false;
+        if ($digit == '') {
+            return false;
+        }
 
         if ($b2d) {
             $width = is_null($width) ? 5 : $width;
@@ -135,7 +140,10 @@ class Barcode
         $d = array();
         $len = strlen($digit);
         for ($i=0; $i<$len;
-        $i++) $d[$i] = $digit[$i];
+        $i++) {
+            $d[$i] = $digit[$i];
+        }
+
         return(array($d));
     }
 
@@ -272,9 +280,14 @@ class BarcodeI25
     public static function compute($code, $crc, $type)
     {
         if (! $crc) {
-            if (strlen($code) % 2) $code = '0' . $code;
+            if (strlen($code) % 2) {
+                $code = '0' . $code;
+            }
         } else {
-            if (($type == 'int25') && (strlen($code) % 2 == 0)) $code = '0' . $code;
+            if (($type == 'int25') && (strlen($code) % 2 == 0)) {
+                $code = '0' . $code;
+            }
+
             $odd = true;
             $sum = 0;
             for ($i=strlen($code)-1; $i>-1; $i--) {
@@ -292,7 +305,10 @@ class BarcodeI25
     public static function getDigit($code, $crc, $type)
     {
         $code = self::compute($code, $crc, $type);
-        if ($code == '') return($code);
+        if ($code == '') {
+            return($code);
+        }
+
         $result = '';
 
         if ($type == 'int25') { // Interleaved 2 of 5
@@ -306,9 +322,14 @@ class BarcodeI25
                 $c2 = $code[2*$i+1];
                 for ($j=0; $j<5; $j++) {
                     $result .= '1';
-                    if (self::$encoding[$c1][$j] == 'W') $result .= '1';
+                    if (self::$encoding[$c1][$j] == 'W') {
+                        $result .= '1';
+                    }
+
                     $result .= '0';
-                    if (self::$encoding[$c2][$j] == 'W') $result .= '0';
+                    if (self::$encoding[$c2][$j] == 'W') {
+                        $result .= '0';
+                    }
                 }
             }
 
@@ -328,7 +349,10 @@ class BarcodeI25
                 $c = $code[$i];
                 for ($j=0; $j<5; $j++) {
                     $result .= '1';
-                    if (self::$encoding[$c][$j] == 'W') $result .= '11';
+                    if (self::$encoding[$c][$j] == 'W') {
+                        $result .= '11';
+                    }
+
                     $result .= '0';
                 }
             }
@@ -364,7 +388,9 @@ class BarcodeEAN
         // Check len (12 for ean13, 7 for ean8)
         $len = $type == 'ean8' ? 7 : 12;
         $code = substr($code, 0, $len);
-        if (!preg_match('`[0-9]{'.$len.'}`', $code)) return('');
+        if (!preg_match('`[0-9]{'.$len.'}`', $code)) {
+            return('');
+        }
 
         // get checksum
         $code = self::compute($code, $type);
@@ -411,7 +437,10 @@ class BarcodeEAN
     {
         $len = $type == 'ean13' ? 12 : 7;
         $code = substr($code, 0, $len);
-        if (!preg_match('`[0-9]{'.$len.'}`', $code)) return('');
+        if (!preg_match('`[0-9]{'.$len.'}`', $code)) {
+            return('');
+        }
+
         $sum = 0;
         $odd = true;
         for ($i=$len-1; $i>-1; $i--) {
@@ -512,7 +541,10 @@ class BarcodeMSI
 
     public static function getDigit($code, $crc)
     {
-        if (preg_match('`[^0-9]`', $code)) return '';
+        if (preg_match('`[^0-9]`', $code)) {
+            return '';
+        }
+
         $index = 0;
         $result = '';
 
@@ -543,7 +575,10 @@ class Barcode11
 
     public static function getDigit($code)
     {
-        if (preg_match('`[^0-9\-]`', $code)) return '';
+        if (preg_match('`[^0-9\-]`', $code)) {
+            return '';
+        }
+
         $result = '';
         $intercharacter = '0';
 
@@ -609,7 +644,9 @@ class Barcode39
         $result = '';
         $intercharacter = '0';
 
-        if (strpos($code, '*') !== false) return('');
+        if (strpos($code, '*') !== false) {
+            return('');
+        }
 
         // Add Start and Stop charactere : *
         $code = strtoupper('*' . $code . '*');
@@ -617,8 +654,14 @@ class Barcode39
         $len = strlen($code);
         for ($i=0; $i<$len; $i++) {
             $index = strpos($table, $code[$i]);
-            if ($index === false) return('');
-            if ($i > 0) $result .= $intercharacter;
+            if ($index === false) {
+                return('');
+            }
+
+            if ($i > 0) {
+                $result .= $intercharacter;
+            }
+
             $result .= self::$encoding[ $index ];
         }
 
@@ -647,7 +690,9 @@ class Barcode93
         $table = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-. $/+%____*'; // _ => ($), (%), (/) et (+)
         $result = '';
 
-        if (strpos($code, '*') !== false) return('');
+        if (strpos($code, '*') !== false) {
+            return('');
+        }
 
         $code = strtoupper($code);
 
@@ -659,7 +704,10 @@ class Barcode93
         for ($i=0; $i<$len; $i++) {
             $c = $code[$i];
             $index = strpos($table, $c);
-            if (($c == '_') || ($index === false)) return('');
+            if (($c == '_') || ($index === false)) {
+                return('');
+            }
+
             $result .= self::$encoding[ $index ];
         }
 
@@ -739,7 +787,9 @@ class Barcode128
         // check each characters
         $len = strlen($code);
         for ($i=0; $i<$len; $i++) {
-            if (strpos($tableB, $code[$i]) === false) return("");
+            if (strpos($tableB, $code[$i]) === false) {
+                return("");
+            }
         }
 
         // check firsts characters : start with C table only if enought numeric
@@ -759,7 +809,9 @@ class Barcode128
             if (! $tableCActivated) {
                 $j = 0;
                 // check next character to activate C table if interresting
-                while (($i + $j < $len) && preg_match('`[0-9]`', $code[$i+$j]))$j++;
+                while (($i + $j < $len) && preg_match('`[0-9]`', $code[$i+$j])) {
+                    $j++;
+                }
 
                 // 6 min everywhere or 4 mini at the end
                 $tableCActivated = ($j > 5) || (($i + $j - 1 == $len) && ($j > 3));
@@ -822,7 +874,10 @@ class BarcodeCodabar
         $len = strlen($code);
         for ($i=0; $i<$len; $i++) {
             $index = strpos($table, $code[$i]);
-            if ($index === false) return('');
+            if ($index === false) {
+                return('');
+            }
+
             $result .= self::$encoding[ $index ] . $intercharacter;
         }
 
@@ -911,14 +966,23 @@ class BarcodeDatamatrix
     private static function champGaloisMult($a, $b)
     {
   // MULTIPLICATION IN GALOIS FIELD GF(2^8)
-        if (!$a || !$b) return 0;
+        if (!$a || !$b) {
+            return 0;
+        }
+
         return self::$aLogTab[(self::$logTab[$a] + self::$logTab[$b]) % 255];
     }
     private static function champGaloisDoub($a, $b)
     {
   // THE OPERATION a * 2^b IN GALOIS FIELD GF(2^8)
-        if (!$a) return 0;
-        if (!$b) return $a;
+        if (!$a) {
+            return 0;
+        }
+
+        if (!$b) {
+            return $a;
+        }
+
         return self::$aLogTab[(self::$logTab[$a] + $b) % 255];
     }
     private static function champGaloisSum($a, $b)
@@ -929,12 +993,20 @@ class BarcodeDatamatrix
     private static function selectIndex($dataCodeWordsCount, $rectangular)
     {
  // CHOOSE THE GOOD INDEX FOR TABLES
-        if (($dataCodeWordsCount<1 || $dataCodeWordsCount>1558) && !$rectangular) return -1;
-        if (($dataCodeWordsCount<1 || $dataCodeWordsCount>49) && $rectangular)  return -1;
+        if (($dataCodeWordsCount<1 || $dataCodeWordsCount>1558) && !$rectangular) {
+            return -1;
+        }
+
+        if (($dataCodeWordsCount<1 || $dataCodeWordsCount>49) && $rectangular) {
+            return -1;
+        }
 
         $n = $rectangular ? 24 : 0;
 
-        while (self::$dataCWCount[$n] < $dataCodeWordsCount)$n++;
+        while (self::$dataCWCount[$n] < $dataCodeWordsCount) {
+            $n++;
+        }
+
         return $n;
     }
     private static function encodeDataCodeWordsASCII($text)
@@ -952,7 +1024,10 @@ class BarcodeDatamatrix
                 $c = (($c - 48) * 10) + intval($text[$i+1]);
                 $c += 130;
                 $i++;
-            } else $c++;
+            } else {
+                $c++;
+            }
+
             $dataCodeWords[$n] = $c;
             $n++;
         }
@@ -961,7 +1036,10 @@ class BarcodeDatamatrix
     }
     private static function addPadCW(&$tab, $from, $to)
     {
-        if ($from >= $to) return ;
+        if ($from >= $to) {
+            return ;
+        }
+
         $tab[$from] = 129;
         for ($i=$from+1; $i<$to; $i++) {
             $r = ((149 * ($i+1)) % 253) + 1;
@@ -975,7 +1053,9 @@ class BarcodeDatamatrix
         for ($i = 1; $i <= $solomonCWCount; $i++) {
             for ($j = $i - 1; $j >= 0; $j--) {
                 $g[$j] = self::champGaloisDoub($g[$j], $i);
-                if ($j > 0) $g[$j] = self::champGaloisSum($g[$j], $g[$j-1]);
+                if ($j > 0) {
+                    $g[$j] = self::champGaloisSum($g[$j], $g[$j-1]);
+                }
             }
         }
 
@@ -989,7 +1069,9 @@ class BarcodeDatamatrix
 
         for ($k = 0; $k < $blocks; $k++) {
             for ($i=0; $i < $errorBlocks;
-            $i++) $correctionCW[$i] = 0;
+            $i++) {
+                $correctionCW[$i] = 0;
+            }
 
             for ($i=$k; $i<$nDataCW; $i+=$blocks) {
                 $temp = self::champGaloisSum($dataTab[$i], $correctionCW[$errorBlocks-1]);
@@ -1000,7 +1082,9 @@ class BarcodeDatamatrix
                         $correctionCW[$j] = self::champGaloisMult($temp, $coeffTab[$j]);
                     }
 
-                    if ($j>0) $correctionCW[$j] = self::champGaloisSum($correctionCW[$j-1], $correctionCW[$j]);
+                    if ($j>0) {
+                        $correctionCW[$j] = self::champGaloisSum($correctionCW[$j-1], $correctionCW[$j]);
+                    }
                 }
             }
 

@@ -227,8 +227,10 @@ function DistributionInsert($CountRow, $created_time, $user_id)
                     "pid = '".trim(formData('hidden_patient_code'))."' AND encounter = '".trim(formData("HiddenEncounter$CountRow"))."'");
                   $date_of_service = substr($ferow['date'], 0, 10);
                   $new_payer_type = 0 + $ferow['last_level_closed'];
-                  if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
+                if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
                     ++$new_payer_type;
+                }
+
                   $new_payer_id = arGetPayerID(trim(formData('hidden_patient_code')), $date_of_service, $new_payer_type);
                 if ($new_payer_id>0) {
                         arSetupSecondary(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow")), 0);
@@ -250,8 +252,14 @@ function row_delete($table, $where)
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') continue;
-            if ($logstring) $logstring .= " ";
+            if (! $value || $value == '0000-00-00 00:00:00') {
+                continue;
+            }
+
+            if ($logstring) {
+                $logstring .= " ";
+            }
+
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 

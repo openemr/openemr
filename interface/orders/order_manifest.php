@@ -35,13 +35,19 @@ function getListItem($listid, $value)
         array($listid, $value)
     );
     $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) $tmp = "($value)";
+    if (empty($tmp)) {
+        $tmp = "($value)";
+    }
+
     return $tmp;
 }
 
 function myCellText($s)
 {
-    if ($s === '') return '&nbsp;';
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
     return text($s);
 }
 
@@ -282,17 +288,25 @@ while ($row = sqlFetchArray($res)) {
             $answer = $weeks . 'wks ' . $days . 'days';
         }
 
-        if ($notes) $notes .= '<br />';
+        if ($notes) {
+            $notes .= '<br />';
+        }
+
         $notes .= text($qrow['question_text'] . ': ' . $answer);
     }
 
-    if ($notes === '') $notes = '&nbsp;';
+    if ($notes === '') {
+        $notes = '&nbsp;';
+    }
 
     ++$encount;
     $bgcolor = "#" . (($encount & 1) ? "ddddff" : "ffdddd");
     echo " <tr class='detail' bgcolor='$bgcolor'>\n";
     echo "  <td><input type='checkbox' name='form_omit[$order_seq]' value='1'";
-    if (!empty($row['do_not_send'])) echo " checked";
+    if (!empty($row['do_not_send'])) {
+        echo " checked";
+    }
+
     echo " /></td>\n";
     echo "  <td>" . myCellText("$procedure_code") . "</td>\n";
     echo "  <td>" . myCellText("$procedure_name") . "</td>\n";
@@ -322,7 +336,9 @@ while ($row = sqlFetchArray($res)) {
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 $orderid = intval($_GET['orderid']);
 ?>

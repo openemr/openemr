@@ -90,7 +90,10 @@ class TherapyGroupsController extends BaseController
     {
 
         $data = array();
-        if ($groupId) self::setSession($groupId);
+        if ($groupId) {
+            self::setSession($groupId);
+        }
+
         //Load models
         $this->therapyGroupModel = $this->loadModel('therapy_groups');
         $this->counselorsModel = $this->loadModel('Therapy_Groups_Counselors');

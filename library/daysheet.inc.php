@@ -34,28 +34,38 @@
 function array_natsort($aryData, $strIndex, $strSortBy, $strSortType = false)
 {
     //    if the parameters are invalid
-    if (!is_array($aryData) || !$strIndex || !$strSortBy)
+    if (!is_array($aryData) || !$strIndex || !$strSortBy) {
         //    return the array
         return $aryData;
+    }
+
     //    create our temporary arrays
     $arySort = $aryResult = array();
     //    loop through the array
-    foreach ($aryData as $aryRow)
+    foreach ($aryData as $aryRow) {
         //    set up the value in the array
         $arySort[$aryRow[$strIndex]] = $aryRow[$strSortBy];
+    }
+
     //    apply the natural sort
     natsort($arySort);
     //    if the sort type is descending
-    if ($strSortType=="desc")
+    if ($strSortType=="desc") {
         //    reverse the array
         arsort($arySort);
+    }
+
     //    loop through the sorted and original data
-    foreach ($arySort as $arySortKey => $arySorted)
-        foreach ($aryData as $aryOriginal)
+    foreach ($arySort as $arySortKey => $arySorted) {
+        foreach ($aryData as $aryOriginal) {
             //    if the key matches
-            if ($aryOriginal[$strIndex]==$arySortKey)
+            if ($aryOriginal[$strIndex]==$arySortKey) {
                 //    add it to the output array
                 array_push($aryResult, $aryOriginal);
+            }
+        }
+    }
+
     //    return the return
     return $aryResult;
 }

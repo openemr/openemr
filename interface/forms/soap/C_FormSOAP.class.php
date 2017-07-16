@@ -42,8 +42,10 @@ class C_FormSOAP extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->form = new FormSOAP($_POST['id']);
         parent::populate_object($this->form);
 

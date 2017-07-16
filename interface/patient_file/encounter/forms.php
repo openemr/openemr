@@ -69,7 +69,10 @@ if (!empty($_GET['attachid'])) {
     $attachid = explode(',', $_GET['attachid']);
     foreach ($attachid as $aid) {
         $aid = intval($aid);
-        if (!$aid) continue;
+        if (!$aid) {
+            continue;
+        }
+
         $tmp = sqlQuery(
             "SELECT COUNT(*) AS count FROM procedure_order WHERE " .
             "procedure_order_id = ? AND patient_id = ? AND encounter_id = 0 AND activity = 1",
@@ -502,7 +505,10 @@ function myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
     }
 
     $sql .=  "state LIKE \"$state\" ORDER BY category, priority, name";
-    if ($limit != "unlimited") $sql .= " limit $limit, $offset";
+    if ($limit != "unlimited") {
+        $sql .= " limit $limit, $offset";
+    }
+
     $res = sqlStatement($sql);
     if ($res) {
         for ($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -538,8 +544,9 @@ if (!empty($reg)) {
           // Check permission to create forms of this type.
             $tmp = explode('|', $entry['aco_spec']);
             if (!empty($tmp[1])) {
-                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
-                continue;
+                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                    continue;
+                }
             }
 
             $new_category = trim($entry['category']);
@@ -598,8 +605,9 @@ if ($encounterLocked === false) {
             $jobj = json_decode($lrow['notes'], true);
             if (!empty($jobj['aco'])) {
                 $tmp = explode('|', $jobj['aco']);
-                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly'))
-                continue;
+                if (!acl_check($tmp[0], $tmp[1], '', 'write') && !acl_check($tmp[0], $tmp[1], '', 'addonly')) {
+                    continue;
+                }
             }
 
             $StringEcho .= "<tr><td style='border-top: 1px solid #000000;padding:0px;'><a href='" .
@@ -634,8 +642,10 @@ if ($encounterLocked === false) {
             $relative_link = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
             if ($jid==0 || ($modid!=$modulerow['mod_id'])) {
-                if ($modid!='')
-                $StringEcho.= '</table></div></li>';
+                if ($modid!='') {
+                    $StringEcho.= '</table></div></li>';
+                }
+
                 $StringEcho.= "<li><a href='JavaScript:void(0);' onClick=\"mopen('$DivId');\" >$new_category</a><div id='$DivId' ><table border='0' cellspacing='0' cellpadding='0'>";
             }
 
@@ -869,8 +879,9 @@ foreach ($docs_list as $doc_iter) {
         $notes = array();
         $notes = explode("|", $noteData['docNotes']);
         $dates = explode("|", $noteData['docDates']);
-        for ($i = 0; $i < count($notes); $i++)
+        for ($i = 0; $i < count($notes); $i++) {
             $note .= oeFormatShortDate(date('Y-m-d', strtotime($dates[$i]))) . " : " . $notes[$i] . "\n";
+        }
     }
 ?>
 <br>
@@ -892,7 +903,9 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
         $formdir = $iter['formdir'];
 
         // skip forms whose 'deleted' flag is set to 1
-        if ($iter['deleted'] == 1) continue;
+        if ($iter['deleted'] == 1) {
+            continue;
+        }
 
         $aco_spec = false;
 
@@ -907,7 +920,9 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
                 $jobj = json_decode($lrow['notes'], true);
                 if (!empty($jobj['aco'])) {
                     $aco_spec = explode('|', $jobj['aco']);
-                    if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
+                    if (!acl_check($aco_spec[0], $aco_spec[1])) {
+                        continue;
+                    }
                 }
             }
         } else {
@@ -915,7 +930,9 @@ if (($pass_sens_squad) && ($result = getFormByEncounter($attendant_id, $encounte
             $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
             if (!empty($tmp['aco_spec'])) {
                 $aco_spec = explode('|', $tmp['aco_spec']);
-                if (!acl_check($aco_spec[0], $aco_spec[1])) continue;
+                if (!acl_check($aco_spec[0], $aco_spec[1])) {
+                    continue;
+                }
             }
         }
 

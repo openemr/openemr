@@ -50,7 +50,9 @@ $ORDERHASH = array(
 
 function bucks($amount)
 {
-    if ($amount) printf("%.2f", $amount);
+    if ($amount) {
+        printf("%.2f", $amount);
+    }
 }
 
 function show_doc_total($lastdocname, $doc_encounters)
@@ -253,7 +255,10 @@ $res = sqlStatement($query);
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) echo " selected";
+                    if ($provid == $_POST['form_provider']) {
+                        echo " selected";
+                    }
+
                     echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                 }
 
@@ -282,26 +287,31 @@ $res = sqlStatement($query);
       <td></td>
       <td>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
+          <label><input type='checkbox' name='form_details'<?php  if ($form_details) {
+                echo ' checked';} ?>>
             <?php echo xlt('Details'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php  if ($form_new_patients) echo ' checked'; ?>>
+          <label><input type='checkbox' name='form_new_patients' title='<?php echo xla('First-time visits only'); ?>'<?php  if ($form_new_patients) {
+                echo ' checked';} ?>>
             <?php  echo xlt('New'); ?></label>
         </div>
       </td>
       <td></td>
       <td>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) echo ' checked'; ?>>
+          <label><input type='checkbox' name='form_esigned'<?php  if ($form_esigned) {
+                echo ' checked';} ?>>
             <?php  echo xlt('Forms Esigned'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) echo ' checked'; ?>>
+          <label><input type='checkbox' name='form_encounter_esigned'<?php  if ($form_encounter_esigned) {
+                echo ' checked';} ?>>
             <?php  echo xlt('Encounter Esigned'); ?></label>
         </div>
         <div class="checkbox">
-          <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) echo ' checked'; ?>>
+          <label><input type='checkbox' name='form_not_esigned'<?php  if ($form_not_esigned) {
+                echo ' checked';} ?>>
             <?php echo xlt('Not Esigned'); ?></label>
         </div>
       </td>
@@ -345,19 +355,23 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
 <?php if ($form_details) { ?>
   <th>
    <a href="nojs.php" onclick="return dosort('doctor')"
-    <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php echo xlt('Provider'); ?> </a>
+    <?php if ($form_orderby == "doctor") {
+        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Provider'); ?> </a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('time')"
-    <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php echo xlt('Date'); ?></a>
+    <?php if ($form_orderby == "time") {
+        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Date'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('patient')"
-    <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>><?php echo xlt('Patient'); ?></a>
+    <?php if ($form_orderby == "patient") {
+        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Patient'); ?></a>
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('pubpid')"
-    <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>><?php echo xlt('ID'); ?></a>
+    <?php if ($form_orderby == "pubpid") {
+        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('ID'); ?></a>
   </th>
   <th>
     <?php echo xlt('Status'); ?>
@@ -367,7 +381,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
   </th>
   <th>
    <a href="nojs.php" onclick="return dosort('encounter')"
-    <?php if ($form_orderby == "encounter") echo " style=\"color:#00cc00\"" ?>><?php echo xlt('Encounter Number'); ?></a>
+    <?php if ($form_orderby == "encounter") {
+        echo " style=\"color:#00cc00\""; } ?>><?php echo xlt('Encounter Number'); ?></a>
   </th>
   <th>
     <?php echo xlt('Form'); ?>
@@ -391,8 +406,9 @@ if ($res) {
         $docname = '';
         if (!empty($row['ulname']) || !empty($row['ufname'])) {
             $docname = $row['ulname'];
-            if (!empty($row['ufname']) || !empty($row['umname']))
-            $docname .= ', ' . $row['ufname'] . ' ' . $row['umname'];
+            if (!empty($row['ufname']) || !empty($row['umname'])) {
+                $docname .= ', ' . $row['ufname'] . ' ' . $row['umname'];
+            }
         }
 
         $errmsg  = "";
@@ -406,8 +422,14 @@ if ($res) {
             );
             if ($encarr!='') {
                 foreach ($encarr as $enc) {
-                    if ($enc['formdir'] == 'newpatient') continue;
-                    if ($encnames) $encnames .= '<br />';
+                    if ($enc['formdir'] == 'newpatient') {
+                        continue;
+                    }
+
+                    if ($encnames) {
+                        $encnames .= '<br />';
+                    }
+
                     $encnames .= text($enc['form_name']); // need to html escape it here for output below
                 }
             }
@@ -425,8 +447,11 @@ if ($res) {
                     // $title = addslashes($billrow['code_text']);
                     if ($billrow['code_type'] != 'COPAY' && $billrow['code_type'] != 'TAX') {
                         $coded .= $billrow['code'] . ', ';
-                        if ($billrow['billed']) ++$billed_count;
-                        else ++$unbilled_count;
+                        if ($billrow['billed']) {
+                            ++$billed_count;
+                        } else {
+                            ++$unbilled_count;
+                        }
                     }
                 }
 
@@ -437,15 +462,23 @@ if ($res) {
             $sres = sqlStatement("SELECT billed FROM drug_sales " .
             "WHERE pid = '{$row['pid']}' AND encounter = '{$row['encounter']}'");
             while ($srow = sqlFetchArray($sres)) {
-                  if ($srow['billed']) ++$billed_count;
-                else ++$unbilled_count;
+                if ($srow['billed']) {
+                    ++$billed_count;
+                } else {
+                    ++$unbilled_count;
+                }
             }
 
             // Compute billing status.
-            if ($billed_count && $unbilled_count) $status = xl('Mixed');
-            else if ($billed_count) $status = xl('Closed');
-            else if ($unbilled_count) $status = xl('Open');
-            else $status = xl('Empty');
+            if ($billed_count && $unbilled_count) {
+                $status = xl('Mixed');
+            } else if ($billed_count) {
+                $status = xl('Closed');
+            } else if ($unbilled_count) {
+                $status = xl('Open');
+            } else {
+                $status = xl('Empty');
+            }
         ?>
        <tr bgcolor='<?php echo $bgcolor ?>'>
   <td>
@@ -489,7 +522,9 @@ if ($res) {
         $lastdocname = $docname;
     }
 
-    if (!$form_details) show_doc_total($lastdocname, $doc_encounters);
+    if (!$form_details) {
+        show_doc_total($lastdocname, $doc_encounters);
+    }
 }
 ?>
 </tbody>

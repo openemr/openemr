@@ -34,7 +34,9 @@ if (count($menu_parsed)==0) {
     }
 
     // if error, then die and report error
-    if (!$menu_parsed) die("\nJSON ERROR: " . json_last_error());
+    if (!$menu_parsed) {
+        die("\nJSON ERROR: " . json_last_error());
+    }
 }
 
 menu_update_entries($menu_parsed);

@@ -27,7 +27,9 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 $orderid = intval($_GET['orderid']);
 
@@ -76,7 +78,9 @@ if (!empty($_POST['form_send_to_portal'])) {
     'mimetype' => 'application/pdf',
     'contents' => base64_encode($contents),
     ));
-    if ($result['errmsg']) die(text($result['errmsg']));
+    if ($result['errmsg']) {
+        die(text($result['errmsg']));
+    }
 }
 ?>
 <html>

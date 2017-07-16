@@ -31,8 +31,11 @@ require_once("../globals.php");
 <head>
 <?php
 $logstart = (isset($_POST['logstart'])) ? $_POST['logstart'] : 0;
-if (isset($_POST['lognext']) && $_POST['lognext']) $logtop = $logstart + $_POST['lognext'];
-else $logtop = 0;
+if (isset($_POST['lognext']) && $_POST['lognext']) {
+    $logtop = $logstart + $_POST['lognext'];
+} else {
+    $logtop = 0;
+}
 ?>
 
 <?php Header::setupHeader(); ?>
@@ -135,16 +138,20 @@ else $logtop = 0;
  <tbody>  <!-- added for better print-ability -->
 <?php
 
-if (!$logtop)
- $res = sqlStatement("SELECT * FROM `direct_message_log` ORDER BY `id` DESC LIMIT 100");
-else $res = sqlStatement(
-    "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
-    array($logtop-99,$logtop)
-);
+if (!$logtop) {
+    $res = sqlStatement("SELECT * FROM `direct_message_log` ORDER BY `id` DESC LIMIT 100");
+} else {
+    $res = sqlStatement(
+        "SELECT * FROM `direct_message_log` WHERE `id` BETWEEN ? AND ? ORDER BY `id` DESC",
+        array($logtop-99,$logtop)
+    );
+}
 
  $logstart = 0;
 while ($row = sqlFetchArray($res)) {
-    if (!$logstart) $logstart = $row['id'];
+    if (!$logstart) {
+        $logstart = $row['id'];
+    }
 ?>
 <tr>
     <td align='center'><?php echo text($row['id']); ?></td>

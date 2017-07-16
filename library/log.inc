@@ -7,8 +7,9 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
 
     $category = $event;
     // Special case delete for lists table
-    if ($event == 'delete')
+    if ($event == 'delete') {
         $category = eventCategoryFinder($comments, $event, '');
+    }
 
     // deal with comments encryption, if turned on
     $encrypt_comment = 'No';
@@ -51,7 +52,9 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
                      "'')";
     sqlInsertClean_audit($encryptLogQry);
 
-    if (($patient_id=="NULL") || ($patient_id==null))$patient_id=0;
+    if (($patient_id=="NULL") || ($patient_id==null)) {
+        $patient_id=0;
+    }
 
     send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
 }
@@ -59,7 +62,10 @@ function newEvent($event, $user, $groupname, $success, $comments = "", $patient_
 function getEventByDate($date, $user = "", $cols = "DISTINCT date, event, user, groupname, patient_id, success, comments, checksum")
 {
     $sql = "SELECT $cols FROM log WHERE date >= '$date 00:00:00' AND date <= '$date 23:59:59'";
-    if ($user) $sql .= " AND user LIKE '$user'";
+    if ($user) {
+        $sql .= " AND user LIKE '$user'";
+    }
+
     $sql .= " ORDER BY date DESC LIMIT 5000";
     $res = sqlStatement($sql);
     for ($iter=0; $row=sqlFetchArray($res); $iter++) {
@@ -83,56 +89,119 @@ function getEvents($params)
 {
     // parse the parameters
     $cols = "DISTINCT date, event, category, user, groupname, patient_id, success, comments,checksum,crt_user, id ";
-    if (isset($params['cols']) && $params['cols'] != "") $cols = $params['cols'];
+    if (isset($params['cols']) && $params['cols'] != "") {
+        $cols = $params['cols'];
+    }
 
     $date1 = date("Y-m-d H:i:s", time());
-    if (isset($params['sdate']) && $params['sdate'] != "") $date1= $params['sdate'];
+    if (isset($params['sdate']) && $params['sdate'] != "") {
+        $date1= $params['sdate'];
+    }
 
     $date2 = date("Y-m-d H:i:s", time());
-    if (isset($params['edate']) && $params['edate'] != "") $date2= $params['edate'];
+    if (isset($params['edate']) && $params['edate'] != "") {
+        $date2= $params['edate'];
+    }
 
     $user = "";
-    if (isset($params['user']) && $params['user'] != "") $user= $params['user'];
+    if (isset($params['user']) && $params['user'] != "") {
+        $user= $params['user'];
+    }
 
     //VicarePlus :: For Generating log with patient id.
     $patient = "";
-    if (isset($params['patient']) && $params['patient'] != "") $patient= $params['patient'];
+    if (isset($params['patient']) && $params['patient'] != "") {
+        $patient= $params['patient'];
+    }
 
     $sortby = "";
-    if (isset($params['sortby']) && $params['sortby'] != "") $sortby = $params['sortby'];
+    if (isset($params['sortby']) && $params['sortby'] != "") {
+        $sortby = $params['sortby'];
+    }
 
     $levent = "";
-    if (isset($params['levent']) && $params['levent'] != "") $levent = $params['levent'];
+    if (isset($params['levent']) && $params['levent'] != "") {
+        $levent = $params['levent'];
+    }
 
      $tevent = "";
-    if (isset($params['tevent']) && $params['tevent'] != "") $tevent = $params['tevent'];
+    if (isset($params['tevent']) && $params['tevent'] != "") {
+        $tevent = $params['tevent'];
+    }
 
     $direction = 'asc';
-    if (isset($params['direction']) && $params['direction'] != "") $direction = $params['direction'];
+    if (isset($params['direction']) && $params['direction'] != "") {
+        $direction = $params['direction'];
+    }
 
      $event = "";
-    if (isset($params['event']) && $params['event'] != "") $event = $params['event'];
+    if (isset($params['event']) && $params['event'] != "") {
+        $event = $params['event'];
+    }
+
     if ($event!="") {
-        if ($sortby == "comments") $sortby = "description";
-        if ($sortby == "groupname") $sortby = ""; //VicarePlus :: since there is no groupname in extended_log
-        if ($sortby == "success") $sortby = "";   //VicarePlus :: since there is no success field in extended_log
-        if ($sortby == "checksum") $sortby = "";  //VicarePlus :: since there is no checksum field in extended_log
-        if ($sortby == "category") $sortby = "";  //VicarePlus :: since there is no category field in extended_log
+        if ($sortby == "comments") {
+            $sortby = "description";
+        }
+
+        if ($sortby == "groupname") {
+            $sortby = ""; //VicarePlus :: since there is no groupname in extended_log
+        }
+
+        if ($sortby == "success") {
+            $sortby = "";   //VicarePlus :: since there is no success field in extended_log
+        }
+
+        if ($sortby == "checksum") {
+            $sortby = "";  //VicarePlus :: since there is no checksum field in extended_log
+        }
+
+        if ($sortby == "category") {
+            $sortby = "";  //VicarePlus :: since there is no category field in extended_log
+        }
+
         $columns = "DISTINCT date, event, user, recipient,patient_id,description";
         $sql = "SELECT $columns FROM extended_log WHERE date >= '$date1' AND date <= '$date2'";
-        if ($user != "") $sql .= " AND user LIKE '$user'";
-        if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
-        if ($levent != "") $sql .= " AND event LIKE '$levent%'";
-        if ($sortby != "") $sql .= " ORDER BY ".$sortby." DESC"; // descending order
+        if ($user != "") {
+            $sql .= " AND user LIKE '$user'";
+        }
+
+        if ($patient != "") {
+            $sql .= " AND patient_id LIKE '$patient'";
+        }
+
+        if ($levent != "") {
+            $sql .= " AND event LIKE '$levent%'";
+        }
+
+        if ($sortby != "") {
+            $sql .= " ORDER BY ".$sortby." DESC"; // descending order
+        }
+
         $sql .= " LIMIT 5000";
     } else {
     // do the query
         $sql = "SELECT $cols FROM log WHERE date >= '$date1' AND date <= '$date2'";
-        if ($user != "") $sql .= " AND user LIKE '$user'";
-        if ($patient != "") $sql .= " AND patient_id LIKE '$patient'";
-        if ($levent != "") $sql .= " AND event LIKE '$levent%'";
-        if ($tevent != "") $sql .= " AND event LIKE '%$tevent'";
-        if ($sortby != "") $sql .= " ORDER BY ".$sortby."  ".escape_sort_order($direction); // descending order
+        if ($user != "") {
+            $sql .= " AND user LIKE '$user'";
+        }
+
+        if ($patient != "") {
+            $sql .= " AND patient_id LIKE '$patient'";
+        }
+
+        if ($levent != "") {
+            $sql .= " AND event LIKE '$levent%'";
+        }
+
+        if ($tevent != "") {
+            $sql .= " AND event LIKE '%$tevent'";
+        }
+
+        if ($sortby != "") {
+            $sql .= " ORDER BY ".$sortby."  ".escape_sort_order($direction); // descending order
+        }
+
         $sql .= " LIMIT 5000";
     }
 
@@ -168,11 +237,14 @@ function sql_checksum_of_modified_row($statement)
         $rid = generic_sql_insert_id();
     /* For handling the table that doesn't have auto-increment column */
         if ($rid === 0 || $rid === false) {
-            if ($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map")
-            $id="acl_id";
-            else if ($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map")
-            $id="group_id";
-            else $id="id";
+            if ($table == "gacl_aco_map" || $table == "gacl_aro_groups_map" || $table == "gacl_aro_map" || $table == "gacl_axo_groups_map" || $table == "gacl_axo_map") {
+                $id="acl_id";
+            } else if ($table == "gacl_groups_aro_map" || $table == "gacl_groups_axo_map") {
+                $id="group_id";
+            } else {
+                $id="id";
+            }
+
       /* To handle insert statements */
             if ($tokens[3] == $id) {
                 for ($i=4; $i<count($tokens); $i++) {
@@ -239,14 +311,18 @@ function sql_checksum_of_modified_row($statement)
             } /*id=123*/
             else if (strpos($tokens[$offset], "$id=") === 0) {
                     $tid = substr($tokens[$offset], strlen($id)+1);
-                if (is_numeric($tid))
-                 $rid=$tid;
+                if (is_numeric($tid)) {
+                    $rid=$tid;
+                }
+
                  break;
             } /*'id', '=123' */
             else if ($tokens[$offset] == "$id") {
                  $tid = substr($tokens[$offset+1], 1);
-                 if (is_numeric($tid))
-                $rid=$tid;
+                if (is_numeric($tid)) {
+                    $rid=$tid;
+                }
+
                  break;
             }
 
@@ -517,8 +593,9 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     $user =  isset($_SESSION['authUser']) ? $_SESSION['authUser'] : "";
     /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
     if (!isset($GLOBALS['enable_auditlog']) || !($GLOBALS['enable_auditlog'])) {
-        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
-        return;
+        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
+            return;
+        }
     }
 
 
@@ -699,12 +776,17 @@ function auditSQLEvent($statement, $outcome, $binds = null)
      * Skip the SELECT made by the authCheckSession() function.
      */
     if ($querytype == "select") {
-        if ($event == "other")
+        if ($event == "other") {
             return;
-        if (stripos($statement, "SELECT count(") === 0)
+        }
+
+        if (stripos($statement, "SELECT count(") === 0) {
             return;
-        if (stripos($statement, "select username, password from users") === 0)
+        }
+
+        if (stripos($statement, "select username, password from users") === 0) {
             return;
+        }
     }
 
 
@@ -718,13 +800,15 @@ function auditSQLEvent($statement, $outcome, $binds = null)
 
     /* If query events are not enabled, don't log them */
     if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
-        return;
+        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
+            return;
+        }
     }
 
     if (!($GLOBALS["audit_events_${event}"])) {
-        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass")))
-        return;
+        if ((soundex($user) != soundex("emergency")) && (soundex($user) != soundex("breakglass"))) {
+            return;
+        }
     }
 
 
@@ -733,7 +817,9 @@ function auditSQLEvent($statement, $outcome, $binds = null)
     $adodb = $GLOBALS['adodb']['db'];
 
     // ViSolve : Don't log sequences - to avoid the affect due to GenID calls
-    if (strpos($comments, "sequences") !== false) return;
+    if (strpos($comments, "sequences") !== false) {
+        return;
+    }
 
     $encrypt_comment = 'No';
     //July 1, 2014: Ensoftek: Check and encrypt audit logging
@@ -930,37 +1016,63 @@ function eventCategoryFinder($sql, $event, $table)
     if ($event == 'delete') {
         if (strpos($sql, "lists:") === 0) {
             $fieldValues    = explode("'", $sql);
-            if (in_array('medical_problem', $fieldValues) === true) return 'Problem List';
-            else if (in_array('medication', $fieldValues) === true) return 'Medication';
-            else if (in_array('allergy', $fieldValues) === true) return 'Allergy';
+            if (in_array('medical_problem', $fieldValues) === true) {
+                return 'Problem List';
+            } else if (in_array('medication', $fieldValues) === true) {
+                return 'Medication';
+            } else if (in_array('allergy', $fieldValues) === true) {
+                return 'Allergy';
+            }
         }
     }
 
     if ($table == 'lists' || $table == 'lists_touch') {
         $trimSQL        = stristr($sql, $table);
         $fieldValues    = explode("'", $trimSQL);
-        if (in_array('medical_problem', $fieldValues) === true) return 'Problem List';
-        else if (in_array('medication', $fieldValues) === true) return 'Medication';
-        else if (in_array('allergy', $fieldValues) === true) return 'Allergy';
-    } else if ($table == 'immunizations') return "Immunization";
-    else if ($table == 'form_vitals') return "Vitals";
-    else if ($table == 'history_data') return "Social and Family History";
-    else if ($table == 'forms' || $table == 'form_encounter' || strpos($table, 'form_') === 0) return "Encounter Form";
-    else if ($table == 'insurance_data') return "Patient Insurance";
-    else if ($table == 'patient_data' || $table == 'employer_data') return "Patient Demographics";
-    else if ($table == 'payments' || $table == "billing" || $table == "claims") return "Billing";
-    else if ($table == 'pnotes') return "Clinical Mail";
-    else if ($table == 'prescriptions') return "Medication";
-    else if ($table == 'transactions') {
+        if (in_array('medical_problem', $fieldValues) === true) {
+            return 'Problem List';
+        } else if (in_array('medication', $fieldValues) === true) {
+            return 'Medication';
+        } else if (in_array('allergy', $fieldValues) === true) {
+            return 'Allergy';
+        }
+    } else if ($table == 'immunizations') {
+        return "Immunization";
+    } else if ($table == 'form_vitals') {
+        return "Vitals";
+    } else if ($table == 'history_data') {
+        return "Social and Family History";
+    } else if ($table == 'forms' || $table == 'form_encounter' || strpos($table, 'form_') === 0) {
+        return "Encounter Form";
+    } else if ($table == 'insurance_data') {
+        return "Patient Insurance";
+    } else if ($table == 'patient_data' || $table == 'employer_data') {
+        return "Patient Demographics";
+    } else if ($table == 'payments' || $table == "billing" || $table == "claims") {
+        return "Billing";
+    } else if ($table == 'pnotes') {
+        return "Clinical Mail";
+    } else if ($table == 'prescriptions') {
+        return "Medication";
+    } else if ($table == 'transactions') {
         $trimSQL        = stristr($sql, "transactions");
         $fieldValues    = explode("'", $trimSQL);
-        if (in_array("LBTref", $fieldValues)) return "Referral";
-        else return $event;
-    } else if ($table == 'amendments' || $table == 'amendments_history') return "Amendments";
-    else if ($table == 'openemr_postcalendar_events') return "Scheduling";
-    else if ($table == 'procedure_order' || $table == 'procedure_order_code') return "Lab Order";
-    else if ($table == 'procedure_report' || $table == 'procedure_result') return "Lab Result";
-    else if ($event == 'security-administration') return "Security";
+        if (in_array("LBTref", $fieldValues)) {
+            return "Referral";
+        } else {
+            return $event;
+        }
+    } else if ($table == 'amendments' || $table == 'amendments_history') {
+        return "Amendments";
+    } else if ($table == 'openemr_postcalendar_events') {
+        return "Scheduling";
+    } else if ($table == 'procedure_order' || $table == 'procedure_order_code') {
+        return "Lab Order";
+    } else if ($table == 'procedure_report' || $table == 'procedure_result') {
+        return "Lab Result";
+    } else if ($event == 'security-administration') {
+        return "Security";
+    }
 
     return $event;
 }

@@ -130,7 +130,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*46";
     } else {    //Field length is limited to 35. See nucc dataset page 63 www.nucc.org
         $billingFacilityName = substr($claim->billingFacilityName(), 0, $CMS_5010 ? 60 : 35);
-        if ($billingFacilityName == '') $log .= "*** billing facility name in 1000A loop is empty\n";
+        if ($billingFacilityName == '') {
+            $log .= "*** billing facility name in 1000A loop is empty\n";
+        }
+
         $out .= "NM1" .
         "*41" .
         "*2" .
@@ -240,7 +243,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" . $suffixName;
     } else {
         $billingFacilityName = substr($claim->billingFacilityName(), 0, $CMS_5010 ? 60 : 35);
-        if ($billingFacilityName == '') $log .= "*** billing facility name in 2010A loop is empty\n";
+        if ($billingFacilityName == '') {
+            $log .= "*** billing facility name in 2010A loop is empty\n";
+        }
+
         $out .= "NM1" . // Loop 2010AA Billing Provider
         "*85" .
         "*2" .
@@ -315,9 +321,12 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*" .
         "*" .
         "*";
-        if ($claim->billingFacilityNPI())
-        $out .= "*XX*" . $claim->billingFacilityNPI();
-        else $out .= "*24*" . $claim->billingFacilityETIN();
+        if ($claim->billingFacilityNPI()) {
+            $out .= "*XX*" . $claim->billingFacilityNPI();
+        } else {
+            $out .= "*24*" . $claim->billingFacilityETIN();
+        }
+
         $out .= "~\n";
 
         ++$edicount;
@@ -492,8 +501,11 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         "*1" .
         "*" . $claim->patientLastName() .
         "*" . $claim->patientFirstName();
-        if ($claim->patientMiddleName() !== '') $out .= "*"
-        . $claim->patientMiddleName();
+        if ($claim->patientMiddleName() !== '') {
+            $out .= "*"
+            . $claim->patientMiddleName();
+        }
+
         $out .= "~\n";
 
         ++$edicount;
@@ -722,7 +734,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     $tmp = 0;
     foreach ($da as $diag) {
         if ($tmp % $max_per_seg == 0) {
-            if ($tmp) $out .= "~\n";
+            if ($tmp) {
+                $out .= "~\n";
+            }
+
             ++$edicount;
             $out .= "HI";         // Health Diagnosis Codes
         }
@@ -737,7 +752,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         ++$tmp;
     }
 
-    if ($tmp) $out .= "~\n";
+    if ($tmp) {
+        $out .= "~\n";
+    }
 
   // Segment HI*BP (Anesthesia Related Procedure) omitted.
   // Segment HI*BG (Condition Information) omitted.
@@ -958,12 +975,30 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
     for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
         $tmp1 = $claim->claimType($ins);
         $tmp2 = 'C1'; // Here a kludge. See page 321.
-        if ($tmp1 === 'CI') $tmp2 = 'C1';
-        if ($tmp1 === 'AM') $tmp2 = 'AP';
-        if ($tmp1 === 'HM') $tmp2 = 'HM';
-        if ($tmp1 === 'MB') $tmp2 = 'MB';
-        if ($tmp1 === 'MC') $tmp2 = 'MC';
-        if ($tmp1 === '09') $tmp2 = 'PP';
+        if ($tmp1 === 'CI') {
+            $tmp2 = 'C1';
+        }
+
+        if ($tmp1 === 'AM') {
+            $tmp2 = 'AP';
+        }
+
+        if ($tmp1 === 'HM') {
+            $tmp2 = 'HM';
+        }
+
+        if ($tmp1 === 'MB') {
+            $tmp2 = 'MB';
+        }
+
+        if ($tmp1 === 'MC') {
+            $tmp2 = 'MC';
+        }
+
+        if ($tmp1 === '09') {
+            $tmp2 = 'PP';
+        }
+
         ++$edicount;
         $out .= "SBR" . // Loop 2320, Subscriber Information - page 297/318
         "*" . $claim->payerSequence($ins) .
@@ -1149,9 +1184,14 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         $dia = $claim->diagIndexArray($prockey);
         $i = 0;
         foreach ($dia as $dindex) {
-            if ($i) $out .= ':';
+            if ($i) {
+                $out .= ':';
+            }
+
             $out .= $dindex;
-            if (++$i >= 4) break;
+            if (++$i >= 4) {
+                break;
+            }
         }
 
         # needed for epstd
@@ -1236,8 +1276,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
             // Medicare secondaries seem to require this.
             //
             for ($ins = $claim->payerCount() - 1; $ins > 0; --$ins) {
-                if ($claim->payerSequence($ins) > $claim->payerSequence())
-                continue; // payer is future, not previous
+                if ($claim->payerSequence($ins) > $claim->payerSequence()) {
+                    continue; // payer is future, not previous
+                }
+
                 $payerpaid = $claim->payerTotals($ins, $claim->cptKey($prockey));
                 ++$edicount;
                 $out .= "AMT" . // Approved amount per previous payer. Page 485.
@@ -1266,7 +1308,10 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
 
             ++$edicount;
             $tmpunits = $claim->cptNDCQuantity($prockey) * $claim->cptUnits($prockey);
-            if (!$tmpunits) $tmpunits = 1;
+            if (!$tmpunits) {
+                $tmpunits = 1;
+            }
+
             $out .= "CTP" . // Drug Pricing. Page 500+ (Addendum pg 74).
             "*" .
             "*" .
@@ -1349,8 +1394,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
         // Loop 2430, adjudication by previous payers.
         //
         for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
-            if ($claim->payerSequence($ins) > $claim->payerSequence())
-            continue; // payer is future, not previous
+            if ($claim->payerSequence($ins) > $claim->payerSequence()) {
+                continue; // payer is future, not previous
+            }
 
             $payerpaid = $claim->payerTotals($ins, $claim->cptKey($prockey));
             $aarr = $claim->payerAdjustments($ins, $claim->cptKey($prockey));
@@ -1378,7 +1424,9 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 "*" . $a[2] .
                 "*" . $a[3] .
                 "~\n";
-                if (!$tmpdate) $tmpdate = $a[0];
+                if (!$tmpdate) {
+                    $tmpdate = $a[0];
+                }
 
                 // WTH is this??
                 /*************************************************************

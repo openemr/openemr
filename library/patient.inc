@@ -163,7 +163,10 @@ function getProviders()
     $rez = sqlStatement($sql);
     for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         if (($row["fname"] != "") && ($row["lname"] != "")) {
-            if ($row["suffix"] != "") $row["lname"] .= ", ".$row["suffix"];
+            if ($row["suffix"] != "") {
+                $row["lname"] .= ", ".$row["suffix"];
+            }
+
             array_push($returnval, $row["fname"] . " " . $row["lname"]);
         }
     }
@@ -207,21 +210,38 @@ function genFacilityTitle($repname = '', $facid = 0)
     $r = getFacility($facid);
     if (!empty($r)) {
         $s .= "<b>" . htmlspecialchars($r['name'], ENT_NOQUOTES) . "</b>\n";
-        if ($r['street']) $s .= "<br />" . htmlspecialchars($r['street'], ENT_NOQUOTES) . "\n";
+        if ($r['street']) {
+            $s .= "<br />" . htmlspecialchars($r['street'], ENT_NOQUOTES) . "\n";
+        }
+
         if ($r['city'] || $r['state'] || $r['postal_code']) {
             $s .= "<br />";
-            if ($r['city']) $s .= htmlspecialchars($r['city'], ENT_NOQUOTES);
+            if ($r['city']) {
+                $s .= htmlspecialchars($r['city'], ENT_NOQUOTES);
+            }
+
             if ($r['state']) {
-                if ($r['city']) $s .= ", \n";
+                if ($r['city']) {
+                    $s .= ", \n";
+                }
+
                 $s .= htmlspecialchars($r['state'], ENT_NOQUOTES);
             }
 
-            if ($r['postal_code']) $s .= " " . htmlspecialchars($r['postal_code'], ENT_NOQUOTES);
+            if ($r['postal_code']) {
+                $s .= " " . htmlspecialchars($r['postal_code'], ENT_NOQUOTES);
+            }
+
             $s .= "\n";
         }
 
-        if ($r['country_code']) $s .= "<br />" . htmlspecialchars($r['country_code'], ENT_NOQUOTES) . "\n";
-        if (preg_match('/[1-9]/', $r['phone'])) $s .= "<br />" . htmlspecialchars($r['phone'], ENT_NOQUOTES) . "\n";
+        if ($r['country_code']) {
+            $s .= "<br />" . htmlspecialchars($r['country_code'], ENT_NOQUOTES) . "\n";
+        }
+
+        if (preg_match('/[1-9]/', $r['phone'])) {
+            $s .= "<br />" . htmlspecialchars($r['phone'], ENT_NOQUOTES) . "\n";
+        }
     }
 
     $s .= "  </td>\n";
@@ -315,8 +335,9 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
     $rez = sqlStatement($query);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     //if only one result returned take the key/value pairs in array [0] and merge them down into
     // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
@@ -349,8 +370,9 @@ function getCalendarProviderInfo($providerID = "%", $providers_only = true)
         add_escape_custom($providerID) . "' " . $param1;
 
     $rez = sqlStatement($query);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -359,7 +381,10 @@ function getProviderName($providerID)
 {
     $pi = getProviderInfo($providerID, 'any');
     if (strlen($pi[0]["lname"]) > 0) {
-        if (strlen($pi[0]["suffix"]) > 0) $pi[0]["lname"] .= ", ".$pi[0]["suffix"];
+        if (strlen($pi[0]["suffix"]) > 0) {
+            $pi[0]["lname"] .= ", ".$pi[0]["suffix"];
+        }
+
         return $pi[0]['fname'] . " " . $pi[0]['lname'];
     }
 
@@ -370,8 +395,10 @@ function getProviderId($providerName)
 {
     $query = "select id from users where username = ?";
     $rez = sqlStatement($query, array($providerName));
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
+
     return $returnval;
 }
 
@@ -533,13 +560,16 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
     }
 
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " LIMIT $start, $limit";
+    if ($limit != "all") {
+        $sql .= " LIMIT $start, $limit";
+    }
 
     $rez = sqlStatement($sql, $sqlBindArray);
 
     $returnval=array();
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;
+    }
 
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
@@ -579,7 +609,9 @@ function getPatientNameSplit($term)
         }
     } else {
         $n['last'] = $term;
-        if (empty($n['last'])) $n['last'] = '%';
+        if (empty($n['last'])) {
+            $n['last'] = '%';
+        }
     }
 
     // Trim whitespace off the names before returning
@@ -606,10 +638,14 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
+    if ($limit != "all") {
+        $sql .= " limit $start, $limit";
+    }
+
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
@@ -631,10 +667,15 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
+    if ($limit != "all") {
+        $sql .= " limit $start, $limit";
+    }
+
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
-    $returnval[$iter]=$row;
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
+
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
@@ -654,7 +695,10 @@ function getByPatientDemographicsFilter(
     $where = "";
     $i = 0;
     foreach ($layoutCols as $val) {
-        if (empty($val)) continue;
+        if (empty($val)) {
+            continue;
+        }
+
         if ($i > 0) {
             $where .= " or ";
         }
@@ -671,7 +715,9 @@ function getByPatientDemographicsFilter(
     }
 
   // If no search terms, ensure valid syntax.
-    if ($i == 0) $where = "1 = 1";
+    if ($i == 0) {
+        $where = "1 = 1";
+    }
 
   // If a non-empty service code was given, then restrict to patients who
   // have been provided that service.  Since the code is used in a LIKE
@@ -688,10 +734,15 @@ function getByPatientDemographicsFilter(
     }
 
     $sql = "SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
+    if ($limit != "all") {
+        $sql .= " limit $start, $limit";
+    }
+
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
-      $returnval[$iter]=$row;
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
+
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
 }
@@ -724,17 +775,25 @@ function getPatientPID($args)
         $start = $args['start']; }
 
     $command = "=";
-    if ($pid == -1) $pid = "%";
-    elseif (empty($pid)) $pid = "NULL";
+    if ($pid == -1) {
+        $pid = "%";
+    } elseif (empty($pid)) {
+        $pid = "NULL";
+    }
 
-    if (strstr($pid, "%")) $command = "like";
+    if (strstr($pid, "%")) {
+        $command = "like";
+    }
 
     $sql="select $given from patient_data where pid $command '$pid' order by $orderby";
-    if ($limit != "all") $sql .= " limit $start, $limit";
+    if ($limit != "all") {
+        $sql .= " limit $start, $limit";
+    }
 
     $rez = sqlStatement($sql);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -742,9 +801,15 @@ function getPatientPID($args)
 /* return a patient's name in the format LAST, FIRST */
 function getPatientName($pid)
 {
-    if (empty($pid)) return "";
+    if (empty($pid)) {
+        return "";
+    }
+
     $patientData = getPatientPID(array("pid"=>$pid));
-    if (empty($patientData[0]['lname'])) return "";
+    if (empty($patientData[0]['lname'])) {
+        return "";
+    }
+
     $patientName =  $patientData[0]['lname'] . ", " . $patientData[0]['fname'];
     return $patientName;
 }
@@ -767,11 +832,14 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
 
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
 
-    if ($limit != "all") $sql .= " LIMIT $start, $limit";
+    if ($limit != "all") {
+        $sql .= " LIMIT $start, $limit";
+    }
 
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
@@ -784,11 +852,14 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
     $where = "ss LIKE ?";
     array_push($sqlBindArray, $ss."%");
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " LIMIT $start, $limit";
+    if ($limit != "all") {
+        $sql .= " LIMIT $start, $limit";
+    }
 
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
@@ -802,11 +873,14 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
     $where = "REPLACE(REPLACE(phone_home, '-', ''), ' ', '') REGEXP ?";
     array_push($sqlBindArray, $phone);
     $sql="SELECT $given FROM patient_data WHERE $where ORDER BY $orderby";
-    if ($limit != "all") $sql .= " LIMIT $start, $limit";
+    if ($limit != "all") {
+        $sql .= " LIMIT $start, $limit";
+    }
 
     $rez = sqlStatement($sql, $sqlBindArray);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
     return $returnval;
@@ -816,12 +890,14 @@ function getPatientIds($given = "pid, id, lname, fname, mname", $orderby = "id A
 {
     $sql="select $given from patient_data order by $orderby";
 
-    if ($limit != "all")
+    if ($limit != "all") {
         $sql .= " limit $start, $limit";
+    }
 
     $rez = sqlStatement($sql);
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
         $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
@@ -981,14 +1057,21 @@ function fixDate($date, $default = "0000-00-00")
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
         } else {
             if ($dmy[0] != 0 || $dmy[1] != 0 || $dmy[2] != 0) {
-                if ($dmy[2] < 1000) $dmy[2] += 1900;
-                if ($dmy[2] < 1910) $dmy[2] += 100;
+                if ($dmy[2] < 1000) {
+                    $dmy[2] += 1900;
+                }
+
+                if ($dmy[2] < 1910) {
+                    $dmy[2] += 100;
+                }
             }
 
             // phone_country_code indicates format of ambiguous input dates.
-            if ($GLOBALS['phone_country_code'] == 1)
-              $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
-            else $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
+            if ($GLOBALS['phone_country_code'] == 1) {
+                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
+            } else {
+                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
+            }
         }
     }
 
@@ -1033,7 +1116,10 @@ function updatePatientData($pid, $new, $create = false)
     if ($create) {
         $sql = "INSERT INTO patient_data SET pid = '" . add_escape_custom($pid) . "', date = NOW()";
         foreach ($new as $key => $value) {
-            if ($key == 'id') continue;
+            if ($key == 'id') {
+                continue;
+            }
+
             $sql .= ", `$key` = " . pdValueOrNull($key, $value);
         }
 
@@ -1155,7 +1241,9 @@ function newInsuranceData(
     $policy_type = ""
 ) {
 
-    if (strlen($type) <= 0) return false;
+    if (strlen($type) <= 0) {
+        return false;
+    }
 
   // If a bad date was passed, err on the side of caution.
     $effective_date = fixDate($effective_date, date('Y-m-d'));
@@ -1182,7 +1270,9 @@ function newInsuranceData(
                 $ferow = sqlQuery("SELECT count(*) AS count FROM form_encounter " .
                 "WHERE pid = ? AND date < ? AND " .
                 "date >= ?", array($pid, $effective_date." 00:00:00", $idrow['date']." 00:00:00"));
-                if ($ferow['count'] == 0) $replace = true;
+                if ($ferow['count'] == 0) {
+                    $replace = true;
+                }
             }
         }
     }
@@ -1275,7 +1365,10 @@ function updateInsuranceData($id, $new)
     }
 
     $sql = "UPDATE insurance_data SET ";
-    while (list($key, $value) = each($use))$sql .= "`$key` = '" . add_escape_custom($value) . "', ";
+    while (list($key, $value) = each($use)) {
+        $sql .= "`$key` = '" . add_escape_custom($value) . "', ";
+    }
+
     $sql = substr($sql, 0, -2) . " WHERE id = '" . add_escape_custom($id) . "'";
 
     sqlStatement($sql);
@@ -1299,7 +1392,10 @@ function newHistoryData($pid, $new = false)
 function updateHistoryData($pid, $new)
 {
         $real = getHistoryData($pid);
-        while (list($key, $value) = each($new))$real[$key] = $value;
+    while (list($key, $value) = each($new)) {
+        $real[$key] = $value;
+    }
+
         $real['id'] = "";
     // need to unset date, so can reset it below
     unset($real['date']);
@@ -1743,7 +1839,10 @@ function getEffectiveInsurances($patient_id, $encdate)
             "AND date <= ? ORDER BY date DESC LIMIT 1",
             array($patient_id, $instype, $encdate)
         );
-        if (empty($tmp['provider'])) break;
+        if (empty($tmp['provider'])) {
+            break;
+        }
+
         $insarr[] = $tmp;
     }
 
@@ -1785,7 +1884,9 @@ function get_patient_balance($pid, $with_insurance = false)
                 array($pid, $encounter)
             );
             $ptbal = $insarr[0]['copay'] + $brow['amount'] - $drow['payments'];
-            if ($ptbal > 0) $balance += $ptbal;
+            if ($ptbal > 0) {
+                $balance += $ptbal;
+            }
         } else {
             // Including insurance or not out to insurance, everything is due.
             $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .

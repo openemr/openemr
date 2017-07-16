@@ -78,8 +78,9 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
 $index=0;
 
 $numlines = 0;
-foreach ($codes as $value)
+foreach ($codes as $value) {
     $numlines = max($numlines, count($value));
+}
 
 while ($index < $numlines) {
     echo " <tr>\n";

@@ -45,7 +45,9 @@ function phimail_connect(&$phimail_error)
     $phimail_password = $GLOBALS['phimail_password'];
     $phimail_cafile = dirname(__FILE__) . '/../sites/' . $_SESSION['site_id']
       . '/documents/phimail_server_pem/phimail_server.pem';
-    if (!file_exists($phimail_cafile)) $phimail_cafile='';
+    if (!file_exists($phimail_cafile)) {
+        $phimail_cafile='';
+    }
 
     $phimail_secure = true;
     switch ($phimail_server['scheme']) {
@@ -88,8 +90,14 @@ function phimail_connect(&$phimail_error)
         }
 
         if (!$fp) {
-            if ($err1 == '111') $err2 = xl('Server may be offline');
-            if ($err2 == '') $err2 = xl('Connection error');
+            if ($err1 == '111') {
+                $err2 = xl('Server may be offline');
+            }
+
+            if ($err2 == '') {
+                $err2 = xl('Connection error');
+            }
+
             $phimail_error = "C4 $err1 ($err2)";
         }
     } else {
@@ -121,7 +129,9 @@ function phimail_check()
         return;
     }
 
-    if (!($notifyUsername = $GLOBALS['phimail_notify'])) $notifyUsername='admin'; //fallback
+    if (!($notifyUsername = $GLOBALS['phimail_notify'])) {
+        $notifyUsername='admin'; //fallback
+    }
 
     while (1) {
         phimail_write($fp, "CHECK\n");
@@ -146,8 +156,11 @@ function phimail_check()
                 //no match, so log it and move on (should never happen)
                 phimail_logit(0, "NO MATCH: ".$ret);
                 $ret = phimail_write_expect_OK($fp, "OK\n");
-                if ($ret!==true) return;
-                else continue;
+                if ($ret!==true) {
+                    return;
+                } else {
+                    continue;
+                }
             }
 
             //if we get here, $msg contains the matching outgoing message record
@@ -166,7 +179,10 @@ function phimail_check()
 
             phimail_logit($success, $ret, $msg['patient_id']);
 
-            if (!isset($val[3])) $val[3]="";
+            if (!isset($val[3])) {
+                $val[3]="";
+            }
+
             $sql = "UPDATE direct_message_log SET status=?, status_ts=NOW(), status_info=? WHERE msg_type='S' AND msg_id=?";
             $res = sqlStatementNoLog($sql, array($status,$val[3],$val[1]));
             if ($res===false) { //database problem
@@ -219,7 +235,9 @@ function phimail_check()
 
         //get message headers
             $hdrs="";
-            while (($next_hdr = fgets($fp, 1024)) != "\n")$hdrs .= $next_hdr;
+            while (($next_hdr = fgets($fp, 1024)) != "\n") {
+                $hdrs .= $next_hdr;
+            }
 
             $mime_type=fgets($fp, 512);
             $mime_info=explode(";", $mime_type);
@@ -314,8 +332,9 @@ function phimail_check()
                 filesize($attdata) . " bytes) " . trim($attinfo[$attnum]['desc']);
             }
 
-            if ($att_detail != "")
-            $att_detail = "\n\n" . xl("The following documents were attached to this Direct message:") . $att_detail;
+            if ($att_detail != "") {
+                $att_detail = "\n\n" . xl("The following documents were attached to this Direct message:") . $att_detail;
+            }
 
             $ret2 = phimail_write_expect_OK($fp, "DONE\n"); //we'll check for failure after logging.
 
@@ -351,7 +370,9 @@ function phimail_check()
                     break;
             }
 
-            foreach ($all_doc_ids as $doc_id) setGpRelation(1, $doc_id, 6, $pnote_id);
+            foreach ($all_doc_ids as $doc_id) {
+                setGpRelation(1, $doc_id, 6, $pnote_id);
+            }
 
             if ($ret2!==true) {
                    phimail_close();
@@ -419,12 +440,17 @@ function phimail_read_blob($fp, $len)
     }
 
     $ff = @fopen($fn, "w");
-    if (!$ff) return false;
+    if (!$ff) {
+        return false;
+    }
 
     $bytes_left=$len;
     $chunk_size=1024;
     while (!feof($fp) && $bytes_left>0) {
-        if ($bytes_left < $chunk_size) $chunk_size = $bytes_left;
+        if ($bytes_left < $chunk_size) {
+            $chunk_size = $bytes_left;
+        }
+
         $chunk = fread($fp, $chunk_size);
         if ($chunk===false || @fwrite($ff, $chunk)===false) {
             @fclose($ff);
@@ -504,7 +530,10 @@ function phimail_store($name, $mime_type, $fn)
 function phimail_notify($subj, $body)
 {
     $recipient = $GLOBALS['practice_return_email_path'];
-    if (empty($recipient)) return false;
+    if (empty($recipient)) {
+        return false;
+    }
+
     $mail = new PHPMailer();
     $mail->From = $recipient;
     $mail->FromName = 'phiMail Gateway';

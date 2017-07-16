@@ -68,10 +68,14 @@ if ($_POST['show_completed_drug_screens']) {
 $provider  = $_POST['form_provider'];
 $facility  = $_POST['form_facility'];  #(CHEMED) facility filter
 $form_orderby = getComparisonOrder($_REQUEST['form_orderby']) ?  $_REQUEST['form_orderby'] : 'date';
-if ($_POST["form_patient"])
-$form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+if ($_POST["form_patient"]) {
+    $form_patient = isset($_POST['form_patient']) ? $_POST['form_patient'] : '';
+}
+
 $form_pid = isset($_POST['form_pid']) ? $_POST['form_pid'] : '';
-if ($form_patient == '') $form_pid = '';
+if ($form_patient == '') {
+    $form_pid = '';
+}
 ?>
 
 <html>
@@ -193,7 +197,10 @@ if ($form_patient == '') $form_pid = '';
                 while ($urow = sqlFetchArray($ures)) {
                     $provid = $urow['id'];
                     echo "    <option value='" . attr($provid) . "'";
-                    if ($provid == $_POST['form_provider']) echo " selected";
+                    if ($provid == $_POST['form_provider']) {
+                        echo " selected";
+                    }
+
                     echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
                 }
 
@@ -250,7 +257,8 @@ if ($form_patient == '') $form_pid = '';
 
                 <td colspan="2">
                     <div class="checkbox">
-                        <label><input type="checkbox" name="show_details" id="show_details" <?php if ($chk_show_details) echo "checked";?>>&nbsp;<?php echo xlt('Show Details'); ?></label>
+                        <label><input type="checkbox" name="show_details" id="show_details" <?php if ($chk_show_details) {
+                            echo "checked";}?>>&nbsp;<?php echo xlt('Show Details'); ?></label>
                     </div>
                 </td>
             </tr>
@@ -264,12 +272,14 @@ if ($form_patient == '') $form_pid = '';
                   # if both are selected then only completed drug screens will be displayed. ?>
             <td colspan="2">
                 <div class="checkbox">
-                    <label><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if ($chk_show_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></label>
+                    <label><input type="checkbox" name="show_drug_screens" id="show_drug_screens" <?php if ($chk_show_drug_screens) {
+                        echo "checked";}?>>&nbsp;<?php echo xlt('Show Selected for Drug Screens'); ?></label>
                 </div>
             </td>
             <td colspan="2">
                 <div class="checkbox">
-                    <label><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if ($chk_show_completed_drug_screens) echo "checked";?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></label>
+                    <label><input type="checkbox" name="show_completed_drug_screens" id="show_completed_drug_screens" <?php if ($chk_show_completed_drug_screens) {
+                        echo "checked";}?>>&nbsp;<?php echo xlt('Show Status of Drug Screens'); ?></label>
                 </div>
             </td>
             </tr>
@@ -314,36 +324,44 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     <thead>
     <?php if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Provider'); ?>
+        <?php if ($form_orderby == "doctor") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
         <th><a href="nojs.php" onclick="return dosort('date')"
-        <?php if ($form_orderby == "date") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Date'); ?></a>
+        <?php if ($form_orderby == "date") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Time'); ?></a>
+        <?php if ($form_orderby == "time") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php if ($form_orderby == "patient") {
+            echo " style=\"color:#00cc00\""; } ?>>&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+        <?php if ($form_orderby == "pubpid") {
+            echo " style=\"color:#00cc00\""; } ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('type')"
-        <?php if ($form_orderby == "type") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Type'); ?></a>
+        <?php if ($form_orderby == "type") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Type'); ?></a>
         </th>
 
         <?php if ($chk_show_details) { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-        <?php if ($form_orderby == "trackerstatus") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Status'); ?></a>
+        <?php if ($form_orderby == "trackerstatus") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Status'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('trackerstatus')"
-        <?php if ($form_orderby == "trackerstatus") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Final Status'); ?></a>
+        <?php if ($form_orderby == "trackerstatus") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Final Status'); ?></a>
         </th>
         <?php } ?>
 
@@ -367,28 +385,34 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
     <?php } else { # this section is for the drug screen report ?>
 
         <th><a href="nojs.php" onclick="return dosort('doctor')"
-        <?php if ($form_orderby == "doctor") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Provider'); ?>
+        <?php if ($form_orderby == "doctor") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Provider'); ?>
         </a></th>
 
         <th><a href="nojs.php" onclick="return dosort('date')"
-        <?php if ($form_orderby == "date") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Date'); ?></a>
+        <?php if ($form_orderby == "date") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Date'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('time')"
-        <?php if ($form_orderby == "time") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Time'); ?></a>
+        <?php if ($form_orderby == "time") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Time'); ?></a>
         </th>
 
         <th><a href="nojs.php" onclick="return dosort('patient')"
-        <?php if ($form_orderby == "patient") echo " style=\"color:#00cc00\"" ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
+        <?php if ($form_orderby == "patient") {
+            echo " style=\"color:#00cc00\""; } ?>>&nbsp;&nbsp;&nbsp;&nbsp;<?php  echo xlt('Patient'); ?></a>
         </th>
 
         <?php if (!$chk_show_completed_drug_screens) { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+        <?php if ($form_orderby == "pubpid") {
+            echo " style=\"color:#00cc00\""; } ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } else { ?>
         <th><a href="nojs.php" onclick="return dosort('pubpid')"
-        <?php if ($form_orderby == "pubpid") echo " style=\"color:#00cc00\"" ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
+        <?php if ($form_orderby == "pubpid") {
+            echo " style=\"color:#00cc00\""; } ?>>&nbsp;<?php  echo xlt('ID'); ?></a>
         </th>
         <?php } ?>
 
@@ -398,7 +422,8 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
          <th>&nbsp;</th>
         <?php } else { ?>
          <th><a href="nojs.php" onclick="return dosort('completed')"
-        <?php if ($form_orderby == "completed") echo " style=\"color:#00cc00\"" ?>><?php  echo xlt('Completed'); ?></a>
+        <?php if ($form_orderby == "completed") {
+            echo " style=\"color:#00cc00\""; } ?>><?php  echo xlt('Completed'); ?></a>
          </th>
         <?php } ?>
 
@@ -437,15 +462,22 @@ if ($_POST['form_refresh'] || $_POST['form_orderby']) {
         $last_seq = $appointment['lastseq'];
         $docname  = $appointment['ulname'] . ', ' . $appointment['ufname'] . ' ' . $appointment['umname'];
         # only get items with a tracker id.
-        if ($tracker_id == '') continue;
+        if ($tracker_id == '') {
+            continue;
+        }
+
         # only get the drug screens that are set to yes.
         if ($chk_show_drug_screens ==1) {
-            if ($appointment['random_drug_test'] != '1') continue;
+            if ($appointment['random_drug_test'] != '1') {
+                continue;
+            }
         }
 
         #if a patient id is entered just get that patient.
         if (strlen($form_pid) !=0) {
-            if ($appointment['pid'] != $form_pid) continue;
+            if ($appointment['pid'] != $form_pid) {
+                continue;
+            }
         }
 
         $errmsg  = "";

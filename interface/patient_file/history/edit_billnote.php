@@ -31,7 +31,9 @@
 
  $info_msg = "";
 
- if (!acl_check('acct', 'bill', '', 'write')) die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+if (!acl_check('acct', 'bill', '', 'write')) {
+    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
 ?>
 <html>
 <head>
@@ -60,7 +62,10 @@ if ($_POST['form_submit'] || $_POST['form_cancel']) {
     $fenote = htmlspecialchars($fenote, ENT_QUOTES);
     $fenote = str_replace("\r\n", "<br />", $fenote);
     $fenote = str_replace("\n", "<br />", $fenote);
-    if (! $fenote) $fenote = '['. xl('Add') . ']';
+    if (! $fenote) {
+        $fenote = '['. xl('Add') . ']';
+    }
+
     echo "<script language='JavaScript'>\n";
     echo " parent.closeNote($feid, '$fenote')\n";
     echo "</script></body></html>\n";

@@ -82,8 +82,9 @@ class DBTable
         }
         
         // views don't technically have a primary key but we will return the first column if anybody asks
-        if ($this->IsView)
+        if ($this->IsView) {
             return $this->GetColumnNameByIndex(0, $remove_prefix);
+        }
     }
     
     /**
@@ -99,8 +100,9 @@ class DBTable
     {
         $count = 0;
         foreach ($this->Columns as $column) {
-            if ($count == $index)
+            if ($count == $index) {
                 return ($remove_prefix) ? $column->NameWithoutPrefix : $column->Name;
+            }
         }
         
         throw new Exception('Index out of bounds');

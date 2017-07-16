@@ -36,7 +36,9 @@
 <body>
 <?php
   $patient_id = $_GET['patient_id'];
-  if (! $patient_id) die(xl("You cannot access this page directly."));
+if (! $patient_id) {
+    die(xl("You cannot access this page directly."));
+}
 
 if ($_POST['form_save']) {
     $thevalue = trim($_POST['form_note']);
@@ -46,7 +48,10 @@ if ($_POST['form_save']) {
     "WHERE pid = ? ", array($thevalue, $patient_id));
 
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " window.close();\n";
     echo "</script></body></html>\n";
     exit();

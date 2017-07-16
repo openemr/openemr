@@ -138,17 +138,22 @@ function getPnotesByDate(
         array_push($sqlParameterArray, $username);
     }
 
-    if ($status)
-    $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
+    if ($status) {
+        $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
+    }
+
     $sql .= " ORDER BY date DESC";
-    if ($limit != "all")
-    $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
+    if ($limit != "all") {
+        $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
+    }
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
     $all=array();
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-    $all[$iter] = $row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $all[$iter] = $row;
+    }
+
     return $all;
 }
 
@@ -199,17 +204,22 @@ function getSentPnotesByDate(
         array_push($sqlParameterArray, $username);
     }
 
-    if ($status)
-    $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
+    if ($status) {
+        $sql .= " AND message_status IN ('".str_replace(",", "','", add_escape_custom($status))."')";
+    }
+
     $sql .= " ORDER BY date DESC";
-    if ($limit != "all")
-    $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
+    if ($limit != "all") {
+        $sql .= " LIMIT ".escape_limit($start).", ".escape_limit($limit);
+    }
 
     $res = sqlStatement($sql, $sqlParameterArray);
 
     $all=array();
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-    $all[$iter] = $row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $all[$iter] = $row;
+    }
+
     return $all;
 }
 
@@ -353,8 +363,10 @@ function getPnotesByPid($pid, $activity = "1", $cols = "*", $limit = 10, $start 
           " ORDER BY date DESC LIMIT ".escape_limit($start).",".escape_limit($limit), array($pid));
     }
 
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-    $all[$iter] = $row;
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+        $all[$iter] = $row;
+    }
+
     return $all;
 }
 
@@ -383,14 +395,21 @@ function addPnote(
     $background_user = ""
 ) {
 
-    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+    if (empty($datetime)) {
+        $datetime = date('Y-m-d H:i:s');
+    }
 
   // make inactive if set as Done
-    if ($message_status == 'Done') $activity = 0;
+    if ($message_status == 'Done') {
+        $activity = 0;
+    }
 
     $user = ($background_user!="" ? $background_user : $_SESSION['authUser']);
     $body = date('Y-m-d H:i') . ' (' . $user;
-    if ($assigned_to) $body .= " to $assigned_to";
+    if ($assigned_to) {
+        $body .= " to $assigned_to";
+    }
+
     $body = $body . ') ' . $newtext;
 
     return sqlInsert(
@@ -412,13 +431,20 @@ function addMailboxPnote(
     $message_status = "New"
 ) {
 
-    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+    if (empty($datetime)) {
+        $datetime = date('Y-m-d H:i:s');
+    }
 
   // make inactive if set as Done
-    if ($message_status == "Done") $activity = 0;
+    if ($message_status == "Done") {
+        $activity = 0;
+    }
 
     $body = date('Y-m-d H:i') . ' (' . $pid;
-    if ($assigned_to) $body .= " to $assigned_to";
+    if ($assigned_to) {
+        $body .= " to $assigned_to";
+    }
+
     $body = $body . ') ' . $newtext;
 
     return sqlInsert(
@@ -431,15 +457,23 @@ function addMailboxPnote(
 function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "")
 {
     $row = getPnoteById($id);
-    if (! $row) die("updatePnote() did not find id '".text($id)."'");
+    if (! $row) {
+        die("updatePnote() did not find id '".text($id)."'");
+    }
+
     $activity = $assigned_to ? '1' : '0';
 
   // make inactive if set as Done
-    if ($message_status == "Done") $activity = 0;
+    if ($message_status == "Done") {
+        $activity = 0;
+    }
 
     $body = $row['body'] . "\n" . date('Y-m-d H:i') .
     ' (' . $_SESSION['authUser'];
-    if ($assigned_to) $body .= " to $assigned_to";
+    if ($assigned_to) {
+        $body .= " to $assigned_to";
+    }
+
     $body = $body . ') ' . $newtext;
 
     if ($message_status) {
@@ -477,11 +511,16 @@ function updatePnoteMessageStatus($id, $message_status)
 function updatePnotePatient($id, $patient_id)
 {
     $row = getPnoteById($id);
-    if (! $row) die("updatePnotePatient() did not find id '".text($id)."'");
+    if (! $row) {
+        die("updatePnotePatient() did not find id '".text($id)."'");
+    }
+
     $activity = $assigned_to ? '1' : '0';
 
     $pid = $row['pid'];
-    if ($pid != 0 || (int)$patient_id < 1) die("updatePnotePatient invalid operation");
+    if ($pid != 0 || (int)$patient_id < 1) {
+        die("updatePnotePatient invalid operation");
+    }
 
     $pid = (int) $patient_id;
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $_SESSION['authUser'] .")";

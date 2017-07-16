@@ -39,7 +39,10 @@ class SimpleTemplate
     static function TextToHtml($txt)
     {
         // Kills double spaces and spaces inside tags.
-        while (! (strpos($txt, '  ') === false))$txt = str_replace('  ', ' ', $txt);
+        while (! (strpos($txt, '  ') === false)) {
+            $txt = str_replace('  ', ' ', $txt);
+        }
+
         $txt = str_replace(' >', '>', $txt);
         $txt = str_replace('< ', '<', $txt);
         
@@ -157,8 +160,9 @@ class SimpleTemplate
     {
         self::$_MERGE_TEMPLATE_VALUES = $values;
         
-        if ($ldelim != "{{" || $rdelim != "}}")
+        if ($ldelim != "{{" || $rdelim != "}}") {
             throw new Exception("Custom delimiters are not yet implemented. Sorry!");
+        }
         
         $results = preg_replace_callback('!\{\{(\w+)\}\}!', 'SimpleTemplate::_MergeRegExCallback', $template);
         

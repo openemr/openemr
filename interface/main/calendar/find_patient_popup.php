@@ -157,15 +157,20 @@ if (isset($_GET["res"])) {
 <body class="body_top">
 
 <div id="searchCriteria">
-<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) echo "pflag=0"; ?>'>
+<form method='post' name='theform' id="theform" action='find_patient_popup.php?<?php if (isset($_GET['pflag'])) {
+    echo "pflag=0";} ?>'>
     <?php echo htmlspecialchars(xl('Search by:'), ENT_NOQUOTES); ?>
    <select name='searchby'>
     <option value="Last"><?php echo htmlspecialchars(xl('Name'), ENT_NOQUOTES); ?></option>
     <!-- (CHEMED) Search by phone number -->
-    <option value="Phone"<?php if ($searchby == 'Phone') echo ' selected' ?>><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></option>
-    <option value="ID"<?php if ($searchby == 'ID') echo ' selected' ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
-    <option value="SSN"<?php if ($searchby == 'SSN') echo ' selected' ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
-    <option value="DOB"<?php if ($searchby == 'DOB') echo ' selected' ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
+    <option value="Phone"<?php if ($searchby == 'Phone') {
+        echo ' selected'; } ?>><?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?></option>
+    <option value="ID"<?php if ($searchby == 'ID') {
+        echo ' selected'; } ?>><?php echo htmlspecialchars(xl('ID'), ENT_NOQUOTES); ?></option>
+    <option value="SSN"<?php if ($searchby == 'SSN') {
+        echo ' selected'; } ?>><?php echo htmlspecialchars(xl('SSN'), ENT_NOQUOTES); ?></option>
+    <option value="DOB"<?php if ($searchby == 'DOB') {
+        echo ' selected'; } ?>><?php echo htmlspecialchars(xl('DOB'), ENT_NOQUOTES); ?></option>
    </select>
     <?php echo htmlspecialchars(xl('for:'), ENT_NOQUOTES); ?>
    <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo htmlspecialchars($_REQUEST['searchparm'], ENT_QUOTES); ?>'

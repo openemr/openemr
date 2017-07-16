@@ -43,8 +43,9 @@ if (sqlNumRows($res) > 0) {
         $dispmin = substr($row ['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = "pm";
-            if ($disphour > 12)
+            if ($disphour > 12) {
                 $disphour -= 12;
+            }
         }
 
         if ($row ['pc_hometext'] != "") {

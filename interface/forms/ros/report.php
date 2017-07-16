@@ -79,7 +79,10 @@ function ros_report($pid, $encounter, $cols, $id)
 
         foreach ($data as $key => $value) {
             if (isset($cmap[$key])) {
-                if ($cmap[$key] == '') continue;
+                if ($cmap[$key] == '') {
+                    continue;
+                }
+
                 $key = $cmap[$key];
             } else {
                 $key = ucwords(str_replace("_", " ", $key));
@@ -87,7 +90,9 @@ function ros_report($pid, $encounter, $cols, $id)
 
             // skip the N/A values -- cfapress, Jan 2009 OR blank or zero date values
             if ($value == "N/A" || $value == "" ||
-                $value == "0000-00-00" || $value == "0000-00-00 00:00:00") continue;
+                $value == "0000-00-00" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
 
             if ($value == "on") {
                 $value = "yes"; }

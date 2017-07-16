@@ -98,7 +98,9 @@
  */
 define('_EDIH', 1);
 //DIRECTORY_SEPARATOR;
-if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+if (!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
 
 /**
  * Log messages to the log file

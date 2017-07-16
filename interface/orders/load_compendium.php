@@ -53,16 +53,23 @@ function getLabID($npi)
         "npi = ? ORDER BY ppid LIMIT 1",
         array($npi)
     );
-    if (empty($lrow['ppid'])) return 0;
+    if (empty($lrow['ppid'])) {
+        return 0;
+    }
+
     return intval($lrow['ppid']);
 }
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized', '', '', '!'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized', '', '', '!'));
+}
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
-if (!empty($_POST['form_import'])) $form_step = 1;
+if (!empty($_POST['form_import'])) {
+    $form_step = 1;
+}
 
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
@@ -174,7 +181,10 @@ if ($form_step == 1) {
                     //
                     while (!feof($fhcsv)) {
                               $acsv = fgetcsv($fhcsv, 4096);
-                              if (count($acsv) < 4 || $acsv[0] == "Order Code") continue;
+                        if (count($acsv) < 4 || $acsv[0] == "Order Code") {
+                            continue;
+                        }
+
                               $standard_code = empty($acsv[2]) ? '' : ('CPT4:' . $acsv[2]);
 
                               // Update or insert the order row, if not already done.
@@ -259,9 +269,14 @@ if ($form_step == 1) {
                     $last_code = '';
                     while (!feof($fhcsv)) {
                         $acsv = fgetcsv($fhcsv, 4096);
-                        if (count($acsv) < 7 || $acsv[4] == "Required") continue;
+                        if (count($acsv) < 7 || $acsv[4] == "Required") {
+                            continue;
+                        }
+
                         $code = trim($acsv[0]);
-                        if (empty($code)) continue;
+                        if (empty($code)) {
+                            continue;
+                        }
 
                         if ($code != $last_code) {
                             $seq = 0;
@@ -275,11 +290,17 @@ if ($form_step == 1) {
                         $fldtype = 'T';
 
                         // Figure out field type.
-                        if ($acsv[6] == 'DD') $fldtype = 'S';
-                        else if (stristr($acsv[3], 'mm/dd/yy') !== false) $fldtype = 'D';
-                        else if (stristr($acsv[3], 'wks_days') !== false) $fldtype = 'G';
-                        else if ($acsv[6] == 'FT') $fldtype = 'T';
-                        else $fldtype = 'N';
+                        if ($acsv[6] == 'DD') {
+                            $fldtype = 'S';
+                        } else if (stristr($acsv[3], 'mm/dd/yy') !== false) {
+                            $fldtype = 'D';
+                        } else if (stristr($acsv[3], 'wks_days') !== false) {
+                            $fldtype = 'G';
+                        } else if ($acsv[6] == 'FT') {
+                            $fldtype = 'T';
+                        } else {
+                            $fldtype = 'N';
+                        }
 
                         $qrow = sqlQuery(
                             "SELECT * FROM procedure_questions WHERE " .
@@ -321,11 +342,17 @@ if ($form_step == 1) {
                     //
                     while (!feof($fhcsv)) {
                         $acsv = fgetcsv($fhcsv, 4096);
-                        if (count($acsv) < 4 || ($acsv[0] == "OBXCode")) continue;
+                        if (count($acsv) < 4 || ($acsv[0] == "OBXCode")) {
+                            continue;
+                        }
+
                         $pcode   = trim($acsv[1]);
                         $qcode   = trim($acsv[0]);
                         $options = trim($acsv[2]) . ':' . trim($acsv[3]);
-                        if (empty($pcode) || empty($qcode)) continue;
+                        if (empty($pcode) || empty($qcode)) {
+                            continue;
+                        }
+
                         $qrow = sqlQuery(
                             "SELECT * FROM procedure_questions WHERE " .
                             "lab_id = ? AND procedure_code = ? AND question_code = ?",
@@ -370,7 +397,10 @@ if ($form_step == 1) {
                     while (!feof($fhcsv)) {
                               $acsv = fgetcsv($fhcsv, 4096);
                               $ordercode = trim($acsv[0]);
-                              if (count($acsv) < 2 || $ordercode == "Order Code") continue;
+                        if (count($acsv) < 2 || $ordercode == "Order Code") {
+                            continue;
+                        }
+
                               $trow = sqlQuery(
                                   "SELECT * FROM procedure_type WHERE " .
                                   "parent = ? AND procedure_code = ? AND procedure_type = 'ord' " .
@@ -419,13 +449,17 @@ if ($form_step == 1) {
                     $last_code = '';
                     while (!feof($fhcsv)) {
                         $acsv = fgetcsv($fhcsv, 4096);
-                        if (count($acsv) < 5 || ($acsv[3] !== "false" && $acsv[3] !== "true")) continue;
+                        if (count($acsv) < 5 || ($acsv[3] !== "false" && $acsv[3] !== "true")) {
+                            continue;
+                        }
 
                         $pcode   = trim($acsv[0]);
                         $qcode   = trim($acsv[1]);
                         $required = strtolower(substr($acsv[3], 0, 1)) == 't' ? 1 : 0;
                         $options = trim($acsv[5]);
-                        if (empty($pcode) || empty($qcode)) continue;
+                        if (empty($pcode) || empty($qcode)) {
+                            continue;
+                        }
 
                         if ($pcode != $last_code) {
                             $seq = 0;
@@ -436,8 +470,11 @@ if ($form_step == 1) {
 
                         // Figure out field type.
                         $fldtype = 'T';
-                        if (strpos($acsv[4], 'Drop') !== false) $fldtype = 'S';
-                        else if (strpos($acsv[4], 'Multiselect') !== false) $fldtype = 'S';
+                        if (strpos($acsv[4], 'Drop') !== false) {
+                            $fldtype = 'S';
+                        } else if (strpos($acsv[4], 'Multiselect') !== false) {
+                            $fldtype = 'S';
+                        }
 
                         $qrow = sqlQuery(
                             "SELECT * FROM procedure_questions WHERE " .

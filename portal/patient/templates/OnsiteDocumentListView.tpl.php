@@ -29,8 +29,9 @@
     $docid = $this->docid;
     $encounter= '';
 
-    if (!$docid)
-         $docid = 'Hipaa_Document';
+if (!$docid) {
+     $docid = 'Hipaa_Document';
+}
 
     $isnew = false;
     $ptName = isset($_SESSION['ptName']) ? $_SESSION['ptName'] : $pid;

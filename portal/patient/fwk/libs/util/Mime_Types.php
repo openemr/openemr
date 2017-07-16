@@ -144,8 +144,10 @@ class Mime_Types
      */
     function scan($callback, &$param)
     {
-        if (is_array($callback))
+        if (is_array($callback)) {
             $method = & $callback [1];
+        }
+
         $mime_types = $this->mime_types;
         asort($mime_types);
         foreach ($mime_types as $ext => $type) {
@@ -159,8 +161,9 @@ class Mime_Types
                 $res = $callback ( $this, $ext_type, $param );
             }
 
-            if (! $res)
+            if (! $res) {
                 return;
+            }
         }
     }
     
@@ -183,16 +186,19 @@ class Mime_Types
     function get_file_type($file, $use_ext = true)
     {
         $file = trim($file);
-        if ($file == '')
+        if ($file == '') {
             return false;
+        }
+
         $type = false;
         $result = false;
         if ($this->file_cmd && is_readable($file) && is_executable($this->file_cmd)) {
             $cmd = $this->file_cmd;
             foreach ($this->file_options as $option_key => $option_val) {
                 $cmd .= ' -' . $option_key;
-                if (isset($option_val))
+                if (isset($option_val)) {
                     $cmd .= ' ' . escapeshellarg($option_val);
+                }
             }
 
             $cmd .= ' ' . escapeshellarg($file);
@@ -219,13 +225,17 @@ class Mime_Types
         }
 
         // try and get type from extension
-        if (! $type && $use_ext && strpos($file, '.'))
+        if (! $type && $use_ext && strpos($file, '.')) {
             $type = $this->get_type($file);
+        }
+
             // this should be some sort of attempt to match keywords in the file command output
             // to a MIME type, I'm not actually sure if this is a good idea, but for now, it tries
             // to find an 'ascii' string.
-        if (! $type && $result && preg_match('/\bascii\b/', $result))
+        if (! $type && $result && preg_match('/\bascii\b/', $result)) {
             $type = 'text/plain';
+        }
+
         return $type;
     }
     
@@ -245,10 +255,14 @@ class Mime_Types
         $ext = strtolower($ext);
         // get position of last dot
         $dot_pos = strrpos($ext, '.');
-        if ($dot_pos !== false)
+        if ($dot_pos !== false) {
             $ext = substr($ext, $dot_pos + 1);
-        if (($ext != '') && isset($this->mime_types [$ext]))
+        }
+
+        if (($ext != '') && isset($this->mime_types [$ext])) {
             return $this->mime_types [$ext];
+        }
+
         return false;
     }
     
@@ -285,23 +299,33 @@ class Mime_Types
             return;
         }
 
-        if (! is_string($type))
+        if (! is_string($type)) {
             return;
+        }
+
             // get rid of any parameters which might be included with the MIME type
             // e.g. text/plain; charset=iso-8859-1
         $type = strtr(strtolower(trim($type)), ",;\t\r\n", '     ');
-        if ($sp_pos = strpos($type, ' '))
+        if ($sp_pos = strpos($type, ' ')) {
             $type = substr($type, 0, $sp_pos);
+        }
+
             // not bothering with an extensive check of the MIME type, just checking for slash
-        if (! strpos($type, '/'))
+        if (! strpos($type, '/')) {
             return;
+        }
+
             // loop through extensions
-        if (! is_array($exts))
+        if (! is_array($exts)) {
             $exts = explode(' ', $exts);
+        }
+
         foreach ($exts as $ext) {
             $ext = trim(str_replace('.', '', $ext));
-            if ($ext == '')
+            if ($ext == '') {
                 continue;
+            }
+
             $this->mime_types [strtolower($ext)] = $type;
         }
     }
@@ -345,8 +369,9 @@ class Mime_Types
     {
         $type = strtolower($type);
         foreach ($this->mime_types as $ext => $m_type) {
-            if ($m_type == $type)
+            if ($m_type == $type) {
                 return $ext;
+            }
         }
 
         return false;
@@ -382,12 +407,15 @@ class Mime_Types
      */
     function remove_extension($exts)
     {
-        if (! is_array($exts))
+        if (! is_array($exts)) {
             $exts = explode(' ', $exts);
+        }
+
         foreach ($exts as $ext) {
             $ext = strtolower(trim($ext));
-            if (isset($this->mime_types [$ext]))
+            if (isset($this->mime_types [$ext])) {
                 unset($this->mime_types [$ext]);
+            }
         }
     }
     
@@ -414,8 +442,9 @@ class Mime_Types
         }
 
         $slash_pos = strpos($type, '/');
-        if (! $slash_pos)
+        if (! $slash_pos) {
             return;
+        }
         
         $type_info = array (
                 'last_match' => false,
@@ -444,21 +473,29 @@ class Mime_Types
      */
     function load_file($file)
     {
-        if (! file_exists($file) || ! is_readable($file))
+        if (! file_exists($file) || ! is_readable($file)) {
             return false;
+        }
+
         $data = file($file);
         foreach ($data as $line) {
             $line = trim($line);
-            if (($line == '') || ($line == '#'))
+            if (($line == '') || ($line == '#')) {
                 continue;
+            }
+
             $line = preg_split('/\s+/', $line, 2);
-            if (count($line) < 2)
+            if (count($line) < 2) {
                 continue;
+            }
+
             $exts = $line [1];
             // if there's a comment on this line, remove it
             $hash_pos = strpos($exts, '#');
-            if ($hash_pos !== false)
+            if ($hash_pos !== false) {
                 $exts = substr($exts, 0, $hash_pos);
+            }
+
             $this->set($line [0], $exts);
         }
 

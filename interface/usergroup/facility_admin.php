@@ -203,25 +203,30 @@ parent.$.fn.fancybox.close();
 
         <tr>
             <td><span class='text'><?php xl('Billing Location', 'e'); ?>: </span></td>
-            <td><input type='checkbox' name='billing_location' value='1' <?php if ($facility['billing_location'] != 0) echo 'checked'; ?>></td>
+            <td><input type='checkbox' name='billing_location' value='1' <?php if ($facility['billing_location'] != 0) {
+                echo 'checked';} ?>></td>
             <td rowspan='2'><span class='text'><?php xl('Accepts Assignment', 'e'); ?><br>(<?php xl('only if billing location', 'e'); ?>): </span></td>
-            <td><input type='checkbox' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) echo 'checked'; ?>></td>
+            <td><input type='checkbox' name='accepts_assignment' value='1' <?php if ($facility['accepts_assignment'] == 1) {
+                echo 'checked';} ?>></td>
         </tr>
         <tr>
             <td><span class='text'><?php xl('Service Location', 'e'); ?>: </span></td>
-            <td><input type='checkbox' name='service_location' value='1' <?php if ($facility['service_location'] == 1) echo 'checked'; ?>></td>
+            <td><input type='checkbox' name='service_location' value='1' <?php if ($facility['service_location'] == 1) {
+                echo 'checked';} ?>></td>
             <td>&nbsp;</td>
         </tr>
         <?php
         $disabled='';
         $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-        if (sizeof($resPBE)>0)
-        $disabled='disabled';
+        if (sizeof($resPBE)>0) {
+            $disabled='disabled';
+        }
         ?>
         <tr>
             <td><span class='text'><?php xl('Primary Business Entity', 'e'); ?>: </span></td>
-            <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) echo 'checked'; ?> <?php if ($GLOBALS['erx_enable']) {
-?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
+            <td><input type='checkbox' name='primary_business_entity' id='primary_business_entity' value='1' <?php if ($facility['primary_business_entity'] == 1) {
+                echo 'checked';} ?> <?php if ($GLOBALS['erx_enable']) {
+                ?> onchange='return displayAlert()' <?php } ?> <?php echo $disabled;?>></td>
             <td>&nbsp;</td>
         </tr>
         <tr>

@@ -151,8 +151,10 @@ class VerySimpleStringUtil
      */
     static function ConvertEmailToMailTo($text, $sanitize = false)
     {
-        if ($sanitize)
+        if ($sanitize) {
             $text = VerySimpleStringUtil::Sanitize($text);
+        }
+
         $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
         return preg_replace($regex, '<a href="mailto:\\1@\\2.\\3">\\1@\\2.\\3</a>', $text);
     }
@@ -168,8 +170,10 @@ class VerySimpleStringUtil
      */
     static function ConvertUrlToLink($text, $sanitize = false)
     {
-        if ($sanitize)
+        if ($sanitize) {
             $text = VerySimpleStringUtil::Sanitize($text);
+        }
+
         $regex = "/[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]/i";
         return preg_replace($regex, '<a href=\"\\0\">\\0</a>', $text);
     }
@@ -197,8 +201,9 @@ class VerySimpleStringUtil
      */
     static function EncodeToHTML($string, $numericEncodingOnly = true, $encodeControlCharacters = false)
     {
-        if (strlen($string) == 0)
+        if (strlen($string) == 0) {
             return "";
+        }
         
         $result = $numericEncodingOnly ? self::UTF8ToHtml($string) : self::UTFToNamedHTML($string, $encodeControlCharacters);
         
@@ -226,8 +231,10 @@ class VerySimpleStringUtil
         // return $string;
         
         // this way at least somebody could specify a character set. UTF-8 will work most of the time
-        if ($charset == null)
+        if ($charset == null) {
             $charset = VerySimpleStringUtil::$DEFAULT_CHARACTER_SET;
+        }
+
         return mb_convert_encoding($string, $charset, 'HTML-ENTITIES');
     }
     
@@ -248,18 +255,21 @@ class VerySimpleStringUtil
      */
     static function EncodeSpecialCharacters($string, $escapeQuotes = true, $numericEncodingOnly = true, $replaceSmartQuotes = false)
     {
-        if (strlen($string) == 0)
+        if (strlen($string) == 0) {
             return "";
+        }
         
         $result = $string;
         
         // do this first before encoding
-        if ($replaceSmartQuotes)
+        if ($replaceSmartQuotes) {
             $result = self::ReplaceSmartQuotes($result);
+        }
             
             // this method does not double-encode, but replaces single-quote with a numeric entity
-        if ($escapeQuotes)
+        if ($escapeQuotes) {
             $result = htmlspecialchars($result, ENT_QUOTES, null, false);
+        }
             
             // this method double-encodes values but uses the special character entity for single quotes
             // if ($escapeQuotes) $result = self::ReplaceXMLSpecialChars($result);
@@ -363,8 +373,9 @@ class VerySimpleStringUtil
                 $encoded = htmlentities(substr($utf8, $i, 2), ENT_QUOTES, 'UTF-8');
                 
                 // @hack if htmlentities didn't encode it, then we need to do a charset conversion
-                if ($encoded != '' && substr($encoded, 0, 1) != '&')
+                if ($encoded != '' && substr($encoded, 0, 1) != '&') {
                     $encoded = mb_convert_encoding($encoded, 'HTML-ENTITIES', self::$DEFAULT_CHARACTER_SET);
+                }
                 
                 $result .= $encoded;
                 $i ++;
@@ -472,82 +483,85 @@ class VerySimpleStringUtil
      */
     function chr_utf8($code)
     {
-        if ($code < 0)
+        if ($code < 0) {
             return false;
-        elseif ($code < 128)
+        } elseif ($code < 128) {
             return chr($code);
-        elseif ($code < 160) { // Remove Windows Illegals Cars
-            if ($code == 128)
+        } elseif ($code < 160) { // Remove Windows Illegals Cars
+            if ($code == 128) {
                 $code = 8364;
-            elseif ($code == 129)
+            } elseif ($code == 129) {
                 $code = 160; // not affected
-            elseif ($code == 130)
+            } elseif ($code == 130) {
                 $code = 8218;
-            elseif ($code == 131)
+            } elseif ($code == 131) {
                 $code = 402;
-            elseif ($code == 132)
+            } elseif ($code == 132) {
                 $code = 8222;
-            elseif ($code == 133)
+            } elseif ($code == 133) {
                 $code = 8230;
-            elseif ($code == 134)
+            } elseif ($code == 134) {
                 $code = 8224;
-            elseif ($code == 135)
+            } elseif ($code == 135) {
                 $code = 8225;
-            elseif ($code == 136)
+            } elseif ($code == 136) {
                 $code = 710;
-            elseif ($code == 137)
+            } elseif ($code == 137) {
                 $code = 8240;
-            elseif ($code == 138)
+            } elseif ($code == 138) {
                 $code = 352;
-            elseif ($code == 139)
+            } elseif ($code == 139) {
                 $code = 8249;
-            elseif ($code == 140)
+            } elseif ($code == 140) {
                 $code = 338;
-            elseif ($code == 141)
+            } elseif ($code == 141) {
                 $code = 160; // not affected
-            elseif ($code == 142)
+            } elseif ($code == 142) {
                 $code = 381;
-            elseif ($code == 143)
+            } elseif ($code == 143) {
                 $code = 160; // not affected
-            elseif ($code == 144)
+            } elseif ($code == 144) {
                 $code = 160; // not affected
-            elseif ($code == 145)
+            } elseif ($code == 145) {
                 $code = 8216;
-            elseif ($code == 146)
+            } elseif ($code == 146) {
                 $code = 8217;
-            elseif ($code == 147)
+            } elseif ($code == 147) {
                 $code = 8220;
-            elseif ($code == 148)
+            } elseif ($code == 148) {
                 $code = 8221;
-            elseif ($code == 149)
+            } elseif ($code == 149) {
                 $code = 8226;
-            elseif ($code == 150)
+            } elseif ($code == 150) {
                 $code = 8211;
-            elseif ($code == 151)
+            } elseif ($code == 151) {
                 $code = 8212;
-            elseif ($code == 152)
+            } elseif ($code == 152) {
                 $code = 732;
-            elseif ($code == 153)
+            } elseif ($code == 153) {
                 $code = 8482;
-            elseif ($code == 154)
+            } elseif ($code == 154) {
                 $code = 353;
-            elseif ($code == 155)
+            } elseif ($code == 155) {
                 $code = 8250;
-            elseif ($code == 156)
+            } elseif ($code == 156) {
                 $code = 339;
-            elseif ($code == 157)
+            } elseif ($code == 157) {
                 $code = 160; // not affected
-            elseif ($code == 158)
+            } elseif ($code == 158) {
                 $code = 382;
-            elseif ($code == 159)
+            } elseif ($code == 159) {
                 $code = 376;
+            }
         }
 
-        if ($code < 2048)
+        if ($code < 2048) {
             return chr(192 | ($code >> 6)) . chr(128 | ($code & 63));
-        elseif ($code < 65536)
+        } elseif ($code < 65536) {
             return chr(224 | ($code >> 12)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
-        else return chr(240 | ($code >> 18)) . chr(128 | (($code >> 12) & 63)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
+        } else {
+            return chr(240 | ($code >> 18)) . chr(128 | (($code >> 12) & 63)) . chr(128 | (($code >> 6) & 63)) . chr(128 | ($code & 63));
+        }
     }
     
     /**

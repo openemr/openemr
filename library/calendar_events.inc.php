@@ -38,7 +38,9 @@ function eventMatchesDay($row, $date)
             $repeatfreq = $matches[1];
         }
 
-        if (! $repeatfreq) $repeatfreq = 1;
+        if (! $repeatfreq) {
+            $repeatfreq = 1;
+        }
 
         preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
         $my_repeat_on_num = $matches[1];
@@ -47,16 +49,25 @@ function eventMatchesDay($row, $date)
         $my_repeat_on_day = $matches[1];
 
         $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
-        if ($endtime > $time2) $endtime = $time2;
+        if ($endtime > $time2) {
+            $endtime = $time2;
+        }
 
         // Shortcut for events that repeat every day.
-        if ($repeattype == 0 && $repeatfreq == 1)
-        return ($thistime < $time2 && $endtime >= $time1);
+        if ($repeattype == 0 && $repeatfreq == 1) {
+            return ($thistime < $time2 && $endtime >= $time1);
+        }
 
         $repeatix = 0;
         while ($thistime < $endtime) {
-            if ($repeatix == 0 && $thistime >= $time1) return true;
-            if (++$repeatix >= $repeatfreq) $repeatix = 0;
+            if ($repeatix == 0 && $thistime >= $time1) {
+                return true;
+            }
+
+            if (++$repeatix >= $repeatfreq) {
+                $repeatix = 0;
+            }
+
             $adate = getdate($thistime);
 
             if ($row['pc_recurrtype'] == 2) {
@@ -70,12 +81,18 @@ function eventMatchesDay($row, $date)
                 if ($my_repeat_on_num < 5) { // not last
                     $adate['mday'] = 1;
                     $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                    if ($dow > $my_repeat_on_day) $dow -= 7;
+                    if ($dow > $my_repeat_on_day) {
+                        $dow -= 7;
+                    }
+
                     $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
                 } else { // last weekday of month
                     $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                     $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                    if ($dow < $my_repeat_on_day) $dow += 7;
+                    if ($dow < $my_repeat_on_day) {
+                        $dow += 7;
+                    }
+
                     $adate['mday'] += $my_repeat_on_day - $dow;
                 }
             } // end recurrtype 2
@@ -90,11 +107,13 @@ function eventMatchesDay($row, $date)
                 } else if ($repeattype == 3) { // yearly
                     $adate['year'] += 1;
                 } else if ($repeattype == 4) { // work days
-                    if ($adate['wday'] == 5)      // if friday, skip to monday
-                    $adate['mday'] += 3;
-                    else if ($adate['wday'] == 6) // saturday should not happen
-                    $adate['mday'] += 2;
-                    else $adate['mday'] += 1;
+                    if ($adate['wday'] == 5) {      // if friday, skip to monday
+                        $adate['mday'] += 3;
+                    } else if ($adate['wday'] == 6) { // saturday should not happen
+                        $adate['mday'] += 2;
+                    } else {
+                        $adate['mday'] += 1;
+                    }
                 } else {
                     die("Invalid repeat type '$repeattype'");
                 }

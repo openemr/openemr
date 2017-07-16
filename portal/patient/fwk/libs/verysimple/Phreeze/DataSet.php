@@ -112,8 +112,9 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_counter ++;
         
         if ($this->_eof) {
-            if (! $this->_no_exception)
+            if (! $this->_no_exception) {
                 throw new Exception("EOF: This is a forward-only dataset.");
+            }
         }
         
         if ($row = $this->_phreezer->DataAdapter->Fetch($this->_rs)) {
@@ -473,8 +474,9 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private function GetDelayedCache($cachekey)
     {
         // if no cache then don't return anything
-        if ($this->_cache_timeout == 0)
+        if ($this->_cache_timeout == 0) {
             return null;
+        }
         
         $obj = $this->_phreezer->GetValueCache($cachekey);
         
@@ -521,8 +523,9 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     {
         if ($this->_phreezer->LockFilePath) {
             $lockfile = $this->_phreezer->LockFilePath . md5($cachekey) . ".lock";
-            if (file_exists($lockfile))
+            if (file_exists($lockfile)) {
                 @unlink($lockfile);
+            }
         }
     }
 }

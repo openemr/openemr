@@ -140,7 +140,10 @@ switch ($task) {
                     // instead create a new one with the current note's body prepended and
                     // attributed to the patient.  This seems to be all for the patient portal.
                     $row = getPnoteById($noteid);
-                    if (! $row) die("getPnoteById() did not find id '".text($noteid)."'");
+                    if (! $row) {
+                        die("getPnoteById() did not find id '".text($noteid)."'");
+                    }
+
                     $pres = sqlQuery("SELECT lname, fname " .
                     "FROM patient_data WHERE pid = ?", array($reply_to));
                     $patientname = $pres['lname'] . ", " . $pres['fname'];
@@ -160,9 +163,12 @@ switch ($task) {
         $noteid = $_POST['noteid'];
         $form_message_status = $_POST['form_message_status'];
         $reply_to = $_POST['reply_to'];
-        if ($task=="save")
+        if ($task=="save") {
             updatePnoteMessageStatus($noteid, $form_message_status);
-        else updatePnotePatient($noteid, $reply_to);
+        } else {
+            updatePnotePatient($noteid, $reply_to);
+        }
+
         $task = "edit";
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
@@ -269,7 +275,10 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 while ($urow = sqlFetchArray($ures)) {
     echo "    <option value='" . htmlspecialchars($urow['username'], ENT_QUOTES) . "'";
     echo ">" . htmlspecialchars($urow['lname'], ENT_NOQUOTES);
-    if ($urow['fname']) echo ", " . htmlspecialchars($urow['fname'], ENT_NOQUOTES);
+    if ($urow['fname']) {
+        echo ", " . htmlspecialchars($urow['fname'], ENT_NOQUOTES);
+    }
+
     echo "</option>\n";
 }
 

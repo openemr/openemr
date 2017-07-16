@@ -35,9 +35,17 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     $Date = postcalendar_getDate();
-    if (!isset($y)) $y = substr($Date, 0, 4);
-    if (!isset($m)) $m = substr($Date, 4, 2);
-    if (!isset($d)) $d = substr($Date, 6, 2);
+    if (!isset($y)) {
+        $y = substr($Date, 0, 4);
+    }
+
+    if (!isset($m)) {
+        $m = substr($Date, 4, 2);
+    }
+
+    if (!isset($d)) {
+        $d = substr($Date, 6, 2);
+    }
 
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');

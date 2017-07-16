@@ -640,7 +640,9 @@ if ($GLOBALS['patient_id_category_name']) {
                 $modulePath     = $GLOBALS['zendModDir'];
             }
 
-            if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name']))continue;
+            if (!acl_check('admin', 'super') && !zh_acl_check($_SESSION['authUserID'], $modulerow['obj_name'])) {
+                continue;
+            }
 
             $relative_link  = "../../modules/".$modulePath."/".$modulerow['path'];
             $nickname   = $modulerow['menu_name'] ? $modulerow['menu_name'] : 'Noname';
@@ -802,7 +804,9 @@ foreach (array('primary','secondary','tertiary') as $instype) {
     "ORDER BY date DESC";
     $res = sqlStatement($query, array($pid, $instype));
     while ($row = sqlFetchArray($res)) {
-        if ($row['provider']) $insurance_count++;
+        if ($row['provider']) {
+            $insurance_count++;
+        }
     }
 }
 
@@ -889,7 +893,8 @@ if ($insurance_count > 0) {
                                 <tr>
                                  <td valign='top' colspan='3'>
                                   <span class='text'>
-                                    <?php if (strcmp($enddate, 'Present') != 0) echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." "; ?>
+                                    <?php if (strcmp($enddate, 'Present') != 0) {
+                                        echo htmlspecialchars(xl("Old"), ENT_NOQUOTES)." ";} ?>
                                     <?php $tempinstype=ucfirst($instype);
                                     echo htmlspecialchars(xl($tempinstype.' Insurance'), ENT_NOQUOTES); ?>
                                     <?php if (strcmp($row['date'], '0000-00-00') != 0) { ?>
@@ -933,7 +938,8 @@ if ($insurance_count > 0) {
                                     <?php echo htmlspecialchars(xl('S.S.'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_ss'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars(xl('D.O.B.'), ENT_NOQUOTES); ?>:
-                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES); ?><br>
+                                    <?php if ($row['subscriber_DOB'] != "0000-00-00 00:00:00") {
+                                        echo htmlspecialchars($row['subscriber_DOB'], ENT_NOQUOTES);} ?><br>
                                     <?php echo htmlspecialchars(xl('Phone'), ENT_NOQUOTES); ?>:
                                     <?php echo htmlspecialchars($row['subscriber_phone'], ENT_NOQUOTES); ?>
                                   </span>
@@ -942,9 +948,13 @@ if ($insurance_count > 0) {
                                   <span class='bold'><?php echo htmlspecialchars(xl('Subscriber Address'), ENT_NOQUOTES); ?>: </span><br>
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_state'] != "") echo ", ";
+                                    <?php if ($row['subscriber_state'] != "") {
+                                        echo ", ";}
+
                                     echo htmlspecialchars($row['subscriber_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_country'] != "") echo ", ";
+                                    <?php if ($row['subscriber_country'] != "") {
+                                        echo ", ";}
+
                                     echo htmlspecialchars($row['subscriber_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_postal_code'], ENT_NOQUOTES); ?></span>
 
@@ -953,9 +963,13 @@ if ($insurance_count > 0) {
                                   <span class='text'><?php echo htmlspecialchars($row['subscriber_employer'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_street'], ENT_NOQUOTES); ?><br>
                                     <?php echo htmlspecialchars($row['subscriber_employer_city'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_city'] != "") echo ", ";
+                                    <?php if ($row['subscriber_employer_city'] != "") {
+                                        echo ", ";}
+
                                     echo htmlspecialchars($row['subscriber_employer_state'], ENT_NOQUOTES); ?>
-                                    <?php if ($row['subscriber_employer_country'] != "") echo ", ";
+                                    <?php if ($row['subscriber_employer_country'] != "") {
+                                        echo ", ";}
+
                                     echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
                                   </span>
@@ -971,8 +985,10 @@ if ($insurance_count > 0) {
                   <br />
                             <?php } ?>
                                   <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
-                                  <span class='text'><?php if ($row['accept_assignment'] == "TRUE") echo xl("YES"); ?>
-                                    <?php if ($row['accept_assignment'] == "FALSE") echo xl("NO"); ?></span>
+                                  <span class='text'><?php if ($row['accept_assignment'] == "TRUE") {
+                                        echo xl("YES");} ?>
+                                    <?php if ($row['accept_assignment'] == "FALSE") {
+                                        echo xl("NO");} ?></span>
                                 <?php if (!empty($row['policy_type'])) { ?>
                   <br />
                                   <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
@@ -1221,7 +1237,9 @@ if ($existVitals) {
   while ($gfrow = sqlFetchArray($gfres)) {
       $jobj = json_decode($gfrow['notes'], true);
       $LBF_ACO = empty($jobj['aco']) ? false : explode('|', $jobj['aco']);
-      if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) continue;
+      if ($LBF_ACO && !acl_check($LBF_ACO[0], $LBF_ACO[1])) {
+          continue;
+        }
 ?>
     <tr>
      <td width='650px'>
@@ -1407,8 +1425,12 @@ foreach ($photos as $photo_doc_id) {
         $current_date2 = date('Y-m-d');
         $events = array();
         $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
-        if ($apptNum != 0) $apptNum2 = abs($apptNum);
-        else $apptNum2 = 10;
+        if ($apptNum != 0) {
+            $apptNum2 = abs($apptNum);
+        } else {
+            $apptNum2 = 10;
+        }
+
         //
         $mode1 = !$GLOBALS['appt_display_sets_option'];
         $colorSet1 = $GLOBALS['appt_display_sets_color_1'];
@@ -1416,8 +1438,12 @@ foreach ($photos as $photo_doc_id) {
         $colorSet3 = $GLOBALS['appt_display_sets_color_3'];
         $colorSet4 = $GLOBALS['appt_display_sets_color_4'];
         //
-        if ($mode1) $extraAppts = 1;
-        else $extraAppts = 6;
+        if ($mode1) {
+            $extraAppts = 1;
+        } else {
+            $extraAppts = 6;
+        }
+
         $events = fetchNextXAppts($current_date2, $pid, $apptNum2 + $extraAppts, true);
         //////
         if ($events) {
@@ -1477,8 +1503,11 @@ foreach ($photos as $photo_doc_id) {
 
           //
             if ($extraApptDate) {
-                if ($extraApptDate != $limitApptDate) $apptStyle2 = " style='background-color:" . attr($colorSet3) . ";'";
-                else $apptStyle2 = " style='background-color:" . attr($colorSet4) . ";'";
+                if ($extraApptDate != $limitApptDate) {
+                    $apptStyle2 = " style='background-color:" . attr($colorSet3) . ";'";
+                } else {
+                    $apptStyle2 = " style='background-color:" . attr($colorSet4) . ";'";
+                }
             }
         }
 
@@ -1515,7 +1544,9 @@ foreach ($photos as $photo_doc_id) {
             $dispmin  = substr($row['pc_startTime'], 3, 2);
             if ($disphour >= 12) {
                 $dispampm = "pm";
-                if ($disphour > 12) $disphour -= 12;
+                if ($disphour > 12) {
+                    $disphour -= 12;
+                }
             }
 
             $etitle = xl('(Click to edit)');
@@ -1532,8 +1563,11 @@ foreach ($photos as $photo_doc_id) {
                     $toggleSet = !$toggleSet;
                 }
 
-                if ($toggleSet) $apptStyle = " style='background-color:" . attr($colorSet2) . ";'";
-                else $apptStyle = " style='background-color:" . attr($colorSet1) . ";'";
+                if ($toggleSet) {
+                    $apptStyle = " style='background-color:" . attr($colorSet2) . ";'";
+                } else {
+                    $apptStyle = " style='background-color:" . attr($colorSet1) . ";'";
+                }
             }
 
             //////
@@ -1546,12 +1580,21 @@ foreach ($photos as $photo_doc_id) {
 
             echo "<b>" . htmlspecialchars($row['pc_eventDate'], ENT_NOQUOTES) . ", ";
             echo htmlspecialchars(sprintf("%02d", $disphour) .":$dispmin " . xl($dispampm) . " (" . xl($dayname), ENT_NOQUOTES)  . ")</b> ";
-            if ($row['pc_recurrtype']) echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
+            if ($row['pc_recurrtype']) {
+                echo "<img src='" . $GLOBALS['webroot'] . "/interface/main/calendar/modules/PostCalendar/pntemplates/default/images/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."' alt='".htmlspecialchars(xl("Repeating event"), ENT_QUOTES)."'>";
+            }
+
             echo "<span title='" . generate_display_field(array('data_type'=>'1','list_id'=>'apptstat'), $row['pc_apptstatus']) . "'>";
             echo "<br>" . xlt('Status') . "( " . htmlspecialchars($row['pc_apptstatus'], ENT_NOQUOTES) . " ) </span>";
             echo htmlspecialchars(xl_appt_category($row['pc_catname']), ENT_NOQUOTES) . "\n";
-            if (in_array($row['pc_catid'], $therapyGroupCategories)) echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
-            if ($row['pc_hometext']) echo " <span style='color:green'> Com</span>";
+            if (in_array($row['pc_catid'], $therapyGroupCategories)) {
+                echo "<br><span>" . xlt('Group name') .": " . text(getGroup($row['pc_gid'])['group_name']) . "</span>\n";
+            }
+
+            if ($row['pc_hometext']) {
+                echo " <span style='color:green'> Com</span>";
+            }
+
             echo "<br>" . htmlspecialchars($row['ufname'] . " " . $row['ulname'], ENT_NOQUOTES);
             echo !in_array($row['pc_catid'], $therapyGroupCategories) ? '</a>' : '<span>';
             echo "</div>\n";
@@ -1562,8 +1605,11 @@ foreach ($photos as $photo_doc_id) {
             if ($count < 1) {
                 echo "&nbsp;&nbsp;" . htmlspecialchars(xl('None'), ENT_NOQUOTES);
             } else { //////
-                if ($extraApptDate) echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
-                else echo "<div><hr></div>";
+                if ($extraApptDate) {
+                    echo "<div style='color:#0000cc;'><b>" . attr($extraApptDate) . " ( + ) </b></div>";
+                } else {
+                    echo "<div><hr></div>";
+                }
             }
 
             echo "</div>";
@@ -1597,8 +1643,10 @@ foreach ($photos as $photo_doc_id) {
         } else {
             foreach ($recurrences as $row) {
                 //checks if there are recurrences and if they are current (git didn't end yet)
-                if ($row == false || !recurrence_is_current($row['pc_endDate']))
+                if ($row == false || !recurrence_is_current($row['pc_endDate'])) {
                     continue;
+                }
+
                 echo "<div>";
                 echo "<span>" . xlt('Appointment Category') . ': ' . xlt($row['pc_catname']) . "</span>";
                 echo "<br>";
@@ -1663,7 +1711,9 @@ foreach ($photos as $photo_doc_id) {
             $dispmin  = substr($row['pc_startTime'], 3, 2);
             if ($disphour >= 12) {
                 $dispampm = "pm";
-                if ($disphour > 12) $disphour -= 12;
+                if ($disphour > 12) {
+                    $disphour -= 12;
+                }
             }
 
             if ($row['pc_hometext'] != "") {

@@ -19,7 +19,9 @@
  $info_msg = "";
  $tmpl_line_no = 0;
 
- if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'drugs')) {
+    die(xlt('Not authorized'));
+}
 
 // Format dollars for display.
 //
@@ -27,7 +29,9 @@ function bucks($amount)
 {
     if ($amount) {
         $amount = sprintf("%.2f", $amount);
-        if ($amount != 0.00) return $amount;
+        if ($amount != 0.00) {
+            return $amount;
+        }
     }
 
     return '';
@@ -72,7 +76,10 @@ function writeTemplateLine($selector, $dosage, $period, $quantity, $refills, $pr
     while ($prow = sqlFetchArray($pres)) {
         echo "  <td class='tmplcell'>";
         echo "<input type='checkbox' name='form_tmpl[$tmpl_line_no][taxrate][" . attr($prow['option_id']) . "]' value='1'";
-        if (strpos(":$taxrates", $prow['option_id']) !== false) echo " checked";
+        if (strpos(":$taxrates", $prow['option_id']) !== false) {
+            echo " checked";
+        }
+
         echo " /></td>\n";
     }
 
@@ -280,7 +287,10 @@ if (($_POST['form_save'] || $_POST['form_delete']) && !$alertmsg) {
   // Close this window and redisplay the updated list of drugs.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " if (opener.refreshme) opener.refreshme();\n";
     if ($new_drug) {
         echo " window.location.href='add_edit_lot.php?drug=$drug_id&lot=0'\n";
@@ -331,16 +341,19 @@ if ($drug_id) {
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Active'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_active' value='1'<?php if ($row['active']) {
+        echo ' checked';} ?> />
   </td>
  </tr>
 
  <tr>
   <td valign='top' nowrap><b><?php echo xlt('Allow'); ?>:</b></td>
   <td>
-   <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_allow_multiple' value='1'<?php if ($row['allow_multiple']) {
+        echo ' checked';} ?> />
     <?php echo xlt('Multiple Lots'); ?> &nbsp;
-   <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) echo ' checked'; ?> />
+   <input type='checkbox' name='form_allow_combining' value='1'<?php if ($row['allow_combining']) {
+        echo ' checked';} ?> />
     <?php echo xlt('Combining Lots'); ?>
   </td>
  </tr>

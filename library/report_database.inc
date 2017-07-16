@@ -151,7 +151,9 @@ function beginReportDatabase($type, $fields, $report_id = null)
              ($key == "total_items") ||
              ($key == "date_report") ||
              ($key == "date_report_complete") ||
-             ($key == "bookmark") ) continue;
+             ($key == "bookmark") ) {
+                continue;
+            }
 
             // place the token
             sqlStatement("INSERT INTO `report_results` (`report_id`,`field_id`,`field_value`) VALUES (?,?,?)", array ($new_report_id,$key,$value));
@@ -427,7 +429,9 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
 
     $sql_query = "SELECT " . $given . " FROM `patient_data` JOIN `report_itemized` ON `patient_data`.`pid` = `report_itemized`.`pid` " . $sql_where. " ORDER BY " . $orderby;
 
-    if ($sqllimit != "all") $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    if ($sqllimit != "all") {
+        $sql_query .= " limit " . escape_limit($fstart) . ", " . escape_limit($sqllimit);
+    }
 
     if ($count) {
         $rez = sqlQueryCdrEngine($sql_query, $sqlParameters);

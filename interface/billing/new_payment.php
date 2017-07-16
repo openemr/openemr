@@ -63,10 +63,14 @@ if ($mode == "new_payment" || $mode == "distribute") {
       $check_date=DateToYYYYMMDD(formData('check_date'));
       $deposit_date=DateToYYYYMMDD(formData('deposit_date'));
       $post_to_date=DateToYYYYMMDD(formData('post_to_date'));
-      if ($post_to_date=='')
-       $post_to_date=date('Y-m-d');
-      if (formData('deposit_date')=='')
-       $deposit_date=$post_to_date;
+    if ($post_to_date=='') {
+        $post_to_date=date('Y-m-d');
+    }
+
+    if (formData('deposit_date')=='') {
+        $deposit_date=$post_to_date;
+    }
+
       $payment_id = idSqlStatement("insert into ar_session set "    .
         $QueryPart .
         "', user_id = '"     . trim($user_id)  .
@@ -93,11 +97,15 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
     for ($CountRow=1;; $CountRow++) {
         if (isset($_POST["HiddenEncounter$CountRow"])) {
             DistributionInsert($CountRow, $created_time, $user_id);
-        } else break;
+        } else {
+            break;
+        }
     }
 
-    if ($_REQUEST['global_amount']=='yes')
+    if ($_REQUEST['global_amount']=='yes') {
         sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"))*1 ." where session_id ='$payment_id'");
+    }
+
     if ($mode=="FinishPayments") {
         header("Location: edit_payment.php?payment_id=$payment_id&ParentPage=new_payment");
         die();
@@ -117,7 +125,8 @@ $payment_id=$payment_id*1 > 0 ? $payment_id : $request_payment_id;
 ?>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) {
+    html_header_show();} ?>
 
 
 

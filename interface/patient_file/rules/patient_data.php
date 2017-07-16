@@ -91,7 +91,10 @@ if ($_POST['form_complete']) {
   //  and then close the window/modul.
 
   // Collect and trim variables
-    if (isset($_POST['form_entryID'])) $form_entryID = trim($_POST['form_entryID']);
+    if (isset($_POST['form_entryID'])) {
+        $form_entryID = trim($_POST['form_entryID']);
+    }
+
     $form_date = trim($_POST['form_date']);
     $form_category = trim($_POST['form_category']);
     $form_item = trim($_POST['form_item']);
@@ -122,7 +125,9 @@ if ($_POST['form_complete']) {
 // Collect and trim variables
 $category = trim($_GET['category']);
 $item = trim($_GET['item']);
-if (isset($_GET['entryID'])) $entryID = trim($_GET['entryID']);
+if (isset($_GET['entryID'])) {
+    $entryID = trim($_GET['entryID']);
+}
 
 // Collect data if a specific entry is selected
 if (isset($entryID)) {

@@ -66,7 +66,10 @@ class FeeSheetHtml extends FeeSheet
         while ($row = sqlFetchArray($res)) {
             $provid = $row['id'];
             $s .= "<option value='" . attr($provid) . "'";
-            if ($provid == $default) $s .= " selected";
+            if ($provid == $default) {
+                $s .= " selected";
+            }
+
             $s .= ">";
             if (!$GLOBALS['gbl_restrict_provider_facility'] && $def_facility && $row['facility_id'] == $def_facility) {
                 // Mark providers in the matching facility with an asterisk.
@@ -84,7 +87,10 @@ class FeeSheetHtml extends FeeSheet
     public static function genProviderSelect($tagname, $toptext, $default = 0, $disabled = false)
     {
         $s = "   <select name='" . attr($tagname) . "'";
-        if ($disabled) $s .= " disabled";
+        if ($disabled) {
+            $s .= " disabled";
+        }
+
         $s .= ">";
         $s .= self::genProviderOptionList($toptext, $default);
         $s .= "</select>\n";
@@ -99,8 +105,14 @@ class FeeSheetHtml extends FeeSheet
         if ($this->got_warehouses) {
             // Normally would use generate_select_list() but it's not flexible enough here.
             $s .= "<select name='" . attr($tagname) . "'";
-            if (!$disabled) $s .= " onchange='warehouse_changed(this);'";
-            if ($disabled) $s .= " disabled";
+            if (!$disabled) {
+                $s .= " onchange='warehouse_changed(this);'";
+            }
+
+            if ($disabled) {
+                $s .= " disabled";
+            }
+
             $s .= ">";
             $s .= "<option value=''>" . text($toptext) . "</option>";
             $lres = sqlStatement("SELECT * FROM list_options " .
@@ -108,7 +120,9 @@ class FeeSheetHtml extends FeeSheet
             while ($lrow = sqlFetchArray($lres)) {
                   $s .= "<option value='" . attr($lrow['option_id']) . "'";
                 if ($disabled) {
-                    if ($lrow['option_id'] == $default) $s .= " selected";
+                    if ($lrow['option_id'] == $default) {
+                        $s .= " selected";
+                    }
                 } else {
                     $has_inventory = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     if (((strlen($default) == 0 && $lrow['is_default']) ||
@@ -117,7 +131,9 @@ class FeeSheetHtml extends FeeSheet
                         $s .= " selected";
                     } else {
                         // Disable this warehouse option if not selected and has no inventory.
-                        if (!$has_inventory) $s .= " disabled";
+                        if (!$has_inventory) {
+                            $s .= " disabled";
+                        }
                     }
                 }
 
@@ -137,8 +153,14 @@ class FeeSheetHtml extends FeeSheet
     {
         // echo "<!-- pr_id = '$pr_id', pr_selector = '$pr_selector' -->\n"; // debugging
         $s = "<select name='" . attr($tagname) . "'";
-        if (!$disabled) $s .= " onchange='pricelevel_changed(this);'";
-        if ($disabled) $s .= " disabled";
+        if (!$disabled) {
+            $s .= " onchange='pricelevel_changed(this);'";
+        }
+
+        if ($disabled) {
+            $s .= " disabled";
+        }
+
         $s .= ">";
         $s .= "<option value=''>" . text($toptext) . "</option>";
         $lres = sqlStatement(
@@ -206,7 +228,10 @@ class FeeSheetHtml extends FeeSheet
     public function generatePriceLevelSelector($tagname = 'pricelevel', $disabled = false)
     {
         $s = "<select name='" . attr($tagname) . "'";
-        if ($disabled) $s .= " disabled";
+        if ($disabled) {
+            $s .= " disabled";
+        }
+
         $s .= ">";
         $pricelevel = $this->getPriceLevel();
         $plres = sqlStatement("SELECT option_id, title FROM list_options " .
@@ -215,7 +240,10 @@ class FeeSheetHtml extends FeeSheet
             $key = $plrow['option_id'];
             $val = $plrow['title'];
             $s .= "<option value='" . attr($key) . "'";
-            if ($key == $pricelevel) $s .= ' selected';
+            if ($key == $pricelevel) {
+                $s .= ' selected';
+            }
+
             $s .= ">" . text(xl_list_label($val)) . "</option>";
         }
 

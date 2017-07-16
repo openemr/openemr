@@ -142,7 +142,10 @@ function is_checkin($option)
   
     $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
     "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
-    if (empty($row['toggle_setting_1'])) return(false);
+    if (empty($row['toggle_setting_1'])) {
+        return(false);
+    }
+
     return(true);
 }
 
@@ -152,7 +155,10 @@ function is_checkout($option)
   
     $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
     "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
-    if (empty($row['toggle_setting_2'])) return(false);
+    if (empty($row['toggle_setting_2'])) {
+        return(false);
+    }
+
     return(true);
 }
 
@@ -165,7 +171,10 @@ function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
   #Check to see if there is an encounter in the patient_tracker table.
     $enc_yn = sqlQuery("SELECT encounter from patient_tracker WHERE `apptdate` = ? AND `appttime` = ? " .
                       "AND `eid` = ? AND `pid` = ?", array($apptdate,$appttime,$eid,$pid));
-    if ($enc_yn['encounter'] == '0' || $enc_yn == '0') return(false);
+    if ($enc_yn['encounter'] == '0' || $enc_yn == '0') {
+        return(false);
+    }
+
     return(true);
 }
 
@@ -264,7 +273,10 @@ function collectApptStatusSettings($option)
     $color_settings = array();
     $row = sqlQuery("SELECT notes FROM list_options WHERE " .
     "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
-    if (empty($row['notes'])) return $option;
+    if (empty($row['notes'])) {
+        return $option;
+    }
+
     list($color_settings['color'], $color_settings['time_alert']) = explode("|", $row['notes']);
     return $color_settings;
 }

@@ -13,7 +13,9 @@
 
  // Check authorization.
  $thisauth = acl_check('admin', 'drugs');
- if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 // For each sorting option, specify the ORDER BY argument.
 //
@@ -112,7 +114,8 @@ $(document).ready(function() {
  <tr class='head'>
   <td title='<?php echo xla('Click to edit'); ?>'>
    <a href="#" onclick="return dosort('prod')"
-    <?php if ($form_orderby == "prod") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "prod") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('Name'); ?> </a>
   </td>
   <td>
@@ -120,12 +123,14 @@ $(document).ready(function() {
   </td>
   <td>
    <a href="#" onclick="return dosort('ndc')"
-    <?php if ($form_orderby == "ndc") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "ndc") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('NDC'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('form')"
-    <?php if ($form_orderby == "form") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "form") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('Form'); ?> </a>
   </td>
   <td>
@@ -139,22 +144,26 @@ $(document).ready(function() {
   </td>
   <td title='<?php echo xla('Click to edit'); ?>'>
    <a href="#" onclick="return dosort('lot')"
-    <?php if ($form_orderby == "lot") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "lot") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('Lot'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('wh')"
-    <?php if ($form_orderby == "wh") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "wh") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('Warehouse'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('qoh')"
-    <?php if ($form_orderby == "qoh") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "qoh") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('QOH'); ?> </a>
   </td>
   <td>
    <a href="#" onclick="return dosort('exp')"
-    <?php if ($form_orderby == "exp") echo " style=\"color:#00cc00\""; ?>>
+    <?php if ($form_orderby == "exp") {
+        echo " style=\"color:#00cc00\"";} ?>>
     <?php echo xlt('Expires'); ?> </a>
   </td>
  </tr>

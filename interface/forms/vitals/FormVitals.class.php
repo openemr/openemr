@@ -130,7 +130,10 @@ class FormVitals extends ORDataObject
             $dt = str_replace('-', '', $dt);
             $dt = str_replace(':', '', $dt);
             $dt = str_replace(' ', '', $dt);
-            while (strlen($dt) < 14)$dt .= '0';
+            while (strlen($dt) < 14) {
+                $dt .= '0';
+            }
+
             $this->date = $dt;
         }
     }

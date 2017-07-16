@@ -37,10 +37,14 @@ function addPortalMailboxPnote(
     $master_note = '0'
 ) {
 
-    if (empty($datetime)) $datetime = date('Y-m-d H:i:s');
+    if (empty($datetime)) {
+        $datetime = date('Y-m-d H:i:s');
+    }
 
     // make inactive if set as Done
-    if ($message_status == "Done") $activity = 0;
+    if ($message_status == "Done") {
+        $activity = 0;
+    }
 
     $user = $_SESSION['authUser']?$_SESSION['authUser']:$pid;
     $pname = $_SESSION['ptName']?$_SESSION['ptName']:$user;

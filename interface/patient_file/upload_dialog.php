@@ -41,8 +41,14 @@ $imagedir   = "$patientdir/demographics";
   $errmsg = '';
 
 if ($_POST["form_submit"] || $_POST["form_delete"]) {
-    if (!file_exists($patientdir)) mkdir($patientdir);
-    if (!file_exists($imagedir)) mkdir($imagedir);
+    if (!file_exists($patientdir)) {
+        mkdir($patientdir);
+    }
+
+    if (!file_exists($imagedir)) {
+        mkdir($imagedir);
+    }
+
     check_file_dir_name($what);
     $filename = "$imagedir/$what.jpg";
 
@@ -52,9 +58,10 @@ if ($_POST["form_submit"] || $_POST["form_delete"]) {
       // Check if the upload worked.
       //
         if (! $errmsg) {
-            if (! is_uploaded_file($_FILES['userfile']['tmp_name']))
-            $errmsg = "Upload failed!  Make sure the path/filename is valid " .
-            "and the file is less than 4,000,000 bytes.";
+            if (! is_uploaded_file($_FILES['userfile']['tmp_name'])) {
+                $errmsg = "Upload failed!  Make sure the path/filename is valid " .
+                "and the file is less than 4,000,000 bytes.";
+            }
         }
 
       // Copy the image to its destination.

@@ -146,8 +146,10 @@ if (isset($_POST["mode"])) {
                       "pid = '$hidden_patient_code' AND encounter = '".$RowSearch['encounter']."'");
                     $date_of_service = substr($ferow['date'], 0, 10);
                     $new_payer_type = 0 + $ferow['last_level_closed'];
-                    if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0)
-                      ++$new_payer_type;
+                    if ($new_payer_type <= 3 && !empty($ferow['last_level_closed']) || $new_payer_type == 0) {
+                        ++$new_payer_type;
+                    }
+
                     $new_payer_id = arGetPayerID($hidden_patient_code, $date_of_service, $new_payer_type);
                     
                     if ($new_payer_id==0) {
@@ -162,9 +164,12 @@ if (isset($_POST["mode"])) {
                                         $Codetype=$RowSearch['code_type'];
                     $Code=$RowSearch['code'];
                     $Modifier =$RowSearch['modifier'];
-                    if ($Modifier!='')
-                     $ModifierString=", $Modifier";
-                    else $ModifierString="";
+                    if ($Modifier!='') {
+                        $ModifierString=", $Modifier";
+                    } else {
+                        $ModifierString="";
+                    }
+
                     $Fee=$RowSearch['fee'];
                     $Encounter=$RowSearch['encounter'];
                     

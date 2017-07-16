@@ -29,12 +29,23 @@ function smarty_function_pc_date_select($args)
     $print = pnVarCleanFromInput('print');
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
-    if (!isset($viewtype)) $viewtype = _SETTING_DEFAULT_VIEW;
+    if (!isset($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW;
+    }
+
     $Date = postcalendar_getDate();
     
-    if (!isset($y)) $y = substr($Date, 0, 4);
-    if (!isset($m)) $m = substr($Date, 4, 2);
-    if (!isset($d)) $d = substr($Date, 6, 2);
+    if (!isset($y)) {
+        $y = substr($Date, 0, 4);
+    }
+
+    if (!isset($m)) {
+        $m = substr($Date, 4, 2);
+    }
+
+    if (!isset($d)) {
+        $d = substr($Date, 6, 2);
+    }
     
     if (!isset($args['day']) || strtolower($args['day']) == 'on') {
         $args['day'] = true;
@@ -99,7 +110,10 @@ function smarty_function_pc_date_select($args)
         $viewselect = $output->FormSelectMultiple('viewtype', $sel_data);
     }
 
-        if (!isset($args['label'])) $args['label'] = _PC_JUMP_MENU_SUBMIT;
+    if (!isset($args['label'])) {
+        $args['label'] = _PC_JUMP_MENU_SUBMIT;
+    }
+
         $jumpsubmit = '<input type="submit" valign="middle" name="submit" value="'.$args['label'].'" />';
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
     

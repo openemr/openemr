@@ -39,8 +39,9 @@ require_once(dirname(__FILE__) . "/../lib/portal_mail.inc");
 require_once("$srcdir/pnotes.inc");
 
 $task = $_POST['task'];
-if (! $task)
+if (! $task) {
     return 'no task';
+}
 
 $noteid = $_POST['noteid'] ? $_POST['noteid'] : 0;
 $notejson = $_POST['notejson'] ? json_decode($_POST['notejson'], true) : 0;
@@ -127,5 +128,6 @@ switch ($task) {
         break;
 }
 
-if (isset($_REQUEST["submit"]))
+if (isset($_REQUEST["submit"])) {
     header("Location: {$_REQUEST["submit"]}");
+}

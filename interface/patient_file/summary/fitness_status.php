@@ -19,8 +19,9 @@ $auth_relaxed  = acl_check('encounters', 'relaxed');
 $auth_demo     = acl_check('patients', 'demo');
 
 $tmp = getPatientData($pid, "squad");
-if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-  $auth_notes_a = $auth_notes = $auth_demo = $auth_relaxed = 0;
+if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+    $auth_notes_a = $auth_notes = $auth_demo = $auth_relaxed = 0;
+}
 
 if (!($auth_notes_a || $auth_notes || $auth_relaxed)) {
     echo "<body>\n<html>\n";

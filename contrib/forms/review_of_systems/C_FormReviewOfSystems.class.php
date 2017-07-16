@@ -42,8 +42,10 @@ class C_FormReviewOfSystems extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->review_of_systems = new FormReviewOfSystems($_POST['id']);
         parent::populate_object($this->review_of_systems);
         $this->review_of_systems->persist();

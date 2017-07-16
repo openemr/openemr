@@ -28,11 +28,15 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
     */
 
     // If empty $externalId or externalId no matched
-    if (preg_replace("/[:space:]/", "", $firstName) != "")
+    if (preg_replace("/[:space:]/", "", $firstName) != "") {
         $where .= "fname = '".add_escape_custom($firstName)."' " ;
+    }
 
     if (preg_replace("/[:space:]/", "", $lastName) != "") {
-        if ($where != "") $where .= "AND ";
+        if ($where != "") {
+            $where .= "AND ";
+        }
+
         $where .= "lname = '".add_escape_custom($lastName)."' " ;
     }
 
@@ -42,22 +46,36 @@ function lab_exchange_match_patient($externalId, $firstName, $middleName, $lastN
 //    }
 
     if (preg_replace("/[:space:]/", "", $dob) != "") {
-        if ($where != "") $where .= "AND ";
+        if ($where != "") {
+            $where .= "AND ";
+        }
+
         $where .= "DOB = DATE_FORMAT('".add_escape_custom($dob)."', '%Y-%m-%d') " ;
     }
 
     if (preg_replace("/[:space:]/", "", $gender) != "") {
-        if ($gender =="F") $sex = "Female";
-        if ($gender =="M") $sex = "Male";
+        if ($gender =="F") {
+            $sex = "Female";
+        }
+
+        if ($gender =="M") {
+            $sex = "Male";
+        }
 
         if (isset($sex)) {
-            if ($where != "") $where .= "AND ";
+            if ($where != "") {
+                $where .= "AND ";
+            }
+
             $where .= "(sex = '".add_escape_custom($sex)."' OR sex = '" . add_escape_custom($gender) ."')" ;
         }
     }
 
     if (preg_replace("/[:space:]/", "", $ssn) != "") {
-        if ($where != "") $where .= "AND ";
+        if ($where != "") {
+            $where .= "AND ";
+        }
+
         // Change to xxx-xx-xxxx format.
         $ss = substr($ssn, 0, 3)."-".substr($ssn, 3, 2)."-".substr($ssn, 5);
         $where .= "(ss = '".add_escape_custom($ssn)."' OR ss = '".add_escape_custom($ss)."' OR ss = '')";
@@ -282,14 +300,21 @@ function mapReportStatus($stat)
 
     // if($stat == "")
         // $return_status = "unknown";
-    if ($stat=="F" || $stat=="f")
+    if ($stat=="F" || $stat=="f") {
         $return_status = "final";
-    if ($stat=="P" || $stat=="p")
+    }
+
+    if ($stat=="P" || $stat=="p") {
         $return_status = "prelim";
-    if ($stat=="X" || $stat=="x")
+    }
+
+    if ($stat=="X" || $stat=="x") {
         $return_status = "cancel";
-    if ($stat=="C" || $stat=="c")
+    }
+
+    if ($stat=="C" || $stat=="c") {
         $return_status = "correct";
+    }
 
     return $return_status;
 }
@@ -300,16 +325,25 @@ function mapResultStatus($stat)
 
     // if($stat == "")
          // $return_status = "unknown";
-    if ($stat=="F" || $stat=="f")
+    if ($stat=="F" || $stat=="f") {
          $return_status = "final";
-    if ($stat=="P" || $stat=="p")
+    }
+
+    if ($stat=="P" || $stat=="p") {
          $return_status = "prelim";
-    if ($stat=="X" || $stat=="x")
+    }
+
+    if ($stat=="X" || $stat=="x") {
          $return_status = "cancel";
-    if ($stat=="C" || $stat=="c")
+    }
+
+    if ($stat=="C" || $stat=="c") {
          $return_status = "correct";
-    if ($stat=="I" || $stat=="i")
+    }
+
+    if ($stat=="I" || $stat=="i") {
         $return_status = "incomplete";
+    }
 
     return $return_status;
 }
@@ -320,20 +354,33 @@ function mapAbnormalStatus($stat)
 
     // if($stat == "")
         // $return_status = "unknown";
-    if ($stat=="L" || $stat=="l")
+    if ($stat=="L" || $stat=="l") {
          $return_status = "low";
-    if ($stat=="H" || $stat=="h")
+    }
+
+    if ($stat=="H" || $stat=="h") {
          $return_status = "high";
-    if ($stat=="LL" || $stat=="ll")
+    }
+
+    if ($stat=="LL" || $stat=="ll") {
          $return_status = "low";
-    if ($stat=="HH" || $stat=="hh")
+    }
+
+    if ($stat=="HH" || $stat=="hh") {
          $return_status = "high";
-    if ($stat=="<")
+    }
+
+    if ($stat=="<") {
          $return_status = "low";
-    if ($stat==">")
+    }
+
+    if ($stat==">") {
          $return_status = "high";
-    if ($stat=="A" || $stat=="a")
+    }
+
+    if ($stat=="A" || $stat=="a") {
         $return_status = "yes";
+    }
 
     return $return_status;
 }
@@ -341,9 +388,11 @@ function mapAbnormalStatus($stat)
 function formatPhone($phone)
 {
         $phone = preg_replace("/[^0-9]/", "", $phone);
-        if (strlen($phone) == 7)
-                return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
-        elseif (strlen($phone) == 10)
-                return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
-    else return $phone;
+    if (strlen($phone) == 7) {
+            return preg_replace("/([0-9]{3})([0-9]{4})/", "$1-$2", $phone);
+    } elseif (strlen($phone) == 10) {
+            return preg_replace("/([0-9]{3})([0-9]{3})([0-9]{4})/", "($1) $2-$3", $phone);
+    } else {
+        return $phone;
+    }
 }

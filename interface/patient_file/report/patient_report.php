@@ -202,7 +202,8 @@ function show_date_fun(){
    -->
    <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php xl('Insurance', 'e'); ?><br>
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
-    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing', 'e'); ?><br>
+    <?php if (!$GLOBALS['simplified_demographics']) {
+        echo 'checked';} ?>><?php xl('Billing', 'e'); ?><br>
   </td>
   <td class='text'>
    <!--
@@ -463,7 +464,10 @@ while ($row = sqlFetchArray($res)) {
     );
     while ($oprow = sqlFetchArray($opres)) {
         $tmp = $oprow['procedure_name'];
-        if (empty($tmp)) $tmp = $oprow['procedure_code'];
+        if (empty($tmp)) {
+            $tmp = $oprow['procedure_code'];
+        }
+
         echo text($tmp) . "<br />";
     }
 
@@ -486,7 +490,10 @@ $sql = "SELECT d.id, d.url, c.name, c.aco_spec FROM documents AS d " .
         "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
         "d.foreign_id = " . $db->qstr($pid);
 $result = $db->Execute($sql);
-if ($db->ErrorMsg()) echo $db->ErrorMsg();
+if ($db->ErrorMsg()) {
+    echo $db->ErrorMsg();
+}
+
 while ($result && !$result->EOF) {
     if (empty($result->fields['aco_spec']) || acl_check_aco_spec($result->fields['aco_spec'])) {
         echo "<li class='bold'>";

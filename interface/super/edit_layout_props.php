@@ -31,7 +31,9 @@ $info_msg = "";
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $opt_line_no = intval($_GET['lineno']);
 ?>

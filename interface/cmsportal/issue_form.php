@@ -156,14 +156,19 @@ if ($_POST['bn_save']) {
 }
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
 }
 
 // If user changed issue type, it will have submitted the form to override it.
-if ($form_type) $result['fields']['type'] = $form_type;
+if ($form_type) {
+    $result['fields']['type'] = $form_type;
+}
 
 // Look up the patient in OpenEMR.
 $ptid = lookup_openemr_patient($result['post']['user']);
@@ -249,9 +254,15 @@ $ires = sqlStatement(
 );
 while ($irow = sqlFetchArray($ires)) {
     echo " <option value='" . attr($irow['id']) . "'";
-    if ($irow['id'] == $issueid) echo " selected";
+    if ($irow['id'] == $issueid) {
+        echo " selected";
+    }
+
     echo ">" . text($irow['title']);
-    if (!empty($irow['begdate'])) echo " (" . text($irow['begdate']) . ")";
+    if (!empty($irow['begdate'])) {
+        echo " (" . text($irow['begdate']) . ")";
+    }
+
     echo "</option>\n";
 }
 ?>
@@ -267,7 +278,9 @@ while ($irow = sqlFetchArray($ires)) {
 
 <?php
 $irow = array();
-if (!empty($issueid)) $irow = getListById($issueid);
+if (!empty($issueid)) {
+    $irow = getListById($issueid);
+}
 
 foreach ($issue_layout as $lorow) {
     $data_type  = $lorow['data_type'];
@@ -277,10 +290,14 @@ foreach ($issue_layout as $lorow) {
     $field_title = $lorow['title'];
 
     $currvalue  = '';
-    if (isset($irow[$field_id])) $currvalue = $irow[$field_id];
+    if (isset($irow[$field_id])) {
+        $currvalue = $irow[$field_id];
+    }
 
     $newvalue = '';
-    if (isset($result['fields'][$field_id])) $newvalue = trim($result['fields'][$field_id]);
+    if (isset($result['fields'][$field_id])) {
+        $newvalue = trim($result['fields'][$field_id]);
+    }
 
     echo " <tr class='detail'>\n";
     echo "  <td class='bold'>" . text($field_title) . "</td>\n";

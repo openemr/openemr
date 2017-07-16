@@ -683,7 +683,10 @@ class Document extends ORDataObject
             }
 
             while (file_exists($filepath . $filename)) {
-                if (++$fnsuffix > 10000) return xl('Failed to compute a unique filename');
+                if (++$fnsuffix > 10000) {
+                    return xl('Failed to compute a unique filename');
+                }
+
                 $filename = $fn1 . '_' . $fnsuffix . $fn2 . $fn3;
             }
 
@@ -751,7 +754,10 @@ class Document extends ORDataObject
         }
 
         $note = "New scanned document " . $this->get_id() . ": $note";
-        if ($message) $note .= "\n" . $message;
+        if ($message) {
+            $note .= "\n" . $message;
+        }
+
         $noteid = addPnote($this->get_foreign_id(), $note, 0, '1', 'New Document', $provider);
         // Link the new note to the document.
         setGpRelation(1, $this->get_id(), 6, $noteid);

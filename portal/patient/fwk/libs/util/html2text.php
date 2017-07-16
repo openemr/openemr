@@ -29,8 +29,9 @@ function convert_html_to_text($html)
     $html = fix_newlines($html);
     
     $doc = new DOMDocument();
-    if (! $doc->loadHTML($html))
+    if (! $doc->loadHTML($html)) {
         throw new Html2TextException("Could not load HTML - badly formed?", $html);
+    }
     
     $output = iterate_over_node($doc);
     
@@ -184,14 +185,16 @@ function iterate_over_node($node)
         case "p" :
         case "br" :
             // add one line
-            if ($nextName != "div")
+            if ($nextName != "div") {
                 $output .= "\n";
+            }
             break;
         
         case "div" :
             // add one line only if the next child isn't a div
-            if ($nextName != "div" && $nextName != null)
+            if ($nextName != "div" && $nextName != null) {
                 $output .= "\n";
+            }
             break;
         
         case "a" :

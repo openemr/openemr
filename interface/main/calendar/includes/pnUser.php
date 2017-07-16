@@ -109,16 +109,18 @@ function comparePasswords($givenpass, $realpass, $username, $cryptSalt = '')
     $system = pnConfigGetVar('system');
     
     $md5pass = md5($givenpass);
-    if (strcmp($md5pass, $realpass) == 0)
+    if (strcmp($md5pass, $realpass) == 0) {
         return $md5pass;
-    elseif ($compare2crypt && $system != "1") {
+    } elseif ($compare2crypt && $system != "1") {
         $crypted = false;
         if ($cryptSalt != '') {
-            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0)
+            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0) {
                 $crypted = true;
+            }
         } else {
-            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0)
+            if (strcmp(crypt($givenpass, $cryptSalt), $realpass) == 0) {
                 $crypted = true;
+            }
         }
 
         if ($crypted) {

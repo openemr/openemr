@@ -1117,10 +1117,14 @@ class pnHTML
         }
 
         $disable_text = "";
-        if ($disable)
+        if ($disable) {
             $disable_text = " disabled ";
-        if ($readonly)
+        }
+
+        if ($readonly) {
             $disable_text = " disabled  ";
+        }
+
         $this->tabindex++;
 
         // Set up selected if required

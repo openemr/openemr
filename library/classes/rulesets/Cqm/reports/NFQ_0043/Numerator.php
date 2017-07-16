@@ -25,7 +25,9 @@ class NFQ_0043_Numerator implements CqmFilterIF
                "AND poc.procedure_code in ($vac_procedure) AND po.date_ordered between ? and ? ";
         
         $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
-        if ($sql['cnt'] > 0) return true;
+        if ($sql['cnt'] > 0) {
+            return true;
+        }
         
         $query = "select count(*) cnt from form_encounter fe ".
                  "INNER JOIN immunizations imm on imm.patient_id = fe.pid ".
@@ -33,7 +35,9 @@ class NFQ_0043_Numerator implements CqmFilterIF
                  "AND imm.cvx_code in ($vac_medication) AND imm.administered_date between ? and ?";
         
         $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$endDate));
-        if ($sql['cnt'] > 0) return true;
+        if ($sql['cnt'] > 0) {
+            return true;
+        }
         
         return false;
     }

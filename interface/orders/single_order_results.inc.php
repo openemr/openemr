@@ -30,14 +30,20 @@ function getListItem($listid, $value)
         array($listid, $value)
     );
     $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
+    if (empty($tmp)) {
+        $tmp = (($value === '') ? '' : "($value)");
+    }
+
     return $tmp;
 }
 
 function myCellText($s)
 {
     $s = trim($s);
-    if ($s === '') return '&nbsp;';
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
     return text($s);
 }
 
@@ -48,7 +54,10 @@ function storeNote($s)
 {
     global $aNotes;
     $key = array_search($s, $aNotes);
-    if ($key !== false) return $key;
+    if ($key !== false) {
+        return $key;
+    }
+
     $key = count($aNotes);
     $aNotes[$key] = $s;
     return $key;
@@ -76,7 +85,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     if ($report_id && !isset($ctx['seen_report_ids'][$report_id])) {
         $ctx['seen_report_ids'][$report_id] = true;
         if ($review_status != 'reviewed') {
-            if ($ctx['sign_list']) $ctx['sign_list'] .= ',';
+            if ($ctx['sign_list']) {
+                $ctx['sign_list'] .= ',';
+            }
+
             $ctx['sign_list'] .= $report_id;
         }
 
@@ -84,8 +96,14 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         if (!empty($row['report_notes'])) {
             $notes = explode("\n", $row['report_notes']);
             foreach ($notes as $note) {
-                if ($note === '') continue;
-                if ($report_noteid) $report_noteid .= ', ';
+                if ($note === '') {
+                    continue;
+                }
+
+                if ($report_noteid) {
+                    $report_noteid .= ', ';
+                }
+
                 $report_noteid .= 1 + storeNote($note);
             }
         }
@@ -127,7 +145,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
     }
 
     if ($priors_omitted) {
-        if ($result_noteid) $result_noteid .= ', ';
+        if ($result_noteid) {
+            $result_noteid .= ', ';
+        }
+
         $result_noteid .= 1 + storeNote(xl('This is the latest of multiple result values.'));
         $ctx['priors_omitted'] = true;
     }
@@ -135,7 +156,10 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
   // If a performing organization is provided, make a note for it also.
     $result_facility = trim(str_replace("\r", "\n", $result_facility));
     if ($result_facility) {
-        if ($result_noteid) $result_noteid .= ', ';
+        if ($result_noteid) {
+            $result_noteid .= ', ';
+        }
+
         $result_noteid .= 1 + storeNote(xl('Performing organization') . ":\n" . $result_facility);
     }
 
@@ -239,12 +263,18 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
                 $nnotes = explode("\n", $narrative_notes['notes']);
                 $narrative_note_list = '';
                 foreach ($nnotes as $nnote) {
-                    if ($narrative_note_list == '') $narrative_note_list = 'Narrative Notes:';
+                    if ($narrative_note_list == '') {
+                        $narrative_note_list = 'Narrative Notes:';
+                    }
+
                     $narrative_note_list .= $nnote;
                 }
 
                 if ($narrative_note_list != '') {
-                    if ($result_noteid) $result_noteid .= ', ';
+                    if ($result_noteid) {
+                        $result_noteid .= ', ';
+                    }
+
                     $result_noteid .= 1 + storeNote($narrative_note_list);}
             }
         } else {
@@ -281,7 +311,9 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
   // Check authorization.
     $thisauth = acl_check('patients', 'med');
-    if (!$thisauth) return xl('Not authorized');
+    if (!$thisauth) {
+        return xl('Not authorized');
+    }
 
     $orow = sqlQuery(
         "SELECT " .
@@ -530,7 +562,10 @@ while ($row = sqlFetchArray($res)) {
             while ($rrow = sqlFetchArray($rres)) {
                 $result_code = empty($rrow['result_code']) ? '' : $rrow['result_code'];
                 $key = sprintf('%05d/', $row['procedure_order_seq']) . $result_code;
-                if (!isset($rrowsets[$key])) $rrowsets[$key] = array();
+                if (!isset($rrowsets[$key])) {
+                    $rrowsets[$key] = array();
+                }
+
                 $rrowsets[$key][] = $rrow;
             }
 

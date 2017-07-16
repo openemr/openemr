@@ -44,9 +44,13 @@ class Filtreatment
     function __construct()
     {
         if (get_magic_quotes_gpc()) {
-            if (!defined('MAGICQUOTES')) define('MAGICQUOTES', true);
+            if (!defined('MAGICQUOTES')) {
+                define('MAGICQUOTES', true);
+            }
         } else {
-            if (!defined('MAGICQUOTES')) define('MAGICQUOTES', false);
+            if (!defined('MAGICQUOTES')) {
+                define('MAGICQUOTES', false);
+            }
         }
     }
 
@@ -80,8 +84,13 @@ class Filtreatment
             return (($input >= $mnval) && ($input <= $mxval)) ? $input_c : false;
         } else {
             // only one value set
-            if ($mnval) return (($input >= $mnval) ? $input_c : false );
-            if ($mxval) return (($input <= $mxval) ? $input_c : false );
+            if ($mnval) {
+                return (($input >= $mnval) ? $input_c : false );
+            }
+
+            if ($mxval) {
+                return (($input <= $mxval) ? $input_c : false );
+            }
         }
     }
 
@@ -113,12 +122,18 @@ class Filtreatment
 
             // and then check if the value is between these values
             $lt = $this->ft_realcmp($input, $mxval); //-1 or 0 for true
-            if ($lt === -1 || $lt === 0) $lt = $input_c;
-            else $lt = false;
+            if ($lt === -1 || $lt === 0) {
+                $lt = $input_c;
+            } else {
+                $lt = false;
+            }
 
             $gt = $this->ft_realcmp($input, $mnval); //1 or 0 for true
-            if ($gt === 1 || $gt === 0) $gt = true;
-            else $gt = false;
+            if ($gt === 1 || $gt === 0) {
+                $gt = true;
+            } else {
+                $gt = false;
+            }
 
             return (( $lt && $gt ) ? $input_c : false);
         } else {
@@ -265,7 +280,9 @@ break;
             break;
 
             // if $cv is not specified or it's wrong
-            default: if (preg_match($regexfull, $value)) $s = false;
+            default: if (preg_match($regexfull, $value)) {
+                    $s = false;
+            }
         }
 
         return ( $s ? $value : false );
@@ -483,8 +500,11 @@ break;
     {
         $diff = $r1 - $r2;
 
-        if (abs($diff) < EPSILON) return 0;
-        else return $diff < 0 ? -1 : 1;
+        if (abs($diff) < EPSILON) {
+            return 0;
+        } else {
+            return $diff < 0 ? -1 : 1;
+        }
     }
 
 

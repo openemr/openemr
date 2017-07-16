@@ -57,7 +57,10 @@ class C_Document extends Controller
         if ($dh) {
               $templateslist = array();
             while (false !== ($sfname = readdir($dh))) {
-                if (substr($sfname, 0, 1) == '.') continue;
+                if (substr($sfname, 0, 1) == '.') {
+                    continue;
+                }
+
                 $templateslist[$sfname] = $sfname;
             }
 
@@ -97,8 +100,9 @@ class C_Document extends Controller
             $couchDB = true;
         }
 
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $doDecryption = false;
         $encrypted = $_POST['encrypted'];
@@ -212,8 +216,9 @@ class C_Document extends Controller
     {
         // this function is a dual function that will set up a note associated with a document or send a document via email.
 
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $n = new Note();
                 $n->set_owner($_SESSION['authUserID']);
@@ -335,7 +340,10 @@ class C_Document extends Controller
             "ORDER BY type, begdate", array($patient_id));
         while ($irow = sqlFetchArray($ires)) {
             $desc = $irow['type'];
-            if ($ISSUE_TYPES[$desc]) $desc = $ISSUE_TYPES[$desc][2];
+            if ($ISSUE_TYPES[$desc]) {
+                $desc = $ISSUE_TYPES[$desc][2];
+            }
+
             $desc .= ": " . $irow['begdate'] . " " . htmlspecialchars(substr($irow['title'], 0, 40));
             $sel = ($irow['id'] == $d->get_list_id()) ? ' selected' : '';
             $issues_options .= "<option value='" . $irow['id'] . "'$sel>$desc</option>";
@@ -349,10 +357,11 @@ class C_Document extends Controller
         $encOptions = "<option value='0'>-- " . xlt('Select Encounter') . " --</option>";
         $result_docs = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_categories.pc_catname FROM form_encounter AS fe " .
             "LEFT JOIN openemr_postcalendar_categories ON fe.pc_catid=openemr_postcalendar_categories.pc_catid  WHERE fe.pid = ? ORDER BY fe.date desc", array($patient_id));
-        if (sqlNumRows($result_docs) > 0)
-        while ($row_result_docs = sqlFetchArray($result_docs)) {
-            $sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
-            $encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
+        if (sqlNumRows($result_docs) > 0) {
+            while ($row_result_docs = sqlFetchArray($result_docs)) {
+                $sel_enc = ($row_result_docs['encounter'] == $d->get_encounter_id()) ? ' selected' : '';
+                $encOptions .= "<option value='" . attr($row_result_docs['encounter']) . "' $sel_enc>". oeFormatShortDate(date('Y-m-d', strtotime($row_result_docs['date']))) . "-" . text(xl_appt_category($row_result_docs['pc_catname'])) . "</option>";
+            }
         }
 
         $this->assign("ENC_LIST", $encOptions);
@@ -369,7 +378,10 @@ class C_Document extends Controller
         $cres = sqlStatement("SELECT pc_catid, pc_catname FROM openemr_postcalendar_categories ORDER BY pc_catname");
         while ($crow = sqlFetchArray($cres)) {
             $catid = $crow['pc_catid'];
-            if ($catid < 9 && $catid != 5) continue; // Applying same logic as in new encounter page.
+            if ($catid < 9 && $catid != 5) {
+                continue; // Applying same logic as in new encounter page.
+            }
+
             $visit_category_list .="<option value='".attr($catid)."'>" . text(xl_appt_category($crow['pc_catname'])) . "</option>\n";
         }
 
@@ -385,8 +397,10 @@ class C_Document extends Controller
         if (sqlNumRows($imgOrders) > 0) {
             while ($row = sqlFetchArray($imgOrders)) {
                 $sel_proc = '';
-                if ((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id']))
-                  $sel_proc = 'selected';
+                if ((isset($mapping['procedure_code']) && $mapping['procedure_code'] == $row['procedure_code']) && (isset($mapping['procedure_code']) && $mapping['procedure_order_id'] == $row['procedure_order_id'])) {
+                    $sel_proc = 'selected';
+                }
+
                 $imgOptions .= "<option value='". attr($row['procedure_order_id']). "' data-code='".attr($row['procedure_code'])."' $sel_proc>".text($row['procedure_name'].' - '.$row['procedure_code'])."</option>";
             }
         }
@@ -546,8 +560,10 @@ class C_Document extends Controller
             }
 
             fclose($f);
-            if ($content!='')
-            unlink($tmpcouchpath);
+            if ($content!='') {
+                unlink($tmpcouchpath);
+            }
+
             exit;//exits only if file download from CouchDB is successfull.
         }
 
@@ -714,8 +730,9 @@ class C_Document extends Controller
 
     function queue_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $messages = $this->_tpl_vars['messages'];
 
@@ -730,7 +747,9 @@ class C_Document extends Controller
         //loop through posted files
         foreach ($files as $doc_id=> $file) {
             //only operate on files checked as active
-            if (!$file['active']) continue;
+            if (!$file['active']) {
+                continue;
+            }
 
             //run basic validation checks
             if (!is_numeric($file['patient_id']) || !is_numeric($file['category_id']) || !is_numeric($doc_id)) {
@@ -809,8 +828,9 @@ class C_Document extends Controller
 
     function move_action_process($patient_id = "", $document_id)
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
 
         $new_category_id = $_POST['new_category_id'];
         $new_patient_id = $_POST['new_patient_id'];
@@ -1060,7 +1080,9 @@ class C_Document extends Controller
     function _rename_file($fname, $self = false)
     {
         // Allow same routine for new file name check
-        if (!file_exists($fname)) return($fname);
+        if (!file_exists($fname)) {
+            return($fname);
+        }
 
         $path = dirname($fname);
         $file = basename_international($fname);
@@ -1153,7 +1175,10 @@ class C_Document extends Controller
                 foreach ($categories[$id] as $doc) {
                     $link = $this->_link("view") . "doc_id=" . $doc['document_id'] . "&";
           // If user has no access then there will be no link.
-                    if (!acl_check_aco_spec($doc['aco_spec'])) $link = '';
+                    if (!acl_check_aco_spec($doc['aco_spec'])) {
+                        $link = '';
+                    }
+
                     if ($this->tree->get_node_name($id) == "CCR") {
                                 $current_node->addItem(new HTML_TreeNode(array(
                         'text' => $doc['docdate'] . ' ' . basename_international($doc['url']),
@@ -1190,8 +1215,10 @@ class C_Document extends Controller
     {
         $log_path = $GLOBALS['OE_SITE_DIR']."/documents/couchdb/";
         $log_file = 'log.txt';
-        if (!is_dir($log_path))
+        if (!is_dir($log_path)) {
             mkdir($log_path, 0777, true);
+        }
+
         $LOG = fopen($log_path.$log_file, 'a');
         fwrite($LOG, $content);
         fclose($LOG);

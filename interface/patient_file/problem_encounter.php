@@ -36,14 +36,15 @@
                acl_check('encounters', 'notes_a', '', 'write')) &&
               acl_check('patients', 'med', '', 'write'));
 
- if ($patdata['squad'] && ! acl_check('squads', $patdata['squad']))
-  $thisauth = 0;
+ if ($patdata['squad'] && ! acl_check('squads', $patdata['squad'])) {
+     $thisauth = 0;
+    }
 
- if (!$thisauth) {
-     echo "<html>\n<body>\n";
-     echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
-     echo "</body>\n</html>\n";
-     exit();
+    if (!$thisauth) {
+        echo "<html>\n<body>\n";
+        echo "<p>" .xlt('You are not authorized for this.'). "</p>\n";
+        echo "</body>\n</html>\n";
+        exit();
     }
 
     $alertmsg = ""; // anything here pops up in an alert box
@@ -75,7 +76,10 @@
         echo "<html><body>"
         ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
         . "<script language='JavaScript'>\n";
-        if ($alertmsg) echo " alert('" . addslashes($alertmsg) . "');\n";
+        if ($alertmsg) {
+            echo " alert('" . addslashes($alertmsg) . "');\n";
+        }
+
         echo " var myboss = opener ? opener : parent;\n";
         echo " myboss.location.reload();\n";
         echo " window.close();\n";
@@ -365,7 +369,9 @@ if ($_REQUEST['issue']) {
     echo "doclick('p', " . attr(addslashes($_REQUEST['issue'])) . ");\n";
 }
 
- if ($alertmsg) echo "alert('" . addslashes($alertmsg) . "');\n";
+if ($alertmsg) {
+    echo "alert('" . addslashes($alertmsg) . "');\n";
+}
 ?>
 </script>
 </body>

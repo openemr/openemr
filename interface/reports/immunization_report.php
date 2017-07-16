@@ -173,14 +173,38 @@ if ($_POST['form_get_hl7']==='true') {
         $content .= "MSH|^~\&|OPENEMR||||$nowdate||".
         "VXU^V04^VXU_V04|OPENEMR-110316102457117|P|2.5.1" .
         "$D" ;
-        if ($r['sex']==='Male') $r['sex'] = 'M';
-        if ($r['sex']==='Female') $r['sex'] = 'F';
-        if ($r['status']==='married') $r['status'] = 'M';
-        if ($r['status']==='single') $r['status'] = 'S';
-        if ($r['status']==='divorced') $r['status'] = 'D';
-        if ($r['status']==='widowed') $r['status'] = 'W';
-        if ($r['status']==='separated') $r['status'] = 'A';
-        if ($r['status']==='domestic partner') $r['status'] = 'P';
+        if ($r['sex']==='Male') {
+            $r['sex'] = 'M';
+        }
+
+        if ($r['sex']==='Female') {
+            $r['sex'] = 'F';
+        }
+
+        if ($r['status']==='married') {
+            $r['status'] = 'M';
+        }
+
+        if ($r['status']==='single') {
+            $r['status'] = 'S';
+        }
+
+        if ($r['status']==='divorced') {
+            $r['status'] = 'D';
+        }
+
+        if ($r['status']==='widowed') {
+            $r['status'] = 'W';
+        }
+
+        if ($r['status']==='separated') {
+            $r['status'] = 'A';
+        }
+
+        if ($r['status']==='domestic partner') {
+            $r['status'] = 'P';
+        }
+
         $content .= "PID|" . // [[ 3.72 ]]
         "|" . // 1. Set id
         "|" . // 2. (B)Patient id
@@ -350,7 +374,10 @@ onsubmit='return top.restoreSession()'>
 while ($crow = sqlFetchArray($cres)) {
     $codeid = $crow['id'];
     echo "    <option value='$codeid'";
-    if (in_array($codeid, $form_code)) echo " selected";
+    if (in_array($codeid, $form_code)) {
+        echo " selected";
+    }
+
     echo ">" . $crow['name'] . "\n";
 }
 

@@ -132,7 +132,10 @@ function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $repor
     $patient_counter=0;
     for ($i=0; $i<$totalNumberBatches; $i++) {
         $patient_counter = $batchSize*($i+1);
-        if ($patient_counter > $totalNumPatients) $patient_counter = $totalNumPatients;
+        if ($patient_counter > $totalNumPatients) {
+            $patient_counter = $totalNumPatients;
+        }
+
         $update_rem_log_batch = update_reminders($dateTarget, '', (($batchSize*$i)+1), $batchSize);
         if ($i == 0) {
             // For first cycle, simply copy it to update_rem_log
@@ -464,8 +467,9 @@ function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select
     $rez = sqlStatementCdrEngine($sql, $arraySqlBind);
 
     $returnval=array();
-    for ($iter=0; $row=sqlFetchArray($rez); $iter++)
-    $returnval[$iter]=$row;
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }

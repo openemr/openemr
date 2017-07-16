@@ -35,7 +35,10 @@ function getListItem($listid, $value)
         array($listid, $value)
     );
     $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) $tmp = (($value === '') ? '' : "($value)");
+    if (empty($tmp)) {
+        $tmp = (($value === '') ? '' : "($value)");
+    }
+
     return $tmp;
 }
 
@@ -47,13 +50,18 @@ function getListItem($listid, $value)
  */
 function myCellText($s)
 {
-    if ($s === '') return '&nbsp;';
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
     return text($s);
 }
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $errmsg = '';
 
@@ -70,7 +78,10 @@ if ($_POST['form_xmit']) {
               $errmsg = send_hl7_order($ppid, $hl7);
         }
 
-        if ($errmsg) break;
+        if ($errmsg) {
+            break;
+        }
+
         sqlStatement("UPDATE procedure_order SET date_transmitted = NOW() WHERE " .
         "procedure_order_id = ?", array($formid));
     }
@@ -214,7 +225,10 @@ if (is_array($info['match'])) {
 }
 
 foreach ($info as $infokey => $infoval) {
-    if ($infokey == 'match' || $infokey == 'select') continue;
+    if ($infokey == 'match' || $infokey == 'select') {
+        continue;
+    }
+
     $count = 0;
     if (is_array($infoval['mssgs'])) {
         foreach ($infoval['mssgs'] as $message) {
@@ -327,7 +341,8 @@ $form_provider = empty($_POST['form_provider']) ? '' : intval($_POST['form_provi
 
    &nbsp;
    <input type='checkbox' name='form_patient' value='1'
-    <?php if ($form_patient) echo 'checked '; ?>/><?php echo xlt('Current Pt Only'); ?>
+    <?php if ($form_patient) {
+        echo 'checked ';} ?>/><?php echo xlt('Current Pt Only'); ?>
 
    &nbsp;
    <select name='form_reviewed'>
@@ -340,7 +355,10 @@ foreach (array(
   '5' => xl('Not sent'),
   ) as $key => $value) {
     echo "<option value='$key'";
-    if ($key == $form_reviewed) echo " selected";
+    if ($key == $form_reviewed) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -462,8 +480,9 @@ while ($row = sqlFetchArray($res)) {
     $sendable = isset($row['procedure_order_seq']) && $row['do_not_send'] == 0;
 
     $ptname = $row['lname'];
-    if ($row['fname'] || $row['mname'])
-    $ptname .= ', ' . $row['fname'] . ' ' . $row['mname'];
+    if ($row['fname'] || $row['mname']) {
+        $ptname .= ', ' . $row['fname'] . ' ' . $row['mname'];
+    }
 
     if ($lastpoid != $order_id || $lastpcid != $order_seq) {
         ++$encount;

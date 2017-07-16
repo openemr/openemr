@@ -34,7 +34,10 @@ if ($_POST['check'] || $_POST['synchronize']) {
 
     $custom_languages = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_languages as $var) {
-        if ($var=='') continue;
+        if ($var=='') {
+            continue;
+        }
+
         echo htmlspecialchars(xl('Following is a new custom language:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR>";
         if (!$checkOnly) {
             // add the new language (first collect the language code)
@@ -68,7 +71,10 @@ if ($_POST['check'] || $_POST['synchronize']) {
 
     $custom_constants = array_diff(array_unique($row_custom), array_unique($row_main));
     foreach ($custom_constants as $var) {
-        if ($var=='') continue;
+        if ($var=='') {
+            continue;
+        }
+
         echo htmlspecialchars(xl('Following is a new custom constant:'), ENT_NOQUOTES)." ".htmlspecialchars($var, ENT_NOQUOTES)."<BR>";
         if (!$checkOnly) {
             // add the new constant

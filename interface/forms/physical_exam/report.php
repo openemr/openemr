@@ -27,7 +27,10 @@ function physical_exam_report($pid, $encounter, $cols, $id)
         foreach ($sysarray as $line_id => $description) {
             $linedbrow = $rows[$line_id];
             if (!($linedbrow['wnl'] || $linedbrow['abn'] || $linedbrow['diagnosis'] ||
-             $linedbrow['comments'])) continue;
+             $linedbrow['comments'])) {
+                continue;
+            }
+
             if ($sysname != '*') { // observation line
                    echo " <tr>\n";
                    echo "  <td class='text' align='center'>" . ($linedbrow['wnl'] ? "WNL" : "") . "&nbsp;&nbsp;</td>\n";

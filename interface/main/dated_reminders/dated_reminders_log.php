@@ -36,8 +36,9 @@
   */
 if ($_GET) {
     if (!$isAdmin) {
-        if (empty($_GET['sentBy']) and empty($_GET['sentTo']))
-        $_GET['sentTo'] = array(intval($_SESSION['authId']));
+        if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
+            $_GET['sentTo'] = array(intval($_SESSION['authId']));
+        }
     }
 
     echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
@@ -153,9 +154,11 @@ $i++) {
             <select style="width:100%;" id="sentBy" name="sentBy[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php
-                if ($isAdmin)
-                  foreach ($allUsers as $user)
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                if ($isAdmin) {
+                    foreach ($allUsers as $user) {
+                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                    }
+                }
                 ?>
             </select>
           </td>
@@ -164,9 +167,11 @@ $i++) {
             <select style="width:100%" id="sentTo" name="sentTo[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php
-                if ($isAdmin)
-                  foreach ($allUsers as $user)
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                if ($isAdmin) {
+                    foreach ($allUsers as $user) {
+                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                    }
+                }
                 ?>
             </select>
           </td>

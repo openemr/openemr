@@ -47,7 +47,10 @@ $ISSUE_TYPE_CATEGORIES = array(
 // Second, collect the non hard-coded options and add to the array
 $res = sqlStatement("SELECT DISTINCT `category` FROM `issue_types`");
 while ($row = sqlFetchArray($res)) {
-    if (($row['category'] == "default") || ($row['category'] == "ippf_specific")) continue;
+    if (($row['category'] == "default") || ($row['category'] == "ippf_specific")) {
+        continue;
+    }
+
     $ISSUE_TYPE_CATEGORIES[$row['category']] = $row['category'];
 }
 
@@ -100,15 +103,21 @@ function getListById($id, $cols = "*")
 
 function getListByType($pid, $type, $cols = "*", $active = "all", $limit = "all", $offset = "0")
 {
-    if ($active == "all")
+    if ($active == "all") {
         $sql = "select $cols from lists where pid='$pid' and type='$type' order by date DESC";
-    else $sql = "select $cols from lists where pid='$pid' and type='$type' and activity='$active' order by date DESC";
-    if ($limit != "all")
+    } else {
+        $sql = "select $cols from lists where pid='$pid' and type='$type' and activity='$active' order by date DESC";
+    }
+
+    if ($limit != "all") {
         $sql .= " limit $offset,$limit";
+    }
     
     $res = sqlStatement($sql);
-    for ($iter =0; $row = sqlFetchArray($res); $iter++)
+    for ($iter =0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
+    }
+
     return $all;
 }
 

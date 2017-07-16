@@ -27,7 +27,10 @@ function Add($tag, $text)
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
     if ($text) {
         for ($i = 0; $i < $indent;
-        ++$i) $out .= "\t";
+        ++$i) {
+            $out .= "\t";
+        }
+
         $out .= "<$tag>$text</$tag>\n";
     }
 }
@@ -36,7 +39,10 @@ function OpenTag($tag)
 {
     global $out, $indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     ++$indent;
     $out .= "<$tag>\n";
 }
@@ -46,7 +52,10 @@ function CloseTag($tag)
     global $out, $indent;
     --$indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     $out .= "</$tag>\n";
 }
 
@@ -60,7 +69,10 @@ function Digits($field)
 function Sex($field)
 {
     $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") $sex = "U";
+    if ($sex != "M" && $sex != "F") {
+        $sex = "U";
+    }
+
     return $sex;
 }
 

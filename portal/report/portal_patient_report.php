@@ -336,7 +336,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
    <input type='checkbox' name='include_history' id='include_history' value="history"><?php echo xlt('History'); ?><br>
    <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php echo xlt('Insurance'); ?><br>
    <input type='checkbox' name='include_billing' id='include_billing' value="billing"
-    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php echo xlt('Billing'); ?><br>
+    <?php if (!$GLOBALS['simplified_demographics']) {
+        echo 'checked';} ?>><?php echo xlt('Billing'); ?><br>
   </td>
   <td class='text'>
    <!--
@@ -577,7 +578,10 @@ while ($row = sqlFetchArray($res)) {
     );
     while ($oprow = sqlFetchArray($opres)) {
         $tmp = $oprow['procedure_name'];
-        if (empty($tmp)) $tmp = $oprow['procedure_code'];
+        if (empty($tmp)) {
+            $tmp = $oprow['procedure_code'];
+        }
+
         echo text($tmp) . "<br />";
     }
 
@@ -598,7 +602,10 @@ $sql = "SELECT d.id, d.url, c.name FROM documents AS d " .
         "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
         "d.foreign_id = " . $db->qstr($pid);
 $result = $db->Execute($sql);
-if ($db->ErrorMsg()) echo $db->ErrorMsg();
+if ($db->ErrorMsg()) {
+    echo $db->ErrorMsg();
+}
+
 while ($result && !$result->EOF) {
     echo "<li class='bold'>";
     echo '<input type="checkbox" name="documents[]" value="' .

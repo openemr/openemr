@@ -63,8 +63,9 @@ class SkipJack extends PaymentProcessor
         }
         
         // skipjack requires a funky formatted order string
-        if (! $req->OrderString)
+        if (! $req->OrderString) {
             $req->OrderString = "1~None~0.00~0~N~||";
+        }
         
         $resp = new PaymentResponse();
         $resp->OrderNumber = $req->OrderNumber;

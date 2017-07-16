@@ -54,7 +54,10 @@ function update_modules_menu(&$menu_list)
             if (sqlNumRows($module_hooks) == 0) {
                 // module without hooks in module section
                 $acl_section = strtolower($modulerow['mod_directory']);
-                if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1")continue;
+                if (zh_acl_check($_SESSION['authUserID'], $acl_section) ?  "" : "1") {
+                    continue;
+                }
+
                 $newEntry=new stdClass();
                 $newEntry->label=xlt($mod_nick_name);
                 $newEntry->url=$relative_link;
@@ -71,7 +74,9 @@ function update_modules_menu(&$menu_list)
                 $jid = 0;
                 $modid = '';
                 while ($hookrow = sqlFetchArray($module_hooks)) {
-                    if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1")continue;
+                    if (zh_acl_check($_SESSION['authUserID'], $hookrow['obj_name']) ?  "" : "1") {
+                        continue;
+                    }
 
                     $relative_link ="/interface/modules/".$modulePath."/".$hookrow['mod_relative_link'].$hookrow['path'];
                     $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
@@ -131,9 +136,18 @@ function update_visit_forms(&$menu_list)
         foreach ($reg as $entry) {
             $option_id = $entry['directory'];
             $title = trim($entry['nickname']);
-            if ($option_id == 'fee_sheet') continue;
-            if ($option_id == 'newpatient') continue;
-            if (empty($title)) $title = $entry['name'];
+            if ($option_id == 'fee_sheet') {
+                continue;
+            }
+
+            if ($option_id == 'newpatient') {
+                continue;
+            }
+
+            if (empty($title)) {
+                $title = $entry['name'];
+            }
+
             $formURL = $baseURL . urlencode($option_id);
             $formEntry = new stdClass();
             $formEntry->label = xl_form_title($title);
@@ -188,16 +202,24 @@ function menu_acl_check($arr)
     if (isset($arr[2])) {
         for ($i = 2; isset($arr[$i]); ++$i) {
             if (substr($arr[0], 0, 1) == '!') {
-                if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) return true;
+                if (!acl_check(substr($arr[0], 1), $arr[1], '', $arr[$i])) {
+                    return true;
+                }
             } else {
-                if (acl_check($arr[0], $arr[1], '', $arr[$i])) return true;
+                if (acl_check($arr[0], $arr[1], '', $arr[$i])) {
+                    return true;
+                }
             }
         }
     } else {
         if (substr($arr[0], 0, 1) == '!') {
-            if (!acl_check(substr($arr[0], 1), $arr[1])) return true;
+            if (!acl_check(substr($arr[0], 1), $arr[1])) {
+                return true;
+            }
         } else {
-            if (acl_check($arr[0], $arr[1])) return true;
+            if (acl_check($arr[0], $arr[1])) {
+                return true;
+            }
         }
     }
 

@@ -124,7 +124,10 @@ require_once("../interface/globals.php");
         echoFilterItem($iter++, 'pid', xl('Internal Identifier (pid)'));
 
         // Finish the row gracefully.
-        while ($iter++ % 3)echo "<td>&nbsp;</td>\n";
+        while ($iter++ % 3) {
+            echo "<td>&nbsp;</td>\n";
+        }
+
         echo "</tr>\n";
 
         // Write a final line to solicit an optional service code.

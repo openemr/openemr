@@ -129,7 +129,10 @@ $sqlBindArraySpecial = array();
 $where = "1 = 0";
 
 foreach ($_REQUEST as $key => $value) {
-    if (substr($key, 0, 3) != 'mf_') continue; // "match field"
+    if (substr($key, 0, 3) != 'mf_') {
+        continue; // "match field"
+    }
+
     $fldname = substr($key, 3);
   // pubpid requires special treatment.  Match on that is fatal.
     if ($fldname == 'pubpid') {
@@ -155,7 +158,10 @@ $sql = "SELECT *, ( $relevance ) AS relevance, " .
 $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
 $rez = sqlStatement($sql, $sqlBindArray);
 $result = array();
-while ($row = sqlFetchArray($rez))$result[] = $row;
+while ($row = sqlFetchArray($rez)) {
+    $result[] = $row;
+}
+
 _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
 ?>
 
@@ -167,14 +173,17 @@ _set_patient_inc_count($MAXSHOW, count($result), $where, $sqlBindArraySpecial);
    &nbsp;
   </td>
   <td class='text' align='center'>
-<?php if ($message) echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n"; ?>
+<?php if ($message) {
+    echo "<font color='red'><b>".htmlspecialchars($message, ENT_NOQUOTES)."</b></font>\n";} ?>
   </td>
   <td class='text' align='right'>
 <?php
 // Show start and end row number, and number of rows, with paging links.
 $count = $GLOBALS['PATIENT_INC_COUNT'];
 $fend = $fstart + $MAXSHOW;
-if ($fend > $count) $fend = $count;
+if ($fend > $count) {
+    $fend = $count;
+}
 ?>
 <?php if ($fstart) { ?>
    <a href="javascript:submitList(-<?php echo $MAXSHOW ?>)">

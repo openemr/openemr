@@ -200,7 +200,10 @@ if ($_POST['formaction']=="generate") {
     // utilized to go back to autosaved template
     $bodytext = "";
     $fh = fopen("$template_dir/".$_GET['template'], 'r');
-    while (!feof($fh))$bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -209,7 +212,10 @@ if ($_POST['formaction']=="generate") {
 } else if ($_POST['formaction'] == "loadtemplate" && $_POST['form_template'] != "") {
     $bodytext = "";
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh))$bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -234,7 +240,10 @@ if ($_POST['formaction']=="generate") {
     // read the saved file back
     $_POST['form_template'] = $_POST['newtemplatename'];
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh))$bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -258,7 +267,10 @@ if ($_POST['formaction']=="generate") {
 
     // read the saved file back
     $fh = fopen("$template_dir/".$_POST['form_template'], 'r');
-    while (!feof($fh))$bodytext.= fread($fh, 8192);
+    while (!feof($fh)) {
+        $bodytext.= fread($fh, 8192);
+    }
+
     fclose($fh);
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -277,11 +289,17 @@ $optto = '';
 $ulist = "var ulist = new Array();\n";
 while ($urow = sqlFetchArray($ures)) {
     $uname = $urow['lname'];
-    if ($urow['fname']) $uname .= ", " . $urow['fname'];
+    if ($urow['fname']) {
+        $uname .= ", " . $urow['fname'];
+    }
+
     $tmp1 = " <option value='" . attr($urow['id']) . "'";
     $tmp2 = ">" . text($uname) . "</option>\n";
     $optto .= $tmp1 . $tmp2;
-    if ($urow['id'] == $_SESSION['authUserID']) $tmp1 .= " selected";
+    if ($urow['id'] == $_SESSION['authUserID']) {
+        $tmp1 .= " selected";
+    }
+
     $optfrom .= $tmp1 . $tmp2;
     $ulist .= "ulist[$i] = '" . attr($uname) . "|" .
     attr($urow['id']) . "|" . attr($urow['specialty']) . "';\n";
@@ -448,7 +466,10 @@ function insertAtCursor(myField, myValue) {
 <?php
 $tpldir = $GLOBALS['OE_SITE_DIR'] . "/letter_templates";
 $dh = opendir($tpldir);
-if (! $dh) die(xlt('Cannot read') . ' ' . $tpldir);
+if (! $dh) {
+    die(xlt('Cannot read') . ' ' . $tpldir);
+}
+
 while (false !== ($tfname = readdir($dh))) {
   // skip dot-files, scripts and images
     if (preg_match("/^\./", $tfname)) {
@@ -464,7 +485,10 @@ while (false !== ($tfname = readdir($dh))) {
         continue; }
 
     echo "<option value='" . attr($tfname) . "'";
-    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) echo " SELECTED";
+    if (($tfname == $_POST['form_template']) || ($tfname == $_GET['template'])) {
+        echo " SELECTED";
+    }
+
     echo ">";
     if ($tfname == 'autosaved') {
         echo xlt($tfname);

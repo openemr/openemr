@@ -7,8 +7,10 @@
 include_once("../../globals.php");
 include_once("$srcdir/api.inc");
 include_once("$srcdir/forms.inc");
-if ($encounter == "")
-$encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
 if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_dictation", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Speech Dictation", $newid, "dictation", $pid, $userauthorized);

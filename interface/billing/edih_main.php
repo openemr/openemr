@@ -46,14 +46,29 @@ define('SITE_IN', 1);
 
 
 // Try to prevent search for too short encounter value
-if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) define("ENCOUNTER_MIN_DIGIT_LENGTH", 1);
+if (!defined("ENCOUNTER_MIN_DIGIT_LENGTH")) {
+    define("ENCOUNTER_MIN_DIGIT_LENGTH", 1);
+}
+
 // these delimiters are hardcoded into OpenEMR batch files
-if (!defined("SEG_ELEM_DELIM")) define("SEG_ELEM_DELIM", "*");
-if (!defined("SEG_TERM_DELIM")) define("SEG_TERM_DELIM", "~");
+if (!defined("SEG_ELEM_DELIM")) {
+    define("SEG_ELEM_DELIM", "*");
+}
+
+if (!defined("SEG_TERM_DELIM")) {
+    define("SEG_TERM_DELIM", "~");
+}
+
 //clearinghouse practice
-if (!defined("IBR_DELIMITER")) define("IBR_DELIMITER", "|");
+if (!defined("IBR_DELIMITER")) {
+    define("IBR_DELIMITER", "|");
+}
+
 //
-if (!defined("DS")) define("DS", DIRECTORY_SEPARATOR);
+if (!defined("DS")) {
+    define("DS", DIRECTORY_SEPARATOR);
+}
+
 //
 // path will be "$srcdir/edihistory/filename.php"
 require_once("$srcdir/edihistory/edih_csv_inc.php");    //dirname(__FILE__) . "/edihist/csv_record_include.php");

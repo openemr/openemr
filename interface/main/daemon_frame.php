@@ -26,7 +26,9 @@ if ($GLOBALS['enable_hylafax']) {
     $statlines = array();
     exec("faxstat -r -l -h " . $GLOBALS['hylafax_server'], $statlines);
     foreach ($statlines as $line) {
-        if (substr($line, 0, 1) == '-') ++$faxcount;
+        if (substr($line, 0, 1) == '-') {
+            ++$faxcount;
+        }
     }
 }
 

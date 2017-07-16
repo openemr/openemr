@@ -101,8 +101,10 @@ class ActionRouter implements IRouter
     {
         if ($uri == "") {
             $action = RequestUtil::Get('action');
-            if (! $action)
+            if (! $action) {
                 $action = $this->_defaultRoute;
+            }
+
             $uri = $action ? $action : RequestUtil::GetCurrentURL();
         }
         
@@ -124,8 +126,9 @@ class ActionRouter implements IRouter
         }
         
         $method_param = isset($params [1]) && $params [1] ? $params [1] : "";
-        if (! $method_param)
+        if (! $method_param) {
             $method_param = "DefaultAction";
+        }
         
         return array (
                 $controller_param,
@@ -143,9 +146,11 @@ class ActionRouter implements IRouter
      */
     public function ModeIs($value)
     {
-        if (strcmp($this->_mode, $value) == 0)
+        if (strcmp($this->_mode, $value) == 0) {
             return true;
-        else return false;
+        } else {
+            return false;
+        }
     }
     
     /**

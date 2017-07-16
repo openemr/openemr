@@ -44,7 +44,10 @@ function is_clinic($code)
 {
     global $bcodes;
     $i = strpos($code, ':');
-    if ($i) $code = substr($code, 0, $i);
+    if ($i) {
+        $code = substr($code, 0, $i);
+    }
+
     return ($bcodes['CPT4'][xl('Lab')][$code]     ||
     $bcodes['CPT4'][xl('Immunizations')][$code] ||
     $bcodes['HCPCS'][xl('Therapeutic Injections')][$code]);
@@ -52,10 +55,14 @@ function is_clinic($code)
 
 function bucks($amount)
 {
-    if ($amount) echo attr(oeFormatMoney($amount));
+    if ($amount) {
+        echo attr(oeFormatMoney($amount));
+    }
 }
 
-  if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xlt("Unauthorized access."));
+}
 
 
   $form_use_edate  = $_POST['form_use_edate'];
@@ -192,7 +199,10 @@ function sel_diagnosis() {
                     while ($row = sqlFetchArray($res)) {
                         $provid = $row['id'];
                         echo "    <option value='". attr($provid) ."'";
-                        if ($provid == $_POST['form_doctor']) echo " selected";
+                        if ($provid == $_POST['form_doctor']) {
+                            echo " selected";
+                        }
+
                         echo ">" . text($row['lname']) . ", " . text($row['fname']) . "\n";
                     }
 
@@ -205,7 +215,8 @@ function sel_diagnosis() {
             <td>
                <select name='form_use_edate' class='form-control'>
                 <option value='0'><?php echo xlt('Payment Date'); ?></option>
-                <option value='1'<?php if ($form_use_edate) echo ' selected' ?>><?php echo xlt('Invoice Date'); ?></option>
+                <option value='1'<?php if ($form_use_edate) {
+                    echo ' selected'; } ?>><?php echo xlt('Invoice Date'); ?></option>
                </select>
             </td>
         </tr>
@@ -228,29 +239,35 @@ function sel_diagnosis() {
         </tr>
         <tr>
             <td class='control-label'>
-                <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xlt('Procedure/Service') . ':'; ?>
+                <?php if (!$GLOBALS['simplified_demographics']) {
+                    echo '&nbsp;' . xlt('Procedure/Service') . ':';} ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Optional procedure/service code'); ?>'
-                <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
+                <?php if ($GLOBALS['simplified_demographics']) {
+                    echo "style='display:none'";} ?>>
             </td>
 
             <td class='control-label'>
-                <?php if (!$GLOBALS['simplified_demographics']) echo '&nbsp;' . xlt('Diagnosis') . ':'; ?>
+                <?php if (!$GLOBALS['simplified_demographics']) {
+                    echo '&nbsp;' . xlt('Diagnosis') . ':';} ?>
             </td>
             <td>
                <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
-                <?php if ($GLOBALS['simplified_demographics']) echo "style='display:none'"; ?>>
+                <?php if ($GLOBALS['simplified_demographics']) {
+                    echo "style='display:none'";} ?>>
             </td>
 
             <td>
         <div class='checkbox'>
-                <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?>><?php echo xlt('Details')?></label>
+                <label><input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+                    echo " checked";} ?>><?php echo xlt('Details')?></label>
         </div>
         <div class='checkbox'>
-                <label><input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) echo " checked"; ?>><?php echo xlt('Procedures')?></label>
+                <label><input type='checkbox' name='form_procedures' value='1'<?php if ($form_procedures) {
+                    echo " checked";} ?>><?php echo xlt('Procedures')?></label>
         </div>
             </td>
         </tr>
@@ -391,7 +408,10 @@ if ($_POST['form_refresh']) {
             $patient_id = $row['pid'];
             $encounter_id = $row['encounter'];
           //
-            if (!empty($ids_to_skip[$trans_id])) continue;
+            if (!empty($ids_to_skip[$trans_id])) {
+                continue;
+            }
+
           //
           // If a diagnosis code was given then skip any invoices without
           // that diagnosis.
@@ -498,17 +518,25 @@ if ($_POST['form_refresh']) {
         $encounter_id = $row['encounter'];
         $patient_name = $row['pat_fulname'];
         //
-        if (!empty($ids_to_skip[$trans_id])) continue;
+        if (!empty($ids_to_skip[$trans_id])) {
+            continue;
+        }
+
         //
         if ($form_use_edate) {
             $thedate = substr($row['date'], 0, 10);
         } else {
-            if (!empty($row['deposit_date']))
-            $thedate = $row['deposit_date'];
-            else $thedate = substr($row['post_time'], 0, 10);
+            if (!empty($row['deposit_date'])) {
+                $thedate = $row['deposit_date'];
+            } else {
+                $thedate = substr($row['post_time'], 0, 10);
+            }
         }
 
-        if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) continue;
+        if (strcmp($thedate, $form_from_date) < 0 || strcmp($thedate, $form_to_date) > 0) {
+            continue;
+        }
+
         //
         // If a diagnosis code was given then skip any invoices without
         // that diagnosis.
@@ -562,9 +590,11 @@ if ($_POST['form_refresh']) {
 
         $amount1 = 0;
         $amount2 = 0;
-        if ($form_procedures && is_clinic($row['memo']))
-        $amount2 -= $row['amount'];
-        else $amount1 -= $row['amount'];
+        if ($form_procedures && is_clinic($row['memo'])) {
+            $amount2 -= $row['amount'];
+        } else {
+            $amount1 -= $row['amount'];
+        }
 
       // if ($docid != $row['employee_id']) {
         if ($docid != $row['docid']) {

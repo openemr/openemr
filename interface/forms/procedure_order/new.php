@@ -52,7 +52,10 @@ function cbinput($name, $colname)
 {
     global $row;
     $ret  = "<input type='checkbox' name='$name' value='1'";
-    if ($row[$colname]) $ret .= " checked";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
     $ret .= " />";
     return $ret;
 }
@@ -64,7 +67,10 @@ function cbcell($name, $desc, $colname)
 
 function QuotedOrNull($fld)
 {
-    if (empty($fld)) return "NULL";
+    if (empty($fld)) {
+        return "NULL";
+    }
+
     return "'$fld'";
 }
 
@@ -73,8 +79,9 @@ function getListOptions($list_id, $fieldnames = array('option_id', 'title', 'seq
     $output =  array();
     $query = sqlStatement("SELECT ".implode(',', $fieldnames)." FROM list_options where list_id = ? AND activity = 1 order by seq", array($list_id));
     while ($ll = sqlFetchArray($query)) {
-        foreach ($fieldnames as $val)
-          $output[$ll['option_id']][$val] = $ll[$val];
+        foreach ($fieldnames as $val) {
+            $output[$ll['option_id']][$val] = $ll[$val];
+        }
     }
 
     return $output;
@@ -127,7 +134,9 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
 
     for ($i = 0; isset($_POST['form_proc_type'][$i]); ++$i) {
         $ptid = $_POST['form_proc_type'][$i] + 0;
-        if ($ptid <= 0) continue;
+        if ($ptid <= 0) {
+            continue;
+        }
 
         $prefix = "ans$i" . "_";
 
@@ -166,8 +175,14 @@ if ($_POST['bn_save'] || $_POST['bn_xmit']) {
                   $data = $_POST["$prefix$qcode"];
             }
 
-              if (!isset($data) || $data === '') continue;
-              if (!is_array($data)) $data = array($data);
+            if (!isset($data) || $data === '') {
+                continue;
+            }
+
+            if (!is_array($data)) {
+                $data = array($data);
+            }
+
             foreach ($data as $datum) {
                   // Note this will auto-assign the seq value.
                   sqlBeginTrans();
@@ -417,7 +432,10 @@ $(document).ready(function() {
                             "ORDER BY name, ppid");
                         while ($pprow = sqlFetchArray($ppres)) {
                             echo "<option value='" . attr($pprow['ppid']) . "'";
-                            if ($pprow['ppid'] == $row['lab_id']) echo " selected";
+                            if ($pprow['ppid'] == $row['lab_id']) {
+                                echo " selected";
+                            }
+
                             echo ">" . text($pprow['name']) . "</option>";
                         }
                         ?>
@@ -541,7 +559,9 @@ $(document).ready(function() {
                 }
             }
 
-            if (empty($oparr)) $oparr[] = array('procedure_name' => '');
+            if (empty($oparr)) {
+                $oparr[] = array('procedure_name' => '');
+            }
 
             $i = 0;
             foreach ($oparr as $oprow) {
@@ -588,8 +608,9 @@ $(document).ready(function() {
                                 <?php
                                 $qoe_init_javascript = '';
                                 echo generate_qoe_html($ptid, $formid, $oprow['procedure_order_seq'], $i);
-                                if ($qoe_init_javascript)
+                                if ($qoe_init_javascript) {
                                     echo "<script language='JavaScript'>$qoe_init_javascript</script>";
+                                }
                                 ?>
                             </div>
                         </td>

@@ -42,7 +42,10 @@ function getListItem($listid, $value)
         array($listid, $value)
     );
     $tmp = xl_list_label($lrow['title']);
-    if (empty($tmp)) $tmp = "($report_status)";
+    if (empty($tmp)) {
+        $tmp = "($report_status)";
+    }
+
     return $tmp;
 }
 
@@ -54,7 +57,10 @@ function getListItem($listid, $value)
  */
 function myCellText($s)
 {
-    if ($s === '') return '&nbsp;';
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
     return text($s);
 }
 
@@ -70,9 +76,17 @@ function patientNameFromLogin($login)
         );
         if (!empty($tmp['pid'])) {
               $ptname = $tmp['lname'];
-              if ($tmp['fname'] || $tmp['mname']) $ptname .= ',';
-              if ($tmp['fname']) $ptname .= ' ' . $tmp['fname'];
-              if ($tmp['mname']) $ptname .= ' ' . $tmp['mname'];
+            if ($tmp['fname'] || $tmp['mname']) {
+                $ptname .= ',';
+            }
+
+            if ($tmp['fname']) {
+                $ptname .= ' ' . $tmp['fname'];
+            }
+
+            if ($tmp['mname']) {
+                $ptname .= ' ' . $tmp['mname'];
+            }
         }
     }
 
@@ -81,7 +95,9 @@ function patientNameFromLogin($login)
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xlt('Not authorized'));
+if (!$thisauth) {
+    die(xlt('Not authorized'));
+}
 
 $errmsg = '';
 

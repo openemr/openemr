@@ -202,8 +202,9 @@ function pnSessionInit()
     }
 */
     // Kick it
-    if (!session_id)
+    if (!session_id) {
         session_start();
+    }
 
     // Have to re-write the cache control header to remove no-save, this
     // allows downloading of files to disk for application handlers

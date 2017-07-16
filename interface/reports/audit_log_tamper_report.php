@@ -98,14 +98,17 @@ function eventTypeChange(eventname)
 <br>
 <?php
 $err_message=0;
-if ($_GET["start_date"])
-$start_date = $_GET['start_date'];
+if ($_GET["start_date"]) {
+    $start_date = $_GET['start_date'];
+}
 
-if ($_GET["end_date"])
-$end_date = $_GET['end_date'];
+if ($_GET["end_date"]) {
+    $end_date = $_GET['end_date'];
+}
 
-if ($_GET["form_patient"])
-$form_patient = $_GET['form_patient'];
+if ($_GET["form_patient"]) {
+    $form_patient = $_GET['form_patient'];
+}
 
 /*
  * Start date should not be greater than end date - Date Validation
@@ -123,7 +126,9 @@ if ($start_date && $end_date) {
 <?php
 $form_user = $_REQUEST['form_user'];
 $form_pid = $_REQUEST['form_pid'];
-if ($form_patient == '') $form_pid = '';
+if ($form_patient == '') {
+    $form_pid = '';
+}
 
 $get_sdate=$start_date ? $start_date : date("Y-m-d H:i:s");
 $get_edate=$end_date ? $end_date : date("Y-m-d H:i:s");
@@ -167,7 +172,8 @@ $sortby = $_GET['sortby'];
 
 $check_sum = $_GET['check_sum'];
 ?>
-<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') echo "checked";  ?>"></input>
+<input type="checkbox" name="check_sum" " <?php if ($check_sum == 'on') {
+    echo "checked";}  ?>"></input>
 </td>
 <td>
 <input type=hidden name="event" value=<?php echo attr($event) ; ?>>
@@ -276,7 +282,9 @@ if (count($dispArr) == 0) {?>
      <TR class="oneresult">
             <?php
             $colspan = 4;
-            if ($check_sum) $colspan=6;
+            if ($check_sum) {
+                $colspan=6;
+            }
             ?>
         <TD class="text" colspan="<?php echo $colspan;?>" align="center"><?php echo xlt('No audit log tampering detected in the selected date range.'); ?></TD>
      </TR>

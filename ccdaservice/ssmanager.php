@@ -28,9 +28,12 @@ function runCheck()
         server_logit(1, "Execute C-CDA Service Start", 0, "Task");
         execInBackground('');
         sleep(2);
-        if (socket_status('localhost', '6661', 'status'))
+        if (socket_status('localhost', '6661', 'status')) {
             server_logit(1, "Service Status : Started.");
-        else server_logit(1, "Service Status : Failed Start.");
+        } else {
+            server_logit(1, "Service Status : Failed Start.");
+        }
+
         return true;
     } else {
         server_logit(1, "Service Status : Alive.", 0, "Sanity Check");
@@ -59,7 +62,10 @@ function service_shutdown($soft = 1)
         sleep(1);
         if (!socket_status('localhost', '6661', 'status')) {
             server_logit(1, "Service Status : " . $soft ? "Process Terminated" : "Terminated and Disabled.");
-            if ($soft > 1) return true; // Just terminate process/service and allow background to restart. Restart if you will.
+            if ($soft > 1) {
+                return true; // Just terminate process/service and allow background to restart. Restart if you will.
+            }
+
             $service_name = 'ccdaservice';
             // with ccdaservice and background service and running = 1 bs will not attempt restart of service while still available/active.
             // not sure if needed but here it is anyway. Otherwise, service is disabled.

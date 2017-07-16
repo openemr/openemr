@@ -308,14 +308,38 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             "|" . // 6. Event Occurred
             $fac_name."^".$r['facility_npi']."^NPI" . // 7. Event Facility
             "$D" ;
-            if ($r['sex']==='Male') $r['sex'] = 'M';
-            if ($r['sex']==='Female') $r['sex'] = 'F';
-            if ($r['status']==='married') $r['status'] = 'M';
-            if ($r['status']==='single') $r['status'] = 'S';
-            if ($r['status']==='divorced') $r['status'] = 'D';
-            if ($r['status']==='widowed') $r['status'] = 'W';
-            if ($r['status']==='separated') $r['status'] = 'A';
-            if ($r['status']==='domestic partner') $r['status'] = 'P';
+            if ($r['sex']==='Male') {
+                $r['sex'] = 'M';
+            }
+
+            if ($r['sex']==='Female') {
+                $r['sex'] = 'F';
+            }
+
+            if ($r['status']==='married') {
+                $r['status'] = 'M';
+            }
+
+            if ($r['status']==='single') {
+                $r['status'] = 'S';
+            }
+
+            if ($r['status']==='divorced') {
+                $r['status'] = 'D';
+            }
+
+            if ($r['status']==='widowed') {
+                $r['status'] = 'W';
+            }
+
+            if ($r['status']==='separated') {
+                $r['status'] = 'A';
+            }
+
+            if ($r['status']==='domestic partner') {
+                $r['status'] = 'P';
+            }
+
             $content .= "PID|" . // [[ 3.72 ]]
             "1|" . // 1. Set id
             "|" . // 2. (B)Patient id
@@ -407,10 +431,16 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
             foreach ($o_result as $row) {
                     $i++;
                 if ($row['code'] == 'SS003') {
-                    if ($row['ob_value'] == '261QE0002X') $text ='Emergency Care';
-                    else if ($row['ob_value'] == '261QM2500X') $text ='Medical Specialty';
-                    else if ($row['ob_value'] == '261QP2300X') $text ='Primary Care';
-                    else if ($row['ob_value'] == '261QU0200X') $text ='Urgent Care';
+                    if ($row['ob_value'] == '261QE0002X') {
+                        $text ='Emergency Care';
+                    } else if ($row['ob_value'] == '261QM2500X') {
+                        $text ='Medical Specialty';
+                    } else if ($row['ob_value'] == '261QP2300X') {
+                        $text ='Primary Care';
+                    } else if ($row['ob_value'] == '261QU0200X') {
+                        $text ='Urgent Care';
+                    }
+
                     $content .= "OBX|".
                     $i."|".   //1. Set ID
                     "CWE|".    //2. Value Type
@@ -514,7 +544,10 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     public function date_format($date, $format)
     {
-        if (!$date) return;
+        if (!$date) {
+            return;
+        }
+
         $format = $format ? $format : 'm/d/y';
         $temp   = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date   = $temp[0];

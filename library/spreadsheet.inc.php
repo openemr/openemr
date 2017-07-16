@@ -47,7 +47,9 @@ function real2form($fldval)
     return htmlspecialchars($fldval, ENT_QUOTES);
 }
 
-if (empty($spreadsheet_title)) $spreadsheet_title = 'Injury Log';
+if (empty($spreadsheet_title)) {
+    $spreadsheet_title = 'Injury Log';
+}
 
 // Putting an error message in here will result in a javascript alert.
 $alertmsg = '';
@@ -86,7 +88,9 @@ if ($tempid) {
     list($form_completed, $start_date, $template_name) = explode('|', $trow['value'], 3);
 }
 
-if (!$start_date) $start_date = form2real($_POST['form_start_date']);
+if (!$start_date) {
+    $start_date = form2real($_POST['form_start_date']);
+}
 
 // Used rows and columns are those beyond which there are only unused cells.
 $num_used_rows = 0;
@@ -101,8 +105,13 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
         $row = $cells[$i];
         for ($j = 0; $j < count($row); ++$j) {
             if (substr($row[$j], 0, 1)) {
-                if ($i >= $num_used_rows) $num_used_rows = $i + 1;
-                if ($j >= $num_used_cols) $num_used_cols = $j + 1;
+                if ($i >= $num_used_rows) {
+                    $num_used_rows = $i + 1;
+                }
+
+                if ($j >= $num_used_cols) {
+                    $num_used_cols = $j + 1;
+                }
             }
         }
     }
@@ -127,7 +136,10 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
             sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
             $tmprow = sqlQuery("SELECT MAX(id) AS maxid FROM form_$spreadsheet_form_name");
             $formid = $tmprow['maxid'] + 1;
-            if ($formid <= 0) $formid = 1;
+            if ($formid <= 0) {
+                $formid = 1;
+            }
+
             sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
               "id, rownbr, colnbr, datatype, value " .
               ") VALUES ( " .
@@ -173,7 +185,10 @@ if ($_POST['bn_save_form'] || $_POST['bn_save_template']) {
                 sqlStatement("LOCK TABLES form_$spreadsheet_form_name WRITE, log WRITE");
                 $tmprow = sqlQuery("SELECT MIN(id) AS minid FROM form_$spreadsheet_form_name");
                 $tempid = $tmprow['minid'] - 1;
-                if ($tempid >= 0) $tempid = -1;
+                if ($tempid >= 0) {
+                    $tempid = -1;
+                }
+
                 sqlInsert("INSERT INTO form_$spreadsheet_form_name ( " .
                 "id, rownbr, colnbr, datatype, value " .
                 ") VALUES ( " .
@@ -546,7 +561,9 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
 
 <body class="body_top">
 <form method="post" action="<?php echo "$rootdir/forms/$spreadsheet_form_name/new.php?id=$formid&thisenc=$thisenc";
-if ($popup) echo '&popup=1'; ?>"
+if ($popup) {
+    echo '&popup=1';
+} ?>"
  onsubmit="return top.restoreSession()">
 <center>
 
@@ -557,7 +574,8 @@ if ($popup) echo '&popup=1'; ?>"
    <input type='text' name='form_start_date' id='form_start_date'
     size='10' value='<?php echo $start_date; ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'
-    <?php if ($formid && $start_date) echo 'disabled '; ?>/>
+    <?php if ($formid && $start_date) {
+        echo 'disabled ';} ?>/>
 <?php if (!$formid || !$start_date) { ?>
    <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_start_date' border='0' alt='[?]' style='cursor:pointer'
@@ -565,7 +583,8 @@ if ($popup) echo '&popup=1'; ?>"
 <?php } ?>
    &nbsp;
     <?php xl('Template:', 'e') ?>
-   <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) echo ' disabled'; ?>>
+   <select name='form_template' onchange='newTemplate(this)'<?php if ($formid) {
+        echo ' disabled';} ?>>
     <option value='0'>-- Select --</option>
 <?php
 while ($trow = sqlFetchArray($tres)) {
@@ -588,7 +607,8 @@ while ($trow = sqlFetchArray($tres)) {
    &nbsp;
    <input type='checkbox' name='form_completed'
     title='<?php xl("If all data for all columns are complete for this form", "e") ?>'
-    <?php if ($form_completed) echo 'checked '; ?>/>
+    <?php if ($form_completed) {
+        echo 'checked ';} ?>/>
     <?php xl('Completed', 'e') ?>
 <?php } ?>
   </td>
@@ -597,7 +617,10 @@ while ($trow = sqlFetchArray($tres)) {
 
 <table border='1' cellpadding='2' cellspacing='0' class='sstable'>
 <?php
-if ($dres) $drow = sqlFetchArray($dres);
+if ($dres) {
+    $drow = sqlFetchArray($dres);
+}
+
 $typeprompts = array('unused','static','checkbox','text');
 
 for ($i = 0; $i < $num_virtual_rows; ++$i) {
@@ -607,8 +630,14 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         $celltype = '0';
         $cellvalue = '';
         if ($dres) {
-            while ($drow && $drow['rownbr'] < $i)$drow = sqlFetchArray($dres);
-            while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j)$drow = sqlFetchArray($dres);
+            while ($drow && $drow['rownbr'] < $i) {
+                $drow = sqlFetchArray($dres);
+            }
+
+            while ($drow && $drow['rownbr'] == $i && $drow['colnbr'] < $j) {
+                $drow = sqlFetchArray($dres);
+            }
+
             if ($drow && $drow['rownbr'] == $i && $drow['colnbr'] == $j) {
                 $celltype = $drow['datatype'];
                 $cellvalue = real2form($drow['value']);
@@ -617,8 +646,10 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         }
 
         echo "  <td id='td_${i}_${j}' valign='top'";
-        if ($i >= $num_used_rows || $j >= $num_used_cols)
-        echo " style='display:none'";
+        if ($i >= $num_used_rows || $j >= $num_used_cols) {
+            echo " style='display:none'";
+        }
+
         echo ">";
 
         /*****************************************************************
@@ -633,7 +664,10 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
         "onchange='newType($i,$j)'>";
         foreach ($celltypes as $key => $value) {
             echo "<option value='$key'";
-            if ($key == $celltype) echo " selected";
+            if ($key == $celltype) {
+                echo " selected";
+            }
+
             echo ">$value</option>";
         }
 
@@ -649,7 +683,10 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
             echo "<script language='JavaScript'>document.write(genStatic('$cellstatic'));</script>";
         } else if ($celltype == '2') {
             echo "<input type='checkbox' value='1' onclick='cbClick(this,$i,$j)'";
-            if ($cellvalue) echo " checked";
+            if ($cellvalue) {
+                echo " checked";
+            }
+
             echo " />";
         } else if ($celltype == '3') {
             echo "<input type='text' class='intext' onchange='textChange(this,$i,$j)'";
@@ -691,7 +728,9 @@ for ($i = 0; $i < $num_virtual_rows; ++$i) {
 <script language='JavaScript'>
  Calendar.setup({inputField:"form_start_date", ifFormat:"%Y-%m-%d", button:"img_start_date"});
 <?php
-if ($alertmsg) echo " alert('$alertmsg');\n";
+if ($alertmsg) {
+    echo " alert('$alertmsg');\n";
+}
 ?>
 </script>
 </body>

@@ -31,7 +31,10 @@ if (! $encounter) { // comes from globals.php
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) $tmp = '0';
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
     return "'$tmp'";
 }
 
@@ -44,7 +47,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }
@@ -58,7 +64,10 @@ function cbinput($name, $colname)
 {
     global $row;
     $ret  = "<input type='checkbox' name='$name' value='1'";
-    if ($row[$colname]) $ret .= " checked";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
     $ret .= " />";
     return $ret;
 }

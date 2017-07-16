@@ -202,7 +202,10 @@ class Installer
         foreach ($this->dumpfiles as $filename => $title) {
             $sql_results_temp = '';
             $sql_results_temp = $this->load_file($filename, $title);
-            if ($sql_results_temp == false) return false;
+            if ($sql_results_temp == false) {
+                return false;
+            }
+
             $sql_results .= $sql_results_temp;
         }
 
@@ -234,12 +237,18 @@ class Installer
         while (!feof($fd)) {
             $line = fgets($fd, 1024);
             $line = rtrim($line);
-            if (substr($line, 0, 2) == "--") // Kill comments
+            if (substr($line, 0, 2) == "--") { // Kill comments
                     continue;
-            if (substr($line, 0, 1) == "#") // Kill comments
+            }
+
+            if (substr($line, 0, 1) == "#") { // Kill comments
                     continue;
-            if ($line == "")
+            }
+
+            if ($line == "") {
                     continue;
+            }
+
             $query = $query.$line;          // Check for full query
             $chr = substr($query, strlen($query)-1, 1);
             if ($chr == ";") { // valid query, execute
@@ -306,7 +315,9 @@ class Installer
         }
 
         // Add the official openemr users (services)
-        if ($this->load_file($this->additional_users, "Additional Official Users") == false) return false;
+        if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
+            return false;
+        }
 
         return true;
     }
@@ -556,9 +567,12 @@ if ($it_died != 0) {
 
     private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
-        if ($server == "localhost")
-        $dbh = mysqli_connect($server, $user, $password, $dbname);
-        else $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
+        if ($server == "localhost") {
+            $dbh = mysqli_connect($server, $user, $password, $dbname);
+        } else {
+            $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
+        }
+
         return $dbh;
     }
 
@@ -675,7 +689,9 @@ if ($it_died != 0) {
 
         include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
 
-        if (empty($config)) die("Source site $source_site_id has not been set up!");
+        if (empty($config)) {
+            die("Source site $source_site_id has not been set up!");
+        }
 
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
@@ -684,7 +700,9 @@ if ($it_died != 0) {
         escapeshellarg($dbase);
 
         $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
-        if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+        if ($tmp2) {
+            die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+        }
 
         return $backup_file;
     }

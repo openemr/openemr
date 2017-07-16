@@ -117,7 +117,8 @@ tr.oddrow {
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");} ?>
 
 <?php
 // Create array of IDs to pre-select, leaf to top.
@@ -245,8 +246,13 @@ function recolor() {
 
 <form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
 echo $order;
-if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+if (isset($_GET['formid' ])) {
+    echo '&formid='  . $_GET['formid'];
+}
+
+if (isset($_GET['formseq'])) {
+    echo '&formseq=' . $_GET['formseq'];
+}
 ?>'>
 
 <table width='100%' cellspacing='0' cellpadding='0' border='0'>

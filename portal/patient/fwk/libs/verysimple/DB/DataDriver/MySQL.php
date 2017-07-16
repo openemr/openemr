@@ -58,8 +58,9 @@ class DataDriverMySQL implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! function_exists("mysql_connect"))
+        if (! function_exists("mysql_connect")) {
             throw new DatabaseException('mysql extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
+        }
         
         if (! $connection = @mysql_connect($connectionstring, $username, $password)) {
             throw new DatabaseException("Error connecting to database: " . mysql_error(), DatabaseException::$CONNECTION_ERROR);
@@ -124,11 +125,13 @@ class DataDriverMySQL implements IDataDriver
      */
     public function GetQuotedSql($val)
     {
-        if ($val === null)
+        if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
+        }
         
-        if ($val instanceof ISqlFunction)
+        if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
+        }
         
         return "'" . $this->Escape($val) . "'";
     }
@@ -206,8 +209,10 @@ class DataDriverMySQL implements IDataDriver
         
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
-            if (! isset($results [$tbl]))
+            if (! isset($results [$tbl])) {
                 $results [$tbl] = "";
+            }
+
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
         

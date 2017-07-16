@@ -68,10 +68,14 @@ class Userforms extends UserAudit
                     $this->getIncudes($value);
                     $out .= ob_get_clean();
                 } else {
-                    if ($type=='issue')
-                    $this->getIid($value);
-                    if ($type=='forms')
-                    $this->getforms($value);
+                    if ($type=='issue') {
+                        $this->getIid($value);
+                    }
+
+                    if ($type=='forms') {
+                        $this->getforms($value);
+                    }
+
                     $out .= ob_get_clean();
                 }
             }
@@ -124,9 +128,11 @@ class Userforms extends UserAudit
         $inclookupres = sqlStatement("SELECT DISTINCT formdir FROM forms WHERE pid = ? AND deleted=0", array($pid));
         while ($result = sqlFetchArray($inclookupres)) {
             $formdir = $result['formdir'];
-            if (substr($formdir, 0, 3) == 'LBF')
-              include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-            else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            if (substr($formdir, 0, 3) == 'LBF') {
+                include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+            } else {
+                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            }
         }
 
         $N = 6;
@@ -138,9 +144,12 @@ class Userforms extends UserAudit
             $formdir = $result['formdir'];
             $id=$result['id'];
             ob_start();
-            if (substr($formdir, 0, 3) == 'LBF')
-              call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $formdir);
-            else call_user_func($formdir . "_report", $pid, $form_encounter, $N, $form_id);
+            if (substr($formdir, 0, 3) == 'LBF') {
+                call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $formdir);
+            } else {
+                call_user_func($formdir . "_report", $pid, $form_encounter, $N, $form_id);
+            }
+
             $out=ob_get_clean();
             ?>  <table>
             <tr class=text>
@@ -161,9 +170,11 @@ class Userforms extends UserAudit
         $inclookupres = sqlStatement("SELECT DISTINCT formdir FROM forms WHERE pid = ? AND deleted=?", array($pid,0));
         while ($result = sqlFetchArray($inclookupres)) {
             $formdir = $result['formdir'];
-            if (substr($formdir, 0, 3) == 'LBF')
-              include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-            else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            if (substr($formdir, 0, 3) == 'LBF') {
+                include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+            } else {
+                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+            }
         }
         ?>
         <tr class=text>
@@ -583,26 +594,36 @@ class Userforms extends UserAudit
                 }
 
                     $config_err = xl("Direct messaging is currently unavailable.")." EC:";
-                    if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
+                if ($GLOBALS['phimail_enable']==false) {
+                    return("$config_err 1");
+                }
 
                     $fp = phimail_connect($err);
-                    if ($fp===false) return("$config_err $err");
+                if ($fp===false) {
+                    return("$config_err $err");
+                }
 
                     $phimail_username = $GLOBALS['phimail_username'];
                     $phimail_password = $GLOBALS['phimail_password'];
                     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-                    if ($ret!==true) return("$config_err 4");
+                if ($ret!==true) {
+                    return("$config_err 4");
+                }
 
                     $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-                    if ($ret!==true) return( xl("Delivery is not allowed to the specified Direct Address.") );
+                if ($ret!==true) {
+                    return( xl("Delivery is not allowed to the specified Direct Address.") );
+                }
 
                     $ret=fgets($fp, 1024); //ignore extra server data
 
-                    if ($requested_by=="patient")
-                     $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
-                     ($patientName2=="" ? "." : ", " . $patientName2 . ".");
-                else $text_out = xl("A clinical document is attached") .
+                if ($requested_by=="patient") {
+                    $text_out = xl("Delivery of the attached clinical document was requested by the patient") .
+                    ($patientName2=="" ? "." : ", " . $patientName2 . ".");
+                } else {
+                    $text_out = xl("A clinical document is attached") .
                      ($patientName2=="" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
+                }
 
                     $text_len=strlen($text_out);
                     phimail_write($fp, "TEXT $text_len\n");
@@ -614,7 +635,9 @@ class Userforms extends UserAudit
                 }
 
                     $ret=phimail_write_expect_OK($fp, $text_out);
-                    if ($ret!==true) return("$config_err 6");
+                if ($ret!==true) {
+                    return("$config_err 6");
+                }
 
                 if (in_array($xml_type, array('CCR', 'CCDA', 'CDA'))) {
                     $ccd = simplexml_load_string($ccd);
@@ -639,7 +662,9 @@ class Userforms extends UserAudit
 
                     $ret=phimail_write_expect_OK($fp, $ccd_out);
 
-                    if ($ret!==true) return("$config_err 8");
+                if ($ret!==true) {
+                    return("$config_err 8");
+                }
 
 
                     phimail_write($fp, "SEND\n");

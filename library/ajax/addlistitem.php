@@ -17,7 +17,9 @@
 include_once("../../interface/globals.php");
 
 // check for required values
-if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") exit;
+if ($_GET['listid'] == "" || trim($_GET['newitem']) == "" || trim($_GET['newitem_abbr']) == "") {
+    exit;
+}
 
 // set the values for the new list item
 $is_default = 0;

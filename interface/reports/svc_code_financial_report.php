@@ -45,7 +45,9 @@ $grand_total_amt_adjustment  = 0;
 $grand_total_amt_balance  = 0;
 
 
-  if (! acl_check('acct', 'rep')) die(xlt("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xlt("Unauthorized access."));
+}
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
   $form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
@@ -145,7 +147,10 @@ $('.datepicker').datetimepicker({
             while ($urow = sqlFetchArray($ures)) {
                 $provid = $urow['id'];
                 echo "    <option value='" . attr($provid) ."'";
-                if ($provid == $_POST['form_provider']) echo " selected";
+                if ($provid == $_POST['form_provider']) {
+                    echo " selected";
+                }
+
                 echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
             }
 
@@ -169,7 +174,8 @@ $('.datepicker').datetimepicker({
                         </td>
                         <td>
                           <div class="checkbox">
-                           <label><input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) echo ' checked'; ?>>
+                           <label><input type='checkbox' name='form_details'<?php  if ($_POST['form_details']) {
+                                echo ' checked';} ?>>
                             <?php echo xlt('Important Codes'); ?></label>
                           </div>
                         </td>

@@ -52,8 +52,14 @@ function row_delete($table, $where)
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') continue;
-            if ($logstring) $logstring .= " ";
+            if (! $value || $value == '0000-00-00 00:00:00') {
+                continue;
+            }
+
+            if ($logstring) {
+                $logstring .= " ";
+            }
+
             $logstring .= $key . "= '" . $value . "' ";
         }
 
@@ -205,7 +211,10 @@ function popup_close() {
  //
 if ($_POST['form_submit']) {
     if ($patient) {
-        if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) die("Not authorized!");
+        if (!acl_check('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
+            die("Not authorized!");
+        }
+
         row_modify("billing", "activity = 0", "pid = '" . add_escape_custom($patient) . "'");
         row_modify("pnotes", "deleted = 1", "pid = '" . add_escape_custom($patient) . "'");
        // row_modify("prescriptions" , "active = 0"  , "patient_id = '$patient'");
@@ -238,7 +247,10 @@ if ($_POST['form_submit']) {
 
         row_delete("patient_data", "pid = '" . add_escape_custom($patient) . "'");
     } else if ($encounterid) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         row_modify("billing", "activity = 0", "encounter = '" . add_escape_custom($encounterid) . "'");
         delete_drug_sales(0, $encounterid);
         row_delete("ar_activity", "encounter = '" . add_escape_custom($encounterid) . "'");
@@ -251,21 +263,36 @@ if ($_POST['form_submit']) {
 
         row_delete("forms", "encounter = '" . add_escape_custom($encounterid) . "'");
     } else if ($formid) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         $row = sqlQuery("SELECT * FROM forms WHERE id = ?", array($formid));
         $formdir = $row['formdir'];
-        if (! $formdir) die("There is no form with id '" . text($formid) . "'");
+        if (! $formdir) {
+            die("There is no form with id '" . text($formid) . "'");
+        }
+
         form_delete($formdir, $row['form_id']);
         row_delete("forms", "id = '" . add_escape_custom($formid) . "'");
     } else if ($issue) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) ."'");
         row_delete("lists", "id = '" . add_escape_custom($issue) ."'");
     } else if ($document) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         delete_document($document);
     } else if ($payment) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         list($patient_id, $timestamp, $ref_id) = explode(".", $payment);
         // if (empty($ref_id)) $ref_id = -1;
         $timestamp = decorateString('....-..-.. ..:..:..', $timestamp);
@@ -288,7 +315,10 @@ if ($_POST['form_submit']) {
                 "adj_amount = 0.00 " .
                 "GROUP BY session_id ORDER BY session_id DESC", array($patient_id, $payrow['encounter']));
                 while ($serow = sqlFetchArray($seres)) {
-                        if (sprintf("%01.2f", $serow['adj_amount']) != 0.00) continue;
+                    if (sprintf("%01.2f", $serow['adj_amount']) != 0.00) {
+                        continue;
+                    }
+
                     if (sprintf("%01.2f", $serow['pay_amount'] - $tpmt) == 0.00) {
                         $ref_id = $serow['session_id'];
                         break;
@@ -333,7 +363,10 @@ if ($_POST['form_submit']) {
             row_delete("payments", "id = '" . add_escape_custom($payrow['id']) . "'");
         }
     } else if ($billing) {
-        if (!acl_check('acct', 'disc')) die("Not authorized!");
+        if (!acl_check('acct', 'disc')) {
+            die("Not authorized!");
+        }
+
         list($patient_id, $encounter_id) = explode(".", $billing);
         sqlStatement("DELETE FROM ar_activity WHERE " .
         "pid = ? AND encounter = ? ", array($patient_id, $encounter_id));
@@ -355,18 +388,26 @@ if ($_POST['form_submit']) {
         "pid = ? AND encounter = ?", array($patient_id, $encounter_id));
         updateClaim(true, $patient_id, $encounter_id, -1, -1, 1, 0, ''); // clears for rebilling
     } else if ($transaction) {
-        if (!acl_check('admin', 'super')) die("Not authorized!");
+        if (!acl_check('admin', 'super')) {
+            die("Not authorized!");
+        }
+
         row_delete("transactions", "id = '" . add_escape_custom($transaction) . "'");
     } else {
         die("Nothing was recognized to delete!");
     }
 
-    if (! $info_msg) $info_msg = xl('Delete successful.');
+    if (! $info_msg) {
+        $info_msg = xl('Delete successful.');
+    }
 
   // Close this window and tell our opener that it's done.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
+    if ($info_msg) {
+        echo " alert('" . addslashes($info_msg) . "');\n";
+    }
+
     if ($encounterid) { //this code need to be same as 'parent.imdeleted($encounterid)' when the popup is div like
         echo "window.opener.imdeleted(" . attr($encounterid) . ");\n";
     } else {

@@ -307,11 +307,14 @@ class InstModuleTable
    */
     public function getSettings($type, $mod_id)
     {
-        if ($type=='ACL')
-        $type = 1;
-        elseif ($type=='Hooks')
-        $type = 3;
-        else $type = 2;
+        if ($type=='ACL') {
+            $type = 1;
+        } elseif ($type=='Hooks') {
+            $type = 3;
+        } else {
+            $type = 2;
+        }
+
         $all = array();
         $sql = "SELECT ms.*,mod_directory 
                             FROM modules_settings AS ms 
@@ -781,10 +784,15 @@ class InstModuleTable
             $result = $obj->zQuery($sql_if_exists, array($identifier,$parent_id));
             $exists = 0;
             foreach ($result as $row) {
-                if ($row['count'] > 0) $exists =1;
+                if ($row['count'] > 0) {
+                    $exists =1;
+                }
             }
 
-            if ($exists) continue;
+            if ($exists) {
+                continue;
+            }
+
             $sql_insert = "INSERT INTO module_acl_sections (`section_id`,`section_name`,`parent_section`,`section_identifier`,`module_id`) VALUES(?,?,?,?,?)";
             $obj->zQuery($sql_insert, array($section_id,$name,$parent_id,$identifier,$module_id));
         }
@@ -793,7 +801,9 @@ class InstModuleTable
         $result = $obj->zQuery($sql, array($module_id));
         $exists = 0;
         foreach ($result as $row) {
-            if ($row['count'] > 0) $exists =1;
+            if ($row['count'] > 0) {
+                $exists =1;
+            }
         }
 
         if (!$exists) {

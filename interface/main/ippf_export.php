@@ -13,7 +13,9 @@ require_once("../globals.php");
 require_once("$srcdir/acl.inc");
 require_once("$srcdir/patient.inc");
 
-if (!acl_check('admin', 'super')) die("Not authorized!");
+if (!acl_check('admin', 'super')) {
+    die("Not authorized!");
+}
 
 $facilityService = new \services\FacilityService();
 
@@ -31,23 +33,34 @@ function Add($tag, $text)
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
     $text = substr(htmlspecialchars($text, ENT_NOQUOTES), 0, 50);
     if (/* $text */ true) {
-        if ($text === 'NULL') $text = '';
+        if ($text === 'NULL') {
+            $text = '';
+        }
+
         for ($i = 0; $i < $indent;
-        ++$i) $out .= "\t";
+        ++$i) {
+            $out .= "\t";
+        }
+
         $out .= "<$tag>$text</$tag>\n";
     }
 }
 
 function AddIfPresent($tag, $text)
 {
-    if (isset($text) && $text !== '') Add($tag, $text);
+    if (isset($text) && $text !== '') {
+        Add($tag, $text);
+    }
 }
 
 function OpenTag($tag)
 {
     global $out, $indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     ++$indent;
     $out .= "<$tag>\n";
 }
@@ -57,7 +70,10 @@ function CloseTag($tag)
     global $out, $indent;
     --$indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     $out .= "</$tag>\n";
 }
 
@@ -86,12 +102,18 @@ function LWDate($field)
 
 function xmlTime($str, $default = '9999-12-31T23:59:59')
 {
-    if (empty($default)) $default = '1800-01-01T00:00:00';
-    if (strlen($str) < 10 || substr($str, 0, 4) == '0000')
-    $str = $default;
-    else if (strlen($str) > 10)
-    $str = substr($str, 0, 10) . 'T' . substr($str, 11);
-    else $str .= 'T00:00:00';
+    if (empty($default)) {
+        $default = '1800-01-01T00:00:00';
+    }
+
+    if (strlen($str) < 10 || substr($str, 0, 4) == '0000') {
+        $str = $default;
+    } else if (strlen($str) > 10) {
+        $str = substr($str, 0, 10) . 'T' . substr($str, 11);
+    } else {
+        $str .= 'T00:00:00';
+    }
+
   // Per discussion with Daniel 2009-05-12, replace zero day or month with 01.
     $str = preg_replace('/-00/', '-01', $str);
     return $str;
@@ -107,7 +129,9 @@ function getTextListValue($string, $key)
     $tmp = explode('|', $string);
     foreach ($tmp as $value) {
         if (preg_match('/^(\w+?):(.*)$/', $value, $matches)) {
-            if ($matches[1] == $key) return $matches[2];
+            if ($matches[1] == $key) {
+                return $matches[2];
+            }
         }
     }
 
@@ -119,10 +143,16 @@ function getTextListValue($string, $key)
 //
 function mappedOption($list_id, $option_id, $default = '9')
 {
-    if ($option_id === '') return $default;
+    if ($option_id === '') {
+        return $default;
+    }
+
     $row = sqlQuery("SELECT mapping FROM list_options WHERE " .
     "list_id = '$list_id' AND option_id = '$option_id' LIMIT 1");
-    if (empty($row)) return $option_id; // should not happen
+    if (empty($row)) {
+        return $option_id; // should not happen
+    }
+
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
     $maparr = explode(':', $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
@@ -138,16 +168,28 @@ function mappedFieldOption($form_id, $field_id, $option_id)
     "form_id = '$form_id' AND " .
     "field_id = '$field_id' " .
     "LIMIT 1");
-    if (empty($row)) return $option_id; // should not happen
+    if (empty($row)) {
+        return $option_id; // should not happen
+    }
+
     $list_id = $row['list_id'];
-    if ($list_id === '') return $option_id;
-    if ($option_id === '') return '9';
+    if ($list_id === '') {
+        return $option_id;
+    }
+
+    if ($option_id === '') {
+        return '9';
+    }
+
     $row = sqlQuery("SELECT mapping FROM " .
     "list_options WHERE " .
     "list_id = '$list_id' AND " .
     "option_id = '$option_id' " .
     "LIMIT 1");
-    if (empty($row)) return $option_id; // should not happen
+    if (empty($row)) {
+        return $option_id; // should not happen
+    }
+
   // return ($row['mapping'] === '') ? $option_id : $row['mapping'];
     $maparr = explode(':', $row['mapping']);
     return ($maparr[0] === '') ? $option_id : $maparr[0];
@@ -171,9 +213,15 @@ function exportEncounter($pid, $encounter, $date)
         if (!empty($brow['related_code'])) {
             $relcodes = explode(';', $brow['related_code']);
             foreach ($relcodes as $codestring) {
-                if ($codestring === '') continue;
+                if ($codestring === '') {
+                    continue;
+                }
+
                 list($codetype, $code) = explode(':', $codestring);
-                if ($codetype !== 'IPPF') continue;
+                if ($codetype !== 'IPPF') {
+                    continue;
+                }
+
                 // Starting a new service (IPPF code).
                 OpenTag('IMS_eMRUpload_Service');
                 Add('IppfServiceProductId', $code);
@@ -226,7 +274,10 @@ function exportEncounter($pid, $encounter, $date)
     while ($trow = sqlFetchArray($tres)) {
         $relcodes = explode(';', $trow['refer_related_code']);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
             if ($codetype == 'REF') {
                 // This is the expected case; a direct IPPF code is obsolete.
@@ -238,7 +289,10 @@ function exportEncounter($pid, $encounter, $date)
                 }
             }
 
-            if ($codetype !== 'IPPF') continue;
+            if ($codetype !== 'IPPF') {
+                continue;
+            }
+
             OpenTag('IMS_eMRUpload_Service');
             Add('IppfServiceProductId', $code);
             Add('Type', '3'); // 0=service, 1=product, 2=diagnosis, 3=referral
@@ -282,10 +336,15 @@ function endClient($pid, &$encarray)
         Add('IssueDiagnosis', $irow['diagnosis']);
         $form_id = ($irow['type'] == 'ippf_gcac') ? 'GCA' : 'CON';
         foreach ($irow as $key => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
+
             if ($key == 'id' || $key == 'type' || $key == 'begdate' ||
-            $key == 'enddate' || $key == 'title' || $key == 'diagnosis')
-              continue;
+            $key == 'enddate' || $key == 'title' || $key == 'diagnosis') {
+                continue;
+            }
+
             $avalues = explode('|', $value);
             foreach ($avalues as $tmp) {
                   OpenTag('IMS_eMRUpload_IssueData');
@@ -337,7 +396,10 @@ function endClient($pid, &$encarray)
             while ($grow = sqlFetchArray($gres)) {
                     $key = $grow['field_id'];
                     $value = $grow['field_value'];
-                    if (empty($value)) continue;
+                if (empty($value)) {
+                    continue;
+                }
+
                     $avalues = explode('|', $value);
                 foreach ($avalues as $tmp) {
                     OpenTag('IMS_eMRUpload_IssueData');
@@ -626,7 +688,10 @@ if ($selmonth < 1) {
 <?php
 foreach ($months as $key => $value) {
     echo "    <option value='$key'";
-    if ($key == $selmonth) echo " selected";
+    if ($key == $selmonth) {
+        echo " selected";
+    }
+
     echo ">" . xl($value) . "</option>\n";
 }
 ?>

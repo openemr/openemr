@@ -32,8 +32,10 @@ class LabExchangeClient
         echo "Path: {$path}\n";
 
         $encoded = "";
-        foreach ($vars as $key=>$value)
+        foreach ($vars as $key=>$value) {
             $encoded .= "$key=".urlencode($value)."&";
+        }
+
         $encoded = substr($encoded, 0, -1);
         $tmpfile = "";
         $fp = null;
@@ -44,8 +46,9 @@ class LabExchangeClient
         echo "Url: {$url}\n";
 
         // If GET and vars, append them.
-        if ($method == "GET")
+        if ($method == "GET") {
             $url .= (false === strpos($path, '?')?"?":"&").$encoded;
+        }
 
         // Initialize a new curl object.
         $curl = curl_init($url);
@@ -94,19 +97,23 @@ class LabExchangeClient
         );
         
         // Do the request. If FALSE, then an exception occurred.
-        if (false === ($result = curl_exec($curl)))
+        if (false === ($result = curl_exec($curl))) {
             throw(new Exception(
                 "Curl failed with error " . curl_error($curl)
             ));
+        }
         
         // Get result code.
         $responseCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         
         // Unlink tmpfiles.
-        if ($fp)
+        if ($fp) {
             fclose($fp);
-        if (strlen($tmpfile))
+        }
+
+        if (strlen($tmpfile)) {
             unlink($tmpfile);
+        }
             
         return new RestResponse($url, $result, $responseCode);
     }
@@ -130,11 +137,13 @@ class RestResponse
         $this->QueryString = $matches[2];
         $this->ResponseText = $text;
         $this->HttpStatus = $status;
-        if ($this->HttpStatus != 204)
+        if ($this->HttpStatus != 204) {
             $this->ResponseXml = @simplexml_load_string($text);
+        }
         
-        if ($this->IsError = ($status >= 400))
+        if ($this->IsError = ($status >= 400)) {
             $this->ErrorMessage =
                 (string)$this->ResponseXml->RestException->Message;
+        }
     }
 }

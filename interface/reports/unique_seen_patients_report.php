@@ -231,7 +231,10 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
 
     $prevpid = 0;
     while ($row = sqlFetchArray($res)) {
-        if ($row['pid'] == $prevpid) continue;
+        if ($row['pid'] == $prevpid) {
+            continue;
+        }
+
         $prevpid = $row['pid'];
 
         $age = '';
@@ -241,7 +244,10 @@ if ($_POST['form_refresh'] || $_POST['form_labels']) {
             $ageInMonths = (substr($tdy, 0, 4)*12) + substr($tdy, 5, 2) -
                    (substr($dob, 0, 4)*12) - substr($dob, 5, 2);
             $dayDiff = substr($tdy, 8, 2) - substr($dob, 8, 2);
-            if ($dayDiff < 0) --$ageInMonths;
+            if ($dayDiff < 0) {
+                --$ageInMonths;
+            }
+
             $age = intval($ageInMonths/12);
         }
 

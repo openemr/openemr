@@ -69,8 +69,10 @@ if (! empty($GLOBALS['portal_onsite_two_enable'])) {
     function notify_portal($thispid, array $invoices, $template, $invid)
     {
         $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
-        if (! is_dir($builddir))
+        if (! is_dir($builddir)) {
             mkdir($builddir, 0755, true);
+        }
+
         if (fixup_invoice($template, $builddir . '/invoice' . $invid . '.tpl') != true) {
             return false;
         }
@@ -145,14 +147,19 @@ function era_callback(&$out)
     list($pid, $encounter, $invnumber) = slInvoiceNumber($out);
 
     if ($pid && $encounter) {
-        if ($where) $where .= ' OR ';
+        if ($where) {
+            $where .= ' OR ';
+        }
+
         $where .= "( f.pid = '$pid' AND f.encounter = '$encounter' )";
     }
 }
 
 function bucks($amount)
 {
-    if ($amount) echo oeFormatMoney($amount);
+    if ($amount) {
+        echo oeFormatMoney($amount);
+    }
 }
 
 function validEmail($email)
@@ -282,7 +289,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $wsrlen = strlen($webserver_root);
         while (true) {
               $i = stripos($content, " src='/", $i + 1);
-              if ($i === false) break;
+            if ($i === false) {
+                break;
+            }
+
             if (substr($content, $i+6, $wrlen) === $web_root &&
               substr($content, $i+6, $wsrlen) !== $webserver_root) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
@@ -307,9 +317,12 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
                 str_replace("\014", "", $OneLine);
             }
 
-            if (stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true)//lines are made bold when 'REMIT TO' or 'Visit Date' is there.
-            $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6));
-            else $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
+            if (stristr($OneLine, 'REMIT TO') == true || stristr($OneLine, 'Visit Date') == true || stristr($OneLine, 'Future Appointments') == true || stristr($OneLine, 'Current') == true) { //lines are made bold when 'REMIT TO' or 'Visit Date' is there.
+                $pdf->ezText('<b>'.$OneLine.'</b>', 12, array('justification' => 'left', 'leading' => 6));
+            } else {
+                $pdf->ezText($OneLine, 12, array('justification' => 'left', 'leading' => 6));
+            }
+
             $countline++;
         }
 
@@ -423,7 +436,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
        //    detail  = array of details, see invoice_summary.inc.php
        //
         if ($stmt['cid'] != $row['pid']) {
-            if (!empty($stmt)) ++$stmt_count;
+            if (!empty($stmt)) {
+                ++$stmt_count;
+            }
+
             $stmt['cid'] = $row['pid'];
             $stmt['pid'] = $row['pid'];
             $stmt['dun_count'] = $row['stmt_count'];
@@ -442,7 +458,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 $stmt['to'] = array($row['guardiansname']);
             }
 
-            if ($row['street']) $stmt['to'][] = $row['street'];
+            if ($row['street']) {
+                $stmt['to'][] = $row['street'];
+            }
+
             $stmt['to'][] = $row['city'] . ", " . $row['state'] . " " . $row['postal_code'];
             $stmt['lines'] = array();
             $stmt['amount'] = '0.00';
@@ -505,11 +524,18 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
                 $pvoice = array();
                 flush();
                 ftruncate($fhprint, 0);
-            } else continue;
-        } else fwrite($fhprint, make_statement($stmt));
+            } else {
+                continue;
+            }
+        } else {
+            fwrite($fhprint, make_statement($stmt));
+        }
     } // end while
 
-    if (!empty($stmt)) ++$stmt_count;
+    if (!empty($stmt)) {
+        ++$stmt_count;
+    }
+
     fclose($fhprint);
     sleep(1);
     // Download or print the file, as selected
@@ -520,8 +546,9 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
     } elseif ($_POST['form_email']) {
                 upload_file_to_client_email($stmt['pid'], $STMT_TEMP_FILE);
     } elseif ($_POST['form_portalnotify']) {
-        if ($alertmsg == "")
+        if ($alertmsg == "") {
             $alertmsg = xl('Sending Invoice to Patient Portal Completed');
+        }
     } else { // Must be print!
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") .' '. $STMT_TEMP_FILE;
@@ -584,7 +611,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         echo "    <option value='0'>-- " . xl('Patient') . " --</option>\n";
         foreach ($insurancei as $iid => $iname) {
             echo "<option value='$iid'";
-            if ($iid == $_POST['form_payer_id']) echo " selected";
+            if ($iid == $_POST['form_payer_id']) {
+                echo " selected";
+            }
+
             echo ">" . $iname . "</option>\n";
         }
 
@@ -674,7 +704,10 @@ if (($_POST['form_print'] || $_POST['form_download'] || $_POST['form_email'] || 
         <?php
         foreach (array(xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')) as $value) {
             echo "    <option value='$value'";
-            if ($_POST['form_category'] == $value) echo " selected";
+            if ($_POST['form_category'] == $value) {
+                echo " selected";
+            }
+
             echo ">$value</option>\n";
         }
         ?>
@@ -739,9 +772,11 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
         if (is_file($erafullname)) {
             $alertmsg .= "Warning: Set $eraname was already uploaded ";
-            if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html"))
-            $alertmsg .= "and processed. ";
-            else $alertmsg .= "but not yet processed. ";
+            if (is_file($GLOBALS['OE_SITE_DIR'] . "/era/$eraname.html")) {
+                $alertmsg .= "and processed. ";
+            } else {
+                $alertmsg .= "but not yet processed. ";
+            }
         }
 
         rename($tmp_name, $erafullname);
@@ -749,10 +784,15 @@ if ($_POST['form_search'] || $_POST['form_print']) {
 
     if ($eracount) {
         // Note that parse_era() modified $eracount and $where.
-        if (! $where) $where = '1 = 2';
+        if (! $where) {
+            $where = '1 = 2';
+        }
     } else {
         if ($form_name) {
-            if ($where) $where .= " AND ";
+            if ($where) {
+                $where .= " AND ";
+            }
+
             // Allow the last name to be followed by a comma and some part of a first name.
             if (preg_match('/^(.*\S)\s*,\s*(.*)/', $form_name, $matches)) {
                 $where .= "p.lname LIKE '" . $matches[1] . "%' AND p.fname LIKE '" . $matches[2] . "%'";
@@ -771,17 +811,26 @@ if ($_POST['form_search'] || $_POST['form_print']) {
         }
 
         if ($form_pid) {
-            if ($where) $where .= " AND ";
+            if ($where) {
+                $where .= " AND ";
+            }
+
             $where .= "f.pid = '$form_pid'";
         }
 
         if ($form_encounter) {
-            if ($where) $where .= " AND ";
+            if ($where) {
+                $where .= " AND ";
+            }
+
             $where .= "f.encounter = '$form_encounter'";
         }
 
         if ($form_date) {
-            if ($where) $where .= " AND ";
+            if ($where) {
+                $where .= " AND ";
+            }
+
             if ($form_to_date) {
                 $where .= "f.date >= '$form_date' AND f.date <= '$form_to_date'";
             } else {
@@ -882,10 +931,14 @@ $orow = -1;
 while ($row = sqlFetchArray($t_res)) {
     $balance = sprintf("%.2f", $row['charges'] + $row['copays'] - $row['payments'] - $row['adjustments']);
   //new filter only patients with debt.
-    if ($_POST['only_with_debt'] && $balance <= 0) continue;
+    if ($_POST['only_with_debt'] && $balance <= 0) {
+        continue;
+    }
 
 
-    if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) continue;
+    if ($_POST['form_category'] != 'All' && $eracount == 0 && $balance == 0) {
+        continue;
+    }
 
       // $duncount was originally supposed to be the number of times that
       // the patient was sent a statement for this invoice.
@@ -898,7 +951,9 @@ while ($row = sqlFetchArray($t_res)) {
       //
     if (! $duncount) {
         for ($i = 1; $i <= 3 && arGetPayerID($row['pid'], $row['date'], $i);
-        ++$i) ;
+        ++$i) {
+        }
+
         $duncount = $row['last_level_closed'] + 1 - $i;
     }
 
@@ -911,9 +966,17 @@ while ($row = sqlFetchArray($t_res)) {
 
       // Skip invoices not in the desired "Due..." category.
       //
-    if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) continue;
-    if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) continue;
-    if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) continue;
+    if (substr($_POST['form_category'], 0, 3) == 'Due' && !$isdueany) {
+        continue;
+    }
+
+    if ($_POST['form_category'] == 'Due Ins' && ($duncount >= 0 || !$isdueany)) {
+        continue;
+    }
+
+    if ($_POST['form_category'] == 'Due Pt'  && ($duncount <  0 || !$isdueany)) {
+        continue;
+    }
 
     $bgcolor = ((++$orow & 1) ? "#ffdddd" : "#ddddff");
 
@@ -961,7 +1024,8 @@ while ($row = sqlFetchArray($t_res)) {
     <?php if (!$eracount) { ?>
    <td class="detail" align="left">
      <input type='checkbox' name='form_cb[<?php echo($row['id']) ?>]'<?php echo $isduept ?> />
-        <?php if ($in_collections) echo "<b><font color='red'>IC</font></b>"; ?>
+        <?php if ($in_collections) {
+            echo "<b><font color='red'>IC</font></b>";} ?>
         <?php if (function_exists('is_auth_portal') ? is_auth_portal($row['pid']) : false) {
             echo(' PPt');
             echo("<input type='hidden' name='form_invpids[". $row['id'] ."][". $row['pid'] ."]' />");

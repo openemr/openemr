@@ -59,7 +59,10 @@ if ($_POST['bn_save']) {
         // If the patient's encounter image directory does not yet exist, create it.
         if (! is_dir($imagedir)) {
             $tmp0 = exec("mkdir -p '$imagedir'", $tmp1, $tmp2);
-            if ($tmp2) die("mkdir returned $tmp2: $tmp0");
+            if ($tmp2) {
+                die("mkdir returned $tmp2: $tmp0");
+            }
+
             exec("touch '$imagedir/index.html'");
         }
 
@@ -70,7 +73,9 @@ if ($_POST['bn_save']) {
             if (is_file($path)) {
                 unlink($path);
             } else {
-                if ($i >= 0) break;
+                if ($i >= 0) {
+                    break;
+                }
             }
         }
 
@@ -79,7 +84,9 @@ if ($_POST['bn_save']) {
         // to create a separate image file for each page.
         $cmd = "convert -density 96 '$tmp_name' '$imagepath'";
         $tmp0 = exec($cmd, $tmp1, $tmp2);
-        if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
+        if ($tmp2) {
+            die("\"$cmd\" returned $tmp2: $tmp0");
+        }
     }
 
  // formHeader("Redirecting....");

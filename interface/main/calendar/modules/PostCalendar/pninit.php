@@ -418,13 +418,19 @@ function postcalendar_upgrade($oldversion)
                 return false;
             }
 
-            if (!isset($result)) return false;
+            if (!isset($result)) {
+                return false;
+            }
+
             // grab the results and start the conversion
             for (; !$result->EOF; $result->MoveNext()) {
                 $recurrspec = array();
                 list($eid,$eventdate,$start,$end,$rtype,$rfreq) = $result->fields;
 
-                if ($rtype == null) $rtype = _EVENT_NONE;
+                if ($rtype == null) {
+                    $rtype = _EVENT_NONE;
+                }
+
                 switch ($rtype) {
                     case _EVENT_NONE :
                         $recurrtype = NO_REPEAT;

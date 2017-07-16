@@ -139,14 +139,15 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
     EncounterIdArray=new Array;
     Count=0;
         <?php
-               if (sqlNumRows($result4)>0)
-        while ($rowresult4 = sqlFetchArray($result4)) {
-    ?>
-    EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+        if (sqlNumRows($result4)>0) {
+            while ($rowresult4 = sqlFetchArray($result4)) {
+        ?>
+        EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
     CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
             Count++;
-<?php
+    <?php
+            }
         }
         ?>
      top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);

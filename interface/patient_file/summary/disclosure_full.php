@@ -86,7 +86,9 @@ if (isset($_GET['deletelid'])) {
 <?php
 $N=15;
 $offset = $_REQUEST['offset'];
-if (!isset($offset)) $offset = 0;
+if (!isset($offset)) {
+    $offset = 0;
+}
 
 $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
   " LEFT JOIN users u ON u.username = el.user " .
@@ -122,8 +124,10 @@ if ($n>0) {?>
         </tr>
     <?php
     $result2 = array();
-    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
         $result2[$iter] = $frow;
+    }
+
     foreach ($result2 as $iter) {
         $description =nl2br(text($iter{description})); //for line break if there is any new lines in the input text area field.
         ?>

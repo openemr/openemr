@@ -16,7 +16,10 @@ require_once("$srcdir/options.inc.php");
 
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 
@@ -46,7 +49,10 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
     "WHERE list_id = 'warehouse' AND activity = 1 ORDER BY seq, title");
 
     echo "<select name='".attr($tag_name)."' id='".attr($tag_name)."'";
-    if ($class) echo " class='".attr($class)."'";
+    if ($class) {
+        echo " class='".attr($class)."'";
+    }
+
     echo " title='".attr($title)."'>";
 
     $got_selected = false;
@@ -59,7 +65,9 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 
     while ($lrow = sqlFetchArray($lres)) {
         $whid = $lrow['option_id'];
-        if ($whid != $currvalue && !$allow_multiple && checkWarehouseUsed($whid)) continue;
+        if ($whid != $currvalue && !$allow_multiple && checkWarehouseUsed($whid)) {
+            continue;
+        }
 
         echo "<option value='".attr($whid)."'";
         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
@@ -92,8 +100,13 @@ $info_msg = "";
 
 $form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
-if (!acl_check('admin', 'drugs')) die(xlt('Not authorized'));
-if (!$drug_id) die(xlt('Drug ID missing!'));
+if (!acl_check('admin', 'drugs')) {
+    die(xlt('Not authorized'));
+}
+
+if (!$drug_id) {
+    die(xlt('Drug ID missing!'));
+}
 ?>
 <html>
 <head>
@@ -267,7 +280,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
         if ($_POST['form_save'] && $form_quantity) {
             $form_notes = $_POST['form_notes'];
             $form_sale_date = $_POST['form_sale_date'];
-            if (empty($form_sale_date)) $form_sale_date = date('Y-m-d');
+            if (empty($form_sale_date)) {
+                $form_sale_date = date('Y-m-d');
+            }
+
             sqlInsert("INSERT INTO drug_sales ( " .
             "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
             "sale_date, quantity, fee, xfer_inventory_id, distributor_id, notes " .
@@ -303,7 +319,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
   // Close this window and redisplay the updated list of drugs.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('".addslashes($info_msg)."');\n";
+    if ($info_msg) {
+        echo " alert('".addslashes($info_msg)."');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";
     echo "</script></body></html>\n";
@@ -397,7 +416,10 @@ foreach (array(
   '5' => xl('Adjustment'),
 ) as $key => $value) {
     echo "<option value='" . attr($key) . "'";
-    if ($key == $form_trans_type) echo " selected";
+    if ($key == $form_trans_type) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -461,7 +483,10 @@ $lres = sqlStatement("SELECT " .
 while ($lrow = sqlFetchArray($lres)) {
     echo "<option value='" . attr($lrow['inventory_id']) . "'>";
     echo text($lrow['lot_number']);
-    if (!empty($lrow['title'])) echo " / " . text($lrow['title']);
+    if (!empty($lrow['title'])) {
+        echo " / " . text($lrow['title']);
+    }
+
     echo " (" . text($lrow['on_hand']) . ")";
     echo "</option>\n";
 }

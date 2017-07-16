@@ -91,7 +91,9 @@ if ($_POST['load']) {
             $value = trim($value);
     
             // do not create new blank definitions
-            if ($value == "") continue;
+            if ($value == "") {
+                continue;
+            }
     
             // insert into the main language tables
             $sql = "INSERT INTO lang_definitions (`cons_id`,`lang_id`,`definition`) VALUES (?,?,?)";
@@ -138,7 +140,9 @@ if ($_POST['load']) {
         }
     }
 
-    if ($go=='yes') echo htmlspecialchars(xl("New Definition set added"), ENT_NOQUOTES);
+    if ($go=='yes') {
+        echo htmlspecialchars(xl("New Definition set added"), ENT_NOQUOTES);
+    }
 }
 
 if ($_POST['edit']) {
@@ -182,13 +186,18 @@ if ($_POST['edit']) {
             // if there is no definition
             if (empty($row['def_id'])) {
                 $cons_name = "cons_id[" . $row['cons_id'] . "]";
-                    if ($lang_filter_def=='%') $isShow = true;
+                if ($lang_filter_def=='%') {
+                    $isShow = true;
+                }
+
             // if there is a previous definition
             } else {
                 $cons_name = "def_id[" . $row['def_id'] . "]";
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
-                    if (SqlFetchArray($res2)) $isShow = true;
+                if (SqlFetchArray($res2)) {
+                    $isShow = true;
+                }
             }
 
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="' . htmlspecialchars($cons_name, ENT_QUOTES) . '" value="' . htmlspecialchars($row['definition'], ENT_QUOTES) . '">';
@@ -222,14 +231,19 @@ if ($_POST['edit']) {
             $row=SqlFetchArray($res); // jump one to get the second language selected
             if ($row['def_id']=='' or $row['def_id']=='NULL') {
                 $cons_name="cons_id[".$row['cons_id']."]";
-                    if ($lang_filter_def=='%') $isShow = true;
+                if ($lang_filter_def=='%') {
+                    $isShow = true;
+                }
+
             // if there is a previous definition
             } else {
                 $cons_name="def_id[".$row['def_id']."]";
                 ;
                     $sql = "SELECT definition FROM lang_definitions WHERE def_id=? AND definition LIKE ?";
                     $res2 = SqlStatement($sql, array($row['def_id'], $lang_filter_def));
-                    if (SqlFetchArray($res2)) $isShow = true;
+                if (SqlFetchArray($res2)) {
+                    $isShow = true;
+                }
             }
 
             $stringTemp .= '<td><INPUT TYPE="text" size="50" NAME="'.htmlspecialchars($cons_name, ENT_QUOTES).'" value="'.htmlspecialchars($row['definition'], ENT_QUOTES).'">';

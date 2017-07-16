@@ -23,9 +23,9 @@ $response = $client->sendRequest("results", "GET");
 $lab_query_report .= xl("Lab Query Status") . "<hr>";
 
 // Check response for success or error
-if ($response->IsError)
+if ($response->IsError) {
     $lab_query_report .= xl("Error retrieving results from Lab Exchange Network") . ": {$response->ErrorMessage} <br><br>";
-else {
+} else {
     $lab_query_report .= xl("Success retrieving results from Lab Exchange Network") . " <br><br>";
 
     $resultSet = $response->ResponseXml;
@@ -233,8 +233,10 @@ else {
         // Make the confirmation request.
         $response = $client->sendRequest($url, "POST");
         // Check response for success or error.
-        if ($response->IsError)
+        if ($response->IsError) {
             echo xl("Error confirming receipt of lab results") . ": {$response->ErrorMessage}<br>\n";
+        }
+
 //        else {
 //            echo xl("Success confirming receipt of lab result") . " <br>\n";
 //            echo $response->ResponseXml;
@@ -244,9 +246,9 @@ else {
         // report on lab_patient_errors
     $lab_query_report .= "<br>". xl("Provider Matching Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
-    if (count($lab_provider_errors) == 0)
+    if (count($lab_provider_errors) == 0) {
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
-    else {
+    } else {
         $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Last Name") . "</td><td>" .
@@ -266,9 +268,9 @@ else {
     // report on lab_patient_errors
     $lab_query_report .= "<br>". xl("Patient Lookup Errors") . ":<hr><table style=\"font-size:12px;\" cellpadding='3px'>";
 
-    if (count($lab_patient_errors) == 0)
+    if (count($lab_patient_errors) == 0) {
         $lab_query_report .= "<tr><td>" .xl("No errors found"). "</td></tr>";
-    else {
+    } else {
         $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .
@@ -304,9 +306,9 @@ else {
     // report on lab_patient_success
     $lab_query_report .= "<br><br>". xl("New results from Lab Exchange") . ":<hr><table style=\"font-size:12px;\" >";
 
-    if (count($lab_patient_success) == 0)
+    if (count($lab_patient_success) == 0) {
         $lab_query_report .= "<tr><td>" . xl("No new results found") . "</td></tr>";
-    else {
+    } else {
         $lab_query_report .= "<tr><td>" .
             xl("First Name") . "</td><td>" .
             xl("Middle Name") . "</td><td>" .

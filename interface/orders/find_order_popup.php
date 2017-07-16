@@ -88,8 +88,13 @@ td { font-size:10pt; }
 function selcode(typeid) {
  location.href = 'find_order_popup.php<?php
     echo "?order=$order&labid=$labid";
-    if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-    if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+    if (isset($_GET['formid' ])) {
+        echo '&formid='  . $_GET['formid'];
+    }
+
+    if (isset($_GET['formseq'])) {
+        echo '&formseq=' . $_GET['formseq'];
+    }
 ?>&typeid=' + typeid;
  return false;
 }
@@ -102,8 +107,13 @@ function selcode(typeid) {
 
 <form method='post' name='theform' action='find_order_popup.php<?php
 echo "?order=$order&labid=$labid";
-if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+if (isset($_GET['formid' ])) {
+    echo '&formid='  . $_GET['formid'];
+}
+
+if (isset($_GET['formseq'])) {
+    echo '&formseq=' . $_GET['formseq'];
+}
 ?>'>
 
 <center>

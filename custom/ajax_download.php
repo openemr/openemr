@@ -93,8 +93,9 @@ if (count($patients)) {
     $currentTime = date("Y-m-d-H-i-s");
     $zipFile = $reportID . "_NQF_" . $ruleID . "_" . $currentTime . ".zip";
     $zipFileFullPath = $qrda_file_path . $zipFile;
-    if (file_exists($zipFileFullPath))
+    if (file_exists($zipFileFullPath)) {
         unlink($zipFileFullPath);
+    }
 
     foreach ($patients as $patient) {
         $xml = new QRDAXml($ruleID);
@@ -119,4 +120,6 @@ if (count($patients)) {
     }
 
     echo $zipFile;
-} else echo xlt("FAILURE: No patients for measure") . " " . text($ruleID);
+} else {
+    echo xlt("FAILURE: No patients for measure") . " " . text($ruleID);
+}

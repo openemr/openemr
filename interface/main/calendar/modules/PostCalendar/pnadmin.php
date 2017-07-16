@@ -82,7 +82,9 @@ EOF;
     }
 
     $offset_increment = _SETTING_HOW_MANY_EVENTS;
-    if (empty($offset_increment)) $offset_increment = 15;
+    if (empty($offset_increment)) {
+        $offset_increment = 15;
+    }
 
     pnThemeLoad(pnUserGetTheme());
     // get the theme globals :: is there a better way to do this?
@@ -92,9 +94,17 @@ EOF;
     $offset = pnVarCleanFromInput('offset');
     $sort = pnVarCleanFromInput('sort');
     $sdir = pnVarCleanFromInput('sdir');
-    if (!isset($sort)) $sort = 'time';
-    if (!isset($sdir)) $sdir = 1;
-    if (!isset($offset))  $offset = 0;
+    if (!isset($sort)) {
+        $sort = 'time';
+    }
+
+    if (!isset($sdir)) {
+        $sdir = 1;
+    }
+
+    if (!isset($offset)) {
+        $offset = 0;
+    }
 
     $result = pnModAPIFunc(
         __POSTCALENDAR__,
@@ -1614,7 +1624,10 @@ function postcalendar_admin_categories($msg = '', $e = '', $args)
     }
 
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
-    if (empty($event_repeat_freq) || $event_repeat_freq < 1) $event_repeat_freq = 1;
+    if (empty($event_repeat_freq) || $event_repeat_freq < 1) {
+        $event_repeat_freq = 1;
+    }
+
     $tpl->assign('InputRepeatFreqVal', $event_repeat_freq);
     $tpl->assign('repeat_freq', $event_repeat_freq);
     unset($in);
@@ -1716,7 +1729,10 @@ function postcalendar_admin_categories($msg = '', $e = '', $args)
     }
 
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
-    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) $event_repeat_on_freq = 1;
+    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) {
+        $event_repeat_on_freq = 1;
+    }
+
     $tpl->assign('InputRepeatOnFreqVal', $event_repeat_on_freq);
     $tpl->assign('repeat_on_freq', $repeat_on_freq);
     $tpl->assign('MonthsTitle', _PC_MONTHS);
@@ -1842,14 +1858,18 @@ function postcalendar_admin_clearCache()
         $tpl = new pcSmarty();
         //fmg: check that both subdirs to be cleared first exist and are writeable
         $spec_err = '';
-    if (!file_exists($tpl->compile_dir))
+    if (!file_exists($tpl->compile_dir)) {
          $spec_err .= "Error: folder '$tpl->compile_dir' doesn't exist!<br>";
-    else if (!is_writeable($tpl->compile_dir))
-       $spec_err .= "Error: folder '$tpl->compile_dir' not writeable!<br>";
-    if (!file_exists($tpl->cache_dir))
-       $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
-    else if (!is_writeable($tpl->cache_dir))
+    } else if (!is_writeable($tpl->compile_dir)) {
+        $spec_err .= "Error: folder '$tpl->compile_dir' not writeable!<br>";
+    }
+
+    if (!file_exists($tpl->cache_dir)) {
+        $spec_err .= "Error: folder '$tpl->cache_dir' doesn't exist!<br>";
+    } else if (!is_writeable($tpl->cache_dir)) {
         $spec_err .= "Error: folder '$tpl->cache_dir' not writeable!<br>";
+    }
+
         //note: we don't abort on error... like before.
         $tpl->clear_all_cache();
         $tpl->clear_compiled_tpl();
@@ -2139,7 +2159,10 @@ function postcalendar_admin_categoryDetail($args)
     }
 
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
-    if (empty($event_repeat_freq) || $event_repeat_freq < 1) $event_repeat_freq = 1;
+    if (empty($event_repeat_freq) || $event_repeat_freq < 1) {
+        $event_repeat_freq = 1;
+    }
+
     $tpl->assign('InputRepeatFreqVal', $event_repeat_freq);
     $tpl->assign('repeat_freq', $repeat_freq);
     unset($in);
@@ -2196,7 +2219,10 @@ function postcalendar_admin_categoryDetail($args)
     }
 
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
-    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) $event_repeat_on_freq = 1;
+    if (empty($event_repeat_on_freq) || $event_repeat_on_freq < 1) {
+        $event_repeat_on_freq = 1;
+    }
+
     $tpl->assign('InputRepeatOnFreqVal', $event_repeat_on_freq);
     $tpl->assign('repeat_on_freq', $repeat_on_freq);
     $tpl->assign('MonthsTitle', _PC_MONTHS);

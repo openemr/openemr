@@ -96,7 +96,9 @@ class ApplicationTable
 
         if ($rtn == 'last') {
             return sqlFetchArray($return);
-        } else return $return;
+        } else {
+            return $return;
+        }
     }
     /**
      * Function portalAudit
@@ -134,8 +136,10 @@ class ApplicationTable
         $return = false;
         $result = false;
         $audit = array ();
-        if ($type != 'insert')
+        if ($type != 'insert') {
             $audit['date'] = $auditvals['date'] ? $auditvals['date'] : date("Y-m-d H:i:s");
+        }
+
         $audit['patient_id'] = $auditvals['patient_id'] ? $auditvals['patient_id'] : $_SESSION['pid'];
         $audit['activity'] = $auditvals['activity'] ? $auditvals['activity'] : "";
         $audit['require_audit'] = $auditvals['require_audit'] ? $auditvals['require_audit'] : "";
@@ -144,9 +148,12 @@ class ApplicationTable
         $audit['status'] = $auditvals['status'] ? $auditvals['status'] : "new";
         $audit['narrative'] = $auditvals['narrative'] ? $auditvals['narrative'] : "";
         $audit['table_action'] = $auditvals['table_action'] ? $auditvals['table_action'] : "";
-        if ($auditvals['activity'] == 'profile')
+        if ($auditvals['activity'] == 'profile') {
             $audit['table_args'] = serialize($auditvals['table_args']);
-        else $audit['table_args'] = $auditvals['table_args'];
+        } else {
+            $audit['table_args'] = $auditvals['table_args'];
+        }
+
         $audit['action_user'] = $auditvals['action_user'] ? $auditvals['action_user'] : "";
         $audit['action_taken_time'] = $auditvals['action_taken_time'] ? $auditvals['action_taken_time'] : "";
         $audit['checksum'] = $auditvals['checksum'] ? $auditvals['checksum'] : "";
@@ -185,8 +192,10 @@ class ApplicationTable
         $groupname = isset($GLOBALS['groupname']) ? $GLOBALS['groupname'] : 'none';
         $user = isset($_SESSION['portal_username']) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
         $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
-        if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser']))
+        if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {
             $log_from = 'portal-login';
+        }
+
         $user_notes .= isset($_SESSION['whereto']) ? (' Module:' . $_SESSION['whereto']) : "";
 
         $processed_binds = "";
@@ -277,10 +286,16 @@ class ApplicationTable
      */
     public function dateFormat($format)
     {
-        if ($format == "0") $date_format = 'yyyy/mm/dd';
-        else if ($format == 1) $date_format = 'mm/dd/yyyy';
-        else if ($format == 2) $date_format = 'dd/mm/yyyy';
-        else $date_format = $format;
+        if ($format == "0") {
+            $date_format = 'yyyy/mm/dd';
+        } else if ($format == 1) {
+            $date_format = 'mm/dd/yyyy';
+        } else if ($format == 2) {
+            $date_format = 'dd/mm/yyyy';
+        } else {
+            $date_format = $format;
+        }
+
         return $date_format;
     }
     /**
@@ -293,7 +308,9 @@ class ApplicationTable
      */
     public function fixDate($input_date, $output_format = null, $input_format = null)
     {
-        if (! $input_date) return;
+        if (! $input_date) {
+            return;
+        }
 
         $input_date = preg_replace('/T|Z/', ' ', $input_date);
 
@@ -360,7 +377,9 @@ class ApplicationTable
         $encryptLogQry = "INSERT INTO log_comment_encrypt (log_id, encrypt, checksum) " . " VALUES ( " . $adodb->qstr($last_log_id) . "," . $adodb->qstr($encrypt_comment) . "," . "'')";
         sqlInsertClean_audit($encryptLogQry);
 
-        if (( $patient_id == "NULL" ) || ( $patient_id == null )) $patient_id = 0;
+        if (( $patient_id == "NULL" ) || ( $patient_id == null )) {
+            $patient_id = 0;
+        }
 
         send_atna_audit_msg($user, $groupname, $event, $patient_id, $success, $comments);
     }

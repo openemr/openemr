@@ -38,8 +38,10 @@ class SimpleRouter implements IRouter
      */
     public function __construct($appRootUrl = '', $defaultAction = '', $mapping = array())
     {
-        if ($defaultAction)
+        if ($defaultAction) {
             $this->defaultAction = $defaultAction;
+        }
+
         $this->routes = $mapping;
     }
     

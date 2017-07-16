@@ -17,7 +17,10 @@ require_once(dirname(__FILE__) . '/patient_tracker.inc.php');
 
 function updateAppointmentStatus($pid, $encdate, $newstatus)
 {
-    if (empty($GLOBALS['gbl_auto_update_appt_status'])) return;
+    if (empty($GLOBALS['gbl_auto_update_appt_status'])) {
+        return;
+    }
+
     $query = "SELECT pc_eid, pc_aid, pc_catid, pc_apptstatus, pc_eventDate, pc_startTime, " .
     "pc_hometext, pc_facility, pc_billing_location, pc_room " .
     "FROM openemr_postcalendar_events WHERE " .
@@ -28,8 +31,14 @@ function updateAppointmentStatus($pid, $encdate, $newstatus)
         $appt_eid = $tmp['pc_eid'];
         $appt_status = $tmp['pc_apptstatus'];
         // Some tests for illogical changes.
-        if ($appt_status == '$') return;
-        if ($newstatus == '<' && $appt_status == '>') return;
+        if ($appt_status == '$') {
+            return;
+        }
+
+        if ($newstatus == '<' && $appt_status == '>') {
+            return;
+        }
+
         $encounter = todaysEncounterCheck(
             $pid,
             $tmp['pc_eventDate'],

@@ -103,11 +103,20 @@ function decorateString($fmt, $str)
 function calcTaxes($row, $amount)
 {
     $total = 0;
-    if (empty($row['taxrates'])) return $total;
+    if (empty($row['taxrates'])) {
+        return $total;
+    }
+
     $arates = explode(':', $row['taxrates']);
-    if (empty($arates)) return $total;
+    if (empty($arates)) {
+        return $total;
+    }
+
     foreach ($arates as $value) {
-        if (empty($value)) continue;
+        if (empty($value)) {
+            continue;
+        }
+
         $trow = sqlQuery("SELECT option_value FROM list_options WHERE " .
         "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1", array($value));
         if (empty($trow['option_value'])) {
@@ -907,7 +916,8 @@ function make_insurance()
 <body class="body_top" onunload='imclosing()' onLoad="cursor_pointer();">
 <center>
 
-<form method='post' action='front_payment.php<?php if ($payid) echo "?payid=$payid"; ?>'
+<form method='post' action='front_payment.php<?php if ($payid) {
+    echo "?payid=$payid";} ?>'
  onsubmit='return validate();'>
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
@@ -939,8 +949,10 @@ function make_insurance()
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112, array('payment_method'));
     while ($brow1112 = sqlFetchArray($bres1112)) {
-        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
-         continue;
+        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft') {
+            continue;
+        }
+
         echo "<option value='".htmlspecialchars($brow1112['option_id'], ENT_QUOTES)."'>".htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES)."</option>";
     }
     ?>

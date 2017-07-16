@@ -44,8 +44,9 @@
   //
 function bucks($amount)
 {
-    if ($amount)
-    printf("%.2f", $amount);
+    if ($amount) {
+        printf("%.2f", $amount);
+    }
 }
 
   // Delete rows, with logging, for the specified table using the
@@ -58,8 +59,14 @@ function row_delete($table, $where)
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') continue;
-            if ($logstring) $logstring .= " ";
+            if (! $value || $value == '0000-00-00 00:00:00') {
+                continue;
+            }
+
+            if ($logstring) {
+                $logstring .= " ";
+            }
+
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
 
@@ -193,13 +200,18 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <?php
   $trans_id = 0 + $_GET['id'];
-  if (! $trans_id) die(xl("You cannot access this page directly."));
+if (! $trans_id) {
+    die(xl("You cannot access this page directly."));
+}
 
     // A/R case, $trans_id matches form_encounter.id.
     $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname " .
       "FROM form_encounter AS e, patient_data AS p WHERE " .
       "e.id = '$trans_id' AND p.pid = e.pid");
-    if (empty($ferow)) die("There is no encounter with form_encounter.id = '$trans_id'.");
+    if (empty($ferow)) {
+        die("There is no encounter with form_encounter.id = '$trans_id'.");
+    }
+
     $patient_id        = 0 + $ferow['pid'];
     $encounter_id      = 0 + $ferow['encounter'];
     $svcdate           = substr($ferow['date'], 0, 10);
@@ -275,7 +287,9 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                     }
                 }
 
-                    if (! $thisins) $thisins = 0;
+                if (! $thisins) {
+                    $thisins = 0;
+                }
 
                 if ($thispay) {
                     arPostPayment(
@@ -314,8 +328,9 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
                         // An adjustment reason including "Ins" is assumed to be assigned by
                         // insurance, and in that case we identify which one by appending
                         // Ins1, Ins2 or Ins3.
-                        if (strpos(strtolower($reason), 'ins') !== false)
-                        $reason .= ' ' . $_POST['form_insurance'];
+                        if (strpos(strtolower($reason), 'ins') !== false) {
+                            $reason .= ' ' . $_POST['form_insurance'];
+                        }
                     }
 
                     arPostAdjustment(
@@ -357,8 +372,14 @@ function updateFields(payField, adjField, balField, coPayField, isFirstProcCode)
             echo "<script language='JavaScript'>\n";
         }
 
-        if ($info_msg) echo " alert('" . addslashes($info_msg) . "');\n";
-        if (! $debug) echo " window.close();\n";
+        if ($info_msg) {
+            echo " alert('" . addslashes($info_msg) . "');\n";
+        }
+
+        if (! $debug) {
+            echo " window.close();\n";
+        }
+
         echo "</script></body></html>\n";
         exit();
     }
@@ -448,7 +469,10 @@ for ($i = 1; $i <= 3; ++$i) {
   // we no longer expect any payments from that company for the claim.
     $last_level_closed = 0 + $ferow['last_level_closed'];
 foreach (array(0 => 'None', 1 => 'Ins1', 2 => 'Ins2', 3 => 'Ins3') as $key => $value) {
-    if ($key && !arGetPayerID($patient_id, $svcdate, $key)) continue;
+    if ($key && !arGetPayerID($patient_id, $svcdate, $key)) {
+        continue;
+    }
+
     $checked = ($last_level_closed == $key) ? " checked" : "";
     echo "   <input type='radio' name='form_done' value='$key'$checked />$value&nbsp;\n";
 }
@@ -583,8 +607,9 @@ foreach ($codes as $code => $cdata) {
     $dispcode = $code;
 
    // remember the index of the first entry whose code is not "CO-PAY", i.e. it's a legitimate proc code
-    if ($firstProcCodeIndex == -1 && strcmp($code, "CO-PAY") !=0)
-    $firstProcCodeIndex = $encount;
+    if ($firstProcCodeIndex == -1 && strcmp($code, "CO-PAY") !=0) {
+        $firstProcCodeIndex = $encount;
+    }
 
    // this sorts the details more or less chronologically:
     ksort($cdata['dtl']);
@@ -603,8 +628,11 @@ foreach ($codes as $code => $cdata) {
       $tmpadj = 0 - $ddata['chg'];
       *****************************************************************/
         if ($ddata['chg'] != 0) {
-             if (isset($ddata['rsn'])) $tmpadj = 0 - $ddata['chg'];
-            else $tmpchg = $ddata['chg'];
+            if (isset($ddata['rsn'])) {
+                $tmpadj = 0 - $ddata['chg'];
+            } else {
+                $tmpchg = $ddata['chg'];
+            }
         }
     ?>
    <tr bgcolor='<?php echo $bgcolor ?>'>
@@ -620,8 +648,11 @@ foreach ($codes as $code => $cdata) {
   <td class="detail">
     <?php
     if (isset($ddata['plv'])) {
-        if (!$ddata['plv']) echo 'Pt/';
-        else echo 'Ins' . $ddata['plv'] . '/';
+        if (!$ddata['plv']) {
+            echo 'Pt/';
+        } else {
+            echo 'Ins' . $ddata['plv'] . '/';
+        }
     }
 
     echo $ddata['src'];
@@ -698,7 +729,10 @@ $ores = sqlStatement("SELECT option_id, title, is_default FROM list_options " .
 "WHERE list_id = 'adjreason' AND activity = 1 ORDER BY seq, title");
 while ($orow = sqlFetchArray($ores)) {
     echo "    <option value='" . htmlspecialchars($orow['option_id'], ENT_QUOTES) . "'";
-    if ($orow['is_default']) echo " selected";
+    if ($orow['is_default']) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($orow['title']) . "</option>\n";
 }
 ?>

@@ -76,7 +76,9 @@ if (isset($mode)) {
                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                 "code_type = 'HCPCS' AND code = '$code' AND ndc_info LIKE 'N4%' " .
                 "ORDER BY date DESC LIMIT 1");
-                    if (!empty($tmp)) $ndc_info = $tmp['ndc_info'];
+                if (!empty($tmp)) {
+                    $ndc_info = $tmp['ndc_info'];
+                }
             }
 
             addBilling(
@@ -195,14 +197,16 @@ function validate(f) {
 if (!$thisauth) {
     $erow = sqlQuery("SELECT user FROM forms WHERE " .
     "encounter = '$encounter' AND formdir = 'newpatient' LIMIT 1");
-    if ($erow['user'] == $_SESSION['authUser'])
-    $thisauth = acl_check('encounters', 'coding');
+    if ($erow['user'] == $_SESSION['authUser']) {
+        $thisauth = acl_check('encounters', 'coding');
+    }
 }
 
 if ($thisauth) {
     $tmp = getPatientData($pid, "squad");
-    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad']))
-    $thisauth = 0;
+    if ($tmp['squad'] && ! acl_check('squads', $tmp['squad'])) {
+        $thisauth = 0;
+    }
 }
 
 if (!$thisauth) {
@@ -317,7 +321,10 @@ if ($result = getBillingByEncounter($pid, $encounter, "*")) {
                       "<select name='ndc[$ndclino][ndcuom]' style='background-color:transparent'>";
                 foreach ($ndc_uom_choices as $key => $value) {
                     $billing_html[$iter["code_type"]] .= "<option value='$key'";
-                    if ($key == $ndcuom) $billing_html[$iter["code_type"]] .= " selected";
+                    if ($key == $ndcuom) {
+                        $billing_html[$iter["code_type"]] .= " selected";
+                    }
+
                     $billing_html[$iter["code_type"]] .= ">$value</option>";
                 }
 

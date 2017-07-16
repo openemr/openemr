@@ -86,10 +86,13 @@ if (isset($_POST["mode"])) {
         $check_date=DateToYYYYMMDD(formData('check_date'));
         $deposit_date=DateToYYYYMMDD(formData('deposit_date'));
         $post_to_date=DateToYYYYMMDD(formData('post_to_date'));
-        if ($post_to_date=='')
-         $post_to_date=date('Y-m-d');
-        if (formData('deposit_date')=='')
-         $deposit_date=$post_to_date;
+        if ($post_to_date=='') {
+            $post_to_date=date('Y-m-d');
+        }
+
+        if (formData('deposit_date')=='') {
+            $deposit_date=$post_to_date;
+        }
 
         sqlStatement("update ar_session set "    .
         $QueryPart .
@@ -413,7 +416,9 @@ if (isset($_POST["mode"])) {
                 }
 
           //==============================================================================================================================
-            } else break;
+            } else {
+                break;
+            }
         }
 
         //=========
@@ -422,11 +427,15 @@ if (isset($_POST["mode"])) {
         for ($CountRow=$CountIndexAbove+1; $CountRow<=$CountIndexAbove+$CountIndexBelow; $CountRow++) {
             if (isset($_POST["HiddenEncounter$CountRow"])) {
                 DistributionInsert($CountRow, $created_time, $user_id);
-            } else break;
+            } else {
+                break;
+            }
         }
 
-        if ($_REQUEST['global_amount']=='yes')
-          sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"))*1 ." where session_id ='$payment_id'");
+        if ($_REQUEST['global_amount']=='yes') {
+            sqlStatement("update ar_session set global_amount=".trim(formData("HidUnappliedAmount"))*1 ." where session_id ='$payment_id'");
+        }
+
         if ($_POST["mode"]=="FinishPayments") {
               $Message='Finish';
         }
@@ -449,7 +458,8 @@ $ResultSearchSub = sqlStatement("SELECT  distinct encounter,code_type,code,modif
 
 <html>
 <head>
-<?php if (function_exists('html_header_show')) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) {
+    html_header_show();} ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />
@@ -841,9 +851,12 @@ if ($payment_id*1>0) {//Distribution rows already in the database are displayed.
                                                                 $Codetype=$RowSearch['code_type'];
                                 $Code=$RowSearch['code'];
                                 $Modifier =$RowSearch['modifier'];
-                                if ($Modifier!='')
-                                 $ModifierString=", $Modifier";
-                                else $ModifierString="";
+                                if ($Modifier!='') {
+                                    $ModifierString=", $Modifier";
+                                } else {
+                                    $ModifierString="";
+                                }
+
                                 $Fee=$RowSearch['fee'];
                                 $Encounter=$RowSearch['encounter'];
 

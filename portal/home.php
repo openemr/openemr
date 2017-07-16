@@ -24,7 +24,10 @@
  require_once("$srcdir/patient.inc");
  require_once("lib/portal_mail.inc");
 
- if (!isset($_SESSION['portal_init'])) $_SESSION['portal_init'] = true;
+if (!isset($_SESSION['portal_init'])) {
+    $_SESSION['portal_init'] = true;
+}
+
  $whereto = 'profilepanel';
 if (isset($_SESSION['whereto'])) {
     $whereto = $_SESSION['whereto'];
@@ -37,7 +40,9 @@ if (isset($_SESSION['whereto'])) {
  $msgcnt = count($msgs);
  $newcnt = 0;
 foreach ($msgs as $i) {
-    if ($i['message_status']=='New') $newcnt += 1;
+    if ($i['message_status']=='New') {
+        $newcnt += 1;
+    }
 }
 
 require_once '_header.php';

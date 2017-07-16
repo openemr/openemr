@@ -35,7 +35,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -64,7 +67,10 @@ if ($_POST['bn_save']) {
     while ($frow = sqlFetchArray($fres)) {
         $field_id  = $frow['field_id'];
         $value = get_layout_form_value($frow);
-        if ($sets) $sets .= ", ";
+        if ($sets) {
+            $sets .= ", ";
+        }
+
         $sets .= "$field_id = '" . add_escape_custom($value) . "'";
     }
 
@@ -172,9 +178,13 @@ function divclick(cb, divid) {
 
       if ($frow['edit_options'] == 'H') {
           // This data comes from static history
-          if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
+          if (isset($shrow[$field_id])) {
+              $currvalue = $shrow[$field_id];
+            }
         } else {
-              if (isset($pprow[$field_id])) $currvalue = $pprow[$field_id];
+            if (isset($pprow[$field_id])) {
+                $currvalue = $pprow[$field_id];
+            }
         }
 
     // Handle a data category (group) change.
@@ -185,7 +195,10 @@ function divclick(cb, divid) {
               $last_group = $this_group;
               echo "<br /><span class='bold'><input type='checkbox' name='form_cb_$group_seq' value='1' " .
             "onclick='return divclick(this,\"div_$group_seq\");'";
-              if ($display_style == 'block') echo " checked";
+            if ($display_style == 'block') {
+                echo " checked";
+            }
+
               echo " /><b>$group_name</b></span>\n";
               echo "<div id='div_$group_seq' class='section' style='display:$display_style;'>\n";
               echo " <table border='0' cellpadding='0' width='100%'>\n";
@@ -198,14 +211,19 @@ function divclick(cb, divid) {
               echo " <tr>";
         }
 
-        if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+        if ($item_count == 0 && $titlecols == 0) {
+            $titlecols = 1;
+        }
 
     // Handle starting of a new label cell.
         if ($titlecols > 0) {
               end_cell();
               echo "<td valign='top' colspan='$titlecols' width='1%' nowrap";
               echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
-              if ($cell_count == 2) echo " style='padding-left:10pt'";
+            if ($cell_count == 2) {
+                echo " style='padding-left:10pt'";
+            }
+
               echo ">";
               $cell_count += $titlecols;
         }
@@ -213,24 +231,33 @@ function divclick(cb, divid) {
         ++$item_count;
 
         echo "<b>";
-        if ($frow['title']) echo $frow['title'] . ":";
-        else echo "&nbsp;";
+        if ($frow['title']) {
+            echo $frow['title'] . ":";
+        } else {
+            echo "&nbsp;";
+        }
+
         echo "</b>";
 
     // Handle starting of a new data cell.
         if ($datacols > 0) {
               end_cell();
               echo "<td valign='top' colspan='$datacols' class='text'";
-              if ($cell_count > 0) echo " style='padding-left:5pt'";
+            if ($cell_count > 0) {
+                echo " style='padding-left:5pt'";
+            }
+
               echo ">";
               $cell_count += $datacols;
         }
 
         ++$item_count;
 
-        if ($frow['edit_options'] == 'H')
-        echo generate_display_field($frow, $currvalue);
-        else generate_form_field($frow, $currvalue);
+        if ($frow['edit_options'] == 'H') {
+            echo generate_display_field($frow, $currvalue);
+        } else {
+            generate_form_field($frow, $currvalue);
+        }
     }
 
     end_group();

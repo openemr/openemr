@@ -129,6 +129,9 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
         $vitals .= "</tr></table>";
     }
 
-    if ($print) echo $vitals ;
-    else return $vitals;
+    if ($print) {
+        echo $vitals ;
+    } else {
+        return $vitals;
+    }
 }

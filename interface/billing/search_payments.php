@@ -186,9 +186,11 @@ if (isset($_POST["mode"])) {
              $SortFieldOld=trim(formData('SortFieldOld'));
              $Sort=trim(formData('Sort'));
             if ($SortFieldOld==$PaymentSortBy) {
-                if ($Sort=='DESC' || $Sort=='')
-                $Sort='ASC';
-                else $Sort='DESC';
+                if ($Sort=='DESC' || $Sort=='') {
+                    $Sort='ASC';
+                } else {
+                    $Sort='DESC';
+                }
             } else {
                 $Sort='ASC';
             }
@@ -204,7 +206,8 @@ if (isset($_POST["mode"])) {
 ?>
 <html>
 <head>
-<?php if (function_exists('html_header_show')) html_header_show(); ?>
+<?php if (function_exists('html_header_show')) {
+    html_header_show();} ?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
 <link rel="stylesheet" type="text/css" href="../../library/js/fancybox/jquery.fancybox-1.2.6.css" media="screen" />

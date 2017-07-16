@@ -18,7 +18,10 @@ $info_msg = "";
 function QuotedOrNull($fld)
 {
     $fld = formDataCore($fld, true);
-    if ($fld) return "'$fld'";
+    if ($fld) {
+        return "'$fld'";
+    }
+
     return "NULL";
 }
 
@@ -32,7 +35,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }
@@ -40,7 +46,10 @@ function rbinput($name, $value, $desc, $colname)
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) $tmp = '0';
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
     return "'$tmp'";
 }
 
@@ -188,7 +197,10 @@ if ($_POST['form_save'] || $_POST['form_delete']) {
     $haskids = empty($trow['procedure_type_id']) ? 'false' : 'true';
   // Close this window and redisplay the updated list.
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " window.close();\n";
     echo " if (opener.refreshFamily) opener.refreshFamily($parent,$haskids);\n";
     echo "</script></body></html>\n";
@@ -263,7 +275,10 @@ echo generate_select_list(
     "ORDER BY name, ppid");
     while ($pprow = sqlFetchArray($ppres)) {
         echo "<option value='" . attr($pprow['ppid']) . "'";
-        if ($pprow['ppid'] == $row['lab_id']) echo " selected";
+        if ($pprow['ppid'] == $row['lab_id']) {
+            echo " selected";
+        }
+
         echo ">" . text($pprow['name']) . "</option>";
     }
 ?>

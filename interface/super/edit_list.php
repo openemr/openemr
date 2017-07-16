@@ -41,7 +41,9 @@ if (empty($_REQUEST['list_id'])) {
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // If we are saving, then save.
 //
@@ -175,12 +177,14 @@ if ($_POST['formaction']=='save' && $list_id) {
                 }
 
               // Force List Based Form names to start with LBF.
-                if ($list_id == 'lbfnames' && substr($id, 0, 3) != 'LBF')
-                $id = "LBF$id";
+                if ($list_id == 'lbfnames' && substr($id, 0, 3) != 'LBF') {
+                    $id = "LBF$id";
+                }
 
               // Force Transaction Form names to start with LBT.
-                if ($list_id == 'transactions' && substr($id, 0, 3) != 'LBT')
-                $id = "LBT$id";
+                if ($list_id == 'transactions' && substr($id, 0, 3) != 'LBT') {
+                    $id = "LBT$id";
+                }
 
                 if ($list_id == 'apptstat' || $list_id == 'groupstat') {
                     $notes = formTrim($iter['apptstat_color']) .'|'. formTrim($iter['apptstat_timealert']);
@@ -244,7 +248,10 @@ function getCodeDescriptions($codes)
     $arrcodes = explode('~', $codes);
     $s = '';
     foreach ($arrcodes as $codestring) {
-        if ($codestring === '') continue;
+        if ($codestring === '') {
+            continue;
+        }
+
         $arrcode = explode('|', $codestring);
         $code_type = $arrcode[0];
         $code      = $arrcode[1];
@@ -261,7 +268,10 @@ function getCodeDescriptions($codes)
         }
 
         $desc = str_replace('~', ' ', $desc);
-        if ($s) $s .= '~';
+        if ($s) {
+            $s .= '~';
+        }
+
         $s .= $desc;
     }
 
@@ -334,7 +344,10 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         5 => xl('Comment'),
         ) as $key => $desc) {
             echo "<option value='$key'";
-            if ($key == $value) echo " selected";
+            if ($key == $value) {
+                echo " selected";
+            }
+
             echo ">" . htmlspecialchars($desc) . "</option>";
         }
 
@@ -352,7 +365,10 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         3 => xl('Company'),
         ) as $key => $desc) {
             echo "<option value='$key'";
-            if ($key == $value) echo " selected";
+            if ($key == $value) {
+                echo " selected";
+            }
+
             echo ">" . htmlspecialchars($desc) . "</option>";
         }
 
@@ -481,7 +497,10 @@ function ctGenCell($opt_line_no, $data_array, $name, $size, $maxlength, $title =
 {
     $value = isset($data_array[$name]) ? $data_array[$name] : '';
     $s = "  <td align='center' class='optcell'";
-    if ($title) $s .= " title='" . attr($title) . "'";
+    if ($title) {
+        $s .= " title='" . attr($title) . "'";
+    }
+
     $s .= ">";
     $s .= "<input type='text' name='opt[$opt_line_no][$name]' value='";
     $s .= attr($value);
@@ -494,7 +513,10 @@ function ctGenCbox($opt_line_no, $data_array, $name, $title = '')
 {
     $checked = empty($data_array[$name]) ? '' : 'checked ';
     $s = "  <td align='center' class='optcell'";
-    if ($title) $s .= " title='" . attr($title) . "'";
+    if ($title) {
+        $s .= " title='" . attr($title) . "'";
+    }
+
     $s .= ">";
     $s .= "<input type='checkbox' name='opt[$opt_line_no][$name]' value='1' ";
     $s .= "$checked/>";
@@ -509,7 +531,10 @@ function ctSelector($opt_line_no, $data_array, $name, $option_array, $title = ''
     $s .= "<select name='opt[$opt_line_no][$name]' class='optin'>";
     foreach ($option_array as $key => $desc) {
         $s .= "<option value='" . attr($key) . "'";
-        if ($key == $value) $s .= " selected";
+        if ($key == $value) {
+            $s .= " selected";
+        }
+
         $s .= ">" . text($desc) . "</option>";
     }
 
@@ -949,7 +974,10 @@ while ($row = sqlFetchArray($res)) {
 
     $key = $row['option_id'];
     echo "<option value='$key'";
-    if ($key == $list_id) echo " selected";
+    if ($key == $list_id) {
+        echo " selected";
+    }
+
     echo ">" . $row['title'] . "</option>\n";
 }
 

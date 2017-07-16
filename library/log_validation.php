@@ -41,7 +41,9 @@ while ($row = sqlFetchArray($sql)) {
         array_push($errors, xl("Audit log tampering evident at entry number") . " " . $row['log_id']);
     }
 
-    if (!$valid) break;
+    if (!$valid) {
+        break;
+    }
 }
 
 if ($valid) {

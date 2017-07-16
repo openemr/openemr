@@ -49,10 +49,15 @@ function getAuthUsers()
 function getTemplateList($dir)
 {
     $retval = array();
-    if (substr($dir, -1) != "/") $dir .= "/";
+    if (substr($dir, -1) != "/") {
+        $dir .= "/";
+    }
+
     $d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
     while (false !== ($entry = $d->read())) {
-        if ($entry[0] == "." || substr($entry, -3) != 'tpl') continue;
+        if ($entry[0] == "." || substr($entry, -3) != 'tpl') {
+            continue;
+        }
 
         if (is_dir("$dir$entry")) {
             $retval[] = array(

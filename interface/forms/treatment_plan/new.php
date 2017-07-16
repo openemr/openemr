@@ -126,9 +126,15 @@ echo "<form method='post' name='my_form' " .
     echo "<select name='provider' style='width:60%' />";
     while ($urow = sqlFetchArray($ures)) {
         echo "    <option value='" . attr($urow['lname']) . "'";
-        if ($urow['lname'] == attr($obj{"provider"})) echo " selected";
+        if ($urow['lname'] == attr($obj{"provider"})) {
+            echo " selected";
+        }
+
         echo ">" . text($urow['lname']);
-        if ($urow['fname']) echo ", " . text($urow['fname']);
+        if ($urow['fname']) {
+            echo ", " . text($urow['fname']);
+        }
+
         echo "</option>\n";
     }
 

@@ -46,11 +46,14 @@ if ($GLOBALS['new_tabs_layout']) {
     if (sqlNumRows($rs)) {
         while ($app = sqlFetchArray($rs)) {
             $app_req = explode('?', trim($app['title']));
-            if (! file_exists('../'.$app_req[0]))
+            if (! file_exists('../'.$app_req[0])) {
                 continue;
+            }
+
                 $emr_app [trim($app ['option_id'])] = trim($app ['title']);
-                if ($app ['is_default'])
-                    $emr_app_def = $app ['option_id'];
+            if ($app ['is_default']) {
+                $emr_app_def = $app ['option_id'];
+            }
         }
     }
 }
@@ -177,8 +180,10 @@ if (count($emr_app)) {
                         <?php
                         // collect groups
                         $res = sqlStatement("select distinct name from groups");
-                        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+                        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                               $result[$iter] = $row;
+                        }
+
                         if (count($result) == 1) {
                               $resvalue = $result[0]{"name"};
                               echo "<input type='hidden' name='authProvider' value='" . attr($resvalue) . "' />\n";
@@ -186,8 +191,10 @@ if (count($emr_app)) {
 
                         // collect default language id
                         $res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default']));
-                        for ($iter = 0; $row = sqlFetchArray($res2); $iter++)
+                        for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
                             $result2[$iter] = $row;
+                        }
+
                         if (count($result2) == 1) {
                             $defaultLangID = $result2[0]{"lang_id"};
                             $defaultLangName = $result2[0]{"lang_description"};
@@ -219,8 +226,10 @@ if (count($emr_app)) {
                                 $res3=SqlStatement($sql, array($mainLangID));
                             }
 
-                            for ($iter = 0; $row = sqlFetchArray($res3); $iter++)
+                            for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
                                 $result3[$iter] = $row;
+                            }
+
                             if (count($result3) == 1) {
                                   //default to english if only return one language
                                 echo "<input type='hidden' name='languageChoice' value='1' />\n";
@@ -324,11 +333,17 @@ if (count($emr_app)) {
                                     echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" . xlt('Default') . " - " . xlt($defaultLangName) . "</option>\n";
                                     foreach ($result3 as $iter) :
                                         if ($GLOBALS['language_menu_showall']) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                continue; // skip the dummy language
+                                            }
+
                                                 echo "<option value='".attr($iter['lang_id'])."'>".text($iter['trans_lang_description'])."</option>\n";
                                         } else {
                                             if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') continue; // skip the dummy language
+                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                                    continue; // skip the dummy language
+                                                }
+
                                                     echo "<option value='".attr($iter['lang_id'])."'>" . text($iter['trans_lang_description']) . "</option>\n";
                                             }
                                         }

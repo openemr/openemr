@@ -40,9 +40,11 @@ class CouchDB
     {
         $resp = $this->send("GET", "/"); // response: string(46) "{"couchdb": "Welcome", "version": "0.7.0a553"}"
         $response = json_decode($resp);
-        if ($response->couchdb && $response->version)
-        return true;
-        else return false;
+        if ($response->couchdb && $response->version) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     function createDB($db)

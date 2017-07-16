@@ -98,11 +98,17 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getStatus($data)
     {
         foreach ($data as $row) {
-            if ($pid) $pid .= ',';
+            if ($pid) {
+                $pid .= ',';
+            }
+
             $pid    .= $row['pid'];
         }
 
-        if (!$pid) $pid = "''";
+        if (!$pid) {
+            $pid = "''";
+        }
+
         $query      = "SELECT cc.*, DATE(fe.date) AS dos, CONCAT_WS(' ',u.fname, u.mname, u.lname) AS user_name FROM ccda AS cc
 				LEFT JOIN form_encounter AS fe ON fe. pid = cc.pid AND fe.encounter = cc.encounter
 				LEFT JOIN users AS u ON u.id = cc.user_id
@@ -130,7 +136,10 @@ class EncountermanagerTable extends AbstractTableGateway
     */
     public function date_format($date, $format)
     {
-        if (!$date) return;
+        if (!$date) {
+            return;
+        }
+
         $format = $format ? $format : 'm/d/y';
         $temp = explode(' ', $date); //split using space and consider the first portion, incase of date with time
         $date = $temp[0];
@@ -187,13 +196,22 @@ class EncountermanagerTable extends AbstractTableGateway
         $d_Address        = '';
         foreach ($rec_arr as $recipient) {
             $config_err = "Direct messaging is currently unavailable."." EC:";
-            if ($GLOBALS['phimail_enable']==false) return("$config_err 1");
+            if ($GLOBALS['phimail_enable']==false) {
+                return("$config_err 1");
+            }
+
             $fp = \Application\Plugin\Phimail::phimail_connect($err);
-            if ($fp===false) return("$config_err $err");
+            if ($fp===false) {
+                return("$config_err $err");
+            }
+
             $phimail_username = $GLOBALS['phimail_username'];
             $phimail_password = $GLOBALS['phimail_password'];
             $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-            if ($ret!==true) return("$config_err 4");
+            if ($ret!==true) {
+                return("$config_err 4");
+            }
+
             $ret = \Application\Plugin\Phimail::phimail_write_expect_OK($fp, "TO $recipient\n");
             if ($ret!==true) {//return("Delivery is not allowed to the specified Direct Address.") ;
                 $d_Address.= ' '.$recipient;

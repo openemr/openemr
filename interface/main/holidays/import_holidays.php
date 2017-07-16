@@ -26,7 +26,9 @@ require_once('../../globals.php');
 require_once($GLOBALS['srcdir'] . '/acl.inc');
 require_once("Holidays_Controller.php");
 
-if (!acl_check('admin', 'super')) die(xlt('Not authorized'));
+if (!acl_check('admin', 'super')) {
+    die(xlt('Not authorized'));
+}
 
 $holidays_controller = new Holidays_Controller();
 $csv_file_data = $holidays_controller->get_file_csv_data();

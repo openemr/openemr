@@ -98,8 +98,10 @@ class C_InsuranceNumbers extends Controller
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
                 return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);

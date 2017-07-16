@@ -119,8 +119,10 @@ class RSS_Writer
     public function addItem($title, $link, $description, $author, $date, $source = '', $guid = '')
     {
         $this->item_counter ++;
-        if (! $guid)
+        if (! $guid) {
             $guid = 'item' . $this->item_counter;
+        }
+
         $item_element = $this->elementCreate($this->channel, 'item', '', false, true);
         $this->elementCreate($item_element, 'title', $title);
         $this->elementCreate($item_element, 'link', $link);

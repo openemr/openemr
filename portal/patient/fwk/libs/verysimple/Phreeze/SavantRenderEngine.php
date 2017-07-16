@@ -32,11 +32,13 @@ class SavantRenderEngine implements IRenderEngine
         ));
         
         // normalize the path
-        if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\')
+        if (substr($templatePath, - 1) != '/' && substr($templatePath, - 1) != '\\') {
             $templatePath .= "/";
+        }
         
-        if ($templatePath)
+        if ($templatePath) {
             $this->savant->setPath('template', $templatePath);
+        }
     }
     
     /**
@@ -53,8 +55,9 @@ class SavantRenderEngine implements IRenderEngine
     public function display($template)
     {
         // strip off .tpl from the end for backwards compatibility with older apps
-        if (substr($template, - 4) == '.tpl')
+        if (substr($template, - 4) == '.tpl') {
             $template = substr($template, 0, - 4);
+        }
             
             // these two are special templates used by the Phreeze controller and dispatcher
         if ($template == "_redirect") {
@@ -89,8 +92,9 @@ class SavantRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists($key, $this->savant))
+        if (array_key_exists($key, $this->savant)) {
             unset($this->savant [$key]);
+        }
     }
     
     /**

@@ -81,35 +81,49 @@ break;
         // standard english first
         case getLanguageTitle(1):
             $dt = date("F j, Y", $strtime);
-            if ($with_dow) $dt = "$dow, $dt";
+            if ($with_dow) {
+                $dt = "$dow, $dt";
+            }
             break;
         case "Swedish":
             $dt = date("Y", $strtime) . " $nom " . date("d", $strtime);
-            if ($with_dow) $dt = "$dow $dt";
+            if ($with_dow) {
+                $dt = "$dow $dt";
+            }
             break;
         case "Spanish":
         case "Spanish (Spain)":
         case "Spanish (Latin American)":
             $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) $dt = "$dow $dt";
+            if ($with_dow) {
+                $dt = "$dow $dt";
+            }
             break;
         case "German":
             $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) $dt = "$dow $dt";
+            if ($with_dow) {
+                $dt = "$dow $dt";
+            }
                 break;
         case "Dutch":
             $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) $dt = "$dow $dt";
+            if ($with_dow) {
+                $dt = "$dow $dt";
+            }
                 break;
             // hebrew (israel) , display english NOT jewish calendar
         case "Hebrew":
             $dt = date("d", $strtime) . " $nom " . date("Y", $strtime);
-            if ($with_dow) $dt = "$dow, $dt";
+            if ($with_dow) {
+                $dt = "$dow, $dt";
+            }
                 break;
             // default case
         default:
             $dt = "$nom " . date("d", $strtime) . ", " . date("Y", $strtime);
-            if ($with_dow) $dt = "$dow, $dt";
+            if ($with_dow) {
+                $dt = "$dow, $dt";
+            }
     }
 
     return $dt;

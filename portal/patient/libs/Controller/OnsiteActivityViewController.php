@@ -61,8 +61,9 @@ class OnsiteActivityViewController extends AppBaseController
     public function ListView()
     {
         $user = 0;
-        if (isset($_SESSION['authUser'])) $user = $_SESSION['authUser'];
-        else {
+        if (isset($_SESSION['authUser'])) {
+            $user = $_SESSION['authUser'];
+        } else {
             header("refresh:6;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br> Shared session not allowed!.';
             exit();
@@ -84,7 +85,9 @@ class OnsiteActivityViewController extends AppBaseController
             $criteria->Status_Equals = $status;
 
             $filter = RequestUtil::Get('filter');
-            if ($filter) $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
+            if ($filter) {
+                $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
+            }
 
             // TODO: this is generic query filtering based only on criteria properties
             foreach (array_keys($_REQUEST) as $prop) {
@@ -104,7 +107,9 @@ class OnsiteActivityViewController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 

@@ -106,12 +106,18 @@ function calendar_arrived($form_pid)
                     if ($my_repeat_on_num < 5) { // not last
                         $adate['mday'] = 1;
                         $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                        if ($dow > $my_repeat_on_day) $dow -= 7;
+                        if ($dow > $my_repeat_on_day) {
+                            $dow -= 7;
+                        }
+
                         $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
                     } else { // last weekday of month
                         $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
                         $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                        if ($dow < $my_repeat_on_day) $dow += 7;
+                        if ($dow < $my_repeat_on_day) {
+                            $dow += 7;
+                        }
+
                         $adate['mday'] += $my_repeat_on_day - $dow;
                     }
 
@@ -287,7 +293,9 @@ function todaysEncounter($patient_id, $reason = '')
 {
     global $today, $userauthorized;
 
-    if (empty($reason)) $reason = xl('Please indicate visit reason');
+    if (empty($reason)) {
+        $reason = xl('Please indicate visit reason');
+    }
 
   // Was going to use the existing encounter for today if there is one, but
   // decided it's right to always create a new one.  Leaving the code here

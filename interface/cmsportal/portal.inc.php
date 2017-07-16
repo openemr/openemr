@@ -22,7 +22,9 @@
 // Note: In Ubuntu this requires the php5-curl package.
 // http://www.php.net/manual/en/function.curl-setopt.php has many comments and examples.
 
-if (!$GLOBALS['gbl_portal_cms_enable']) die(xlt('CMS Portal not enabled!'));
+if (!$GLOBALS['gbl_portal_cms_enable']) {
+    die(xlt('CMS Portal not enabled!'));
+}
 
 function cms_portal_call($args)
 {
@@ -49,10 +51,19 @@ function cms_portal_call($args)
 // Look up the OpenEMR patient matching this request. More or less than 1 is an error.
 function lookup_openemr_patient($wp_login)
 {
-    if (empty($wp_login)) die(xlt('The patient was not logged in when submitting this form'));
+    if (empty($wp_login)) {
+        die(xlt('The patient was not logged in when submitting this form'));
+    }
+
     $ptres = sqlStatement("SELECT pid FROM patient_data WHERE cmsportal_login = ?", array($wp_login));
-    if (sqlNumRows($ptres) < 1) die(xlt('There is no patient with portal login') . " '$wp_login'");
-    if (sqlNumRows($ptres) > 1) die(xlt('There are multiple patients with portal login') . " '$wp_login'");
+    if (sqlNumRows($ptres) < 1) {
+        die(xlt('There is no patient with portal login') . " '$wp_login'");
+    }
+
+    if (sqlNumRows($ptres) > 1) {
+        die(xlt('There are multiple patients with portal login') . " '$wp_login'");
+    }
+
     $ptrow = sqlFetchArray($ptres);
     return $ptrow['pid'];
 }
@@ -68,12 +79,18 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
         // and "exams:cec" = 2 and aggregate them into the value "brs:1|cec:2".
         foreach ($fldarr as $key => $value) {
             if (preg_match('/^' . $field_id . ':(\w+)/', $key, $matches)) {
-                if ($newvalue !== '') $newvalue .= '|';
+                if ($newvalue !== '') {
+                    $newvalue .= '|';
+                }
+
                 $newvalue .= $matches[1] . ":$value:";
             }
         }
     } else {
-        if (isset($fldarr[$field_id])) $newvalue = $fldarr[$field_id];
+        if (isset($fldarr[$field_id])) {
+            $newvalue = $fldarr[$field_id];
+        }
+
         if ($newvalue !== '') {
             // Lifestyle Status.
             if ($data_type == '28') {
@@ -88,7 +105,10 @@ function cms_field_to_lbf($data_type, $field_id, &$fldarr)
             else if (is_array($newvalue)) {
                 $tmp = '';
                 foreach ($newvalue as $value) {
-                    if ($tmp !== '') $tmp .= '|';
+                    if ($tmp !== '') {
+                        $tmp .= '|';
+                    }
+
                     $tmp .= $value;
                 }
 

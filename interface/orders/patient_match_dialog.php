@@ -159,12 +159,22 @@ if ($form_key) {
 
 <?php
 while ($row = sqlFetchArray($res)) {
-    if ($row['closeness'] == 0) continue;
+    if ($row['closeness'] == 0) {
+        continue;
+    }
 
     $phone = $row['phone_biz'];
-    if (empty($phone)) $phone = $row['phone_home'];
-    if (empty($phone)) $phone = $row['phone_cell'];
-    if (empty($phone)) $phone = $row['phone_contact'];
+    if (empty($phone)) {
+        $phone = $row['phone_home'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_cell'];
+    }
+
+    if (empty($phone)) {
+        $phone = $row['phone_contact'];
+    }
 
     echo "  <tr class='oneresult'";
     echo " onclick=\"openPatient(" .

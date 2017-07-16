@@ -33,7 +33,10 @@ function smarty_function_pc_url($args)
     extract($args);
     unset($args);
 
-    if (!isset($action)) $action = _SETTING_DEFAULT_VIEW;
+    if (!isset($action)) {
+        $action = _SETTING_DEFAULT_VIEW;
+    }
+
     if (empty($print)) {
         $print = false;
     } else {
@@ -41,11 +44,14 @@ function smarty_function_pc_url($args)
     }
 
     $starth = "";
-    if ($setdeftime == 1)
+    if ($setdeftime == 1) {
         $starth = date("H");
+    }
+
     $ampm = 1;
-    if ($starth >= 12)
-     $ampm= 2;
+    if ($starth >= 12) {
+        $ampm= 2;
+    }
 
     $template_view = pnVarCleanFromInput('tplview');
     $viewtype = strtolower(pnVarCleanFromInput('viewtype'));

@@ -27,8 +27,9 @@ class Auth401
         header("WWW-Authenticate: Basic realm=\"" . $realm . "\"");
         header("Status: 401 Unauthorized");
         header("HTTP-Status: 401 Unauthorized");
-        if ($terminate)
+        if ($terminate) {
             die();
+        }
     }
     
     /**

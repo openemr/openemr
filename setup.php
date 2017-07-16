@@ -79,8 +79,9 @@ if (!$COMMAND_LINE && !empty($_REQUEST['site'])) {
 }
 
 // Die if site ID is empty or has invalid characters.
-if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id))
-  die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
+if (empty($site_id) || preg_match('/[^A-Za-z0-9\\-.]/', $site_id)) {
+    die("Site ID '".htmlspecialchars($site_id, ENT_NOQUOTES)."' contains invalid characters.");
+}
 
 //If having problems with file and directory permission
 // checking, then can be manually disabled here.
@@ -281,15 +282,33 @@ if (($config == 1) && ($state < 4)) {
             // if cloning its database.  When checked, do not display initial user
             // and group stuff below.
             $dh = opendir($OE_SITES_BASE);
-            if (!$dh) die("Cannot read directory '$OE_SITES_BASE'.");
+            if (!$dh) {
+                die("Cannot read directory '$OE_SITES_BASE'.");
+            }
+
             $siteslist = array();
             while (false !== ($sfname = readdir($dh))) {
-                if (substr($sfname, 0, 1) == '.') continue;
-                if ($sfname == 'CVS') continue;
-                if ($sfname == $site_id) continue;
+                if (substr($sfname, 0, 1) == '.') {
+                    continue;
+                }
+
+                if ($sfname == 'CVS') {
+                    continue;
+                }
+
+                if ($sfname == $site_id) {
+                    continue;
+                }
+
                 $sitedir = "$OE_SITES_BASE/$sfname";
-                if (!is_dir($sitedir)) continue;
-                if (!is_file("$sitedir/sqlconf.php")) continue;
+                if (!is_dir($sitedir)) {
+                    continue;
+                }
+
+                if (!is_file("$sitedir/sqlconf.php")) {
+                    continue;
+                }
+
                 $siteslist[$sfname] = $sfname;
             }
 
@@ -302,7 +321,10 @@ if (($config == 1) && ($state < 4)) {
                 echo " <td class='text'><select name='source_site_id'>";
                 foreach ($siteslist as $sfname) {
                     echo "<option value='$sfname'";
-                    if ($sfname == 'default') echo " selected";
+                    if ($sfname == 'default') {
+                        echo " selected";
+                    }
+
                     echo ">$sfname</option>";
                 }
 

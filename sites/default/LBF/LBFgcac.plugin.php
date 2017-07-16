@@ -43,7 +43,9 @@ function _LBFgcac_recent_default($name)
     global $formid;
 
   // This logic only makes sense for a new form.
-    if ($formid) return '';
+    if ($formid) {
+        return '';
+    }
 
     $query = _LBFgcac_query_recent(
         "d.field_id = '$name' " .
@@ -51,7 +53,10 @@ function _LBFgcac_recent_default($name)
     );
     $row = sqlQuery($query);
 
-    if (empty($row['field_value'])) return '';
+    if (empty($row['field_value'])) {
+        return '';
+    }
+
     return $row['field_value'];
 }
 
@@ -123,7 +128,10 @@ function set_main_compl_list() {
     while ($row = sqlFetchArray($res)) {
         $a = explode('|', $row['field_value']);
         foreach ($a as $complid) {
-            if (empty($complid)) continue;
+            if (empty($complid)) {
+                continue;
+            }
+
             echo " n = 'form_complications[$complid]'; if (f[n]) f[n].value = 2;\n";
         }
     }
@@ -251,9 +259,15 @@ function LBFgcac_default_client_status()
 function LBFgcac_default_ab_location()
 {
     global $formid;
-    if ($formid) return '';
+    if ($formid) {
+        return '';
+    }
+
     $vt = _LBFgcac_recent_default('ab_location');
-    if (empty($vt)) return 'proc';
+    if (empty($vt)) {
+        return 'proc';
+    }
+
     return $vt;
 }
 
@@ -264,23 +278,37 @@ function LBFgcac_default_in_ab_proc()
 
   // Check previous GCAC visit forms for this setting.
     $default = _LBFgcac_recent_default('in_ab_proc');
-    if ($default !== '') return $default;
+    if ($default !== '') {
+        return $default;
+    }
 
   // If none, query services from recent visits to see if an IPPF code
   // matches that of a procedure type in the list.
     $res = sqlStatement(_LBFgcac_query_recent_services());
     while ($row = sqlFetchArray($res)) {
-        if (empty($row['related_code'])) continue;
+        if (empty($row['related_code'])) {
+            continue;
+        }
+
         $relcodes = explode(';', $row['related_code']);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
-            if ($codetype !== 'IPPF') continue;
+            if ($codetype !== 'IPPF') {
+                continue;
+            }
+
             $lres = sqlStatement("SELECT option_id, mapping FROM list_options " .
             "WHERE list_id = 'in_ab_proc' AND activity = 1");
             while ($lrow = sqlFetchArray($lres)) {
                   $maparr = explode(':', $lrow['mapping']);
-                  if (empty($maparr[1])) continue;
+                if (empty($maparr[1])) {
+                    continue;
+                }
+
                 if (preg_match('/^' . $maparr[1] . '/', $code)) {
                     return $lrow['option_id'];
                 }

@@ -42,9 +42,11 @@ class NFQ_0002_InitialPatientPopulation implements CqmFilterIF
             
             $check = sqlQuery($query, array($patient->id, $beginDate, $endDate));
             if ($check['drug'] != "") {
-                if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate))
+                if (Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_PHARYNGITIS, $patient, $beginDate, $endDate) || Helper::check(ClinicalType::DIAGNOSIS, Diagnosis::ACUTE_TONSILLITIS, $patient, $beginDate, $endDate)) {
                     return true;
-                else return false;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }

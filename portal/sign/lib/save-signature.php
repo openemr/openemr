@@ -35,7 +35,10 @@ $output = filter_input(INPUT_POST, 'output', FILTER_UNSAFE_RAW);
 $user = filter_input(INPUT_POST, 'user', FILTER_UNSAFE_RAW);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if ($type == 'admin-signature') $signer = $user;
+    if ($type == 'admin-signature') {
+        $signer = $user;
+    }
+
     if (! json_decode($output)) {
         exit();
     }

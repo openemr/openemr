@@ -50,7 +50,10 @@ $type_form = $_GET['form'];
 function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 {
     $all = array();
-    if (!$pat) return($all);
+    if (!$pat) {
+        return($all);
+    }
+
     $sql = "SELECT ar_session.*, ins.name, " .
       "pat.lname, pat.fname, pat.mname, " .
       "(SELECT SUM(ar_activity.pay_amount) FROM ar_activity WHERE " .
@@ -73,7 +76,10 @@ function GetAllUnapplied($pat = '', $from_dt = '', $to_dt = '')
 
 function User_Id_Look($thisField)
 {
-    if (!$thisField) return '';
+    if (!$thisField) {
+        return '';
+    }
+
     $ret = '';
     $rlist= sqlStatement("SELECT lname, fname, mname FROM users WHERE id=?", array($thisField));
     $rrow= sqlFetchArray($rlist);
@@ -87,10 +93,15 @@ function User_Id_Look($thisField)
 function List_Look($thisData, $thisList)
 {
     if ($thisList == 'occurrence') {
-        if (!$thisData || $thisData == '') return xl('Unknown or N/A');
+        if (!$thisData || $thisData == '') {
+            return xl('Unknown or N/A');
+        }
     }
 
-    if ($thisData == '') return '';
+    if ($thisData == '') {
+        return '';
+    }
+
     $fres=sqlStatement("SELECT title FROM list_options WHERE list_id=? ".
         "AND option_id=?", array($thisList, $thisData));
     if ($fres) {
@@ -109,7 +120,10 @@ function List_Look($thisData, $thisList)
 function GetAllCredits($enc = '', $pat = '')
 {
     $all = array();
-    if (!$enc || !$pat) return($all);
+    if (!$enc || !$pat) {
+        return($all);
+    }
+
     $sql = "SELECT activity.*, session.*, ins.name FROM ar_activity AS ".
     "activity LEFT JOIN ar_session AS session USING (session_id) ".
     "LEFT JOIN insurance_companies AS ins ON session.payer_id = ".
@@ -129,7 +143,10 @@ function PrintEncHeader($dt, $rsn, $dr)
     global $bgcolor, $orow;
     $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
     echo "<tr bgcolor='#FFFFFF'>";
-    if (strlen($rsn) > 50) $rsn = substr($rsn, 0, 50).'...';
+    if (strlen($rsn) > 50) {
+        $rsn = substr($rsn, 0, 50).'...';
+    }
+
     echo "<td colspan='4'><span class='bold'>".xlt('Encounter Dt / Rsn'). ": </span><span class='detail'>".text(substr($dt, 0, 10))." / ".text($rsn)."</span></td>";
     echo "<td colspan='5'><span class='bold'>" . xlt('Provider'). ": </span><span class='detail'>".text(User_Id_Look($dr))."</span></td>";
     echo "</tr>\n";
@@ -154,7 +171,9 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
     global $bgcolor, $orow, $enc_units, $enc_chg;
     foreach ($detail as $pmt) {
         if ($unassigned) {
-            if (($pmt['pay_total'] - $pmt['applied']) == 0) continue;
+            if (($pmt['pay_total'] - $pmt['applied']) == 0) {
+                continue;
+            }
         }
 
         $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
@@ -224,9 +243,15 @@ function PrintCreditDetail($detail, $pat, $unassigned = false)
         }
 
         $print_pmt = '';
-        if ($pmt_amt != 0) $print_pmt = oeFormatMoney($pmt_amt);
+        if ($pmt_amt != 0) {
+            $print_pmt = oeFormatMoney($pmt_amt);
+        }
+
         $print_adj = '';
-        if ($adj_amt != 0) $print_adj = oeFormatMoney($adj_amt);
+        if ($adj_amt != 0) {
+            $print_adj = oeFormatMoney($adj_amt);
+        }
+
         $print .= "<td class='detail' style='text-align: right;'>".text($uac_appl)."&nbsp;</td>";
         $print .= "<td class='detail' style='text-align: right;'>".text($print_pmt)."&nbsp;</td>";
         $print .= "<td class='detail' style='text-align: right;'>".text($print_adj)."&nbsp;</td>";
@@ -448,7 +473,10 @@ function sel_patient() {
         while ($urow = sqlFetchArray($ures)) {
             $provid = $urow['id'];
             echo "    <option value='" . attr($provid) ."'";
-            if ($provid == $_REQUEST['form_provider']) echo " selected";
+            if ($provid == $_REQUEST['form_provider']) {
+                echo " selected";
+            }
+
             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
         }
 
@@ -549,7 +577,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             echo '"Chg/Pmt Amount",'."\n";
         }
     } else {
-        if (!$form_facility) $form_facility = '3';
+        if (!$form_facility) {
+            $form_facility = '3';
+        }
+
         $facility = sqlQuery("SELECT * FROM facility WHERE id=?", array($form_facility));
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'];
@@ -662,7 +693,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                     PrintCreditDetail($credits, $form_pid);
                 }
 
-                if ($hdr_printed) PrintEncFooter();
+                if ($hdr_printed) {
+                    PrintEncFooter();
+                }
+
                 $hdr_printed = false;
             }
 
@@ -681,7 +715,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             }
 
             $code_desc = $erow['code_text'];
-            if (strlen($code_desc) > 50) $code_desc = substr($code_desc, 0, 50).'...';
+            if (strlen($code_desc) > 50) {
+                $code_desc = substr($code_desc, 0, 50).'...';
+            }
+
             $bgcolor = (($bgcolor == "#FFFFDD") ? "#FFDDDD" : "#FFFFDD");
             $print = "<tr bgcolor='". attr($bgcolor) ."'>";
             $print .= "<td class='detail'>".text($erow['code'])."</td>";
@@ -730,7 +767,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             PrintCreditDetail($credits, $form_pid);
         }
 
-        if ($hdr_printed) PrintEncFooter();
+        if ($hdr_printed) {
+            PrintEncFooter();
+        }
     }
 
     // This is the end of the encounter/charge loop -

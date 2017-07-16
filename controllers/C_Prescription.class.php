@@ -71,7 +71,10 @@ class C_Prescription extends Controller
 
                 $drug_array_values[] = $row['drug_id'];
                 $drug_array_output[] = $tmp_output;
-                if ($drug_attributes) $drug_attributes .= ',';
+                if ($drug_attributes) {
+                    $drug_attributes .= ',';
+                }
+
                 $drug_attributes .=    "['"  .
                     $row['name']       . "',"  . //  0
                     $row['form']       . ",'"  . //  1
@@ -182,13 +185,17 @@ class C_Prescription extends Controller
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         //print_r($_POST);
 
     // Stupid Smarty code treats empty values as not specified values.
     // Since active is a checkbox, represent the unchecked state as -1.
-        if (empty($_POST['active'])) $_POST['active'] = '-1';
+        if (empty($_POST['active'])) {
+            $_POST['active'] = '-1';
+        }
 
         $this->prescriptions[0] = new Prescription($_POST['id']);
         parent::populate_object($this->prescriptions[0]);
@@ -540,7 +547,10 @@ class C_Prescription extends Controller
     function get_prescription_body_text($p)
     {
         $body = '<b>' . xlt('Rx') . ': ' . text($p->get_drug()) . ' ' . text($p->get_size()) . ' ' . text($p->get_unit_display());
-        if ($p->get_form()) $body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
+        if ($p->get_form()) {
+            $body .= ' [' . text($p->form_array[$p->get_form()]) . "]";
+        }
+
         $body .= "</b>     <i>" .
             text($p->substitute_array[$p->get_substitute()]) . "</i>\n" .
             '<b>' . xlt('Disp #') . ':</b> <u>' . text($p->get_quantity()) . "</u>\n" .
@@ -698,8 +708,10 @@ class C_Prescription extends Controller
     function send_action_process($id)
     {
         $dummy = ""; // Added by Rod to avoid run-time warnings
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         if (empty($id)) {
             $this->function_argument_error();
         }
@@ -770,7 +782,9 @@ class C_Prescription extends Controller
         $pdf->selectFont('Helvetica');
 
         // Signature images are to be used only when faxing.
-        if (!empty($toFile)) $this->is_faxing = true;
+        if (!empty($toFile)) {
+            $this->is_faxing = true;
+        }
 
         $this->multiprint_header($pdf, $p);
         $this->multiprint_body($pdf, $p);

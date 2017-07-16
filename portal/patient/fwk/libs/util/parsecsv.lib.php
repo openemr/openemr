@@ -175,14 +175,21 @@ class parseCSV
      */
     function parseCSV($input = null, $offset = null, $limit = null, $conditions = null)
     {
-        if ($offset !== null)
+        if ($offset !== null) {
             $this->offset = $offset;
-        if ($limit !== null)
+        }
+
+        if ($limit !== null) {
             $this->limit = $limit;
-        if (count($conditions) > 0)
+        }
+
+        if (count($conditions) > 0) {
             $this->conditions = $conditions;
-        if (! empty($input))
+        }
+
+        if (! empty($input)) {
             $this->parse($input);
+        }
     }
     
     // ==============================================
@@ -198,15 +205,23 @@ class parseCSV
      */
     function parse($input = null, $offset = null, $limit = null, $conditions = null)
     {
-        if ($input === null)
+        if ($input === null) {
             $input = $this->file;
+        }
+
         if (! empty($input)) {
-            if ($offset !== null)
+            if ($offset !== null) {
                 $this->offset = $offset;
-            if ($limit !== null)
+            }
+
+            if ($limit !== null) {
                 $this->limit = $limit;
-            if (count($conditions) > 0)
+            }
+
+            if (count($conditions) > 0) {
                 $this->conditions = $conditions;
+            }
+
             if (is_readable($input)) {
                 $this->data = $this->parse_file($input);
             } else {
@@ -214,8 +229,9 @@ class parseCSV
                 $this->data = $this->parse_string();
             }
 
-            if ($this->data === false)
+            if ($this->data === false) {
                 return false;
+            }
         }
 
         return true;
@@ -236,8 +252,10 @@ class parseCSV
      */
     function save($file = null, $data = array(), $append = false, $fields = array())
     {
-        if (empty($file))
+        if (empty($file)) {
             $file = &$this->file;
+        }
+
         $mode = ($append) ? 'at' : 'wt';
         $is_php = (preg_match('/\.php$/i', $file)) ? true : false;
         return $this->_wfile($file, $this->unparse($data, $fields, $append, $is_php), $mode);
@@ -258,10 +276,14 @@ class parseCSV
      */
     function output($filename = null, $data = array(), $fields = array(), $delimiter = null)
     {
-        if (empty($filename))
+        if (empty($filename)) {
             $filename = $this->output_filename;
-        if ($delimiter === null)
+        }
+
+        if ($delimiter === null) {
             $delimiter = $this->output_delimiter;
+        }
+
         $data = $this->unparse($data, $fields, null, null, $delimiter);
         if ($filename !== null) {
             header('Content-type: application/csv');
@@ -284,10 +306,13 @@ class parseCSV
     function encoding($input = null, $output = null)
     {
         $this->convert_encoding = true;
-        if ($input !== null)
+        if ($input !== null) {
             $this->input_encoding = $input;
-        if ($output !== null)
+        }
+
+        if ($output !== null) {
             $this->output_encoding = $output;
+        }
     }
     
     /**
@@ -308,20 +333,28 @@ class parseCSV
      */
     function auto($file = null, $parse = true, $search_depth = null, $preferred = null, $enclosure = null)
     {
-        if ($file === null)
+        if ($file === null) {
             $file = $this->file;
-        if (empty($search_depth))
+        }
+
+        if (empty($search_depth)) {
             $search_depth = $this->auto_depth;
-        if ($enclosure === null)
+        }
+
+        if ($enclosure === null) {
             $enclosure = $this->enclosure;
+        }
         
-        if ($preferred === null)
+        if ($preferred === null) {
             $preferred = $this->auto_preferred;
+        }
         
         if (empty($this->file_data)) {
             if ($this->_check_data($file)) {
                 $data = &$this->file_data;
-            } else return false;
+            } else {
+                return false;
+            }
         } else {
             $data = &$this->file_data;
         }
@@ -381,8 +414,9 @@ class parseCSV
         $this->delimiter = reset($filtered);
         
         // parse data
-        if ($parse)
+        if ($parse) {
             $this->data = $this->parse_string();
+        }
         
         return $this->delimiter;
     }
@@ -400,10 +434,14 @@ class parseCSV
      */
     function parse_file($file = null)
     {
-        if ($file === null)
+        if ($file === null) {
             $file = $this->file;
-        if (empty($this->file_data))
+        }
+
+        if (empty($this->file_data)) {
             $this->load_data($file);
+        }
+
         return (! empty($this->file_data)) ? $this->parse_string() : false;
     }
     
@@ -419,7 +457,9 @@ class parseCSV
         if (empty($data)) {
             if ($this->_check_data()) {
                 $data = &$this->file_data;
-            } else return false;
+            } else {
+                return false;
+            }
         }
         
         $white_spaces = str_replace($this->delimiter, '', " \t\x0B\0");
@@ -518,8 +558,12 @@ class parseCSV
                                     }
 
                                     $rows [$row [$this->sort_by] . '_' . $sn] = $row;
-                                } else $rows [$row [$this->sort_by]] = $row;
-                            } else $rows [] = $row;
+                                } else {
+                                    $rows [$row [$this->sort_by]] = $row;
+                                }
+                            } else {
+                                $rows [] = $row;
+                            }
                         }
                     }
 
@@ -530,8 +574,9 @@ class parseCSV
                         $i = $strlen;
                     }
 
-                    if ($ch == "\r" && $nch == "\n")
+                    if ($ch == "\r" && $nch == "\n") {
                         $i ++;
+                    }
                 }
                 
                 // append character to current field
@@ -580,12 +625,17 @@ class parseCSV
      */
     function unparse($data = array(), $fields = array(), $append = false, $is_php = false, $delimiter = null)
     {
-        if (! is_array($data) || empty($data))
+        if (! is_array($data) || empty($data)) {
             $data = &$this->data;
-        if (! is_array($fields) || empty($fields))
+        }
+
+        if (! is_array($fields) || empty($fields)) {
             $fields = &$this->titles;
-        if ($delimiter === null)
+        }
+
+        if ($delimiter === null) {
             $delimiter = $this->delimiter;
+        }
         
         $string = ($is_php) ? "<?php header('Status: 403'); die(' '); ?>" . $this->linefeed : '';
         $entry = array ();
@@ -633,16 +683,22 @@ class parseCSV
         }
 
         if (! empty($data) || $data = $this->_rfile($file)) {
-            if ($this->file != $file)
+            if ($this->file != $file) {
                 $this->file = $file;
+            }
+
             if (preg_match('/\.php$/i', $file) && preg_match('/<\?.*?\?>(.*)/ims', $data, $strip)) {
                 $data = ltrim($strip [1]);
             }
 
-            if ($this->convert_encoding)
+            if ($this->convert_encoding) {
                 $data = iconv($this->input_encoding, $this->output_encoding, $data);
-            if (substr($data, - 1) != "\n")
+            }
+
+            if (substr($data, - 1) != "\n") {
                 $data .= "\n";
+            }
+
             $this->file_data = &$data;
             return true;
         }
@@ -777,8 +833,10 @@ class parseCSV
      */
     function _validate_offset($current_row)
     {
-        if ($this->sort_by === null && $this->offset !== null && $current_row < $this->offset)
+        if ($this->sort_by === null && $this->offset !== null && $current_row < $this->offset) {
             return false;
+        }
+
         return true;
     }
     
@@ -814,8 +872,10 @@ class parseCSV
     function _check_data($file = null)
     {
         if (empty($this->file_data)) {
-            if ($file === null)
+            if ($file === null) {
                 $file = $this->file;
+            }
+
             return $this->load_data($file);
         }
 
@@ -852,7 +912,9 @@ class parseCSV
                 $pref = strpos($preferred, $char);
                 $pref = ($pref !== false) ? str_pad($pref, 3, '0', STR_PAD_LEFT) : '999';
                 return $pref . $match . '.' . (99999 - str_pad($first, 5, '0', STR_PAD_LEFT));
-            } else return false;
+            } else {
+                return false;
+            }
         }
     }
     
@@ -866,8 +928,10 @@ class parseCSV
     function _rfile($file = null)
     {
         if (is_readable($file)) {
-            if (! ($fh = fopen($file, 'r')))
+            if (! ($fh = fopen($file, 'r'))) {
                 return false;
+            }
+
             $data = fread($fh, filesize($file));
             fclose($fh);
             return $data;
@@ -895,8 +959,9 @@ class parseCSV
             flock($fp, $lock);
             $re = fwrite($fp, $string);
             $re2 = fclose($fp);
-            if ($re != false && $re2 != false)
+            if ($re != false && $re2 != false) {
                 return true;
+            }
         }
 
         return false;

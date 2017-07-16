@@ -195,7 +195,10 @@ class InstallerController extends AbstractActionController
                 $string .= " array(";
                 $string .=        $this ->getContent($value);
                 $string .= " )";
-            } else $string .= "'$value'";
+            } else {
+                $string .= "'$value'";
+            }
+
             $string .= ",";
         }
 

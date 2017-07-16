@@ -237,8 +237,11 @@ $(document).ready(function() {
         <tr>
             <td><span class=text ><?php echo xlt('Comments'); ?></span></td>
             <td><textarea <?php echo ( $onlyRead ) ? "readonly" : "";  ?> id="note" name="note" rows="4" cols="30"><?php
-            if ($amendment_id) echo "";
-            else echo xlt('New amendment request'); ?></textarea></td>
+            if ($amendment_id) {
+                echo "";
+            } else {
+                echo xlt('New amendment request');
+            } ?></textarea></td>
         </tr>
     </table>
 

@@ -242,10 +242,18 @@ if (isset($_REQUEST['filter'])) {
     $count = main_code_set_search($filter_key, $search, null, null, false, null, true, null, null, $filter_elements);
 }
 
-if ($fstart >= $count) $fstart -= $pagesize;
-if ($fstart < 0) $fstart = 0;
+if ($fstart >= $count) {
+    $fstart -= $pagesize;
+}
+
+if ($fstart < 0) {
+    $fstart = 0;
+}
+
 $fend = $fstart + $pagesize;
-if ($fend > $count) $fend = $count;
+if ($fend > $count) {
+    $fend = $count;
+}
 ?>
 
 <html>
@@ -284,7 +292,10 @@ if ($fend > $count) $fend = $count;
                 foreach ($code_types as $key => $value) {
                     $codeid = $value['id'];
                     $coderel = $value['rel'];
-                    if (!$coderel) continue;
+                    if (!$coderel) {
+                        continue;
+                    }
+
                     echo "  if (myid == $codeid) codetype = '$coderel';";
                 }
                 ?>
@@ -413,7 +424,8 @@ if ($fend > $count) $fend = $count;
                         <?php foreach ($code_types as $key => $value) { ?>
                             <?php if (!($value['external'])) { ?>
                                 <?php if ($mode != "modify") { ?>
-                                    <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) echo " selected" ?>><?php echo xlt($value['label']) ?></option>
+                                    <option value="<?php  echo attr($value['id']) ?>"<?php if ($code_type == $value['id']) {
+                                        echo " selected"; } ?>><?php echo xlt($value['label']) ?></option>
                                 <?php } ?>
                             <?php } ?>
                             <?php if ($value['external']) {
@@ -454,7 +466,8 @@ if ($fend > $count) $fend = $count;
                     <?php } ?>
 
                     &nbsp;&nbsp;
-                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) echo ' checked'; ?> />
+                    <input type='checkbox' name='active' value='1'<?php if (!empty($active) || ($mode == 'modify' && $active == null)) {
+                        echo ' checked';} ?> />
                     <?php echo xlt('Active'); ?>
                 </td>
             </tr>
@@ -481,15 +494,18 @@ if ($fend > $count) $fend = $count;
                     generate_form_field(array('data_type'=>1,'field_id'=>'superbill','list_id'=>'superbill'), $superbill);
                     ?>
                     &nbsp;&nbsp;
-                    <input type='checkbox' title='<?php echo xlt("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) echo ' checked'; ?> />
+                    <input type='checkbox' title='<?php echo xlt("Syndromic Surveillance Report") ?>' name='reportable' value='1'<?php if (!empty($reportable)) {
+                        echo ' checked';} ?> />
                     <?php echo xlt('Diagnosis Reporting'); ?>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type='checkbox' title='<?php echo xlt("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) echo ' checked'; ?> />
+                    <input type='checkbox' title='<?php echo xlt("Service Code Finance Reporting") ?>' name='financial_reporting' value='1'<?php if (!empty($financial_reporting)) {
+                        echo ' checked';} ?> />
                     <?php echo xlt('Service Reporting'); ?>
                 </td>
             </tr>
 
-            <tr<?php if (empty($GLOBALS['ippf_specific'])) echo " style='display:none'"; ?>>
+            <tr<?php if (empty($GLOBALS['ippf_specific'])) {
+                echo " style='display:none'";} ?>>
                 <td><?php echo xlt('CYP Factor'); ?>:</td>
                 <td></td>
                 <td>
@@ -497,7 +513,8 @@ if ($fend > $count) $fend = $count;
                 </td>
             </tr>
 
-            <tr<?php if (!related_codes_are_used()) echo " style='display:none'"; ?>>
+            <tr<?php if (!related_codes_are_used()) {
+                echo " style='display:none'";} ?>>
                 <td><?php echo xlt('Relate To'); ?>:</td>
                 <td></td>
                 <td>
@@ -518,7 +535,10 @@ if ($fend > $count) $fend = $count;
                         "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
                         "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq, lo.title", array($code_id));
                     for ($i = 0; $prow = sqlFetchArray($pres); ++$i) {
-                        if ($i) echo "&nbsp;&nbsp;";
+                        if ($i) {
+                            echo "&nbsp;&nbsp;";
+                        }
+
                         echo text(xl_list_label($prow['title'])) . " ";
                         echo "<input type='text' size='6' name='fee[" . attr($prow['option_id']) . "]' " .
                             "value='" . attr($prow['pr_price']) . "' >\n";
@@ -532,9 +552,15 @@ if ($fend > $count) $fend = $count;
             $pres = sqlStatement("SELECT option_id, title FROM list_options " .
                 "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
             while ($prow = sqlFetchArray($pres)) {
-                if ($taxline) $taxline .= "&nbsp;&nbsp;";
+                if ($taxline) {
+                    $taxline .= "&nbsp;&nbsp;";
+                }
+
                 $taxline .= "<input type='checkbox' name='taxrate[" . attr($prow['option_id']) . "]' value='1'";
-                if (strpos(":$taxrates", $prow['option_id']) !== false) $taxline .= " checked";
+                if (strpos(":$taxrates", $prow['option_id']) !== false) {
+                    $taxline .= " checked";
+                }
+
                 $taxline .= " />\n";
                 $taxline .=  text(xl_list_label($prow['title'])) . "\n";
             }
@@ -576,7 +602,10 @@ if ($fend > $count) $fend = $count;
                         <?php
                         foreach ($code_types as $key => $value) {
                             echo "<option value='" . attr($value['id']) . "'";
-                            if (isset($filter) && in_array($value['id'], $filter)) echo " selected";
+                            if (isset($filter) && in_array($value['id'], $filter)) {
+                                echo " selected";
+                            }
+
                             echo ">" . xlt($value['label']) . "</option>\n";
                         }
                         ?>
@@ -585,10 +614,12 @@ if ($fend > $count) $fend = $count;
 
                     <input type="text" name="search" size="5" value="<?php echo attr($search) ?>">&nbsp;
                     <input type="submit" name="go" value='<?php echo xla('Search'); ?>'>&nbsp;&nbsp;
-                    <input type='checkbox' title='<?php echo xlt("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) echo ' checked'; ?> />
+                    <input type='checkbox' title='<?php echo xlt("Only Show Diagnosis Reporting Codes") ?>' name='search_reportable' value='1'<?php if (!empty($search_reportable)) {
+                        echo ' checked';} ?> />
                     <?php echo xlt('Diagnosis Reporting Only'); ?>
                     &nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type='checkbox' title='<?php echo xlt("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) echo ' checked'; ?> />
+                    <input type='checkbox' title='<?php echo xlt("Only Show Service Code Finance Reporting Codes") ?>' name='search_financial_reporting' value='1'<?php if (!empty($search_financial_reporting)) {
+                        echo ' checked';} ?> />
                     <?php echo xlt('Service Reporting Only'); ?>
                     <input type='hidden' name='fstart' value='<?php echo attr($fstart) ?>'>
                 </td>
@@ -642,7 +673,9 @@ if ($fend > $count) $fend = $count;
     }
 
     for ($i = 0; $row = sqlFetchArray($res);
-    $i++) $all[$i] = $row;
+    $i++) {
+        $all[$i] = $row;
+    }
 
     if (!empty($all)) {
         $count = 0;

@@ -115,8 +115,10 @@ class Mailer
         
         $mailer->From = $message->From->Email;
         $mailer->FromName = $message->From->RealName;
-        if ($message->ReplyTo)
+        if ($message->ReplyTo) {
             $mailer->AddReplyTo($message->ReplyTo->Email, $message->ReplyTo->RealName);
+        }
+
         $mailer->Subject = $message->GetSubject();
         $mailer->Body = $this->FixBareLB($message->GetBody());
         $mailer->ContentType = ($message->Format == MESSAGE_FORMAT_TEXT) ? "text/plain" : "text/html";

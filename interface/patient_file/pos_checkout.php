@@ -79,12 +79,21 @@ $prevsvcdate = '';
 function receiptDetailLine($svcdate, $description, $amount, $quantity)
 {
     global $prevsvcdate, $details;
-    if (!$details) return;
+    if (!$details) {
+        return;
+    }
+
     $amount = sprintf('%01.2f', $amount);
-    if (empty($quantity)) $quantity = 1;
+    if (empty($quantity)) {
+        $quantity = 1;
+    }
+
     $price = sprintf('%01.4f', $amount / $quantity);
     $tmp = sprintf('%01.2f', $price);
-    if ($price == $tmp) $price = $tmp;
+    if ($price == $tmp) {
+        $price = $tmp;
+    }
+
     echo " <tr>\n";
     echo "  <td>" . ($svcdate == $prevsvcdate ? '&nbsp;' : text(oeFormatShortDate($svcdate))) . "</td>\n";
     echo "  <td>" . text($description) . "</td>\n";
@@ -132,7 +141,10 @@ function generate_receipt($patient_id, $encounter = 0)
         "ORDER BY id DESC LIMIT 1", array($patient_id));
     }
 
-    if (empty($ferow)) die(xlt("This patient has no activity."));
+    if (empty($ferow)) {
+        die(xlt("This patient has no activity."));
+    }
+
     $trans_id = $ferow['id'];
     $encounter = $ferow['encounter'];
     $svcdate = substr($ferow['date'], 0, 10);
@@ -203,7 +215,9 @@ if ($GLOBALS['receipts_by_provider'] && !empty($providerrow)) {
 ?>
 <?php
   echo xlt("Receipt Generated") . ":" . text(date(' F j, Y'));
-  if ($invoice_refno) echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
+if ($invoice_refno) {
+    echo " " . xlt("Invoice Number") . ": " . text($invoice_refno) . " " . xlt("Service Date")  . ": " . text($svcdate);
+}
 ?>
 <br>&nbsp;
 </b></p>
@@ -372,9 +386,15 @@ function write_form_line(
 ) {
     global $lino;
     $amount = sprintf("%01.2f", $amount);
-    if (empty($units)) $units = 1;
+    if (empty($units)) {
+        $units = 1;
+    }
+
     $price = $amount / $units; // should be even cents, but ok here if not
-    if ($code_type == 'COPAY' && !$description) $description = xl('Payment');
+    if ($code_type == 'COPAY' && !$description) {
+        $description = xl('Payment');
+    }
+
     echo " <tr>\n";
     echo "  <td>" . text(oeFormatShortDate($date));
     echo "<input type='hidden' name='line[$lino][code_type]' value='" . attr($code_type) . "'>";
@@ -434,9 +454,14 @@ function markTaxes($taxrates)
 {
     global $taxes;
     $arates = explode(':', $taxrates);
-    if (empty($arates)) return;
+    if (empty($arates)) {
+        return;
+    }
+
     foreach ($arates as $value) {
-        if (!empty($taxes[$value])) $taxes[$value][2] = '1';
+        if (!empty($taxes[$value])) {
+            $taxes[$value][2] = '1';
+        }
     }
 }
 
@@ -480,7 +505,10 @@ if ($_POST['form_save']) {
         while (true) {
             $ferow = sqlQuery("SELECT id FROM form_encounter WHERE " .
             "pid = ? AND encounter = ?", array($form_pid, $form_encounter.$tmp));
-            if (empty($ferow)) break;
+            if (empty($ferow)) {
+                break;
+            }
+
             $tmp = $tmp ? $tmp + 1 : 1;
         }
 
@@ -820,7 +848,9 @@ $gcac_service_provided = false;
 //
 while ($brow = sqlFetchArray($bres)) {
   // Skip all but the most recent encounter.
-    if ($inv_encounter && $brow['encounter'] != $inv_encounter) continue;
+    if ($inv_encounter && $brow['encounter'] != $inv_encounter) {
+        continue;
+    }
 
     $thisdate = substr($brow['date'], 0, 10);
     $code_type = $brow['code_type'];
@@ -858,21 +888,33 @@ while ($brow = sqlFetchArray($bres)) {
         $brow['units'],
         $taxrates
     );
-    if (!$inv_encounter) $inv_encounter = $brow['encounter'];
+    if (!$inv_encounter) {
+        $inv_encounter = $brow['encounter'];
+    }
+
     $inv_payer = $brow['payer_id'];
-    if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
+    if (!$inv_date || $inv_date < $thisdate) {
+        $inv_date = $thisdate;
+    }
 
   // Custom logic for IPPF to determine if a GCAC issue applies.
     if ($GLOBALS['ippf_specific'] && $related_code) {
         $relcodes = explode(';', $related_code);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
-            if ($codetype !== 'IPPF') continue;
+            if ($codetype !== 'IPPF') {
+                continue;
+            }
+
             if (preg_match('/^25222/', $code)) {
                 $gcac_related_visit = true;
-                if (preg_match('/^25222[34]/', $code))
-                $gcac_service_provided = true;
+                if (preg_match('/^25222[34]/', $code)) {
+                    $gcac_service_provided = true;
+                }
             }
         }
     }
@@ -888,15 +930,22 @@ if ($totalCopay < 0) {
 // Process drug sales / products.
 //
 while ($drow = sqlFetchArray($dres)) {
-    if ($inv_encounter && $drow['encounter'] && $drow['encounter'] != $inv_encounter) continue;
+    if ($inv_encounter && $drow['encounter'] && $drow['encounter'] != $inv_encounter) {
+        continue;
+    }
 
     $thisdate = $drow['sale_date'];
-    if (!$inv_encounter) $inv_encounter = $drow['encounter'];
+    if (!$inv_encounter) {
+        $inv_encounter = $drow['encounter'];
+    }
 
-    if (!$inv_provider && !empty($arr_users[$drow['provider_id']]))
-    $inv_provider = $drow['provider_id'] + 0;
+    if (!$inv_provider && !empty($arr_users[$drow['provider_id']])) {
+        $inv_provider = $drow['provider_id'] + 0;
+    }
 
-    if (!$inv_date || $inv_date < $thisdate) $inv_date = $thisdate;
+    if (!$inv_date || $inv_date < $thisdate) {
+        $inv_date = $thisdate;
+    }
 
   // Accumulate taxes for this product.
     $tmp = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
@@ -959,8 +1008,10 @@ if ($inv_encounter) {
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112, array('payment_method'));
     while ($brow1112 = sqlFetchArray($bres1112)) {
-        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft')
-        continue;
+        if ($brow1112['option_id']=='electronic' || $brow1112['option_id']=='bank_draft') {
+            continue;
+        }
+
         echo "<option value='".attr($brow1112['option_id'])."'>".text(xl_list_label($brow1112['title']))."</option>";
     }
     ?>

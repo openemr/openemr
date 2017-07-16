@@ -309,12 +309,15 @@ if (isset($_POST["mode"])) {
         }
     } else if ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from groups");
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-        $result[$iter] = $row;
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $result[$iter] = $row;
+        }
+
         $doit = 1;
         foreach ($result as $iter) {
-            if ($doit == 1 && $iter{"name"} == trim(formData('groupname')) && $iter{"user"} == trim(formData('rumple')))
-            $doit--;
+            if ($doit == 1 && $iter{"name"} == trim(formData('groupname')) && $iter{"user"} == trim(formData('rumple'))) {
+                $doit--;
+            }
         }
 
         if ($doit == 1) {
@@ -350,10 +353,14 @@ if (isset($_GET["mode"])) {
 
     if ($_GET["mode"] == "delete_group") {
         $res = sqlStatement("select distinct user from groups where id = ?", array($_GET["id"]));
-        for ($iter = 0; $row = sqlFetchArray($res); $iter++)
-        $result[$iter] = $row;
-        foreach ($result as $iter)
-        $un = $iter{"user"};
+        for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
+            $result[$iter] = $row;
+        }
+
+        foreach ($result as $iter) {
+            $un = $iter{"user"};
+        }
+
         $res = sqlStatement("select name, user from groups where user = '$un' " .
         "and id != ?", array($_GET["id"]));
 
@@ -437,7 +444,8 @@ function authorized_clicked() {
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="pull-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
                 <div class="checkbox">
                     <label for="form_inactive">
-                        <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) echo 'checked '; ?>>
+                        <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php if ($form_inactive) {
+                            echo 'checked ';} ?>>
                         <?php xl('Include inactive users', 'e'); ?>
                     </label>
                 </div>
@@ -468,11 +476,16 @@ function authorized_clicked() {
                 <tbody>
                     <?php
                     $query = "SELECT * FROM users WHERE username != '' ";
-                    if (!$form_inactive) $query .= "AND active = '1' ";
+                    if (!$form_inactive) {
+                        $query .= "AND active = '1' ";
+                    }
+
                     $query .= "ORDER BY username";
                     $res = sqlStatement($query);
-                    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+                    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                         $result4[$iter] = $row;
+                    }
+
                     foreach ($result4 as $iter) {
                         if ($iter{"authorized"}) {
                             $iter{"authorized"} = xl('yes');
@@ -496,8 +509,9 @@ function authorized_clicked() {
             <?php
             if (empty($GLOBALS['disable_non_default_groups'])) {
                 $res = sqlStatement("select * from groups order by name");
-                for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+                for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $result5[$iter] = $row;
+                }
 
                 foreach ($result5 as $iter) {
                     $grouplist{$iter{"name"}} .= $iter{"user"} .

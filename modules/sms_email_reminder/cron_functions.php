@@ -31,14 +31,23 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $format = "";  // mdsupport - replaces 0 which causes gmail formatting / display problems.
 
         //echo "function called";exit;
-        if (strlen($format)==0)  $format="text/html";
+        if (strlen($format)==0) {
+            $format="text/html";
+        }
+
         $headers  = "MIME-Version: 1.0\r\n";
         $headers .= "Content-type: ". $format ."; charset=iso-8859-1\r\n";
         
         // additional headers
         $headers .= "From: $from\r\n";
-        if (strlen($cc)>5) $headers .= "Cc: $cc\r\n";
-        if (strlen($bcc)>5) $headers .= "Bcc: $bcc\r\n";
+        if (strlen($cc)>5) {
+            $headers .= "Cc: $cc\r\n";
+        }
+
+        if (strlen($bcc)>5) {
+            $headers .= "Bcc: $bcc\r\n";
+        }
+
         $cnt = "";
         $cnt .= "\nHeaders : ".$headers;
         $cnt .= "\nDate Time :". date("d M, Y  h:i:s");
@@ -68,8 +77,13 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $sender_line=__LINE__;
         $strTo = $to;
         $recipient_line=__LINE__;
-        if (strlen($strFrom) == 0) return( false );
-        if (strlen($strTo) == 0) return( false );
+        if (strlen($strFrom) == 0) {
+            return( false );
+        }
+
+        if (strlen($strTo) == 0) {
+            return( false );
+        }
         
         //if( !$smtp )
         $smtp=new smtp_class;
@@ -205,9 +219,11 @@ function cron_updateentry($type, $pid, $pc_eid)
     $query = "update openemr_postcalendar_events set ";
     
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type=='SMS')
+    if ($type=='SMS') {
         $query.=" pc_sendalertsms='YES' ";
-    else $query.=" pc_sendalertemail='YES' ";
+    } else {
+        $query.=" pc_sendalertemail='YES' ";
+    }
         
     $query .=" where pc_pid='$pid' and pc_eid='$pc_eid' ";
     //echo "<br>".$query;
@@ -291,9 +307,11 @@ function cron_getNotificationData($type)
 function cron_InsertNotificationLogEntry($type, $prow, $db_email_msg)
 {
     global $SMS_GATEWAY_USENAME,$SMS_GATEWAY_PASSWORD,$SMS_GATEWAY_APIKEY;
-    if ($type=='SMS')
+    if ($type=='SMS') {
         $smsgateway_info = $db_email_msg['sms_gateway_type']."|||".$SMS_GATEWAY_USENAME."|||".$SMS_GATEWAY_PASSWORD."|||".$SMS_GATEWAY_APIKEY;
-    else $smsgateway_info = $db_email_msg['email_sender']."|||".$db_email_msg['email_subject'];
+    } else {
+        $smsgateway_info = $db_email_msg['email_sender']."|||".$db_email_msg['email_subject'];
+    }
 
     $patient_info = $prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."|||".$prow['phone_cell']."|||".$prow['email'];
     $data_info = $prow['pc_eventDate']."|||".$prow['pc_endDate']."|||".$prow['pc_startTime']."|||".$prow['pc_endTime'];

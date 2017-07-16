@@ -37,10 +37,15 @@ class code_info
         $this->selected=$selected;
         // check if the code type is active and allowed to create medical problems from diagnosis elements
         $this->allowed_to_create_problem_from_diagnosis="FALSE";
-        if (check_code_set_filters($ct, array("active","problem"))) $this->allowed_to_create_problem_from_diagnosis="TRUE";
+        if (check_code_set_filters($ct, array("active","problem"))) {
+            $this->allowed_to_create_problem_from_diagnosis="TRUE";
+        }
+
         // check if the code type is active and allowed to create diagnosis elements from medical problems
         $this->allowed_to_create_diagnosis_from_problem="FALSE";
-        if (check_code_set_filters($ct, array("active","diag"))) $this->allowed_to_create_diagnosis_from_problem="TRUE";
+        if (check_code_set_filters($ct, array("active","diag"))) {
+            $this->allowed_to_create_diagnosis_from_problem="TRUE";
+        }
     }
     public $code;
     public $code_type;

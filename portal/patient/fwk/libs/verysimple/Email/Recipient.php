@@ -58,8 +58,9 @@ class Recipient
         }
         
         // just in case there was no realname
-        if ($this->RealName == "")
+        if ($this->RealName == "") {
             $this->RealName = $this->Email;
+        }
     }
     
     /**

@@ -31,15 +31,21 @@ $display_current_medications_below=1;
 
 foreach ($ISSUE_TYPES as $key => $arr) {
   // Skip if user has no access to this issue type.
-    if (!acl_check_issue($key)) continue;
+    if (!acl_check_issue($key)) {
+        continue;
+    }
 
   // $result = getListByType($pid, $key, "id,title,begdate,enddate,returndate,extrainfo", "all", "all", 0);
     $query = "SELECT * FROM lists WHERE pid = ? AND type = ? AND ";
     $query .= "(enddate is null or enddate = '' or enddate = '0000-00-00') ";
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication')
-    $query .= "and erx_uploaded != '1' ";
-    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key=='allergy')
-    $query .= "and erx_uploaded != '1' ";
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $key=='medication') {
+        $query .= "and erx_uploaded != '1' ";
+    }
+
+    if ($GLOBALS['erx_enable'] && $GLOBALS['erx_allergy_display'] && $key=='allergy') {
+        $query .= "and erx_uploaded != '1' ";
+    }
+
     $query .= "ORDER BY begdate";
     $pres = sqlStatement($query, array($pid, $key));
     if ($old_key=="medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
@@ -96,8 +102,10 @@ while ($row_currentMed=sqlFetchArray($res)) {
 <td><?php echo htmlspecialchars($row_currentMed['drug'], ENT_NOQUOTES);?></td>
 <td><?php
         $unit='';
-        if ($row_currentMed['size'] > 0)
+if ($row_currentMed['size'] > 0) {
     $unit=$row_currentMed['size']." ".$runit." ";
+}
+
         echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);
 ?></td>
   </tr>
@@ -171,12 +179,14 @@ while ($row_currentMed=sqlFetchArray($res)) {
 
         while ($row = sqlFetchArray($pres)) {
             // output each issue for the $ISSUE_TYPE
-            if (!$row['enddate'] && !$row['returndate'])
-            $rowclass="noend_noreturn";
-            else if (!$row['enddate'] && $row['returndate'])
-            $rowclass="noend";
-            else if ($row['enddate'] && !$row['returndate'])
-            $rowclass = "noreturn";
+            if (!$row['enddate'] && !$row['returndate']) {
+                $rowclass="noend_noreturn";
+            } else if (!$row['enddate'] && $row['returndate']) {
+                $rowclass="noend";
+            } else if ($row['enddate'] && !$row['returndate']) {
+                $rowclass = "noreturn";
+            }
+
             echo " <tr class='text $rowclass;'>\n";
 
             //turn allergies red and bold and show the reaction (if exist)
@@ -359,7 +369,10 @@ while ($row_currentMed=sqlFetchArray($res)) {
     <tr class=text >
         <td><?php echo $row_currentMed['drug'];?></td>
         <td><?php $unit='';
-        if ($row_currentMed['size']>0) $unit=$row_currentMed['size']." ".$runit." ";
+        if ($row_currentMed['size']>0) {
+            $unit=$row_currentMed['size']." ".$runit." ";
+        }
+
         echo htmlspecialchars($unit." ".$row_currentMed['dosage']." ".$rin." ".$rroute." ".$rint, ENT_NOQUOTES);?></td>
     </tr>
 <?php
@@ -431,12 +444,14 @@ if ($erx_upload_complete == 1) {
     echo "<table>";
     while ($row = sqlFetchArray($res_uploaded_old)) {
     // output each issue for the $ISSUE_TYPE
-        if (!$row['enddate'] && !$row['returndate'])
-        $rowclass="noend_noreturn";
-        else if (!$row['enddate'] && $row['returndate'])
-        $rowclass="noend";
-        else if ($row['enddate'] && !$row['returndate'])
-        $rowclass = "noreturn";
+        if (!$row['enddate'] && !$row['returndate']) {
+            $rowclass="noend_noreturn";
+        } else if (!$row['enddate'] && $row['returndate']) {
+            $rowclass="noend";
+        } else if ($row['enddate'] && !$row['returndate']) {
+            $rowclass = "noreturn";
+        }
+
         echo " <tr class='text $rowclass;'>\n";
         echo "  <td colspan='$numcols'>&nbsp;&nbsp;" . htmlspecialchars($row['title'], ENT_NOQUOTES) . "</td>\n";
         echo " </tr>\n";

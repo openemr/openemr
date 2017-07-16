@@ -60,10 +60,22 @@ class PortalPatientController extends AppBaseController
     public function ListView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if (isset($_GET['id'])) $rid = ( int ) $_GET['id'];
-        if (isset($_GET['pid'])) $pid = ( int ) $_GET['pid'];
-        if (isset($_GET['user'])) $user = $_GET['user'];
-        if (isset($_GET['enc'])) $encounter = $_GET['enc'];
+        if (isset($_GET['id'])) {
+            $rid = ( int ) $_GET['id'];
+        }
+
+        if (isset($_GET['pid'])) {
+            $pid = ( int ) $_GET['pid'];
+        }
+
+        if (isset($_GET['user'])) {
+            $user = $_GET['user'];
+        }
+
+        if (isset($_GET['enc'])) {
+            $encounter = $_GET['enc'];
+        }
+
         $this->Assign('recid', $rid);
         $this->Assign('cpid', $pid);
         $this->Assign('cuser', $user);
@@ -86,7 +98,9 @@ class PortalPatientController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 
@@ -246,8 +260,9 @@ class PortalPatientController extends AppBaseController
 
             $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             $audit['date'] = $edata['date'];
-            if ($edata['id'] > 0) $appsql->portalAudit('update', $edata['id'], $audit);
-            else {
+            if ($edata['id'] > 0) {
+                $appsql->portalAudit('update', $edata['id'], $audit);
+            } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
         } catch (Exception $ex) {

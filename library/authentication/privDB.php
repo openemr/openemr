@@ -100,10 +100,14 @@ function privStatement($sql, $params = null)
 function privQuery($sql, $params = null)
 {
     $recordset=privStatement($sql, $params);
-    if ($recordset->EOF)
-    return false;
-    $rez = $recordset->FetchRow();
-    if ($rez == false)
+    if ($recordset->EOF) {
         return false;
+    }
+
+    $rez = $recordset->FetchRow();
+    if ($rez == false) {
+        return false;
+    }
+
     return $rez;
 }

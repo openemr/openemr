@@ -235,11 +235,13 @@ function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case
  */
 function formData($name, $type = 'P', $isTrim = false)
 {
-    if ($type == 'P')
-    $s = isset($_POST[$name]) ? $_POST[$name] : '';
-    else if ($type == 'G')
-    $s = isset($_GET[$name]) ? $_GET[$name] : '';
-    else $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+    if ($type == 'P') {
+        $s = isset($_POST[$name]) ? $_POST[$name] : '';
+    } else if ($type == 'G') {
+        $s = isset($_GET[$name]) ? $_GET[$name] : '';
+    } else {
+        $s = isset($_REQUEST[$name]) ? $_REQUEST[$name] : '';
+    }
 
     return formDataCore($s, $isTrim);
 }

@@ -36,8 +36,10 @@ function getDisclosureByDate($pid, $limit)
     " ORDER BY el.date DESC LIMIT 0, $limit";
     $r1 = sqlStatement($discQry, array($pid));
     $result2 = array();
-    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++)
+    for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {
         $result2[$iter] = $frow;
+    }
+
     return $result2;
 }
 ?>
@@ -70,7 +72,10 @@ if ($result != null) {
             echo "<b>";
             echo xlt('health care operations');
             echo "</b>";
-        } else echo "<b>".text($event[1])."</b>";
+        } else {
+            echo "<b>".text($event[1])."</b>";
+        }
+
             echo "</td>";
             echo "<td>".text($iter['user_fullname'])."</td>";
             echo "<td  valign='top'class='text'>";

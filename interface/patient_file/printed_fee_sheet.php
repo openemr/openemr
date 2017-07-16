@@ -32,25 +32,33 @@ function genColumn($ix)
             $html .= " <tr><td colspan='5' class='fscode' style='border-width:0 1px 0 0;padding-top:1px;' nowrap>&nbsp;</td></tr>\n";
         } else if ($cmd == '*G') {
             $title = htmlspecialchars($a[1]);
-            if (!$title)
+            if (!$title) {
                 $title = '&nbsp;';
+            }
+
             $html .= " <tr><td colspan='5' align='center' class='fsgroup' style='vertical-align:middle' nowrap>$title</td></tr>\n";
         } else if ($cmd == '*H') {
             $title = htmlspecialchars($a[1]);
-            if (!$title)
+            if (!$title) {
                 $title = '&nbsp;';
+            }
+
             $html .= " <tr><td colspan='5' class='fshead' style='vertical-align:middle' nowrap>$title</td></tr>\n";
         } else {
             $title = htmlspecialchars($a[1]);
-            if (!$title)
+            if (!$title) {
                 $title = '&nbsp;';
+            }
+
             $b = explode(':', $cmd);
             $html .= " <tr>\n";
             $html .= " <td class='fscode' style='vertical-align:middle;width:14pt' nowrap>&nbsp;</td>\n";
             if (count($b) <= 1) {
                 $code = $b[0];
-                if (!$code)
+                if (!$code) {
                     $code = '&nbsp;';
+                }
+
                 $html .= " <td class='fscode' style='vertical-align:middle' nowrap>$code</td>\n";
                 $html .= " <td colspan='3' class='fscode' style='vertical-align:middle' nowrap>$title</td>\n";
             } else {
@@ -98,8 +106,9 @@ if (!empty($_SESSION['pidList']) and $form_fill == 2) {
 // This file is optional. You can create it to customize how the printed
 // fee sheet looks, otherwise you'll get a mirror of your actual fee sheet.
 //
-if (file_exists("../../custom/fee_sheet_codes.php"))
+if (file_exists("../../custom/fee_sheet_codes.php")) {
     include_once("../../custom/fee_sheet_codes.php");
+}
 
 // TBD: Move these to globals.php, or make them user-specific.
 $fontsize = 7;
@@ -159,8 +168,10 @@ if (empty($SBCODES)) {
                 "ORDER BY d.name, dt.selector, dt.drug_id");
         while ($trow = sqlFetchArray($tres)) {
             $tmp = $trow['selector'];
-            if ($trow['name'] !== $trow['selector'])
+            if ($trow['name'] !== $trow['selector']) {
                 $tmp .= ' ' . $trow['name'];
+            }
+
             $prodcode = empty($trow['ndc_number']) ? ('(' . $trow['drug_id'] . ')') :
                     $trow['ndc_number'];
             $SBCODES[] = "$prodcode|$tmp";
@@ -170,7 +181,9 @@ if (empty($SBCODES)) {
     // Extra stuff for the labs section.
     $SBCODES[] = '*G|' . xl('Notes');
     $percol = intval((count($SBCODES) + 2) / 3);
-    while (count($SBCODES) < $percol * 3)$SBCODES[] = '*B|';
+    while (count($SBCODES) < $percol * 3) {
+        $SBCODES[] = '*B|';
+    }
 
     // Adjust lines per page to distribute lines evenly among the pages.
     $pages = intval(($percol + $lines_in_stats + $lines_per_page - 1) / $lines_per_page);
@@ -370,14 +383,16 @@ foreach ($pid_list as $pid) {
             $html .= xl('DOB', 'r');
             $html .= ":<br />";
 
-            if ($form_fill)
+            if ($form_fill) {
                 $html .= $patdata['DOB'];
+            }
 
             $html .= xl('ID', 'r');
             $html .= ":<br />";
 
-            if ($form_fill)
+            if ($form_fill) {
                 $html .= $patdata['pubpid'];
+            }
 
             $html .= "</td>
 </tr>
@@ -426,8 +441,10 @@ foreach ($pid_list as $pid) {
                             $icobj = new InsuranceCompany($row['provider']);
                             $adobj = $icobj->get_address();
                             $insco_name = trim($icobj->get_name());
-                            if ($instype != 'primary')
+                            if ($instype != 'primary') {
                                 $html .= ",";
+                            }
+
                             if ($insco_name) {
                                 $html .= "&nbsp;$insco_name";
                             } else {

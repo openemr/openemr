@@ -59,13 +59,30 @@ $facilityService = new \services\FacilityService();
 
 require_once("../../forms/".$form_folder."/php/".$form_folder."_functions.php");
 
-if ($_REQUEST['CHOICE']) $choice = $_REQUEST['choice'];
+if ($_REQUEST['CHOICE']) {
+    $choice = $_REQUEST['choice'];
+}
 
-if ($_REQUEST['ptid']) $pid = $_REQUEST['ptid'];
-if ($_REQUEST['encid']) $encounter=$_REQUEST['encid'];
-if ($_REQUEST['formid']) $form_id = $_REQUEST['formid'];
-if ($_REQUEST['formname']) $form_name=$_REQUEST['formname'];
-if (!$id) $id=$form_id;
+if ($_REQUEST['ptid']) {
+    $pid = $_REQUEST['ptid'];
+}
+
+if ($_REQUEST['encid']) {
+    $encounter=$_REQUEST['encid'];
+}
+
+if ($_REQUEST['formid']) {
+    $form_id = $_REQUEST['formid'];
+}
+
+if ($_REQUEST['formname']) {
+    $form_name=$_REQUEST['formname'];
+}
+
+if (!$id) {
+    $id=$form_id;
+}
+
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
@@ -238,7 +255,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
   </style>
   <div>
     <?php
-    if (($cols =='Fax')||($cols=='Report')) echo report_header($pid, 'PDF');
+    if (($cols =='Fax')||($cols=='Report')) {
+        echo report_header($pid, 'PDF');
+    }
+
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
         $facility = null;
@@ -399,8 +419,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if (($CHRONIC1)&&($cols != 'Fax')) { ?>
                           <b><?php echo xlt('Chronic or Inactive Problems'); ?>:</b> <br />
                           &nbsp;<?php echo text($CHRONIC1)."<br />";
-                            if ($CHRONIC2) echo "&nbsp;".$CHRONIC2."<br />";
-                            if ($CHRONIC3) echo "&nbsp;".$CHRONIC3."<br />";
+                            if ($CHRONIC2) {
+                                echo "&nbsp;".$CHRONIC2."<br />";
+                            }
+
+                            if ($CHRONIC3) {
+                                echo "&nbsp;".$CHRONIC3."<br />";
+                            }
                     } ?>
                 </div>
               </td>
@@ -466,7 +491,10 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
         <td style="width:680px;text-align:center;margin:1 auto;">
         <?php
         $PMSFH = build_PMSFH($pid);
-        if ($cols !='Fax') show_PMSFH_report($PMSFH);
+        if ($cols !='Fax') {
+            show_PMSFH_report($PMSFH);
+        }
+
         $count_rx = '0';
 
         $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? and ENCOUNTER=? ORDER BY RX_NUMBER";
@@ -607,9 +635,17 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
               <td style="text-align:center;text-decoration:underline;"><?php echo xlt('OS'); ?></td>
             </tr>
             <?php
-            if ($ODIOPAP||$OSIOPAP) echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('App{{Applanation abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPAP)."</td><td style='width:75px;text-align:center;'>".text($OSIOPAP)."</td></tr>";
-            if ($ODIOPTPN||$OSIOPTPN) echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('Tpn{{Tonopen abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPTPN)."</td><td style='width:75px;text-align:center;'>".text($OSIOPTPN)."</td></tr>";
-            if ($ODIOPFTN||$OSIOPFTN) echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('FTN{{Finger Tension abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPFTN)."</td><td style='width:75px;text-align:center;'>".text($OSIOPFTN)."</td></tr>";
+            if ($ODIOPAP||$OSIOPAP) {
+                echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('App{{Applanation abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPAP)."</td><td style='width:75px;text-align:center;'>".text($OSIOPAP)."</td></tr>";
+            }
+
+            if ($ODIOPTPN||$OSIOPTPN) {
+                echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('Tpn{{Tonopen abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPTPN)."</td><td style='width:75px;text-align:center;'>".text($OSIOPTPN)."</td></tr>";
+            }
+
+            if ($ODIOPFTN||$OSIOPFTN) {
+                echo "<tr><td style='text-align:right;padding-right:10px;'>".xlt('FTN{{Finger Tension abbreviation}}').":</td><td style='text-align:center;'>".text($ODIOPFTN)."</td><td style='width:75px;text-align:center;'>".text($OSIOPFTN)."</td></tr>";
+            }
             ?>
             <tr>
               <td colspan="3" style="text-align:center;">
@@ -626,21 +662,31 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 $ODzone = "ODVF".$z;
                 if ($$ODzone =='1') {
                     $ODVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                     if ($PDF_OUTPUT) $ODVF[$z] = 'X';
+                    if ($PDF_OUTPUT) {
+                        $ODVF[$z] = 'X';
+                    }
+
                     $bad++;
                 } else {
                     $ODVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                    if ($PDF_OUTPUT) $ODVF[$z] = 'O';
+                    if ($PDF_OUTPUT) {
+                        $ODVF[$z] = 'O';
+                    }
                 }
 
                 $OSzone = "OSVF".$z;
                 if ($$OSzone =="1") {
                     $OSVF[$z] = '<i class="fa fa-square fa-5">X</i>';
-                    if ($PDF_OUTPUT) $OSVF[$z] = 'X';
+                    if ($PDF_OUTPUT) {
+                        $OSVF[$z] = 'X';
+                    }
+
                     $bad++;
                 } else {
                     $OSVF[$z] = '<i class="fa fa-square-o fa-5"></i>';
-                    if ($PDF_OUTPUT) $OSVF[$z] = 'O';
+                    if ($PDF_OUTPUT) {
+                        $OSVF[$z] = 'O';
+                    }
                 }
             }
             ?>
@@ -883,8 +929,13 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
           <td class="report_vitals" style="border-right:0px;border-left:1pt solid black;">
             <b class="underline"><?php echo xlt('Amsler'); ?></b>
             <?php
-            if (!$AMSLEROD) $AMSLEROD= "0";
-            if (!$AMSLEROS) $AMSLEROS= "0";
+            if (!$AMSLEROD) {
+                $AMSLEROD= "0";
+            }
+
+            if (!$AMSLEROS) {
+                $AMSLEROS= "0";
+            }
             ?>
             <table style="font-size:1.0em;">
               <tr style="font-weight:bold;">
@@ -1915,7 +1966,10 @@ if ($ANTSEG_COMMENTS) { ?>
                     echo ($item['IMPPLAN_order'] +1).'. <b>'.text($item['title']).'</b><br />';
                     echo  '<div style="padding-left:15px;">';
                     $pattern = '/Code/';
-                    if (preg_match($pattern, $item['code']))  $item['code'] = '';
+                    if (preg_match($pattern, $item['code'])) {
+                        $item['code'] = '';
+                    }
+
                     if ($item['codetext'] > '') {
                         echo $item['codetext']."<br />";
                     } else {
@@ -2006,7 +2060,10 @@ function display_draw_image($zone, $encounter, $pid)
         $couch_revid = $d->get_couch_revid();
         $extension = substr($fname, strrpos($fname, "."));
         $notes = Note::notes_factory($d->get_id());
-        if (!empty($notes)) echo "<table>";
+        if (!empty($notes)) {
+            echo "<table>";
+        }
+
         foreach ($notes as $note) {
             echo '<tr>';
             echo '<td>' . xlt('Note') . ' #' . $note->get_id() . '</td>';
@@ -2019,7 +2076,9 @@ function display_draw_image($zone, $encounter, $pid)
             echo '</tr>';
         }
 
-        if (!empty($notes)) echo "</table>";
+        if (!empty($notes)) {
+            echo "</table>";
+        }
 
         $url_file = $d->get_url_filepath();
         if ($couch_docid && $couch_revid) {
@@ -2056,7 +2115,10 @@ function display_draw_image($zone, $encounter, $pid)
     } //else show base_image
     else {
         $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
-        if ($PDF_OUTPUT) $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+        if ($PDF_OUTPUT) {
+            $filetoshow = $GLOBALS["webroot"] ."/interface/forms/".$form_folder."/images/".$side."_".$zone."_BASE.jpg";
+        }
+
       // uncomment to show base image, no touch up by user.
       // echo "<img src='". $filetoshow."' style='width:220px;height:120px;'>";
     }

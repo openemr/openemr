@@ -215,7 +215,10 @@ if ($_POST['bn_save']) {
 }
 
 // Get the portal request data.
-if (!$postid) die(xlt('Request ID is missing!'));
+if (!$postid) {
+    die(xlt('Request ID is missing!'));
+}
+
 $result = cms_portal_call(array('action' => 'getpost', 'postid' => $postid));
 if ($result['errmsg']) {
     die(text($result['errmsg']));
@@ -303,10 +306,14 @@ foreach ($insurance_layout as $lorow) {
     $field_title = $lorow['title'];
 
     $currvalue  = '';
-    if (isset($insrow[$field_id])) $currvalue = $insrow[$field_id];
+    if (isset($insrow[$field_id])) {
+        $currvalue = $insrow[$field_id];
+    }
 
     $newvalue = '';
-    if (isset($result['fields'][$field_id])) $newvalue = trim($result['fields'][$field_id]);
+    if (isset($result['fields'][$field_id])) {
+        $newvalue = trim($result['fields'][$field_id]);
+    }
 
   // Translate $newvalue for certain field types including lists.
     if ($newvalue !== '') {
@@ -316,7 +323,9 @@ foreach ($insurance_layout as $lorow) {
                 "list_id = ? AND title = ? AND activity = 1 ORDER BY option_id LIMIT 1",
                 array($list_id, $newvalue)
             );
-            if (isset($tmp['option_id'])) $newvalue = $tmp['option_id'];
+            if (isset($tmp['option_id'])) {
+                $newvalue = $tmp['option_id'];
+            }
         }
 
         // Some data types like insurance provider are pretty hopeless, so let the display

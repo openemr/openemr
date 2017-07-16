@@ -695,8 +695,10 @@ if ($_POST["mode"] == "create_client_certificate") {
           <td><?php xl('Enable User Certificate Authentication', 'e'); ?>:</td>
           <td>
             <input name='isClientAuthenticationEnabled' type='radio' value='Yes'
-                <?php if ($GLOBALS['is_client_ssl_enabled']) echo "checked"; ?> > <?php xl('Yes', 'e'); ?>
-            <input name='isClientAuthenticationEnabled' type='radio' value='No'  <?php if (!$GLOBALS['is_client_ssl_enabled']) echo "checked"; ?> > <?php xl('No', 'e'); ?>
+                <?php if ($GLOBALS['is_client_ssl_enabled']) {
+                    echo "checked";} ?> > <?php xl('Yes', 'e'); ?>
+            <input name='isClientAuthenticationEnabled' type='radio' value='No'  <?php if (!$GLOBALS['is_client_ssl_enabled']) {
+                echo "checked";} ?> > <?php xl('No', 'e'); ?>
           </td>
         </tr>
         <tr><td>&nbsp;</td></tr>

@@ -50,7 +50,9 @@ define('C_USER', IS_PORTAL ?  IS_PORTAL : IS_DASHBOARD);
 if (isset($_REQUEST['fullscreen'])) {
     $_SESSION['whereto'] = 'messagespanel';
     define('IS_FULLSCREEN', true);
-} else define('IS_FULLSCREEN', false);
+} else {
+    define('IS_FULLSCREEN', false);
+}
 
 define('CHAT_HISTORY', '150');
 define('CHAT_ONLINE_RANGE', '1');
@@ -292,11 +294,16 @@ class Model extends SMA_Common\Model
         while ($row = sqlFetchArray($response)) {
             if (IS_PORTAL) {
                 $u = json_decode($row['recip_id'], true);
-                if (!is_array($u)) continue;
+                if (!is_array($u)) {
+                    continue;
+                }
+
                 if ((in_array(C_USER, $u)) || $row['sender_id'] == C_USER) {
                      $result[] = $row; // only current patient messages
                 }
-            } else $result[] = $row; // admin gets all
+            } else {
+                $result[] = $row; // admin gets all
+            }
         }
 
         return $result;
@@ -389,9 +396,11 @@ class Controller extends SMA_Common\Controller
         $this->setCookie('username', $username, 9999 * 9999);
         $recipid = $this->getPost('recip_id');
 
-        if (IS_PORTAL)
+        if (IS_PORTAL) {
             $senderid = IS_PORTAL;
-        else $senderid = IS_DASHBOARD;
+        } else {
+            $senderid = IS_DASHBOARD;
+        }
 
         $result = array('success' => false);
         if ($username && $message) {
@@ -455,9 +464,12 @@ class Controller extends SMA_Common\Controller
             return json_encode($onlines);
         }
 
-        if (IS_PORTAL)
+        if (IS_PORTAL) {
             $userid = IS_PORTAL;
-        else $userid = IS_DASHBOARD;
+        } else {
+            $userid = IS_DASHBOARD;
+        }
+
         $this->getModel()->updateOnline($hash, $ip, $user, $userid);
         $this->getModel()->clearOffline();
        // $this->getModel()->removeOldMessages(); // @todo For soft delete when I decide. DO NOT REMOVE

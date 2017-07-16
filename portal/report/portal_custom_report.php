@@ -112,7 +112,10 @@ function getContent()
     $wsrlen = strlen($webserver_root);
     while (true) {
         $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) break;
+        if ($i === false) {
+            break;
+        }
+
         if (substr($content, $i+6, $wrlen) === $web_root &&
         substr($content, $i+6, $wsrlen) !== $webserver_root) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
@@ -608,15 +611,19 @@ $inclookupres = sqlStatement("select distinct formdir from forms where pid = '$p
 while ($result = sqlFetchArray($inclookupres)) {
   // include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
     $formdir = $result['formdir'];
-    if (substr($formdir, 0, 3) == 'LBF')
-    include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
-    else include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+    if (substr($formdir, 0, 3) == 'LBF') {
+        include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+    } else {
+        include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+    }
 }
 
 // For each form field from patient_report.php...
 //
 foreach ($ar as $key => $val) {
-    if ($key == 'pdf') continue;
+    if ($key == 'pdf') {
+        continue;
+    }
 
     // These are the top checkboxes (demographics, allergies, etc.).
     //
@@ -790,7 +797,10 @@ foreach ($ar as $key => $val) {
             echo "<div class='text documents'>";
             foreach ($val as $valkey => $valvalue) {
                 $document_id = $valvalue;
-                if (!is_numeric($document_id)) continue;
+                if (!is_numeric($document_id)) {
+                    continue;
+                }
+
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $couch_docid = $d->get_couch_docid();
@@ -799,7 +809,10 @@ foreach ($ar as $key => $val) {
                 echo "<h1>" . xl('Document') . " '" . $fname ."'</h1>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
-                if (!empty($notes)) echo "<table>";
+                if (!empty($notes)) {
+                    echo "<table>";
+                }
+
                 foreach ($notes as $note) {
                     echo '<tr>';
                     echo '<td>' . xl('Note') . ' #' . $note->get_id() . '</td>';
@@ -812,7 +825,9 @@ foreach ($ar as $key => $val) {
                     echo '</tr>';
                 }
 
-                if (!empty($notes)) echo "</table>";
+                if (!empty($notes)) {
+                    echo "</table>";
+                }
 
                 $url_file = $d->get_url_filepath();
                 if ($couch_docid && $couch_revid) {
@@ -847,7 +862,10 @@ foreach ($ar as $key => $val) {
                         echo "<img src='$from_rel'";
                         // Flag images with excessive width for possible stylesheet action.
                         $asize = getimagesize($from_file);
-                        if ($asize[0] > 750) echo " class='bigimage'";
+                        if ($asize[0] > 750) {
+                            echo " class='bigimage'";
+                        }
+
                         echo " /><br><br>";
                     } else {
                         echo "<img src='" . $GLOBALS['webroot'] .
@@ -876,7 +894,10 @@ foreach ($ar as $key => $val) {
                                 ob_start();
                                 echo "<div><div class='text documents'>\n";
                     } else {
-                                if (! is_file($to_file)) exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
+                        if (! is_file($to_file)) {
+                            exec("convert -density 200 \"$from_file\" -append -resize 850 \"$to_file\"");
+                        }
+
                         if (is_file($to_file)) {
                             if ($PDF_OUTPUT) {
                                 // OK to link to the image file because it will be accessed by the
@@ -1002,9 +1023,11 @@ foreach ($ar as $key => $val) {
                 ?>
                 <div name="search_div" id="search_div_<?php echo attr($form_id)?>_<?php echo attr($res[1])?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                 <?php
-                if (substr($res[1], 0, 3) == 'LBF')
-                  call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
-                else call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                if (substr($res[1], 0, 3) == 'LBF') {
+                    call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                } else {
+                    call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                }
 
                 $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
                 if ($esign->isLogViewable("report")) {
@@ -1040,8 +1063,9 @@ foreach ($ar as $key => $val) {
     } // end if('include_')... else...
 } // end $ar loop
 
-if ($printable)
-  echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
+if ($printable) {
+    echo "<br /><br />" . xl('Signature') . ": _______________________________<br />";
+}
 ?>
 
 </div> <!-- end of report_custom DIV -->
@@ -1069,7 +1093,10 @@ if ($PDF_OUTPUT) {
         'mimetype' => 'application/pdf',
         'contents' => base64_encode($contents),
         ));
-        if ($result['errmsg']) die(text($result['errmsg']));
+        if ($result['errmsg']) {
+            die(text($result['errmsg']));
+        }
+
         echo "<p>" . xlt('Report has been sent to the patient.') . "</p>\n";
         echo "</body></html>\n";
     }

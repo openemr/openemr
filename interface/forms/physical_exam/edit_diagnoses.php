@@ -12,7 +12,9 @@
  $line_id = $_REQUEST['lineid'];
  $info_msg = "";
 
- if ($issue && !acl_check('patients', 'med', '', 'write')) die("Edit is not authorized!");
+if ($issue && !acl_check('patients', 'med', '', 'write')) {
+    die("Edit is not authorized!");
+}
 ?>
 <html>
 <head>
@@ -51,7 +53,10 @@ if ($_POST['form_save']) {
   // Close this window and redisplay the updated encounter form.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " window.close();\n";
   // echo " opener.location.reload();\n";
     echo " if (opener.refreshme) opener.refreshme();\n";

@@ -76,8 +76,9 @@ class VerySimpleXmlUtil
     {
         if (! $xml) {
             $xml = $emptyVal;
-            if (! $xml)
+            if (! $xml) {
                 throw new Exception('Empty string could not be parsed as XML');
+            }
         }
         
         // re-route error handling temporarily so we can convert PHP errors to an exception
@@ -165,8 +166,9 @@ class VerySimpleXmlUtil
         
         if (! $xmlstring) {
             $xmlstring = $emptyVal;
-            if (! $xmlstring)
+            if (! $xmlstring) {
                 throw new Exception('Empty string could not be parsed as XML');
+            }
         }
         
         $xml = VerySimpleXmlUtil::SafeParse($xmlstring);

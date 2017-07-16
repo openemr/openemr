@@ -370,8 +370,10 @@ abstract class Controller
         if ($this->CaptureOutputMode) {
             $this->DebugOutput .= $text;
         } else {
-            if ($contentType)
+            if ($contentType) {
                 header("Content-type: " . $contentType);
+            }
+
             print $text;
         }
     }
@@ -448,8 +450,9 @@ abstract class Controller
     {
         require_once("verysimple/String/VerySimpleStringUtil.php");
         
-        if (! is_array($supressProps))
+        if (! is_array($supressProps)) {
             $supressProps = array ();
+        }
             
             // never include these props
         $suppressProps [] = "NoCache";
@@ -738,8 +741,9 @@ abstract class Controller
                     throw new Exception("The class definition used for authentication '$name' must be defined (included) before the session is started, for example in _app_config.php.");
                 } else {
                     // refresh the current user if the object supports it
-                    if (method_exists($this->_cu, 'Refresh'))
+                    if (method_exists($this->_cu, 'Refresh')) {
                         $this->_cu->Refresh($this->Phreezer);
+                    }
                 }
             }
         } else {
@@ -822,11 +826,13 @@ abstract class Controller
     {
         $isSmarty = (strpos(get_class($this->RenderEngine), "Smarty") > - 1);
         
-        if ($isSmarty && $format == null)
+        if ($isSmarty && $format == null) {
             $format = self::$SmartyViewPrefix;
+        }
         
-        if ($format == null)
+        if ($format == null) {
             $format = '';
+        }
         
         if ($view == "") {
             // automatic binding
@@ -882,8 +888,9 @@ abstract class Controller
             $obj = $var;
         }
         
-        if ($forceUTF8 == 1)
+        if ($forceUTF8 == 1) {
             $this->UTF8Encode($obj);
+        }
         
         try {
             $output = json_encode($obj);
@@ -902,8 +909,9 @@ abstract class Controller
             }
         }
         
-        if ($callback)
+        if ($callback) {
             $output = "$callback(" . $output . ")";
+        }
             
             // capture output instead of rendering if specified
         if ($this->CaptureOutputMode) {
@@ -945,8 +953,9 @@ abstract class Controller
      */
     protected function Redirect($action, $feedback = null, $params = "", $mode = "")
     {
-        if (! $mode)
+        if (! $mode) {
             $mode = self::$DefaultRedirectMode;
+        }
         
         $params = is_array($params) ? $params : array ();
         
@@ -977,8 +986,9 @@ abstract class Controller
         }
         
         // don't exit if we are unit testing because it will stop all further tests
-        if (! $this->UnitTestMode)
+        if (! $this->UnitTestMode) {
             exit();
+        }
     }
     
     /**

@@ -32,7 +32,9 @@
 
  require_once(dirname(__FILE__).'/library/acl.inc');
 
- if (! $phpgacl_location) die("You must first set up library/acl.inc to use phpGACL!");
+if (! $phpgacl_location) {
+    die("You must first set up library/acl.inc to use phpGACL!");
+}
 
  require_once("$phpgacl_location/gacl_api.class.php");
 

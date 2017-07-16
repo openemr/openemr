@@ -738,10 +738,11 @@ function checkEventCollision($edata)
     $sdate = ($event_startmonth.'/'.$event_startday.'/'.$event_startyear);
     $edate = $sdate;
     //hour from forms is 12 not 24 format, convert here
-    if ($event_startampm == 2 && $event_starttimeh != 12)
-      $event_starttimeh += 12;
-    elseif ($event_startampm == 1 && $event_starttimeh == 12)
-      $event_starttimeh -= 12;
+    if ($event_startampm == 2 && $event_starttimeh != 12) {
+        $event_starttimeh += 12;
+    } elseif ($event_startampm == 1 && $event_starttimeh == 12) {
+        $event_starttimeh -= 12;
+    }
 
     $stime = date("H:i:00", strtotime($event_starttimeh.':'.$event_starttimem.':00'));
     $etime = date("H:i:00", $event_duration + strtotime($stime));
@@ -794,8 +795,9 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     $end = '0000-00-00';
     extract($args);
     $eventstatus = 1;
-    if (is_numeric($event_status))
-    $eventstatus = $event_status;
+    if (is_numeric($event_status)) {
+        $eventstatus = $event_status;
+    }
 
     if (!isset($start)) {
         $start = Date_Calc::dateNow('%Y-%m-%d'); }
@@ -832,26 +834,47 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //======================================================================
   //  START SEARCH FUNCTIONALITY
   //======================================================================
-    if (!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
-    if (!empty($s_category)) $sql .= "AND ($s_category) ";
-    if (!empty($s_topic))  $sql .= "AND ($s_topic) ";
+    if (!empty($s_keywords)) {
+        $sql .= "AND ($s_keywords) ";
+    }
+
+    if (!empty($s_category)) {
+        $sql .= "AND ($s_category) ";
+    }
+
+    if (!empty($s_topic)) {
+        $sql .= "AND ($s_topic) ";
+    }
+
     if (!empty($collide_etime) && !empty($collide_stime)) {
         $sql .= "AND NOT ((pc_endTime <= '$collide_stime') OR (pc_startTime >= '$collide_etime')) AND pc_endTime IS NOT NULL ";
     }
 
-    if (!empty($category)) $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
-    if (!empty($topic))        $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+    if (!empty($category)) {
+        $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
+    }
+
+    if (!empty($topic)) {
+        $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+    }
+
   //======================================================================
   //  Search sort and limitation
   //======================================================================
-    if (empty($sort)) $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_startTime ASC";
-    else $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+    if (empty($sort)) {
+        $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_startTime ASC";
+    } else {
+        $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+    }
+
   //======================================================================
   //  END SEARCH FUNCTIONALITY
   //======================================================================
   //echo "<Br />sql: $sql<br />";
     $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) die($dbconn->ErrorMsg());
+    if ($dbconn->ErrorNo() != 0) {
+        die($dbconn->ErrorMsg());
+    }
 
   // put the information into an array for easy access
     $events = array();
@@ -937,8 +960,10 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $events[$i]['prefcatid']   = $tmp['prefcatid'];
         $events[$i]['aid']         = $tmp['aid'];
         $events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
-        if ($events[$i]['intervals'] == 0)
-        $events[$i]['intervals'] = 1;
+        if ($events[$i]['intervals'] == 0) {
+            $events[$i]['intervals'] = 1;
+        }
+
         // is this a public event to be shown as busy?
         if ($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
               // make it not display any information
@@ -1128,17 +1153,34 @@ function &postcalendar_userapi_pcQueryEvents($args)
   //======================================================================
   //  START SEARCH FUNCTIONALITY
   //======================================================================
-    if (!empty($s_keywords)) $sql .= "AND ($s_keywords) ";
-    if (!empty($s_category)) $sql .= "AND ($s_category) ";
-    if (!empty($s_topic))    $sql .= "AND ($s_topic) ";
-    if (!empty($category))   $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
-    if (!empty($topic))      $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+    if (!empty($s_keywords)) {
+        $sql .= "AND ($s_keywords) ";
+    }
+
+    if (!empty($s_category)) {
+        $sql .= "AND ($s_category) ";
+    }
+
+    if (!empty($s_topic)) {
+        $sql .= "AND ($s_topic) ";
+    }
+
+    if (!empty($category)) {
+        $sql .= "AND (a.pc_catid = '".pnVarPrepForStore($category)."') ";
+    }
+
+    if (!empty($topic)) {
+        $sql .= "AND (a.pc_topic = '".pnVarPrepForStore($topic)."') ";
+    }
 
   //======================================================================
   //  Search sort and limitation
   //======================================================================
-    if (empty($sort)) $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_time DESC";
-    else $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+    if (empty($sort)) {
+        $sql .= "GROUP BY a.pc_eid ORDER BY a.pc_time DESC";
+    } else {
+        $sql .= "GROUP BY a.pc_eid ORDER BY a.$sort";
+    }
 
   //======================================================================
   //  END SEARCH FUNCTIONALITY
@@ -1148,7 +1190,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
     $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) die($dbconn->ErrorMsg());
+    if ($dbconn->ErrorNo() != 0) {
+        die($dbconn->ErrorMsg());
+    }
 
   // put the information into an array for easy access
     $events = array();
@@ -1237,8 +1281,10 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $events[$i]['aid']         = $tmp['aid'];
         $events[$i]['topictext']   = $topicname;
         $events[$i]['intervals']   = ceil(($tmp['duration']/60) / $GLOBALS['calendar_interval']);
-        if ($events[$i]['intervals'] == 0)
-        $events[$i]['intervals'] = 1;
+        if ($events[$i]['intervals'] == 0) {
+            $events[$i]['intervals'] = 1;
+        }
+
         // is this a public event to be shown as busy?
         if ($tmp['sharing'] == SHARING_BUSY && $cuserid != $userid) {
               // make it not display any information
@@ -1313,8 +1359,10 @@ function getBlockTime($time)
     $half = 0;
     $minutes = date("i", $ts);
     $hour = date("H", $ts);
-    if ($minutes >= 30)
+    if ($minutes >= 30) {
         $half = 1;
+    }
+
     $blocknum = (($hour * 2) +$half);
     return strval($blocknum);
 }
@@ -1371,7 +1419,10 @@ function &postcalendar_userapi_pcGetEvents($args)
         $a = array('listappsFlag' => true,'start'=>$start_date,'end'=>$end_date, 'patient_id' => $patient_id, 's_keywords' => $s_keywords);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     } else if (!isset($events)) {
-        if (!isset($s_keywords)) $s_keywords = '';
+        if (!isset($s_keywords)) {
+            $s_keywords = '';
+        }
+
         $a = array('start'=>$start_date,'end'=>$end_date,'s_keywords'=>$s_keywords,'s_category'=>$s_category,'s_topic'=>$s_topic,'viewtype'=>$viewtype, "sort" => "pc_startTime ASC, a.pc_duration ASC ",'providerID' => $providerID, 'provider_id' => $provider_id);
         $events = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pcQueryEvents', $a);
     }
@@ -1421,12 +1472,20 @@ function calculateEvents($days, $events, $viewtype)
 
   // Optimization of the stop date to not be much later than required.
     $tmpsecs = strtotime($start_date);
-    if ($viewtype == 'day')   $tmpsecs +=  3 * 24 * 3600;
-    else if ($viewtype == 'week')  $tmpsecs +=  9 * 24 * 3600;
-    else if ($viewtype == 'month') {
-        if ($day_number > 35) $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
-        else $tmpsecs = strtotime("+34 days", $tmpsecs);
-    } else $tmpsecs += 367 * 24 * 3600;
+    if ($viewtype == 'day') {
+        $tmpsecs +=  3 * 24 * 3600;
+    } else if ($viewtype == 'week') {
+        $tmpsecs +=  9 * 24 * 3600;
+    } else if ($viewtype == 'month') {
+        if ($day_number > 35) {
+            $tmpsecs = strtotime("+41 days", $tmpsecs); // Added for 6th row by epsdky 2017
+        } else {
+            $tmpsecs = strtotime("+34 days", $tmpsecs);
+        }
+    } else {
+        $tmpsecs += 367 * 24 * 3600;
+    }
+
     $last_date = date('Y-m-d', $tmpsecs);
 
     foreach ($events as $event) {
@@ -1467,8 +1526,11 @@ function calculateEvents($days, $events, $viewtype)
             case REPEAT_DAYS:
 
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) $stop = $event['endDate'];
-                else $stop = $last_date;
+                if ($last_date > $event['endDate']) {
+                    $stop = $event['endDate'];
+                } else {
+                    $stop = $last_date;
+                }
 
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
@@ -1503,7 +1565,9 @@ function calculateEvents($days, $events, $viewtype)
                         }
 
                         // push event into the days array
-                        if ($excluded == false) array_push($days[$occurance], $event);
+                        if ($excluded == false) {
+                            array_push($days[$occurance], $event);
+                        }
 
                         if ($viewtype == "week") {
                             fillBlocks($occurance, $days);
@@ -1530,8 +1594,11 @@ function calculateEvents($days, $events, $viewtype)
             case REPEAT_ON :
 
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
-                if ($last_date > $event['endDate']) $stop = $event['endDate'];
-                else $stop = $last_date;
+                if ($last_date > $event['endDate']) {
+                    $stop = $event['endDate'];
+                } else {
+                    $stop = $last_date;
+                }
 
                 list($esY,$esM,$esD) = explode('-', $event['eventDate']);
                 $event_recurrspec = @unserialize($event['recurrspec']);
@@ -1548,7 +1615,10 @@ function calculateEvents($days, $events, $viewtype)
                 $ny = $esY;
                 $nd = $esD;
 
-                if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) $nd = 1; // Added by epsdky 2016.
+                if (isset($event_recurrspec['rt2_pf_flag']) && $event_recurrspec['rt2_pf_flag']) {
+                    $nd = 1; // Added by epsdky 2016.
+                }
+
                 // $nd will sometimes be 29, 30 or 31 and if used in the mktime functions
                 // below a problem with overfow will occur so it is set to 1 to prevent this.
                 // (for rt2 appointments set prior to fix it remains unchanged). This can be done
@@ -1581,7 +1651,9 @@ function calculateEvents($days, $events, $viewtype)
                         }
 
                         // push event into the days array
-                        if ($excluded == false) array_push($days[$occurance], $event);
+                        if ($excluded == false) {
+                            array_push($days[$occurance], $event);
+                        }
 
                         if ($viewtype == "week") {
                             fillBlocks($occurance, $days);
@@ -1604,8 +1676,10 @@ function fillBlocks($td, $ar)
 {
     if (strlen($td) > 0 && !isset($ar[$td]['blocks'])) {
             $ar[$td]['blocks'] = array();
-            for ($j=0; $j<48; $j++)
-                $ar[strval($td)]['blocks'][strval($j)] = array();
+        for ($j=0; $j<48; $j++) {
+            $ar[strval($td)]['blocks'][strval($j)] = array();
+        }
+
             $ar[strval($td)]['blocks']["all_day"] = array();
     }
 }

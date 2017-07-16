@@ -68,7 +68,10 @@ function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $pa
     $cd->manual_set_owner=$owner;
     $cd->upload_action_process();
     $v = $cd->get_template_vars("file");
-    if (!isset($v) || !$v) return false;
+    if (!isset($v) || !$v) {
+        return false;
+    }
+
     return array ("doc_id" => $v[0]->id, "url" => $v[0]->url);
 }
 
@@ -96,7 +99,10 @@ function document_category_to_id($category_title)
  */
 function get_extension($imagetype)
 {
-    if (empty($imagetype)) return false;
+    if (empty($imagetype)) {
+        return false;
+    }
+
     switch ($imagetype) {
         case 'application/andrew-inset': return '.ez';
         case 'application/mac-binhex40': return '.hqx';

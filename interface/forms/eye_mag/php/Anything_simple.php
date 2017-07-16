@@ -318,12 +318,26 @@
                             <?php
                             $i='0';
                             foreach ($documents['zones'] as $zone) {
-                                if ($zone[0]['value'] == "DRAW") continue; //for now DRAW is under OTHER...
+                                if ($zone[0]['value'] == "DRAW") {
+                                    continue; //for now DRAW is under OTHER...
+                                }
+
                                 //menu friendly names:
-                                if ($zone[0]['value'] == "EXT") $name = xl("External");
-                                if ($zone[0]['value'] == "ANTSEG") $name = xl("Anterior Segment");
-                                if ($zone[0]['value'] == "POSTSEG") $name = xl("Posterior Segment");
-                                if ($zone[0]['value'] == "NEURO") $name = xl("Neuro-physiology");
+                                if ($zone[0]['value'] == "EXT") {
+                                    $name = xl("External");
+                                }
+
+                                if ($zone[0]['value'] == "ANTSEG") {
+                                    $name = xl("Anterior Segment");
+                                }
+
+                                if ($zone[0]['value'] == "POSTSEG") {
+                                    $name = xl("Posterior Segment");
+                                }
+
+                                if ($zone[0]['value'] == "NEURO") {
+                                    $name = xl("Neuro-physiology");
+                                }
 
                                 $class = "git";
                                 if ($category_id == $zone[0]['id']) {
@@ -538,7 +552,10 @@
         $i='0';
         if ($category_id) {
             $counter = count($documents['docs_in_cat_id'][$category_id]) -10;
-            if ($counter <0) $counter ='0';
+            if ($counter <0) {
+                $counter ='0';
+            }
+
             for ($i=$counter; $i < count($documents['docs_in_cat_id'][$category_id]); $i++) {
                 echo '
 				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_cat_id'][$category_id][$i][id]).'&amp;as_file=false" frameborder="0"
@@ -547,7 +564,10 @@
             }
         } else {
             $counter = count($documents['docs_in_zone'][$category_id]) -10;
-            if ($counter <0) $counter ='0';
+            if ($counter <0) {
+                $counter ='0';
+            }
+
             for ($i=$counter; $i < count($documents['docs_in_zone'][$category_name]); $i++) {
                 echo '
 				<object><embed src="'.$GLOBALS['webroot'].'/controller.php?document&amp;retrieve&amp;patient_id='.$pid.'&amp;document_id='.attr($documents['docs_in_zone'][$category_name][$i][id]).'&amp;as_file=false" frameborder="0"

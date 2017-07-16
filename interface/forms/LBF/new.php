@@ -104,9 +104,17 @@ $formhistory = 0 + $tmp['option_value'];
 
 // Extract parameters from this form's list item entry.
 $jobj = json_decode($tmp['notes'], true);
-if (!empty($jobj['columns'])) $CPR = intval($jobj['columns']);
-if (!empty($jobj['issue'  ])) $LBF_ISSUE_TYPE = $jobj['issue'];
-if (!empty($jobj['aco'    ])) $LBF_ACO = explode('|', $jobj['aco']);
+if (!empty($jobj['columns'])) {
+    $CPR = intval($jobj['columns']);
+}
+
+if (!empty($jobj['issue'  ])) {
+    $LBF_ISSUE_TYPE = $jobj['issue'];
+}
+
+if (!empty($jobj['aco'    ])) {
+    $LBF_ACO = explode('|', $jobj['aco']);
+}
 
 // Check access control.
 if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
@@ -119,7 +127,9 @@ if (!acl_check('admin', 'super') && !empty($LBF_ACO)) {
 
 if (empty($is_lbf)) {
     $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
-    if (file_exists($fname)) include_once($fname);
+    if (file_exists($fname)) {
+        include_once($fname);
+    }
 }
 
 // If Save was clicked, save the info.
@@ -229,7 +239,9 @@ if ($_POST['bn_save']) {
 
   // Support custom behavior at save time, such as going to another form.
     if (function_exists($formname . '_save_exit')) {
-        if (call_user_func($formname . '_save_exit')) exit;
+        if (call_user_func($formname . '_save_exit')) {
+            exit;
+        }
     }
 
     formHeader("Redirecting....");
@@ -407,7 +419,8 @@ function validate(f) {
  return true;
 }
 
-<?php if (function_exists($formname . '_javascript')) call_user_func($formname . '_javascript'); ?>
+<?php if (function_exists($formname . '_javascript')) {
+    call_user_func($formname . '_javascript');} ?>
 
 </script>
 </head>
@@ -482,28 +495,38 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
       $source       = $frow['source'];
 
       $graphable  = strpos($edit_options, 'G') !== false;
-      if ($graphable) $form_is_graphable = true;
+      if ($graphable) {
+          $form_is_graphable = true;
+        }
 
     // Accumulate skip conditions into a JavaScript string literal.
-      $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
-      foreach ($conditions as $condition) {
-          if (empty($condition['id'])) continue;
-          $andor = empty($condition['andor']) ? '' : $condition['andor'];
-          if ($condition_str) $condition_str .= ",\n";
-          $condition_str .= "{" .
-          "target:'"   . addslashes($field_id)              . "', " .
-          "id:'"       . addslashes($condition['id'])       . "', " .
-          "itemid:'"   . addslashes($condition['itemid'])   . "', " .
-          "operator:'" . addslashes($condition['operator']) . "', " .
-          "value:'"    . addslashes($condition['value'])    . "', " .
-          "andor:'"    . addslashes($andor)                 . "'}";
+        $conditions = empty($frow['conditions']) ? array() : unserialize($frow['conditions']);
+        foreach ($conditions as $condition) {
+            if (empty($condition['id'])) {
+                continue;
+            }
+
+            $andor = empty($condition['andor']) ? '' : $condition['andor'];
+            if ($condition_str) {
+                $condition_str .= ",\n";
+            }
+
+            $condition_str .= "{" .
+            "target:'"   . addslashes($field_id)              . "', " .
+            "id:'"       . addslashes($condition['id'])       . "', " .
+            "itemid:'"   . addslashes($condition['itemid'])   . "', " .
+            "operator:'" . addslashes($condition['operator']) . "', " .
+            "value:'"    . addslashes($condition['value'])    . "', " .
+            "andor:'"    . addslashes($andor)                 . "'}";
         }
 
         $currvalue  = '';
 
         if ($frow['edit_options'] == 'H') {
               // This data comes from static history
-              if (isset($shrow[$field_id])) $currvalue = $shrow[$field_id];
+            if (isset($shrow[$field_id])) {
+                $currvalue = $shrow[$field_id];
+            }
         } else {
             if (!$formid && $portalres) {
                 // Copying CMS Portal form data into this field if appropriate.
@@ -514,7 +537,10 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                 $currvalue = lbf_current_value($frow, $formid, $is_lbf ? 0 : $encounter);
             }
 
-              if ($currvalue === false) continue; // column does not exist, should not happen
+            if ($currvalue === false) {
+                continue; // column does not exist, should not happen
+            }
+
               // Handle "P" edit option to default to the previous value of a form field.
             if (!$is_lbf && empty($currvalue) && strpos($edit_options, 'P') !== false) {
                 if ($source == 'F' && !$formid) {
@@ -543,7 +569,9 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                         "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
                         array($field_id, $pid, $encounter)
                     );
-                    if (isset($tmp['field_value'])) $currvalue = $tmp['field_value'];
+                    if (isset($tmp['field_value'])) {
+                        $currvalue = $tmp['field_value'];
+                    }
                 }
             } // End "P" option logic.
         }
@@ -560,7 +588,10 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
                 echo "<div id='outerdiv_" . attr($group_seq) . "'>\n";
                 echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
                 "onclick='return divclick(this,\"div_" . attr(addslashes($group_seq)) . "\");'";
-                if ($display_style == 'block') echo " checked";
+                if ($display_style == 'block') {
+                    echo " checked";
+                }
+
                 echo " /><b>" . text(xl_layout_label($group_name)) . "</b></span>\n";
                 echo "<div id='div_" . attr($group_seq) . "' class='section' style='display:" . attr($display_style) . ";'>\n";
             }
@@ -614,7 +645,9 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
             }
         }
 
-        if ($item_count == 0 && $titlecols == 0) $titlecols = 1;
+        if ($item_count == 0 && $titlecols == 0) {
+            $titlecols = 1;
+        }
 
     // First item is on the "left-border"
         $leftborder = true;
@@ -625,9 +658,15 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
               echo "<td valign='top' colspan='" . attr($titlecols) . "' nowrap";
               echo " class='";
               echo ($frow['uor'] == 2) ? "required" : "bold";
-              if ($graphable) echo " graph";
+            if ($graphable) {
+                echo " graph";
+            }
+
               echo "'";
-              if ($cell_count == 2) echo " style='padding-left:10pt'";
+            if ($cell_count == 2) {
+                echo " style='padding-left:10pt'";
+            }
+
               // This ID is used by skip conditions and also show_graph().
               echo " id='label_id_" . attr($field_id) . "'";
               echo ">";
@@ -642,8 +681,12 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
         ++$item_count;
 
         echo "<b>";
-        if ($frow['title']) echo text(xl_layout_label($frow['title']) . ":");
-        else echo "&nbsp;";
+        if ($frow['title']) {
+            echo text(xl_layout_label($frow['title']) . ":");
+        } else {
+            echo "&nbsp;";
+        }
+
         echo "</b>";
 
     // Note the labels are not repeated in the history columns.
@@ -654,7 +697,10 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
               echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
               // This ID is used by skip conditions.
               echo " id='value_id_" . attr($field_id) . "'";
-              if ($cell_count > 0) echo " style='padding-left:5pt'";
+            if ($cell_count > 0) {
+                echo " style='padding-left:5pt'";
+            }
+
               echo ">";
 
             foreach ($historical_ids as $key => $dummy) {
@@ -668,9 +714,11 @@ if ($GLOBALS['gbl_portal_cms_enable'] && $portalid) {
 
     // Skip current-value fields for the display-only case.
         if (empty($is_lbf)) {
-              if ($frow['edit_options'] == 'H')
-            echo generate_display_field($frow, $currvalue);
-            else generate_form_field($frow, $currvalue);
+            if ($frow['edit_options'] == 'H') {
+                echo generate_display_field($frow, $currvalue);
+            } else {
+                generate_form_field($frow, $currvalue);
+            }
         }
 
     // Append to historical data of other dates for this item.

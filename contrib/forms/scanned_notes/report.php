@@ -45,7 +45,9 @@ function scanned_notes_report($pid, $useless_encounter, $cols, $id)
                 echo " />\n";
                 echo " <br />\n";
             } else {
-                if ($i >= 0) break;
+                if ($i >= 0) {
+                    break;
+                }
             }
         }
     }

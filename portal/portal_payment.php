@@ -134,11 +134,20 @@ function decorateString($fmt, $str)
 function calcTaxes($row, $amount)
 {
     $total = 0;
-    if (empty($row['taxrates'])) return $total;
+    if (empty($row['taxrates'])) {
+        return $total;
+    }
+
     $arates = explode(':', $row['taxrates']);
-    if (empty($arates)) return $total;
+    if (empty($arates)) {
+        return $total;
+    }
+
     foreach ($arates as $value) {
-        if (empty($value)) continue;
+        if (empty($value)) {
+            continue;
+        }
+
         $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", array ($value
         ));
         if (empty($trow['option_value'])) {
@@ -907,7 +916,10 @@ function getAuth(){
     $query1112 = "SELECT * FROM list_options where list_id=?  ORDER BY seq, title ";
     $bres1112 = sqlStatement($query1112, array ('payment_method'));
     while ($brow1112 = sqlFetchArray($bres1112)) {
-        if ($brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') continue;
+        if ($brow1112['option_id'] != 'credit_card' || $brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
+            continue;
+        }
+
         echo "<option value='" . htmlspecialchars($brow1112['option_id'], ENT_QUOTES) . "'>" . htmlspecialchars(xl_list_label($brow1112['title']), ENT_QUOTES) . "</option>";
     }
     ?>
@@ -924,8 +936,9 @@ function getAuth(){
   </td>
                 <td colspan='2'>
     <?php
-    if (isset($_SESSION['authUserID']))
+    if (isset($_SESSION['authUserID'])) {
         echo "<input type='text'  id='check_number' name='form_source' style='width:120px;' value='" . htmlspecialchars($payrow['source'], ENT_QUOTES) . "'>";
+    }
     ?>
   </td>
             </tr>
@@ -1166,9 +1179,11 @@ foreach ($encs as $key => $value) {
 if (isset($ccdata["name"])) {
     echo '<div class="col-xs-12 col-md-4 col-lg-4">
         <div class="panel panel-default height">';
-    if (! isset($_SESSION['authUserID']))
-    echo '<div class="panel-heading">'.xlt("Payment Information").'<span style="color:#cc0000"><em> '.xlt("Pending Auth since").': </em>'.text($edata["date"]).'</span></div>';
-    else echo '<div class="panel-heading">'.xlt("Payment Information").' <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">'.xlt("Authorize").'</button></div>';
+    if (! isset($_SESSION['authUserID'])) {
+        echo '<div class="panel-heading">'.xlt("Payment Information").'<span style="color:#cc0000"><em> '.xlt("Pending Auth since").': </em>'.text($edata["date"]).'</span></div>';
+    } else {
+        echo '<div class="panel-heading">'.xlt("Payment Information").' <button type="button" class="btn btn-danger btn-sm" onclick="getAuth()">'.xlt("Authorize").'</button></div>';
+    }
 } else {
     echo '<div style="display:none" class="col-xs-12 col-md-6 col-lg-6"><div class="panel panel-default height"><div class="panel-heading">'.xlt("Payment Information").' </div>';
 }
@@ -1177,9 +1192,11 @@ if (isset($ccdata["name"])) {
                              <strong><?php echo xlt('Card Name');?>:  </strong><span id="cn"><?php echo attr($ccdata["cc_type"])?></span><br>
                             <strong><?php echo xlt('Name On Card');?>:  </strong><span id="nc"><?php echo attr($ccdata["name"])?></span><br>
                             <strong><?php echo xlt('Card Number');?>:  </strong><span id="ccn"><?php
-                            if (isset($_SESSION['authUserID']))
+                            if (isset($_SESSION['authUserID'])) {
                                 echo $ccdata["cc_number"] . "</span><br>";
-                            else echo "**********  ".substr($ccdata["cc_number"], -4) . "</span><br>";
+                            } else {
+                                echo "**********  ".substr($ccdata["cc_number"], -4) . "</span><br>";
+                            }
                                     ?>
                             <strong><?php echo xlt('Exp Date');?>:  </strong><span id="ed"><?php echo attr($ccdata["month"])."/".attr($ccdata["year"])?></span><br>
                             <strong><?php echo xlt('Charge Total');?>:  </strong><span id="ct"><?php echo attr($invdata["form_paytotal"])?></span><br>
@@ -1188,9 +1205,11 @@ if (isset($ccdata["name"])) {
              </div>
     <p>
 <?php
-    if (! isset($_SESSION['authUserID']))
-        echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
-else echo "<button type='submit' class='btn btn-danger' form='payfrm'>" . xlt('Post Payment') . "</button>";
+if (! isset($_SESSION['authUserID'])) {
+    echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#openPayModal">' . xlt("Pay Invoice") . '</button>';
+} else {
+    echo "<button type='submit' class='btn btn-danger' form='payfrm'>" . xlt('Post Payment') . "</button>";
+}
     ?>
  &nbsp;
     </p>

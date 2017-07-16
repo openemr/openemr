@@ -58,8 +58,9 @@ class DataDriverMySQL_PDO implements IDataDriver
      */
     function Open($connectionstring, $database, $username, $password, $charset = '', $bootstrap = '')
     {
-        if (! class_exists("PDO"))
+        if (! class_exists("PDO")) {
             throw new DatabaseException('PDO extension is not enabled on this server.', DatabaseException::$CONNECTION_ERROR);
+        }
         
         $connection = null;
         
@@ -152,11 +153,13 @@ class DataDriverMySQL_PDO implements IDataDriver
      */
     public function GetQuotedSql($val)
     {
-        if ($val === null)
+        if ($val === null) {
             return DatabaseConfig::$CONVERT_NULL_TO_EMPTYSTRING ? "''" : 'NULL';
+        }
         
-        if ($val instanceof ISqlFunction)
+        if ($val instanceof ISqlFunction) {
             return $val->GetQuotedSql($this);
+        }
         
         return "'" . $this->Escape($val) . "'";
     }
@@ -234,8 +237,10 @@ class DataDriverMySQL_PDO implements IDataDriver
         
         while ($row = $this->Fetch($connection, $rs)) {
             $tbl = $row ['Table'];
-            if (! isset($results [$tbl]))
+            if (! isset($results [$tbl])) {
                 $results [$tbl] = "";
+            }
+
             $result .= trim($results [$tbl] . " " . $row ['Msg_type'] . "=\"" . $row ['Msg_text'] . "\"");
         }
         

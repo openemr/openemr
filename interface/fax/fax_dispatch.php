@@ -50,7 +50,9 @@ function getKittens($catid, $catstring, &$categories)
     }
 
   // If no kitties, then this is a leaf node and should be listed.
-    if (!$childcount) $categories[$catid] = $catstring;
+    if (!$childcount) {
+        $categories[$catid] = $catstring;
+    }
 }
 
 // This merges the tiff files for the selected pages into one tiff file.
@@ -67,7 +69,10 @@ function mergeTiffs()
         $inames .= ' ' . escapeshellarg("$inbase.tif");
     }
 
-    if (!$inames) die(xl("Internal error - no pages were selected!"));
+    if (!$inames) {
+        die(xl("Internal error - no pages were selected!"));
+    }
+
     $tmp0 = exec("cd '$faxcache'; tiffcp $inames temp.tif", $tmp1, $tmp2);
     if ($tmp2) {
         $msg .= "tiffcp returned $tmp2: $tmp0 ";
@@ -85,7 +90,10 @@ if ($_POST['form_save']) {
 
     if ($_POST['form_cb_copy']) {
         $patient_id = (int) $_POST['form_pid'];
-        if (!$patient_id) die(xl('Internal error - patient ID was not provided!'));
+        if (!$patient_id) {
+            die(xl('Internal error - patient ID was not provided!'));
+        }
+
         // Compute the name of the target directory and make sure it exists.
         $docdir = $GLOBALS['OE_SITE_DIR'] . "/documents/$patient_id";
         exec("mkdir -p '$docdir'");
@@ -96,8 +104,14 @@ if ($_POST['form_save']) {
             // Compute a target filename that does not yet exist.
             $ffname = check_file_dir_name(trim($_POST['form_filename']));
             $i = strrpos($ffname, '.');
-            if ($i) $ffname = trim(substr($ffname, 0, $i));
-            if (!$ffname) $ffname = $filebase;
+            if ($i) {
+                $ffname = trim(substr($ffname, 0, $i));
+            }
+
+            if (!$ffname) {
+                $ffname = $filebase;
+            }
+
             $ffmod  = '';
             $ffsuff = '.pdf';
             // If the target filename exists, modify it until it doesn't.
@@ -154,7 +168,10 @@ if ($_POST['form_save']) {
                 $note = "New scanned document $newid: $note";
                 $form_note_message = trim($_POST['form_note_message']);
                 $form_note_message = strip_escape_custom($form_note_message);
-                if ($form_note_message) $note .= "\n" . $form_note_message;
+                if ($form_note_message) {
+                    $note .= "\n" . $form_note_message;
+                }
+
                 // addPnote() will do its own addslashes().
                 $noteid = addPnote(
                     $_POST['form_pid'],
@@ -208,16 +225,24 @@ if ($_POST['form_save']) {
                 $imagepath = "$imagedir/${encounter_id}_$formid.jpg";
                 if (! is_dir($imagedir)) {
                         $tmp0 = exec('mkdir -p "' . $imagedir . '"', $tmp1, $tmp2);
-                        if ($tmp2) die("mkdir returned $tmp2: $tmp0");
+                    if ($tmp2) {
+                        die("mkdir returned $tmp2: $tmp0");
+                    }
+
                         exec("touch '$imagedir/index.html'");
                 }
 
-                if (is_file($imagepath)) unlink($imagepath);
+                if (is_file($imagepath)) {
+                    unlink($imagepath);
+                }
+
                 // TBD: There may be a faster way to create this file, given that
                 // we already have a jpeg for each page in faxcache.
                 $cmd = "convert -resize 800 -density 96 '$tmp_name' -append '$imagepath'";
                 $tmp0 = exec($cmd, $tmp1, $tmp2);
-                if ($tmp2) die("\"$cmd\" returned $tmp2: $tmp0");
+                if ($tmp2) {
+                    die("\"$cmd\" returned $tmp2: $tmp0");
+                }
             }
 
             // If we are posting a patient note...
@@ -225,7 +250,10 @@ if ($_POST['form_save']) {
                 $note = "New scanned encounter note for visit on " . substr($erow['date'], 0, 10);
                 $form_note_message = trim($_POST['form_note_message']);
                 $form_note_message = strip_escape_custom($form_note_message);
-                if ($form_note_message) $note .= "\n" . $form_note_message;
+                if ($form_note_message) {
+                    $note .= "\n" . $form_note_message;
+                }
+
                 // addPnote() will do its own addslashes().
                 addPnote(
                     $patient_id,
@@ -262,7 +290,10 @@ if ($_POST['form_save']) {
         $tmph = fopen($tmpfn1, "w");
         $cpstring = '';
         $fh = fopen($GLOBALS['OE_SITE_DIR'] . "/faxcover.txt", 'r');
-        while (!feof($fh))$cpstring .= fread($fh, 8192);
+        while (!feof($fh)) {
+            $cpstring .= fread($fh, 8192);
+        }
+
         fclose($fh);
         $cpstring = str_replace('{CURRENT_DATE}', date('F j, Y'), $cpstring);
         $cpstring = str_replace('{SENDER_NAME}', $form_from, $cpstring);
@@ -308,10 +339,15 @@ if ($_POST['form_save']) {
         // Check if any .jpg files remain... if not we'll clean up.
         if ($action_taken) {
             $dh = opendir($faxcache);
-            if (! $dh) die("Cannot read $faxcache");
+            if (! $dh) {
+                die("Cannot read $faxcache");
+            }
+
             $form_cb_delete = '2';
             while (false !== ($jfname = readdir($dh))) {
-                if (preg_match('/\.jpg$/', $jfname)) $form_cb_delete = '1';
+                if (preg_match('/\.jpg$/', $jfname)) {
+                    $form_cb_delete = '1';
+                }
             }
 
             closedir($dh);
@@ -330,7 +366,9 @@ if ($_POST['form_save']) {
         if (is_dir($faxcache)) {
             $dh = opendir($faxcache);
             while (($tmp = readdir($dh)) !== false) {
-                if (is_file("$faxcache/$tmp")) unlink("$faxcache/$tmp");
+                if (is_file("$faxcache/$tmp")) {
+                    unlink("$faxcache/$tmp");
+                }
             }
 
             closedir($dh);
@@ -340,13 +378,17 @@ if ($_POST['form_save']) {
         $action_taken = true;
     } // end delete 2
 
-    if (!$action_taken && !$info_msg)
-    $info_msg = xl('You did not choose any actions.');
+    if (!$action_taken && !$info_msg) {
+        $info_msg = xl('You did not choose any actions.');
+    }
 
     if ($info_msg || $form_cb_delete != '1') {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script language='JavaScript'>\n";
-        if ($info_msg) echo " alert('$info_msg');\n";
+        if ($info_msg) {
+            echo " alert('$info_msg');\n";
+        }
+
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
         echo " window.close();\n";
         echo "</script>\n</body>\n</html>\n";
@@ -367,22 +409,34 @@ $using_scanned_notes = $tmp['count'];
 //
 if (! is_dir($faxcache)) {
     $tmp0 = exec('mkdir -p "' . $faxcache . '"', $tmp1, $tmp2);
-    if ($tmp2) die("mkdir returned $tmp2: $tmp0");
+    if ($tmp2) {
+        die("mkdir returned $tmp2: $tmp0");
+    }
+
     if (strtolower($ext) != '.tif') {
         // convert's default density for PDF-to-TIFF conversion is 72 dpi which is
         // not very good, so we upgrade it to "fine mode" fax quality.  It's really
         // better and faster if the scanner produces TIFFs instead of PDFs.
         $tmp0 = exec("convert -density 203x196 '$filepath' '$faxcache/deleteme.tif'", $tmp1, $tmp2);
-        if ($tmp2) die("convert returned $tmp2: $tmp0");
+        if ($tmp2) {
+            die("convert returned $tmp2: $tmp0");
+        }
+
         $tmp0 = exec("cd '$faxcache'; tiffsplit 'deleteme.tif'; rm -f 'deleteme.tif'", $tmp1, $tmp2);
-        if ($tmp2) die("tiffsplit/rm returned $tmp2: $tmp0");
+        if ($tmp2) {
+            die("tiffsplit/rm returned $tmp2: $tmp0");
+        }
     } else {
         $tmp0 = exec("cd '$faxcache'; tiffsplit '$filepath'", $tmp1, $tmp2);
-        if ($tmp2) die("tiffsplit returned $tmp2: $tmp0");
+        if ($tmp2) {
+            die("tiffsplit returned $tmp2: $tmp0");
+        }
     }
 
     $tmp0 = exec("cd '$faxcache'; mogrify -resize 750x970 -format jpg *.tif", $tmp1, $tmp2);
-    if ($tmp2) die("mogrify returned $tmp2: $tmp0; ext is '$ext'; filepath is '$filepath'");
+    if ($tmp2) {
+        die("mogrify returned $tmp2: $tmp0; ext is '$ext'; filepath is '$filepath'");
+    }
 }
 
 // Get the categories list.
@@ -396,7 +450,8 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 ?>
 <html>
 <head>
-<?php if (function_exists(html_header_show)) html_header_show(); ?>
+<?php if (function_exists(html_header_show)) {
+    html_header_show();} ?>
 <title><?php xl('Dispatch Received Document', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -664,7 +719,10 @@ foreach ($categories as $catkey => $catname) {
 while ($urow = sqlFetchArray($ures)) {
     echo "         <option value='" . $urow['username'] . "'";
     echo ">" . $urow['lname'];
-    if ($urow['fname']) echo ", " . $urow['fname'];
+    if ($urow['fname']) {
+        echo ", " . $urow['fname'];
+    }
+
     echo "</option>\n";
 }
 ?>
@@ -752,7 +810,10 @@ while ($urow = sqlFetchArray($ures)) {
 
 <?php
 $dh = opendir($faxcache);
-if (! $dh) die("Cannot read $faxcache");
+if (! $dh) {
+    die("Cannot read $faxcache");
+}
+
 $jpgarray = array();
 while (false !== ($jfname = readdir($dh))) {
     if (preg_match("/^(.*)\.jpg/", $jfname, $matches)) {

@@ -39,13 +39,17 @@ if ($set_pid && $set_pid != $_SESSION["pid"]) {
 
  // Check authorization.
 if ($pid) {
-    if (!acl_check('patients', 'demo', '', 'write'))
-    die(xlt('Updating demographics is not authorized.'));
-    if ($result['squad'] && ! acl_check('squads', $result['squad']))
-    die(xlt('You are not authorized to access this squad.'));
+    if (!acl_check('patients', 'demo', '', 'write')) {
+        die(xlt('Updating demographics is not authorized.'));
+    }
+
+    if ($result['squad'] && ! acl_check('squads', $result['squad'])) {
+        die(xlt('You are not authorized to access this squad.'));
+    }
 } else {
-    if (!acl_check('patients', 'demo', '', array('write','addonly')))
-    die(xlt('Adding demographics is not authorized.'));
+    if (!acl_check('patients', 'demo', '', array('write','addonly'))) {
+        die(xlt('Adding demographics is not authorized.'));
+    }
 }
 
 $CPR = 4; // cells per row
@@ -449,7 +453,10 @@ function end_row()
     end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR;
-        ++$cell_count) echo "<td></td>";
+        ++$cell_count) {
+            echo "<td></td>";
+        }
+
         echo "</tr>\n";
         $cell_count = 0;
     }
@@ -544,8 +551,10 @@ echo xlt($CapInstype); ?></a></li><?php
                 <?php
                 foreach ($insurancei as $iid => $iname) {
                     echo "<option value='" . attr($iid) . "'";
-                    if (strtolower($iid) == strtolower($result3{"provider"}))
-                    echo " selected";
+                    if (strtolower($iid) == strtolower($result3{"provider"})) {
+                        echo " selected";
+                    }
+
                     echo ">" . text($iname) . "</option>\n";
                 }
                 ?>
@@ -590,7 +599,8 @@ echo xlt($CapInstype); ?></a></li><?php
              <td><input type=entry size=16 name=i<?php echo $i?>group_number value="<?php echo attr($result3{"group_number"}); ?>" onkeyup='policykeyup(this)'></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";} ?>>
              <td class='required'><?php echo xlt('Subscriber Employer (SE)'); ?><br><span style='font-weight:normal'>
               (<?php echo xlt('if unemployed enter Student'); ?>,<br><?php echo xlt('PT Student, or leave blank'); ?>) </span></td>
               <td class='required'>:</td>
@@ -599,7 +609,8 @@ echo xlt($CapInstype); ?></a></li><?php
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";} ?>>
              <td><span class=required><?php echo xlt('SE Address'); ?></span></td>
              <td class='required'>:</td>
              <td><input type=entry size=25 name=i<?php echo $i?>subscriber_employer_street
@@ -607,7 +618,8 @@ echo xlt($CapInstype); ?></a></li><?php
                onchange="capitalizeMe(this);" /></td>
             </tr>
 
-            <tr<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>>
+            <tr<?php if ($GLOBALS['omit_employers']) {
+                echo " style='display:none'";} ?>>
              <td colspan="3">
               <table>
                <tr>
@@ -697,7 +709,8 @@ echo xlt($CapInstype); ?></a></li><?php
             <tr>
                 <td class=leftborder><span class=required><?php echo xlt('City'); ?></span></td>
                 <td class=required>:</td>
-                <td><input type=entry size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><span class='required'<?php if ($GLOBALS['omit_employers']) echo " style='display:none'"; ?>><?php echo xlt('Country'); ?>: </span></td><td>
+                <td><input type=entry size=11 name=i<?php echo $i?>subscriber_city value="<?php echo attr($result3{"subscriber_city"}); ?>" onchange="capitalizeMe(this);" /></td><td class=leftborder><span class='required'<?php if ($GLOBALS['omit_employers']) {
+                    echo " style='display:none'";} ?>><?php echo xlt('Country'); ?>: </span></td><td>
                     <?php
                     // Modified 7/2009 by BM to incorporate data types
                     generate_form_field(array('data_type'=>$GLOBALS['country_data_type'],'field_id'=>('i'.$i.'subscriber_country'),'list_id'=>$GLOBALS['country_list'],'fld_length'=>'10','max_length'=>'63','edit_options'=>'C'), $result3['subscriber_country']);
@@ -723,8 +736,10 @@ echo xlt($CapInstype); ?></a></li><?php
                 <td class=required>:</td>
                 <td colspan=2>
                     <select name=i<?php echo $i?>accept_assignment>
-                     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") echo "selected"?>><?php echo xlt('YES'); ?></option>
-                     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") echo "selected"?>><?php echo xlt('NO'); ?></option>
+                     <option value="TRUE" <?php if (strtoupper($result3{"accept_assignment"}) == "TRUE") {
+                            echo "selected"; }?>><?php echo xlt('YES'); ?></option>
+                     <option value="FALSE" <?php if (strtoupper($result3{"accept_assignment"}) == "FALSE") {
+                            echo "selected"; }?>><?php echo xlt('NO'); ?></option>
                     </select>
                 </td>
                 <td></td><td></td>
@@ -739,7 +754,10 @@ echo xlt($CapInstype); ?></a></li><?php
 <?php
 foreach ($policy_types as $key => $value) {
     echo "            <option value ='" . attr($key) . "'";
-    if ($key == $result3['policy_type']) echo " selected";
+    if ($key == $result3['policy_type']) {
+        echo " selected";
+    }
+
     echo ">" . text($value) . "</option>\n";
 }
 ?>
@@ -854,8 +872,14 @@ $use_validate_js=$GLOBALS['new_validate'];
                 "ORDER BY group_name, seq");
             while ($mfrow = sqlFetchArray($mfres)) {
                 $field_id  = $mfrow['field_id'];
-                if (strpos($field_id, 'em_') === 0) continue;
-                if (!empty($mflist)) $mflist .= ",";
+                if (strpos($field_id, 'em_') === 0) {
+                    continue;
+                }
+
+                if (!empty($mflist)) {
+                    $mflist .= ",";
+                }
+
                     $mflist .= "'" . text($field_id) . "'";
             } ?>
 

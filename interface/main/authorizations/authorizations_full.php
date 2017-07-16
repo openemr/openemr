@@ -50,8 +50,9 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
 
 //fetch billing information:
 if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from billing LEFT JOIN users as u on billing.user = u.id where billing.authorized=0 and groupname=?", array ($groupname))) {
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result[$iter] = $row;
+    }
 
     if ($result) {
         foreach ($result as $iter) {
@@ -65,8 +66,9 @@ if ($res = sqlStatement("select *, concat(u.fname,' ', u.lname) as user from bil
 
 //fetch transaction information:
 if ($res = sqlStatement("select * from transactions where authorized=0 and groupname=?", array($groupname))) {
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result2[$iter] = $row;
+    }
 
     if ($result2) {
         foreach ($result2 as $iter) {
@@ -82,7 +84,10 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", array($groupname))) {
         for ($iter = 0; $row = sqlFetchArray($res);
-        $iter++) $result3[$iter] = $row;
+        $iter++) {
+            $result3[$iter] = $row;
+        }
+
         if ($result3) {
             foreach ($result3 as $iter) {
                 $authorize{$iter{"pid"}}{"pnotes"} .= "<span class=small>" .
@@ -96,8 +101,9 @@ if (empty($GLOBALS['ignore_pnotes_authorization'])) {
 
 //fetch forms information:
 if ($res = sqlStatement("select * from forms where authorized=0 and groupname=?", array($groupname))) {
-    for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result4[$iter] = $row;
+    }
 
     if ($result4) {
         foreach ($result4 as $iter) {

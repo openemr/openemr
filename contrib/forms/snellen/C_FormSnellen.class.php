@@ -45,8 +45,10 @@ class C_FormSnellen extends Controller
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
-        return;
+        if ($_POST['process'] != "true") {
+            return;
+        }
+
         $this->form = new FormSnellen($_POST['id']);
         parent::populate_object($this->form);
         $this->form->persist();

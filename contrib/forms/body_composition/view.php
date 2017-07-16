@@ -41,7 +41,10 @@ function form2db($fldval)
 function rbvalue($rbname)
 {
     $tmp = $_POST[$rbname];
-    if (! $tmp) return "NULL";
+    if (! $tmp) {
+        return "NULL";
+    }
+
     return "'$tmp'";
 }
 
@@ -49,7 +52,10 @@ function rbinput($name, $value, $desc, $colname)
 {
     global $row;
     $ret  = "<input type='radio' name='$name' value='$value'";
-    if ($row[$colname] == $value) $ret .= " checked";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
     $ret .= " />$desc";
     return $ret;
 }

@@ -108,9 +108,13 @@ class GlobalConfig
      */
     static function GetInstance()
     {
-        if (!self::$IS_INITIALIZED) self::Init();
+        if (!self::$IS_INITIALIZED) {
+            self::Init();
+        }
 
-        if (!self::$INSTANCE instanceof self) self::$INSTANCE = new self;
+        if (!self::$INSTANCE instanceof self) {
+            self::$INSTANCE = new self;
+        }
 
         return self::$INSTANCE;
     }

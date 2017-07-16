@@ -42,7 +42,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
 function bucks($amount)
 {
-    if ($amount) echo oeFormatMoney($amount);
+    if ($amount) {
+        echo oeFormatMoney($amount);
+    }
 }
 
 function display_desc($desc)
@@ -72,9 +74,14 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
     $pat_name = $patdata['fname'] . ' ' . $patdata['mname'] . ' ' . $patdata['lname'];
 
-    if (empty($rowcat)) $rowcat = xl('None');
+    if (empty($rowcat)) {
+        $rowcat = xl('None');
+    }
+
     $rowproduct = $description;
-    if (! $rowproduct) $rowproduct = xl('Unknown');
+    if (! $rowproduct) {
+        $rowproduct = xl('Unknown');
+    }
 
     if ($product != $rowproduct || $category != $rowcat) {
         if ($product) {
@@ -96,7 +103,9 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
             $catleft = " "; ?>
   </td>
   <td class="detail" colspan="3">
-        <?php if ($_POST['form_details']) echo xlt('Total for') . ' ';
+        <?php if ($_POST['form_details']) {
+            echo xlt('Total for') . ' ';}
+
         echo text(display_desc($product)); ?>
   </td>
     <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
@@ -243,7 +252,9 @@ if ($GLOBALS['sales_report_invoice'] == 1) {
     $grandqty     += $qty;
 } // end function
 
-  if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 
   $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
@@ -401,7 +412,10 @@ $('.datepicker').datetimepicker({
             while ($row = sqlFetchArray($res)) {
                 $provid = $row['id'];
                 echo "    <option value='". attr($provid) ."'";
-                if ($provid == $_REQUEST['form_provider']) echo " selected";
+                if ($provid == $_REQUEST['form_provider']) {
+                    echo " selected";
+                }
+
                 echo ">" . text($row['lname']) . ", " . text($row['fname']) . "\n";
             }
 
@@ -414,7 +428,8 @@ $('.datepicker').datetimepicker({
           </td>
           <td>
             <div class='checkbox'>
-           <label><input type='checkbox' name='form_details'<?php  if ($form_details) echo ' checked'; ?>>
+           <label><input type='checkbox' name='form_details'<?php  if ($form_details) {
+                echo ' checked';} ?>>
             <?php echo xlt('Details'); ?></label>
             </div>
           </td>
@@ -465,7 +480,8 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     <?php echo xlt('Item'); ?>
  </th>
  <th>
-    <?php if ($form_details) echo xlt('Date'); ?>
+    <?php if ($form_details) {
+        echo xlt('Date');} ?>
  </th>
     <?php if ($GLOBALS['sales_report_invoice'] == 2) {?>
   <th>
@@ -475,25 +491,36 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
  <th>
     <?php
     if ($GLOBALS['sales_report_invoice'] == 0) {
-        if ($form_details) echo ' ';
+        if ($form_details) {
+            echo ' ';
+        }
         ?>
    </th>
    <th>
         <?php
-        if ($form_details) echo xlt('Invoice');  }
+        if ($form_details) {
+            echo xlt('Invoice');
+        }
+    }
 
     if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
-        if ($form_details) echo xlt('Name');
+        if ($form_details) {
+            echo xlt('Name');
+        }
     } ?>
   </th>
   <th>
     <?php
     if ($GLOBALS['sales_report_invoice'] == 2) {
-        if ($form_details) echo xlt('Invoice');
+        if ($form_details) {
+            echo xlt('Invoice');
+        }
     }
 
     if ($GLOBALS['sales_report_invoice'] == 1) {
-        if ($form_details) echo xlt('ID');
+        if ($form_details) {
+            echo xlt('ID');
+        }
     }
     ?>
   </th>
@@ -616,7 +643,9 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     $catleft = " "; ?>
   </td>
   <td class="detail" colspan="3">
-    <?php if ($_POST['form_details']) echo xlt('Total for') . ' ';
+    <?php if ($_POST['form_details']) {
+        echo xlt('Total for') . ' ';}
+
     echo text(display_desc($product)); ?>
   </td>
     <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>

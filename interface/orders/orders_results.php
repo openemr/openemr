@@ -33,11 +33,15 @@ $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
 $thisauth = acl_check('patients', 'med');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // Check authorization for pending review.
 $reviewauth = acl_check('patients', 'sign');
-if ($form_review and !$reviewauth and !$thisauth) die(xl('Not authorized'));
+if ($form_review and !$reviewauth and !$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // Set pid for pending review.
 if ($_GET['set_pid'] && $form_review) {
@@ -53,7 +57,9 @@ if ($_GET['set_pid'] && $form_review) {
     <?php
 }
 
-if (!$form_batch && !$pid && !$form_review) die(xl('There is no current patient'));
+if (!$form_batch && !$pid && !$form_review) {
+    die(xl('There is no current patient'));
+}
 
 function oresRawData($name, $index)
 {
@@ -69,7 +75,10 @@ function oresData($name, $index)
 
 function QuotedOrNull($fld)
 {
-    if (empty($fld)) return "NULL";
+    if (empty($fld)) {
+        return "NULL";
+    }
+
     return "'$fld'";
 }
 
@@ -80,7 +89,9 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
         list($order_id, $order_seq, $report_id, $result_id) = explode(':', $line_value);
 
         // Not using xl() here because this is for debugging only.
-        if (empty($order_id)) die("Order ID is missing from line $lino.");
+        if (empty($order_id)) {
+            die("Order ID is missing from line $lino.");
+        }
 
         // If report data exists for this line, save it.
         $date_report = oresData("form_date_report", $lino);
@@ -95,8 +106,9 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
             "report_status = '" . oresData("form_report_status", $lino) . "'";
 
             // Set the review status to reviewed.
-            if ($form_review)
-            $sets .= ", review_status = 'reviewed'";
+            if ($form_review) {
+                $sets .= ", review_status = 'reviewed'";
+            }
 
             if ($report_id) { // Report already exists.
                 sqlStatement("UPDATE procedure_report SET $sets "  .
@@ -108,7 +120,9 @@ if ($_POST['form_submit'] && !empty($_POST['form_line'])) {
 
         // If this line had report data entry fields, filled or not, set the
         // "current report ID" which the following result data will link to.
-        if (isset($_POST["form_date_report"][$lino])) $current_report_id = $report_id;
+        if (isset($_POST["form_date_report"][$lino])) {
+            $current_report_id = $report_id;
+        }
 
         // If there's a report, save corresponding results.
         if ($current_report_id) {
@@ -325,9 +339,15 @@ $(document).ready(function() {
 if ($form_batch) {
     $form_from_date = formData('form_from_date', 'P', true);
     $form_to_date   = formData('form_to_date', 'P', true);
-    if (empty($form_to_date)) $form_to_date = $form_from_date;
+    if (empty($form_to_date)) {
+        $form_to_date = $form_from_date;
+    }
+
     $form_proc_type = formData('form_proc_type') + 0;
-    if (!$form_proc_type) $form_proc_type = -1;
+    if (!$form_proc_type) {
+        $form_proc_type = -1;
+    }
+
     $form_proc_type_desc = '';
     if ($form_proc_type > 0) {
         $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE " .
@@ -358,7 +378,8 @@ if ($form_batch) {
 } // end header for batch option
 ?>
    <!-- removed by jcw -- check/submit sequece too tedious.  This is a quick fix -->
-<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) echo " checked"; ?>><?php xl('Include Completed', 'e') ?>
+<!--   <input type='checkbox' name='form_all' value='1' <?php if ($_POST['form_all']) {
+    echo " checked";} ?>><?php xl('Include Completed', 'e') ?>
    &nbsp;-->
    <input type='submit' name='form_refresh' value=<?php xl('Refresh', 'e'); ?>>
   </td>
@@ -457,14 +478,20 @@ while ($row = sqlFetchArray($res)) {
 
   // skip report_status = receive to make sure do not show the report before it reviewed and sign off by Physicians
     if ($form_review) {
-        if ($review_status == "reviewed") continue;
+        if ($review_status == "reviewed") {
+            continue;
+        }
     } else {
-        if ($review_status == "received") continue;
+        if ($review_status == "received") {
+            continue;
+        }
     }
 
     $query_test=sqlFetchArray(sqlStatement("select deleted from forms where form_id=? and formdir='procedure_order'", array($order_id)));
   // skip the procedure that has been deleted from the encounter form
-    if ($query_test['deleted']==1) continue;
+    if ($query_test['deleted']==1) {
+        continue;
+    }
 
     $selects = "pt2.procedure_type, pt2.procedure_code, pt2.units AS pt2_units, " .
     "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
@@ -541,8 +568,10 @@ while ($row = sqlFetchArray($res)) {
             if ($form_batch) {
                 if ($lastpoid != $order_id) {
                     $tmp = $row['lname'];
-                    if ($row['fname'] || $row['mname'])
-                    $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
+                    if ($row['fname'] || $row['mname']) {
+                        $tmp .= ', ' . $row['fname'] . ' ' . $row['mname'];
+                    }
+
                     echo "  <td>" . text($tmp) . "</td>\n";
                     echo "  <td>" . text($row['pubpid']) . "</td>\n";
                 } else {

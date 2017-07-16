@@ -11,7 +11,10 @@ $si_report_colno = 0;
 function si_report_item($title, $value)
 {
     global $si_report_cols, $si_report_colno;
-    if (!$value) return;
+    if (!$value) {
+        return;
+    }
+
     if (++$si_report_colno > $si_report_cols) {
         $si_report_colno = 1;
         echo " </tr>\n <tr>\n";
@@ -143,7 +146,9 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
     "form_encounter.encounter = forms.encounter AND " .
     "form_encounter.pid = forms.pid");
 
-    if (!$row) return;
+    if (!$row) {
+        return;
+    }
 
     $si_report_cols = $cols;
 
@@ -157,16 +162,23 @@ function soccer_injury_report($pid, $encounter, $cols, $id)
     si_report_item("Position", $arr_position[$row['siposition']]);
     si_report_item("Footwear", $arr_footwear[$row['sifootwear']]);
     foreach ($arr_equip as $key => $value) {
-        if ($row["siequip_$key"]) si_report_item("Equipment", $value);
+        if ($row["siequip_$key"]) {
+            si_report_item("Equipment", $value);
+        }
     }
 
     si_report_item("Side", $arr_side[$row['siside']]);
     si_report_item("Removed", $arr_removed[$row['siremoved']]);
     foreach ($arr_treat as $key => $value) {
-        if ($row["sitreat_$key"]) si_report_item("Treatment", $value);
+        if ($row["sitreat_$key"]) {
+            si_report_item("Treatment", $value);
+        }
     }
 
-    if ($row["sitreat_other"]) si_report_item("Treatment", $row["sitreat_other"]);
+    if ($row["sitreat_other"]) {
+        si_report_item("Treatment", $row["sitreat_other"]);
+    }
+
     si_report_item("To Return", $row['sinoreturn'] ? "No" : "Yes");
 
     echo " </tr>\n";

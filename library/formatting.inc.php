@@ -15,20 +15,26 @@ function oeFormatMoney($amount, $symbol = false)
         $GLOBALS['currency_thousands_sep']
     );
   // If the currency symbol exists and is requested, prepend it.
-    if ($symbol && !empty($GLOBALS['gbl_currency_symbol']))
-    $s = $GLOBALS['gbl_currency_symbol'] . " $s";
+    if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
+        $s = $GLOBALS['gbl_currency_symbol'] . " $s";
+    }
+
     return $s;
 }
 
 function oeFormatShortDate($date = 'today', $showYear = true)
 {
-    if ($date === 'today') $date = date('Y-m-d');
+    if ($date === 'today') {
+        $date = date('Y-m-d');
+    }
+
     if (strlen($date) == 10) {
         // assume input is yyyy-mm-dd
-        if ($GLOBALS['date_display_format'] == 1)      // mm/dd/yyyy, note year is added below
-        $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
-        else if ($GLOBALS['date_display_format'] == 2) // dd/mm/yyyy, note year is added below
-        $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+        if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
+            $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
+        } else if ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
+            $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
+        }
 
         // process the year (add for formats 1 and 2; remove for format 0)
         if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
@@ -84,7 +90,9 @@ function oeFormatPatientNote($note)
         }
 
         $i = strpos("\n", $note, $i);
-        if ($i !== false) ++$i;
+        if ($i !== false) {
+            ++$i;
+        }
     }
 
     return $note;
@@ -189,10 +197,15 @@ function oeFormatAge($dobYMD, $nowYMD = '', $format = 0)
         $monthDiff = $nowMonth - $dobMonth;
         $yearDiff  = $nowYear  - $dobYear;
         $ageInMonths = $yearDiff * 12 + $monthDiff;
-        if ($dayDiff < 0) --$ageInMonths;
+        if ($dayDiff < 0) {
+            --$ageInMonths;
+        }
+
         if ($format == 1 || ($format == 0 && $ageInMonths >= 24)) {
             $age = $yearDiff;
-            if ($monthDiff < 0 || ($monthDiff == 0 && $dayDiff < 0)) --$age;
+            if ($monthDiff < 0 || ($monthDiff == 0 && $dayDiff < 0)) {
+                --$age;
+            }
         } else {
             $age = $ageInMonths;
             if ($format == 0) {

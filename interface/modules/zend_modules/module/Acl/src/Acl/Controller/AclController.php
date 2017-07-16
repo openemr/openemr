@@ -111,7 +111,10 @@ class AclController extends AbstractActionController
                 $data           = $this->getAclTable()->getGroupAcl($module_id);
                 $saved_ACL  = array();
         foreach ($data as $row) {
-            if (!$saved_ACL[$row['section_id']]) $saved_ACL[$row['section_id']] = array();
+            if (!$saved_ACL[$row['section_id']]) {
+                $saved_ACL[$row['section_id']] = array();
+            }
+
             array_push($saved_ACL[$row['section_id']], $row['group_id']);
         }
 
@@ -133,7 +136,9 @@ class AclController extends AbstractActionController
         if ($ajax_mode == "save_acl") {
             $selected_componet = $this->getRequest()->getPost('selected_module', null);
             $selected_componet_arr = explode("-", $selected_componet);
-            if ($selected_componet_arr[0] == 0) $selected_componet_arr[0] = $selected_componet_arr[1];
+            if ($selected_componet_arr[0] == 0) {
+                $selected_componet_arr[0] = $selected_componet_arr[1];
+            }
             
             $allowed_users = json_decode($this->getRequest()->getPost('allowed_users', null));
             $denied_users = json_decode($this->getRequest()->getPost('denied_users', null));
@@ -171,7 +176,9 @@ class AclController extends AbstractActionController
         } elseif ($ajax_mode == "rebuild") {
             $selected_componet = $_REQUEST['selected_module'];
             $selected_componet_arr = explode("-", $selected_componet);
-            if ($selected_componet_arr[0] == 0) $selected_componet_arr[0] = $selected_componet_arr[1];
+            if ($selected_componet_arr[0] == 0) {
+                $selected_componet_arr[0] = $selected_componet_arr[1];
+            }
             
             $array_users_allowed = array();
             $array_users_denied = array();
@@ -181,10 +188,16 @@ class AclController extends AbstractActionController
                       $res_users   = $this->getAclTable()->getAclDataUsers($selected_componet_arr[1]);
             foreach ($res_users as $row) {
                 if ($row['allowed'] == 1) {
-                    if (!$array_users_allowed[$row['group_id']]) $array_users_allowed[$row['group_id']] = array();
+                    if (!$array_users_allowed[$row['group_id']]) {
+                        $array_users_allowed[$row['group_id']] = array();
+                    }
+
                     array_push($array_users_allowed[$row['group_id']], $row['user_id']);
                 } else {
-                    if (!$array_users_denied[$row['group_id']]) $array_users_denied[$row['group_id']] = array();
+                    if (!$array_users_denied[$row['group_id']]) {
+                        $array_users_denied[$row['group_id']] = array();
+                    }
+
                     array_push($array_users_denied[$row['group_id']], $row['user_id']);
                 }
             }
@@ -238,7 +251,10 @@ class AclController extends AbstractActionController
             $section_identifier = $this->getRequest()->getPost('section_identifier', null);
             $section_name       = $this->getRequest()->getPost('section_name', null);
             
-            if (!$parent_id) $parent_id = $module_id;
+            if (!$parent_id) {
+                $parent_id = $module_id;
+            }
+
             $current_section_id = $this->getAclTable()->getSectionsInsertId();
                         $this->getAclTable()->saveACLSections($module_id, $parent_id, $section_identifier, $section_name, $current_section_id);
         }
@@ -262,10 +278,19 @@ class AclController extends AbstractActionController
         $escapeHtml         = $viewHelperManager->get('escapeHtml');
         
         foreach ($array as $categoryId => $category) {
-            if ($category['name']=='') continue;
+            if ($category['name']=='') {
+                continue;
+            }
+
             if ($currentParent == $category['parent_id']) {
-                if ($currLevel > $prevLevel) echo " <ul> ";
-                if ($currLevel == $prevLevel) echo " </li> ";
+                if ($currLevel > $prevLevel) {
+                    echo " <ul> ";
+                }
+
+                if ($currLevel == $prevLevel) {
+                    echo " </li> ";
+                }
+
                 $class="";
                 echo '<li id="'.$category['parent_id']."-".$category['id'].'" value="'.$escapeHtml($category['name']).'" '.$escapeHtml($class).' ><div onclick="selectThis(\''.$escapeHtml($category['parent_id']).'-'.$escapeHtml($category['id']).'\');rebuild();" class="list">'.$escapeHtml($category['name'])."</div>";
                 if ($currLevel > $prevLevel) {
@@ -277,7 +302,9 @@ class AclController extends AbstractActionController
             }
         }
 
-        if ($currLevel == $prevLevel) echo "</li></ul> ";
+        if ($currLevel == $prevLevel) {
+            echo "</li></ul> ";
+        }
     }
     
     /**

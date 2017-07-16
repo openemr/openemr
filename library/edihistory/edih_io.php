@@ -912,7 +912,10 @@ function ibr_disp_ta1_message()
     $fname = '';
     $code = '';
     $fname = filter_input(INPUT_GET, 'ackfile', FILTER_DEFAULT);
-    if (isset($_GET['ackcode'])) $code = filter_input(INPUT_GET, 'ackcode', FILTER_DEFAULT);
+    if (isset($_GET['ackcode'])) {
+        $code = filter_input(INPUT_GET, 'ackcode', FILTER_DEFAULT);
+    }
+
     if ($fname && $code) {
         $str_html = ibr_ack_error($fname, $code);
     } else {

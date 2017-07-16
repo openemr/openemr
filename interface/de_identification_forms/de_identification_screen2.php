@@ -28,27 +28,42 @@ de_identification_screen1.php  */
 $begin_date = $_POST["begin_date"];
 $end_date = $_POST["end_date"];
 
-if ($_POST["unstructured"])
-$include_unstructured = 1;
-else $include_unstructured = 0;
+if ($_POST["unstructured"]) {
+    $include_unstructured = 1;
+} else {
+    $include_unstructured = 0;
+}
 
-if ($_POST["all"])
-$include_tables = "all";
-else {
-    if ($_POST["history_data"])
-    $include_tables = $include_tables . $_POST["history_data"]. "#";
-    if ($_POST["prescriptions"])
-    $include_tables = $include_tables . $_POST["prescriptions"]. "#";
-    if ($_POST["immunization"])
-    $include_tables = $include_tables . $_POST["immunization"]. "#";
-    if ($_POST["lists"])
-    $include_tables = $include_tables . $_POST["lists"]. "#";
-    if ($_POST["transactions"])
-    $include_tables = $include_tables . $_POST["transactions"]. "#";
-    if ($_POST["insurance_data"])
-    $include_tables = $include_tables . $_POST["insurance_data"]. "#";
-    if ($_POST["billing_data"])
-    $include_tables = $include_tables . "billing#payments";
+if ($_POST["all"]) {
+    $include_tables = "all";
+} else {
+    if ($_POST["history_data"]) {
+        $include_tables = $include_tables . $_POST["history_data"]. "#";
+    }
+
+    if ($_POST["prescriptions"]) {
+        $include_tables = $include_tables . $_POST["prescriptions"]. "#";
+    }
+
+    if ($_POST["immunization"]) {
+        $include_tables = $include_tables . $_POST["immunization"]. "#";
+    }
+
+    if ($_POST["lists"]) {
+        $include_tables = $include_tables . $_POST["lists"]. "#";
+    }
+
+    if ($_POST["transactions"]) {
+        $include_tables = $include_tables . $_POST["transactions"]. "#";
+    }
+
+    if ($_POST["insurance_data"]) {
+        $include_tables = $include_tables . $_POST["insurance_data"]. "#";
+    }
+
+    if ($_POST["billing_data"]) {
+        $include_tables = $include_tables . "billing#payments";
+    }
 }
 
 $diagnosis_text = $_POST["diagnosis_text"];

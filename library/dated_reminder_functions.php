@@ -27,7 +27,10 @@
  */
 function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
 {
-        if (!$userID) $userID = $_SESSION['authId'];
+    if (!$userID) {
+        $userID = $_SESSION['authId'];
+    }
+
         global $hasAlerts;
 // ----- define a blank reminders array
         $reminders = array();
@@ -69,7 +72,9 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
         $reminders[$i]['fromName'] = $drRow['ffname'].' '.$drRow['fmname'].' '.$drRow['flname'];
            
 // --------- if the message is due or overdue set $hasAlerts to true, this will stop autohiding of reminders
-        if (strtotime($drRow['dr_message_due_date']) <= $today) $hasAlerts = true;
+        if (strtotime($drRow['dr_message_due_date']) <= $today) {
+            $hasAlerts = true;
+        }
     }
 
 // --------- END OF loop through the results
@@ -94,7 +99,9 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = false)
  */
 function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
-    if (!$userID) $userID = $_SESSION['authId'];
+    if (!$userID) {
+        $userID = $_SESSION['authId'];
+    }
         
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)  
     $drSQL = sqlStatement(
@@ -121,7 +128,9 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 // ------------------------------------------------   
 function GetAllReminderCount($userID = false)
 {
-    if (!$userID) $userID = $_SESSION['authId'];
+    if (!$userID) {
+        $userID = $_SESSION['authId'];
+    }
         
 // ----- sql statement for getting uncompleted reminders  
     $drSQL = sqlStatement(
@@ -197,7 +206,10 @@ function getRemindersHTML($reminders = array(), $today)
 // ------------------------------------------------   
 function setReminderAsProcessed($rID, $userID = false)
 {
-    if (!$userID) $userID = $_SESSION['authId'];
+    if (!$userID) {
+        $userID = $_SESSION['authId'];
+    }
+
     if (is_numeric($rID) and $rID > 0) {
     // --- check if this user can remove this message
     // --- need a better way of checking the current user, I don't like using $_SESSION for checks
@@ -222,7 +234,10 @@ function setReminderAsProcessed($rID, $userID = false)
 // ------------------------------------------------ 
 function getReminderById($mID, $userID = false)
 {
-    if (!$userID) $userID = $_SESSION['authId'];
+    if (!$userID) {
+        $userID = $_SESSION['authId'];
+    }
+
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr 
                             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id  
                             WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", array($userID,$mID));

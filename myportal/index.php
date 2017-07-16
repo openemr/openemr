@@ -53,8 +53,10 @@ function md5_pass($length = 8)
 }
 for ($i=1; $i<=5; $i++) {//some times php is continuing without getting the return value from the function md5_pass()
     if (!$randkey) {
-        if ($i>1)
-        sleep(1);
+        if ($i>1) {
+            sleep(1);
+        }
+
         $randkey = md5_pass();
     } else {
         break;

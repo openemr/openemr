@@ -21,8 +21,9 @@ class Pop3Client
     {
         if (! function_exists("imap_open")) {
             require_once('PEAR.php');
-            if (! pear::loadExtension('imap'))
+            if (! pear::loadExtension('imap')) {
                 throw new Exception("Pop3Client: Unable to load imap extension");
+            }
         }
     }
     

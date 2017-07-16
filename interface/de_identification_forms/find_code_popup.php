@@ -136,12 +136,18 @@ if ($codetype) {
     echo ">\n";
     foreach ($code_types as $key => $value) {
         echo "    <option value='$key'";
-        if ($codetype == $key || $form_code_type == $key) echo " selected";
+        if ($codetype == $key || $form_code_type == $key) {
+            echo " selected";
+        }
+
         echo ">$key</option>\n";
     }
 
     echo "    <option value='PROD'";
-    if ($codetype == 'PROD' || $form_code_type == 'PROD') echo " selected";
+    if ($codetype == 'PROD' || $form_code_type == 'PROD') {
+        echo " selected";
+    }
+
     echo ">Product</option>\n";
     echo "   </select>&nbsp;&nbsp;\n";
 }

@@ -75,8 +75,13 @@ function addForm(
 ) {
 
     global $attendant_type;
-    if (!$user) $user = $_SESSION['authUser'];
-    if (!$group) $group = $_SESSION['authProvider'];
+    if (!$user) {
+        $user = $_SESSION['authUser'];
+    }
+
+    if (!$group) {
+        $group = $_SESSION['authProvider'];
+    }
 
     if ($therapy_group == 'not_given') {
         $therapy_group = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'];

@@ -44,7 +44,9 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 }
     
     
-if (!acl_check('admin', 'super')) die(xl('Not authorized', '', '', '!'));
+if (!acl_check('admin', 'super')) {
+    die(xl('Not authorized', '', '', '!'));
+}
 
 include_once("Archive/Tar.php");
 
@@ -69,10 +71,19 @@ $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';
 $form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
 
-if (!empty($_POST['form_export'])) $form_step = 101;
-if (!empty($_POST['form_import'])) $form_step = 201;
+if (!empty($_POST['form_export'])) {
+    $form_step = 101;
+}
+
+if (!empty($_POST['form_import'])) {
+    $form_step = 201;
+}
+
 //ViSolve: Assign Unique Number for the Log Creation
-if (!empty($_POST['form_backup'])) $form_step = 301;
+if (!empty($_POST['form_backup'])) {
+    $form_step = 301;
+}
+
 // When true the current form will submit itself after a brief pause.
 $auto_continue = false;
 
@@ -125,7 +136,8 @@ if ($form_step == 104) {
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data'>
 
-<table<?php if ($form_step != 101) echo " style='width:50em'"; ?>>
+<table<?php if ($form_step != 101) {
+    echo " style='width:50em'";} ?>>
  <tr>
   <td>
 
@@ -168,10 +180,20 @@ if ($form_step == 0) {
 if ($form_step == 1) {
     $form_status .= xl('Dumping OpenEMR database') . "...<br />";
     echo nl2br($form_status);
-    if (file_exists($TAR_FILE_PATH))
-    if (! unlink($TAR_FILE_PATH)) die(xl("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
-    if (! obliterate_dir($TMP_BASE)) die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
-    if (! mkdir($BACKUP_DIR, 0777, true)) die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
+    if (file_exists($TAR_FILE_PATH)) {
+        if (! unlink($TAR_FILE_PATH)) {
+            die(xl("Couldn't remove old backup file:") . " " . $TAR_FILE_PATH);
+        }
+    }
+
+    if (! obliterate_dir($TMP_BASE)) {
+        die(xl("Couldn't remove dir:"). " " . $TMP_BASE);
+    }
+
+    if (! mkdir($BACKUP_DIR, 0777, true)) {
+        die(xl("Couldn't create backup dir:") . " " . $BACKUP_DIR);
+    }
+
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
 
     if ($GLOBALS['include_de_identification']==1) {
@@ -220,9 +242,15 @@ if ($form_step == 3) {
   // except site-specific data for other sites.
     $file_list = array();
     $dh = opendir($webserver_root);
-    if (!$dh) die("Cannot read directory '$webserver_root'.");
+    if (!$dh) {
+        die("Cannot read directory '$webserver_root'.");
+    }
+
     while (false !== ($filename = readdir($dh))) {
-        if ($filename == '.' || $filename == '..') continue;
+        if ($filename == '.' || $filename == '..') {
+            continue;
+        }
+
         if ($filename == 'sites') {
             // Omit other sites.
             $file_list[] = "$filename/" . $_SESSION['site_id'];
@@ -234,8 +262,10 @@ if ($form_step == 3) {
     closedir($dh);
 
     $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "openemr.tar.gz";
-    if (!create_tar_archive($arch_file, "gz", $file_list))
-    die(xl("An error occurred while dumping OpenEMR web directory tree"));
+    if (!create_tar_archive($arch_file, "gz", $file_list)) {
+        die(xl("An error occurred while dumping OpenEMR web directory tree"));
+    }
+
     chdir($cur_dir);
     $auto_continue = true;
 }
@@ -248,8 +278,10 @@ if ($form_step == 4) {
         chdir($phpgacl_location);
         $file_list = array('.');    // archive entire directory
         $arch_file = $BACKUP_DIR . DIRECTORY_SEPARATOR . "phpgacl.tar.gz";
-        if (!create_tar_archive($arch_file, "gz", $file_list))
-        die(xl("An error occurred while dumping phpGACL web directory tree"));
+        if (!create_tar_archive($arch_file, "gz", $file_list)) {
+            die(xl("An error occurred while dumping phpGACL web directory tree"));
+        }
+
         chdir($cur_dir);
         $auto_continue = true;
     } else {
@@ -263,8 +295,10 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
     $cur_dir = getcwd();
     chdir($BACKUP_DIR);
     $file_list = array('.');
-    if (!create_tar_archive($TAR_FILE_PATH, '', $file_list))
-    die(xl("Error: Unable to create downloadable archive"));
+    if (!create_tar_archive($TAR_FILE_PATH, '', $file_list)) {
+        die(xl("Error: Unable to create downloadable archive"));
+    }
+
     chdir($cur_dir);
    /* To log the backup event */
     if ($GLOBALS['audit_events_backup']) {
@@ -325,17 +359,37 @@ if ($form_step == 101) {
 
 if ($form_step == 102) {
     $tables = '';
-    if ($_POST['form_cb_services'  ]) $tables .= ' codes';
-    if ($_POST['form_cb_products'  ]) $tables .= ' drugs drug_templates';
-    if ($_POST['form_cb_prices'    ]) $tables .= ' prices';
-    if ($_POST['form_cb_categories']) $tables .= ' categories categories_seq';
-    if ($_POST['form_cb_feesheet'  ]) $tables .= ' fee_sheet_options';
-    if ($_POST['form_cb_lang'      ]) $tables .= ' lang_languages lang_constants lang_definitions';
+    if ($_POST['form_cb_services'  ]) {
+        $tables .= ' codes';
+    }
+
+    if ($_POST['form_cb_products'  ]) {
+        $tables .= ' drugs drug_templates';
+    }
+
+    if ($_POST['form_cb_prices'    ]) {
+        $tables .= ' prices';
+    }
+
+    if ($_POST['form_cb_categories']) {
+        $tables .= ' categories categories_seq';
+    }
+
+    if ($_POST['form_cb_feesheet'  ]) {
+        $tables .= ' fee_sheet_options';
+    }
+
+    if ($_POST['form_cb_lang'      ]) {
+        $tables .= ' lang_languages lang_constants lang_definitions';
+    }
+
     if ($tables || is_array($_POST['form_sel_lists']) || is_array($_POST['form_sel_layouts'])) {
         $form_status .= xl('Creating export file') . "...<br />";
         echo nl2br($form_status);
         if (file_exists($EXPORT_FILE)) {
-            if (! unlink($EXPORT_FILE)) die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
+            if (! unlink($EXPORT_FILE)) {
+                die(xl("Couldn't remove old export file: ") . $EXPORT_FILE);
+            }
         }
 
         // The substitutions below use perl because sed's not usually on windows systems.
@@ -566,8 +620,9 @@ if ($cmd) {
 
 // If a file was flagged to be gzip-compressed after this cmd, do it.
 if ($file_to_compress) {
-    if (!gz_compress_file($file_to_compress))
-    die(xl("Error in gzip compression of file: ") . $file_to_compress);
+    if (!gz_compress_file($file_to_compress)) {
+        die(xl("Error in gzip compression of file: ") . $file_to_compress);
+    }
 }
 ?>
 
@@ -582,13 +637,24 @@ if ($file_to_compress) {
 // Recursive directory remove (like an O/S insensitive "rm -rf dirname")
 function obliterate_dir($dir)
 {
-    if (!file_exists($dir)) return true;
-    if (!is_dir($dir) || is_link($dir)) return unlink($dir);
+    if (!file_exists($dir)) {
+        return true;
+    }
+
+    if (!is_dir($dir) || is_link($dir)) {
+        return unlink($dir);
+    }
+
     foreach (scandir($dir) as $item) {
-        if ($item == '.' || $item == '..') continue;
+        if ($item == '.' || $item == '..') {
+            continue;
+        }
+
         if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
             chmod($dir . DIRECTORY_SEPARATOR . $item, 0777);
-            if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) return false;
+            if (!obliterate_dir($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
         };
     }
 
@@ -605,7 +671,9 @@ function create_tar_archive($archiveName, $compressMethod, $itemArray)
        // Create a tar object using the pear library
        //  (this is the preferred method)
         $tar = new Archive_Tar($archiveName, $compressMethod);
-        if ($tar->create($itemArray)) return true;
+        if ($tar->create($itemArray)) {
+            return true;
+        }
     } else {
        // Create the tar files via command line tools
        //  (this method used when the tar pear library is not available)
@@ -617,7 +685,10 @@ function create_tar_archive($archiveName, $compressMethod, $itemArray)
         }
 
         $temp0 = exec($command, $temp1, $temp2);
-        if ($temp2) die("\"$command\" returned $temp2: $temp0");
+        if ($temp2) {
+            die("\"$command\" returned $temp2: $temp0");
+        }
+
         return true;
     }
 
@@ -632,15 +703,25 @@ function gz_compress_file($source)
     $error=false;
     if ($fp_in=fopen($source, 'rb')) {
         if ($fp_out=gzopen($dest, 'wb')) {
-            while (!feof($fp_in))gzwrite($fp_out, fread($fp_in, 1024*512));
+            while (!feof($fp_in)) {
+                gzwrite($fp_out, fread($fp_in, 1024*512));
+            }
+
             gzclose($fp_out);
             fclose($fp_in);
             unlink($source);
-        } else $error=true;
-    } else $error=true;
-    if ($error)
-    return false;
-    else return $dest;
+        } else {
+            $error=true;
+        }
+    } else {
+        $error=true;
+    }
+
+    if ($error) {
+        return false;
+    } else {
+        return $dest;
+    }
 }
 ?>
 

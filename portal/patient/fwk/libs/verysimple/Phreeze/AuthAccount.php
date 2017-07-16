@@ -88,12 +88,17 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
     function Login($username, $password)
     {
         // for backwards compatibility with Phreeze 2x, look in multiple places for the AccountCriteria class
-        if (! class_exists("AccountCriteria"))
+        if (! class_exists("AccountCriteria")) {
             @include_once("Model/AccountCriteria.php");
-        if (! class_exists("AccountCriteria"))
+        }
+
+        if (! class_exists("AccountCriteria")) {
             @include_once("Model/DAO/AccountCriteria.php");
-        if (! class_exists("AccountCriteria"))
+        }
+
+        if (! class_exists("AccountCriteria")) {
             throw new Exception("Unable to locate AccountCriteria class.");
+        }
         
         if ($username == "" || $password == "") {
             return false;
@@ -103,11 +108,15 @@ class AuthAccount extends AccountDAO implements IAuthenticatable
         
         $criteria = new AccountCriteria();
         // set both the name and the _Equals properties for backwards compatibility
-        if (property_exists($criteria, 'Username'))
+        if (property_exists($criteria, 'Username')) {
             $criteria->Username = $username;
+        }
+
         $criteria->Username_Equals = $username;
-        if (property_exists($criteria, 'Password'))
+        if (property_exists($criteria, 'Password')) {
             $criteria->Password = base64_encode(crypt($password, $username));
+        }
+
         $criteria->Password_Equals = base64_encode(crypt($password, $username));
         
         $ds = $this->_phreezer->Query("Account", $criteria);

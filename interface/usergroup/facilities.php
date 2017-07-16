@@ -131,16 +131,26 @@ $(document).ready(function(){
         $fres = $facilityService->getAll();
         if ($fres) {
             $result2 = array();
-            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++)
-            $result2[$iter3] = $fres[$iter3];
+            for ($iter3 = 0; $iter3 < sizeof($fres); $iter3++) {
+                $result2[$iter3] = $fres[$iter3];
+            }
+
             foreach ($result2 as $iter3) {
                 $varstreet="";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                 $varcity="";
                 $varstate="";
                 $varstreet=$iter3["street"];
-                if ($iter3["street"]!="")$varstreet=$iter3["street"].",";
-                if ($iter3["city"]!="")$varcity=$iter3["city"].",";
-                if ($iter3["state"]!="")$varstate=$iter3["state"].",";
+                if ($iter3["street"]!="") {
+                    $varstreet=$iter3["street"].",";
+                }
+
+                if ($iter3["city"]!="") {
+                    $varcity=$iter3["city"].",";
+                }
+
+                if ($iter3["state"]!="") {
+                    $varstate=$iter3["state"].",";
+                }
         ?>
       <tr height="22">
          <td valign="top" class="text"><b><a href="facility_admin.php?fid=<?php echo $iter3["id"];?>" class="iframe medium_modal"><span><?php echo htmlspecialchars($iter3["name"]);?></span></a></b>&nbsp;</td>

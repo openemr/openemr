@@ -29,8 +29,9 @@ sqlStatement("unlock tables");
 //end table lock
 $newpid = 1;
 
-if ($result['pid'] > 1)
-  $newpid = $result['pid'];
+if ($result['pid'] > 1) {
+    $newpid = $result['pid'];
+}
 
 setpid($newpid);
 

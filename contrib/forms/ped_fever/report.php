@@ -11,9 +11,13 @@ function ped_fever_report($pid, $encounter, $cols, $id)
     if ($data) :
         print "<table span class=text><tr>";
         foreach ($data as $key => $value) {
-            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") continue;
+            if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" || $key == "authorized" || $key == "activity" || $key == "date" || $value == "" || $value == "0000-00-00 00:00:00") {
+                continue;
+            }
 
-            if ($value == "on") $value = "yes";
+            if ($value == "on") {
+                $value = "yes";
+            }
             
             $key=ucwords(str_replace("_", " ", $key));
 

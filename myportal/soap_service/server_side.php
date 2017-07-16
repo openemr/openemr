@@ -204,8 +204,8 @@ class UserService extends Userforms
             $file_name=$data[1];
             $data=$data[2];
             $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$pid;
-            if (is_dir($savedpath));
-            else {
+            if (is_dir($savedpath)) {
+            } else {
                 mkdir($savedpath, 0777, true);
                 chmod($savedpath, 0777);
             }
@@ -229,12 +229,14 @@ class UserService extends Userforms
             $_POST['new_category_id'] = $data[1];
             $_POST['new_patient_id']  = $data[4];
             $file_path = '';
-            if ($data[9] == 2)
-            $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/".$data[6];
-            elseif ($data[9] == 1)
-            $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/".$data[6];
-            elseif ($data[9] == 4)
-            $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];
+            if ($data[9] == 2) {
+                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/".$data[6];
+            } elseif ($data[9] == 1) {
+                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/".$data[6];
+            } elseif ($data[9] == 4) {
+                $file_path = $GLOBALS['OE_SITE_DIR']."/documents/myportal/patientuploads/".$data[5]."/".$data[6];
+            }
+
             $mime_types = array(
               "pdf"=>"application/pdf"
               ,"exe"=>"application/octet-stream"
@@ -278,9 +280,11 @@ class UserService extends Userforms
             $cdoc = new C_Document();
             $cdoc->upload_action_process();
             if ($GLOBALS['document_storage_method']==0) {
-                if ($data[3])
-                  copy($file_path, $cdoc->file_path.$data[3]);
-                else copy($file_path, $cdoc->file_path.$data[6]);
+                if ($data[3]) {
+                    copy($file_path, $cdoc->file_path.$data[3]);
+                } else {
+                    copy($file_path, $cdoc->file_path.$data[6]);
+                }
             }
 
             $foreign_id = sqlQuery("select id from documents where foreign_id = ? order by id desc limit 1", array($_POST['new_patient_id']));
@@ -491,29 +495,29 @@ class UserService extends Userforms
                $file_name_with_path=$data[1];
                $data=$data[2];
                $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/";
-               if (is_dir($savedpath));
-            else {
+            if (is_dir($savedpath)) {
+            } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
                $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/unsigned/";
-               if (is_dir($savedpath));
-            else {
+            if (is_dir($savedpath)) {
+            } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
                $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/signed/";
-               if (is_dir($savedpath));
-            else {
+            if (is_dir($savedpath)) {
+            } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
 
                $savedpath=$GLOBALS['OE_SITE_DIR']."/documents/myportal/upload/";
-               if (is_dir($savedpath));
-            else {
+            if (is_dir($savedpath)) {
+            } else {
                 mkdir($savedpath, 0777);
                 chmod($savedpath, 0777);
             }
@@ -908,9 +912,12 @@ class UserService extends Userforms
             $batchkey=$value['batchkey'];
             $function=$value['funcname'];
             $param=$value['param'];
-            if (is_array($param))
-            array_unshift($param, $data[0]);
-            else $param[]=$data[0];
+            if (is_array($param)) {
+                array_unshift($param, $data[0]);
+            } else {
+                $param[]=$data[0];
+            }
+
             $res= UserService::$function($param);
             $return_array[$batchkey]=$res;
         }
@@ -1103,8 +1110,10 @@ class UserService extends Userforms
                     return false;
                 }
             } elseif ($credentials[4] == 'oemruser') {
-                if ($credentials[9])
-                $prow = sqlQuery("SELECT pid FROM audit_master WHERE id=?", array($credentials[9]));
+                if ($credentials[9]) {
+                    $prow = sqlQuery("SELECT pid FROM audit_master WHERE id=?", array($credentials[9]));
+                }
+
                 $okO = 1;
             } elseif ($credentials[4] == 'newpatient') {
                 if (UserService::validcredential($credentials) === 2) {
@@ -1159,8 +1168,9 @@ class UserService extends Userforms
 				", array($credentials[6]));
                 }
 
-                if (strtolower($portal['allow_patient_portal'])!='yes')
-                return false;
+                if (strtolower($portal['allow_patient_portal'])!='yes') {
+                    return false;
+                }
             }
 
               $GLOBALS['validated_offsite_portal'] = true;

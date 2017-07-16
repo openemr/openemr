@@ -28,19 +28,32 @@ function smarty_function_pc_view_select($args)
 {
     @define('_PC_FORM_TEMPLATE', true);
     $Date = postcalendar_getDate();
-    if (!isset($y)) $y = substr($Date, 0, 4);
-    if (!isset($m)) $m = substr($Date, 4, 2);
-    if (!isset($d)) $d = substr($Date, 6, 2);
+    if (!isset($y)) {
+        $y = substr($Date, 0, 4);
+    }
+
+    if (!isset($m)) {
+        $m = substr($Date, 4, 2);
+    }
+
+    if (!isset($d)) {
+        $d = substr($Date, 6, 2);
+    }
     
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
-    if (!isset($viewtype)) $viewtype = _SETTING_DEFAULT_VIEW;
+    if (!isset($viewtype)) {
+        $viewtype = _SETTING_DEFAULT_VIEW;
+    }
     
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $mdir = pnVarPrepForOS($modinfo['directory']);
     unset($modinfo);
     $pcTemplate = pnVarPrepForOS(_SETTING_TEMPLATE);
-    if (empty($pcTemplate)) $pcTemplate = 'default';
+    if (empty($pcTemplate)) {
+        $pcTemplate = 'default';
+    }
+
     $viewlist = array();
     $handle = opendir("modules/$mdir/pntemplates/$pcTemplate/views/$viewtype");
     
@@ -66,7 +79,10 @@ function smarty_function_pc_view_select($args)
 
     $options .= '</select>';
     
-    if (!isset($args['label'])) $args['label'] = _PC_TPL_VIEW_SUBMIT;
+    if (!isset($args['label'])) {
+        $args['label'] = _PC_TPL_VIEW_SUBMIT;
+    }
+
     $submit = '<input type="submit" valign="middle" name="submit" value="'.$args['label'].'" class="'.$args['class'].'" />';
     // build the form
     if ($t > 1) {

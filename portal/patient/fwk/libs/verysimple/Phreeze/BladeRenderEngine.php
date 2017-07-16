@@ -110,8 +110,9 @@ class BladeRenderEngine implements IRenderEngine
      */
     function clear($key)
     {
-        if (array_key_exists($key, $this->model))
+        if (array_key_exists($key, $this->model)) {
             unset($this->model [$key]);
+        }
     }
     
     /**

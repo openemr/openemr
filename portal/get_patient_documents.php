@@ -153,8 +153,10 @@ function Zip($source, $destination)
     if (is_dir($source) === true) {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
         foreach ($files as $file) {
-            if ($file == $source."/..")
+            if ($file == $source."/..") {
                 continue;
+            }
+
             $file = str_replace('\\', '/', realpath($file));
             if (is_dir($file) === true) {
                 $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));

@@ -221,9 +221,17 @@ if ($_POST['form_refresh']) {
     $where = "r.date_modified >= '$form_from_date' AND " .
     "r.date_modified <= '$form_to_date'";
   //if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
-    if ($form_patient_id) $where .= " AND p.pubpid = '$form_patient_id'";
-    if ($form_drug_name) $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
-    if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
+    if ($form_patient_id) {
+        $where .= " AND p.pubpid = '$form_patient_id'";
+    }
+
+    if ($form_drug_name) {
+        $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
+    }
+
+    if ($form_lot_number) {
+        $where .= " AND i.lot_number LIKE '$form_lot_number'";
+    }
 
     $query = "SELECT r.id, r.patient_id, " .
     "r.date_modified, r.dosage, r.route, r.interval, r.refills, r.drug, " .
@@ -251,9 +259,13 @@ if ($_POST['form_refresh']) {
        // If a facility is specified, ignore rows that do not match.
         if ($form_facility !== '') {
             if ($form_facility) {
-                if ($row['facility_id'] != $form_facility) continue;
+                if ($row['facility_id'] != $form_facility) {
+                    continue;
+                }
             } else {
-                if (!empty($row['facility_id'])) continue;
+                if (!empty($row['facility_id'])) {
+                    continue;
+                }
             }
         }
 

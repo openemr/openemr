@@ -95,9 +95,14 @@ $sources = array(
 
 function nextGroupOrder($order)
 {
-    if ($order == '9') $order = 'A';
-    else if ($order == 'Z') $order = 'a';
-    else $order = chr(ord($order) + 1);
+    if ($order == '9') {
+        $order = 'A';
+    } else if ($order == 'Z') {
+        $order = 'a';
+    } else {
+        $order = chr(ord($order) + 1);
+    }
+
     return $order;
 }
 
@@ -106,14 +111,23 @@ function nextGroupOrder($order)
 // dropped if they contain any non-empty values.
 function addOrDeleteColumn($layout_id, $field_id, $add = true)
 {
-    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") return;
+    if (substr($layout_id, 0, 3) == 'LBF' || substr($layout_id, 0, 3) == 'LBT' || $layout_id == "FACUSR") {
+        return;
+    }
 
-    if ($layout_id == "DEM") $tablename = "patient_data";
-    else if ($layout_id == "HIS") $tablename = "history_data";
-    else if ($layout_id == "SRH") $tablename = "lists_ippf_srh";
-    else if ($layout_id == "CON") $tablename = "lists_ippf_con";
-    else if ($layout_id == "GCA") $tablename = "lists_ippf_gcac";
-    else die('Internal error in addOrDeleteColumn()');
+    if ($layout_id == "DEM") {
+        $tablename = "patient_data";
+    } else if ($layout_id == "HIS") {
+        $tablename = "history_data";
+    } else if ($layout_id == "SRH") {
+        $tablename = "lists_ippf_srh";
+    } else if ($layout_id == "CON") {
+        $tablename = "lists_ippf_con";
+    } else if ($layout_id == "GCA") {
+        $tablename = "lists_ippf_gcac";
+    } else {
+        die('Internal error in addOrDeleteColumn()');
+    }
 
   // Check if the column currently exists.
     $tmp = sqlQuery("SHOW COLUMNS FROM `$tablename` LIKE '$field_id'");
@@ -147,7 +161,9 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true)
 
 // Check authorization.
 $thisauth = acl_check('admin', 'super');
-if (!$thisauth) die(xl('Not authorized'));
+if (!$thisauth) {
+    die(xl('Not authorized'));
+}
 
 // The layout ID identifies the layout to be edited.
 $layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
@@ -275,7 +291,9 @@ if ($_POST['formaction'] == "save" && $layout_id) {
     $maxnum = '1';
     while ($result = sqlFetchArray($results)) {
         $tmp = substr($result['gname'], 0, 1);
-        if ($tmp >= $maxnum) $maxnum = nextGroupOrder($tmp);
+        if ($tmp >= $maxnum) {
+            $maxnum = nextGroupOrder($tmp);
+        }
     }
 
     $data_type = formTrim($_POST['gnewdatatype']);
@@ -349,7 +367,10 @@ if ($_POST['formaction'] == "save" && $layout_id) {
 
     $nextord = '1';
     foreach ($garray as $value) {
-        if ($value === '') continue;
+        if ($value === '') {
+            continue;
+        }
+
         $newname = $nextord . substr($value, 1);
         sqlStatement("UPDATE layout_options SET " .
         "group_name = '$newname' WHERE " .
@@ -390,7 +411,10 @@ function genFieldOptionList($current = '')
         while ($row = sqlFetchArray($res)) {
             $field_id = $row['field_id'];
             $option_list .= "<option value='" . attr($field_id) . "'";
-            if ($field_id == $current) $option_list .= " selected";
+            if ($field_id == $current) {
+                $option_list .= " selected";
+            }
+
             $option_list .= ">" . text($field_id) . "</option>";
         }
     }
@@ -428,7 +452,10 @@ function writeFieldLine($linedata)
     echo "<select name='fld[$fld_line_no][source]' class='optin noselect' $lbfonly>";
     foreach ($sources as $key => $value) {
         echo "<option value='" . attr($key) . "'";
-        if ($key == $linedata['source']) echo " selected";
+        if ($key == $linedata['source']) {
+            echo " selected";
+        }
+
         echo ">" . text($value) . "</option>\n";
     }
 
@@ -461,7 +488,10 @@ function writeFieldLine($linedata)
     echo "<select name='fld[$fld_line_no][uor]' class='optin'>";
     foreach (array(0 =>xl('Unused'), 1 =>xl('Optional'), 2 =>xl('Required')) as $key => $value) {
         echo "<option value='$key'";
-        if ($key == $linedata['uor']) echo " selected";
+        if ($key == $linedata['uor']) {
+            echo " selected";
+        }
+
         echo ">$value</option>\n";
     }
 
@@ -473,9 +503,11 @@ function writeFieldLine($linedata)
     echo "<option value=''></option>";
     global $datatypes;
     foreach ($datatypes as $key=>$value) {
-        if ($linedata['data_type'] == $key)
+        if ($linedata['data_type'] == $key) {
             echo "<option value='$key' selected>$value</option>";
-        else echo "<option value='$key'>$value</option>";
+        } else {
+            echo "<option value='$key'>$value</option>";
+        }
     }
 
     echo "</select>";
@@ -540,8 +572,10 @@ function writeFieldLine($linedata)
         $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0");
         while ($row = sqlFetchArray($res)) {
             $sel = '';
-            if ($linedata['list_id'] == $row['cl_list_item_long'])
-            $sel = 'selected';
+            if ($linedata['list_id'] == $row['cl_list_item_long']) {
+                $sel = 'selected';
+            }
+
             echo "<option value='".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."' ".$sel.">".htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES)."</option>";
         }
 
@@ -648,7 +682,10 @@ function writeFieldLine($linedata)
 
     // The "?" to click on for yet more field attributes.
     echo "  <td class='bold' id='querytd_$fld_line_no' style='cursor:pointer;";
-    if (!empty($linedata['conditions']) || !empty($linedata['validation'])) echo "background-color:#77ff77;";
+    if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
+        echo "background-color:#77ff77;";
+    }
+
     echo "' onclick='extShow($fld_line_no, this)' align='center' ";
     echo "title='" . xla('Click here to view/edit more details') . "'>";
     echo "&nbsp;?&nbsp;";
@@ -702,7 +739,10 @@ function writeFieldLine($linedata)
         'ns' => xl('Is not selected'),
         ) as $key => $value) {
             $extra_html .= "    <option value='$key'";
-            if ($key == $condition['operator']) $extra_html .= " selected";
+            if ($key == $condition['operator']) {
+                $extra_html .= " selected";
+            }
+
             $extra_html .= ">" . text($value) . "</option>\n";
         }
 
@@ -727,7 +767,10 @@ function writeFieldLine($linedata)
             'or'  => xl('Or'),
             ) as $key => $value) {
                 $extra_html .= "    <option value='$key'";
-                if ($key == $condition['andor']) $extra_html .= " selected";
+                if ($key == $condition['andor']) {
+                    $extra_html .= " selected";
+                }
+
                 $extra_html .= ">" . text($value) . "</option>\n";
             }
 
@@ -757,11 +800,17 @@ function writeFieldLine($linedata)
 
     "   <select name='fld[$fld_line_no][validation]' onchange='valChanged($fld_line_no)'>\n" .
     "   <option value=''";
-        if (empty($linedata['validation'])) $extra_html .= " selected";
+    if (empty($linedata['validation'])) {
+        $extra_html .= " selected";
+    }
+
         $extra_html .= ">-- " . xlt('Please Select') . " --</option>";
     foreach ($validations as $key=>$value) {
         $extra_html .= "    <option value='$key'";
-        if ($key == $linedata['validation']) $extra_html .= " selected";
+        if ($key == $linedata['validation']) {
+            $extra_html .= " selected";
+        }
+
         $extra_html .= ">" . text($value) . "</option>\n";
     }
 
@@ -1032,7 +1081,10 @@ function myChangeCheck() {
 <?php
 foreach ($layouts as $key => $value) {
     echo " <option value='$key'";
-    if ($key == $layout_id) echo " selected";
+    if ($key == $layout_id) {
+        echo " selected";
+    }
+
     echo ">$value</option>\n";
 }
 ?>

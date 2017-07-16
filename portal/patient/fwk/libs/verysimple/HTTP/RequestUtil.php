@@ -47,14 +47,22 @@ class RequestUtil
      */
     static function GetRemoteHost()
     {
-        if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER))
+        if (array_key_exists('HTTP_X_CLUSTER_CLIENT_IP', $_SERVER)) {
             return $_SERVER ['HTTP_X_CLUSTER_CLIENT_IP'];
-        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
+        }
+
+        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
             return $_SERVER ['HTTP_X_FORWARDED_FOR'];
-        if (array_key_exists('X_FORWARDED_FOR', $_SERVER))
+        }
+
+        if (array_key_exists('X_FORWARDED_FOR', $_SERVER)) {
             return $_SERVER ['X_FORWARDED_FOR'];
-        if (array_key_exists('REMOTE_ADDR', $_SERVER))
+        }
+
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
             return $_SERVER ['REMOTE_ADDR'];
+        }
+
         return "0.0.0.0";
     }
     
@@ -99,8 +107,10 @@ class RequestUtil
     {
         $url = self::GetCurrentURL(false);
         $parts = explode('/', $url);
-        if (count($parts) < 2)
+        if (count($parts) < 2) {
             throw new Exception('RequestUtil is unable to determine the server root');
+        }
+
         return $parts [0] . '//' . $parts [2] . '/';
     }
     
@@ -132,8 +142,9 @@ class RequestUtil
         $url = $urlqs [0];
         
         // if a root folder was provided, then we need to strip that out as well
-        if ($appRoot)
+        if ($appRoot) {
             $url = str_replace($appRoot . '/', '', $url);
+        }
         
         $parts = explode("/", $url);
         // we only want the parts starting with #3 (after http://server/)
@@ -164,8 +175,9 @@ class RequestUtil
      */
     public static function GetMethod($emulateHttpParamName = '_method')
     {
-        if (array_key_exists($emulateHttpParamName, $_REQUEST))
+        if (array_key_exists($emulateHttpParamName, $_REQUEST)) {
             return $_REQUEST [$emulateHttpParamName];
+        }
         
         $headers = self::GetRequestHeaders();
         
@@ -184,8 +196,9 @@ class RequestUtil
      */
     public static function GetRequestHeaders()
     {
-        if (function_exists('getallheaders'))
+        if (function_exists('getallheaders')) {
             return getallheaders();
+        }
         
         $headers = array ();
         foreach ($_SERVER as $k => $v) {
@@ -244,8 +257,9 @@ class RequestUtil
     {
         $headers = false;
         
-        if (function_exists('apache_request_headers'))
+        if (function_exists('apache_request_headers')) {
             $headers = apache_request_headers();
+        }
         
         if ($headers === false) {
             // apache_request_headers is not supported in this environment
@@ -362,8 +376,9 @@ class RequestUtil
         }
         
         // backwards compatibility
-        if (self::$TestMode)
+        if (self::$TestMode) {
             self::$VALIDATE_FILE_UPLOAD = false;
+        }
             
             // make sure this is a legit file request
         if (self::$VALIDATE_FILE_UPLOAD && is_uploaded_file($upload ['tmp_name']) == false) {

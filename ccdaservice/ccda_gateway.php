@@ -47,8 +47,9 @@ $dowhat = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
 if ($dowhat && $GLOBALS['ccda_alt_service_enable'] >= 1) { // do I need this?
     require_once("./../ccdaservice/ssmanager.php");
     if (!runCheck()) { // woops, try again
-        if (!runCheck())
+        if (!runCheck()) {
             die("Document service start failed. Click back to return home."); // nuts! give up
+        }
     }
 } else {
     // maybe next time
@@ -68,7 +69,10 @@ $parameterArray ['view'] = 1;
 $parameterArray ['recipients'] = 'patient'; // emr_direct or hie else if not set $_SESSION['authUserID']
 $parameterArray [0] [6] = $_SESSION ['portal_username']; // set to an onsite portal user
 
-if (!isset($_SESSION ['site_id'])) $_SESSION ['site_id'] = 'default'; // do believe globals does this but I go rogue at times.
+if (!isset($_SESSION ['site_id'])) {
+    $_SESSION ['site_id'] = 'default'; // do believe globals does this but I go rogue at times.
+}
+
 $server_url = 'http://localhost'. $GLOBALS['webroot'];  // I alias into openemr directory on my sights causing webroot to be empty.
                                                                                             //I've have actually seen this return 'default' due to apache config'ed with localhost alias on more than one virtual host?? Watch
 //global $server_url; // can't find where this is defined!
@@ -78,7 +82,10 @@ $ccdaxml = portalccdafetching($pid, $server_url, $parameterArray);
 $h='';
 if (!$parameterArray ['view']) {
     header('Content-Type: application/xml');
-} else $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
+} else {
+    $h='<a href="./../portal/home.php" </a><button style="color: red; background: white;" >' . xlt("Return Home") .'</button><br>';
+}
+
 print_r($h.$ccdaxml.$h);
 //service_shutdown(1); //In ssmanager  0= terminate and disable 1 = soft=terminate but still active w/no restart, > 1 just restart based on B.S timer
 exit;

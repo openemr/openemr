@@ -174,14 +174,18 @@ function doSubs($s)
         } else if (keySearch($s, '{PatientName}')) {
             $tmp = $ptrow['fname'];
             if ($ptrow['mname']) {
-                if ($tmp)
+                if ($tmp) {
                     $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['mname'];
             }
 
             if ($ptrow['lname']) {
-                if ($tmp)
+                if ($tmp) {
                     $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['lname'];
             }
 
@@ -198,12 +202,18 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup($ptrow['postal_code'], xl('Postal Code')));
         } else if (keySearch($s, '{PatientPhone}')) {
             $ptphone = $ptrow['phone_contact'];
-            if (empty($ptphone))
+            if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_home'];
-            if (empty($ptphone))
+            }
+
+            if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_cell'];
-            if (empty($ptphone))
+            }
+
+            if (empty($ptphone)) {
                 $ptphone = $ptrow['phone_biz'];
+            }
+
             if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
@@ -232,14 +242,18 @@ function doSubs($s)
         } else if (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
             if (! empty($ptrow['ur_mname'])) {
-                if ($tmp)
+                if ($tmp) {
                     $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_mname'];
             }
 
             if (! empty($ptrow['ur_lname'])) {
-                if ($tmp)
+                if ($tmp) {
                     $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_lname'];
             }
 
@@ -262,8 +276,10 @@ function doSubs($s)
             $groupCount = 0;
             $s = keyReplace($s, '');
         } else if (keySearch($s, '{/GRP}')) {
-            if ($groupLevel > 0)
+            if ($groupLevel > 0) {
                 -- $groupLevel;
+            }
+
             $s = keyReplace($s, '');
         } // This is how we specify the separator between group items in a way that
           // is independent of the document format. Whatever is between {ITEMSEP} and
@@ -374,32 +390,33 @@ if ('dotx' == $ext) {
 } else if (function_exists('mime_content_type')) {
     $mimetype = mime_content_type($templatepath);
 } else {
-    if ('doc' == $ext)
+    if ('doc' == $ext) {
         $mimetype = 'application/msword';
-    else if ('dot' == $ext)
+    } else if ('dot' == $ext) {
         $mimetype = 'application/msword';
-    else if ('htm' == $ext)
+    } else if ('htm' == $ext) {
         $mimetype = 'text/html';
-    else if ('html' == $ext)
+    } else if ('html' == $ext) {
         $mimetype = 'text/html';
-    else if ('odt' == $ext)
+    } else if ('odt' == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.text';
-    else if ('ods' == $ext)
+    } else if ('ods' == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.spreadsheet';
-    else if ('ott' == $ext)
+    } else if ('ott' == $ext) {
         $mimetype = 'application/vnd.oasis.opendocument.text';
-    else if ('pdf' == $ext)
+    } else if ('pdf' == $ext) {
         $mimetype = 'application/pdf';
-    else if ('ppt' == $ext)
+    } else if ('ppt' == $ext) {
         $mimetype = 'application/vnd.ms-powerpoint';
-    elseif ('ps' == $ext)
+    } elseif ('ps' == $ext) {
         $mimetype = 'application/postscript';
-    else if ('rtf' == $ext)
+    } else if ('rtf' == $ext) {
         $mimetype = 'application/rtf';
-    else if ('txt' == $ext)
+    } else if ('txt' == $ext) {
         $mimetype = 'text/plain';
-    else if ('xls' == $ext)
+    } else if ('xls' == $ext) {
         $mimetype = 'application/vnd.ms-excel';
+    }
 }
 
 $zipin = new ZipArchive();

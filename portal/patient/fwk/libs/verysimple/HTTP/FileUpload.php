@@ -72,7 +72,8 @@ class FileUpload
         fwrite($handle, $this->Data);
         fclose($handle);
         
-        if ($chmod)
+        if ($chmod) {
             @chmod($fullpath, 0666);
+        }
     }
 }

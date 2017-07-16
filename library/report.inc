@@ -216,7 +216,9 @@ function lbt_current_value($frow, $formid)
     if ($formid) {
         $ldrow = sqlQuery("SELECT field_value FROM lbt_data WHERE " .
         "form_id = ? AND field_id = ?", array($formid, $field_id));
-        if (!empty($ldrow)) $currvalue = $ldrow['field_value'];
+        if (!empty($ldrow)) {
+            $currvalue = $ldrow['field_value'];
+        }
     }
 
     return $currvalue;
@@ -234,7 +236,10 @@ function lbt_report($id, $formname)
         $field_id  = $frow['field_id'];
         $currvalue = lbt_current_value($frow, $id);
         // For brevity, skip fields without a value.
-        if ($currvalue === '') continue;
+        if ($currvalue === '') {
+            continue;
+        }
+
         $arr[$field_id] = wordwrap($currvalue, 30, "\n", true);
     }
 
@@ -542,7 +547,10 @@ function printDataOne($retar, $key, $sep, $date_format)
         $length = sizeof($retar{$key});
         if ($retar{$key}[$length]{"value"} != "0000-00-00 00:00:00") {
             $tmp = $retar{$key}[$length]{"value"};
-            if (strstr($key, 'DOB')) $tmp = oeFormatShortDate($tmp);
+            if (strstr($key, 'DOB')) {
+                $tmp = oeFormatShortDate($tmp);
+            }
+
             print text($tmp) . $sep;
         }
     }

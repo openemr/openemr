@@ -50,13 +50,17 @@ function add_date($givendate, $day = 0, $mth = 0, $yr = 0)
 }
     $type = $_POST["type"];
     $facility = isset($_POST['facility']) ? $_POST['facility'] : '';
-    if ($_POST['date_from'] != "")
-        $sql_date_from = $_POST['date_from'];
-else $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+if ($_POST['date_from'] != "") {
+    $sql_date_from = $_POST['date_from'];
+} else {
+    $sql_date_from = fixDate($_POST['date_from'], date('Y-01-01 H:i:s'));
+}
 
-    if ($_POST['date_to'] != "")
-        $sql_date_to = $_POST['date_to'];
-else $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
+if ($_POST['date_to'] != "") {
+    $sql_date_to = $_POST['date_to'];
+} else {
+    $sql_date_to = fixDate($_POST['date_to'], add_date(date('Y-m-d H:i:s')));
+}
 
 
     $patient_id = trim($_POST["patient_id"]);
@@ -345,49 +349,57 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                                                    <table>
                                                    <tr>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='form_pt_name'<?php if ($_POST['form_pt_name'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Patient Name'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='form_pt_age'<?php if ($_POST['form_pt_age'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='form_pt_age'<?php if ($_POST['form_pt_age'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Age'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='form_diagnosis_allergy'<?php if ($_POST['form_diagnosis_allergy'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='form_diagnosis_allergy'<?php if ($_POST['form_diagnosis_allergy'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Allergies'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='form_diagnosis_medprb'<?php if ($_POST['form_diagnosis_medprb'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='form_diagnosis_medprb'<?php if ($_POST['form_diagnosis_medprb'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Medical Problems'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='form_drug'<?php if ($_POST['form_drug'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='form_drug'<?php if ($_POST['form_drug'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Drug'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='ndc_no'<?php if ($_POST['ndc_no'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='ndc_no'<?php if ($_POST['ndc_no'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('NDC Number'), ENT_NOQUOTES); ?>&nbsp;
                                                    </td>
                                                    <td>
-                                                   <input type='checkbox' class='form-control' name='lab_results'<?php if ($_POST['lab_results'] == true) echo ' checked'; ?>>
+                                                   <input type='checkbox' class='form-control' name='lab_results'<?php if ($_POST['lab_results'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo htmlspecialchars(xl('Lab Results'), ENT_NOQUOTES); ?>&nbsp;
                                                   </td>
                                                    <td>
-                                                  <input type='checkbox' class='form-control' name='communication_check'<?php if ($_POST['communication_check'] == true) echo ' checked'; ?>>
+                                                  <input type='checkbox' class='form-control' name='communication_check'<?php if ($_POST['communication_check'] == true) {
+                                                        echo ' checked';} ?>>
                                                    </td>
                                                    <td class='control-label'>
                                                     <?php echo xlt('Communication'); ?>
@@ -571,7 +583,10 @@ if ($_POST['form_refresh']) {
 
     if (strlen($form_lab_results) != 0 || $_POST['lab_results'] == true) {
         $whr_stmt= $whr_stmt." AND (pr.result LIKE ?) ";
-        if (empty($form_lab_results)) $form_lab_results ="%";
+        if (empty($form_lab_results)) {
+            $form_lab_results ="%";
+        }
+
         array_push($sqlBindArray, $form_lab_results);
     }
 
@@ -580,7 +595,10 @@ if ($_POST['form_refresh']) {
                         d.name LIKE ?
                         OR r.drug LIKE ?
                         ) ";
-            if (empty($form_drug_name)) $form_drug_name ="%";
+        if (empty($form_drug_name)) {
+            $form_drug_name ="%";
+        }
+
             array_push($sqlBindArray, $form_drug_name, $form_drug_name);
     }
 
@@ -634,11 +652,15 @@ if ($_POST['form_refresh']) {
 
   //communication preferences added in clinical report
     if (strlen($communication) > 0 || $_POST['communication_check'] == true) {
-        if ($communication == "allow_sms")  $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
-        else if ($communication == "allow_voice")  $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
-        else if ($communication == "allow_mail")  $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
-        else if ($communication == "allow_email")  $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
-        else if ($communication == "" && $_POST['communication_check'] == true) {
+        if ($communication == "allow_sms") {
+            $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
+        } else if ($communication == "allow_voice") {
+            $whr_stmt .= " AND pd.hipaa_voice = 'YES' ";
+        } else if ($communication == "allow_mail") {
+            $whr_stmt .= " AND pd.hipaa_mail  = 'YES' ";
+        } else if ($communication == "allow_email") {
+            $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
+        } else if ($communication == "" && $_POST['communication_check'] == true) {
             $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
         }
     }
@@ -910,17 +932,39 @@ if ($_POST['form_refresh']) {
 
                                 echo htmlspecialchars($his_tobac, ENT_NOQUOTES); ?>&nbsp;</td>
                 <?php
-                    if ($tmp_a[1] == "currentalcohol") $res = xl('Current Alcohol');
-                    if ($tmp_a[1] == "quitalcohol") $res = xl('Quit Alcohol');
-                    if ($tmp_a[1] == "neveralcohol") $res = xl('Never Alcohol');
-                    if ($tmp_a[1] == "not_applicablealcohol") $res = xl('N/A');
+                if ($tmp_a[1] == "currentalcohol") {
+                    $res = xl('Current Alcohol');
+                }
+
+                if ($tmp_a[1] == "quitalcohol") {
+                    $res = xl('Quit Alcohol');
+                }
+
+                if ($tmp_a[1] == "neveralcohol") {
+                    $res = xl('Never Alcohol');
+                }
+
+                if ($tmp_a[1] == "not_applicablealcohol") {
+                    $res = xl('N/A');
+                }
                 ?>
                                  <td> <?php echo htmlspecialchars($res, ENT_NOQUOTES); ?>&nbsp;</td>
                     <?php
-                                         if ($tmp_d[1] == "currentrecreational_drugs") $resd = xl('Current Recreational Drugs');
-                                         if ($tmp_d[1] == "quitrecreational_drugs") $resd = xl('Quit');
-                                         if ($tmp_d[1] == "neverrecreational_drugs") $resd = xl('Never');
-                                         if ($tmp_d[1] == "not_applicablerecreational_drugs") $resd = xl('N/A');
+                    if ($tmp_d[1] == "currentrecreational_drugs") {
+                        $resd = xl('Current Recreational Drugs');
+                    }
+
+                    if ($tmp_d[1] == "quitrecreational_drugs") {
+                        $resd = xl('Quit');
+                    }
+
+                    if ($tmp_d[1] == "neverrecreational_drugs") {
+                        $resd = xl('Never');
+                    }
+
+                    if ($tmp_d[1] == "not_applicablerecreational_drugs") {
+                        $resd = xl('N/A');
+                    }
                                     ?>
                                   <td colspan=8> <?php echo htmlspecialchars($resd, ENT_NOQUOTES); ?>&nbsp;</td>
                           </tr>

@@ -41,8 +41,9 @@ class Dispatcher
      */
     static function ControllerFileExists($fileName)
     {
-        if (file_exists($fileName))
+        if (file_exists($fileName)) {
             return $fileName;
+        }
         
         $directoryName = dirname($fileName);
         $fileArray = glob($directoryName . '/*', GLOB_NOSORT);
@@ -50,12 +51,14 @@ class Dispatcher
         
         // TODO: if not an array then this path isn't readable, should we ignore or crash...?
         // if (!is_array($fileArray)) throw new Exception('Unreadable include path "'.$directoryName.'" for controller "' . $fileName . '"');
-        if (! is_array($fileArray))
+        if (! is_array($fileArray)) {
             return false;
+        }
         
         foreach ($fileArray as $file) {
-            if (strtolower($file) == $fileNameLowerCase)
+            if (strtolower($file) == $fileNameLowerCase) {
                 return $file;
+            }
         }
         
         return false;
@@ -126,8 +129,9 @@ class Dispatcher
                 }
             }
             
-            if (! $found)
+            if (! $found) {
                 throw new Exception("File ~/libs/" . $controller_file . " was not found in include path");
+            }
                 
                 // convert any php errors into an exception
             if (self::$IGNORE_DEPRECATED) {

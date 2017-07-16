@@ -60,8 +60,10 @@ class UserController extends AppBaseController
     public function ListView()
     {
         $rid=0;
-        if (isset($_GET['id']))
+        if (isset($_GET['id'])) {
             $rid = (int) $_GET['id'];
+        }
+
         $this->Assign('recid', $rid);
         $this->Render();
     }
@@ -81,7 +83,9 @@ class UserController extends AppBaseController
             // if a sort order was specified then specify in the criteria
             $output->orderBy = RequestUtil::Get('orderBy');
             $output->orderDesc = RequestUtil::Get('orderDesc') != '';
-            if ($output->orderBy) $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
             $page = RequestUtil::Get('page');
 

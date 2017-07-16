@@ -116,13 +116,14 @@ function cron_updateentry($type, $pid, $pc_eid)
     $query = "update openemr_postcalendar_events set ";
 
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type=='SMS')
+    if ($type=='SMS') {
         $query.=" pc_sendalertsms='YES' ";
-    elseif ($type=='Email')
+    } elseif ($type=='Email') {
         $query.=" pc_sendalertemail='YES' ";
-    //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif ($type=='Phone')
+    } //Added by Yijin for phone reminder.. Uses the same field as SMS.
+    elseif ($type=='Phone') {
         $query.=" pc_sendalertsms='YES' ";
+    }
 
     $query .=" where pc_pid=? and pc_eid=? ";
     //echo "<br>".$query;

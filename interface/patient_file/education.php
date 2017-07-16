@@ -32,13 +32,22 @@ if ($_POST['bn_submit']) {
         $url = 'http://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm';
         // Set code type in URL.
         $url .= '?mainSearchCriteria.v.cs=';
-        if ('ICD9'   == $codetype) $url .= '2.16.840.1.113883.6.103';
-        else if ('ICD10'  == $codetype) $url .= '2.16.840.1.113883.6.90' ;
-        else if ('SNOMED' == $codetype) $url .= '2.16.840.1.113883.6.96' ;
-        else if ('RXCUI'  == $codetype) $url .= '2.16.840.1.113883.6.88' ;
-        else if ('NDC'    == $codetype) $url .= '2.16.840.1.113883.6.69' ;
-        else if ('LOINC'  == $codetype) $url .= '2.16.840.1.113883.6.1'  ;
-        else die(xlt('Code type not recognized') . ': ' . text($codetype));
+        if ('ICD9'   == $codetype) {
+            $url .= '2.16.840.1.113883.6.103';
+        } else if ('ICD10'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.90' ;
+        } else if ('SNOMED' == $codetype) {
+            $url .= '2.16.840.1.113883.6.96' ;
+        } else if ('RXCUI'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.88' ;
+        } else if ('NDC'    == $codetype) {
+            $url .= '2.16.840.1.113883.6.69' ;
+        } else if ('LOINC'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.1'  ;
+        } else {
+            die(xlt('Code type not recognized') . ': ' . text($codetype));
+        }
+
         // Set code value in URL.
         $url .= '&mainSearchCriteria.v.c=' . urlencode($codevalue);
         // Set language in URL if relevant. MedlinePlus supports only English or Spanish.
@@ -62,7 +71,10 @@ if ($_POST['bn_submit']) {
         exit();
     } else {
         $lang = 'en';
-        if ($language == 'es' || $language == 'spanish') $lang = 'es';
+        if ($language == 'es' || $language == 'spanish') {
+            $lang = 'es';
+        }
+
         $filename = strtolower("{$codetype}_{$codevalue}_{$lang}.pdf");
         $filepath = "$educationdir/$filename";
         if (is_file($filepath)) {

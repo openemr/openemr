@@ -34,8 +34,9 @@
     <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <?php
  // check access controls
- if (!acl_check('patients', 'appt', '', array('write','wsome')))
-  die(xlt('Access not allowed'));
+if (!acl_check('patients', 'appt', '', array('write','wsome'))) {
+    die(xlt('Access not allowed'));
+}
 
  // If the caller is updating an existing event, then get its ID so
  // we don't count it as a reserved time slot.
@@ -48,20 +49,31 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
 {
     global $slots, $slotsecs, $slotstime, $slotbase, $slotcount, $input_catid;
     $udate = strtotime($starttime, $udate);
-    if ($udate < $slotstime) return;
+    if ($udate < $slotstime) {
+        return;
+    }
+
     $i = (int) ($udate / $slotsecs) - $slotbase;
     $iend = (int) (($duration + $slotsecs - 1) / $slotsecs) + $i;
-    if ($iend > $slotcount) $iend = $slotcount;
-    if ($iend <= $i) $iend = $i + 1;
+    if ($iend > $slotcount) {
+        $iend = $slotcount;
+    }
+
+    if ($iend <= $i) {
+        $iend = $i + 1;
+    }
+
     for (; $i < $iend; ++$i) {
         if ($catid == 2) {        // in office
             // If a category ID was specified when this popup was invoked, then select
             // only IN events with a matching preferred category or with no preferred
             // category; other IN events are to be treated as OUT events.
             if ($input_catid) {
-                if ($prefcatid == $input_catid || !$prefcatid)
-                $slots[$i] |= 1;
-                else $slots[$i] |= 2;
+                if ($prefcatid == $input_catid || !$prefcatid) {
+                    $slots[$i] |= 1;
+                } else {
+                    $slots[$i] |= 2;
+                }
             } else {
                 $slots[$i] |= 1;
             }
@@ -83,13 +95,17 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
  $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", array($input_catid));
-    if ($srow['pc_duration']) $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    if ($srow['pc_duration']) {
+        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+    }
 }
 
  $info_msg = "";
 
  $searchdays = 7; // default to a 1-week lookahead
- if ($_REQUEST['searchdays']) $searchdays = $_REQUEST['searchdays'];
+if ($_REQUEST['searchdays']) {
+    $searchdays = $_REQUEST['searchdays'];
+}
 
  // Get a start date.
 if ($_REQUEST['startdate'] && preg_match(
@@ -115,22 +131,24 @@ if ($_REQUEST['startdate'] && preg_match(
  $slotbase  = (int) ($slotstime / $slotsecs);
  $slotcount = (int) ($slotetime / $slotsecs) - $slotbase;
 
- if ($slotcount <= 0 || $slotcount > 100000) die(xlt("Invalid date range"));
+ if ($slotcount <= 0 || $slotcount > 100000) {
+     die(xlt("Invalid date range"));
+    }
 
- $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
+    $slotsperday = (int) (60 * 60 * 24 / $slotsecs);
 
  // Compute the number of time slots for the given event duration, or if
  // none is given then assume the default category duration.
- $evslots = $catslots;
- if (isset($_REQUEST['evdur'])) {
-  // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
-  // if the event duration is less than or equal to zero, use the global calander interval
-  // if the global calendar interval is less than or equal to zero, use 10 mins
-     if (intval($_REQUEST['evdur']) <= 0) {
-         if (intval($GLOBALS['calendar_interval']) <= 0) {
-              $_REQUEST['evdur'] = 10;
+    $evslots = $catslots;
+    if (isset($_REQUEST['evdur'])) {
+     // bug fix #445 -- Craig Bezuidenhout 09 Aug 2016
+     // if the event duration is less than or equal to zero, use the global calander interval
+     // if the global calendar interval is less than or equal to zero, use 10 mins
+        if (intval($_REQUEST['evdur']) <= 0) {
+            if (intval($GLOBALS['calendar_interval']) <= 0) {
+                 $_REQUEST['evdur'] = 10;
             } else {
-                 $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
+                $_REQUEST['evdur'] = intval($GLOBALS['calendar_interval']);
             }
         }
 
@@ -192,9 +210,18 @@ if ($_REQUEST['startdate'] && preg_match(
         // Actually we could do this in the display loop instead.
         $inoffice = false;
         for ($i = 0; $i < $slotcount; ++$i) {
-            if (($i % $slotsperday) == 0) $inoffice = false;
-            if ($slots[$i] & 1) $inoffice = true;
-            if ($slots[$i] & 2) $inoffice = false;
+            if (($i % $slotsperday) == 0) {
+                $inoffice = false;
+            }
+
+            if ($slots[$i] & 1) {
+                $inoffice = true;
+            }
+
+            if ($slots[$i] & 2) {
+                $inoffice = false;
+            }
+
             if (! $inoffice) {
                 $slots[$i] |= 4;
                 $prov[$i] = $i; }
@@ -367,10 +394,14 @@ form {
 for ($i = 0; $i < $slotcount; ++$i) {
     $available = true;
     for ($j = $i; $j < $i + $evslots; ++$j) {
-        if ($slots[$j] >= 4) $available = false;
+        if ($slots[$j] >= 4) {
+            $available = false;
+        }
     }
 
-    if (!$available) continue; // skip reserved slots
+    if (!$available) {
+        continue; // skip reserved slots
+    }
 
     $utime = ($slotbase + $i) * $slotsecs;
     $thisdate = date("Y-m-d", $utime);

@@ -44,8 +44,13 @@ if (!$pid) {
 } else {
     $_SESSION['pid'] = $pid; }
 
-if (!$user) $user = $_SESSION['authUser'];
-if (!$group) $group = $_SESSION['authProvider'];
+if (!$user) {
+    $user = $_SESSION['authUser'];
+}
+
+if (!$group) {
+    $group = $_SESSION['authProvider'];
+}
 
 if (!$_SESSION['encounter']) {
     $encounter = date("Ymd");

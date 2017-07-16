@@ -215,7 +215,10 @@ foreach ($ar as $key => $val) {
             echo "<br><br>";
             foreach ($val as $valkey => $valvalue) {
                 $document_id = $valvalue;
-                if (!is_numeric($document_id)) continue;
+                if (!is_numeric($document_id)) {
+                    continue;
+                }
+
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
                 $extension = substr($fname, strrpos($fname, "."));
@@ -273,7 +276,10 @@ foreach ($ar as $key => $val) {
             $form_id = $res[2];
             $formres = getFormNameByFormdir($res[1]);
             $dateres = getEncounterDateByEncounter($form_encounter);
-            if ($res[1] == 'newpatient') print "<br>\n";
+            if ($res[1] == 'newpatient') {
+                print "<br>\n";
+            }
+
             print "<span class='bold'>" . $formres{"form_name"} .
             "</span><span class=text>(" . oeFormatShortDate(strtotime($dateres{"date"})) .
             ")" . "</span><br>\n";

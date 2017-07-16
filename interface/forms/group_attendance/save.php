@@ -29,8 +29,9 @@ require_once("functions.php");
 
 //Save only if has permission to edit
 $can_edit = acl_check("groups", "gadd", false, 'write');
-if (!$can_edit)
+if (!$can_edit) {
     formJump();
+}
 
 //Get relevant data from group appt (the appt that created the group encounter)
 $appt_data = get_appt_data($encounter);

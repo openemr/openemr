@@ -233,7 +233,10 @@ ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . "$script_dir/
 require_once("$script_dir/phpseclib/Net/SFTP.php");
 function get_openemr_globals($libdir)
 {
-    if (!isset($site)) $_GET['site'] = 'default';
+    if (!isset($site)) {
+        $_GET['site'] = 'default';
+    }
+
     require_once("$libdir/../interface/globals.php");
 }
 function sftp_status($msg, $val)
@@ -261,7 +264,10 @@ $pathmap = array(
 $exitcd = 0;
 // Perform parameter-driven actions
 if (isset($ppid)) {
-    if (!isset($srcdir)) get_openemr_globals($script_dir);
+    if (!isset($srcdir)) {
+        get_openemr_globals($script_dir);
+    }
+
     $rsql = "SELECT * FROM procedure_providers WHERE protocol=? ";
     $rprm = array('SFTP');
     if ($ppid !="*") {
@@ -274,15 +280,16 @@ if (isset($ppid)) {
         $sftp_hosts[] = $rsrec;
     }
 } else { // fill in host detais from parameters
-    if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir)))
-    $sftp_hosts[] = array (
+    if (isset($fhost) && isset($user) && (isset($fdir) || isset($pdir))) {
+        $sftp_hosts[] = array (
          'remote_host'  => $host
         ,'port'         => $port
         ,'login'        => $user
         ,'password'     => $pass
         ,'results_path' => $fdir
         ,'orders_path'  => $pdir
-    );
+        );
+    }
 }
 
 if ((!isset($sftp_hosts)) || (!isset($ldir)) ||
@@ -292,62 +299,79 @@ if ((!isset($sftp_hosts)) || (!isset($ldir)) ||
     $exitcd = 1;
 }
 
-if (!$exitcd) foreach ($sftp_hosts as $sftp_host) {
-    $wrk =  explode(':', $sftp_host['remote_host']);
-    $sftp_host['remote_host'] = $wrk[0];
-    if (!isset($sftp_host['port'])) {
-        $sftp_host['port'] = (isset($wrk[1]) ? $wrk[1] : '22');
-    }
+if (!$exitcd) {
+    foreach ($sftp_hosts as $sftp_host) {
+        $wrk =  explode(':', $sftp_host['remote_host']);
+        $sftp_host['remote_host'] = $wrk[0];
+        if (!isset($sftp_host['port'])) {
+            $sftp_host['port'] = (isset($wrk[1]) ? $wrk[1] : '22');
+        }
 
-    $cn = new \phpseclib\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);
-    if (!$cn->login($sftp_host['login'], $sftp_host['password'])) {
-        sftp_status('Login error', $sftp_host['remote_host'].':'.$sftp_host['port']);
-    } else {
-        $sdir = '';
-        if ((isset($sub)) && (isset($sftp_host[$submap[$sub]]))) $sdir = '/'.$sftp_host[$submap[$sub]];
-        // Get the list of files.  TBD: Overwrite protection.
-        if ($actn == 'get') {
-            $dir_from = $sftp_host[$pathmap[$actn]];
-            $dir_to = ($ldir.$sdir);
-            $full_list = $cn->rawlist($dir_from);
-            foreach ($full_list as $file_name=>$file_rec) {
-                if ($file_rec['type'] == NET_SFTP_TYPE_REGULAR) {
-                    $dir_list[] = $file_name;
-                }
-            }
+        $cn = new \phpseclib\Net\SFTP($sftp_host['remote_host'], $sftp_host['port']);
+        if (!$cn->login($sftp_host['login'], $sftp_host['password'])) {
+            sftp_status('Login error', $sftp_host['remote_host'].':'.$sftp_host['port']);
         } else {
-            $dir_to = $sftp_host[$pathmap[$actn]];
-            $dir_from = ($ldir.$sdir);
-            $full_list = new DirectoryIterator($dir_from);
-            foreach ($full_list as $fileinfo) {
-                if ($fileinfo->isFile()) {
-                    $dir_list[] = $fileinfo->getFilename();
+            $sdir = '';
+            if ((isset($sub)) && (isset($sftp_host[$submap[$sub]]))) {
+                $sdir = '/'.$sftp_host[$submap[$sub]];
+            }
+
+            // Get the list of files.  TBD: Overwrite protection.
+            if ($actn == 'get') {
+                $dir_from = $sftp_host[$pathmap[$actn]];
+                $dir_to = ($ldir.$sdir);
+                $full_list = $cn->rawlist($dir_from);
+                foreach ($full_list as $file_name=>$file_rec) {
+                    if ($file_rec['type'] == NET_SFTP_TYPE_REGULAR) {
+                        $dir_list[] = $file_name;
+                    }
+                }
+            } else {
+                $dir_to = $sftp_host[$pathmap[$actn]];
+                $dir_from = ($ldir.$sdir);
+                $full_list = new DirectoryIterator($dir_from);
+                foreach ($full_list as $fileinfo) {
+                    if ($fileinfo->isFile()) {
+                        $dir_list[] = $fileinfo->getFilename();
+                    }
+                }
+            }
+
+                // Transfer each file
+            if (isset($dir_list)) {
+                foreach ($dir_list as $dir_file) {
+                    // Skip directories
+                    // mdsupport - now $dir_list should have only valid file names
+                    // if (($dir_file == '.') || ($dir_file == '..')) {}
+                    // else {
+                    if ($actn == 'get') {
+                        $sftp_ok = $cn->get(($dir_from.'/'.$dir_file), ($dir_to.'/'.$dir_file));
+                        if ($sftp_ok) {
+                            $sftp_del = $cn->delete(($dir_from.'/'.$dir_file));
+                        }
+                    } else {
+                        $sftp_ok = $cn->put(($dir_to.'/'.$dir_file), ($dir_from.'/'.$dir_file), NET_SFTP_LOCAL_FILE);
+                        if ($sftp_ok) {
+                            $sftp_del = unlink(($dir_from.'/'.$dir_file));
+                        }
+                    }
+
+                                sftp_status('File transfer '.($sftp_ok ? 'ok' : 'error'), ($dir_from.'/'.$dir_file));
+                    if (isset($sftp_del) && (!$sftp_del)) {
+                        sftp_status('File deletion error', $dir_file);
+                    }
+
+                    if ((!$sftp_ok) || (isset($sftp_del) && (!$sftp_del))) {
+                        $exitcd = 2;
+                    }
+
+                                // }
                 }
             }
         }
 
-        // Transfer each file
-        if (isset($dir_list)) foreach ($dir_list as $dir_file) {
-            // Skip directories
-            // mdsupport - now $dir_list should have only valid file names
-            // if (($dir_file == '.') || ($dir_file == '..')) {}
-            // else {
-            if ($actn == 'get') {
-                $sftp_ok = $cn->get(($dir_from.'/'.$dir_file), ($dir_to.'/'.$dir_file));
-                if ($sftp_ok) $sftp_del = $cn->delete(($dir_from.'/'.$dir_file));
-            } else {
-                $sftp_ok = $cn->put(($dir_to.'/'.$dir_file), ($dir_from.'/'.$dir_file), NET_SFTP_LOCAL_FILE);
-                if ($sftp_ok) $sftp_del = unlink(($dir_from.'/'.$dir_file));
-            }
-
-                sftp_status('File transfer '.($sftp_ok ? 'ok' : 'error'), ($dir_from.'/'.$dir_file));
-                if (isset($sftp_del) && (!$sftp_del)) sftp_status('File deletion error', $dir_file);
-                if ((!$sftp_ok) || (isset($sftp_del) && (!$sftp_del))) $exitcd = 2;
-            // }
-        }
+            sftp_status('Host action complete', " : $actn files from ".$sftp_host['remote_host'].':'.$sftp_host['port']. " $dir_to");
     }
-
-    sftp_status('Host action complete', " : $actn files from ".$sftp_host['remote_host'].':'.$sftp_host['port']. " $dir_to");
 }
 
 if (php_sapi_name() == 'cli') {

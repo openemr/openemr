@@ -63,7 +63,9 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
         }
     }
 
-    if ($where) $where .= ")";
+    if ($where) {
+        $where .= ")";
+    }
 }
 
 // Column-specific filtering.
@@ -89,7 +91,10 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 //
 $sellist = 'pid';
 foreach ($aColumns as $colname) {
-    if ($colname == 'pid') continue;
+    if ($colname == 'pid') {
+        continue;
+    }
+
     $sellist .= ", ";
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
@@ -124,9 +129,18 @@ while ($row = sqlFetchArray($res)) {
     foreach ($aColumns as $colname) {
         if ($colname == 'name') {
             $name = $row['lname'];
-            if ($name && $row['fname']) $name .= ', ';
-            if ($row['fname']) $name .= $row['fname'];
-            if ($row['mname']) $name .= ' ' . $row['mname'];
+            if ($name && $row['fname']) {
+                $name .= ', ';
+            }
+
+            if ($row['fname']) {
+                $name .= $row['fname'];
+            }
+
+            if ($row['mname']) {
+                $name .= ' ' . $row['mname'];
+            }
+
             $arow[] = $name;
         } else if ($colname == 'DOB' || $colname == 'regdate' || $colname == 'ad_reviewed' || $colname == 'userdate1') {
             $arow[] = oeFormatShortDate($row[$colname]);

@@ -30,10 +30,13 @@
 
  // Check authorization.
  $thisauth = acl_check('patients', 'notes');
- if (!$thisauth)
-  die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
- if ($prow['squad'] && ! acl_check('squads', $prow['squad']))
-  die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+if (!$thisauth) {
+    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
+
+if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+    die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+}
 
 $noteid = $_REQUEST['noteid'];
 

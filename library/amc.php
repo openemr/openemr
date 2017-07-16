@@ -24,15 +24,28 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
 {
 
   // Ensure empty variables are set correctly
-    if (empty($object_category)) $object_category='';
-    if (empty($date_created)) $date_created='';
-    if (empty($object_id)) $object_id='0';
+    if (empty($object_category)) {
+        $object_category='';
+    }
+
+    if (empty($date_created)) {
+        $date_created='';
+    }
+
+    if (empty($object_id)) {
+        $object_id='0';
+    }
 
   // Ensure $complete is a boolean
   // (since this is run via javascript/ajax, need to convert the boolean)
     if (!($complete === true || $complete === false)) {
-        if ($complete === "true") $complete = true;
-        if ($complete === "false") $complete = false;
+        if ($complete === "true") {
+            $complete = true;
+        }
+
+        if ($complete === "false") {
+            $complete = false;
+        }
     }
 
     if ($mode == "add") {
@@ -294,8 +307,13 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
   //---->The two can be equal in leap years when february has 29 days, the equal sign is added here
   //In the first case the whole interval is within a week, in the second case the interval falls in two weeks.
     if ($the_first_day_of_week <= $the_last_day_of_week) {
-        if ($the_first_day_of_week <= 6 && 6 <= $the_last_day_of_week) $no_remaining_days--;
-        if ($the_first_day_of_week <= 7 && 7 <= $the_last_day_of_week) $no_remaining_days--;
+        if ($the_first_day_of_week <= 6 && 6 <= $the_last_day_of_week) {
+            $no_remaining_days--;
+        }
+
+        if ($the_first_day_of_week <= 7 && 7 <= $the_last_day_of_week) {
+            $no_remaining_days--;
+        }
     } else {
         // (edit by Tokes to fix an edge case where the start day was a Sunday
         // and the end day was NOT a Saturday)
@@ -327,8 +345,9 @@ function businessDaysDifference($startDate, $endDate, $holidays = array())
     foreach ($holidays as $holiday) {
         $time_stamp=strtotime($holiday);
         //If the holiday doesn't fall in weekend
-        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7)
-        $workingDays--;
+        if (strtotime($startDate) <= $time_stamp && $time_stamp <= strtotime($endDate) && date("N", $time_stamp) != 6 && date("N", $time_stamp) != 7) {
+            $workingDays--;
+        }
     }
 
     return $workingDays;

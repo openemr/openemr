@@ -65,9 +65,13 @@ class SecureApp implements IAuthenticatable
      */
     public function IsAuthorized($permission)
     {
-        if ($this->Username == 'admin') return true;
+        if ($this->Username == 'admin') {
+            return true;
+        }
 
-        if ($this->Username == 'demo' && $permission == self::$PERMISSION_USER) return true;
+        if ($this->Username == 'demo' && $permission == self::$PERMISSION_USER) {
+            return true;
+        }
 
         return false;
     }

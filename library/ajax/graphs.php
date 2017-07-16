@@ -189,8 +189,12 @@ if ($is_lbf) {
     if ($name == "bp_systolic" || $name == "bp_diastolic") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bp_systolic") $name_alt = "bp_diastolic";
-        else $name_alt = "bp_systolic";
+        if ($name == "bp_systolic") {
+            $name_alt = "bp_diastolic";
+        } else {
+            $name_alt = "bp_systolic";
+        }
+
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
     }
@@ -198,8 +202,14 @@ if ($is_lbf) {
     if ($name == "bps" || $name == "bpd") {
         // Set BP flag and collect other pressure reading
         $isBP = 1;
-        if ($name == "bps") $name_alt = "bpd";
-        if ($name == "bpd") $name_alt = "bps";
+        if ($name == "bps") {
+            $name_alt = "bpd";
+        }
+
+        if ($name == "bpd") {
+            $name_alt = "bps";
+        }
+
         // Collect the pertinent vitals and ranges.
         $values_alt = graphsGetValues($name_alt);
     }

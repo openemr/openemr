@@ -32,8 +32,9 @@ class SmartyRenderEngine implements IRenderEngine
     {
         $this->smarty = new Smarty();
         
-        if ($templatePath)
+        if ($templatePath) {
             $this->smarty->template_dir = $templatePath;
+        }
         
         if ($compilePath) {
             $this->smarty->compile_dir = $compilePath;

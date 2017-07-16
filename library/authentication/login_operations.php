@@ -106,7 +106,10 @@ function validate_user_password($username, &$password, $provider)
             $_SESSION['authId'] = $userInfo{'id'};
             $_SESSION['userauthorized'] = $userInfo['authorized'];
             // Some users may be able to authorize without being providers:
-            if ($userInfo['see_auth'] > '2') $_SESSION['userauthorized'] = '1';
+            if ($userInfo['see_auth'] > '2') {
+                $_SESSION['userauthorized'] = '1';
+            }
+
             newEvent('login', $username, $provider, 1, "success: $ip");
             $valid=true;
         } else {

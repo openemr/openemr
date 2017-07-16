@@ -30,9 +30,11 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
 
 // if yes then update this else insert
 if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
-    if ($_POST["mode"] == "update")
-      $newid = $_POST["id"];
-    else $newid = $vectAutosave['id'];
+    if ($_POST["mode"] == "update") {
+        $newid = $_POST["id"];
+    } else {
+        $newid = $vectAutosave['id'];
+    }
   
     $strSql = "UPDATE form_brief_aan_verwijzer
                 SET pid = ".$_SESSION["pid"].", groupname='".$_SESSION["authProvider"]."', user='".$_SESSION["authUser"]."', 

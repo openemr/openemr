@@ -190,7 +190,10 @@ function fees_are_used()
 {
     global $code_types;
     foreach ($code_types as $value) {
-        if ($value['fee'] && $value['active']) return true; }
+        if ($value['fee'] && $value['active']) {
+            return true;
+        }
+    }
 
     return false;
 }
@@ -206,8 +209,13 @@ function modifiers_are_used($fee_sheet = false)
 {
     global $code_types;
     foreach ($code_types as $value) {
-        if ($fee_sheet && !empty($value['nofs'])) continue;
-        if ($value['mod'] && $value['active']) return true;
+        if ($fee_sheet && !empty($value['nofs'])) {
+            continue;
+        }
+
+        if ($value['mod'] && $value['active']) {
+            return true;
+        }
     }
 
     return false;
@@ -222,7 +230,10 @@ function justifiers_are_used()
 {
     global $code_types;
     foreach ($code_types as $value) {
-        if (!empty($value['just']) && $value['active']) return true; }
+        if (!empty($value['just']) && $value['active']) {
+            return true;
+        }
+    }
 
     return false;
 }
@@ -236,7 +247,10 @@ function related_codes_are_used()
 {
     global $code_types;
     foreach ($code_types as $value) {
-        if ($value['rel'] && $value['active']) return true; }
+        if ($value['rel'] && $value['active']) {
+            return true;
+        }
+    }
 
     return false;
 }
@@ -251,7 +265,9 @@ function convert_type_id_to_key($id)
 {
     global $code_types;
     foreach ($code_types as $key => $value) {
-        if ($value['id'] == $id) return $key;
+        if ($value['id'] == $id) {
+            return $key;
+        }
     }
 }
 
@@ -283,10 +299,14 @@ function check_code_set_filters($key, $filters = array())
 {
     global $code_types;
  
-    if (empty($filters)) return false;
+    if (empty($filters)) {
+        return false;
+    }
 
     foreach ($filters as $filter) {
-        if ($code_types[$key][$filter] != 1) return false;
+        if ($code_types[$key][$filter] != 1) {
+            return false;
+        }
     }
 
  // Filter was passed
@@ -313,7 +333,9 @@ function collect_codetypes($category, $return_format = "array")
     $return = array();
 
     foreach ($code_types as $ct_key => $ct_arr) {
-        if (!$ct_arr['active']) continue;
+        if (!$ct_arr['active']) {
+            continue;
+        }
 
         if ($category == "diagnosis") {
             if ($ct_arr['diag']) {
@@ -650,7 +672,10 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
     if (!empty($codes)) {
         $relcodes = explode(';', $codes);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
             $table_id=$code_types[$codetype]['external'];
             if (isset($code_external_tables[$table_id])) {
@@ -711,7 +736,10 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
                 $sql .= " LIMIT 1";
                 $crow = sqlQuery($sql, $sqlArray);
                 if (!empty($crow[$desc_detail])) {
-                    if ($code_text) $code_text .= '; ';
+                    if ($code_text) {
+                        $code_text .= '; ';
+                    }
+
                     $code_text .= $crow[$desc_detail];
                 }
             } else {

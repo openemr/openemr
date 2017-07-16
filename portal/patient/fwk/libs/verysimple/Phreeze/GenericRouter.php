@@ -82,8 +82,9 @@ class GenericRouter implements IRouter
         // reset the uri cache
         $this->uri = '';
         
-        if ($uri == "")
+        if ($uri == "") {
             $uri = RequestUtil::GetMethod() . ":" . $this->GetUri();
+        }
             
             // literal match check
         if (isset($this->routeMap [$uri])) {
@@ -173,8 +174,9 @@ class GenericRouter implements IRouter
         $found = false;
         
         // params may be either an array of key/value pairs, or a string in the format key=val&key=val&key=val
-        if (! is_array($params))
+        if (! is_array($params)) {
             parse_str($params, $params);
+        }
             
             // The app root url is needed so we can return the fully qualified URL
         $url = $this->appRootUrl ? $this->appRootUrl : RequestUtil::GetBaseURL();
@@ -219,8 +221,9 @@ class GenericRouter implements IRouter
                 }
                 
                 // no route, just a request method? RESTful to add a trailing slash:
-                if ($routeRequestMethodArr [1] == "")
+                if ($routeRequestMethodArr [1] == "") {
                     $url . "/";
+                }
                 
                 $found = true;
                 break;
@@ -232,8 +235,9 @@ class GenericRouter implements IRouter
         }
         
         // if this is the root url then we want to include the trailing slash
-        if (($url . '/') == $this->appRootUrl)
+        if (($url . '/') == $this->appRootUrl) {
             $url = $this->appRootUrl;
+        }
         
         return $url;
     }
@@ -252,8 +256,9 @@ class GenericRouter implements IRouter
     public function GetUrlParam($paramKey, $default = '')
     {
         // if the route hasn't been requested, then we need to initialize before we can get url params
-        if ($this->matchedRoute == null)
+        if ($this->matchedRoute == null) {
             $this->GetRoute();
+        }
         
         $params = $this->GetUrlParams();
         $uri = $this->GetUri();
@@ -264,7 +269,9 @@ class GenericRouter implements IRouter
         if (isset($this->matchedRoute ["params"] [$paramKey])) {
             $indexLocation = $this->matchedRoute ["params"] [$paramKey];
             $returnVal = $params [$indexLocation];
-        } else $returnVal = RequestUtil::Get($paramKey);
+        } else {
+            $returnVal = RequestUtil::Get($paramKey);
+        }
         
         return $returnVal != '' ? $returnVal : $default;
     }

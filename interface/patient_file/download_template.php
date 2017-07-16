@@ -40,7 +40,10 @@ function keySearch(&$s, $key)
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen($key);
-    if ($keyLength == 0) return false;
+    if ($keyLength == 0) {
+        return false;
+    }
+
     return $key == substr($s, $keyLocation, $keyLength);
 }
 
@@ -64,8 +67,14 @@ function dataFixup($data, $title = '')
         $data = str_replace('>', '[greater]', $data);
         // If in a group, include labels and separators.
         if ($groupLevel) {
-            if ($title !== '') $data = $title . ': ' . $data;
-            if ($groupCount) $data = $itemSeparator . $data;
+            if ($title !== '') {
+                $data = $title . ': ' . $data;
+            }
+
+            if ($groupCount) {
+                $data = $itemSeparator . $data;
+            }
+
             ++$groupCount;
         }
     }
@@ -82,9 +91,14 @@ function getIssues($type)
     "pid = ? AND type = ? AND enddate IS NULL " .
     "ORDER BY begdate", array($GLOBALS['pid'], $type));
     while ($lrow = sqlFetchArray($lres)) {
-        if ($tmp) $tmp .= '; ';
+        if ($tmp) {
+            $tmp .= '; ';
+        }
+
         $tmp .= $lrow['title'];
-        if ($lrow['comments']) $tmp .= ' (' . $lrow['comments'] . ')';
+        if ($lrow['comments']) {
+            $tmp .= ' (' . $lrow['comments'] . ')';
+        }
     }
 
     return $tmp;
@@ -106,12 +120,18 @@ function doSubs($s)
         if (keySearch($s, '{PatientName}')) {
             $tmp = $ptrow['fname'];
             if ($ptrow['mname']) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['mname'];
             }
 
             if ($ptrow['lname']) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['lname'];
             }
 
@@ -128,9 +148,18 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup($ptrow['postal_code'], xl('Postal Code')));
         } else if (keySearch($s, '{PatientPhone}')) {
             $ptphone = $ptrow['phone_contact'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_home'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_cell'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_biz'];
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_home'];
+            }
+
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_cell'];
+            }
+
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_biz'];
+            }
+
             if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
@@ -158,12 +187,18 @@ function doSubs($s)
         } else if (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
             if (!empty($ptrow['ur_mname'])) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_mname'];
             }
 
             if (!empty($ptrow['ur_lname'])) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_lname'];
             }
 
@@ -183,7 +218,10 @@ function doSubs($s)
             $groupCount = 0;
             $s = keyReplace($s, '');
         } else if (keySearch($s, '{/GRP}')) {
-            if ($groupLevel > 0) --$groupLevel;
+            if ($groupLevel > 0) {
+                --$groupLevel;
+            }
+
             $s = keyReplace($s, '');
         } // This is how we specify the separator between group items in a way that
         // is independent of the document format. Whatever is between {ITEMSEP} and
@@ -297,19 +335,33 @@ if ('dotx' == $ext) {
 } else if (function_exists('mime_content_type')) {
     $mimetype = mime_content_type($templatepath);
 } else {
-    if ('doc'  == $ext) $mimetype = 'application/msword'                             ;
-    else if ('dot'  == $ext) $mimetype = 'application/msword'                             ;
-    else if ('htm'  == $ext) $mimetype = 'text/html'                                      ;
-    else if ('html' == $ext) $mimetype = 'text/html'                                      ;
-    else if ('odt'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    else if ('ods'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
-    else if ('ott'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ;
-    else if ('pdf'  == $ext) $mimetype = 'application/pdf'                                ;
-    else if ('ppt'  == $ext) $mimetype = 'application/vnd.ms-powerpoint'                  ;
-    else if ('ps'   == $ext) $mimetype = 'application/postscript'                         ;
-    else if ('rtf'  == $ext) $mimetype = 'application/rtf'                                ;
-    else if ('txt'  == $ext) $mimetype = 'text/plain'                                     ;
-    else if ('xls'  == $ext) $mimetype = 'application/vnd.ms-excel'                       ;
+    if ('doc'  == $ext) {
+        $mimetype = 'application/msword'                             ;
+    } else if ('dot'  == $ext) {
+        $mimetype = 'application/msword'                             ;
+    } else if ('htm'  == $ext) {
+        $mimetype = 'text/html'                                      ;
+    } else if ('html' == $ext) {
+        $mimetype = 'text/html'                                      ;
+    } else if ('odt'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
+    } else if ('ods'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
+    } else if ('ott'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
+    } else if ('pdf'  == $ext) {
+        $mimetype = 'application/pdf'                                ;
+    } else if ('ppt'  == $ext) {
+        $mimetype = 'application/vnd.ms-powerpoint'                  ;
+    } else if ('ps'   == $ext) {
+        $mimetype = 'application/postscript'                         ;
+    } else if ('rtf'  == $ext) {
+        $mimetype = 'application/rtf'                                ;
+    } else if ('txt'  == $ext) {
+        $mimetype = 'text/plain'                                     ;
+    } else if ('xls'  == $ext) {
+        $mimetype = 'application/vnd.ms-excel'                       ;
+    }
 }
 
 $zipin = new ZipArchive;
@@ -336,7 +388,9 @@ if ($zipin->open($templatepath) === true) {
 // Compute a download name like "filename_lastname_pid.odt".
 $pi = pathinfo($form_filename);
 $dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid;
-if ($pi['extension'] !== '') $dlname .= '.' . $pi['extension'];
+if ($pi['extension'] !== '') {
+    $dlname .= '.' . $pi['extension'];
+}
 
 header('Content-Description: File Transfer');
 header('Content-Transfer-Encoding: binary');

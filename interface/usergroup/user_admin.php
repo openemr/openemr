@@ -18,12 +18,15 @@ use OpenEMR\Menu\MainMenuRole;
 
 $facilityService = new \services\FacilityService();
 
-if (!$_GET["id"] || !acl_check('admin', 'users'))
-  exit();
+if (!$_GET["id"] || !acl_check('admin', 'users')) {
+    exit();
+}
 
 $res = sqlStatement("select * from users where id=?", array($_GET["id"]));
-for ($iter = 0; $row = sqlFetchArray($res); $iter++)
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
+}
+
 $iter = $result[0];
 
 ?>
@@ -228,8 +231,9 @@ $acl_name=acl_get_group_titles($iter["username"]);
 $bg_name='';
 $bg_count=count($acl_name);
 for ($i=0; $i<$bg_count; $i++) {
-    if ($acl_name[$i] == "Emergency Login")
-    $bg_name=$acl_name[$i];
+    if ($acl_name[$i] == "Emergency Login") {
+        $bg_name=$acl_name[$i];
+    }
 }
 ?>
 <input type=hidden name="user_type" value="<?php echo $bg_name; ?>" >
@@ -256,13 +260,21 @@ for ($i=0; $i<$bg_count; $i++) {
 <td><span class="text">&nbsp;</span></td><td>&nbsp;</td>
 <td colspan="2"><span class=text><?php xl('Provider', 'e'); ?>:
  <input type="checkbox" name="authorized" onclick="authorized_clicked()"<?php
-    if ($iter["authorized"]) echo " checked"; ?> />
+    if ($iter["authorized"]) {
+        echo " checked";
+    } ?> />
  &nbsp;&nbsp;<span class='text'><?php xl('Calendar', 'e'); ?>:
  <input type="checkbox" name="calendar"<?php
-    if ($iter["calendar"]) echo " checked";
-    if (!$iter["authorized"]) echo " disabled"; ?> />
+    if ($iter["calendar"]) {
+        echo " checked";
+    }
+
+    if (!$iter["authorized"]) {
+        echo " disabled";
+    } ?> />
  &nbsp;&nbsp;<span class='text'><?php xl('Active', 'e'); ?>:
- <input type="checkbox" name="active"<?php if ($iter["active"]) echo " checked"; ?> />
+ <input type="checkbox" name="active"<?php if ($iter["active"]) {
+        echo " checked";} ?> />
 </TD>
 </TR>
 
@@ -278,11 +290,14 @@ for ($i=0; $i<$bg_count; $i++) {
 <?php
 $fres = $facilityService->getAllBillingLocations();
 if ($fres) {
-    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++)
+    for ($iter2 = 0; $iter2 < sizeof($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
+    }
+
     foreach ($result as $iter2) {
         ?>
-          <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) echo "selected"; ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
+          <option value="<?php echo $iter2['id']; ?>" <?php if ($iter['facility_id'] == $iter2['id']) {
+                echo "selected";} ?>><?php echo htmlspecialchars($iter2['name']); ?></option>
 <?php
     }
 }
@@ -299,8 +314,10 @@ if ($fres) {
 <?php
   $userFacilities = getUserFacilities($_GET['id']);
   $ufid = array();
-  foreach ($userFacilities as $uf)
+foreach ($userFacilities as $uf) {
     $ufid[] = $uf['id'];
+}
+
   $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
     foreach ($fres as $frow) :
@@ -328,7 +345,10 @@ endforeach;
 <?php
 foreach (array(1 => xl('None'), 2 => xl('Only Mine'), 3 => xl('All')) as $key => $value) {
     echo " <option value='$key'";
-    if ($key == $iter['see_auth']) echo " selected";
+    if ($key == $iter['see_auth']) {
+        echo " selected";
+    }
+
     echo ">$value</option>\n";
 }
 ?>

@@ -27,7 +27,9 @@ $today = date('Y-m-d');
 $irow = sqlQuery("SELECT title, pid FROM lists WHERE id = ?", array($issue));
 
 $thispid = $irow['pid'];
-if (empty($thispid)) die("Error fetching issue $issue");
+if (empty($thispid)) {
+    die("Error fetching issue $issue");
+}
 
 if ($createvisit) {
   // Create a new encounter and give it a title of the issue title.

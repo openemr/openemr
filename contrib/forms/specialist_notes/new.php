@@ -37,7 +37,10 @@ function cbinput($name, $colname)
 {
     global $row;
     $ret  = "<input type='checkbox' name='$name' value='1'";
-    if ($row[$colname]) $ret .= " checked";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
     $ret .= " />";
     return $ret;
 }

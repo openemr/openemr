@@ -33,7 +33,10 @@ $alertmsg = '';
 
 function bucks($amount)
 {
-    if ($amount) return oeFormatMoney($amount);
+    if ($amount) {
+        return oeFormatMoney($amount);
+    }
+
     return "";
 }
 

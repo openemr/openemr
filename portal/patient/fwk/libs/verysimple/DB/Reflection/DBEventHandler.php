@@ -44,24 +44,29 @@ class DBEventHandler
         $data = $data != "" ? ": $data" : "";
         switch ($level) {
             case DBH_LOG_DEBUG :
-                if ($this->LogLevel & DBH_LOG_DEBUG)
+                if ($this->LogLevel & DBH_LOG_DEBUG) {
                     print "<pre style='color: silver;'>$message</pre>\r\n";
+                }
                 break;
             case DBH_LOG_INFO :
-                if ($this->LogLevel & DBH_LOG_INFO)
+                if ($this->LogLevel & DBH_LOG_INFO) {
                     print "<pre style='color: blue;'>$message $data</pre>\r\n";
+                }
                 break;
             case DBH_LOG_QUERY :
-                if ($this->LogLevel & DBH_LOG_QUERY)
+                if ($this->LogLevel & DBH_LOG_QUERY) {
                     print "<pre style='color: green;'>$message $data</pre>\r\n";
+                }
                 break;
             case DBH_LOG_WARNING :
-                if ($this->LogLevel & DBH_LOG_WARNING)
+                if ($this->LogLevel & DBH_LOG_WARNING) {
                     print "<pre style='color: orange;'>$message $data</pre>\r\n";
+                }
                 break;
             case DBH_LOG_ERROR :
-                if ($this->LogLevel & DBH_LOG_ERROR)
+                if ($this->LogLevel & DBH_LOG_ERROR) {
                     print "<pre style='color: red;'>$message $data</pre>\r\n";
+                }
                 break;
         }
     }

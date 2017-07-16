@@ -43,9 +43,11 @@ if ($_POST['action'] == 'check_file' && acl_check('admin', 'super')) {
     }
 
     if ($response['status'] == 1) {
-        if ($response['value'] != '')
+        if ($response['value'] != '') {
             echo "OK";
-        else echo $error_message;
+        } else {
+            echo $error_message;
+        }
     } else {
         echo xlt('Offsite Portal web Service Failed').": ".text($response['value']);
     }

@@ -47,7 +47,10 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     }
 
     $prodcond = '';
-    if ($form_product) $product_id = $form_product;
+    if ($form_product) {
+        $product_id = $form_product;
+    }
+
     if ($product_id) {
         $prodcond = "AND di.drug_id = '$product_id'";
     }
@@ -96,10 +99,14 @@ function thisLineItem(
     $invnumber = empty($irnumber) ? ($patient_id ? "$patient_id.$encounter_id" : "") : $irnumber;
 
   // Product name for this detail line item.
-    if (empty($rowprod)) $rowprod = 'Unnamed Product';
+    if (empty($rowprod)) {
+        $rowprod = 'Unnamed Product';
+    }
 
   // Warehouse name for this line item.
-    if (empty($rowwh)) $rowwh = 'None';
+    if (empty($rowwh)) {
+        $rowwh = 'None';
+    }
 
   // If new warehouse or product...
     if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
@@ -138,7 +145,9 @@ function thisLineItem(
     $prodleft = " "; ?>
   </td>
   <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) echo htmlspecialchars(xl('Total for')) . ' ';
+    <?php if ($_POST['form_details']) {
+        echo htmlspecialchars(xl('Total for')) . ' ';}
+
     echo htmlspecialchars($warehouse); ?>
   </td>
 <?php } else { ?>
@@ -147,7 +156,9 @@ function thisLineItem(
     $whleft = " "; ?>
   </td>
   <td class="detail" colspan='3'>
-    <?php if ($_POST['form_details']) echo htmlspecialchars(xl('Total for')) . ' ';
+    <?php if ($_POST['form_details']) {
+        echo htmlspecialchars(xl('Total for')) . ' ';}
+
     echo htmlspecialchars($product); ?>
   </td>
 <?php } ?>
@@ -321,7 +332,9 @@ function thisLineItem(
     }
 } // end function
 
-if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access.")));
+if (! acl_check('acct', 'rep')) {
+    die(htmlspecialchars(xl("Unauthorized access.")));
+}
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
@@ -448,7 +461,8 @@ table.mymaintable td, table.mymaintable th {
      <td nowrap>
       <select name='form_by'>
        <option value='p'><?php echo htmlspecialchars(xl('Product')); ?></option>
-       <option value='w'<?php if (!$product_first) echo ' selected'; ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
+       <option value='w'<?php if (!$product_first) {
+            echo ' selected';} ?>><?php echo htmlspecialchars(xl('Warehouse')); ?></option>
       </select>
      </td>
      <td class='label_custom'>
@@ -491,7 +505,10 @@ echo "       <option value=''>-- " . htmlspecialchars(xl('All Products')) . " --
 while ($prow = sqlFetchArray($pres)) {
     $drug_id = $prow['drug_id'];
     echo "       <option value='$drug_id'";
-    if ($drug_id == $form_product) echo " selected";
+    if ($drug_id == $form_product) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($prow['name']) . "\n";
 }
 
@@ -502,7 +519,8 @@ echo "      </select>\n";
         <?php echo htmlspecialchars(xl('Details')); ?>:
      </td>
      <td colspan='3' nowrap>
-      <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) echo " checked"; ?> />
+      <input type='checkbox' name='form_details' value='1'<?php if ($_POST['form_details']) {
+            echo " checked";} ?> />
      </td>
     </tr>
    </table>
@@ -649,17 +667,20 @@ if ($form_action) { // if submit or export
         if ($row['sale_id']) {
             if ($row['xfer_inventory_id']) {
                 // A transfer sale item will appear twice, once with each lot.
-                if ($row['inventory_id'] == $row['xfer_inventory_id'])
-                $qtys[3] = $row['quantity'];
-                else $qtys[3] = 0 - $row['quantity'];
-            } else if ($row['pid'])
-            $qtys[0] = 0 - $row['quantity'];
-            else if ($row['distributor_id'])
-            $qtys[1] = 0 - $row['quantity'];
-            else if ($row['fee'] != 0)
-            $qtys[2] = 0 - $row['quantity'];
-            else // no pid, distributor, source lot or fee: must be an adjustment
-            $qtys[4] = 0 - $row['quantity'];
+                if ($row['inventory_id'] == $row['xfer_inventory_id']) {
+                    $qtys[3] = $row['quantity'];
+                } else {
+                    $qtys[3] = 0 - $row['quantity'];
+                }
+            } else if ($row['pid']) {
+                $qtys[0] = 0 - $row['quantity'];
+            } else if ($row['distributor_id']) {
+                $qtys[1] = 0 - $row['quantity'];
+            } else if ($row['fee'] != 0) {
+                $qtys[2] = 0 - $row['quantity'];
+            } else { // no pid, distributor, source lot or fee: must be an adjustment
+                $qtys[4] = 0 - $row['quantity'];
+            }
         }
 
         thisLineItem(

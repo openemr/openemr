@@ -41,7 +41,9 @@ class NFQ_0059_InitialPatientPopulation implements CqmFilterIF
                      "and l.diagnosis in ($diabetes_codes) and (l.begdate < ? or (l.begdate between ? and ? )) and (l.enddate is null or l.enddate > ? )";
             
             $sql = sqlQuery($query, array($patient->id,$beginDate,$endDate,$beginDate,$beginDate,$endDate,$endDate));
-            if ($sql['cnt'] > 0) return true;
+            if ($sql['cnt'] > 0) {
+                return true;
+            }
             
             return false;
         }
