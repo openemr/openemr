@@ -44,7 +44,6 @@ function collectValidationPageRules($title,$active=true)
         $dataArray[$formPageNameArray[1]]=array('page_name' => $formPageNameArray[0] ,'rules' => $row['notes']);
     }
     return $dataArray;
-
 }
 
 /**this function creates client side validation rules for each <form> declared in list : Patient Validation - patient_validation

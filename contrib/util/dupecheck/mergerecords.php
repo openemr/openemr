@@ -117,8 +117,6 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue)
             echo "</li>";
         }
     }
-
-
 }
 
 ?>

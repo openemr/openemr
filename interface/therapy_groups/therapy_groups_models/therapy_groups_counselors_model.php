@@ -40,7 +40,6 @@ class Therapy_Groups_Counselors
             $counselors[] = $c;
         }
         return $counselors;
-
     }
 
     public function getCounselors($groupId)
@@ -54,7 +53,6 @@ class Therapy_Groups_Counselors
             $counselors[] = $c['user_id'];
         }
         return $counselors;
-
     }
 
 

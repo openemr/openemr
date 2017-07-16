@@ -152,8 +152,6 @@ class PatientData implements InputFilterAwareInterface
         $this->lname = (!empty($data['lname'])) ? $data['lname'] : null;
         $this->sex = (!empty($data['sex'])) ? $data['sex'] : null;
         $this->DOB = (!empty($data['DOB'])) ? $data['DOB'] : null;
-
-
     }
 
 

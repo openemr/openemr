@@ -129,7 +129,6 @@ function thisLineItem($row, $xfer=false)
         $row['fee'] = 0 - $row['fee'];
         thisLineItem($row, true);
     }
-
 } // end function
 
 if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));

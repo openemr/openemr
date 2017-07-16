@@ -32,7 +32,6 @@ class ModuleconfigController extends AbstractActionController
     
     public function __construct()
     {
-        
     }
     
     public function indexAction()
@@ -48,7 +47,6 @@ class ModuleconfigController extends AbstractActionController
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {

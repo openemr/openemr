@@ -39,7 +39,6 @@ class C_FormHpTje extends Controller
         $this->assign("checks",$hptje_primary->_form_layout());
         $this->assign("VIEW",true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

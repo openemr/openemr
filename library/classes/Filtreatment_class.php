@@ -83,7 +83,6 @@ class Filtreatment
             if ( $mnval ) return (($input >= $mnval) ? $input_c : false );
             if ( $mxval ) return (($input <= $mxval) ? $input_c : false );
         }
-
     }
 
 
@@ -134,7 +133,6 @@ class Filtreatment
                 return ( $lt === -1 || $lt === 0 ) ? $input_c : false;
             }
         }
-
     }
 
 //-----------------------------------------------------------------------------
@@ -446,7 +444,6 @@ break;
         }
 
             return $str;
-
     }
 
 //-----------------------------------------------------------------------------

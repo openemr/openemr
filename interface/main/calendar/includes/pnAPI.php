@@ -1134,7 +1134,6 @@ function pnRedirect($redirecturl)
 
         Header("Location: $baseurl$redirecturl");
     }
-
 }
 
 /**
@@ -1327,8 +1326,6 @@ function pnSecureInput()
             }
         }
     }
-
-
 } # End of secure Input
 
 /*         Function that compares the current php version on the

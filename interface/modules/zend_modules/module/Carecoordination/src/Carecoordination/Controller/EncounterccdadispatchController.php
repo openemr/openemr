@@ -211,7 +211,6 @@ class EncounterccdadispatchController extends AbstractActionController
 			</note>
 			';
         }
-        
     }
     
     public function downloadCcdaLogDoc($parameterArray = array())

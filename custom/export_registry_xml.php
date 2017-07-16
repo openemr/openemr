@@ -51,7 +51,6 @@ function getLabelNumber($label)
     }
 
     return "1";
-
 }
 
 function getMeasureNumber($row)

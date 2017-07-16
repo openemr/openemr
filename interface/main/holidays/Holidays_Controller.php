@@ -84,7 +84,6 @@ class Holidays_Controller
 
         $this->storage->import_holidays($this->target_file);
         return true;
-
     }
 
     /**
@@ -108,7 +107,6 @@ class Holidays_Controller
         $holidays = $this->storage->get_holidays();
         $events = $this->storage->create_events($holidays);
         return true;
-        
     }
 
     /**

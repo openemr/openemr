@@ -38,7 +38,6 @@ class PatientvalidationController extends BaseController
         parent::__construct();
         $this->listenerObject = new Listener;
         //todo add permission of admin
-
     }
 
     private function getAllRealatedPatients()

@@ -40,7 +40,6 @@ class Moduleconfig extends AbstractTableGateway
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {

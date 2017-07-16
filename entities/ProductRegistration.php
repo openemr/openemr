@@ -38,7 +38,6 @@ class ProductRegistration
      */
     public function __construct()
     {
-
     }
 
     /**

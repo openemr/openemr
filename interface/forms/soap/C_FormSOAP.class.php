@@ -38,7 +38,6 @@ class C_FormSOAP extends Controller
         $this->assign("data",$form);
 
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

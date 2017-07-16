@@ -76,7 +76,6 @@ function create_ISA($row,$X12info,$segTer,$compEleSep)
     $ISA['Created'] = $ISA ['Created'] . $compEleSep . $segTer;
 
     return trim($ISA['Created']);
-
 }
 
 // GS Segment  - EDI-270 format
@@ -109,7 +108,6 @@ function create_GS($row,$X12info,$segTer,$compEleSep)
     $GS['Created'] = $GS ['Created'] . $segTer;  // change the information in the tag or change the tag
 
     return trim($GS['Created']);
-
 }
 
 // ST Segment  - EDI-270 format
@@ -132,7 +130,6 @@ function create_ST($row,$X12info,$segTer,$compEleSep)
     $ST['Created'] = $ST ['Created'] . $segTer;
 
     return trim($ST['Created']);
-
 }
 
 // BHT Segment  - EDI-270 format
@@ -162,7 +159,6 @@ function create_BHT($row,$X12info,$segTer,$compEleSep)
     $BHT['Created'] = $BHT ['Created'] . $segTer;
 
     return trim($BHT['Created']);
-
 }
 
 // HL Segment  - EDI-270 format
@@ -201,7 +197,6 @@ function create_HL($row, $nHlCounter,$X12info,$segTer,$compEleSep)
     $HL['Created'] = $HL ['Created'] . $segTer;
 
     return trim($HL['Created']);
-
 }
 
 // NM1 Segment  - EDI-270 format
@@ -255,7 +250,6 @@ function create_NM1($row,$nm1Cast,$X12info,$segTer,$compEleSep)
     $NM1['Created'] = $NM1['Created'] . $segTer;
 
     return trim($NM1['Created']);
-
 }
 
 // REF Segment  - EDI-270 format
@@ -282,7 +276,6 @@ function create_REF($row,$ref,$X12info,$segTer,$compEleSep)
     $REF['Created'] = $REF['Created'] . $segTer;
 
     return trim($REF['Created']);
-
 }
 
 // TRN Segment - EDI-270 format
@@ -307,7 +300,6 @@ function create_TRN($row,$tracno,$refiden,$X12info,$segTer,$compEleSep)
     $TRN['Created'] = $TRN['Created'] . $segTer;
 
     return trim($TRN['Created']);
-
 }
 
 // DMG Segment - EDI-270 format
@@ -695,7 +687,6 @@ function eligibility_response_save($segmentVal,$vendorID)
 								response_modify_date = now()";
         $res    = sqlStatement($query, array($segmentVal, $vendorID) );
     }
-
 }
 
 // Function to save the values in eligibility_verification table
@@ -777,7 +768,6 @@ function eligibility_information($insuranceId)
     $result         = sqlStatement($query, array($insuranceId) );
     $row        = sqlFetchArray($result);
     return $row;
-
 }
 // return array of X12 partners
 

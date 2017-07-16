@@ -35,7 +35,6 @@ function getHeaderData()
 {
 
 // Reserved for future use
-    
 }
 
 function getMedicationData()

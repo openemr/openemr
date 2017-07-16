@@ -44,8 +44,6 @@ class Company extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
-
-
     }
     function factory_company($foreign_id = "")
     {

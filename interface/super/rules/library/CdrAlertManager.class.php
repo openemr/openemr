@@ -62,6 +62,5 @@ class CdrAlertManager
             $cdra = new CdrResults($rule_id, $active_alert_flag, $passive_alert_flag, $patient_reminder_flag, $access_control);
             $cdra->update_table();
         }
-                
     }
 } // end of CdrAlertManager

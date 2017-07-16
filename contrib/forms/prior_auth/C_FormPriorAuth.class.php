@@ -36,7 +36,6 @@ class C_FormPriorAuth extends Controller
         $this->assign("VIEW",true);
         $this->assign("prior_auth",$prior_auth);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

@@ -268,7 +268,6 @@ function generate_select_list(
         $s .= "</select>";
     }
     return $s;
-
 }
 
 // $frow is a row from the layout_options table.
@@ -1136,7 +1135,6 @@ function generate_form_field($frow, $currvalue)
         // $date_init is a misnomer but it's the place for browser-side setup logic.
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
     }
-
 }
 
 function generate_print_field($frow, $currvalue)
@@ -1730,7 +1728,6 @@ function generate_print_field($frow, $currvalue)
     else if ($data_type == 40) {
         echo "<img src='" . attr($currvalue) . "'>";
     }
-
 }
 
 function generate_display_field($frow, $currvalue)
@@ -2629,7 +2626,6 @@ function display_layout_tabs_data($formtype, $result1, $result2='')
         $first = false;
 
     }
-
 }
 
 function get_conditions_str($condition_str,$frow)

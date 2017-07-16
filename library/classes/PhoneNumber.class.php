@@ -44,7 +44,6 @@ class PhoneNumber extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
-
     }
 
     static function factory_phone_numbers($foreign_id = "")

@@ -74,7 +74,6 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
         }
 
     }
-
 }
 
 /**

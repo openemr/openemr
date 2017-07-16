@@ -37,8 +37,6 @@ class Patient extends ORDataObject
         $this->dob   = "";
         $this->provider = new Provider();
         $this->populate();
-
-
     }
     function populate()
     {

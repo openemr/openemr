@@ -25,11 +25,9 @@ class Person
     function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
-
     }
 
     function populate()
     {
-
     }
 } // end of Person

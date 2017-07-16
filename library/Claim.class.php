@@ -255,7 +255,6 @@ class Claim
           "ORDER BY insurance_company_id DESC LIMIT 1";
         $this->supervisor_numbers = sqlQuery($sql);
         if (!$this->supervisor_numbers) $this->supervisor_numbers = array();
-
     } // end constructor
 
   // Return an array of adjustments from the designated prior payer for the
@@ -1382,7 +1381,6 @@ class Claim
         if(strlen($npi)!=10) return false;
         if(!preg_match("/[0-9]*/",$npi)) return false;
         return true;
-
     }
     function providerNPIValid($prockey=-1)
     {

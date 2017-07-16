@@ -142,7 +142,6 @@ function removeColumn($con, $table, $column, $value = '')
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
     if($query) print("\n Query '$removeSS' completed! \n");
-
 }
 
 /* This function replaces the first and last name of the patient with a auto generated name
@@ -222,7 +221,6 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false)
     }
 
     return $i;
-
 }
 
 
@@ -271,8 +269,6 @@ function deIdInsuranceDataTable($con, $pid)
             $update = mysqli_query($con, $string) or print("update did not work");
         }
     }
-
-
 }
 
 
@@ -308,7 +304,6 @@ function deIdFacilityTable($con)
     }
 
     echo "Successfully deid'ed Facility Table";
-
 }
 
 
@@ -388,7 +383,6 @@ function deIdForms($con)
     removeColumn($con, "pnotes", "body", "DATETIME (FROMUSER to USER) Note about Patient posted here");
 
     echo "successfuly altered user forms table \n ";
-
 }
 
 // truncates log tables to remove all hidden information
@@ -397,7 +391,6 @@ function truncateLogs($con)
 
     $query = mysqli_query($con, "TRUNCATE TABLE log") or print("\n\n log table not truncated \n\n");
     $query = mysqli_query($con, "TRUNCATE TABLE documents") or print("\n\n documents table not truncated \n\n");
-
 }
 
 

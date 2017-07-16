@@ -37,6 +37,5 @@ class AMC_304f_Numerator implements AmcFilterIF
 
         // All requested records for patient were given within 3 business days
         return true;
-
     }
 }

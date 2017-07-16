@@ -202,7 +202,6 @@ function submitChanges($plan_id, $added_rules, $removed_rules)
     if (sizeof($removed_rules) > 0) {
         removeRulesFromPlan($plan_id, $removed_rules);
     }
-    
 }
 
 function addRulesToPlan($plan_id, $list_of_rules)

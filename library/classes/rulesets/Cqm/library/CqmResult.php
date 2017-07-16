@@ -37,7 +37,6 @@ class CqmResult implements RsResultIF
         if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
             $this->itemized_test_id = array('itemized_test_id' => $GLOBALS['report_itemized_test_id_iterator']);
         }
-
     }
 
     public function format()

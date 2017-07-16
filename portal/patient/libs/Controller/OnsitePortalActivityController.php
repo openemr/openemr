@@ -47,7 +47,6 @@ class OnsitePortalActivityController extends AppBaseController
     protected function Init()
     {
         parent::Init();
-
     }
 
     /**

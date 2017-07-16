@@ -48,9 +48,6 @@ class Multipledb implements InputFilterAwareInterface
         $this->host = (!empty($data['host'])) ? $data['host'] : null;
         $this->port = (!empty($data['port'])) ? $data['port'] : null;
         $this->date = (!empty($data['date'])) ? $data['date'] : null;
-
-
-
     }
 
 

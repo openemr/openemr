@@ -45,6 +45,5 @@ class RuleTargetActionGroup
 
     function updateFromRequest()
     {
-
     }
 }

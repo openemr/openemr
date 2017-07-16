@@ -40,7 +40,6 @@ class Phimail extends AbstractPlugin
         $sm->get('Zend\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
-    
     }
 
     public function phimail_connect($err)

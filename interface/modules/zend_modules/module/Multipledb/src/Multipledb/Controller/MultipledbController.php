@@ -38,7 +38,6 @@ class MultipledbController extends BaseController
         parent::__construct();
         $this->listenerObject = new Listener;
         //todo add permission of admin
-
     }
 
 
@@ -60,7 +59,6 @@ class MultipledbController extends BaseController
             'getmultipledb' => $this->getMultipledbTable()->fetchAll(),
 
         ));
-
     }
 
     public function editAction()
@@ -78,7 +76,6 @@ class MultipledbController extends BaseController
             'translate' => $this->translate,
             'db' =>  $this->getMultipledbTable()->getMultipledbById($id),
         ));
-
     }
 
     public function removeAction()
@@ -111,7 +108,6 @@ class MultipledbController extends BaseController
         return $this->redirect()->toRoute('multipledb', array(
             'action' => 'index'
         ));
-
     }
 
     public function checknamespacejsonAction()
@@ -164,7 +160,6 @@ class MultipledbController extends BaseController
         $this->getCssFiles();
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
-
     }
 
     public function checkAcl($mode = null)

@@ -89,7 +89,6 @@ abstract class Abstract_Controller implements ViewableIF
         } else {
             throw new \Exception( "The method ".$this->_method." does not exist and cannot be executed" );
         }
-        
     }
     
     public function getHtml()

@@ -98,7 +98,6 @@ class C_FormVitals extends Controller
 
         $this->assign("VIEW",true);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

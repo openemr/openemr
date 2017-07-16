@@ -1536,6 +1536,4 @@ function fillBlocks($td,$ar)
                 $ar[strval($td)]['blocks'][strval($j)] = array();
             $ar[strval($td)]['blocks']["all_day"] = array();
     }
-
-
 }

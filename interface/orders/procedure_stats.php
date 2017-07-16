@@ -243,7 +243,6 @@ function process_result_code($row)
             }
         }
     }
-
 } // end function process_result_code()
 
   // If we are doing the CSV export then generate the needed HTTP headers.

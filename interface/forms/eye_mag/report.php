@@ -2008,7 +2008,6 @@ function display_draw_image($zone,$encounter,$pid)
     }
 
     return;
-
 }
 
 function report_ACT($term)

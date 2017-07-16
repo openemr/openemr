@@ -33,7 +33,6 @@ function getLayoutLabel( $value, $form_id )
 
 // if not found, default to the passed-in value
     return $value;
-
 }
 
 function getListOptions( $list_id )

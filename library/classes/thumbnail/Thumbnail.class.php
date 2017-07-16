@@ -44,7 +44,6 @@ class Thumbnail
         } else {
             $this->max_size = self::MAX_SIZE;
         }
-
     }
 
     /**
@@ -131,7 +130,6 @@ class Thumbnail
         imagedestroy($sourceImage);
 
         return $thumb;
-
     }
 
     /**

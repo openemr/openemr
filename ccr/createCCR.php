@@ -209,7 +209,6 @@ function gnrtCCR($ccr,$raw="no",$requested_by="")
         header("Content-type: application/xml");
             echo $ccr->saveXml();
     }
-        
 }
     
 function viewCCD($ccr,$raw="no",$requested_by="")
@@ -307,7 +306,6 @@ function viewCCD($ccr,$raw="no",$requested_by="")
         $html = $xslt->transformToXML($ccd);
 
         echo $html;
-    
 }
 
     

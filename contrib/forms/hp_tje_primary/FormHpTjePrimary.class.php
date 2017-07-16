@@ -99,7 +99,6 @@ class FormHpTjePrimary extends ORDataObject
         while ($row = sqlFetchArray($results)) {
             $this->previous_accidents[] = $row;
         }
-
     }
 
     function toString($html = false)
@@ -406,7 +405,6 @@ class FormHpTjePrimary extends ORDataObject
                 }
             }
         }
-
     }
 
     function _form_layout()

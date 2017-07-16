@@ -206,7 +206,6 @@ function mysubmit() {
  return true;
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run

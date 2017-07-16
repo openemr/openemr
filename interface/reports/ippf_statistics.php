@@ -772,7 +772,6 @@ function process_ippf_code($row, $code, $quantity=1)
 
   // OK we now have the reporting key for this issue.
     loadColumnData($key, $row, $quantity);
-
 } // end function process_ippf_code()
 
 // This is called for each MA service code that is selected.

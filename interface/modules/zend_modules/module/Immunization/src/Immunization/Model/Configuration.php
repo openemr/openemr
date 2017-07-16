@@ -40,7 +40,6 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-
     }
   
     public function getArrayCopy()

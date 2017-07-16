@@ -1107,7 +1107,6 @@ EOF;
     $output->FormEnd();
 
     return $output->GetOutput();
-
 }
 function postcalendar_admin_categoriesUpdate()
 {
@@ -2021,7 +2020,6 @@ function postcalendar_admin_categoryLimits($msg='',$e='',$args)
      $output->Text($tpl->fetch($template_name.'/admin/submit_category_limit.html'));
     $output->Text(postcalendar_footer());
     return $output->GetOutput();
-
 }
 
 function postcalendar_admin_categoryLimitsUpdate()
@@ -2093,5 +2091,4 @@ function postcalendar_admin_categoryLimitsUpdate()
     if(empty($e)) { $msg = 'DONE'; }
     $output->Text(postcalendar_admin_categoryLimits($msg,$e));
     return $output->GetOutput();
-
 }

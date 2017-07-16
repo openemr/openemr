@@ -38,7 +38,6 @@ class C_FormEvaluation extends Controller
         $this->assign("checks",$evaluation->_form_layout());
         $this->assign("evaluation",$evaluation);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

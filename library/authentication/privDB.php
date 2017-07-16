@@ -111,5 +111,4 @@ function privQuery($sql,$params=null)
     if ($rez == false)
         return false;
     return $rez;
-
 }

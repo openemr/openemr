@@ -129,7 +129,6 @@ function athv_temperature_f_changed() {
  }
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
@@ -163,5 +162,4 @@ if (f.form_bmi_status) {
  f.form_bmi_status.readOnly = true;
 }
 ";
-
 }

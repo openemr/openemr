@@ -82,7 +82,5 @@ class CdrResults
                                                       " WHERE id = ?";
 
                        sqlStatement($query, array($this->access_control,$this->id) );
-
-    
     }
 }

@@ -341,7 +341,6 @@ class Model extends SMA_Common\Model
 
     public function __destruct()
     {
-
     }
 }
 

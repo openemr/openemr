@@ -25,7 +25,6 @@ function generateDateQualifierSelect($name,$options,$obj)
         echo ">".text($options[$idx][0])."</option>";
     }
     echo     "</select>";
-
 }
 
 function genProviderSelect($selname, $toptext, $default=0, $disabled=false)

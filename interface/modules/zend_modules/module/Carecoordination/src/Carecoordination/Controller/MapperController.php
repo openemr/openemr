@@ -30,7 +30,6 @@ class MapperController extends AbstractActionController
     
     public function __construct()
     {
-        
     }
     
     public function indexAction()

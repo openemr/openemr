@@ -60,7 +60,6 @@ class Holidays_Storage
             $holidays[] = $row['pc_eventDate'];
         }
         return $holidays;
-
     }
 
     /**
@@ -98,7 +97,6 @@ class Holidays_Storage
             );
         }
         return true;
-
     }
 
     /**
@@ -138,6 +136,5 @@ class Holidays_Storage
     {
         $sql="DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?";
         sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
-
     }
 }

@@ -125,6 +125,5 @@ class Therapy_Groups
             $final_result[] = $row;
         }
         return $final_result;
-
     }
 }

@@ -89,7 +89,6 @@ class PQRIXml extends XmlWriterOemr
         {
             $this->element($key, $value);
         }
-
     }
 
     function close_provider()

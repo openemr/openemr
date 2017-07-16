@@ -197,7 +197,6 @@ class TherapyGroupsController extends BaseController
             }
 
         }
-
     }
 
     /**
@@ -288,7 +287,6 @@ class TherapyGroupsController extends BaseController
         }
 
         return $new_array;
-
     }
 
     private function shortenNotes($notes)
@@ -362,7 +360,6 @@ class TherapyGroupsController extends BaseController
             return false; //no appts or encounters so can delete
         }
         return true; //appts or encounters exist so can't delete
-
     }
 
 

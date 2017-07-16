@@ -36,7 +36,6 @@ class AppBaseController extends Controller
 			require_once("App/SecureApp.php");
 			$this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
 		}*/
-
     }
 
     /**

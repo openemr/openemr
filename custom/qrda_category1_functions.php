@@ -1069,8 +1069,6 @@ function getAllPatientEncounters($xml, $patient_id)
             $xml->close_entry();
         }
     }
-        
-        
 }
     
     //Patient Data Sub Function for Payer Data

@@ -244,7 +244,6 @@ function delete_event($title)
     } else {
         return 1;
     }
-
 }
 
 /**

@@ -282,7 +282,6 @@ function sqlGetAssoc( $sql, $bindvars=false, $forceArray=false, $first2Cols=fals
 {
 
     return $GLOBALS['adodb']['db']->getAssoc( $sql, $bindvars, $forceArray, $first2Cols  );
-
 }
 
 /**

@@ -93,7 +93,6 @@ class Module
             $controller->layout()->setVariable('language_direction', $_SESSION['language_direction']);
             $controller->layout()->setVariable('status', null);
             //variable that get object with all js variables from php
-
         }, 100);
     }
 }

@@ -20,7 +20,6 @@ class MaviqClient
         $this->SiteId = $siteId;
         $this->Token = $token;
         $this->Endpoint = $endpoint;
-        
     }
         
     public function sendRequest($path, $method="POST", $vars=array())
@@ -122,6 +121,5 @@ class RestResponse
         if($this->IsError = ($status >= 400))
             $this->ErrorMessage =
                 (string)$this->ResponseXml->RestException->Message;
-            
     }
 }

@@ -501,8 +501,6 @@ function getTheNextAppointment($appointment_date, $freq)
     }
     $next_appointment = getEarliestDate($date_arr);
     return $next_appointment;
-
-
 }
 
 function getDayName($day_num)

@@ -38,7 +38,6 @@ class C_FormReviewOfSystems extends Controller
         $this->assign("review_of_systems",$review_of_systems);
         $this->assign("checks",$review_of_systems->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

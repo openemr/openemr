@@ -3315,7 +3315,6 @@ function ros2_report( $pid, $encounter, $cols, $id)
 
         print "</table>";
     }
-
 }
 
 function endsWith($FullStr, $EndStr)

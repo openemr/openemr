@@ -526,7 +526,6 @@ class QRDAXml extends XmlWriterOemr
             $this->emptyelement('country',array("nullFlavor" => "UNK"));
 
         $this->pop();
-
     }
 
 

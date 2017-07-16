@@ -68,7 +68,6 @@ class FormEvaluation extends ORDataObject
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
         }
-
     }
 
     function toString($html = false)
@@ -294,7 +293,6 @@ class FormEvaluation extends ORDataObject
                 }
             }
         }
-
     }
 
     function _form_layout()

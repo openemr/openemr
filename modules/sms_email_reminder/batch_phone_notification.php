@@ -242,5 +242,4 @@ function cron_getFacilitiesMap()
     );
 
     return $facility_map;
-
 }

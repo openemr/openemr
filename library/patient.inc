@@ -72,7 +72,6 @@ function getInsuranceProvider($ins_id)
     $sql = "select name from insurance_companies where id=?";
     $row = sqlQuery($sql,array($ins_id));
     return $row['name'];
-
 }
 
 function getInsuranceProviders()
@@ -1366,7 +1365,6 @@ function parseAgeInfo($dob,$target)
     $dateTarget = preg_replace("/[-\s\/]/","",$target);
 
     return getPatientAgeYMD($dateDOB,$dateTarget);
-
 }
 
 /**
@@ -1514,7 +1512,6 @@ function getPatientAgeDisplay($dobYMD, $asOfYMD=null)
     {
         return getPatientAge($dobYMD, $asOfYMD);
     }
-
 }
 function dateToDB($date)
 {

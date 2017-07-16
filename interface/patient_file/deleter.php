@@ -174,7 +174,6 @@ function delete_document($document)
             $couchDB->DeleteDoc($GLOBALS['couchdb_dbase'], $trow['couch_docid'], $trow['couch_revid']);
             break;
     }
-
 }
 ?>
 <html>

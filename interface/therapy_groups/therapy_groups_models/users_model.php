@@ -61,7 +61,6 @@ class Users
         $user_full_name = $user_name['fname'] . "   " . $user_name['lname'];
 
         return $user_full_name;
-
     }
 
     /**
@@ -89,7 +88,6 @@ class Users
             }
             return $providers;
         }
-
     }
 
 
@@ -107,6 +105,5 @@ class Users
             return false;
         }
         return $result['pc_multiple'];
-
     }
 }

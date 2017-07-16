@@ -750,7 +750,6 @@ class C_Prescription extends Controller
         }
 
         return;
-
     }
 
     function _print_prescription($p, & $toFile)
@@ -789,7 +788,6 @@ class C_Prescription extends Controller
         $this->multiprintcss_body($p);
         $this->multiprintcss_footer();
         $this->multiprintcss_postfooter();
-
     }
 
     function _print_prescription_old($p, & $toFile)

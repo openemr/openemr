@@ -196,7 +196,6 @@ class InstModuleTable
             return $moduleInsertId;
         }
         return false;
-    
     }
   
   /**

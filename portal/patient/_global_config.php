@@ -101,7 +101,6 @@ class GlobalConfig
 
             self::$IS_INITIALIZED = true;
         }
-
     }
 
     /**
@@ -127,7 +126,6 @@ class GlobalConfig
         {
         }
         return $this->context;
-
     }
 
     /**

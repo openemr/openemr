@@ -36,7 +36,6 @@ class C_FormProsthesis extends Controller
         $this->assign("VIEW",true);
         $this->assign("prosthesis",$prosthesis);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

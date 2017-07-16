@@ -57,7 +57,6 @@ function listingCDRReminderLog($begin_date='',$end_date='')
     $sql .= " ORDER BY `date` DESC";
 
     return sqlStatement($sql,$sqlArray);
-
 }
 
 /**
@@ -1363,7 +1362,6 @@ function collect_plan($plan,$patient_id='0')
 {
 
     return sqlQueryCdrEngine("SELECT * FROM `clinical_plans` WHERE `id`=? AND `pid`=?", array($plan,$patient_id) );
-
 }
 
 /**
@@ -1406,7 +1404,6 @@ function set_plan_activity_patient($plan,$type,$setting,$patient_id)
   // Update patient specific row
     $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type."_flag",array("clinical_plans")) . "`= ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, array($setting,$plan,$patient_id) );
-
 }
 
 /**
@@ -1530,7 +1527,6 @@ function collect_rule($rule,$patient_id='0')
 {
 
     return sqlQueryCdrEngine("SELECT * FROM `clinical_rules` WHERE `id`=? AND `pid`=?", array($rule,$patient_id) );
-
 }
 
 /**
@@ -1577,7 +1573,6 @@ function set_rule_activity_patient($rule,$type,$setting,$patient_id)
   // Update patient specific row
     $query = "UPDATE `clinical_rules` SET `" . add_escape_custom($type) . "_flag`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, array($setting,$patient_rule_original['access_control'],$rule,$patient_id) );
-
 }
 
 /**

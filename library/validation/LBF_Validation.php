@@ -67,6 +67,5 @@ class LBF_Validation
         }
 
         return json_encode($constraints);
-
     }
 }

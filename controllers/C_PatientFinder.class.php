@@ -19,7 +19,6 @@ class C_PatientFinder extends Controller
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&patient_finder&");
         /////////////////////////////////
         $this->assign("STYLE", $GLOBALS['style']);
-
     }
 
     function default_action($form_id='',$form_name='',$pid='')

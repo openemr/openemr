@@ -135,7 +135,6 @@ function execute_background_service_calls()
         $sql = 'UPDATE background_services SET running = 0 WHERE name = ?';
         $res = sqlStatementNoLog($sql, array($service_name));
     }
-
 }
 
 /**

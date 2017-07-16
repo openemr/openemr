@@ -38,7 +38,6 @@ class C_FormROS extends Controller
 
         $this->assign("form",$ros);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
-
     }
 
     function default_action_process()

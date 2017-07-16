@@ -399,7 +399,6 @@ function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null)
         $nextXAppts = array_slice($appts, 0, $nextX);
     }
     return $nextXAppts;
-
 }
 
 // get the event slot size in seconds

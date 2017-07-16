@@ -942,7 +942,6 @@ function findFirstInDay($day,$date)
         }
     }
     return $times;
-
 }
 
 function dtSec($date, $time)

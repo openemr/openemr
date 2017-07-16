@@ -135,7 +135,6 @@ function getCalendarRanges($fromdate, $todate, $username)
         $returnval[$iter]=$row;
 
     return $returnval;
-    
 }
 
 
@@ -148,7 +147,6 @@ function getCalendarbyTimeandRange($time, $fromdate, $todate, $username)
         $returnval[$iter]=$row;
     echo "<!-- getcalendarbytimeandrange -$query- -->";
     return $returnval;
-    
 }
 
 
@@ -168,7 +166,6 @@ function newCalendarItem(
 function deleteCalendarItem( $calid,$pid)
 {
     sqlQuery("delete from calendar where id=? and pid=?", array($calid, $pid) );
-    
 }
 
 

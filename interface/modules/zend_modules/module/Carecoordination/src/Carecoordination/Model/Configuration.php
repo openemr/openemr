@@ -229,7 +229,6 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-    
     }
     public function getArrayCopy()
     {
@@ -279,7 +278,6 @@ class Configuration extends Form implements InputFilterAwareInterface
     
     public function getDependedModulesConfig()
     {
-    
     }
     
     public function getAclConfig()
@@ -292,6 +290,5 @@ class Configuration extends Form implements InputFilterAwareInterface
         ),
         );
         return $acl;
-
     }
 }

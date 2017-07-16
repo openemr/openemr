@@ -88,6 +88,5 @@ class RuleCriteriaLifestyle extends RuleCriteria
         } else {
             $this->matchValue = $value;
         }
-
     }
 }

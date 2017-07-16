@@ -146,7 +146,6 @@ function update_taskman($task,$action,$value)
         sqlQuery($sql,array($task['DOC_ID'],$value,$task['ID']));
         $send['comments'] .="Ok, we resent it to the Fax Server.\n";
     }
-
 }
 
 

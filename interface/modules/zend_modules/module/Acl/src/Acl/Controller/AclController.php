@@ -125,7 +125,6 @@ class AclController extends AbstractActionController
                                     )
                                 );
         return $acl_view;
-        
     }
     
     public function ajaxAction()

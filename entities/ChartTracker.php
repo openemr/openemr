@@ -39,7 +39,6 @@ class ChartTracker
      */
     public function __construct()
     {
-
     }
 
     /**

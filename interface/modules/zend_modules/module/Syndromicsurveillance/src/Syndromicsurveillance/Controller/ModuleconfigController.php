@@ -34,7 +34,6 @@ class ModuleconfigController extends AbstractActionController
 
     public function exchangeArray($data)
     {
-  
     }
   
     public function getArrayCopy()

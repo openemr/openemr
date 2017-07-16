@@ -23,7 +23,6 @@ class C_DocumentCategory extends Controller
         $t = new CategoryTree(1);
         //print_r($t->tree);
         $this->tree = $t;
-
     }
 
     function default_action()

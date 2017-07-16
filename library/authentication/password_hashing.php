@@ -73,8 +73,6 @@ function oemr_password_salt()
     error_log("Blowfish hashing algorithm not available.  Upgrading to PHP 5.3.x or newer is strongly recommended");
 
     return SALT_PREFIX_SHA1.$salt;
-
-
 }
 
 /**

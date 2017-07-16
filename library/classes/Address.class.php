@@ -42,8 +42,6 @@ class Address extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
-
-
     }
     static function factory_address($foreign_id = "")
     {

@@ -84,7 +84,6 @@ class FormReviewOfSystems extends ORDataObject
         while ($row = sqlFetchArray($results)) {
             $this->checks[] = $row['name'];
         }
-
     }
 
     function persist()
@@ -101,7 +100,6 @@ class FormReviewOfSystems extends ORDataObject
                 }
             }
         }
-
     }
 
     function set_id($id)

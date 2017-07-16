@@ -38,7 +38,6 @@ class CcrTable extends AbstractTableGateway
   
     public function __construct()
     {
-    
     }
   /*
   * Fetch the Catagory ID from categories table

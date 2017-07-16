@@ -32,7 +32,6 @@ class ApplicationTable
 
     public function __construct()
     {
-
     }
 
     /**

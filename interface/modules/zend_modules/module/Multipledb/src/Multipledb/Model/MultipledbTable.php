@@ -84,7 +84,6 @@ class MultipledbTable
         }else{
             $this->tableGateway->insert($db);
         }
-
     }
 
     public function deleteMultidbById($id)

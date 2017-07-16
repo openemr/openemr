@@ -138,7 +138,6 @@ class eRxStore
 				);',
             array($patientId)
         );
-
     }
 
     /**
@@ -265,7 +264,6 @@ class eRxStore
                 $limit
             )
         );
-
     }
 
     public function selectPrescriptionIdsNotUploadedByPatientId($patientId, $uploadActive, $limit)
