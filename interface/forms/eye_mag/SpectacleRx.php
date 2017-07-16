@@ -984,7 +984,7 @@ if ($_REQUEST['dispensed']) {
                                                 <textarea cols="30" rows="4"><?php echo text($COMMENTS); ?></textarea>
                                             </td>
                                         </tr>
-                                            <?php } ?>
+                                        <?php } ?>
                                     </table>
                                     <?php
                                 } ?>

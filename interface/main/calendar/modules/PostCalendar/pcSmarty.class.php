@@ -71,7 +71,7 @@ class pcSmarty extends Smarty
             $this->use_sub_dirs = true;
         }
 
-        unset($use_safe_mode,$safe_mode,$safe_mode_gid,$open_basedir);
+        unset($use_safe_mode, $safe_mode, $safe_mode_gid, $open_basedir);
 
         $this->autoload_filters = array('output' => array('trimwhitespace'));
 

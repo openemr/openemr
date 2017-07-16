@@ -45,7 +45,7 @@ function snellen_report($pid, $encounter, $cols, $id)
             <td><p align='left'><?php echo $data['notes']?>&nbsp;</p></td>
         </tr>
     </table>
-    <?php } ?>
+        <?php } ?>
 
         <?php
     }

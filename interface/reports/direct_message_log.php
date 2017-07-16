@@ -158,11 +158,11 @@ while ($row = sqlFetchArray($res)) {
 
     <?php if ($row['msg_type'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-        <?php } else if ($row['msg_type'] == "S") { ?>
+    <?php } else if ($row['msg_type'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
-        <?php } else {?>
+    <?php } else {?>
           <td align='center'>&nbsp;</td>
-        <?php } ?>
+    <?php } ?>
 
     <td align='center'><?php echo text($row['create_ts']); ?></td>
     <td align='center'><?php echo text($row['sender']); ?></td>
@@ -170,17 +170,17 @@ while ($row = sqlFetchArray($res)) {
 
     <?php if ($row['status'] == "Q") { ?>
           <td align='center'><?php echo xlt("Queued") ?></td>
-        <?php } else if ($row['status'] == "S") { ?>
+    <?php } else if ($row['status'] == "S") { ?>
           <td align='center'><?php echo xlt("Sent") ?></td>
-        <?php } else if ($row['status'] == "D") { ?>
+    <?php } else if ($row['status'] == "D") { ?>
           <td align='center'><?php echo xlt("Sent - Confirmed") ?></td>
-        <?php } else if ($row['status'] == "R") { ?>
+    <?php } else if ($row['status'] == "R") { ?>
           <td align='center'><?php echo xlt("Received") ?></td>
-        <?php } else if ($row['status'] == "F") { ?>
+    <?php } else if ($row['status'] == "F") { ?>
           <td align='center'><?php echo xlt("Failed") ?></td>
-        <?php } else {?>
+    <?php } else {?>
           <td align='center'>&nbsp;</td>
-        <?php } ?>
+    <?php } ?>
 
     <td align='center'><?php echo text($row['status_ts']); ?></td>
 

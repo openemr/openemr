@@ -251,7 +251,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
       height:5mm;
     }
 
-        <?php }  ?>
+    <?php }  ?>
   </style>
   <div>
     <?php
@@ -1419,7 +1419,7 @@ if ($ANTSEG_COMMENTS) { ?>
                         </span>
                       </td>
                     </tr>
-                    <?php } ?>
+<?php } ?>
                   </table>
                 </td>
                 <td style="text-align:center;padding:1px;vertical-align:middle;">

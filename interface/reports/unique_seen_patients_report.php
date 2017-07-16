@@ -175,7 +175,7 @@ $(document).ready(function() {
                         <a href='#' class='btn btn-default btn-transmit' onclick='$("#form_labels").attr("value","true"); $("#theform").submit();'>
                             <?php echo xlt('Labels'); ?>
                         </a>
-                        <?php } ?>
+                    <?php } ?>
          </div>
                </div>
            </td>

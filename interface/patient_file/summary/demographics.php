@@ -512,7 +512,7 @@ if ($GLOBALS['erx_enable']) : ?>
             </a>
         </td>
         <td id='accountstatus'></td>
-        <?php endif; // eRX Enabled
+<?php endif; // eRX Enabled
         //Patient Portal
         $portalUserSetting = true; //flag to see if patient has authorized access to portal
 if (($GLOBALS['portal_onsite_enable'] && $GLOBALS['portal_onsite_address']) ||
@@ -557,7 +557,7 @@ if (!($portalUserSetting)) : // Show that the patient has not authorized portal 
             <td style='padding-left:1em;'>
                 <?php echo htmlspecialchars(xl('Patient has not authorized the Patient Portal.'), ENT_NOQUOTES);?>
             </td>
-        <?php endif;
+<?php endif;
         //Patient Portal
 
         // If patient is deceased, then show this (along with the number of days patient has been deceased for)
@@ -573,7 +573,7 @@ if ($days_deceased != null) : ?>
                     echo xlt("DECEASED") . " (" . text($days_deceased) . " " . xlt("days ago") . ")";
                 } ?>
             </td>
-        <?php endif; ?>
+<?php endif; ?>
     </tr>
 </table>
 
@@ -751,7 +751,7 @@ if ($result3['provider']) {   // Use provider in case there is an ins record w/ 
         </div> <!-- required for expand_collapse_widget -->
        </td>
       </tr>
-<?php } ?>
+                    <?php } ?>
 
 <?php if (acl_check('patients', 'demo')) { ?>
       <tr>
@@ -977,7 +977,7 @@ if ($insurance_count > 0) {
                                     echo htmlspecialchars($row['subscriber_employer_country'], ENT_NOQUOTES); ?>
                                     <?php echo " " . htmlspecialchars($row['subscriber_employer_postal_code'], ENT_NOQUOTES); ?>
                                   </span>
-                            <?php } ?>
+                                <?php } ?>
 
                                  </td>
                                 </tr>
@@ -987,7 +987,7 @@ if ($insurance_count > 0) {
                                   <span class='bold'><?php echo htmlspecialchars(xl('CoPay'), ENT_NOQUOTES); ?>: </span>
                                   <span class='text'><?php echo htmlspecialchars($row['copay'], ENT_NOQUOTES); ?></span>
                   <br />
-                            <?php } ?>
+                                <?php } ?>
                                   <span class='bold'><?php echo htmlspecialchars(xl('Accept Assignment'), ENT_NOQUOTES); ?>:</span>
                                   <span class='text'><?php if ($row['accept_assignment'] == "TRUE") {
                                         echo xl("YES");
@@ -999,7 +999,7 @@ if ($insurance_count > 0) {
                   <br />
                                   <span class='bold'><?php echo htmlspecialchars(xl('Secondary Medicare Type'), ENT_NOQUOTES); ?>: </span>
                                   <span class='text'><?php echo htmlspecialchars($policy_types[$row['policy_type']], ENT_NOQUOTES); ?></span>
-                            <?php } ?>
+                                <?php } ?>
                                  </td>
                                  <td valign='top'></td>
                                  <td valign='top'></td>
@@ -1023,7 +1023,7 @@ if ($insurance_count > 0) {
             ?>
             </div>
 
-            <?php } // ?>
+<?php } // ?>
 
             </td>
         </tr>

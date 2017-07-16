@@ -497,7 +497,7 @@ function sel_patient() {
         echo "   </select>\n";
         ?></td>
         </tr><tr>
-<?php } ?>
+        <?php } ?>
       <td colspan="2">
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
         <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr($form_from_date) ?>' title='yyyy-mm-dd'>
@@ -540,7 +540,7 @@ function sel_patient() {
                          <!-- <span><?php //echo xlt('Back To Patient');?></span></a> -->
                     <?php } ?>
                     </div>
-                    <?php } ?>
+            <?php } ?>
                 </div>
             </td>
         </tr>

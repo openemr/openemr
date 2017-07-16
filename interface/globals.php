@@ -433,7 +433,7 @@ if (!empty($glrow)) {
         }
     }
 
-    unset($temp_css_theme_name, $new_theme,$rtl_override);
+    unset($temp_css_theme_name, $new_theme, $rtl_override);
     // end of RTL section
 
   //

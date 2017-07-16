@@ -198,7 +198,7 @@ $to_date = fixDate($_POST['form_to_date'], date('Y-m-d'));
                 <div class="dm-ed-in-8">
                 <?php echo xlt('Nothing to display'); ?>
                 </div>
-<?php } ?>
+                <?php } ?>
         </div>
     </body>
 </html>

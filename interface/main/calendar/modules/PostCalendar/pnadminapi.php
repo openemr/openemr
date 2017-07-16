@@ -32,7 +32,7 @@
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
-unset($pcModInfo,$pcDir);
+unset($pcModInfo, $pcDir);
 
 function postcalendar_adminapi_buildHourSelect($args)
 {

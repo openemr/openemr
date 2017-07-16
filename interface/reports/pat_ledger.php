@@ -498,7 +498,7 @@ function sel_patient() {
         echo "   </select>\n";
         ?></td>
         </tr><tr>
-<?php } ?>
+        <?php } ?>
       <td class='control-label'>
         <?php echo xlt('From'); ?>:&nbsp;&nbsp;&nbsp;&nbsp;
       </td>
@@ -544,7 +544,7 @@ function sel_patient() {
                     <?php echo xlt('Back To Patient');?>
                 </a>
                 <?php } ?>
-                        <?php } ?>
+                    <?php } ?>
           </div>
                 </div>
             </td>

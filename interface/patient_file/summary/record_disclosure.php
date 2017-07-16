@@ -156,7 +156,7 @@ if ($editlid) {
         <td>
         <textarea name=desc_disc wrap=auto rows=4 cols=30><?php echo htmlspecialchars($description, ENT_NOQUOTES); ?></textarea>
         <?php } else {?>
-<td><textarea name=desc_disc wrap=auto rows=4 cols=30></textarea><?php }?>
+<td><tex<?php }?>
         </td>
     </tr>
 </table>

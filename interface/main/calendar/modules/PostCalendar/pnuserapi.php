@@ -35,7 +35,7 @@ include_once($GLOBALS['fileroot']."/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 require_once("modules/$pcDir/common.api.php");
-unset($pcModInfo,$pcDir);
+unset($pcModInfo, $pcDir);
 
 function postcalendar_userapi_getLongDayName($args)
 {

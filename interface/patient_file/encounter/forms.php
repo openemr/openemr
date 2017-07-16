@@ -891,7 +891,7 @@ foreach ($docs_list as $doc_iter) {
 <a href="<?php echo $doc_url;?>" style="font-size:small;" onsubmit="return top.restoreSession()"><?php echo oeFormatShortDate($doc_iter[docdate]) . ": " . text(basename($doc_iter[url]));?></a>
 <?php if ($note != '') {?>
             <a href="javascript:void(0);" title="<?php echo attr($note);?>"><img src="../../../images/info.png"/></a>
-    <?php }?>
+<?php }?>
 <?php } ?>
 </div>
 <?php } ?>

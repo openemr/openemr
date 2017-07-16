@@ -1064,19 +1064,19 @@ while ($row = sqlFetchArray($res)) {
   <td><b><?php xl('Active', 'e'); ?></b></td>
     <?php if ($list_id == 'taxrate') { ?>
   <td><b><?php xl('Rate', 'e'); ?></b></td>
-<?php } else if ($list_id == 'contrameth') { ?>
+    <?php } else if ($list_id == 'contrameth') { ?>
   <td><b><?php xl('Effectiveness', 'e'); ?></b></td>
-<?php } else if ($list_id == 'lbfnames' || $list_id == 'transactions') { ?>
+    <?php } else if ($list_id == 'lbfnames' || $list_id == 'transactions') { ?>
   <td title='<?php xl('Number of past history columns', 'e'); ?>'><b><?php xl('Repeats', 'e'); ?></b></td>
-<?php } else if ($list_id == 'fitness') { ?>
+    <?php } else if ($list_id == 'fitness') { ?>
   <td><b><?php xl('Color:Abbr', 'e'); ?></b></td>
-<?php } else if ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
+    <?php } else if ($list_id == 'adjreason' || $list_id == 'abook_type') { ?>
   <td><b><?php xl('Type', 'e'); ?></b></td>
-<?php } else if ($list_id == 'immunizations') { ?>
+    <?php } else if ($list_id == 'immunizations') { ?>
   <td><b>&nbsp;&nbsp;&nbsp;&nbsp;<?php xl('CVX Code Mapping', 'e'); ?></b></td>
-<?php } if ($GLOBALS['ippf_specific']) { ?>
+    <?php } if ($GLOBALS['ippf_specific']) { ?>
   <td><b><?php xl('Global ID', 'e'); ?></b></td>
-<?php } ?>
+    <?php } ?>
   <td><b><?php
     if ($list_id == 'language') {
         echo xlt('ISO 639-2 Code');

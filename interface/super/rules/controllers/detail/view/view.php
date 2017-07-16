@@ -173,7 +173,7 @@ $rule = $viewBean->rule ?>
     
             </p>
         </div>
-        <?php } ?>
+            <?php } ?>
     
             <!--              -->
             <!-- rule actions -->
@@ -210,7 +210,7 @@ $rule = $viewBean->rule ?>
                 <?php } ?>
             </p>
         </div>
-        <?php } ?>
+            <?php } ?>
             </div>
         <?php
     } // iteration over groups ?>

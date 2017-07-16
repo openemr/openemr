@@ -106,12 +106,12 @@ if (sqlNumRows($resultSet)) { ?>
         <?php } ?>
         </table>
         </div>
-    <?php } else { ?>
+<?php } else { ?>
         <span style="color:red">
             <br>
             <?php echo xlt("No amendment requests available"); ?>
         </span>
-    <?php } ?>
+<?php } ?>
 </form>
 </body>
 

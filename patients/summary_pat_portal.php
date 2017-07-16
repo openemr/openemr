@@ -523,7 +523,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
          </div>
         </td>
        </tr>
-<?php } // end CCR/CCD reporting options ?>
+        <?php } // end CCR/CCD reporting options ?>
 <?php if ($GLOBALS['portal_onsite_document_download']) { ?>
 <?php echo "<tr><td width='650px'>";
 $widgetTitle = xl('Documents');

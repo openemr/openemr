@@ -223,11 +223,10 @@ function getLanguageTitle($val)
 
  // get language title
     $res = sqlStatement("select lang_description from lang_languages where lang_id =?", array($lang_id));
-    for ($iter = 0; $row = sqlFetchArray($res);
-    $iter++) {
+    for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result[$iter] = $row;
-        $languageTitle = $result[0]"lang_description"
     };
+    $languageTitle = $result[0]{"lang_description"};
     return $languageTitle;
 }
 
