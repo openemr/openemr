@@ -3,7 +3,8 @@
  * @deprecated use html2text.php convert_html_to_text function instead
  */
 require_once 'html2text.php';
-class html2text {
+class html2text
+{
     private $html;
     public function __construct($html)
     {

@@ -231,7 +231,8 @@ function drawThickLine($img, $startX, $startY, $endX, $endY, $colour, $thickness
     imagefilledpolygon($img, $array, (count($array)/2), $colour);
 }
 
-class sigToSvg {
+class sigToSvg
+{
     /**
      * Associative array of options.
      * @var array|null

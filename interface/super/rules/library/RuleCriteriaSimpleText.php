@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteriaSimpleText extends RuleCriteria {
+abstract class RuleCriteriaSimpleText extends RuleCriteria
+{
     var $title;
     var $value;
 
@@ -42,5 +43,4 @@ abstract class RuleCriteriaSimpleText extends RuleCriteria {
         $value = _post("fld_value");
         $this->value = $value;
     }
-
 }

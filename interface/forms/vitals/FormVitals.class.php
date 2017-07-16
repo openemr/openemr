@@ -11,7 +11,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormVitals extends ORDataObject {
+class FormVitals extends ORDataObject
+{
 
     /**
      *

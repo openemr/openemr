@@ -18,7 +18,8 @@ Twig_Autoloader::register ();
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class TwigRenderEngine implements IRenderEngine {
+class TwigRenderEngine implements IRenderEngine
+{
     
     /** @var Twig_Environment */
     public $twig;

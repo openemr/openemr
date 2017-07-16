@@ -11,7 +11,8 @@
  * enum
  * @author aron
  */
-class TimeUnit {
+class TimeUnit
+{
     var $code;
     var $lbl;
 

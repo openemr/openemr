@@ -22,7 +22,8 @@
 
 namespace services;
 
-class PatientService {
+class PatientService
+{
 
   /**
    * Default constructor.
@@ -73,5 +74,4 @@ class PatientService {
             ORDER BY p.pubpid";
         return sqlStatement($sql);
     }
-
 }

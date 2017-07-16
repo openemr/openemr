@@ -399,5 +399,4 @@ class sms
             die ("Error. This SMS API class is setup to use Multibyte String Functions module - mbstring, but module not found. Please try to set unicode=false in class or install mbstring module into PHP.");
         }
     }
-
 }

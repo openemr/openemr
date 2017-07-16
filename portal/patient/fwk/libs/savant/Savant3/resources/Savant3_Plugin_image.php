@@ -27,7 +27,8 @@
  *
  *
  */
-class Savant3_Plugin_image extends Savant3_Plugin {
+class Savant3_Plugin_image extends Savant3_Plugin
+{
     
     /**
      *

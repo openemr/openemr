@@ -41,7 +41,8 @@
  * @access   public
  */
 
-class Benchmark_Timer {
+class Benchmark_Timer
+{
     /**
      * Contains the markers
      *

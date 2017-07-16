@@ -22,7 +22,8 @@
  */
 
 
-class QRDAXml extends XmlWriterOemr {
+class QRDAXml extends XmlWriterOemr
+{
     public $unique_id;
     public $nqf_code;
 
@@ -603,5 +604,4 @@ class QRDAXml extends XmlWriterOemr {
         }
         $this->pop();
     }
-
 }

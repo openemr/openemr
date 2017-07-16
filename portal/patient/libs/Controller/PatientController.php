@@ -39,7 +39,8 @@ require_once ( "Model/Patient.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class PatientController extends AppBaseController{
+class PatientController extends AppBaseController
+{
 
     /**
      * Override here for any controller-specific functionality

@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteriaBuilder {
+abstract class RuleCriteriaBuilder
+{
 
 
     /**
@@ -26,5 +27,4 @@ abstract class RuleCriteriaBuilder {
     abstract function build( $ruleCriteriaType, $value, $methodDetail );
 
     abstract function newInstance( $criteriaType );
-
 }

@@ -120,5 +120,4 @@ class CcdController extends AbstractActionController
         }
         return $this->ccdTable;
     }
-
 }

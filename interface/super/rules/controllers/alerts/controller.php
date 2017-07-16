@@ -16,7 +16,8 @@
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // 
-class Controller_alerts extends BaseController {
+class Controller_alerts extends BaseController
+{
 
     function _action_listactmgr()
     {
@@ -89,5 +90,4 @@ class Controller_alerts extends BaseController {
         }
          $this->forward("listactmgr");
     }
-
 }

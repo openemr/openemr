@@ -26,7 +26,8 @@ require_once ($GLOBALS['srcdir'] . '/forms.inc');
  * @brief This class extends the Controller class, which is used to control the smarty templating engine.
  *
  */
-abstract class C_AbstractClickmap extends Controller {
+abstract class C_AbstractClickmap extends Controller
+{
     /**
      * the directory to find our template file in.
      *

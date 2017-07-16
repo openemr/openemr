@@ -6,7 +6,8 @@
  * This is a class for storing document categories using the MPTT implementation
  */
 
-class CategoryTree extends Tree {
+class CategoryTree extends Tree
+{
 
     /*
 	*	This just sits on top of the parent constructor, only a shell so that the _table var gets set

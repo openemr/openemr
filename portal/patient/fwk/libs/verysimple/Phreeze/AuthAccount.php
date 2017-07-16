@@ -41,7 +41,8 @@ define ( "ACCOUNT_PERMISSION_ADMIN", 4 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class AuthAccount extends AccountDAO implements IAuthenticatable {
+class AuthAccount extends AccountDAO implements IAuthenticatable
+{
     /** @var string this is public for serialization */
     public $_original_password = "";
     

@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteria {
+abstract class RuleCriteria
+{
     /**
      * if true, then criteria is optional; required otherwise
      * @var boolean
@@ -129,5 +130,4 @@ abstract class RuleCriteria {
         $this->interval = $interval;
         $this->intervalType = $intervalType;
     }
-
 }

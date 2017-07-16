@@ -96,7 +96,6 @@ class procedure extends code_info
     {
         array_push($params,$this->modifiers,$this->units,$this->fee,$this->justify);
     }
-    
 }
 
 /**

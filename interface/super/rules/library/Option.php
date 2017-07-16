@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class Option {
+class Option
+{
 
     var $id;
     var $label;

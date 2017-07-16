@@ -7,7 +7,8 @@
  * class PriorAuth
  *
  */
-class FormPriorAuth extends ORDataObject {
+class FormPriorAuth extends ORDataObject
+{
 
     /**
      *
@@ -120,6 +121,4 @@ class FormPriorAuth extends ORDataObject {
     {
         return $this->date;
     }
-
-
 }   // end of Form

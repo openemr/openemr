@@ -17,7 +17,8 @@ require_once ("verysimple/DB/DatabaseConfig.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DataDriverMySQL_PDO implements IDataDriver {
+class DataDriverMySQL_PDO implements IDataDriver
+{
     /** @var characters that will be escaped */
     static $BAD_CHARS = array (
             "\\",

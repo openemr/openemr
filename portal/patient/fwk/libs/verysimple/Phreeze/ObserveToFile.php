@@ -16,7 +16,8 @@ require_once ("verysimple/HTTP/RequestUtil.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ObserveToFile implements IObserver {
+class ObserveToFile implements IObserver
+{
     private $filepath;
     private $eventtype;
     private $fh;

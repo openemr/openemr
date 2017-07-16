@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class UrlWriterMode {
+class UrlWriterMode
+{
     const WEB = "WEB";
     const JOOMLA = "JOOMLA";
     const MOBILE = "MOBILE";

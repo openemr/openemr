@@ -16,7 +16,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.4
  */
-class RequestUtil {
+class RequestUtil
+{
     
     /** @var bool set to true and all non-ascii characters in request variables will be html encoded */
     static $ENCODE_NON_ASCII = false;

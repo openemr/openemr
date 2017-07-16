@@ -8,7 +8,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormROM.class.php");
 
-class C_FormROM extends Controller {
+class C_FormROM extends Controller
+{
 
     var $template_dir;
 
@@ -59,5 +60,4 @@ class C_FormROM extends Controller {
         }
         return;
     }
-
 }

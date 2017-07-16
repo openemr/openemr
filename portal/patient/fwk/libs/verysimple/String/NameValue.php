@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class NameValue {
+class NameValue
+{
     public $Code;
     public $Total;
     

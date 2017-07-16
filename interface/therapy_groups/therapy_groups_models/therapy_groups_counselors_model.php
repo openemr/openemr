@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups_Counselors{
+class Therapy_Groups_Counselors
+{
 
     const TABLE = 'therapy_groups_counselors';
 

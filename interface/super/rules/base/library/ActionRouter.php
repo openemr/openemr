@@ -15,7 +15,8 @@
  *
  * @author aron
  */
-class ActionRouter {
+class ActionRouter
+{
 
     var $controller;
     var $path;
@@ -136,5 +137,4 @@ class ActionRouter {
             return null;
         }
     }
-
 }

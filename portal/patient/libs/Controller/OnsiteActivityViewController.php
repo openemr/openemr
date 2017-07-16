@@ -40,7 +40,8 @@ require_once ( "Model/OnsiteActivityView.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteActivityViewController extends AppBaseController{
+class OnsiteActivityViewController extends AppBaseController
+{
 
     /**
      * Override here for any controller-specific functionality

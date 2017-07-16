@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDatabaseCustom extends RuleCriteria {
+class RuleCriteriaDatabaseCustom extends RuleCriteria
+{
 
     var $table;
     var $column;
@@ -98,5 +99,4 @@ class RuleCriteriaDatabaseCustom extends RuleCriteria {
         $this->frequency = _post("fld_frequency");
         $this->frequencyComparator = _post("fld_frequency_comparator");
     }
-   
 }

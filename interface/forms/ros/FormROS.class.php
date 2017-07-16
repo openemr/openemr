@@ -6,7 +6,8 @@
  * class
  *
  */
-class FormROS extends ORDataObject {
+class FormROS extends ORDataObject
+{
 
     /**
      *
@@ -1651,6 +1652,4 @@ class FormROS extends ORDataObject {
     {
         parent::persist();
     }
-
-
 }   // end of Form

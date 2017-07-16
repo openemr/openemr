@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBSet {
+class DBSet
+{
     public $Table;
     public $Name;
     public $KeyColumn;

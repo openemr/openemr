@@ -17,7 +17,8 @@ require_once ("verysimple/DB/DataDriver/IDataDriver.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.2
  */
-class DataAdapter implements IObservable {
+class DataAdapter implements IObservable
+{
     
     /**
      *

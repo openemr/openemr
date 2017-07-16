@@ -101,5 +101,4 @@ class SecureAppController extends AppBaseController
         $this->ClearCurrentUser();
         $this->Redirect("SecureApp.LoginForm","You are now logged out");
     }
-
 }

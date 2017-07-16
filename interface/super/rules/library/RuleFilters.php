@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleFilters {
+class RuleFilters
+{
     var $ruleId;
     var $criteria = array();
 
@@ -26,5 +27,4 @@ class RuleFilters {
     {
         array_push( $this->criteria, $criteria );
     }
-
 }

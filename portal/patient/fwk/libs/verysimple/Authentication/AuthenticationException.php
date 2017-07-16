@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class AuthenticationException extends Exception {
+class AuthenticationException extends Exception
+{
     // Redefine the exception so message isn't optional
     public function __construct($message, $code = 0)
     {

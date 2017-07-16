@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class HttpRequest {
+class HttpRequest
+{
     static $METHOD_GET = "GET";
     static $METHOD_POST = "POST";
     static $METHOD_PUT = "PUT";

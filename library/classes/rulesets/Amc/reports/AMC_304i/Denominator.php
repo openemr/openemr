@@ -24,5 +24,4 @@ class AMC_304i_Denominator implements AmcFilterIF
         //   which are already filtered for, so all the objects are a positive)
         return true;
     }
-    
 }

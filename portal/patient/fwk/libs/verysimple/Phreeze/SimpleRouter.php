@@ -22,7 +22,8 @@ require_once ("verysimple/Phreeze/IRouter.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SimpleRouter implements IRouter {
+class SimpleRouter implements IRouter
+{
     public static $ROUTE_NOT_FOUND = "Default.Error404";
     private $routes = array ();
     private $defaultAction = 'Default.Home';

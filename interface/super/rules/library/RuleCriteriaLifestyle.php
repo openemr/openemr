@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaLifestyle extends RuleCriteria {
+class RuleCriteriaLifestyle extends RuleCriteria
+{
     var $type;
     var $matchValue;
 
@@ -89,5 +90,4 @@ class RuleCriteriaLifestyle extends RuleCriteria {
         }
 
     }
-
 }

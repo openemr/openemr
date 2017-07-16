@@ -23,5 +23,4 @@ class AMC_302h_Denominator implements AmcFilterIF
         // All labs within report date, which have already been collected
         return true;
     }
-    
 }

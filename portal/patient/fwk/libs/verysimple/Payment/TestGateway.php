@@ -20,7 +20,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class TestGateway extends PaymentProcessor {
+class TestGateway extends PaymentProcessor
+{
     
     /**
      * Called on contruction

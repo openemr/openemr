@@ -21,7 +21,8 @@
  * @link    http://www.open-emr.org
  */
 
-class AMC_314g_1_2_20_Numerator implements AmcFilterIF{
+class AMC_314g_1_2_20_Numerator implements AmcFilterIF
+{
 
     // Still TODO
     // AMC MU2 TODO :

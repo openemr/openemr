@@ -18,7 +18,8 @@ require_once ("AuthenticationException.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Authenticator {
+class Authenticator
+{
     static $user = null;
     static $is_initialized = false;
     public static function Init()

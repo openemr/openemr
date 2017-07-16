@@ -2,7 +2,8 @@
     // $Id$
     // $Author$
 
-class Handler_HL7v2 {
+class Handler_HL7v2
+{
 
     var $parser;
 
@@ -34,5 +35,4 @@ class Handler_HL7v2 {
         }
         return $target;
     } // end method _StripToNumeric
-
 } // end class Handler_HL7v2

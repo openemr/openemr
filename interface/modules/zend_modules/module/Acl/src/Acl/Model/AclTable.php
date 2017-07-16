@@ -180,5 +180,4 @@ class AclTable extends AbstractTableGateway
         $result = $obj->zQuery($sql,array($module_id));
         return $result;
     }
-    
 }

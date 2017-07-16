@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class ReminderIntervalDetail {
+class ReminderIntervalDetail
+{
     /**
      *
      * @var ReminderIntervalType
@@ -50,5 +51,4 @@ class ReminderIntervalDetail {
                  . xl( $this->amount ) . " " . xl( $this->timeUnit->lbl );
         return $display;
     }
-    
 }

@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaSex extends RuleCriteria {
+class RuleCriteriaSex extends RuleCriteria
+{
     
     var $value;
 
@@ -57,5 +58,4 @@ class RuleCriteriaSex extends RuleCriteria {
         $sex = _post("fld_sex");
         $this->value = $sex;
     }
-
 }

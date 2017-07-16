@@ -17,7 +17,8 @@ define ("TRANSMIT_FAX", 3);
  * class Pharmacy
  *
  */
-class Pharmacy extends ORDataObject{
+class Pharmacy extends ORDataObject
+{
     var $id;
     var $name;
     var $phone_numbers;
@@ -241,7 +242,6 @@ class Pharmacy extends ORDataObject{
             return $string;
         }
     }
-
 } // end of Pharmacy
 /*$p = new Pharmacy("1");
 echo $p->toString(true);

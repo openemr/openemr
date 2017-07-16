@@ -8,7 +8,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormROS2.class.php");
 
-class C_FormROS2 extends Controller {
+class C_FormROS2 extends Controller
+{
 
     var $template_dir;
 
@@ -59,5 +60,4 @@ class C_FormROS2 extends Controller {
         }
         return;
     }
-
 }

@@ -30,7 +30,8 @@ define("N2T_AND", "and");
 * @package NumberToText */
 define("N2T_NEGATIVE", "negative");
 
-class NumberToText {
+class NumberToText
+{
 
 
     var $number;

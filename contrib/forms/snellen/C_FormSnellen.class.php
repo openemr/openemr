@@ -8,7 +8,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSnellen.class.php");
 
-class C_FormSnellen extends Controller {
+class C_FormSnellen extends Controller
+{
 
     var $template_dir;
 
@@ -59,5 +60,4 @@ class C_FormSnellen extends Controller {
         }
         return;
     }
-
 }

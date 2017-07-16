@@ -12,7 +12,8 @@ require_once( library_src( 'RuleCriteriaSimpleText.php') );
  *
  * @author aron
  */
-class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText {
+class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText
+{
     function __construct( $title, $value='' )
     {
         parent::__construct($title, $value);
@@ -27,5 +28,4 @@ class RuleCriteriaMedicalIssue extends RuleCriteriaSimpleText {
         $dbView->value = "CUSTOM::" . $this->value;
         return $dbView;
     }
-
 }

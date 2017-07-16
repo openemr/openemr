@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleActions {
+class RuleActions
+{
     var $actions = array();
 
     function __construct()

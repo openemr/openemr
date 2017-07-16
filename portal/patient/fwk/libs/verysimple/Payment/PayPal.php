@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class PayPal extends PaymentProcessor {
+class PayPal extends PaymentProcessor
+{
     // used by paypal - 'sandbox' or 'beta-sandbox' or 'live'
     private $environment = 'sandbox';
     

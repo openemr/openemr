@@ -14,7 +14,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.2
  */
-class CriteriaFilter {
+class CriteriaFilter
+{
     static $TYPE_SEARCH = 1;
     public $propertyNames;
     public $Value;

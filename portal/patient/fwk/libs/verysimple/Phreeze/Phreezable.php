@@ -12,7 +12,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.3
  */
-abstract class Phreezable implements Serializable {
+abstract class Phreezable implements Serializable
+{
     private $_cache = array ();
     protected $_phreezer;
     protected $_val_errors = array ();

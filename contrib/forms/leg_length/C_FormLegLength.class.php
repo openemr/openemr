@@ -8,7 +8,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormLegLength.class.php");
 
-class C_FormLegLength extends Controller {
+class C_FormLegLength extends Controller
+{
 
     var $template_dir;
 
@@ -59,5 +60,4 @@ class C_FormLegLength extends Controller {
         }
         return;
     }
-
 }

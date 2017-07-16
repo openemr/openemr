@@ -16,7 +16,8 @@ require_once ("IncludeException.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Includer {
+class Includer
+{
     
     /**
      * Includes a file with the given path.

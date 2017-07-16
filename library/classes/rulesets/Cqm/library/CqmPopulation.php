@@ -37,5 +37,4 @@ class CqmPopulation extends RsPopulation
             throw new Exception( "Value must be an instance of CqmPatient" );
         }
     }
-
 }

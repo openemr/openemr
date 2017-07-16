@@ -16,7 +16,8 @@ require_once( library_src( 'RuleCriteriaTargetFactory.php') );
  * This class should be kept synchronized with clinical_rules.php
  * @author aron
  */
-class RuleManager {
+class RuleManager
+{
     const SQL_RULE_DETAIL =
     "SELECT lo.title as title, cr.*
            FROM clinical_rules cr
@@ -786,5 +787,4 @@ class RuleManager {
             return false;
         }
     }
-
 }

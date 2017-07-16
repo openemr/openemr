@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Users{
+class Users
+{
 
     const TABLE = 'users';
     const EVENTS_TABLE = 'openemr_postcalendar_events';

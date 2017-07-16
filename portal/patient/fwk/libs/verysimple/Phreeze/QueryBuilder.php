@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.01
  */
-class QueryBuilder {
+class QueryBuilder
+{
     private $_phreezer;
     private $_counter = 0;
     public $Columns;

@@ -5,7 +5,8 @@
  *
  */
 
-class X12Partner extends ORDataObject{
+class X12Partner extends ORDataObject
+{
 
     var $id;
     var $name;

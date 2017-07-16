@@ -13,7 +13,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  *
  */
 
-class Patient extends ORDataObject{
+class Patient extends ORDataObject
+{
     var $id;
     var $pubpid;
     var $lname;
@@ -77,5 +78,4 @@ class Patient extends ORDataObject{
     function get_dob()
     {
         return $this->date_of_birth; }
-
 } // end of Patient

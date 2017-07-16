@@ -19,7 +19,8 @@ define ( "MESSAGE_FORMAT_HTML", 1 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.2
  */
-class EmailMessage {
+class EmailMessage
+{
     public $Recipients;
     public $CCRecipients;
     public $BCCRecipients;

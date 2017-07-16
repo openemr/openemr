@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
+class RuleCriteriaListsBuilder extends RuleCriteriaBuilder
+{
 
     /**
      * @return RuleCriteriaType
@@ -104,5 +105,4 @@ class RuleCriteriaListsBuilder extends RuleCriteriaBuilder {
 
         return null;
     }
-
 }

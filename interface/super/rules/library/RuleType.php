@@ -11,7 +11,8 @@
  * todo turn this into a real enum
  * @author aron
  */
-class RuleType {
+class RuleType
+{
 
     var $code;
     var $lbl;
@@ -57,5 +58,4 @@ class RuleType {
         );
         return $map;
     }
-
 }

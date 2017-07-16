@@ -57,7 +57,8 @@
  * @param bool      $text  default = false
  * @return bool|string   true for empty object "ovgis" for validated x12
  */
-class edih_x12_file {
+class edih_x12_file
+{
     // properties
     private $filepath = '';
     private $filename = '';

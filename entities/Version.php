@@ -31,7 +31,8 @@ use Doctrine\ORM\Mapping\Id;
  * @Table(name="version")
  * @Entity(repositoryClass="repositories\VersionRepository")
  */
-class Version {
+class Version
+{
     /**
      * Default constructor.
      */

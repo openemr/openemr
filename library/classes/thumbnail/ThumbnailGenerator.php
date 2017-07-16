@@ -22,7 +22,8 @@
 /**
  * Class ThumbnailGenerator
  */
-class ThumbnailGenerator{
+class ThumbnailGenerator
+{
 
     public static $types_support = array('image/png', 'image/jpeg', 'image/jpg', 'image/gif');
     private $thumb_obj = null;

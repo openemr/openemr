@@ -1,7 +1,8 @@
 <?php
 
 
-class C_X12Partner extends Controller {
+class C_X12Partner extends Controller
+{
 
     var $template_mod;
     var $providers;
@@ -77,5 +78,4 @@ class C_X12Partner extends Controller {
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
         //return $this->edit_action(null,$this->x12_partner[0]);
     }
-
 }

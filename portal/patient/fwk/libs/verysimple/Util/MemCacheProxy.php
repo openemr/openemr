@@ -15,7 +15,8 @@ require_once ("verysimple/Phreeze/CacheMemCache.php");
  * @version 1.0
  *
  */
-class MemCacheProxy extends CacheMemCache {
+class MemCacheProxy extends CacheMemCache
+{
     public $ServerOffline = false;
     public $LastServerError = '';
     

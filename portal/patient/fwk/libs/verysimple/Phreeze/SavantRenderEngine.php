@@ -12,7 +12,8 @@ require_once ('savant/Savant3.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SavantRenderEngine implements IRenderEngine {
+class SavantRenderEngine implements IRenderEngine
+{
     static $TEMPLATE_EXTENSION = ".tpl.php";
     
     /** @var Savant3 */

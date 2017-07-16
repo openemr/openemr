@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDatabaseBucket extends RuleCriteria {
+class RuleCriteriaDatabaseBucket extends RuleCriteria
+{
     var $category;
     var $item;
     var $categoryLbl;
@@ -124,5 +125,4 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria {
         $this->itemLbl = $itemLbl;
         $this->categoryLbl = $categoryLbl;
     }
-
 }

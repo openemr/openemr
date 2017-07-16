@@ -1,7 +1,8 @@
 <?php
 
 
-class C_InsuranceCompany extends Controller {
+class C_InsuranceCompany extends Controller
+{
 
     var $template_mod;
     var $icompanies;
@@ -75,5 +76,4 @@ class C_InsuranceCompany extends Controller {
         $_POST['process'] = "";
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_company&action=list");//Z&H
     }
-
 }

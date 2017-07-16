@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleAction {
+class RuleAction
+{
     var $guid;
     var $id;
     var $category;

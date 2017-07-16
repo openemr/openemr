@@ -22,7 +22,8 @@
  * 
  */
 
-class edih_271_codes {
+class edih_271_codes
+{
 //
 //public $code271 = array();
     private $code271 = array();

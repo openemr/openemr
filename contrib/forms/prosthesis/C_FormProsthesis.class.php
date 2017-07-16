@@ -3,7 +3,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormProsthesis.class.php");
 
-class C_FormProsthesis extends Controller {
+class C_FormProsthesis extends Controller
+{
 
     var $template_dir;
 
@@ -67,5 +68,4 @@ class C_FormProsthesis extends Controller {
         $_POST['process'] = "";
         return;
     }
-
 }

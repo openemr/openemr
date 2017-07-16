@@ -16,7 +16,8 @@
  *
  * @author aron
  */
-abstract class BaseController {
+abstract class BaseController
+{
 
     var $viewBean;
     var $ruleManager;

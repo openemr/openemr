@@ -24,7 +24,8 @@
  *
  *
  */
-class Savant3_Plugin_htmlAttribs extends Savant3_Plugin {
+class Savant3_Plugin_htmlAttribs extends Savant3_Plugin
+{
     
     /**
      *

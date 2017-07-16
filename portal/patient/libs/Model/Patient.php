@@ -66,5 +66,4 @@ class Patient extends PatientDAO
         // OnSave must return true or Phreeze will cancel the save operation
         return true;
     }
-
 }

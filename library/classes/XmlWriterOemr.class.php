@@ -8,7 +8,8 @@
 
  // This program is the base class to implement XML writer.
 
-class XmlWriterOemr {
+class XmlWriterOemr
+{
     var $xml;
     var $indent;
     var $stack = array();

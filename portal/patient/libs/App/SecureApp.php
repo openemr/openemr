@@ -96,5 +96,4 @@ class SecureApp implements IAuthenticatable
 
         return $this->Username != '';
     }
-
 }

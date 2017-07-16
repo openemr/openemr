@@ -15,7 +15,8 @@ require_once ("IObservable.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-abstract class Observable implements IObservable {
+abstract class Observable implements IObservable
+{
     private $_observers = array ();
     
     /**

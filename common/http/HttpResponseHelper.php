@@ -20,7 +20,8 @@
 
 namespace common\http;
 
-class HttpResponseHelper {
+class HttpResponseHelper
+{
     public static function send($statusCode, $payload, $serializationStrategy)
     {
         $response = null;

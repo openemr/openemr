@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Group_Statuses{
+class Group_Statuses
+{
 
     const TABLE = 'list_options';
 

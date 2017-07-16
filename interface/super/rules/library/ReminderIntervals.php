@@ -12,7 +12,8 @@
  * @author aron
  *
  */
-class ReminderIntervals {
+class ReminderIntervals
+{
 
     var $detailMap;
 
@@ -78,5 +79,4 @@ class ReminderIntervals {
         }
         return $display;
     }
-
 }

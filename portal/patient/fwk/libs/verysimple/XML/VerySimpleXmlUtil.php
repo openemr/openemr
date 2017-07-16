@@ -16,7 +16,8 @@ require_once ("ParseException.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.2
  */
-class VerySimpleXmlUtil {
+class VerySimpleXmlUtil
+{
     // replacement variable for inner text and for attribute values
     static $reservedAttrib = array (
             "&",

@@ -1,7 +1,8 @@
 <?php
 
 
-class C_Hl7 extends Controller {
+class C_Hl7 extends Controller
+{
 
     function __construct($template_mod = "general")
     {
@@ -29,7 +30,6 @@ class C_Hl7 extends Controller {
         $this->assign("hl7_array", $hp->composite_array());
         return;
     }
-
 }
 
 

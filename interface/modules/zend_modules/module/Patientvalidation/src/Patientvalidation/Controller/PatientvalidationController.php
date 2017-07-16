@@ -26,7 +26,8 @@ use Zend\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Error;
 
-class PatientvalidationController extends BaseController{
+class PatientvalidationController extends BaseController
+{
 
 
     /**
@@ -105,7 +106,4 @@ class PatientvalidationController extends BaseController{
         }
         return $this->PatientDataTable;
     }
-
-
-
 }

@@ -13,7 +13,8 @@ require_once( library_src( 'RuleCriteriaFactory.php') );
  *
  * @author aron
  */
-class RuleCriteriaTargetFactory extends RuleCriteriaFactory {
+class RuleCriteriaTargetFactory extends RuleCriteriaFactory
+{
     const SQL_RULE_INTERVAL =
     "SELECT * FROM rule_target
      WHERE method = 'target_interval'
@@ -43,5 +44,4 @@ class RuleCriteriaTargetFactory extends RuleCriteriaFactory {
         $criteria->intervalType = TimeUnit::from( TimeUnit::Month );
         return $criteria;
     }
-
 }

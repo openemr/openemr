@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-interface IRSSFeedItem {
+interface IRSSFeedItem
+{
     /**
      * Returns a string to use as the RSS Title for this item
      *

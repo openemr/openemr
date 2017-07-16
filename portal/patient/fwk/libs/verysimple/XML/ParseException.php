@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ParseException extends Exception {
+class ParseException extends Exception
+{
     /**
      * Redefine the exception so message isn't optional
      *

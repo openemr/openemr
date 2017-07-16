@@ -12,7 +12,8 @@ require_once ("IRenderEngine.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class PHPRenderEngine implements IRenderEngine {
+class PHPRenderEngine implements IRenderEngine
+{
     /**
      * the file path to the template director
      */

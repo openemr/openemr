@@ -35,7 +35,8 @@
 if (!defined('__CLASS_RXLIST_PHP__')) {
     define('__CLASS_RXLIST_PHP__', true);
 
-    class RxList {
+    class RxList
+    {
 
         function getPage( $query )
         {
@@ -183,7 +184,6 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             } // end looping
             return $all;
         } // end function RxList::tokens2hash
-
     } // end class RxList
 
 } // end if not defined

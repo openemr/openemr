@@ -90,5 +90,4 @@ class Listener extends AbstractActionController implements ListenerAggregateInte
     {
         return xls($str);
     }
-  
 }

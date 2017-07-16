@@ -42,7 +42,8 @@ define('CHECKSUM_LOGGING', true);
 // require_once(dirname(__FILE__) . "/api.inc");
 // require_once(dirname(__FILE__) . "/forms.inc");
 
-class FeeSheet {
+class FeeSheet
+{
 
     public $pid;                                // patient id
     public $encounter;                          // encounter id
@@ -1034,5 +1035,4 @@ class FeeSheet {
         $cbval = json_encode($cbarray);
         return $cbval;
     }
-
 }

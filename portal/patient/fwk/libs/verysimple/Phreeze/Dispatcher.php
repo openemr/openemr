@@ -16,7 +16,8 @@ require_once ("verysimple/Util/ExceptionThrower.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.7
  */
-class Dispatcher {
+class Dispatcher
+{
     /**
      * Set to true and Phreeze will not try to handle deprecated function warnings
      *

@@ -16,7 +16,8 @@ require_once ("verysimple/Util/ExceptionThrower.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class CacheMemCache implements ICache {
+class CacheMemCache implements ICache
+{
     private $_memcache = null;
     private $_prefix = "";
     private $_suppressServerErrors = false;

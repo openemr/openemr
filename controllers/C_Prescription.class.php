@@ -25,7 +25,8 @@ require_once($GLOBALS['fileroot'] . "/library/classes/Prescription.class.php");
 require_once($GLOBALS['fileroot'] . "/library/registry.inc");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
-class C_Prescription extends Controller {
+class C_Prescription extends Controller
+{
 
     var $template_mod;
     var $pconfig;

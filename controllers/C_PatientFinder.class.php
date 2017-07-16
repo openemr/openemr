@@ -1,7 +1,8 @@
 <?php
 
 
-class C_PatientFinder extends Controller {
+class C_PatientFinder extends Controller
+{
 
     var $template_mod;
     var $_db;

@@ -11,7 +11,8 @@ require_once ("util/html2text.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SimpleTemplate {
+class SimpleTemplate
+{
     
     /** @var used internally for merging. */
     static $_MERGE_TEMPLATE_VALUES = null;

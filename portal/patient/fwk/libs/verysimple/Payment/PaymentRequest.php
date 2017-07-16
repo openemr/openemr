@@ -15,7 +15,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class PaymentRequest {
+class PaymentRequest
+{
     static $TRANSACTION_TYPE_AUTH_ONLY = "AUTH";
     static $TRANSACTION_TYPE_AUTH_CAPTURE = "AUTH_CAPTURE";
     public $SoftDescriptor = "";

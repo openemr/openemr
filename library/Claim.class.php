@@ -30,7 +30,8 @@ function cleanDate($date_field)
       return ($cleandate);
 }
 
-class Claim {
+class Claim
+{
 
     var $pid;               // patient id
     var $encounter_id;      // encounter id
@@ -1527,5 +1528,4 @@ class Claim {
         if (empty($this->billing_prov_id['taxonomy'])) return '207Q00000X';
         return x12clean(trim($this->billing_prov_id['taxonomy']));
     }
-
 }

@@ -36,7 +36,8 @@
  *
  * @return object
  */
-class edih_835_codes {
+class edih_835_codes
+{
 //
 //public $code835 = array();
     private $code835 = array();

@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class Code {
+class Code
+{
     //put your code here
 
     var $id;
@@ -31,5 +32,4 @@ class Code {
     {
         return $this->codeType . ":" . $this->id . " - " . $this->code . " " . $this->text;
     }
-    
 }

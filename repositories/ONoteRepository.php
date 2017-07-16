@@ -24,7 +24,8 @@ namespace repositories;
 
 use Doctrine\ORM\EntityRepository;
 
-class ONoteRepository extends EntityRepository {
+class ONoteRepository extends EntityRepository
+{
     /**
      * Add new office note.
      *

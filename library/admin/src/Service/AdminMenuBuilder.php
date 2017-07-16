@@ -66,5 +66,4 @@ class AdminMenuBuilder
         sort($newMenu);
         var_dump($newMenu);
     }
-
 }

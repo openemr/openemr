@@ -31,5 +31,4 @@ class AMC_302m_Denominator implements AmcFilterIF
             return false;
         }
     }
-    
 }

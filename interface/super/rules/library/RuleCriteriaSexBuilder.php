@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaSexBuilder extends RuleCriteriaBuilder {
+class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
+{
 
     /**
      * @return RuleCriteriaType
@@ -41,5 +42,4 @@ class RuleCriteriaSexBuilder extends RuleCriteriaBuilder {
     {
         return new RuleCriteriaSex( 'Male' );
     }
-
 }

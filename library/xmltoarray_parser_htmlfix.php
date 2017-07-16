@@ -35,7 +35,8 @@
  *	$array[$key] = $xmltoarray->fix_html_entities($value); //returns proper html values
  * }
  */
-class xmltoarray_parser_htmlfix{
+class xmltoarray_parser_htmlfix
+{
     var $values;
     var $index;
     var $thearray;
@@ -150,5 +151,4 @@ class xmltoarray_parser_htmlfix{
         $string =  str_replace("%and%","&",$string);
         return $string;
     }
-
 }

@@ -11,7 +11,8 @@
  *
  * @author ken
  */
-class RuleTargetActionGroup {
+class RuleTargetActionGroup
+{
 
     var $groupId;
     

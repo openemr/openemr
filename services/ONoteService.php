@@ -22,7 +22,8 @@
 
 namespace services;
 
-class ONoteService {
+class ONoteService
+{
     /**
      * Logger used primarily for logging events that are of interest to
      * developers.

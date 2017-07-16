@@ -10,7 +10,8 @@
  * @license LGPL
  * @version 1.1
  */
-class Recipient {
+class Recipient
+{
     var $Email;
     var $RealName;
     function __construct($email, $name = "")

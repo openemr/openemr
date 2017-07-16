@@ -16,7 +16,8 @@ require_once ("IObserver.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ObserveToBrowser implements IObserver {
+class ObserveToBrowser implements IObserver
+{
     public function Observe($obj, $ltype = OBSERVE_INFO)
     {
         $msg = '<strong>' . number_format ( microtime ( true ), 2, '.', '' ) . '</strong>: ';

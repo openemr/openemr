@@ -11,7 +11,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormSOAP extends ORDataObject {
+class FormSOAP extends ORDataObject
+{
 
     /**
      *

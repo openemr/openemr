@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxStore {
+class eRxStore
+{
 
     /**
      * Strip away any non numerical characters

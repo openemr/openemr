@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DatabaseException extends Exception {
+class DatabaseException extends Exception
+{
     
     /**
      * codes used to determine error sub-type

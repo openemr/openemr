@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class CodeManager {
+class CodeManager
+{
     const SQL_SELECT =
     "SELECT id,
             code,
@@ -71,5 +72,4 @@ class CodeManager {
 
         return $code;
     }
-
 }

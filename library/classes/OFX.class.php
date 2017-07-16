@@ -6,7 +6,8 @@ require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
  * class OFX
  *
  */
-class OFX {
+class OFX
+{
 
     var $billing_array;
     var $config;

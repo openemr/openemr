@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-abstract class Reporter implements Serializable {
+abstract class Reporter implements Serializable
+{
     protected $_phreezer;
     private $_isLoaded;
     private $_isPartiallyLoaded;

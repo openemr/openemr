@@ -29,7 +29,8 @@ require_once ("laravel/section.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class BladeRenderEngine implements IRenderEngine {
+class BladeRenderEngine implements IRenderEngine
+{
     /**
      * the file path to the template director
      */

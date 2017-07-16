@@ -25,7 +25,8 @@
 require_once(dirname(__FILE__) . "/FeeSheet.class.php");
 require_once(dirname(__FILE__) . "/api.inc");
 
-class FeeSheetHtml extends FeeSheet {
+class FeeSheetHtml extends FeeSheet
+{
 
   // Dynamically generated JavaScript to maintain justification codes.
     public $justinit = "var f = document.forms[0];\n";
@@ -368,5 +369,4 @@ function jsLineItemValidation(f) {
 ";
         return $s;
     }
-
 }

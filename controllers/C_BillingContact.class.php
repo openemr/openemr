@@ -1,7 +1,8 @@
 <?php
 
 
-class C_InsuranceCompany extends Controller {
+class C_InsuranceCompany extends Controller
+{
 
     var $template_mod;
     var $icompanies;
@@ -70,5 +71,4 @@ class C_InsuranceCompany extends Controller {
         //echo "action processeed";
         $_POST['process'] = "";
     }
-
 }

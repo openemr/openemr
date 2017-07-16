@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxGlobals {
+class eRxGlobals
+{
 
     private $configuration;
 
@@ -224,5 +225,4 @@ class eRxGlobals {
     {
         return $this->getGlobalValue('erx_debug_setting');
     }
-
 }

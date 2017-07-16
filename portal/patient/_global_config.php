@@ -219,5 +219,4 @@ class GlobalConfig
 
         return $this->render_engine;
     }
-
 }

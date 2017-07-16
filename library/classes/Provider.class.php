@@ -12,7 +12,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Provider
  *
  */
-class Provider extends ORDataObject{
+class Provider extends ORDataObject
+{
 
         var $id;
         var $lname;
@@ -134,5 +135,4 @@ class Provider extends ORDataObject{
     {
         return $this->state_license_number;
     }
-
 } // end of Provider

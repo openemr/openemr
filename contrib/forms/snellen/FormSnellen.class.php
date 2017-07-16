@@ -16,7 +16,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormSnellen extends ORDataObject {
+class FormSnellen extends ORDataObject
+{
 
     /**
      *
@@ -190,5 +191,4 @@ class FormSnellen extends ORDataObject {
             $this->notes = $data;
         }
     }
-
 }   // end of Form

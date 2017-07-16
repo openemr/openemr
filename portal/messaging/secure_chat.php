@@ -343,7 +343,6 @@ class Model extends SMA_Common\Model
     {
 
     }
-
 }
 
 class Controller extends SMA_Common\Controller

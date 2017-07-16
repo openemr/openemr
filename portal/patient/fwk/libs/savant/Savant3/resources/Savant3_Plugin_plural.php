@@ -3,7 +3,8 @@
 /**
  *
  */
-class Savant3_Plugin_plural extends Savant3_Plugin {
+class Savant3_Plugin_plural extends Savant3_Plugin
+{
     public function plural($string)
     {
         $lastletter = substr ( $string, - 1 );

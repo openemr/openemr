@@ -26,7 +26,8 @@ define('EPSILON', 1.0e-8);
  *
  * @package Filtreatment
  */
-class Filtreatment {
+class Filtreatment
+{
 
     var $minval = 0;
     var $maxval = 0;

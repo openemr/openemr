@@ -250,5 +250,4 @@ class Header
             // @TODO need to handle this better. RD 2017-05-24
         }
     }
-
 }

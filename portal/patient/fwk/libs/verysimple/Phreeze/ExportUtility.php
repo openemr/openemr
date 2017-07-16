@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ExportUtility {
+class ExportUtility
+{
     /**
      * Streams to the browser the provided array of objects as a basic Excel document
      * with headers.

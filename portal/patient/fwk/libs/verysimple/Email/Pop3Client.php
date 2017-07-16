@@ -12,7 +12,8 @@
  * @license LGPL
  * @version 1.1
  */
-class Pop3Client {
+class Pop3Client
+{
     private $mbox;
     private $do_delete = false;
     public static $VERSION = "1.1";

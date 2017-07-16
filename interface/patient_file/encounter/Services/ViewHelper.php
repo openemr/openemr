@@ -306,5 +306,4 @@ class ViewHelper
             return false;
         }
     }
-
 }

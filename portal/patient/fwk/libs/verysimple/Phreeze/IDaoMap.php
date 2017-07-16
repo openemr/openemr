@@ -16,7 +16,8 @@ require_once ("KeyMap.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface IDaoMap {
+interface IDaoMap
+{
     static function GetFieldMaps();
     static function GetKeyMaps();
 }

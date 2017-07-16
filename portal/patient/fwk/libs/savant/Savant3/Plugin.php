@@ -28,7 +28,8 @@
  *
  *
  */
-abstract class Savant3_Plugin {
+abstract class Savant3_Plugin
+{
     
     /**
      *

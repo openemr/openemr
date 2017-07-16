@@ -24,7 +24,8 @@
 //           Jacob T Paul <jacob@zhservices.com>
 //
 // +------------------------------------------------------------------------------+
-class factoryclass{
+class factoryclass
+{
     public static function dynamic_class_factory($page)
     {
         include_once ('server_'.$page.'.php');

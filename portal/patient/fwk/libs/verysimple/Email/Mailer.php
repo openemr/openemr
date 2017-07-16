@@ -24,7 +24,8 @@ define ( "MAILER_METHOD_MAIL", "MAIL" );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class Mailer {
+class Mailer
+{
     var $_log;
     var $_errors;
     var $Method;

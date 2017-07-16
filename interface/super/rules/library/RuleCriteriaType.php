@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaType {
+class RuleCriteriaType
+{
 
     // codes
     const ageMin = "age_min";
@@ -73,6 +74,4 @@ class RuleCriteriaType {
         );
         return $map;
     }
-    
-
 }

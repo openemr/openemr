@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class ControllerRouter {
+class ControllerRouter
+{
 
     /**
      * xxx todo: error handling
@@ -37,5 +38,4 @@ class ControllerRouter {
 
         $actionRouter->route();
     }
-    
 }

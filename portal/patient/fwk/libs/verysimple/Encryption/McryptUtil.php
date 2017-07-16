@@ -10,7 +10,8 @@
  *
  * @package verysimple::Encryption::McryptUtil
  */
-class McryptUtil {
+class McryptUtil
+{
     static $IV;
     static $CIPHER = MCRYPT_RIJNDAEL_256;
     static $MODE = MCRYPT_MODE_ECB;

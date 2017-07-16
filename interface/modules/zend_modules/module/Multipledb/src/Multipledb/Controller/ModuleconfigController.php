@@ -66,5 +66,4 @@ class ModuleconfigController
         return $acl;
 
     }
-
 }

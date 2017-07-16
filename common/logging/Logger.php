@@ -37,7 +37,8 @@
 
 namespace common\logging;
 
-class Logger {
+class Logger
+{
     /**
      * The class that is associated with a log entry.
      */

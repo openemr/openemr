@@ -5,7 +5,8 @@
  *
  */
 
-class ORDataObject {
+class ORDataObject
+{
     var $_prefix;
     var $_table;
     var $_db;
@@ -163,5 +164,4 @@ class ORDataObject {
         }
         return $ar;
     }
-
 } // end of ORDataObject

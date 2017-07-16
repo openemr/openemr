@@ -20,7 +20,8 @@
 
 namespace common\utils;
 
-class StringUtils {
+class StringUtils
+{
     public static function trimExcessWhitespace($string)
     {
         return trim(preg_replace('/\s+/',' ', $string));

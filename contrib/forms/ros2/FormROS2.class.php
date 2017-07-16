@@ -16,7 +16,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormROS2 extends ORDataObject {
+class FormROS2 extends ORDataObject
+{
 
     /**
      *
@@ -5940,5 +5941,4 @@ class FormROS2 extends ORDataObject {
             $this->psychiatric_insomnia_text = $data;
         }
     }
-
 }   // end of Form

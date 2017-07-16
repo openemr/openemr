@@ -35,7 +35,8 @@ require_once ( "verysimple/Phreeze/IDaoMap2.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteActivityViewMap implements IDaoMap, IDaoMap2{
+class OnsiteActivityViewMap implements IDaoMap, IDaoMap2
+{
     private static $KM;
     private static $FM;
 

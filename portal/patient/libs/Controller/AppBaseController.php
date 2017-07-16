@@ -118,5 +118,4 @@ class AppBaseController extends Controller
         @header('HTTP/1.1 401 Unauthorized');
         $this->RenderJSON($err,RequestUtil::Get('callback'));
     }
-
 }

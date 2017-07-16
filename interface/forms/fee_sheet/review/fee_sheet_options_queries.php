@@ -45,7 +45,6 @@ class fee_sheet_option
     public $price;
     public $fee_display;
     public $category;
-
 }
 /**
  * get a list of fee sheet options

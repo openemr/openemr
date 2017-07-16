@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class VerySimpleStringUtil {
+class VerySimpleStringUtil
+{
     /** @var the character set used when converting non ascii characters */
     static $DEFAULT_CHARACTER_SET = 'UTF-8';
     

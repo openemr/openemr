@@ -102,5 +102,4 @@ class OnsitePortalActivityMap implements IDaoMap, IDaoMap2
         }
         return self::$KM;
     }
-
 }

@@ -40,7 +40,8 @@ require_once ( "verysimple/Phreeze/Reporter.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteActivityViewReporter extends Reporter{
+class OnsiteActivityViewReporter extends Reporter
+{
 
     // the properties in this class must match the columns returned by GetCustomQuery().
     // 'CustomFieldExample' is an example that is not part of the `onsite_activity_view` table

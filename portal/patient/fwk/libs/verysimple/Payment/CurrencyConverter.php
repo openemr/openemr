@@ -15,7 +15,8 @@ require_once ("verysimple/HTTP/HttpRequest.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class CurrencyConverter {
+class CurrencyConverter
+{
     
     /**
      * Converts currency using google.

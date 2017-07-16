@@ -18,7 +18,8 @@ require_once ("DBKey.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBTable {
+class DBTable
+{
     public $Schema;
     public $Name;
     public $Engine;

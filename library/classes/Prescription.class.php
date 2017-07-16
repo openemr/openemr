@@ -93,7 +93,8 @@ function load_drug_attributes($id)
  * class Prescription
  *
  */
-class Prescription extends ORDataObject {
+class Prescription extends ORDataObject
+{
 
     /**
      *
@@ -709,5 +710,4 @@ class Prescription extends ORDataObject {
                     "WHERE prescription_id = '" . $this->id . "' AND quantity > 0");
         return $refills_row['count'];
     }
-
 }// end of Prescription

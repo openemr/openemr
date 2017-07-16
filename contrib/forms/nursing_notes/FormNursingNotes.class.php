@@ -16,7 +16,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormNursingNotes extends ORDataObject {
+class FormNursingNotes extends ORDataObject
+{
 
     /**
      *

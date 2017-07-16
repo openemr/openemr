@@ -15,7 +15,8 @@ require_once ("verysimple/XML/XMLUtil.php");
  *          $rss_writer->addItem("Title","http://...",'Category Name','Author',date(DATE_RSS,strtotime('2008-01-04: 01:01:01')));
  *          $rss_writer->writeOut();
  */
-class RSS_Writer {
+class RSS_Writer
+{
     protected $channel;
     private $title;
     private $link;

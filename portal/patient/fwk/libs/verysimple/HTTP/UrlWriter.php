@@ -12,7 +12,8 @@ require_once ("verysimple/HTTP/RequestUtil.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class UrlWriter extends ActionRouter {
+class UrlWriter extends ActionRouter
+{
     /**
      * Returns a url for the given controller, method and parameters
      *

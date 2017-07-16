@@ -4,7 +4,8 @@ require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once ($GLOBALS['fileroot'] . "/library/patient.inc");
 require_once("FormVitals.class.php");
 
-class C_FormVitals extends Controller {
+class C_FormVitals extends Controller
+{
 
     var $template_dir;
     var $form_id;
@@ -137,5 +138,4 @@ class C_FormVitals extends Controller {
         }
         return;
     }
-
 }

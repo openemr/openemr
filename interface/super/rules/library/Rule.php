@@ -18,7 +18,8 @@
  * Rules are typically assembled by the RuleManager.
  * @author aron
  */
-class Rule {
+class Rule
+{
     var $ruleTypes;
     var $id;
     var $title;
@@ -175,5 +176,4 @@ class Rule {
         }
         return $labels;
     }
-    
 }

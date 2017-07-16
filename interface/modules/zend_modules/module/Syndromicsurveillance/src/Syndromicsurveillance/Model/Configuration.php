@@ -84,5 +84,4 @@ class Configuration extends Form implements InputFilterAwareInterface
     {
         return $dependedModules;
     }
-  
 }

@@ -24,7 +24,8 @@
  *
  * @access public
  */
-class zipfile {
+class zipfile
+{
     /**
      * Array to store compressed data
      *

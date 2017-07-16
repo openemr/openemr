@@ -84,5 +84,4 @@ class ProviderController extends AppBaseController
     {
         $this->RenderErrorJSON('An unknown API endpoint was requested.');
     }
-
 }

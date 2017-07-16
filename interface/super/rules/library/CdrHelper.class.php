@@ -17,7 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // 
 
-class CdrResults{
+class CdrResults
+{
         var $id;
         var $rule;
         var $passive_flag;
@@ -84,5 +85,4 @@ class CdrResults{
 
     
     }
-          
 }

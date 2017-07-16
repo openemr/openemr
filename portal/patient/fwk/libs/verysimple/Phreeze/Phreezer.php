@@ -23,7 +23,8 @@ require_once ("verysimple/IO/Includer.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.3.8
  */
-class Phreezer extends Observable {
+class Phreezer extends Observable
+{
     /**
      * An associative array of DataAdapter objects, which can be
      * specified using SelectAdapter

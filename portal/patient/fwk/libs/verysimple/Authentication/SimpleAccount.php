@@ -12,7 +12,8 @@ require_once ("IAuthenticatable.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SimpleAccount implements IAuthenticatable {
+class SimpleAccount implements IAuthenticatable
+{
     private $_authenticated = false;
     private $_username;
     private $_password;

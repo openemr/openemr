@@ -3,7 +3,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSOAP.class.php");
 
-class C_FormSOAP extends Controller {
+class C_FormSOAP extends Controller
+{
 
     var $template_dir;
 
@@ -54,5 +55,4 @@ class C_FormSOAP extends Controller {
         }
         return;
     }
-
 }

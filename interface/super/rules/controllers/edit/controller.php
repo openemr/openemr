@@ -6,7 +6,8 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-class Controller_edit extends BaseController {
+class Controller_edit extends BaseController
+{
 
     function _action_summary()
     {
@@ -319,5 +320,4 @@ class Controller_edit extends BaseController {
 
         $this->set_view( $criteria->getView(), "criteria.php" );
     }
-
 }

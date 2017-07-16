@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.1
  */
-class DataPage implements Iterator {
+class DataPage implements Iterator
+{
     /**
      * The Rows property is an array of objects retreived from the data store
      */

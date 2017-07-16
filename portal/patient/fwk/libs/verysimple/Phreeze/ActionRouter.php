@@ -13,7 +13,8 @@ require_once ("verysimple/Phreeze/IRouter.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ActionRouter implements IRouter {
+class ActionRouter implements IRouter
+{
     private $_mode;
     private $_appRoot;
     private $_defaultRoute;

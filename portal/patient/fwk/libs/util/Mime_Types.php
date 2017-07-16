@@ -50,7 +50,8 @@
  * @version 0.1
  *
  */
-class Mime_Types {
+class Mime_Types
+{
     /**
      * MIME Types
      * Initially we start with the more popular ones.

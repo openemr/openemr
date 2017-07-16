@@ -16,7 +16,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormROM extends ORDataObject {
+class FormROM extends ORDataObject
+{
 
     /**
      *
@@ -1942,5 +1943,4 @@ class FormROM extends ORDataObject {
             $this->notes = $data;
         }
     }
-
 }   // end of Form

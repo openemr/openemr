@@ -28,7 +28,8 @@
 
 
 
-class UserMail {
+class UserMail
+{
 
 
     public function getMails($data)

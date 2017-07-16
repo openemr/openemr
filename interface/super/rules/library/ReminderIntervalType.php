@@ -10,7 +10,8 @@
  * enum
  * @author aron
  */
-class ReminderIntervalType {
+class ReminderIntervalType
+{
 
     var $code;
     var $lbl;
@@ -46,5 +47,4 @@ class ReminderIntervalType {
         );
         return $map;
     }
-
 }

@@ -20,7 +20,8 @@ include_once ("RefundRequest.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.0
  */
-abstract class PaymentProcessor {
+abstract class PaymentProcessor
+{
     public $Username;
     public $Password;
     public $Signature;

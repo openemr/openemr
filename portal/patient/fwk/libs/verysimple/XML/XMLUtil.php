@@ -17,5 +17,6 @@ require_once ("VerySimpleXmlUtil.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 3.1
  */
-class XMLUtil extends VerySimpleXmlUtil {
+class XMLUtil extends VerySimpleXmlUtil
+{
 }

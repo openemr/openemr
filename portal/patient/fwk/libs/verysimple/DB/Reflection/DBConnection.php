@@ -18,7 +18,8 @@ require_once ('verysimple/Phreeze/DataAdapter.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBConnection {
+class DBConnection
+{
     public $Host;
     public $Port;
     public $Username;

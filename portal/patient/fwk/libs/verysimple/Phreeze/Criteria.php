@@ -18,7 +18,8 @@ require_once ("verysimple/IO/Includer.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.3
  */
-class Criteria {
+class Criteria
+{
     protected $_join;
     protected $_where;
     protected $_where_delim;

@@ -137,7 +137,4 @@ class BaseController extends AbstractActionController
         }
         return $response;
     }
-
-
-
 }

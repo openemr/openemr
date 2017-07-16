@@ -18,5 +18,6 @@ require_once ("RequestUtil.php");
  * @version 1.0
  * @deprecated User RequestUtil instead to avoid namespace conflicts
  */
-class Request extends RequestUtil {
+class Request extends RequestUtil
+{
 }

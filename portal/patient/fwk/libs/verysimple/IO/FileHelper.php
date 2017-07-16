@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FileHelper {
+class FileHelper
+{
     public $Name;
     public $Path;
     public $FolderPath;

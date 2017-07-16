@@ -26,7 +26,8 @@ use Zend\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Error;
 
-class MultipledbController extends BaseController{
+class MultipledbController extends BaseController
+{
 
 
     /**
@@ -178,8 +179,4 @@ class MultipledbController extends BaseController{
             }
         }
     }
-
-
-
-
 }

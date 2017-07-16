@@ -1,7 +1,8 @@
 <?php
 
 
-class C_InsuranceNumbers extends Controller {
+class C_InsuranceNumbers extends Controller
+{
 
         var $template_mod;
         var $providers;
@@ -124,5 +125,4 @@ class C_InsuranceNumbers extends Controller {
             header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
         }//Z&H
     }
-
 }

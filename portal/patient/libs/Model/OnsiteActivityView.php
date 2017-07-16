@@ -66,5 +66,4 @@ class OnsiteActivityView extends OnsiteActivityViewDAO
         // OnSave must return true or Phreeze will cancel the save operation
         return true;
     }
-
 }

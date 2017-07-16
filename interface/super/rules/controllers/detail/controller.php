@@ -6,7 +6,8 @@
  // as published by the Free Software Foundation; either version 2
  // of the License, or (at your option) any later version.
 
-class Controller_detail extends BaseController {
+class Controller_detail extends BaseController
+{
 
     function _action_view()
     {
@@ -19,5 +20,4 @@ class Controller_detail extends BaseController {
             $this->set_view( "view.php" );
         }
     }
-
 }

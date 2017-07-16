@@ -17,7 +17,8 @@ require_once ("verysimple/DB/DatabaseConfig.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DataDriverSQLite implements IDataDriver {
+class DataDriverSQLite implements IDataDriver
+{
     /**
      * @inheritdocs
      */

@@ -22,7 +22,8 @@
  *          $tg->generate('/tmp/big.jpg', 100, 100, '/tmp/small.jpg');
  *          </pre>
  */
-class thumbnail {
+class thumbnail
+{
     var $allowableTypes = array (
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,

@@ -2,7 +2,8 @@
 
 
 
-class Controller extends Smarty {
+class Controller extends Smarty
+{
 
        var $_current_action;
        var $_state;
@@ -183,5 +184,4 @@ class Controller extends Smarty {
             $link .= "&";
             return  $link;
     }
-
 }

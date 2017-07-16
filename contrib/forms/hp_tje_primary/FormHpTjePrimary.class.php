@@ -11,7 +11,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormHpTjePrimary extends ORDataObject {
+class FormHpTjePrimary extends ORDataObject
+{
 
     /**
      *
@@ -742,5 +743,4 @@ class FormHpTjePrimary extends ORDataObject {
 
         return $a;
     }
-
 }   // end of Form

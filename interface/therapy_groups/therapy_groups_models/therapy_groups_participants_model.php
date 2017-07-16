@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_groups_participants{
+class Therapy_groups_participants
+{
 
     const TABLE = 'therapy_groups_participants';
     const PATIENT_TABLE = 'patient_data';

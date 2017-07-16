@@ -19,7 +19,8 @@ define("TYPE_FAX",5);
  * class Address
  *
  */
-class PhoneNumber extends ORDataObject{
+class PhoneNumber extends ORDataObject
+{
     var $id;
     var $foreign_id;
     var $country_code;
@@ -200,7 +201,6 @@ class PhoneNumber extends ORDataObject{
         }
         parent::persist();
     }
-
 } // end of PhoneNumber
 /*$p = new PhoneNumber(1);
 echo $p->toString();

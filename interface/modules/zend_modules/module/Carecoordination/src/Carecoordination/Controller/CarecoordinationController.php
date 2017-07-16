@@ -804,5 +804,4 @@ class CarecoordinationController extends AbstractActionController
         }
         return $this->carecoordinationTable;
     }
-
 }

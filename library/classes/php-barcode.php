@@ -25,7 +25,8 @@
  */
  
 
-class Barcode {
+class Barcode
+{
 
     static public function gd($res, $color, $x, $y, $angle, $type, $datas, $width = null, $height = null)
     {
@@ -258,7 +259,8 @@ class Barcode {
     }
 }
 
-class BarcodeI25 {
+class BarcodeI25
+{
     static private $encoding = array('NNWWN', 'WNNNW', 'NWNNW', 'WWNNN', 'NNWNW', 'WNWNN', 'NWWNN', 'NNNWW', 'WNNWN','NWNWN');
 
     static public function compute($code, $crc, $type)
@@ -329,7 +331,8 @@ class BarcodeI25 {
 }
 
 
-class BarcodeEAN {
+class BarcodeEAN
+{
     static private $encoding = array(
         array('0001101', '0100111', '1110010'),
         array('0011001', '0110011', '1100110'),
@@ -409,7 +412,8 @@ class BarcodeEAN {
     }
 }
 
-class BarcodeUPC {
+class BarcodeUPC
+{
 
     static public function getDigit($code)
     {
@@ -428,7 +432,8 @@ class BarcodeUPC {
     }
 }
 
-class BarcodeMSI {
+class BarcodeMSI
+{
     static private $encoding = array(
         '100100100100', '100100100110', '100100110100', '100100110110',
         '100110100100', '100110100110', '100110110100', '100110110110',
@@ -510,7 +515,8 @@ class BarcodeMSI {
     }
 }
 
-class Barcode11 {
+class Barcode11
+{
     static private $encoding = array(
         '101011', '1101011', '1001011', '1100101',
         '1011011', '1101101', '1001101', '1010011',
@@ -564,7 +570,8 @@ class Barcode11 {
     }
 }
 
-class Barcode39 {
+class Barcode39
+{
     static private $encoding = array(
         '101001101101', '110100101011', '101100101011', '110110010101',
         '101001101011', '110100110101', '101100110101', '101001011011',
@@ -599,7 +606,8 @@ class Barcode39 {
     }
 }
 
-class Barcode93{
+class Barcode93
+{
     static private $encoding = array(
         '100010100', '101001000', '101000100', '101000010',
         '100101000', '100100100', '100100010', '101010000',
@@ -668,7 +676,8 @@ class Barcode93{
     }
 }
 
-class Barcode128 {
+class Barcode128
+{
     static private $encoding = array(
         '11011001100', '11001101100', '11001100110', '10010011000',
         '10010001100', '10001001100', '10011001000', '10011000100',
@@ -770,7 +779,8 @@ class Barcode128 {
     }
 }
 
-class BarcodeCodabar {
+class BarcodeCodabar
+{
     static private $encoding = array(
         '101010011', '101011001', '101001011', '110010101',
         '101101001', '110101001', '100101011', '100101101',
@@ -800,7 +810,8 @@ class BarcodeCodabar {
     }
 }
 
-class BarcodeDatamatrix {
+class BarcodeDatamatrix
+{
     static private $lengthRows = array(
         10, 12, 14, 16, 18, 20, 22, 24, 26,  // 24 squares et 6 rectangular
         32, 36, 40, 44, 48, 52, 64, 72, 80,  88, 96, 104, 120, 132, 144,

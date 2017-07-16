@@ -225,7 +225,8 @@ function iterate_over_node($node)
     
     return $output;
 }
-class Html2TextException extends Exception {
+class Html2TextException extends Exception
+{
     var $more_info;
     public function __construct($message = "", $more_info = "")
     {

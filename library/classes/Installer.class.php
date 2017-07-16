@@ -657,7 +657,6 @@ if ($it_died != 0) {
         }
         return $backup_file;
     }
-
 }
 
 /*

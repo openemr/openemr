@@ -18,7 +18,8 @@ require_once ($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.
  *
  * @brief This class extends the AbstractClickmapModel class, to create a class for modelling the data in a pain form.
  */
-class FormPainMap extends AbstractClickmapModel {
+class FormPainMap extends AbstractClickmapModel
+{
 
     /**
      * The database table to place form data in/read form data from.

@@ -17,7 +17,8 @@ require_once ("verysimple/Phreeze/IRenderEngine.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SmartyRenderEngine implements IRenderEngine {
+class SmartyRenderEngine implements IRenderEngine
+{
     
     /** @var Smarty */
     public $smarty;

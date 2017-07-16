@@ -28,7 +28,8 @@
 
 
 
-class newpatient{
+class newpatient
+{
     
 //this will return the query string along with the parameter array, according to the case case.
 //actual execution is done in the select_query function in Server_side

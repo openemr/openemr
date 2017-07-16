@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ExceptionFormatter {
+class ExceptionFormatter
+{
     
     /**
      * This is a utility function for tracing errors.

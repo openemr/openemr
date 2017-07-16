@@ -63,5 +63,4 @@ class Characteristic extends ClinicalType
         
         return $return;
     }
-    
 }

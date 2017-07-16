@@ -7,7 +7,8 @@
  * It is not intended that once a note is save it can be editied or changed.
  */
 
-class Note extends ORDataObject{
+class Note extends ORDataObject
+{
 
     /*
 	*	Database unique identifier
@@ -184,5 +185,4 @@ class Note extends ORDataObject{
         }
         parent::persist();
     }
-
 } // end of Note

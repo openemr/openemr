@@ -23,7 +23,8 @@
 
 namespace services;
 
-class UserService {
+class UserService
+{
     /**
      * The user repository to be used for db CRUD operations.
      */

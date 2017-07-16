@@ -15,7 +15,8 @@ require_once ("ICache.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class CacheNoCache implements ICache {
+class CacheNoCache implements ICache
+{
     private $ram = array ();
     public function Get($key, $flags = null)
     {

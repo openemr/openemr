@@ -116,5 +116,4 @@ class Api
     {
         return $this->sign( $signable, $userId, true, $amendment );
     }
-    
 }

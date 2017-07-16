@@ -29,7 +29,8 @@
 
 require_once("server_mail.php");
           
-class UserAudit extends UserMail{
+class UserAudit extends UserMail
+{
        
 //to generate random password
 

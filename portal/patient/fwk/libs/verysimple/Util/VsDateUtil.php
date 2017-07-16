@@ -10,7 +10,8 @@
  * @license LGPL http://www.gnu.org/licenses/lgpl.html
  * @version 1.0
  */
-class VsDateUtil {
+class VsDateUtil
+{
     /** @var int one day in milliseconds */
     static $ONE_DAY = 86400000;
     

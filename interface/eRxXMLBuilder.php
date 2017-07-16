@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxXMLBuilder {
+class eRxXMLBuilder
+{
 
     private $globals;
     private $store;

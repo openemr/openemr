@@ -160,5 +160,4 @@ class C_PracticeSettings extends Controller
         $this->assign("direction", $this->direction);
         $this->default_action($display);
     }
-
 }

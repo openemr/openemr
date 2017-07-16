@@ -23,7 +23,8 @@ define ( "DBH_LOG_ERROR", 32 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBEventHandler {
+class DBEventHandler
+{
     public $LogLevel;
     function __construct($level = DBH_LOG_NONE)
     {

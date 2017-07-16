@@ -24,7 +24,8 @@ require_once( $GLOBALS['fileroot'] . "/library/clinical_rules.php" );
  * class CdrAlertManager
  *
  */
-class CdrAlertManager{
+class CdrAlertManager
+{
 
 
         /**
@@ -63,5 +64,4 @@ class CdrAlertManager{
         }
                 
     }
-        
 } // end of CdrAlertManager

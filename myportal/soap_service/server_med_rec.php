@@ -28,7 +28,8 @@
 
 
 require_once("server_audit.php");
-class Userforms extends UserAudit{
+class Userforms extends UserAudit
+{
 
 
 

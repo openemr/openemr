@@ -15,7 +15,8 @@ require_once ("FileHelper.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FolderHelper {
+class FolderHelper
+{
     private $Path;
     
     /**

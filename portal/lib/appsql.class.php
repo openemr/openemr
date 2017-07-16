@@ -27,7 +27,8 @@
  *            wrapper class for moving some care coordination zend product
  */
 require_once ( dirname( __FILE__ ) . '/../../library/sql.inc' );
-class ApplicationTable{
+class ApplicationTable
+{
 
     public function __construct()
     {

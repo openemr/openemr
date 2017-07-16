@@ -34,5 +34,4 @@ class AMC_304b_1_STG2_Denominator implements AmcFilterIF
     {
         return true;
     }
-    
 }

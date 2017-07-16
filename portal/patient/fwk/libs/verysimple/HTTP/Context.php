@@ -14,7 +14,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Context {
+class Context
+{
     public $GUID;
     
     /**

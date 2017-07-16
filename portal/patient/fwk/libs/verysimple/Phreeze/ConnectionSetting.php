@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class ConnectionSetting {
+class ConnectionSetting
+{
     /** @var string database type, for example mysql, mysqli, sqlite */
     var $Type = "mysql";
     

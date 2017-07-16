@@ -8,7 +8,8 @@
 
 require_once( src_dir() . "/clinical_rules.php");
 
-class Controller_browse extends BaseController {
+class Controller_browse extends BaseController
+{
 
     function _action_list()
     {
@@ -39,5 +40,4 @@ class Controller_browse extends BaseController {
 
         $this->emit_json( $rows );
     }
-
 }

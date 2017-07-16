@@ -27,7 +27,8 @@
 
 
 
-class newpatienttoapprove {
+class newpatienttoapprove
+{
     
 
 //this will return the query string along with the parameter array, according to the case case.

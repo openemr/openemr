@@ -7,7 +7,8 @@
  * class Prosthesis
  *
  */
-class FormReviewOfSystems extends ORDataObject {
+class FormReviewOfSystems extends ORDataObject
+{
 
     /**
      *
@@ -395,6 +396,4 @@ class FormReviewOfSystems extends ORDataObject {
 
         return $a;
     }
-
-
 }   // end of Form

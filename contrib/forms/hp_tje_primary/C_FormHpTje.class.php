@@ -3,7 +3,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormHpTjePrimary.class.php");
 
-class C_FormHpTje extends Controller {
+class C_FormHpTje extends Controller
+{
 
     var $template_dir;
 
@@ -56,5 +57,4 @@ class C_FormHpTje extends Controller {
         $_POST['process'] = "";
         return;
     }
-
 }

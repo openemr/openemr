@@ -868,5 +868,4 @@ class InstModuleTable
         $count  = $result->count();
         return $count;
     }
-  
 }

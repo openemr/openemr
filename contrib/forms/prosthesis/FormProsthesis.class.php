@@ -7,7 +7,8 @@
  * class Prosthesis
  *
  */
-class FormProsthesis extends ORDataObject {
+class FormProsthesis extends ORDataObject
+{
 
     /**
      *
@@ -446,5 +447,4 @@ class FormProsthesis extends ORDataObject {
     {
         return $this->patient_understands;
     }
-
 }   // end of Form

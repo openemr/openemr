@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class FileUpload {
+class FileUpload
+{
     public $Name;
     public $Size;
     public $Type;

@@ -11,7 +11,8 @@ require_once(dirname(__FILE__) . "/../gprelations.inc.php");
  * id and categories which do the same.
  */
 
-class Document extends ORDataObject{
+class Document extends ORDataObject
+{
 
     /*
 	*	Database unique identifier
@@ -753,5 +754,4 @@ class Document extends ORDataObject{
         // Link the new note to the document.
         setGpRelation(1, $this->get_id(), 6, $noteid);
     }
-
 } // end of Document

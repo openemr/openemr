@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class AuthorizeNet extends PaymentProcessor {
+class AuthorizeNet extends PaymentProcessor
+{
     static $AN_RESPONSE_UNKNOWN = 0;
     static $AN_RESPONSE_SUCCESS = 1;
     static $AN_RESPONSE_DECLINED = 2;

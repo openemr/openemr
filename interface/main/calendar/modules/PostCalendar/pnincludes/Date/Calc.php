@@ -28,7 +28,8 @@
  * @author Monte Ohrt <monte@ispi.net>
  */
 
-class Date_Calc {
+class Date_Calc
+{
 
     /**
      * Returns the current local date. NOTE: This function
@@ -1577,5 +1578,4 @@ class Date_Calc {
         }
         return($weekdays);
     }
-
 } // end class Date_calendar

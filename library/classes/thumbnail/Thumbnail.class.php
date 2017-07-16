@@ -199,6 +199,4 @@ class Thumbnail
         }
         return $file;
     }
-
-
 }

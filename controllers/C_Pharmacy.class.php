@@ -1,7 +1,8 @@
 <?php
 
 
-class C_Pharmacy extends Controller {
+class C_Pharmacy extends Controller
+{
 
     var $template_mod;
     var $pharmacies;
@@ -73,5 +74,4 @@ class C_Pharmacy extends Controller {
         $_POST['process'] = "";
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
     }
-
 }

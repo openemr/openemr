@@ -27,7 +27,8 @@
  *
  *
  */
-abstract class Savant3_Filter {
+abstract class Savant3_Filter
+{
     
     /**
      *

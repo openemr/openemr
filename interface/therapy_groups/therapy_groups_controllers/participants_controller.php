@@ -29,7 +29,8 @@ require_once dirname(__FILE__) . '/base_controller.php';
 require_once dirname(__FILE__) . '/therapy_groups_controller.php';
 require_once("{$GLOBALS['srcdir']}/pid.inc");
 
-class ParticipantsController extends BaseController{
+class ParticipantsController extends BaseController
+{
 
     public function __construct()
     {
@@ -124,5 +125,4 @@ class ParticipantsController extends BaseController{
 
         $this->index($groupId, array('participant_data' => null));
     }
-
 }

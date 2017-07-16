@@ -22,7 +22,8 @@ require_once ("FormPainMap.php");
  *
  * @brief This class extends the C_AbstractClickmap class, to create a form useful for modelling patient pain complaints.
  */
-class C_FormPainMap extends C_AbstractClickmap {
+class C_FormPainMap extends C_AbstractClickmap
+{
     /**
      * The title of the form, used when calling addform().
      *

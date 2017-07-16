@@ -3,7 +3,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormEvaluation.class.php");
 
-class C_FormEvaluation extends Controller {
+class C_FormEvaluation extends Controller
+{
 
     var $template_dir;
 
@@ -68,5 +69,4 @@ class C_FormEvaluation extends Controller {
         $_POST['process'] = "";
         return;
     }
-
 }

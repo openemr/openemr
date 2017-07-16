@@ -15,7 +15,8 @@
 // To implement this feature, rename this file to BillingExport.php.
 
 
-class BillingExport {
+class BillingExport
+{
 
   // You should customize these paths.  They must share the same
   // physical disk partition so that the final rename will be an

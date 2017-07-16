@@ -43,7 +43,8 @@ use \Doctrine\ORM\Tools\Setup;
 use \Doctrine\ORM\EntityManager;
 use \common\database\Auditor;
 
-final class Connector {
+final class Connector
+{
     /**
      * The pooled Doctrine connection.
      */

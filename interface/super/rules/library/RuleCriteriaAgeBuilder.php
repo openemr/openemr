@@ -12,7 +12,8 @@ require_once( library_src( 'RuleCriteriaBuilder.php') );
  *
  * @author aron
  */
-class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder {
+class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder
+{
 
     /**
      * @return RuleCriteriaType
@@ -61,5 +62,4 @@ class RuleCriteriaAgeBuilder extends RuleCriteriaBuilder {
 
         return null;
     }
-
 }

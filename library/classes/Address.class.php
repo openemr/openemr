@@ -12,7 +12,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Address
  *
  */
-class Address extends ORDataObject{
+class Address extends ORDataObject
+{
     var $id;
     var $foreign_id;
     var $line1;
@@ -168,7 +169,6 @@ class Address extends ORDataObject{
         }
         parent::persist();
     }
-
 } // end of Address
 /*
 $a = new Address("0");

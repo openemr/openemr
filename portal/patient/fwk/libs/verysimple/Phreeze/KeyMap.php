@@ -21,7 +21,8 @@ define ( "KM_TYPE_MANYTOONE", 2 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class KeyMap {
+class KeyMap
+{
     public $KeyName;
     public $KeyProperty;
     public $ForeignObject;

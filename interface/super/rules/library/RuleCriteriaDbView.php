@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDbView {
+class RuleCriteriaDbView
+{
 
     var $method;
     var $methodDetail;

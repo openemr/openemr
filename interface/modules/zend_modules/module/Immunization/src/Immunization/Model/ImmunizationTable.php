@@ -230,5 +230,4 @@ class ImmunizationTable extends AbstractTableGateway
         $codes            = explode(":",$res_cur['codes']);
         return $codes[1];
     }
-    
 }

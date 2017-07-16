@@ -3,7 +3,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormPriorAuth.class.php");
 
-class C_FormPriorAuth extends Controller {
+class C_FormPriorAuth extends Controller
+{
 
     var $template_dir;
 
@@ -54,5 +55,4 @@ class C_FormPriorAuth extends Controller {
         $_POST['process'] = "";
         return;
     }
-
 }

@@ -41,7 +41,8 @@ define ("INS_TYPE_MUTUALLY_DEFINED",26);
  *
  */
 
-class InsuranceCompany extends ORDataObject{
+class InsuranceCompany extends ORDataObject
+{
     var $id;
     var $name;
     var $phone;
@@ -379,5 +380,4 @@ class InsuranceCompany extends ORDataObject{
             return $string;
         }
     }
-
 } //End Of InsuranceCompanies

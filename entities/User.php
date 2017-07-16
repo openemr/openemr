@@ -25,7 +25,8 @@ use Doctrine\ORM\Mapping\GeneratedValue;
  * @Table(name="users")
  * @Entity(repositoryClass="repositories\UserRepository")
  */
-class User {
+class User
+{
     /**
      * Default constructor.
      */

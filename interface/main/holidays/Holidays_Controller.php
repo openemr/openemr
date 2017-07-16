@@ -24,7 +24,8 @@
  */
 
 require_once("Holidays_Storage.php");
-class Holidays_Controller{
+class Holidays_Controller
+{
 
     const UPLOAD_DIR = "documents/holidays_storage";
     const FILE_NAME = "holidays_to_import.csv";
@@ -136,6 +137,4 @@ class Holidays_Controller{
         }
         return false;
     }
-    
-
 }

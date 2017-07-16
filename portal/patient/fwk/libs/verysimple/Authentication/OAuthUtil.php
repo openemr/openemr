@@ -13,7 +13,8 @@ require_once "verysimple/String/VerySimpleStringUtil.php";
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class OAuthUtil {
+class OAuthUtil
+{
     
     /**
      * Given a URL return an OAuth signed URL.

@@ -3,7 +3,8 @@
     // $Author$
     // HL7 Parser
 
-class Parser_HL7v2 {
+class Parser_HL7v2
+{
 
     var $field_separator;
     var $map;

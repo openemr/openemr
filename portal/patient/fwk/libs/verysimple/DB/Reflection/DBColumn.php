@@ -11,7 +11,8 @@ require_once ('verysimple/Phreeze/FieldMap.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBColumn {
+class DBColumn
+{
     public $Table;
     public $Name;
     public $Type;

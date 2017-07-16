@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDiagnosis extends RuleCriteria {
+class RuleCriteriaDiagnosis extends RuleCriteria
+{
 
     var $title;
     var $codeType;
@@ -63,5 +64,4 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
         $this->codeType = $diagInfo[0];
         $this->id = $diagInfo[1];
     }
-
 }

@@ -12,7 +12,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class CreditCardUtil {
+class CreditCardUtil
+{
     /**
      * Formats the given credit card number with dashes.
      *

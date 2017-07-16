@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups_Encounters{
+class Therapy_Groups_Encounters
+{
 
     const TABLE = 'form_groups_encounter';
 
@@ -42,7 +43,4 @@ class Therapy_Groups_Encounters{
         }
         return $encounters;
     }
-
-
-
 }

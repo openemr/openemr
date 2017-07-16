@@ -114,5 +114,4 @@ class Multipledb implements InputFilterAwareInterface
         }
         return $this->inputFilter;
     }
-
 }

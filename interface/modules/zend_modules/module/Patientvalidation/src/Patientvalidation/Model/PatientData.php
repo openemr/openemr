@@ -206,5 +206,4 @@ class PatientData implements InputFilterAwareInterface
         }
         return $this->inputFilter;
     }
-
 }

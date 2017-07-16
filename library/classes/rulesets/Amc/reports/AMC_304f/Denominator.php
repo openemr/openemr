@@ -35,5 +35,4 @@ class AMC_304f_Denominator implements AmcFilterIF
             return false;
         }
     }
-    
 }

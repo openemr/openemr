@@ -16,7 +16,8 @@ require_once ("DBSchema.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBServer {
+class DBServer
+{
     public $Connection;
     public $SchemaName;
     

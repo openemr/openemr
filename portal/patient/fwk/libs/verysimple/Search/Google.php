@@ -25,7 +25,8 @@ require_once ('SOAP/Client.php'); // PEAR::SOAP::Client
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class Google extends SearchEngine {
+class Google extends SearchEngine
+{
     
     /**
      * Returns the inbound links for the given url

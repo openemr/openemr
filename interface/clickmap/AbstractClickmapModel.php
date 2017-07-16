@@ -25,7 +25,8 @@ require_once(dirname(__FILE__).'/../globals.php');
  * This class extends the ORDataObject class, to model the contents of an image-based form.
  *
  */
-abstract class AbstractClickmapModel extends ORDataObject {
+abstract class AbstractClickmapModel extends ORDataObject
+{
 
     /**
      * The row to persist information to/from.
@@ -245,5 +246,4 @@ abstract class AbstractClickmapModel extends ORDataObject {
             trigger_error('API violation: set function called with empty string.', E_USER_WARNING);
         }
     }
-
 }

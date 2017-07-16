@@ -8,7 +8,8 @@
 require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormHPI.class.php");
 
-class C_FormHPI extends Controller {
+class C_FormHPI extends Controller
+{
 
     var $template_dir;
 
@@ -59,5 +60,4 @@ class C_FormHPI extends Controller {
         }
         return;
     }
-
 }

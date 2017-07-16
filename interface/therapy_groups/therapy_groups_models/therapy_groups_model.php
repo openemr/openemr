@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups{
+class Therapy_Groups
+{
 
     const TABLE = 'therapy_groups';
 
@@ -126,6 +127,4 @@ class Therapy_Groups{
         return $final_result;
 
     }
-
-
 }

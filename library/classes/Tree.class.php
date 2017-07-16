@@ -11,7 +11,8 @@ define("ROOT_TYPE_NAME",2);
  * and having ids that are more or less sequential makes human reading, fixing and reconstruction much easier.
  */
 
-class Tree {
+class Tree
+{
 
     /*
 	*	This is the name of the table this tree is stored in
@@ -328,7 +329,6 @@ class Tree {
             return false;
         }
     }
-
 }
 
 function array_merge_2(&$array, &$array_i)

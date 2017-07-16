@@ -5,7 +5,8 @@
  * class FormEvaluation
  *
  */
-class FormEvaluation extends ORDataObject {
+class FormEvaluation extends ORDataObject
+{
 
     /**
      *
@@ -448,6 +449,4 @@ class FormEvaluation extends ORDataObject {
 
         return $a;
     }
-
-
 }   // end of Form

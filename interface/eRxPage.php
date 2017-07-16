@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxPage {
+class eRxPage
+{
 
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
@@ -328,5 +329,4 @@ class eRxPage {
             }
         }
     }
-
 }

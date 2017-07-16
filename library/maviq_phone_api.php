@@ -8,7 +8,8 @@
 //
     if(!extension_loaded("curl")) die("Curl extension is required");
             
-class MaviqClient {
+class MaviqClient
+{
     
     protected $Endpoint;
     protected $SiteId;
@@ -95,10 +96,10 @@ class MaviqClient {
                 
         return new RestResponse($url, $result, $responseCode);
     }
-        
 }
     
-class RestResponse {
+class RestResponse
+{
         
     public $ResponseText;
     public $ResponseXml;
@@ -123,5 +124,4 @@ class RestResponse {
                 (string)$this->ResponseXml->RestException->Message;
             
     }
-        
 }

@@ -79,5 +79,4 @@ class PatientCriteria extends PatientCriteriaDAO
 		}
 	}
 	*/
-
 }

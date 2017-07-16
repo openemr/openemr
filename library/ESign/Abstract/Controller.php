@@ -101,7 +101,6 @@ abstract class Abstract_Controller implements ViewableIF
     {
         return $this->_view->render( $this );
     }
-
 }
 
 class Request

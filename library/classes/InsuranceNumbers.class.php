@@ -5,7 +5,8 @@
  *
  */
 
-class InsuranceNumbers extends ORDataObject{
+class InsuranceNumbers extends ORDataObject
+{
 
         var $id;
         var $provider_id;
@@ -149,6 +150,4 @@ class InsuranceNumbers extends ORDataObject{
     {
         $this->rendering_provider_number_type = $string;
     }
-
-
 }

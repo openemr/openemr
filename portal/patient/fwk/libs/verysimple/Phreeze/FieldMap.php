@@ -41,7 +41,8 @@ define ( "FM_CALCULATION", 99 ); // not to be used during save
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class FieldMap {
+class FieldMap
+{
     public $PropertyName;
     public $TableName;
     public $ColumnName;

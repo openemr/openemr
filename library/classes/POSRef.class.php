@@ -18,7 +18,8 @@
  *
  */
 
-class POSRef {
+class POSRef
+{
 
     var $pos_ref;
 

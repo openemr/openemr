@@ -15,7 +15,8 @@ require_once ('IRouter.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class MockRouter implements IRouter {
+class MockRouter implements IRouter
+{
     private $_params = array ();
     private $_uri;
     private $_url;

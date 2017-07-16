@@ -21,7 +21,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class BrowserDevice {
+class BrowserDevice
+{
     
     /**
      * patters to search for devices

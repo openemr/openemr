@@ -25,7 +25,8 @@
 //
 // +------------------------------------------------------------------------------+
 
-class CouchDB {
+class CouchDB
+{
     function __construct()
     {
         $this->host = $GLOBALS['couchdb_host'];

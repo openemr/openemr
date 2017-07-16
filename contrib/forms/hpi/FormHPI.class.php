@@ -16,7 +16,8 @@ define("EVENT_OTHER",4);
  * class FormHpTjePrimary
  *
  */
-class FormHPI extends ORDataObject {
+class FormHPI extends ORDataObject
+{
 
     /**
      *

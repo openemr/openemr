@@ -24,7 +24,8 @@
  *
  *
  */
-class Savant3_Error {
+class Savant3_Error
+{
     
     /**
      *

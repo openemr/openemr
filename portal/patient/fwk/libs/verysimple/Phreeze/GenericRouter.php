@@ -17,7 +17,8 @@ require_once ('verysimple/HTTP/RequestUtil.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.2
  */
-class GenericRouter implements IRouter {
+class GenericRouter implements IRouter
+{
     /**
      *
      * @var array associative array of map data. Example: <pre>

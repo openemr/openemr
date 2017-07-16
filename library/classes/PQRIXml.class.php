@@ -9,7 +9,8 @@
  // This program implements the XML Writer to generate PQRI 2009 XML.
 
 
-class PQRIXml extends XmlWriterOemr {
+class PQRIXml extends XmlWriterOemr
+{
 
     function __construct($indent = '  ')
     {
@@ -105,5 +106,4 @@ class PQRIXml extends XmlWriterOemr {
     {
         $this->pop();
     }
-
 }

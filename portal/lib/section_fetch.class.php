@@ -292,5 +292,4 @@ class FetchSection
         }
         return $records;
     }
-
 }

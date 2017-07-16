@@ -24,7 +24,8 @@
  */
 
 
-class Holidays_Storage{
+class Holidays_Storage
+{
     const TABLE_NAME = "calendar_external";
     const CALENDAR_CATEGORY_HOLIDAY = "6";
     const CALENDAR_CATEGORY_CLOSED = "7";
@@ -139,5 +140,4 @@ class Holidays_Storage{
         sqlStatement($sql, array(self::CALENDAR_CATEGORY_HOLIDAY));
 
     }
-
 }

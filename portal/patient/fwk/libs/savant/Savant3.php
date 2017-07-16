@@ -41,7 +41,8 @@ include_once dirname ( __FILE__ ) . '/Savant3/Plugin.php';
  *
  *
  */
-class Savant3 {
+class Savant3
+{
     
     /**
      *

@@ -11,7 +11,8 @@
  * enum
  * @author aron
  */
-class ReminderIntervalRange {
+class ReminderIntervalRange
+{
     var $code;
     var $lbl;
 
@@ -49,5 +50,4 @@ class ReminderIntervalRange {
         );
         return $map;
     }
-
 }

@@ -37,5 +37,4 @@ class AmcPopulation extends RsPopulation
             throw new Exception( "Value must be an instance of AmcPatient" );
         }
     }
-
 }

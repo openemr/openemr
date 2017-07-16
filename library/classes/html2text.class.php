@@ -487,5 +487,4 @@ class html2text
 
         return $display . $additional;
     }
-
 }

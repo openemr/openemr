@@ -16,7 +16,8 @@ require_once ("PaymentProcessor.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class SkipJack extends PaymentProcessor {
+class SkipJack extends PaymentProcessor
+{
     private $liveUrl = "https://www.skipjackic.com/scripts/evolvcc.dll?AuthorizeApi";
     private $testUrl = "https://developer.skipjackic.com/scripts/evolvcc.dll?AuthorizeAPI";
     private $url = "";

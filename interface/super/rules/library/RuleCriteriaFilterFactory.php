@@ -13,11 +13,11 @@ require_once( library_src( 'RuleCriteriaFactory.php') );
  *
  * @author aron
  */
-class RuleCriteriaFilterFactory extends RuleCriteriaFactory {
+class RuleCriteriaFilterFactory extends RuleCriteriaFactory
+{
 
     function modify($criteria, $ruleId)
     {
         // noop
     }
-
 }

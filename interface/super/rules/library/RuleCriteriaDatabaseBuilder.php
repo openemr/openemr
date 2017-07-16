@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
+class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder
+{
 
     function __construct()
     {
@@ -102,5 +103,4 @@ class RuleCriteriaDatabaseBuilder extends RuleCriteriaBuilder {
 
         return null;
     }
-
 }

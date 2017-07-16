@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxSOAP {
+class eRxSOAP
+{
 
     const ACTION_ALLERGIES      = 'allergies';
     const ACTION_MEDICATIONS    = 'medications';
@@ -731,5 +732,4 @@ class eRxSOAP {
 
         return $insertedRows;
     }
-
 }

@@ -14,7 +14,8 @@
  *          $isGood = $bcrypt->verify('password', $hash);
  *          </code>
  */
-class Bcrypt {
+class Bcrypt
+{
     private $rounds;
     private $randomState;
     

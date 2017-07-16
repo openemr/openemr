@@ -31,7 +31,8 @@ use Doctrine\ORM\Mapping\Id;
  * @Table(name="chart_tracker")
  * @Entity(repositoryClass="repositories\ChartTrackerRepository")
  */
-class ChartTracker {
+class ChartTracker
+{
 
     /**
      * Default constructor.
@@ -165,5 +166,4 @@ class ChartTracker {
     {
         return get_object_vars($this);
     }
-
 }

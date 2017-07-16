@@ -6,7 +6,8 @@
 
 require_once(dirname(__FILE__) . "/../library/forms.inc");
 
-class C_Document extends Controller {
+class C_Document extends Controller
+{
 
     var $template_mod;
     var $documents;
@@ -1388,5 +1389,4 @@ class C_Document extends Controller {
         }
         return $this->view_action($patient_id, $document_id);
     }
-
 }

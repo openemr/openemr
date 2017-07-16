@@ -1,7 +1,8 @@
 <?php
 
 
-class C_DocumentCategory extends Controller {
+class C_DocumentCategory extends Controller
+{
 
     var $template_mod;
     var $document_categories;
@@ -170,5 +171,4 @@ class C_DocumentCategory extends Controller {
         }
         return $node;
     }
-
 }

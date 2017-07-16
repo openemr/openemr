@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaAge extends RuleCriteria {
+class RuleCriteriaAge extends RuleCriteria
+{
     var $type;
     var $value;
     var $timeUnit;

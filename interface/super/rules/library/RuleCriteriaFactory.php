@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-abstract class RuleCriteriaFactory {
+abstract class RuleCriteriaFactory
+{
 
     var $strategyMap;
     function __construct()
