@@ -120,8 +120,7 @@ if (empty($task) || $task=="add" || $task=="delete") { ?>
 
 <?php
 switch ($task) {
-    case "add" :
-    {
+    case "add":
         // Add a new message for a specific patient; the message is documented in Patient Notes.
         // Add a new message; it's treated as a new note in Patient Notes.
         $note = $_POST['note'];
@@ -156,9 +155,9 @@ switch ($task) {
                 addPnote($reply_to, $note, $userauthorized, '1', $form_note_type, $assigned_to, '', $form_message_status);
             }
         }
-    } break;
+        break;
     case "savePatient":
-    case "save" : {
+    case "save":
         // Update alert.
         $noteid = $_POST['noteid'];
         $form_message_status = $_POST['form_message_status'];
@@ -173,8 +172,8 @@ switch ($task) {
         $note = $_POST['note'];
         $title = $_POST['form_note_type'];
         $reply_to = $_POST['reply_to'];
-    }
-    case "edit" : {
+        break;//missing break was here, assumed bug
+    case "edit":
         if ($noteid == "") {
             $noteid = $_GET['noteid'];
         }
@@ -193,15 +192,15 @@ switch ($task) {
 
             $form_message_status = $result['message_status'];
         }
-    } break;
-    case "delete" : {
+        break;
+    case "delete":
         // Delete selected message(s) from the Messages box (only).
         $delete_id = $_POST['delete_id'];
         for ($i = 0; $i < count($delete_id); $i++) {
             deletePnote($delete_id[$i]);
             newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id ".$delete_id[$i]);
         }
-    } break;
+        break;
 }
 
 if ($task == "addnew" or $task == "edit") {
@@ -514,10 +513,12 @@ $(document).ready(function(){
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
-                case "asc"      : $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
-break;
-                case "desc"     : $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
-break;
+                case "asc":
+                    $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=desc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+                    break;
+                case "desc":
+                    $sortlink[$i] = "<a href=\"messages.php?show_all=".attr($showall)."&sortby=".attr($sortby)."&sortorder=asc&$activity_string_html\" onclick=\"top.restoreSession()\"><img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
+                    break;
             } break;
         }
     }

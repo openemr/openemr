@@ -58,40 +58,40 @@ $bartype = $GLOBALS['barcode_label_type'] ; // Get barcode type
 switch ($bartype) {
     case '1':
         $type     = 'std25';
-              break;
+        break;
     case '2':
         $type     = 'int25';
-               break;
+        break;
     case '3':
         $type     = 'ean8';
-               break;
+        break;
     case '4':
         $type     = 'ean13';
-               break;
+        break;
     case '5':
         $type     = 'upc';
-               break;
+        break;
     case '6':
         $type     = 'code11';
-               break;
+        break;
     case '7':
         $type     = 'code39';
-               break;
+        break;
     case '8':
         $type     = 'code93';
-               break;
+        break;
     case '9':
         $type     = 'code128';
-               break;
+        break;
     case '10':
         $type     = 'codabar';
-               break;
+        break;
     case '11':
         $type     = 'msi';
-               break;
+        break;
     case '12':
         $type     = 'datamatrix';
-               break;
+        break;
 }
 
 // -------------------------------------------------- //

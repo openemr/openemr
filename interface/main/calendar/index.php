@@ -201,7 +201,6 @@ if ($modinfo['type'] == 2) {
     include 'includes/legacy.php';
     switch ($op) {
         case 'modload':
-
             define("LOADED_AS_MODULE", "1");
             // added for the module/system seperation [class007]
             if (file_exists('modules/' . pnVarPrepForOS($name) . '/' . pnVarPrepForOS($file) . '.php')) {

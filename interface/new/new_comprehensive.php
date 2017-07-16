@@ -60,7 +60,7 @@ function getLayoutRes()
 function getSearchClass($data_type)
 {
     switch ($data_type) {
-        case  1: // single-selection list
+        case 1: // single-selection list
         case 10: // local provider list
         case 11: // provider list
         case 12: // pharmacy list
@@ -68,11 +68,11 @@ function getSearchClass($data_type)
         case 14: // address book list
         case 26: // single-selection list with add
         case 35: // facilities
-          return 2;
-        case  2: // text field
-        case  3: // textarea
-        case  4: // date
-          return 1;
+            return 2;
+        case 2: // text field
+        case 3: // textarea
+        case 4: // date
+            return 1;
     }
 
     return 0;
@@ -386,18 +386,18 @@ while ($lrow = sqlFetchArray($lres)) {
     $data_type = $lrow['data_type'];
     $fldname = "form_$field_id";
     switch (getSearchClass($data_type)) {
-        case  1:
+        case 1:
             echo
             " if (f.$fldname.style.backgroundColor != '' && trimlen(f.$fldname.value) > 0) {\n" .
             "  url += '&$field_id=' + encodeURIComponent(f.$fldname.value);\n" .
             " }\n";
-          break;
+            break;
         case 2:
             echo
             " if (f.$fldname.style.backgroundColor != '' && f.$fldname.selectedIndex > 0) {\n" .
             "  url += '&$field_id=' + encodeURIComponent(f.$fldname.options[f.$fldname.selectedIndex].value);\n" .
             " }\n";
-          break;
+            break;
     }
 }
 ?>
@@ -923,11 +923,11 @@ while ($lrow = sqlFetchArray($lres)) {
     switch (getSearchClass($lrow['data_type'])) {
         case 1:
             echo "    \$('#form_$field_id').click(function() { toggleSearch(this); });\n";
-          break;
+            break;
         case 2:
             echo "    \$('#form_$field_id').click(function() { selClick(this); });\n";
             echo "    \$('#form_$field_id').blur(function() { selBlur(this); });\n";
-          break;
+            break;
     }
 }
 ?>

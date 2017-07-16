@@ -285,11 +285,11 @@ function postcalendar_userapi_buildView($args)
         //  Setup the starting and ending date ranges for pcGetEvents()
         //=================================================================
         switch ($viewtype) {
-            case 'day' :
+            case 'day':
                 $starting_date = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_day, $the_year));
                 $ending_date   = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_day, $the_year));
                 break;
-            case 'week' :
+            case 'week':
                 $starting_date = "$week_first_day_month/$week_first_day_date/$week_first_day_year";
                 $ending_date   = "$week_last_day_month/$week_last_day_date/$week_last_day_year";
                 $calendarView  = Date_Calc::getCalendarWeek(
@@ -299,12 +299,12 @@ function postcalendar_userapi_buildView($args)
                     '%Y-%m-%d'
                 );
                 break;
-            case 'month' :
+            case 'month':
                 $starting_date = date('m/d/Y', mktime(0, 0, 0, $the_month, 1-$first_day, $the_year));
                 $ending_date   = date('m/d/Y', mktime(0, 0, 0, $the_month, $the_last_day, $the_year));
                 $calendarView  = Date_Calc::getCalendarMonth($the_month, $the_year, '%Y-%m-%d');
                 break;
-            case 'year' :
+            case 'year':
                 $starting_date = date('m/d/Y', mktime(0, 0, 0, 1, 1, $the_year));
                 $ending_date   = date('m/d/Y', mktime(0, 0, 0, 1, 1, $the_year+1));
                 $calendarView  = Date_Calc::getCalendarYear($the_year, '%Y-%m-%d');
@@ -1499,8 +1499,7 @@ function calculateEvents($days, $events, $viewtype)
             //==============================================================
             //  Events that do not repeat only have a startday
             //==============================================================
-            case NO_REPEAT :
-
+            case NO_REPEAT:
                 if (isset($days[$event['eventDate']])) {
                     array_push($days[$event['eventDate']], $event);
                     if ($viewtype == "week") {
@@ -1515,16 +1514,15 @@ function calculateEvents($days, $events, $viewtype)
                         //echo "end printing blocks<br />";
                     }
                 }
-              break;
+                break;
 
             //==============================================================
             //  Find events that repeat at a certain frequency
             //  Every,Every Other,Every Third,Every Fourth
             //  Day,Week,Month,Year,MWF,TR,M-F,SS
             //==============================================================
-            case REPEAT :
+            case REPEAT:
             case REPEAT_DAYS:
-
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
                 if ($last_date > $event['endDate']) {
                     $stop = $event['endDate'];
@@ -1583,7 +1581,7 @@ function calculateEvents($days, $events, $viewtype)
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
                     list($ny,$nm,$nd) = explode('-', $occurance);
                 }
-              break;
+                break;
 
             //==============================================================
             //  Find events that repeat on certain parameters
@@ -1591,8 +1589,7 @@ function calculateEvents($days, $events, $viewtype)
             //  Sun,Mon,Tue,Wed,Thu,Fri,Sat
             //  Every N Months
             //==============================================================
-            case REPEAT_ON :
-
+            case REPEAT_ON:
                 // Stop date selection code modified and moved here by epsdky 2017 (details in commit)
                 if ($last_date > $event['endDate']) {
                     $stop = $event['endDate'];
@@ -1666,7 +1663,7 @@ function calculateEvents($days, $events, $viewtype)
                     $occurance = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
                     list($ny,$nm,$nd) = explode('-', $occurance);
                 }
-              break;
+                break;
         } // <- end of switch($event['recurrtype'])
     } // <- end of foreach($events as $event)
     return $days;

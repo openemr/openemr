@@ -412,7 +412,8 @@ class CarecoordinationController extends AbstractActionController
         $temp      = '';
 
         switch ($component) {
-            case 'allergies'         :  $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
+            case 'allergies':
+                $allergies_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists2');
                 if (count($allergies_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%!important;">
                                          <thead><tr class="narr_tr">
@@ -443,8 +444,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Allergies');
                 }
-                                        break;
-            case 'medications'       :  $medications_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists3');
+                break;
+            case 'medications':
+                $medications_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists3');
                 if (count($medications_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -477,8 +479,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Medications');
                 }
-                                        break;
-            case 'problems'          :  $problems_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists1');
+                break;
+            case 'problems':
+                $problems_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'lists1');
                 if (count($problems_audit)>0) {
                     $temp .='<div><ul>';
                     $i = 1;
@@ -497,8 +500,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Problems');
                 }
-                                        break;
-            case 'immunizations'     :  $immunizations_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'immunization');
+                break;
+            case 'immunizations':
+                $immunizations_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'immunization');
                 if (count($immunizations_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -519,8 +523,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Immunizations');
                 }
-                                        break;
-            case 'procedures'        :  $procedure_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure');
+                break;
+            case 'procedures':
+                $procedure_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure');
                 if (count($procedure_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -539,8 +544,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Procedures');
                 }
-                                        break;
-            case 'results'           :  $lab_results_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure_result');
+                break;
+            case 'results':
+                $lab_results_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'procedure_result');
                 if (count($lab_results_audit)>0) {
                     $temp .='<div>
                                             <table class="narr_table" border="1">
@@ -564,8 +570,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Lab Results');
                 }
-                                        break;
-            case 'plan_of_care'      :  $care_plan_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'care_plan');
+                break;
+            case 'plan_of_care':
+                $care_plan_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'care_plan');
                 if (count($care_plan_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <head><tr class="narr_tr">
@@ -584,8 +591,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Plan of Care');
                 }
-                                        break;
-            case 'vitals'            :  $vitals_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'vital_sign');
+                break;
+            case 'vitals':
+                $vitals_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'vital_sign');
                 if (count($vitals_audit)>0) {
                     $temp .= '<div><table class="narr_table" border="1" width="100%">
                                          <thead><tr class="narr_tr">
@@ -668,8 +676,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Vitals');
                 }
-                                        break;
-            case 'social_history'    :  $social_history_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'social_history');
+                break;
+            case 'social_history':
+                $social_history_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'social_history');
                 if (count($social_history_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -695,8 +704,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Social History');
                 }
-                                        break;
-            case 'encounters'        :  $encounter_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'encounter');
+                break;
+            case 'encounters':
+                $encounter_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'encounter');
                 if (count($encounter_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -732,8 +742,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Encounters');
                 }
-                                        break;
-            case 'functional_status' :  $functional_cognitive_status_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'functional_cognitive_status');
+                break;
+            case 'functional_status':
+                $functional_cognitive_status_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'functional_cognitive_status');
                 if (count($functional_cognitive_status_audit)>0) {
                     $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
@@ -754,8 +765,9 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Social Functional Status');
                 }
-                                        break;
-            case 'referral'          :  $referral_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'referral');
+                break;
+            case 'referral':
+                $referral_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'referral');
                 if (count($referral_audit)>0) {
                     $temp .='<div>';
                     foreach ($referral_audit['referral'] as $key => $val) {
@@ -769,10 +781,12 @@ class CarecoordinationController extends AbstractActionController
                 } else {
                     $temp .= \Application\Listener\Listener::z_xlt('No Known Referrals');
                 }
-                                        break;
-            case 'instructions'      :  $temp .= \Application\Listener\Listener::z_xlt('No Known Clinical Instructions');
-                                        break;
-            case 'discharge_medication' :  $discharge_medication_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_medication');
+                break;
+            case 'instructions':
+                $temp .= \Application\Listener\Listener::z_xlt('No Known Clinical Instructions');
+                break;
+            case 'discharge_medication':
+                $discharge_medication_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_medication');
                                          $temp .='<div><table class="narr_table" border="1" width="100%">
                                             <thead><tr class="narr_tr">
                                                     <th class="narr_th">'.\Application\Listener\Listener::z_xlt('Medication').'</th>
@@ -801,8 +815,9 @@ class CarecoordinationController extends AbstractActionController
                 }
 
                                            $temp .='</tbody></table></div>';
-                                        break;
-            case 'discharge_summary'  : $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
+                break;
+            case 'discharge_summary':
+                $discharge_summary_audit = $this->getCarecoordinationTable()->createAuditArray($amid, 'discharge_summary');
                                          $temp .='<div>';
                 foreach ($discharge_summary_audit['discharge_summary'] as $key => $val) {
                     $text = str_replace("#$%", "<br>", \Application\Plugin\CommonPlugin::escape($val['text']));
@@ -810,7 +825,7 @@ class CarecoordinationController extends AbstractActionController
                 }
 
                                           $temp .='</div>';
-                                        break;
+                break;
         }
         
         echo $temp;

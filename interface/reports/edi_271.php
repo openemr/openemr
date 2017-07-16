@@ -83,7 +83,6 @@ if (isset($_FILES) && !empty($_FILES)) {
 
                         switch ($segment) {
                             case 'ISA':
-
                                 $j = 0;
 
                                 foreach ($Segments271[$j] as $segmentVal) {
@@ -96,7 +95,6 @@ if (isset($_FILES) && !empty($_FILES)) {
                                 break;
 
                             case 'REF':
-
                                 foreach ($Segments271[$j] as $segmentVal) {
                                     if ($segmentVal == "EJ") {
                                         $patientId = $Segments271[$j][2];
@@ -105,13 +103,11 @@ if (isset($_FILES) && !empty($_FILES)) {
                                 break;
 
                             case 'EB':
-
                                 foreach ($Segments271[$j] as $segmentVal) {
                                 }
                                 break;
 
                             case 'MSG':
-
                                 foreach ($Segments271[$j] as $segmentVal) {
                                     if ($segment != $segmentVal) {
                                         eligibility_response_save($segmentVal, $x12PartnerId);

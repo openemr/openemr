@@ -388,19 +388,19 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
     switch ($pass) {
         case "fail":
             $pass_sql=0;
-          break;
+            break;
         case "pass":
             $pass_sql=1;
-          break;
+            break;
         case "exclude":
             $pass_sql=2;
-          break;
+            break;
         case "init_patients":
             $pass_sql=3;
-          break;
+            break;
         case "exception":
             $pass_sql=4;
-          break;
+            break;
     }
 
     $sqlParameters = array($report_id,$itemized_test_id,$numerator_label);

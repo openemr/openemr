@@ -142,13 +142,13 @@ class DocumentsController extends AbstractActionController
             switch ($result['category_id']) {
                 case $categoryIds['CCD']:
                     $style = "ccd.xsl";
-                  break;
+                    break;
                 case $categoryIds['CCR']:
                     $style = "ccr.xsl";
-                  break;
+                    break;
                 case $categoryIds['CCDA']:
                     $style = "ccda.xsl";
-                  break;
+                    break;
             };
 
             $xsl->load(__DIR__.'/../../../../../public/xsl/'.$style);

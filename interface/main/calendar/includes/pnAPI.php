@@ -943,7 +943,7 @@ function pnVarValidate($var, $type, $args = 0)
             } else {
                 return false;
             }
-              break;
+            break;
 
         case 'url':
              // all characters must be 7 bit ascii
@@ -967,7 +967,7 @@ function pnVarValidate($var, $type, $args = 0)
             } else {
                 return !empty($url_array['scheme']);
             }
-              break;
+            break;
     }
 }
 

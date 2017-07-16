@@ -42,7 +42,8 @@ function postcalendar_user_main()
  // check the authorization
 
     if (!pnSecAuthAction(0, 'PostCalendar::', '::', ACCESS_OVERVIEW)) {
-        return _POSTCALENDARNOAUTH; }
+        return _POSTCALENDARNOAUTH;
+    }
 
     // get the date and go to the view function
     $Date = postcalendar_getDate();
@@ -58,7 +59,8 @@ function postcalendar_user_main()
 function postcalendar_user_view()
 {
     if (!pnSecAuthAction(0, 'PostCalendar::', '::', ACCESS_OVERVIEW)) {
-        return _POSTCALENDARNOAUTH; }
+        return _POSTCALENDARNOAUTH;
+    }
 
     // get the vars that were passed in
     list($Date,
@@ -128,7 +130,8 @@ function postcalendar_user_display($args)
 
     extract($args);
     if (empty($Date) && empty($viewtype)) {
-        return false; }
+        return false;
+    }
 
     if (empty($tplview)) {
         $tplview = 'default';
@@ -143,7 +146,8 @@ function postcalendar_user_display($args)
     switch ($viewtype) {
         case 'details':
             if (!(bool)PC_ACCESS_READ) {
-                return _POSTCALENDARNOAUTH; }
+                return _POSTCALENDARNOAUTH;
+            }
 
             $event = pnModAPIFunc('PostCalendar', 'user', 'eventDetail', array('eid'=>$eid,
                                                                            'Date'=>$Date,
@@ -158,7 +162,7 @@ function postcalendar_user_display($args)
             $out .= "\n\n<!-- END user_display -->\n\n";
             break;
 
-        default :
+        default:
             if (!(bool)PC_ACCESS_OVERVIEW) {
                 return _POSTCALENDARNOAUTH;
             }
@@ -286,7 +290,8 @@ function delete_event($title)
  */
 function postcalendar_user_edit($args)
 {
-    return postcalendar_user_submit($args); }
+    return postcalendar_user_submit($args);
+}
 function postcalendar_user_submit2($args)
 {
 
@@ -464,10 +469,10 @@ function postcalendar_user_submit($args)
             case REPEAT_EVERY_WORK_DAY:    //end date is in days
                 $multiple .= "days";
                 break;
-            case REPEAT_EVERY_WEEK;        //end date is in weeks
+            case REPEAT_EVERY_WEEK:        //semicolon was here, assumed bug and replaced with colon. end date is in weeks
                 $multiple .= "weeks";
                 break;
-            case REPEAT_EVERY_MONTH;    //end date is in months
+            case REPEAT_EVERY_MONTH:    //end date is in months
                 $multiple .= "months";
                 break;
             case REPEAT_EVERY_YEAR:        //end date is in years
@@ -537,7 +542,8 @@ function postcalendar_user_submit($args)
     //else { $uname = pnConfigGetVar('anonymous'); }
     $uname = $_SESSION['authUser'];
     if (!isset($event_repeat)) {
-        $event_repeat = 0; }
+        $event_repeat = 0;
+    }
 
     if (!isset($pc_event_id) || empty($pc_event_id) || $data_loaded) {
         // lets wrap all the data into array for passing to submit and preview functions
@@ -851,7 +857,8 @@ function postcalendar_user_submit($args)
         //================================================================
         // check authid
         if (!pnSecConfirmAuthKey()) {
-            return(_NO_DIRECT_ACCESS); }
+            return(_NO_DIRECT_ACCESS);
+        }
 
         if (!empty($error_msg)) {
             $preview = false;
@@ -873,10 +880,12 @@ function postcalendar_user_submit($args)
         //================================================================
         if (!empty($error_msg)) {
             if (!pnSecConfirmAuthKey(true)) {
-                return(_NO_DIRECT_ACCESS); }
+                return(_NO_DIRECT_ACCESS);
+            }
         } else {
             if (!pnSecConfirmAuthKey()) {
-                return(_NO_DIRECT_ACCESS); }
+                return(_NO_DIRECT_ACCESS);
+            }
         }
 
         if (!empty($error_msg)) {
@@ -991,7 +1000,8 @@ function postcalendar_user_submit($args)
 function postcalendar_user_search()
 {
     if (!(bool)PC_ACCESS_OVERVIEW) {
-        return _POSTCALENDARNOAUTH; }
+        return _POSTCALENDARNOAUTH;
+    }
 
     $tpl = new pcSmarty();
     $k = formData("pc_keywords", "R"); //from library/formdata.inc.php
@@ -1011,7 +1021,8 @@ function postcalendar_user_search()
     foreach ($categories as $category) {
         $selected = "";
         if ($pc_category == $category[id]) {
-            $selected = " SELECTED "; }
+            $selected = " SELECTED ";
+        }
 
     //modified 8/09 by BM to allow translation if applicable
         $cat_options .= "<option value=\"$category[id]\" $selected>" . xl_appt_category($category[name]) . "</option>";
@@ -1039,137 +1050,143 @@ function postcalendar_user_search()
     $ProviderID = pnVarCleanFromInput("provider_id");
     if (is_numeric($ProviderID)) {
         $tpl->assign('ProviderID', $ProviderID);
-        ; } elseif ($ProviderID == "_ALL_") {
-        } // do nothing
-        else {
-            $tpl->assign('ProviderID', ""); }
+    } elseif ($ProviderID == "_ALL_") {
+        // do nothing
+    } else {
+        $tpl->assign('ProviderID', "");
+    }
 
-        $provinfo = getProviderInfo();
-        $tpl->assign('providers', $provinfo);
+    $provinfo = getProviderInfo();
+    $tpl->assign('providers', $provinfo);
     // build a list of provider-options for the select box on the input form -- JRM
-        $provider_options = "<option value='_ALL_' ";
-        if ($ProviderID == "_ALL_") {
-            $provider_options .= " SELECTED "; }
+    $provider_options = "<option value='_ALL_' ";
+    if ($ProviderID == "_ALL_") {
+        $provider_options .= " SELECTED ";
+    }
 
-        $provider_options .= ">" . xl('All Providers') . "</option>";
-        foreach ($provinfo as $provider) {
-            $selected = "";
-            // if we don't have a ProviderID chosen, pick the first one from the
-            // pc_username Session variable
-            if ($ProviderID == "") {
-                // that variable stores the 'username' and not the numeric 'id'
-                if ($_SESSION['pc_username'][0] == $provider['username']) {
-                    $selected = " SELECTED ";
-                }
-            } else if ($ProviderID == $provider['id']) {
-                $selected = " SELECTED "; }
-
-            $provider_options .= "<option value=\"".$provider['id']."\" ".$selected.">";
-            $provider_options .= $provider['lname'].", ".$provider['fname']."</option>";
-        }
-
-        $tpl->assign_by_ref('PROVIDER_OPTIONS', $provider_options);
-
-    // build a list of facility options for the select box on the input form -- JRM
-        $facilities = getFacilities();
-        $fac_options = "<option value=''>" . xl('All Facilities') . "</option>";
-        foreach ($facilities as $facility) {
-            $selected = "";
-            if ($facility['id'] == $pc_facility) {
+    $provider_options .= ">" . xl('All Providers') . "</option>";
+    foreach ($provinfo as $provider) {
+        $selected = "";
+        // if we don't have a ProviderID chosen, pick the first one from the
+        // pc_username Session variable
+        if ($ProviderID == "") {
+            // that variable stores the 'username' and not the numeric 'id'
+            if ($_SESSION['pc_username'][0] == $provider['username']) {
                 $selected = " SELECTED ";
             }
-
-            $fac_options .= "<option value=\"".$facility['id']."\" ".$selected.">";
-            $fac_options .= $facility['name']."</option>";
+        } else if ($ProviderID == $provider['id']) {
+            $selected = " SELECTED ";
         }
 
-        $tpl->assign_by_ref('FACILITY_OPTIONS', $fac_options);
+        $provider_options .= "<option value=\"".$provider['id']."\" ".$selected.">";
+        $provider_options .= $provider['lname'].", ".$provider['fname']."</option>";
+    }
 
-        $PatientID = pnVarCleanFromInput("patient_id");
+    $tpl->assign_by_ref('PROVIDER_OPTIONS', $provider_options);
+
+    // build a list of facility options for the select box on the input form -- JRM
+    $facilities = getFacilities();
+    $fac_options = "<option value=''>" . xl('All Facilities') . "</option>";
+    foreach ($facilities as $facility) {
+        $selected = "";
+        if ($facility['id'] == $pc_facility) {
+            $selected = " SELECTED ";
+        }
+
+        $fac_options .= "<option value=\"".$facility['id']."\" ".$selected.">";
+        $fac_options .= $facility['name']."</option>";
+    }
+
+    $tpl->assign_by_ref('FACILITY_OPTIONS', $fac_options);
+
+    $PatientID = pnVarCleanFromInput("patient_id");
     // limit the number of results returned by getPatientPID
     // this helps to prevent the server from stalling on a request with
     // no PID and thousands of PIDs in the database -- JRM
     // the function getPatientPID($pid, $given, $orderby, $limit, $start) <-- defined in library/patient.inc
-        $plistlimit = 500;
-        if (is_numeric($PatientID)) {
-            $tpl->assign('PatientList', getPatientPID(array('pid'=>$PatientID, 'limit'=>$plistlimit)));
-        } else {
-            $tpl->assign('PatientList', getPatientPID(array('limit' =>$plistlimit)));
+    $plistlimit = 500;
+    if (is_numeric($PatientID)) {
+        $tpl->assign('PatientList', getPatientPID(array('pid'=>$PatientID, 'limit'=>$plistlimit)));
+    } else {
+        $tpl->assign('PatientList', getPatientPID(array('limit' =>$plistlimit)));
+    }
+
+    $event_endday = pnVarCleanFromInput("event_endday");
+    $event_endmonth = pnVarCleanFromInput("event_endmonth");
+    $event_endyear = pnVarCleanFromInput("event_endyear");
+
+    $event_startday = pnVarCleanFromInput("event_startday");
+    $event_startmonth = pnVarCleanFromInput("event_startmonth");
+    $event_startyear = pnVarCleanFromInput("event_startyear");
+    if ($event_startday > $event_endday) {
+        $event_endday = $event_startday;
+    }
+
+    if ($event_startmonth > $event_endmonth) {
+        $event_endmonth = $event_startmonth;
+    }
+
+    if ($event_startyear > $event_endyear) {
+        $event_endyear = $event_startyear;
+    }
+
+    $tpl->assign('patient_id', $PatientID);
+    $tpl->assign('provider_id', $ProviderID);
+    $tpl->assign("event_category", pnVarCleanFromInput("event_category"));
+    $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
+    $output = new pnHTML();
+    $output->SetOutputMode(_PNH_RETURNOUTPUT);
+    if (_SETTING_USE_INT_DATES) {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
+        $formdata = $output->FormSelectMultiple('event_startday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_startmonth));
+        $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data);
+    } else {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_startmonth));
+        $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
+        $formdata .= $output->FormSelectMultiple('event_startday', $sel_data);
+    }
+
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_startyear));
+    $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data);
+    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $tpl->assign('SelectDateTimeStart', $formdata);
+    $output->SetOutputMode(_PNH_RETURNOUTPUT);
+    if (_SETTING_USE_INT_DATES) {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday));
+        $formdata = $output->FormSelectMultiple('event_endday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
+        $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data);
+    } else {
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
+        $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday ));
+        $formdata .= $output->FormSelectMultiple('event_endday', $sel_data);
+    }
+
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_endyear));
+    $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data);
+    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $tpl->assign('SelectDateTimeEnd', $formdata);
+    $output = null;
+    if (_SETTING_DISPLAY_TOPICS) {
+        $topics = postcalendar_userapi_getTopics();
+        $top_options = '';
+        foreach ($topics as $topic) {
+            $top_options .= "<option value=\"$topic[id]\">$topic[text]</option>";
         }
 
-        $event_endday = pnVarCleanFromInput("event_endday");
-        $event_endmonth = pnVarCleanFromInput("event_endmonth");
-        $event_endyear = pnVarCleanFromInput("event_endyear");
-
-        $event_startday = pnVarCleanFromInput("event_startday");
-        $event_startmonth = pnVarCleanFromInput("event_startmonth");
-        $event_startyear = pnVarCleanFromInput("event_startyear");
-        if ($event_startday > $event_endday) {
-            $event_endday = $event_startday; }
-
-        if ($event_startmonth > $event_endmonth) {
-            $event_endmonth = $event_startmonth; }
-
-        if ($event_startyear > $event_endyear) {
-            $event_endyear = $event_startyear; }
-
-        $tpl->assign('patient_id', $PatientID);
-        $tpl->assign('provider_id', $ProviderID);
-        $tpl->assign("event_category", pnVarCleanFromInput("event_category"));
-        $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
-        $output = new pnHTML();
-        $output->SetOutputMode(_PNH_RETURNOUTPUT);
-        if (_SETTING_USE_INT_DATES) {
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
-            $formdata = $output->FormSelectMultiple('event_startday', $sel_data);
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_startmonth));
-            $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data);
-        } else {
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_startmonth));
-            $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data);
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_startday));
-            $formdata .= $output->FormSelectMultiple('event_startday', $sel_data);
-        }
-
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_startyear));
-        $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data);
-        $output->SetOutputMode(_PNH_KEEPOUTPUT);
-        $tpl->assign('SelectDateTimeStart', $formdata);
-        $output->SetOutputMode(_PNH_RETURNOUTPUT);
-        if (_SETTING_USE_INT_DATES) {
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday));
-            $formdata = $output->FormSelectMultiple('event_endday', $sel_data);
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
-            $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data);
-        } else {
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', array('pc_month'=>$month,'selected'=>$event_endmonth));
-            $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data);
-            $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', array('pc_day'=>$day,'selected'=>$event_endday ));
-            $formdata .= $output->FormSelectMultiple('event_endday', $sel_data);
-        }
-
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', array('pc_year'=>$year,'selected'=>$event_endyear));
-        $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data);
-        $output->SetOutputMode(_PNH_KEEPOUTPUT);
-        $tpl->assign('SelectDateTimeEnd', $formdata);
-        $output = null;
-        if (_SETTING_DISPLAY_TOPICS) {
-            $topics = postcalendar_userapi_getTopics();
-            $top_options = '';
-            foreach ($topics as $topic) {
-                $top_options .= "<option value=\"$topic[id]\">$topic[text]</option>";
-            }
-
-            $tpl->assign_by_ref('TOPIC_OPTIONS', $top_options);
-        }
+        $tpl->assign_by_ref('TOPIC_OPTIONS', $top_options);
+    }
 
     //=================================================================
     //  Find out what Template we're using
     //=================================================================
-        $template_name = _SETTING_TEMPLATE;
-        if (!isset($template_name)) {
-            $template_name = 'default';
-        }
+    $template_name = _SETTING_TEMPLATE;
+    if (!isset($template_name)) {
+        $template_name = 'default';
+    }
 
     //=================================================================
     //  Output the search form
@@ -1178,138 +1195,138 @@ function postcalendar_user_search()
     //=================================================================
     //  Perform the search if we have data
     //=================================================================
-        if (!empty($submit) && strtolower($submit) == "find first") {
-            // not sure how we get here...
-            $searchargs = array();
-            $searchargs['start'] = pnVarCleanFromInput("event_startmonth") . "/" . pnVarCleanFromInput("event_startday") ."/". pnVarCleanFromInput("event_startyear");
-            $searchargs['end'] = pnVarCleanFromInput("event_endmonth") . "/" . pnVarCleanFromInput("event_endday") ."/". pnVarCleanFromInput("event_endyear");
-            $searchargs['provider_id'] = pnVarCleanFromInput("provider_id");
-            $searchargs['faFlag'] = true;
-            //print_r($searchargs);
-            //echo "<br />";
-            //set defaults to current week if empty
-            if ($searchargs['start'] == "//") {
-                $searchargs['start'] = date("m/d/Y");
-            }
-
-            if ($searchargs['end'] == "//") {
-                $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
-            }
-
-            //print_r($searchargs);
-            $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
-            //print_r($eventsByDate);
-            $found = findFirstAvailable($eventsByDate);
-            $tpl->assign('available_times', $found);
-            //print_r($_POST);
-
-            $tpl->assign('SEARCH_PERFORMED', true);
-            $tpl->assign('A_EVENTS', $eventsByDate);
-        }
-
-        if (!empty($submit) && strtolower($submit) == "listapps") {
-            // not sure how we get here...
-            $searchargs = array();
+    if (!empty($submit) && strtolower($submit) == "find first") {
+        // not sure how we get here...
+        $searchargs = array();
+        $searchargs['start'] = pnVarCleanFromInput("event_startmonth") . "/" . pnVarCleanFromInput("event_startday") ."/". pnVarCleanFromInput("event_startyear");
+        $searchargs['end'] = pnVarCleanFromInput("event_endmonth") . "/" . pnVarCleanFromInput("event_endday") ."/". pnVarCleanFromInput("event_endyear");
+        $searchargs['provider_id'] = pnVarCleanFromInput("provider_id");
+        $searchargs['faFlag'] = true;
+        //print_r($searchargs);
+        //echo "<br />";
+        //set defaults to current week if empty
+        if ($searchargs['start'] == "//") {
             $searchargs['start'] = date("m/d/Y");
-            $searchargs['end'] = date("m/d/Y", strtotime("+1 year", strtotime($searchargs['start'])));
-            $searchargs['patient_id'] = pnVarCleanFromInput("patient_id");
-            $searchargs['listappsFlag'] = true;
-
-            $sqlKeywords .= "(a.pc_pid = '" . pnVarCleanFromInput("patient_id") . "' )";
-
-            $searchargs['s_keywords'] = $sqlKeywords;
-            //print_r($searchargs);
-            $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
-            //print_r($eventsByDate);
-            $tpl->assign('appointments', $eventsByDate);
-            //print_r($_POST);
-
-            $tpl->assign('SEARCH_PERFORMED', true);
-            $tpl->assign('A_EVENTS', $eventsByDate);
-        } elseif (!empty($submit)) {
-            // we get here by searching via the PostCalendar search
-            $sqlKeywords = '';
-            $keywords = explode(' ', $k);
-            // build our search query
-            foreach ($keywords as $word) {
-                if (!empty($sqlKeywords)) {
-                    $sqlKeywords .= " $k_andor ";
-                }
-
-                $sqlKeywords .= '(';
-                $sqlKeywords .= "pd.lname LIKE '%$word%' OR ";
-                $sqlKeywords .= "pd.fname LIKE '%$word%' OR ";
-                $sqlKeywords .= "u.lname LIKE '%$word%' OR ";
-                $sqlKeywords .= "u.fname LIKE '%$word%' OR ";
-                $sqlKeywords .= "a.pc_title LIKE '%$word%' OR ";
-                $sqlKeywords .= "a.pc_hometext LIKE '%$word%' OR ";
-                $sqlKeywords .= "a.pc_location LIKE '%$word%'";
-                $sqlKeywords .= ') ';
-            }
-
-
-            if (!empty($pc_category)) {
-                $s_category = "a.pc_catid = '$pc_category'";
-            }
-
-            if (!empty($pc_topic)) {
-                $s_topic = "a.pc_topic = '$pc_topic'";
-            }
-
-            $searchargs = array();
-            if (!empty($sqlKeywords)) {
-                $searchargs['s_keywords'] = $sqlKeywords;
-            }
-
-            if (!empty($s_category)) {
-                $searchargs['s_category'] = $s_category;
-            }
-
-            if (!empty($s_topic)) {
-                $searchargs['s_topic'] = $s_topic;
-            }
-        
-            // some new search parameters introduced in the ajax_search form...  JRM March 2008
-
-            // the ajax_search form has form parameters for 'start' and 'end' already built in
-            // so use them if available
-            $tmpDate = pnVarCleanFromInput("start");
-            if (isset($tmpDate) && $tmpDate != "") {
-                $searchargs['start'] = pnVarCleanFromInput("start");
-            } else {
-                $searchargs['start'] = "//";
-            }
-
-            $tmpDate = pnVarCleanFromInput("end");
-            if (isset($tmpDate) && $tmpDate != "") {
-                $searchargs['end'] = pnVarCleanFromInput("end");
-            } else {
-                $searchargs['end'] = "//";
-            }
-
-            // we can limit our search by provider -- JRM March 2008
-            if (isset($ProviderID) && $ProviderID != "") { // && $ProviderID != "_ALL_") {
-                $searchargs['provider_id'] = array();
-                array_push($searchargs['provider_id'], $ProviderID);
-            }
-
-            $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
-
-            // we can limit our search by facility -- JRM March 2008
-            if (isset($pc_facility) && $pc_facility != "") {
-                $searchargs['pc_facility'] = $pc_facility;
-            }
-
-            //print_r($eventsByDate);
-            $tpl->assign('SEARCH_PERFORMED', true);
-            $tpl->assign('A_EVENTS', $eventsByDate);
         }
 
-        $tpl->caching = false;
-        $tpl->assign('STYLE', $GLOBALS['style']);
-        $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
-        $return = $pageSetup . $tpl->fetch($template_name.'/user/search.html');
-        return $return;
+        if ($searchargs['end'] == "//") {
+            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
+        }
+
+        //print_r($searchargs);
+        $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
+        //print_r($eventsByDate);
+        $found = findFirstAvailable($eventsByDate);
+        $tpl->assign('available_times', $found);
+        //print_r($_POST);
+
+        $tpl->assign('SEARCH_PERFORMED', true);
+        $tpl->assign('A_EVENTS', $eventsByDate);
+    }
+
+    if (!empty($submit) && strtolower($submit) == "listapps") {
+        // not sure how we get here...
+        $searchargs = array();
+        $searchargs['start'] = date("m/d/Y");
+        $searchargs['end'] = date("m/d/Y", strtotime("+1 year", strtotime($searchargs['start'])));
+        $searchargs['patient_id'] = pnVarCleanFromInput("patient_id");
+        $searchargs['listappsFlag'] = true;
+
+        $sqlKeywords .= "(a.pc_pid = '" . pnVarCleanFromInput("patient_id") . "' )";
+
+        $searchargs['s_keywords'] = $sqlKeywords;
+        //print_r($searchargs);
+        $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
+        //print_r($eventsByDate);
+        $tpl->assign('appointments', $eventsByDate);
+        //print_r($_POST);
+
+        $tpl->assign('SEARCH_PERFORMED', true);
+        $tpl->assign('A_EVENTS', $eventsByDate);
+    } elseif (!empty($submit)) {
+        // we get here by searching via the PostCalendar search
+        $sqlKeywords = '';
+        $keywords = explode(' ', $k);
+        // build our search query
+        foreach ($keywords as $word) {
+            if (!empty($sqlKeywords)) {
+                $sqlKeywords .= " $k_andor ";
+            }
+
+            $sqlKeywords .= '(';
+            $sqlKeywords .= "pd.lname LIKE '%$word%' OR ";
+            $sqlKeywords .= "pd.fname LIKE '%$word%' OR ";
+            $sqlKeywords .= "u.lname LIKE '%$word%' OR ";
+            $sqlKeywords .= "u.fname LIKE '%$word%' OR ";
+            $sqlKeywords .= "a.pc_title LIKE '%$word%' OR ";
+            $sqlKeywords .= "a.pc_hometext LIKE '%$word%' OR ";
+            $sqlKeywords .= "a.pc_location LIKE '%$word%'";
+            $sqlKeywords .= ') ';
+        }
+
+
+        if (!empty($pc_category)) {
+            $s_category = "a.pc_catid = '$pc_category'";
+        }
+
+        if (!empty($pc_topic)) {
+            $s_topic = "a.pc_topic = '$pc_topic'";
+        }
+
+        $searchargs = array();
+        if (!empty($sqlKeywords)) {
+            $searchargs['s_keywords'] = $sqlKeywords;
+        }
+
+        if (!empty($s_category)) {
+            $searchargs['s_category'] = $s_category;
+        }
+
+        if (!empty($s_topic)) {
+            $searchargs['s_topic'] = $s_topic;
+        }
+    
+        // some new search parameters introduced in the ajax_search form...  JRM March 2008
+
+        // the ajax_search form has form parameters for 'start' and 'end' already built in
+        // so use them if available
+        $tmpDate = pnVarCleanFromInput("start");
+        if (isset($tmpDate) && $tmpDate != "") {
+            $searchargs['start'] = pnVarCleanFromInput("start");
+        } else {
+            $searchargs['start'] = "//";
+        }
+
+        $tmpDate = pnVarCleanFromInput("end");
+        if (isset($tmpDate) && $tmpDate != "") {
+            $searchargs['end'] = pnVarCleanFromInput("end");
+        } else {
+            $searchargs['end'] = "//";
+        }
+
+        // we can limit our search by provider -- JRM March 2008
+        if (isset($ProviderID) && $ProviderID != "") { // && $ProviderID != "_ALL_") {
+            $searchargs['provider_id'] = array();
+            array_push($searchargs['provider_id'], $ProviderID);
+        }
+
+        $eventsByDate =& postcalendar_userapi_pcGetEvents($searchargs);
+
+        // we can limit our search by facility -- JRM March 2008
+        if (isset($pc_facility) && $pc_facility != "") {
+            $searchargs['pc_facility'] = $pc_facility;
+        }
+
+        //print_r($eventsByDate);
+        $tpl->assign('SEARCH_PERFORMED', true);
+        $tpl->assign('A_EVENTS', $eventsByDate);
+    }
+
+    $tpl->caching = false;
+    $tpl->assign('STYLE', $GLOBALS['style']);
+    $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $return = $pageSetup . $tpl->fetch($template_name.'/user/search.html');
+    return $return;
 }
 
 function checkCategoryLimits($eventdata)

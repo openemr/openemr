@@ -29,19 +29,19 @@ class ObserveToBrowser implements IObserver
         }
         
         switch ($ltype) {
-            case OBSERVE_DEBUG :
+            case OBSERVE_DEBUG:
                 print "<div class='debug'>$msg</div>\n";
                 break;
-            case OBSERVE_QUERY :
+            case OBSERVE_QUERY:
                 print "<div class='query'>$msg</div>\n";
                 break;
-            case OBSERVE_FATAL :
+            case OBSERVE_FATAL:
                 print "<div class='fatal'>$msg</div>\n";
                 break;
-            case OBSERVE_INFO :
+            case OBSERVE_INFO:
                 print "<div class='info'>$msg</div>\n";
                 break;
-            case OBSERVE_WARN :
+            case OBSERVE_WARN:
                 print "<div class='warn'>$msg</div>\n";
                 break;
         }

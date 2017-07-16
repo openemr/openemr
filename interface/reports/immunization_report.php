@@ -86,11 +86,11 @@ function format_ethnicity($ethnicity)
 
     switch ($ethnicity) {
         case "hisp_or_latin":
-           return ("H^Hispanic or Latino^HL70189");
+            return ("H^Hispanic or Latino^HL70189");
         case "not_hisp_or_latin":
-           return ("N^not Hispanic or Latino^HL70189");
+            return ("N^not Hispanic or Latino^HL70189");
         default: // Unknown
-           return ("U^Unknown^HL70189");
+            return ("U^Unknown^HL70189");
     }
 }
 

@@ -61,7 +61,7 @@ switch ($task) {
         addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent');
         echo 'ok';
-         break;
+        break;
     case "add":
         // each user has their own copy of message
         sendMail($owner, $note, $title, $header, $noteid, $sid, $sn, $rid, $rn, 'New');

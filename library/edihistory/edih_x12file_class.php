@@ -1389,16 +1389,21 @@ class edih_x12_file
         //
         foreach ($arg_array as $key=>$val) {
             switch ((string)$key) {
-                case 'trace': $trace = (string)$val;
-break;
-                case 'ST02': $stn = (string)$val;
-break;
-                case 'GS06': $gsn = (string)$val;
-break;
-                case 'ISA13': $icn = (string)$val;
-break;
-                case 'keys': $prskeys = (bool)$val;
-break;
+                case 'trace':
+                    $trace = (string)$val;
+                    break;
+                case 'ST02':
+                    $stn = (string)$val;
+                    break;
+                case 'GS06':
+                    $gsn = (string)$val;
+                    break;
+                case 'ISA13':
+                    $icn = (string)$val;
+                    break;
+                case 'keys':
+                    $prskeys = (bool)$val;
+                    break;
             }
         }
 

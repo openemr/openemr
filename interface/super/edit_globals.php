@@ -293,7 +293,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                         case 'first_day_week':
                             // update PostCalendar config as well
                             sqlStatement("UPDATE openemr_module_vars SET pn_value = ? WHERE pn_name = 'pcFirstDayOfWeek'", array($fldvalue));
-                              break;
+                            break;
                     }
 
                       // Replace old values

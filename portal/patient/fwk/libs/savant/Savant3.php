@@ -187,22 +187,22 @@ class Savant3
         // Andreas Korthaus for profiling the code to find
         // the slowdown.
         switch (count($args)) {
-            case 0 :
+            case 0:
                 return $plugin->$func ();
             
-            case 1 :
+            case 1:
                 return $plugin->$func ( $args [0] );
                 break;
             
-            case 2 :
+            case 2:
                 return $plugin->$func ( $args [0], $args [1] );
                 break;
             
-            case 3 :
+            case 3:
                 return $plugin->$func ( $args [0], $args [1], $args [2] );
                 break;
             
-            default :
+            default:
                 return call_user_func_array(array (
                         $plugin,
                         $func
@@ -689,11 +689,11 @@ class Savant3
         
         // always add the fallback directories as last resort
         switch (strtolower($type)) {
-            case 'template' :
+            case 'template':
                 // the current directory
                 $this->addPath($type, '.');
                 break;
-            case 'resource' :
+            case 'resource':
                 // the Savant3 distribution resources
                 $this->addPath($type, dirname(__FILE__) . '/Savant3/resources/');
                 break;

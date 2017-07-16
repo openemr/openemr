@@ -157,19 +157,19 @@ function create_HTML_statement($stmt)
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }
@@ -552,19 +552,19 @@ function create_statement($stmt)
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }
@@ -849,19 +849,19 @@ function osp_create_HTML_statement($stmt)
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }

@@ -766,8 +766,11 @@ foreach (explode(',', $given) as $item) {
             <td class="right" nowrap><b id="by_whom"><?php echo xlt('Eye Med'); ?>:</b></td>
             <td  colspan="3"><?php echo $irow['subtype']; ?>
               <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1'
-                <?php if ($irow['subtype'] =='eye') {
-                    echo "checked";} ?> style="margin:3px 3px 3px 5px;"
+                <?php
+                if ($irow['subtype'] =='eye') {
+                    echo "checked";
+                }
+                ?> style="margin:3px 3px 3px 5px;"
               title='<?php echo xla('Indicates if this issue is an ophthalmic-specific medication'); ?>' />
             </td>
           </tr>
@@ -816,46 +819,46 @@ foreach (explode(',', $given) as $item) {
                     $result1 = sqlQuery("select $given from history_data where pid=? order by date DESC limit 0,1", array($pid));
                 }
 
-                  $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
-                  "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
-                  "ORDER BY seq");
-                  while ($group_fields = sqlFetchArray($group_fields_query)) {
-                      $titlecols  = $group_fields['titlecols'];
-                      $datacols   = $group_fields['datacols'];
-                      $data_type  = $group_fields['data_type'];
-                      $field_id   = $group_fields['field_id'];
-                      $list_id    = $group_fields['list_id'];
-                      $currvalue  = '';
-                      if (isset($result1[$field_id])) {
-                          $currvalue = $result1[$field_id];
+                    $group_fields_query = sqlStatement("SELECT * FROM layout_options " .
+                    "WHERE form_id = 'HIS' AND group_name = '4Lifestyle' AND uor > 0 " .
+                    "ORDER BY seq");
+                    while ($group_fields = sqlFetchArray($group_fields_query)) {
+                        $titlecols  = $group_fields['titlecols'];
+                        $datacols   = $group_fields['datacols'];
+                        $data_type  = $group_fields['data_type'];
+                        $field_id   = $group_fields['field_id'];
+                        $list_id    = $group_fields['list_id'];
+                        $currvalue  = '';
+                        if (isset($result1[$field_id])) {
+                            $currvalue = $result1[$field_id];
                         }
 
                         if ($data_type == 28 || $data_type == 32) {
                             $tmp = explode('|', $currvalue);
                             switch (count($tmp)) {
-                                case "4": {
+                                case "4":
                                     $result2[$field_id]['resnote'] = $tmp[0];
                                     $result2[$field_id]['restype'] = $tmp[1];
                                     $result2[$field_id]['resdate'] = $tmp[2];
                                     $result2[$field_id]['reslist'] = $tmp[3];
-                                } break;
-                                case "3": {
-                                      $result2[$field_id]['resnote'] = $tmp[0];
-                                      $result2[$field_id]['restype'] = $tmp[1];
-                                      $result2[$field_id]['resdate'] = $tmp[2];
-                                } break;
-                                case "2": {
-                                      $result2[$field_id]['resnote'] = $tmp[0];
-                                      $result2[$field_id]['restype'] = $tmp[1];
-                                      $result2[$field_id]['resdate'] = "";
-                                } break;
-                                case "1": {
-                                      $result2[$field_id]['resnote'] = $tmp[0];
-                                      $result2[$field_id]['resdate'] = $result2[$field_id]['restype'] = "";
-                                } break;
-                                default: {
-                                      $result2[$field_id]['restype'] = $result2[$field_id]['resdate'] = $result2[$field_id]['resnote'] = "";
-                                } break;
+                                    break;
+                                case "3":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['restype'] = $tmp[1];
+                                    $result2[$field_id]['resdate'] = $tmp[2];
+                                    break;
+                                case "2":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['restype'] = $tmp[1];
+                                    $result2[$field_id]['resdate'] = "";
+                                    break;
+                                case "1":
+                                    $result2[$field_id]['resnote'] = $tmp[0];
+                                    $result2[$field_id]['resdate'] = $result2[$field_id]['restype'] = "";
+                                    break;
+                                default:
+                                    $result2[$field_id]['restype'] = $result2[$field_id]['resdate'] = $result2[$field_id]['resnote'] = "";
+                                    break;
                             }
 
                             $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];

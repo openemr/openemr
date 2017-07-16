@@ -268,8 +268,10 @@ class eRxSOAP
         switch ($process) {
             case self::ACTION_ALLERGIES:
                 $return = $this->getGlobals()->getTTLSoapAllergies();
+                break;
             case self::ACTION_MEDICATIONS:
                 $return = $this->getGlobals()->getTTLSoapMedications();
+                break;
             default:
                 $return = false;
         }

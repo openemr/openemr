@@ -32,21 +32,21 @@ class HttpRequest
         $ch = null;
         
         switch ($method) {
-            case HttpRequest::$METHOD_GET :
+            case HttpRequest::$METHOD_GET:
                 $ch = curl_init($endpoint . ($qs ? "?" . $qs : ""));
                 break;
-            case HttpRequest::$METHOD_POST :
+            case HttpRequest::$METHOD_POST:
                 $ch = curl_init($endpoint);
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qs);
                 break;
-            case HttpRequest::$METHOD_PUT :
+            case HttpRequest::$METHOD_PUT:
                 $ch = curl_init($endpoint);
                 // curl_setopt($ch, CURLOPT_PUT, 1); // <- this method requires CURLOPT_INFILE
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qs);
                 break;
-            case HttpRequest::$METHOD_DELETE :
+            case HttpRequest::$METHOD_DELETE:
                 $ch = curl_init($endpoint);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $qs);

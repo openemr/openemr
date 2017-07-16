@@ -39,7 +39,7 @@ if (! function_exists('password_hash')) {
         }
 
         switch ($algo) {
-            case PASSWORD_BCRYPT :
+            case PASSWORD_BCRYPT:
                 // Note that this is a C constant, but not exposed to PHP, so we don't define it here.
                 $cost = 10;
                 if (isset($options ['cost'])) {
@@ -53,29 +53,30 @@ if (! function_exists('password_hash')) {
                 $required_salt_len = 22;
                 $hash_format = sprintf("$2y$%02d$", $cost);
                 break;
-            default :
+            default:
                 trigger_error(sprintf("password_hash(): Unknown password hashing algorithm: %s", $algo), E_USER_WARNING);
                 return null;
         }
 
         if (isset($options ['salt'])) {
             switch (gettype($options ['salt'])) {
-                case 'NULL' :
-                case 'boolean' :
-                case 'integer' :
-                case 'double' :
-                case 'string' :
+                case 'NULL':
+                case 'boolean':
+                case 'integer':
+                case 'double':
+                case 'string':
                     $salt = ( string ) $options ['salt'];
                     break;
-                case 'object' :
+                case 'object':
                     if (method_exists($options ['salt'], '__tostring')) {
                         $salt = ( string ) $options ['salt'];
                         break;
                     }
 
-                case 'array' :
-                case 'resource' :
-                default :
+                    //NOTE FALL-THROUGH CASE HERE. POSSIBLE BUG.
+                case 'array':
+                case 'resource':
+                default:
                     trigger_error('password_hash(): Non-string salt parameter supplied', E_USER_WARNING);
                     return null;
             }
@@ -164,7 +165,7 @@ if (! function_exists('password_needs_rehash')) {
         }
 
         switch ($algo) {
-            case PASSWORD_BCRYPT :
+            case PASSWORD_BCRYPT:
                 $cost = isset($options ['cost']) ? $options ['cost'] : 10;
                 if ($cost != $info ['options'] ['cost']) {
                     return true;

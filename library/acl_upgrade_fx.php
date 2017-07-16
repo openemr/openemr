@@ -68,13 +68,13 @@ function getAclIdNumber($title, $return_value)
     switch (count($temp_acl_id_array)) {
         case 0:
             echo "<B>ERROR</B>, '$title' group '$return_value' ACL does not exist.</BR>";
-                break;
+            break;
         case 1:
             echo "'$title' group '$return_value' ACL is present.</BR>";
-                break;
+            break;
         default:
             echo "<B>ERROR</B>, Multiple '$title' group '$return_value' ACLs are present.</BR>";
-                break;
+            break;
     }
 
         return $temp_acl_id_array;
@@ -127,14 +127,14 @@ function addNewACL($title, $name, $return_value, $note)
                     echo "<B>ERROR</B>, Unable to create the '$title' group '$return_value' ACL.</BR>";
                 }
             }
-                break;
+            break;
         case 1:
             echo "'$title' group '$return_value' ACL already exist.</BR>";
-                break;
+            break;
 
         default:
             echo "<B>ERROR</B>, Multiple '$title' group '$return_value' ACLs are present.</BR>";
-                break;
+            break;
     }
 
         return $temp_acl_id_array;
@@ -278,13 +278,13 @@ function updateAcl($array_acl_id_number, $group_title, $section_name, $section_t
             } else {
                 echo "<B>ERROR</B>,unable to place the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
             }
-                break;
+            break;
         case 1:
             echo "The '$object_title' object of the '$section_title' section is already found in the '$group_title' group '$return_value' ACL.</BR>";
-                break;
+            break;
         default:
             echo "<B>ERROR</B>, Multiple '$group_title' group '$return_value' ACLs with the '$object_title' object of the '$section_title' section are present.</BR>";
-                break;
+            break;
     }
 
         return;

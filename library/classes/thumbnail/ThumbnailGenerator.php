@@ -86,7 +86,7 @@ class ThumbnailGenerator
                     break;
                 default:
                     $this->error_log($row['url']);
-continue;
+                    continue;
             }
 
             // Write error to log if failed

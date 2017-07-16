@@ -147,15 +147,15 @@ function postcalendar_admin_adminevents()
         $e  = _PC_NO_EVENT_SELECTED;
 
         switch ($thelist) {
-            case 'listqueued' :
+            case 'listqueued':
                 $output .= postcalendar_admin_showlist($e, _EVENT_QUEUED, 'showlist');
                 break;
 
-            case 'listhidden' :
+            case 'listhidden':
                 $output .= postcalendar_admin_showlist($e, _EVENT_HIDDEN, 'showlist');
                 break;
 
-            case 'listapproved' :
+            case 'listapproved':
                 $output .= postcalendar_admin_showlist($e, _EVENT_APPROVED, 'showlist');
                 break;
         }
@@ -167,17 +167,17 @@ function postcalendar_admin_adminevents()
     $output = postcalendar_adminmenu();
     $function = '';
     switch ($action) {
-        case _ADMIN_ACTION_APPROVE :
+        case _ADMIN_ACTION_APPROVE:
             $function = 'approveevents';
             $are_you_sure_text = _PC_APPROVE_ARE_YOU_SURE;
             break;
 
-        case _ADMIN_ACTION_HIDE :
+        case _ADMIN_ACTION_HIDE:
             $function = 'hideevents';
             $are_you_sure_text = _PC_HIDE_ARE_YOU_SURE;
             break;
 
-        case _ADMIN_ACTION_DELETE :
+        case _ADMIN_ACTION_DELETE:
             $function = 'deleteevents';
             $are_you_sure_text = _PC_DELETE_ARE_YOU_SURE;
             break;

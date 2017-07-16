@@ -98,19 +98,19 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 $middleName = '';
                 $lastName = $partsName[1];
                 $suffixName = '';
-            break;
+                break;
             case "3":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $suffixName = '';
-            break;
+                break;
             case "4":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $suffixName = $partsName[3];
-            break;
+                break;
             default:
                 $log .= "*** submitter name in 1000A loop has more than 4 parts, may not be desirable\n";
                 $firstName = $partsName[0];
@@ -212,19 +212,19 @@ function gen_x12_837($pid, $encounter, &$log, $encounter_claim = false)
                 $middleName = '';
                 $lastName = $partsName[1];
                 $suffixName = '';
-            break;
+                break;
             case "3":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $suffixName = '';
-            break;
+                break;
             case "4":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $suffixName = $partsName[3];
-            break;
+                break;
             default:
                 $log .= "*** billing provider name in 2010AA loop has more than 4 parts, may not be desirable\n";
                 $firstName = $partsName[0];

@@ -378,7 +378,6 @@ if ($_POST['date_to'] != "") {
                     $sqlstmt = $sqlstmt." left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
                     break;
                 case "Lab results":
-
                     $sqlstmt = $sqlstmt." left outer join procedure_order as po on po.patient_id = pd.pid
 							left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
 							left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
@@ -489,10 +488,12 @@ if ($_POST['date_to'] != "") {
             for ($i = 0; $i < count($sort); $i++) {
                 if ($sortby == $sort[$i]) {
                     switch ($sortorder) {
-                        case "asc"      : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
-break;
-                        case "desc"     : $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
-break;
+                        case "asc":
+                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','desc');\" ><img src=\"../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
+                            break;
+                        case "desc":
+                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('$sortby','asc');\" onclick=\"top.restoreSession()\"><img src=\"../../images/sortdown.gif\" border=0 alt=\"".xla('Sort Down')."\"></a>";
+                            break;
                     } break;
                 }
             }

@@ -1704,29 +1704,29 @@ function build_PMSFH($pid)
         if ($data_type == 28 || $data_type == 32) {
             $tmp = explode('|', $currvalue);
             switch (count($tmp)) {
-                case "4": {
+                case "4":
                     $PMSFH['SOCH'][$field_id]['resnote'] = $tmp[0];
                     $PMSFH['SOCH'][$field_id]['restype'] = $tmp[1];
                     $PMSFH['SOCH'][$field_id]['resdate'] = $tmp[2];
                     $PMSFH['SOCH'][$field_id]['reslist'] = $tmp[3];
-                } break;
-                case "3": {
+                    break;
+                case "3":
                     $PMSFH['SOCH'][$field_id]['resnote'] = $tmp[0];
                     $PMSFH['SOCH'][$field_id]['restype'] = $tmp[1];
                     $PMSFH['SOCH'][$field_id]['resdate'] = $tmp[2];
-                } break;
-                case "2": {
+                    break;
+                case "2":
                     $PMSFH['SOCH'][$field_id]['resnote'] = $tmp[0];
                     $PMSFH['SOCH'][$field_id]['restype'] = $tmp[1];
                     $PMSFH['SOCH'][$field_id]['resdate'] = "";
-                } break;
-                case "1": {
+                    break;
+                case "1":
                     $PMSFH['SOCH'][$field_id]['resnote'] = $tmp[0];
                     $PMSFH['SOCH'][$field_id]['resdate'] = $PMSFH['SOCH'][$field_id]['restype'] = "";
-                } break;
-                default: {
+                    break;
+                default:
                     $PMSFH['SOCH'][$field_id]['restype'] = $PMSFH['SOCH'][$field_id]['resdate'] = $PMSFH['SOCH'][$field_id]['resnote'] = "";
-                } break;
+                    break;
             }
 
             $PMSFH['SOCH'][$field_id]['resnote'] = text($PMSFH['SOCH'][$field_id]['resnote']);

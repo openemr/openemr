@@ -56,19 +56,19 @@ function mapCodeType($incode)
     switch ($code[0]) {
         case "ICD9":
             $outcode = "I9CDX";
-             break;
+            break;
         case "ICD10":
             $outcode = "I10";
-             break;
+            break;
         case "SNOMED-CT":
             $outcode = "SCT";
-             break;
+            break;
         case "US Ext SNOMEDCT":
             $outcode = "SCT";
-             break;
+            break;
         default:
             $outcode = "I9CDX"; // default to ICD9
-             break;
+            break;
              // Only ICD9, ICD10 and SNOMED codes allowed in Syndromic Surveillance
     }
 

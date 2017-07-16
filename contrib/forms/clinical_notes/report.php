@@ -27,10 +27,12 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
 
             if ($key == 'followup_required') {
                 switch ($value) {
-                    case '1': $value = 'Yes';
-break;
-                    case '2': $value = 'Pending investigation';
-break;
+                    case '1':
+                        $value = 'Yes';
+                        break;
+                    case '2':
+                        $value = 'Pending investigation';
+                        break;
                 }
             }
 

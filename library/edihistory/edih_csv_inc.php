@@ -1064,21 +1064,29 @@ function edih_errseg_parse($err_seg, $id = false)
     $ik = explode('*', $err_seg);
     foreach ($ik as $i=>$k) {
         switch ((int)$i) {
-            case 0:$ret_ar['trace'] = $k;
-break;
-            case 1: break;  // IK3
-            case 2: $ret_ar['id'][] = $k;
-break;   // segment ID
-            case 3: $ret_ar['err'][] = $k;
-break;  // segment position
-            case 4: $ret_ar['id'][] = $k;
-break;
-            case 5: $ret_ar['err'][] = $k;
-break;
-            case 6: $ret_ar['id'][] = $k;
-break;
-            case 7: $ret_ar['err'][] = $k;
-break;
+            case 0:
+                $ret_ar['trace'] = $k;
+                break;
+            case 1:
+                break;  // IK3
+            case 2:
+                $ret_ar['id'][] = $k;
+                break;   // segment ID
+            case 3:
+                $ret_ar['err'][] = $k;
+                break;  // segment position
+            case 4:
+                $ret_ar['id'][] = $k;
+                break;
+            case 5:
+                $ret_ar['err'][] = $k;
+                break;
+            case 6:
+                $ret_ar['id'][] = $k;
+                break;
+            case 7:
+                $ret_ar['err'][] = $k;
+                break;
         }
     }
 
@@ -1280,24 +1288,33 @@ function csv_table_header($file_type, $csv_type)
             //case 'ebr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
             //case 'ibr': $hdr = array('Date', 'FileName', 'clrhsid', 'claim_ct', 'reject_ct', 'Batch'); break;
             //
-            case 'f837': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
-break;
-            case 'ta1': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Code');
-break;
-            case 'f997': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt');
-break;
-            case 'f276': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
-break;
-            case 'f277': $hdr = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
-break;
-            case 'f270': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
-break;
-            case 'f271': $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Reject', 'Payer');
-break;
-            case 'f278': $hdr = array('Date', 'FileName', 'Control', 'TrnCount', 'Auth', 'Payer');
-break;
-            case 'f835': $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer');
-break;
+            case 'f837':
+                $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
+                break;
+            case 'ta1':
+                $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Code');
+                break;
+            case 'f997':
+                $hdr = array('Date', 'FileName', 'Control', 'Trace', 'RspType', 'RejCt');
+                break;
+            case 'f276':
+                $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
+                break;
+            case 'f277':
+                $hdr = array('Date', 'FileName', 'Control', 'Accept', 'AccAmt', 'Reject', 'RejAmt');
+                break;
+            case 'f270':
+                $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'x12Partner');
+                break;
+            case 'f271':
+                $hdr = array('Date', 'FileName', 'Control', 'Claim_ct', 'Reject', 'Payer');
+                break;
+            case 'f278':
+                $hdr = array('Date', 'FileName', 'Control', 'TrnCount', 'Auth', 'Payer');
+                break;
+            case 'f835':
+                $hdr = array('Date', 'FileName', 'Control', 'Trace', 'Claim_ct', 'Denied', 'Payer');
+                break;
         }
     } elseif ($ct === 'claim') {
         switch ((string)$ft) {
@@ -1305,22 +1322,30 @@ break;
             //case 'ibr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //case 'dpr': $hdr = array('PtName','SvcDate', 'CLM01', 'Status', 'Batch', 'FileName', 'Payer'); break;
             //
-            case 'f837': $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'BHT03', 'FileName', 'Fee', 'PtPaid', 'Provider' );
-break;
-            case 'f997': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');
-break;
-            case 'f276': $hdr = array('PtName', 'SvcDate', 'CLM01', 'ClaimID', 'BHT03', 'FileName', 'Payer', 'Trace');
-break;
-            case 'f277': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Trace');
-break;
-            case 'f270': $hdr = array('PtName', 'ReqDate', 'Trace', 'InsBnft', 'BHT03', 'FileName', 'Payer');
-break;
-            case 'f271': $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Payer');
-break;
-            case 'f278': $hdr = array('PtName', 'FileDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Auth', 'Payer');
-break;
-            case 'f835': $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer');
-break;
+            case 'f837':
+                $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'BHT03', 'FileName', 'Fee', 'PtPaid', 'Provider' );
+                break;
+            case 'f997':
+                $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'Control', 'FileName', 'RspType', 'err_seg');
+                break;
+            case 'f276':
+                $hdr = array('PtName', 'SvcDate', 'CLM01', 'ClaimID', 'BHT03', 'FileName', 'Payer', 'Trace');
+                break;
+            case 'f277':
+                $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'BHT03', 'FileName', 'Payer', 'Trace');
+                break;
+            case 'f270':
+                $hdr = array('PtName', 'ReqDate', 'Trace', 'InsBnft', 'BHT03', 'FileName', 'Payer');
+                break;
+            case 'f271':
+                $hdr = array('PtName', 'RspDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Payer');
+                break;
+            case 'f278':
+                $hdr = array('PtName', 'FileDate', 'Trace', 'Status', 'BHT03', 'FileName', 'Auth', 'Payer');
+                break;
+            case 'f835':
+                $hdr = array('PtName', 'SvcDate', 'CLM01', 'Status', 'Trace', 'FileName', 'ClaimID', 'Pmt', 'PtResp', 'Payer');
+                break;
         }
     } else {
         // unexpected error

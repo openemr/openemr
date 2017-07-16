@@ -142,13 +142,17 @@ function smart_resize_image(
 
             # Loading image to memory according to type
     switch ($info[2]) {
-        case IMAGETYPE_JPEG:  $file !== null ? $image = imagecreatefromjpeg($file) : $image = imagecreatefromstring($string);
-break;
-        case IMAGETYPE_GIF:   $file !== null ? $image = imagecreatefromgif($file)  : $image = imagecreatefromstring($string);
-break;
-        case IMAGETYPE_PNG:   $file !== null ? $image = imagecreatefrompng($file)  : $image = imagecreatefromstring($string);
-break;
-        default: return false;
+        case IMAGETYPE_JPEG:
+            $file !== null ? $image = imagecreatefromjpeg($file) : $image = imagecreatefromstring($string);
+            break;
+        case IMAGETYPE_GIF:
+            $file !== null ? $image = imagecreatefromgif($file)  : $image = imagecreatefromstring($string);
+            break;
+        case IMAGETYPE_PNG:
+            $file !== null ? $image = imagecreatefrompng($file)  : $image = imagecreatefromstring($string);
+            break;
+        default:
+            return false;
     }
 
             # This is the resizing/resampling/transparency-preserving magic
@@ -205,15 +209,18 @@ break;
 
             # Writing image according to type to the output destination and image quality
     switch ($info[2]) {
-        case IMAGETYPE_GIF:   imagegif($image_resized, $output);
-break;
-        case IMAGETYPE_JPEG:  imagejpeg($image_resized, $output, $quality);
-break;
+        case IMAGETYPE_GIF:
+            imagegif($image_resized, $output);
+            break;
+        case IMAGETYPE_JPEG:
+            imagejpeg($image_resized, $output, $quality);
+            break;
         case IMAGETYPE_PNG:
             $quality = 9 - (int)((0.9*$quality)/10.0);
             imagepng($image_resized, $output, $quality);
             break;
-        default: return false;
+        default:
+            return false;
     }
 
             return true;
@@ -288,16 +295,16 @@ class sigToSvg
                     switch (json_last_error()) {
                         case JSON_ERROR_DEPTH:
                                 $jErr = ' - Maximum stack depth exceeded';
-                        break;
+                            break;
                         case JSON_ERROR_CTRL_CHAR:
                                 $jErr = ' - Unexpected control character found';
-                        break;
+                            break;
                         case JSON_ERROR_SYNTAX:
                                 $jErr = ' - Syntax error, malformed JSON';
-                        break;
+                            break;
                         case JSON_ERROR_NONE:
                                 $jErr = ' - Unknown error';
-                        break;
+                            break;
                     }
                 }
 

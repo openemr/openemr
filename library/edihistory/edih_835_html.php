@@ -134,24 +134,33 @@ function edih_835_clp_summary($trans_array, $codes27x, $codes835, $delimiters, $
                 $clp08 = $clp09 = $clp11 = $clp12 = $clp13 = $capstr = $tblid = '';
                 foreach ($sar as $k=>$v) {
                     switch ((int)$k) {
-                        case 0: break;
-                        case 1: $clp01 = $v;
+                        case 0:
+                            break;
+                        case 1:
+                            $clp01 = $v;
                             $capstr = $v;
                             $tblid = $v;
-break;              // Pt ID CLM01
-                        case 2: $clp02 = $cd835->get_835_code('CLAIM_STATUS', $v);
-break;
-                        case 3: $clp03 = ($v) ? "<em>Fee:</em> ".edih_format_money($v) : "0";
-break;
-                        case 4: $clp04 = ($v) ? "<em>Pmt:</em> ".edih_format_money($v) : "0";
-break;
-                        case 5: $clp05 = ($v) ? "<em>PtRsp:</em> ".edih_format_money($v) : "0";
-break;
-                        case 7: $clp07 = ($v) ? "<em>PR Ref:</em> ".$v : "";
-break;
-                        case 8: $clp08 = ($v) ? "<em>Location</em> ".$cd27x->get_271_code('POS', $v) : '';
-break;
-                        case 9: $clp09 = ($v && isset($clp09ar[$v])) ? "<em>Freq</em> ".$clp09ar[$v] : $v;
+                            break;              // Pt ID CLM01
+                        case 2:
+                            $clp02 = $cd835->get_835_code('CLAIM_STATUS', $v);
+                            break;
+                        case 3:
+                            $clp03 = ($v) ? "<em>Fee:</em> ".edih_format_money($v) : "0";
+                            break;
+                        case 4:
+                            $clp04 = ($v) ? "<em>Pmt:</em> ".edih_format_money($v) : "0";
+                            break;
+                        case 5:
+                            $clp05 = ($v) ? "<em>PtRsp:</em> ".edih_format_money($v) : "0";
+                            break;
+                        case 7:
+                            $clp07 = ($v) ? "<em>PR Ref:</em> ".$v : "";
+                            break;
+                        case 8:
+                            $clp08 = ($v) ? "<em>Location</em> ".$cd27x->get_271_code('POS', $v) : '';
+                            break;
+                        case 9:
+                            $clp09 = ($v && isset($clp09ar[$v])) ? "<em>Freq</em> ".$clp09ar[$v] : $v;
                     }
                 }
 
@@ -228,28 +237,40 @@ break;
                     // claim adjustment group;  expect CAS segment for each adjustment group
                     foreach ($sar as $k=>$v) {
                         switch ((int)$k) {
-                            case 0: break;
-                            case 1: $cas_str .= "$v ".$cd835->get_835_code('CAS_GROUP', $v);
-break;
-                            case 2: $cas_str .= ($v) ? " $v" : "";
-break;
-                            case 3: $cas_str .= ($v) ? " ".edih_format_money($v) : "";
-break;
-                            case 4: $cas_str .= ($v) ? "x$v" : "";
-break;
-                            case 5: $cas_str .= ($v) ? " $v" : "";
-break;
-                            case 6: $cas_str .= ($v) ? " ".edih_format_money($v) : "";
-break;
-                            case 7: $cas_str .= ($v) ? "x$v" : "";
-break;
-                            case 8: $cas_str .= ($v) ? " $v" : "";
-break;
-                            case 9: $cas_str .= ($v) ? " ".edih_format_money($v) : "";
-break;
-                            case 10: $cas_str .= ($v) ? "x$v" : "";
-break;
-                            default: $cas_str .= " *";
+                            case 0:
+                                break;
+                            case 1:
+                                $cas_str .= "$v ".$cd835->get_835_code('CAS_GROUP', $v);
+                                break;
+                            case 2:
+                                $cas_str .= ($v) ? " $v" : "";
+                                break;
+                            case 3:
+                                $cas_str .= ($v) ? " ".edih_format_money($v) : "";
+                                break;
+                            case 4:
+                                $cas_str .= ($v) ? "x$v" : "";
+                                break;
+                            case 5:
+                                $cas_str .= ($v) ? " $v" : "";
+                                break;
+                            case 6:
+                                $cas_str .= ($v) ? " ".edih_format_money($v) : "";
+                                break;
+                            case 7:
+                                $cas_str .= ($v) ? "x$v" : "";
+                                break;
+                            case 8:
+                                $cas_str .= ($v) ? " $v" : "";
+                                break;
+                            case 9:
+                                $cas_str .= ($v) ? " ".edih_format_money($v) : "";
+                                break;
+                            case 10:
+                                $cas_str .= ($v) ? "x$v" : "";
+                                break;
+                            default:
+                                $cas_str .= " *";
                         }
                     }
 
@@ -420,22 +441,31 @@ function edih_835_transaction_html($trans_array, $codes27x, $codes835, $delimite
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k=>$v) {
                     switch ((int)$k) {
-                        case 0: break;
-                        case 1: $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
-break;
-                        case 2: $per02 = $v;
-break;
-                        case 3: $per03 = $v;
-break;
-                        case 4: $per04 = ($per03=='TE') ? edih_format_telephone($v) : $v;
-break;
-                        case 5: $per05 = $v;
-break;
-                        case 6: $per06 = ($per03=='TE') ? edih_format_telephone($v) :  $v;
-break;
-                        case 7: $per07 = $v;
-break;
-                        case 8: $per08 = ($per03=='TE') ? edih_format_telephone($v) :  $v;
+                        case 0:
+                            break;
+                        case 1:
+                            $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
+                            break;
+                        case 2:
+                            $per02 = $v;
+                            break;
+                        case 3:
+                            $per03 = $v;
+                            break;
+                        case 4:
+                            $per04 = ($per03=='TE') ? edih_format_telephone($v) : $v;
+                            break;
+                        case 5:
+                            $per05 = $v;
+                            break;
+                        case 6:
+                            $per06 = ($per03=='TE') ? edih_format_telephone($v) :  $v;
+                            break;
+                        case 7:
+                            $per07 = $v;
+                            break;
+                        case 8:
+                            $per08 = ($per03=='TE') ? edih_format_telephone($v) :  $v;
                     }
                 }
 
@@ -602,15 +632,20 @@ break;
                 $moa_str = 'Claim Level Remarks: ';
                 foreach ($sar as $k=>$v) {
                     switch ((int)$k) {
-                        case 0: break;
-                        case 1: $moa_str .= ($v) ? 'Reimbursement Rate: '.edih_format_percent($v) : '';
-break;
-                        case 2: $moa_str .= ($v) ? 'Allowed Amt: '.edih_format_money($v) : '';
-break;
-                        case 8: $moa_str .= ($v) ? 'ESRD Amt: '.edih_format_money($v) : '';
-break;
-                        case 9: $moa_str .= ($v) ? 'Non-Pay Prof Cmpnt: '.edih_format_money($v) : '';
-break;
+                        case 0:
+                            break;
+                        case 1:
+                            $moa_str .= ($v) ? 'Reimbursement Rate: '.edih_format_percent($v) : '';
+                            break;
+                        case 2:
+                            $moa_str .= ($v) ? 'Allowed Amt: '.edih_format_money($v) : '';
+                            break;
+                        case 8:
+                            $moa_str .= ($v) ? 'ESRD Amt: '.edih_format_money($v) : '';
+                            break;
+                        case 9:
+                            $moa_str .= ($v) ? 'Non-Pay Prof Cmpnt: '.edih_format_money($v) : '';
+                            break;
                         default:
                         // case 3, 4, 5, 6, 7 are remark codes
                             $moa_str .= ($v) ? ' '.$v : '';
@@ -1129,22 +1164,31 @@ function edih_835_payment_html($segments, $codes27x, $codes835, $delimiters, $fn
                 $per01 = $per02 = $per03 = $per04 = $per05 = $per06 = $per07 = $per08 = '';
                 foreach ($sar as $k=>$v) {
                     switch ((int)$k) {
-                        case 0: break;
-                        case 1: $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
-break;
-                        case 2: $per02 = $v;
-break;
-                        case 3: $per03 = $v;
-break;
-                        case 4: $per04 = ($per03=='TE') ? edih_format_telephone($v) : $v;
-break;
-                        case 5: $per05 = $v;
-break;
-                        case 6: $per06 = ($per03=='TE') ? edih_format_telephone($v) : $v;
-break;
-                        case 7: $per07 = $v;
-break;
-                        case 8: $per08 = ($per03=='TE') ? edih_format_telephone($v) : $v;
+                        case 0:
+                            break;
+                        case 1:
+                            $per01 = (isset($per01_ar[$v])) ? $per01_ar[$v] : $v;
+                            break;
+                        case 2:
+                            $per02 = $v;
+                            break;
+                        case 3:
+                            $per03 = $v;
+                            break;
+                        case 4:
+                            $per04 = ($per03=='TE') ? edih_format_telephone($v) : $v;
+                            break;
+                        case 5:
+                            $per05 = $v;
+                            break;
+                        case 6:
+                            $per06 = ($per03=='TE') ? edih_format_telephone($v) : $v;
+                            break;
+                        case 7:
+                            $per07 = $v;
+                            break;
+                        case 8:
+                            $per08 = ($per03=='TE') ? edih_format_telephone($v) : $v;
                     }
                 }
 

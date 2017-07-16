@@ -108,26 +108,26 @@ class DBColumn
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "smallint" :
-            case "bigint" :
-            case "tinyint" :
-            case "mediumint" :
+            case "smallint":
+            case "bigint":
+            case "tinyint":
+            case "mediumint":
                 $rt = "int";
                 break;
-            case "varchar" :
-            case "text" :
-            case "tinytext" :
+            case "varchar":
+            case "text":
+            case "tinytext":
                 $rt = "string";
                 break;
-            case "date" :
-            case "datetime" :
+            case "date":
+            case "datetime":
                 $rt = "date";
                 break;
-            case "decimal" :
-            case "float" :
+            case "decimal":
+            case "float":
                 $rt = "float";
                 break;
-            default :
+            default:
                 break;
         }
         
@@ -143,43 +143,43 @@ class DBColumn
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "int" :
+            case "int":
                 $rt = "integer";
                 break;
-            case "smallint" :
+            case "smallint":
                 $rt = "integer";
                 break;
-            case "tinyint" :
+            case "tinyint":
                 $rt = "integer";
                 break;
-            case "varchar" :
+            case "varchar":
                 $rt = "text";
                 break;
-            case "text" :
+            case "text":
                 $rt = "text";
                 break;
-            case "tinytext" :
+            case "tinytext":
                 $rt = "text";
                 break;
-            case "date" :
+            case "date":
                 $rt = "datetime";
                 break;
-            case "datetime" :
+            case "datetime":
                 $rt = "datetime";
                 break;
-            case "mediumint" :
+            case "mediumint":
                 $rt = "integer";
                 break;
-            case "bigint" :
+            case "bigint":
                 $rt = "integer";
                 break;
-            case "decimal" :
+            case "decimal":
                 $rt = "real";
                 break;
-            case "float" :
+            case "float":
                 $rt = "real";
                 break;
-            default :
+            default:
                 break;
         }
         
@@ -195,40 +195,40 @@ class DBColumn
     {
         $rt = $this->Type;
         switch ($this->Type) {
-            case "int" :
+            case "int":
                 $rt = "int";
                 break;
-            case "smallint" :
+            case "smallint":
                 $rt = "int";
                 break;
-            case "tinyint" :
+            case "tinyint":
                 $rt = $this->MaxSize > 1 ? "int" : "Boolean";
                 break;
-            case "varchar" :
+            case "varchar":
                 $rt = "String";
                 break;
-            case "text" :
+            case "text":
                 $rt = "String";
                 break;
-            case "tinytext" :
+            case "tinytext":
                 $rt = "String";
                 break;
-            case "datetime" :
+            case "datetime":
                 $rt = "Date";
                 break;
-            case "mediumint" :
+            case "mediumint":
                 $rt = "int";
                 break;
-            case "bigint" :
+            case "bigint":
                 $rt = "int";
                 break;
-            case "decimal" :
+            case "decimal":
                 $rt = "Number";
                 break;
-            case "float" :
+            case "float":
                 $rt = "Number";
                 break;
-            default :
+            default:
                 break;
         }
         

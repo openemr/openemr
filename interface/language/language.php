@@ -37,16 +37,16 @@ require_once("language.inc.php");
 switch ($_GET['m']) :
     case 'definition':
         include_once('lang_definition.php');
-            break;
+        break;
     case 'constant':
         include_once('lang_constant.php');
-            break;
+        break;
     case 'language':
         include_once('lang_language.php');
-            break;
+        break;
     case 'manage':
         include_once('lang_manage.php');
-                break;
+        break;
 endswitch;
 ?>
 

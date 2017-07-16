@@ -699,20 +699,20 @@ function gen_hcfa_1500_page($pid, $encounter, &$log, &$claim)
                 $firstName = $partsName[0];
                 $lastName = $partsName[1];
                 $billingProviderName = $lastName . ", " . $firstName;
-              break;
+                break;
             case "3":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName;
-              break;
+                break;
             case "4":
                 $firstName = $partsName[0];
                 $middleName = $partsName[1];
                 $lastName = $partsName[2];
                 $suffixName = $partsName[3];
                 $billingProviderName = $lastName . ", " . $firstName. ", " . $middleName. ", " . $suffixName;
-              break;
+                break;
             default:
                 $log .= "*** individual name has more than 4 parts and may not be desirable on the claim form\n";
                 $firstName = $partsName[0];

@@ -54,13 +54,13 @@ $output->Text('<body bgcolor="#ffffff">');
 $cacheid = md5($Date.$viewtype.$tplview._SETTING_TEMPLATE.$eid.$print.$uid.$pc_username.$theme);
 // display the correct view
 switch ($viewtype) {
-    case 'details' :
+    case 'details':
         $output->Text(pnModAPIFunc('PostCalendar', 'user', 'eventDetail', array('eid'=>$eid,
                                                                              'Date'=>$Date,
                                                                              'print'=>$print,
                                                                              'cacheid'=>$cacheid)));
         break;
-    default :
+    default:
         $output->Text(pnModAPIFunc('postcalendar', 'user', 'buildView', array('Date'=>$Date,
                                                                           'viewtype'=>$viewtype,
                                                                           'cacheid'=>$cacheid)));

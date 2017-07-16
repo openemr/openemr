@@ -118,7 +118,7 @@ class xmltoarray_parser_htmlfix
                 switch ($values[$i]['type']) {
                     case 'cdata':
                         array_push($child, $values[$i]['value']);
-                    break;
+                        break;
                     
                     case 'complete':
                         $name = $values[$i]['tag'];
@@ -128,16 +128,16 @@ class xmltoarray_parser_htmlfix
                                 $child[$name] = $values[$i]['attributes'];
                             }
                         }
-                    break;
+                        break;
                     
                     case 'open':
                         $name = $values[$i]['tag'];
                         $size = isset($child[$name]) ? sizeof($child[$name]) : 0;
                         $child[$name][$size] = $this->_struct_to_array($values, $i);
-                    break;
+                        break;
                     
                     case 'close':
-                    return $child;
+                        return $child;
                     break;
                 }
             }

@@ -38,9 +38,15 @@ function misc_billing_options_report($pid, $encounter, $cols, $id)
                 $pqe = $data['provider_qualifier_code'];
                 if (!empty($pqe)) {
                     switch ($pqe) {
-                        case ($pqe == "DN"): $value = "Referring";
-                        case ($pqe == "DK"): $value = "Ordering";
-                        case ($pqe == "DQ"): $value = "Supervising";
+                        case ($pqe == "DN"):
+                            $value = "Referring";
+                            break;
+                        case ($pqe == "DK"):
+                            $value = "Ordering";
+                            break;
+                        case ($pqe == "DQ"):
+                            $value = "Supervising";
+                            break;
                     }
 
                     $key = 'Box 17 Qualifier';

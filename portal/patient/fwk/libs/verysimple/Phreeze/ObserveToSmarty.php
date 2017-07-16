@@ -36,20 +36,20 @@ class ObserveToSmarty implements IObserver
         $desc = "";
         
         switch ($ltype) {
-            case OBSERVE_DEBUG :
+            case OBSERVE_DEBUG:
                 $desc = "DEBUG";
                 break;
-            case OBSERVE_QUERY :
+            case OBSERVE_QUERY:
                 $desc = "QUERY";
                 $msg = $desc . " " . $msg;
                 break;
-            case OBSERVE_FATAL :
+            case OBSERVE_FATAL:
                 $desc = "FATAL";
                 break;
-            case OBSERVE_INFO :
+            case OBSERVE_INFO:
                 $desc = "INFO";
                 break;
-            case OBSERVE_WARN :
+            case OBSERVE_WARN:
                 $desc = "WARN";
                 break;
         }

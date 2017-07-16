@@ -169,7 +169,7 @@ class ActionRouter implements IRouter
 			 * case UrlWriterMode::MOBILE:
 			 * break;
 			 */
-            default :
+            default:
                 // default is to return the standard browser-based action=%s.%s&%s:
                 return RequestUtil::Get($url_param, $default_action);
                 break;

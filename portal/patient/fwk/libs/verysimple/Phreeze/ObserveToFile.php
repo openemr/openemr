@@ -66,20 +66,20 @@ class ObserveToFile implements IObserver
             }
             
             switch ($ltype) {
-                case OBSERVE_DEBUG :
+                case OBSERVE_DEBUG:
                     fwrite($this->fh, "DEBUG:\t$msg\r\n");
                     break;
-                case OBSERVE_QUERY :
+                case OBSERVE_QUERY:
                     // fwrite($this->fh, "QUERY:\t" . $this->FormatTrace(debug_backtrace()) . " " . $msg . "\r\n");
                     fwrite($this->fh, "QUERY:\t" . $msg . "\r\n");
                     break;
-                case OBSERVE_FATAL :
+                case OBSERVE_FATAL:
                     fwrite($this->fh, "FATAL:\t$msg\r\n");
                     break;
-                case OBSERVE_INFO :
+                case OBSERVE_INFO:
                     fwrite($this->fh, "INFO:\t$msg\r\n");
                     break;
-                case OBSERVE_WARN :
+                case OBSERVE_WARN:
                     fwrite($this->fh, "WARN:\t$msg\r\n");
                     break;
             }

@@ -175,14 +175,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         ///////
         $incX = 0;
         switch ($event['pc_recurrtype']) {
-            case '0' :
-
+            case '0':
                 $events2[] = $event;
 
-              break;
+                break;
       //////
-            case '1' :
-            case '3' :
+            case '1':
+            case '3':
                 $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
                 $rfreq = $event_recurrspec['event_repeat_freq'];
@@ -228,11 +227,10 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     $occurance =& __increment($nd, $nm, $ny, $rfreq, $rtype);
                     list($ny,$nm,$nd) = explode('-', $occurance);
                 }
-              break;
+                break;
 
       //////
-            case '2' :
-
+            case '2':
                 $event_recurrspec = @unserialize($event['pc_recurrspec']);
 
                 $rfreq = $event_recurrspec['event_repeat_on_freq'];
@@ -299,7 +297,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                     list($ny,$nm,$nd) = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
-              break;
+                break;
         }
     }
 

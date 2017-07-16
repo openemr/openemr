@@ -222,17 +222,13 @@ class pnHTML
         switch ($st) {
             default:
             case _PNH_KEEPOUTPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->return = _PNH_KEEPOUTPUT;
                 break;
-            }
             case _PNH_RETURNOUTPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->return = _PNH_RETURNOUTPUT;
                 break;
-            }
         }
 
         return $pre;
@@ -266,18 +262,14 @@ class pnHTML
         $pre = $this->GetInputMode();
         switch ($st) {
             case _PNH_VERBATIMINPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->parse = _PNH_VERBATIMINPUT;
                 break;
-            }
             default:
             case _PNH_PARSEINPUT:
-            {
                 // The ONLY time this should be accessed directly
                 $this->parse = _PNH_PARSEINPUT;
                 break;
-            }
         }
 
         return $pre;
@@ -1062,7 +1054,7 @@ class pnHTML
 
         if (is_array($fieldname)) {
             $output = '';
-            foreach ($fieldname as $n=>$v) {
+            foreach ($fieldname as $n => $v) {
                 $output .= '<input'
                     .' type="hidden"'
                     .' name="'.pnVarPrepForDisplay($n).'"'

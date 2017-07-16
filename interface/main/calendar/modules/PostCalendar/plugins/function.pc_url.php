@@ -77,7 +77,7 @@ function smarty_function_pc_url($args)
     $pcDir = pnVarPrepForOS($pcModInfo['directory']);
 
     switch ($action) {
-        case 'submit' :
+        case 'submit':
             if (!empty($starth)) {
                 $link = pnModURL(__POSTCALENDAR__, 'user', 'submit', array('tplview'=>$template_view,'Date'=>$Date, 'event_starttimeh' => $starth, 'event_startampm' => $ampm));
             } else {
@@ -85,15 +85,15 @@ function smarty_function_pc_url($args)
             }
             break;
 
-        case 'submit-admin' :
+        case 'submit-admin':
             $link = pnModURL(__POSTCALENDAR__, 'admin', 'submit', array('tplview'=>$template_view,'Date'=>$Date));
             break;
 
-        case 'search' :
+        case 'search':
             $link = pnModURL(__POSTCALENDAR__, 'user', 'search');
             break;
 
-        case 'day' :
+        case 'day':
             $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
                                                                   'viewtype'=>'day',
                                                                   'Date'=>$Date,
@@ -104,7 +104,7 @@ function smarty_function_pc_url($args)
                                                                   'print'=>$print), $localpath);
             break;
 
-        case 'week' :
+        case 'week':
             $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
                                                                   'viewtype'=>'week',
                                                                   'Date'=>$Date,
@@ -115,7 +115,7 @@ function smarty_function_pc_url($args)
                                                                   'print'=>$print));
             break;
 
-        case 'month' :
+        case 'month':
             $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
                                                                   'viewtype'=>'month',
                                                                   'Date'=>$Date,
@@ -126,7 +126,7 @@ function smarty_function_pc_url($args)
                                                                   'print'=>$print));
             break;
 
-        case 'year' :
+        case 'year':
             $link = pnModURL(__POSTCALENDAR__, 'user', 'view', array('tplview'=>$template_view,
                                                                   'viewtype'=>'year',
                                                                   'Date'=>$Date,
@@ -137,7 +137,7 @@ function smarty_function_pc_url($args)
                                                                   'print'=>$print));
             break;
 
-        case 'detail' :
+        case 'detail':
             if (isset($eid)) {
                 if (_SETTING_OPEN_NEW_WINDOW && !$popup) {
                     $link = "javascript:opencal($eid,'$Date');";

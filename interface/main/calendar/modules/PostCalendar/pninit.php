@@ -168,12 +168,11 @@ function postcalendar_upgrade($oldversion)
     $cat_table      =  $pntable['postcalendar_categories'];
     
     switch ($oldversion) {
-        case '3.0' :
-        case '3.01' :
-        case '3.02' :
-        case '3.03' :
-        case '3.04' :
-            
+        case '3.0':
+        case '3.01':
+        case '3.02':
+        case '3.03':
+        case '3.04':
             // we need the Date_Calc class
             require_once("modules/$pcDir/pnincludes/Date/Calc.php");
             
@@ -432,7 +431,7 @@ function postcalendar_upgrade($oldversion)
                 }
 
                 switch ($rtype) {
-                    case _EVENT_NONE :
+                    case _EVENT_NONE:
                         $recurrtype = NO_REPEAT;
                         $recurrspec['event_repeat_freq']        = 0;
                         $recurrspec['event_repeat_freq_type']   = 0;
@@ -441,7 +440,7 @@ function postcalendar_upgrade($oldversion)
                         $recurrspec['event_repeat_on_freq']     = 0;
                         break;
                     
-                    case _EVENT_DAILY :
+                    case _EVENT_DAILY:
                         $recurrtype = REPEAT;
                         $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
                         $recurrspec['event_repeat_freq_type']   = REPEAT_EVERY_DAY;
@@ -450,7 +449,7 @@ function postcalendar_upgrade($oldversion)
                         $recurrspec['event_repeat_on_freq']     = 0;
                         break;
                     
-                    case _EVENT_WEEKLY :
+                    case _EVENT_WEEKLY:
                         $recurrtype = REPEAT;
                         $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
                         $recurrspec['event_repeat_freq_type']   = REPEAT_EVERY_WEEK;
@@ -459,7 +458,7 @@ function postcalendar_upgrade($oldversion)
                         $recurrspec['event_repeat_on_freq']     = 0;
                         break;
                     
-                    case _EVENT_MONTHLY :
+                    case _EVENT_MONTHLY:
                         if ($rfreq == _RECUR_SAME_DATE) {
                             $recurrtype = REPEAT;
                             $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
@@ -492,7 +491,7 @@ function postcalendar_upgrade($oldversion)
                         }
                         break;
                     
-                    case _EVENT_YEARLY :
+                    case _EVENT_YEARLY:
                         if ($rfreq == _RECUR_SAME_DATE) {
                             $recurrtype = REPEAT;
                             $recurrspec['event_repeat_freq']        = REPEAT_EVERY;
@@ -565,24 +564,24 @@ function postcalendar_upgrade($oldversion)
             return postcalendar_upgrade('3.1');
             break;
                    
-        case '3.1' :
-        case '3.1.1' :
-        case '3.1.2' :
-        case '3.1.3' :
-        case '3.1.4' :
+        case '3.1':
+        case '3.1.1':
+        case '3.1.2':
+        case '3.1.3':
+        case '3.1.4':
             return postcalendar_upgrade('3.9.0');
             break;
         
-        case '3.9.0' :
-        case '3.9.1' :
-        case '3.9.2' :
+        case '3.9.0':
+        case '3.9.1':
+        case '3.9.2':
             // ading pcSafeMode
             pnModSetVar(__POSTCALENDAR__, 'pcSafeMode', '0');
             return postcalendar_upgrade('3.9.3');
             break;
         
-        case '3.9.3' :
-        case '3.9.3.1' :
+        case '3.9.3':
+        case '3.9.3.1':
             // adding indexes
             $sql = "ALTER TABLE $events_table 
 					ADD INDEX basic_event (pc_catid,pc_aid,pc_eventDate,pc_endDate,pc_eventstatus,pc_sharing,pc_topic)";

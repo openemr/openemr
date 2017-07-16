@@ -48,7 +48,7 @@ function smarty_function_pc_sort_events($params, &$smarty)
     }
     
     switch ($sort) {
-        case 'category' :
+        case 'category':
             if (strtolower($order) == 'asc') {
                 $function = 'sort_byCategoryA';
             }
@@ -58,7 +58,7 @@ function smarty_function_pc_sort_events($params, &$smarty)
             }
             break;
             
-        case 'title' :
+        case 'title':
             if (strtolower($order) == 'asc') {
                 $function = 'sort_byTitleA';
             }
@@ -68,7 +68,7 @@ function smarty_function_pc_sort_events($params, &$smarty)
             }
             break;
             
-        case 'time' :
+        case 'time':
             if (strtolower($order) == 'asc') {
                 $function = 'sort_byTimeA';
             }

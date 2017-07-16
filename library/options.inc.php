@@ -1044,29 +1044,29 @@ function generate_form_field($frow, $currvalue)
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
         switch (count($tmp)) {
-            case "4": {
+            case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
                 $reslist = $tmp[3];
-            } break;
-            case "3": {
+                break;
+            case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
-            } break;
-            case "2": {
+                break;
+            case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
-            } break;
-            case "1": {
+                break;
+            case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
-            } break;
-            default: {
+                break;
+            default:
                 $restype = $resdate = $resnote = "";
-            } break;
+                break;
         }
 
         $maxlength = $frow['max_length'];
@@ -1393,8 +1393,10 @@ function generate_print_field($frow, $currvalue)
         " />";
         *****************************************************************/
         if ($tmp === '') {
-            $tmp = '&nbsp;'; } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+            $tmp = '&nbsp;';
+        } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+        }
 
             echo $tmp;
     } // pharmacy list
@@ -1424,8 +1426,10 @@ function generate_print_field($frow, $currvalue)
         " />";
         *****************************************************************/
         if ($tmp === '') {
-            $tmp = '&nbsp;'; } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+            $tmp = '&nbsp;';
+        } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+        }
 
             echo $tmp;
     } // squads
@@ -1454,8 +1458,10 @@ function generate_print_field($frow, $currvalue)
         " />";
         *****************************************************************/
         if ($tmp === '') {
-            $tmp = '&nbsp;'; } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+            $tmp = '&nbsp;';
+        } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+        }
 
             echo $tmp;
     } // Address book.
@@ -1483,8 +1489,10 @@ function generate_print_field($frow, $currvalue)
         " />";
         *****************************************************************/
         if ($tmp === '') {
-            $tmp = '&nbsp;'; } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+            $tmp = '&nbsp;';
+        } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+        }
 
             echo $tmp;
     } // insurance company list
@@ -1548,8 +1556,10 @@ function generate_print_field($frow, $currvalue)
         }
 
         if ($tmp === '') {
-            $tmp = '&nbsp;'; } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES); }
+            $tmp = '&nbsp;';
+        } else {
+            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+        }
 
             echo $tmp;
     } // a set of labeled checkboxes
@@ -1762,29 +1772,29 @@ function generate_print_field($frow, $currvalue)
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
         switch (count($tmp)) {
-            case "4": {
+            case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
                 $reslist = $tmp[3];
-            } break;
-            case "3": {
+                break;
+            case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
-            } break;
-            case "2": {
+                break;
+            case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
-            } break;
-            case "1": {
+                break;
+            case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
-            } break;
-            default: {
+                break;
+            default:
                 $restype = $resdate = $resnote = "";
-            } break;
+                break;
         }
 
         $fldlength = empty($frow['fld_length']) ?  20 : $frow['fld_length'];
@@ -2163,29 +2173,29 @@ function generate_display_field($frow, $currvalue)
     else if ($data_type == 28 || $data_type == 32) {
         $tmp = explode('|', $currvalue);
         switch (count($tmp)) {
-            case "4": {
+            case "4":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
                 $reslist = $tmp[3];
-            } break;
-            case "3": {
+                break;
+            case "3":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = $tmp[2];
-            } break;
-            case "2": {
+                break;
+            case "2":
                 $resnote = $tmp[0];
                 $restype = $tmp[1];
                 $resdate = "";
-            } break;
-            case "1": {
+                break;
+            case "1":
                 $resnote = $tmp[0];
                 $resdate = $restype = "";
-            } break;
-            default: {
+                break;
+            default:
                 $restype = $resdate = $resnote = "";
-            } break;
+                break;
         }
 
         $s .= "<table cellpadding='0' cellspacing='0'>";
@@ -2222,7 +2232,8 @@ function generate_display_field($frow, $currvalue)
                     $code_desc = "( ".$smoke_codes[$reslist]." )";
                 }
 
-                  $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $reslist) . "&nbsp;".text($code_desc)."&nbsp;&nbsp;&nbsp;&nbsp;</td>";}
+                $s .= "<td class='text' valign='top'>" . generate_display_field(array('data_type'=>'1','list_id'=>$list_id), $reslist) . "&nbsp;".text($code_desc)."&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+            }
 
             if (!empty($resnote)) {
                 $s .= "<td class='text' valign='top'>" . htmlspecialchars($resnote, ENT_NOQUOTES) . "&nbsp;&nbsp;</td>";
@@ -3182,7 +3193,7 @@ function generate_layout_validation($form_id)
         }
 
         switch ($data_type) {
-            case  1:
+            case 1:
             case 11:
             case 12:
             case 13:
@@ -3194,7 +3205,7 @@ function generate_layout_validation($form_id)
                 "  if (f.$fldname.focus) f.$fldname.focus();\n" .
                 "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
                 " }\n";
-              break;
+                break;
             case 27: // radio buttons
                 echo
                 " var i = 0;\n" .
@@ -3202,10 +3213,10 @@ function generate_layout_validation($form_id)
                 " if (i >= f.$fldname.length) {\n" .
                 "  		errMsgs[errMsgs.length] = '" . addslashes(xl_layout_label($fldtitle)) . "'; \n" .
                 " }\n";
-              break;
-            case  2:
-            case  3:
-            case  4:
+                break;
+            case 2:
+            case 3:
+            case 4:
             case 15:
                 echo
                 " if (trimlen(f.$fldname.value) == 0) {\n" .
@@ -3217,7 +3228,7 @@ function generate_layout_validation($form_id)
                 " 		$('#" . $fldname . "').attr('style',''); " .
                 "  		$('#" . $fldname . "').parents('div.tab').each( function(){ var tabHeader = $('#header_' + $(this).attr('id') ); tabHeader.css('color','');  } ); " .
                 " } \n";
-              break;
+                break;
             case 36: // multi select
                 echo
                 " var multi_select=f['$fldname"."[]']; \n " .

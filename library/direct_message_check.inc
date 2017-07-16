@@ -52,18 +52,22 @@ function phimail_connect(&$phimail_error)
     $phimail_secure = true;
     switch ($phimail_server['scheme']) {
         case "tcp":
-        case "http": $server = "tcp://".$phimail_server['host'];
+        case "http":
+            $server = "tcp://".$phimail_server['host'];
               $phimail_secure = false;
-               break;
-        case "https": $server = "ssl://" . $phimail_server['host']
+            break;
+        case "https":
+            $server = "ssl://" . $phimail_server['host']
                . ':' . $phimail_server['port'];
-               break;
+            break;
         case "ssl":
         case "sslv3":
-        case "tls": $server = $GLOBALS['phimail_server_address'];
-               break;
-        default: $phimail_error = 'C2';
-               return false;
+        case "tls":
+            $server = $GLOBALS['phimail_server_address'];
+            break;
+        default:
+            $phimail_error = 'C2';
+            return false;
     }
 
     if ($phimail_secure) {

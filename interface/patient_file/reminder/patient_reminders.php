@@ -108,12 +108,14 @@ for ($i = 0; $i < count($sort); $i++) {
 for ($i = 0; $i < count($sort); $i++) {
     if ($sortby == $sort[$i]) {
         switch ($sortorder) {
-            case "asc"      : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
+            case "asc":
+                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=desc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortup.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Up'), ENT_QUOTES)."\"></a>";
-                        break;
-            case "desc"     : $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
+                break;
+            case "desc":
+                $sortlink[$i] = "<a href=\"patient_reminders.php?patient_id=" . attr($patient_id) . "&mode=" . attr($mode) . "&sortby=" . attr($sortby) . "&sortorder=asc\" onclick=\"top.restoreSession()\">" .
                           "<img src=\"../../../images/sortdown.gif\" border=0 alt=\"".htmlspecialchars(xl('Sort Down'), ENT_QUOTES)."\"></a>";
-                        break;
+                break;
         } break;
     }
 }

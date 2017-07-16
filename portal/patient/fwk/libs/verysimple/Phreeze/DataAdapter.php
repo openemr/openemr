@@ -101,19 +101,19 @@ class DataAdapter implements IObservable
             // the driver was not explicitly provided so we will try to create one from
             // the connection setting based on the database types that we do know about
             switch ($this->ConnectionSetting->Type) {
-                case "mysql" :
+                case "mysql":
                     include_once("verysimple/DB/DataDriver/MySQL.php");
                     $this->_driver = new DataDriverMySQL();
                     break;
-                case "mysqli" :
+                case "mysqli":
                     include_once("verysimple/DB/DataDriver/MySQLi.php");
                     $this->_driver = new DataDriverMySQLi();
                     break;
-                case "sqlite" :
+                case "sqlite":
                     include_once("verysimple/DB/DataDriver/SQLite.php");
                     $this->_driver = new DataDriverSQLite();
                     break;
-                default :
+                default:
                     try {
                         Includer::IncludeFile("verysimple/DB/DataDriver/" . $this->ConnectionSetting->Type . ".php");
                         $classname = "DataDriver" . $this->ConnectionSetting->Type;

@@ -105,66 +105,66 @@ if ($is_lbf) {
     switch ($name) {
         case "weight":
              $titleGraph = $title." (".xl("lbs").")";
-          break;
+            break;
         case "weight_metric":
              $titleGraph = $title." (".xl("kg").")";
              $multiplier = getLbstoKgMultiplier();
              $name = "weight";
-          break;
+            break;
         case "height":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "height_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name = "height";
-          break;
+            break;
         case "bps":
              $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
              $titleGraphLine1 = xl("BP Systolic");
              $titleGraphLine2 = xl("BP Diastolic");
-          break;
+            break;
         case "bpd":
              $titleGraph = xl("Blood Pressure")." (".xl("mmHg").")";
              $titleGraphLine1 = xl("BP Diastolic");
              $titleGraphLine2 = xl("BP Systolic");
-          break;
+            break;
         case "pulse":
              $titleGraph = $title." (".xl("per min").")";
-          break;
+            break;
         case "respiration":
              $titleGraph = $title." (".xl("per min").")";
-          break;
+            break;
         case "temperature":
              $titleGraph = $title." (".xl("F").")";
-          break;
+            break;
         case "temperature_metric":
              $titleGraph = $title." (".xl("C").")";
              $isConvertFtoC = 1;
              $name="temperature";
-          break;
+            break;
         case "oxygen_saturation":
              $titleGraph = $title." (".xl("%").")";
-          break;
+            break;
         case "head_circ":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "head_circ_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name="head_circ";
-          break;
+            break;
         case "waist_circ":
              $titleGraph = $title." (".xl("in").")";
-          break;
+            break;
         case "waist_circ_metric":
              $titleGraph = $title." (".xl("cm").")";
              $multiplier = getIntoCmMultiplier();
              $name="waist_circ";
-          break;
+            break;
         case "BMI":
              $titleGraph = $title." (".xl("kg/m^2").")";
-          break;
+            break;
         default:
              $titleGraph = $title;
     }

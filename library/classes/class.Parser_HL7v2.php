@@ -56,21 +56,21 @@ class Parser_HL7v2
                     );
                     $this->map[$count]['type'] = $type;
                     $this->map[$count]['position'] = 0;
-                break;
+                    break;
 
                 default:
                     $this->message_type = trim($type);
                     $this->__default_segment_parser($segment);
                     $this->map[$count]['type'] = $type;
                     $this->map[$count]['position'] = count($this->message[$type]);
-                break;
+                    break;
             } // end switch type
         }
 
         // Depending on message type, handle differently
         switch ($this->message_type) {
             default:
-            return ('Message type '.$this->message_type.' is '.
+                return ('Message type '.$this->message_type.' is '.
                 'currently unhandled'."<br/>\n");
             break;
         } // end switch

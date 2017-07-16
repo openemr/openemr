@@ -226,7 +226,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us0_patref = $us0_patref + $iter{'pat_code'};
                 }
-                  break;
+                break;
             case $iter{'user'} = $user_final_list[1]:
                 $us1_user = $iter{'user'};
                 $us1_fee = $us1_fee + $iter{'fee'};
@@ -247,7 +247,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us1_patref = $us1_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[2]:
                 $us2_user = $iter{'user'};
                 $us2_fee = $us2_fee + $iter{'fee'};
@@ -268,7 +268,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us2_patref = $us2_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[3]:
                 $us3_user = $iter{'user'};
                 $us3_fee = $us3_fee + $iter{'fee'};
@@ -289,7 +289,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us3_patref = $us3_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[4]:
                 $us4_user = $iter{'user'};
                 $us4_fee = $us4_fee + $iter{'fee'};
@@ -310,7 +310,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us4_patref = $us4_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[5]:
                 $us5_user = $iter{'user'};
                 $us5_fee = $us5_fee + $iter{'fee'};
@@ -331,7 +331,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us5_patref = $us5_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[6]:
                 $us6_user = $iter{'user'};
                 $us6_fee = $us6_fee + $iter{'fee'};
@@ -352,7 +352,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us6_patref = $us6_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[7]:
                 $us7_user = $iter{'user'};
                 $us7_fee = $us7_fee + $iter{'fee'};
@@ -373,7 +373,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us7_patref = $us7_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[8]:
                 $us8_user = $iter{'user'};
                 $us8_fee = $us8_fee + $iter{'fee'};
@@ -394,7 +394,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us8_patref = $us8_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[9]:
                 $us9_user = $iter{'user'};
                 $us9_fee = $us9_fee + $iter{'fee'};
@@ -415,7 +415,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us9_patref = $us9_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[10]:
                 $us10_user = $iter{'user'};
                 $us10_fee = $us10_fee + $iter{'fee'};
@@ -436,7 +436,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us10_patref = $us10_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[11]:
                 $us11_user = $iter{'user'};
                 $us11_fee = $us11_fee + $iter{'fee'};
@@ -457,7 +457,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us11_patref = $us11_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[12]:
                 $us12_user = $iter{'user'};
                 $us12_fee = $us12_fee + $iter{'fee'};
@@ -478,7 +478,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us12_patref = $us12_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[13]:
                 $us13_user = $iter{'user'};
                 $us13_fee = $us13_fee + $iter{'fee'};
@@ -499,7 +499,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us13_patref = $us13_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[14]:
                 $us14_user = $iter{'user'};
                 $us14_fee = $us14_fee + $iter{'fee'};
@@ -520,7 +520,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us14_patref = $us14_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[15]:
                 $us15_user = $iter{'user'};
                 $us15_fee = $us15_fee + $iter{'fee'};
@@ -541,7 +541,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us15_patref = $us15_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[16]:
                 $us16_user = $iter{'user'};
                 $us16_fee = $us16_fee + $iter{'fee'};
@@ -562,7 +562,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us16_patref = $us16_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[17]:
                 $us17_user = $iter{'user'};
                 $us17_fee = $us17_fee + $iter{'fee'};
@@ -583,7 +583,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us17_patref = $us17_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $user_final_list[18]:
                 $us18_user = $iter{'user'};
                 $us18_fee = $us18_fee + $iter{'fee'};
@@ -604,7 +604,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us18_patref = $us18_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'user'} = $fuser_final_list[19]:
                 $us19_user = $iter{'user'};
                 $us19_fee = $us19_fee + $iter{'fee'};
@@ -625,7 +625,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $us19_patref = $us19_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
         }
 
         // Case statment to tally information by Provider
@@ -650,7 +650,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro0_patref = $pro0_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[1]:
                 $pro1_user = $iter{'provider_id'};
                 $pro1_fee = $pro1_fee + $iter{'fee'};
@@ -671,7 +671,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro1_patref = $pro1_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[2]:
                 $pro2_user = $iter{'provider_id'};
                 $pro2_fee = $pro2_fee + $iter{'fee'};
@@ -692,7 +692,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro2_patref = $pro2_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[3]:
                 $pro3_user = $iter{'provider_id'};
                 $pro3_fee = $pro3_fee + $iter{'fee'};
@@ -713,7 +713,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro3_patref = $pro3_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[4]:
                 $pro4_user = $iter{'provider_id'};
                 $pro4_fee = $pro4_fee + $iter{'fee'};
@@ -734,7 +734,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro4_patref = $pro4_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[5]:
                 $pro5_user = $iter{'provider_id'};
                 $pro5_fee = $pro5_fee + $iter{'fee'};
@@ -755,7 +755,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro5_patref = $pro5_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[6]:
                 $pro6_user = $iter{'provider_id'};
                 $pro6_fee = $pro6_fee + $iter{'fee'};
@@ -776,7 +776,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro6_patref = $pro6_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[7]:
                 $pro7_user = $iter{'provider_id'};
                 $pro7_fee = $pro7_fee + $iter{'fee'};
@@ -797,7 +797,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro7_patref = $pro7_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[8]:
                 $pro8_user = $iter{'provider_id'};
                 $pro8_fee = $pro8_fee + $iter{'fee'};
@@ -818,7 +818,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro8_patref = $pro8_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[9]:
                 $pro9_user = $iter{'provider_id'};
                 $pro9_fee = $pro9_fee + $iter{'fee'};
@@ -839,7 +839,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro9_patref = $pro9_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[10]:
                 $pro10_user = $iter{'provider_id'};
                 $pro10_fee = $pro10_fee + $iter{'fee'};
@@ -860,7 +860,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro10_patref = $pro10_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[11]:
                 $pro11_user = $iter{'provider_id'};
                 $pro11_fee = $pro11_fee + $iter{'fee'};
@@ -881,7 +881,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro11_patref = $pro11_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[12]:
                 $pro12_user = $iter{'provider_id'};
                 $pro12_fee = $pro12_fee + $iter{'fee'};
@@ -902,7 +902,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro12_patref = $pro12_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[13]:
                 $pro13_user = $iter{'provider_id'};
                 $pro13_fee = $pro13_fee + $iter{'fee'};
@@ -923,7 +923,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro13_patref = $pro13_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[14]:
                 $pro14_user = $iter{'provider_id'};
                 $pro14_fee = $pro14_fee + $iter{'fee'};
@@ -944,7 +944,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro14_patref = $pro14_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[15]:
                 $pro15_user = $iter{'provider_id'};
                 $pro15_fee = $pro15_fee + $iter{'fee'};
@@ -965,7 +965,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro15_patref = $pro15_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[16]:
                 $pro16_user = $iter{'provider_id'};
                 $pro16_fee = $pro16_fee + $iter{'fee'};
@@ -986,7 +986,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro16_patref = $pro16_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[17]:
                 $pro17_user = $iter{'provider_id'};
                 $pro17_fee = $pro17_fee + $iter{'fee'};
@@ -1007,7 +1007,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro17_patref = $pro17_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[18]:
                 $pro18_user = $iter{'provider_id'};
                 $pro18_fee = $pro18_fee + $iter{'fee'};
@@ -1028,7 +1028,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro18_patref = $pro18_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
             case $iter{'provider_id'} = $provider_final_list[19]:
                 $pro19_user = $iter{'provider_id'};
                 $pro19_fee = $pro19_fee + $iter{'fee'};
@@ -1049,7 +1049,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                 if (($iter{'pat_code'}) < 0 and ($iter{'code_type'}) === 'Patient Payment' and $iter{'paytype'} != 'PCP') {
                     $pro19_patref = $pro19_patref + $iter{'pat_code'};
                 }
-                   break;
+                break;
         }
 
         if ($the_first_time === 1) {

@@ -458,15 +458,20 @@ function edih_271_text($segments, $delimiter, $err_seg = '')
             }
 
             switch ((string)$loopid) {
-                case '2000A': $loopid = '2100A';
-break;     // edih_change_loop($lptest, &$lpval)
-                case '2000B': $loopid = '2100B';
-break;
-                case '2000C': $loopid = '2100C';
-break;
-                case '2000D': $loopid = '2100D';
-break;
-                default: $loopid = $loopid;
+                case '2000A':
+                    $loopid = '2100A';
+                    break;     // edih_change_loop($lptest, &$lpval)
+                case '2000B':
+                    $loopid = '2100B';
+                    break;
+                case '2000C':
+                    $loopid = '2100C';
+                    break;
+                case '2000D':
+                    $loopid = '2100D';
+                    break;
+                default:
+                    $loopid = $loopid;
             }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
@@ -745,16 +750,21 @@ function edih_277_text($segments, $delimiter, $stpos = '')
             }
 
             switch ((string)$loopid) {
-                case '2000A': $loopid = '2100A';
-break;     // edih_change_loop($lptest, &$lpval)
-                case '2000B': $loopid = '2100B';
-break;
-                case '2000C': $loopid = '2100C';
-break;
-                case '2000D': $loopid = '2100D';
-break;
-                case '2000E': $loopid = '2100E';
-break;
+                case '2000A':
+                    $loopid = '2100A';
+                    break;     // edih_change_loop($lptest, &$lpval)
+                case '2000B':
+                    $loopid = '2100B';
+                    break;
+                case '2000C':
+                    $loopid = '2100C';
+                    break;
+                case '2000D':
+                    $loopid = '2100D';
+                    break;
+                case '2000E':
+                    $loopid = '2100E';
+                    break;
             }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
@@ -770,16 +780,21 @@ break;
             }
 
             switch ((string)$loopid) {
-                case '2100A': $loopid = '2200A';
-break;
-                case '2100B': $loopid = '2200B';
-break;
-                case '2100C': $loopid = '2200C';
-break;
-                case '2100D': $loopid = '2200D';
-break;
-                case '2100E': $loopid = '2200E';
-break;
+                case '2100A':
+                    $loopid = '2200A';
+                    break;
+                case '2100B':
+                    $loopid = '2200B';
+                    break;
+                case '2100C':
+                    $loopid = '2200C';
+                    break;
+                case '2100D':
+                    $loopid = '2200D';
+                    break;
+                case '2100E':
+                    $loopid = '2200E';
+                    break;
             }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;
@@ -795,10 +810,12 @@ break;
             }
 
             switch ((string)$loopid) {
-                case '2200D': $loopid = '2220D';
-break;
-                case '2200E': $loopid = '2220E';
-break;
+                case '2200D':
+                    $loopid = '2220D';
+                    break;
+                case '2200E':
+                    $loopid = '2220E';
+                    break;
             }
 
             $str_html .= "<tr><td class='btloop'>$loopid</td><td class='btnum'>$key</td><td class='btseg'>$seg</td></tr>" .PHP_EOL;

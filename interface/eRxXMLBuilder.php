@@ -303,15 +303,20 @@ class eRxXMLBuilder
         switch ($eRxUserRole) {
             case 'admin':
             case 'manager':
-            case 'nurse':               $newCropUser = 'Staff';
-break;
-            case 'doctor':              $newCropUser = 'LicensedPrescriber';
-break;
-            case 'supervisingDoctor':   $newCropUser = 'SupervisingDoctor';
-break;
-            case 'midlevelPrescriber':  $newCropUser = 'MidlevelPrescriber';
-break;
-            default:                    $newCropUser = '';
+            case 'nurse':
+                $newCropUser = 'Staff';
+                break;
+            case 'doctor':
+                $newCropUser = 'LicensedPrescriber';
+                break;
+            case 'supervisingDoctor':
+                $newCropUser = 'SupervisingDoctor';
+                break;
+            case 'midlevelPrescriber':
+                $newCropUser = 'MidlevelPrescriber';
+                break;
+            default:
+                $newCropUser = '';
         }
 
         $element = $this->getDocument()->createElement('UserRole');

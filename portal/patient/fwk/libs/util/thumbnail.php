@@ -32,13 +32,13 @@ class thumbnail
     public function imageCreateFromFile($filename, $imageType)
     {
         switch ($imageType) {
-            case IMAGETYPE_GIF :
+            case IMAGETYPE_GIF:
                 return imagecreatefromgif($filename);
-            case IMAGETYPE_JPEG :
+            case IMAGETYPE_JPEG:
                 return imagecreatefromjpeg($filename);
-            case IMAGETYPE_PNG :
+            case IMAGETYPE_PNG:
                 return imagecreatefrompng($filename);
-            default :
+            default:
                 return false;
         }
     }
@@ -81,13 +81,13 @@ class thumbnail
         }
         
         switch ($extension) {
-            case 'gif' :
+            case 'gif':
                 $function = 'imagegif';
                 break;
-            case 'png' :
+            case 'png':
                 $function = 'imagepng';
                 break;
-            default :
+            default:
                 $function = 'imagejpeg';
                 break;
         }

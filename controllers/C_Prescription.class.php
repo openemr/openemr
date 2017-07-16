@@ -727,7 +727,7 @@ class C_Prescription extends Controller
                 break;
             case (xl("Print")." (".xl("HTML").")"):
                                 $this->_state = false;
-                        return $this->_print_prescription_css($p, $dummy);
+                return $this->_print_prescription_css($p, $dummy);
                         break;
             case xl("Print To Fax"):
                 $this->_state = false;

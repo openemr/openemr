@@ -236,10 +236,12 @@ class Filtreatment
             // Quote if not a number or a numeric string
         if (!is_numeric($value)) {
             switch ($db_type) {
-                case 'MYSQL': $value = add_escape_custom($value);
-break;
-                case 'PGSQL': $value = pg_escape_string($value);
-break;
+                case 'MYSQL':
+                    $value = add_escape_custom($value);
+                    break;
+                case 'PGSQL':
+                    $value = pg_escape_string($value);
+                    break;
             }
         }
 
@@ -272,17 +274,18 @@ break;
             // verify the string
             case '1':
                 $s = ( preg_match($regexfull, $value) ? false : true );
-            break;
+                break;
 
             // cleanup the string
             case '2':
                 $value = preg_replace($regexfull, '', $value);
-            break;
+                break;
 
             // if $cv is not specified or it's wrong
-            default: if (preg_match($regexfull, $value)) {
+            default:
+                if (preg_match($regexfull, $value)) {
                     $s = false;
-            }
+                }
         }
 
         return ( $s ? $value : false );

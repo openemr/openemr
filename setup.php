@@ -227,7 +227,7 @@ if (($config == 1) && ($state < 4)) {
 <LABEL FOR='inst2'><INPUT TYPE='RADIO' ID='inst2' NAME='inst' VALUE='2'>I have already created the database</label><br>\n
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
-        break;
+            break;
 
         case 2:
             echo "<b>Step $state</b><br><br>\n";
@@ -350,10 +350,9 @@ if (($config == 1) && ($state < 4)) {
             echo "</TABLE>
 <br>
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>";
-        break;
+            break;
 
         case 3:
-
             // Form Validation
             //   (applicable if not cloning from another database)
 
@@ -576,7 +575,7 @@ if (($config == 1) && ($state < 4)) {
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
-        break;
+            break;
         case 4:
             echo "<b>Step $state</b><br><br>\n";
             echo "Installing and Configuring Access Controls (php-GACL)...<br><br>";
@@ -602,7 +601,7 @@ if (($config == 1) && ($state < 4)) {
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
-        break;
+            break;
 
         case 5:
             echo "<b>Step $state</b><br><br>\n";
@@ -649,7 +648,7 @@ if (($config == 1) && ($state < 4)) {
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
-    break;
+            break;
 
         case 6:
             echo "<b>Step $state</b><br><br>\n";
@@ -687,7 +686,7 @@ it is important to secure these directories. Additionally, some settings are req
 <br>\n
 <INPUT TYPE='SUBMIT' VALUE='Continue'><br></FORM><br>\n";
 
-    break;
+            break;
 
         case 0:
         default:
