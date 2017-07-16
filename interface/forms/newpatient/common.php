@@ -224,9 +224,7 @@ function cancelClicked() {
               }
 
               // Fetch acl for category of given encounter. Only if has write auth for a category, then can create an encounter of that category.
-              $postCalendarCategoryACO = fetchPostCalendarCategoryACO($catId);
-              $postCalendarCategoryACO = explode('|',$postCalendarCategoryACO);
-              //$authPostCalendarCategory = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1]);
+              $postCalendarCategoryACO = explode('|',fetchPostCalendarCategoryACO($catId));
               $authPostCalendarCategoryWrite = acl_check($postCalendarCategoryACO[0], $postCalendarCategoryACO[1],'','write');
 
               if (!$authPostCalendarCategoryWrite) {
