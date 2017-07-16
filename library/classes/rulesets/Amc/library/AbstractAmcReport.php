@@ -64,9 +64,9 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_manualLabNumber = $options['labs_manual'];
     }
     
-    public abstract function createNumerator();
-    public abstract function createDenominator();
-    public abstract function getObjectToCount();
+    abstract public function createNumerator();
+    abstract public function createDenominator();
+    abstract public function getObjectToCount();
         
     public function getResults()
     {

@@ -189,7 +189,7 @@ class Criteria
      * used by inherited Criteria classes because we don't know what table this is associated
      * with, so we can't translate property names to column names.
      */
-    private final function Prepare()
+    final private function Prepare()
     {
         if (! $this->_is_prepared) {
             
@@ -363,17 +363,17 @@ class Criteria
     public function OnPrepare()
     {
     }
-    public final function GetWhere()
+    final public function GetWhere()
     {
         $this->Prepare ();
         return $this->_where;
     }
-    public final function GetJoin()
+    final public function GetJoin()
     {
         $this->Prepare ();
         return $this->_join;
     }
-    public final function GetOrder()
+    final public function GetOrder()
     {
         $this->Prepare ();
         return $this->_order;

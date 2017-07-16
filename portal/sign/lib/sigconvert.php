@@ -293,7 +293,7 @@ class sigToSvg
      * Svg Mime Type
      * @return string
      */
-    static public function getMimeType()
+    public static function getMimeType()
     {
         return 'image/svg+xml';
     }

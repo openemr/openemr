@@ -21,7 +21,7 @@ class MainMenuRole
      *
      * @return string Identifier for the MainMenuRole
      */
-    static public function getMainMenuRole()
+    public static function getMainMenuRole()
     {
         $userService = new UserService();
         $user = $userService->getCurrentlyLoggedInUser();
@@ -38,7 +38,7 @@ class MainMenuRole
      * @var string $selected Current MainMenuRole for current users.
      * @return string Html select element to list the MainMenuRole options.
      */
-    static public function displayMainMenuRoleSelector($selected = "")
+    public static function displayMainMenuRoleSelector($selected = "")
     {
         $output = "<select name='main_menu_role'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";

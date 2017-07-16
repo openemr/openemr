@@ -45,7 +45,7 @@ abstract class AbstractCqmReport implements RsReportIF
         $this->_endMeasurement = $tempDateArray[0] . "-12-31 23:59:59";
     }
 
-    public abstract function createPopulationCriteria();
+    abstract public function createPopulationCriteria();
 
     public function getBeginMeasurement()
     {

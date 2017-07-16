@@ -46,8 +46,8 @@ abstract class ClinicalType
      * 
      * @return true if type applies, false ow
      */
-    public abstract function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null );
-    public abstract function getListId();
+    abstract public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null );
+    abstract public function getListId();
     
     public function getOptionId()
     {

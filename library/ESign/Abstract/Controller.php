@@ -54,18 +54,18 @@ abstract class Abstract_Controller implements ViewableIF
      * The controller method gets all the parameters that match
      * data-* within the button's attributes.
      */
-    public abstract function esign_form_view();
+    abstract public function esign_form_view();
     
     /**
      * Triggered when the module's form is saved (refresh
      * the log.)
      */
-    public abstract function esign_log_view();
+    abstract public function esign_log_view();
     
     /**
      * Triggered when the ESign Sigature form is submitted
      */
-    public abstract function esign_form_submit();
+    abstract public function esign_form_submit();
     
     protected function getRequest()
     {

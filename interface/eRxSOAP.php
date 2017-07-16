@@ -47,7 +47,7 @@ class eRxSOAP
      * @param  string        $xml XML for processing
      * @return array|boolean      Array on success, false on failure
      */
-    static public function htmlFixXmlToArray($xml)
+    public static function htmlFixXmlToArray($xml)
     {
         $xmltoarray = new xmltoarray_parser_htmlfix();                  //create instance of class
 
