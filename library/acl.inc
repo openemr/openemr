@@ -837,27 +837,14 @@
   // The caller inserts this between <select> and </select> tags.
   //
   function gen_aco_html_options($default='') {
-    global $phpgacl_location;
-    require_once("$phpgacl_location/gacl_api.class.php");
+    $acoArray = gen_aco_array();
     $s = '';
-    $gacl = new gacl_api();
-    // collect and sort all aco objects
-    $list_aco_objects = $gacl->get_objects(NULL, 0, 'ACO');
-    ksort($list_aco_objects);
-    foreach ($list_aco_objects as $seckey => $dummy) {
-      if (empty($dummy)) continue;
-      asort($list_aco_objects[$seckey]);
-      $aco_section_data = $gacl->get_section_data($seckey, 'ACO');
-      $aco_section_title = $aco_section_data[3];
-      $s .= "<optgroup label='" . xla($aco_section_title) . "'>\n";
-      foreach($list_aco_objects[$seckey] as $acokey) {
-        $aco_id = $gacl->get_object_id($seckey, $acokey,'ACO');
-        $aco_data = $gacl->get_object_data($aco_id, 'ACO');
-        $aco_title = $aco_data[0][3];
-        $optkey = "$seckey|$acokey";
-        $s .= "<option value='" . attr($optkey) . "'";
-        if ($optkey == $default) $s .= ' selected';
-        $s .= ">" . xlt($aco_title) . "</option>";
+    foreach ($acoArray as $section => $acos_array) {
+      $s .= "<optgroup label='" . xla($section) . "'>\n";
+      foreach($acos_array as $aco_array) {
+        $s .= "<option value='" . attr($aco_array['value']) . "'";
+        if ($aco_array['value'] == $default) $s .= ' selected';
+        $s .= ">" . xlt($aco_array['name']) . "</option>";
       }
       $s .= "</optgroup>";
     }
