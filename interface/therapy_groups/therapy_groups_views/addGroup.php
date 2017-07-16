@@ -195,4 +195,3 @@
 <?php endif;?>
 
 <?php require 'footer.php'; ?>
-

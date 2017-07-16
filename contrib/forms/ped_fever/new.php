@@ -74,4 +74,3 @@ formHeader("Pediatric Fever Evaluation");
 formFooter();
 
 ?>
-

@@ -76,20 +76,20 @@
  </rule>
 
  <!-- There MUST NOT be trailing whitespace at the end of non-blank lines. -->
- <!--<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+ <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
   <properties>
    <property name="ignoreBlankLines" value="true"/>
   </properties>
- </rule>--><!-- FIXABLE -->
- <!-- <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile">
+ </rule>
+ <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.StartFile">
   <severity>0</severity>
- </rule> --><!-- FIXABLE -->
- <!--<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile">
+ </rule>
+ <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile">
   <severity>0</severity>
  </rule>
  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
   <severity>0</severity>
- </rule>-->
+ </rule>
 
  <!-- There MUST NOT be more than one statement per line. -->
  <rule ref="Generic.Formatting.DisallowMultipleStatements"/>

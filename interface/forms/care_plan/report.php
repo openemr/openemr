@@ -61,4 +61,4 @@ function care_plan_report($pid, $encounter, $cols, $id)
         <?php
     }
 }
-?> 
+?>

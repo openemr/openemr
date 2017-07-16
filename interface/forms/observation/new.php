@@ -354,6 +354,3 @@ $check_res = $formid ? $check_res : array();
 <?php
 formFooter();
 ?>
-
-
-

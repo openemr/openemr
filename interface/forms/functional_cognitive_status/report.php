@@ -63,4 +63,4 @@ function functional_cognitive_status_report($pid, $encounter, $cols, $id)
         <?php
     }
 }
-?> 
+?>
