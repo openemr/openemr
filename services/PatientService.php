@@ -26,13 +26,33 @@ class PatientService
 {
 
   /**
+   * In the case where a patient doesn't have a picture uploaded,
+   * this value will be returned so that the document controller
+   * can return an empty response.
+   */
+    private $patient_picture_fallback_id = -1;
+
+    private $pid;
+
+  /**
    * Default constructor.
    */
     public function __construct()
     {
     }
 
+    public function setPid($pid)
+    {
+        $this->pid = $pid;
+    }
+
+    public function getPid()
+    {
+        return $this->pid;
+    }
+
   /**
+   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
    * @param $pid unique patient id
    * @return recordset
    */
@@ -53,6 +73,7 @@ class PatientService
     }
 
   /**
+   * TODO: This should go in the ChartTrackerService and doesn't have to be static.
    * @return recordset
    */
     public static function getChartTrackerInformation()
@@ -73,5 +94,27 @@ class PatientService
             WHERE ct.ct_userid != 0
             ORDER BY p.pubpid";
         return sqlStatement($sql);
+    }
+
+  /**
+   * @return number
+   */
+    public function getPatientPictureDocumentId()
+    {
+        $sql = "SELECT doc.id AS id
+                 FROM documents doc
+                 JOIN categories_to_documents cate_to_doc
+                   ON doc.id = cate_to_doc.document_id
+                 JOIN categories cate
+                   ON cate.id = cate_to_doc.category_id
+                WHERE cate.name LIKE ? and doc.foreign_id = ?";
+
+        $result = sqlQuery($sql, array($GLOBALS['patient_photo_category_name'], $this->pid));
+
+        if (empty($result) || empty($result['id'])) {
+            return $this->patient_picture_fallback_id;
+        }
+
+        return $result['id'];
     }
 }
