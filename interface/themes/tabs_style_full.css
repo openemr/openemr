@@ -224,11 +224,15 @@ div.closeDlgIframe:before {
     color: #333 !important;
 }
 
+.patientInfo .patientPicture
+{
+    margin-top: -1px;
+    margin-right: 7px;
+}
+
 .patientInfo .patientPicture img
 {
-    height: 55px;
-    margin-top: -5px;
-    padding-right: 5px;
+    height: 50px;
 }
 
 .patientCurrentEncounter {

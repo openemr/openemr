@@ -23,7 +23,7 @@
               <!-- ko if: patient -->
                   <div data-bind="with: patient" class="patientPicture">
                       <img data-bind="attr: {src: patient_picture()}"
-                           alt="<?php echo xla("Patient Photograph") ?>"
+                           class="img-thumbnail"
                            onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
                   </div>
               <!-- /ko -->
