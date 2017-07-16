@@ -33,58 +33,71 @@ function generate_list_payment_category(
     $list_id,
     $currvalue,
     $title,
-    $empty_name=' ',
-    $class='',
-    $onchange='',
-    $PaymentType='insurance',
-    $screen='new_payment'
+    $empty_name = ' ',
+    $class = '',
+    $onchange = '',
+    $PaymentType = 'insurance',
+    $screen = 'new_payment'
 ) {
 
     $s = '';
-    $tag_name_esc = htmlspecialchars( $tag_name, ENT_QUOTES);
+    $tag_name_esc = htmlspecialchars($tag_name, ENT_QUOTES);
     $s .= "<select name='$tag_name_esc' id='$tag_name_esc'";
-    if ($class) $s .= " class='$class'";
-    if ($onchange) $s .= " onchange='$onchange'";
-    $selectTitle = htmlspecialchars( $title, ENT_QUOTES);
+    if ($class) {
+        $s .= " class='$class'";
+    }
+
+    if ($onchange) {
+        $s .= " onchange='$onchange'";
+    }
+
+    $selectTitle = htmlspecialchars($title, ENT_QUOTES);
     $s .= " title='$selectTitle'>";
-    $selectEmptyName = htmlspecialchars( xl($empty_name), ENT_QUOTES);
-    if ($empty_name) $s .= "<option value=''>" . $selectEmptyName . "</option>";
+    $selectEmptyName = htmlspecialchars(xl($empty_name), ENT_QUOTES);
+    if ($empty_name) {
+        $s .= "<option value=''>" . $selectEmptyName . "</option>";
+    }
+
     $lres = sqlStatement("SELECT * FROM list_options " .
-    "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id) );
+    "WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
-        $optionValue = htmlspecialchars( $lrow['option_id'], ENT_QUOTES);
+        $optionValue = htmlspecialchars($lrow['option_id'], ENT_QUOTES);
         $s .= "<option   id='option_" . $lrow['option_id'] . "'" . " value='$optionValue'";
         if ((strlen($currvalue) == 0 && $lrow['is_default']) ||
         (strlen($currvalue)  > 0 && $lrow['option_id'] == $currvalue)  ||
-        ($lrow['option_id'] == 'insurance_payment' &&  $screen=='new_payment'))
-        {
+        ($lrow['option_id'] == 'insurance_payment' &&  $screen=='new_payment')) {
             $s .= " selected";
             $got_selected = true;
         }
-        if (($PaymentType == 'insurance' || $screen=='new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment'))
-        $s .=  " style='background-color:#DEDEDE' ";
-        if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment')
-        $s .=  " style='background-color:#DEDEDE' ";
-        $optionLabel = htmlspecialchars( xl_list_label($lrow['title']), ENT_QUOTES);
+
+        if (($PaymentType == 'insurance' || $screen=='new_payment') && ($lrow['option_id'] == 'family_payment' || $lrow['option_id'] == 'patient_payment')) {
+            $s .=  " style='background-color:#DEDEDE' ";
+        }
+
+        if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
+            $s .=  " style='background-color:#DEDEDE' ";
+        }
+
+        $optionLabel = htmlspecialchars(xl_list_label($lrow['title']), ENT_QUOTES);
         $s .= ">$optionLabel</option>\n";
     }
+
     if (!$got_selected && strlen($currvalue) > 0) {
         $currescaped = htmlspecialchars($currvalue, ENT_QUOTES);
         $s .= "<option value='$currescaped' selected>* $currescaped *</option>";
         $s .= "</select>";
-        $fontTitle = htmlspecialchars( xl('Please choose a valid selection from the list.'), ENT_QUOTES);
-        $fontText = htmlspecialchars( xl('Fix this'), ENT_QUOTES);
+        $fontTitle = htmlspecialchars(xl('Please choose a valid selection from the list.'), ENT_QUOTES);
+        $fontText = htmlspecialchars(xl('Fix this'), ENT_QUOTES);
         $s .= " <font color='red' title='$fontTitle'>$fontText!</font>";
-    }
-    else {
+    } else {
         $s .= "</select>";
     }
+
     return $s;
 }
 //================================================================================================
-if($payment_id>0)
- {
+if ($payment_id>0) {
     $rs= sqlStatement("select pay_total,global_amount from ar_session where session_id='$payment_id'");
     $row=sqlFetchArray($rs);
     $pay_total=$row['pay_total'];
@@ -111,20 +124,16 @@ if($payment_id>0)
     $AdjustmentCode=$row['adjustment_code'];
     $DepositDate=$row['deposit_date']=='0000-00-00'?'':$row['deposit_date'];
     $Description=$row['description'];
-    if($row['payment_type']=='insurance' || $row['payer_id']*1 > 0)
-     {
+    if ($row['payment_type']=='insurance' || $row['payer_id']*1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies
 				where insurance_companies.id ='$InsuranceCompanyId'");
         $row = sqlFetchArray($res);
         $div_after_save=$row['name'];
         $TypeCode=$InsuranceCompanyId;
-        if($PaymentType=='')
-          {
+        if ($PaymentType=='') {
             $PaymentType='insurance';
         }
-    }
-    elseif($row['payment_type']=='patient' || $row['patient_id']*1 > 0)
-     {
+    } elseif ($row['payment_type']=='patient' || $row['patient_id']*1 > 0) {
         $res = sqlStatement("SELECT fname,lname,mname FROM patient_data
 				where pid ='$PatientId'");
         $row = sqlFetchArray($res);
@@ -133,8 +142,7 @@ if($payment_id>0)
             $mname=$row['mname'];
             $div_after_save=$lname.' '.$fname.' '.$mname;
         $TypeCode=$PatientId;
-        if($PaymentType=='')
-          {
+        if ($PaymentType=='') {
             $PaymentType='patient';
         }
     }
@@ -142,8 +150,7 @@ if($payment_id>0)
 ?>
 <?php
 //================================================================================================
-if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0))
- {//New entry or edit in edit screen comes here.
+if (($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $payment_id*1>0)) {//New entry or edit in edit screen comes here.
 ?>
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td>
     <table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
@@ -153,22 +160,17 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
       <tr>
         <td colspan="14" align="left">&nbsp;<font class='title'>
         <?php
-        if($_REQUEST['ParentPage']=='new_payment')//This case comes when the Finish Payments is pressed from the New Payment screen.
-          {
+        if ($_REQUEST['ParentPage']=='new_payment') {//This case comes when the Finish Payments is pressed from the New Payment screen.
             ?>
-            <?php echo htmlspecialchars( xl('Confirm Payment'), ENT_QUOTES) ?>
+            <?php echo htmlspecialchars(xl('Confirm Payment'), ENT_QUOTES) ?>
         <?php
-        }
-        elseif($screen=='new_payment')
-          {
+        } elseif ($screen=='new_payment') {
             ?>
-            <?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?>
+            <?php echo htmlspecialchars(xl('Batch Payment Entry'), ENT_QUOTES) ?>
         <?php
-        }
-        else
-          {
+        } else {
             ?>
-            <?php echo htmlspecialchars( xl('Edit Payment'), ENT_QUOTES) ?>
+            <?php echo htmlspecialchars(xl('Edit Payment'), ENT_QUOTES) ?>
         <?php
         }
             ?>
@@ -192,35 +194,34 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         </tr>
       <tr>
         <td align="left" class='text'></td>
-        <td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
+        <td align="left" class='text'><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES).':' ?></td>
         <td align="left" class="text" ><input type='text' size='9' class='datepicker' name='check_date' id='check_date' class="class1 text "  value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
         <td> </td>
         <td></td>
-        <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
+        <td align="left" class='text'><?php echo htmlspecialchars(xl('Post To Date'), ENT_QUOTES).':' ?></td>
         <td align="left" class="text"><input type='text' size='9' class='datepicker' name='post_to_date' id='post_to_date' class="class1 text "   value="<?php echo $screen=='new_payment'?htmlspecialchars(oeFormatShortDate(date('Y-m-d'))):htmlspecialchars(oeFormatShortDate($PostToDate));?>" /></td>
         <td> </td>
         <td></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES).':' ?></td>
         <td align="left">
             <?php
-                if($PaymentMethod=='' && $screen=='edit_payment')
-                    $blankValue=' ';
-            else
-                    $blankValue='';
-            echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method","$blankValue","class1 text",'CheckVisible("yes")');
+            if ($PaymentMethod=='' && $screen=='edit_payment') {
+                $blankValue=' ';
+            } else {
+                $blankValue='';
+            }
+
+            echo generate_select_list("payment_method", "payment_method", "$PaymentMethod", "Payment Method", "$blankValue", "class1 text", 'CheckVisible("yes")');
             ?>
       </td>
         <td></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Check Number'), ENT_QUOTES).':' ?></td>
         <td>
         <?php
-        if($PaymentMethod=='check_payment' || $PaymentMethod=='bank_draft' || $CheckNumber!='' || $screen=='new_payment')
-         {
+        if ($PaymentMethod=='check_payment' || $PaymentMethod=='bank_draft' || $CheckNumber!='' || $screen=='new_payment') {
             $CheckDisplay='';
             $CheckDivDisplay=' display:none; ';
-        }
-        else
-         {
+        } else {
             $CheckDisplay=' display:none; ';
             $CheckDivDisplay='';
         }
@@ -234,30 +235,41 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
       </tr>
       <tr>
         <td align="left" class="text"></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Amount'), ENT_QUOTES).':' ?></td>
         <td align="left"><input   type="text" name="payment_amount"   autocomplete="off"  id="payment_amount"  onchange="ValidateNumeric(this);<?php echo $screen=='new_payment'?'FillUnappliedAmount();':'FillAmount();';?>"  value="<?php echo $screen=='new_payment'?htmlspecialchars('0.00'):htmlspecialchars($PayTotal);?>"  style="text-align:right"    class="class1 text "   /></td>
         <td align="left" ></td>
         <td align="left" ></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES).':' ?></td>
         <td align="left"><?php
-                if($PaymentType=='' && $screen=='edit_payment')
-                    $blankValue=' ';
-        else
-                    $blankValue='';
-            echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity","$blankValue","class1 text",'PayingEntityAction()');
+        if ($PaymentType=='' && $screen=='edit_payment') {
+            $blankValue=' ';
+        } else {
+            $blankValue='';
+        }
+
+            echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "class1 text", 'PayingEntityAction()');
             ?>
         </td>
         <td align="left" ></td>
         <td align="left" ></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Category'), ENT_QUOTES).':' ?></td>
         <td align="left"><?php
-                if($AdjustmentCode=='' && $screen=='edit_payment')
-                    $blankValue=' ';
-        else
-                    $blankValue='';
-            echo generate_list_payment_category("adjustment_code", "payment_adjustment_code", "$AdjustmentCode",
-            "Payment Category","$blankValue","class1 text",'FilterSelection(this)',"$PaymentType","$screen");
-            ?>
+        if ($AdjustmentCode=='' && $screen=='edit_payment') {
+            $blankValue=' ';
+        } else {
+            $blankValue='';
+            echo generate_list_payment_category(
+                "adjustment_code",
+                "payment_adjustment_code",
+                "$AdjustmentCode",
+                "Payment Category",
+                "$blankValue",
+                "class1 text",
+                'FilterSelection(this)',
+                "$PaymentType",
+                "$screen"
+            );
+        } ?>
        </td>
         <td align="left" ></td>
         <td align="left" ></td>
@@ -268,7 +280,7 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
       </tr>
       <tr>
         <td align="left" class="text"></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment From'), ENT_QUOTES).':' ?></td>
         <td align="left" colspan="5"><input type="hidden" id="hidden_ajax_close_value" value="<?php echo htmlspecialchars($div_after_save);?>" /><input name='type_code'  id='type_code' class="text "  style="width:369px"   onKeyDown="PreventIt(event)"  value="<?php echo htmlspecialchars($div_after_save);?>"  autocomplete="off"   /><br>
         <!-- onKeyUp="ajaxFunction(event,'non','edit_payment.php');" -->
          <div id='ajax_div_insurance_section'>
@@ -284,18 +296,17 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
         </tr>
       <tr>
         <td align="left" class='text'></td>
-        <td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
+        <td align="left" class='text'><?php echo htmlspecialchars(xl('Deposit Date'), ENT_QUOTES).':' ?></td>
         <td align="left"><input type='text' size='9' class='datepicker' name='deposit_date' id='deposit_date'  onKeyDown="PreventIt(event)"   class="class1 text " value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"    />       </td>
         <td> </td>
         <td></td>
-        <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
+        <td align="left" class="text"><?php echo htmlspecialchars(xl('Description'), ENT_QUOTES).':' ?></td>
         <td colspan="6" align="left"><input type="text" name="description"  id="description"   onKeyDown="PreventIt(event)"   value="<?php echo htmlspecialchars($Description);?>"   style="width:396px" class="text "   /></td>
-        <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/><input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-        <td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+        <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars(xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/><input name="HidCurrentPostedAmount" id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
+        <td align="left" class="text"><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; width:75px; background-color:#EC7676; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?></div></td>
         </tr>
     <?php
-    if($screen=='new_payment')
-     {
+    if ($screen=='new_payment') {
     ?>
       <tr>
         <td colspan="14" align="center" class="text" id="TdContainingButtons">
@@ -306,9 +317,9 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
             <td></td>
           </tr>
           <tr>
-            <td width="100"><a href="#" onClick="javascript:return SavePayment();" class="css_button"><span><?php echo htmlspecialchars( xl('Save Changes'), ENT_QUOTES);?></span></a></td>
-            <td width="110"><a href="#" onClick="javascript:ResetForm()" class="css_button"><span><?php echo htmlspecialchars( xl('Cancel Changes'), ENT_QUOTES);?></span></a></td>
-            <td width="70"><a href="#" class="css_button" onClick="javascript:OpenEOBEntry();"><span><?php echo htmlspecialchars( xl('Allocate'), ENT_QUOTES);?></span></a></td>
+            <td width="100"><a href="#" onClick="javascript:return SavePayment();" class="css_button"><span><?php echo htmlspecialchars(xl('Save Changes'), ENT_QUOTES);?></span></a></td>
+            <td width="110"><a href="#" onClick="javascript:ResetForm()" class="css_button"><span><?php echo htmlspecialchars(xl('Cancel Changes'), ENT_QUOTES);?></span></a></td>
+            <td width="70"><a href="#" class="css_button" onClick="javascript:OpenEOBEntry();"><span><?php echo htmlspecialchars(xl('Allocate'), ENT_QUOTES);?></span></a></td>
           </tr>
         </table>        </td>
       </tr>
@@ -325,8 +336,8 @@ if(($screen=='new_payment' && $payment_id*1==0) || ($screen=='edit_payment' && $
 //================================================================================================
 ?>
 <?php
-if($screen=='new_payment' && $payment_id*1>0)
- {//After saving from the New Payment screen,all values are  showed as labels.The date picker images are also removed.
+if ($screen=='new_payment' && $payment_id*1>0) {
+  //After saving from the New Payment screen,all values are  showed as labels.The date picker images are also removed.
 ?>
 <table width="1024" border="0" cellspacing="0" cellpadding="10" bgcolor="#DEDEDE"><tr><td align="left">
     <table width="1004" border="0" style="border:1px solid black" cellspacing="0" cellpadding="0">
@@ -338,7 +349,7 @@ if($screen=='new_payment' && $payment_id*1>0)
 
             <table width="969" border="0"  cellspacing="0" cellpadding="0" align="left">
                   <tr>
-                    <td colspan="13" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars( xl('Batch Payment Entry'), ENT_QUOTES) ?></font></td>
+                    <td colspan="13" align="left">&nbsp;<font class='title'><?php echo htmlspecialchars(xl('Batch Payment Entry'), ENT_QUOTES) ?></font></td>
                   </tr>
                   <tr height="20">
                     <td align="left" width="5" ></td>
@@ -357,20 +368,20 @@ if($screen=='new_payment' && $payment_id*1>0)
                   </tr>
                   <tr>
                     <td align="left" class='text'></td>
-                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars(xl('Date'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?><input type="hidden" name="check_date" value="<?php echo htmlspecialchars(oeFormatShortDate($CheckDate));?>"/></td>
                     <td></td>
-                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Post To Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars(xl('Post To Date'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($PostToDate));?><input type="hidden" name="post_to_date" value="<?php echo htmlspecialchars(oeFormatShortDate($PostToDate));?>"/></td>
                     <td></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Method'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Method'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_method';
                                 generate_print_field($frow, $PaymentMethod);
                     ?><input type="hidden" name="payment_method" value="<?php echo htmlspecialchars($PaymentMethod);?>"/></td>
                     <td></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Check Number'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Check Number'), ENT_QUOTES).':' ?></td>
                     <td class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($CheckNumber);?><input type="hidden" name="check_number" value="<?php echo htmlspecialchars($CheckNumber);?>"/></td>
                     <td class="text"></td>
                   </tr>
@@ -379,17 +390,17 @@ if($screen=='new_payment' && $payment_id*1>0)
                   </tr>
                   <tr>
                     <td align="left" class="text"></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Amount'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Amount'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($PayTotal);?><input type="hidden" name="payment_amount" value="<?php echo htmlspecialchars($PayTotal);?>"/></td>
                     <td align="left" ></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Paying Entity'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Paying Entity'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_type';
                                 generate_print_field($frow, $PaymentType);
                     ?><input type="hidden" name="type_name" id="type_name" value="<?php echo htmlspecialchars($PaymentType);?>"/></td>
                     <td align="left" ></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment Category'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment Category'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php
                                 $frow['data_type']=1;
                                 $frow['list_id']='payment_adjustment_code';
@@ -405,7 +416,7 @@ if($screen=='new_payment' && $payment_id*1>0)
                   </tr>
                   <tr>
                     <td align="left" class="text"></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Payment From'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Payment From'), ENT_QUOTES).':' ?></td>
                     <td colspan="4" align="left" class="text bottom left top right"><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  >&nbsp;<?php echo htmlspecialchars($div_after_save);?>&nbsp;</div></td>
                     <td align="left"></td>
                     <td align="left" ><div  name="div_insurance_or_patient" id="div_insurance_or_patient" class="text"  style="border:1px solid black; padding-left:5px; width:55px"><?php echo htmlspecialchars($TypeCode);?></div><input type="hidden" name="type_code" value="<?php echo htmlspecialchars($TypeCode);?>"/></td>
@@ -420,15 +431,15 @@ if($screen=='new_payment' && $payment_id*1>0)
                   </tr>
                   <tr>
                     <td align="left" class='text'></td>
-                    <td align="left" class='text'><?php echo htmlspecialchars( xl('Deposit Date'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class='text'><?php echo htmlspecialchars(xl('Deposit Date'), ENT_QUOTES).':' ?></td>
                     <td align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?><input type="hidden" name="deposit_date" value="<?php echo htmlspecialchars(oeFormatShortDate($DepositDate));?>"/>    </td>
                     <td></td>
-                    <td align="left" class="text"><?php echo htmlspecialchars( xl('Description'), ENT_QUOTES).':' ?></td>
+                    <td align="left" class="text"><?php echo htmlspecialchars(xl('Description'), ENT_QUOTES).':' ?></td>
                     <td colspan="4" align="left" class="text bottom left top right">&nbsp;<?php echo htmlspecialchars($Description);?><input type="hidden" name="description" value="<?php echo htmlspecialchars($Description);?>"/></td>
                     <td align="left" class='text'></td>
-                    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars( xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/>
+                    <td align="left" class="text"><font  style="font-size:11px"><?php echo htmlspecialchars(xl('UNDISTRIBUTED'), ENT_QUOTES).':' ?></font><input name="HidUnappliedAmount" id="HidUnappliedAmount"  value="<?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?>" type="hidden"/><input name="HidUnpostedAmount" id="HidUnpostedAmount"  value="<?php echo htmlspecialchars($UndistributedAmount); ?>" type="hidden"/>
  <input name="HidCurrentPostedAmount"  id="HidCurrentPostedAmount"  value="" type="hidden"/></td>
-                    <td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount,2,'.',','));?></div></td>
+                    <td align="left" ><div  id="TdUnappliedAmount" class="text"  style="border:1px solid black; background-color:#EC7676; width:75px; padding-left:5px;"><?php echo ($UndistributedAmount*1==0)? htmlspecialchars("0.00") : htmlspecialchars(number_format($UndistributedAmount, 2, '.', ','));?></div></td>
                     <td align="left" class="text"></td>
                   </tr>
                   <tr height="5">

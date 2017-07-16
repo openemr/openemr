@@ -84,8 +84,4 @@ class OnsitePortalActivityDAO extends Phreezable
 
     /** @var longtext */
     public $Checksum;
-
-
-
 }
-?>

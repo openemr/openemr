@@ -96,4 +96,3 @@ function postcalendar_pntables()
         );
     return $pntable;
 }
-?>

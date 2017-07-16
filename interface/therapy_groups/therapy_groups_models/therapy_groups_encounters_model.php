@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups_Encounters{
+class Therapy_Groups_Encounters
+{
 
     const TABLE = 'form_groups_encounter';
 
@@ -37,12 +38,10 @@ class Therapy_Groups_Encounters{
     {
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
         $result = sqlStatement($sql, array($gid));
-        while($row = sqlFetchArray($result)){
+        while ($row = sqlFetchArray($result)) {
             $encounters[] = $row;
         }
+
         return $encounters;
     }
-
-
-
 }

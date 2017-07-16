@@ -12,7 +12,7 @@ $returnurl = 'encounter_top.php';
  onsubmit="return top.restoreSession()">
 <h1><php xl ('CAMOS','e'); ?> </h1>
 <hr>
-<input type="submit" name="submit form" value="<?php xl('submit form','e'); ?>" />
+<input type="submit" name="submit form" value="<?php xl('submit form', 'e'); ?>" />
 <?php
 echo "<a href='".$GLOBALS['webroot'] .
   "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'>[" .

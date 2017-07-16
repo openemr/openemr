@@ -25,7 +25,8 @@ require_once($GLOBALS['fileroot'] . "/interface/main/exceptions/invalid_email_ex
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/duplicate_registration_exception.php");
 
-class ProductRegistrationService {
+class ProductRegistrationService
+{
     /**
      * Logger used primarily for logging events that are of interest to
      * developers.

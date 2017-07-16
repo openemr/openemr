@@ -44,7 +44,6 @@ if (!empty($GLOBALS['cdr_report_nice'])) {
 
 //  Start a report, which will be stored in the report_results sql table..
 if (!empty($_POST['execute_report_id'])) {
-
     $target_date = (!empty($_POST['date_target'])) ? $_POST['date_target'] : date('Y-m-d H:i:s');
     $rule_filter = (!empty($_POST['type'])) ? $_POST['type'] : "";
     $plan_filter = (!empty($_POST['plan'])) ? $_POST['plan'] : "";
@@ -57,22 +56,19 @@ if (!empty($_POST['execute_report_id'])) {
     $options = array();
     $array_date = array();
 
-    if ( ($rule_filter == "amc") || ($rule_filter == "amc_2011") || ($rule_filter == "amc_2014")  || ($rule_filter == "amc_2014_stage1") || ($rule_filter == "amc_2014_stage2") ) {
+    if (($rule_filter == "amc") || ($rule_filter == "amc_2011") || ($rule_filter == "amc_2014")  || ($rule_filter == "amc_2014_stage1") || ($rule_filter == "amc_2014_stage2")) {
         // For AMC:
         //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
         //   need to send a manual data entry option (number of labs)
         $array_date['dateBegin'] = $_POST['date_begin'];
         $array_date['dateTarget'] = $target_date;
         $options = array('labs_manual'=>$_POST['labs']);
-    }
-    else {
+    } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;
     }
 
-    test_rules_clinic_batch_method($provider,$rule_filter,$array_date,"report",$plan_filter,$organize_method,$options,$pat_prov_rel,'',$_POST['execute_report_id']);
-}
-else {
+    test_rules_clinic_batch_method($provider, $rule_filter, $array_date, "report", $plan_filter, $organize_method, $options, $pat_prov_rel, '', $_POST['execute_report_id']);
+} else {
     echo "ERROR";
 }
-?>

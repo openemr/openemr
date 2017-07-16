@@ -22,7 +22,8 @@
 
 namespace services;
 
-class PatientService {
+class PatientService
+{
 
   /**
    * In the case where a patient doesn't have a picture uploaded,
@@ -116,5 +117,4 @@ class PatientService {
 
         return $result['id'];
     }
-
 }

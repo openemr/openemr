@@ -23,6 +23,7 @@ namespace Application\Plugin;
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+
 require_once($GLOBALS['srcdir'].'/direct_message_check.inc');
 
 class Phimail extends AbstractPlugin
@@ -39,7 +40,6 @@ class Phimail extends AbstractPlugin
         $sm->get('Zend\Db\Adapter\Adapter');
         $this->application    = new ApplicationTable();
         $this->listenerObject = new Listener;
-    
     }
 
     public function phimail_connect($err)
@@ -47,14 +47,14 @@ class Phimail extends AbstractPlugin
         return phimail_connect($err);
     }
   
-    public function phimail_write($fp,$text)
+    public function phimail_write($fp, $text)
     {
-        phimail_write($fp,$text);
+        phimail_write($fp, $text);
     }
   
-    public function phimail_write_expect_OK($fp,$text)
+    public function phimail_write_expect_OK($fp, $text)
     {
-        return phimail_write_expect_OK($fp,$text);
+        return phimail_write_expect_OK($fp, $text);
     }
   
     public function phimail_close($fp)

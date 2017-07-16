@@ -16,17 +16,18 @@ function setpid($new_pid)
     $new_pid_int = intval($new_pid);
   // If the $new_pid was not an integer, then send an error to error log
     if (!is_numeric($new_pid)) {
-        error_log("Critical OpenEMR Error: Attempt to set pid to following non-integer value was denied: ".$new_pid,0);
-        error_log("Requested pid ".$new_pid,0);
-        error_log("Returned pid ".$new_pid_int,0);
+        error_log("Critical OpenEMR Error: Attempt to set pid to following non-integer value was denied: ".$new_pid, 0);
+        error_log("Requested pid ".$new_pid, 0);
+        error_log("Returned pid ".$new_pid_int, 0);
     }
 
   // Be careful not to clear the encounter unless the pid is really changing.
     if (!isset($_SESSION['pid']) || $pid != $new_pid_int || $pid != $_SESSION['pid']) {
         $_SESSION['encounter'] = $encounter = 0;
     }
+
   // unset therapy_group session when set session for patient
-    if($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])){
+    if ($_SESSION['pid'] != 0 && isset($_SESSION['therapy_group'])) {
         unset($_SESSION['therapy_group']);
     }
 
@@ -37,4 +38,3 @@ function setpid($new_pid)
 
     newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, $pid);
 }
-?>

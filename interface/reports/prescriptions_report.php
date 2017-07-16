@@ -26,6 +26,7 @@
  */
 
 use OpenEMR\Core\Header;
+
  require_once("../globals.php");
  require_once("$srcdir/patient.inc");
  require_once("$srcdir/options.inc.php");
@@ -41,7 +42,7 @@ use OpenEMR\Core\Header;
 <html>
 <head>
 
-<title><?php xl('Prescriptions and Dispensations','e'); ?></title>
+<title><?php xl('Prescriptions and Dispensations', 'e'); ?></title>
 
 <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
@@ -105,7 +106,7 @@ use OpenEMR\Core\Header;
 <!-- Required for the popup date selectors -->
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Prescriptions and Dispensations','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Prescriptions and Dispensations', 'e'); ?></span>
 
 <div id="report_parameters_daterange">
 <?php echo date("d F Y", strtotime($form_from_date)) ." &nbsp; to &nbsp; ". date("d F Y", strtotime($form_to_date)); ?>
@@ -124,19 +125,19 @@ use OpenEMR\Core\Header;
     <table class='text'>
         <tr>
             <td class='control-label'>
-                <?php xl('Facility','e'); ?>:
+                <?php xl('Facility', 'e'); ?>:
             </td>
             <td>
             <?php dropdown_facility(strip_escape_custom($form_facility), 'form_facility', true); ?>
             </td>
             <td class='control-label'>
-                <?php xl('From','e'); ?>:
+                <?php xl('From', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_from_date' id="form_from_date" size='10' value='<?php echo oeFormatShortDate($form_from_date) ?>'>
             </td>
             <td class='control-label'>
-                <?php xl('To','e'); ?>:
+                <?php xl('To', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='datepicker form-control' name='form_to_date' id="form_to_date" size='10' value='<?php echo oeFormatShortDate($form_to_date) ?>'>
@@ -144,25 +145,25 @@ use OpenEMR\Core\Header;
         </tr>
         <tr>
             <td class='control-label'>
-                <?php xl('Patient ID','e'); ?>:
+                <?php xl('Patient ID', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='form-control' name='form_patient_id' size='10' maxlength='20' value='<?php echo $form_patient_id ?>'
-                title=<?php xl('Optional numeric patient ID','e','\'','\''); ?> />
+                title=<?php xl('Optional numeric patient ID', 'e', '\'', '\''); ?> />
             </td>
             <td class='control-label'>
-                <?php xl('Drug','e'); ?>:
+                <?php xl('Drug', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='form-control' name='form_drug_name' size='10' maxlength='250' value='<?php echo $form_drug_name ?>'
-                title=<?php xl('Optional drug name, use % as a wildcard','e','\'','\''); ?> />
+                title=<?php xl('Optional drug name, use % as a wildcard', 'e', '\'', '\''); ?> />
             </td>
             <td class='control-label'>
-                <?php xl('Lot','e'); ?>:
+                <?php xl('Lot', 'e'); ?>:
             </td>
             <td>
                <input type='text' class='form-control' name='form_lot_number' size='10' maxlength='20' value='<?php echo $form_lot_number ?>'
-                title=<?php xl('Optional lot number, use % as a wildcard','e','\'','\''); ?> />
+                title=<?php xl('Optional lot number, use % as a wildcard', 'e', '\'', '\''); ?> />
             </td>
         </tr>
     </table>
@@ -200,19 +201,19 @@ if ($_POST['form_refresh']) {
 <div id="report_results">
 <table id='mymaintable'>
 <thead>
-<th> <?php xl('Patient','e'); ?> </th>
-<th> <?php xl('ID','e'); ?> </th>
-<th> <?php xl('RX','e'); ?> </th>
-<th> <?php xl('Drug Name','e'); ?> </th>
-<th> <?php xl('NDC','e'); ?> </th>
-<th> <?php xl('Units','e'); ?> </th>
-<th> <?php xl('Refills','e'); ?> </th>
-<th> <?php xl('Instructed','e'); ?> </th>
-<th> <?php xl('Reactions','e'); ?> </th>
-<th> <?php xl('Dispensed','e'); ?> </th>
-<th> <?php xl('Qty','e'); ?> </th>
-<th> <?php xl('Manufacturer','e'); ?> </th>
-<th> <?php xl('Lot','e'); ?> </th>
+<th> <?php xl('Patient', 'e'); ?> </th>
+<th> <?php xl('ID', 'e'); ?> </th>
+<th> <?php xl('RX', 'e'); ?> </th>
+<th> <?php xl('Drug Name', 'e'); ?> </th>
+<th> <?php xl('NDC', 'e'); ?> </th>
+<th> <?php xl('Units', 'e'); ?> </th>
+<th> <?php xl('Refills', 'e'); ?> </th>
+<th> <?php xl('Instructed', 'e'); ?> </th>
+<th> <?php xl('Reactions', 'e'); ?> </th>
+<th> <?php xl('Dispensed', 'e'); ?> </th>
+<th> <?php xl('Qty', 'e'); ?> </th>
+<th> <?php xl('Manufacturer', 'e'); ?> </th>
+<th> <?php xl('Lot', 'e'); ?> </th>
 </thead>
 <tbody>
 <?php
@@ -220,9 +221,17 @@ if ($_POST['form_refresh']) {
     $where = "r.date_modified >= '$form_from_date' AND " .
     "r.date_modified <= '$form_to_date'";
   //if ($form_patient_id) $where .= " AND r.patient_id = '$form_patient_id'";
-    if ($form_patient_id) $where .= " AND p.pubpid = '$form_patient_id'";
-    if ($form_drug_name ) $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
-    if ($form_lot_number) $where .= " AND i.lot_number LIKE '$form_lot_number'";
+    if ($form_patient_id) {
+        $where .= " AND p.pubpid = '$form_patient_id'";
+    }
+
+    if ($form_drug_name) {
+        $where .= " AND (d.name LIKE '$form_drug_name' OR r.drug LIKE '$form_drug_name')";
+    }
+
+    if ($form_lot_number) {
+        $where .= " AND i.lot_number LIKE '$form_lot_number'";
+    }
 
     $query = "SELECT r.id, r.patient_id, " .
     "r.date_modified, r.dosage, r.route, r.interval, r.refills, r.drug, " .
@@ -250,12 +259,16 @@ if ($_POST['form_refresh']) {
        // If a facility is specified, ignore rows that do not match.
         if ($form_facility !== '') {
             if ($form_facility) {
-                if ($row['facility_id'] != $form_facility) continue;
-            }
-            else {
-                if (!empty($row['facility_id'])) continue;
+                if ($row['facility_id'] != $form_facility) {
+                    continue;
+                }
+            } else {
+                if (!empty($row['facility_id'])) {
+                    continue;
+                }
             }
         }
+
         $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
        //$patient_id      = $row['patient_id'];
         $patient_id      = $row['pubpid'];
@@ -341,7 +354,7 @@ if ($_POST['form_refresh']) {
 </div> <!-- end of results -->
 <?php } else { ?>
 <div class='text'>
-    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e' ); ?>
+    <?php echo xl('Please input search criteria above, and click Submit to view results.', 'e'); ?>
 </div>
 <?php } ?>
 </form>

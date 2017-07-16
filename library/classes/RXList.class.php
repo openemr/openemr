@@ -35,9 +35,10 @@
 if (!defined('__CLASS_RXLIST_PHP__')) {
     define('__CLASS_RXLIST_PHP__', true);
 
-    class RxList {
+    class RxList
+    {
 
-        function getPage( $query )
+        function getPage($query)
         {
             $url = "http://www.rxlist.com/script/main/srchcont_rxlist.asp?src=".
             //$url = "http://www.rxlist.com/cgi/rxlist.cgi?drug=".
@@ -53,12 +54,13 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 while (!feof($fp)) {
                     $buffer .= fgets($fp, 4096);
                 }
-                fclose ($fp);
+
+                fclose($fp);
                 return $buffer;
             } // end checking for successful open
         } // end function RxList::getPage
 
-        function get_list( $query )
+        function get_list($query)
         {
             $page = RxList::getPage($query);
             $tokens = RxList::parse2tokens($page);
@@ -68,43 +70,45 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 foreach ($data as $k => $v) {
                     $my_data[$k] = $v;
                 }
+
                 $list[trim($my_data[brand_name])." (".trim($my_data[generic_name]).")"] =
                 trim($my_data[brand_name]);
             }
+
             return $list;
         } // end function RxList::get_list
 
         /* break the web page into a collection of TAGS
          * such as <input ..> or <img ... >
          */
-        function parse2tokens( $page )
+        function parse2tokens($page)
         {
             $pos = 0;
             $token = 0;
-            unset ($tokens);
+            unset($tokens);
             $in_token = false;
             while ($pos < strlen($page)) {
-                switch(substr($page, $pos, 1)) {
+                switch (substr($page, $pos, 1)) {
                     case "<":
                         if ($in_token) {
                             $token++;
                             $in_token = false;
                         }
-                        $tokens[$token] .= substr($page,$pos,1);
+
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = true;
                         break;
 
                     case ">":
-                        $tokens[$token] .= substr($page,$pos,1);
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
                         $token++;
                         break;
 
                     default:
-                        $tokens[$token] .= substr($page,$pos,1);
+                        $tokens[$token] .= substr($page, $pos, 1);
                         $in_token = false;
                         break;
-
                 } // end decide what to do
                 $pos++;
             } // end looping through string
@@ -113,22 +117,21 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
 
 
         /* WTF does this crap do? */
-        function tokens2hash( $tokens )
+        function tokens2hash($tokens)
         {
             $record = false;
             $current = 0;
             unset($hash);
             unset($all);
             for ($pos=0; $pos<count($tokens); $pos++) {
-
-                if (!(strpos($tokens[$pos], "Brand Name") === false)){
+                if (!(strpos($tokens[$pos], "Brand Name") === false)) {
                             // found a brand line 'token'
                     $type = "brand_name";
                     $record = $pos;
                     $ending = "</a>";
                 }
 
-                if (!(strpos($tokens[$pos], "Generic Name") === false)){
+                if (!(strpos($tokens[$pos], "Generic Name") === false)) {
                             // found a generic line 'token'
                     $type = "generic_name";
                     //print "generic_name record start at $pos<BR>\n";
@@ -136,7 +139,7 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                     $record = $pos;
                 }
 
-                if (!(strpos($tokens[$pos], "Drug Class") === false)){
+                if (!(strpos($tokens[$pos], "Drug Class") === false)) {
                             // found a drug-class 'token'
                     $type = "drug_class";
                     //print "drug_class record start at $pos<BR>\n";
@@ -164,13 +167,11 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
                 if ((($pos == ($record + 1)) or
                             ($pos == ($record + 2)) or
                             ($pos == ($record + 3)))
-                            and ($ending != ""))
-                        {
+                            and ($ending != "")) {
                             //print "tokens[$pos] = ".htmlentities($tokens[$pos])."<BR>\n";
-                    if ((!(strpos(strtoupper($tokens[$pos]), "</A>"   ) === false)) or
+                    if ((!(strpos(strtoupper($tokens[$pos]), "</A>") === false)) or
                                 (!(strpos(strtoupper($tokens[$pos]), "</FONT>") === false)) or
-                                (!(strpos(strtoupper($tokens[$pos]), "</TD>"  ) === false)))
-                            {
+                                (!(strpos(strtoupper($tokens[$pos]), "</TD>") === false))) {
                         // Find where anchor is
                         $my_pos = strpos(strtoupper($tokens[$pos]), "<");
                         $hash[$type] = substr($tokens[$pos], 0, $my_pos);
@@ -183,7 +184,6 @@ if (!defined('__CLASS_RXLIST_PHP__')) {
             } // end looping
             return $all;
         } // end function RxList::tokens2hash
-
     } // end class RxList
 
 } // end if not defined
@@ -205,4 +205,3 @@ print "<FORM>\n";
 print html_form::select_widget("test", RxList::get_list($drug));
 print "</FORM>\n";
 */
-?>

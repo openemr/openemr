@@ -7,13 +7,16 @@ foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
     echo "$var\n";
 }
-if ($encounter == "")
-$encounter = date("Ymd");
-if ($_GET["mode"] == "new"){
+
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
+if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_individual_treatment_plan", $_POST, $_GET["id"], $userauthorized);
 
     addForm($encounter, "Individual Treatment Plan", $newid, "individual_treatment_plan", $pid, $userauthorized);
-}elseif ($_GET["mode"] == "update") {
+} elseif ($_GET["mode"] == "update") {
     sqlInsert("update form_individual_treatment_plan set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(), 
 date_of_referal ='".$_POST["date_of_referal"]."',
 dcn ='".$_POST["dcn"]."',
@@ -46,8 +49,8 @@ medications_2 ='".$_POST["medications_2"]."',
 referrals_1 ='".$_POST["referrals_1"]."',
 referrals_2 ='".$_POST["referrals_2"]."' where id=$id");
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

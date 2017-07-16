@@ -12,17 +12,18 @@
  */
 
 /* Include the class we're extending. */
-require_once ($GLOBALS['fileroot'] . "/interface/clickmap/C_AbstractClickmap.php");
+require_once($GLOBALS['fileroot'] . "/interface/clickmap/C_AbstractClickmap.php");
 
 /* included so that we can instantiate FormPainMap in createModel, to model the data contained in this form. */
-require_once ("FormPainMap.php");
+require_once("FormPainMap.php");
 
 /**
  * @class C_FormPainMap
  *
  * @brief This class extends the C_AbstractClickmap class, to create a form useful for modelling patient pain complaints.
  */
-class C_FormPainMap extends C_AbstractClickmap {
+class C_FormPainMap extends C_AbstractClickmap
+{
     /**
      * The title of the form, used when calling addform().
      *
@@ -50,7 +51,7 @@ class C_FormPainMap extends C_AbstractClickmap {
      */
     public function createModel($form_id = "")
     {
-        if ( $form_id != "" ) {
+        if ($form_id != "") {
             return new FormPainMap($form_id);
         } else {
             return new FormPainMap();
@@ -91,4 +92,3 @@ class C_FormPainMap extends C_AbstractClickmap {
         return "Pain Scale";
     }
 }
-?>

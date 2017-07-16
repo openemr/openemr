@@ -43,7 +43,7 @@ class CcdTable extends AbstractTableGateway
      *
      * @param	$components		Array of components
      */
-    public function import($xml,$document_id)
+    public function import($xml, $document_id)
     {
         $audit_master_approval_status        = $this->ccd_data_array['approval_status'] = 1;
         $this->ccd_data_array['ip_address']  = $_SERVER['REMOTE_ADDR'];
@@ -64,10 +64,10 @@ class CcdTable extends AbstractTableGateway
 
         
         $audit_master_id = \Application\Plugin\CommonPlugin::insert_ccr_into_audit_data($this->ccd_data_array);
-        $this->update_document_table($document_id,$audit_master_id,$audit_master_approval_status);
+        $this->update_document_table($document_id, $audit_master_id, $audit_master_approval_status);
     }
     
-    public function update_document_table($document_id,$audit_master_id,$audit_master_approval_status)
+    public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)
     {
         $appTable   = new ApplicationTable();
         $query = "UPDATE documents 

@@ -31,7 +31,7 @@ if ($popup && $_POST['form_save']) {
 <script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <script language="JavaScript">
 if (opener.closed || ! opener.set_proc_type) {
- alert('<?php xl('The destination form was closed; I cannot act on your selection.','e'); ?>');
+ alert('<?php xl('The destination form was closed; I cannot act on your selection.', 'e'); ?>');
 }
 else {
  opener.set_proc_type(<?php echo "$form_order, '$name'" ?>);
@@ -52,6 +52,7 @@ window.close(); // comment out for debugging
 <?php
   exit();
 }
+
 // end Save logic
 
 ?>
@@ -59,7 +60,7 @@ window.close(); // comment out for debugging
 
 <head>
 
-<title><?php xl('Order and Result Types','e'); ?></title>
+<title><?php xl('Order and Result Types', 'e'); ?></title>
 
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
@@ -116,7 +117,9 @@ tr.oddrow {
 
 <script language="JavaScript">
 
-<?php if ($popup) require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php if ($popup) {
+    require($GLOBALS['srcdir'] . "/restoreSession.php");
+} ?>
 
 <?php
 // Create array of IDs to pre-select, leaf to top.
@@ -127,6 +130,7 @@ for ($parentid = $order; $parentid > 0;) {
     $parentid = $row['parent'] + 0;
     echo ", $parentid";
 }
+
 echo "];\n";
 ?>
 
@@ -239,20 +243,25 @@ function recolor() {
 <body class="body_nav">
 <center>
 
-<h3 style='margin-top:0'><?php xl('Types of Orders and Results','e') ?></h3>
+<h3 style='margin-top:0'><?php xl('Types of Orders and Results', 'e') ?></h3>
 
 <form method='post' name='theform' action='types.php?popup=<?php echo $popup ?>&order=<?php
 echo $order;
-if (isset($_GET['formid' ])) echo '&formid='  . $_GET['formid'];
-if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
+if (isset($_GET['formid' ])) {
+    echo '&formid='  . $_GET['formid'];
+}
+
+if (isset($_GET['formseq'])) {
+    echo '&formseq=' . $_GET['formseq'];
+}
 ?>'>
 
 <table width='100%' cellspacing='0' cellpadding='0' border='0'>
  <tr class='head'>
-  <th class='col1' align='left'>&nbsp;&nbsp;<?php xl('Name','e') ?></th>
-  <th class='col2' align='left'><?php xl('Order','e') ?></th>
-  <th class='col3' align='left'><?php xl('Code','e') ?></th>
-  <th class='col4' align='left'><?php xl('Description','e') ?></th>
+  <th class='col1' align='left'>&nbsp;&nbsp;<?php xl('Name', 'e') ?></th>
+  <th class='col2' align='left'><?php xl('Order', 'e') ?></th>
+  <th class='col3' align='left'><?php xl('Code', 'e') ?></th>
+  <th class='col4' align='left'><?php xl('Description', 'e') ?></th>
   <th class='col5' align='left'>&nbsp;</th>
  </tr>
 </table>
@@ -262,12 +271,12 @@ if (isset($_GET['formseq'])) echo '&formseq=' . $_GET['formseq'];
 
 <p>
 <?php if ($popup) { ?>
-<input type='submit' name='form_save' value='<?php xl('Save','e'); ?>' />
+<input type='submit' name='form_save' value='<?php xl('Save', 'e'); ?>' />
 &nbsp;
-<input type='button' value=<?php xl('Cancel','e'); ?> onclick='window.close()' />
+<input type='button' value=<?php xl('Cancel', 'e'); ?> onclick='window.close()' />
 &nbsp;
 <?php } ?>
-<input type='button' value='<?php xl('Add Top Level','e'); ?>' onclick='anode(0)' />
+<input type='button' value='<?php xl('Add Top Level', 'e'); ?>' onclick='anode(0)' />
 </p>
 
 </form>

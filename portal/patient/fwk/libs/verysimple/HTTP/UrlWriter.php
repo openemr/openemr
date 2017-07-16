@@ -1,7 +1,7 @@
 <?php
 /** @package    verysimple::HTTP */
-require_once ("verysimple/Phreeze/ActionRouter.php");
-require_once ("verysimple/HTTP/RequestUtil.php");
+require_once("verysimple/Phreeze/ActionRouter.php");
+require_once("verysimple/HTTP/RequestUtil.php");
 
 /**
  * class for dealing with URLs
@@ -12,7 +12,8 @@ require_once ("verysimple/HTTP/RequestUtil.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class UrlWriter extends ActionRouter {
+class UrlWriter extends ActionRouter
+{
     /**
      * Returns a url for the given controller, method and parameters
      *
@@ -30,8 +31,6 @@ class UrlWriter extends ActionRouter {
     {
         $this->stripApi = $strip_api;
         $this->delim = $delim;
-        return $this->GetUrl ( $controller, $method, $params );
+        return $this->GetUrl($controller, $method, $params);
     }
 }
-
-?>

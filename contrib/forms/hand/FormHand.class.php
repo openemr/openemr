@@ -6,17 +6,18 @@
 // as published by the Free Software Foundation; either version 2
 
 
-define("EVENT_VEHICLE",1);
-define("EVENT_WORK_RELATED",2);
-define("EVENT_SLIP_FALL",3);
-define("EVENT_OTHER",4);
+define("EVENT_VEHICLE", 1);
+define("EVENT_WORK_RELATED", 2);
+define("EVENT_SLIP_FALL", 3);
+define("EVENT_OTHER", 4);
 
 
 /**
  * class FormHpTjePrimary
  *
  */
-class FormHand extends ORDataObject {
+class FormHand extends ORDataObject
+{
 
     /**
      *
@@ -45,12 +46,11 @@ class FormHand extends ORDataObject {
      * Constructor sets all Form attributes to their default value
      */
 
-    function FormHand($id= "", $_prefix = "")
+    function FormHand($id = "", $_prefix = "")
     {
         if (is_numeric($id)) {
             $this->id = $id;
-        }
-        else {
+        } else {
             $id = "";
             $this->date = date("Y-m-d H:i:s");
         }
@@ -76,8 +76,7 @@ class FormHand extends ORDataObject {
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -118,7 +117,7 @@ class FormHand extends ORDataObject {
     }
     function set_user($u)
     {
-        if(!empty($u)){
+        if (!empty($u)) {
             $this->user = $u;
         }
     }
@@ -204,19 +203,22 @@ class FormHand extends ORDataObject {
     }
     function set_handedness($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->handedness = $data;
         }
     }
     function get_handedness_l()
     {
-        return $this->handedness == "Left" ? "CHECKED" : "";    }
+        return $this->handedness == "Left" ? "CHECKED" : "";
+    }
     function get_handedness_r()
     {
-        return $this->handedness == "Right" ? "CHECKED" : "";   }
+        return $this->handedness == "Right" ? "CHECKED" : "";
+    }
     function get_handedness_b()
     {
-        return $this->handedness == "Both" ? "CHECKED" : "";    }
+        return $this->handedness == "Both" ? "CHECKED" : "";
+    }
 
     // ----- notes -----
 
@@ -227,12 +229,8 @@ class FormHand extends ORDataObject {
     }
     function set_notes($data)
     {
-        if(!empty($data)) {
+        if (!empty($data)) {
             $this->notes = $data;
         }
     }
-
-
 }   // end of Form
-
-?>

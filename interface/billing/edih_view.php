@@ -26,7 +26,10 @@
 
 require_once(dirname(__FILE__) . '/../globals.php');
 //
-if (!acl_check('acct', 'eob')) die(xlt("Access Not Authorized"));
+if (!acl_check('acct', 'eob')) {
+    die(xlt("Access Not Authorized"));
+}
+
 //
 //include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php");
 //

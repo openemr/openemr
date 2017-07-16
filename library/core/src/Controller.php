@@ -30,5 +30,4 @@ class Controller
         $this->container = $container;
         $this->eventDispatcher = $container->get('event_dispatcher');
     }
-
 }

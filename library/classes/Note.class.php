@@ -7,7 +7,8 @@
  * It is not intended that once a note is save it can be editied or changed.
  */
 
-class Note extends ORDataObject{
+class Note extends ORDataObject
+{
 
     /*
 	*	Database unique identifier
@@ -78,8 +79,7 @@ class Note extends ORDataObject{
 
         if (empty($foreign_id)) {
              $foreign_id= "like '%'";
-        }
-        else {
+        } else {
             $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
         }
 
@@ -111,8 +111,7 @@ class Note extends ORDataObject{
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -177,13 +176,12 @@ class Note extends ORDataObject{
 	*	@param int $fid foreign id that should be used so that this note can be related (joined) on it later
 	*/
 
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
+
         parent::persist();
     }
-
 } // end of Note
-?>

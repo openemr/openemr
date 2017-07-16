@@ -58,10 +58,11 @@ while ($file = sqlFetchArray($fres)) {
     while ($parent = sqlFetchArray($pathres)) {
         $path .= convert_safe_file_dir_name($parent['name'])."/";
     }
+
     $path .= convert_safe_file_dir_name($cat['name'])."/";
     // create the folder structure at the temporary dir
     if (!is_dir($tmp."/".$pid."/".$path)) {
-        if (!mkdir($tmp."/".$pid."/".$path, 0777, true )){
+        if (!mkdir($tmp."/".$pid."/".$path, 0777, true)) {
             echo xlt("Error creating directory!")."<br />";
         }
     }
@@ -76,6 +77,7 @@ while ($file = sqlFetchArray($fres)) {
         if ($pos === false) {
             $file['url'] = $file['url'].get_extension($file['mimetype']);
         }
+
         $dest = $tmp."/".$pid."/".$path."/".convert_safe_file_dir_name(basename($file['url']));
         if (file_exists($dest)) {
             $x = 1;
@@ -84,9 +86,9 @@ while ($file = sqlFetchArray($fres)) {
                 $x++;
             } while (file_exists($dest));
         }
-        file_put_contents($dest,$document);
-    }
-    else {
+
+        file_put_contents($dest, $document);
+    } else {
         echo xlt("Can't find file!")."<br />";
     }
 }
@@ -103,32 +105,35 @@ while ($file = sqlFetchArray($fres)) {
     recursive_remove_directory($tmp."/".$pid);
     unlink($tmp."/".$pid.'.zip');
 
-function recursive_remove_directory($directory, $empty=false)
+function recursive_remove_directory($directory, $empty = false)
 {
-    if(substr($directory,-1) == '/') {
-        $directory = substr($directory,0,-1);
+    if (substr($directory, -1) == '/') {
+        $directory = substr($directory, 0, -1);
     }
-    if(!file_exists($directory) || !is_dir($directory)) {
+
+    if (!file_exists($directory) || !is_dir($directory)) {
         return false;
-    } elseif(is_readable($directory)) {
+    } elseif (is_readable($directory)) {
         $handle = opendir($directory);
         while (false !== ($item = readdir($handle))) {
-            if($item != '.' && $item != '..') {
+            if ($item != '.' && $item != '..') {
                 $path = $directory.'/'.$item;
-                if(is_dir($path)) {
+                if (is_dir($path)) {
                     recursive_remove_directory($path);
                 } else {
                     unlink($path);
                 }
             }
         }
+
         closedir($handle);
-        if($empty == false) {
-            if(!rmdir($directory)) {
+        if ($empty == false) {
+            if (!rmdir($directory)) {
                 return false;
             }
         }
     }
+
     return true;
 }
 
@@ -138,28 +143,30 @@ function Zip($source, $destination)
     if (!extension_loaded('zip') || !file_exists($source)) {
         return false;
     }
+
     $zip = new ZipArchive();
     if (!$zip->open($destination, ZIPARCHIVE::CREATE)) {
         return false;
     }
+
     $source = str_replace('\\', '/', realpath($source));
     if (is_dir($source) === true) {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
         foreach ($files as $file) {
-            if($file == $source."/..")
+            if ($file == $source."/..") {
                 continue;
+            }
+
             $file = str_replace('\\', '/', realpath($file));
             if (is_dir($file) === true) {
                 $zip->addEmptyDir(str_replace($source . '/', '', $file . '/'));
-            }
-            else if (is_file($file) === true) {
+            } else if (is_file($file) === true) {
                 $zip->addFromString(str_replace($source . '/', '', $file), file_get_contents($file));
             }
         }
-    }
-    else if (is_file($source) === true) {
+    } else if (is_file($source) === true) {
         $zip->addFromString(basename($source), file_get_contents($source));
     }
+
     return $zip->close();
 }
-?>

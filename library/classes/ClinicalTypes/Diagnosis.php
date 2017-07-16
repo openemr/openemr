@@ -6,7 +6,7 @@
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 //
-require_once( 'ClinicalType.php' );
+require_once('ClinicalType.php');
 
 class Diagnosis extends ClinicalType
 {
@@ -65,17 +65,18 @@ class Diagnosis extends ClinicalType
      * 
      * @return true if patient meets criteria, false ow
      */
-    public function doPatientCheck( RsPatient $patient, $beginDate = null, $endDate = null, $options = null )
+    public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        $data = Codes::lookup( $this->getOptionId() );
+        $data = Codes::lookup($this->getOptionId());
         $type = $this->getListType();
-        foreach( $data as $codeType => $codes ) {
-            foreach ( $codes as $code ) {
-                if ( exist_lists_item( $patient->id, $type, $codeType.'::'.$code, $endDate ) ) {
+        foreach ($data as $codeType => $codes) {
+            foreach ($codes as $code) {
+                if (exist_lists_item($patient->id, $type, $codeType.'::'.$code, $endDate)) {
                     return true;
                 }
             }
         }
+
         return false;
     }
 }

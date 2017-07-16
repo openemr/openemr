@@ -37,10 +37,10 @@ $patient_data = array(
     'postal_code'       => 'Postal Code',
 );
 
-if($_POST["setval"] == 'approve'){
+if ($_POST["setval"] == 'approve') {
     insertApprovedData($_REQUEST);
     $query = "UPDATE audit_master SET approval_status = '2' WHERE id=?";
-    sqlQuery($query,array($_REQUEST['amid']));
+    sqlQuery($query, array($_REQUEST['amid']));
     ?>
     <html>
         <head>
@@ -53,9 +53,9 @@ if($_POST["setval"] == 'approve'){
     </html>
     <?php
     exit;
-}elseif($_POST["setval"] == 'discard'){
+} elseif ($_POST["setval"] == 'discard') {
     $query = "UPDATE audit_master SET approval_status = '3' WHERE id=?";
-    sqlQuery($query,array($_REQUEST['amid']));
+    sqlQuery($query, array($_REQUEST['amid']));
     ?>
     <html>
         <head>
@@ -130,13 +130,13 @@ function submit_form(val){
                     <tr>
                         <?php
                             $query_pd = sqlStatement("SELECT ad.id as adid, table_name, field_name, field_value FROM audit_master am JOIN audit_details ad ON ad.audit_master_id = am.id
-								WHERE am.id = ? AND ad.table_name = 'patient_data' ORDER BY ad.id",array($_REQUEST['amid']));
+								WHERE am.id = ? AND ad.table_name = 'patient_data' ORDER BY ad.id", array($_REQUEST['amid']));
                             $i = 0;
-                            while($res_pd = sqlFetchArray($query_pd)){
-                                if($res_pd['field_name'] != 'lname' && $res_pd['field_name'] != 'fname' && $res_pd['field_name'] != 'DOB'){
+                            while ($res_pd = sqlFetchArray($query_pd)) {
+                                if ($res_pd['field_name'] != 'lname' && $res_pd['field_name'] != 'fname' && $res_pd['field_name'] != 'DOB') {
                                     $i++;
-                                    $query_oldpd = sqlQuery("SELECT ".$res_pd['field_name']." AS val FROM patient_data WHERE pid = ?",array($_REQUEST['pid']));
-                                    if($res_pd['field_name'] == 'sex'){
+                                    $query_oldpd = sqlQuery("SELECT ".$res_pd['field_name']." AS val FROM patient_data WHERE pid = ?", array($_REQUEST['pid']));
+                                    if ($res_pd['field_name'] == 'sex') {
                                         echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
                                             "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' style='width:150px;' >" .
                                         "<option value='Male' " . ($res_pd['field_value'] == 'Male' ? 'selected' : '' ) . " >" . xlt('Male') . "</option>" .
@@ -145,20 +145,21 @@ function submit_form(val){
                                             "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel'>" .
                                         "<option value='ignore' >" . xlt('Ignore') . "</option> " .
                                         "<option value='update' >" . xlt('Update') . "</option></select></td>";
-                                    }else{
+                                    } else {
                                         echo "<td>" . ($patient_data[$res_pd['field_name']] ? text($patient_data[$res_pd['field_name']]): text($res_pd['field_name'])) . "</td>" .
                                             "<td><input type='text' name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "' value='" . attr($res_pd['field_value']) . "' >" .
                                         "<span style='color:red;padding-left:25px;' >" . text($query_oldpd['val']) . "</span></td>" .
                                             "<td><select name='" . $res_pd['table_name'] . "-" . $res_pd['field_name'] . "-sel' >" .
                                         "<option value='ignore' >" . xlt('Ignore') . "</option><option value='update' >" . xlt('Update') . "</option></select></td>";
                                     }
-                                    if($i%2 == 0){
-                                        if($i%4 == 2){
+
+                                    if ($i%2 == 0) {
+                                        if ($i%4 == 2) {
                                             echo "</tr><tr class='alternate' >";
-                                        }else{
+                                        } else {
                                             echo "</tr><tr>";
                                         }
-                                    }else{
+                                    } else {
                                         echo "<td>&nbsp;&nbsp;&nbsp;</td>";
                                     }
                                 }
@@ -183,28 +184,31 @@ function submit_form(val){
                 <table border="0" width="95%" >
                     <tr>
                         <?php
-                            $query_existing_prob = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'medical_problem'",array($_REQUEST['pid']));
+                            $query_existing_prob = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'medical_problem'", array($_REQUEST['pid']));
                             $result = array();
-                        while($res_existing_prob = sqlFetchArray($query_existing_prob)){
-                            array_push($result,$res_existing_prob);
+                        while ($res_existing_prob = sqlFetchArray($query_existing_prob)) {
+                            array_push($result, $res_existing_prob);
                         }
-                            $aud_res = createAuditArray($_REQUEST['amid'],'lists1');
-                        while($res_existing_prob = array_shift($result)){
-                            if($res_existing_prob['activity'] == 1){
+
+                            $aud_res = createAuditArray($_REQUEST['amid'], 'lists1');
+                        while ($res_existing_prob = array_shift($result)) {
+                            if ($res_existing_prob['activity'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             $set = 0;
                             $cnt = 0;
-                            foreach($aud_res['lists1'] as $k=>$v){
+                            foreach ($aud_res['lists1'] as $k => $v) {
                                 $cnt++;
-                                if($cnt%2 == 0){
+                                if ($cnt%2 == 0) {
                                     $class = 'alternate';
-                                }else{
+                                } else {
                                     $class = '';
                                 }
-                                if(in_array($res_existing_prob['diagnosis'],$aud_res['lists1'][$k])){
+
+                                if (in_array($res_existing_prob['diagnosis'], $aud_res['lists1'][$k])) {
                                     $set = 1;
                                     echo "<tr class='$class' ><td>" . xlt('Title') . "</td><td><input type='text' name='lists1-title[]' value='' ></td>" .
                                     "<td>" . xlt('Code') . "</td>" .
@@ -219,19 +223,23 @@ function submit_form(val){
                                     unset($aud_res['lists1'][$k]);
                                 }
                             }
-                            if($set == 0){
+
+                            if ($set == 0) {
                                 echo "<tr><td>" . xlt('Title') . "</td><td>" . text($res_existing_prob['title']) . "</td>" .
                                 "<td>" . xlt('Code') . "</td><td>" . text($res_existing_prob['diagnosis']) . "</td>" .
                                 "<td>" . xlt('Status') . "</td><td>" . xlt($activity) . "</td><td>&nbsp;</td>";
                             }
+
                             echo "</tr>";
                         }
-                        foreach($aud_res['lists1'] as $key=>$val){
-                            if($val['activity'] == 1){
+
+                        foreach ($aud_res['lists1'] as $key => $val) {
+                            if ($val['activity'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             echo "<tr><td>" . xlt('Title') . "</td><td><input type='text' name='lists1-title[]' value='' ></td>" .
                             "<td>" . xlt('Code') . "</td><td><input type='text' name='lists1-diagnosis[]' value='" . attr($val['diagnosis']) . "' ></td>" .
                             "<td>" . xlt('Status') . "</td><td><input type='text' name='lists1-activity[]' value='" . $activity . "' ></td>" .
@@ -258,29 +266,33 @@ function submit_form(val){
                 <table border="0" width="95%" >
                     <tr>
                         <?php
-                            $query_existing_alerts = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'allergy'",array($_REQUEST['pid']));
+                            $query_existing_alerts = sqlStatement("SELECT * FROM lists WHERE pid = ? AND TYPE = 'allergy'", array($_REQUEST['pid']));
                             $result = array();
-                        while($res_existing_alerts = sqlFetchArray($query_existing_alerts)){
-                            array_push($result,$res_existing_alerts);
+                        while ($res_existing_alerts = sqlFetchArray($query_existing_alerts)) {
+                            array_push($result, $res_existing_alerts);
                         }
-                            $aud_res = createAuditArray($_REQUEST['amid'],'lists2');
-                        while($res_existing_alerts = array_shift($result)){
-                            if($res_existing_alerts['activity'] == 1){
+
+                            $aud_res = createAuditArray($_REQUEST['amid'], 'lists2');
+                        while ($res_existing_alerts = array_shift($result)) {
+                            if ($res_existing_alerts['activity'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             echo "<tr><td>" . xlt('Title') . "</td><td>" . text($res_existing_alerts['title']) . "</td>" .
                             "<td>" . xlt('Date Time') . "</td><td>" . text($res_existing_alerts['date']) . "</td>" .
                             "<td>" . xlt('Diagnosis') . "</td><td>" . text($res_existing_alerts['diagnosis']) . "</td>" .
                             "<td>" . xlt('Reaction') . "</td><td>" . text($res_existing_alerts['reaction']) . "</td><td>&nbsp;</td></tr>";
                         }
-                        foreach($aud_res['lists2'] as $key=>$val){
-                            if($val['activity'] == 1){
+
+                        foreach ($aud_res['lists2'] as $key => $val) {
+                            if ($val['activity'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             echo "<tr><td>" . xlt('Title') . "</td><td><input type='text' name='lists2-title[]' value='" . attr($val['title']) . "' ></td>" .
                             "<td>" . xlt('Date Time') . "</td><td><input type='text' name='lists2-date[]' value='" . attr($val['date']) . "' ></td>" .
                             "<td>" . xlt('Diagnosis') . "</td><td><input type='text' name='lists2-diagnosis[]' value='" . attr($val['diagnosis']) . "' ></td>" .
@@ -309,18 +321,20 @@ function submit_form(val){
                 <table border="0" width="95%" >
                     <tr>
                         <?php
-                            $query_existing_medications = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ?",array($_REQUEST['pid']));
+                            $query_existing_medications = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ?", array($_REQUEST['pid']));
                             $result = array();
-                        while($res_existing_medications = sqlFetchArray($query_existing_medications)){
-                            array_push($result,$res_existing_medications);
+                        while ($res_existing_medications = sqlFetchArray($query_existing_medications)) {
+                            array_push($result, $res_existing_medications);
                         }
-                            $aud_res = createAuditArray($_REQUEST['amid'],'prescriptions');
-                        while($res_existing_medications = array_shift($result)){
-                            if($res_existing_medications['active'] == 1){
+
+                            $aud_res = createAuditArray($_REQUEST['amid'], 'prescriptions');
+                        while ($res_existing_medications = array_shift($result)) {
+                            if ($res_existing_medications['active'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             echo "<tr><td>" . xlt('Name') . "</td><td>" . text($res_existing_medications['drug']) . "</td>" .
                             "<td>" . xlt('Date') . "</td><td>" . text($res_existing_medications['date_added']) . "</td>" .
                             "<td>" . xlt('Status') . "</td><td>" . xlt($activity) . "</td><td rowspan='2' >&nbsp;</td></tr><tr><td>" . xlt('Form') . "</td>" .
@@ -328,12 +342,14 @@ function submit_form(val){
                             "<td>" . xlt('Quantity')."</td><td>" . text($res_existing_medications['quantity']) . "</td>" .
                             "<td>" . xlt('Refills') . "</td><td>" . text($res_existing_medications['refills']) . "</td></tr>";
                         }
-                        foreach($aud_res['prescriptions'] as $key=>$val){
-                            if($val['active'] == 1){
+
+                        foreach ($aud_res['prescriptions'] as $key => $val) {
+                            if ($val['active'] == 1) {
                                 $activity = 'Active';
-                            }else{
+                            } else {
                                 $activity = 'Inactive';
                             }
+
                             echo "<tr><td>" . xlt('Name') . "</td><td><input type='text' name='prescriptions-drug[]' value='" . attr($val['drug']) . "' ></td>" .
                             "<td>" . xlt('Date') . "</td><td><input type='text' name='prescriptions-date_added[]' value='" . attr($val['date_added']) . "' ></td>" .
                             "<td>" . xlt('Status') . "</td><td><input type='text' name='prescriptions-active[]' value='" . $activity . "' ></td><td rowspan='2' >" .
@@ -364,19 +380,21 @@ function submit_form(val){
                 <table border="0" width="95%" >
                     <tr>
                         <?php
-                            $query_existing_immunizations = sqlStatement("SELECT * FROM immunizations WHERE patient_id = ? AND added_erroneously = 0",array($_REQUEST['pid']));
+                            $query_existing_immunizations = sqlStatement("SELECT * FROM immunizations WHERE patient_id = ? AND added_erroneously = 0", array($_REQUEST['pid']));
                             $result = array();
-                        while($res_existing_immunizations = sqlFetchArray($query_existing_immunizations)){
-                            array_push($result,$res_existing_immunizations);
+                        while ($res_existing_immunizations = sqlFetchArray($query_existing_immunizations)) {
+                            array_push($result, $res_existing_immunizations);
                         }
-                            $aud_res = createAuditArray($_REQUEST['amid'],'immunizations');
-                        while($res_existing_immunizations = array_shift($result)){
+
+                            $aud_res = createAuditArray($_REQUEST['amid'], 'immunizations');
+                        while ($res_existing_immunizations = array_shift($result)) {
                             echo "<tr><td>" . xlt('Administered Date') . "</td>" .
                             "<td>" . text($res_existing_immunizations['administered_date']) . "</td>" .
                             "<td>" . xlt('Note') . "</td><td>" . text($res_existing_immunizations['note']) . "</td>" .
                             "<td>&nbsp;</td></tr>";
                         }
-                        foreach($aud_res['immunizations'] as $key=>$val){
+
+                        foreach ($aud_res['immunizations'] as $key => $val) {
                             echo "<tr><td>" . xlt('Administered Date') . "</td>" .
                             "<td><input type='text' name='immunizations-administered_date[]' value='" . attr($val['administered_date']) . "' ></td>" .
                             "<td>" . xlt('Note') . "</td><td><input type='text' name='immunizations-note[]' value='" . attr($val['note']) . "' ></td>" .
@@ -405,13 +423,14 @@ function submit_form(val){
                         <?php
                             $query_existing_lab_results = sqlStatement("SELECT * FROM procedure_order AS po LEFT JOIN procedure_order_code AS poc
 								ON poc.procedure_order_id = po.procedure_order_id LEFT JOIN procedure_report AS pr ON pr.procedure_order_id = po.procedure_order_id
-								LEFT JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id WHERE patient_id = ?",array($_REQUEST['pid']));
+								LEFT JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id WHERE patient_id = ?", array($_REQUEST['pid']));
                             $result = array();
-                            while($res_existing_lab_results = sqlFetchArray($query_existing_lab_results)){
-                                array_push($result,$res_existing_lab_results);
+                            while ($res_existing_lab_results = sqlFetchArray($query_existing_lab_results)) {
+                                array_push($result, $res_existing_lab_results);
                             }
-                            $aud_res = createAuditArray($_REQUEST['amid'],'procedure_result,procedure_type');
-                            while($res_existing_lab_results = array_shift($result)){
+
+                            $aud_res = createAuditArray($_REQUEST['amid'], 'procedure_result,procedure_type');
+                            while ($res_existing_lab_results = array_shift($result)) {
                                 echo "<tr><td>" . xlt('Name') . "</td>" .
                                     "<td>" . text($res_existing_lab_results['result_text']) . "</td>" .
                                     "<td>" . xlt('Date') . "</td><td>" . text($res_existing_lab_results['date_ordered']) . "</td>" .
@@ -419,7 +438,8 @@ function submit_form(val){
                                     "<td>" . xlt('Abnormal') . "</td><td>" . text($res_existing_lab_results['abnormal']) . "</td>" .
                                     "<td>&nbsp;</td></tr>";
                             }
-                            foreach($aud_res['procedure_result,procedure_type'] as $key=>$val){
+
+                            foreach ($aud_res['procedure_result,procedure_type'] as $key => $val) {
                                 echo "<tr><td>" . xlt('Name') . "</td>" .
                                     "<td><input type='text' name='procedure_type-name[]' value='" . attr($val['name']) . "' ></td>" .
                                     "<td>" . xlt('Date') . "</td><td><input type='text' name='procedure_result-date[]' value='" . attr($val['date']) . "' ></td>" .
@@ -438,7 +458,7 @@ function submit_form(val){
                 <input type="button" name="approve" value="<?php echo xlt('Approve'); ?>" onclick="top.restoreSession();submit_form('approve');" >
                 <input type="button" name="discard" value="<?php echo xlt('Discard'); ?>" onclick="top.restoreSession();submit_form('discard');" >
         <?php
-        $aud_res = createAuditArray($_REQUEST['amid'],'documents');
+        $aud_res = createAuditArray($_REQUEST['amid'], 'documents');
         ?>
         <input type="hidden" name="doc_id" id="doc_id" value="<?php echo $aud_res['documents']['']['id']; ?>" >
                 <input type="hidden" name="setval" id="setval" value="" >

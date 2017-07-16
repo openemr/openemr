@@ -31,9 +31,18 @@
 $form_name = "eye_mag";
 $form_folder="eye_mag";
 // larry :: hack add for command line version
-if (!$_SERVER['REQUEST_URI']) $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
-if (!$_SERVER['SERVER_NAME']) $_SERVER['SERVER_NAME']='localhost';
-if (!$_SERVER['HTTP_HOST']) $_SERVER['HTTP_HOST']='default'; //need to figure out how to do this for non-default installs
+if (!$_SERVER['REQUEST_URI']) {
+    $_SERVER['REQUEST_URI']=$_SERVER['PHP_SELF'];
+}
+
+if (!$_SERVER['SERVER_NAME']) {
+    $_SERVER['SERVER_NAME']='localhost';
+}
+
+if (!$_SERVER['HTTP_HOST']) {
+    $_SERVER['HTTP_HOST']='default'; //need to figure out how to do this for non-default installs
+}
+
 $ignoreAuth=1;
 
 require_once("../../globals.php");
@@ -90,8 +99,13 @@ $PDF_OUTPUT='1';
 // If this is a request to make a task, make it.
 $ajax_req = $_REQUEST;
 
-if ($_REQUEST['action']=='make_task') make_task($ajax_req);
-if ($_REQUEST['action']=='show_task') show_task($ajax_req);
+if ($_REQUEST['action']=='make_task') {
+    make_task($ajax_req);
+}
+
+if ($_REQUEST['action']=='show_task') {
+    show_task($ajax_req);
+}
 
 // Get the list of Tasks and process them one-by-one
 // unless this is a call from the web, then just do the task at hand
@@ -99,17 +113,15 @@ if ($_REQUEST['action']=='show_task') show_task($ajax_req);
 
 
 $query  = "SELECT * FROM form_taskman where PATIENT_ID=? AND (COMPLETED is NULL or COMPLETED != '1')  order by REQ_DATE";
-$result = sqlStatement($query,array($ajax_req['pid']));
-while ($task= sqlFetchArray($result))   {
+$result = sqlStatement($query, array($ajax_req['pid']));
+while ($task= sqlFetchArray($result)) {
     $send = process_tasks($task);
     if ($_REQUEST['action']=='make_task') {
         echo json_encode($send);
         exit;
     }
 }
+
 $send['comments'] = "Nothing new to do!";
 echo json_encode($send);
         exit;
-
-?>
-

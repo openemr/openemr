@@ -15,7 +15,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class RefundRequest {
+class RefundRequest
+{
     static $REFUND_TYPE_FULL = 'Full';
     static $REFUND_TYPE_PARTIAL = 'Partial';
     public $TransactionId = "";
@@ -31,7 +32,7 @@ class RefundRequest {
      */
     final function __construct()
     {
-        $this->Init ();
+        $this->Init();
     }
     
     /**
@@ -45,5 +46,3 @@ class RefundRequest {
         $this->CustomerIP = $_SERVER ['REMOTE_ADDR'];
     }
 }
-
-?>

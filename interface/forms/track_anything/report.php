@@ -22,7 +22,7 @@
 
 include_once($GLOBALS["srcdir"] . "/api.inc");
 
-function track_anything_report( $pid, $encounter, $cols, $id)
+function track_anything_report($pid, $encounter, $cols, $id)
 {
     #$patient_report_flag = 'no';
     echo "<div id='track_anything'>";
@@ -55,7 +55,7 @@ function track_anything_report( $pid, $encounter, $cols, $id)
     $query = sqlStatement($spell0, array($formid));
 
     // get all data of this specific track
-    while($myrow = sqlFetchArray($query)){
+    while ($myrow = sqlFetchArray($query)) {
         $thistime = $myrow['track_timestamp'];
         $shownameflag++;
         $spell  = "SELECT form_track_anything_results.itemid, form_track_anything_results.result, form_track_anything_type.name AS the_name ";
@@ -66,13 +66,14 @@ function track_anything_report( $pid, $encounter, $cols, $id)
         $query2  = sqlStatement($spell, array($formid, $thistime));
 
         // is this the <tbale>-head?
-        if ($shownameflag==1){
+        if ($shownameflag==1) {
             echo "<tr><th class='time'>" . xlt('Time') . "</th>";
-            while($myrow2 = sqlFetchArray($query2)){
+            while ($myrow2 = sqlFetchArray($query2)) {
                 echo "<th class='item'>&nbsp;" . text($myrow2['the_name']) . "&nbsp;</th>";
                 $ofc_name[$col] = $myrow2['the_name']; // save for chart-form
                 $col++;
             }
+
             echo "</tr>";
         }
 
@@ -81,13 +82,15 @@ function track_anything_report( $pid, $encounter, $cols, $id)
         $ofc_date[$row] = $thistime; // save for chart-form
         $col_i = 0; // how many columns
         $query2  = sqlStatement($spell, array($formid, $thistime));
-        while($myrow2 = sqlFetchArray($query2)){
+        while ($myrow2 = sqlFetchArray($query2)) {
             echo "<td class='item'>&nbsp;" . text($myrow2['result']) . "&nbsp;</td>";
             if (is_numeric($myrow2['result'])) {
                     $ofc_value[$col_i][$row] = $myrow2['result'];// save for chart-form
             }
+
             $col_i++;
         }
+
         echo "</tr>";
         $row++;
     }
@@ -102,25 +105,29 @@ function track_anything_report( $pid, $encounter, $cols, $id)
     //-------------------------------
         echo "<tr>";
         echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
-    for ($col_i = 0; $col_i < $col; $col_i++){
+    for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'><div class='navigateLink'>";
         for ($row_b=0; $row_b <$row; $row_b++) {
             // count more than 1 to show graph-button
-            if(is_numeric($ofc_value[$col_i][$row_b])){ $dummy[$col_i]++;
+            if (is_numeric($ofc_value[$col_i][$row_b])) {
+                $dummy[$col_i]++;
             }
         }
+
         // show graph-button only if we have more than 1 valid data
-        if ($dummy[$col_i] > 1){
+        if ($dummy[$col_i] > 1) {
             echo "<input type='checkbox' name='check_col" . attr($formid) . "' value='" . attr($col_i) . "'>";
             $showbutton++;
         }
+
         echo "</div></td>";
     }
+
         echo "</tr>";
 
     // end Graph-Button-Row---------
 
-    if($showbutton>0){
+    if ($showbutton>0) {
         echo "<tr><td></td>";
         echo "<td colspan='" . attr($col) . "'><div class='navigateLink'>";
         echo "<input type='button' class='graph_button' ";
@@ -128,6 +135,7 @@ function track_anything_report( $pid, $encounter, $cols, $id)
         echo " name='' value='" . xla('Plot selected Items') . "'>";
         echo "</div></td></tr>";
     }
+
     //---/end graph button------------------
         echo "</table>";
         echo "<br>";
@@ -139,4 +147,3 @@ function track_anything_report( $pid, $encounter, $cols, $id)
     echo "</div>"; // end hide for report
         echo "</div>";
 }// end function track_anything_report
-?>

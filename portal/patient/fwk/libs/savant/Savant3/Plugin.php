@@ -28,7 +28,8 @@
  *
  *
  */
-abstract class Savant3_Plugin {
+abstract class Savant3_Plugin
+{
     
     /**
      *
@@ -56,10 +57,9 @@ abstract class Savant3_Plugin {
      */
     public function __construct($conf = null)
     {
-        settype ( $conf, 'array' );
-        foreach ( $conf as $key => $val ) {
+        settype($conf, 'array');
+        foreach ($conf as $key => $val) {
             $this->$key = $val;
         }
     }
 }
-?>

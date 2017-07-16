@@ -71,12 +71,13 @@ echo "<form method='post' name='my_form' " .
 ?>
 <table  border="0">
 <tr>
-<td align="left" class="forms" class="forms"><?php echo xlt('Client Name' ); ?>:</td>
+<td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
             <label class="forms-data"> <?php if (is_numeric($pid)) {
-
                 $result = getPatientData($pid, "fname,lname,squad");
-                echo text($result['fname'])." ".text($result['lname']);}
+                echo text($result['fname'])." ".text($result['lname']);
+}
+
    $patient_name=($result['fname'])." ".($result['lname']);
     ?>
    </label>
@@ -85,9 +86,10 @@ echo "<form method='post' name='my_form' " .
         <td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
         <td class="forms">
         <label class="forms-data"> <?php if (is_numeric($pid)) {
-
             $result = getPatientData($pid, "*");
-            echo text($result['DOB']);}
+            echo text($result['DOB']);
+}
+
    $dob=($result['DOB']);
     ?>
    </label>
@@ -104,7 +106,7 @@ echo "<form method='post' name='my_form' " .
 
         <td align="left" class="forms"><?php echo xlt('Transfer date'); ?>:</td>
         <td class="forms">
-               <input type='text' size='10' class='datepicker' name='transfer_date' id='transfer_date' <?php echo attr ($disabled)?>;
+               <input type='text' size='10' class='datepicker' name='transfer_date' id='transfer_date' <?php echo attr($disabled)?>;
        value='<?php echo attr($obj{"transfer_date"}); ?>'
        title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
         </td>

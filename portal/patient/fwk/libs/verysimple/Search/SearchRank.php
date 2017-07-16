@@ -12,7 +12,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class SearchRank {
+class SearchRank
+{
     public $EstimatedResults = 0;
     public $Position = 0;
     public $Url;
@@ -24,5 +25,3 @@ class SearchRank {
     public $TopRankedTitle;
     public $TopRankedSnippet;
 }
-
-?>

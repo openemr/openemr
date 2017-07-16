@@ -25,42 +25,48 @@
 
 require_once("../interface/globals.php");
 $getdir = isset($_POST['sel_pt']) ? $_POST['sel_pt'] : 0;
-if( $getdir > 0){
+if ($getdir > 0) {
     $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/' . $getdir . '/';
-    if(!is_dir($tdir)){
+    if (!is_dir($tdir)) {
         if (!mkdir($tdir, 0755, true)) {
             die(xl('Failed to create folder'));
         }
     }
-}
-else {
+} else {
     $tdir = $GLOBALS['OE_SITE_DIR'] .  '/documents/onsite_portal_documents/templates/';
 }
+
 function getAuthUsers()
 {
-    $response = sqlStatement( "SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'" );
+    $response = sqlStatement("SELECT patient_data.pid, Concat_Ws(' ', patient_data.fname, patient_data.lname) as ptname FROM patient_data WHERE allow_patient_portal = 'YES'");
     $resultpd = array ();
-    while( $row = sqlFetchArray($response) ){
+    while ($row = sqlFetchArray($response)) {
         $resultpd[] = $row;
     }
+
     return $resultpd;
 }
 function getTemplateList($dir)
 {
     $retval = array();
-    if(substr($dir, -1) != "/") $dir .= "/";
-    $d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
-    while(false !== ($entry = $d->read())) {
-        if($entry[0] == "." || substr($entry,-3) != 'tpl') continue;
+    if (substr($dir, -1) != "/") {
+        $dir .= "/";
+    }
 
-        if(is_dir("$dir$entry")) {
+    $d = @dir($dir) or die("File List: Failed opening directory " . text($dir) . " for reading");
+    while (false !== ($entry = $d->read())) {
+        if ($entry[0] == "." || substr($entry, -3) != 'tpl') {
+            continue;
+        }
+
+        if (is_dir("$dir$entry")) {
             $retval[] = array(
                     'pathname' => "$dir$entry",
                     'name' => "$entry",
                     'size' => 0,
                     'lastmod' => filemtime("$dir$entry")
             );
-        } elseif(is_readable("$dir$entry")) {
+        } elseif (is_readable("$dir$entry")) {
             $retval[] = array(
                     'pathname' => "$dir$entry",
                     'name' => "$entry",
@@ -69,6 +75,7 @@ function getTemplateList($dir)
             );
         }
     }
+
     $d->close();
     return $retval;
 }
@@ -205,6 +212,7 @@ foreach ($ppt as $pt) {
         echo "<option value='" . attr($pt['pid']) . "' selected='selected'>" . text($pt['ptname']) . "</option>";
     }
 }
+
 echo "</select></div>";
 echo '<button type="submit" class="btn btn-default">' . xlt('Refresh') . '</button>';
 echo '</form></div>';
@@ -223,6 +231,7 @@ foreach ($dirlist as $file) {
     echo "<td>", date('r', $file['lastmod']), "</td>";
     echo "</tr>";
 }
+
 echo "</tbody>";
 echo "</table>";
 ?>

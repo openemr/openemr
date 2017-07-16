@@ -26,7 +26,8 @@ define('EPSILON', 1.0e-8);
  *
  * @package Filtreatment
  */
-class Filtreatment {
+class Filtreatment
+{
 
     var $minval = 0;
     var $maxval = 0;
@@ -42,10 +43,14 @@ class Filtreatment {
  */
     function __construct()
     {
-        if ( get_magic_quotes_gpc() ) {
-            if ( !defined('MAGICQUOTES') ) define ('MAGICQUOTES', true);
+        if (get_magic_quotes_gpc()) {
+            if (!defined('MAGICQUOTES')) {
+                define('MAGICQUOTES', true);
+            }
         } else {
-            if ( !defined('MAGICQUOTES') ) define ('MAGICQUOTES', false);
+            if (!defined('MAGICQUOTES')) {
+                define('MAGICQUOTES', false);
+            }
         }
     }
 
@@ -65,11 +70,11 @@ class Filtreatment {
         $mnval      = (int)$this->minval;
         $mxval      = (int)$this->maxval;
 
-        if ( !$mnval && !$mxval ) {
+        if (!$mnval && !$mxval) {
             return $input_c;
-        } else if ( $mnval && $mxval ) {
+        } else if ($mnval && $mxval) {
             // check if they are in order (min <  max)
-            if ( $mnval > $mxval ) {
+            if ($mnval > $mxval) {
                 $temp   = $mnval;
                 $mnval  = $mxval;
                 $mxval  = $temp;
@@ -79,10 +84,14 @@ class Filtreatment {
             return (($input >= $mnval) && ($input <= $mxval)) ? $input_c : false;
         } else {
             // only one value set
-            if ( $mnval ) return (($input >= $mnval) ? $input_c : false );
-            if ( $mxval ) return (($input <= $mxval) ? $input_c : false );
-        }
+            if ($mnval) {
+                return (($input >= $mnval) ? $input_c : false );
+            }
 
+            if ($mxval) {
+                return (($input <= $mxval) ? $input_c : false );
+            }
+        }
     }
 
 
@@ -101,11 +110,11 @@ class Filtreatment {
         $mnval      = (float)$this->minval;
         $mxval      = (float)$this->maxval;
 
-        if ( !$mnval && !$mxval ) {
+        if (!$mnval && !$mxval) {
             return $input_c;
-        } else if ( $mnval && $mxval ) {
+        } else if ($mnval && $mxval) {
             // check if they are in order (min <  max)
-            if ( $this->ft_realcmp($mnval, $mxval) > 0 ) {
+            if ($this->ft_realcmp($mnval, $mxval) > 0) {
                 $temp   = $mnval;
                 $mnval  = $mxval;
                 $mxval  = $temp;
@@ -113,27 +122,32 @@ class Filtreatment {
 
             // and then check if the value is between these values
             $lt = $this->ft_realcmp($input, $mxval); //-1 or 0 for true
-            if ( $lt === -1 || $lt === 0 ) $lt = $input_c;
-            else $lt = false;
+            if ($lt === -1 || $lt === 0) {
+                $lt = $input_c;
+            } else {
+                $lt = false;
+            }
 
             $gt = $this->ft_realcmp($input, $mnval); //1 or 0 for true
-            if ( $gt === 1 || $gt === 0 ) $gt = true;
-            else $gt = false;
+            if ($gt === 1 || $gt === 0) {
+                $gt = true;
+            } else {
+                $gt = false;
+            }
 
             return (( $lt && $gt ) ? $input_c : false);
         } else {
             // only one value set
-            if ( $mnval ) {
+            if ($mnval) {
                 $gt = $this->ft_realcmp($input, $mnval); //1 or 0 for true
                 return ( $gt === 1 || $gt === 0 ) ? $input_c : false;
             }
 
-            if ( $mxval ) {
+            if ($mxval) {
                 $lt = $this->ft_realcmp($input, $mxval); //-1 or 0 for true
                 return ( $lt === -1 || $lt === 0 ) ? $input_c : false;
             }
         }
-
     }
 
 //-----------------------------------------------------------------------------
@@ -147,8 +161,8 @@ class Filtreatment {
  */
     function ft_validdate($str)
     {
-        if ( preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str) ) {
-            $arr = explode("-",$str);     // splitting the array
+        if (preg_match("/([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})/", $str)) {
+            $arr = explode("-", $str);     // splitting the array
             $yy = $arr[0];            // first element of the array is year
             $mm = $arr[1];            // second element is month
             $dd = $arr[2];            // third element is days
@@ -174,14 +188,16 @@ class Filtreatment {
         }
 
         // check for @ symbol and maximum allowed lengths
-        if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) { return false; }
+        if (!preg_match("/^[^@]{1,64}@[^@]{1,255}$/", $email)) {
+            return false;
+        }
 
         // split for sections
         $email_array = explode("@", $email);
         $local_array = explode(".", $email_array[0]);
 
         for ($i = 0; $i < sizeof($local_array); $i++) {
-            if ( !preg_match("/^(([A-Za-z0-9!#$%&'*+\/=?^_`{|}~-][A-Za-z0-9!#$%&'*+\/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$/", $local_array[$i]) ) {
+            if (!preg_match("/^(([A-Za-z0-9!#$%&'*+\/=?^_`{|}~-][A-Za-z0-9!#$%&'*+\/=?^_`{|}~\.-]{0,63})|(\"[^(\\|\")]{0,62}\"))$/", $local_array[$i])) {
                  return false;
             }
         }
@@ -189,7 +205,9 @@ class Filtreatment {
         if (!preg_match("/^\[?[0-9\.]+\]?$/", $email_array[1])) {
         // verify if domain is IP. If not, it must be a valid domain name
             $domain_array = explode(".", $email_array[1]);
-            if (sizeof($domain_array) < 2) { return false; }
+            if (sizeof($domain_array) < 2) {
+                return false;
+            }
 
             for ($i = 0; $i < sizeof($domain_array); $i++) {
                 if (!preg_match("/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]+))$/", $domain_array[$i])) {
@@ -220,10 +238,12 @@ class Filtreatment {
             // Quote if not a number or a numeric string
         if (!is_numeric($value)) {
             switch ($db_type) {
-                case 'MYSQL': $value = add_escape_custom($value);
-break;
-                case 'PGSQL': $value = pg_escape_string($value);
-break;
+                case 'MYSQL':
+                    $value = add_escape_custom($value);
+                    break;
+                case 'PGSQL':
+                    $value = pg_escape_string($value);
+                    break;
             }
         }
 
@@ -256,15 +276,18 @@ break;
             // verify the string
             case '1':
                 $s = ( preg_match($regexfull, $value) ? false : true );
-            break;
+                break;
 
             // cleanup the string
             case '2':
-                $value = preg_replace($regexfull,'',$value);
-            break;
+                $value = preg_replace($regexfull, '', $value);
+                break;
 
             // if $cv is not specified or it's wrong
-            default: if ( preg_match($regexfull, $value) ) $s = false;
+            default:
+                if (preg_match($regexfull, $value)) {
+                    $s = false;
+                }
         }
 
         return ( $s ? $value : false );
@@ -300,7 +323,7 @@ break;
         * the conversion of entities to ASCII later.
         *
         */
-        $str = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u',"\\1;",$str);
+        $str = preg_replace('#(&\#*\w+)[\x00-\x20]+;#u', "\\1;", $str);
 
         /*
         * Validate UTF16 two byte encoding (x00)
@@ -308,7 +331,7 @@ break;
         * Just as above, adds a semicolon if missing.
         *
         */
-        $str = preg_replace('#(&\#x*)([0-9A-F]+);*#iu',"\\1\\2;",$str);
+        $str = preg_replace('#(&\#x*)([0-9A-F]+);*#iu', "\\1\\2;", $str);
 
         /*
         * URL Decode
@@ -333,8 +356,11 @@ break;
         */
         if (preg_match_all("/<(.+?)>/si", $str, $matches)) {
             for ($i = 0; $i < count($matches['0']); $i++) {
-                $str = str_replace($matches['1'][$i],
-                html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset), $str);
+                $str = str_replace(
+                    $matches['1'][$i],
+                    html_entity_decode($matches['1'][$i], ENT_COMPAT, $charset),
+                    $str
+                );
             }
         }
 
@@ -357,7 +383,7 @@ break;
         * But it doesn't seem to pose a problem.
         *
         */
-        $str = str_replace(array('<?php', '<?PHP', '<?', '?>'),  array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
+        $str = str_replace(array('<?php', '<?PHP', '<?', '?>'), array('&lt;?php', '&lt;?PHP', '&lt;?', '?&gt;'), $str);
 
         /*
         * Compact any exploded words
@@ -382,7 +408,7 @@ break;
         * Remove disallowed Javascript in links or img tags
         */
         $str = preg_replace("#<a.+?href=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>.*?</a>#si", "", $str);
-            $str = preg_replace("#<img.+?src=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>#si","", $str);
+            $str = preg_replace("#<img.+?src=.*?(alert\(|alert&\#40;|javascript\:|window\.|document\.|\.cookie|<script|<xss).*?\>#si", "", $str);
         $str = preg_replace("#<(script|xss).*?\>#si", "", $str);
 
         /*
@@ -393,7 +419,7 @@ break;
         * but it's unlikely to be a problem.
         *
         */
-        $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU',"\\1>",$str);
+        $str = preg_replace('#(<[^>]+.*?)(onblur|onchange|onclick|onfocus|onload|onmouseover|onmouseup|onmousedown|onselect|onsubmit|onunload|onkeypress|onkeydown|onkeyup|onresize)[^>]*>#iU', "\\1>", $str);
 
         /*
         * Sanitize naughty HTML elements
@@ -440,12 +466,11 @@ break;
             '-->'           => '--&gt;'
             );
 
-        foreach ($bad as $key => $val)  {
+        foreach ($bad as $key => $val) {
                 $str = preg_replace("#".$key."#i", $val, $str);
         }
 
             return $str;
-
     }
 
 //-----------------------------------------------------------------------------
@@ -458,7 +483,7 @@ break;
     function display_error($mode = 1)
     {
         $errstr = ( $this->error ) ? $this->error : '';
-        if ( $mode == 1 ) {
+        if ($mode == 1) {
             echo '<br />' .$this->ft_xss($errstr) . '<br />';
         } else {
             return $this->ft_xss($errstr);
@@ -480,12 +505,13 @@ break;
     {
         $diff = $r1 - $r2;
 
-        if ( abs($diff) < EPSILON ) return 0;
-        else return $diff < 0 ? -1 : 1;
+        if (abs($diff) < EPSILON) {
+            return 0;
+        } else {
+            return $diff < 0 ? -1 : 1;
+        }
     }
 
 
 //-----------------------------------------------------------------------------
 } // class
-
-?>

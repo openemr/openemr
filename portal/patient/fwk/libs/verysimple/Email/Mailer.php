@@ -4,16 +4,16 @@
 /**
  * import supporting libraries
  */
-require_once ("phpmailer/class.phpmailer.php");
-require_once ("EmailMessage.php");
-require_once ("Recipient.php");
+require_once("phpmailer/class.phpmailer.php");
+require_once("EmailMessage.php");
+require_once("Recipient.php");
 
-define ( "MAILER_RESULT_FAIL", 0 );
-define ( "MAILER_RESULT_OK", 1 );
+define("MAILER_RESULT_FAIL", 0);
+define("MAILER_RESULT_OK", 1);
 
-define ( "MAILER_METHOD_SENDMAIL", "SENDMAIL" );
-define ( "MAILER_METHOD_SMTP", "SMTP" );
-define ( "MAILER_METHOD_MAIL", "MAIL" );
+define("MAILER_METHOD_SENDMAIL", "SENDMAIL");
+define("MAILER_METHOD_SMTP", "SMTP");
+define("MAILER_METHOD_MAIL", "MAIL");
 
 /**
  * Generic interface for sending Email
@@ -24,7 +24,8 @@ define ( "MAILER_METHOD_MAIL", "MAIL" );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.1
  */
-class Mailer {
+class Mailer
+{
     var $_log;
     var $_errors;
     var $Method;
@@ -47,21 +48,21 @@ class Mailer {
      */
     function __construct($method = MAILER_METHOD_SENDMAIL, $path = "/usr/sbin/sendmail")
     {
-        $pair = explode ( "@", $path );
+        $pair = explode("@", $path);
         
-        if (count ( $pair ) > 1) {
+        if (count($pair) > 1) {
             $this->Path = $pair [1];
-            $userpass = explode ( ":", $pair [0], 2 );
+            $userpass = explode(":", $pair [0], 2);
             $this->AuthUsername = $userpass [0];
-            $this->AuthPassword = count ( $userpass ) > 1 ? $userpass [1] : '';
+            $this->AuthPassword = count($userpass) > 1 ? $userpass [1] : '';
         } else {
             $this->Path = $path;
         }
         
         $this->Method = $method;
         
-        $this->Reset ();
-        $this->LangPath = $this->_GetLangPath ();
+        $this->Reset();
+        $this->LangPath = $this->_GetLangPath();
     }
     
     /**
@@ -72,8 +73,8 @@ class Mailer {
      */
     function FixBareLB($str)
     {
-        $str = str_replace ( "\r\n", "\n", $str );
-        return str_replace ( "\r", "\n", $str );
+        $str = str_replace("\r\n", "\n", $str);
+        return str_replace("\r", "\n", $str);
     }
     
     /**
@@ -86,13 +87,14 @@ class Mailer {
     private function _GetLangPath()
     {
         $lang_path = "";
-        $paths = explode ( PATH_SEPARATOR, get_include_path () );
+        $paths = explode(PATH_SEPARATOR, get_include_path());
         
-        foreach ( $paths as $path ) {
-            if (file_exists ( $path . '/language/phpmailer.lang-en.php' )) {
+        foreach ($paths as $path) {
+            if (file_exists($path . '/language/phpmailer.lang-en.php')) {
                 $lang_path = $path . '/language/';
             }
         }
+
         return $lang_path;
     }
     
@@ -106,19 +108,21 @@ class Mailer {
      */
     function Send($message)
     {
-        $mailer = new PHPMailer ();
+        $mailer = new PHPMailer();
         
         // this prevents problems with phpmailer not being able to locate the language path
-        $mailer->SetLanguage ( "en", $this->LangPath );
+        $mailer->SetLanguage("en", $this->LangPath);
         
         $mailer->From = $message->From->Email;
         $mailer->FromName = $message->From->RealName;
-        if ($message->ReplyTo)
-            $mailer->AddReplyTo ( $message->ReplyTo->Email, $message->ReplyTo->RealName );
-        $mailer->Subject = $message->GetSubject ();
-        $mailer->Body = $this->FixBareLB ( $message->GetBody () );
+        if ($message->ReplyTo) {
+            $mailer->AddReplyTo($message->ReplyTo->Email, $message->ReplyTo->RealName);
+        }
+
+        $mailer->Subject = $message->GetSubject();
+        $mailer->Body = $this->FixBareLB($message->GetBody());
         $mailer->ContentType = ($message->Format == MESSAGE_FORMAT_TEXT) ? "text/plain" : "text/html";
-        $mailer->Mailer = strtolower ( $this->Method );
+        $mailer->Mailer = strtolower($this->Method);
         $mailer->Host = $this->Path;
         $mailer->Sendmail = $this->Path;
         
@@ -130,8 +134,8 @@ class Mailer {
         }
         
         // if custom headers are to be provided, include them in the message
-        foreach ( $message->Headers as $header_key => $header_val ) {
-            $mailer->AddCustomHeader ( $header_key . ': ' . $header_val );
+        foreach ($message->Headers as $header_key => $header_val) {
+            $mailer->AddCustomHeader($header_key . ': ' . $header_val);
         }
         
         if ($message->Sender) {
@@ -141,68 +145,68 @@ class Mailer {
             // $mailer->Sender = $message->Sender;
             
             // instead add the dang headers ourselves
-            $mailer->AddCustomHeader ( "Sender: " . $message->Sender );
-            $mailer->AddCustomHeader ( "Return-Path: " . $message->Sender );
+            $mailer->AddCustomHeader("Sender: " . $message->Sender);
+            $mailer->AddCustomHeader("Return-Path: " . $message->Sender);
         }
         
-        if (! $this->IsValid ( $mailer->From )) {
+        if (! $this->IsValid($mailer->From)) {
             $this->_errors [] = "Sender '" . $mailer->From . "' is not a valid email address.";
             return MAILER_RESULT_FAIL;
         }
         
         // add the recipients
-        foreach ( $message->Recipients as $recipient ) {
+        foreach ($message->Recipients as $recipient) {
             $this->_log [] = "Adding Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
-            if (! $this->IsValid ( $recipient->Email )) {
+            if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
             
-            $mailer->AddAddress ( $recipient->Email, $recipient->RealName );
+            $mailer->AddAddress($recipient->Email, $recipient->RealName);
         }
         
-        foreach ( $message->CCRecipients as $recipient ) {
+        foreach ($message->CCRecipients as $recipient) {
             $this->_log [] = "Adding CC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
-            if (! $this->IsValid ( $recipient->Email )) {
+            if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "CC Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
             
-            $mailer->AddCC ( $recipient->Email, $recipient->RealName );
+            $mailer->AddCC($recipient->Email, $recipient->RealName);
         }
         
-        foreach ( $message->BCCRecipients as $recipient ) {
+        foreach ($message->BCCRecipients as $recipient) {
             $this->_log [] = "Adding BCC Recipient " . $recipient->RealName . " [" . $recipient->Email . "]";
             
-            if (! $this->IsValid ( $recipient->Email )) {
+            if (! $this->IsValid($recipient->Email)) {
                 $this->_errors [] = "BCC Recipient '" . $recipient->Email . "' is not a valid email address.";
                 return MAILER_RESULT_FAIL;
             }
             
-            $mailer->AddBCC ( $recipient->Email, $recipient->RealName );
+            $mailer->AddBCC($recipient->Email, $recipient->RealName);
         }
         
         $result = MAILER_RESULT_OK;
         
         $this->_log [] = "Sending message using " . $mailer->Mailer;
         
-        ob_start (); // buffer output because class.phpmailer.php Send() is chatty and writes to stdout
+        ob_start(); // buffer output because class.phpmailer.php Send() is chatty and writes to stdout
         
-        $fail = ! $mailer->Send ();
+        $fail = ! $mailer->Send();
         
-        ob_end_clean (); // clear the buffer
+        ob_end_clean(); // clear the buffer
         
         if ($fail || $mailer->ErrorInfo) {
             $result = MAILER_RESULT_FAIL;
-            $this->_errors [] = trim ( str_replace ( array (
+            $this->_errors [] = trim(str_replace(array (
                     '<p>',
                     '</p>'
             ), array (
                     ', ',
                     ''
-            ), $mailer->ErrorInfo ) );
+            ), $mailer->ErrorInfo));
         }
         
         return $result;
@@ -215,7 +219,7 @@ class Mailer {
      */
     function IsValid($email)
     {
-        return Recipient::IsEmailInValidFormat ( $email );
+        return Recipient::IsEmailInValidFormat($email);
     }
     
     /**
@@ -237,14 +241,14 @@ class Mailer {
      */
     function QuickSend($to, $from, $subject, $body, $format = MESSAGE_FORMAT_TEXT)
     {
-        $message = new EmailMessage ();
-        $message->SetFrom ( $from );
-        $message->AddRecipient ( $to );
+        $message = new EmailMessage();
+        $message->SetFrom($from);
+        $message->AddRecipient($to);
         $message->Subject = $subject;
         $message->Body = $body;
         $message->Format = $format;
         
-        return $this->Send ( $message );
+        return $this->Send($message);
     }
     
     /**
@@ -268,5 +272,3 @@ class Mailer {
         return $this->_log;
     }
 }
-
-?>

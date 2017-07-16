@@ -31,8 +31,8 @@
 //  page2.css
 //
 
-include_once ("../../../../interface/globals.php");
-include_once ($GLOBALS['fileroot']."/library/patient.inc");
+include_once("../../../../interface/globals.php");
+include_once($GLOBALS['fileroot']."/library/patient.inc");
 $chartpath = $GLOBALS['fileroot']."/interface/forms/vitals/growthchart/";
 
 $name = "";
@@ -40,7 +40,7 @@ $pid = $_GET['pid'];
 
 if ($pid == "") {
     // no pid? no graph for you.
-    echo "<p>" . xl('Missing PID.','','',' ') .  xl('Please close this window.') . "</p>";
+    echo "<p>" . xl('Missing PID.', '', '', ' ') .  xl('Please close this window.') . "</p>";
     exit;
 }
 
@@ -59,14 +59,18 @@ $charttype = "2-20"; // default the chart-type to ages 2-20
 $datapoints = explode('~', $_GET['data']);
 if (isset($datapoints) && $datapoints != "") {
     list($date, $height, $weight, $head_circ) = explode('-', $datapoints[0]);
-    if ($date != "") { $charttype_date = $date; }
+    if ($date != "") {
+        $charttype_date = $date;
+    }
+
     $tmpAge = getPatientAgeInDays($patient_data['DOB'], $date);
     // use the birth-24 chart if the age-on-date-of-vitals is 24months or younger
-    if ($tmpAge < (365*2)) { $charttype = "birth"; }
+    if ($tmpAge < (365*2)) {
+        $charttype = "birth";
+    }
 }
 
-if(isset($_GET['chart_type']))
-{
+if (isset($_GET['chart_type'])) {
     $charttype=$_GET['chart_type'];
 }
 
@@ -79,11 +83,10 @@ function unitsWt($wt)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($wt*0.45359237),2,'.','').xl('kg','',' '));
-    }
-    else {
+        return (number_format(($wt*0.45359237), 2, '.', '').xl('kg', '', ' '));
+    } else {
     //keep US units
-        return $wt.xl('lb','',' ');
+        return $wt.xl('lb', '', ' ');
     }
 }
 
@@ -92,11 +95,10 @@ function unitsDist($dist)
 {
     if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
         //convert to metric
-        return (number_format(($dist*2.54),2,'.','').xl('cm','',' '));
-    }
-    else {
+        return (number_format(($dist*2.54), 2, '.', '').xl('cm', '', ' '));
+    } else {
         //keep US units
-        return $dist.xl('in','',' ');
+        return $dist.xl('in', '', ' ');
     }
 }
 
@@ -140,8 +142,7 @@ if ($charttype == 'birth') {
         // added by BM for CSS html output
         $chartCss1 = "birth-24mos_boys_HC-1.png";
         $chartCss2 = "birth-24mos_boys_HC-2.png";
-    }
-    elseif (preg_match('/^female/i', $patient_data['sex'])) {
+    } elseif (preg_match('/^female/i', $patient_data['sex'])) {
         $chart = "birth-24mos_girls_HC.png";
 
         // added by BM for CSS html output
@@ -172,8 +173,7 @@ if ($charttype == 'birth') {
     $datatable2_hc_offset = 290;
     $datatable2_y = 1098;
     $datatable2_y_increment = 18;
-}
-elseif ($charttype == "2-20") {
+} elseif ($charttype == "2-20") {
     // current patient age between 2 and 20 years
 
     $dot_x = 177;
@@ -194,8 +194,7 @@ elseif ($charttype == "2-20") {
         // added by BM for CSS html output
         $chartCss1 = "2-20yo_boys_BMI-1.png";
         $chartCss2 = "2-20yo_boys_BMI-2.png";
-    }
-    elseif (preg_match('/^female/i', $patient_data['sex'])) {
+    } elseif (preg_match('/^female/i', $patient_data['sex'])) {
         $chart = "2-20yo_girls_BMI.png";
 
         // added by BM for CSS html output
@@ -224,9 +223,7 @@ elseif ($charttype == "2-20") {
     $datatable2_bmi_offset = 310;
     $datatable2_y = 152;
     $datatable2_y_increment = 17;
-}
-
-else {
+} else {
     // bad age data? no graph for you.
     echo "<p>" . xl('Age data is out of range.') . "</p>";
     exit;
@@ -316,17 +313,17 @@ function cssHeader()
     win.printLogPrint(window);
   }
     </SCRIPT>
-    <title><?php xl('Growth Chart','e'); ?></title>
+    <title><?php xl('Growth Chart', 'e'); ?></title>
     </head>
     <body Onload="FormSetup()">
     <div class="DoNotPrint">
         <table>
             <tr>
                 <td>
-                    <input type="button" value="<?php xl('View Page 1','e'); ?>" onclick="javascript:changeStyle('page1')" class="button">
-                    <input type="button" value="<?php xl('View Page 2','e'); ?>" onclick="javascript:changeStyle('page2')" class="button">
-                    <input type="button" value="<?php xl('Print Page 1','e'); ?>" onclick="javascript:pagePrint('page1')" class="button">
-                    <input type="button" value="<?php xl('Print Page 2','e'); ?>" onclick="javascript:pagePrint('page2')" class="button">
+                    <input type="button" value="<?php xl('View Page 1', 'e'); ?>" onclick="javascript:changeStyle('page1')" class="button">
+                    <input type="button" value="<?php xl('View Page 2', 'e'); ?>" onclick="javascript:changeStyle('page2')" class="button">
+                    <input type="button" value="<?php xl('Print Page 1', 'e'); ?>" onclick="javascript:pagePrint('page1')" class="button">
+                    <input type="button" value="<?php xl('Print Page 2', 'e'); ?>" onclick="javascript:pagePrint('page2')" class="button">
                 </td>
             </tr>
         </table>
@@ -342,7 +339,7 @@ function cssFooter()
     <?php
 }
 
-function cssPage($image1,$image2)
+function cssPage($image1, $image2)
 {
     ?>
     <div class='paddingdiv' id='page1'>
@@ -378,16 +375,15 @@ function convertpoint($coord)
         //on second page so subtract 1000 from x
         $Xcoord = $Xcoord - 1000;
         $page = "page2";
-    }
-    else {
+    } else {
         $page = "page1";
     }
 
     //calculate conversion to pt (decrease number of decimals)
     $Xcoord = ($cssWidth*$Xcoord)/1000;
-    $Xcoord = number_format($Xcoord,1,'.','');
+    $Xcoord = number_format($Xcoord, 1, '.', '');
     $Ycoord = ($cssHeight*$Ycoord)/1294;
-    $Ycoord = number_format($Ycoord,1,'.','');
+    $Ycoord = number_format($Ycoord, 1, '.', '');
 
     //return point
     return(array($Xcoord,$Ycoord,$page));
@@ -397,7 +393,7 @@ function convertpoint($coord)
 if ($_GET['html'] == 1) {
     //build the html css page if selected
     cssHeader();
-    cssPage($chartCss1,$chartCss2);
+    cssPage($chartCss1, $chartCss2);
 
     //output name
     $point = convertpoint(array($name_x,$name_y));
@@ -411,27 +407,36 @@ if ($_GET['html'] == 1) {
     // plot the data points
     foreach ($datapoints as $data) {
         list($date, $height, $weight, $head_circ) = explode('-', $data);
-        if ($date == "") { continue; }
+        if ($date == "") {
+            continue;
+        }
 
         // only plot if we have both weight and heights. Skip if either is 0.
         // Rational is only well visit will need both, sick visit only needs weight
         // for some clinic.
-        if ($weight == 0 || $height == 0 ) { continue; }
+        if ($weight == 0 || $height == 0) {
+            continue;
+        }
 
         // get age of patient at this data-point
         // to get data from function getPatientAgeYMD including $age,$age_in_months, $ageinYMD
         extract(getPatientAgeYMD($dob, $date));
-        if($charttype=='birth')
-        {
+        if ($charttype=='birth') {
             // for birth style chart, we use the age in months
             $age=$age_in_months;
         }
+
         // exclude data points that do not belong on this chart
         // for example, a data point for a 18 month old can be excluded
         // from that patient's 2-20 yr chart
         $daysold = getPatientAgeInDays($dob, $date);
-        if ($daysold >= (365*2) && $charttype == "birth") { continue; }
-        if ($daysold <= (365*2) && $charttype == "2-20") { continue; }
+        if ($daysold >= (365*2) && $charttype == "birth") {
+            continue;
+        }
+
+        if ($daysold <= (365*2) && $charttype == "2-20") {
+            continue;
+        }
 
         // calculate the x-axis (Age) value
         $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -457,8 +462,7 @@ if ($_GET['html'] == 1) {
             $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
             $point = convertpoint(array($HT,$WT));
             echo("<div id='" . $point[2]  . "' class='graphic' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'><img src='reddot.gif' /></div>\n");
-        }
-        else if ($charttype == "2-20") {
+        } else if ($charttype == "2-20") {
             // Draw BMI
             $bmi = $weight/$height/$height*703;
             $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
@@ -469,7 +473,7 @@ if ($_GET['html'] == 1) {
 
         // fill in data tables
 
-        $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
+        $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
 
         //birth to 24 mos chart has 8 rows to fill.
         if ($count < 8 && $charttype == "birth") {
@@ -497,7 +501,7 @@ if ($_GET['html'] == 1) {
             $point = convertpoint(array($datatable_x+$datatable_height_offset,$datatable_y));
             echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
             $point = convertpoint(array($datatable_x+$datatable_bmi_offset,$datatable_y));
-            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi, 0, 5) . "</div>\n");
             $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
         }
 
@@ -527,7 +531,7 @@ if ($_GET['html'] == 1) {
             $point = convertpoint(array($datatable2_x+$datatable2_height_offset,$datatable2_y));
             echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . unitsDist($height) . "</div>\n");
             $point = convertpoint(array($datatable2_x+$datatable2_bmi_offset,$datatable2_y));
-            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi,0,5) . "</div>\n");
+            echo("<div id='" . $point[2]  . "' class='label_custom' style='position: absolute; top: " . $point[1]  . "pt; left: " . $point[0] . "pt;'>" . substr($bmi, 0, 5) . "</div>\n");
             $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
         }
 
@@ -537,6 +541,7 @@ if ($_GET['html'] == 1) {
     cssFooter();
     exit;
 }
+
 // Done creating CSS HTML output
 /******************************/
 
@@ -556,18 +561,21 @@ $count = 0;
 // plot the data points
 foreach ($datapoints as $data) {
     list($date, $height, $weight, $head_circ) = explode('-', $data);
-    if ($date == "") { continue; }
+    if ($date == "") {
+        continue;
+    }
 
     // only plot if we have both weight and heights. Skip if either is 0.
     // Rational is only well visit will need both, sick visit only needs weight
     // for some clinic.
-    if ($weight == 0 || $height == 0 ) { continue; }
+    if ($weight == 0 || $height == 0) {
+        continue;
+    }
 
     // get age of patient at this data-point
     // to get data from function getPatientAgeYMD including $age, $ageinYMD, $age_in_months
     extract(getPatientAgeYMD($dob, $date));
-    if($charttype=='birth')
-    {
+    if ($charttype=='birth') {
         // for birth style chart, we use the age in months
         $age=$age_in_months;
     }
@@ -576,8 +584,13 @@ foreach ($datapoints as $data) {
     // for example, a data point for a 18 month old can be excluded
     // from that patient's 2-20 yr chart
     $daysold = getPatientAgeInDays($dob, $date);
-    if ($daysold > (365*2) && $charttype == "birth") { continue; }
-    if ($daysold < (365*2) && $charttype == "2-20") { continue; }
+    if ($daysold > (365*2) && $charttype == "birth") {
+        continue;
+    }
+
+    if ($daysold < (365*2) && $charttype == "2-20") {
+        continue;
+    }
 
     // calculate the x-axis (Age) value
     $x = $dot_x + $delta_x * ($age - $ageOffset);
@@ -600,8 +613,7 @@ foreach ($datapoints as $data) {
         $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
         $HT = $HT_x + $HT_delta_x * ($height - $HToffset);
         imagefilledellipse($im, $HT, $WT, 10, 10, $color);
-    }
-    else if ($charttype == "2-20") {
+    } else if ($charttype == "2-20") {
         // Draw BMI
         $bmi = $weight/$height/$height*703;
         $bmi_x = $bmi_dot_x + $bmi_delta_x * ($age - 2);
@@ -611,7 +623,7 @@ foreach ($datapoints as $data) {
 
     // fill in data tables
 
-    $datestr = substr($date,0,4)."/".substr($date,4,2)."/".substr($date,6,2);
+    $datestr = substr($date, 0, 4)."/".substr($date, 4, 2)."/".substr($date, 6, 2);
 
     //birth to 24 mos chart has 8 rows to fill.
     if ($count < 8 && $charttype == "birth") {
@@ -629,7 +641,7 @@ foreach ($datapoints as $data) {
         imagestring($im, 2, ($datatable_x+$datatable_age_offset), $datatable_y, $ageinYMD, $color);
         imagestring($im, 2, ($datatable_x+$datatable_weight_offset), $datatable_y, unitsWt($weight), $color);
         imagestring($im, 2, ($datatable_x+$datatable_height_offset), $datatable_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi,0,5), $color);
+        imagestring($im, 2, ($datatable_x+$datatable_bmi_offset), $datatable_y, substr($bmi, 0, 5), $color);
         $datatable_y = $datatable_y + $datatable_y_increment; // increment the datatable "row pointer"
     }
 
@@ -649,7 +661,7 @@ foreach ($datapoints as $data) {
         imagestring($im, 2, ($datatable2_x+$datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_weight_offset), $datatable2_y, unitsWt($weight), $color);
         imagestring($im, 2, ($datatable2_x+$datatable2_height_offset), $datatable2_y, unitsDist($height), $color);
-        imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi,0,5), $color);
+        imagestring($im, 2, ($datatable2_x+$datatable2_bmi_offset), $datatable2_y, substr($bmi, 0, 5), $color);
         $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
     }
 
@@ -658,22 +670,22 @@ foreach ($datapoints as $data) {
 
 if ($_GET['pdf'] == 1) {
     $pdf = new Cezpdf("LETTER");
-    $pdf->ezSetMargins(0,0,0,0);
+    $pdf->ezSetMargins(0, 0, 0, 0);
 
     // we start with one large image, break it into two pages
-    $page1 = imagecreate((imagesx($im)/2),imagesy($im));
-    $page2 = imagecreate((imagesx($im)/2),imagesy($im));
-    imagecopy($page1, $im, 0,0, 0,0,(imagesx($im)/2),imagesy($im));
-    imagecopy($page2, $im, 0,0, (imagesx($im)/2),0,imagesx($im),imagesy($im));
+    $page1 = imagecreate((imagesx($im)/2), imagesy($im));
+    $page2 = imagecreate((imagesx($im)/2), imagesy($im));
+    imagecopy($page1, $im, 0, 0, 0, 0, (imagesx($im)/2), imagesy($im));
+    imagecopy($page2, $im, 0, 0, (imagesx($im)/2), 0, imagesx($im), imagesy($im));
     imagedestroy($im);
 
     // each page is built
     $tmpfilename = tempnam("/tmp", "oemr");
-    imagepng($page1,$tmpfilename);
+    imagepng($page1, $tmpfilename);
     imagedestroy($page1);
     $pdf->ezImage($tmpfilename);
     $pdf->ezNewPage();
-    imagepng($page2,$tmpfilename);
+    imagepng($page2, $tmpfilename);
     imagedestroy($page2);
     $pdf->ezImage($tmpfilename);
 
@@ -682,8 +694,7 @@ if ($_GET['pdf'] == 1) {
 
     // output the PDF
     $pdf->ezStream();
-}
-else {
+} else {
     // older style chart that is simply a PNG image
     header("Content-type: image/png");
     imagepng($im);

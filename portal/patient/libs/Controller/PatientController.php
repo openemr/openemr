@@ -26,8 +26,8 @@
 /**
  * import supporting libraries
  */
-require_once ( "AppBaseController.php" );
-require_once ( "Model/Patient.php" );
+require_once("AppBaseController.php");
+require_once("Model/Patient.php");
 
 /**
  * PatientController is the controller class for the Patient object.
@@ -39,7 +39,8 @@ require_once ( "Model/Patient.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class PatientController extends AppBaseController{
+class PatientController extends AppBaseController
+{
 
     /**
      * Override here for any controller-specific functionality
@@ -60,19 +61,32 @@ class PatientController extends AppBaseController{
     public function ListView()
     {
         $rid = $pid = $user = $encounter = 0;
-        if( isset( $_GET['id'] ) ) $rid = ( int ) $_GET['id'];
-        if( isset( $_GET['pid'] ) ) $pid = ( int ) $_GET['pid'];
-        if( isset( $_GET['user'] ) ) $user = $_GET['user'];
-        if( isset( $_GET['enc'] ) ) $encounter = $_GET['enc'];
-        $this->Assign( 'recid', $rid );
-        $this->Assign( 'cpid', $pid );
-        $this->Assign( 'cuser', $user );
-        $this->Assign( 'encounter', $encounter );
+        if (isset($_GET['id'])) {
+            $rid = ( int ) $_GET['id'];
+        }
+
+        if (isset($_GET['pid'])) {
+            $pid = ( int ) $_GET['pid'];
+        }
+
+        if (isset($_GET['user'])) {
+            $user = $_GET['user'];
+        }
+
+        if (isset($_GET['enc'])) {
+            $encounter = $_GET['enc'];
+        }
+
+        $this->Assign('recid', $rid);
+        $this->Assign('cpid', $pid);
+        $this->Assign('cuser', $user);
+        $this->Assign('encounter', $encounter);
         $ptdata = $this->startupQuery($pid);
-        foreach( $ptdata[0] as $key => $v){
+        foreach ($ptdata[0] as $key => $v) {
             $trow[lcfirst($key)] = $v;
         }
-        $this->Assign( 'trow', $trow);
+
+        $this->Assign('trow', $trow);
         $this->Render();
     }
     /**
@@ -80,19 +94,19 @@ class PatientController extends AppBaseController{
      */
     public function startupQuery($pid)
     {
-        try{
+        try {
             $criteria = new PatientCriteria();
             $recnum = ( int ) $pid;
             $criteria->Pid_Equals = $recnum;
 
             $output = new stdClass();
             // return row
-            $patientdata = $this->Phreezer->Query( 'PatientReporter', $criteria );
-            $output->rows = $patientdata->ToObjectArray( false, $this->SimpleObjectParams() );
-            $output->totalResults = count( $output->rows );
+            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
+            $output->rows = $patientdata->ToObjectArray(false, $this->SimpleObjectParams());
+            $output->totalResults = count($output->rows);
             return $output->rows;
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
     /**
@@ -100,31 +114,33 @@ class PatientController extends AppBaseController{
      */
     public function Query()
     {
-        try{
+        try {
             $criteria = new PatientCriteria();
-            $pid = RequestUtil::Get( 'patientId' );
+            $pid = RequestUtil::Get('patientId');
             $criteria->Pid_Equals = $pid;
 
             $output = new stdClass();
 
             // if a sort order was specified then specify in the criteria
-            $output->orderBy = RequestUtil::Get( 'orderBy' );
-            $output->orderDesc = RequestUtil::Get( 'orderDesc' ) != '';
-            if( $output->orderBy ) $criteria->SetOrder( $output->orderBy, $output->orderDesc );
+            $output->orderBy = RequestUtil::Get('orderBy');
+            $output->orderDesc = RequestUtil::Get('orderDesc') != '';
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
-            $page = RequestUtil::Get( 'page' );
+            $page = RequestUtil::Get('page');
 
             // return all results
-            $patientdata = $this->Phreezer->Query( 'PatientReporter', $criteria );
-            $output->rows = $patientdata->ToObjectArray( true, $this->SimpleObjectParams() );
-            $output->totalResults = count( $output->rows );
+            $patientdata = $this->Phreezer->Query('PatientReporter', $criteria);
+            $output->rows = $patientdata->ToObjectArray(true, $this->SimpleObjectParams());
+            $output->totalResults = count($output->rows);
             $output->totalPages = 1;
             $output->pageSize = $output->totalResults;
             $output->currentPage = 1;
 
-            $this->RenderJSON( $output, $this->JSONPCallback() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+            $this->RenderJSON($output, $this->JSONPCallback());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 
@@ -133,12 +149,12 @@ class PatientController extends AppBaseController{
      */
     public function Read()
     {
-        try{
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $patient = $this->Phreezer->Get( 'Patient', $pk );
-            $this->RenderJSON( $patient, $this->JSONPCallback(), true, $this->SimpleObjectParams() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        try {
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $patient = $this->Phreezer->Get('Patient', $pk);
+            $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 
@@ -147,104 +163,105 @@ class PatientController extends AppBaseController{
      */
     public function Create()
     {
-        try{
+        try {
+            $json = json_decode(RequestUtil::GetBody());
 
-            $json = json_decode( RequestUtil::GetBody() );
+            if (! $json) {
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
-            if( ! $json ){throw new Exception( 'The request body does not contain valid JSON' );}
-
-            $patient = new Patient( $this->Phreezer );
+            $patient = new Patient($this->Phreezer);
 
             // this is an auto-increment. uncomment if updating is allowed
             // $patient->Id = $this->SafeGetVal($json, 'id');
 
-            $patient->Title = $this->SafeGetVal( $json, 'title', $patient->Title );
-            $patient->Language = $this->SafeGetVal( $json, 'language', $patient->Language );
-            $patient->Financial = $this->SafeGetVal( $json, 'financial', $patient->Financial );
-            $patient->Fname = $this->SafeGetVal( $json, 'fname', $patient->Fname );
-            $patient->Lname = $this->SafeGetVal( $json, 'lname', $patient->Lname );
-            $patient->Mname = $this->SafeGetVal( $json, 'mname', $patient->Mname );
-            $patient->Dob = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'dob', $patient->Dob ) ) );
-            $patient->Street = $this->SafeGetVal( $json, 'street', $patient->Street );
-            $patient->PostalCode = $this->SafeGetVal( $json, 'postalCode', $patient->PostalCode );
-            $patient->City = $this->SafeGetVal( $json, 'city', $patient->City );
-            $patient->State = $this->SafeGetVal( $json, 'state', $patient->State );
-            $patient->CountryCode = $this->SafeGetVal( $json, 'countryCode', $patient->CountryCode );
-            $patient->DriversLicense = $this->SafeGetVal( $json, 'driversLicense', $patient->DriversLicense );
-            $patient->Ss = $this->SafeGetVal( $json, 'ss', $patient->Ss );
-            $patient->Occupation = $this->SafeGetVal( $json, 'occupation', $patient->Occupation );
-            $patient->PhoneHome = $this->SafeGetVal( $json, 'phoneHome', $patient->PhoneHome );
-            $patient->PhoneBiz = $this->SafeGetVal( $json, 'phoneBiz', $patient->PhoneBiz );
-            $patient->PhoneContact = $this->SafeGetVal( $json, 'phoneContact', $patient->PhoneContact );
-            $patient->PhoneCell = $this->SafeGetVal( $json, 'phoneCell', $patient->PhoneCell );
-            $patient->PharmacyId = $this->SafeGetVal( $json, 'pharmacyId', $patient->PharmacyId );
-            $patient->Status = $this->SafeGetVal( $json, 'status', $patient->Status );
-            $patient->ContactRelationship = $this->SafeGetVal( $json, 'contactRelationship', $patient->ContactRelationship );
-            $patient->Date = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'date', $patient->Date ) ) );
-            $patient->Sex = $this->SafeGetVal( $json, 'sex', $patient->Sex );
-            $patient->Referrer = $this->SafeGetVal( $json, 'referrer', $patient->Referrer );
-            $patient->Referrerid = $this->SafeGetVal( $json, 'referrerid', $patient->Referrerid );
-            $patient->Providerid = $this->SafeGetVal( $json, 'providerid', $patient->Providerid );
-            $patient->RefProviderid = $this->SafeGetVal( $json, 'refProviderid', $patient->RefProviderid );
-            $patient->Email = $this->SafeGetVal( $json, 'email', $patient->Email );
-            $patient->EmailDirect = $this->SafeGetVal( $json, 'emailDirect', $patient->EmailDirect );
-            $patient->Ethnoracial = $this->SafeGetVal( $json, 'ethnoracial', $patient->Ethnoracial );
-            $patient->Race = $this->SafeGetVal( $json, 'race', $patient->Race );
-            $patient->Ethnicity = $this->SafeGetVal( $json, 'ethnicity', $patient->Ethnicity );
-            $patient->Religion = $this->SafeGetVal( $json, 'religion', $patient->Religion );
-            $patient->Interpretter = $this->SafeGetVal( $json, 'interpretter', $patient->Interpretter );
-            $patient->Migrantseasonal = $this->SafeGetVal( $json, 'migrantseasonal', $patient->Migrantseasonal );
-            $patient->FamilySize = $this->SafeGetVal( $json, 'familySize', $patient->FamilySize );
-            $patient->MonthlyIncome = $this->SafeGetVal( $json, 'monthlyIncome', $patient->MonthlyIncome );
-            $patient->BillingNote = $this->SafeGetVal( $json, 'billingNote', $patient->BillingNote );
-            $patient->Homeless = $this->SafeGetVal( $json, 'homeless', $patient->Homeless );
-            $patient->FinancialReview = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'financialReview', $patient->FinancialReview ) ) );
-            $patient->Pubpid = $this->SafeGetVal( $json, 'pubpid', $patient->Pubpid );
-            $patient->Pid = $this->SafeGetVal( $json, 'pid', $patient->Pid );
-            $patient->Genericname1 = $this->SafeGetVal( $json, 'genericname1', $patient->Genericname1 );
-            $patient->Genericval1 = $this->SafeGetVal( $json, 'genericval1', $patient->Genericval1 );
-            $patient->Genericname2 = $this->SafeGetVal( $json, 'genericname2', $patient->Genericname2 );
-            $patient->Genericval2 = $this->SafeGetVal( $json, 'genericval2', $patient->Genericval2 );
-            $patient->HipaaMail = $this->SafeGetVal( $json, 'hipaaMail', $patient->HipaaMail );
-            $patient->HipaaVoice = $this->SafeGetVal( $json, 'hipaaVoice', $patient->HipaaVoice );
-            $patient->HipaaNotice = $this->SafeGetVal( $json, 'hipaaNotice', $patient->HipaaNotice );
-            $patient->HipaaMessage = $this->SafeGetVal( $json, 'hipaaMessage', $patient->HipaaMessage );
-            $patient->HipaaAllowsms = $this->SafeGetVal( $json, 'hipaaAllowsms', $patient->HipaaAllowsms );
-            $patient->HipaaAllowemail = $this->SafeGetVal( $json, 'hipaaAllowemail', $patient->HipaaAllowemail );
-            $patient->Squad = $this->SafeGetVal( $json, 'squad', $patient->Squad );
-            $patient->Fitness = $this->SafeGetVal( $json, 'fitness', $patient->Fitness );
-            $patient->ReferralSource = $this->SafeGetVal( $json, 'referralSource', $patient->ReferralSource );
-            $patient->Pricelevel = $this->SafeGetVal( $json, 'pricelevel', $patient->Pricelevel );
-            $patient->Regdate = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'regdate', $patient->Regdate ) ) );
-            $patient->Contrastart = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'contrastart', $patient->Contrastart ) ) );
-            $patient->CompletedAd = $this->SafeGetVal( $json, 'completedAd', $patient->CompletedAd );
-            $patient->AdReviewed = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'adReviewed', $patient->AdReviewed ) ) );
-            $patient->Vfc = $this->SafeGetVal( $json, 'vfc', $patient->Vfc );
-            $patient->Mothersname = $this->SafeGetVal( $json, 'mothersname', $patient->Mothersname );
-            $patient->Guardiansname = $this->SafeGetVal( $json, 'guardiansname', $patient->Guardiansname );
-            $patient->AllowImmRegUse = $this->SafeGetVal( $json, 'allowImmRegUse', $patient->AllowImmRegUse );
-            $patient->AllowImmInfoShare = $this->SafeGetVal( $json, 'allowImmInfoShare', $patient->AllowImmInfoShare );
-            $patient->AllowHealthInfoEx = $this->SafeGetVal( $json, 'allowHealthInfoEx', $patient->AllowHealthInfoEx );
-            $patient->AllowPatientPortal = $this->SafeGetVal( $json, 'allowPatientPortal', $patient->AllowPatientPortal );
-            $patient->DeceasedDate = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'deceasedDate', $patient->DeceasedDate ) ) );
-            $patient->DeceasedReason = $this->SafeGetVal( $json, 'deceasedReason', $patient->DeceasedReason );
-            $patient->SoapImportStatus = $this->SafeGetVal( $json, 'soapImportStatus', $patient->SoapImportStatus );
-            $patient->CmsportalLogin = $this->SafeGetVal( $json, 'cmsportalLogin', $patient->CmsportalLogin );
-            $patient->CareTeam = $this->SafeGetVal( $json, 'careTeam', $patient->CareTeam );
-            $patient->County = $this->SafeGetVal( $json, 'county', $patient->County );
-            $patient->Industry = $this->SafeGetVal( $json, 'industry', $patient->Industry );
+            $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
+            $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
+            $patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
+            $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
+            $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
+            $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
+            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
+            $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
+            $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
+            $patient->State = $this->SafeGetVal($json, 'state', $patient->State);
+            $patient->CountryCode = $this->SafeGetVal($json, 'countryCode', $patient->CountryCode);
+            $patient->DriversLicense = $this->SafeGetVal($json, 'driversLicense', $patient->DriversLicense);
+            $patient->Ss = $this->SafeGetVal($json, 'ss', $patient->Ss);
+            $patient->Occupation = $this->SafeGetVal($json, 'occupation', $patient->Occupation);
+            $patient->PhoneHome = $this->SafeGetVal($json, 'phoneHome', $patient->PhoneHome);
+            $patient->PhoneBiz = $this->SafeGetVal($json, 'phoneBiz', $patient->PhoneBiz);
+            $patient->PhoneContact = $this->SafeGetVal($json, 'phoneContact', $patient->PhoneContact);
+            $patient->PhoneCell = $this->SafeGetVal($json, 'phoneCell', $patient->PhoneCell);
+            $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
+            $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
+            $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
+            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
+            $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
+            $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
+            $patient->Providerid = $this->SafeGetVal($json, 'providerid', $patient->Providerid);
+            $patient->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $patient->RefProviderid);
+            $patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
+            $patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
+            $patient->Ethnoracial = $this->SafeGetVal($json, 'ethnoracial', $patient->Ethnoracial);
+            $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
+            $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
+            $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
+            $patient->Interpretter = $this->SafeGetVal($json, 'interpretter', $patient->Interpretter);
+            $patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
+            $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
+            $patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
+            $patient->BillingNote = $this->SafeGetVal($json, 'billingNote', $patient->BillingNote);
+            $patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
+            $patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));
+            $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
+            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            $patient->Genericname1 = $this->SafeGetVal($json, 'genericname1', $patient->Genericname1);
+            $patient->Genericval1 = $this->SafeGetVal($json, 'genericval1', $patient->Genericval1);
+            $patient->Genericname2 = $this->SafeGetVal($json, 'genericname2', $patient->Genericname2);
+            $patient->Genericval2 = $this->SafeGetVal($json, 'genericval2', $patient->Genericval2);
+            $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
+            $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
+            $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
+            $patient->HipaaMessage = $this->SafeGetVal($json, 'hipaaMessage', $patient->HipaaMessage);
+            $patient->HipaaAllowsms = $this->SafeGetVal($json, 'hipaaAllowsms', $patient->HipaaAllowsms);
+            $patient->HipaaAllowemail = $this->SafeGetVal($json, 'hipaaAllowemail', $patient->HipaaAllowemail);
+            $patient->Squad = $this->SafeGetVal($json, 'squad', $patient->Squad);
+            $patient->Fitness = $this->SafeGetVal($json, 'fitness', $patient->Fitness);
+            $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
+            $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);
+            $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            $patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
+            $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
+            $patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));
+            $patient->Vfc = $this->SafeGetVal($json, 'vfc', $patient->Vfc);
+            $patient->Mothersname = $this->SafeGetVal($json, 'mothersname', $patient->Mothersname);
+            $patient->Guardiansname = $this->SafeGetVal($json, 'guardiansname', $patient->Guardiansname);
+            $patient->AllowImmRegUse = $this->SafeGetVal($json, 'allowImmRegUse', $patient->AllowImmRegUse);
+            $patient->AllowImmInfoShare = $this->SafeGetVal($json, 'allowImmInfoShare', $patient->AllowImmInfoShare);
+            $patient->AllowHealthInfoEx = $this->SafeGetVal($json, 'allowHealthInfoEx', $patient->AllowHealthInfoEx);
+            $patient->AllowPatientPortal = $this->SafeGetVal($json, 'allowPatientPortal', $patient->AllowPatientPortal);
+            $patient->DeceasedDate = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'deceasedDate', $patient->DeceasedDate)));
+            $patient->DeceasedReason = $this->SafeGetVal($json, 'deceasedReason', $patient->DeceasedReason);
+            $patient->SoapImportStatus = $this->SafeGetVal($json, 'soapImportStatus', $patient->SoapImportStatus);
+            $patient->CmsportalLogin = $this->SafeGetVal($json, 'cmsportalLogin', $patient->CmsportalLogin);
+            $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
+            $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
+            $patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
 
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
 
-            if( count( $errors ) > 0 ){
-                $this->RenderErrorJSON( 'Please check the form for errors', $errors );
-            } else{
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $patient->Save();
-                $this->RenderJSON( $patient, $this->JSONPCallback(), true, $this->SimpleObjectParams() );
+                $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 
@@ -253,101 +270,102 @@ class PatientController extends AppBaseController{
      */
     public function Update()
     {
-        try{
+        try {
+            $json = json_decode(RequestUtil::GetBody());
 
-            $json = json_decode( RequestUtil::GetBody() );
+            if (! $json) {
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
-            if( ! $json ){throw new Exception( 'The request body does not contain valid JSON' );}
-
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $patient = $this->Phreezer->Get( 'Patient', $pk );
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $patient = $this->Phreezer->Get('Patient', $pk);
             // this is a primary key. uncomment if updating is allowed
             // $patient->Id = $this->SafeGetVal($json, 'id', $patient->Id);
-            $patient->Title = $this->SafeGetVal( $json, 'title', $patient->Title );
-            $patient->Language = $this->SafeGetVal( $json, 'language', $patient->Language );
-            $patient->Financial = $this->SafeGetVal( $json, 'financial', $patient->Financial );
-            $patient->Fname = $this->SafeGetVal( $json, 'fname', $patient->Fname );
-            $patient->Lname = $this->SafeGetVal( $json, 'lname', $patient->Lname );
-            $patient->Mname = $this->SafeGetVal( $json, 'mname', $patient->Mname );
-            $patient->Dob = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'dob', $patient->Dob ) ) );
-            $patient->Street = $this->SafeGetVal( $json, 'street', $patient->Street );
-            $patient->PostalCode = $this->SafeGetVal( $json, 'postalCode', $patient->PostalCode );
-            $patient->City = $this->SafeGetVal( $json, 'city', $patient->City );
-            $patient->State = $this->SafeGetVal( $json, 'state', $patient->State );
-            $patient->CountryCode = $this->SafeGetVal( $json, 'countryCode', $patient->CountryCode );
-            $patient->DriversLicense = $this->SafeGetVal( $json, 'driversLicense', $patient->DriversLicense );
-            $patient->Ss = $this->SafeGetVal( $json, 'ss', $patient->Ss );
-            $patient->Occupation = $this->SafeGetVal( $json, 'occupation', $patient->Occupation );
-            $patient->PhoneHome = $this->SafeGetVal( $json, 'phoneHome', $patient->PhoneHome );
-            $patient->PhoneBiz = $this->SafeGetVal( $json, 'phoneBiz', $patient->PhoneBiz );
-            $patient->PhoneContact = $this->SafeGetVal( $json, 'phoneContact', $patient->PhoneContact );
-            $patient->PhoneCell = $this->SafeGetVal( $json, 'phoneCell', $patient->PhoneCell );
-            $patient->PharmacyId = $this->SafeGetVal( $json, 'pharmacyId', $patient->PharmacyId );
-            $patient->Status = $this->SafeGetVal( $json, 'status', $patient->Status );
-            $patient->ContactRelationship = $this->SafeGetVal( $json, 'contactRelationship', $patient->ContactRelationship );
-            $patient->Date = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'date', $patient->Date ) ) );
-            $patient->Sex = $this->SafeGetVal( $json, 'sex', $patient->Sex );
-            $patient->Referrer = $this->SafeGetVal( $json, 'referrer', $patient->Referrer );
-            $patient->Referrerid = $this->SafeGetVal( $json, 'referrerid', $patient->Referrerid );
-            $patient->Providerid = $this->SafeGetVal( $json, 'providerid', $patient->Providerid );
-            $patient->RefProviderid = $this->SafeGetVal( $json, 'refProviderid', $patient->RefProviderid );
-            $patient->Email = $this->SafeGetVal( $json, 'email', $patient->Email );
-            $patient->EmailDirect = $this->SafeGetVal( $json, 'emailDirect', $patient->EmailDirect );
-            $patient->Ethnoracial = $this->SafeGetVal( $json, 'ethnoracial', $patient->Ethnoracial );
-            $patient->Race = $this->SafeGetVal( $json, 'race', $patient->Race );
-            $patient->Ethnicity = $this->SafeGetVal( $json, 'ethnicity', $patient->Ethnicity );
-            $patient->Religion = $this->SafeGetVal( $json, 'religion', $patient->Religion );
-            $patient->Interpretter = $this->SafeGetVal( $json, 'interpretter', $patient->Interpretter );
-            $patient->Migrantseasonal = $this->SafeGetVal( $json, 'migrantseasonal', $patient->Migrantseasonal );
-            $patient->FamilySize = $this->SafeGetVal( $json, 'familySize', $patient->FamilySize );
-            $patient->MonthlyIncome = $this->SafeGetVal( $json, 'monthlyIncome', $patient->MonthlyIncome );
-            $patient->BillingNote = $this->SafeGetVal( $json, 'billingNote', $patient->BillingNote );
-            $patient->Homeless = $this->SafeGetVal( $json, 'homeless', $patient->Homeless );
-            $patient->FinancialReview = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'financialReview', $patient->FinancialReview ) ) );
-            $patient->Pubpid = $this->SafeGetVal( $json, 'pubpid', $patient->Pubpid );
-            $patient->Pid = $this->SafeGetVal( $json, 'pid', $patient->Pid );
-            $patient->HipaaMail = $this->SafeGetVal( $json, 'hipaaMail', $patient->HipaaMail );
-            $patient->HipaaVoice = $this->SafeGetVal( $json, 'hipaaVoice', $patient->HipaaVoice );
-            $patient->HipaaNotice = $this->SafeGetVal( $json, 'hipaaNotice', $patient->HipaaNotice );
-            $patient->HipaaMessage = $this->SafeGetVal( $json, 'hipaaMessage', $patient->HipaaMessage );
-            $patient->HipaaAllowsms = $this->SafeGetVal( $json, 'hipaaAllowsms', $patient->HipaaAllowsms );
-            $patient->HipaaAllowemail = $this->SafeGetVal( $json, 'hipaaAllowemail', $patient->HipaaAllowemail );
-            $patient->ReferralSource = $this->SafeGetVal( $json, 'referralSource', $patient->ReferralSource );
-            $patient->Pricelevel = $this->SafeGetVal( $json, 'pricelevel', $patient->Pricelevel );
-            $patient->Regdate = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'regdate', $patient->Regdate ) ) );
-            $patient->Contrastart = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'contrastart', $patient->Contrastart ) ) );
-            $patient->CompletedAd = $this->SafeGetVal( $json, 'completedAd', $patient->CompletedAd );
-            $patient->AdReviewed = date( 'Y-m-d', strtotime( $this->SafeGetVal( $json, 'adReviewed', $patient->AdReviewed ) ) );
-            $patient->Vfc = $this->SafeGetVal( $json, 'vfc', $patient->Vfc );
-            $patient->Mothersname = $this->SafeGetVal( $json, 'mothersname', $patient->Mothersname );
-            $patient->Guardiansname = $this->SafeGetVal( $json, 'guardiansname', $patient->Guardiansname );
-            $patient->AllowImmRegUse = $this->SafeGetVal( $json, 'allowImmRegUse', $patient->AllowImmRegUse );
-            $patient->AllowImmInfoShare = $this->SafeGetVal( $json, 'allowImmInfoShare', $patient->AllowImmInfoShare );
-            $patient->AllowHealthInfoEx = $this->SafeGetVal( $json, 'allowHealthInfoEx', $patient->AllowHealthInfoEx );
-            $patient->AllowPatientPortal = $this->SafeGetVal( $json, 'allowPatientPortal', $patient->AllowPatientPortal );
-            $patient->CareTeam = $this->SafeGetVal( $json, 'careTeam', $patient->CareTeam );
-            $patient->County = $this->SafeGetVal( $json, 'county', $patient->County );
-            $patient->Industry = $this->SafeGetVal( $json, 'industry', $patient->Industry );
+            $patient->Title = $this->SafeGetVal($json, 'title', $patient->Title);
+            $patient->Language = $this->SafeGetVal($json, 'language', $patient->Language);
+            $patient->Financial = $this->SafeGetVal($json, 'financial', $patient->Financial);
+            $patient->Fname = $this->SafeGetVal($json, 'fname', $patient->Fname);
+            $patient->Lname = $this->SafeGetVal($json, 'lname', $patient->Lname);
+            $patient->Mname = $this->SafeGetVal($json, 'mname', $patient->Mname);
+            $patient->Dob = date('Y-m-d', strtotime($this->SafeGetVal($json, 'dob', $patient->Dob)));
+            $patient->Street = $this->SafeGetVal($json, 'street', $patient->Street);
+            $patient->PostalCode = $this->SafeGetVal($json, 'postalCode', $patient->PostalCode);
+            $patient->City = $this->SafeGetVal($json, 'city', $patient->City);
+            $patient->State = $this->SafeGetVal($json, 'state', $patient->State);
+            $patient->CountryCode = $this->SafeGetVal($json, 'countryCode', $patient->CountryCode);
+            $patient->DriversLicense = $this->SafeGetVal($json, 'driversLicense', $patient->DriversLicense);
+            $patient->Ss = $this->SafeGetVal($json, 'ss', $patient->Ss);
+            $patient->Occupation = $this->SafeGetVal($json, 'occupation', $patient->Occupation);
+            $patient->PhoneHome = $this->SafeGetVal($json, 'phoneHome', $patient->PhoneHome);
+            $patient->PhoneBiz = $this->SafeGetVal($json, 'phoneBiz', $patient->PhoneBiz);
+            $patient->PhoneContact = $this->SafeGetVal($json, 'phoneContact', $patient->PhoneContact);
+            $patient->PhoneCell = $this->SafeGetVal($json, 'phoneCell', $patient->PhoneCell);
+            $patient->PharmacyId = $this->SafeGetVal($json, 'pharmacyId', $patient->PharmacyId);
+            $patient->Status = $this->SafeGetVal($json, 'status', $patient->Status);
+            $patient->ContactRelationship = $this->SafeGetVal($json, 'contactRelationship', $patient->ContactRelationship);
+            $patient->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $patient->Date)));
+            $patient->Sex = $this->SafeGetVal($json, 'sex', $patient->Sex);
+            $patient->Referrer = $this->SafeGetVal($json, 'referrer', $patient->Referrer);
+            $patient->Referrerid = $this->SafeGetVal($json, 'referrerid', $patient->Referrerid);
+            $patient->Providerid = $this->SafeGetVal($json, 'providerid', $patient->Providerid);
+            $patient->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $patient->RefProviderid);
+            $patient->Email = $this->SafeGetVal($json, 'email', $patient->Email);
+            $patient->EmailDirect = $this->SafeGetVal($json, 'emailDirect', $patient->EmailDirect);
+            $patient->Ethnoracial = $this->SafeGetVal($json, 'ethnoracial', $patient->Ethnoracial);
+            $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
+            $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
+            $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
+            $patient->Interpretter = $this->SafeGetVal($json, 'interpretter', $patient->Interpretter);
+            $patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
+            $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
+            $patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
+            $patient->BillingNote = $this->SafeGetVal($json, 'billingNote', $patient->BillingNote);
+            $patient->Homeless = $this->SafeGetVal($json, 'homeless', $patient->Homeless);
+            $patient->FinancialReview = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'financialReview', $patient->FinancialReview)));
+            $patient->Pubpid = $this->SafeGetVal($json, 'pubpid', $patient->Pubpid);
+            $patient->Pid = $this->SafeGetVal($json, 'pid', $patient->Pid);
+            $patient->HipaaMail = $this->SafeGetVal($json, 'hipaaMail', $patient->HipaaMail);
+            $patient->HipaaVoice = $this->SafeGetVal($json, 'hipaaVoice', $patient->HipaaVoice);
+            $patient->HipaaNotice = $this->SafeGetVal($json, 'hipaaNotice', $patient->HipaaNotice);
+            $patient->HipaaMessage = $this->SafeGetVal($json, 'hipaaMessage', $patient->HipaaMessage);
+            $patient->HipaaAllowsms = $this->SafeGetVal($json, 'hipaaAllowsms', $patient->HipaaAllowsms);
+            $patient->HipaaAllowemail = $this->SafeGetVal($json, 'hipaaAllowemail', $patient->HipaaAllowemail);
+            $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
+            $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);
+            $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            $patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
+            $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
+            $patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));
+            $patient->Vfc = $this->SafeGetVal($json, 'vfc', $patient->Vfc);
+            $patient->Mothersname = $this->SafeGetVal($json, 'mothersname', $patient->Mothersname);
+            $patient->Guardiansname = $this->SafeGetVal($json, 'guardiansname', $patient->Guardiansname);
+            $patient->AllowImmRegUse = $this->SafeGetVal($json, 'allowImmRegUse', $patient->AllowImmRegUse);
+            $patient->AllowImmInfoShare = $this->SafeGetVal($json, 'allowImmInfoShare', $patient->AllowImmInfoShare);
+            $patient->AllowHealthInfoEx = $this->SafeGetVal($json, 'allowHealthInfoEx', $patient->AllowHealthInfoEx);
+            $patient->AllowPatientPortal = $this->SafeGetVal($json, 'allowPatientPortal', $patient->AllowPatientPortal);
+            $patient->CareTeam = $this->SafeGetVal($json, 'careTeam', $patient->CareTeam);
+            $patient->County = $this->SafeGetVal($json, 'county', $patient->County);
+            $patient->Industry = $this->SafeGetVal($json, 'industry', $patient->Industry);
 
             $patient->Validate();
             $errors = $patient->GetValidationErrors();
 
-            if( count( $errors ) > 0 ){
-                $this->RenderErrorJSON( 'Please check the form for errors', $errors );
-            } else{
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $patient->Save();
-                self::CloseAudit( $patient );
-                $this->RenderJSON( $patient, $this->JSONPCallback(), true, $this->SimpleObjectParams() );
+                self::CloseAudit($patient);
+                $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
-    public function CloseAudit( $p )
+    public function CloseAudit($p)
     {
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
-        try{
+        try {
             $audit = array ();
             // date("Y-m-d H:i:s");
             $audit['patient_id'] = $ja['pid'];
@@ -359,15 +377,17 @@ class PatientController extends AppBaseController{
             $audit['narrative'] = "Changes reviewed and commited to demographics.";
             $audit['table_action'] = "update";
             $audit['table_args'] = $ja;
-            $audit['action_user'] = isset( $_SESSION['authUserID'] ) ? $_SESSION['authUserID'] : "0";
-            $audit['action_taken_time'] = date( "Y-m-d H:i:s" );
+            $audit['action_user'] = isset($_SESSION['authUserID']) ? $_SESSION['authUserID'] : "0";
+            $audit['action_taken_time'] = date("Y-m-d H:i:s");
             $audit['checksum'] = "0";
 
-            $edata = $appsql->getPortalAudit( $ja['pid'], 'review' );
+            $edata = $appsql->getPortalAudit($ja['pid'], 'review');
             $audit['date'] = $edata['date'];
-            if( $edata['id'] > 0 ) $appsql->portalAudit( 'update', $edata['id'], $audit );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+            if ($edata['id'] > 0) {
+                $appsql->portalAudit('update', $edata['id'], $audit);
+            }
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
     /**
@@ -375,21 +395,19 @@ class PatientController extends AppBaseController{
      */
     public function Delete()
     {
-        try{
+        try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $patient = $this->Phreezer->Get( 'Patient', $pk );
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $patient = $this->Phreezer->Get('Patient', $pk);
 
             $patient->Delete();
 
             $output = new stdClass();
 
-            $this->RenderJSON( $output, $this->JSONPCallback() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+            $this->RenderJSON($output, $this->JSONPCallback());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 }
-
-?>

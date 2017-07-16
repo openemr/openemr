@@ -7,12 +7,15 @@ foreach ($_POST as $k => $var) {
     $_POST[$k] = add_escape_custom($var);
 //echo "$var\n";
 }
-if ($encounter == "")
-$encounter = date("Ymd");
-if ($_GET["mode"] == "new"){
+
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
+if ($_GET["mode"] == "new") {
     $newid = formSubmit("form_ankleinjury", $_POST, $_GET["id"], $userauthorized);
     addForm($encounter, "Ankle Evaluation Form", $newid, "ankleinjury", $pid, $userauthorized);
-}elseif ($_GET["mode"] == "update") {
+} elseif ($_GET["mode"] == "update") {
     sqlInsert("update form_ankleinjury set pid = {$_SESSION["pid"]},groupname='".$_SESSION["authProvider"]."',user='".$_SESSION["authUser"]."',authorized=$userauthorized,activity=1, date = NOW(),
 ankle_date_of_injuary='".$_POST["ankle_date_of_injuary"]."',
 ankle_work_related='".$_POST["ankle_work_related"]."',
@@ -32,8 +35,8 @@ ankle_diagnosis4='".$_POST["ankle_diagnosis4"]."',
 ankle_plan='".$_POST["ankle_plan"]."',
 ankle_additional_diagnisis='".$_POST["ankle_additional_diagnisis"]."' where id=$id");
 }
+
 $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>

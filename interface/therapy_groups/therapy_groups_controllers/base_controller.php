@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class BaseController{
+class BaseController
+{
 
     const VIEW_FOLDER = 'therapy_groups_views';
     const MODEL_FOLDER = 'therapy_groups_models';
@@ -50,7 +51,7 @@ class BaseController{
 
     protected function loadModel($name)
     {
-        if(!isset($this->$name)){
+        if (!isset($this->$name)) {
             require(dirname(__FILE__) .'/../' . self::MODEL_FOLDER .'/'. strtolower($name) .'_model.php');
             $this->$name = new $name;
         }

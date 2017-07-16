@@ -18,10 +18,12 @@ if ($response !== true) {
 if (!isset($ignoreAuth)) {
     $ignoreAuth = false;
 }
+
 // Unless specified explicitly, caller is not offsite_portal and Auth is required
 if (!isset($ignoreAuth_offsite_portal)) {
     $ignoreAuth_offsite_portal = false;
 }
+
 // Same for onsite
 if (!isset($ignoreAuth_onsite_portal_two)) {
     $ignoreAuth_onsite_portal_two = false;
@@ -45,12 +47,14 @@ if (IS_WINDOWS) {
  //convert windows path separators
     $webserver_root = str_replace("\\", "/", $webserver_root);
 }
+
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
 if (IS_WINDOWS) {
  //convert windows path separators
     $server_document_root = str_replace("\\", "/", $server_document_root);
 }
+
 // Auto collect the relative html path, i.e. what you would type into the web
 // browser after the server address to get to OpenEMR.
 // This removes the leading portion of $webserver_root that it has in common with the web server's document
@@ -62,6 +66,7 @@ $web_root = substr($webserver_root, strspn($webserver_root ^ $server_document_ro
 if (preg_match("/^[^\/]/", $web_root)) {
     $web_root = "/".$web_root;
 }
+
 // The webserver_root and web_root are now automatically collected in
 //  real time per above code. If above is not working, can uncomment and
 //  set manually here:
@@ -95,14 +100,17 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
         if (empty($ignoreAuth)) {
             die("Site ID is missing from session data!");
         }
+
         $tmp = $_SERVER['HTTP_HOST'];
         if (!is_dir($GLOBALS['OE_SITES_BASE'] . "/$tmp")) {
             $tmp = "default";
         }
     }
+
     if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', $tmp)) {
         die("Site ID '". htmlspecialchars($tmp, ENT_NOQUOTES) . "' contains invalid characters.");
     }
+
     if (isset($_SESSION['site_id']) && ($_SESSION['site_id'] != $tmp)) {
       // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
         session_unset(); // clear session, clean logout
@@ -113,8 +121,10 @@ if (empty($_SESSION['site_id']) || !empty($_GET['site'])) {
           // Main OpenEMR use
             header('Location: ../login/login.php?site='.$tmp); // Assuming in the interface/main directory
         }
+
         exit;
     }
+
     if (!isset($_SESSION['site_id']) || $_SESSION['site_id'] != $tmp) {
         $_SESSION['site_id'] = $tmp;
       //error_log("Session site ID has been set to '$tmp'"); // debugging
@@ -181,6 +191,7 @@ if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
     if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/')) {
         mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755);
     }
+
     if (! is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/')) {
         mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
     }
@@ -188,6 +199,7 @@ if (is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/')) {
     mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/', 0755, true);
     mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/', 0755);
 }
+
 // Safe bet support directories exist, define them.
 define("_MPDF_TEMP_PATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/pdf_tmp/');
 define("_MPDF_TTFONTDATAPATH", $GLOBALS['OE_SITE_DIR'] . '/documents/mpdf/ttfontdata/');
@@ -229,6 +241,7 @@ $twigEnv = new Twig_Environment($twigLoader, $twigOptions);
 if (array_key_exists('debug', $twigOptions) && $twigOptions['debug'] == true) {
     $twigEnv->addExtension(new Twig_Extension_Debug());
 }
+
 $twigEnv->addGlobal('assets_dir', $GLOBALS['assets_static_relative']);
 $twigEnv->addGlobal('srcdir', $GLOBALS['srcdir']);
 $twigEnv->addGlobal('rootdir', $GLOBALS['rootdir']);
@@ -242,10 +255,10 @@ $GLOBALS['twigLoader'] = $twigLoader;
 $GLOBALS['twig'] = $twigEnv;
 
 // This will open the openemr mysql connection.
-require_once (dirname(__FILE__) . "/../library/sql.inc");
+require_once(dirname(__FILE__) . "/../library/sql.inc");
 
 // Include the version file
-require_once (dirname(__FILE__) . "/../version.php");
+require_once(dirname(__FILE__) . "/../version.php");
 
 // The logging level for common/logging/logger.php
 // Value can be TRACE, DEBUG, INFO, WARN, ERROR, or OFF:
@@ -294,6 +307,7 @@ if (!empty($glrow)) {
             }
         }
     }
+
     if (!empty($temp_authuserid)) {
         $glres_user = sqlStatement(
             "SELECT `setting_label`, `setting_value` " .
@@ -308,6 +322,7 @@ if (!empty($glrow)) {
             $gl_user[$iter]=$row;
         }
     }
+
   // Set global parameters from the database globals table.
   // Some parameters require custom handling.
   //
@@ -327,6 +342,7 @@ if (!empty($glrow)) {
                 }
             }
         }
+
         if ($gl_name == 'language_menu_other') {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
@@ -344,6 +360,7 @@ if (!empty($glrow)) {
             if ($gl_value) {
                 $GLOBALS['inhouse_pharmacy'] = true;
             }
+
             if ($gl_value == '2') {
                 $GLOBALS['sell_non_drug_products'] = 1;
             } elseif ($gl_value == '3') {
@@ -356,12 +373,14 @@ if (!empty($glrow)) {
             if ($gl_value) {
                 date_default_timezone_set($gl_value);
             }
+
           // Synchronize MySQL time zone with PHP time zone.
             sqlStatement("SET time_zone = ?", array((new DateTime())->format("P")));
         } else {
             $GLOBALS[$gl_name] = $gl_value;
         }
     }
+
   // Language cleanup stuff.
     $GLOBALS['language_menu_login'] = false;
     if ((count($GLOBALS['language_menu_show']) >= 1) || $GLOBALS['language_menu_showall']) {
@@ -375,13 +394,13 @@ if (!empty($glrow)) {
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
-    if (isset( $_SESSION['language_direction'] )) {
+    if (isset($_SESSION['language_direction'])) {
         if ($_SESSION['language_direction'] == 'rtl' &&
         !strpos($GLOBALS['css_header'], 'rtl')  ) {
             // the $css_header_value is set above
             $rtl_override = true;
         }
-    } elseif (isset( $_SESSION['language_choice'] )) {
+    } elseif (isset($_SESSION['language_choice'])) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
         if ($_SESSION['language_direction'] == 'rtl' &&
@@ -413,7 +432,8 @@ if (!empty($glrow)) {
             error_log("Missing theme file ".text($include_root).'/themes/'.text($new_theme));
         }
     }
-    unset( $temp_css_theme_name, $new_theme,$rtl_override);
+
+    unset($temp_css_theme_name, $new_theme, $rtl_override);
     // end of RTL section
 
   //
@@ -537,6 +557,7 @@ if (($ignoreAuth_offsite_portal === true) && ($GLOBALS['portal_offsite_enable'] 
 } elseif (($ignoreAuth_onsite_portal_two === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
+
 if (!$ignoreAuth) {
     include_once("$srcdir/auth.inc");
 }
@@ -564,6 +585,7 @@ if (!empty($_GET['pid']) && empty($_SESSION['pid'])) {
 } elseif (!empty($_POST['pid']) && empty($_SESSION['pid'])) {
     $_SESSION['pid'] = $_POST['pid'];
 }
+
 $pid = empty($_SESSION['pid']) ? 0 : $_SESSION['pid'];
 $userauthorized = empty($_SESSION['userauthorized']) ? 0 : $_SESSION['userauthorized'];
 $groupname = empty($_SESSION['authProvider']) ? 0 : $_SESSION['authProvider'];

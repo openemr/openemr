@@ -58,29 +58,28 @@
     
 function getCombinePatients($dataSheet, $reportID)
 {
-    foreach( $dataSheet as $singleDataSheet ) {
+    foreach ($dataSheet as $singleDataSheet) {
         //var_dump($singleDataSheet['cqm_nqf_code'],$singleDataSheet['init_patients']);
-        if ( count($cqmCodes) && in_array($singleDataSheet['cqm_nqf_code'],$cqmCodes) ) {
+        if (count($cqmCodes) && in_array($singleDataSheet['cqm_nqf_code'], $cqmCodes)) {
             $initPatArr = collectItemizedPatientsCdrReport($reportID, $singleDataSheet['itemized_test_id'], "init_patients");
             $fullPatArr = array();
-            foreach($initPatArr as $initPatInfo){
+            foreach ($initPatArr as $initPatInfo) {
                 $fullPatArr[] = $initPatInfo['pid'];
             }
+
             $patients[$singleDataSheet['cqm_nqf_code']] = array_merge($patients[$singleDataSheet['cqm_nqf_code']], $fullPatArr);
             $patients[$singleDataSheet['cqm_nqf_code']] = array_unique($patients[$singleDataSheet['cqm_nqf_code']]);
         } else {
             $cqmCodes[] = $singleDataSheet['cqm_nqf_code'];
             $initPatArr = collectItemizedPatientsCdrReport($reportID, $singleDataSheet['itemized_test_id'], "init_patients");
             $fullPatArr = array();
-            foreach($initPatArr as $initPatInfo){
+            foreach ($initPatArr as $initPatInfo) {
                 $fullPatArr[] = $initPatInfo['pid'];
             }
+
             $patients[$singleDataSheet['cqm_nqf_code']] = $fullPatArr;
         }
     }
+
     return $patients;
 }
-    
-    
-
-?>

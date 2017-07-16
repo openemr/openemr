@@ -25,7 +25,6 @@ use Zend\Db\TableGateway\AbstractTableGateway;
 use Zend\Db\Adapter\Adapter;
 use \Application\Model\ApplicationTable;
 
-
 class DocumentsTable extends AbstractTableGateway
 {
   /*
@@ -61,14 +60,15 @@ class DocumentsTable extends AbstractTableGateway
     {
         $obj      = new ApplicationTable();
         $sql      = "SELECT * FROM `categories` WHERE `parent` = ? ORDER BY `order`";
-        $result   = $obj->zQuery($sql,array($categoryParentId));
+        $result   = $obj->zQuery($sql, array($categoryParentId));
         $category = array();
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $category[$row['cat_id']]= array(
             'category_id'   => $row['id'],
             'category_name' => $row['name'],
             );
         }
+
         return $category;
     }
   
@@ -83,7 +83,7 @@ class DocumentsTable extends AbstractTableGateway
         $sql    = "SELECT * FROM documents AS doc 
               JOIN categories_to_documents AS cat_doc ON cat_doc.document_id = doc.id
               WHERE doc.id = ?";
-        $result = $obj->zQuery($sql,array($documentId));
+        $result = $obj->zQuery($sql, array($documentId));
         return $result->current();
     }
   
@@ -97,16 +97,18 @@ class DocumentsTable extends AbstractTableGateway
         $obj              = new ApplicationTable();
         $categories_count = count($categories);
         $cat_name         = array();
-        for($i=0;$i<$categories_count;$i++){
+        for ($i=0; $i<$categories_count; $i++) {
             $cat_name[$i]   = "?";
         }
+
         $sql              = "SELECT `id`,`name` FROM `categories` ".
-                        "WHERE `name` IN (". implode(",",$cat_name) .")";
-        $result           = $obj->zQuery($sql,$categories);
+                        "WHERE `name` IN (". implode(",", $cat_name) .")";
+        $result           = $obj->zQuery($sql, $categories);
         $category         = array();
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $category[$row['name']] = $row['id'];
         }
+
         return $category;
     }
   
@@ -144,6 +146,7 @@ class DocumentsTable extends AbstractTableGateway
         foreach ($result as $values) {
             $category[] = $values;
         }
+
         return $category;
     }
   
@@ -159,7 +162,7 @@ class DocumentsTable extends AbstractTableGateway
            SET
           `activity` = ? 
           WHERE `id` = ?";
-        $obj->zQuery($sql,array(0,$docid));
+        $obj->zQuery($sql, array(0,$docid));
     }
   
   /**

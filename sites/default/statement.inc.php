@@ -43,10 +43,11 @@ $STMT_PRINT_CMD = $GLOBALS['print_command'];
 function make_statement($stmt)
 {
     if ($GLOBALS['statement_appearance'] == "1") {
-        if($_POST['form_portalnotify'] && is_auth_portal($stmt['pid']))
-        return osp_create_HTML_statement($stmt);
-        else
-        return create_HTML_statement($stmt);
+        if ($_POST['form_portalnotify'] && is_auth_portal($stmt['pid'])) {
+            return osp_create_HTML_statement($stmt);
+        } else {
+            return create_HTML_statement($stmt);
+        }
     } else {
         return create_statement($stmt);
     }
@@ -57,16 +58,17 @@ function make_statement($stmt)
  *  @param string $direction, options "web" or anything else.  Web provides apache-friendly url links.
  *  @return outputs to be displayed however requested
  */
-function report_header_2($stmt,$direction='',$providerID='1')
+function report_header_2($stmt, $direction = '', $providerID = '1')
 {
     $titleres = getPatientData($stmt['pid'], "fname,lname,DOB");
     if ($_SESSION['pc_facility']) {
         $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql,array($_SESSION['pc_facility']));
+        $facility = sqlQuery($sql, array($_SESSION['pc_facility']));
     } else {
         $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
         $facility = sqlQuery($sql);
     }
+
     $DOB = oeFormatShortDate($titleres['DOB']);
   /******************************************************************/
     ob_start();
@@ -107,16 +109,20 @@ function report_header_2($stmt,$direction='',$providerID='1')
 
 function create_HTML_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
   #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
   // Facility (service location)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
     " left join users u on f.id=u.facility_id " .
     " left join  billing b on b.provider_id=u.id and b.pid = ? ".
-    " where  service_location=1",array($stmt['pid']));
+    " where  service_location=1", array($stmt['pid']));
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -134,9 +140,9 @@ function create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']) );
+        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt,$direction,$providerID);
+    echo report_header_2($stmt, $direction, $providerID);
 
   // dunning message setup
 
@@ -146,28 +152,28 @@ function create_HTML_statement($stmt)
   // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
-        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)  {
-
+        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }
+
   // Text only labels
 
     $label_addressee = xl('ADDRESSEE');
@@ -196,9 +202,9 @@ function create_HTML_statement($stmt)
 
     $out  = "<div style='margin-left:60px;margin-top:20px;'><pre>";
     $out .= "\n";
-    $out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
+    $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
     $out .= "\n";
-    $out .= sprintf("%-11s %-46s %s\n",$label_visit,$label_desc,$label_amt);
+    $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
   // This must be set to the number of lines generated above.
@@ -209,19 +215,22 @@ function create_HTML_statement($stmt)
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
+
     $todays_time = strtotime(date('Y-m-d'));
 
   // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
         if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'],0,30);
+            $description = substr($line['desc'], 0, 30);
         } else {
             $description = $line['desc'];
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure",xl('Office Visit').":",$description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -237,6 +246,7 @@ function create_HTML_statement($stmt)
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
+
             $amount = '';
 
             if ($ddata['pmt']) {
@@ -255,7 +265,6 @@ function create_HTML_statement($stmt)
             } else {
                 $amount = sprintf("%.2f", $ddata['chg']);
                 $desc = $description;
-
             }
 
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
@@ -267,7 +276,10 @@ function create_HTML_statement($stmt)
   // This generates blank lines until we are at line 20.
   //  At line 20 we start middle third.
 
-    while ($count++ < 16) $out .= "\n";
+    while ($count++ < 16) {
+        $out .= "\n";
+    }
+
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
@@ -291,67 +303,82 @@ function create_HTML_statement($stmt)
 
   // This is the top portion of the page.
     $out .= "\n\n\n";
-    if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
-        $out .= sprintf("%-46s\n",$stmt['bill_note']);
+    if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
+        $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
+
     if ($GLOBALS['use_dunning_message']) {
-        $out .= sprintf("%-46s\n",$dun_message);
+        $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
+
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-    $label_today,oeFormatShortDate($stmt['today']),$label_due,$stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
-    $out .= sprintf("%-s\n",$label_call);
-    $out .= sprintf("%-s\n",$label_prompt);
+    $out .= sprintf("%-s\n", $label_call);
+    $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n",$billing_contact);
-    $out .= sprintf("  %-s %-25s\n",$label_dept,$label_bill_phone);
-    if($GLOBALS['statement_message_to_patient']) {
+    $out .= sprintf("%-s\n", $billing_contact);
+    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\n";
         $statement_message = $GLOBALS['statement_msg_text'];
-        $out .= sprintf("%-40s\n",$statement_message);
+        $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
-    if($GLOBALS['show_aging_on_custom_statement']) {
+
+    if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) .':'.
         sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
         $count++;
     }
-    if($GLOBALS['number_appointments_on_statement']!=0) {
+
+    if ($GLOBALS['number_appointments_on_statement']!=0) {
         $out .= "\n";
         $num_appts = $GLOBALS['number_appointments_on_statement'];
-        $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+        $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2,$stmt['pid'],$num_appts);
+        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
         $j=0;
-        $out .= sprintf("%-s\n",$label_appointments);
+        $out .= sprintf("%-s\n", $label_appointments);
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'],0,5);
-            if(strlen(umname) != 0 ) {
+            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
+            if (strlen(umname) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
-            }
-            else
-            {
+            } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
             }
-            if(strlen($next_appoint_time) != 0) {
+
+            if (strlen($next_appoint_time) != 0) {
                 $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n",$label_plsnote[$j]);
+                $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
+
             $j++;
             $count++;
         }
     }
-    while ($count++ < 29) $out .= "\n";
-    $out .= sprintf("%-10s %s\n",null,$label_retpay);
+
+    while ($count++ < 29) {
+        $out .= "\n";
+    }
+
+    $out .= sprintf("%-10s %s\n", null, $label_retpay);
     $out .= '</pre></div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:7in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
@@ -370,8 +397,10 @@ function create_HTML_statement($stmt)
 
     $out .= '</div><br />
    <pre>';
-    if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n",$stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= ' </pre>
   <div style="width:7in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";
@@ -470,10 +499,14 @@ function create_HTML_statement($stmt)
 
 function create_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
   #minimum_amount_to _print
-    if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt[amount] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
   // These are your clinics return address, contact etc.  Edit them.
   // TBD: read this from the facility table
@@ -514,28 +547,28 @@ function create_statement($stmt)
   // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
-        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)  {
-
+        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }
+
   // Text only labels
 
     $label_addressee = xl('ADDRESSEE');
@@ -563,30 +596,36 @@ function create_statement($stmt)
   // reformatted to handle i8n by tony
     $out = "\n\n";
     $providerNAME = getProviderName($stmt['providerID']);
-    $out .= sprintf("%-30s %s %-s\n",$clinic_name,$stmt['patient'],$stmt['today']);
-    $out .= sprintf("%-30s %s: %-s\n",$providerNAME,$label_chartnum,$stmt['pid']);
-    $out .= sprintf("%-30s %s\n",$clinic_addr,$label_insinfo);
-    $out .= sprintf("%-30s %-s: %-s\n",$clinic_csz,$label_totaldue,$stmt['amount']);
+    $out .= sprintf("%-30s %s %-s\n", $clinic_name, $stmt['patient'], $stmt['today']);
+    $out .= sprintf("%-30s %s: %-s\n", $providerNAME, $label_chartnum, $stmt['pid']);
+    $out .= sprintf("%-30s %s\n", $clinic_addr, $label_insinfo);
+    $out .= sprintf("%-30s %-s: %-s\n", $clinic_csz, $label_totaldue, $stmt['amount']);
     $out .= "\n";
-    $out .= sprintf("       %-30s %-s\n",$label_addressee,$label_remitto);
-    $out .= sprintf("       %-30s %s\n",$stmt['to'][0],$remit_name);
-    $out .= sprintf("       %-30s %s\n",$stmt['to'][1],$remit_addr);
-    $out .= sprintf("       %-30s %s\n",$stmt['to'][2],$remit_csz);
+    $out .= sprintf("       %-30s %-s\n", $label_addressee, $label_remitto);
+    $out .= sprintf("       %-30s %s\n", $stmt['to'][0], $remit_name);
+    $out .= sprintf("       %-30s %s\n", $stmt['to'][1], $remit_addr);
+    $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
 
-    if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n",$stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= sprintf("_________________________________________________________________\n");
     $out .= "\n";
-    $out .= sprintf("%-32s\n",$label_payby.' '.$label_cards);
+    $out .= sprintf("%-32s\n", $label_payby.' '.$label_cards);
     $out .= "\n";
-    $out .= sprintf("%s_____________________  %s______ %s___________________%s\n\n",
-    $label_cardnum,$label_expiry,$label_sign);
+    $out .= sprintf(
+        "%s_____________________  %s______ %s___________________%s\n\n",
+        $label_cardnum,
+        $label_expiry,
+        $label_sign
+    );
     $out .= sprintf("-----------------------------------------------------------------\n");
-    $out .= sprintf("%-20s %s\n",null,$label_retpay);
+    $out .= sprintf("%-20s %s\n", null, $label_retpay);
     $out .= "\n";
-    $out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
+    $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
     $out .= "\n";
-    $out .= sprintf("%-11s %-46s %s\n",$label_visit,$label_desc,$label_amt);
+    $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
   // This must be set to the number of lines generated above.
@@ -597,6 +636,7 @@ function create_statement($stmt)
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
+
     $todays_time = strtotime(date('Y-m-d'));
 
   // This generates the detail lines.  Again, note that the values must
@@ -606,17 +646,16 @@ function create_statement($stmt)
 
     foreach ($stmt['lines'] as $line) {
         if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'],0,30);
-
-        }
-        else {
+            $description = substr($line['desc'], 0, 30);
+        } else {
             $description = $line['desc'];
-
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure",xl('Office Visit').":",$description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -633,6 +672,7 @@ function create_statement($stmt)
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
+
             $amount = '';
 
             if ($ddata['pmt']) {
@@ -651,7 +691,6 @@ function create_statement($stmt)
             } else {
                 $amount = sprintf("%.2f", $ddata['chg']);
                 $desc = $description;
-
             }
 
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
@@ -662,7 +701,10 @@ function create_statement($stmt)
 
   // This generates blank lines until we are at line 42.
   //
-    while ($count++ < 42) $out .= "\n";
+    while ($count++ < 42) {
+        $out .= "\n";
+    }
+
     # Generate the string of aging text.  This will look like:
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
@@ -686,61 +728,72 @@ function create_statement($stmt)
 
   // This is the bottom portion of the page.
     $out .= "\n";
-    if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
-        $out .= sprintf("%-46s\n",$stmt['bill_note']);
+    if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
+        $out .= sprintf("%-46s\n", $stmt['bill_note']);
     }
+
     if ($GLOBALS['use_dunning_message']) {
-        $out .= sprintf("%-46s\n",$dun_message);
+        $out .= sprintf("%-46s\n", $dun_message);
     }
+
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-    $label_today,oeFormatShortDate($stmt['today']),$label_due,$stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
-    $out .= sprintf("%-s\n",$label_call);
-    $out .= sprintf("%-s\n",$label_prompt);
+    $out .= sprintf("%-s\n", $label_call);
+    $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n",$billing_contact);
-    $out .= sprintf("  %-s %-25s\n",$label_dept,$label_bill_phone);
-    if($GLOBALS['statement_message_to_patient']) {
+    $out .= sprintf("%-s\n", $billing_contact);
+    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\n";
         $statement_message = $GLOBALS['statement_msg_text'];
-        $out .= sprintf("%-40s\n",$statement_message);
+        $out .= sprintf("%-40s\n", $statement_message);
     }
-    if($GLOBALS['show_aging_on_custom_statement']) {
+
+    if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
         sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
-
     }
-    if($GLOBALS['number_appointments_on_statement']!=0) {
+
+    if ($GLOBALS['number_appointments_on_statement']!=0) {
         $out .= "\n";
         $num_appts = $GLOBALS['number_appointments_on_statement'];
-        $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+        $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2,$stmt['pid'],$num_appts);
+        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
         $j=0;
-        $out .= sprintf("%-s\n",$label_appointments);
+        $out .= sprintf("%-s\n", $label_appointments);
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'],0,5);
-            if(strlen(umname) != 0 ) {
+            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
+            if (strlen(umname) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
-            }
-            else
-            {
+            } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
             }
-            if(strlen($next_appoint_time) != 0) {
+
+            if (strlen($next_appoint_time) != 0) {
                 $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n",$label_plsnote[$j]);
+                $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
+
             $j++;
         }
     }
+
     $out .= "\014"; // this is a form feed
 
     return $out;
@@ -748,16 +801,20 @@ function create_statement($stmt)
 
 function osp_create_HTML_statement($stmt)
 {
-    if (! $stmt['pid']) return ""; // get out if no data
+    if (! $stmt['pid']) {
+        return ""; // get out if no data
+    }
 
     #minimum_amount_due_to _print
-    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) return "";
+    if ($stmt['amount'] <= ($GLOBALS['minimum_amount_to_print']) && $GLOBALS['use_statement_print_exclusion']) {
+        return "";
+    }
 
     // Facility (service location)
     $atres = sqlStatement("select f.name,f.street,f.city,f.state,f.postal_code,f.attn,f.phone from facility f " .
             " left join users u on f.id=u.facility_id " .
             " left join  billing b on b.provider_id=u.id and b.pid = ? ".
-            " where  service_location=1",array($stmt['pid']));
+            " where  service_location=1", array($stmt['pid']));
     $row = sqlFetchArray($atres);
     $clinic_name = "{$row['name']}";
     $clinic_addr = "{$row['street']}";
@@ -775,9 +832,9 @@ function osp_create_HTML_statement($stmt)
     <?php
     $find_provider = sqlQuery("SELECT * FROM form_encounter " .
         "WHERE pid = ? AND encounter = ? " .
-        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']) );
+        "ORDER BY id DESC LIMIT 1", array($stmt['pid'],$stmt['encounter']));
     $providerID = $find_provider['provider_id'];
-    echo report_header_2($stmt,$direction,$providerID);
+    echo report_header_2($stmt, $direction, $providerID);
 
   // dunning message setup
 
@@ -787,28 +844,28 @@ function osp_create_HTML_statement($stmt)
   // $stmt['level_closed'] <= 3 insurance 4 = patient
 
     if ($GLOBALS['use_dunning_message']) {
-        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4)  {
-
+        if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt{'age'}) {
                 case $stmt{'age'} <= $GLOBALS['first_dun_msg_set']:
                     $dun_message = $GLOBALS['first_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['second_dun_msg_set']:
                     $dun_message = $GLOBALS['second_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['third_dun_msg_set']:
                     $dun_message = $GLOBALS['third_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} <= $GLOBALS['fourth_dun_msg_set']:
                     $dun_message = $GLOBALS['fourth_dun_msg_text'];
-                break;
+                    break;
                 case $stmt{'age'} >= $GLOBALS['fifth_dun_msg_set']:
                     $dun_message = $GLOBALS['fifth_dun_msg_text'];
-                break;
+                    break;
             }
         }
     }
+
   // Text only labels
 
     $label_addressee = xl('ADDRESSEE');
@@ -837,9 +894,9 @@ function osp_create_HTML_statement($stmt)
 
     $out  = "<div style='margin-left:60px;margin-top:0px;'>";
     $out .= "\n";
-    $out .= sprintf("_______________________ %s _______________________\n",$label_pgbrk);
+    $out .= sprintf("_______________________ %s _______________________\n", $label_pgbrk);
     $out .= "\n";
-    $out .= sprintf("%-11s %-46s %s\n",$label_visit,$label_desc,$label_amt);
+    $out .= sprintf("%-11s %-46s %s\n", $label_visit, $label_desc, $label_amt);
     $out .= "\n";
 
   // This must be set to the number of lines generated above.
@@ -850,19 +907,22 @@ function osp_create_HTML_statement($stmt)
     for ($age_index = 0; $age_index < $num_ages; ++$age_index) {
         $aging[$age_index] = 0.00;
     }
+
     $todays_time = strtotime(date('Y-m-d'));
 
   // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
         if ($GLOBALS['use_custom_statement']) {
-            $description = substr($line['desc'],0,30);
+            $description = substr($line['desc'], 0, 30);
         } else {
             $description = $line['desc'];
         }
 
         $tmp = substr($description, 0, 14);
-        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201')
-        $description = str_replace("Procedure",xl('Office Visit').":",$description);
+        if ($tmp == 'Procedure 9920' || $tmp == 'Procedure 9921' || $tmp == 'Procedure 9200' || $tmp == 'Procedure 9201') {
+            $description = str_replace("Procedure", xl('Office Visit').":", $description);
+        }
+
         //92002-14 are Eye Office Visit Codes
 
         $dos = $line['dos'];
@@ -878,6 +938,7 @@ function osp_create_HTML_statement($stmt)
             if (preg_match('/^(\d\d\d\d)(\d\d)(\d\d)\s*$/', $ddate, $matches)) {
                 $ddate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
             }
+
             $amount = '';
 
             if ($ddata['pmt']) {
@@ -896,7 +957,6 @@ function osp_create_HTML_statement($stmt)
             } else {
                 $amount = sprintf("%.2f", $ddata['chg']);
                 $desc = $description;
-
             }
 
             $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
@@ -932,67 +992,79 @@ function osp_create_HTML_statement($stmt)
 
   // This is the top portion of the page.
     $out .= "\n";
-    if(strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
-        $out .= sprintf("%-46s\n",$stmt['bill_note']);
+    if (strlen($stmt['bill_note']) !=0 && $GLOBALS['statement_bill_note_print']) {
+        $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
+
     if ($GLOBALS['use_dunning_message']) {
-        $out .= sprintf("%-46s\n",$dun_message);
+        $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
+
     $out .= "\n";
-    $out .= sprintf("%-s: %-25s %-s: %-14s %-s: %8s\n",$label_ptname,$stmt['patient'],
-    $label_today,oeFormatShortDate($stmt['today']),$label_due,$stmt['amount']);
+    $out .= sprintf(
+        "%-s: %-25s %-s: %-14s %-s: %8s\n",
+        $label_ptname,
+        $stmt['patient'],
+        $label_today,
+        oeFormatShortDate($stmt['today']),
+        $label_due,
+        $stmt['amount']
+    );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
-    $out .= sprintf("%-s\n",$label_call);
-    $out .= sprintf("%-s\n",$label_prompt);
+    $out .= sprintf("%-s\n", $label_call);
+    $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n",$billing_contact);
-    $out .= sprintf("  %-s %-25s\n",$label_dept,$label_bill_phone);
-    if($GLOBALS['statement_message_to_patient']) {
+    $out .= sprintf("%-s\n", $billing_contact);
+    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    if ($GLOBALS['statement_message_to_patient']) {
         $out .= "\n";
         $statement_message = $GLOBALS['statement_msg_text'];
-        $out .= sprintf("%-40s\n",$statement_message);
+        $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
-    if($GLOBALS['show_aging_on_custom_statement']) {
+
+    if ($GLOBALS['show_aging_on_custom_statement']) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) .':'.
         sprintf(" %.2f", $aging[$age_index]);
         $out .= "\n" . $ageline . "\n\n";
         $count++;
     }
-    if($GLOBALS['number_appointments_on_statement']!=0) {
+
+    if ($GLOBALS['number_appointments_on_statement']!=0) {
         $out .= "\n";
         $num_appts = $GLOBALS['number_appointments_on_statement'];
-        $next_day = mktime(0,0,0,date('m'),date('d')+1,date('Y'));
+        $next_day = mktime(0, 0, 0, date('m'), date('d')+1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
-        $events = fetchNextXAppts($current_date2,$stmt['pid'],$num_appts);
+        $events = fetchNextXAppts($current_date2, $stmt['pid'], $num_appts);
         $j=0;
-        $out .= sprintf("%-s\n",$label_appointments);
+        $out .= sprintf("%-s\n", $label_appointments);
         #loop to add the appointments
         for ($x = 1; $x <= $num_appts; $x++) {
             $next_appoint_date = oeFormatShortDate($events[$j]['pc_eventDate']);
-            $next_appoint_time = substr($events[$j]['pc_startTime'],0,5);
-            if(strlen(umname) != 0 ) {
+            $next_appoint_time = substr($events[$j]['pc_startTime'], 0, 5);
+            if (strlen(umname) != 0) {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' . $events[$j]['umname'] . ' ' .  $events[$j]['ulname'];
-            }
-            else
-            {
+            } else {
                 $next_appoint_provider = $events[$j]['ufname'] . ' ' .  $events[$j]['ulname'];
             }
-            if(strlen($next_appoint_time) != 0) {
+
+            if (strlen($next_appoint_time) != 0) {
                 $label_plsnote[$j] = xlt('Date') . ': ' . text($next_appoint_date) . ' ' . xlt('Time') . ' ' . text($next_appoint_time) . ' ' . xlt('Provider') . ' ' . text($next_appoint_provider);
-                $out .= sprintf("%-s\n",$label_plsnote[$j]);
+                $out .= sprintf("%-s\n", $label_plsnote[$j]);
             }
+
             $j++;
             $count++;
         }
     }
+
  // while ($count++ < 29) $out .= "\n";
-    $out .= sprintf("%-10s %s\n",null,$label_retpay);
+    $out .= sprintf("%-10s %s\n", null, $label_retpay);
     $out .= '</pre></div>';
     $out .= '<div style="width:7.0in;border-top:1pt dotted black;font-size:12px;margin:0px;"><br /><br />
       <table style="width:8in;margin-left:20px;"><tr><td style="width:4.5in;"><br />
@@ -1011,8 +1083,10 @@ function osp_create_HTML_statement($stmt)
     $out .="</td></tr></table>";
 
     $out .= '</div><br />';
-    if($stmt['to'][3]!='')//to avoid double blank lines the if condition is put.
-    $out .= sprintf("   %-32s\n",$stmt['to'][3]);
+    if ($stmt['to'][3]!='') { //to avoid double blank lines the if condition is put.
+        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+    }
+
     $out .= ' </pre>
   <div style="width:8in;border-top:1pt solid black;"><br />';
     $out .= " <table style='width:6.0in;margin-left:40px;'><tr>";

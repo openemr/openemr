@@ -58,19 +58,20 @@ function edih_archive_report($period = '')
     // edih_archive_date returns empty string if no period
     $tper =  edih_archive_date($period);
     $chkdt = ($tper) ? $tper : 'None';
-    $strdt = ($tper) ? substr($chkdt,0,4).'-'.substr($chkdt,4,2).'-'.substr($chkdt,6,2) : 'None';
+    $strdt = ($tper) ? substr($chkdt, 0, 4).'-'.substr($chkdt, 4, 2).'-'.substr($chkdt, 6, 2) : 'None';
     //
     csv_edihist_log("edih_archive_report: creating archive report with date $chkdt");
     //
     $bdir = csv_edih_basedir();
     $params = csv_parameters('ALL');
-    if ( !is_array($params)  && count($params) ) {
+    if (!is_array($params)  && count($params)) {
         csv_edihist_log("edih_archive_report: invalid csv_parameters");
         return "<p>There was an error creating the report.</p>";
     }
+
     //
     $str_html .= "<h3>Report on edi files using archive date $strdt</h3>".PHP_EOL;
-    foreach($params as $key=>$param) {
+    foreach ($params as $key => $param) {
         $old_ct = 0;
         $clm_ct = 0;
         $dir_ct = 0;
@@ -84,51 +85,76 @@ function edih_archive_report($period = '')
         $tp = $param['type'];
         $fdir = $param['directory'];
         //
-        if ( is_dir($fdir) ) {
+        if (is_dir($fdir)) {
             $dir_ar = scandir($fdir);
             if (is_array($dir_ar) && ((count($dir_ar)-2) > 0)) {
                 $str_html .= "<H3><em>Type</em> ".$tp."</H3>".PHP_EOL;
                 $str_html .= "<ul>".PHP_EOL;
                 $dir_ct = count($dir_ar);
-                foreach($dir_ar as $fn) {
-                    if ($fn == 'README.txt') { $dir_ct--;
-                        continue; }
-                    if (substr($fn, 0, 1) == '.') { $dir_ct--;
-                        continue; }
-                    if (is_dir($fdir.DS.$fn)) { $subdir_ct++;
+                foreach ($dir_ar as $fn) {
+                    if ($fn == 'README.txt') {
                         $dir_ct--;
-                        continue; }
+                        continue;
+                    }
+
+                    if (substr($fn, 0, 1) == '.') {
+                        $dir_ct--;
+                        continue;
+                    }
+
+                    if (is_dir($fdir.DS.$fn)) {
+                        $subdir_ct++;
+                        $dir_ct--;
+                        continue;
+                    }
+
                     $dir_sz += filesize($fdir.DS.$fn);
                 }
+
                 //
                 $csv_ar = csv_assoc_array($tp, 'file');
                 $row_ct = (is_array($csv_ar)) ? count($csv_ar) : 0;
                 if ($row_ct) {
-                    foreach($csv_ar as $row) {
+                    foreach ($csv_ar as $row) {
                         // tally amount of claim transactions in the files
-                        if ($tp == 'f837') { $clm_ct += $row['Claim_ct']; }
-                        if ($tp == 'f277') { $clm_ct += ($row['Accept'] + $row['Reject']); }
-                        if ($tp == 'f835') { $clm_ct += $row['Claim_ct']; }
+                        if ($tp == 'f837') {
+                            $clm_ct += $row['Claim_ct'];
+                        }
+
+                        if ($tp == 'f277') {
+                            $clm_ct += ($row['Accept'] + $row['Reject']);
+                        }
+
+                        if ($tp == 'f835') {
+                            $clm_ct += $row['Claim_ct'];
+                        }
+
                         // check for duplicates
                         // here assume that files with multiple rows are consecutive
                         if ($fntp !== $row['FileName']) {
                             $fntp = $row['FileName'];
                             // count files that would be archived
-                            if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) { $old_ct++; }
+                            if (($chkdt != 'None') && strcmp($row['Date'], $chkdt) < 0) {
+                                $old_ct++;
+                            }
+
                             $fntp_ct++;
                         }
                     }
+
                     //
                     $dir_kb = csv_convert_bytes($dir_sz);
                 } else {
                     csv_edihist_log("edih_archive_report: error $tp file count $dir_ct with csv rows $row_ct");
                 }
+
                 //
                 $mis = ($fntp_ct == $dir_ct ) ? "(check/eft count or ISA--IEA count)" : "(mismatch csv $fntp_ct dir $dir_ct)";
                 //
-                if ($tp == 'f837')  {
+                if ($tp == 'f837') {
                     $str_html .= "<li><em>Note:</em> 837 Claims files are not archived </li>".PHP_EOL;
                 }
+
                 //
                 $str_html .= "<li>files directory has $dir_ct files, using $dir_kb </li>".PHP_EOL;
                 $str_html .= ($subdir_ct && ($tp != 'f837'))  ? "<li> <em>warning</em> found $subdir_ct sub-directories</li>".PHP_EOL : "";
@@ -143,6 +169,7 @@ function edih_archive_report($period = '')
             $str_html .= "<p><em>warning</em> <b>$tp</b> file directory does not exist</p>".PHP_EOL;
         }
     }
+
     $str_html .= "<p>Report end</p>".PHP_EOL;
     //
     return $str_html;
@@ -160,27 +187,31 @@ function edih_archive_date($period)
 {
     //
     $dtpd2 = '';
-    if (!$period) { return $dtpd2; }
+    if (!$period) {
+        return $dtpd2;
+    }
+
     $is_period = preg_match('/\d{1,2}(?=m)/', $period, $matches);
     //
-    if ( count($matches) ) {
+    if (count($matches)) {
         $gtdt = getdate();
         //
-        if ( strpos($period, 'm') ) {
+        if (strpos($period, 'm')) {
             // take the number part of 'period'
             // so modstr will be '-N month'
             $modstr = '-'.$matches[0].' month';
             $dtstr1 = $gtdt['mon'].'/01/'.$gtdt['year'];
-        }  elseif ( strpos($period, 'y') ) {
+        } elseif (strpos($period, 'y')) {
             $modstr = '-'.$matches[0].' year';
             $dtstr1 = $gtdt['mon'].'/01/'.$gtdt['year'];
         } else {
             csv_edihist_log("edih_archive_date: incorrect date period $period");
             return false;
         }
+
         //
         if ($modstr) {
-            $dtpd1 = date_create( $dtstr1 );
+            $dtpd1 = date_create($dtstr1);
             $dtm = date_modify($dtpd1, $modstr);
             $dtpd2 = $dtm->format('Ymd');
         } else {
@@ -191,6 +222,7 @@ function edih_archive_date($period)
         csv_edihist_log("edih_archive_date: invalid argment $period");
         return false;
     }
+
     // the testing date in CCYYMMDD format
     return $dtpd2;
 }
@@ -210,24 +242,27 @@ function edih_archive_date($period)
 function edih_archive_filenames($csv_ar, $archive_date)
 {
     //
-    if ( $archive_date && strlen($archive_date) == 8 && is_numeric($archive_date) ) {
+    if ($archive_date && strlen($archive_date) == 8 && is_numeric($archive_date)) {
         $testdate = (string)$archive_date;
     } else {
         csv_edihist_log("edih_archive_filenames: invalid archive date $archive_date");
         return false;
     }
+
     //
-    if ( !is_array($csv_ar) || !count($csv_ar) ) {
+    if (!is_array($csv_ar) || !count($csv_ar)) {
         csv_edihist_log("edih_archive_filenames: failed to get csv file array $file_type");
         return false;
     }
+
     //
     $fn_ar = array();
-    foreach($csv_ar as $row) {
-        if ( strcmp($row['Date'], $archive_date) < 0 ) {
+    foreach ($csv_ar as $row) {
+        if (strcmp($row['Date'], $archive_date) < 0) {
             $fn_ar[] = $row['FileName'];
         }
     }
+
     $ret_ar = (count($fn_ar)) ? array_values(array_unique($fn_ar)) : $fn_ar;
     //
     return $ret_ar;
@@ -249,10 +284,11 @@ function edih_archive_filenames($csv_ar, $archive_date)
 function edih_archive_csv_split($csv_ar, $filename_array)
 {
     //
-    if ( !is_array($filename_array) || !count($filename_array) ) {
+    if (!is_array($filename_array) || !count($filename_array)) {
         csv_edihist_log('csv_archive_table; invalid filename array');
         return false;
     }
+
     //
     if (is_array($csv_ar) && count($csv_ar)) {
         csv_edihist_log("edih_archive_csv_split: csv rows ".count($csv_ar)." old files ".count($filename_array));
@@ -260,6 +296,7 @@ function edih_archive_csv_split($csv_ar, $filename_array)
         csv_edihist_log("edih_archive_csv_split: failed to get csv file array");
         return false;
     }
+
     //
     // if the to be archived file name is in the row,
     // do not copy it to the new csv array
@@ -267,13 +304,14 @@ function edih_archive_csv_split($csv_ar, $filename_array)
     $arch_ar['arch'] = array();
     $arch_ar['keep'] = array();
     //
-    foreach($csv_ar as $row) {
-        if ( in_array($row['FileName'], $filename_array) ) {
+    foreach ($csv_ar as $row) {
+        if (in_array($row['FileName'], $filename_array)) {
             $arch_ar['arch'][] = $row;
         } else {
             $arch_ar['keep'][] = $row;
         }
     }
+
     //
     csv_edihist_log("edih_archive_csv_split: 'arch' array rows ".count($arch_ar['arch']));
     csv_edihist_log("edih_archive_csv_split: 'keep' array rows ".count($arch_ar['keep']));
@@ -309,18 +347,19 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
     $fn_ar2 = array();
     // to handle possibility of more than 200 files in the archive
     // use the 'chunk' method
-    if ( count($filename_ar) > $f_max) {
+    if (count($filename_ar) > $f_max) {
         $fn_ar2 = array_chunk($filename_ar, $f_max);
     } else {
         $fn_ar2[] = $filename_ar;
     }
+
     //
     $zip_name = $tmp_dir.DS.$archive_filename;
     csv_edihist_log("edih_archive_create_zip: using $zip_name");
     //
     $zip_obj = new ZipArchive();
     csv_edihist_log("edih_archive_create_zip: now opening archive $archive_filename");
-    if (is_file($zip_name) ) {
+    if (is_file($zip_name)) {
         $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
         if ($isOK) {
             if ($zip_obj->locateName($ft) === false) {
@@ -341,16 +380,19 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
         $isOK = $zip_obj->addEmptyDir($ft);
         $zip_obj->setArchiveComment("edi_history archive prior to $archive_date");
     }
+
     // we are working with the open archive
     // now add the old csv files to the archive
-    if ( is_file($tmp_dir.DS.$files_csv_arch) ) {
+    if (is_file($tmp_dir.DS.$files_csv_arch)) {
         csv_edihist_log("edih_archive_create_zip: now adding $files_csv_arch to archive");
         $isOK = $zip_obj->addFile($tmp_dir.DS.$files_csv_arch, 'csv'.DS.$files_csv_arch);
     }
-    if ( is_file($tmp_dir.DS.$claims_csv_arch) ) {
+
+    if (is_file($tmp_dir.DS.$claims_csv_arch)) {
         csv_edihist_log("edih_archive_create_zip: now adding $claims_csv_arch to archive");
         $isOK = $zip_obj->addFile($tmp_dir.DS.$claims_csv_arch, 'csv'.DS.$claims_csv_arch);
     }
+
     // close zip archive
     csv_edihist_log("edih_archive_create_zip: now closing archive");
     $isOK = $zip_obj->close();
@@ -359,22 +401,27 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
         csv_edihist_log("edih_archive_create_zip: $ft ZipArchive error $msg");
         return $isOK;
     }
+
     // $fn_ar2[i][j]
     csv_edihist_log("edih_archive_create_zip: with file name groups ".count($fn_ar2));
-    foreach($fn_ar2 as $fnz) {
+    foreach ($fn_ar2 as $fnz) {
         // reopen the zip archive on each loop so the open file count is controlled
-        if (is_file($zip_name) ) {
+        if (is_file($zip_name)) {
             csv_edihist_log("edih_archive_create_zip: now opening archive");
             $isOK = $zip_obj->open($zip_name, ZIPARCHIVE::CHECKCONS);
         }
+
         //
         if ($isOK === true) {
             // we are working with the open archive
             // now add the old x12 files to the archive
             csv_edihist_log("edih_archive_create_zip: now adding $ft files to archive");
-            foreach($fnz as $fz) {
-                if ($fz == '.' || $fz == '..') { continue; }
-                if (is_file($fdir.DS.$fz) && is_readable($fdir.DS.$fz) ) {
+            foreach ($fnz as $fz) {
+                if ($fz == '.' || $fz == '..') {
+                    continue;
+                }
+
+                if (is_file($fdir.DS.$fz) && is_readable($fdir.DS.$fz)) {
                     $isOK = $zip_obj->addFile($fdir.DS.$fz, $ft.DS.$fz);
                 } else {
                     // possible that file is in csv table, but not in directory?
@@ -399,7 +446,6 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
             return $isOK;
         }// end if ($isOK)
         //
-
     } // end foreach($fn_ar2 as $fnz)
     //
     return $isOK;
@@ -417,8 +463,14 @@ function edih_archive_create_zip($parameters, $filename_ar, $archive_date, $arch
 function edih_archive_move_old($parameters, $filename_ar)
 {
     //
-    if ( !is_array($filename_ar) || !count($filename_ar) ) { return false; }
-    if ( !is_array($parameters) || !count($parameters) ) { return false; }
+    if (!is_array($filename_ar) || !count($filename_ar)) {
+        return false;
+    }
+
+    if (!is_array($parameters) || !count($parameters)) {
+        return false;
+    }
+
     //
     clearstatcache(true);
     //
@@ -443,15 +495,17 @@ function edih_archive_move_old($parameters, $filename_ar)
         csv_edihist_log("edih_archive_delete_old: $ft dir error");
         $isOK = false;
     }
+
     //
     if ($isOK) {
         csv_edihist_log("edih_archive_delete_old: $ft old file count $fn_ar_ct");
-        foreach($filename_ar as $fn) {
+        foreach ($filename_ar as $fn) {
             // if we have added the file to the archive, remove it from the storage directory
             // but keep the /history/tmp file copy for now
             if (is_file($fdir.DS.$fn)) {
                 $isrn = rename($fdir.DS.$fn, $rndir.DS.$fn);
             }
+
             //
             if ($isrn) {
                 $fnct++;
@@ -462,6 +516,7 @@ function edih_archive_move_old($parameters, $filename_ar)
     } else {
         csv_edihist_log("edih_archive_delete_old: $ft directory error for files or tmp");
     }
+
     //
     return $fnct;
 }
@@ -478,7 +533,7 @@ function edih_archive_move_old($parameters, $filename_ar)
  *
  * @return array
  */
-function edih_archive_csv_array($filetype, $csv_type, $filepath='')
+function edih_archive_csv_array($filetype, $csv_type, $filepath = '')
 {
     //
     $str_out = '';
@@ -493,6 +548,7 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath='')
     } else {
         $csv_arch_path = $tmpcsv.DS.'arch_'.$csvtp.'_'.$filetype.'.csv';
     }
+
     //
     $ct = 0;
     $row = 0;
@@ -500,24 +556,30 @@ function edih_archive_csv_array($filetype, $csv_type, $filepath='')
     // relies on first row being header or column names
     if (($fh = fopen($csv_arch_path, "rb")) !== false) {
         while (($data = fgetcsv($fh, 2048, ",")) !== false) {
-            if ( is_null($data) ) { continue; }
+            if (is_null($data)) {
+                continue;
+            }
+
             if ($row) {
-                for($i=0; $i<$ct; $i++) {
+                for ($i=0; $i<$ct; $i++) {
                     $csv_ar[$ky][$h[$i]] = $data[$i];
                 }
             } else {
                 $ct = count($data);
                 $h = $data;
             }
+
             $row++;
             $ky++;
         }
+
         fclose($fh);
     } else {
          // invalid file path
          csv_edihist_log('edih_archive_csv_array; invalid file path '.$csv_arch_path);
          return false;
     }
+
     //
     return $csv_ar;
 }
@@ -554,6 +616,7 @@ function edih_archive_csv_combine($filetype, $csvtype)
     if (is_file($csv_arch_file)) {
         $car2 = edih_archive_csv_array($filetype, $csvtp, $csv_arch_file);
     }
+
     // possibility of empty arrays if no data rows in a csv file
     $hdrc1 = (is_array($car1) && count($car1)) ? array_keys($car1[0]) : array();
     $hdrc2 = (is_array($car2) && count($car2)) ? array_keys($car2[0]) : array();
@@ -572,20 +635,29 @@ function edih_archive_csv_combine($filetype, $csvtype)
         // debug
         if (count($hdrc1)) {
             $dbg_str = '';
-            foreach($hdrc1 as $h) { $dbg_str .= $h.' '; }
+            foreach ($hdrc1 as $h) {
+                $dbg_str .= $h.' ';
+            }
+
             csv_edihist_log("edih_archive_csv_combine: $csvtp car1 header $dbg_str");
         } else {
             csv_edihist_log("edih_archive_csv_combine: $csvtp car1 header empty");
         }
+
         if (count($hdrc2)) {
             $dbg_str = '';
-            foreach($hdrc2 as $h) { $dbg_str .= $h.' '; }
+            foreach ($hdrc2 as $h) {
+                $dbg_str .= $h.' ';
+            }
+
             csv_edihist_log("edih_archive_csv_combine: $csvtp car2 header $dbg_str");
         } else {
             csv_edihist_log("edih_archive_csv_combine: $csvtp car2 header empty");
         }
+
         //
     }
+
     // if the arrays checked out
     if (!isset($car_cmb_unique)) {
         // if we have archive csv rows
@@ -599,49 +671,55 @@ function edih_archive_csv_combine($filetype, $csvtype)
                 } else {
                     $ky = 'Control';
                 }
+
                 // array_column() php v5.5
-                foreach($car_cmb as $idx=>$row) {
+                foreach ($car_cmb as $idx => $row) {
                     $dup_ar[$idx] = $row[$ky];
                 }
+
                 csv_edihist_log("edih_archive_csv_combine: $csvtp array row count ".count($dup_ar));
                 $dup_unique = array_unique($dup_ar);
                 $dup_keys = array_keys($dup_unique);
                 csv_edihist_log("edih_archive_csv_combine: $csvtp index row count ".count($dup_keys));
-                foreach($dup_keys as $k) {
+                foreach ($dup_keys as $k) {
                     $car_cmb_unique[] = $car_cmb[$k];
                 }
+
                 csv_edihist_log("edih_archive_csv_combine: $csvtp combined row count ".count($car_cmb_unique));
             } elseif ($csvtp == 'claims') {
                 $ct = count($hdr_ar);
                 $ftxt = $csvtp.' array'.PHP_EOL;
-                foreach($car_cmb as $idx=>$row) {
+                foreach ($car_cmb as $idx => $row) {
                     $r_str = '';
-                    for($i=0; $i<$ct; $i++) {
+                    for ($i=0; $i<$ct; $i++) {
                         $r_str .= $row[$hdr_ar[$i]];
                     }
+
                     $dup_ar[$idx] = $r_str;
                     $ftxt .= $r_str.PHP_EOL;
                 }
+
                 csv_edihist_log("edih_archive_csv_combine: $csvtp array row count ".count($dup_ar));
                 file_put_contents($tmpdir.DS.'archive'.DS.'claimstr.txt', $ftxt);
                 //
                 $dup_unique = array_unique($dup_ar);
                 $dup_keys = array_keys($dup_unique);
                 csv_edihist_log("edih_archive_csv_combine: $csvtp index row count ".count($dup_keys));
-                foreach($dup_keys as $k) {
+                foreach ($dup_keys as $k) {
                     $car_cmb_unique[] = $car_cmb[$k];
                 }
+
                 csv_edihist_log("edih_archive_csv_combine: $csvtp combined row count ".count($car_cmb_unique));
             } else {
                 $car_cmb_unique = $car_cmb;
             }
         } else {
             csv_edihist_log("edih_archive_csv_combine: array keys mismatch $filetype");
-            
         }
     } else {
         csv_edihist_log("edih_archive_csv_combine: error reading archived csv ".$csvtp."_".$filetype.".csv");
     }
+
     $rwct = 0;
     $fh = fopen($csv_new_file, 'wb');
     if ($fh) {
@@ -652,11 +730,13 @@ function edih_archive_csv_combine($filetype, $csvtype)
             fputcsv($fh, $row);
             $rwct++;
         }
+
         // close new csv file
         fclose($fh);
     } else {
         csv_edihist_log("edih_archive_csv_combine: failed to open $filetype new csv file");
     }
+
     return $rwct;
 }
 
@@ -686,6 +766,7 @@ function edih_archive_restore($archive_name)
         csv_edihist_log("edih_archive_restore: restore archive bad file name $archive_name");
         return $str_out;
     }
+
     //
     $zip_obj = new ZipArchive();
     // open archive (ZIPARCHIVE::CHECKCONS the ZIPARCHIVE::CREATE is supposedly necessary for microsoft)
@@ -709,15 +790,22 @@ function edih_archive_restore($archive_name)
         $str_out .= "zipArchive: $msg <br>";
         return $str_out;
     }
+
     // now traverse the tmpdir and replace things
     // we should have tmp/csv/files_[ftype].csv  claims_[ftype].csv
     //                tmp/[ftype]/x12_filenames
     $arch_ar = scandir($tmpdir);
     $tpstr = '';
-    foreach($arch_ar as $fa) {
-        if ($fa == '.' || $fa == '..') { continue; }
+    foreach ($arch_ar as $fa) {
+        if ($fa == '.' || $fa == '..') {
+            continue;
+        }
+
         if (is_dir($tmpdir.DS.$fa)) {
-            if ($fa == 'csv') { continue; }
+            if ($fa == 'csv') {
+                continue;
+            }
+
             // if a /history/ftype dir exists
             if (is_dir($bdir.DS.$fa)) {
                 $type_ar[] = $fa;
@@ -727,11 +815,12 @@ function edih_archive_restore($archive_name)
             continue;
         }
     }
+
     //
     csv_edihist_log("edih_archive_restore: types in archive $tpstr");
     $str_out .= "Archive: types in archive $tpstr <br>".PHP_EOL;
     //
-    foreach($type_ar as $ft) {
+    foreach ($type_ar as $ft) {
         $str_out .= "Archive: now restoring $ft<br>".PHP_EOL;
         csv_edihist_log("edih_archive_restore: now restoring $ft");
         //
@@ -741,8 +830,11 @@ function edih_archive_restore($archive_name)
         csv_edihist_log("edih_archive_restore: claims_$ft csv combined rows $frow");
         //
         $file_ar = scandir($tmpdir.DS.$ft);
-        foreach($file_ar as $fn) {
-            if ($fn == '.' || $fn == '..') { continue; }
+        foreach ($file_ar as $fn) {
+            if ($fn == '.' || $fn == '..') {
+                continue;
+            }
+
             if (is_file($tmpdir.DS.$ft.DS.$fn)) {
                 $rn = rename($tmpdir.DS.$ft.DS.$fn, $bdir.DS.$ft.DS.$fn);
                 if (!$rn) {
@@ -751,6 +843,7 @@ function edih_archive_restore($archive_name)
                 }
             }
         }
+
         // this will catch the csv files for the particulat type
         $str_out .= "Archive: now replacing csv tables for $ft<br>".PHP_EOL;
         csv_edihist_log("edih_archive_restore: now replacing csv tables for $ft");
@@ -760,6 +853,7 @@ function edih_archive_restore($archive_name)
         $str_out .= ($rnf) ? "" : " -- error restoring files_$ft.csv <br>".PHP_EOL;
         $str_out .= ($rnc) ? "" : " -- error restoring claims_$ft.csv <br>".PHP_EOL;
     }
+
     //
     csv_edihist_log("edih_archive_restore: now removing archive file");
     $str_out .= "Archive:  now removing archive file <br>".PHP_EOL;
@@ -768,6 +862,7 @@ function edih_archive_restore($archive_name)
         csv_edihist_log("edih_archive_restore: error removing $archdir.DS.$archive_name");
         $str_out .= ($rnf) ? "" : " -- error removing $archdir.DS.$archive_name".PHP_EOL;
     }
+
     //
     //edih_archive_cleanup($arch_fn, $tp_ar);
     csv_edihist_log("edih_archive_restore: now removing temporary files");
@@ -780,6 +875,7 @@ function edih_archive_restore($archive_name)
     } else {
         $str_out .= "Archive: still some files in /history/tmp/. Process complete.<br>" .PHP_EOL;
     }
+
     //
     return $str_out;
 }
@@ -815,7 +911,7 @@ function edih_archive_undo()
     $types_ar = array_keys($params);
     //
     csv_edihist_log("edih_archive_undo: restoring prior csv files files");
-    foreach($types_ar as $ft) {
+    foreach ($types_ar as $ft) {
         if (is_file($tmpdir.DS.'old_files_'.$ft.'.csv')) {
             $rn = rename($tmpdir.DS.'old_files_'.$ft.'.csv', $bdir.DS.'csv'.DS.'files_'.$ft.'.csv');
             if ($rn) {
@@ -824,6 +920,7 @@ function edih_archive_undo()
                 csv_edihist_log("edih_archive_undo: restore failed for prior files_$ft ");
             }
         }
+
         if (is_file($tmpdir.DS.'old_claims_'.$ft.'.csv')) {
             $rn = rename($tmpdir.DS.'old_claims_'.$ft.'.csv', $bdir.DS.'csv'.DS.'claims_'.$ft.'.csv');
             if ($rn) {
@@ -833,9 +930,13 @@ function edih_archive_undo()
             }
         }
     }
+
     $arch_ar = scandir($tmpdir);
-    foreach($arch_ar as $fa) {
-        if ($fa == "." && $fa == "..") { continue; }
+    foreach ($arch_ar as $fa) {
+        if ($fa == "." && $fa == "..") {
+            continue;
+        }
+
         if (is_dir($tmpdir.DS.$fa)) {
             if (in_array($fa, $types_ar)) {
                 $fpath = $params[$fa]['directory'];
@@ -851,11 +952,13 @@ function edih_archive_undo()
                             }
                         }
                     }
+
                     closedir($dh);
                 }
             }
         }
     }
+
     return $str_out;
 }
 
@@ -886,6 +989,7 @@ function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
     } else {
         csv_edihist_log("edih_archive_rewrite_csv: row array not array");
     }
+
     //
     if (is_array($row_array) && is_array($csv_keys)) {
         if (count($csv_keys)) {
@@ -895,6 +999,7 @@ function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
         csv_edihist_log("edih_archive_rewrite_csv: invalid row array");
         return $rwct;
     }
+
     //$csv_path should end with /history/tmp/[arch|keep]_[files|claims]_[type].csv
     // with 'w' flag, place the file pointer at the beginning of the file
     // and truncate the file to zero length.
@@ -904,15 +1009,17 @@ function edih_archive_rewrite_csv($csv_path, $csv_keys, $row_array)
         // write the heading row first
         $ocwct += fputcsv($fh3, $h_ar);
         // wrote heading, now add rows
-        foreach($row_array as $row) {
+        foreach ($row_array as $row) {
             $ocwct += fputcsv($fh3, $row);
             $rwct++;
         }
+
         fclose($fh3);
         csv_edihist_log("edih_archive_rewrite_csv: wrote ".count($row_array)." rows to ".basename($csv_path));
     } else {
         csv_edihist_log("edih_archive_rewrite_csv: failed to open $csv_path");
     }
+
     return $rwct;
 }
 
@@ -937,6 +1044,7 @@ function edih_archive_cleanup($archivename, $types_ar)
         $str_out = "no types in file types list".PHP_EOL;
         return $str_out;
     }
+
     $bdir = csv_edih_basedir();
     $tmpdir = csv_edih_tmpdir();
     $archivedir = $bdir.DS.'archive';
@@ -945,12 +1053,15 @@ function edih_archive_cleanup($archivename, $types_ar)
     csv_edihist_log("edih_archive_cleanup: now clearing temporary files");
     $str_out .= "Archive: now clearing temporary files<br>".PHP_EOL;
     // delete archived files from edih tmp dir
-    foreach($tdirs as $td) {
+    foreach ($tdirs as $td) {
         csv_edihist_log("edih_archive_cleanup: cleaning up for $td");
         if (is_dir($tmpdir.DS.$td)) {
             $fn_ar = scandir($tmpdir.DS.$td);
-            foreach($fn_ar as $fn) {
-                if ($fn == '.' || $fn == '..') { continue; }
+            foreach ($fn_ar as $fn) {
+                if ($fn == '.' || $fn == '..') {
+                    continue;
+                }
+
                 if (is_file($tmpdir.DS.$td.DS.$fn)) {
                     $ul = unlink($tmpdir.DS.$td.DS.$fn);
                     if (!$ul) {
@@ -961,12 +1072,15 @@ function edih_archive_cleanup($archivename, $types_ar)
                     }
                 }
             }
+
             // try to remove the now empty directory
             csv_edihist_log("edih_archive_cleanup: removing tmp $td");
             rmdir($tmpdir.DS.$td);
         }
+
         csv_edihist_log("edih_archive_cleanup: removed $fct files from $td");
     }
+
     return $str_out;
 }
     
@@ -1009,8 +1123,9 @@ function edih_archive_main($period)
         $out_html = "Archive period invalid.<br />" .PHP_EOL;
         return $out_html;
     }
+
     //
-    if (is_dir($archive_dir) ) {
+    if (is_dir($archive_dir)) {
         if (is_file($archive_dir.DS.$arch_fn)) {
             csv_edihist_log("edih_archive_main: archive file $arch_fn already exists");
             $out_html = "Archive: archive file $arch_fn already exists<br>" .PHP_EOL;
@@ -1018,14 +1133,15 @@ function edih_archive_main($period)
         }
     } else {
         // should have been created at setup
-        if (!mkdir ($archive_dir, 0755)) {
+        if (!mkdir($archive_dir, 0755)) {
             csv_edihist_log("edih_archive_main: archive directory does not exist");
             $out_html = "Archive: archive directory does not exist<br>" .PHP_EOL;
             return $out_html;
         }
     }
+
     //
-    foreach($params as $k=>$p) {
+    foreach ($params as $k => $p) {
         //
         $ft = $p['type'];  // could be $k
         //
@@ -1033,9 +1149,13 @@ function edih_archive_main($period)
             csv_edihist_log("edih_archive_main: 837 Claims files are not archived");
             continue;
         }
+
         $fdir = $p['directory'];
         $scan = scandir($fdir);
-        if ( !$scan || count($scan) < 3 ) { continue; }
+        if (!$scan || count($scan) < 3) {
+            continue;
+        }
+
         //
         $files_csv = $p['files_csv'];
         $claims_csv = $p['claims_csv'];
@@ -1057,26 +1177,30 @@ function edih_archive_main($period)
         // copy existing csv files -- continue to next type if no files_csv
         $iscpc = $iscpf = false;
         if (is_file($files_csv)) {
-            $iscpf = copy ($files_csv, $fn_files_old);
+            $iscpf = copy($files_csv, $fn_files_old);
             csv_edihist_log("edih_archive_main: copy $ft files csv to tmp dir");
         } else {
             csv_edihist_log("edih_archive_main: $ft files csv does not exist");
             continue;
         }
+
         if (is_file($claims_csv)) {
-            $iscpc = copy ($claims_csv, $fn_claims_old);
+            $iscpc = copy($claims_csv, $fn_claims_old);
             csv_edihist_log("edih_archive_main: copy $ft claims csv to tmp dir");
         } else {
             if ($ft == 'f997') {
                 // there may be no 997 type claims records, so create a dummy file
                 $fh = fopen($fn_claims_old, 'wb');
-                if ($fh) { fputcsv($fh, $ch_ar);
-                    fclose($fh); }
+                if ($fh) {
+                    fputcsv($fh, $ch_ar);
+                    fclose($fh);
+                }
             } else {
                 csv_edihist_log("edih_archive_main: $ft claims csv does not exist");
                 continue;
             }
         }
+
         //
         if (!$iscpf || !$iscpc) {
             csv_edihist_log("edih_archive_csv_old: copy to tmp dir failed for csv file $ft");
@@ -1085,6 +1209,7 @@ function edih_archive_main($period)
             $out_html .= edih_archive_undo();
             return $out_html;
         }
+
         // get the csv data
         $csv_files_ar = csv_assoc_array($ft, 'file');
         $csv_claims_ar = csv_assoc_array($ft, 'claim');
@@ -1103,7 +1228,8 @@ function edih_archive_main($period)
                     $frws = edih_archive_rewrite_csv($fn_files_keep, $fh_ar, $arch_new['keep']);
                     $out_html .= "type $ft keep files_csv file with $frws rows<br>";
                 }
-                if ( isset($arch_new['arch'])) {
+
+                if (isset($arch_new['arch'])) {
                     // write the old
                     $frws2 = edih_archive_rewrite_csv($fn_files_arch, $fh_ar, $arch_new['arch']);
                     $out_html .= "type $ft archive files_csv file with $frws2 rows<br>";
@@ -1111,6 +1237,7 @@ function edih_archive_main($period)
             } else {
                 $out_html .= "type $ft error creating new files_csv tables";
             }
+
             // repeat for claims_csv
             $arch_new = edih_archive_csv_split($csv_claims_ar, $fn_ar);
             if ($arch_new) {
@@ -1119,6 +1246,7 @@ function edih_archive_main($period)
                     $crws = edih_archive_rewrite_csv($fn_claims_keep, $ch_ar, $arch_new['keep']);
                     $out_html .= "type $ft keep claims_csv file with $crws rows<br>";
                 }
+
                 if (isset($arch_new['arch'])) {
                     // write the old
                     $crws = edih_archive_rewrite_csv($fn_claims_arch, $ch_ar, $arch_new['arch']);
@@ -1127,6 +1255,7 @@ function edih_archive_main($period)
             } else {
                 $out_html .= "type $ft error creating new claims csv tables<br>";
             }
+
             // now the csv_records are in files
             // file records in $fn_files_arch  $fn_files_keep
             // claim records in $fn_claims_arch  $fn_claims_new
@@ -1144,12 +1273,14 @@ function edih_archive_main($period)
                 } else {
                     csv_edihist_log("edih_archive_main: error trying to replace $files_csv");
                 }
+
                 $rn = rename($fn_claims_keep, $claims_csv);
                 if ($rn) {
                     csv_edihist_log("edih_archive_main: replaced $claims_csv");
                 } else {
                     csv_edihist_log("edih_archive_main: error trying to replace $claims_csv");
                 }
+
                 // move archive files to tmpdir/ftype
                 // $rndir = mkdir($tmpdir.DS.$fdir);
                 csv_edihist_log("edih_archive_main: $ft now moving old files ");
@@ -1160,7 +1291,6 @@ function edih_archive_main($period)
                 csv_edihist_log("edih_archive_main: type $ft error in creating archive");
                 $out_html .= "type $ft error in creating archive<br>" .PHP_EOL;
             }
-                
         } else {
             csv_edihist_log("edih_archive_main: search found no type $ft files older than $period");
             $out_html .= "Archive: type $ft archive found no files older than $period<br>" .PHP_EOL;
@@ -1179,6 +1309,7 @@ function edih_archive_main($period)
     } else {
         csv_edihist_log("edih_archive_main: is_file false $tmp_dir.DS.$arch_fn");
     }
+
     //edih_archive_cleanup($arch_fn, $tp_ar);
     $is_clear = csv_clear_tmpdir();
     if ($is_clear) {
@@ -1186,6 +1317,7 @@ function edih_archive_main($period)
     } else {
         $out_html .= "Archive: still some files in /history/tmp/. Process complete.<br>" .PHP_EOL;
     }
+
     //
     return $out_html;
 }

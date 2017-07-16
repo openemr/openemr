@@ -24,14 +24,14 @@ $landingpage = "index.php?site=".$_SESSION['site_id'];
 //
 
 // kick out if patient not authenticated
-if ( isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite']) ) {
+if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite'])) {
     $pid = $_SESSION['pid'];
-}
-else {
+} else {
     session_destroy();
     header('Location: '.$landingpage.'&w');
     exit;
 }
+
 //
 
 $ignoreAuth = true;
@@ -326,6 +326,7 @@ $(document).ready(function(){
                 }
         });
 <?php }
+
 if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
         $(".viewCCD_send_dialog").click(
         function() {
@@ -388,7 +389,7 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
     <!-- start left column div -->
     <div style='float:left; margin-right:20px'>
      <table cellspacing=0 cellpadding=0>
-        <?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
+        <?php if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
        <tr>
         <td width='650px'>
             <?php
@@ -401,9 +402,17 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
             $bodyClass = "notab";
             $widgetAuth = false;
             $fixedWidth = true;
-            expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-            $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-            $widgetAuth, $fixedWidth);
+            expand_collapse_widget(
+                $widgetTitle,
+                $widgetLabel,
+                $widgetButtonLabel,
+                $widgetButtonLink,
+                $widgetButtonClass,
+                $linkMethod,
+                $bodyClass,
+                $widgetAuth,
+                $fixedWidth
+            );
             ?>
            <br/>
            <div style='margin-left:3em; margin-right:3em; padding:1em; border:1px solid blue;' class='text'>
@@ -514,8 +523,8 @@ if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { 
          </div>
         </td>
        </tr>
-<?php } // end CCR/CCD reporting options ?>
-<?php if ( $GLOBALS['portal_onsite_document_download'] ) { ?>
+        <?php } // end CCR/CCD reporting options ?>
+<?php if ($GLOBALS['portal_onsite_document_download']) { ?>
 <?php echo "<tr><td width='650px'>";
 $widgetTitle = xl('Documents');
 $widgetLabel = "documents";
@@ -525,9 +534,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
- $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 <span class="text"><?php echo xlt('Download all patient documents');?></span>
 <br /><br />
@@ -548,9 +565,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 
                     <br/>
@@ -569,7 +594,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
                 $bodyClass = "notab";
                 $widgetAuth = false;
                 $fixedWidth = true;
-                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
+                expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth); ?>
 
                 </div>
 
@@ -589,9 +614,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
                     <br/>
                     <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
@@ -611,9 +644,17 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
   $bodyClass = "notab";
   $widgetAuth = false;
   $fixedWidth = true;
-  expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-    $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-    $widgetAuth, $fixedWidth);
+  expand_collapse_widget(
+      $widgetTitle,
+      $widgetLabel,
+      $widgetButtonLabel,
+      $widgetButtonLink,
+      $widgetButtonClass,
+      $linkMethod,
+      $bodyClass,
+      $widgetAuth,
+      $fixedWidth
+  );
 ?>
       <br/>
       <div style='margin-left:10px' class='text'><img src='images/ajax-loader.gif'/></div><br/>
@@ -623,7 +664,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
     </tr>
 
 <!-- Amendments -->
-<?php if ( $GLOBALS['amendments'] ) { ?>
+<?php if ($GLOBALS['amendments']) { ?>
     <tr>
     <td width='650px'>
 <?php
@@ -635,9 +676,17 @@ $linkMethod = "html";
 $bodyClass = "notab";
 $widgetAuth = false;
 $fixedWidth = true;
-expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
-  $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass,
-  $widgetAuth, $fixedWidth);
+expand_collapse_widget(
+    $widgetTitle,
+    $widgetLabel,
+    $widgetButtonLabel,
+    $widgetButtonLink,
+    $widgetButtonClass,
+    $linkMethod,
+    $bodyClass,
+    $widgetAuth,
+    $fixedWidth
+);
 ?>
 
 <br/>
@@ -658,7 +707,7 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
       "u.id = e.pc_aid AND e.pc_catid = c.pc_catid " .
       "ORDER BY e.pc_eventDate, e.pc_startTime";
       //echo $query;
-     $res = sqlStatement($query, array($pid) );
+     $res = sqlStatement($query, array($pid));
 
     // appointments expand collapse widget
     $widgetTitle = xl("Appointments");
@@ -668,16 +717,14 @@ expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel,
         $widgetButtonClass = "edit_event iframe";
     $linkMethod = "";
     $bodyClass = "summary_item small";
-if ($GLOBALS['portal_onsite_appt_modify'])
-{
+if ($GLOBALS['portal_onsite_appt_modify']) {
     $widgetAuth = true;
-}
-else
-{
+} else {
     $widgetAuth = false;
 }
+
     $fixedWidth = false;
-    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel , $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
+    expand_collapse_widget($widgetTitle, $widgetLabel, $widgetButtonLabel, $widgetButtonLink, $widgetButtonClass, $linkMethod, $bodyClass, $widgetAuth, $fixedWidth);
              $count = 0;
 ?>
             <div id='stats_div' style="display:none">

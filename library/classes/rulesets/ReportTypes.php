@@ -14,13 +14,13 @@ class ReportTypes
     const AMC = 'amc';
     const CQM = 'cqm';
     
-    public static function getType( $ruleId )
+    public static function getType($ruleId)
     {
         $type = self::$_types[$ruleId][self::TYPE_INDEX];
         return $type;
     }
     
-    public static function getClassName( $ruleId )
+    public static function getClassName($ruleId)
     {
         $class = self::$_types[$ruleId][self::CLASS_INDEX];
         return $class;

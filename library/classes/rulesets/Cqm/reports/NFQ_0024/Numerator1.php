@@ -13,9 +13,9 @@ class NFQ_0024_Numerator1 implements CqmFilterIF
         return "Numerator 1";
     }
     
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
-        if ( Helper::check( ClinicalType::PHYSICAL_EXAM, PhysicalExam::FINDING_BMI_PERC, $patient, $beginDate, $endDate ) ) {
+        if (Helper::check(ClinicalType::PHYSICAL_EXAM, PhysicalExam::FINDING_BMI_PERC, $patient, $beginDate, $endDate)) {
             return true;
         }
         

@@ -231,7 +231,4 @@ class UserDAO extends Phreezable
     {
         return $this->_phreezer->GetOneToMany($this, "reviewerlkup", $criteria);
     }
-
-
 }
-?>

@@ -22,22 +22,29 @@
  */
  require_once("verify_session.php");
  require_once("$srcdir/patient.inc");
- require_once ("lib/portal_mail.inc");
+ require_once("lib/portal_mail.inc");
 
- if(!isset($_SESSION['portal_init'])) $_SESSION['portal_init'] = true;
+if (!isset($_SESSION['portal_init'])) {
+    $_SESSION['portal_init'] = true;
+}
+
  $whereto = 'profilepanel';
-if( isset($_SESSION['whereto'])){
+if (isset($_SESSION['whereto'])) {
     $whereto = $_SESSION['whereto'];
 }
+
  $user = isset($_SESSION['sessionUser']) ? $_SESSION['sessionUser'] : 'portal user';
  $result = getPatientData($pid);
 
  $msgs = getPortalPatientNotes($_SESSION['portal_username']);
  $msgcnt = count($msgs);
  $newcnt = 0;
-foreach ( $msgs as $i ) {
-    if($i['message_status']=='New') $newcnt += 1;
+foreach ($msgs as $i) {
+    if ($i['message_status']=='New') {
+        $newcnt += 1;
+    }
 }
+
 require_once '_header.php';
  echo "<script>var cpid='" . attr($pid) . "';var cuser='" . attr($user) . "';var webRoot='" . $GLOBALS['web_root'] . "';var ptName='" . attr($_SESSION['ptName']) . "';</script>";
 ?>
@@ -216,7 +223,8 @@ $(document).ready(function(){
                     <div class="panel panel-primary collapse" id="downloadpanel">
                         <header class="panel-heading"> <?php echo xlt('Download Documents'); ?> </header>
                         <div id="docsdownload" class="panel-body">
-                        <?php if ( $GLOBALS['portal_onsite_document_download'] ) { ?>// really should always be able to download!
+                        <?php if ($GLOBALS['portal_onsite_document_download']) {
+?>// really should always be able to download!
                             <div>
                                 <span class="text"><?php echo xlt('Download all patient documents');?></span>
                                 <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>

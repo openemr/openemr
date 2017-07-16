@@ -10,7 +10,8 @@
  * @license LGPL
  * @version 1.1
  */
-class Recipient {
+class Recipient
+{
     var $Email;
     var $RealName;
     function __construct($email, $name = "")
@@ -19,7 +20,7 @@ class Recipient {
             $this->Email = $email;
             $this->RealName = $name != "" ? $name : $email;
         } else {
-            $this->Parse ( $email );
+            $this->Parse($email);
         }
     }
     
@@ -34,7 +35,7 @@ class Recipient {
      */
     static function IsEmailInValidFormat($email)
     {
-        return preg_match ( "/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,25})$/i", $email );
+        return preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,25})$/i", $email);
     }
     
     /**
@@ -46,19 +47,20 @@ class Recipient {
      */
     function Parse($val)
     {
-        $pair = explode ( "<", $val );
+        $pair = explode("<", $val);
         
-        if (isset ( $pair [1] )) {
-            $this->RealName = trim ( $pair [0] );
-            $this->Email = trim ( str_replace ( ">", "", $pair [1] ) );
+        if (isset($pair [1])) {
+            $this->RealName = trim($pair [0]);
+            $this->Email = trim(str_replace(">", "", $pair [1]));
         } else {
             $this->Email = $val;
             $this->RealName = $val;
         }
         
         // just in case there was no realname
-        if ($this->RealName == "")
+        if ($this->RealName == "") {
             $this->RealName = $this->Email;
+        }
     }
     
     /**
@@ -68,8 +70,6 @@ class Recipient {
      */
     function IsValidEmail()
     {
-        return Recipient::IsEmailInValidFormat ( $this->Email );
+        return Recipient::IsEmailInValidFormat($this->Email);
     }
 }
-
-?>

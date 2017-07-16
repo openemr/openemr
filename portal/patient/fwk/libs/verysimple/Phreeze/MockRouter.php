@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ('IRouter.php');
+require_once('IRouter.php');
 
 /**
  * Mock router for unit testing purposes
@@ -15,7 +15,8 @@ require_once ('IRouter.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class MockRouter implements IRouter {
+class MockRouter implements IRouter
+{
     private $_params = array ();
     private $_uri;
     private $_url;
@@ -38,7 +39,7 @@ class MockRouter implements IRouter {
     {
         $this->stripApi = $strip_api;
         $this->delim = $delim;
-        return $this->GetUrl ( $controller, $method, $params );
+        return $this->GetUrl($controller, $method, $params);
     }
     
     /**
@@ -88,7 +89,7 @@ class MockRouter implements IRouter {
      */
     public function GetUrlParam($paramKey, $default = '')
     {
-        return array_key_exists ( $paramKey, $this->_params ) ? $this->_params [$paramKey] : "";
+        return array_key_exists($paramKey, $this->_params) ? $this->_params [$paramKey] : "";
     }
     
     /**
@@ -113,4 +114,3 @@ class MockRouter implements IRouter {
         $this->_params = array ();
     }
 }
-?>

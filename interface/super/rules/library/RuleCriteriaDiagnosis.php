@@ -11,13 +11,14 @@
  *
  * @author aron
  */
-class RuleCriteriaDiagnosis extends RuleCriteria {
+class RuleCriteriaDiagnosis extends RuleCriteria
+{
 
     var $title;
     var $codeType;
     var $id;
 
-    function __construct( $title, $codeType='', $id='' )
+    function __construct($title, $codeType = '', $id = '')
     {
         $this->title = $title;
         $this->codeType = $codeType;
@@ -28,9 +29,10 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
     {
         $codeManager = new CodeManager();
         $code = $codeManager->get($this->id);
-        if ( is_null( $code ) ) {
+        if (is_null($code)) {
             return $this->codeType . ":" . $this->id;
         }
+
         return $code->display();
     }
 
@@ -63,6 +65,4 @@ class RuleCriteriaDiagnosis extends RuleCriteria {
         $this->codeType = $diagInfo[0];
         $this->id = $diagInfo[1];
     }
-
 }
-?>

@@ -41,4 +41,3 @@ $modversion['securityschema']   = array('PostCalendar::Event'    => 'Event Title
                                         'PostCalendar::Topic'    => 'Topic Name::Topic ID',
                                         'PostCalendar::User'     => 'User Name::User ID',
                                         'PostCalendar::'         => '::');
-?>

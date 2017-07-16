@@ -23,8 +23,7 @@ require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 $query = "SELECT status FROM re_identification_status";
 $res = sqlStatement($query);
-if ($row = sqlFetchArray($res))
-{
+if ($row = sqlFetchArray($res)) {
     $status = addslashes($row['status']);
     /* $Status:
 	*  0 - There is no Re Identification in progress. (start new Re Identification process)
@@ -32,13 +31,13 @@ if ($row = sqlFetchArray($res))
 	*  2 - The Re Identification process completed and xls file is ready to download
 	*/
 }
-if($status == 0)
-{
+
+if ($status == 0) {
  //0 - There is no Re Identification in progress. (start new Re Identification process)
 ?>
 <html>
 <head>
-<title><?php xl('Re Identification','e'); ?></title>
+<title><?php xl('Re Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
     href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
@@ -53,12 +52,14 @@ if($status == 0)
 </style>
 </head>
 <body class="body_top">
-<strong><?php xl('Re Identification','e');  ?></strong>
+<strong><?php xl('Re Identification', 'e');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 
 <form enctype="Re_identification_output" method="POST"><?php
-if ($_POST["re_id_code"]) {    $reIdCode = formData('re_id_code','P',true);  }
+if ($_POST["re_id_code"]) {
+    $reIdCode = formData('re_id_code', 'P', true);
+}
 
 //to store input for re-idenitification
 $query = "DROP TABLE IF EXISTS temp_re_identification_code_table";
@@ -75,7 +76,7 @@ $res = sqlStatement($query);
 
 //call procedure - execute in background
 $sh_cmd='./re_identification_procedure.sh '.$sqlconf["host"].' '.$sqlconf["login"].' '.$sqlconf["pass"].' '.$sqlconf["dbase"].' &';
-system ($sh_cmd);
+system($sh_cmd);
 
 ?>
     <table>
@@ -116,22 +117,18 @@ system ($sh_cmd);
     </tr>
     </table>
         <?php
-
-}
-else if($status == 2)
-{
+} else if ($status == 2) {
  //2 - The Re Identification process completed and xls file is ready to download
     $query = "update re_identification_status set status = 0";
     $res = sqlStatement($query);
     $query = "SELECT count(*) as count FROM re_identified_data";
     $res = sqlStatement($query);
 
-    if ($row = sqlFetchArray($res))
-    {
+    if ($row = sqlFetchArray($res)) {
         $no_of_items = addslashes($row['count']);
     }
-    if($no_of_items <= 1)
-    {
+
+    if ($no_of_items <= 1) {
         ?>
     <table>
     <tr>
@@ -170,18 +167,16 @@ else if($status == 2)
     </tr>
     </table>
         <?php
-    }
-    else
-    {
+    } else {
         //delete old re_identified_data.xls file
         $timestamp=0;
         $query = "select now() as timestamp";
         $res = sqlStatement($query);
-        if ($row = sqlFetchArray($res))
-        {
+        if ($row = sqlFetchArray($res)) {
             $timestamp = addslashes($row['timestamp']);
         }
-        $timestamp = str_replace(" ","_",$timestamp);
+
+        $timestamp = str_replace(" ", "_", $timestamp);
         $filename = $GLOBALS['temporary_files_dir']."/re_identified_data".$timestamp.".xls";
         $query = "select * from re_identified_data into outfile '$filename' ";
         $res = sqlStatement($query);
@@ -204,7 +199,6 @@ else if($status == 2)
 
             //xls file downloaded complete
         }
-
     }
 }
 ?></form>

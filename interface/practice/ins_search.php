@@ -57,7 +57,7 @@
 ?>
 <html>
 <head>
-<title><?php xl('Insurance Company Search/Add','e');?></title>
+<title><?php xl('Insurance Company Search/Add', 'e');?></title>
 <link rel="stylesheet" href='<?php  echo $css_header ?>' type='text/css'>
 
 <style>
@@ -193,8 +193,11 @@ if ($_POST['form_save']) {
         ")");
 
         $phone_parts = array();
-        preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $_POST['form_phone'],
-        $phone_parts);
+        preg_match(
+            "/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/",
+            $_POST['form_phone'],
+            $phone_parts
+        );
 
         sqlInsert("INSERT INTO phone_numbers ( " .
         "id, country_code, area_code, prefix, number, type, foreign_id " .
@@ -212,7 +215,10 @@ if ($_POST['form_save']) {
   // Close this window and tell our opener to select the new company.
   //
     echo "<script language='JavaScript'>\n";
-    if ($info_msg) echo " alert('$info_msg');\n";
+    if ($info_msg) {
+        echo " alert('$info_msg');\n";
+    }
+
     echo " parent.$.fn.fancybox.close();\n";
     echo " top.restoreSession();\n";
     echo " if (parent.set_insurance) parent.set_insurance($ins_id,'".addslashes($ins_name)."');\n";
@@ -222,7 +228,7 @@ if ($_POST['form_save']) {
 
  // Query x12_partners.
  $xres = sqlStatement(
-  "SELECT id, name FROM x12_partners ORDER BY name"
+     "SELECT id, name FROM x12_partners ORDER BY name"
  );
 ?>
 <div id="form_entry">
@@ -244,15 +250,15 @@ if ($_POST['form_save']) {
  -->
 
  <tr>
-  <td valign='top' width='1%' nowrap><b><?php xl('Name','e');?>:</b></td>
+  <td valign='top' width='1%' nowrap><b><?php xl('Name', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_name' maxlength='35'
-    class='search' style='width:100%' title=<?php xl('Name of insurance company','e');?> />
+    class='search' style='width:100%' title=<?php xl('Name of insurance company', 'e');?> />
   </td>
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Attention','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Attention', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_attn' maxlength='35'
     class='search' style='width:100%' title=".xl('Contact name')." />
@@ -260,7 +266,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Address1','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Address1', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr1' maxlength='35'
     class='search' style='width:100%' title='First address line' />
@@ -268,7 +274,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Address2','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Address2', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_addr2' maxlength='35'
     class='search' style='width:100%' title='Second address line, if any' />
@@ -276,7 +282,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('City/State','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('City/State', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_city' maxlength='25'
     class='search' title='City name' />
@@ -287,7 +293,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Zip/Country:','e'); ?></b></td>
+  <td valign='top' nowrap><b><?php xl('Zip/Country:', 'e'); ?></b></td>
   <td>
    <input type='text' size='20' name='form_zip' maxlength='10'
     class='search' title='Postal code' />
@@ -298,7 +304,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Phone','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Phone', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_phone' maxlength='20'
     class='search' title='Telephone number' />
@@ -315,7 +321,7 @@ if ($_POST['form_save']) {
  -->
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('CMS ID','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('CMS ID', 'e');?>:</b></td>
   <td>
    <input type='text' size='20' name='form_cms_id' maxlength='15'
     class='search' title='Identifier assigned by CMS' />
@@ -323,7 +329,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('Payer Type','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('Payer Type', 'e');?>:</b></td>
   <td>
    <select name='form_ins_type_code'>
 <?php
@@ -338,10 +344,10 @@ for ($i = 1; $i < count($ins_type_code_array); ++$i) {
  </tr>
 
  <tr>
-  <td valign='top' nowrap><b><?php xl('X12 Partner','e');?>:</b></td>
+  <td valign='top' nowrap><b><?php xl('X12 Partner', 'e');?>:</b></td>
   <td>
    <select name='form_partner' title='Default X12 Partner'>
-    <option value=""><?php xl('None','e','-- ',' --'); ?></option>
+    <option value=""><?php xl('None', 'e', '-- ', ' --'); ?></option>
 <?php
 while ($xrow = sqlFetchArray($xres)) {
     echo "   <option value='" . $xrow['id'] . "'";
@@ -356,11 +362,11 @@ while ($xrow = sqlFetchArray($xres)) {
 </table>
 
 <p>&nbsp;<br>
-<input type='button' value='<?php xl('Search','e'); ?>' class='search' onclick='dosearch()' />
+<input type='button' value='<?php xl('Search', 'e'); ?>' class='search' onclick='dosearch()' />
 &nbsp;
-<input type='submit' value='<?php xl('Save as New','e'); ?>' name='form_save' onmousedown='save_clicked=true' />
+<input type='submit' value='<?php xl('Save as New', 'e'); ?>' name='form_save' onmousedown='save_clicked=true' />
 &nbsp;
-<input type='button' value='<?php xl('Cancel','e'); ?>' onclick='parent.$.fn.fancybox.close();'/>
+<input type='button' value='<?php xl('Cancel', 'e'); ?>' onclick='parent.$.fn.fancybox.close();'/>
 </p>
 
 </center>

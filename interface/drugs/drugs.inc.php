@@ -22,7 +22,10 @@ $substitute_array = array('', xl('Allowed'), xl('Not Allowed'));
 function send_drug_email($subject, $body)
 {
     $recipient = $GLOBALS['practice_return_email_path'];
-    if (empty($recipient)) return;
+    if (empty($recipient)) {
+        return;
+    }
+
     $mail = new PHPMailer();
     $mail->From = $recipient;
     $mail->FromName = 'In-House Pharmacy';
@@ -32,7 +35,7 @@ function send_drug_email($subject, $body)
     $mail->Body = $body;
     $mail->Subject = $subject;
     $mail->AddAddress($recipient);
-    if(!$mail->Send()) {
+    if (!$mail->Send()) {
         error_log("There has been a mail error sending to " . $recipient .
         " " . $mail->ErrorInfo);
     }
@@ -42,21 +45,29 @@ function sellDrug(
     $drug_id,
     $quantity,
     $fee,
-    $patient_id=0,
-    $encounter_id=0,
-    $prescription_id=0,
-    $sale_date='',
-    $user='',
-    $default_warehouse='',
-    $testonly=false,
-    &$expiredlots=null,
-    $pricelevel='',
-    $selector=''
+    $patient_id = 0,
+    $encounter_id = 0,
+    $prescription_id = 0,
+    $sale_date = '',
+    $user = '',
+    $default_warehouse = '',
+    $testonly = false,
+    &$expiredlots = null,
+    $pricelevel = '',
+    $selector = ''
 ) {
 
-    if (empty($patient_id))   $patient_id   = $GLOBALS['pid'];
-    if (empty($sale_date))    $sale_date    = date('Y-m-d');
-    if (empty($user))         $user         = $_SESSION['authUser'];
+    if (empty($patient_id)) {
+        $patient_id   = $GLOBALS['pid'];
+    }
+
+    if (empty($sale_date)) {
+        $sale_date    = date('Y-m-d');
+    }
+
+    if (empty($user)) {
+        $user         = $_SESSION['authUser'];
+    }
 
   // error_log("quantity = '$quantity'"); // debugging
 
@@ -74,18 +85,25 @@ function sellDrug(
   
     if (!$dispensable) {
         // Non-dispensable is a much simpler case and does not touch inventory.
-        if ($testonly) return true;
-        $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
-        "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
-        "sale_date, quantity, fee ) VALUES ( " .
-        "?, 0, ?, ?, ?, ?, ?, ?, ?)",
-        array($drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee));
+        if ($testonly) {
+            return true;
+        }
+
+        $sale_id = sqlInsert(
+            "INSERT INTO drug_sales ( " .
+            "drug_id, inventory_id, prescription_id, pid, encounter, user, " .
+            "sale_date, quantity, fee ) VALUES ( " .
+            "?, 0, ?, ?, ?, ?, ?, ?, ?)",
+            array($drug_id, $prescription_id, $patient_id, $encounter_id, $user, $sale_date, $quantity, $fee)
+        );
         return $sale_id;
     }
   
   // Combining is never allowed for prescriptions and will not work with
   // dispense_drug.php.
-    if ($prescription_id) $allow_combining = 0;
+    if ($prescription_id) {
+        $allow_combining = 0;
+    }
 
     $rows = array();
   // $firstrow = false;
@@ -111,6 +129,7 @@ function sellDrug(
         $query .= "AND di.warehouse_id = ? ";
         $sqlarr[] = $default_warehouse;
     }
+
     $query .= "ORDER BY $orderby";
     $res = sqlStatement($query, $sqlarr);
 
@@ -120,16 +139,26 @@ function sellDrug(
         if ($row['warehouse_id'] != $default_warehouse) {
             // Warehouses with seq > 99 are not available.
             $seq = empty($row['seq']) ? 0 : $row['seq'] + 0;
-            if ($seq > 99) continue;
+            if ($seq > 99) {
+                continue;
+            }
         }
+
         $on_hand = $row['on_hand'];
         $expired = (!empty($row['expiration']) && $row['expiration'] <= $sale_date);
         if ($expired || $on_hand < $quantity) {
             $tmp = $row['lot_number'];
-            if (! $tmp) $tmp = '[missing lot number]';
-            if ($bad_lot_list) $bad_lot_list .= ', ';
+            if (! $tmp) {
+                $tmp = '[missing lot number]';
+            }
+
+            if ($bad_lot_list) {
+                $bad_lot_list .= ', ';
+            }
+
             $bad_lot_list .= $tmp;
         }
+
         if ($expired) {
             $gotexpired = true;
             continue;
@@ -149,7 +178,9 @@ function sellDrug(
         }
     }
 
-    if ($expiredlots !== null) $expiredlots = $gotexpired;
+    if ($expiredlots !== null) {
+        $expiredlots = $gotexpired;
+    }
 
     if ($testonly) {
         // Just testing inventory, so return true if OK, false if insufficient.
@@ -158,9 +189,11 @@ function sellDrug(
     }
   
     if ($bad_lot_list) {
-        send_drug_email("Possible lot destruction needed",
-        "The following lot(s) are expired or were too small to fill the " .
-        "order for patient $patient_id: $bad_lot_list\n");
+        send_drug_email(
+            "Possible lot destruction needed",
+            "The following lot(s) are expired or were too small to fill the " .
+            "order for patient $patient_id: $bad_lot_list\n"
+        );
     }
 
   /*******************************************************************
@@ -176,7 +209,9 @@ function sellDrug(
   // The above was an experiment in permitting a negative lot quantity.
   // We decided that was a bad idea, so now we just error out if there
   // is not enough on hand.
-    if ($qty_left > 0) return 0;
+    if ($qty_left > 0) {
+        return 0;
+    }
 
     $sale_id = 0;
     $qty_final = $quantity; // remaining unallocated quantity
@@ -202,29 +237,40 @@ function sellDrug(
 
         // Compute the proportional fee for this line item.  For the last line
         // item take the remaining unallocated fee to avoid round-off error.
-        if ($qty_final)
-        $thisfee = sprintf('%0.2f', $fee * $thisqty / $quantity);
-        else
-        $thisfee = sprintf('%0.2f', $fee_final);
+        if ($qty_final) {
+            $thisfee = sprintf('%0.2f', $fee * $thisqty / $quantity);
+        } else {
+            $thisfee = sprintf('%0.2f', $fee_final);
+        }
+
         $fee_final -= $thisfee;
 
         // Update inventory and create the sale line item.
         sqlStatement("UPDATE drug_inventory SET " .
         "on_hand = on_hand - ? " .
         "WHERE inventory_id = ?", array($thisqty,$inventory_id));
-        $sale_id = sqlInsert("INSERT INTO drug_sales ( " .
-          "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " .
-          "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-          array($drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
-          $sale_date, $thisqty, $thisfee, $pricelevel, $selector));
+        $sale_id = sqlInsert(
+            "INSERT INTO drug_sales ( " .
+            "drug_id, inventory_id, prescription_id, pid, encounter, user, sale_date, quantity, fee, pricelevel, selector ) " .
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            array($drug_id, $inventory_id, $prescription_id, $patient_id, $encounter_id, $user,
+            $sale_date,
+            $thisqty,
+            $thisfee,
+            $pricelevel,
+            $selector)
+        );
 
         // If this sale exhausted the lot then auto-destroy it if that is wanted.
         if ($row['on_hand'] == $thisqty && !empty($GLOBALS['gbl_auto_destroy_lots'])) {
-              sqlStatement("UPDATE drug_inventory SET " .
-              "destroy_date = ?, destroy_method = ?, destroy_witness = ?, destroy_notes = ? "  .
-              "WHERE drug_id = ? AND inventory_id = ?",
-              array($sale_date, xl('Automatic from sale'), $user, "sale_id = $sale_id",
-              $drug_id, $inventory_id));
+              sqlStatement(
+                  "UPDATE drug_inventory SET " .
+                  "destroy_date = ?, destroy_method = ?, destroy_witness = ?, destroy_notes = ? "  .
+                  "WHERE drug_id = ? AND inventory_id = ?",
+                  array($sale_date, xl('Automatic from sale'), $user, "sale_id = $sale_id",
+                  $drug_id,
+                  $inventory_id)
+              );
         }
     }
 
@@ -245,9 +291,12 @@ function sellDrug(
 }
 
 // Determine if facility and warehouse restrictions are applicable for this user.
-function isUserRestricted($userid=0)
+function isUserRestricted($userid = 0)
 {
-    if (!$userid) $userid = $_SESSION['authId'];
+    if (!$userid) {
+        $userid = $_SESSION['authId'];
+    }
+
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
     "tablename = 'users' AND table_id = ?", array($userid));
     return !empty($countrow['count']);
@@ -255,36 +304,51 @@ function isUserRestricted($userid=0)
 
 // Check if the user has access to the given facility.
 // Do not call this if user is not restricted!
-function isFacilityAllowed($facid, $userid=0)
+function isFacilityAllowed($facid, $userid = 0)
 {
-    if (!$userid) $userid = $_SESSION['authId'];
-    $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
-    "tablename = 'users' AND table_id = ? AND facility_id = ?",
-    array($userid, $facid));
+    if (!$userid) {
+        $userid = $_SESSION['authId'];
+    }
+
+    $countrow = sqlQuery(
+        "SELECT count(*) AS count FROM users_facility WHERE " .
+        "tablename = 'users' AND table_id = ? AND facility_id = ?",
+        array($userid, $facid)
+    );
     if (empty($countrow['count'])) {
-        $countrow = sqlQuery("SELECT count(*) AS count FROM users WHERE " .
-        "id = ? AND facility_id = ?",
-        array($userid, $facid));
+        $countrow = sqlQuery(
+            "SELECT count(*) AS count FROM users WHERE " .
+            "id = ? AND facility_id = ?",
+            array($userid, $facid)
+        );
         return !empty($countrow['count']);
     }
+
     return true;
 }
 
 // Check if the user has access to the given warehouse within the given facility.
 // Do not call this if user is not restricted!
-function isWarehouseAllowed($facid, $whid, $userid=0)
+function isWarehouseAllowed($facid, $whid, $userid = 0)
 {
-    if (!$userid) $userid = $_SESSION['authId'];
-    $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
-    "tablename = 'users' AND table_id = ? AND facility_id = ? AND " .
-    "(warehouse_id = ? OR warehouse_id = '')",
-    array($userid, $facid, $whid));
+    if (!$userid) {
+        $userid = $_SESSION['authId'];
+    }
+
+    $countrow = sqlQuery(
+        "SELECT count(*) AS count FROM users_facility WHERE " .
+        "tablename = 'users' AND table_id = ? AND facility_id = ? AND " .
+        "(warehouse_id = ? OR warehouse_id = '')",
+        array($userid, $facid, $whid)
+    );
     if (empty($countrow['count'])) {
-        $countrow = sqlQuery("SELECT count(*) AS count FROM users WHERE " .
-        "id = ? AND default_warehouse = ?",
-        array($userid, $whid));
+        $countrow = sqlQuery(
+            "SELECT count(*) AS count FROM users WHERE " .
+            "id = ? AND default_warehouse = ?",
+            array($userid, $whid)
+        );
         return !empty($countrow['count']);
     }
+
     return true;
 }
-?>

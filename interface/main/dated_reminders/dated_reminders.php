@@ -42,21 +42,22 @@ require_once("$srcdir/dated_reminder_functions.php");
 // HANDEL AJAX TO MARK REMINDERS AS READ
 // Javascript will send a post
 // ----------------------------------------------------------------------------
-if(isset($_POST['drR'])){
+if (isset($_POST['drR'])) {
     // set as processed
     setReminderAsProcessed($_POST['drR']);
     // ----- get updated data
-    $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+    $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
     // ----- echo for ajax to use
-    echo getRemindersHTML($reminders,$today);
+    echo getRemindersHTML($reminders, $today);
     // stop any other output
     exit;
 }
+
 //-----------------------------------------------------------------------------
 // END HANDEL AJAX TO MARK REMINDERS AS READ
 // ----------------------------------------------------------------------------
 
-      $reminders = RemindersArray($days_to_show,$today,$alerts_to_show);
+      $reminders = RemindersArray($days_to_show, $today, $alerts_to_show);
 
         ?>
 
@@ -87,7 +88,9 @@ if(isset($_POST['drR'])){
       </style>
       <script type="text/javascript">
          $(document).ready(function (){
-            <?php if(!$hasAlerts) echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();'; ?>
+            <?php if (!$hasAlerts) {
+                echo '$(".hideDR").html("<span>'.xla('Show Reminders').'</span>"); $(".drHide").hide();';
+} ?>
             $(".hideDR").click(function(){
               if($(this).html() == "<span><?php echo xla('Hide Reminders') ?></span>"){
                 $(this).html("<span><?php echo xla('Show Reminders') ?></span>");
@@ -163,7 +166,7 @@ if(isset($_POST['drR'])){
                         .'<p><a onclick="openAddScreen(0)" class="css_button_small" href="#"><span>'.xlt('Send A Dated Reminder').'</span></a></p></div>
                         </td><td class="drHide drTD">';
 
-          $pdHTML .= getRemindersHTML($reminders,$today);
+          $pdHTML .= getRemindersHTML($reminders, $today);
           $pdHTML .= '</td></tr></table></div>';
           // print output
           echo $pdHTML;

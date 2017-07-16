@@ -23,6 +23,6 @@
  *
  *
  */
-class Savant3_Exception extends Exception {
+class Savant3_Exception extends Exception
+{
 }
-?>

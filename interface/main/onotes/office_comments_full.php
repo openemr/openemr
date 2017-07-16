@@ -21,6 +21,7 @@
 
 
 use OpenEMR\Core\Header;
+
 include_once("../../globals.php");
 
 $oNoteService = new \services\ONoteService();
@@ -36,10 +37,10 @@ if (isset($_POST['mode'])) {
     if ($_POST['mode'] == "update") {
         foreach ($_POST as $var => $val) {
             if ($val == "true" || $val == "false") {
-                $id = str_replace("act","",$var);
+                $id = str_replace("act", "", $var);
                 if ($val == "true") {
                     $result = $oNoteService->enableNoteById($id);
-                } elseif($val=="false") {
+                } elseif ($val=="false") {
                     $oNoteService->disableNoteById($id);
                 }
             }
@@ -62,8 +63,11 @@ if (isset($_POST['mode'])) {
 
 <?php
 /* BACK should go to the main Office Notes screen */
-if ($userauthorized) { $backurl="office_comments.php"; }
-else { $backurl="../main_info.php"; }
+if ($userauthorized) {
+    $backurl="office_comments.php";
+} else {
+    $backurl="../main_info.php";
+}
 ?>
 
 <a href="office_comments.php" onclick='top.restoreSession()'>
@@ -86,12 +90,16 @@ else { $backurl="../main_info.php"; }
 <form method="post" name="update_activity" action="office_comments_full.php" onsubmit='return top.restoreSession()'>
 
 <?php //change the view on the current mode, whether all, active, or inactive
-if ($active==="1") { $inactive_class="_small";
-    $all_class="_small"; }
-elseif ($active==="0") { $active_class="_small";
-    $all_class="_small";}
-else { $active_class="_small";
-    $inactive_class="_small";}
+if ($active==="1") {
+    $inactive_class="_small";
+    $all_class="_small";
+} elseif ($active==="0") {
+    $active_class="_small";
+    $all_class="_small";
+} else {
+        $active_class="_small";
+        $inactive_class="_small";
+}
 ?>
 
 <a href="office_comments_full.php?offset=0&active=-1" class="css_button<?php echo attr($all_class);?>" onclick='top.restoreSession()'><?php echo xlt('All'); ?></a>
@@ -126,17 +134,19 @@ if ($notes) {
             $date_string = $date;
         }
 
-        if ($note->getActivity()) { $checked = "checked"; }
-        else { $checked = ""; }
+        if ($note->getActivity()) {
+            $checked = "checked";
+        } else {
+            $checked = "";
+        }
 
             print "<tr><td><input type=hidden value='' name='act".attr($note->getId())."' id='act".attr($note->getId())."'>";
             print "<input name='box".attr($note->getId())."' id='box".attr($note->getId())."' onClick='javascript:document.update_activity.act".attr($note->getId()).".value=this.checked' type=checkbox $checked></td>";
             print "<td><label for='box".attr($note->getId())."' class='bold'>".text($date_string) . "</label>";
             print " <label for='box".attr($note->getId())."' class='bold'>(". text($note->getUser()->getUsername()).")</label></td>";
             print "<td><label for='box".attr($note->getId())."' class='text'>" . nl2br(text($note->getBody())) . "&nbsp;</label></td></tr></tbody>\n";
-
     }
-}else{
+} else {
 //no results
     print "<tr><td></td><td></td><td></td></tr>\n";
 }

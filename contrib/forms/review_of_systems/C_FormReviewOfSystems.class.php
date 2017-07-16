@@ -1,9 +1,10 @@
 <?php
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormReviewOfSystems.class.php");
 
-class C_FormReviewOfSystems extends Controller {
+class C_FormReviewOfSystems extends Controller
+{
 
     var $template_dir;
 
@@ -20,8 +21,8 @@ class C_FormReviewOfSystems extends Controller {
     function default_action()
     {
         $review_of_systems = new FormReviewOfSystems();
-        $this->assign("review_of_systems",$review_of_systems);
-        $this->assign("checks",$review_of_systems->_form_layout());
+        $this->assign("review_of_systems", $review_of_systems);
+        $this->assign("checks", $review_of_systems->_form_layout());
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -29,27 +30,29 @@ class C_FormReviewOfSystems extends Controller {
     {
         if (is_numeric($form_id)) {
             $review_of_systems = new FormReviewOfSystems($form_id);
-        }
-        else {
+        } else {
             $review_of_systems = new FormReviewOfSystems();
         }
-        $this->assign("VIEW",true);
-        $this->assign("review_of_systems",$review_of_systems);
-        $this->assign("checks",$review_of_systems->_form_layout());
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
 
+        $this->assign("VIEW", true);
+        $this->assign("review_of_systems", $review_of_systems);
+        $this->assign("checks", $review_of_systems->_form_layout());
+        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         $this->review_of_systems = new FormReviewOfSystems($_POST['id']);
         parent::populate_object($this->review_of_systems);
         $this->review_of_systems->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         addForm($GLOBALS['encounter'], "Review Of Systems", $this->review_of_systems->id, "review_of_systems", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
@@ -59,13 +62,11 @@ class C_FormReviewOfSystems extends Controller {
 
             $row = sqlFetchArray($results);
             if (!empty($row)) {
-                addBilling( date("Ymd"),    'CPT4',     $row['code'],   $row['code_text'],  $_SESSION['pid'],   $_SESSION['userauthorized'],    $_SESSION['authUserID'],$row['modifier'],$row['units'],$row['fee']);
+                addBilling(date("Ymd"), 'CPT4', $row['code'], $row['code_text'], $_SESSION['pid'], $_SESSION['userauthorized'], $_SESSION['authUserID'], $row['modifier'], $row['units'], $row['fee']);
             }
-
         }
+
         $_POST['process'] = "";
         return;
     }
-
 }
-?>

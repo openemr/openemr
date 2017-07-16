@@ -4,11 +4,11 @@
 /**
  * import supporting libraries
  */
-define ( "OBSERVE_DEBUG", 1 );
-define ( "OBSERVE_QUERY", 2 );
-define ( "OBSERVE_INFO", 4 );
-define ( "OBSERVE_WARN", 8 );
-define ( "OBSERVE_FATAL", 16 );
+define("OBSERVE_DEBUG", 1);
+define("OBSERVE_QUERY", 2);
+define("OBSERVE_INFO", 4);
+define("OBSERVE_WARN", 8);
+define("OBSERVE_FATAL", 16);
 
 /**
  * IObserver is an interface that defines an object that can Observe IObservable objects
@@ -19,8 +19,7 @@ define ( "OBSERVE_FATAL", 16 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-interface IObserver {
+interface IObserver
+{
     public function Observe($obj, $ltype = OBSERVE_INFO);
 }
-
-?>

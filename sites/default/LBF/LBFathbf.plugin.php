@@ -71,7 +71,6 @@ function athbfSFChanged() {
  athbfComputeBF();
 }
 ";
-
 }
 
 // The purpose of this function is to create JavaScript that is run
@@ -96,7 +95,4 @@ if (f.form_sf_sum) {
  }
 }
 ";
-
 }
-?>
-

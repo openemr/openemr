@@ -51,12 +51,14 @@ class ViewHelper
             $offset = escape_limit($offset);
             $sql .= " LIMIT {$limit}, {$offset}";
         }
+
         $result = sqlStatement($sql, $params);
         if ($result) {
             $all = array();
             while ($row = sqlFetchArray($result)) {
                 array_push($all, $row);
             }
+
             return $all;
         } else {
             return false;
@@ -111,12 +113,14 @@ class ViewHelper
                             $attsString .= " {$prop}=\"{$val}\"";
                         }
                     }
+
                     $submenuTmpStr = str_replace("{atts}", $attsString, $submenuTmpStr);
 
                     $classTmp = "";
                     if (array_key_exists('class', $subItem)) {
                         $classTmp = ' class="{$subItem[class]}" ';
                     }
+
                     $submenuTmpStr = str_replace("{class}", $classTmp, $submenuTmpStr);
 
                     array_push($submenu, $submenuTmpStr);
@@ -137,6 +141,7 @@ class ViewHelper
                         $attsString .= " {$prop}=\"{$val}\"";
                     }
                 }
+
                 $elementContainer = str_replace("{atts}", $attsString, $elementContainer);
 
                 $menu = $menu . "\n" . $elementContainer;
@@ -147,12 +152,14 @@ class ViewHelper
                         $attsString .= " {$prop}=\"{$val}\"";
                     }
                 }
+
                 $elementContainer = str_replace("{atts}", $attsString, $menuListItem);
 
                 $classTmp = "";
                 if (array_key_exists('class', $group)) {
                     $classTmp = " class='{$group['class']}' ";
                 }
+
                 $elementContainer = str_replace("{class}", $classTmp, $elementContainer);
 
                 $elementContainer = str_replace("{href}", $group['href'], $elementContainer);
@@ -160,6 +167,7 @@ class ViewHelper
                 $menu = $menu . str_replace("{linkText}", xlt($group['name']), $elementContainer);
             }
         }
+
         return $menu;
     }
 
@@ -188,6 +196,7 @@ class ViewHelper
                         continue;
                     }
                 }
+
                 $row = [
                     'href' => "{$GLOBALS['rootdir']}/patient_file/encounter/load_form.php?formname={$encodedOptionId}",
                     'name' => xl_form_title($title),
@@ -195,6 +204,7 @@ class ViewHelper
                 ];
                 $return[] = $row;
             }
+
             $name = xlt('Layout Based');
             return array('name' => $name, 'href' => '#', 'subItems' => $return);
         } else {
@@ -221,6 +231,7 @@ class ViewHelper
                     continue;
                 }
             }
+
             $category = (trim($item['category']) == '') ? xlt("Miscellaneous") : xlt(trim($item['category']));
             $nickname = (trim($item['nickname']) == '') ? $item['name'] : $item['nickname'];
 
@@ -247,7 +258,6 @@ class ViewHelper
             }
 
             $prevCategory = $category;
-
         }
 
         return $return;
@@ -293,6 +303,7 @@ class ViewHelper
                     if (!array_key_exists('subItems', $return[$lastItem])) {
                         $return[$lastItem]['subItems'] = array();
                     }
+
                     $tmpRow['href'] = $href;
                     $return[$lastItem]['subItems'][] = $tmpRow;
                 } else {
@@ -300,11 +311,11 @@ class ViewHelper
                     $return[] = $tmpRow;
                 }
             }
+
             $name = xlt("Other");
             return array('name' => $name, 'href' => '#', 'subItems' => $return);
         } else {
             return false;
         }
     }
-
 }

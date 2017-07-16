@@ -24,7 +24,7 @@
  * @link http://www.open-emr.org
  */
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));
-    $this->assign('nav','onsiteportalactivities');
+    $this->assign('nav', 'onsiteportalactivities');
 
     $this->display('_Header.tpl.php');
 ?>

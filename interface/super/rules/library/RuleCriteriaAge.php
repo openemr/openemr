@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaAge extends RuleCriteria {
+class RuleCriteriaAge extends RuleCriteria
+{
     var $type;
     var $value;
     var $timeUnit;
@@ -20,7 +21,7 @@ class RuleCriteriaAge extends RuleCriteria {
      *
      * @param TimeUnit $timeUnit
      */
-    function __construct( $type, $value = null, $timeUnit = null)
+    function __construct($type, $value = null, $timeUnit = null)
     {
         $this->type = $type;
         $this->value = $value;
@@ -34,11 +35,11 @@ class RuleCriteriaAge extends RuleCriteria {
 
     function getTitle()
     {
-        $title = xl( "Age" );
-        if ( $this->type == "min" ) {
-            $title .= " " . xl( "Min" );
+        $title = xl("Age");
+        if ($this->type == "min") {
+            $title .= " " . xl("Min");
         } else {
-            $title .= " " . xl( "Max" );
+            $title .= " " . xl("Max");
         }
 
         $title .= " (" . $this->timeUnit->lbl . ")";
@@ -47,10 +48,10 @@ class RuleCriteriaAge extends RuleCriteria {
 
     function getType()
     {
-        if ( $this->type == "min" ) {
-            return xl( "Min" );
+        if ($this->type == "min") {
+            return xl("Min");
         } else {
-            return xl( "Max" );
+            return xl("Max");
         }
     }
 
@@ -73,13 +74,12 @@ class RuleCriteriaAge extends RuleCriteria {
     {
         parent::updateFromRequest();
         $age = _post("fld_value");
-        $timeUnit = TimeUnit::from( _post("fld_timeunit") );
-        if ( $timeUnit == null ) {
-            $timeUnit = TimeUnit::from( _post("fld_target_interval_type") );
+        $timeUnit = TimeUnit::from(_post("fld_timeunit"));
+        if ($timeUnit == null) {
+            $timeUnit = TimeUnit::from(_post("fld_target_interval_type"));
         }
 
         $this->value = $age;
         $this->timeUnit = $timeUnit;
     }
 }
-?>

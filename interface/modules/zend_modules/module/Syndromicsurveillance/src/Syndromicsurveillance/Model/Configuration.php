@@ -40,7 +40,6 @@ class Configuration extends Form implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-
     }
   
     public function getArrayCopy()
@@ -60,6 +59,7 @@ class Configuration extends Form implements InputFilterAwareInterface
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
   
@@ -84,5 +84,4 @@ class Configuration extends Form implements InputFilterAwareInterface
     {
         return $dependedModules;
     }
-  
 }

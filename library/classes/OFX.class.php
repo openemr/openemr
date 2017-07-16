@@ -6,7 +6,8 @@ require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
  * class OFX
  *
  */
-class OFX {
+class OFX
+{
 
     var $billing_array;
     var $config;
@@ -24,8 +25,8 @@ class OFX {
         $string = $this->_ofx_header() . "\n";
         $trns = array();
         $sum = 0.00;
-        $date_start = date("YmdHis",strtotime($this->billing_array[0]['bill_date']));
-        $date_end = date("YmdHis",strtotime($this->billing_array[0]['bill_date']));
+        $date_start = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
+        $date_end = date("YmdHis", strtotime($this->billing_array[0]['bill_date']));
         foreach ($this->billing_array as $bill) {
             $key = $bill['pid'] . "-" . $bill['encounter'];
             if ($bill['code_type'] != "ICD9" && $bill['code_type'] != "COPAY") {
@@ -34,25 +35,28 @@ class OFX {
                 $trns[$key]['memo'] .= $bill['code'] . " ";
                 $trns[$key]['payeeid'] = $bill['pid'];
                 $trns[$key]['name'] = $bill['name'];
-                if ($date_start > date("YmdHis",strtotime($trns[$key]['date']))) {
+                if ($date_start > date("YmdHis", strtotime($trns[$key]['date']))) {
                     //echo "\nsd: $date_start < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
-                    $date_start = date("YmdHis",strtotime($trns[$key]['date']));
+                    $date_start = date("YmdHis", strtotime($trns[$key]['date']));
                 }
-                if ($date_end < date("YmdHis",strtotime($trns[$key]['date']))) {
+
+                if ($date_end < date("YmdHis", strtotime($trns[$key]['date']))) {
                     //echo "\ned: $date_end < " . date("YmdHis",strtotime($trn[$key]['date'])) . "\n";
-                    $date_end = date("YmdHis",strtotime($trns[$key]['date']));
+                    $date_end = date("YmdHis", strtotime($trns[$key]['date']));
                 }
             }
         }
+
         if (!empty($date_start) && !empty($date_end)) {
             $string .= "<DTSTART>" . $date_start . "\n";
             $string .= "<DTEND>" . $date_end . "\n";
         }
+
         foreach ($trns as $key => $trn) {
             $string .= "<STMTTRN>\n";
             $string .= "<TRNTYPE>CREDIT\n";
-            $string .= "<DTPOSTED>" . date("YmdHis",strtotime($trn['date'])) . "\n";
-            $string .= "<TRNAMT>" . sprintf("%0.2f",$trn['amount']) . "\n";
+            $string .= "<DTPOSTED>" . date("YmdHis", strtotime($trn['date'])) . "\n";
+            $string .= "<TRNAMT>" . sprintf("%0.2f", $trn['amount']) . "\n";
             $string .= "<FITID>" . $key . "\n";
             $string .= "<NAME>" . $trn['name'] . "\n";
             $string .= "<CHECKNUM>" . $key . "\n";
@@ -61,6 +65,7 @@ class OFX {
             $string .= "</STMTTRN>\n";
             $sum += $trn['amount'];
         }
+
         $string .= $this->_ofx_footer($sum);
         return $string;
     }
@@ -123,7 +128,7 @@ class OFX {
     {
         $string = "</BANKTRANLIST>\n";
         $string .= "<LEDGERBAL>\n";
-        $string .= "<BALAMT>" . sprintf("%0.2f",$sum) . "\n";
+        $string .= "<BALAMT>" . sprintf("%0.2f", $sum) . "\n";
         $string .= "<DTASOF>" . date("YmdHis"). "\n";
         $string .= "</LEDGERBAL>\n";
         $string .= "</STMTRS>\n";
@@ -133,4 +138,3 @@ class OFX {
         return $string;
     }
 }
-?>

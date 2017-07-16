@@ -15,22 +15,22 @@
 
 <table class="header">
   <tr>
-        <td class="title"><?php echo out( xl( 'Rule Edit' ) ); ?></td>
+        <td class="title"><?php echo out(xl('Rule Edit')); ?></td>
         <td>
-            <a href="index.php?action=detail!view&id=<?php echo out( $ruleId ); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
-                <span><?php echo out( xl( 'Cancel' ) ); ?></span>
+            <a href="index.php?action=detail!view&id=<?php echo out($ruleId); ?>" class="iframe_medium css_button" onclick="top.restoreSession()">
+                <span><?php echo out(xl('Cancel')); ?></span>
             </a>
         </td>
   </tr>
 </table>
 
 <div class="rule_detail edit text">
-    <p class="header"><?php echo out( xl( 'Add criteria' ) ); ?> </p>
+    <p class="header"><?php echo out(xl('Add criteria')); ?> </p>
     <ul>
-    <?php foreach ( $allowed as $type ) { ?>
+    <?php foreach ($allowed as $type) { ?>
         <li>
-        <a href="index.php?action=edit!choose_criteria&id=<?php echo out( $ruleId ); ?>&group_id=<?php echo out( $groupId ); ?>&type=<?php echo out( $viewBean->type ); ?>&criteriaType=<?php echo out( $type->code ); ?>" onclick="top.restoreSession()">
-            <?php echo out( xl( $type->lbl ) ); ?>
+        <a href="index.php?action=edit!choose_criteria&id=<?php echo out($ruleId); ?>&group_id=<?php echo out($groupId); ?>&type=<?php echo out($viewBean->type); ?>&criteriaType=<?php echo out($type->code); ?>" onclick="top.restoreSession()">
+            <?php echo out(xl($type->lbl)); ?>
         </a>
         </li>
     <?php } ?>

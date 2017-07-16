@@ -12,7 +12,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Person
  *
  */
-class Person {
+class Person
+{
     var $id;
     var $last_name;
     var $first_name;
@@ -24,13 +25,9 @@ class Person {
     function __construct($id = "", $prefix = "")
     {
         $this->id = $id;
-
     }
 
     function populate()
     {
-
     }
-
 } // end of Person
-?>

@@ -79,6 +79,4 @@ class UserCriteria extends UserCriteriaDAO
 		}
 	}
 	*/
-
 }
-?>

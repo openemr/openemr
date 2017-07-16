@@ -1,7 +1,8 @@
 <?php
 
 
-class C_InsuranceNumbers extends Controller {
+class C_InsuranceNumbers extends Controller
+{
 
         var $template_mod;
         var $providers;
@@ -16,7 +17,7 @@ class C_InsuranceNumbers extends Controller {
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
     }
 
     function default_action()
@@ -24,15 +25,14 @@ class C_InsuranceNumbers extends Controller {
         return $this->list_action();
     }
 
-    function edit_action($id = "",$provider_id="",$p_obj = null)
+    function edit_action($id = "", $provider_id = "", $p_obj = null)
     {
 
         //case where a direct id is provided, doesn't matter if a provider id is available get it from the insurance_numbers record
-        if (get_class($this->insurance_numbers[0]) != "insurancenumbers" && is_numeric($id) ) {
+        if (get_class($this->insurance_numbers[0]) != "insurancenumbers" && is_numeric($id)) {
             $this->insurance_numbers[0] = new InsuranceNumbers($id);
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
-        }
-        elseif (is_numeric($provider_id)) {
+        } elseif (is_numeric($provider_id)) {
             $this->providers[0] = new Provider($provider_id);
             if (get_class($this->insurance_numbers[0]) != "insurancenumbers") {
                 if ($id == "default") {
@@ -41,23 +41,20 @@ class C_InsuranceNumbers extends Controller {
                         $this->insurance_numbers[0] = new InsuranceNumbers();
                         $this->insurance_numbers[0]->set_provider_id($provider_id);
                     }
-                }
-                else {
+                } else {
                     $this->insurance_numbers[0] = new InsuranceNumbers();
                     $this->insurance_numbers[0]->set_provider_id($provider_id);
                 }
-
             }
-        }
-        elseif (get_class($this->insurance_numbers[0]) == "insurancenumbers") {
+        } elseif (get_class($this->insurance_numbers[0]) == "insurancenumbers") {
             //this is the case that occurs after an update
             $this->providers[0] = new Provider($this->insurance_numbers[0]->get_provider_id());
-        }
-        else {
+        } else {
             $this->insurance_numbers[0] = new InsuranceNumbers();
             $this->providers[0] = new Provider();
-            $this->assign("ERROR","A provider must be specified. Check the link you you came from or the URL and try again.");
+            $this->assign("ERROR", "A provider must be specified. Check the link you you came from or the URL and try again.");
         }
+
         $ic = new InsuranceCompany();
         $icompanies =  $ic->insurance_companies_factory();
 
@@ -101,13 +98,14 @@ class C_InsuranceNumbers extends Controller {
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
                 return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->insurance_numbers[0] = new InsuranceNumbers($_POST['id']);
-        }
-        else {
+        } else {
             $this->insurance_numbers[0] = new InsuranceNumbers();
         }
 
@@ -124,7 +122,4 @@ class C_InsuranceNumbers extends Controller {
             header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
         }//Z&H
     }
-
 }
-
-?>

@@ -4,10 +4,10 @@
 /**
  * import supporting libraries
  */
-require_once ("DBEventHandler.php");
-require_once ("DBConnectionString.php");
-require_once ('verysimple/DB/DatabaseException.php');
-require_once ('verysimple/Phreeze/DataAdapter.php');
+require_once("DBEventHandler.php");
+require_once("DBConnectionString.php");
+require_once('verysimple/DB/DatabaseException.php');
+require_once('verysimple/Phreeze/DataAdapter.php');
 
 /**
  * DBConnection provides connectivity to a MySQL Server
@@ -18,7 +18,8 @@ require_once ('verysimple/Phreeze/DataAdapter.php');
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class DBConnection {
+class DBConnection
+{
     public $Host;
     public $Port;
     public $Username;
@@ -48,7 +49,7 @@ class DBConnection {
         $this->DBName = $dbconnstring->DBName;
         
         // TODO: this is redundant after switching to the DataAdapter
-        $this->csetting = new ConnectionSetting ();
+        $this->csetting = new ConnectionSetting();
         $this->csetting->ConnectionString = $dbconnstring->Host . ($dbconnstring->Port ? ':' . $dbconnstring->Port : '');
         $this->csetting->DBName = $dbconnstring->DBName;
         $this->csetting->Username = $dbconnstring->Username;
@@ -58,10 +59,10 @@ class DBConnection {
         if ($handler) {
             $this->handler = & $handler;
         } else {
-            $this->handler = new DBEventHandler ();
+            $this->handler = new DBEventHandler();
         }
         
-        $this->handler->Log ( DBH_LOG_INFO, "Connection Initialized" );
+        $this->handler->Log(DBH_LOG_INFO, "Connection Initialized");
     }
     
     /**
@@ -71,7 +72,7 @@ class DBConnection {
      */
     function __destruct()
     {
-        $this->Disconnect ();
+        $this->Disconnect();
     }
     
     /**
@@ -82,19 +83,19 @@ class DBConnection {
      */
     function Connect()
     {
-        $this->handler->Log ( DBH_LOG_INFO, "Opening Connection..." );
+        $this->handler->Log(DBH_LOG_INFO, "Opening Connection...");
         if ($this->dbopen) {
-            $this->handler->Log ( DBH_LOG_WARNING, "Connection Already Open" );
+            $this->handler->Log(DBH_LOG_WARNING, "Connection Already Open");
         } else {
-            $this->adapter = new DataAdapter ( $this->csetting );
+            $this->adapter = new DataAdapter($this->csetting);
             
             try {
-                $this->adapter->Open ();
-            } catch ( Exception $ex ) {
-                $this->handler->Crash ( DatabaseException::$CONNECTION_ERROR, $ex->getMessage () );
+                $this->adapter->Open();
+            } catch (Exception $ex) {
+                $this->handler->Crash(DatabaseException::$CONNECTION_ERROR, $ex->getMessage());
             }
             
-            $this->handler->Log ( DBH_LOG_INFO, "Connection Open" );
+            $this->handler->Log(DBH_LOG_INFO, "Connection Open");
             $this->dbopen = true;
         }
     }
@@ -110,9 +111,9 @@ class DBConnection {
     {
         if (! $this->dbopen) {
             if ($auto) {
-                $this->Connect ();
+                $this->Connect();
             } else {
-                $this->handler->Crash ( DatabaseException::$CONNECTION_ERROR, "DB is not connected.  Please call DBConnection->Connect() first." );
+                $this->handler->Crash(DatabaseException::$CONNECTION_ERROR, "DB is not connected.  Please call DBConnection->Connect() first.");
             }
         }
     }
@@ -124,14 +125,14 @@ class DBConnection {
      */
     function Disconnect()
     {
-        $this->handler->Log ( DBH_LOG_INFO, "Closing Connection..." );
+        $this->handler->Log(DBH_LOG_INFO, "Closing Connection...");
         
         if ($this->dbopen) {
-            $this->adapter->Close ();
+            $this->adapter->Close();
             $this->dbopen = false;
-            $this->handler->Log ( DBH_LOG_INFO, "Connection closed" );
+            $this->handler->Log(DBH_LOG_INFO, "Connection closed");
         } else {
-            $this->handler->Log ( DBH_LOG_WARNING, "Connection Already Closed" );
+            $this->handler->Log(DBH_LOG_WARNING, "Connection Already Closed");
         }
     }
     
@@ -144,11 +145,11 @@ class DBConnection {
      */
     function Select($sql)
     {
-        $this->RequireConnection ( true );
+        $this->RequireConnection(true);
         
-        $this->handler->Log ( DBH_LOG_QUERY, "Executing Query", $sql );
+        $this->handler->Log(DBH_LOG_QUERY, "Executing Query", $sql);
         
-        return $this->adapter->Select ( $sql );
+        return $this->adapter->Select($sql);
     }
     
     /**
@@ -159,9 +160,9 @@ class DBConnection {
      */
     function Update($sql)
     {
-        $this->RequireConnection ( true );
+        $this->RequireConnection(true);
         
-        return $this->adapter->Escape ( $sql );
+        return $this->adapter->Escape($sql);
     }
     
     /**
@@ -173,10 +174,10 @@ class DBConnection {
      */
     function Next($rs)
     {
-        $this->RequireConnection ();
+        $this->RequireConnection();
         
-        $this->handler->Log ( DBH_LOG_DEBUG, "Fetching next result as array" );
-        return $this->adapter->Fetch ( $rs );
+        $this->handler->Log(DBH_LOG_DEBUG, "Fetching next result as array");
+        return $this->adapter->Fetch($rs);
     }
     
     /**
@@ -187,11 +188,9 @@ class DBConnection {
      */
     function Release($rs)
     {
-        $this->RequireConnection ();
+        $this->RequireConnection();
         
-        $this->handler->Log ( DBH_LOG_DEBUG, "Releasing result resources" );
-        return $this->adapter->Release ( $rs );
+        $this->handler->Log(DBH_LOG_DEBUG, "Releasing result resources");
+        return $this->adapter->Release($rs);
     }
 }
-
-?>

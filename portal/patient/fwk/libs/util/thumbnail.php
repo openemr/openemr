@@ -22,7 +22,8 @@
  *          $tg->generate('/tmp/big.jpg', 100, 100, '/tmp/small.jpg');
  *          </pre>
  */
-class thumbnail {
+class thumbnail
+{
     var $allowableTypes = array (
             IMAGETYPE_GIF,
             IMAGETYPE_JPEG,
@@ -31,13 +32,13 @@ class thumbnail {
     public function imageCreateFromFile($filename, $imageType)
     {
         switch ($imageType) {
-            case IMAGETYPE_GIF :
-                return imagecreatefromgif ( $filename );
-            case IMAGETYPE_JPEG :
-                return imagecreatefromjpeg ( $filename );
-            case IMAGETYPE_PNG :
-                return imagecreatefrompng ( $filename );
-            default :
+            case IMAGETYPE_GIF:
+                return imagecreatefromgif($filename);
+            case IMAGETYPE_JPEG:
+                return imagecreatefromjpeg($filename);
+            case IMAGETYPE_PNG:
+                return imagecreatefrompng($filename);
+            default:
                 return false;
         }
     }
@@ -62,37 +63,37 @@ class thumbnail {
      */
     public function generate($sourceFilename, $maxWidth, $maxHeight, $targetFormatOrFilename = 'jpg', $useExactSize = false)
     {
-        $size = getimagesize ( $sourceFilename ); // 0 = width, 1 = height, 2 = type
+        $size = getimagesize($sourceFilename); // 0 = width, 1 = height, 2 = type
                                                
         // check to make sure source image is in allowable format
-        if (! in_array ( $size [2], $this->allowableTypes )) {
+        if (! in_array($size [2], $this->allowableTypes)) {
             return false;
         }
         
         // work out the extension, what target filename should be and output function to call
-        $pathinfo = pathinfo ( $targetFormatOrFilename );
+        $pathinfo = pathinfo($targetFormatOrFilename);
         if ($pathinfo ['basename'] == $pathinfo ['filename']) {
-            $extension = strtolower ( $targetFormatOrFilename );
+            $extension = strtolower($targetFormatOrFilename);
             // set target to null so writes out to browser
             $targetFormatOrFilename = null;
         } else {
-            $extension = strtolower ( $pathinfo ['extension'] );
+            $extension = strtolower($pathinfo ['extension']);
         }
         
         switch ($extension) {
-            case 'gif' :
+            case 'gif':
                 $function = 'imagegif';
                 break;
-            case 'png' :
+            case 'png':
                 $function = 'imagepng';
                 break;
-            default :
+            default:
                 $function = 'imagejpeg';
                 break;
         }
         
         // load the image and return false if didn't work
-        $source = $this->imageCreateFromFile ( $sourceFilename, $size [2] );
+        $source = $this->imageCreateFromFile($sourceFilename, $size [2]);
         if (! $source) {
             return false;
         }
@@ -100,9 +101,9 @@ class thumbnail {
         // write out the appropriate HTTP headers if going to browser
         if ($targetFormatOrFilename == null) {
             if ($extension == 'jpg') {
-                header ( "Content-Type: image/jpeg" );
+                header("Content-Type: image/jpeg");
             } else {
-                header ( "Content-Type: image/$extension" );
+                header("Content-Type: image/$extension");
             }
         }
         
@@ -110,7 +111,6 @@ class thumbnail {
         if ($useExactSize == false && $size [0] <= $maxWidth && $size [1] <= $maxHeight) {
             $function ( $source, $targetFormatOrFilename );
         } else {
-            
             $newWidth = 0;
             $newHeight = 0;
             
@@ -124,19 +124,18 @@ class thumbnail {
                 // use smallest ratio
                 if ($ratioWidth < $ratioHeight) {
                     $newWidth = $maxWidth;
-                    $newHeight = round ( $size [1] * $ratioWidth );
+                    $newHeight = round($size [1] * $ratioWidth);
                 } else {
-                    $newWidth = round ( $size [0] * $ratioHeight );
+                    $newWidth = round($size [0] * $ratioHeight);
                     $newHeight = $maxHeight;
                 }
             }
             
-            $target = imagecreatetruecolor ( $newWidth, $newHeight );
-            imagecopyresampled ( $target, $source, 0, 0, 0, 0, $newWidth, $newHeight, $size [0], $size [1] );
+            $target = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled($target, $source, 0, 0, 0, 0, $newWidth, $newHeight, $size [0], $size [1]);
             $function ( $target, $targetFormatOrFilename );
         }
         
         return true;
     }
 }
-?>

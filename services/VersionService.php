@@ -24,7 +24,8 @@ namespace services;
 
 use entities\Version;
 
-class VersionService {
+class VersionService
+{
     /**
      * Logger used primarily for logging events that are of interest to
      * developers.

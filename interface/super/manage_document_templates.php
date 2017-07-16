@@ -23,7 +23,9 @@
 require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 
-if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
+if (!acl_check('admin', 'super')) {
+    die(htmlspecialchars(xl('Not authorized')));
+}
 
 $form_filename = strip_escape_custom($_REQUEST['form_filename']);
 
@@ -52,7 +54,9 @@ if (!empty($_POST['bn_download'])) {
 
 if (!empty($_POST['bn_delete'])) {
     $templatepath = "$templatedir/$form_filename";
-    if (is_file($templatepath)) unlink($templatepath);
+    if (is_file($templatepath)) {
+        unlink($templatepath);
+    }
 }
 
 if (!empty($_POST['bn_upload'])) {
@@ -64,17 +68,23 @@ if (!empty($_POST['bn_upload'])) {
         if ($form_dest_filename == '') {
             $form_dest_filename = $_FILES['form_file']['name'];
         }
+
         $form_dest_filename = preg_replace("/[^a-zA-Z0-9_.]/", "_", basename($form_dest_filename));
         if ($form_dest_filename == '') {
             die(htmlspecialchars(xl('Cannot determine a destination filename')));
         }
+
         $templatepath = "$templatedir/$form_dest_filename";
         // If the site's template directory does not yet exist, create it.
         if (!is_dir($templatedir)) {
             mkdir($templatedir);
         }
+
         // If the target file already exists, delete it.
-        if (is_file($templatepath)) unlink($templatepath);
+        if (is_file($templatepath)) {
+            unlink($templatepath);
+        }
+
         // Put the new file in its desired location.
         if (!move_uploaded_file($tmp_name, $templatepath)) {
             die(htmlspecialchars(xl('Unable to create') . " '$templatepath'"));
@@ -142,9 +152,13 @@ if (!empty($_POST['bn_upload'])) {
 if ($dh) {
     $templateslist = array();
     while (false !== ($sfname = readdir($dh))) {
-        if (substr($sfname, 0, 1) == '.') continue;
+        if (substr($sfname, 0, 1) == '.') {
+            continue;
+        }
+
         $templateslist[$sfname] = $sfname;
     }
+
     closedir($dh);
     ksort($templateslist);
     foreach ($templateslist as $sfname) {

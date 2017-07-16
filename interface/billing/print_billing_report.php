@@ -23,21 +23,25 @@ if (!isset($_GET["mode"])) {
     } else {
         $from_date = $_GET["from_date"];
     }
+
     if (!isset($_GET["to_date"])) {
         $to_date = date("Y-m-d");
     } else {
         $to_date = $_GET["to_date"];
     }
+
     if (!isset($_GET["code_type"])) {
         $code_type="all";
     } else {
         $code_type = $_GET["code_type"];
     }
+
     if (!isset($_GET["unbilled"])) {
         $unbilled = "on";
     } else {
         $unbilled = $_GET["unbilled"];
     }
+
     if (!isset($_GET["authorized"])) {
         $my_authorized = "on";
     } else {
@@ -66,16 +70,18 @@ if (!isset($_GET["mode"])) {
 <br>
 
 <?php
-if ($my_authorized == "on" ) {
+if ($my_authorized == "on") {
     $my_authorized = 1;
 } else {
     $my_authorized = "%";
 }
+
 if ($unbilled == "on") {
     $unbilled = "0";
 } else {
     $unbilled = "%";
 }
+
 if ($code_type == "all") {
     $code_type = "%";
 }
@@ -88,21 +94,25 @@ if (!isset($_GET["mode"])) {
     } else {
         $from_date = $_GET["from_date"];
     }
+
     if (!isset($_GET["to_date"])) {
         $to_date = date("Y-m-d");
     } else {
         $to_date = $_GET["to_date"];
     }
+
     if (!isset($_GET["code_type"])) {
         $code_type="all";
     } else {
         $code_type = $_GET["code_type"];
     }
+
     if (!isset($_GET["unbilled"])) {
         $unbilled = "on";
     } else {
         $unbilled = $_GET["unbilled"];
     }
+
     if (!isset($_GET["authorized"])) {
         $my_authorized = "on";
     } else {
@@ -116,16 +126,18 @@ if (!isset($_GET["mode"])) {
     $my_authorized = $_GET["authorized"];
 }
 
-if ($my_authorized == "on" ) {
+if ($my_authorized == "on") {
     $my_authorized = 1;
 } else {
     $my_authorized = "%";
 }
+
 if ($unbilled == "on") {
     $unbilled = "0";
 } else {
     $unbilled = "%";
 }
+
 if ($code_type == "all") {
     $code_type = "%";
 }
@@ -155,40 +167,42 @@ if ($ret = getBillsBetweenReport($code_type)) {
                 print "<table border=0><tr>\n";     // small table
                 $first_time=0;
             }
+
             print "<tr><td colspan=5><hr><span class=bold>" . text($name{"fname"}) . " " . text($name{"lname"}) . "</span><br><br>\n";
             //==================================
 
 
             print "<font class=bold>" . xlt("Patient Data") . ":</font><br>";
-            printRecDataOne($patient_data_array, getRecPatientData ($iter{"pid"}), $COLS);
+            printRecDataOne($patient_data_array, getRecPatientData($iter{"pid"}), $COLS);
         
             print "<font class=bold>" . xlt("Employer Data") . ":</font><br>";
-            printRecDataOne($employer_data_array, getRecEmployerData ($iter{"pid"}), $COLS);
+            printRecDataOne($employer_data_array, getRecEmployerData($iter{"pid"}), $COLS);
 
             print "<font class=bold>" . xlt("Primary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"primary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "primary"), $COLS);
 
             print "<font class=bold>" . xlt("Secondary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"secondary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "secondary"), $COLS);
 
             print "<font class=bold>" . xlt("Tertiary Insurance Data") . ":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($iter{"pid"},"tertiary"), $COLS);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($iter{"pid"}, "tertiary"), $COLS);
         
             //==================================
             print "</td></tr><tr>\n";
             $old_pid = $iter{"pid"};
-        
         }
-        print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d",strtotime($iter{"date"}))) . ")</span></td>\n";
+
+        print "<td width=100><span class=text>" . text($iter{"code_type"}) . ": </span></td><td width=100><span class=text>" . text($iter{"code"}) . "</span></td><td width=100><span class=small>(" . text(date("Y-m-d", strtotime($iter{"date"}))) . ")</span></td>\n";
         $res_count++;
         if ($res_count == $N) {
             print "</tr><tr>\n";
             $res_count = 0;
         }
+
         $itero = $iter;
     }
-    print "</tr></table>\n"; // small table
 
+    print "</tr></table>\n"; // small table
 }
 
 ?>

@@ -27,8 +27,8 @@
 /**
  * import supporting libraries
  */
-require_once ( "AppBaseController.php" );
-require_once ( "Model/OnsiteActivityView.php" );
+require_once("AppBaseController.php");
+require_once("Model/OnsiteActivityView.php");
 
 /**
  * OnsiteActivityViewController is the controller class for the OnsiteActivityView object.
@@ -40,7 +40,8 @@ require_once ( "Model/OnsiteActivityView.php" );
  * @author ClassBuilder
  * @version 1.0
  */
-class OnsiteActivityViewController extends AppBaseController{
+class OnsiteActivityViewController extends AppBaseController
+{
 
     /**
      * Override here for any controller-specific functionality
@@ -60,13 +61,15 @@ class OnsiteActivityViewController extends AppBaseController{
     public function ListView()
     {
         $user = 0;
-        if( isset( $_SESSION['authUser'] ) ) $user = $_SESSION['authUser'];
-        else{
-            header( "refresh:6;url= ./provider" );
+        if (isset($_SESSION['authUser'])) {
+            $user = $_SESSION['authUser'];
+        } else {
+            header("refresh:6;url= ./provider");
             echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br> Shared session not allowed!.';
             exit();
         }
-        $this->Assign( 'cuser', $user );
+
+        $this->Assign('cuser', $user);
         $this->Render();
     }
 
@@ -75,60 +78,64 @@ class OnsiteActivityViewController extends AppBaseController{
      */
     public function Query()
     {
-        self::CreateView( '' );
-        try{
+        self::CreateView('');
+        try {
             $criteria = new OnsiteActivityViewCriteria();
-            $status = RequestUtil::Get( 'status' );
+            $status = RequestUtil::Get('status');
             $criteria->Status_Equals = $status;
 
-            $filter = RequestUtil::Get( 'filter' );
-            if( $filter ) $criteria->AddFilter( new CriteriaFilter( 'Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%' ) );
+            $filter = RequestUtil::Get('filter');
+            if ($filter) {
+                $criteria->AddFilter(new CriteriaFilter('Id,Date,PatientId,Activity,RequireAudit,PendingAction,ActionTaken,Status,Narrative,TableAction,TableArgs,ActionUser,ActionTakenTime,Checksum,Title,Fname,Lname,Mname,Dob,Ss,Street,PostalCode,City,State,Referrerid,Providerid,RefProviderid,Pubpid,CareTeam,Username,Authorized,Ufname,Umname,Ulname,Facility,Active,Utitle,PhysicianType', '%' . $filter . '%'));
+            }
 
             // TODO: this is generic query filtering based only on criteria properties
-            foreach( array_keys( $_REQUEST ) as $prop ){
-                $prop_normal = ucfirst( $prop );
+            foreach (array_keys($_REQUEST) as $prop) {
+                $prop_normal = ucfirst($prop);
                 $prop_equals = $prop_normal . '_Equals';
 
-                if( property_exists( $criteria, $prop_normal ) ){
-                    $criteria->$prop_normal = RequestUtil::Get( $prop );
-                } elseif( property_exists( $criteria, $prop_equals ) ){
+                if (property_exists($criteria, $prop_normal)) {
+                    $criteria->$prop_normal = RequestUtil::Get($prop);
+                } elseif (property_exists($criteria, $prop_equals)) {
                     // this is a convenience so that the _Equals suffix is not needed
-                    $criteria->$prop_equals = RequestUtil::Get( $prop );
+                    $criteria->$prop_equals = RequestUtil::Get($prop);
                 }
             }
 
             $output = new stdClass();
 
             // if a sort order was specified then specify in the criteria
-            $output->orderBy = RequestUtil::Get( 'orderBy' );
-            $output->orderDesc = RequestUtil::Get( 'orderDesc' ) != '';
-            if( $output->orderBy ) $criteria->SetOrder( $output->orderBy, $output->orderDesc );
+            $output->orderBy = RequestUtil::Get('orderBy');
+            $output->orderDesc = RequestUtil::Get('orderDesc') != '';
+            if ($output->orderBy) {
+                $criteria->SetOrder($output->orderBy, $output->orderDesc);
+            }
 
-            $page = RequestUtil::Get( 'page' );
+            $page = RequestUtil::Get('page');
 
-            if( $page != '' ){
+            if ($page != '') {
                 // if page is specified, use this instead (at the expense of one extra count query)
                 $pagesize = $this->GetDefaultPageSize();
 
-                $onsiteactivityviews = $this->Phreezer->Query( 'OnsiteActivityViewReporter', $criteria )->GetDataPage( $page, $pagesize );
-                $output->rows = $onsiteactivityviews->ToObjectArray( true, $this->SimpleObjectParams() );
+                $onsiteactivityviews = $this->Phreezer->Query('OnsiteActivityViewReporter', $criteria)->GetDataPage($page, $pagesize);
+                $output->rows = $onsiteactivityviews->ToObjectArray(true, $this->SimpleObjectParams());
                 $output->totalResults = $onsiteactivityviews->TotalResults;
                 $output->totalPages = $onsiteactivityviews->TotalPages;
                 $output->pageSize = $onsiteactivityviews->PageSize;
                 $output->currentPage = $onsiteactivityviews->CurrentPage;
-            } else{
+            } else {
                 // return all results
-                $onsiteactivityviews = $this->Phreezer->Query( 'OnsiteActivityViewReporter', $criteria );
-                $output->rows = $onsiteactivityviews->ToObjectArray( true, $this->SimpleObjectParams() );
-                $output->totalResults = count( $output->rows );
+                $onsiteactivityviews = $this->Phreezer->Query('OnsiteActivityViewReporter', $criteria);
+                $output->rows = $onsiteactivityviews->ToObjectArray(true, $this->SimpleObjectParams());
+                $output->totalResults = count($output->rows);
                 $output->totalPages = 1;
                 $output->pageSize = $output->totalResults;
                 $output->currentPage = 1;
             }
 
-            $this->RenderJSON( $output, $this->JSONPCallback() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+            $this->RenderJSON($output, $this->JSONPCallback());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 
@@ -137,15 +144,15 @@ class OnsiteActivityViewController extends AppBaseController{
      */
     public function Read()
     {
-        try{
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $onsiteactivityview = $this->Phreezer->Get( 'OnsiteActivityView', $pk );
-            $this->RenderJSON( $onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        try {
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
+            $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
-    public function CreateView( $viewcriteria )
+    public function CreateView($viewcriteria)
     {
         $sql = "CREATE OR REPLACE VIEW onsite_activity_view As Select
   onsite_portal_activity.status,
@@ -190,10 +197,10 @@ class OnsiteActivityViewController extends AppBaseController{
   patient_data On onsite_portal_activity.patient_id = patient_data.pid Left Join
   users On patient_data.providerID = users.id ";
         // $sql .= "Where onsite_portal_activity.status = 'waiting'";
-        try{
-            $this->Phreezer->DataAdapter->Execute( $sql );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+        try {
+            $this->Phreezer->DataAdapter->Execute($sql);
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
     /**
@@ -209,77 +216,80 @@ class OnsiteActivityViewController extends AppBaseController{
      */
     public function Update()
     {
-        try{
+        try {
             // TODO: views are read-only by default. uncomment at your own discretion
-            throw new Exception( 'Database views are read-only and cannot be updated' );
+            throw new Exception('Database views are read-only and cannot be updated');
 
-            $json = json_decode( RequestUtil::GetBody() );
+            $json = json_decode(RequestUtil::GetBody());
 
-            if( ! $json ){throw new Exception( 'The request body does not contain valid JSON' );}
+            if (! $json) {
+                throw new Exception('The request body does not contain valid JSON');
+            }
 
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $onsiteactivityview = $this->Phreezer->Get( 'OnsiteActivityView', $pk );
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
 
             // TODO: any fields that should not be updated by the user should be commented out
 
             // this is a primary key. uncomment if updating is allowed
             // $onsiteactivityview->Id = $this->SafeGetVal($json, 'id', $onsiteactivityview->Id);
 
-            $onsiteactivityview->Date = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'date', $onsiteactivityview->Date ) ) );
-            $onsiteactivityview->PatientId = $this->SafeGetVal( $json, 'patientId', $onsiteactivityview->PatientId );
-            $onsiteactivityview->Activity = $this->SafeGetVal( $json, 'activity', $onsiteactivityview->Activity );
-            $onsiteactivityview->RequireAudit = $this->SafeGetVal( $json, 'requireAudit', $onsiteactivityview->RequireAudit );
-            $onsiteactivityview->PendingAction = $this->SafeGetVal( $json, 'pendingAction', $onsiteactivityview->PendingAction );
-            $onsiteactivityview->ActionTaken = $this->SafeGetVal( $json, 'actionTaken', $onsiteactivityview->ActionTaken );
-            $onsiteactivityview->Status = $this->SafeGetVal( $json, 'status', $onsiteactivityview->Status );
-            $onsiteactivityview->Narrative = $this->SafeGetVal( $json, 'narrative', $onsiteactivityview->Narrative );
-            $onsiteactivityview->TableAction = $this->SafeGetVal( $json, 'tableAction', $onsiteactivityview->TableAction );
-            $onsiteactivityview->TableArgs = $this->SafeGetVal( $json, 'tableArgs', $onsiteactivityview->TableArgs );
-            $onsiteactivityview->ActionUser = $this->SafeGetVal( $json, 'actionUser', $onsiteactivityview->ActionUser );
-            $onsiteactivityview->ActionTakenTime = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'actionTakenTime', $onsiteactivityview->ActionTakenTime ) ) );
-            $onsiteactivityview->Checksum = $this->SafeGetVal( $json, 'checksum', $onsiteactivityview->Checksum );
-            $onsiteactivityview->Title = $this->SafeGetVal( $json, 'title', $onsiteactivityview->Title );
-            $onsiteactivityview->Fname = $this->SafeGetVal( $json, 'fname', $onsiteactivityview->Fname );
-            $onsiteactivityview->Lname = $this->SafeGetVal( $json, 'lname', $onsiteactivityview->Lname );
-            $onsiteactivityview->Mname = $this->SafeGetVal( $json, 'mname', $onsiteactivityview->Mname );
-            $onsiteactivityview->Dob = date( 'Y-m-d H:i:s', strtotime( $this->SafeGetVal( $json, 'dob', $onsiteactivityview->Dob ) ) );
-            $onsiteactivityview->Ss = $this->SafeGetVal( $json, 'ss', $onsiteactivityview->Ss );
-            $onsiteactivityview->Street = $this->SafeGetVal( $json, 'street', $onsiteactivityview->Street );
-            $onsiteactivityview->PostalCode = $this->SafeGetVal( $json, 'postalCode', $onsiteactivityview->PostalCode );
-            $onsiteactivityview->City = $this->SafeGetVal( $json, 'city', $onsiteactivityview->City );
-            $onsiteactivityview->State = $this->SafeGetVal( $json, 'state', $onsiteactivityview->State );
-            $onsiteactivityview->Referrerid = $this->SafeGetVal( $json, 'referrerid', $onsiteactivityview->Referrerid );
-            $onsiteactivityview->Providerid = $this->SafeGetVal( $json, 'providerid', $onsiteactivityview->Providerid );
-            $onsiteactivityview->RefProviderid = $this->SafeGetVal( $json, 'refProviderid', $onsiteactivityview->RefProviderid );
-            $onsiteactivityview->Pubpid = $this->SafeGetVal( $json, 'pubpid', $onsiteactivityview->Pubpid );
-            $onsiteactivityview->CareTeam = $this->SafeGetVal( $json, 'careTeam', $onsiteactivityview->CareTeam );
-            $onsiteactivityview->Username = $this->SafeGetVal( $json, 'username', $onsiteactivityview->Username );
-            $onsiteactivityview->Authorized = $this->SafeGetVal( $json, 'authorized', $onsiteactivityview->Authorized );
-            $onsiteactivityview->Ufname = $this->SafeGetVal( $json, 'ufname', $onsiteactivityview->Ufname );
-            $onsiteactivityview->Umname = $this->SafeGetVal( $json, 'umname', $onsiteactivityview->Umname );
-            $onsiteactivityview->Ulname = $this->SafeGetVal( $json, 'ulname', $onsiteactivityview->Ulname );
-            $onsiteactivityview->Facility = $this->SafeGetVal( $json, 'facility', $onsiteactivityview->Facility );
-            $onsiteactivityview->Active = $this->SafeGetVal( $json, 'active', $onsiteactivityview->Active );
-            $onsiteactivityview->Utitle = $this->SafeGetVal( $json, 'utitle', $onsiteactivityview->Utitle );
-            $onsiteactivityview->PhysicianType = $this->SafeGetVal( $json, 'physicianType', $onsiteactivityview->PhysicianType );
+            $onsiteactivityview->Date = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'date', $onsiteactivityview->Date)));
+            $onsiteactivityview->PatientId = $this->SafeGetVal($json, 'patientId', $onsiteactivityview->PatientId);
+            $onsiteactivityview->Activity = $this->SafeGetVal($json, 'activity', $onsiteactivityview->Activity);
+            $onsiteactivityview->RequireAudit = $this->SafeGetVal($json, 'requireAudit', $onsiteactivityview->RequireAudit);
+            $onsiteactivityview->PendingAction = $this->SafeGetVal($json, 'pendingAction', $onsiteactivityview->PendingAction);
+            $onsiteactivityview->ActionTaken = $this->SafeGetVal($json, 'actionTaken', $onsiteactivityview->ActionTaken);
+            $onsiteactivityview->Status = $this->SafeGetVal($json, 'status', $onsiteactivityview->Status);
+            $onsiteactivityview->Narrative = $this->SafeGetVal($json, 'narrative', $onsiteactivityview->Narrative);
+            $onsiteactivityview->TableAction = $this->SafeGetVal($json, 'tableAction', $onsiteactivityview->TableAction);
+            $onsiteactivityview->TableArgs = $this->SafeGetVal($json, 'tableArgs', $onsiteactivityview->TableArgs);
+            $onsiteactivityview->ActionUser = $this->SafeGetVal($json, 'actionUser', $onsiteactivityview->ActionUser);
+            $onsiteactivityview->ActionTakenTime = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'actionTakenTime', $onsiteactivityview->ActionTakenTime)));
+            $onsiteactivityview->Checksum = $this->SafeGetVal($json, 'checksum', $onsiteactivityview->Checksum);
+            $onsiteactivityview->Title = $this->SafeGetVal($json, 'title', $onsiteactivityview->Title);
+            $onsiteactivityview->Fname = $this->SafeGetVal($json, 'fname', $onsiteactivityview->Fname);
+            $onsiteactivityview->Lname = $this->SafeGetVal($json, 'lname', $onsiteactivityview->Lname);
+            $onsiteactivityview->Mname = $this->SafeGetVal($json, 'mname', $onsiteactivityview->Mname);
+            $onsiteactivityview->Dob = date('Y-m-d H:i:s', strtotime($this->SafeGetVal($json, 'dob', $onsiteactivityview->Dob)));
+            $onsiteactivityview->Ss = $this->SafeGetVal($json, 'ss', $onsiteactivityview->Ss);
+            $onsiteactivityview->Street = $this->SafeGetVal($json, 'street', $onsiteactivityview->Street);
+            $onsiteactivityview->PostalCode = $this->SafeGetVal($json, 'postalCode', $onsiteactivityview->PostalCode);
+            $onsiteactivityview->City = $this->SafeGetVal($json, 'city', $onsiteactivityview->City);
+            $onsiteactivityview->State = $this->SafeGetVal($json, 'state', $onsiteactivityview->State);
+            $onsiteactivityview->Referrerid = $this->SafeGetVal($json, 'referrerid', $onsiteactivityview->Referrerid);
+            $onsiteactivityview->Providerid = $this->SafeGetVal($json, 'providerid', $onsiteactivityview->Providerid);
+            $onsiteactivityview->RefProviderid = $this->SafeGetVal($json, 'refProviderid', $onsiteactivityview->RefProviderid);
+            $onsiteactivityview->Pubpid = $this->SafeGetVal($json, 'pubpid', $onsiteactivityview->Pubpid);
+            $onsiteactivityview->CareTeam = $this->SafeGetVal($json, 'careTeam', $onsiteactivityview->CareTeam);
+            $onsiteactivityview->Username = $this->SafeGetVal($json, 'username', $onsiteactivityview->Username);
+            $onsiteactivityview->Authorized = $this->SafeGetVal($json, 'authorized', $onsiteactivityview->Authorized);
+            $onsiteactivityview->Ufname = $this->SafeGetVal($json, 'ufname', $onsiteactivityview->Ufname);
+            $onsiteactivityview->Umname = $this->SafeGetVal($json, 'umname', $onsiteactivityview->Umname);
+            $onsiteactivityview->Ulname = $this->SafeGetVal($json, 'ulname', $onsiteactivityview->Ulname);
+            $onsiteactivityview->Facility = $this->SafeGetVal($json, 'facility', $onsiteactivityview->Facility);
+            $onsiteactivityview->Active = $this->SafeGetVal($json, 'active', $onsiteactivityview->Active);
+            $onsiteactivityview->Utitle = $this->SafeGetVal($json, 'utitle', $onsiteactivityview->Utitle);
+            $onsiteactivityview->PhysicianType = $this->SafeGetVal($json, 'physicianType', $onsiteactivityview->PhysicianType);
 
             $onsiteactivityview->Validate();
             $errors = $onsiteactivityview->GetValidationErrors();
 
-            if( count( $errors ) > 0 ){
-                $this->RenderErrorJSON( 'Please check the form for errors', $errors );
-            } else{
+            if (count($errors) > 0) {
+                $this->RenderErrorJSON('Please check the form for errors', $errors);
+            } else {
                 $onsiteactivityview->Save();
-                $this->RenderJSON( $onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams() );
+                $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch( Exception $ex ){
-
+        } catch (Exception $ex) {
             // this table does not have an auto-increment primary key, so it is semantically correct to
             // issue a REST PUT request, however we have no way to know whether to insert or update.
             // if the record is not found, this exception will indicate that this is an insert request
-            if( is_a( $ex, 'NotFoundException' ) ){return $this->Create();}
+            if (is_a($ex, 'NotFoundException')) {
+                return $this->Create();
+            }
 
-            $this->RenderExceptionJSON( $ex );
+            $this->RenderExceptionJSON($ex);
         }
     }
 
@@ -288,24 +298,22 @@ class OnsiteActivityViewController extends AppBaseController{
      */
     public function Delete()
     {
-        try{
+        try {
             // TODO: views are read-only by default. uncomment at your own discretion
-            throw new Exception( 'Database views are read-only and cannot be updated' );
+            throw new Exception('Database views are read-only and cannot be updated');
 
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
 
-            $pk = $this->GetRouter()->GetUrlParam( 'id' );
-            $onsiteactivityview = $this->Phreezer->Get( 'OnsiteActivityView', $pk );
+            $pk = $this->GetRouter()->GetUrlParam('id');
+            $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
 
             $onsiteactivityview->Delete();
 
             $output = new stdClass();
 
-            $this->RenderJSON( $output, $this->JSONPCallback() );
-        } catch( Exception $ex ){
-            $this->RenderExceptionJSON( $ex );
+            $this->RenderJSON($output, $this->JSONPCallback());
+        } catch (Exception $ex) {
+            $this->RenderExceptionJSON($ex);
         }
     }
 }
-
-?>

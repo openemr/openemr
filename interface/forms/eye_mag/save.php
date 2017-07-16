@@ -60,11 +60,14 @@ require_once("$srcdir/html2pdf/html2pdf.class.php");
 
 $returnurl = 'encounter_top.php';
 
-if (isset($_REQUEST['id']))
-{
+if (isset($_REQUEST['id'])) {
     $id = $_REQUEST['id'];
 }
-if (!$id) $id = $_REQUEST['pid'];
+
+if (!$id) {
+    $id = $_REQUEST['pid'];
+}
+
 $encounter = $_REQUEST['encounter'];
 
 $AJAX_PREFS = $_REQUEST['AJAX_PREFS'];
@@ -72,6 +75,7 @@ if ($encounter == "" && !$id && !$AJAX_PREFS && (($_REQUEST['mode'] != "retrieve
     echo "Sorry Charlie..."; //should lead to a database of errors for explanation.
     exit;
 }
+
 /**
  * Save/update the preferences
  */
@@ -79,146 +83,147 @@ if ($_REQUEST['AJAX_PREFS']) {
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','VA','Vision',?,'RS','51',?,'1')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_VA']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_VA']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','W','Current Rx',?,'W','52',?,'2')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_W']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_W']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','W_width','Detailed Rx',?,'W_width','80',?,'100')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_W_width']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_W_width']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','MR','Manifest Refraction',?,'MR','53',?,'3')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_MR']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_MR']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
                 VALUES
                 ('PREFS','MR_width','Detailed MR',?,'MR_width','81',?,'110')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_W_width']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_W_width']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CR','Cycloplegic Refraction',?,'CR','54',?,'4')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_CR']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CR']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CTL','Contact Lens',?,'CTL','55',?,'5')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_CTL']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CTL']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS', 'VAX', 'Visual Acuities', ?, 'VAX','65', ?,'15')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_VAX']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_VAX']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ADDITIONAL','Additional Data Points',?,'ADDITIONAL','56',?,'6')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_ADDITIONAL']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_ADDITIONAL']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CLINICAL','CLINICAL',?,'CLINICAL','57',?,'7')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_CLINICAL']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CLINICAL']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','IOP','Intraocular Pressure',?,'IOP','67',?,'17')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_IOP']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_IOP']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXAM','EXAM',?,'EXAM','58',?,'8')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_EXAM']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_EXAM']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','CYLINDER','CYL',?,'CYL','59',?,'9')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_CYL']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_CYL']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','HPI_VIEW','HPI View',?,'HPI_VIEW','60',?,'10')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_HPI_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_HPI_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXT_VIEW','External View',?,'EXT_VIEW','66',?,'16')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_EXT_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_EXT_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ANTSEG_VIEW','Anterior Segment View',?,'ANTSEG_VIEW','61',?,'11')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_ANTSEG_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_ANTSEG_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','RETINA_VIEW','Retina View',?,'RETINA_VIEW','62',?,'12')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_RETINA_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_RETINA_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','NEURO_VIEW','Neuro View',?,'NEURO_VIEW','63',?,'13')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_NEURO_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_NEURO_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ACT_VIEW','ACT View',?,'ACT_VIEW','64',?,'14')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_ACT_VIEW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_ACT_VIEW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ACT_SHOW','ACT Show',?,'ACT_SHOW','65',?,'15')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_ACT_SHOW']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_ACT_SHOW']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','HPI_RIGHT','HPI DRAW',?,'HPI_RIGHT','70',?,'16')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_HPI_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_HPI_RIGHT']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','PMH_RIGHT','PMH DRAW',?,'PMH_RIGHT','71',?,'17')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_PMH_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_PMH_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','EXT_RIGHT','EXT DRAW',?,'EXT_RIGHT','72',?,'18')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_EXT_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_EXT_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','ANTSEG_RIGHT','ANTSEG DRAW',?,'ANTSEG_RIGHT','73',?,'19')";
-    $result = sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_ANTSEG_RIGHT']));
+    $result = sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_ANTSEG_RIGHT']));
 
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','RETINA_RIGHT','RETINA DRAW',?,'RETINA_RIGHT','74',?,'20')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_RETINA_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_RETINA_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','NEURO_RIGHT','NEURO DRAW',?,'NEURO_RIGHT','75',?,'21')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_NEURO_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_NEURO_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','IMPPLAN_RIGHT','IMPPLAN DRAW',?,'IMPPLAN_RIGHT','76',?,'22')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_IMPPLAN_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_IMPPLAN_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','PANEL_RIGHT','PMSFH Panel',?,'PANEL_RIGHT','77',?,'23')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_PANEL_RIGHT']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_PANEL_RIGHT']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','KB_VIEW','KeyBoard View',?,'KB_VIEW','78',?,'24')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_KB']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_KB']));
     $query = "REPLACE INTO ".$table_name."_prefs (PEZONE,LOCATION,LOCATION_text,id,selection,ZONE_ORDER,GOVALUE,ordering)
               VALUES
               ('PREFS','TOOLTIPS','Toggle Tooltips',?,'TOOLTIPS','79',?,'25')";
-    sqlQuery($query,array($_SESSION['authId'],$_REQUEST['PREFS_TOOLTIPS']));
+    sqlQuery($query, array($_SESSION['authId'],$_REQUEST['PREFS_TOOLTIPS']));
 }
+
 /**
   * ADD ANY NEW PREFERENCES above, and as a hidden field in the body.
   */
@@ -228,14 +233,23 @@ if ($_REQUEST['AJAX_PREFS']) {
 /**
  * Create, update or retrieve a form and its values
  */
-if (!$pid) $pid = $_SESSION['pid'];
+if (!$pid) {
+    $pid = $_SESSION['pid'];
+}
+
 $userauthorized = $_SESSION['userauthorized'];
-if ($encounter == "") $encounter = date("Ymd");
+if ($encounter == "") {
+    $encounter = date("Ymd");
+}
+
 $form_id        = $_REQUEST['form_id'];
 $zone           = $_REQUEST['zone'];
 
-$providerID  =  findProvider($pid,$encounter);
-if ($providerID =='0') $providerID = $userauthorized;//who is the default provider?
+$providerID  =  findProvider($pid, $encounter);
+if ($providerID =='0') {
+    $providerID = $userauthorized;//who is the default provider?
+}
+
 $providerNAME = getProviderName($providerID);
 
 // The form is submitted to be updated or saved in some way.
@@ -247,23 +261,24 @@ if ($_REQUEST['unlock'] == '1') {
   // we are releasing the form, by closing the page or clicking on ACTIVE FORM, so unlock it.
   // if it's locked and they own it ($REQUEST[LOCKEDBY] == LOCKEDBY), they can unlock it
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
-    $lock = sqlQuery($query,array($form_id));
-    if (($lock['LOCKED'] >'') && ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY']))  {
+    $lock = sqlQuery($query, array($form_id));
+    if (($lock['LOCKED'] >'') && ($_REQUEST['LOCKEDBY'] == $lock['LOCKEDBY'])) {
         $query = "update ".$table_name." set LOCKED='',LOCKEDBY='' where id=?";
-        sqlQuery($query,array($form_id));
+        sqlQuery($query, array($form_id));
     }
+
     exit;
 } elseif ($_REQUEST['acquire_lock']=="1") {
   //we are taking over the form's active state, others will go read-only
     $query = "UPDATE ".$table_name." set LOCKED='1',LOCKEDBY=? where id=? and LOCKEDBY=?";
-    $result = sqlQuery($query,array($_REQUEST['uniqueID'],$form_id,$_REQUEST['locked_by']));
+    $result = sqlQuery($query, array($_REQUEST['uniqueID'],$form_id,$_REQUEST['locked_by']));
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
-    $lock = sqlQuery($query,array($form_id));
+    $lock = sqlQuery($query, array($form_id));
     exit;
 } else {
     $query = "SELECT LOCKED,LOCKEDBY,LOCKEDDATE from ".$table_name." WHERE ID=?";
-    $lock = sqlQuery($query,array($form_id));
-    if (($lock['LOCKED']) && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY']))  {
+    $lock = sqlQuery($query, array($form_id));
+    if (($lock['LOCKED']) && ($_REQUEST['uniqueID'] != $lock['LOCKEDBY'])) {
         // We are not the owner or it is not new so it is locked
         // Did the user send a demand to take ownership?
         if ($lock['LOCKEDBY'] != $_REQUEST['ownership']) {
@@ -279,22 +294,25 @@ if ($_REQUEST['unlock'] == '1') {
             $_REQUEST['LOCKEDBY'] = $_REQUEST['uniqueID'];
             //update table
             $query = "update ".$table_name." set LOCKED=?,LOCKEDBY=? where id=?";
-            sqlQuery ($query,array('1',$_REQUEST['LOCKEDBY'],$form_id));
+            sqlQuery($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
             //go on to save what we want...
         }
     } elseif (!$lock['LOCKED']) { // it is not locked yet
         $_REQUEST['LOCKED'] = '1';
         $query = "update ".$table_name." set LOCKED=?,LOCKEDBY=? where id=?";
-        sqlQuery($query,array('1',$_REQUEST['LOCKEDBY'],$form_id));
+        sqlQuery($query, array('1',$_REQUEST['LOCKEDBY'],$form_id));
         //go on to save what we want...
     }
-    if (!$_REQUEST['LOCKEDBY'])  $_REQUEST['LOCKEDBY'] = rand();
+
+    if (!$_REQUEST['LOCKEDBY']) {
+        $_REQUEST['LOCKEDBY'] = rand();
+    }
 }
 
-if ($_REQUEST["mode"] == "new")             {
+if ($_REQUEST["mode"] == "new") {
     $newid = formSubmit($table_name, $_POST, $id, $userauthorized);
     addForm($encounter, $form_name, $newid, $form_folder, $pid, $userauthorized);
-} elseif ($_REQUEST["mode"] == "update")    {
+} elseif ($_REQUEST["mode"] == "update") {
   // The user has write privileges to work with...
     if ($_REQUEST['action']=="store_PDF") {
         /*
@@ -316,6 +334,7 @@ if ($_REQUEST["mode"] == "new")             {
         foreach (glob($filepath.'/'.$filename) as $file) {
             unlink($file);
         }
+
         $sql = "DELETE from categories_to_documents where document_id IN (SELECT id from documents where documents.url like '%".$filename."')";
         sqlQuery($sql);
         $sql = "DELETE from documents where documents.url like '%".$filename."'";
@@ -325,14 +344,15 @@ if ($_REQUEST["mode"] == "new")             {
 
         /***********/
 
-        $pdf = new HTML2PDF ($GLOBALS['pdf_layout'],
-                         $GLOBALS['pdf_size'],
-                         $GLOBALS['pdf_language'],
-                         true, // default unicode setting is true
-                         'UTF-8', // default encoding setting is UTF-8
-                         array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
-                         $_SESSION['language_direction'] == 'rtl' ? true : false
-                      );
+        $pdf = new HTML2PDF(
+            $GLOBALS['pdf_layout'],
+            $GLOBALS['pdf_size'],
+            $GLOBALS['pdf_language'],
+            true, // default unicode setting is true
+            'UTF-8', // default encoding setting is UTF-8
+            array($GLOBALS['pdf_left_margin'],$GLOBALS['pdf_top_margin'],$GLOBALS['pdf_right_margin'],$GLOBALS['pdf_bottom_margin']),
+            $_SESSION['language_direction'] == 'rtl' ? true : false
+        );
         ob_start();
         ?>
         <link rel="stylesheet" href="<?php echo $webserver_root; ?>/interface/themes/style_pdf.css" type="text/css">
@@ -341,8 +361,9 @@ if ($_REQUEST["mode"] == "new")             {
         echo report_header($pid);
         include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
         call_user_func($form_name . "_report", $pid, $form_encounter, $N, $form_id);
-        if ($printable)
-        echo "" . xl('Signature') . ": _______________________________<br />";
+        if ($printable) {
+            echo "" . xl('Signature') . ": _______________________________<br />";
+        }
         ?>
       </div> <!-- end of report_custom DIV -->
 
@@ -356,40 +377,45 @@ if ($_REQUEST["mode"] == "new")             {
         $wsrlen = strlen($webserver_root);
         while (true) {
             $i = stripos($content, " src='/", $i + 1);
-            if ($i === false) break;
+            if ($i === false) {
+                break;
+            }
+
             if (substr($content, $i+6, $wrlen) === $web_root &&
-              substr($content, $i+6, $wsrlen) !== $webserver_root)
-            {
+              substr($content, $i+6, $wsrlen) !== $webserver_root) {
                 $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
             }
         }
+
         $pdf->writeHTML($content, false);
         $temp_filename = '/tmp/'.$filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
         $type = "application/pdf";
         $size = filesize($temp_filename);
-        $return = addNewDocument($filename,$type,$temp_filename,0,$size,$_SESSION['authUserID'],$pid,$category_id);
+        $return = addNewDocument($filename, $type, $temp_filename, 0, $size, $_SESSION['authUserID'], $pid, $category_id);
         $doc_id = $return['doc_id'];
         $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-        sqlQuery($sql,array($encounter,$doc_id));
+        sqlQuery($sql, array($encounter,$doc_id));
         exit;
     }
+
   // Store the IMPPLAN area.  This is separate from the rest of the form
   // It is in a separate table due to its one-to-many relationship with the form_id.
     if ($_REQUEST['action']=="store_IMPPLAN") {
-        $IMPPLAN = json_decode($_REQUEST['parameter'],true);
+        $IMPPLAN = json_decode($_REQUEST['parameter'], true);
         //remove what is there and replace it with this data.
         $query = "DELETE from form_".$form_folder."_impplan where form_id=? and pid=?";
-        sqlQuery($query,array($form_id,$pid));
+        sqlQuery($query, array($form_id,$pid));
 
-        for($i = 0; $i < count($IMPPLAN); $i++) {
+        for ($i = 0; $i < count($IMPPLAN); $i++) {
             $query ="INSERT IGNORE INTO form_".$form_folder."_impplan (form_id, pid, title, code, codetype, codedesc, codetext, plan, IMPPLAN_order, PMSFH_link) VALUES(?,?,?,?,?,?,?,?,?,?) ";
             $response = sqlQuery($query, array($form_id,$pid,$IMPPLAN[$i]['title'],$IMPPLAN[$i]['code'],$IMPPLAN[$i]['codetype'],$IMPPLAN[$i]['codedesc'],$IMPPLAN[$i]['codetext'],$IMPPLAN[$i]['plan'],$i,$IMPPLAN[$i]['PMSFH_link']));
             //if it is a duplicate then delete this from the array and return the array via json.
             //or rebuild it from mysql
         }
+
         //Since we are potentially ignoring duplicates, build json IMPPLAN_items and return it to the user to rebuild IMP/Plan area
-        $IMPPLAN_items = build_IMPPLAN_items($pid,$form_id);
+        $IMPPLAN_items = build_IMPPLAN_items($pid, $form_id);
         echo json_encode($IMPPLAN_items);
         exit;
     }
@@ -397,13 +423,16 @@ if ($_REQUEST["mode"] == "new")             {
   //change PCP
     if ($_REQUEST['action'] == 'docs') {
         $query = "update patient_data set providerID=?,ref_providerID=? where pid =?";
-        sqlQuery($query,array($_REQUEST['pcp'],$_REQUEST['rDOC'],$pid));
+        sqlQuery($query, array($_REQUEST['pcp'],$_REQUEST['rDOC'],$pid));
         exit;
     }
 
   /*** START CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
     if ($_REQUEST['PMSFH_save'] =='1') {
-        if (!$PMSFH) $PMSFH = build_PMSFH($pid);
+        if (!$PMSFH) {
+            $PMSFH = build_PMSFH($pid);
+        }
+
         $issue = $_REQUEST['issue'];
         $deletion = $_REQUEST['deletion'];
         $form_save = $_REQUEST['form_save'];
@@ -421,7 +450,7 @@ if ($_REQUEST["mode"] == "new")             {
         } else {
             if ($form_type=='ROS') { //ROS
                 $query="UPDATE form_eye_mag set ROSGENERAL=?,ROSHEENT=?,ROSCV=?,ROSPULM=?,ROSGI=?,ROSGU=?,ROSDERM=?,ROSNEURO=?,ROSPSYCH=?,ROSMUSCULO=?,ROSIMMUNO=?,ROSENDOCRINE=? where id=? and pid=?";
-                sqlStatement($query,array($_REQUEST['ROSGENERAL'],$_REQUEST['ROSHEENT'],$_REQUEST['ROSCV'],$_REQUEST['ROSPULM'],$_REQUEST['ROSGI'],$_REQUEST['ROSGU'],$_REQUEST['ROSDERM'],$_REQUEST['ROSNEURO'],$_REQUEST['ROSPSYCH'],$_REQUEST['ROSMUSCULO'],$_REQUEST['ROSIMMUNO'],$_REQUEST['ROSENDOCRINE'],$form_id,$pid));
+                sqlStatement($query, array($_REQUEST['ROSGENERAL'],$_REQUEST['ROSHEENT'],$_REQUEST['ROSCV'],$_REQUEST['ROSPULM'],$_REQUEST['ROSGI'],$_REQUEST['ROSGU'],$_REQUEST['ROSDERM'],$_REQUEST['ROSNEURO'],$_REQUEST['ROSPSYCH'],$_REQUEST['ROSMUSCULO'],$_REQUEST['ROSIMMUNO'],$_REQUEST['ROSENDOCRINE'],$form_id,$pid));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -437,6 +466,7 @@ if ($_REQUEST["mode"] == "new")             {
                         $newdata[$field_id] = get_layout_form_value($frow);
                     }
                 }
+
                 updateHistoryData($pid, $newdata);
                 if ($_REQUEST['marital_status'] >'') {
                     // have to match input with list_option for marital to not break openEMR
@@ -446,14 +476,16 @@ if ($_REQUEST["mode"] == "new")             {
                         if (($_REQUEST['marital_status'] == $frow['option_id'])||($_REQUEST['marital_status'] == $frow['title'])) {
                             $status = $frow['option_id'];
                             $query = "UPDATE patient_data set status=? where pid=?";
-                            sqlStatement($query,array($status,$pid));
+                            sqlStatement($query, array($status,$pid));
                         }
                     }
                 }
+
                 if ($_REQUEST['occupation'] > '') {
                     $query = "UPDATE patient_data set occupation=? where pid=?";
-                    sqlStatement($query,array($_REQUEST['occupation'],$pid));
+                    sqlStatement($query, array($_REQUEST['occupation'],$pid));
                 }
+
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
@@ -476,12 +508,15 @@ if ($_REQUEST["mode"] == "new")             {
                 usertext17=?,
                 usertext18=? where pid=?";
                 //echo $_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid;
-                $resFH = sqlStatement($query,array($_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid));
+                $resFH = sqlStatement($query, array($_REQUEST['relatives_cancer'],$_REQUEST['relatives_diabetes'],$_REQUEST['relatives_high_blood_pressure'],$_REQUEST['relatives_heart_problems'],$_REQUEST['relatives_stroke'],$_REQUEST['relatives_epilepsy'],$_REQUEST['relatives_mental_illness'],$_REQUEST['relatives_suicide'],$_REQUEST['usertext11'],$_REQUEST['usertext12'],$_REQUEST['usertext13'],$_REQUEST['usertext14'],$_REQUEST['usertext15'],$_REQUEST['usertext16'],$_REQUEST['usertext17'],$_REQUEST['usertext18'],$pid));
                 $PMSFH = build_PMSFH($pid);
                 send_json_values($PMSFH);
                 exit;
             } else {
-                if ($_REQUEST['form_title'] =='') return;
+                if ($_REQUEST['form_title'] =='') {
+                    return;
+                }
+
                 $subtype ='';
                 if ($form_type =="POH") {
                     $form_type="medical_problem";
@@ -501,13 +536,16 @@ if ($_REQUEST["mode"] == "new")             {
                         $subtype="eye";
                         //we always want a default begin date
                         //if it is empty, fill it with today
-                        if ($_REQUEST['form_begin'] =='')
-                        { $_REQUEST['form_begin'] = date("Y-m-d"); }
+                        if ($_REQUEST['form_begin'] =='') {
+                            $_REQUEST['form_begin'] = date("Y-m-d");
+                        }
                     }
+
                     if ($_REQUEST['form_begin'] =='') {
                         $_REQUEST['form_begin'] = $visit_date;
                     }
                 }
+
                 $i = 0;
                 $form_begin = fixDate($_REQUEST['form_begin'], '');
                 $form_end   = fixDate($_REQUEST['form_end'], '');
@@ -523,21 +561,31 @@ if ($_REQUEST["mode"] == "new")             {
                         $issue = $item['issue'];
                     }
                 }
+
                 if (!$issue) {
                     if ($subtype == '') {
                         $query = "SELECT id,pid from lists where title=? and type=? and pid=?";
-                        $issue2 = sqlQuery($query,array($_REQUEST['form_title'],$form_type,$pid));
+                        $issue2 = sqlQuery($query, array($_REQUEST['form_title'],$form_type,$pid));
                         $issue = $issue2['id'];
                     } else {
                         $query = "SELECT id,pid from lists where title=? and type=? and pid=? and subtype=?";
-                        $issue2 = sqlQuery($query,array($_REQUEST['form_title'],$form_type,$pid,$subtype));
+                        $issue2 = sqlQuery($query, array($_REQUEST['form_title'],$form_type,$pid,$subtype));
                         $issue = $issue2['id'];
                     }
                 }
+
                 $issue = 0 + $issue;
-                if ($_REQUEST['form_reinjury_id'] =="") $form_reinjury_id="0";
-                if ($_REQUEST['form_injury_grade'] =="") $form_injury_grade="0";
-                if ($_REQUEST['form_outcome'] =='') $_REQUEST['form_outcome'] ='0';
+                if ($_REQUEST['form_reinjury_id'] =="") {
+                    $form_reinjury_id="0";
+                }
+
+                if ($_REQUEST['form_injury_grade'] =="") {
+                    $form_injury_grade="0";
+                }
+
+                if ($_REQUEST['form_outcome'] =='') {
+                    $_REQUEST['form_outcome'] ='0';
+                }
 
                 if ($issue != '0') { //if this issue already exists we are updating it...
                     $query = "UPDATE lists SET " .
@@ -567,7 +615,7 @@ if ($_REQUEST["mode"] == "new")             {
                         sqlStatement('UPDATE prescriptions SET '
                         . 'medication = 0 where patient_id = ? '
                         . " and upper(trim(drug)) = ? "
-                        . ' and medication = 1', array($pid,strtoupper($_REQUEST['form_title'])) );
+                        . ' and medication = 1', array($pid,strtoupper($_REQUEST['form_title'])));
                     }
                 } else {
                     $query =  "INSERT INTO lists ( " .
@@ -580,12 +628,12 @@ if ($_REQUEST["mode"] == "new")             {
                     QuotedOrNull($form_begin).", ".QuotedOrNull($form_end).", ".QuotedOrNull($form_return). ", "  .
                     "?,?,?,?,?,".
                     "?,?,?,?,?)";
-                    $issue = sqlInsert($query,array($pid,$form_type,$_REQUEST['form_title'],$_REQUEST['form_comments'],
+                    $issue = sqlInsert($query, array($pid,$form_type,$_REQUEST['form_title'],$_REQUEST['form_comments'],
                       $_REQUEST['form_diagnosis'],$_REQUEST['form_occur'],$_REQUEST['form_clasification'],$_REQUEST['form_referredby'],$_SESSION['authUser'],
                       $_SESSION['authProvider'],QuotedOrNull($_REQUEST['form_outcome']),$_REQUEST['form_destination'],$_REQUEST['form_reaction'],$subtype));
 
                     // For record/reporting purposes, place entry in lists_touch table.
-                    setListTouch($pid,$form_type);
+                    setListTouch($pid, $form_type);
 
                     // If requested, link the issue to a specified encounter.
                     // we always link them, automatically.
@@ -595,32 +643,34 @@ if ($_REQUEST["mode"] == "new")             {
                         ") VALUES ( ?,?,? )";
                         sqlStatement($query, array($pid,$issue,$encounter));
                     }
-
                 }
+
                 $irow = '';
                 //if it is a medication do we need to do something with dosage fields?
                 //leave all in title field form now.
             }
+
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
         }
     }
+
     if ($_REQUEST['action'] =='code_PMSFH') {
         $query = "UPDATE lists SET diagnosis = ? WHERE id = ?";
-        sqlStatement($query,array($_POST['code'],$_POST['issue']));
+        sqlStatement($query, array($_POST['code'],$_POST['issue']));
         exit;
     }
 
-    if ($_REQUEST['action'] == 'code_visit'){
-        $CODING = json_decode($_REQUEST['parameter'],true);
+    if ($_REQUEST['action'] == 'code_visit') {
+        $CODING = json_decode($_REQUEST['parameter'], true);
         $query  = "delete from billing where encounter =?";
-        sqlStatement($query,array($encounter));
-        foreach ($CODING as $item) //need toremove duplicate codes
-        {
+        sqlStatement($query, array($encounter));
+        foreach ($CODING as $item) { //need toremove duplicate codes
             if ($dups[$item["code"]]=='1') {
                 continue;
             }
+
             $dups[$item["code"]] = "1";
             $sql = "SELECT codes.*, prices.pr_price FROM codes " .
               "LEFT OUTER JOIN patient_data ON patient_data.pid = '$pid' " .
@@ -629,18 +679,24 @@ if ($_REQUEST["mode"] == "new")             {
               "prices.pr_level = patient_data.pricelevel " .
               "WHERE code =?" .
               " LIMIT 1";
-            $result = sqlStatement($sql,array($item['code']));
+            $result = sqlStatement($sql, array($item['code']));
             while ($res = sqlFetchArray($result)) {
                 $item["codedesc"] = $res["code_text"];// eg. = "NP EYE intermediate exam"
-                if (!$item["modifier"]) $modifier = $res["modifier"];
+                if (!$item["modifier"]) {
+                    $modifier = $res["modifier"];
+                }
+
                 $item["units"] = $res["units"];
                 $item["fee"] = $res["pr_price"];
             }
-            addBilling($encounter,$item["codetype"],$item["code"],$item["codedesc"],$pid,'1',$providerID,$item["modifier"], $item["units"], $item["fee"],$ndc_info, $justify, $billed, '');
+
+            addBilling($encounter, $item["codetype"], $item["code"], $item["codedesc"], $pid, '1', $providerID, $item["modifier"], $item["units"], $item["fee"], $ndc_info, $justify, $billed, '');
         }
+
         echo 'ok';
         exit;
     }
+
   /*** END CODE to DEAL WITH PMSFH/ISUUE_TYPES  ****/
 
   /* Let's save the encounter specific values.
@@ -656,11 +712,13 @@ if ($_REQUEST["mode"] == "new")             {
         return 'Could not run query: No columns found in your table!  ' . mysql_error();
         exit;
     }
+
     $fields = array();
     if (($_POST['IOPTIME'] == '00:00:00')||(!$_POST['IOPTIME'])) {
         $_POST['IOPTIME'] =  date('H:i:s');
     }
-    $_POST['IOPTIME'] = date('H:i:s',strtotime($_POST['IOPTIME']));
+
+    $_POST['IOPTIME'] = date('H:i:s', strtotime($_POST['IOPTIME']));
 
     if (sqlNumRows($result) > 0) {
         while ($row = sqlFetchArray($result)) {
@@ -675,46 +733,52 @@ if ($_REQUEST["mode"] == "new")             {
              $row['Field'] == 'LOCKEDBY' or
              $row['Field'] == 'activity' or
              $row['Field'] == 'PLAN' or
-             $row['Field'] == 'Resource')
-              continue;
-            if (isset($_POST[$row['Field']])) $fields[$row['Field']] = $_POST[$row['Field']];
+             $row['Field'] == 'Resource') {
+                continue;
+            }
+
+            if (isset($_POST[$row['Field']])) {
+                $fields[$row['Field']] = $_POST[$row['Field']];
+            }
         }
+
         // orders are checkboxes created from a user defined list in the PLAN area and stored as item1|item2|item3
         // if there are any, create the $field['PLAN'] value.
         // Remember --  If you uncheck a box, it won't be sent!
         // So delete all made today by this provider and reload with any Orders sent in this $_POST
         // in addition, we made a special table for orders, and when completed we can mark done?
         $query="select form_encounter.date as encounter_date from form_encounter where form_encounter.encounter =?";
-        $encounter_data =sqlQuery($query,array($encounter));
+        $encounter_data =sqlQuery($query, array($encounter));
         $dated = new DateTime($encounter_data['encounter_date']);
         $dated = $dated->format('Y-m-d');
         $visit_date = oeFormatShortDate($dated);
 
         $N = count($_POST['PLAN']);
         $sql_clear = "DELETE from form_eye_mag_orders where ORDER_PID =? and ORDER_PLACED_BYWHOM=? and ORDER_DATE_PLACED=? and ORDER_STATUS ='pending'";
-        sqlQuery($sql_clear,array($pid,$providerID,$visit_date));
+        sqlQuery($sql_clear, array($pid,$providerID,$visit_date));
         if ($N > '0') {
-            for($i=0; $i < $N; $i++)
-            {
+            for ($i=0; $i < $N; $i++) {
                 $fields['PLAN'] .= $_POST['PLAN'][$i] . "|"; //this makes an entry for form_eyemag: PLAN
                 $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?)";
-                $okthen = sqlQuery($ORDERS_sql,array($pid,$_POST['PLAN'][$i],'pending',$visit_date,$providerID));
+                $okthen = sqlQuery($ORDERS_sql, array($pid,$_POST['PLAN'][$i],'pending',$visit_date,$providerID));
             }
+
             $fields['PLAN'] = mb_substr($fields['PLAN'], 0, -1); //get rid of trailing "|"
         }
+
         if ($_REQUEST['PLAN2']) {
             $fields['PLAN'] .= $_REQUEST['PLAN2'];
             //there is something in the "freeform" plan textarea...
             $ORDERS_sql = "REPLACE INTO form_eye_mag_orders (ORDER_PID,ORDER_DETAILS,ORDER_STATUS,ORDER_PRIORITY,ORDER_DATE_PLACED,ORDER_PLACED_BYWHOM) VALUES (?,?,?,?,?,?)";
-            $okthen = sqlQuery($ORDERS_sql,array($pid,$_POST['PLAN'][$i],'pending',"PLAN2:$PLAN2",$visit_date,$providerID));
+            $okthen = sqlQuery($ORDERS_sql, array($pid,$_POST['PLAN'][$i],'pending',"PLAN2:$PLAN2",$visit_date,$providerID));
         }
 
         $M = count($_POST['TEST']);
         if ($M > '0') {
-            for($i=0; $i < $M; $i++)
-            {
+            for ($i=0; $i < $M; $i++) {
                 $fields['Resource'] .= $_POST['TEST'][$i] . "|"; //this makes an entry for form_eyemag: Resource
             }
+
             $fields['Resource'] = mb_substr($fields['Resource'], 0, -1); //get rid of trailing "|"
         }
 
@@ -722,29 +786,97 @@ if ($_REQUEST["mode"] == "new")             {
       * If NOT checked on the form, they are sent via POST and thus are NOT overridden in the DB,
       *  so DB won't change unless we define them into the $fields array as "0"...
       */
-        if (!$_POST['alert']) $fields['alert'] = '0';
-        if (!$_POST['oriented']) $fields['oriented'] = '0';
-        if (!$_POST['confused']) $fields['confused'] = '0';
-        if (!$_POST['PUPIL_NORMAL']) $fields['PUPIL_NORMAL'] = '0';
-        if (!$_POST['MOTILITYNORMAL']) $fields['MOTILITYNORMAL'] = '0';
-        if (!$_POST['ACT']) $fields['ACT'] = 'off';
-        if (!$_POST['DIL_RISKS']) $fields['DIL_RISKS'] = '0';
-        if (!$_POST['ATROPINE']) $fields['ATROPINE'] = '0';
-        if (!$_POST['CYCLOGYL']) $fields['CYCLOGYL'] = '0';
-        if (!$_POST['CYCLOMYDRIL']) $fields['CYCLOMYDRIL'] = '0';
-        if (!$_POST['NEO25']) $fields['NEO25'] = '0';
-        if (!$_POST['TROPICAMIDE']) $fields['TROPICAMIDE'] = '0';
-        if (!$_POST['BALANCED']) $fields['BALANCED'] = '0';
-        if (!$_POST['ODVF1']) $fields['ODVF1'] = '0';
-        if (!$_POST['ODVF2']) $fields['ODVF2'] = '0';
-        if (!$_POST['ODVF3']) $fields['ODVF3'] = '0';
-        if (!$_POST['ODVF4']) $fields['ODVF4'] = '0';
-        if (!$_POST['OSVF1']) $fields['OSVF1'] = '0';
-        if (!$_POST['OSVF2']) $fields['OSVF2'] = '0';
-        if (!$_POST['OSVF3']) $fields['OSVF3'] = '0';
-        if (!$_POST['OSVF4']) $fields['OSVF4'] = '0';
-        if (!$_POST['TEST']) $fields['Resource'] = '';
-        if (!$fields['PLAN']) $fields['PLAN'] = '0';
+        if (!$_POST['alert']) {
+            $fields['alert'] = '0';
+        }
+
+        if (!$_POST['oriented']) {
+            $fields['oriented'] = '0';
+        }
+
+        if (!$_POST['confused']) {
+            $fields['confused'] = '0';
+        }
+
+        if (!$_POST['PUPIL_NORMAL']) {
+            $fields['PUPIL_NORMAL'] = '0';
+        }
+
+        if (!$_POST['MOTILITYNORMAL']) {
+            $fields['MOTILITYNORMAL'] = '0';
+        }
+
+        if (!$_POST['ACT']) {
+            $fields['ACT'] = 'off';
+        }
+
+        if (!$_POST['DIL_RISKS']) {
+            $fields['DIL_RISKS'] = '0';
+        }
+
+        if (!$_POST['ATROPINE']) {
+            $fields['ATROPINE'] = '0';
+        }
+
+        if (!$_POST['CYCLOGYL']) {
+            $fields['CYCLOGYL'] = '0';
+        }
+
+        if (!$_POST['CYCLOMYDRIL']) {
+            $fields['CYCLOMYDRIL'] = '0';
+        }
+
+        if (!$_POST['NEO25']) {
+            $fields['NEO25'] = '0';
+        }
+
+        if (!$_POST['TROPICAMIDE']) {
+            $fields['TROPICAMIDE'] = '0';
+        }
+
+        if (!$_POST['BALANCED']) {
+            $fields['BALANCED'] = '0';
+        }
+
+        if (!$_POST['ODVF1']) {
+            $fields['ODVF1'] = '0';
+        }
+
+        if (!$_POST['ODVF2']) {
+            $fields['ODVF2'] = '0';
+        }
+
+        if (!$_POST['ODVF3']) {
+            $fields['ODVF3'] = '0';
+        }
+
+        if (!$_POST['ODVF4']) {
+            $fields['ODVF4'] = '0';
+        }
+
+        if (!$_POST['OSVF1']) {
+            $fields['OSVF1'] = '0';
+        }
+
+        if (!$_POST['OSVF2']) {
+            $fields['OSVF2'] = '0';
+        }
+
+        if (!$_POST['OSVF3']) {
+            $fields['OSVF3'] = '0';
+        }
+
+        if (!$_POST['OSVF4']) {
+            $fields['OSVF4'] = '0';
+        }
+
+        if (!$_POST['TEST']) {
+            $fields['Resource'] = '';
+        }
+
+        if (!$fields['PLAN']) {
+            $fields['PLAN'] = '0';
+        }
 
         $success = formUpdate($table_name, $fields, $form_id, $_SESSION['userauthorized']);
 
@@ -760,8 +892,8 @@ if ($_REQUEST["mode"] == "new")             {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_1 = implode("|",$_POST['LENS_TREATMENTS_1']);
-            sqlQuery($query,array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_1'],$_POST['ODCYL_1'],$_POST['ODAXIS_1'],
+            $LENS_TREATMENTS_1 = implode("|", $_POST['LENS_TREATMENTS_1']);
+            sqlQuery($query, array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_1'],$_POST['ODCYL_1'],$_POST['ODAXIS_1'],
             $_POST['ODVA_1'],$_POST['ODADD_1'],$_POST['ODNEARVA_1'],$_POST['OSSPH_1'],$_POST['OSCYL_1'],$_POST['OSAXIS_1'],
             $_POST['OSVA_1'],$_POST['OSADD_1'],$_POST['OSNEARVA_1'],$_POST['ODMIDADD_1'],$_POST['OSMIDADD_1'],
             0+$_POST['RX_TYPE_1'],$_POST['COMMENTS_1'],
@@ -772,8 +904,9 @@ if ($_REQUEST["mode"] == "new")             {
             $rx_number++;
         } else {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query,array($encounter,$pid,$form_id,'1'));
+            sqlQuery($query, array($encounter,$pid,$form_id,'1'));
         }
+
         if ($_POST['W_2']=='1') {
             //store W_2
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -785,8 +918,8 @@ if ($_REQUEST["mode"] == "new")             {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_2 = implode("|",$_POST['LENS_TREATMENTS_2']);
-            sqlQuery($query,array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_2'],$_POST['ODCYL_2'],$_POST['ODAXIS_2'],
+            $LENS_TREATMENTS_2 = implode("|", $_POST['LENS_TREATMENTS_2']);
+            sqlQuery($query, array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_2'],$_POST['ODCYL_2'],$_POST['ODAXIS_2'],
             $_POST['ODVA_2'],$_POST['ODADD_2'],$_POST['ODNEARVA_2'],$_POST['OSSPH_2'],$_POST['OSCYL_2'],$_POST['OSAXIS_2'],
             $_POST['OSVA_2'],$_POST['OSADD_2'],$_POST['OSNEARVA_2'],$_POST['ODMIDADD_2'],$_POST['OSMIDADD_2'],
             0+$_POST['RX_TYPE_2'],$_POST['COMMENTS_2'],
@@ -797,8 +930,9 @@ if ($_REQUEST["mode"] == "new")             {
             $rx_number++;
         } else {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query,array($encounter,$pid,$form_id,'2'));
+            sqlQuery($query, array($encounter,$pid,$form_id,'2'));
         }
+
         if ($_POST['W_3']=='1') {
           //store W_3
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -810,8 +944,8 @@ if ($_REQUEST["mode"] == "new")             {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_3 = implode("|",$_POST['LENS_TREATMENTS_3']);
-            sqlQuery($query,array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_3'],$_POST['ODCYL_3'],$_POST['ODAXIS_3'],
+            $LENS_TREATMENTS_3 = implode("|", $_POST['LENS_TREATMENTS_3']);
+            sqlQuery($query, array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_3'],$_POST['ODCYL_3'],$_POST['ODAXIS_3'],
             $_POST['ODVA_3'],$_POST['ODADD_3'],$_POST['ODNEARVA_3'],$_POST['OSSPH_3'],$_POST['OSCYL_3'],$_POST['OSAXIS_3'],
             $_POST['OSVA_3'],$_POST['OSADD_3'],$_POST['OSNEARVA_3'],$_POST['ODMIDADD_3'],$_POST['OSMIDADD_3'],
             0+$_POST['RX_TYPE_3'],$_POST['COMMENTS_3'],
@@ -822,8 +956,9 @@ if ($_REQUEST["mode"] == "new")             {
              $rx_number++;
         } else {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query,array($encounter,$pid,$form_id,'3'));
+            sqlQuery($query, array($encounter,$pid,$form_id,'3'));
         }
+
         if ($_POST['W_4']=='1') {
            //store W_4
             $query = "REPLACE INTO `form_eye_mag_wearing` (`ENCOUNTER` ,`FORM_ID` ,`PID` ,`RX_NUMBER` ,`ODSPH` ,`ODCYL` ,`ODAXIS` ,
@@ -835,8 +970,8 @@ if ($_REQUEST["mode"] == "new")             {
         `ODMPDD`,`ODMPDN`,`OSMPDD`,`OSMPDN`,`BPDD`,`BPDN`,`LENS_MATERIAL`,
         `LENS_TREATMENTS`
         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $LENS_TREATMENTS_4 = implode("|",$_POST['LENS_TREATMENTS_4']);
-            sqlQuery($query,array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_4'],$_POST['ODCYL_4'],$_POST['ODAXIS_4'],
+            $LENS_TREATMENTS_4 = implode("|", $_POST['LENS_TREATMENTS_4']);
+            sqlQuery($query, array($encounter,$form_id,$pid,$rx_number,$_POST['ODSPH_4'],$_POST['ODCYL_4'],$_POST['ODAXIS_4'],
             $_POST['ODVA_4'],$_POST['ODADD_4'],$_POST['ODNEARVA_4'],$_POST['OSSPH_4'],$_POST['OSCYL_4'],$_POST['OSAXIS_4'],
             $_POST['OSVA_4'],$_POST['OSADD_4'],$_POST['OSNEARVA_4'],$_POST['ODMIDADD_4'],$_POST['OSMIDADD_4'],
             0+$_POST['RX_TYPE_4'],$_POST['COMMENTS_4'],
@@ -847,14 +982,16 @@ if ($_REQUEST["mode"] == "new")             {
              $rx_number++;
         } else {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query,array($encounter,$pid,$form_id,'4'));
+            sqlQuery($query, array($encounter,$pid,$form_id,'4'));
         }
+
         for ($i=$rx_number; $i < 5; $i++) {
             $query = "DELETE FROM form_eye_mag_wearing where ENCOUNTER=? and PID=? and FORM_ID=? and RX_NUMBER=?";
-            sqlQuery($query,array($encounter,$pid,$form_id,$i));
+            sqlQuery($query, array($encounter,$pid,$form_id,$i));
         }
+
         //now return the obj
-        $send['IMPPLAN_items'] = build_IMPPLAN_items($pid,$form_id);
+        $send['IMPPLAN_items'] = build_IMPPLAN_items($pid, $form_id);
         $send['Clinical'] = start_your_engines($_REQUEST);
         $send['PMH_panel'] = display_PMSFH('2');
         $send['right_panel'] = show_PMSFH_panel($PMSFH);
@@ -862,10 +999,9 @@ if ($_REQUEST["mode"] == "new")             {
         echo json_encode($send);
         exit;
     }
-} elseif ($_REQUEST["mode"] == "retrieve")  {
-
+} elseif ($_REQUEST["mode"] == "retrieve") {
     if ($_REQUEST['PRIORS_query']) {
-        echo display_PRIOR_section($_REQUEST['zone'],$_REQUEST['orig_id'],$_REQUEST['id_to_show'],$pid);
+        echo display_PRIOR_section($_REQUEST['zone'], $_REQUEST['orig_id'], $_REQUEST['id_to_show'], $pid);
         exit;
     }
 }
@@ -875,7 +1011,9 @@ if ($_REQUEST["mode"] == "new")             {
  */
 
 if ($_REQUEST['canvas']) {
-    if (!$pid||!$encounter||!$zone||!$_POST["imgBase64"]) exit;
+    if (!$pid||!$encounter||!$zone||!$_POST["imgBase64"]) {
+        exit;
+    }
 
     $side = "OU";
     $base_name = $pid."_".$encounter."_".$side."_".$zone."_VIEW";
@@ -906,20 +1044,24 @@ if ($_REQUEST['canvas']) {
     sqlQuery($sql);
     $sql ="DELETE from documents where documents.url like '%".$filename."'";
     sqlQuery($sql);
-    $return = addNewDocument($filename,$type,$_POST["imgBase64"],0,$size,$_SESSION['authUserID'],$pid,$category_id);
+    $return = addNewDocument($filename, $type, $_POST["imgBase64"], 0, $size, $_SESSION['authUserID'], $pid, $category_id);
     $doc_id = $return['doc_id'];
     $sql = "UPDATE documents set encounter_id=? where id=?"; //link it to this encounter
-    sqlQuery($sql,array($encounter,$doc_id));
+    sqlQuery($sql, array($encounter,$doc_id));
     exit;
 }
 
 if ($_REQUEST['copy']) {
-    copy_forward($_REQUEST['zone'],$_REQUEST['copy_from'],$_SESSION['ID'],$pid);
+    copy_forward($_REQUEST['zone'], $_REQUEST['copy_from'], $_SESSION['ID'], $pid);
     return;
 }
+
 function QuotedOrNull($fld)
 {
-    if ($fld) return "'".add_escape_custom($fld)."'";
+    if ($fld) {
+        return "'".add_escape_custom($fld)."'";
+    }
+
     return "NULL";
 }
 function debug($local_var)
@@ -940,13 +1082,21 @@ function row_delete($table, $where)
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') continue;
-            if ($logstring) $logstring .= " ";
+            if (! $value || $value == '0000-00-00 00:00:00') {
+                continue;
+            }
+
+            if ($logstring) {
+                $logstring .= " ";
+            }
+
             $logstring .= $key . "='" . addslashes($value) . "'";
         }
+
         newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$table: $logstring");
         ++$count;
     }
+
     if ($count) {
         $query = "DELETE FROM $table WHERE $where";
         sqlStatement($query);
@@ -960,9 +1110,13 @@ function issueTypeIndex($tstr)
     global $ISSUE_TYPES;
     $i = 0;
     foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) break;
+        if ($key == $tstr) {
+            break;
+        }
+
         ++$i;
     }
+
     return $i;
 }
 
@@ -1025,22 +1179,22 @@ function addBilling2(
     $code,
     $code_text,
     $pid,
-    $authorized="0",
+    $authorized = "0",
     $provider,
-    $modifier="",
-    $units="",
-    $fee="0.00",
-    $ndc_info='',
-    $justify='',
-    $billed=0,
-    $notecodes=''
+    $modifier = "",
+    $units = "",
+    $fee = "0.00",
+    $ndc_info = '',
+    $justify = '',
+    $billed = 0,
+    $notecodes = ''
 ) {
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, " .
     "pid, authorized, user, groupname, activity, billed, provider_id, " .
     "modifier, units, fee, ndc_info, justify, notecodes) values (" .
     "NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)";
-    return sqlInsert($sql,array( $encounter_id,$code_type,$code,$code_text,$pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'], $billed,$provider,$modifier,$units,$fee,$ndc_info,$justify,$notecodes));
+    return sqlInsert($sql, array( $encounter_id,$code_type,$code,$code_text,$pid,$authorized,$_SESSION['authId'],$_SESSION['authProvider'], $billed,$provider,$modifier,$units,$fee,$ndc_info,$justify,$notecodes));
 }
 exit;
 ?>

@@ -1,7 +1,8 @@
 <?php
 
 
-class C_X12Partner extends Controller {
+class C_X12Partner extends Controller
+{
 
     var $template_mod;
     var $providers;
@@ -15,7 +16,7 @@ class C_X12Partner extends Controller {
         $this->assign("FORM_ACTION", $GLOBALS['webroot']."/controller.php?" . $_SERVER['QUERY_STRING']);
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&");
         $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("WEB_ROOT", $GLOBALS['webroot'] );
+        $this->assign("WEB_ROOT", $GLOBALS['webroot']);
     }
 
     function default_action()
@@ -23,17 +24,16 @@ class C_X12Partner extends Controller {
         return $this->list_action();
     }
 
-    function edit_action($id = "",$x_obj = null)
+    function edit_action($id = "", $x_obj = null)
     {
         if ($x_obj != null && get_class($x_obj) == "x12partner") {
             $this->x12_partners[0] = $x_obj;
-        }
-        elseif (is_numeric($id)) {
+        } elseif (is_numeric($id)) {
             $this->x12_partners[0] = new X12Partner($id);
-        }
-        else {
+        } else {
             $this->x12_partners[0] = new X12Partner();
         }
+
         $this->assign("partner", $this->x12_partners[0]);
         return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_edit.html");
     }
@@ -55,13 +55,14 @@ class C_X12Partner extends Controller {
 
     function edit_action_process()
     {
-        if ($_POST['process'] != "true")
+        if ($_POST['process'] != "true") {
             return;
+        }
+
         //print_r($_POST);
         if (is_numeric($_POST['id'])) {
             $this->x12_partner[0] = new X12Partner($_POST['id']);
-        }
-        else {
+        } else {
             $this->x12_partner[0] = new X12Partner();
         }
 
@@ -77,7 +78,4 @@ class C_X12Partner extends Controller {
         header('Location:'.$GLOBALS['webroot']."/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
         //return $this->edit_action(null,$this->x12_partner[0]);
     }
-
 }
-
-?>

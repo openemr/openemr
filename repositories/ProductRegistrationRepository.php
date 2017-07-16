@@ -25,7 +25,8 @@ namespace repositories;
 use entities\ProductRegistration;
 use Doctrine\ORM\EntityRepository;
 
-class ProductRegistrationRepository extends EntityRepository {
+class ProductRegistrationRepository extends EntityRepository
+{
     /**
      * Finds the sole product registration entry in the database.
      *

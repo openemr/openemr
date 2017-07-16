@@ -63,7 +63,7 @@ $DEBUG = false;
 
 
 
-$con = mysqli_connect($host,$user,$pass,$database) or die("Some error occurred during connection. must enter Host, Username, password, and database in mysqli_connect() " . mysqli_error($con));
+$con = mysqli_connect($host, $user, $pass, $database) or die("Some error occurred during connection. must enter Host, Username, password, and database in mysqli_connect() " . mysqli_error($con));
 echo("\n Successfully connected to database....... Waiting...... \n ");
 
 
@@ -141,8 +141,9 @@ function removeColumn($con, $table, $column, $value = '')
 {
     $removeSS = ("Update $table SET $column='$value' where 1 ");
     $query = mysqli_query($con, $removeSS) or print( "\n QUERY '$removeSS' DID NOT WORK.  PLEASE VERIFY THE TABLE AND COLUMN EXISTS \n");
-    if($query) print("\n Query '$removeSS' completed! \n");
-
+    if ($query) {
+        print("\n Query '$removeSS' completed! \n");
+    }
 }
 
 /* This function replaces the first and last name of the patient with a auto generated name
@@ -152,7 +153,7 @@ function removeColumn($con, $table, $column, $value = '')
     INPUT: connection, last name array, firstname arrays, debug
     OUTPUT: Number of patients DEID.
 */
-function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false)
+function deIdPatientData($con, $lnames, $male, $female, $DEBUG = false)
 {
 
     removeColumn($con, "patient_data", "ss", "0000-00-00");
@@ -164,34 +165,36 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false)
 
     $removeLname = ("Select lname, pid, id, ss, street, sex from patient_data ");
     $query = mysqli_query($con, $removeLname);
-    while($result = mysqli_fetch_array($query))
-    {
-        if ($DEBUG===true) {if($i ===10)break;}
+    while ($result = mysqli_fetch_array($query)) {
+        if ($DEBUG===true) {
+            if ($i ===10) {
+                break;
+            }
+        }
+
         $i++;
         $string = '';
         //Give the user a new last name in patient_data.lname
-        $last_name = $lnames[rand(0,800)];
+        $last_name = $lnames[rand(0, 800)];
 
         //Give the user a new first name
-        $first_name_male = $male[rand(0,32)];
-        $first_name_female = $female[rand(0,74)];
+        $first_name_male = $male[rand(0, 32)];
+        $first_name_female = $female[rand(0, 74)];
 
         //Change the street address patient_Data.street
-        $street = rand(1,9999)." ".rand(0,200)." Avenue ";
+        $street = rand(1, 9999)." ".rand(0, 200)." Avenue ";
 
         //remove the drivers license
-        $drivers_license = rand(2,999).rand(0,999).rand(0,99);
+        $drivers_license = rand(2, 999).rand(0, 999).rand(0, 99);
 
         //change the patient_data.phone_home
-        $phone_home = rand(200,999)."-".rand(200,999)."-".rand(1000,9999);
+        $phone_home = rand(200, 999)."-".rand(200, 999)."-".rand(1000, 9999);
 
         $string = "update patient_data set lname = '$last_name', ";
 
-        if($result['sex'] === 'Male'){
-
+        if ($result['sex'] === 'Male') {
             $string .= " fname = '$first_name_male', ";
-        }
-        else{
+        } else {
             $string .= " fname = '$first_name_female', ";
         }
 
@@ -216,13 +219,9 @@ function deIdPatientData($con, $lnames, $male, $female, $DEBUG=false)
         $string = '';
         deIdInsuranceDataTable($con, $result['pid']);
         //now update insurace
-
-
-
     }
 
     return $i;
-
 }
 
 
@@ -243,16 +242,14 @@ function deIdInsuranceDataTable($con, $pid)
 
     //for each insurance type:
     //see if a insured name exists.  if it does, update the table with the new information
-    foreach($type as $ty){
-
+    foreach ($type as $ty) {
         //see if a first name exists, if it does then replace it
         $query = "select subscriber_lname from insurance_data where pid = '{$pid}' and type = '{$ty}' ";
         $result = mysqli_query($con, $query);
         $result = mysqli_fetch_array($result);
-        if($result['subscriber_lname'] === '' || $result === null){
+        if ($result['subscriber_lname'] === '' || $result === null) {
             continue;
-        }else{
-
+        } else {
             $string = "update insurance_data set 
               subscriber_lname = '{$demographic_array['lname']}',
               subscriber_fname = '{$demographic_array['fname']}',
@@ -271,8 +268,6 @@ function deIdInsuranceDataTable($con, $pid)
             $update = mysqli_query($con, $string) or print("update did not work");
         }
     }
-
-
 }
 
 
@@ -291,8 +286,7 @@ function deIdFacilityTable($con)
 
     $query = "select * from facility";
     $result = mysqli_query($con, $query);
-    while($row = mysqli_fetch_array($result)){
-
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update facility set 
           
               `name`    = 'Facility_{$row['id']}',
@@ -302,13 +296,9 @@ function deIdFacilityTable($con)
 
         mysqli_query($con, $string) or print "Error altering facility table \n";
         $string = '';
-
-
-
     }
 
     echo "Successfully deid'ed Facility Table";
-
 }
 
 
@@ -342,30 +332,23 @@ function deIdUsersTable($con)
 
 
 
-    while($row = mysqli_fetch_array($result)){
+    while ($row = mysqli_fetch_array($result)) {
         $string = "update users set ";
 
-        if(strpos($row['newcrop_user_role'], 'doctor') !==false){
-
+        if (strpos($row['newcrop_user_role'], 'doctor') !==false) {
             $string .= "fname = 'Doctor.{$row['id']}', 
                        lname = 'Doctor.{$row['id']}' ";
-
-
-        }else if(strpos($row['newcrop_user_role'], 'nurse') !==false){
-
+        } else if (strpos($row['newcrop_user_role'], 'nurse') !==false) {
             $string .= "fname = 'Nurse.{$row['id']}', 
                        lname = 'Nurse.{$row['id']}' ";
-
-        }else{
-
+        } else {
             $string .= "fname = 'noNewCrop', 
                        lname = 'Nurse{$row['id']}'";
-
         }
+
         $string .= " where `id` = {$row['id']} ";
         mysqli_query($con, $string) or print "Error altering users table \n";
         //$string = '';
-
     }
 
     echo "successfuly altered user table \n ";
@@ -388,7 +371,6 @@ function deIdForms($con)
     removeColumn($con, "pnotes", "body", "DATETIME (FROMUSER to USER) Note about Patient posted here");
 
     echo "successfuly altered user forms table \n ";
-
 }
 
 // truncates log tables to remove all hidden information
@@ -397,7 +379,6 @@ function truncateLogs($con)
 
     $query = mysqli_query($con, "TRUNCATE TABLE log") or print("\n\n log table not truncated \n\n");
     $query = mysqli_query($con, "TRUNCATE TABLE documents") or print("\n\n documents table not truncated \n\n");
-
 }
 
 
@@ -416,6 +397,3 @@ $success = truncateLogs($con);
 // Close the connection
 mysqli_close($con);
 echo " \n successfully updated $patients patients \n\n";
-
-
-?>

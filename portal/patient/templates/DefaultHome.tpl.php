@@ -21,10 +21,10 @@
  * @link http://www.open-emr.org
  */
 
-$this->assign( 'title', xlt('Patient Portal') . " | " . xlt('Home'));
-$this->assign( 'nav', 'home' );
+$this->assign('title', xlt('Patient Portal') . " | " . xlt('Home'));
+$this->assign('nav', 'home');
 
-$this->display( '_Header.tpl.php' );
+$this->display('_Header.tpl.php');
 ?>
 <div class="modal fade" id="formdialog" tabindex="-1" role="dialog"	aria-hidden="true">
     <div class="modal-dialog modal-lg" style="background:white">
@@ -81,5 +81,5 @@ $this->display( '_Header.tpl.php' );
 </div>
 <!-- /container -->
 <?php
-$this->display( '_Footer.tpl.php' );
+$this->display('_Footer.tpl.php');
 ?>

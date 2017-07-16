@@ -31,7 +31,6 @@ class Ccr implements InputFilterAwareInterface
 
     public function exchangeArray($data)
     {
-        
     }
     
     public function getArrayCopy()
@@ -51,6 +50,7 @@ class Ccr implements InputFilterAwareInterface
             $factory     = new InputFactory();
             $this->inputFilter = $inputFilter;
         }
+
         return $this->inputFilter;
     }
 }

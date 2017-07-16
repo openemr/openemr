@@ -41,7 +41,7 @@ $obj = formFetch("form_ped_fever", $_GET["id"]);
 <!-- Form goes here -->
 
 <?php
-    include ('form.php');
+    include('form.php');
 ?>
 
 <!-- Form ends here -->

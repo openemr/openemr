@@ -27,7 +27,10 @@ function Add($tag, $text)
     $text = trim(str_replace(array("\r", "\n", "\t"), " ", $text));
     if ($text) {
         for ($i = 0; $i < $indent;
-        ++$i) $out .= "\t";
+        ++$i) {
+            $out .= "\t";
+        }
+
         $out .= "<$tag>$text</$tag>\n";
     }
 }
@@ -36,7 +39,10 @@ function OpenTag($tag)
 {
     global $out, $indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     ++$indent;
     $out .= "<$tag>\n";
 }
@@ -46,7 +52,10 @@ function CloseTag($tag)
     global $out, $indent;
     --$indent;
     for ($i = 0; $i < $indent;
-    ++$i) $out .= "\t";
+    ++$i) {
+        $out .= "\t";
+    }
+
     $out .= "</$tag>\n";
 }
 
@@ -60,7 +69,10 @@ function Digits($field)
 function Sex($field)
 {
     $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") $sex = "U";
+    if ($sex != "M" && $sex != "F") {
+        $sex = "U";
+    }
+
     return $sex;
 }
 
@@ -75,39 +87,39 @@ function addInsurance($row, $seq)
 {
     if ($row["name$seq"]) {
         OpenTag("insurance");
-        Add("priority"            , $seq);
-        Add("group"               , $row["group$seq"]);
-        Add("policy"              , $row["policy$seq"]);
-        Add("provider"            , $row["provider$seq"]);
-        Add("name"                , $row["name$seq"]);
-        Add("street1"             , $row["street1$seq"]);
-        Add("street2"             , $row["street2$seq"]);
-        Add("city"                , $row["city$seq"]);
-        Add("state"               , $row["state$seq"]);
-        Add("zip"                 , $row["zip$seq"]);
-        Add("country"             , $row["country$seq"]);
-        Add("type"                , $row["instype$seq"]);
-        Add("copay"               , $row["copay$seq"]);
+        Add("priority", $seq);
+        Add("group", $row["group$seq"]);
+        Add("policy", $row["policy$seq"]);
+        Add("provider", $row["provider$seq"]);
+        Add("name", $row["name$seq"]);
+        Add("street1", $row["street1$seq"]);
+        Add("street2", $row["street2$seq"]);
+        Add("city", $row["city$seq"]);
+        Add("state", $row["state$seq"]);
+        Add("zip", $row["zip$seq"]);
+        Add("country", $row["country$seq"]);
+        Add("type", $row["instype$seq"]);
+        Add("copay", $row["copay$seq"]);
         OpenTag("subscriber");
-        Add("relationship"        , $row["relationship$seq"]);
-        Add("lname"               , $row["lname$seq"]);
-        Add("fname"               , $row["fname$seq"]);
-        Add("mname"               , $row["mname$seq"]);
-        Add("street"              , $row["sstreet$seq"]);
-        Add("city"                , $row["scity$seq"]);
-        Add("state"               , $row["sstate$seq"]);
-        Add("zip"                 , $row["szip$seq"]);
-        Add("country"             , $row["scountry$seq"]);
-        Add("dob"                 , $row["sdob$seq"]);
-        Add("ss"                  , $row["sss$seq"]);
-        Add("phone"               , $row["sphone$seq"]);
-        Add("employer"            , $row["semployer$seq"]);
-        Add("sex"                 , $row["ssex$seq"]);
-        Add("employer_street"     , $row["semployer_street$seq"]);
-        Add("employer_city"       , $row["semployer_city$seq"]);
-        Add("employer_state"      , $row["semployer_state$seq"]);
-        Add("employer_zip"        , $row["semployer_zip$seq"]);
-        Add("employer_country"    , $row["semployer_country$seq"]);
+        Add("relationship", $row["relationship$seq"]);
+        Add("lname", $row["lname$seq"]);
+        Add("fname", $row["fname$seq"]);
+        Add("mname", $row["mname$seq"]);
+        Add("street", $row["sstreet$seq"]);
+        Add("city", $row["scity$seq"]);
+        Add("state", $row["sstate$seq"]);
+        Add("zip", $row["szip$seq"]);
+        Add("country", $row["scountry$seq"]);
+        Add("dob", $row["sdob$seq"]);
+        Add("ss", $row["sss$seq"]);
+        Add("phone", $row["sphone$seq"]);
+        Add("employer", $row["semployer$seq"]);
+        Add("sex", $row["ssex$seq"]);
+        Add("employer_street", $row["semployer_street$seq"]);
+        Add("employer_city", $row["semployer_city$seq"]);
+        Add("employer_state", $row["semployer_state$seq"]);
+        Add("employer_zip", $row["semployer_zip$seq"]);
+        Add("employer_country", $row["semployer_country$seq"]);
         CloseTag("subscriber");
         CloseTag("insurance");
     }
@@ -120,6 +132,7 @@ foreach (array('primary','secondary','tertiary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
 }
+
  $query = "SELECT " .
   "p.*, " .
   "i1.policy_number AS policy1, i1.group_number AS group1, i1.provider as provider1, " .
@@ -183,45 +196,45 @@ foreach (array('primary','secondary','tertiary') as $value) {
 
  // Patient Section.
  //
- Add("pid"        , $pid);
- Add("pubpid"     , $row['pubpid']);
- Add("lname"      , $row['lname']);
- Add("fname"      , $row['fname']);
- Add("mname"      , $row['mname']);
- Add("title"      , $row['title']);
- Add("ss"         , Digits($row['ss']));
- Add("dob"        , LWDate($row['DOB']));
- Add("sex"        , Sex($row['sex']));
- Add("street"     , $row['street']);
- Add("city"       , $row['city']);
- Add("state"      , $row['state']);
- Add("zip"        , $row['postal_code']);
- Add("country"    , $row['country_code']);
- Add("phone_home"          , Digits($row['phone_home']));
- Add("phone_biz"           , Digits($row['phone_biz']));
- Add("phone_contact"       , Digits($row['phone_contact']));
- Add("phone_cell"          , Digits($row['phone_cell']));
- Add("occupation"          , $row['occupation']);
- Add("status"              , $row['status']);
+ Add("pid", $pid);
+ Add("pubpid", $row['pubpid']);
+ Add("lname", $row['lname']);
+ Add("fname", $row['fname']);
+ Add("mname", $row['mname']);
+ Add("title", $row['title']);
+ Add("ss", Digits($row['ss']));
+ Add("dob", LWDate($row['DOB']));
+ Add("sex", Sex($row['sex']));
+ Add("street", $row['street']);
+ Add("city", $row['city']);
+ Add("state", $row['state']);
+ Add("zip", $row['postal_code']);
+ Add("country", $row['country_code']);
+ Add("phone_home", Digits($row['phone_home']));
+ Add("phone_biz", Digits($row['phone_biz']));
+ Add("phone_contact", Digits($row['phone_contact']));
+ Add("phone_cell", Digits($row['phone_cell']));
+ Add("occupation", $row['occupation']);
+ Add("status", $row['status']);
  Add("contact_relationship", $row['contact_relationship']);
- Add("referrer"            , $row['referrer']);
- Add("referrerID"          , $row['referrerID']);
- Add("email"               , $row['email']);
- Add("language"            , $row['language']);
- Add("ethnoracial"         , $row['ethnoracial']);
- Add("interpreter"         , $row['interpretter']);
- Add("migrantseasonal"     , $row['migrantseasonal']);
- Add("family_size"         , $row['family_size']);
- Add("monthly_income"      , $row['monthly_income']);
- Add("homeless"            , $row['homeless']);
- Add("financial_review"    , LWDate(substr($row['financial_review'], 0, 10)));
- Add("genericname1"        , $row['genericname1']);
- Add("genericval1"         , $row['genericval1']);
- Add("genericname2"        , $row['genericname2']);
- Add("genericval2"         , $row['genericval2']);
- Add("billing_note"        , $row['billing_note']);
- Add("hipaa_mail"          , $row['hipaa_mail']);
- Add("hipaa_voice"         , $row['hipaa_voice']);
+ Add("referrer", $row['referrer']);
+ Add("referrerID", $row['referrerID']);
+ Add("email", $row['email']);
+ Add("language", $row['language']);
+ Add("ethnoracial", $row['ethnoracial']);
+ Add("interpreter", $row['interpretter']);
+ Add("migrantseasonal", $row['migrantseasonal']);
+ Add("family_size", $row['family_size']);
+ Add("monthly_income", $row['monthly_income']);
+ Add("homeless", $row['homeless']);
+ Add("financial_review", LWDate(substr($row['financial_review'], 0, 10)));
+ Add("genericname1", $row['genericname1']);
+ Add("genericval1", $row['genericval1']);
+ Add("genericname2", $row['genericname2']);
+ Add("genericval2", $row['genericval2']);
+ Add("billing_note", $row['billing_note']);
+ Add("hipaa_mail", $row['hipaa_mail']);
+ Add("hipaa_voice", $row['hipaa_voice']);
 
  // Insurance Sections.
  //
@@ -247,11 +260,11 @@ if ($row['providerID']) {
  //
 if ($rowed['id']) {
     OpenTag("employer");
-    Add("name"   , $rowed['name']);
-    Add("street" , $rowed['street']);
-    Add("zip"    , $rowed['postal_code']);
-    Add("city"   , $rowed['city']);
-    Add("state"  , $rowed['state']);
+    Add("name", $rowed['name']);
+    Add("street", $rowed['street']);
+    Add("zip", $rowed['postal_code']);
+    Add("city", $rowed['city']);
+    Add("state", $rowed['state']);
     Add("country", $rowed['country']);
     CloseTag("employer");
 }

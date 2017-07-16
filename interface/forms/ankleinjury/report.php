@@ -9,16 +9,18 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
     $data = formFetch("form_ankleinjury", $id);
     if ($data) {
         print "<table>\n<tr>\n";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
              $key == "authorized" || $key == "activity" || $key == "date" ||
              $value == "" || $value == "0000-00-00 00:00:00") {
                 continue;
             }
+
             if ($value == "on") {
                 $value = "yes";
             }
-            $key=ucwords(str_replace("_"," ",$key));
+
+            $key=ucwords(str_replace("_", " ", $key));
             $key = str_replace("Ankle ", "", $key);
             $key = str_replace("Injuary", "Injury", $key);
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value</span></td>\n";
@@ -28,7 +30,7 @@ function ankleinjury_report($pid, $encounter, $cols, $id)
                 print "</tr>\n<tr>\n";
             }
         }
+
         print "</tr>\n</table>\n";
     }
 }
-?> 

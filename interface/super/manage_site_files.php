@@ -13,7 +13,9 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'].'/acl.inc');
 /* for formData() */
 
-if (!acl_check('admin', 'super')) die(htmlspecialchars(xl('Not authorized')));
+if (!acl_check('admin', 'super')) {
+    die(htmlspecialchars(xl('Not authorized')));
+}
 
 // Prepare array of names of editable files, relative to the site directory.
 $my_files = array(
@@ -35,7 +37,10 @@ while ($lrow = sqlFetchArray($lres)) {
 
 $form_filename = strip_escape_custom($_REQUEST['form_filename']);
 // Sanity check to prevent evildoing.
-if (!in_array($form_filename, $my_files)) $form_filename = '';
+if (!in_array($form_filename, $my_files)) {
+    $form_filename = '';
+}
+
 $filepath = "$OE_SITE_DIR/$form_filename";
 
 $imagedir     = "$OE_SITE_DIR/images";
@@ -46,8 +51,11 @@ if (!empty($_POST['bn_save'])) {
         // Textareas, at least in Firefox, return a \r\n at the end of each line
         // even though only \n was originally there.  For consistency with
         // normal OpenEMR usage we translate those back.
-        file_put_contents($filepath, str_replace("\r\n", "\n",
-        $_POST['form_filedata']));
+        file_put_contents($filepath, str_replace(
+            "\r\n",
+            "\n",
+            $_POST['form_filedata']
+        ));
         $form_filename = '';
     }
 
@@ -57,16 +65,22 @@ if (!empty($_POST['bn_save'])) {
         if ($form_dest_filename == '') {
             $form_dest_filename = $_FILES['form_image']['name'];
         }
+
         $form_dest_filename = basename($form_dest_filename);
         if ($form_dest_filename == '') {
             die(htmlspecialchars(xl('Cannot find a destination filename')));
         }
+
         $imagepath = "$imagedir/$form_dest_filename";
         // If the site's image directory does not yet exist, create it.
         if (!is_dir($imagedir)) {
             mkdir($imagedir);
         }
-        if (is_file($imagepath)) unlink($imagepath);
+
+        if (is_file($imagepath)) {
+            unlink($imagepath);
+        }
+
         $tmp_name = $_FILES['form_image']['tmp_name'];
         if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
             die(htmlspecialchars(xl('Unable to create') . " '$imagepath'"));
@@ -80,18 +94,22 @@ if (!empty($_POST['bn_save'])) {
         if (substr($form_dest_filename, -4) != '.pdf') {
             die(xlt('Filename must end with ".pdf"'));
         }
+
         $educationpath = "$educationdir/$form_dest_filename";
         // If the site's education directory does not yet exist, create it.
         if (!is_dir($educationdir)) {
             mkdir($educationdir);
         }
-        if (is_file($educationpath)) unlink($educationpath);
+
+        if (is_file($educationpath)) {
+            unlink($educationpath);
+        }
+
         $tmp_name = $_FILES['form_education']['tmp_name'];
         if (!move_uploaded_file($tmp_name, $educationpath)) {
             die(text(xl('Unable to create') . " '$educationpath'"));
         }
     }
-
 }
 
 /**
@@ -99,19 +117,17 @@ if (!empty($_POST['bn_save'])) {
  * generating  thumbnail image to all images files from documents table
  */
 
-if(isset($_POST['generate_thumbnails'])) {
-
+if (isset($_POST['generate_thumbnails'])) {
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
 
     $thumbnail_msg = "<p style='color: green'>" . xlt('Generated thumbnail(s)') . " : " . text($results['sum_success']) . "</p>";
     $thumbnail_msg .= "<p style='color: red'>" . xlt('Failed to generate') . " : " .  text($results['sum_failed']) . "</p>";
-    foreach($results['failed'] as $key => $file){
+    foreach ($results['failed'] as $key => $file) {
         $num = $key +1;
         $thumbnail_msg .= "<p style='color: red; font-size: 11px'> " .text($num) . ". " . text($file) . "</p>";
     }
 } else {
-
     $count_not_generated = ThumbnailGenerator::count_not_generated();
 
     $thumbnail_msg = "<p>" .  xlt('Files with empty thumbnail') . ": " . text($count_not_generated) . " </p>";
@@ -125,8 +141,7 @@ if(isset($_POST['generate_thumbnails'])) {
  * Dependence - turn on global setting 'secure_upload'
  */
 
-if($GLOBALS['secure_upload']){
-
+if ($GLOBALS['secure_upload']) {
     $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
 
     // Get cURL resource
@@ -141,9 +156,9 @@ if($GLOBALS['secure_upload']){
    // Send the request & save response to $resp
     $resp = curl_exec($curl);
     $httpinfo = curl_getinfo($curl);
-    if($resp && $httpinfo['http_code'] == 200 && $httpinfo['content_type'] == 'application/json;charset=utf-8'){
+    if ($resp && $httpinfo['http_code'] == 200 && $httpinfo['content_type'] == 'application/json;charset=utf-8') {
         $all_mime_types = json_decode($resp, true);
-        foreach ($all_mime_types as $name => $value){
+        foreach ($all_mime_types as $name => $value) {
             $mime_types[] = $name;
         }
     } else {
@@ -159,15 +174,15 @@ if($GLOBALS['secure_upload']){
         );
         $mime_types = array_merge($mime_types, $mime_types_list);
     }
+
     curl_close($curl);
 
-    if(isset($_POST['submit_form'])){
-
+    if (isset($_POST['submit_form'])) {
         $new_white_list = empty($_POST['white_list']) ? array() : $_POST['white_list'];
 
         // truncate white list from list_options table
         sqlStatement("DELETE FROM `list_options` WHERE `list_id` = 'files_white_list'");
-        foreach ($new_white_list as $mimetype){
+        foreach ($new_white_list as $mimetype) {
             sqlStatement("INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `activity`)  VALUES ('files_white_list', ?, ?, 1)", array($mimetype, $mimetype));
         }
 
@@ -240,7 +255,10 @@ function msfFileChanged() {
 <?php
 foreach ($my_files as $filename) {
     echo "    <option value='" . htmlspecialchars($filename, ENT_QUOTES) . "'";
-    if ($filename == $form_filename) echo " selected";
+    if ($filename == $form_filename) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($filename) . "</option>\n";
 }
 ?>
@@ -269,13 +287,23 @@ foreach ($my_files as $filename) {
 <?php
   // Generate an <option> for each file already in the images directory.
   $dh = opendir($imagedir);
-  if (!$dh) die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
+if (!$dh) {
+    die(htmlspecialchars(xl('Cannot read directory') . " '$imagedir'"));
+}
+
   $imagesslist = array();
 while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') continue;
-    if ($sfname == 'CVS'            ) continue;
+    if (substr($sfname, 0, 1) == '.') {
+        continue;
+    }
+
+    if ($sfname == 'CVS') {
+        continue;
+    }
+
     $imageslist[$sfname] = $sfname;
 }
+
   closedir($dh);
   ksort($imageslist);
 foreach ($imageslist as $sfname) {
@@ -326,7 +354,7 @@ foreach ($imageslist as $sfname) {
     </table>
 </div>
 
-<?php if($GLOBALS['secure_upload']) { ?>
+<?php if ($GLOBALS['secure_upload']) { ?>
 
 <div id="file_type_whitelist">
     <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
@@ -339,7 +367,7 @@ foreach ($imageslist as $sfname) {
             <select multiple="multiple" id='black-list' class="form-control">
                 <?php
                 foreach ($mime_types as $type) {
-                    if(!in_array($type, $white_list)){
+                    if (!in_array($type, $white_list)) {
                         echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
                     }
                 }

@@ -45,4 +45,3 @@ function strength_conditioning_report($pid, $encounter, $cols, $id)
  }
  ****/
 }
-?>

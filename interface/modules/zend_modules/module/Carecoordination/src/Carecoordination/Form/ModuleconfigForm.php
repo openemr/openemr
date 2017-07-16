@@ -277,9 +277,10 @@ class ModuleconfigForm extends Form
     {
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $users[$row['id']] = $row['fname']." ".$row['lname'];
         }
+
         return $users;
     }
     
@@ -287,9 +288,10 @@ class ModuleconfigForm extends Form
     {
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT `id`,`name` FROM `facility`"));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $users[$row['id']] = $row['name'];
         }
+
         return $users;
     }
     
@@ -297,9 +299,10 @@ class ModuleconfigForm extends Form
     {
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE authorized=1 AND active ='1'"));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $users[$row['id']] = $row['fname']." ".$row['lname'];
         }
+
         return $users;
     }
     
@@ -307,9 +310,10 @@ class ModuleconfigForm extends Form
     {
         $users = array('0' => '');
         $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE active ='1' AND `username` IS NOT NULL AND `password` IS NOT NULL"));
-        foreach($res as $row){
+        foreach ($res as $row) {
             $users[$row['id']] = $row['fname']." ".$row['lname'];
         }
+
         return $users;
     }
 }

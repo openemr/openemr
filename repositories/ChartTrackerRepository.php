@@ -25,7 +25,8 @@ namespace repositories;
 use entities\ChartTracker;
 use Doctrine\ORM\EntityRepository;
 
-class ChartTrackerRepository extends EntityRepository {
+class ChartTrackerRepository extends EntityRepository
+{
 
     /**
      * Add chart tracker table entry.
@@ -39,5 +40,4 @@ class ChartTrackerRepository extends EntityRepository {
         $this->_em->flush();
         return $chartTracker->getPid();
     }
-
 }

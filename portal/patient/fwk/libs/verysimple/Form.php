@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("verysimple/HTTP/Request.php");
+require_once("verysimple/HTTP/Request.php");
 
 /**
  * Static utility class for processing form input
@@ -16,7 +16,6 @@ require_once ("verysimple/HTTP/Request.php");
  * @version 1.0
  * @deprecated use verysimple::HTTP::Request instead
  */
-class Form extends Request {
+class Form extends Request
+{
 }
-
-?>

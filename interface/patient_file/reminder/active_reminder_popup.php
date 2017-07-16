@@ -45,26 +45,25 @@ $_SESSION['alert_notify_pid'] = $pid;
 $all_allergy_alerts = array();
 if ($GLOBALS['enable_allergy_check']) {
   // Will show allergy and medication/prescription conflicts here
-    $all_allergy_alerts = allergy_conflict($pid,'all',$_SESSION['authUser']);
+    $all_allergy_alerts = allergy_conflict($pid, 'all', $_SESSION['authUser']);
 }
-$active_alerts = active_alert_summary($pid,"reminders-due",'','default',$_SESSION['authUser']);
+
+$active_alerts = active_alert_summary($pid, "reminders-due", '', 'default', $_SESSION['authUser']);
 ?>
 
 <td><span class="title">
 <?php
 if (!empty($active_alerts) && empty($all_allergy_alerts)) {
     echo xlt("Alerts/Reminders");
-}
-else if (!empty($active_alerts) && !empty($all_allergy_alerts))  {
+} else if (!empty($active_alerts) && !empty($all_allergy_alerts)) {
     echo xlt("WARNINGS and Alerts/Reminders");
-}
-else { // empty($active_alerts) && !empty($all_allergy_alerts)
+} else { // empty($active_alerts) && !empty($all_allergy_alerts)
     echo xlt("WARNINGS");
 }
 
 ?>
 </span>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="#" id="close" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars( xl('Close'), ENT_NOQUOTES);?></span></a></td>
+<td><a href="#" id="close" class="css_button large_button"><span class='css_button_span large_button_span'><?php echo htmlspecialchars(xl('Close'), ENT_NOQUOTES);?></span></a></td>
 </tr>
 </table>
 <br>
@@ -72,9 +71,11 @@ else { // empty($active_alerts) && !empty($all_allergy_alerts)
 foreach ($all_allergy_alerts as $allergy) {
     echo xlt("ALLERGY WARNING") . ":" . $allergy ."<br>";
 }
+
 if (!empty($all_allergy_alerts)) {
     echo "<br>";
 }
+
 echo $active_alerts;
 ?>
 </body>

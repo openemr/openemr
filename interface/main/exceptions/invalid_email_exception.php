@@ -18,7 +18,8 @@
  * @link    http://www.open-emr.org
  */
 
-class InvalidEmailException extends Exception {
+class InvalidEmailException extends Exception
+{
     public function errorMessage()
     {
         return $this->getMessage();

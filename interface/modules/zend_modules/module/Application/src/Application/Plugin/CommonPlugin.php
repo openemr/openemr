@@ -68,7 +68,7 @@ class CommonPlugin extends AbstractPlugin
         $style      = '???';
         $style_i  = 'highlight_i';
         $var        = '';
-        foreach(explode(' ', $keywords) as $keyword) {
+        foreach (explode(' ', $keywords) as $keyword) {
             $replacement  =   "<?? ?='" . $style . "'>" . trim($keyword). "</??>";
             $var          .=  $replacement . " ";
             $str      =   str_ireplace($keyword, $replacement, $str);
@@ -109,52 +109,52 @@ class CommonPlugin extends AbstractPlugin
         $field_name_value_array     = $var['field_name_value_array'];
         $entry_identification_array = $var['entry_identification_array'];
     
-        if($audit_master_id_to_delete){
+        if ($audit_master_id_to_delete) {
             $qry  = "DELETE from audit_details WHERE audit_master_id=?";
-            $appTable->zQuery($qry,array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, array($audit_master_id_to_delete));
       
             $qry  = "DELETE from audit_master WHERE id=?";
-            $appTable->zQuery($qry,array($audit_master_id_to_delete));
+            $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
     
         $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?";
-        $result       = $appTable->zQuery($master_query,array(0,$approval_status,$ip_address,$type));
+        $result       = $appTable->zQuery($master_query, array(0,$approval_status,$ip_address,$type));
         $audit_master_id    = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = '';
-        foreach($field_name_value_array as $key=>$val){
-            foreach($field_name_value_array[$key] as $cnt => $field_details){
-                foreach($field_details as $field_name => $field_value){
+        foreach ($field_name_value_array as $key => $val) {
+            foreach ($field_name_value_array[$key] as $cnt => $field_details) {
+                foreach ($field_details as $field_name => $field_value) {
                     $detail_query         .= "(? ,? ,? ,? ,?),";
                     $detail_query_array[] = $key;
                     $detail_query_array[] = trim($field_name);
-                    if(is_array($field_value)) {
-                        if($field_value['status']||$field_value['enddate']) {
+                    if (is_array($field_value)) {
+                        if ($field_value['status']||$field_value['enddate']) {
                             $detail_query_array[] = trim($field_value['value'])."|".trim($field_value['status'])."|".trim($field_value['begdate']);
-                        }
-                        else {
+                        } else {
                             $detail_query_array[] = trim($field_value['value']);
                         }
-                    }
-                    else {
+                    } else {
                         $detail_query_array[] = trim($field_value);
                     }
+
                     $detail_query_array[] = $audit_master_id;
                     $detail_query_array[] = trim($entry_identification_array[$key][$cnt]);
                 }
             }
         }
+
         $detail_query = substr($detail_query, 0, -1);
         $detail_query = $detail_query.';';
-        $appTable->zQuery($detail_query,$detail_query_array);
+        $appTable->zQuery($detail_query, $detail_query_array);
         return $audit_master_id;
     }
   
-    public function getList($list_id,$selected='',$opt='')
+    public function getList($list_id, $selected = '', $opt = '')
     {
         $appTable = new ApplicationTable();
         $this->listenerObject = new Listener;
-        $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title",array($list_id));
+        $res = $appTable->zQuery("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", array($list_id));
         $i = 0;
         if ($opt == 'search') {
             $rows[$i] = array (
@@ -172,15 +172,16 @@ class CommonPlugin extends AbstractPlugin
             $i++;
         }
   
-        foreach($res as $row) {
+        foreach ($res as $row) {
             $sel = ($row['option_id']==$selected) ? true : false;
             $rows[$i] = array (
-            'value' => htmlspecialchars($row['option_id'],ENT_QUOTES),
+            'value' => htmlspecialchars($row['option_id'], ENT_QUOTES),
             'label' => $this->listenerObject->z_xlt($row['title']),
             'selected' => $sel,
             );
             $i++;
         }
+
         return $rows;
     }
   
@@ -195,7 +196,7 @@ class CommonPlugin extends AbstractPlugin
         return $escapeHtml($string);
     }
   
-    public function getListtitle($listId,$listOptionId)
+    public function getListtitle($listId, $listOptionId)
     {
         $appTable = new ApplicationTable();
         $sql = "SELECT title FROM list_options WHERE list_id = ? AND option_id = ? ";

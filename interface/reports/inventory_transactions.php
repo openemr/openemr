@@ -16,7 +16,10 @@ require_once("$srcdir/acl.inc");
 
 function bucks($amount)
 {
-    if ($amount != 0) return oeFormatMoney($amount);
+    if ($amount != 0) {
+        return oeFormatMoney($amount);
+    }
+
     return '';
 }
 
@@ -25,7 +28,7 @@ function esc4Export($str)
     return str_replace('"', '\\"', $str);
 }
 
-function thisLineItem($row, $xfer=false)
+function thisLineItem($row, $xfer = false)
 {
     global $grandtotal, $grandqty, $encount, $form_action;
 
@@ -37,31 +40,31 @@ function thisLineItem($row, $xfer=false)
         $dpname = $row['plname'];
         if (!empty($row['pfname'])) {
             $dpname .= ', ' . $row['pfname'];
-            if (!empty($row['pmname'])) $dpname .= ' ' . $row['pmname'];
+            if (!empty($row['pmname'])) {
+                $dpname .= ' ' . $row['pmname'];
+            }
         }
+
         $invnumber = empty($row['invoice_refno']) ?
         "{$row['pid']}.{$row['encounter']}" : $row['invoice_refno'];
-    }
-    else if (!empty($row['distributor_id'])) {
+    } else if (!empty($row['distributor_id'])) {
         $ttype = xl('Distribution');
         if (!empty($row['organization'])) {
             $dpname = $row['organization'];
-        }
-        else {
+        } else {
             $dpname = $row['dlname'];
             if (!empty($row['dfname'])) {
                 $dpname .= ', ' . $row['dfname'];
-                if (!empty($row['dmname'])) $dpname .= ' ' . $row['dmname'];
+                if (!empty($row['dmname'])) {
+                    $dpname .= ' ' . $row['dmname'];
+                }
             }
         }
-    }
-    else if (!empty($row['xfer_inventory_id']) || $xfer) {
+    } else if (!empty($row['xfer_inventory_id']) || $xfer) {
         $ttype = xl('Transfer');
-    }
-    else if ($row['fee'] != 0) {
+    } else if ($row['fee'] != 0) {
         $ttype = xl('Purchase');
-    }
-    else {
+    } else {
         $ttype = xl('Adjustment');
     }
 
@@ -76,8 +79,7 @@ function thisLineItem($row, $xfer=false)
         echo '"' . bucks($row['fee'])                   . '",';
         echo '"' . $row['billed']                       . '",';
         echo '"' . esc4Export($row['notes'])            . '"' . "\n";
-    }
-    else {
+    } else {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
     ?>
 
@@ -129,16 +131,17 @@ function thisLineItem($row, $xfer=false)
         $row['fee'] = 0 - $row['fee'];
         thisLineItem($row, true);
     }
-
 } // end function
 
-if (! acl_check('acct', 'rep')) die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));
+if (! acl_check('acct', 'rep')) {
+    die(htmlspecialchars(xl("Unauthorized access."), ENT_NOQUOTES));
+}
 
 // this is "" or "submit" or "export".
 $form_action = $_POST['form_action'];
 
 $form_from_date  = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date    = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date    = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_trans_type = isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0';
 
 $encount = 0;
@@ -151,16 +154,16 @@ if ($form_action == 'export') {
     header("Content-Disposition: attachment; filename=inventory_transactions.csv");
     header("Content-Description: File Transfer");
   // CSV headers:
-    echo '"' . xl('Date'       ) . '",';
+    echo '"' . xl('Date') . '",';
     echo '"' . xl('Transaction') . '",';
-    echo '"' . xl('Product'    ) . '",';
-    echo '"' . xl('Lot'        ) . '",';
-    echo '"' . xl('Warehouse'  ) . '",';
-    echo '"' . xl('Who'        ) . '",';
-    echo '"' . xl('Qty'        ) . '",';
-    echo '"' . xl('Amount'     ) . '",';
-    echo '"' . xl('Billed'     ) . '",';
-    echo '"' . xl('Notes'      ) . '"' . "\n";
+    echo '"' . xl('Product') . '",';
+    echo '"' . xl('Lot') . '",';
+    echo '"' . xl('Warehouse') . '",';
+    echo '"' . xl('Who') . '",';
+    echo '"' . xl('Qty') . '",';
+    echo '"' . xl('Amount') . '",';
+    echo '"' . xl('Billed') . '",';
+    echo '"' . xl('Notes') . '"' . "\n";
 } // end export
 else {
 ?>
@@ -246,10 +249,12 @@ foreach (array(
   '6' => xl('Distribution'),
   '4' => xl('Transfer'),
   '5' => xl('Adjustment'),
-) as $key => $value)
-{
+) as $key => $value) {
     echo "       <option value='$key'";
-    if ($key == $form_trans_type) echo " selected";
+    if ($key == $form_trans_type) {
+        echo " selected";
+    }
+
     echo ">" . htmlspecialchars($value, ENT_NOQUOTES) . "</option>\n";
 }
 ?>
@@ -268,7 +273,7 @@ foreach (array(
        title='<?php echo htmlspecialchars(xl('Click here to choose a date'), ENT_QUOTES); ?>'>
      </td>
      <td class='label_custom'>
-        <?php xl('To','e'); ?>:
+        <?php xl('To', 'e'); ?>:
      </td>
      <td nowrap>
       <input type='text' name='form_to_date' id="form_to_date" size='10'
@@ -376,19 +381,16 @@ if ($form_action) { // if submit or export
     "WHERE s.sale_date >= ? AND s.sale_date <= ? ";
     if ($form_trans_type == 2) { // purchase/return
         $query .= "AND s.pid = 0 AND s.distributor_id = 0 AND s.xfer_inventory_id = 0 AND s.fee != 0 ";
-    }
-    else if ($form_trans_type == 4) { // transfer
+    } else if ($form_trans_type == 4) { // transfer
         $query .= "AND s.xfer_inventory_id != 0 ";
-    }
-    else if ($form_trans_type == 5) { // adjustment
+    } else if ($form_trans_type == 5) { // adjustment
         $query .= "AND s.pid = 0 AND s.distributor_id = 0 AND s.xfer_inventory_id = 0 AND s.fee = 0 ";
-    }
-    else if ($form_trans_type == 6) { // distribution
+    } else if ($form_trans_type == 6) { // distribution
         $query .= "AND s.distributor_id != 0 ";
-    }
-    else if ($form_trans_type == 1) { // sale
+    } else if ($form_trans_type == 1) { // sale
         $query .= "AND s.pid != 0 ";
     }
+
     $query .= "ORDER BY s.sale_date, s.sale_id";
   //
     $res = sqlStatement($query, array($from_date, $to_date));

@@ -32,37 +32,49 @@ if ($_POST['bn_submit']) {
         $url = 'http://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm';
         // Set code type in URL.
         $url .= '?mainSearchCriteria.v.cs=';
-        if ('ICD9'   == $codetype) $url .= '2.16.840.1.113883.6.103'; else
-        if ('ICD10'  == $codetype) $url .= '2.16.840.1.113883.6.90' ; else
-        if ('SNOMED' == $codetype) $url .= '2.16.840.1.113883.6.96' ; else
-        if ('RXCUI'  == $codetype) $url .= '2.16.840.1.113883.6.88' ; else
-        if ('NDC'    == $codetype) $url .= '2.16.840.1.113883.6.69' ; else
-        if ('LOINC'  == $codetype) $url .= '2.16.840.1.113883.6.1'  ; else
-        die(xlt('Code type not recognized') . ': ' . text($codetype));
+        if ('ICD9'   == $codetype) {
+            $url .= '2.16.840.1.113883.6.103';
+        } else if ('ICD10'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.90' ;
+        } else if ('SNOMED' == $codetype) {
+            $url .= '2.16.840.1.113883.6.96' ;
+        } else if ('RXCUI'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.88' ;
+        } else if ('NDC'    == $codetype) {
+            $url .= '2.16.840.1.113883.6.69' ;
+        } else if ('LOINC'  == $codetype) {
+            $url .= '2.16.840.1.113883.6.1'  ;
+        } else {
+            die(xlt('Code type not recognized') . ': ' . text($codetype));
+        }
+
         // Set code value in URL.
         $url .= '&mainSearchCriteria.v.c=' . urlencode($codevalue);
         // Set language in URL if relevant. MedlinePlus supports only English or Spanish.
         if ($language == 'es' || $language == 'spanish') {
             $url .= '&informationRecipient.languageCode.c=es';
         }
+
         // There are 2 different ways to get the data: have the server do it, or
         // have the browser do it.
         if (false) {
             $data = file_get_contents($url);
             echo $data;
-        }
-        else {
+        } else {
             echo "<html><body>"
             ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
             . "<script language='JavaScript'>\n";
             echo "document.location.href = '$url';\n";
             echo "</script></body></html>\n";
         }
+
         exit();
-    }
-    else {
+    } else {
         $lang = 'en';
-        if ($language == 'es' || $language == 'spanish') $lang = 'es';
+        if ($language == 'es' || $language == 'spanish') {
+            $lang = 'es';
+        }
+
         $filename = strtolower("{$codetype}_{$codevalue}_{$lang}.pdf");
         $filepath = "$educationdir/$filename";
         if (is_file($filepath)) {
@@ -79,8 +91,7 @@ if ($_POST['bn_submit']) {
             flush();
             readfile($filepath);
             exit();
-        }
-        else {
+        } else {
             $errmsg = xl('There is no local content for this topic.');
         }
     }
@@ -122,14 +133,14 @@ if ($_POST['bn_submit']) {
         <div class='row'>
             <div class='col-xs-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type='hidden' name='type'     value='<?php echo attr($codetype ); ?>' />
+                    <input type='hidden' name='type'     value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code'     value='<?php echo attr($codevalue); ?>' />
-                    <input type='hidden' name='language' value='<?php echo attr($language ); ?>' />
+                    <input type='hidden' name='language' value='<?php echo attr($language); ?>' />
                     <div class='form-group'>
                         <label for="source"><?php echo xlt('Select source'); ?></label>
                         <select name='source' id='source' class='form-control'>
                             <option value='MLP'  ><?php echo xlt('MedlinePlus Connect'); ?></option>
-                            <option value='Local'><?php echo xlt('Local Content'      ); ?></option>
+                            <option value='Local'><?php echo xlt('Local Content'); ?></option>
                         </select>
                     </div>
                     <div class='form-group'>

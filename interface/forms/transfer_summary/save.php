@@ -48,8 +48,7 @@ $sets = "pid = {$_SESSION["pid"]},
 if (empty($id)) {
     $newid = sqlInsert("INSERT INTO form_transfer_summary SET $sets");
     addForm($encounter, "Transfer Summary", $newid, "transfer_summary", $pid, $userauthorized);
-}
-else {
+} else {
     sqlStatement("UPDATE form_transfer_summary SET $sets WHERE id = '". add_escape_custom("$id"). "'");
 }
 
@@ -57,5 +56,3 @@ $_SESSION["encounter"] = $encounter;
 formHeader("Redirecting....");
 formJump();
 formFooter();
-?>
-

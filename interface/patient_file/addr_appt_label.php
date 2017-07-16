@@ -57,7 +57,6 @@ $pdf->AddPage();
 #Get the data to place on labels
 #and output each label
 foreach ($pid_list as $pid) {
-
     $patdata = sqlQuery("SELECT " .
     "p.fname, p.mname, p.lname, p.pubpid, p.DOB, " .
     "p.street, p.city, p.state, p.postal_code, p.pid " .
@@ -68,6 +67,5 @@ foreach ($pid_list as $pid) {
     $text = sprintf("  %s %s\n  %s\n  %s %s %s\n ", $patdata['fname'], $patdata['lname'], $patdata['street'], $patdata['city'], $patdata['state'], $patdata['postal_code']);
     $pdf->Add_Label($text);
 }
-$pdf->Output();
 
-?>
+$pdf->Output();

@@ -11,14 +11,15 @@
  * @brief This file ontains the FormPainMap class, used to model the data contents of a clickmap based form.
  */
 /* include the class we are extending. */
-require_once ($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
+require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
 
 /**
  * @class FormPainMap
  *
  * @brief This class extends the AbstractClickmapModel class, to create a class for modelling the data in a pain form.
  */
-class FormPainMap extends AbstractClickmapModel {
+class FormPainMap extends AbstractClickmapModel
+{
 
     /**
      * The database table to place form data in/read form data from.
@@ -28,7 +29,7 @@ class FormPainMap extends AbstractClickmapModel {
     static $TABLE_NAME = "form_painmap";
 
     /* Initializer. just alles parent's initializer. */
-    function FormPainMap($id="")
+    function FormPainMap($id = "")
     {
         parent::AbstractClickmapModel(FormPainMap::$TABLE_NAME, $id);
     }
@@ -49,4 +50,3 @@ class FormPainMap extends AbstractClickmapModel {
         return C_FormPainMap::$FORM_CODE;
     }
 }
-?>

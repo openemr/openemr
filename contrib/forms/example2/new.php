@@ -60,8 +60,8 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 <span class="title"><?php xl($form_name, 'e'); ?></span><br>
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save','e'); ?>"> &nbsp;
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp;
+<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
 
 <!-- container for the main body of the form -->
 <div id="form_container">
@@ -72,14 +72,14 @@ var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
 Date:
    <input type='text' size='10' class='datepicker' name='form_date' id='form_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 </td></tr>
 <tr><td>
 Name: <input id="name" name="name" type="text" size="50" maxlength="250">
 Date of Birth:
    <input type='text' size='10' class='datepicker' name='dob' id='dob'
     value='<?php echo $date ?>'
-    title='<?php xl('yyyy-mm-dd Date of Birth','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd Date of Birth', 'e'); ?>' />
 </td></tr>
 <tr><td>
 Phone: <input name="phone" id="phone" type="text" size="15" maxlength="15">
@@ -103,15 +103,15 @@ Signature?
 Date of signature:
    <input type='text' size='10' class='datepicker' name='sig_date' id='sig_date'
     value='<?php echo date('Y-m-d', time()); ?>'
-    title='<?php xl('yyyy-mm-dd','e'); ?>' />
+    title='<?php xl('yyyy-mm-dd', 'e'); ?>' />
 </div>
 </div>
 
 </div> <!-- end form_container -->
 
 <!-- Save/Cancel buttons -->
-<input type="button" class="save" value="<?php xl('Save','e'); ?>"> &nbsp;
-<input type="button" class="dontsave" value="<?php xl('Don\'t Save','e'); ?>"> &nbsp;
+<input type="button" class="save" value="<?php xl('Save', 'e'); ?>"> &nbsp;
+<input type="button" class="dontsave" value="<?php xl('Don\'t Save', 'e'); ?>"> &nbsp;
 </form>
 
 </body>

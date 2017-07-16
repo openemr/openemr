@@ -47,7 +47,10 @@ function Digits($field)
 function Sex($field)
 {
     $sex = strtoupper(substr(trim($field), 0, 1));
-    if ($sex != "M" && $sex != "F") $sex = "U";
+    if ($sex != "M" && $sex != "F") {
+        $sex = "U";
+    }
+
     return $sex;
 }
 
@@ -61,9 +64,18 @@ function LWDate($field)
  // Translate insurance type.
 function InsType($field)
 {
-    if (! $field)    return "";
-    if ($field == 2) return "Medicare";
-    if ($field == 3) return "Medicaid";
+    if (! $field) {
+        return "";
+    }
+
+    if ($field == 2) {
+        return "Medicare";
+    }
+
+    if ($field == 3) {
+        return "Medicaid";
+    }
+
     return "Other";
 }
 
@@ -84,6 +96,7 @@ foreach (array('primary','secondary') as $value) {
     $insrow[] = sqlQuery("SELECT id FROM insurance_data WHERE " .
     "pid = '$pid' AND type = '$value' ORDER BY date DESC LIMIT 1");
 }
+
  $query = "SELECT " .
   "p.pubpid, p.fname, p.mname, p.lname, p.DOB, p.providerID, " .
   "p.ss, p.street, p.city, p.state, p.postal_code, p.phone_home, p.sex, " .
@@ -123,6 +136,7 @@ if ($row['providerID']) {
 } else {
     $query .= " ORDER BY id LIMIT 1";
 }
+
  $prow = sqlFetchArray(sqlStatement($query));
 
  // Patient Section.
@@ -217,12 +231,16 @@ if (! file_exists($EXPORT_PATH)) {
 }
 
  // Serialize the following code; collisions would be very bad.
- if (! rename("$EXPORT_PATH/unlocked", "$EXPORT_PATH/locked"))
-  die("Export seems to be in use by someone else; please try again.");
+if (! rename("$EXPORT_PATH/unlocked", "$EXPORT_PATH/locked")) {
+    die("Export seems to be in use by someone else; please try again.");
+}
 
  // Figure out what to use for the target filename.
  $dh = opendir($EXPORT_PATH);
- if (! $dh) mydie("Cannot read $EXPORT_PATH");
+if (! $dh) {
+    mydie("Cannot read $EXPORT_PATH");
+}
+
  $nextnumber = 1;
 while (false !== ($filename = readdir($dh))) {
     if (preg_match("/PMI(\d{8})\.DEM/", $filename, $matches)) {
@@ -232,6 +250,7 @@ while (false !== ($filename = readdir($dh))) {
         }
     }
 }
+
  closedir($dh);
  $fnprefix = sprintf("PMI%08.0f.", $nextnumber);
  $initialname = $fnprefix . "creating";
@@ -242,7 +261,10 @@ while (false !== ($filename = readdir($dh))) {
  // Write the file locally with a temporary version of the name.
  @touch($initialpath); // work around possible php bug
  $fh = @fopen($initialpath, "w");
- if (! $fh) mydie("Unable to open $initialpath for writing");
+if (! $fh) {
+    mydie("Unable to open $initialpath for writing");
+}
+
  fwrite($fh, $out);
  fclose($fh);
 
@@ -261,7 +283,10 @@ if ($nextnumber > 5) {
 if ($FTP_SERVER) {
     $ftpconn = ftp_connect($FTP_SERVER) or die("FTP connection failed");
     ftp_login($ftpconn, $FTP_USER, $FTP_PASS) or die("FTP login failed");
-    if ($FTP_DIR) ftp_chdir($ftpconn, $FTP_DIR) or die("FTP chdir failed");
+    if ($FTP_DIR) {
+        ftp_chdir($ftpconn, $FTP_DIR) or die("FTP chdir failed");
+    }
+
     ftp_put($ftpconn, $initialname, $finalpath, FTP_BINARY) or die("FTP put failed");
     ftp_rename($ftpconn, $initialname, $finalname) or die("FTP rename failed");
     ftp_close($ftpconn);

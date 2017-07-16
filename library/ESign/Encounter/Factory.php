@@ -35,7 +35,7 @@ class Encounter_Factory implements FactoryIF
 {
     protected $_encounterId = null;
     
-    public function __construct( $encounterId )
+    public function __construct($encounterId)
     {
         $this->_encounterId = $encounterId;
     }
@@ -47,16 +47,16 @@ class Encounter_Factory implements FactoryIF
     
     public function createSignable()
     {
-        return new Encounter_Signable( $this->_encounterId );
+        return new Encounter_Signable($this->_encounterId);
     }
     
     public function createButton()
     {
-        return new Encounter_Button( $this->_encounterId );
+        return new Encounter_Button($this->_encounterId);
     }
 
     public function createLog()
     {
-        return new Encounter_Log( $this->_encounterId );
+        return new Encounter_Log($this->_encounterId);
     }
 }

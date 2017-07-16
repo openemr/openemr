@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxPage {
+class eRxPage
+{
 
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
@@ -35,7 +36,7 @@ class eRxPage {
 
     public function __construct($xmlBuilder = null)
     {
-        if($xmlBuilder) {
+        if ($xmlBuilder) {
             $this->setXMLBuilder($xmlBuilder);
         }
     }
@@ -182,7 +183,7 @@ class eRxPage {
         $messages = array();
 
         foreach ($extensions as $extension) {
-            if(!extension_loaded(strtolower($extension))) {
+            if (!extension_loaded(strtolower($extension))) {
                 $messages[] = xl('Enable Extension').' '.$extension;
             }
         }
@@ -246,7 +247,7 @@ class eRxPage {
         $path = $this->getXMLBuilder()->getGlobals()
             ->getOpenEMRSiteDirectory().'/documents/erx_error';
 
-        if(!is_dir($path)) {
+        if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
 
@@ -265,28 +266,28 @@ class eRxPage {
 
         preg_match('/<textarea.*>(.*)Original XML:/is', $result, $errorMessage);
 
-        if(count($errorMessage) > 0) {
+        if (count($errorMessage) > 0) {
             $errorMessages = explode('Error', $errorMessage[1]);
             array_shift($errorMessages);
         } else {
             $errorMessages = array();
         }
 
-        if(strpos($result, 'RxEntry.aspx')) {
+        if (strpos($result, 'RxEntry.aspx')) {
             $this->errorLog($xml);
             $this->errorLog($result);
 
-            if(!count($errorMessages)) {
+            if (!count($errorMessages)) {
                 $errorMessages[] = xl('An undefined error occurred, please contact your systems administrator.');
             }
-        } elseif($XMLBuilder->getGlobals()->getDebugSetting() !== 0) {
+        } elseif ($XMLBuilder->getGlobals()->getDebugSetting() !== 0) {
             $debugString = '( '.xl('DEBUG OUTPUT').' )'.PHP_EOL;
 
-            if($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_XML) {
+            if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_XML) {
                 $this->errorLog($debugString.$xml);
             }
 
-            if($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_RESULT) {
+            if ($XMLBuilder->getGlobals()->getDebugSetting() & self::DEBUG_RESULT) {
                 $this->errorLog($debugString.$result);
             }
         }
@@ -301,32 +302,31 @@ class eRxPage {
         $page = $this->getDestination();
         $patientId = $this->getPatientId();
 
-        if($page == 'compose') {
+        if ($page == 'compose') {
             $Store->updatePatientImportStatusByPatientId($patientId, 1);
-        } elseif($page == 'medentry') {
+        } elseif ($page == 'medentry') {
             $Store->updatePatientImportStatusByPatientId($patientId, 3);
         }
 
         $allergyIds = $XMLBuilder->getSentAllergyIds();
-        if(count($allergyIds)) {
-            foreach($allergyIds as $allergyId) {
+        if (count($allergyIds)) {
+            foreach ($allergyIds as $allergyId) {
                 $Store->updateAllergyUploadedByPatientIdAllergyId(1, $patientId, $allergyId);
             }
         }
 
         $prescriptionIds = $XMLBuilder->getSentPrescriptionIds();
-        if(count($prescriptionIds)) {
-            foreach($prescriptionIds as $prescriptionId) {
+        if (count($prescriptionIds)) {
+            foreach ($prescriptionIds as $prescriptionId) {
                 $Store->updatePrescriptionsUploadActiveByPatientIdPrescriptionId(1, 0, $patientId, $prescriptionId);
             }
         }
 
         $medicationIds = $XMLBuilder->getSentMedicationIds();
-        if(count($medicationIds)) {
-            foreach($medicationIds as $medicationId) {
+        if (count($medicationIds)) {
+            foreach ($medicationIds as $medicationId) {
                 $Store->updateErxUploadedByListId($medicationId, 1);
             }
         }
     }
-
 }

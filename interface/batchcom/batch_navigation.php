@@ -22,6 +22,7 @@
             </li>
         <?php
         }
+
         if (acl_check('admin', 'notification')) { ?>
             <li role="presentation" title="<?php echo xla('SMS Notification'); ?>">
                 <a href="<?php echo $GLOBALS['rootdir']; ?>/batchcom/smsnotification.php">

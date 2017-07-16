@@ -24,7 +24,8 @@
  * @link    http://www.open-emr.org
  */
 
-class Therapy_Groups_Counselors{
+class Therapy_Groups_Counselors
+{
 
     const TABLE = 'therapy_groups_counselors';
 
@@ -35,11 +36,11 @@ class Therapy_Groups_Counselors{
 
         $counselors = array();
         $result = sqlStatement($sql);
-        while($c = sqlFetchArray($result)){
+        while ($c = sqlFetchArray($result)) {
             $counselors[] = $c;
         }
-        return $counselors;
 
+        return $counselors;
     }
 
     public function getCounselors($groupId)
@@ -49,11 +50,11 @@ class Therapy_Groups_Counselors{
 
         $counselors = array();
         $result = sqlStatement($sql, array($groupId));
-        while($c = sqlFetchArray($result)){
+        while ($c = sqlFetchArray($result)) {
             $counselors[] = $c['user_id'];
         }
-        return $counselors;
 
+        return $counselors;
     }
 
 
@@ -70,10 +71,11 @@ class Therapy_Groups_Counselors{
         $sql = "DELETE FROM " . self::TABLE . " WHERE group_id = ?";
         $condition[] = $groupId;
 
-        if(!is_null($userId)){
+        if (!is_null($userId)) {
             $sql .= ' AND user_id = ?';
             $condition[]= $userId;
         }
+
         sqlStatement($sql, $condition);
     }
 
@@ -83,7 +85,7 @@ class Therapy_Groups_Counselors{
         $counselors = $this->getCounselors($groupId);
         $userModel = new Users();
         $result = array();
-        foreach ($counselors as $counselor){
+        foreach ($counselors as $counselor) {
             $counselorName = $userModel->getUserNameById($counselor);
             $result[] = $counselorName;
         }

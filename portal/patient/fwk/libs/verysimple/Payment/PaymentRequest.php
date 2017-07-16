@@ -15,7 +15,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class PaymentRequest {
+class PaymentRequest
+{
     static $TRANSACTION_TYPE_AUTH_ONLY = "AUTH";
     static $TRANSACTION_TYPE_AUTH_CAPTURE = "AUTH_CAPTURE";
     public $SoftDescriptor = "";
@@ -66,7 +67,7 @@ class PaymentRequest {
      */
     final function __construct()
     {
-        $this->Init ();
+        $this->Init();
     }
     
     /**
@@ -76,7 +77,7 @@ class PaymentRequest {
      */
     function Init()
     {
-        $this->CustomerIP = array_key_exists ( 'REMOTE_ADDR', $_SERVER ) ? $_SERVER ['REMOTE_ADDR'] : '0.0.0.0';
+        $this->CustomerIP = array_key_exists('REMOTE_ADDR', $_SERVER) ? $_SERVER ['REMOTE_ADDR'] : '0.0.0.0';
     }
     
     /**
@@ -87,12 +88,10 @@ class PaymentRequest {
      */
     function Read($arr)
     {
-        foreach ( get_object_vars ( $this ) as $prop ) {
-            if (array_key_exists ( $prop, $arr )) {
+        foreach (get_object_vars($this) as $prop) {
+            if (array_key_exists($prop, $arr)) {
                 $this->$prop = $arr [$prop];
             }
         }
     }
 }
-
-?>

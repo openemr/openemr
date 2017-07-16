@@ -26,9 +26,11 @@ if (! $encounter) { // comes from globals.php
 }
 
 // get vars posted by FORMs
-if (!$formid){
+if (!$formid) {
     $formid = $_GET['id'];
-    if (!$formid){ $formid = $_POST['formid'];  }
+    if (!$formid) {
+        $formid = $_POST['formid'];
+    }
 }
 
 $myprocedureid =  $_POST['procedure2track'];
@@ -61,7 +63,7 @@ echo "</head><body class='body_top'>";
 echo "<div id='track_anything'>";
 
 // check if this Track is new
-if (!$formid){
+if (!$formid) {
     // this is a new Track
 
     // check if procedure is selcted
@@ -69,11 +71,11 @@ if (!$formid){
         // "save"-Button was clicked, saving Form into db
 
         // save inbto db
-        if($myprocedureid){
+        if ($myprocedureid) {
             $query = "INSERT INTO form_track_anything (procedure_type_id) VALUES (?)";
             $formid = sqlInsert($query, $myprocedureid);
             $spell = "SELECT name FROM form_track_anything_type WHERE track_anything_type_id = ?";
-            $myrow = sqlQuery($spell,array($myprocedureid));
+            $myrow = sqlQuery($spell, array($myprocedureid));
             $myprocedurename = $myrow["name"];
             $register_as = "Track: " . $myprocedurename;
             // adding Form
@@ -82,8 +84,7 @@ if (!$formid){
                 echo xlt('No track selected'). ".<br>";
 ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
         }
-
-    }else{
+    } else {
     // procedure is not yet selected
         echo "<table>";
         echo "<tr>";
@@ -97,11 +98,12 @@ if (!$formid){
         $spell .= "WHERE parent = 0 AND active = 1 ";
         $spell .= "ORDER BY position ASC, name ASC ";
         $testi = sqlStatement($spell);
-        while($myrow = sqlFetchArray($testi)){
+        while ($myrow = sqlFetchArray($testi)) {
             $myprocedureid = $myrow["track_anything_type_id"];
             $myprocedurename = $myrow["name"];
             echo "<option value='" . attr($myprocedureid) . "'>" . text($myprocedurename) . "</option>";
         }
+
         echo "</select>";
         echo "</td></tr><tr><td align='center'>";
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
@@ -116,12 +118,11 @@ if (!$formid){
         echo "</td></tr>";
         echo "</table>";
     }
-
 }
 
 
 // instead of "else", we check again for "formid"
-if ($formid){
+if ($formid) {
     // this is an existing Track
     //----------------------------------------------------
     // get submitted item-Ids
@@ -132,7 +133,7 @@ if ($formid){
     #echo $thedate;
     //check if whole input is NULL
     $all_are_null = 0;
-    for($i= 0; $i < $length; $i++){
+    for ($i= 0; $i < $length; $i++) {
         #echo "beep";
         $thisid = $mylist[$i];
         $thisvalue = $_POST[$thisid];
@@ -144,7 +145,7 @@ if ($formid){
     // if all of the input is NULL, we do nothing
     // if at least one entrie is NOT NULL, we save all into db
     if ($all_are_null > 0) {
-        for($i= 0; $i < $length; $i++){
+        for ($i= 0; $i < $length; $i++) {
             $thisid = $mylist[$i];
             $thisvalue = $_POST[$thisid];
 
@@ -153,6 +154,7 @@ if ($formid){
             sqlInsert($query, array($formid,$thedate,$thisid,$thisvalue));
         }
     }
+
     //----------------------------------------------------
 
 
@@ -170,25 +172,25 @@ if ($formid){
     for ($x=0; $x<=$how_many; $x++) {
         // how many columns do we have
         $how_many_cols = count($old_value[$x]);
-        for($y=0; $y<$how_many_cols; $y++){
+        for ($y=0; $y<$how_many_cols; $y++) {
                 // here goes the UPDATE sql-spruch
                 $insertspell  = "UPDATE form_track_anything_results ";
                 $insertspell .= "SET track_timestamp = ? , result = ? ";
                 $insertspell .= "WHERE id = ? ";
                 sqlStatement($insertspell, array($old_time[$x], $old_value[$x][$y], $old_id[$x][$y]));
         }
-
     }
+
 //--------------------------------------------------
 
 
     //get procedure ID
-    if (!$myprocedureid){
+    if (!$myprocedureid) {
         $spell = "SELECT procedure_type_id FROM form_track_anything WHERE id = ?";
         $myrow = sqlQuery($spell, array($formid));
         $myprocedureid = $myrow["procedure_type_id"];
-
     }
+
     echo "<br><b>" . xlt('Enter new data') . "</b>:<br>";
     echo "<form method='post' action='" . $rootdir . "/forms/track_anything/new.php' onsubmit='return top.restoreSession()'>";
     echo "<table>";
@@ -207,7 +209,7 @@ if ($formid){
     $liste = array();
     $spell = "SELECT * FROM form_track_anything_type WHERE parent = ? AND active = 1 ORDER BY position ASC, name ASC ";
     $query = sqlStatement($spell, array($myprocedureid));
-    while($myrow = sqlFetchArray($query)){
+    while ($myrow = sqlFetchArray($query)) {
         echo "<input type='hidden' name='liste[]' value='". attr($myrow['track_anything_type_id']) . "'>";
         echo "<tr><td> " . text($myrow['name']) . "</td>";
         echo "<td><input size='12' type='text' name='" . attr($myrow['track_anything_type_id'])  . "'></td></tr>";
@@ -228,9 +230,9 @@ if ($formid){
     echo "<table border='1'>";
 
     $spell0 = "SELECT DISTINCT track_timestamp FROM form_track_anything_results WHERE track_anything_id = ? ORDER BY track_timestamp DESC";
-    $query = sqlStatement($spell0,array($formid));
+    $query = sqlStatement($spell0, array($formid));
     $main_counter=0; // this counts 'number of rows'  of old entries
-while($myrow = sqlFetchArray($query)){
+while ($myrow = sqlFetchArray($query)) {
     $thistime = $myrow['track_timestamp'];
     $shownameflag++;
 
@@ -239,32 +241,34 @@ while($myrow = sqlFetchArray($query)){
     $spell .= "INNER JOIN form_track_anything_type ON form_track_anything_results.itemid = form_track_anything_type.track_anything_type_id ";
     $spell .= "WHERE track_anything_id = ? AND track_timestamp = ? AND form_track_anything_type.active = 1 ";
     $spell .= "ORDER BY form_track_anything_type.position ASC, the_name ASC ";
-    $query2  = sqlStatement($spell,array($formid ,$thistime));
+    $query2  = sqlStatement($spell, array($formid ,$thistime));
 
     // <table> heading line
-    if ($shownameflag==1){
+    if ($shownameflag==1) {
         echo "<tr><th class='time'>" . xlt('Time') . "</th>";
-        while($myrow2 = sqlFetchArray($query2)){
+        while ($myrow2 = sqlFetchArray($query2)) {
             echo "<th class='item'>" . text($myrow2['the_name']) . "</th>";
         }
+
         echo "</tr>";
     }
 
     echo "<tr><td bgcolor=#eeeeec>";
     $main_counter++; // next row
     echo "<input type='text' class='datetimepicker' size='16' name='old_time[" . attr($main_counter) . "]' value='" . attr($thistime) . "'></td>";
-    $query2  = sqlStatement($spell,array($formid ,$thistime));
+    $query2  = sqlStatement($spell, array($formid ,$thistime));
 
     $counter = 0; // this counts columns
-    while($myrow2 = sqlFetchArray($query2)){
+    while ($myrow2 = sqlFetchArray($query2)) {
         echo "<td>";
         echo "<input type='hidden' name='old_id[" . attr($main_counter) . "][" . attr($counter) . "]' value='". attr($myrow2['result_id']) . "'>";
         echo "<input type='text' size='12' name='old_value[" . attr($main_counter) . "][" . attr($counter) . "]' value='" . attr($myrow2['result']) . "'></td>";
         $counter++; // next cloumn
     }
-    echo "</tr>";
 
+    echo "</tr>";
 }
+
     echo "</tr></table>";
     echo "<input type='hidden' name='formid' value='". attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";

@@ -21,7 +21,7 @@ function effectiveUser($user)
  * @param int $defaultUser - user id to check as alternative/default
  * @return Effective user setting for $label (NULL if does not exist)
  */
-function getUserSetting($label, $user=null, $defaultUser=0)
+function getUserSetting($label, $user = null, $defaultUser = 0)
 {
 
     $user = effectiveUser($user);
@@ -43,12 +43,12 @@ function getUserSetting($label, $user=null, $defaultUser=0)
  * @param int $user - user id number from users table
  * @return boolean - true if setting exist and false if does not exist
  */
-function checkUserSetting($label, $value, $user=null)
+function checkUserSetting($label, $value, $user = null)
 {
 
     $user = effectiveUser($user);
 
-    $curval = getUserSetting ($label, $user);
+    $curval = getUserSetting($label, $user);
     if (is_null($curval)) {
         return false;
     } else {
@@ -65,7 +65,7 @@ function checkUserSetting($label, $value, $user=null)
  * @param boolean $createDefault - If no current global default value, create one.
  * @param boolean $overwrite - If this is set to true, then overwrite the current setting
  */
-function setUserSetting($label, $value, $user=null, $createDefault=true, $overwrite=true)
+function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
 {
 
     $user = effectiveUser($user);
@@ -75,10 +75,10 @@ function setUserSetting($label, $value, $user=null, $createDefault=true, $overwr
   // Check for a custom settings
     if (is_null($cur_value)) {
         sqlStatement("INSERT INTO user_settings(setting_user, setting_label, setting_value) " .
-        "VALUES (?,?,?)", array($user, $label, $value) );
-    } elseif ( ($cur_value !== $value) && $overwrite ) {
+        "VALUES (?,?,?)", array($user, $label, $value));
+    } elseif (($cur_value !== $value) && $overwrite) {
         sqlStatement("UPDATE user_settings SET setting_value=? " .
-        "WHERE setting_user=? AND setting_label=?", array($value, $user, $label) );
+        "WHERE setting_user=? AND setting_label=?", array($value, $user, $label));
     }
 
   // Call self to create default token
@@ -91,14 +91,14 @@ function setUserSetting($label, $value, $user=null, $createDefault=true, $overwr
 //This will remove the selected user setting from the 'user_settings' table.
 // $label is used to determine which setting to remove
 // $user is the user id number from users table
-function removeUserSetting($label,$user=null)
+function removeUserSetting($label, $user = null)
 {
 
     $user = effectiveUser($user);
 
   // mdsupport - DELETE has implicit select, no need to check and delete
     sqlQuery("DELETE FROM user_settings " .
-      "WHERE setting_user=? AND setting_label=?", array($user, $label) );
+      "WHERE setting_user=? AND setting_label=?", array($user, $label));
 }
 
 function getUserIDInfo($id)
@@ -133,6 +133,6 @@ function prevSetting($uspfx, $postvar, $label, $initval)
             $pset = getUserSetting($setting_key);
         }
     }
+
     return $pset;
 }
-?>

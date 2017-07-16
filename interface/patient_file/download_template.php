@@ -40,7 +40,10 @@ function keySearch(&$s, $key)
 {
     global $keyLocation, $keyLength;
     $keyLength = strlen($key);
-    if ($keyLength == 0) return false;
+    if ($keyLength == 0) {
+        return false;
+    }
+
     return $key == substr($s, $keyLocation, $keyLength);
 }
 
@@ -54,21 +57,28 @@ function keyReplace(&$s, $data)
 }
 
 // Do some final processing of field data before it's put into the document.
-function dataFixup($data, $title='')
+function dataFixup($data, $title = '')
 {
     global $groupLevel, $groupCount, $itemSeparator;
     if ($data !== '') {
         // Replace some characters that can mess up XML without assuming XML content type.
-        $data = str_replace('&', '[and]'    , $data);
-        $data = str_replace('<', '[less]'   , $data);
+        $data = str_replace('&', '[and]', $data);
+        $data = str_replace('<', '[less]', $data);
         $data = str_replace('>', '[greater]', $data);
         // If in a group, include labels and separators.
         if ($groupLevel) {
-            if ($title !== '') $data = $title . ': ' . $data;
-            if ($groupCount) $data = $itemSeparator . $data;
+            if ($title !== '') {
+                $data = $title . ': ' . $data;
+            }
+
+            if ($groupCount) {
+                $data = $itemSeparator . $data;
+            }
+
             ++$groupCount;
         }
     }
+
     return $data;
 }
 
@@ -81,10 +91,16 @@ function getIssues($type)
     "pid = ? AND type = ? AND enddate IS NULL " .
     "ORDER BY begdate", array($GLOBALS['pid'], $type));
     while ($lrow = sqlFetchArray($lres)) {
-        if ($tmp) $tmp .= '; ';
+        if ($tmp) {
+            $tmp .= '; ';
+        }
+
         $tmp .= $lrow['title'];
-        if ($lrow['comments']) $tmp .= ' (' . $lrow['comments'] . ')';
+        if ($lrow['comments']) {
+            $tmp .= ' (' . $lrow['comments'] . ')';
+        }
     }
+
     return $tmp;
 }
 
@@ -104,60 +120,58 @@ function doSubs($s)
         if (keySearch($s, '{PatientName}')) {
             $tmp = $ptrow['fname'];
             if ($ptrow['mname']) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['mname'];
             }
+
             if ($ptrow['lname']) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['lname'];
             }
+
             $s = keyReplace($s, dataFixup($tmp, xl('Name')));
-        }
-
-        else if (keySearch($s, '{PatientID}')) {
+        } else if (keySearch($s, '{PatientID}')) {
             $s = keyReplace($s, dataFixup($ptrow['pubpid'], xl('Chart ID')));
-        }
-
-        else if (keySearch($s, '{Address}')) {
+        } else if (keySearch($s, '{Address}')) {
             $s = keyReplace($s, dataFixup($ptrow['street'], xl('Street')));
-        }
-
-        else if (keySearch($s, '{City}')) {
+        } else if (keySearch($s, '{City}')) {
             $s = keyReplace($s, dataFixup($ptrow['city'], xl('City')));
-        }
-
-        else if (keySearch($s, '{State}')) {
+        } else if (keySearch($s, '{State}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('state', $ptrow['state']), xl('State')));
-        }
-
-        else if (keySearch($s, '{Zip}')) {
+        } else if (keySearch($s, '{Zip}')) {
             $s = keyReplace($s, dataFixup($ptrow['postal_code'], xl('Postal Code')));
-        }
-
-        else if (keySearch($s, '{PatientPhone}')) {
+        } else if (keySearch($s, '{PatientPhone}')) {
             $ptphone = $ptrow['phone_contact'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_home'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_cell'];
-            if (empty($ptphone)) $ptphone = $ptrow['phone_biz'];
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_home'];
+            }
+
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_cell'];
+            }
+
+            if (empty($ptphone)) {
+                $ptphone = $ptrow['phone_biz'];
+            }
+
             if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $ptphone, $tmp)) {
                 $ptphone = '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3];
             }
+
             $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
-        }
-
-        else if (keySearch($s, '{PatientDOB}')) {
+        } else if (keySearch($s, '{PatientDOB}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
-        }
-
-        else if (keySearch($s, '{PatientSex}')) {
+        } else if (keySearch($s, '{PatientSex}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
-        }
-
-        else if (keySearch($s, '{DOS}')) {
+        } else if (keySearch($s, '{DOS}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate(substr($enrow['date'], 0, 10)), xl('Service Date')));
-        }
-
-        else if (keySearch($s, '{ChiefComplaint}')) {
+        } else if (keySearch($s, '{ChiefComplaint}')) {
             $cc = $enrow['reason'];
             $patientid = $ptrow['pid'];
             $DOS = substr($enrow['date'], 0, 10);
@@ -168,59 +182,55 @@ function doSubs($s)
                     $cc = $tmp['pc_hometext'];
                 }
             }
-            $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
-        }
 
-        else if (keySearch($s, '{ReferringDOC}')) {
+            $s = keyReplace($s, dataFixup($cc, xl('Chief Complaint')));
+        } else if (keySearch($s, '{ReferringDOC}')) {
             $tmp = empty($ptrow['ur_fname']) ? '' : $ptrow['ur_fname'];
             if (!empty($ptrow['ur_mname'])) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_mname'];
             }
+
             if (!empty($ptrow['ur_lname'])) {
-                if ($tmp) $tmp .= ' ';
+                if ($tmp) {
+                    $tmp .= ' ';
+                }
+
                 $tmp .= $ptrow['ur_lname'];
             }
-            $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
-        }
 
-        else if (keySearch($s, '{Allergies}')) {
+            $s = keyReplace($s, dataFixup($tmp, xl('Referer')));
+        } else if (keySearch($s, '{Allergies}')) {
             $tmp = generate_plaintext_field(array('data_type'=>'24','list_id'=>''), '');
             $s = keyReplace($s, dataFixup($tmp, xl('Allergies')));
-        }
-
-        else if (keySearch($s, '{Medications}')) {
+        } else if (keySearch($s, '{Medications}')) {
             $s = keyReplace($s, dataFixup(getIssues('medication'), xl('Medications')));
-        }
-
-        else if (keySearch($s, '{ProblemList}')) {
+        } else if (keySearch($s, '{ProblemList}')) {
             $s = keyReplace($s, dataFixup(getIssues('medical_problem'), xl('Problem List')));
-        }
-
-        // This tag indicates the fields from here until {/GRP} are a group of fields
+        } // This tag indicates the fields from here until {/GRP} are a group of fields
         // separated by semicolons.  Fields with no data are omitted, and fields with
         // data are prepended with their field label from the form layout.
         else if (keySearch($s, '{GRP}')) {
             ++$groupLevel;
             $groupCount = 0;
             $s = keyReplace($s, '');
-        }
+        } else if (keySearch($s, '{/GRP}')) {
+            if ($groupLevel > 0) {
+                --$groupLevel;
+            }
 
-        else if (keySearch($s, '{/GRP}')) {
-            if ($groupLevel > 0) --$groupLevel;
             $s = keyReplace($s, '');
-        }
-
-        // This is how we specify the separator between group items in a way that
+        } // This is how we specify the separator between group items in a way that
         // is independent of the document format. Whatever is between {ITEMSEP} and
         // {/ITEMSEP} is the separator string.  Default is "; ".
         else if (preg_match('/^\{ITEMSEP\}(.*?)\{\/ITEMSEP\}/', substr($s, $keyLocation), $matches)) {
             $itemSeparator = $matches[1];
             $keyLength = strlen($matches[0]);
             $s = keyReplace($s, '');
-        }
-
-        // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
+        } // This handles keys like {LBFxxx:fieldid} for layout-based encounter forms.
         else if (preg_match('/^\{(LBF\w+):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -228,28 +238,32 @@ function doSubs($s)
             $data = '';
             $currvalue = '';
             $title = '';
-            $frow = sqlQuery("SELECT * FROM layout_options " .
-            "WHERE form_id = ? AND field_id = ? LIMIT 1",
-            array($formname, $fieldid));
+            $frow = sqlQuery(
+                "SELECT * FROM layout_options " .
+                "WHERE form_id = ? AND field_id = ? LIMIT 1",
+                array($formname, $fieldid)
+            );
             if (!empty($frow)) {
-                $ldrow = sqlQuery("SELECT ld.field_value " .
-                "FROM lbf_data AS ld, forms AS f WHERE " .
-                "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
-                "ld.form_id = f.form_id AND ld.field_id = ? " .
-                "ORDER BY f.form_id DESC LIMIT 1",
-                array($pid, $encounter, $formname, $fieldid));
+                $ldrow = sqlQuery(
+                    "SELECT ld.field_value " .
+                    "FROM lbf_data AS ld, forms AS f WHERE " .
+                    "f.pid = ? AND f.encounter = ? AND f.formdir = ? AND f.deleted = 0 AND " .
+                    "ld.form_id = f.form_id AND ld.field_id = ? " .
+                    "ORDER BY f.form_id DESC LIMIT 1",
+                    array($pid, $encounter, $formname, $fieldid)
+                );
                 if (!empty($ldrow)) {
                         $currvalue = $ldrow['field_value'];
                         $title = $frow['title'];
                 }
+
                 if ($currvalue !== '') {
                           $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
-            $s = keyReplace($s, dataFixup($data, $title));
-        }
 
-        // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
+            $s = keyReplace($s, dataFixup($data, $title));
+        } // This handles keys like {DEM:fieldid} and {HIS:fieldid}.
         else if (preg_match('/^\{(DEM|HIS):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[1];
             $fieldid  = $matches[2];
@@ -257,22 +271,25 @@ function doSubs($s)
             $data = '';
             $currvalue = '';
             $title = '';
-            $frow = sqlQuery("SELECT * FROM layout_options " .
-            "WHERE form_id = ? AND field_id = ? LIMIT 1",
-            array($formname, $fieldid));
+            $frow = sqlQuery(
+                "SELECT * FROM layout_options " .
+                "WHERE form_id = ? AND field_id = ? LIMIT 1",
+                array($formname, $fieldid)
+            );
             if (!empty($frow)) {
                 $tmprow = $formname == 'DEM' ? $ptrow : $hisrow;
                 if (isset($tmprow[$fieldid])) {
                     $currvalue = $tmprow[$fieldid];
                     $title = $frow['title'];
                 }
+
                 if ($currvalue !== '') {
                     $data = generate_plaintext_field($frow, $currvalue);
                 }
             }
+
             $s = keyReplace($s, dataFixup($data, $title));
         }
-
     } // End if { character found.
 
     return $s;
@@ -311,29 +328,40 @@ $ext = strtolower(array_pop(explode('.', $filename)));
 if ('dotx' == $ext) {
   // PHP does not seem to recognize this type.
     $mimetype = 'application/msword';
-}
-else if (function_exists('finfo_open')) {
+} else if (function_exists('finfo_open')) {
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
     $mimetype = finfo_file($finfo, $templatepath);
     finfo_close($finfo);
-}
-else if (function_exists('mime_content_type')) {
+} else if (function_exists('mime_content_type')) {
     $mimetype = mime_content_type($templatepath);
-}
-else {
-    if ('doc'  == $ext) $mimetype = 'application/msword'                             ; else
-    if ('dot'  == $ext) $mimetype = 'application/msword'                             ; else
-    if ('htm'  == $ext) $mimetype = 'text/html'                                      ; else
-    if ('html' == $ext) $mimetype = 'text/html'                                      ; else
-    if ('odt'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ; else
-    if ('ods'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ; else
-    if ('ott'  == $ext) $mimetype = 'application/vnd.oasis.opendocument.text'        ; else
-    if ('pdf'  == $ext) $mimetype = 'application/pdf'                                ; else
-    if ('ppt'  == $ext) $mimetype = 'application/vnd.ms-powerpoint'                  ; else
-    if ('ps'   == $ext) $mimetype = 'application/postscript'                         ; else
-    if ('rtf'  == $ext) $mimetype = 'application/rtf'                                ; else
-    if ('txt'  == $ext) $mimetype = 'text/plain'                                     ; else
-    if ('xls'  == $ext) $mimetype = 'application/vnd.ms-excel'                       ;
+} else {
+    if ('doc'  == $ext) {
+        $mimetype = 'application/msword'                             ;
+    } else if ('dot'  == $ext) {
+        $mimetype = 'application/msword'                             ;
+    } else if ('htm'  == $ext) {
+        $mimetype = 'text/html'                                      ;
+    } else if ('html' == $ext) {
+        $mimetype = 'text/html'                                      ;
+    } else if ('odt'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
+    } else if ('ods'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.spreadsheet' ;
+    } else if ('ott'  == $ext) {
+        $mimetype = 'application/vnd.oasis.opendocument.text'        ;
+    } else if ('pdf'  == $ext) {
+        $mimetype = 'application/pdf'                                ;
+    } else if ('ppt'  == $ext) {
+        $mimetype = 'application/vnd.ms-powerpoint'                  ;
+    } else if ('ps'   == $ext) {
+        $mimetype = 'application/postscript'                         ;
+    } else if ('rtf'  == $ext) {
+        $mimetype = 'application/rtf'                                ;
+    } else if ('txt'  == $ext) {
+        $mimetype = 'text/plain'                                     ;
+    } else if ('xls'  == $ext) {
+        $mimetype = 'application/vnd.ms-excel'                       ;
+    }
 }
 
 $zipin = new ZipArchive;
@@ -347,10 +375,10 @@ if ($zipin->open($templatepath) === true) {
         $edata = doSubs($edata);
         $zipout->addFromString($ename, $edata);
     }
+
     $zipout->close();
     $zipin->close();
-}
-else {
+} else {
   // Not a zip archive.
     $edata = file_get_contents($templatepath);
     $edata = doSubs($edata);
@@ -360,7 +388,9 @@ else {
 // Compute a download name like "filename_lastname_pid.odt".
 $pi = pathinfo($form_filename);
 $dlname = $pi['filename'] . '_' . $ptrow['lname'] . '_' . $pid;
-if ($pi['extension'] !== '') $dlname .= '.' . $pi['extension'];
+if ($pi['extension'] !== '') {
+    $dlname .= '.' . $pi['extension'];
+}
 
 header('Content-Description: File Transfer');
 header('Content-Transfer-Encoding: binary');
@@ -376,4 +406,3 @@ flush();
 readfile($fname);
 
 unlink($fname);
-?>

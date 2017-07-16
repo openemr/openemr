@@ -25,7 +25,8 @@ namespace repositories;
 use entities\Version;
 use Doctrine\ORM\EntityRepository;
 
-class VersionRepository extends EntityRepository {
+class VersionRepository extends EntityRepository
+{
     /**
      * Updates the sole version entry in the database. The version
      * table doesn't use unique keys, so a special merger function
@@ -44,7 +45,8 @@ class VersionRepository extends EntityRepository {
             $updateInformation = $this->_em->persist($objectToBeUpdated);
             $this->_em->flush();
             $response = true;
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         return $response;
     }

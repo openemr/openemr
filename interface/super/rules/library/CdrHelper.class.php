@@ -17,7 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // 
 
-class CdrResults{
+class CdrResults
+{
         var $id;
         var $rule;
         var $passive_flag;
@@ -28,7 +29,7 @@ class CdrResults{
     function __construct($rule_id = "", $active_alert_flag = "", $passive_alert_flag = "", $patient_reminder_flag = "", $access_control = "")
     {
         $this->id = $rule_id;
-                $this->rule = getLabel($this->id,'clinical_rules');
+                $this->rule = getLabel($this->id, 'clinical_rules');
         $this->active_flag = $active_alert_flag;
         $this->passive_flag = $passive_alert_flag;
         $this->reminder_flag = $patient_reminder_flag;
@@ -74,16 +75,12 @@ class CdrResults{
                               ", patient_reminder_flag = ?" .
                           " WHERE id = ? AND pid = 0";
     
-           sqlStatement($query, array($this->active_flag,$this->passive_flag,$this->reminder_flag,$this->id) );
+           sqlStatement($query, array($this->active_flag,$this->passive_flag,$this->reminder_flag,$this->id));
                         
                     // Set the settings that apply to all rules including the patient custom rules (pid is > 0)
                     $query = "UPDATE clinical_rules SET access_control = ?" .
                                                       " WHERE id = ?";
 
-                       sqlStatement($query, array($this->access_control,$this->id) );
-
-    
+                       sqlStatement($query, array($this->access_control,$this->id));
     }
-          
 }
-?>

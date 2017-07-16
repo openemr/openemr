@@ -14,7 +14,7 @@ class AMC_302f_Denominator implements AmcFilterIF
         return "AMC_302f Denominator";
     }
     
-    public function test( AmcPatient $patient, $beginDate, $endDate )
+    public function test(AmcPatient $patient, $beginDate, $endDate)
     {
         // All unique patients seen by the EP or admitted to the eligible
         // hospital’s or CAH’s inpatient or emergency department (POS 21 or 23)
@@ -22,8 +22,7 @@ class AMC_302f_Denominator implements AmcFilterIF
         $options = array( Encounter::OPTION_ENCOUNTER_COUNT => 1 );
         if (Helper::checkAnyEncounter($patient, $beginDate, $endDate, $options)) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }

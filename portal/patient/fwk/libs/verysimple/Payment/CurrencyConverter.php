@@ -4,7 +4,7 @@
 /**
  * import supporting libraries
  */
-require_once ("verysimple/HTTP/HttpRequest.php");
+require_once("verysimple/HTTP/HttpRequest.php");
 
 /**
  * CurrencyConverter is a utility class for converting currencies.
@@ -15,7 +15,8 @@ require_once ("verysimple/HTTP/HttpRequest.php");
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class CurrencyConverter {
+class CurrencyConverter
+{
     
     /**
      * Converts currency using google.
@@ -36,24 +37,23 @@ class CurrencyConverter {
         $converted_amount = 0;
         
         $qs = $amount . ' ' . $from . ' in ' . $to;
-        $url = "http://www.google.com/search?q=" . urlEncode ( $qs );
+        $url = "http://www.google.com/search?q=" . urlEncode($qs);
         
-        $g_response = strip_tags ( HttpRequest::Get ( $url ) );
+        $g_response = strip_tags(HttpRequest::Get($url));
         
-        if (preg_match ( "/Rates provided for information only - see disclaimer./i", $g_response )) {
+        if (preg_match("/Rates provided for information only - see disclaimer./i", $g_response)) {
             $matches = array ();
-            preg_match ( '/= ([0-9\s\.,]+)/', $g_response, $matches );
+            preg_match('/= ([0-9\s\.,]+)/', $g_response, $matches);
             if ($matches [1]) {
                 $converted_amount = $matches [1];
             } else {
                 // this should never occur unless google changes the output formatting of the search results
-                throw new Exception ( "Unable to parse response from google" );
+                throw new Exception("Unable to parse response from google");
             }
         } else {
-            throw new Exception ( "The google search result does not appear to contain currency information" );
+            throw new Exception("The google search result does not appear to contain currency information");
         }
         
         return $converted_amount;
     }
 }
-?>

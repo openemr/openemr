@@ -18,7 +18,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
     "id = '$id' AND activity = '1'");
     if ($data) {
         print "<table cellpadding='0' cellspacing='0'>\n<tr>\n";
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             if ($key == "id" || $key == "pid" || $key == "user" || $key == "groupname" ||
              $key == "authorized" || $key == "activity" || $key == "date" ||
              $value == "" || $value == "0" || $value == "0.00") {
@@ -27,10 +27,12 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
 
             if ($key == 'followup_required') {
                 switch ($value) {
-                    case '1': $value = 'Yes';
-break;
-                    case '2': $value = 'Pending investigation';
-break;
+                    case '1':
+                        $value = 'Yes';
+                        break;
+                    case '2':
+                        $value = 'Pending investigation';
+                        break;
                 }
             }
 
@@ -51,7 +53,7 @@ break;
          }
             ****/
 
-            $key=ucwords(str_replace("_"," ",$key));
+            $key=ucwords(str_replace("_", " ", $key));
             print "<td valign='top'><span class='bold'>$key: </span><span class='text'>$value &nbsp;</span></td>\n";
             $count++;
             if ($count == $cols) {
@@ -59,7 +61,7 @@ break;
                 print "</tr>\n<tr>\n";
             }
         }
+
         print "</tr>\n</table>\n";
     }
 }
-?> 

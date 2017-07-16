@@ -24,7 +24,7 @@ require_once("$srcdir/options.inc.php");
 ?>
 <html>
 <head>
-<title><?php xl('Re Identification','e'); ?></title>
+<title><?php xl('Re Identification', 'e'); ?></title>
 <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 <link rel="stylesheet"
     href='<?php echo $GLOBALS['webroot'] ?>/library/dynarch_calendar.css'
@@ -61,14 +61,13 @@ function download_file()
 </script>
 </head>
 <body class="body_top">
-<strong><?php xl('Re Identification','e');  ?></strong>
+<strong><?php xl('Re Identification', 'e');  ?></strong>
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
 <form name="re_identification" enctype="Re_identification_ip_single_code"
     action="re_identification_op_single_patient.php" method="POST" onsubmit="return form_validate();"><?php
     $row = sqlQuery("SHOW TABLES LIKE 'de_identification_status'");
-    if (empty($row))
-    {
+    if (empty($row)) {
         ?>
       <table>  <tr>    <td>&nbsp;</td> <td>&nbsp;</td> </tr>
           <tr>  <td>&nbsp;</td> <td>&nbsp;</td> </tr>
@@ -95,22 +94,19 @@ function download_file()
        </tr>
        </table>
         <?php
-    }
-    else {
+    } else {
           $query = "select status from re_identification_status";
           $res = sqlStatement($query);
-        if ($row = sqlFetchArray($res))
-          {
+        if ($row = sqlFetchArray($res)) {
             $reIdentificationStatus = addslashes($row['status']);
            /* $reIdentificationStatus:
         *  0 - There is no Re Identification in progress. (start new Re Identification process)
         *  1 - A Re Identification process is currently in progress.
         *  2 - The Re Identification process completed and xls file is ready to download
            */
-
         }
-        if($reIdentificationStatus == 1)
-          {
+
+        if ($reIdentificationStatus == 1) {
             //1 - A Re Identification process is currently in progress
                 ?>
         <table>
@@ -144,31 +140,26 @@ function download_file()
         </tr>
         </table>
                 <?php
-        }
-        else if($reIdentificationStatus == 0)
-          {
+        } else if ($reIdentificationStatus == 0) {
            //0 - There is no Re Identification in progress. (start new Re Identification process)
                 ?>
         <center></br>
         </br>
-                <?php xl('Enter the Re Identification code','e'); ?> <input
+                <?php xl('Enter the Re Identification code', 'e'); ?> <input
         type='text' size='50' name='re_id_code' id='re_id_code'
-           title='<?php xl('Enter the Re Identification code','e'); ?>' /> </br>
+           title='<?php xl('Enter the Re Identification code', 'e'); ?>' /> </br>
         </br>
            <Input type="Submit" Name="Submit" Value=<?php echo xl("submit");?>></center>
             <?php
-        }
-        else if($reIdentificationStatus == 2)
-          {
+        } else if ($reIdentificationStatus == 2) {
             //2 - The Re Identification process completed and xls file is ready to download
              $query = "SELECT count(*) as count FROM re_identified_data ";
              $res = sqlStatement($query);
-            if ($row = sqlFetchArray($res))
-             {
+            if ($row = sqlFetchArray($res)) {
                 $no_of_items = addslashes($row['count']);
             }
-            if($no_of_items <= 1)
-                {
+
+            if ($no_of_items <= 1) {
                 //start new search - no patient record fount
                 $query = "update re_identification_status set status = 0";
                 $res = sqlStatement($query);
@@ -211,8 +202,7 @@ function download_file()
          </table>
 
                 <?php
-            }
-            else {
+            } else {
                 ?>
              <table>
          <tr>

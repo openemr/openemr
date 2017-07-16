@@ -45,4 +45,3 @@ function treatment_protocols_report($pid, $encounter, $cols, $id)
  }
  ****/
 }
-?>

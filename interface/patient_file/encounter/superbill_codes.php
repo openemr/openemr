@@ -17,13 +17,11 @@ $text     = $_GET['text'];
 if (isset($mode)) {
     if ($mode == "add") {
         if (strtolower($type) == "copay") {
-            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,sprintf("%01.2f", 0 - $code));
-        }
-        elseif (strtolower($type) == "other") {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,sprintf("%01.2f", $fee));
-        }
-        else {
-            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized,$_SESSION['authUserID'],$modifier,$units,$fee);
+            addBilling($encounter, $type, sprintf("%01.2f", $code), strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", 0 - $code));
+        } elseif (strtolower($type) == "other") {
+            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, sprintf("%01.2f", $fee));
+        } else {
+            addBilling($encounter, $type, $code, strip_escape_custom($text), $pid, $userauthorized, $_SESSION['authUserID'], $modifier, $units, $fee);
         }
     }
 }
@@ -44,7 +42,7 @@ if (isset($mode)) {
 <dt>
 
 <a href="superbill_custom_full.php" onclick="top.restoreSession()">
-<span class=title><?php xl('Superbill','e'); ?></span>
+<span class=title><?php xl('Superbill', 'e'); ?></span>
 <font class=more><?php echo $tmore;?></font></a>
 
 <a href="encounter_bottom.php" onclick="top.restoreSession()">
@@ -65,9 +63,10 @@ foreach ($code_types as $key => $value) {
     $codes[$key] = array();
     echo "  <th align='left'>$key Codes</th>\n";
 }
+
 echo " </tr>\n";
 
-for ($iter = 0; $row = sqlFetchArray($res); $iter++){
+for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
     foreach ($code_types as $key => $value) {
         if ($value['id'] == $row['code_type']) {
             $codes[$key][] = $row;
@@ -79,14 +78,15 @@ for ($iter = 0; $row = sqlFetchArray($res); $iter++){
 $index=0;
 
 $numlines = 0;
-foreach ($codes as $value)
+foreach ($codes as $value) {
     $numlines = max($numlines, count($value));
+}
 
 while ($index < $numlines) {
     echo " <tr>\n";
     foreach ($codes as $key => $value) {
         echo "  <td valign='top'>\n";
-        if(!empty($value[$index])) {
+        if (!empty($value[$index])) {
             $code = $value[$index];
             echo "   <dd><a class='text' ";
             echo "href='superbill_codes.php?back=1&mode=add" .
@@ -100,8 +100,10 @@ while ($index < $numlines) {
             echo "<b>" . $code['code'] . "</b>" . "&nbsp;" . $code['modifier'] . "&nbsp;" . $code['code_text'] ;
             echo "</a></dd>\n";
         }
+
         echo "  </td>\n";
     }
+
     echo " </tr>\n";
     ++$index;
 }

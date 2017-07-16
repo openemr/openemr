@@ -1,5 +1,6 @@
 <?php
 namespace Syndromicsurveillance;
+
 use Syndromicsurveillance\Model\Syndromicsurveillance;
 use Syndromicsurveillance\Model\SyndromicsurveillanceTable;
 use Zend\Db\ResultSet\ResultSet;
@@ -81,4 +82,3 @@ class Module
         );
     }
 }
-?>

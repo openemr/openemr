@@ -30,10 +30,13 @@
 
  // Check authorization.
  $thisauth = acl_check('patients', 'notes');
- if (!$thisauth)
-  die(htmlspecialchars( xl('Not authorized'), ENT_NOQUOTES));
- if ($prow['squad'] && ! acl_check('squads', $prow['squad']))
-  die(htmlspecialchars( xl('Not authorized for this squad.'), ENT_NOQUOTES));
+if (!$thisauth) {
+    die(htmlspecialchars(xl('Not authorized'), ENT_NOQUOTES));
+}
+
+if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+    die(htmlspecialchars(xl('Not authorized for this squad.'), ENT_NOQUOTES));
+}
 
 $noteid = $_REQUEST['noteid'];
 
@@ -62,14 +65,14 @@ if ($noteid) {
 
 <p><?php echo "<b>" .
   generate_display_field(array('data_type'=>'1','list_id'=>'note_type'), $title) .
-  "</b>" . htmlspecialchars( xl('for','',' ',' '), ENT_NOQUOTES) .
-  "<b>" . htmlspecialchars( $ptname, ENT_NOQUOTES) . "</b>"; ?></p>
+  "</b>" . htmlspecialchars(xl('for', '', ' ', ' '), ENT_NOQUOTES) .
+  "<b>" . htmlspecialchars($ptname, ENT_NOQUOTES) . "</b>"; ?></p>
 
-<p><?php echo htmlspecialchars( xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( $assigned_to, ENT_NOQUOTES); ?></p>
+<p><?php echo htmlspecialchars(xl('Assigned To'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars($assigned_to, ENT_NOQUOTES); ?></p>
 
-<p><?php echo htmlspecialchars( xl('Active'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars( ($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
+<p><?php echo htmlspecialchars(xl('Active'), ENT_NOQUOTES); ?>: <?php echo htmlspecialchars(($activity ? xl('Yes') : xl('No')), ENT_NOQUOTES); ?></p>
 
-<p><?php echo nl2br(htmlspecialchars( $body, ENT_NOQUOTES)); ?></p>
+<p><?php echo nl2br(htmlspecialchars($body, ENT_NOQUOTES)); ?></p>
 
 <script language='JavaScript'>
 opener.top.printLogPrint(window);

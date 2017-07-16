@@ -28,8 +28,8 @@ $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM a
 	INNER JOIN list_options lo ON a.amendment_by = lo.option_id AND lo.list_id='amendment_from'
 	LEFT JOIN list_options lo1 ON a.amendment_status = lo1.option_id AND lo1.list_id='amendment_status'
 	WHERE a.pid = ? ORDER BY amendment_date DESC";
-$res = sqlStatement($query, array($pid) );
-if ( sqlNumRows($res) > 0 ) { ?>
+$res = sqlStatement($query, array($pid));
+if (sqlNumRows($res) > 0) { ?>
 
     <table class="table table-striped">
         <tr class="header">
@@ -41,7 +41,6 @@ if ( sqlNumRows($res) > 0 ) { ?>
     <?php
         $even = false;
     while ($row = sqlFetchArray($res)) {
-
         echo "<tr class='".$class."'>";
         echo "<td>".text($row['amendment_date'])."</td>";
         echo "<td>".text($row['AmendmentBy'])."</td>";
@@ -49,10 +48,9 @@ if ( sqlNumRows($res) > 0 ) { ?>
         echo "<td>".text($row['AmendmentStatus'])."</td>";
         echo "</tr>";
     }
+
         echo "</table>";
-}
-else
-{
+} else {
     echo xlt("No Results");
 }
 ?>

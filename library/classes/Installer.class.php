@@ -5,7 +5,7 @@
 class Installer
 {
 
-    public function __construct( $cgi_variables )
+    public function __construct($cgi_variables)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -63,10 +63,11 @@ class Installer
 
     public function login_is_valid()
     {
-        if ( ($this->login == '') || (! isset( $this->login )) ) {
+        if (($this->login == '') || (! isset($this->login))) {
             $this->error_message = "login is invalid: '$this->login'";
             return false;
         }
+
         return true;
     }
 
@@ -74,52 +75,56 @@ class Installer
     {
         // to prevent php injection
         trim($input_text);
-        if ($input_text == '')
-        {
+        if ($input_text == '') {
             return false;
         }
-        if (preg_match('@[\\\\;()<>/\'"]@', $input_text))
-        {
+
+        if (preg_match('@[\\\\;()<>/\'"]@', $input_text)) {
             return false;
         }
+
         return true;
     }
 
     public function iuser_is_valid()
     {
-        if ( strpos($this->iuser, " ") ) {
+        if (strpos($this->iuser, " ")) {
             $this->error_message = "Initial user is invalid: '$this->iuser'";
             return false;
         }
+
         return true;
     }
 
     public function password_is_valid()
     {
-        if ( $this->pass == "" || !isset($this->pass) ) {
+        if ($this->pass == "" || !isset($this->pass)) {
             $this->error_message = "The password for the new database account is invalid: '$this->pass'";
             return false;
         }
+
         return true;
     }
 
     public function user_password_is_valid()
     {
-        if ( $this->iuserpass == "" || !isset($this->iuserpass) ) {
+        if ($this->iuserpass == "" || !isset($this->iuserpass)) {
             $this->error_message = "The password for the user is invalid: '$this->iuserpass'";
             return false;
         }
+
         return true;
     }
 
     public function root_database_connection()
     {
-        $this->dbh = $this->connect_to_database( $this->server, $this->root, $this->rootpass, $this->port );
-        if ( $this->dbh ) {
+        $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
+        if ($this->dbh) {
             if (! $this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
                 return false;
             }
+
             return true;
         } else {
             $this->error_message = 'unable to connect to database as root';
@@ -129,23 +134,27 @@ class Installer
 
     public function user_database_connection()
     {
-        $this->dbh = $this->connect_to_database( $this->server, $this->login, $this->pass, $this->port, $this->dbname );
-        if ( ! $this->dbh ) {
+        $this->dbh = $this->connect_to_database($this->server, $this->login, $this->pass, $this->port, $this->dbname);
+        if (! $this->dbh) {
             $this->error_message = "unable to connect to database as user: '$this->login'";
             return false;
         }
-        if ( ! $this->set_sql_strict() ) {
+
+        if (! $this->set_sql_strict()) {
             $this->error_message = 'unable to set strict sql setting';
             return false;
         }
-        if ( ! $this->set_collation() ) {
+
+        if (! $this->set_collation()) {
             $this->error_message = 'unable to set sql collation';
             return false;
         }
-        if ( ! mysqli_select_db($this->dbh, $this->dbname) ) {
+
+        if (! mysqli_select_db($this->dbh, $this->dbname)) {
             $this->error_message = "unable to select database: '$this->dbname'";
             return false;
         }
+
         return true;
     }
 
@@ -156,6 +165,7 @@ class Installer
             $sql .= " character set utf8 collate $this->collate";
             $this->set_collation();
         }
+
         return $this->execute_sql($sql);
     }
 
@@ -167,7 +177,7 @@ class Installer
 
     public function grant_privileges()
     {
-        return $this->execute_sql( "GRANT ALL PRIVILEGES ON $this->dbname.* TO '$this->login'@'$this->loginhost' IDENTIFIED BY '$this->pass'" );
+        return $this->execute_sql("GRANT ALL PRIVILEGES ON $this->dbname.* TO '$this->login'@'$this->loginhost' IDENTIFIED BY '$this->pass'");
     }
 
     public function disconnect()
@@ -191,14 +201,18 @@ class Installer
         $sql_results = ''; // information string which is returned
         foreach ($this->dumpfiles as $filename => $title) {
             $sql_results_temp = '';
-            $sql_results_temp = $this->load_file($filename,$title);
-            if ($sql_results_temp == false) return false;
+            $sql_results_temp = $this->load_file($filename, $title);
+            if ($sql_results_temp == false) {
+                return false;
+            }
+
             $sql_results .= $sql_results_temp;
         }
+
         return $sql_results;
     }
 
-    public function load_file($filename,$title)
+    public function load_file($filename, $title)
     {
         $sql_results = ''; // information string which is returned
         $sql_results .= "Creating $title tables...\n";
@@ -207,42 +221,52 @@ class Installer
             $this->error_message = "ERROR.  Could not open dumpfile '$filename'.\n";
             return false;
         }
+
         $query = "";
         $line = "";
 
         // Settings to drastically speed up installation with InnoDB
-        if ( ! $this->execute_sql("SET autocommit=0;") ){
-            return false;
-        }
-        if ( ! $this->execute_sql("START TRANSACTION;") ){
+        if (! $this->execute_sql("SET autocommit=0;")) {
             return false;
         }
 
-        while (!feof ($fd)){
-            $line = fgets($fd,1024);
+        if (! $this->execute_sql("START TRANSACTION;")) {
+            return false;
+        }
+
+        while (!feof($fd)) {
+            $line = fgets($fd, 1024);
             $line = rtrim($line);
-            if (substr($line,0,2) == "--") // Kill comments
+            if (substr($line, 0, 2) == "--") { // Kill comments
                     continue;
-            if (substr($line,0,1) == "#") // Kill comments
+            }
+
+            if (substr($line, 0, 1) == "#") { // Kill comments
                     continue;
-            if ($line == "")
+            }
+
+            if ($line == "") {
                     continue;
+            }
+
             $query = $query.$line;          // Check for full query
-            $chr = substr($query,strlen($query)-1,1);
+            $chr = substr($query, strlen($query)-1, 1);
             if ($chr == ";") { // valid query, execute
-                    $query = rtrim($query,";");
-                if ( ! $this->execute_sql( $query ) ){
+                    $query = rtrim($query, ";");
+                if (! $this->execute_sql($query)) {
                     return false;
                 }
+
                     $query = "";
             }
         }
 
         // Settings to drastically speed up installation with InnoDB
-        if ( ! $this->execute_sql("COMMIT;") ){
+        if (! $this->execute_sql("COMMIT;")) {
             return false;
         }
-        if ( ! $this->execute_sql("SET autocommit=1;") ){
+
+        if (! $this->execute_sql("SET autocommit=1;")) {
             return false;
         }
 
@@ -262,6 +286,7 @@ class Installer
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
         }
+
         return true;
     }
 
@@ -272,14 +297,14 @@ class Installer
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
         }
+
         $password_hash = "NoLongerUsed";  // This is the value to insert into the password column in the "users" table. password details are now being stored in users_secure instead.
         $salt=oemr_password_salt();     // Uses the functions defined in library/authentication/password_hashing.php
-        $hash=oemr_password_hash($this->iuserpass,$salt);
+        $hash=oemr_password_hash($this->iuserpass, $salt);
         if ($this->execute_sql("INSERT INTO users (id, username, password, authorized, lname, fname, facility_id, calendar, cal_ui) VALUES (1,'$this->iuser','$password_hash',1,'$this->iuname','$this->iufname',3,1,3)") == false) {
             $this->error_message = "ERROR. Unable to add initial user\n" .
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
-
         }
 
         // Create the new style login credentials with blowfish and salt
@@ -288,8 +313,11 @@ class Installer
             "<p>".mysqli_error($this->dbh)." (#".mysqli_errno($this->dbh).")\n";
             return false;
         }
+
         // Add the official openemr users (services)
-        if ($this->load_file($this->additional_users,"Additional Official Users") == false) return false;
+        if ($this->load_file($this->additional_users, "Additional Official Users") == false) {
+            return false;
+        }
 
         return true;
     }
@@ -304,11 +332,12 @@ class Installer
         if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
             $source_directory      = $GLOBALS['OE_SITES_BASE'] . "/" . $this->source_site_id;
             $destination_directory = $GLOBALS['OE_SITE_DIR'];
-            if ( ! $this->recurse_copy( $source_directory, $destination_directory ) ) {
+            if (! $this->recurse_copy($source_directory, $destination_directory)) {
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
         }
+
         return true;
     }
 
@@ -316,10 +345,11 @@ class Installer
     {
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
-        if ( ! $fd ) {
+        if (! $fd) {
             $this->error_message = 'unable to open configuration file for writing: ' . $this->conffile;
             return false;
         }
+
         $string = '<?php
 //  OpenEMR
 //  MySQL Config
@@ -328,16 +358,16 @@ class Installer
 
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
-        fwrite($fd,$string) or $it_died++;
-        fwrite($fd,"\$host\t= '$this->server';\n") or $it_died++;
-        fwrite($fd,"\$port\t= '$this->port';\n") or $it_died++;
-        fwrite($fd,"\$login\t= '$this->login';\n") or $it_died++;
-        fwrite($fd,"\$pass\t= '$this->pass';\n") or $it_died++;
-        fwrite($fd,"\$dbase\t= '$this->dbname';\n\n") or $it_died++;
-        fwrite($fd,"//Added ability to disable\n") or $it_died++;
-        fwrite($fd,"//utf8 encoding - bm 05-2009\n") or $it_died++;
-        fwrite($fd,"global \$disable_utf8_flag;\n") or $it_died++;
-        fwrite($fd,"\$disable_utf8_flag = false;\n") or $it_died++;
+        fwrite($fd, $string) or $it_died++;
+        fwrite($fd, "\$host\t= '$this->server';\n") or $it_died++;
+        fwrite($fd, "\$port\t= '$this->port';\n") or $it_died++;
+        fwrite($fd, "\$login\t= '$this->login';\n") or $it_died++;
+        fwrite($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
+        fwrite($fd, "\$dbase\t= '$this->dbname';\n\n") or $it_died++;
+        fwrite($fd, "//Added ability to disable\n") or $it_died++;
+        fwrite($fd, "//utf8 encoding - bm 05-2009\n") or $it_died++;
+        fwrite($fd, "global \$disable_utf8_flag;\n") or $it_died++;
+        fwrite($fd, "\$disable_utf8_flag = false;\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -359,7 +389,7 @@ $config = 1; /////////////
 ';
     ?><?php // done just for coloring
 
-    fwrite($fd,$string) or $it_died++;
+    fwrite($fd, $string) or $it_died++;
     fclose($fd) or $it_died++;
 
     //it's rather irresponsible to not report errors when writing this file.
@@ -375,7 +405,8 @@ if ($it_died != 0) {
     {
         function xl($s)
         {
-            return $s; }
+            return $s;
+        }
         require(dirname(__FILE__) . '/../globals.inc.php');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             foreach ($grparr as $fldid => $fldarr) {
@@ -390,22 +421,24 @@ if ($it_died != 0) {
                 }
             }
         }
+
         return true;
     }
 
     public function install_gacl()
     {
         $install_results_1 = $this->get_require_contents($this->gaclSetupScript1);
-        if (! $install_results_1 ) {
+        if (! $install_results_1) {
             $this->error_message = "install_gacl failed: unable to require gacl script 1";
             return false;
         }
 
         $install_results_2 = $this->get_require_contents($this->gaclSetupScript2);
-        if (! $install_results_2 ) {
+        if (! $install_results_2) {
             $this->error_message = "install_gacl failed: unable to require gacl script 2";
             return false;
         }
+
         $this->debug_message .= $install_results_1 . $install_results_2;
         return true;
     }
@@ -415,82 +448,99 @@ if ($it_died != 0) {
         // Validation of OpenEMR user settings
         //   (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
-            if ( ! $this->login_is_valid() ) {
+            if (! $this->login_is_valid()) {
                 return false;
             }
-            if ( ! $this->iuser_is_valid() ) {
+
+            if (! $this->iuser_is_valid()) {
                 return false;
             }
-            if ( ! $this->user_password_is_valid() ) {
+
+            if (! $this->user_password_is_valid()) {
                 return false;
             }
         }
+
         // Validation of mysql database password
-        if ( ! $this->password_is_valid() ) {
+        if (! $this->password_is_valid()) {
             return false;
         }
+
         if (! $this->no_root_db_access) {
             // Connect to mysql via root user
-            if (! $this->root_database_connection() ) {
+            if (! $this->root_database_connection()) {
                 return false;
             }
+
             // Create the dumpfile
             //   (applicable if cloning from another database)
             if (! empty($this->clone_database)) {
-                if ( ! $this->create_dumpfiles() ) {
+                if (! $this->create_dumpfiles()) {
                     return false;
                 }
             }
+
             // Create the site directory
             //   (applicable if mirroring another local site)
-            if ( ! empty($this->source_site_id) ) {
-                if ( ! $this->create_site_directory() ) {
+            if (! empty($this->source_site_id)) {
+                if (! $this->create_site_directory()) {
                     return false;
                 }
             }
+
             $this->disconnect();
             if (! $this->user_database_connection()) {
                 // Re-connect to mysql via root user
-                if (! $this->root_database_connection() ) {
+                if (! $this->root_database_connection()) {
                     return false;
                 }
+
                 // Create the mysql database
-                if ( ! $this->create_database()) {
+                if (! $this->create_database()) {
                     return false;
                 }
+
                 // Grant user privileges to the mysql database
-                if ( ! $this->grant_privileges() ) {
+                if (! $this->grant_privileges()) {
                     return false;
                 }
             }
+
             $this->disconnect();
         }
+
         // Connect to mysql via created user
-        if ( ! $this->user_database_connection() ) {
+        if (! $this->user_database_connection()) {
             return false;
         }
+
         // Build the database
-        if ( ! $this->load_dumpfiles() ) {
+        if (! $this->load_dumpfiles()) {
             return false;
         }
+
         // Write the sql configuration file
-        if ( ! $this->write_configuration_file() ) {
+        if (! $this->write_configuration_file()) {
             return false;
         }
+
         // Load the version information, globals settings,
         // initial user, and set up gacl access controls.
         //  (applicable if not cloning from another database)
         if (empty($this->clone_database)) {
-            if ( ! $this->add_version_info() ) {
+            if (! $this->add_version_info()) {
                 return false;
             }
-            if ( ! $this->insert_globals() ) {
+
+            if (! $this->insert_globals()) {
                 return false;
             }
-            if ( ! $this->add_initial_user() ) {
+
+            if (! $this->add_initial_user()) {
                 return false;
             }
-            if ( ! $this->install_gacl()) {
+
+            if (! $this->install_gacl()) {
                 return false;
             }
         }
@@ -498,14 +548,15 @@ if ($it_died != 0) {
         return true;
     }
 
-    private function execute_sql( $sql )
+    private function execute_sql($sql)
     {
         $this->error_message = '';
-        if ( ! $this->dbh ) {
+        if (! $this->dbh) {
             $this->user_database_connection();
         }
+
         $results = mysqli_query($this->dbh, $sql);
-        if ( $results ) {
+        if ($results) {
             return $results;
         } else {
             $error_mes = mysqli_error($this->dbh);
@@ -515,12 +566,14 @@ if ($it_died != 0) {
         }
     }
 
-    private function connect_to_database( $server, $user, $password, $port, $dbname='' )
+    private function connect_to_database($server, $user, $password, $port, $dbname = '')
     {
-        if ($server == "localhost")
-        $dbh = mysqli_connect($server, $user, $password, $dbname);
-        else
-        $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
+        if ($server == "localhost") {
+            $dbh = mysqli_connect($server, $user, $password, $dbname);
+        } else {
+            $dbh = mysqli_connect($server, $user, $password, $dbname, $port);
+        }
+
         return $dbh;
     }
 
@@ -535,6 +588,7 @@ if ($it_died != 0) {
         if ($this->collate) {
             return $this->execute_sql("SET NAMES 'utf8'");
         }
+
         return true;
     }
 
@@ -547,31 +601,35 @@ if ($it_died != 0) {
    */
     private function initialize_dumpfile_list()
     {
-        if ( $this->clone_database ) {
+        if ($this->clone_database) {
             $this->dumpfiles = array( $this->get_backup_filename() => 'clone database' );
         } else {
             $dumpfiles = array( $this->main_sql => 'Main' );
             if (! empty($this->development_translations)) {
                 // Use the online development translation set
                 $dumpfiles[ $this->devel_translation_sql ] = "Online Development Language Translations (utf8)";
-            }
-            else {
+            } else {
                 // Use the local translation set
                 $dumpfiles[ $this->translation_sql ] = "Language Translation (utf8)";
             }
+
             if ($this->ippf_specific) {
                 $dumpfiles[ $this->ippf_sql ] = "IPPF Layout";
             }
+
             // Load ICD-9 codes if present.
-            if (file_exists( $this->icd9 )) {
+            if (file_exists($this->icd9)) {
                 $dumpfiles[ $this->icd9 ] = "ICD-9";
             }
+
             // Load CVX codes if present
-            if (file_exists( $this->cvx )) {
+            if (file_exists($this->cvx)) {
                 $dumpfiles[ $this->cvx ] = "CVX Immunization Codes";
             }
+
             $this->dumpfiles = $dumpfiles;
         }
+
         return $this->dumpfiles;
     }
 
@@ -585,6 +643,7 @@ if ($it_died != 0) {
             ob_end_clean();
             return $contents;
         }
+
         return false;
     }
 
@@ -599,20 +658,21 @@ if ($it_died != 0) {
     private function recurse_copy($src, $dst)
     {
         $dir = opendir($src);
-        if ( ! @mkdir($dst) ) {
+        if (! @mkdir($dst)) {
             $this->error_message = "unable to create directory: '$dst'";
             return false;
         }
-        while(false !== ($file = readdir($dir))) {
+
+        while (false !== ($file = readdir($dir))) {
             if ($file != '.' && $file != '..') {
                 if (is_dir($src . '/' . $file)) {
                     $this->recurse_copy($src . '/' . $file, $dst . '/' . $file);
-                }
-                else {
+                } else {
                     copy($src . '/' . $file, $dst . '/' . $file);
                 }
             }
         }
+
         closedir($dir);
         return true;
     }
@@ -630,7 +690,9 @@ if ($it_died != 0) {
 
         include("$OE_SITES_BASE/$source_site_id/sqlconf.php");
 
-        if (empty($config)) die("Source site $source_site_id has not been set up!");
+        if (empty($config)) {
+            die("Source site $source_site_id has not been set up!");
+        }
 
         $backup_file = $this->get_backup_filename();
         $cmd = "mysqldump -u " . escapeshellarg($login) .
@@ -638,8 +700,10 @@ if ($it_died != 0) {
         " --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
-        $tmp0 = exec($cmd, $tmp1=array(), $tmp2);
-        if ($tmp2) die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+        $tmp0 = exec($cmd, $tmp1 = array(), $tmp2);
+        if ($tmp2) {
+            die("Error $tmp2 running \"$cmd\": $tmp0 " . implode(' ', $tmp1));
+        }
 
         return $backup_file;
     }
@@ -651,13 +715,12 @@ if ($it_died != 0) {
     {
         if (stristr(PHP_OS, 'WIN')) {
             $backup_file = 'C:/windows/temp/setup_dump.sql';
-        }
-        else {
+        } else {
             $backup_file = '/tmp/setup_dump.sql';
         }
+
         return $backup_file;
     }
-
 }
 
 /*
@@ -672,4 +735,3 @@ PARTICULAR PURPOSE.  See the GNU Gneral Public License for more details.
 You should have received a copy of the GNU General Public Licence along with
 this file.  If not see <http://www.gnu.org/licenses/>.
 */
-?>

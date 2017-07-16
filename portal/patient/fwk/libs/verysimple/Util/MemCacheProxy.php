@@ -1,6 +1,6 @@
 <?php
 /** @package    verysimple::Util */
-require_once ("verysimple/Phreeze/CacheMemCache.php");
+require_once("verysimple/Phreeze/CacheMemCache.php");
 
 /**
  * MemCacheProxy provides simple access to memcache pool but ignores
@@ -15,7 +15,8 @@ require_once ("verysimple/Phreeze/CacheMemCache.php");
  * @version 1.0
  *
  */
-class MemCacheProxy extends CacheMemCache {
+class MemCacheProxy extends CacheMemCache
+{
     public $ServerOffline = false;
     public $LastServerError = '';
     
@@ -29,14 +30,14 @@ class MemCacheProxy extends CacheMemCache {
      */
     public function __construct($server_array = array('localhost'=>'11211'), $uniquePrefix = "CACHE-")
     {
-        if (class_exists ( 'Memcache' )) {
-            $memcache = new Memcache ();
-            foreach ( array_keys ( $server_array ) as $host ) {
+        if (class_exists('Memcache')) {
+            $memcache = new Memcache();
+            foreach (array_keys($server_array) as $host) {
                 // print "adding server $host " . $server_array[$host];
-                $memcache->addServer ( $host, $server_array [$host] );
+                $memcache->addServer($host, $server_array [$host]);
             }
             
-            parent::__construct ( $memcache, $uniquePrefix, true );
+            parent::__construct($memcache, $uniquePrefix, true);
         } else {
             $this->LastServerError = 'Memcache client module not installed';
             $this->ServerOffline = true;
@@ -49,10 +50,11 @@ class MemCacheProxy extends CacheMemCache {
     public function Get($key, $flags = null)
     {
         // prevent hammering the server if it is down
-        if ($this->ServerOffline)
+        if ($this->ServerOffline) {
             return null;
+        }
         
-        return parent::Get ( $key, $flags );
+        return parent::Get($key, $flags);
     }
     
     /**
@@ -61,10 +63,11 @@ class MemCacheProxy extends CacheMemCache {
     public function Set($key, $val, $flags = null, $timeout = 0)
     {
         // prevent hammering the server if it is down
-        if ($this->ServerOffline)
+        if ($this->ServerOffline) {
             return null;
+        }
         
-        return parent::Set ( $key, $val, $flags, $timeout );
+        return parent::Set($key, $val, $flags, $timeout);
     }
     
     /**
@@ -73,11 +76,10 @@ class MemCacheProxy extends CacheMemCache {
     public function Delete($key)
     {
         // prevent hammering the server if it is down
-        if ($this->ServerOffline)
+        if ($this->ServerOffline) {
             return null;
+        }
         
-        return parent::Delete ( $key );
+        return parent::Delete($key);
     }
 }
-
-?>

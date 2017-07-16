@@ -21,6 +21,7 @@ function postToGet($arin)
     foreach ($arin as $key => $val) {
         $getstring.=urlencode($key)."=".urlencode($val)."&";
     }
+
     return $getstring;
 }
 ?>
@@ -66,17 +67,15 @@ if (file_exists($practice_logo)) {
 <a href="javascript:window.close();"><font class=title><?php print $titleres{"fname"} . " " . $titleres{"lname"};?></font></a><br><br>
 
 <table>
-<tr><td><?php xl('Generated on','e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
+<tr><td><?php xl('Generated on', 'e'); ?>:</td><td> <?php print oeFormatShortDate(date("Y-m-d"));?></td></tr>
 <?php
 if ($date_result = sqlQuery("select date from form_encounter where encounter='" .
-$encounter . "' and pid='$pid'"))
-{
+$encounter . "' and pid='$pid'")) {
     $encounter_date = date("D F jS", strtotime($date_result{"date"}));
     $raw_encounter_date = date("Y-m-d", strtotime($date_result{"date"}));
-
 }
 ?>
-<tr><td><?php xl('Date Of Service','e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
+<tr><td><?php xl('Date Of Service', 'e'); ?>: </td><td> <?php print oeFormatShortDate($raw_encounter_date);?></td></tr>
 </table>
 <br><br>
 <?php
@@ -85,7 +84,7 @@ $encounter . "' and pid='$pid'"))
  //print "Provider: " . $provider  . "</br>";
 
  $inclookupres = sqlStatement("select distinct formdir from forms where pid='$pid'");
-while($result = sqlFetchArray($inclookupres)) {
+while ($result = sqlFetchArray($inclookupres)) {
     include_once("{$GLOBALS['incdir']}/forms/" . $result{"formdir"} . "/report.php");
 }
 
@@ -95,7 +94,7 @@ foreach ($ar as $key => $val) {
     if (!$printed && strpos($key, "newpatient_") === 0) {
         $billing = getPatientBillingEncounter($pid, $val);
         foreach ($billing as $b) {
-            if(!empty($b['provider_name'])) {
+            if (!empty($b['provider_name'])) {
                 echo "Provider: " . $b['provider_name'] . "<br>";
                 $printed = true;
                 break;
@@ -105,7 +104,6 @@ foreach ($ar as $key => $val) {
 }
 
 foreach ($ar as $key => $val) {
-
   /****
   // WTF??  Redo this.
   if (!empty($ar['newpatient'])){
@@ -125,35 +123,26 @@ foreach ($ar as $key => $val) {
   }
   ****/
 
-    if (stristr($key,"include_")) {
+    if (stristr($key, "include_")) {
       //print "include: $val<br>\n";
 
         if ($val == "demographics") {
-
             print "<br><font class=bold>".xl('Patient Data').":</font><br>";
-            printRecDataOne($patient_data_array, getRecPatientData ($pid), $N);
-
+            printRecDataOne($patient_data_array, getRecPatientData($pid), $N);
         } elseif ($val == "history") {
-
             print "<br><font class=bold>".xl('History Data').":</font><br>";
-            printRecDataOne($history_data_array, getRecHistoryData ($pid), $N);
-
+            printRecDataOne($history_data_array, getRecHistoryData($pid), $N);
         } elseif ($val == "employer") {
-
             print "<br><font class=bold>".xl('Employer Data').":</font><br>";
-            printRecDataOne($employer_data_array, getRecEmployerData ($pid), $N);
-
+            printRecDataOne($employer_data_array, getRecEmployerData($pid), $N);
         } elseif ($val == "insurance") {
-
             print "<br><font class=bold>".xl('Primary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"primary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "primary"), $N);
             print "<font class=bold>".xl('Secondary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"secondary"), $N);
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "secondary"), $N);
             print "<font class=bold>".xl('Tertiary Insurance Data').":</font><br>";
-            printRecDataOne($insurance_data_array, getRecInsuranceData ($pid,"tertiary"), $N);
-
+            printRecDataOne($insurance_data_array, getRecInsuranceData($pid, "tertiary"), $N);
         } elseif ($val == "billing") {
-
             print "<br><font class=bold>".xl('Billing Information').":</font><br>";
             if (count($ar['newpatient']) > 0) {
                 $billings = array();
@@ -162,8 +151,8 @@ foreach ($ar as $key => $val) {
                 $total = 0.00;
                 $copays = 0.00;
                 foreach ($ar['newpatient'] as $be) {
-                    $ta = explode(":",$be);
-                    $billing = getPatientBillingEncounter($pid,$ta[1]);
+                    $ta = explode(":", $be);
+                    $billing = getPatientBillingEncounter($pid, $ta[1]);
                     $billings[] = $billing;
                     foreach ($billing as $b) {
                         echo "<tr>\n";
@@ -180,6 +169,7 @@ foreach ($ar as $key => $val) {
                         }
                     }
                 }
+
                 echo "<tr><td>&nbsp;</td></tr>";
                 echo "<tr><td class=bold>Sub-Total</td><td class=text>" . oeFormatMoney($total) . "</td></tr>";
                 echo "<tr><td class=bold>Paid</td><td class=text>" . oeFormatMoney($copays) . "</td></tr>";
@@ -188,8 +178,7 @@ foreach ($ar as $key => $val) {
                 echo "<pre>";
                 //print_r($billings);
                 echo "</pre>";
-            }
-            else {
+            } else {
                 printPatientBilling($pid);
             }
 
@@ -205,7 +194,6 @@ foreach ($ar as $key => $val) {
 				print "<font class=bold>Patient Medical Problems:</font><br>";
 				printListData($pid, "medical_problem", "1");
             ****/
-
         } elseif ($val == "immunizations") {
             print "<font class=bold>".xl('Patient Immunization').":</font><br>";
             $sql = "select i1.immunization_id as immunization_id, if(i1.administered_date,concat(i1.administered_date,' - ') ,substring(i1.note,1,20) ) as immunization_data from immunizations i1 where i1.patient_id = $pid order by administered_date desc";
@@ -215,29 +203,25 @@ foreach ($ar as $key => $val) {
                 generate_display_field(array('data_type'=>'1','list_id'=>'immunizations'), $row['immunization_id']) .
                 "</span><br>\n";
             }
-
         } elseif ($val == "notes") {
-
             print "<font class=bold>".xl('Patient Notes').":</font><br>";
             printPatientNotes($pid);
-
         } elseif ($val == "transactions") {
-
             print "<font class=bold>".xl('Patient Transactions').":</font><br>";
             printPatientTransactions($pid);
-
         }
-
     } else {
-
         if ($key == "documents") {
             echo "<br><br>";
-            foreach($val as $valkey => $valvalue) {
+            foreach ($val as $valkey => $valvalue) {
                 $document_id = $valvalue;
-                if (!is_numeric($document_id)) continue;
+                if (!is_numeric($document_id)) {
+                    continue;
+                }
+
                 $d = new Document($document_id);
                 $fname = basename($d->get_url());
-                $extension = substr($fname, strrpos($fname,"."));
+                $extension = substr($fname, strrpos($fname, "."));
                 echo "Document '" . $fname ."'<br>";
                 $n = new Note();
                 $notes = $n->notes_factory($d->get_id());
@@ -253,22 +237,20 @@ foreach ($ar as $key => $val) {
                     echo '<td>'.$note->get_note().'<br><br></td>';
                     echo '</tr>';
                 }
+
                 echo "</table>";
                 if ($extension == ".png" || $extension == ".jpg" || $extension == ".jpeg" || $extension == ".gif") {
                     echo '<img src="' . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . $document_id . '"><br><br>';
-                }
-                else {
+                } else {
                     echo "<b>NOTE</b>: ".xl('Document')." '" . $fname ."' ".xl('cannot be displayed inline becuase its type is not supported by the browser').".<br><br>";
                 }
             }
-        }
-
-        else if (strpos($key, "issue_") === 0) {
-
+        } else if (strpos($key, "issue_") === 0) {
             if ($first_issue) {
                 $first_issue = 0;
                 echo "<br>\n";
             }
+
             preg_match('/^(.*)_(\d+)$/', $key, $res);
             $rowid = $res[2];
             $irow = sqlQuery("SELECT type, title, comments, diagnosis " .
@@ -285,20 +267,19 @@ foreach ($ar as $key => $val) {
                 echo "<span class='bold'>&nbsp;Diagnosis: </span><span class='text'>" .
                  $irow['diagnosis'] . " " . $crow['code_text'] . "</span><br>\n";
             }
-
-        }
-
-       // Otherwise we have an "encounter form" form field whose name is like
+        } // Otherwise we have an "encounter form" form field whose name is like
        // dirname_formid, with a value which is the encounter ID.
        //
         else {
-
             $form_encounter = $val;
             preg_match('/^(.*)_(\d+)$/', $key, $res);
             $form_id = $res[2];
             $formres = getFormNameByFormdir($res[1]);
             $dateres = getEncounterDateByEncounter($form_encounter);
-            if ($res[1] == 'newpatient') print "<br>\n";
+            if ($res[1] == 'newpatient') {
+                print "<br>\n";
+            }
+
             print "<span class='bold'>" . $formres{"form_name"} .
             "</span><span class=text>(" . oeFormatShortDate(strtotime($dateres{"date"})) .
             ")" . "</span><br>\n";
@@ -313,7 +294,6 @@ foreach ($ar as $key => $val) {
                            $brow['code'] . " " . $brow['code_text'] . "</span><br>\n";
                 }
             }
-
         }
     }
 }
@@ -323,7 +303,7 @@ foreach ($ar as $key => $val) {
 ?>
 <table border="1" cellpadding=5>
 <?php
-if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
+if ($result = getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = array();
         $total = 0.0;
     $copay = 0.0;
@@ -345,8 +325,7 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 .$iter["code_text"]."</td></tr>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $counter++;
-        }
-        elseif ($iter["code_type"] == "COPAY") {
+        } elseif ($iter["code_type"] == "COPAY") {
             $html .= "<tr><td>".xl('Payment').":</td><td>".xl('Thank You')."!</td><td>"
                 .$iter["code_text"]."</td><td>"
                 . oeFormatMoney($iter["code"]) . "</td></tr>\n";
@@ -354,24 +333,23 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
                 $copay += $iter["code"];
                 $billing_html[$iter["code_type"]] .= $html;
             }
-        }
-        else {
+        } else {
             $html .= "<tr><td>".$iter[code_type].
                 "</td><td>".$iter[code]."</td><td>"
                 .$iter["code_text"].' '.$iter['modifier']
                 ."</td><td>" . oeFormatMoney($iter['fee']) . "</td></tr>\n";
             $billing_html[$iter["code_type"]] .= $html;
             $total += $iter['fee'];
-            $js = explode(":",$iter['justify']);
+            $js = explode(":", $iter['justify']);
             $counter = 0;
             foreach ($js as $j) {
-                if(!empty($j)) {
+                if (!empty($j)) {
                     if ($counter == 0) {
                         $billing_html[$iter["code_type"]] .= " (<b>$j</b>)";
-                    }
-                    else {
+                    } else {
                         $billing_html[$iter["code_type"]] .= " ($j)";
                     }
+
                     $counter++;
                 }
             }
@@ -379,12 +357,11 @@ if ($result = getBillingByEncounter($pid,$encounter,"*") ) {
 
             $billing_html[$iter["code_type"]] .= "</span></td></tr>\n";
         }
-
     }
 
     $billing_html["CPT4"] .= "<tr><td>".xl('total')."</td><td></td><td></td><td>" . oeFormatMoney($total) . "</td></tr>\n";
 ?>
-<tr><td><?php xl('code type','e'); ?></td><td><?php xl('code','e'); ?></td><td><?php xl('description','e'); ?></td><td><?php xl('fee','e'); ?></td></tr>
+<tr><td><?php xl('code type', 'e'); ?></td><td><?php xl('code', 'e'); ?></td><td><?php xl('description', 'e'); ?></td><td><?php xl('fee', 'e'); ?></td></tr>
 <?php
     $key = "ICD9";
 $val = $billing_html[$key];
@@ -399,7 +376,6 @@ $balance = $total-$copay;
 if ($balance != 0.00) {
     print "<tr><td>".xl('balance')."</td><td></td><td>".xl('Please pay this amount').":</td><td>" . oeFormatMoney($balance) . "</td></tr>\n";
 }
-
 }
 ?>
 </tr></table>

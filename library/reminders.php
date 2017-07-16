@@ -39,7 +39,7 @@ require_once(dirname(__FILE__) . "/maviq_phone_api.php");
  * @param  integer  $patient_id  pid of selected patient
  * @param  string   $dateTarget  target date (format Y-m-d H:i:s). If blank then will test with current date as target.
  */
-function patient_reminder_widget($patient_id,$dateTarget='')
+function patient_reminder_widget($patient_id, $dateTarget = '')
 {
 
   // Set date to current if not set
@@ -53,7 +53,7 @@ function patient_reminder_widget($patient_id,$dateTarget='')
 
     if (empty($listReminders)) {
         // No reminders to show.
-        echo htmlspecialchars( xl('No active patient reminders.'), ENT_NOQUOTES);
+        echo htmlspecialchars(xl('No active patient reminders.'), ENT_NOQUOTES);
         return;
     }
 
@@ -61,21 +61,22 @@ function patient_reminder_widget($patient_id,$dateTarget='')
     foreach ($listReminders as $reminder) {
         echo "<tr><td style='padding:0 1em 0 1em;'><span class='small'>";
         // show reminder label
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$reminder['category']) .
-        ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$reminder['item']);
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $reminder['category']) .
+        ": " . generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $reminder['item']);
         echo "</span></td><td style='padding:0 1em 0 1em;'><span class='small'>";
         // show reminder due status
-        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'),$reminder['due_status']);
+        echo generate_display_field(array('data_type'=>'1','list_id'=>'rule_reminder_due_opt'), $reminder['due_status']);
         echo "</span></td><td style='padding:0 1em 0 1em;'><span class='small'>";
         // show reminder sent date
         if (empty($reminder['date_sent'])) {
-            echo htmlspecialchars( xl('Reminder Not Sent Yet'), ENT_NOQUOTES);
+            echo htmlspecialchars(xl('Reminder Not Sent Yet'), ENT_NOQUOTES);
+        } else {
+            echo htmlspecialchars(xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
         }
-        else {
-            echo htmlspecialchars( xl('Reminder Sent On').": ".$reminder['date_sent'], ENT_NOQUOTES);
-        }
+
         echo "</span></td></tr>";
     }
+
     echo "</table>";
 }
 
@@ -101,7 +102,7 @@ function patient_reminder_widget($patient_id,$dateTarget='')
  * @param  boolean  $also_send   if TRUE, then will also call send_reminder when done
  * @return array                 see above for data structure of returned array
  */
-function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id=null, $also_send=false)
+function update_reminders_batch_method($dateTarget = '', $batchSize = 25, $report_id = null, $also_send = false)
 {
 
   // Default to a batchsize, if empty
@@ -110,35 +111,36 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id
     }
 
   // Collect total number of pertinent patients (to calculate batching parameters)
-    $totalNumPatients = buildPatientArray('','','',null,null,true);
+    $totalNumPatients = buildPatientArray('', '', '', null, null, true);
 
   // Cycle through the batches and collect/combine results
     if (($totalNumPatients%$batchSize) > 0) {
         $totalNumberBatches = floor($totalNumPatients/$batchSize) + 1;
-    }
-    else {
+    } else {
         $totalNumberBatches = floor($totalNumPatients/$batchSize);
     }
 
   // Prepare the database to track/store results
     if ($also_send) {
-        $report_id = beginReportDatabase("process_send_reminders",'',$report_id);
+        $report_id = beginReportDatabase("process_send_reminders", '', $report_id);
+    } else {
+        $report_id = beginReportDatabase("process_reminders", '', $report_id);
     }
-    else {
-        $report_id = beginReportDatabase("process_reminders",'',$report_id);
-    }
-    setTotalItemsReportDatabase($report_id,$totalNumPatients);
+
+    setTotalItemsReportDatabase($report_id, $totalNumPatients);
 
     $patient_counter=0;
-    for ($i=0;$i<$totalNumberBatches;$i++) {
+    for ($i=0; $i<$totalNumberBatches; $i++) {
         $patient_counter = $batchSize*($i+1);
-        if ($patient_counter > $totalNumPatients) $patient_counter = $totalNumPatients;
-        $update_rem_log_batch = update_reminders($dateTarget,'',(($batchSize*$i)+1),$batchSize);
+        if ($patient_counter > $totalNumPatients) {
+            $patient_counter = $totalNumPatients;
+        }
+
+        $update_rem_log_batch = update_reminders($dateTarget, '', (($batchSize*$i)+1), $batchSize);
         if ($i == 0) {
             // For first cycle, simply copy it to update_rem_log
             $update_rem_log = $update_rem_log_batch;
-        }
-        else {
+        } else {
             // Debug statements
             //error_log("CDR: ".print_r($update_rem_log,TRUE),0);
             //error_log("CDR: ".($batchSize*$i). " records",0);
@@ -154,8 +156,9 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id
             $update_rem_log['total_post_active_reminders'] = $update_rem_log['total_post_active_reminders'] + $update_rem_log_batch['total_post_active_reminders'];
             $update_rem_log['total_post_unsent_reminders'] = $update_rem_log['total_post_unsent_reminders'] + $update_rem_log_batch['total_post_unsent_reminders'];
         }
+
         //Update database to track results
-        updateReportDatabase($report_id,$patient_counter);
+        updateReportDatabase($report_id, $patient_counter);
     }
 
   // Create an array for saving to database (allows combining with the send log)
@@ -169,7 +172,7 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id
     }
 
   // Record combo results in database
-    finishReportDatabase($report_id,json_encode($save_log));
+    finishReportDatabase($report_id, json_encode($save_log));
 
   // Just return the process reminders array
     return $update_rem_log;
@@ -197,7 +200,7 @@ function update_reminders_batch_method($dateTarget='', $batchSize=25, $report_id
  * @param  integer  $batchSize   number of patients to batch (when batching process)
  * @return array                 see above for data structure of returned array
  */
-function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSize=null)
+function update_reminders($dateTarget = '', $patient_id = '', $start = null, $batchSize = null)
 {
 
     $logging = array();
@@ -214,31 +217,31 @@ function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSiz
     $patient_id_complete = "";
     if (!(empty($patient_id))) {
         // only one patient id, so run the function
-        $collectedReminders = test_rules_clinic('','patient_reminder',$dateTarget,'reminders-due',$patient_id);
+        $collectedReminders = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient_id);
         $patient_id_complete = $patient_id;
-    }
-    else {
+    } else {
         // as described above, need to pass in each patient_id
         // Collect all patient ids
-        $patientData = buildPatientArray('','','',$start,$batchSize);
-        for($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $patientData = buildPatientArray('', '', '', $start, $batchSize);
+        for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
             $patientData[$iter]=$row;
         }
+
         $first_flag = true;
         foreach ($patientData as $patient) {
             // collect reminders
-            $tempCollectReminders = test_rules_clinic('','patient_reminder',$dateTarget,'reminders-due',$patient['pid']);
-            $collectedReminders = array_merge($collectedReminders,$tempCollectReminders);
+            $tempCollectReminders = test_rules_clinic('', 'patient_reminder', $dateTarget, 'reminders-due', $patient['pid']);
+            $collectedReminders = array_merge($collectedReminders, $tempCollectReminders);
             // build the $patient_id_complete variable
             if ($first_flag) {
                 $patient_id_complete .= $patient['pid'];
                 $first_flag = false;
-            }
-            else {
+            } else {
                 $patient_id_complete .= ",".$patient['pid'];
             }
         }
     }
+
     $logging['total_active_actions'] = count($collectedReminders);
 
   // For logging purposes only:
@@ -251,36 +254,33 @@ function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSiz
     $logging['number_updated_reminders'] = 0;
     $logging['number_unchanged_reminders'] = 0;
     foreach ($collectedReminders as $reminder) {
-
         // See if a reminder already exist
         $sql = "SELECT `id`, `pid`, `due_status`, `category`, `item` FROM `patient_reminders` WHERE " .
         "`active`='1' AND `pid`=? AND `category`=? AND `item`=?";
-        $result = sqlQueryCdrEngine($sql, array($reminder['pid'], $reminder['category'], $reminder['item']) );
+        $result = sqlQueryCdrEngine($sql, array($reminder['pid'], $reminder['category'], $reminder['item']));
 
         if (empty($result)) {
             // It does not yet exist, so add a new reminder
             $sql = "INSERT INTO `patient_reminders` (`pid`, `due_status`, `category`, `item`, `date_created`) " .
             "VALUES (?, ?, ?, ?, NOW())";
-            sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']) );
+            sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']));
             $logging['number_new_reminders']++;
-        }
-        else {
+        } else {
             // It already exist (see if if needs to be updated via adding a new reminder)
             if ($reminder['due_status'] == $result['due_status']) {
                 // No change in due status, so no need to update
                 $logging['number_unchanged_reminders']++;
                 continue;
-            }
-            else {
+            } else {
                 // Change in due status, so inactivate current reminder and create a new one
                 // First, inactivate the previous reminder
                 $sql = "UPDATE `patient_reminders` SET `active` = '0', `reason_inactivated` = 'due_status_update', " .
                 "`date_inactivated` = NOW() WHERE `id`=?";
-                sqlStatementCdrEngine($sql, array($result['id']) );
+                sqlStatementCdrEngine($sql, array($result['id']));
                 // Then, add the new reminder
                 $sql = "INSERT INTO `patient_reminders` (`pid`, `due_status`, `category`, `item`, `date_created`) " .
                 "VALUES (?, ?, ?, ?, NOW())";
-                sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']) );
+                sqlStatementCdrEngine($sql, array($reminder['pid'], $reminder['due_status'], $reminder['category'], $reminder['item']));
             }
         }
     }
@@ -289,10 +289,10 @@ function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSiz
   // Go through each active reminder and ensure it is in the current list
     $sqlReminders = fetch_reminders($patient_id_complete);
     $logging['number_inactivated_reminders'] = 0;
-    foreach ( $sqlReminders as $row ) {
+    foreach ($sqlReminders as $row) {
         $inactivateFlag = true;
         foreach ($collectedReminders as $reminder) {
-            if ( ($row['pid'] == $reminder['pid']) &&
+            if (($row['pid'] == $reminder['pid']) &&
                ($row['category'] == $reminder['category']) &&
                ($row['item'] == $reminder['item']) &&
                ($row['due_status'] == $reminder['due_status']) ) {
@@ -301,11 +301,12 @@ function update_reminders($dateTarget='', $patient_id='', $start=null, $batchSiz
                 break;
             }
         }
+
         if ($inactivateFlag) {
             // The sql reminder was not confirmed, so inactivate it
             $sql = "UPDATE `patient_reminders` SET `active` = '0', `reason_inactivated` = 'auto', " .
             "`date_inactivated` = NOW() WHERE `id`=?";
-            sqlStatementCdrEngine($sql, array($row['id']) );
+            sqlStatementCdrEngine($sql, array($row['id']));
             $logging['number_inactivated_reminders']++;
         }
     }
@@ -348,11 +349,10 @@ function send_reminders()
     $logging['number_failed_emails'] = 0;
     $logging['number_success_calls'] = 0;
     $logging['number_failed_calls'] = 0;
-    foreach ( $active_unsent_reminders as $reminder ) {
-
+    foreach ($active_unsent_reminders as $reminder) {
         // Collect patient information that reminder is going to.
         $sql = "SELECT `fname`, `lname`, `email`, `phone_home`, `hipaa_voice`, `hipaa_allowemail` from `patient_data` where `pid`=?";
-        $result = sqlQueryCdrEngine($sql, array($reminder['pid']) );
+        $result = sqlQueryCdrEngine($sql, array($reminder['pid']));
         $patientfname = $result['fname'];
         $patientlname = $result['lname'];
         $patientemail = $result['email'];
@@ -369,17 +369,16 @@ function send_reminders()
             $mail->Sender = $email_address;    // required
             $mail->From = $email_address;    // required
             $mail->AddAddress($patientemail, $patientfname.", ".$patientlname);   // required
-            $mail->AddReplyTo($email_address,$sender_name);  // required
-            $category_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'),$reminder['category']);
-            $item_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'),$reminder['item']);
+            $mail->AddReplyTo($email_address, $sender_name);  // required
+            $category_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action_category'), $reminder['category']);
+            $item_title = generate_display_field(array('data_type'=>'1','list_id'=>'rule_action'), $reminder['item']);
             $mail->Body = "Dear ".$patientfname.", This is a message from your clinic to remind you of your ".$category_title.": ".$item_title;
             $mail->Subject = "Clinic Reminder";
             if ($mail->Send()) {
                 // deal with and keep track of this successful email
-                sqlStatementCdrEngine("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']) );
+                sqlStatementCdrEngine("UPDATE `patient_reminders` SET `email_status`='1', `date_sent`=NOW() WHERE id=?", array($reminder['id']));
                 $logging['number_success_emails']++;
-            }
-            else {
+            } else {
                 // deal with and keep track of this unsuccesful email
                 $logging['number_failed_emails']++;
             }
@@ -387,7 +386,6 @@ function send_reminders()
 
         // Call to patient if Allow Voice Message and set reminder sent flag.
         if ($hipaa_voice == "YES") {
-
       /******************************************************************************
     *     // Maviq does not work, is not currently supported, and seems to break on windows servers, so this
     *     //  feature has been commented out for now.
@@ -421,7 +419,6 @@ function send_reminders()
     *        $logging['number_success_calls']++;
     *      }
       *******************************************************************************/
-
         }
     }
 
@@ -441,7 +438,7 @@ function send_reminders()
  * @param  string         $select      Select component of select statement. If blank, then will return all columns.
  * @return array                 Returns an array of reminders.
  */
-function fetch_reminders($patient_id='',$type='',$due_status='',$select='*')
+function fetch_reminders($patient_id = '', $type = '', $due_status = '', $select = '*')
 {
 
     $arraySqlBind = array();
@@ -449,18 +446,17 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*')
     if (!empty($patient_id)) {
         // check the specified pid(s)
         $where = "`pid` IN (?) AND ";
-        array_push($arraySqlBind,$patient_id);
+        array_push($arraySqlBind, $patient_id);
     }
 
     if (!empty($due_status)) {
         $where .= "`due_status`=? AND ";
-        array_push($arraySqlBind,$due_status);
+        array_push($arraySqlBind, $due_status);
     }
 
     if (empty($type)) {
         $where .= "`active`='1'";
-    }
-    else { // $type == 'unsent'
+    } else { // $type == 'unsent'
         $where .= "`active`='1' AND `date_sent` IS NULL";
     }
 
@@ -471,11 +467,9 @@ function fetch_reminders($patient_id='',$type='',$due_status='',$select='*')
     $rez = sqlStatementCdrEngine($sql, $arraySqlBind);
 
     $returnval=array();
-    for($iter=0; $row=sqlFetchArray($rez); $iter++)
-    $returnval[$iter]=$row;
+    for ($iter=0; $row=sqlFetchArray($rez); $iter++) {
+        $returnval[$iter]=$row;
+    }
 
     return $returnval;
 }
-
-?>
-

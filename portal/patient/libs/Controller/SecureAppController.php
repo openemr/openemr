@@ -34,14 +34,16 @@ class SecureAppController extends AppBaseController
      */
     public function UserPage()
     {
-        $this->RequirePermission(SecureApp::$PERMISSION_USER,
-                'SecureApp.LoginForm',
-                'Login is required to access the secure user page',
-                'You do not have permission to access the secure user page');
+        $this->RequirePermission(
+            SecureApp::$PERMISSION_USER,
+            'SecureApp.LoginForm',
+            'Login is required to access the secure user page',
+            'You do not have permission to access the secure user page'
+        );
 
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','userpage');
+        $this->Assign('page', 'userpage');
         $this->Render("SecureApp");
     }
 
@@ -50,14 +52,16 @@ class SecureAppController extends AppBaseController
      */
     public function AdminPage()
     {
-        $this->RequirePermission(SecureApp::$PERMISSION_ADMIN,
-                'SecureApp.LoginForm',
-                'Login is required to access the admin page',
-                'Admin permission is required to access the admin page');
+        $this->RequirePermission(
+            SecureApp::$PERMISSION_ADMIN,
+            'SecureApp.LoginForm',
+            'Login is required to access the admin page',
+            'Admin permission is required to access the admin page'
+        );
 
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','adminpage');
+        $this->Assign('page', 'adminpage');
         $this->Render("SecureApp");
     }
 
@@ -68,7 +72,7 @@ class SecureAppController extends AppBaseController
     {
         $this->Assign("currentUser", $this->GetCurrentUser());
 
-        $this->Assign('page','login');
+        $this->Assign('page', 'login');
         $this->Render("SecureApp");
     }
 
@@ -80,16 +84,13 @@ class SecureAppController extends AppBaseController
     {
         $user = new SecureApp();
 
-        if ($user->Login(RequestUtil::Get('username'), RequestUtil::Get('password')))
-        {
+        if ($user->Login(RequestUtil::Get('username'), RequestUtil::Get('password'))) {
             // login success
             $this->SetCurrentUser($user);
             $this->Redirect('SecureApp.UserPage');
-        }
-        else
-        {
+        } else {
             // login failed
-            $this->Redirect('SecureApp.LoginForm','Unknown username/password combination');
+            $this->Redirect('SecureApp.LoginForm', 'Unknown username/password combination');
         }
     }
 
@@ -99,8 +100,6 @@ class SecureAppController extends AppBaseController
     public function Logout()
     {
         $this->ClearCurrentUser();
-        $this->Redirect("SecureApp.LoginForm","You are now logged out");
+        $this->Redirect("SecureApp.LoginForm", "You are now logged out");
     }
-
 }
-?>

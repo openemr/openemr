@@ -43,16 +43,12 @@ if (!empty($GLOBALS['pat_rem_clin_nice'])) {
 }
 
 //  Start a report, which will be stored in the report_results sql table..
-if ( (!empty($_POST['execute_report_id']) && !empty($_POST['process_type'])) && (($_POST['process_type'] == "process"  ) || ($_POST['process_type'] == "process_send")) ) {
-
+if ((!empty($_POST['execute_report_id']) && !empty($_POST['process_type'])) && (($_POST['process_type'] == "process"  ) || ($_POST['process_type'] == "process_send"))) {
     if ($_POST['process_type'] == "process_send") {
-        update_reminders_batch_method('','',$_POST['execute_report_id'],true);
+        update_reminders_batch_method('', '', $_POST['execute_report_id'], true);
+    } else { // $_POST['process_type'] == "process"
+        update_reminders_batch_method('', '', $_POST['execute_report_id']);
     }
-    else { // $_POST['process_type'] == "process"
-        update_reminders_batch_method('','',$_POST['execute_report_id']);
-    }
-}
-else {
+} else {
     echo "ERROR";
 }
-?>

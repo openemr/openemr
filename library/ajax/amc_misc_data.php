@@ -16,12 +16,9 @@ require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../amc.php");
 
 //  If all items are valid(ie. not empty) (note object_category and object_id and date_created can be empty), then proceed.
-if ( !(empty($_POST['amc_id'])) &&
+if (!(empty($_POST['amc_id'])) &&
      !(empty($_POST['complete'])) &&
      !(empty($_POST['mode'])) &&
      !(empty($_POST['patient_id'])) ) {
-
     processAmcCall($_POST['amc_id'], $_POST['complete'], $_POST['mode'], $_POST['patient_id'], $_POST['object_category'], $_POST['object_id'], $_POST['date_created']);
-
 }
-?>

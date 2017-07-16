@@ -61,12 +61,11 @@ class OnsiteActivityView extends OnsiteActivityViewDAO
         // the controller create/update methods validate before saving.  this will be a
         // redundant validation check, however it will ensure data integrity at the model
         // level based on validation rules.  comment this line out if this is not desired
-        if (!$this->Validate()) throw new Exception('Unable to Save OnsiteActivityView: ' .  implode(', ', $this->GetValidationErrors()));
+        if (!$this->Validate()) {
+            throw new Exception('Unable to Save OnsiteActivityView: ' .  implode(', ', $this->GetValidationErrors()));
+        }
 
         // OnSave must return true or Phreeze will cancel the save operation
         return true;
     }
-
 }
-
-?>

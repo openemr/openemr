@@ -11,7 +11,8 @@
  *
  * @author aron
  */
-class RuleCriteriaDbView {
+class RuleCriteriaDbView
+{
 
     var $method;
     var $methodDetail;
@@ -25,7 +26,7 @@ class RuleCriteriaDbView {
     {
     }
 
-    function set( $i )
+    function set($i)
     {
         $this->intervalType = $i;
     }
@@ -35,4 +36,3 @@ class RuleCriteriaDbView {
         return $this->intervalType;
     }
 }
-?>

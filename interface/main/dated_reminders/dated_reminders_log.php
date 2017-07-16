@@ -34,11 +34,13 @@
   /*
     -------------------  HANDLE POST ---------------------
   */
-if($_GET){
-    if(!$isAdmin){
-        if(empty($_GET['sentBy']) and empty($_GET['sentTo']))
-        $_GET['sentTo'] = array(intval($_SESSION['authId']));
+if ($_GET) {
+    if (!$isAdmin) {
+        if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
+            $_GET['sentTo'] = array(intval($_SESSION['authId']));
+        }
     }
+
     echo '<table border="1" width="100%" cellpadding="5px" id="logTable">
             <thead>
               <tr>
@@ -56,7 +58,7 @@ if($_GET){
             <tbody>';
     $remindersArray = array();
     $TempRemindersArray = logRemindersArray();
-    foreach($TempRemindersArray as $RA){
+    foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
         $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
@@ -67,7 +69,8 @@ if($_GET){
         $remindersArray[$RA['messageID']]['processedByName'] = $RA['processedByName'];
         $remindersArray[$RA['messageID']]['fromName'] = $RA['fromName'];
     }
-    foreach($remindersArray as $RA){
+
+    foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
               <td>',text($RA['messageID']),'</td>
               <td>',text($RA['sDate']),'</td>
@@ -80,6 +83,7 @@ if($_GET){
               <td>',text($RA['processedByName']),'</td>
             </tr>';
     }
+
     echo '</tbody></table>';
 
     die;
@@ -101,7 +105,7 @@ if($_GET){
                function(data) {
                   $("#resultsDiv").html(data);
                     <?php
-                    if(!$isAdmin){
+                    if (!$isAdmin) {
                         echo '$("select option").removeAttr("selected");';
                     }
                     ?>
@@ -128,9 +132,11 @@ if($_GET){
 
 <?php
   $allUsers = array();
-  $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
-for($i=0; $uRow=sqlFetchArray($uSQL);
-$i++){ $allUsers[] = $uRow; }
+  $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
+for ($i=0; $uRow=sqlFetchArray($uSQL);
+$i++) {
+    $allUsers[] = $uRow;
+}
 ?>
     <form method="get" id="logForm" onsubmit="return top.restoreSession()">
       <h1><?php echo xlt('Dated Message Log') ?></h1>
@@ -149,9 +155,11 @@ $i++){ $allUsers[] = $uRow; }
             <select style="width:100%;" id="sentBy" name="sentBy[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php
-                if($isAdmin)
-                  foreach($allUsers as $user)
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                if ($isAdmin) {
+                    foreach ($allUsers as $user) {
+                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                    }
+                }
                 ?>
             </select>
           </td>
@@ -160,9 +168,11 @@ $i++){ $allUsers[] = $uRow; }
             <select style="width:100%" id="sentTo" name="sentTo[]" multiple="multiple">
               <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php
-                if($isAdmin)
-                  foreach($allUsers as $user)
-                    echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                if ($isAdmin) {
+                    foreach ($allUsers as $user) {
+                        echo '<option value="',attr($user['id']),'">',text($user['fname'].' '.$user['mname'].' '.$user['lname']),'</option>';
+                    }
+                }
                 ?>
             </select>
           </td>

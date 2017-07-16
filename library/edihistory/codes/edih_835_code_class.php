@@ -36,7 +36,8 @@
  *
  * @return object
  */
-class edih_835_codes {
+class edih_835_codes
+{
 //
 //public $code835 = array();
     private $code835 = array();
@@ -48,7 +49,7 @@ class edih_835_codes {
 //  -- a very tedious project and immediately put on hold
 //public $key_match = array('HCR04'=>array('CRC02');
 //
-    function __construct($component_separator='', $repetition_separator='')
+    function __construct($component_separator = '', $repetition_separator = '')
     {
         //
         //
@@ -1469,21 +1470,22 @@ The patient has received a separate notice of this denial decision. The notice a
     // edih_835_codes
     public function classname()
     {
-        return get_class($this); }
+        return get_class($this);
+    }
     //
     public function get_835_code($elem, $code)
     {
         //
         $e = (string)$elem;
         $val = '';
-        if ( ($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false) ) {
-            if ( $this->ds && strpos($code, $this->ds) !== false ) {
+        if (($this->ds && strpos($code, $this->ds) !== false) || ($this->dr && strpos($code, $this->dr) !== false)) {
+            if ($this->ds && strpos($code, $this->ds) !== false) {
                 $cdar = explode($this->ds, $code);
-                foreach($cdar as $cd) {
-                    if ( $this->dr && strpos($code, $this->dr) !== false) {
+                foreach ($cdar as $cd) {
+                    if ($this->dr && strpos($code, $this->dr) !== false) {
                         $cdar2 = explode($this->dr, $code);
-                        foreach($cdar2 as $cd2) {
-                            if (isset($this->code835[$e][$cd2]) ) {
+                        foreach ($cdar2 as $cd2) {
+                            if (isset($this->code835[$e][$cd2])) {
                                 $val .= $this->code835[$e][$cd2] . '; ';
                             } else {
                                 $val .= "code $cd2 unknown ";
@@ -1495,15 +1497,16 @@ The patient has received a separate notice of this denial decision. The notice a
                 }
             } elseif ($this->dr && strpos($code, $this->dr) != false) {
                 $cdar = explode($this->dr, $code);
-                foreach($cdar as $cd) {
+                foreach ($cdar as $cd) {
                     $val .= (isset($this->code835[$e][$cd]) ) ? $this->code835[$e][$cd].'; ' : "code $cd unknown";
                 }
             }
-        } elseif ( array_key_exists($e, $this->code835) ) {
+        } elseif (array_key_exists($e, $this->code835)) {
             $val = (isset($this->code835[$e][$code]) ) ? $this->code835[$e][$code] : "$e code $code unknown";
         } else {
             $val = "$e codes not available ($code)";
         }
+
         //
         return $val;
     }

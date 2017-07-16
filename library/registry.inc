@@ -3,16 +3,17 @@
 //
 
 
-function registerForm( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
+function registerForm($directory, $sql_run = 0, $unpackaged = 1, $state = 0)
 {
     $check = sqlQuery("select state from registry where directory='$directory'");
-    if ($check == false)
-    {
+    if ($check == false) {
         $lines = @file($GLOBALS['srcdir']."/../interface/forms/$directory/info.txt");
-        if ($lines)
+        if ($lines) {
             $name = $lines[0];
-        else
+        } else {
             $name = $directory;
+        }
+
         return sqlInsert("insert into registry set
 			name='$name',
 			state='$state',
@@ -22,10 +23,11 @@ function registerForm( $directory , $sql_run=0 , $unpackaged=1 , $state=0 )
 			date=NOW()
 		");
     }
+
     return false;
 }
 
-function updateRegistered( $id, $mod )
+function updateRegistered($id, $mod)
 {
     return sqlInsert("update registry set
 		$mod,
@@ -35,23 +37,26 @@ function updateRegistered( $id, $mod )
 	");
 }
 
-function getRegistered( $state="1", $limit="unlimited", $offset="0")
+function getRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
     $sql = "select * from registry where state like \"$state\" order by priority, name";
-    if ($limit != "unlimited")
+    if ($limit != "unlimited") {
         $sql .= " limit $limit, $offset";
-    $res = sqlStatement($sql);
-    if ($res)
-    for($iter=0; $row=sqlFetchArray($res); $iter++)
-    {
-        $all[$iter] = $row;
     }
-    else
+
+    $res = sqlStatement($sql);
+    if ($res) {
+        for ($iter=0; $row=sqlFetchArray($res); $iter++) {
+            $all[$iter] = $row;
+        }
+    } else {
         return false;
+    }
+
     return $all;
 }
 
-function getRegistryEntry( $id, $cols = "*" )
+function getRegistryEntry($id, $cols = "*")
 {
     $sql = "select $cols from registry where id='$id'";
     return sqlQuery($sql);
@@ -63,14 +68,13 @@ function getRegistryEntryByDirectory($directory, $cols = "*")
     return sqlQuery($sql, $directory);
 }
 
-function installSQL( $dir )
+function installSQL($dir)
 {
     $sqltext = $dir."/table.sql";
-    if ($sqlarray = @file($sqltext))
-    {
+    if ($sqlarray = @file($sqltext)) {
         $sql = implode("", $sqlarray);
         //echo "<br>$sql<br><br>";
-        $sqla = explode(";",$sql);
+        $sqla = explode(";", $sql);
         foreach ($sqla as $sqlq) {
             if (strlen($sqlq) > 5) {
                 sqlStatement(rtrim("$sqlq"));
@@ -78,8 +82,9 @@ function installSQL( $dir )
         }
 
         return true;
-    }else
+    } else {
         return false;
+    }
 }
 
 
@@ -94,13 +99,16 @@ function installSQL( $dir )
  *            state => 0=inactive / 1=active
  *  OUTPUT = true or false
  */
-function isRegistered( $directory, $state = 1)
+function isRegistered($directory, $state = 1)
 {
     $sql = "select id from registry where ".
             "directory='".$directory.
             "' and state=".$state;
     $result = sqlQuery($sql);
-    if ($result['id'] != '') return true;
+    if ($result['id'] != '') {
+        return true;
+    }
+
     return false;
 }
 
@@ -109,5 +117,3 @@ function getTherapyGroupCategories()
 
     return array('');
 }
-
-?>

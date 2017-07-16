@@ -11,14 +11,15 @@
  * enum
  * @author aron
  */
-class ReminderIntervalRange {
+class ReminderIntervalRange
+{
     var $code;
     var $lbl;
 
     const Warning = "pre";
     const PastDue = "post";
 
-    function __construct( $code, $lbl )
+    function __construct($code, $lbl)
     {
         $this->lbl = $lbl;
         $this->code = $code;
@@ -29,7 +30,7 @@ class ReminderIntervalRange {
      * @param string $value
      * @return ReminderIntervalType
      */
-    public static function from( $code )
+    public static function from($code)
     {
         $map = self::map();
         return $map[$code];
@@ -44,11 +45,9 @@ class ReminderIntervalRange {
     private static function map()
     {
         $map = array(
-            'pre'  =>  new ReminderIntervalType( 'pre', xl( 'Warning' ) ),
-            'post' =>  new ReminderIntervalType( 'post', xl( 'Past due') )
+            'pre'  =>  new ReminderIntervalType('pre', xl('Warning')),
+            'post' =>  new ReminderIntervalType('post', xl('Past due'))
         );
         return $map;
     }
-
 }
-?>

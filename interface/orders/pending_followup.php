@@ -35,11 +35,10 @@ function thisLineItem($row, $codetype, $code)
         echo '"' . addslashes($row['pubpid'        ]) . '",';
         echo '"' . addslashes($row['date_ordered'  ]) . '",';
         echo '"' . addslashes($row['procedure_name']) . '",';
-        echo '"' . addslashes($provname             ) . '",';
-        echo '"' . addslashes($code                 ) . '",';
-        echo '"' . addslashes($code_text            ) . '"' . "\n";
-    }
-    else {
+        echo '"' . addslashes($provname) . '",';
+        echo '"' . addslashes($code) . '",';
+        echo '"' . addslashes($code_text) . '"' . "\n";
+    } else {
     ?>
    <tr>
     <td class="detail"><?php echo $row['patient_name'  ]; ?></td>
@@ -54,10 +53,12 @@ function thisLineItem($row, $codetype, $code)
     } // End not csv export
 }
 
-if (! acl_check('acct', 'rep')) die(xl("Unauthorized access."));
+if (! acl_check('acct', 'rep')) {
+    die(xl("Unauthorized access."));
+}
 
 $form_from_date = fixDate($_POST['form_from_date'], date('Y-m-d'));
-$form_to_date   = fixDate($_POST['form_to_date']  , date('Y-m-d'));
+$form_to_date   = fixDate($_POST['form_to_date'], date('Y-m-d'));
 $form_facility  = $_POST['form_facility'];
 
 if ($_POST['form_csvexport']) {
@@ -75,13 +76,12 @@ if ($_POST['form_csvexport']) {
     echo '"' . xl('Provider') . '",';
     echo '"' . xl('Code') . '",';
     echo '"' . xl('Service') . '"' . "\n";
-}
-else { // not export
+} else { // not export
 ?>
 <html>
 <head>
 <?php html_header_show();?>
-<title><?php xl('Pending Followup from Results','e') ?></title>
+<title><?php xl('Pending Followup from Results', 'e') ?></title>
 
 <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-9-1/index.js"></script>
 <script language="JavaScript">
@@ -96,7 +96,7 @@ else { // not export
 <body leftmargin='0' topmargin='0' marginwidth='0' marginheight='0'>
 <center>
 
-<h2><?php xl('Pending Followup from Results','e')?></h2>
+<h2><?php xl('Pending Followup from Results', 'e')?></h2>
 
 <form method='post' action='pending_followup.php'>
 
@@ -110,12 +110,16 @@ else { // not export
   $fres = $facilityService->getAll();
   echo "   <select name='form_facility'>\n";
   echo "    <option value=''>-- All Facilities --\n";
-foreach($fres as $frow) {
+foreach ($fres as $frow) {
     $facid = $frow['id'];
     echo "    <option value='$facid'";
-    if ($facid == $form_facility) echo " selected";
+    if ($facid == $form_facility) {
+        echo " selected";
+    }
+
     echo ">" . $frow['name'] . "\n";
 }
+
   echo "   </select>\n";
 ?>
    &nbsp;<?xl('From:','e')?>
@@ -123,17 +127,17 @@ foreach($fres as $frow) {
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_from_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;To:
    <input type='text' name='form_to_date' id="form_to_date" size='10' value='<?php echo $form_to_date ?>'
     onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='yyyy-mm-dd'>
    <img src='../pic/show_calendar.gif' align='absbottom' width='24' height='22'
     id='img_to_date' border='0' alt='[?]' style='cursor:pointer'
-    title='<?php xl('Click here to choose a date','e'); ?>'>
+    title='<?php xl('Click here to choose a date', 'e'); ?>'>
    &nbsp;
-   <input type='submit' name='form_refresh' value="<?php xl('Refresh','e') ?>">
+   <input type='submit' name='form_refresh' value="<?php xl('Refresh', 'e') ?>">
    &nbsp;
-   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV','e') ?>">
+   <input type='submit' name='form_csvexport' value="<?php xl('Export to CSV', 'e') ?>">
    &nbsp;
    <input type='button' value='<?php echo xla('Print'); ?>' id='printbutton' />
   </td>
@@ -148,13 +152,13 @@ foreach($fres as $frow) {
 
 <table border='0' cellpadding='1' cellspacing='2' width='98%'>
  <tr bgcolor="#dddddd">
-  <td class="dehead"><?php xl('Patient','e'  ) ?></td>
-  <td class="dehead"><?php xl('ID','e'       ) ?></td>
-  <td class="dehead"><?php xl('Ordered','e'  ) ?></td>
-  <td class="dehead"><?php xl('Procedure','e') ?></td>
-  <td class="dehead"><?php xl('Provider','e' ) ?></td>
-  <td class="dehead"><?php xl('Code','e' ) ?></td>
-  <td class="dehead"><?php xl('Service','e'   ) ?></td>
+  <td class="dehead"><?php xl('Patient', 'e') ?></td>
+  <td class="dehead"><?php xl('ID', 'e') ?></td>
+  <td class="dehead"><?php xl('Ordered', 'e') ?></td>
+  <td class="dehead"><?php xl('Procedure', 'e') ?></td>
+  <td class="dehead"><?php xl('Provider', 'e') ?></td>
+  <td class="dehead"><?php xl('Code', 'e') ?></td>
+  <td class="dehead"><?php xl('Service', 'e') ?></td>
  </tr>
 <?php
 } // end not export
@@ -188,6 +192,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     if ($form_facility) {
         $query .= " AND fe.facility_id = '$form_facility'";
     }
+
     $query .= " ORDER BY pd.lname, pd.fname, pd.mname, po.patient_id, " .
     "po.date_ordered, po.procedure_order_id";
 
@@ -198,7 +203,10 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
         $relcodes = explode(';', $row['related_code']);
         foreach ($relcodes as $codestring) {
-            if ($codestring === '') continue;
+            if ($codestring === '') {
+                continue;
+            }
+
             list($codetype, $code) = explode(':', $codestring);
 
             $brow = sqlQuery("SELECT count(*) AS count " .
@@ -211,12 +219,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
             "fe.date >= '$date_ordered 00:00:00'");
 
             // If there was such a service, then this followup is not pending.
-            if (!empty($brow['count'])) continue;
+            if (!empty($brow['count'])) {
+                continue;
+            }
 
             thisLineItem($row, $codetype, $code);
         }
     }
-
 } // end report generation
 
 if (! $_POST['form_csvexport']) {

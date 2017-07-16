@@ -9,7 +9,8 @@
  // This program implements the XML Writer to generate PQRI 2009 XML.
 
 
-class PQRIXml extends XmlWriterOemr {
+class PQRIXml extends XmlWriterOemr
+{
 
     function __construct($indent = '  ')
     {
@@ -32,7 +33,7 @@ class PQRIXml extends XmlWriterOemr {
     function add_file_audit_data()
     {
 
-        $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}) );
+        $res = sqlQuery("select * from users where username=?", array($_SESSION{"authUser"}));
 
 
         $this->push('file_audit_data');
@@ -59,8 +60,7 @@ class PQRIXml extends XmlWriterOemr {
     {
         $this->push('measure-group-stat');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
 
@@ -71,8 +71,7 @@ class PQRIXml extends XmlWriterOemr {
     {
         $this->push('pqri-measure');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
 
@@ -84,11 +83,9 @@ class PQRIXml extends XmlWriterOemr {
     {
         $this->push('provider');
 
-        foreach ($arrStats as $key => $value)
-        {
+        foreach ($arrStats as $key => $value) {
             $this->element($key, $value);
         }
-
     }
 
     function close_provider()
@@ -105,6 +102,4 @@ class PQRIXml extends XmlWriterOemr {
     {
         $this->pop();
     }
-
 }
-?>

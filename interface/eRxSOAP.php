@@ -21,7 +21,8 @@
  * @link       http://www.open-emr.org
  */
 
-class eRxSOAP {
+class eRxSOAP
+{
 
     const ACTION_ALLERGIES      = 'allergies';
     const ACTION_MEDICATIONS    = 'medications';
@@ -46,7 +47,7 @@ class eRxSOAP {
      * @param  string        $xml XML for processing
      * @return array|boolean      Array on success, false on failure
      */
-    static public function htmlFixXmlToArray($xml)
+    public static function htmlFixXmlToArray($xml)
     {
         $xmltoarray = new xmltoarray_parser_htmlfix();                  //create instance of class
 
@@ -57,14 +58,15 @@ class eRxSOAP {
 
         $array = $xmltoarray->createArray();                            //creates an array with fixed html values
 
-        foreach($array as $key => $value) {
+        foreach ($array as $key => $value) {
             $array[$key] = $xmltoarray->fix_html_entities($value);      //returns proper html values
         }
 
-        if(array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet']))
+        if (array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet'])) {
             $array = $array['NewDataSet']['Table'];
-        else
+        } else {
             $array = false;
+        }
 
         return $array;
     }
@@ -138,9 +140,10 @@ class eRxSOAP {
      */
     public function getSiteId()
     {
-        if(null === $this->siteId)
+        if (null === $this->siteId) {
             $this->siteId = $this->getStore()
                 ->selectFederalEin();
+        }
 
         return $this->siteId;
     }
@@ -151,9 +154,10 @@ class eRxSOAP {
      */
     public function getAuthUserDetails()
     {
-        if(null === $this->authUserDetails)
+        if (null === $this->authUserDetails) {
             $this->authUserDetails = $this->getStore()
                 ->getUserById($this->getAuthUserId());
+        }
 
         return $this->authUserDetails;
     }
@@ -264,8 +268,10 @@ class eRxSOAP {
         switch ($process) {
             case self::ACTION_ALLERGIES:
                 $return = $this->getGlobals()->getTTLSoapAllergies();
+                break;
             case self::ACTION_MEDICATIONS:
                 $return = $this->getGlobals()->getTTLSoapMedications();
+                break;
             default:
                 $return = false;
         }
@@ -281,12 +287,14 @@ class eRxSOAP {
     public function elapsedTTL($process)
     {
         $ttl = $this->getTTL($process);
-        if(false === $ttl || 0 == $ttl)
+        if (false === $ttl || 0 == $ttl) {
             return true;
+        }
 
         $soap = $this->getStore()->getLastSOAP($process, $this->getPatientId());
-        if(false === $soap)
+        if (false === $soap) {
             return true;
+        }
 
         return strtotime('-'.$ttl.' seconds') >= strtotime($soap);
     }
@@ -315,10 +323,11 @@ class eRxSOAP {
                 $this->getPatientId()
             );
 
-        if(is_array($status))
+        if (is_array($status)) {
             $return = in_array($currentStatus, $status);
-        else
+        } else {
             $return = ($currentStatus == $status);
+        }
 
         return $return;
     }
@@ -488,7 +497,7 @@ class eRxSOAP {
 
         $optionId = $store->selectOptionIdByTitle($listId, $title);
 
-        if(false === $optionId) {
+        if (false === $optionId) {
             $optionId = 1 + $store->selectOptionIdsByListId($listId);
 
             $store->insertListOptions($listId, $optionId, $title);
@@ -513,8 +522,8 @@ class eRxSOAP {
                 ->XmlResponse
         );
 
-        if(is_array($allergyArray)) {
-            foreach($allergyArray as $allergy) {
+        if (is_array($allergyArray)) {
+            foreach ($allergyArray as $allergy) {
                 $optionId = $this->insertMissingListOptions(
                     'outcome',
                     $allergy['AllergySeverityName']
@@ -526,7 +535,7 @@ class eRxSOAP {
                 );
 
 
-                if(false === $allergySource) {
+                if (false === $allergySource) {
                     $store->insertAllergy(
                         $allergy['AllergyName'],
                         $allergy['AllergyId'],
@@ -536,7 +545,7 @@ class eRxSOAP {
                     );
 
                     ++$insertedRows;
-                } elseif(0 == $allergySource) {
+                } elseif (0 == $allergySource) {
                     $store->updateAllergyOutcomeExternalIdByPatientIdName(
                         $optionId,
                         $allergy['AllergyId'],
@@ -571,21 +580,22 @@ class eRxSOAP {
 
         $resource = $store->selectActiveAllergiesByPatientId($patientId);
 
-        while($row = sqlFetchArray($resource)) {
+        while ($row = sqlFetchArray($resource)) {
             $noMatch = true;
 
-            foreach($allergyArray as $allergy) {
-                if(array_key_exists('AllergyName', $allergy) && $allergy['AllergyName'] == $row['title']) {
+            foreach ($allergyArray as $allergy) {
+                if (array_key_exists('AllergyName', $allergy) && $allergy['AllergyName'] == $row['title']) {
                     $noMatch = false;
                     break;
                 }
             }
 
-            if($noMatch)
+            if ($noMatch) {
                 $store->updateAllergyEndDateByPatientIdListId(
                     $patientId,
                     $row['id']
                 );
+            }
         }
 
         return $this;
@@ -601,15 +611,16 @@ class eRxSOAP {
             ->getPatientFreeFormAllergyHistory()
             ->GetPatientFreeFormAllergyHistoryResult;
 
-        if(0 < $patientFreeFormAllergyHistory->result->RowCount) {
+        if (0 < $patientFreeFormAllergyHistory->result->RowCount) {
             $response = $patientFreeFormAllergyHistory
                 ->patientFreeFormAllergyExtendedDetail
                 ->PatientFreeFormAllergyExtendedDetail;
 
-            if(!is_array($response))
+            if (!is_array($response)) {
                 $response = array($response);
+            }
 
-            foreach($response as $response) {
+            foreach ($response as $response) {
                 $this->getStore()
                     ->updateErxUploadedByListId($response->ExternalId);
             }
@@ -634,9 +645,9 @@ class eRxSOAP {
                 ->XmlResponse
         );
         $store->updatePrescriptionsActiveByPatientId($this->getPatientId());
-        if(is_array($medArray)) {
-            foreach($medArray as $med) {
-                if($med['DosageForm']) {
+        if (is_array($medArray)) {
+            foreach ($medArray as $med) {
+                if ($med['DosageForm']) {
                     $optionIdDosageForm = $this->insertMissingListOptions(
                         'drug_form',
                         $med['DosageForm']
@@ -645,7 +656,7 @@ class eRxSOAP {
                     $optionIdDosageForm = null;
                 }
 
-                if($med['Route']) {
+                if ($med['Route']) {
                     $optionIdRoute = $this->insertMissingListOptions(
                         'drug_route',
                         $med['Route']
@@ -654,7 +665,7 @@ class eRxSOAP {
                     $optionIdRoute = null;
                 }
 
-                if($med['StrengthUOM']) {
+                if ($med['StrengthUOM']) {
                     $optionIdStrengthUOM = $this->insertMissingListOptions(
                         'drug_units',
                         $med['StrengthUOM']
@@ -663,7 +674,7 @@ class eRxSOAP {
                     $optionIdStrengthUOM = null;
                 }
 
-                if($med['DosageFrequencyDescription']) {
+                if ($med['DosageFrequencyDescription']) {
                     $optionIdFrequencyDescription = $this->insertMissingListOptions(
                         'drug_interval',
                         $med['DosageFrequencyDescription']
@@ -681,7 +692,7 @@ class eRxSOAP {
 
                 $prescriptionId = '';
 
-                if(0 == sqlNumRows($check)) {
+                if (0 == sqlNumRows($check)) {
                     $prescriptionId = $store->insertPrescriptions(
                         $med,
                         $encounter,
@@ -709,21 +720,23 @@ class eRxSOAP {
                 }
 
                 $result = sqlFetchArray($check);
-                if($result['id'])
+                if ($result['id']) {
                     $prescriptionId = $result['id'];
+                }
 
                 // Making sure only transmitted prescriptions entry added into amc_misc_data for eRx Numerator
-                if(!empty($med['PharmacyNCPDP'])){
+                if (!empty($med['PharmacyNCPDP'])) {
                     processAmcCall(
-                    'e_prescribe_amc',
-                    true,
-                    'add',
-                    $med['ExternalPatientID'],
-                    'prescriptions',
-                    $prescriptionId
+                        'e_prescribe_amc',
+                        true,
+                        'add',
+                        $med['ExternalPatientID'],
+                        'prescriptions',
+                        $prescriptionId
                     );
                 }
-                if($med['FormularyChecked'] === 'true'){
+
+                if ($med['FormularyChecked'] === 'true') {
                     processAmcCall('e_prescribe_chk_formulary_amc', true, 'add', $med['ExternalPatientID'], 'prescriptions', $prescriptionId);
                 }
             }
@@ -731,5 +744,4 @@ class eRxSOAP {
 
         return $insertedRows;
     }
-
 }

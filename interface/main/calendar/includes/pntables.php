@@ -666,6 +666,3 @@ $pntable['users_column'] = array ('uid'             => $users . '.pn_uid',
                                   'commentmax'      => $users . '.pn_commentmax',
                                   'counter'         => $users . '.pn_counter',
                                   'timezone_offset' => $users . '.pn_timezone_offset');
-
-
-?>

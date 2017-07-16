@@ -12,7 +12,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Address
  *
  */
-class Company extends ORDataObject{
+class Company extends ORDataObject
+{
     var $id;
     var $name;
     var $foreign_id;
@@ -43,17 +44,15 @@ class Company extends ORDataObject{
         if ($id != "") {
             $this->populate();
         }
-
-
     }
     function factory_company($foreign_id = "")
     {
         if (empty($foreign_id)) {
              $foreign_id= "like '%'";
-        }
-        else {
+        } else {
             $foreign_id= " = '" . add_escape_custom(strval($foreign_id)) . "'";
         }
+
         $a = new Address();
         $sql = "SELECT id FROM  " . $a->_table . " WHERE foreign_id " .$foreign_id ;
         //echo $sql . "<bR />";
@@ -79,8 +78,7 @@ class Company extends ORDataObject{
 
         if ($html) {
             return nl2br($string);
-        }
-        else {
+        } else {
             return $string;
         }
     }
@@ -165,13 +163,12 @@ class Company extends ORDataObject{
     {
         return $this->country;
     }
-    function persist($fid ="")
+    function persist($fid = "")
     {
         if (!empty($fid)) {
             $this->foreign_id = $fid;
         }
+
         parent::persist();
     }
-
 } // end of Company
-?>

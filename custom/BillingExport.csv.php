@@ -15,7 +15,8 @@
 // To implement this feature, rename this file to BillingExport.php.
 
 
-class BillingExport {
+class BillingExport
+{
 
   // You should customize these paths.  They must share the same
   // physical disk partition so that the final rename will be an
@@ -39,24 +40,34 @@ class BillingExport {
     function fixSex($sex)
     {
         $sex = substr(strtoupper(trim($sex)), 0, 1);
-        if ($sex == 'M') return 'Male';
-        if ($sex == 'F') return 'Female';
+        if ($sex == 'M') {
+            return 'Male';
+        }
+
+        if ($sex == 'F') {
+            return 'Female';
+        }
+
         return '';
     }
 
     function fixPhone($phone)
     {
         $tmparr = array();
-        if (preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $phone, $tmparr))
-        return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
+        if (preg_match("/(\d\d\d)\D*(\d\d\d)\D*(\d\d\d\d)/", $phone, $tmparr)) {
+            return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
+        }
+
         return '';
     }
 
     function fixSSN($ssn)
     {
         $tmparr = array();
-        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", $ssn, $tmparr))
-        return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
+        if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", $ssn, $tmparr)) {
+            return $tmparr[1] . '-' . $tmparr[2] . '-' . $tmparr[3];
+        }
+
         return '';
     }
 
@@ -68,9 +79,18 @@ class BillingExport {
     function fixEStatus($employer)
     {
         $status = strtoupper(trim($employer));
-        if (! $status) return '';
-        if ($status == 'STUDENT') return 'Student';
-        if ($status == 'RETIRED') return 'Retired';
+        if (! $status) {
+            return '';
+        }
+
+        if ($status == 'STUDENT') {
+            return 'Student';
+        }
+
+        if ($status == 'RETIRED') {
+            return 'Retired';
+        }
+
         return 'Full-time';
     }
 
@@ -83,7 +103,10 @@ class BillingExport {
     {
         $code = trim($code);
         $mod = trim($mod);
-        if ($mod) $code .= '-' . $mod;
+        if ($mod) {
+            $code .= '-' . $mod;
+        }
+
         return addslashes($code);
     }
 
@@ -191,7 +214,10 @@ class BillingExport {
 
         $prev_type = '?';
         while ($irow = sqlFetchArray($ires)) {
-              if (strcmp($irow['type'], $prev_type) == 0) continue;
+            if (strcmp($irow['type'], $prev_type) == 0) {
+                continue;
+            }
+
               $prev_type = $irow['type'];
 
               fwrite($this->tmpfh, 'IN' .
@@ -253,5 +279,3 @@ class BillingExport {
         rename($this->tmpname, $this->TARGET_DIR . '/' . basename($this->tmpname));
     }
 }
-
-?>

@@ -41,23 +41,20 @@
  */
 
 
-define("PRIV_DB","PRIV_DB");
+define("PRIV_DB", "PRIV_DB");
 function getPrivDB()
 {
-    if(!isset($GLOBALS[PRIV_DB]))
-    {
+    if (!isset($GLOBALS[PRIV_DB])) {
         $secure_config=$GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php";
-        if(file_exists($secure_config))
-        {
+        if (file_exists($secure_config)) {
             require_once($secure_config);
             $GLOBALS[PRIV_DB]=NewADOConnection("mysql_log");
             $GLOBALS[PRIV_DB]->PConnect($secure_host.":".$secure_port, $secure_login, $secure_pass, $secure_dbase);
-        }
-        else
-        {
+        } else {
             $GLOBALS[PRIV_DB]=$GLOBALS['adodb']['db'];
         }
     }
+
     return $GLOBALS[PRIV_DB];
 }
 
@@ -68,18 +65,15 @@ function getPrivDB()
  * @param type $params
  * @return type
  */
-function privStatement($sql,$params=null)
+function privStatement($sql, $params = null)
 {
-    if(is_array($params))
-    {
-        $recordset = getPrivDB()->Execute( $sql, $params );
+    if (is_array($params)) {
+        $recordset = getPrivDB()->Execute($sql, $params);
+    } else {
+        $recordset = getPrivDB()->Execute($sql);
     }
-    else
-    {
-        $recordset = getPrivDB()->Execute( $sql );
-    }
+
     if ($recordset === false) {
-        
       // These error messages are explictly NOT run through xl() because we still
       // need them if there is a database problem.
         echo "Failure during database access! Check server error log.";
@@ -89,8 +83,9 @@ function privStatement($sql,$params=null)
               ."==>".$backtrace[1]["file"]." at ".$backtrace[1]["line"].":".$backtrace[1]["function"]);
         exit;
     }
+
     return $recordset;
-    return sqlStatement($sql,$params);
+    return sqlStatement($sql, $params);
 }
 
 /**
@@ -102,15 +97,17 @@ function privStatement($sql,$params=null)
  * @param type $params
  * @return boolean
  */
-function privQuery($sql,$params=null)
+function privQuery($sql, $params = null)
 {
-    $recordset=privStatement($sql,$params);
-    if ($recordset->EOF)
-    return false;
-    $rez = $recordset->FetchRow();
-    if ($rez == false)
+    $recordset=privStatement($sql, $params);
+    if ($recordset->EOF) {
         return false;
-    return $rez;
+    }
 
+    $rez = $recordset->FetchRow();
+    if ($rez == false) {
+        return false;
+    }
+
+    return $rez;
 }
-?>

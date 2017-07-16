@@ -51,41 +51,45 @@ $reason           = (isset($_POST['reason']))               ? $_POST['reason'] :
 $mode             = (isset($_POST['mode']))                 ? $_POST['mode'] : '';
 $referral_source  = (isset($_POST['form_referral_source'])) ? $_POST['form_referral_source'] : '';
 $pos_code         = (isset($_POST['pos_code']))              ? $_POST['pos_code'] : '';
-$counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ',$_POST['counselors']) : $provider_id;
+$counselors       = (isset($_POST['counselors']) && is_array($_POST['counselors']))  ?  implode(', ', $_POST['counselors']) : $provider_id;
 
 
 $facilityresult = $facilityService->getById($facility_id);
 $facility = $facilityresult['name'];
 
-if ($mode == 'new')
-{
+if ($mode == 'new') {
     $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
     $encounter = generate_id();
-    addForm($encounter, "New Therapy Group Encounter",
-    sqlInsert("INSERT INTO form_groups_encounter SET " .
-      "date = '" . add_escape_custom($date) . "', " .
-      "onset_date = '" . add_escape_custom($onset_date) . "', " .
-      "reason = '" . add_escape_custom($reason) . "', " .
-      "facility = '" . add_escape_custom($facility) . "', " .
-      "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
-      "facility_id = '" . add_escape_custom($facility_id) . "', " .
-      "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
-      "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
-      "referral_source = '" . add_escape_custom($referral_source) . "', " .
-      "group_id = '" . add_escape_custom($group_id) . "', " .
-      "encounter = '" . add_escape_custom($encounter) . "', " .
-      "pos_code = '" . add_escape_custom($pos_code) . "', " .
-      "provider_id = '" . add_escape_custom($provider_id) . "'," .
-      "counselors = '" . add_escape_custom($counselors) . "'"),
-    "newGroupEncounter", null, $userauthorized, $date);
-}
-else if ($mode == 'update')
-{
+    addForm(
+        $encounter,
+        "New Therapy Group Encounter",
+        sqlInsert("INSERT INTO form_groups_encounter SET " .
+        "date = '" . add_escape_custom($date) . "', " .
+        "onset_date = '" . add_escape_custom($onset_date) . "', " .
+        "reason = '" . add_escape_custom($reason) . "', " .
+        "facility = '" . add_escape_custom($facility) . "', " .
+        "pc_catid = '" . add_escape_custom($pc_catid) . "', " .
+        "facility_id = '" . add_escape_custom($facility_id) . "', " .
+        "billing_facility = '" . add_escape_custom($billing_facility) . "', " .
+        "sensitivity = '" . add_escape_custom($sensitivity) . "', " .
+        "referral_source = '" . add_escape_custom($referral_source) . "', " .
+        "group_id = '" . add_escape_custom($group_id) . "', " .
+        "encounter = '" . add_escape_custom($encounter) . "', " .
+        "pos_code = '" . add_escape_custom($pos_code) . "', " .
+        "provider_id = '" . add_escape_custom($provider_id) . "'," .
+        "counselors = '" . add_escape_custom($counselors) . "'"),
+        "newGroupEncounter",
+        null,
+        $userauthorized,
+        $date
+    );
+} else if ($mode == 'update') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_groups_encounter WHERE id = ?", array($id));
     if ($result['sensitivity'] && !acl_check('sensitivities', $result['sensitivity'])) {
         die(xlt("You are not authorized to see this encounter."));
     }
+
     $encounter = $result['encounter'];
   // See view.php to allow or disallow updates of the encounter date.
     $datepart = acl_check('encounters', 'date_a') ? "date = '" . add_escape_custom($date) . "', " : "";
@@ -103,8 +107,7 @@ else if ($mode == 'update')
     "pos_code = '" . add_escape_custom($pos_code) . "' " .
 
     "WHERE id = '" . add_escape_custom($id) . "'");
-}
-else {
+} else {
     die("Unknown mode '" . text($mode) . "'");
 }
 
@@ -136,15 +139,15 @@ $result4 = sqlStatement("SELECT fe.encounter,fe.date,openemr_postcalendar_catego
     EncounterIdArray=new Array;
     Count=0;
         <?php
-               if(sqlNumRows($result4)>0)
-        while($rowresult4 = sqlFetchArray($result4))
-        {
-    ?>
-    EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+        if (sqlNumRows($result4)>0) {
+            while ($rowresult4 = sqlFetchArray($result4)) {
+        ?>
+        EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
     CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
             Count++;
-<?php
+    <?php
+            }
         }
         ?>
      top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);

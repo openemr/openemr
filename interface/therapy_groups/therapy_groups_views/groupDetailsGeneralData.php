@@ -26,13 +26,13 @@
 ?>
 
 
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $edit_encounter = acl_check("groups","glog",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $edit_encounter = acl_check("groups", "glog", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
+<?php if ($view || $edit) :?>
 
 <main id="group-details">
     <div class="container-group">
@@ -47,14 +47,14 @@
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
-                        <?php if($edit):?>
-                            <?php if($edit_encounter):?>
+                        <?php if ($edit) :?>
+                            <?php if ($edit_encounter) :?>
                                 <button onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php endif;?>
-                        <?php if($readonly == ''): ?>
+                        <?php if ($readonly == '') : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button  id="saveUpdates" class="float-right"><?php echo xlt('Save');?></button>
-                        <?php else: ?>
+                        <?php else : ?>
                             <button class="float-right" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php endif; ?>
                         <?php endif;?>
@@ -87,7 +87,7 @@
                                             </div>
                                             <div class="col-md-6 col-sm-6">
                                                 <select name="group_status" class="full-width"  value="<?php echo attr($groupData['group_status']);?>" <?php echo $readonly; ?>>
-                                                    <?php foreach($statuses as $key => $status): ?>
+                                                    <?php foreach ($statuses as $key => $status) : ?>
                                                         <option value="<?php echo attr($key);?>" <?php echo $key == $groupData['group_status'] ? 'selected' : ''; ?>><?php echo xlt($status); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
@@ -148,7 +148,7 @@
                                             </div>
                                             <div class="col-md-8 col-sm-7">
                                                 <select name="counselors[]" multiple class="full-width" <?php echo $readonly; ?>>
-                                                    <?php foreach($users as $user): ?>
+                                                    <?php foreach ($users as $user) : ?>
                                                         <option value="<?php echo attr($user['id']);?>" <?php echo !is_null($groupData['counselors']) && in_array($user['id'], $groupData['counselors']) ? 'selected' : '';?>><?php echo text($user['fname'] . ' ' . $user['lname']);?></option>
                                                     <?php endforeach; ?>
                                                 </select>
@@ -180,13 +180,15 @@
                                 </div>
                                 <div class="row group-row">
                                     <div class="col-md-9 col-sm 12">
-                                        <?php if($savingStatus == 'exist'): ?>
-                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if($edit):?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php endif;?></div>
+                                        <?php if ($savingStatus == 'exist') : ?>
+                                            <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4>   <?php if ($edit) :
+?><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button><?php
+                                                                                              endif;?></div>
                                         <?php endif ?>
-                                        <?php if($savingStatus == 'success'): ?>
+                                        <?php if ($savingStatus == 'success') : ?>
                                             <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
-                                        <?php if($savingStatus == 'failed'): ?>
+                                        <?php if ($savingStatus == 'failed') : ?>
                                             <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                                         <?php endif ?>
                                     </div>
@@ -253,15 +255,15 @@
     EncounterIdArray=new Array;
     Count=0;
     <?php
-    if(sqlNumRows($result4)>0)
-    while($rowresult4 = sqlFetchArray($result4))
-    {
-    ?>
-    EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
+    if (sqlNumRows($result4)>0) {
+        while ($rowresult4 = sqlFetchArray($result4)) {
+        ?>
+        EncounterIdArray[Count]='<?php echo attr($rowresult4['encounter']); ?>';
     EncounterDateArray[Count]='<?php echo attr(oeFormatShortDate(date("Y-m-d", strtotime($rowresult4['date'])))); ?>';
     CalendarCategoryArray[Count]='<?php echo attr(xl_appt_category($rowresult4['pc_catname'])); ?>';
     Count++;
     <?php
+        }
     }
     ?>
     top.window.parent.left_nav.setPatientEncounter(EncounterIdArray,EncounterDateArray,CalendarCategoryArray);

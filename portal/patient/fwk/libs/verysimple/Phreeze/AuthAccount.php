@@ -4,15 +4,15 @@
 /**
  * import supporting libraries
  */
-require_once ("Model/DAO/AccountDAO.php");
-require_once ("verysimple/Authentication/IAuthenticatable.php");
+require_once("Model/DAO/AccountDAO.php");
+require_once("verysimple/Authentication/IAuthenticatable.php");
 
 // these are some generic permission settings. You should set your own in
 // your account object
-define ( "ACCOUNT_PERMISSION_NONE", 0 );
-define ( "ACCOUNT_PERMISSION_READ", 1 );
-define ( "ACCOUNT_PERMISSION_WRITE", 2 );
-define ( "ACCOUNT_PERMISSION_ADMIN", 4 );
+define("ACCOUNT_PERMISSION_NONE", 0);
+define("ACCOUNT_PERMISSION_READ", 1);
+define("ACCOUNT_PERMISSION_WRITE", 2);
+define("ACCOUNT_PERMISSION_ADMIN", 4);
 
 /**
  *
@@ -41,7 +41,8 @@ define ( "ACCOUNT_PERMISSION_ADMIN", 4 );
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 2.0
  */
-class AuthAccount extends AccountDAO implements IAuthenticatable {
+class AuthAccount extends AccountDAO implements IAuthenticatable
+{
     /** @var string this is public for serialization */
     public $_original_password = "";
     
@@ -68,11 +69,11 @@ class AuthAccount extends AccountDAO implements IAuthenticatable {
      */
     function IsAuthorized($permission)
     {
-        if ($this->IsAnonymous ()) {
+        if ($this->IsAnonymous()) {
             return false;
         }
         
-        return (($this->GetRole ()->Permission & $permission) > 0);
+        return (($this->GetRole()->Permission & $permission) > 0);
     }
     
     /**
@@ -87,38 +88,47 @@ class AuthAccount extends AccountDAO implements IAuthenticatable {
     function Login($username, $password)
     {
         // for backwards compatibility with Phreeze 2x, look in multiple places for the AccountCriteria class
-        if (! class_exists ( "AccountCriteria" ))
-            @include_once ("Model/AccountCriteria.php");
-        if (! class_exists ( "AccountCriteria" ))
-            @include_once ("Model/DAO/AccountCriteria.php");
-        if (! class_exists ( "AccountCriteria" ))
-            throw new Exception ( "Unable to locate AccountCriteria class." );
+        if (! class_exists("AccountCriteria")) {
+            @include_once("Model/AccountCriteria.php");
+        }
+
+        if (! class_exists("AccountCriteria")) {
+            @include_once("Model/DAO/AccountCriteria.php");
+        }
+
+        if (! class_exists("AccountCriteria")) {
+            throw new Exception("Unable to locate AccountCriteria class.");
+        }
         
         if ($username == "" || $password == "") {
             return false;
         }
         
-        $this->_phreezer->Observe ( "AuthAccount.Login Searching For Matching Account..." );
+        $this->_phreezer->Observe("AuthAccount.Login Searching For Matching Account...");
         
-        $criteria = new AccountCriteria ();
+        $criteria = new AccountCriteria();
         // set both the name and the _Equals properties for backwards compatibility
-        if (property_exists ( $criteria, 'Username' ))
+        if (property_exists($criteria, 'Username')) {
             $criteria->Username = $username;
+        }
+
         $criteria->Username_Equals = $username;
-        if (property_exists ( $criteria, 'Password' ))
-            $criteria->Password = base64_encode ( crypt ( $password, $username ) );
-        $criteria->Password_Equals = base64_encode ( crypt ( $password, $username ) );
+        if (property_exists($criteria, 'Password')) {
+            $criteria->Password = base64_encode(crypt($password, $username));
+        }
+
+        $criteria->Password_Equals = base64_encode(crypt($password, $username));
         
-        $ds = $this->_phreezer->Query ( "Account", $criteria );
+        $ds = $this->_phreezer->Query("Account", $criteria);
         
         // we have to clear the cache, this resolves an issue where logging in repeatedly
         // will retain the same cached child objects
-        $this->ClearCache ();
+        $this->ClearCache();
         
-        if ($account = $ds->Next ()) {
+        if ($account = $ds->Next()) {
             // we can't do $this = $account, so instead just clone all the properties:
-            $this->LoadFromObject ( $account );
-            $this->GetRole (); // this triggers the role to load so it will be cached
+            $this->LoadFromObject($account);
+            $this->GetRole(); // this triggers the role to load so it will be cached
                               
             // we need to update the login date and count
                               // $this->LastLogin = date('Y-m-d H:i:s');
@@ -142,16 +152,16 @@ class AuthAccount extends AccountDAO implements IAuthenticatable {
     {
         // if the password has changed since load, then we want to crypt it
         // otherwise we don't want to touch it because it is already crypted
-        if ($is_insert || $this->PasswordWasChanged ()) {
-            $this->_phreezer->Observe ( "Account-&gt;OnSave: The password has changed" );
-            $this->Password = base64_encode ( crypt ( $this->Password, $this->Username ) );
+        if ($is_insert || $this->PasswordWasChanged()) {
+            $this->_phreezer->Observe("Account-&gt;OnSave: The password has changed");
+            $this->Password = base64_encode(crypt($this->Password, $this->Username));
         } else {
             $this->Password = $this->_original_password;
-            $this->_phreezer->Observe ( "Account->OnSave: The password was not changed" );
+            $this->_phreezer->Observe("Account->OnSave: The password was not changed");
         }
         
         // update the modified date
-        $this->Modified = date ( 'Y-m-d H:i:s' );
+        $this->Modified = date('Y-m-d H:i:s');
         return true;
     }
     
@@ -172,8 +182,6 @@ class AuthAccount extends AccountDAO implements IAuthenticatable {
     {
         $this->_original_password = ""; // force Save to crypt the password
         $this->Password = $new_pass; // base64_encode(crypt($this->Password,$this->Username));
-        $this->Save ();
+        $this->Save();
     }
 }
-
-?>

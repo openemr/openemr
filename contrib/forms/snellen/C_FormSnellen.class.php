@@ -5,10 +5,11 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 
-require_once ($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc");
 require_once("FormSnellen.class.php");
 
-class C_FormSnellen extends Controller {
+class C_FormSnellen extends Controller
+{
 
     var $template_dir;
 
@@ -18,14 +19,14 @@ class C_FormSnellen extends Controller {
         $this->template_mod = $template_mod;
         $this->template_dir = dirname(__FILE__) . "/templates/";
         $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK",$GLOBALS['form_exit_url']);
+        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
         $this->assign("STYLE", $GLOBALS['style']);
     }
 
     function default_action()
     {
         $form = new FormSnellen();
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
@@ -33,32 +34,40 @@ class C_FormSnellen extends Controller {
     {
         if (is_numeric($form_id)) {
             $form = new FormSnellen($form_id);
-        }
-        else {
+        } else {
             $form = new FormSnellen();
         }
+
         $dbconn = $GLOBALS['adodb']['db'];
-        $this->assign("data",$form);
+        $this->assign("data", $form);
         return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
     }
 
     function default_action_process()
     {
-        if ($_POST['process'] != "true")
-        return;
+        if ($_POST['process'] != "true") {
+            return;
+        }
+
         $this->form = new FormSnellen($_POST['id']);
         parent::populate_object($this->form);
         $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
+
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "Snellen Eye Exam", $this->form->id, "snellen",
-            $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "Snellen Eye Exam",
+                $this->form->id,
+                "snellen",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
+
         return;
     }
-
 }
-?>

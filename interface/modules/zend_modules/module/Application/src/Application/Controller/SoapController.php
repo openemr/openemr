@@ -44,8 +44,10 @@ class SoapController extends AbstractActionController
     public function indexAction()
     {
 
-        $server = new Server(null,
-        array('uri' => 'http://localhost/index/soap'));
+        $server = new Server(
+            null,
+            array('uri' => 'http://localhost/index/soap')
+        );
         // set SOAP service class
         // Bind already initialized object to Soap Server
         $server->setObject(new EncounterccdadispatchController($this->getServiceLocator()));
@@ -65,6 +67,7 @@ class SoapController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->encounterccdadispatchTable = $sm->get('Zend\Db\Adapter\Adapter');
         }
+
         return $this->encounterccdadispatchTable;
     }
     
@@ -79,6 +82,7 @@ class SoapController extends AbstractActionController
             $sm = $this->getServiceLocator();
             $this->applicationTable = $sm->get('Application\Model\ApplicationTable');
         }
+
         return $this->applicationTable;
     }
 }

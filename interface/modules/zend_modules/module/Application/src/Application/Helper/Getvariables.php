@@ -21,10 +21,10 @@
 
 namespace Application\Helper;
 
-use Zend\View\Helper\AbstractHelper,
-    Zend\ServiceManager\ServiceLocatorAwareInterface,
-    Zend\ServiceManager\ServiceLocatorInterface,
-    Zend\View\Exception;
+use Zend\View\Helper\AbstractHelper;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\View\Exception;
  
 class Getvariables extends \Zend\View\Helper\AbstractHelper implements ServiceLocatorAwareInterface
 {
@@ -76,4 +76,3 @@ class Getvariables extends \Zend\View\Helper\AbstractHelper implements ServiceLo
         return $this->serviceLocator;
     }
 }
-?>

@@ -42,7 +42,7 @@ class Module implements AutoloaderProviderInterface
             $controller             = $e->getTarget();
             $route                      = $controller->getEvent()->getRouteMatch();
             $controller_name    = $route->getParam('controller');
-            switch($controller_name) {
+            switch ($controller_name) {
                 default:
                     $controller->layout('documents/layout');
             };

@@ -125,5 +125,3 @@ class OnsiteDocumentReporter extends Reporter
         return $sql;
     }
 }
-
-?>

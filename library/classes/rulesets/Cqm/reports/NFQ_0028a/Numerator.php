@@ -13,21 +13,19 @@ class NFQ_0028a_Numerator implements CqmFilterIF
         return "Numerator";
     }
 
-    public function test( CqmPatient $patient, $beginDate, $endDate )
+    public function test(CqmPatient $patient, $beginDate, $endDate)
     {
         // See if user has been a tobacco user before or simultaneosly to the encounter within two years (24 months)
-        foreach ( $this->getApplicableEncounters() as $encType )
-        {
-            $dates = Helper::fetchEncounterDates( $encType, $patient, $beginDate, $endDate );
-            foreach ( $dates as $date )
-            {
+        foreach ($this->getApplicableEncounters() as $encType) {
+            $dates = Helper::fetchEncounterDates($encType, $patient, $beginDate, $endDate);
+            foreach ($dates as $date) {
                 // encounters time stamp is always 00:00:00, so change it to 23:59:59 or 00:00:00 as applicable
-                $date = date( 'Y-m-d 23:59:59', strtotime( $date ));
-                $beginMinus24Months = strtotime( '-24 month' , strtotime ( $date ) );
-                $beginMinus24Months = date( 'Y-m-d 00:00:00' , $beginMinus24Months );
+                $date = date('Y-m-d 23:59:59', strtotime($date));
+                $beginMinus24Months = strtotime('-24 month', strtotime($date));
+                $beginMinus24Months = date('Y-m-d 00:00:00', $beginMinus24Months);
                 // this is basically a check to see if the patient's tobacco status has been evaluated in the two years previous to encounter.
-                if ( Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date ) ||
-                    Helper::check( ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date ) ) {
+                if (Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_USER, $patient, $beginMinus24Months, $date) ||
+                    Helper::check(ClinicalType::CHARACTERISTIC, Characteristic::TOBACCO_NON_USER, $patient, $beginMinus24Months, $date) ) {
                     return true;
                 }
             }

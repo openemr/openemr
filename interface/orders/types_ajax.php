@@ -8,9 +8,9 @@
 
 require_once("../globals.php");
 
-$id = formData('id','G') + 0;
-$order = formData('order','G') + 0;
-$labid = formData('labid','G') + 0;
+$id = formData('id', 'G') + 0;
+$order = formData('order', 'G') + 0;
+$labid = formData('labid', 'G') + 0;
 
 echo "$('#con$id').html('<table width=\"100%\" cellspacing=\"0\">";
 
@@ -51,16 +51,18 @@ while ($row = sqlFetchArray($res)) {
     if (substr($row['procedure_type'], 0, 3) == 'ord') {
         if ($order && ($labid == 0 || $row['lab_id'] == $labid)) {
             echo "<input type=\"radio\" name=\"form_order\" value=\"$chid\"";
-            if ($chid == $order) echo " checked";
+            if ($chid == $order) {
+                echo " checked";
+            }
+
             echo " />";
-        }
-        else {
+        } else {
             echo xl('Yes');
         }
-    }
-    else {
+    } else {
         echo '&nbsp;';
     }
+
     echo "</td>";
   //
     echo "<td class=\"col3\">" . htmlspecialchars($row['procedure_code'], ENT_QUOTES) . "</td>";
@@ -74,4 +76,3 @@ while ($row = sqlFetchArray($res)) {
 
 echo "</table>');\n";
 echo "nextOpen();\n";
-?>

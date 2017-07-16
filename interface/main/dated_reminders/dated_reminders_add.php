@@ -50,7 +50,7 @@
   $max_reminder_words=160;
 
 // ---------------- FOR FORWARDING MESSAGES ------------->
-if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
+if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
     $forwarding = true;
     $this_message = getReminderById($_GET['mID']);
 }
@@ -60,7 +60,7 @@ if(isset($_GET['mID']) and is_numeric($_GET['mID'])){
 
 
 // --- add reminders
-if($_POST){
+if ($_POST) {
 // --- initialize $output as blank
     $output = '';
  // ------ fills an array with all recipients
@@ -74,36 +74,35 @@ if($_POST){
 
 // --------------------------------------------------------------------------------------------------------------------------
 // --- check for the post, if it is valid, commit to the database, close this window and run opener.Handeler
-    if(
-// ------- check sendTo is not empty
+    if (// ------- check sendTo is not empty
     !empty($sendTo) and
 // ------- check dueDate, only allow valid dates, todo -> enhance date checker
-    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/',$_POST['dueDate']) and
+    isset($_POST['dueDate']) and preg_match('/\d{4}[-]\d{2}[-]\d{2}/', $_POST['dueDate']) and
 // ------- check priority, only allow 1-3
     isset($_POST['priority']) and intval($_POST['priority']) <= 3 and
 // ------- check message, only up to 160 characters limited by Db
     isset($_POST['message']) and strlen($_POST['message']) <= $max_reminder_words and strlen($_POST['message']) > 0 and
 // ------- check if PatientID is set and in numeric
     isset($_POST['PatientID']) and is_numeric($_POST['PatientID'])
-    ){
+    ) {
         $dueDate = $_POST['dueDate'];
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
         $fromID = $_SESSION['authId'];
         $patID = $_POST['PatientID'];
-        if(isset($_POST['sendSeperately']) and $_POST['sendSeperately']){
-            foreach($sendTo as $st){
-                $ReminderSent = sendReminder(array($st),$fromID,$message,$dueDate,$patID,$priority);
+        if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
+            foreach ($sendTo as $st) {
+                $ReminderSent = sendReminder(array($st), $fromID, $message, $dueDate, $patID, $priority);
             }
-        }
-        else{
+        } else {
       // -------- Send the reminder
-            $ReminderSent = sendReminder($sendTo,$fromID,$message,$dueDate,$patID,$priority);
+            $ReminderSent = sendReminder($sendTo, $fromID, $message, $dueDate, $patID, $priority);
         }
+
 // --------------------------------------------------------------------------------------------------------------------------
-        if(!$ReminderSent){
+        if (!$ReminderSent) {
             $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Please select a valid recipient').'</div> ';
-        }else{
+        } else {
       // --------- echo javascript
             echo '<html><body>'
             ."<script type=\"text/javascript\" src=\"". $webroot ."/interface/main/tabs/js/include_opener.js\"></script>"
@@ -118,22 +117,27 @@ if($_POST){
       // --------- stop script from executing further
             exit;
         }
-// --------------------------------------------------------------------------------------------------------------------------
-    }
-// --------------------------------------------------------------------------------------------------------------------------
 
-    else{
+// --------------------------------------------------------------------------------------------------------------------------
+    } // --------------------------------------------------------------------------------------------------------------------------
+
+    else {
 // ------- if POST error
         $output .= '<div style="text-size:2em; text-align:center; color:red">* '.xlt('Data Error').'</div> ';
     }
+
 // ------- if any errors, communicate with the user
     echo $output;
 }
+
     // end add reminders
 
 // get current patient, first check if this is a forwarded message, if it is use the original pid
-    if(isset($this_message['pid'])) $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
-else $patientID = (isset($pid) ? $pid : 0);
+if (isset($this_message['pid'])) {
+    $patientID = (isset($this_message['pid']) ? $this_message['pid'] : 0);
+} else {
+    $patientID = (isset($pid) ? $pid : 0);
+}
     ?>
 <html>
   <head>
@@ -302,8 +306,8 @@ else $patientID = (isset($pid) ? $pid : 0);
               <select style="width:100%" id="sendTo" name="sendTo[]" multiple="multiple">
                 <option value="<?php echo attr(intval($_SESSION['authId'])); ?>"><?php echo xlt('Myself') ?></option>
                 <?php //
-                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?',array(intval($_SESSION['authId'])));
-                for($i=2; $uRow=sqlFetchArray($uSQL); $i++){
+                    $uSQL = sqlStatement('SELECT id, fname,	mname, lname  FROM  `users` WHERE  `active` = 1 AND `facility_id` > 0 AND id != ?', array(intval($_SESSION['authId'])));
+                for ($i=2; $uRow=sqlFetchArray($uSQL); $i++) {
                     echo '<option value="',attr($uRow['id']),'">',text($uRow['fname'].' '.$uRow['mname'].' '.$uRow['lname']),'</option>';
                 }
                 ?>
@@ -319,15 +323,16 @@ else $patientID = (isset($pid) ? $pid : 0);
       <br />
 
     <fieldset>
-            <?php echo xlt('Due Date') ?> : <input type='text' class='datepicker' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" title='<?php echo htmlspecialchars( xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
+            <?php echo xlt('Due Date') ?> : <input type='text' class='datepicker' name='dueDate' id="dueDate" size='20' value="<?php echo ($this_message['dueDate'] == '' ? date('Y-m-d') : attr($this_message['dueDate'])); ?>" title='<?php echo htmlspecialchars(xl('yyyy-mm-dd'), ENT_QUOTES); ?>' />
             <?php echo xlt('OR') ?>
             <?php echo xlt('Select a Time Span') ?> : <select id="timeSpan">
                                       <option value="__BLANK__"> -- <?php echo xlt('Select a Time Span') ?> -- </option>
                                         <?php
                                         $optionTxt = '';
-                                        foreach($dateRanges as $val=>$txt){
+                                        foreach ($dateRanges as $val => $txt) {
                                             $optionTxt .= '<option value="'.attr($val).'">'.text($txt).'</option>';
                                         }
+
                                         echo $optionTxt;
                                         ?>
                                    </select>
@@ -378,7 +383,7 @@ else $patientID = (isset($pid) ? $pid : 0);
         $_GET['sd'] = date('Y/m/d');
         $TempRemindersArray = logRemindersArray();
         $remindersArray = array();
-    foreach($TempRemindersArray as $RA){
+    foreach ($TempRemindersArray as $RA) {
         $remindersArray[$RA['messageID']]['messageID'] = $RA['messageID'];
         $remindersArray[$RA['messageID']]['ToName'] = ($remindersArray[$RA['messageID']]['ToName'] ? $remindersArray[$RA['messageID']]['ToName'].', '.$RA['ToName'] : $RA['ToName']);
         $remindersArray[$RA['messageID']]['PatientName'] = $RA['PatientName'];
@@ -399,7 +404,7 @@ else $patientID = (isset($pid) ? $pid : 0);
                 </thead>
                 <tbody>';
 
-    foreach($remindersArray as $RA){
+    foreach ($remindersArray as $RA) {
         echo '<tr class="heading">
                   <td>',text($RA['messageID']),'</td>
                   <td>',text($RA['ToName']),'</td>
@@ -408,6 +413,7 @@ else $patientID = (isset($pid) ? $pid : 0);
                   <td>',text($RA['dDate']),'</td>
                 </tr>';
     }
+
         echo '</tbody></table>';
     ?>
   </body>

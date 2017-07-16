@@ -7,6 +7,7 @@
 // of the License, or (at your option) any later version.
 
 use OpenEMR\Core\Header;
+
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 
@@ -14,15 +15,22 @@ require_once("../../custom/code_types.inc.php");
 //
 function bucks($amount)
 {
-    if (empty($amount)) return '';
+    if (empty($amount)) {
+        return '';
+    }
+
     return oeFormatMoney($amount);
 }
 
 $filter = $_REQUEST['filter'] + 0;
 $where = "c.active = 1";
-if ($filter) $where .= " AND c.code_type = '$filter'";
-if (empty($_REQUEST['include_uncat']))
-  $where .= " AND c.superbill != '' AND c.superbill != '0'";
+if ($filter) {
+    $where .= " AND c.code_type = '$filter'";
+}
+
+if (empty($_REQUEST['include_uncat'])) {
+    $where .= " AND c.superbill != '' AND c.superbill != '0'";
+}
 ?>
 <html>
 <head>
@@ -63,7 +71,7 @@ table.mymaintable td, table.mymaintable th {
 }
 </style>
 
-<title><?php xl('Services by Category','e'); ?></title>
+<title><?php xl('Services by Category', 'e'); ?></title>
 
 <script language="JavaScript">
 
@@ -79,7 +87,7 @@ table.mymaintable td, table.mymaintable th {
 
 <body class="body_top">
 
-<span class='title'><?php xl('Report','e'); ?> - <?php xl('Services by Category','e'); ?></span>
+<span class='title'><?php xl('Report', 'e'); ?> - <?php xl('Services by Category', 'e'); ?></span>
 
 <form method='post' action='services_by_category.php' name='theform' id='theform'>
 
@@ -96,11 +104,14 @@ table.mymaintable td, table.mymaintable th {
         <tr>
             <td>
                <select name='filter' class='form-control'>
-                <option value='0'><?php xl('All','e'); ?></option>
+                <option value='0'><?php xl('All', 'e'); ?></option>
             <?php
             foreach ($code_types as $key => $value) {
                 echo "<option value='" . $value['id'] . "'";
-                if ($value['id'] == $filter) echo " selected";
+                if ($value['id'] == $filter) {
+                    echo " selected";
+                }
+
                 echo ">$key</option>\n";
             }
             ?>
@@ -108,8 +119,10 @@ table.mymaintable td, table.mymaintable th {
             </td>
             <td>
         <div class="checkbox">
-                <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) echo " checked"; ?> />
-                <?php xl('Include Uncategorized','e'); ?></label>
+                <label><input type='checkbox' name='include_uncat' value='1'<?php if (!empty($_REQUEST['include_uncat'])) {
+                    echo " checked";
+} ?> />
+                <?php xl('Include Uncategorized', 'e'); ?></label>
         </div>
             </td>
         </tr>
@@ -152,14 +165,14 @@ if ($_POST['form_refresh']) {
 <table width='98%' id='mymaintable' class='mymaintable'>
 <thead style='display:table-header-group'>
 <tr bgcolor="#dddddd">
-<th class='bold'><?php xl('Category'   ,'e'); ?></th>
-<th class='bold'><?php xl('Type'       ,'e'); ?></th>
-<th class='bold'><?php xl('Code'       ,'e'); ?></th>
-<th class='bold'><?php xl('Mod'        ,'e'); ?></th>
-<th class='bold'><?php xl('Units'      ,'e'); ?></th>
-<th class='bold'><?php xl('Description','e'); ?></th>
+<th class='bold'><?php xl('Category', 'e'); ?></th>
+<th class='bold'><?php xl('Type', 'e'); ?></th>
+<th class='bold'><?php xl('Code', 'e'); ?></th>
+<th class='bold'><?php xl('Mod', 'e'); ?></th>
+<th class='bold'><?php xl('Units', 'e'); ?></th>
+<th class='bold'><?php xl('Description', 'e'); ?></th>
 <?php if (related_codes_are_used()) { ?>
-   <th class='bold'><?php xl('Related'    ,'e'); ?></th>
+   <th class='bold'><?php xl('Related', 'e'); ?></th>
 <?php } ?>
 <?php
 $pres = sqlStatement("SELECT title FROM list_options " .
@@ -188,11 +201,13 @@ while ($row = sqlFetchArray($res)) {
         $disp_category = $category;
         ++$irow;
     }
+
     foreach ($code_types as $key => $value) {
         if ($value['id'] == $row['code_type']) {
             break;
         }
     }
+
     $bgcolor = (($irow & 1) ? "#ffdddd" : "#ddddff");
     echo "  <tr bgcolor='$bgcolor'>\n";
 // Added 5-09 by BM - Translate label if applicable
@@ -214,6 +229,7 @@ while ($row = sqlFetchArray($res)) {
             "code_type = '$reltype' AND code = '$relcode' LIMIT 1");
             echo $relcode . ' ' . trim($relrow['code_text']) . '<br />';
         }
+
         echo "</td>\n";
     }
 
@@ -225,6 +241,7 @@ while ($row = sqlFetchArray($res)) {
     while ($prow = sqlFetchArray($pres)) {
         echo "   <td class='text' align='right'>" . bucks($prow['pr_price']) . "</td>\n";
     }
+
     echo "  </tr>\n";
 }
 ?>

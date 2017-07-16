@@ -13,7 +13,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-abstract class Reporter implements Serializable {
+abstract class Reporter implements Serializable
+{
     protected $_phreezer;
     private $_isLoaded;
     private $_isPartiallyLoaded;
@@ -41,8 +42,10 @@ abstract class Reporter implements Serializable {
      */
     public function IsLoaded($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_isLoaded = $value;
+        }
+
         return $this->_isLoaded;
     }
     
@@ -56,8 +59,10 @@ abstract class Reporter implements Serializable {
      */
     public function IsPartiallyLoaded($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_isPartiallyLoaded = $value;
+        }
+
         return $this->_isPartiallyLoaded;
     }
     
@@ -71,8 +76,10 @@ abstract class Reporter implements Serializable {
      */
     public function CacheLevel($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_cacheLevel = $value;
+        }
+
         return $this->_cacheLevel;
     }
     
@@ -86,8 +93,10 @@ abstract class Reporter implements Serializable {
      */
     public function NoCache($value = null)
     {
-        if ($value != null)
+        if ($value != null) {
             $this->_noCache = $value;
+        }
+
         return $this->_noCache;
     }
     
@@ -103,7 +112,7 @@ abstract class Reporter implements Serializable {
         $this->_phreezer = $phreezer;
         
         if ($row) {
-            $this->Load ( $row );
+            $this->Load($row);
         }
     }
     
@@ -114,23 +123,23 @@ abstract class Reporter implements Serializable {
     function serialize()
     {
         $propvals = array ();
-        $ro = new ReflectionObject ( $this );
+        $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties () as $rp ) {
-            $propname = $rp->getName ();
+        foreach ($ro->getProperties() as $rp) {
+            $propname = $rp->getName();
             
-            if (! in_array ( $propname, self::$NoCacheProperties )) {
-                if (method_exists ( $rp, "setAccessible" )) {
-                    $rp->setAccessible ( true );
-                    $propvals [$propname] = $rp->getValue ( $this );
-                } elseif (! $rp->isPrivate ()) {
+            if (! in_array($propname, self::$NoCacheProperties)) {
+                if (method_exists($rp, "setAccessible")) {
+                    $rp->setAccessible(true);
+                    $propvals [$propname] = $rp->getValue($this);
+                } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars
-                    $propvals [$propname] = $rp->getValue ( $this );
+                    $propvals [$propname] = $rp->getValue($this);
                 }
             }
         }
         
-        return serialize ( $propvals );
+        return serialize($propvals);
     }
     
     /**
@@ -141,19 +150,19 @@ abstract class Reporter implements Serializable {
      */
     function unserialize($data)
     {
-        $propvals = unserialize ( $data );
+        $propvals = unserialize($data);
         
-        $ro = new ReflectionObject ( $this );
+        $ro = new ReflectionObject($this);
         
-        foreach ( $ro->getProperties () as $rp ) {
+        foreach ($ro->getProperties() as $rp) {
             $propname = $rp->name;
-            if (array_key_exists ( $propname, $propvals )) {
-                if (method_exists ( $rp, "setAccessible" )) {
-                    $rp->setAccessible ( true );
-                    $rp->setValue ( $this, $propvals [$propname] );
-                } elseif (! $rp->isPrivate ()) {
+            if (array_key_exists($propname, $propvals)) {
+                if (method_exists($rp, "setAccessible")) {
+                    $rp->setAccessible(true);
+                    $rp->setValue($this, $propvals [$propname]);
+                } elseif (! $rp->isPrivate()) {
                     // if < php 5.3 we can't serialize private vars
-                    $rp->setValue ( $this, $propvals [$propname] );
+                    $rp->setValue($this, $propvals [$propname]);
                 }
             }
         }
@@ -169,18 +178,17 @@ abstract class Reporter implements Serializable {
      */
     public function GetPublicProperties()
     {
-        $className = get_class ( $this );
+        $className = get_class($this);
         
-        if (! array_key_exists ( $className, self::$PublicPropCache )) {
-            
+        if (! array_key_exists($className, self::$PublicPropCache)) {
             $props = array ();
-            $ro = new ReflectionObject ( $this );
+            $ro = new ReflectionObject($this);
             
-            foreach ( $ro->getProperties () as $rp ) {
-                $propname = $rp->getName ();
+            foreach ($ro->getProperties() as $rp) {
+                $propname = $rp->getName();
                 
-                if (! in_array ( $propname, self::$NoCacheProperties )) {
-                    if (! ($rp->isPrivate () || $rp->isStatic ())) {
+                if (! in_array($propname, self::$NoCacheProperties)) {
+                    if (! ($rp->isPrivate() || $rp->isStatic())) {
                         $props [] = $propname;
                     }
                 }
@@ -208,17 +216,19 @@ abstract class Reporter implements Serializable {
      */
     function ToObject($options = null)
     {
-        if ($options === null)
+        if ($options === null) {
             $options = array ();
-        $props = array_key_exists ( 'props', $options ) ? $options ['props'] : $this->GetPublicProperties ();
-        $omit = array_key_exists ( 'omit', $options ) ? $options ['omit'] : array ();
-        $camelCase = array_key_exists ( 'camelCase', $options ) ? $options ['camelCase'] : false;
+        }
+
+        $props = array_key_exists('props', $options) ? $options ['props'] : $this->GetPublicProperties();
+        $omit = array_key_exists('omit', $options) ? $options ['omit'] : array ();
+        $camelCase = array_key_exists('camelCase', $options) ? $options ['camelCase'] : false;
         
-        $obj = new stdClass ();
+        $obj = new stdClass();
         
-        foreach ( $props as $prop ) {
-            if (! in_array ( $prop, $omit )) {
-                $newProp = ($camelCase) ? lcfirst ( $prop ) : $prop;
+        foreach ($props as $prop) {
+            if (! in_array($prop, $omit)) {
+                $newProp = ($camelCase) ? lcfirst($prop) : $prop;
                 $obj->$newProp = $this->$prop;
             }
         }
@@ -239,10 +249,10 @@ abstract class Reporter implements Serializable {
         $this->_phreezer = $phreezer;
         
         if ($row) {
-            $this->Load ( $row );
+            $this->Load($row);
         }
         
-        $this->OnRefresh ();
+        $this->OnRefresh();
     }
     
     /**
@@ -295,10 +305,10 @@ abstract class Reporter implements Serializable {
      */
     function GetArray()
     {
-        $fms = $this->_phreezer->GetFieldMaps ( get_class ( $this ) );
+        $fms = $this->_phreezer->GetFieldMaps(get_class($this));
         $cols = array ();
         
-        foreach ( $fms as $fm ) {
+        foreach ($fms as $fm) {
             $prop = $fm->PropertyName;
             $cols [$fm->ColumnName] = $this->$prop;
         }
@@ -314,13 +324,13 @@ abstract class Reporter implements Serializable {
      */
     function Load(&$row)
     {
-        $this->_phreezer->Observe ( "Loading " . get_class ( $this ), OBSERVE_DEBUG );
+        $this->_phreezer->Observe("Loading " . get_class($this), OBSERVE_DEBUG);
         
-        foreach ( array_keys ( $row ) as $prop ) {
+        foreach (array_keys($row) as $prop) {
             $this->$prop = $row [$prop];
         }
         
-        $this->OnLoad ();
+        $this->OnLoad();
     }
     
     /**
@@ -332,5 +342,3 @@ abstract class Reporter implements Serializable {
     {
     }
 }
-
-?>

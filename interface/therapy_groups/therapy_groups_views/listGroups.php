@@ -24,18 +24,18 @@
  * @link    http://www.open-emr.org
  */
 ?>
-<?php $edit = acl_check("groups","gadd",false, 'write');?>
-<?php $view = acl_check("groups","gadd",false, 'view');?>
+<?php $edit = acl_check("groups", "gadd", false, 'write');?>
+<?php $view = acl_check("groups", "gadd", false, 'view');?>
 
 
 <?php require 'header.php'; ?>
-<?php if($view || $edit) :?>
+<?php if ($view || $edit) :?>
 
 <span class="hidden title"><?php echo xlt('Therapy Group Finder');?></span>
 <div id="therapy_groups_list_container" class="container">
 
     <!--------- ERRORS ----------->
-    <?php if($deletion_try == 1 && $deletion_response['success'] == 0) :?>
+    <?php if ($deletion_try == 1 && $deletion_response['success'] == 0) :?>
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
                 <div class="alert alert-danger text-center">
@@ -46,7 +46,7 @@
     <?php endif ?>
 
     <!---------- FILTERS SECTION ------------->
-    <?php if($edit):?>
+    <?php if ($edit) :?>
     <button id="clear_filters" class="btn"><?php echo xlt("Clear Filters")?></button>
     <?php endif;?>
 
@@ -66,7 +66,7 @@
                 <label class="" for="group_type_filter"><?php echo xlt('Group Type');?>:</label>
                 <select type="text" class="form-control" id="group_type_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
-                    <?php foreach ($group_types as $type):?>
+                    <?php foreach ($group_types as $type) :?>
                         <option value="<?php echo attr($type);?>"><?php echo text($type) ;?></option>
                     <?php endforeach; ?>
                 </select>
@@ -75,8 +75,8 @@
                 <label class="" for="group_status_filter"><?php echo xlt('Status');?>:</label>
                 <select type="text" class="form-control" id="group_status_filter" placeholder="" >
                     <option value="<?php echo attr($statuses[10]); ?>"><?php echo xlt($statuses[10]);?></option>
-                    <?php foreach ($statuses as $status):?>
-                        <?php if($status != $statuses[10]): ?>
+                    <?php foreach ($statuses as $status) :?>
+                        <?php if ($status != $statuses[10]) : ?>
                             <option value="<?php echo attr($status);?>"><?php echo xlt($status) ;?></option>
                         <?php endif; ?>
                     <?php endforeach; ?>
@@ -87,7 +87,7 @@
                 <label class="" for="counselors_filter"><?php echo xlt('Main Counselors');?>:</label>
                 <select type="text" class="form-control" id="counselors_filter" placeholder="" >
                     <option value=""><?php echo xlt('choose');?></option>
-                    <?php foreach ($counselors as $counselor):?>
+                    <?php foreach ($counselors as $counselor) :?>
                         <option value="<?php echo attr($counselor);?>"><?php echo text($counselor) ;?></option>
                     <?php endforeach; ?>
                 </select>
@@ -143,7 +143,7 @@
                     <td><?php echo text(oeFormatShortDate($group['group_start_date']));?></td>
                     <td><?php echo ($group['group_end_date'] == '0000-00-00' or $group['group_end_date'] == '00-00-0000' or empty($group['group_end_date'])) ? '' : text(oeFormatShortDate($group['group_end_date'])); ?></td>
                     <td>
-                        <?php foreach ($group['counselors'] as $counselor){
+                        <?php foreach ($group['counselors'] as $counselor) {
                             echo text($counselor) . " </br> ";
 } ;?>
                     </td>
@@ -151,9 +151,13 @@
                     <td class="delete_btn">
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
-                        if($group['group_status'] == 10): ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><?php if($edit):?><button>X</button><?php endif;?></a></td>
-                        <?php endif; ?>
+                        if ($group['group_status'] == 10) { ?>
+                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr($group['group_id']); ?>"><?php
+                            if ($edit) { ?>
+                                <button>X</button><?php
+                            } ?>
+                            </a></td><?php
+                        } ?>
 
                     </td>
                 </tr>

@@ -26,7 +26,8 @@ use Zend\View\Model\ViewModel;
 use Application\Listener\Listener;
 use Error;
 
-class PatientvalidationController extends BaseController{
+class PatientvalidationController extends BaseController
+{
 
 
     /**
@@ -37,39 +38,36 @@ class PatientvalidationController extends BaseController{
         parent::__construct();
         $this->listenerObject = new Listener;
         //todo add permission of admin
-
     }
 
     private function getAllRealatedPatients()
     {
         //Collect all of the data received from the new patient form
         $patientParams = $this->getRequestedParamsArray();
-        if(isset($patientParams["closeBeforeOpening"])) {
+        if (isset($patientParams["closeBeforeOpening"])) {
             $closeBeforeOpening = $patientParams["closeBeforeOpening"];
-        }
-        else{
+        } else {
             $closeBeforeOpening ='';
         }
 
         //clean the mf_
-        foreach ($patientParams as $key=>$item) {
-                $keyArr=explode("mf_",$key);
+        foreach ($patientParams as $key => $item) {
+                $keyArr=explode("mf_", $key);
                 $patientParams[$keyArr[1]]=$item;
                 unset($patientParams[$key]);
-
-
         }
 
 
         $patientData=$this->getPatientDataTable()->getPatients($patientParams);
 
 
-        if(isset($patientData)){
-            foreach($patientData as $data){
-                if($data['pubpid']==$patientParams['pubpid']){
+        if (isset($patientData)) {
+            foreach ($patientData as $data) {
+                if ($data['pubpid']==$patientParams['pubpid']) {
                     return array("status"=>"failed","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
                 }
             }
+
             return array("status"=>"ok","list"=>$patientData,"closeBeforeOpening"=>$closeBeforeOpening);
         }
     }
@@ -85,7 +83,7 @@ class PatientvalidationController extends BaseController{
         $this->layout()->setVariable('jsFiles', $this->jsFiles);
         $this->layout()->setVariable('cssFiles', $this->cssFiles);
         $this->layout()->setVariable("title", $this->listenerObject->z_xl("Patient validation"));
-        $this->layout()->setVariable("translate",$this->translate);
+        $this->layout()->setVariable("translate", $this->translate);
 
          $relatedPatients =  $this->getAllRealatedPatients();
 
@@ -103,9 +101,7 @@ class PatientvalidationController extends BaseController{
             $sm = $this->getServiceLocator();
             $this->PatientDataTable = $sm->get('Patientvalidation\Model\PatientDataTable');
         }
+
         return $this->PatientDataTable;
     }
-
-
-
 }

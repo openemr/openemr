@@ -33,7 +33,7 @@ set_time_limit(0);
 
 function array_key_exists_default($key, $search, $default = null)
 {
-    if(array_key_exists($key, $search)) {
+    if (array_key_exists($key, $search)) {
         $value = $search[$key];
     } else {
         $value = $default;
@@ -62,27 +62,27 @@ $eRxPage->setAuthUserId(array_key_exists_default('authUserID', $_SESSION))
 
 $missingExtensions = $eRxPage->checkForMissingExtensions();
 
-if(count($missingExtensions) > 0) {
-
+if (count($missingExtensions) > 0) {
 ?>
         <strong><?php echo xlt('Error'); ?>:</strong>
         <p><?php echo xlt('Please contact your systems administrator, the following component(s) are required but are missing.'); ?></p>
         <ul>
-            <?php foreach($missingExtensions as $missingExtension) { echo '<li>'.text($missingExtension).'</li>'; } ?>
+            <?php foreach ($missingExtensions as $missingExtension) {
+                echo '<li>'.text($missingExtension).'</li>';
+} ?>
         <ul>
 <?php
-
 } else {
-
     $messages = $eRxPage->buildXML();
 
-    if(count($messages['demographics']) > 0) {
-
+    if (count($messages['demographics']) > 0) {
 ?>
         <strong><?php echo xlt('Warning'); ?>:</strong>
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
         <ul>
-            <?php foreach($messages['demographics'] as $message) { echo '<li>'.text($message).'</li>'; } ?>
+            <?php foreach ($messages['demographics'] as $message) {
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
         <p><?php echo xlt('You will be automatically redirected to Demographics. You may make the necessary corrections and navigate to NewCrop again.'); ?></p>
 <?php
@@ -96,25 +96,24 @@ if(count($missingExtensions) > 0) {
             }, <?php echo (count($messages) * 2000) + 3000; ?>);
         </script>
 <?php
-
-    } elseif(count($messages['empty']) > 0) {
-
+    } elseif (count($messages['empty']) > 0) {
 ?>
         <p><?php echo xlt('The following fields have to be filled to send a request.'); ?></p>
         <ul>
-            <?php foreach($messages['empty'] as $message) { echo '<li>'.text($message).'</li>'; } ?>
+            <?php foreach ($messages['empty'] as $message) {
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
 <?php
-
     } else {
-
-        if(count($messages['warning']) > 0) {
-
+        if (count($messages['warning']) > 0) {
 ?>
         <strong><?php echo xlt('Warning'); ?></strong>
         <p><?php echo xlt('The following fields are empty.'); ?></p>
         <ul>
-            <?php foreach($messages['warning'] as $message) { echo '<li>'.text($message).'</li>'; } ?>
+            <?php foreach ($messages['warning'] as $message) {
+                echo '<li>'.text($message).'</li>';
+} ?>
         <ul>
         <p><strong><?php echo xlt('This will not prevent you from going to the e-Prescriptions site.'); ?></strong></p>
 <?php
@@ -129,17 +128,16 @@ if(count($missingExtensions) > 0) {
 
         $errors = $eRxPage->checkError($xml);
 
-        if(count($errors) > 0) {
-
+        if (count($errors) > 0) {
 ?>
         <strong><?php echo xlt('NewCrop call failed'); ?></strong>
         <ul>
-            <?php foreach($errors as $message) { echo '<li>'.$message.'</li>'; } ?>
+            <?php foreach ($errors as $message) {
+                echo '<li>'.$message.'</li>';
+} ?>
         <ul>
 <?php
-
         } else {
-
             $eRxPage->updatePatientData();
 
 ?>
@@ -157,7 +155,6 @@ if(count($missingExtensions) > 0) {
             }, <?php echo $delay; ?>);
         </script>
 <?php
-
         }
     }
 }

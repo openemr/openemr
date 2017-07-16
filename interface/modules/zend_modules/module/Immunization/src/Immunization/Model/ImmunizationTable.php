@@ -31,6 +31,7 @@ use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterInterface;
 
 use \Application\Model\ApplicationTable;
+
 class ImmunizationTable extends AbstractTableGateway
 {
     public $tableGateway;
@@ -61,7 +62,7 @@ class ImmunizationTable extends AbstractTableGateway
     * @param type $form_data
     * @return type
     */
-    public function immunizedPatientDetails($form_data,$getCount=null)
+    public function immunizedPatientDetails($form_data, $getCount = null)
     {
         $query_data = array();
         $query_codes     = $form_data['query_codes'];
@@ -133,6 +134,7 @@ class ImmunizationTable extends AbstractTableGateway
             $query .= "CONCAT(IF(p.fname IS NULL,'',p.fname),' ',IF(p.mname IS NULL,'',p.mname),' ',IF(p.lname IS NULL,'',p.lname)) AS  patientname, ".
                 "i.vis_date AS immunizationdate, "  ;
         }
+
         $query .=
             "i.id AS immunizationid, c.code_text_short AS immunizationtitle, c.code_text,i.amount_administered AS administered_amount, i.amount_administered_unit AS administered_unit ".
             "FROM (immunizations AS i, patient_data AS p, codes AS c) ".
@@ -146,39 +148,43 @@ class ImmunizationTable extends AbstractTableGateway
                         "LEFT JOIN users AS u2 ON i.ordering_provider = u2.id ".
             "WHERE ".
             "ct.ct_key='CVX' and ";
-        if($from_date!=0) {
+        if ($from_date!=0) {
             $query .= "i.vis_date >= ? " ;
             $query_data[] = $from_date;
         }
-        if($from_date!=0 and $to_date!=0) {
+
+        if ($from_date!=0 and $to_date!=0) {
             $query .= " and " ;
         }
-        if($to_date!=0) {
+
+        if ($to_date!=0) {
             $query .= "i.vis_date <= ? ";
             $query_data[] = $to_date;
         }
-        if($from_date!=0 or $to_date!=0) {
+
+        if ($from_date!=0 or $to_date!=0) {
             $query .= " and " ;
         }
+
         $query .= "i.patient_id=p.pid and ".
         add_escape_custom($query_codes) .
         $query_pids .
         "i.cvx_code = c.code ORDER BY i.patient_id, i.id";
         
-        if($getCount){
-            $result     =   $this->applicationTable->zQuery($query,$query_data);
+        if ($getCount) {
+            $result     =   $this->applicationTable->zQuery($query, $query_data);
             $resCount   =   $result->count();
             return $resCount;
         }
         
         $query .= " LIMIT ".\Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']).",".\Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
-        $result =   $this->applicationTable->zQuery($query,$query_data);
+        $result =   $this->applicationTable->zQuery($query, $query_data);
         return $result;
     }
   
-    public function getNotes($option_id,$list_id)
+    public function getNotes($option_id, $list_id)
     {
-        if($option_id) {
+        if ($option_id) {
             $query   = "SELECT 
                           notes 
                         FROM
@@ -186,9 +192,10 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
+
         return $res_cur['notes'];
     }
   
@@ -198,7 +205,7 @@ class ImmunizationTable extends AbstractTableGateway
     * @param type $id
     * @return type Array $val
     */
-    public function getImmunizationObservationResultsData($pid,$id)
+    public function getImmunizationObservationResultsData($pid, $id)
     {
         $sql    = " SELECT 
                        * 
@@ -207,15 +214,16 @@ class ImmunizationTable extends AbstractTableGateway
                      WHERE imo_pid = ? 
                        AND imo_im_id = ?";
         $result = $this->applicationTable->zQuery($sql, array($pid,$id));
-        foreach($result as $row) {
+        foreach ($result as $row) {
             $val[]  = $row;
         }
+
         return $val;
     }
   
-    public function getCodes($option_id,$list_id)
+    public function getCodes($option_id, $list_id)
     {
-        if($option_id) {
+        if ($option_id) {
             $query   = "SELECT 
                           codes 
                         FROM
@@ -223,11 +231,11 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ? 
                           AND option_id = ? 
                           AND activity = ?";
-            $result  = $this->applicationTable->zQuery($query,array($list_id,$option_id,1));
+            $result  = $this->applicationTable->zQuery($query, array($list_id,$option_id,1));
             $res_cur = $result->current();
         }
-        $codes            = explode(":",$res_cur['codes']);
+
+        $codes            = explode(":", $res_cur['codes']);
         return $codes[1];
     }
-    
 }

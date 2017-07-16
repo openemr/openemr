@@ -10,7 +10,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  * @version 1.0
  */
-class ExceptionFormatter {
+class ExceptionFormatter
+{
     
     /**
      * This is a utility function for tracing errors.
@@ -28,8 +29,8 @@ class ExceptionFormatter {
      */
     static function GetTraceAsString($msg = "DEBUG", $depth = 0, $join = " :: ", $show_lines = true)
     {
-        $error = new Exception ( $msg );
-        return self::FormatTrace ( $error->getTrace (), $depth, $join, $show_lines );
+        $error = new Exception($msg);
+        return self::FormatTrace($error->getTrace(), $depth, $join, $show_lines);
     }
     
     /**
@@ -55,18 +56,19 @@ class ExceptionFormatter {
         
         $calling_function = "";
         $calling_line = "[?]";
-        $levels = count ( $tb );
+        $levels = count($tb);
         
-        if ($depth == 0)
+        if ($depth == 0) {
             $depth = $levels;
+        }
         
-        for($x = $levels; $x > 0; $x --) {
+        for ($x = $levels; $x > 0; $x --) {
             $stack = $tb [$x - 1];
-            $s_file = isset ( $stack ['file'] ) ? basename ( $stack ['file'] ) : "[?]";
-            $s_line = isset ( $stack ['line'] ) ? $stack ['line'] : "[?]";
-            $s_function = isset ( $stack ['function'] ) ? $stack ['function'] : "";
-            $s_class = isset ( $stack ['class'] ) ? $stack ['class'] : "";
-            $s_type = isset ( $stack ['type'] ) ? $stack ['type'] : "";
+            $s_file = isset($stack ['file']) ? basename($stack ['file']) : "[?]";
+            $s_line = isset($stack ['line']) ? $stack ['line'] : "[?]";
+            $s_function = isset($stack ['function']) ? $stack ['function'] : "";
+            $s_class = isset($stack ['class']) ? $stack ['class'] : "";
+            $s_type = isset($stack ['type']) ? $stack ['type'] : "";
             
             if ($depth >= $x) {
                 $msg .= $delim . "$calling_function" . ($show_lines ? " ($s_file Line $s_line)" : "");
@@ -79,5 +81,3 @@ class ExceptionFormatter {
         return $msg;
     }
 }
-
-?>

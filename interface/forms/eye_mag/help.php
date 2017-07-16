@@ -34,8 +34,13 @@ include_once("$srcdir/api.inc");
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];
-if ($showit=='') $showit="general";
-if ($showit=='ext') $showit="external";
+if ($showit=='') {
+    $showit="general";
+}
+
+if ($showit=='ext') {
+    $showit="external";
+}
 ?>
 <html>
     <head>
