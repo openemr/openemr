@@ -17,170 +17,97 @@ $auth_demo     = acl_check('patients'  , 'demo');
 
 $cmsportal = false;
 if ($GLOBALS['gbl_portal_cms_enable']) {
-    $ptdata = getPatientData($pid, 'cmsportal_login');
-    $cmsportal = $ptdata['cmsportal_login'] !== '';
+  $ptdata = getPatientData($pid, 'cmsportal_login');
+  $cmsportal = $ptdata['cmsportal_login'] !== '';
 }
+$rpt_opt = array(
+	'gen' => array (
+		'demographics' => array('disp' => 'Demographics', 'auth' => true, 'attr' => 'checked'),
+		'history' => array('disp' => 'History', 'auth' => acl_check('patients', 'med'), 'attr' => ''),
+//		'employer' => array('disp' => 'Employer', 'auth' => true, 'attr' => ''),
+		'insurance' => array('disp' => 'Insurance', 'auth' => true, 'attr' => ''),
+		'billing' => array('disp' => 'Billing', 'auth' => true, 'attr' => ($GLOBALS['simplified_demographics'] ? '' : 'checked')),
+		'immunizations' => array('disp' => 'Immunizations', 'auth' => true, 'attr' => ''),
+//		'allergies' => array('disp' => 'Allergies', 'auth' => true, 'attr' => ''),
+//		'medications' => array('disp' => 'Medications', 'auth' => true, 'attr' => ''),
+//		'medical_problems' => array('disp' => 'Medical Problems', 'auth' => true, 'attr' => ''),
+		'notes' => array('disp' => 'Patient Notes', 'auth' => true, 'attr' => ''),
+		'transactions' => array('disp' => 'Transactions', 'auth' => true, 'attr' => ''),
+		'batchcom' => array('disp' => 'Communications', 'auth' => true, 'attr' => ''),
+		'recurring_days' => array('disp' => 'Recurrent Appointments', 'auth' => true, 'attr' => ''),
+	),
+	'submits' => array(
+		'1' => array('disp' => 'Generate Report', 'auth' => true, 'class' => 'genreport'),
+		'2' => array('disp' => 'Download PDF', 'auth' => true, 'class' => 'genpdfrep'),
+		'3' => array('disp' => 'Send to Portal', 'auth' => $cmsportal, 'class' => 'genreport'),		
+	),
+);
+$html_gen = '';
+foreach($rpt_opt['gen'] as $opt_key => $opt) {
+	if ($opt['auth']) {
+		$html_gen .= sprintf('<div class="col-sm-2"><input type="checkbox" name="include_%s" id="include_%s" value="%s" %s>
+			<label for="include_%s">%s</label></div>',
+			$opt_key, $opt_key, $opt_key, $opt['attr'], $opt_key, xl($opt['disp']));
+	}
+}
+$html_gen = sprintf('<div class="row">%s</div>', $html_gen);
+$html_sub = '';
+foreach($rpt_opt['submits'] as $opt_key => $opt) {
+	if ($opt['auth']) {
+		$html_gen .= sprintf('<div class="col-sm-2"><input type="button" class="btn btn-xs %s" value="%s" /></div>',
+			$opt['class'], xl($opt['disp']));
+	}
+}
+$html_sub = sprintf('<div class="row">%s</div>', $html_sub);
+// Documents list
+$html_docs = '';
+$sql = "SELECT d.id, d.docdate, d.url, c.name, c.aco_spec 
+		FROM documents AS d LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id 
+		LEFT JOIN categories AS c ON c.id = ctd.category_id 
+		WHERE d.foreign_id = ?
+		ORDER BY d.docdate DESC";
+$rs = sqlStatement($sql, array($pid));
+while ($rs_doc = sqlFetchArray($rs)) {
+	if ((!$rs_doc['aco_spec']) && (!acl_check_aco_spec($rs_doc['aco_spec']))) { continue; }
+	// Two col display
+	$html_docs .= sprintf('<div class="col-md-6">
+		<div class="col-md-1"><input type="checkbox" name="documents[]" value="%s"></div>
+		<div class="col-md-3">%s</div>
+		<div class="col-md-3">%s</div>
+		<div class="col-md-5">%s</div>
+		</div>',
+		$rs_doc['id'], $rs_doc['docdate'], xl_document_category($rs_doc['name']), basename($rs_doc['url']));
+}
+$html_docs = sprintf('<div class="row">%s</div>', $html_docs);
 ?>
 <html>
 <head>
 <?php html_header_show();?>
 
 <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<style type="text/css">@import url(../../../library/dynarch_calendar.css);</style>
-<script type="text/javascript" src="../../../library/textformat.js"></script>
-<script type="text/javascript" src="../../../library/dynarch_calendar.js"></script>
-<?php include_once("{$GLOBALS['srcdir']}/dynarch_calendar_en.inc.php"); ?>
-<script type="text/javascript" src="../../../library/dynarch_calendar_setup.js"></script>
-
-<!-- include jQuery support -->
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-1-2-2/index.js"></script>
-
-<script language='JavaScript'>
-
-function checkAll(check) {
- var f = document.forms['report_form'];
- for (var i = 0; i < f.elements.length; ++i) {
-  if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
- }
- return false;
-}
-
-function show_date_fun(){
-  if(document.getElementById('show_date').checked == true){
-    document.getElementById('date_div').style.display = '';
-  }else{
-    document.getElementById('date_div').style.display = 'none';
-  }
-  return;
-}
-
-</script>
-
 </head>
 
 <body class="body_top">
-<div id="patient_reports"> <!-- large outer DIV -->
 
-<p>
-<span class='title'><?php echo xlt('Patient Reports'); ?></span>
-</p>
+<div class="container">
+  <h4 class="title"><?php echo xlt('Patient Reports'); ?></h4>
+  <ul class="nav nav-tabs">
+    <li class="active" data-target="#dne_report" data-toggle="tab">
+		<a href="#"><?php printf('%s %s %s', xl("Demographics"), xl("and"), xl("Encounters")); ?></a>
+	</li>
+    <li data-target="#ccr_report" data-toggle="tab" <?php echo ($GLOBALS['activate_ccr_ccd_report'] ? "":'class="disabled"') ?> {>
+		<a href="#"><?php echo xl("Continuity of Care"); ?></a>
+	</li>
+  </ul>
 
-<?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
-<div id="ccr_report">
+<div class="tab-content" id="patient_reports container"> <!-- large outer DIV -->
 
-<form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
-<span class='title'><?php xl('Continuity of Care Record (CCR)','e'); ?></span>&nbsp;&nbsp;
-<br/>
-<span class='text'>(<?php xl('Pop ups need to be enabled to see these reports','e'); ?>)</span>
-<br/>
-<br/>
-<input type='hidden' name='ccrAction'>
-<input type='hidden' name='raw'>
-<input type="checkbox" name="show_date" id="show_date" onchange="show_date_fun();" ><span class='text'><?php xl('Use Date Range','e'); ?>
-<br>
-<div id="date_div" style="display:none" >
-  <br>
-  <table border="0" cellpadding="0" cellspacing="0" >
-    <tr>
-      <td>
-        <span class='bold'><?php xl('Start Date','e');?>: </span>
-      </td>
-      <td>
-        <input type='text' size='10' name='Start' id='Start'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl('yyyy-mm-dd','e'); ?>' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_start' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php xl('Click here to choose a date','e'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"Start", ifFormat:"%Y-%m-%d", button:"img_start"});
-        </script>
-      </td>
-      <td>
-        &nbsp;
-        <span class='bold'><?php xl('End Date','e');?>: </span>
-      </td>
-      <td>
-        <input type='text' size='10' name='End' id='End'
-         onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)'
-         title='<?php xl('yyyy-mm-dd','e'); ?>' />
-        <img src='../../pic/show_calendar.gif' align='absbottom' width='24' height='22'
-         id='img_end' border='0' alt='[?]' style='cursor:pointer'
-         title='<?php xl('Click here to choose a date','e'); ?>' >
-        <script LANGUAGE="JavaScript">
-         Calendar.setup({inputField:"End", ifFormat:"%Y-%m-%d", button:"img_end"});
-        </script>
-      </td>
-    </tr>
-  </table>
-</div>
-<br>
-<input type="button" class="generateCCR" value="<?php echo xla('Generate Report'); ?>" />
-<!-- <input type="button" class="generateCCR_download_h" value="<?php echo xl('Download')." (Hybrid)"; ?>" /> -->
-<input type="button" class="generateCCR_download_p" value="<?php echo xl('Download'); ?>" />
-<!-- <input type="button" class="generateCCR_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
-<input type="button" class="viewCCR_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
-             <br>
-             <div id="ccr_send_dialog" style="display:none" >
-              <br>
-              <table border="0" cellpadding="0" cellspacing="0" >
-               <tr>
-                <td>
-                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
-                <input type="text" size="64" name="ccr_send_to" id="ccr_send_to" value="">
-                <input type="hidden" name="ccr_sent_by" id="ccr_sent_by" value="user">
-                <input type="button" class="viewCCR_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
-                <div id="ccr_send_result" style="display:none" >
-                 <span class="text" id="ccr_send_message"></span>
-                </div>
-                </td>
-              </tr>
-              </table>
-             </div>
-<?php } ?>
-<hr/>
-<span class='title'><?php xl('Continuity of Care Document (CCD)','e'); ?></span>&nbsp;&nbsp;
-<br/>
-<span class='text'>(<?php xl('Pop ups need to be enabled to see these reports','e'); ?>)</span>
-<br/>
-<br/>
-<input type="button" class="viewCCD" value="<?php echo xla('Generate Report'); ?>" />
-<input type="button" class="viewCCD_download" value="<?php echo htmlspecialchars( xl('Download', ENT_QUOTES)); ?>" />
-<!-- <input type="button" class="viewCCD_raw" value="<?php xl('Raw Report','e'); ?>" /> -->
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
-<input type="button" class="viewCCD_send_dialog" value="<?php echo htmlspecialchars( xl('Transmit', ENT_QUOTES)); ?>" />
-             <br>
-             <div id="ccd_send_dialog" style="display:none" >
-              <br>
-              <table border="0" cellpadding="0" cellspacing="0" >
-               <tr>
-                <td>
-                 <span class='bold'><?php echo htmlspecialchars( xl('Enter Recipient\'s Direct Address'), ENT_NOQUOTES);?>: </span>
-                <input type="text" size="64" name="ccd_send_to" id="ccd_send_to" value="">
-        <input type="hidden" name="ccd_sent_by" id="ccd_sent_by" value="user">
-                <input type="button" class="viewCCD_transmit" value="<?php echo htmlspecialchars( xl('Send', ENT_QUOTES)); ?>" />
-                <div id="ccd_send_result" style="display:none" >
-                 <span class="text" id="ccd_send_message"></span>
-                </div>
-                </td>
-              </tr>
-              </table>
-             </div>
-<?php } ?>
-
-</form>
-<hr/>
-<hr/>
-
-</div>
-<?php } // end CCR/CCD reporting options ?>
-
+<div id="dne_report" class="tab-pane active">
 <form name='report_form' id="report_form" method='post' action='custom_report.php'>
-
-
-<span class='title'><?php xl('Patient Report','e'); ?></span>&nbsp;&nbsp;
-
+<input type='hidden' name='pdf' value='0'>
+<div class="panel-group">
+  <div class="panel panel-default">
+    <div class="panel-heading"><?php echo xlt('Common information'); ?>
 <!--
 <a class="link_submit" href="full_report.php" onclick="top.restoreSession()">
 [<?php xl('View Comprehensive Patient Report','e'); ?>]</a>
@@ -188,63 +115,13 @@ function show_date_fun(){
 <a class="link_submit" href="#" onclick="return checkAll(true)"><?php xl('Check All','e'); ?></a>
 |
 <a class="link_submit" href="#" onclick="return checkAll(false)"><?php xl('Clear All','e'); ?></a>
-<p>
-
-<table class="includes">
- <tr>
-  <td class='text'>
-   <input type='checkbox' name='include_demographics' id='include_demographics' value="demographics" checked><?php xl('Demographics','e'); ?><br>
-    <?php if (acl_check('patients', 'med')): ?>
-   <input type='checkbox' name='include_history' id='include_history' value="history"><?php xl('History','e'); ?><br>
-    <?php endif; ?>
-   <!--
-   <input type='checkbox' name='include_employer' id='include_employer' value="employer"><?php xl('Employer','e'); ?><br>
-   -->
-   <input type='checkbox' name='include_insurance' id='include_insurance' value="insurance"><?php xl('Insurance','e'); ?><br>
-   <input type='checkbox' name='include_billing' id='include_billing' value="billing"
-    <?php if (!$GLOBALS['simplified_demographics']) echo 'checked'; ?>><?php xl('Billing','e'); ?><br>
-  </td>
-  <td class='text'>
-   <!--
-   <input type='checkbox' name='include_allergies' id='include_allergies' value="allergies">Allergies<br>
-   <input type='checkbox' name='include_medications' id='include_medications' value="medications">Medications<br>
-   -->
-   <input type='checkbox' name='include_immunizations' id='include_immunizations' value="immunizations"><?php xl('Immunizations','e'); ?><br>
-   <!--
-   <input type='checkbox' name='include_medical_problems' id='include_medical_problems' value="medical_problems">Medical Problems<br>
-   -->
-   <input type='checkbox' name='include_notes' id='include_notes' value="notes"><?php xl('Patient Notes','e'); ?><br>
-   <input type='checkbox' name='include_transactions' id='include_transactions' value="transactions"><?php xl('Transactions','e'); ?><br>
-   <input type='checkbox' name='include_batchcom' id='include_batchcom' value="batchcom"><?php xl('Communications','e'); ?><br>
-  </td>
-     <td class="text">
-         <input type='checkbox' name='include_recurring_days' id='include_recurring_days' value="recurring_days" ><?php echo  xlt('Recurrent Appointments'); ?><br>
-     </td>
- </tr>
-</table>
-
-<br>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
-<?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
-<?php } ?>
-<input type='hidden' name='pdf' value='0'>
-<br>
-
-<!-- old ccr button position -->
-<hr/>
-
-<table class="issues_encounters_forms">
- <tr>
-
-  <!-- Issues -->
-  <td class='text'>
-  <div class="issues">
-  <span class='bold'><?php xl('Issues','e'); ?>:</span>
-   <br>
-   <br>
-
+	</div>
+    <div class="panel-body"><?php echo $html_gen; ?></div>
+	<div class="panel-footer"><?php echo $html_sub; ?></div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading"><?php xl('Issues','e'); ?></div>
+    <div class="panel-body issues">
 <?php if (! acl_check('patients', 'med')): ?>
 <br>(Issues not authorized)
 
@@ -302,17 +179,11 @@ while ($prow = sqlFetchArray($pres)) {
    </table>
 
 <?php endif; // end of Issues output ?>
-
-   </div> <!-- end issues DIV -->
-  </td>
-
-<!-- Encounters and Forms -->
-
-<td class='text'>
-<div class='encounters'>
-<span class='bold'><?php xl('Encounters &amp; Forms','e'); ?>:</span>
-<br><br>
-
+	</div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading"><?php xl('Encounters &amp; Forms','e'); ?></div>
+    <div class="panel-body encounters">
 <?php if (!($auth_notes_a || $auth_notes || $auth_coding_a || $auth_coding || $auth_med || $auth_relaxed)): ?>
 (Encounters not authorized)
 <?php else: ?>
@@ -320,14 +191,10 @@ while ($prow = sqlFetchArray($pres)) {
 <?php
 
 $isfirst = 1;
-$res = sqlStatement("SELECT forms.encounter, forms.form_id, forms.form_name, " .
-                    "forms.formdir, forms.date AS fdate, form_encounter.date " .
-                    ",form_encounter.reason ".
-                    "FROM forms, form_encounter WHERE " .
-                    "forms.pid = '$pid' AND form_encounter.pid = '$pid' AND " .
-                    "form_encounter.encounter = forms.encounter " .
-                    " AND forms.deleted=0 ". // --JRM--
-                    "ORDER BY form_encounter.date DESC, fdate ASC");
+$res = sqlStatement("SELECT fe.encounter, fm.form_id, fm.form_name, fm.formdir, fm.date AS fdate, fe.date, fe.reason 
+                    FROM form_encounter fe INNER JOIN forms fm ON fe.encounter = fm.encounter AND fe.pid = fm.pid
+					WHERE fe.pid=? AND fm.deleted=0 
+                    ORDER BY fe.date DESC, fdate ASC", array($pid));
 $res2 = sqlStatement("SELECT name FROM registry ORDER BY priority");
 $html_strings = array();
 $registry_form_name = array();
@@ -398,19 +265,12 @@ foreach($registry_form_name as $var) {
 ?>
 
 <?php endif; ?>
-
-  </div> <!-- end encounters DIV -->
-  </td>
- </tr>
-</table>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
-<?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
-<?php } ?>
-
-<!-- Procedure Orders -->
-<hr/>
+	</div>
+	</div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading"><?php echo xl('Procedures'); ?></div>
+    <div class="panel-body">
 <table border="0" cellpadding="0" cellspacing="0" >
  <tr>
   <td class='bold'><?php echo xlt('Procedures'); ?>&nbsp;&nbsp;</td>
@@ -428,66 +288,62 @@ $res = sqlStatement("SELECT po.procedure_order_id, po.date_ordered, fe.date " .
   "ORDER BY po.date_ordered DESC, po.procedure_order_id DESC",
   array($pid));
 while($row = sqlFetchArray($res)) {
-    $poid = $row['procedure_order_id'];
-    echo " <tr>\n";
-    echo "  <td align='center' class='text'>" .
+  $poid = $row['procedure_order_id'];
+  echo " <tr>\n";
+  echo "  <td align='center' class='text'>" .
        "<input type='checkbox' name='procedures[]' value='$poid' />&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>" . oeFormatShortDate($row['date']) . "&nbsp;&nbsp;</td>\n";
-    echo "  <td class='text'>";
-    $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
+  echo "  <td class='text'>" . oeFormatShortDate($row['date_ordered']) . "&nbsp;&nbsp;</td>\n";
+  echo "  <td class='text'>" . str_replace(" 00:00:00", "", oeFormatShortDate($row['date'])) . "&nbsp;&nbsp;</td>\n";
+  echo "  <td class='text'>";
+  $opres = sqlStatement("SELECT procedure_code, procedure_name FROM procedure_order_code " .
     "WHERE procedure_order_id = ? ORDER BY procedure_order_seq",
     array($poid));
-    while($oprow = sqlFetchArray($opres)) {
-        $tmp = $oprow['procedure_name'];
-        if (empty($tmp)) $tmp = $oprow['procedure_code'];
-        echo text($tmp) . "<br />";
-    }
-    echo "</td>\n";
-    echo " </tr>\n";
+  $pcodes = '';
+  while($oprow = sqlFetchArray($opres)) {
+    $pcodes .= '<code>'.(empty($oprow['procedure_name']) ? $oprow['procedure_code'] : $oprow['procedure_name']).'</code>,&nbsp;';
+  }
+  echo "$pcodes</td>\n";
+  echo " </tr>\n";
 }
 ?>
 </table>
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />
+	</div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading"><?php echo xl('Documents','e'); ?></div>
+    <div class="panel-body"><?php echo $html_docs ?></div>
+  </div>
+<?php /* Template for future additons
+  <div class="panel panel-default">
+    <div class="panel-heading">Panel Heading</div>
+    <div class="panel-body">Panel Content</div>
+  </div>
+*/ ?>
+</div>
+</div>
+</div>
 
-<hr/>
-<span class="bold"><?php xl('Documents','e'); ?></span>:<br>
-<ul>
-<?php
-// show available documents
-$db = $GLOBALS['adodb']['db'];
-$sql = "SELECT d.id, d.url, c.name, c.aco_spec FROM documents AS d " .
-        "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
-        "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
-        "d.foreign_id = " . $db->qstr($pid);
-$result = $db->Execute($sql);
-if ($db->ErrorMsg()) echo $db->ErrorMsg();
-while ($result && !$result->EOF) {
-    if (empty($result->fields['aco_spec']) || acl_check_aco_spec($result->fields['aco_spec'])) {
-        echo "<li class='bold'>";
-        echo '<input type="checkbox" name="documents[]" value="' .
-        $result->fields['id'] . '">';
-        echo '&nbsp;&nbsp;<i>' .  xl_document_category($result->fields['name']) . "</i>";
-        echo '&nbsp;&nbsp;' . xl('Name') . ': <i>' . basename($result->fields['url']) . "</i>";
-        echo '</li>';
-    }
-    $result->MoveNext();
-}
-?>
-</ul>
+<?php if ( $GLOBALS['activate_ccr_ccd_report'] ) { // show CCR/CCD reporting options ?>
+<div id="ccr_report" class="tab-pane"></div>
+<?php } // end CCR/CCD reporting options ?>
+
 </form>
 
-<input type="button" class="genreport" value="<?php xl('Generate Report','e'); ?>" />&nbsp;
-<input type="button" class="genpdfrep" value="<?php xl('Download PDF','e'); ?>" />&nbsp;
-<?php if ($cmsportal) { ?>
-<input type="button" class="genportal" value="<?php xl('Send to Portal','e'); ?>" />
-<?php } ?>
+</div>
 
-</div>  <!-- close patient_reports DIV -->
 </body>
+<script type="text/javascript" src="../../../library/textformat.js"></script>
+<!-- include jQuery support -->
+<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-min-3-1-1/index.js"></script>
 
 <script language="javascript">
+function checkAll(check) {
+ var f = document.forms['report_form'];
+ for (var i = 0; i < f.elements.length; ++i) {
+  if (f.elements[i].type == 'checkbox') f.elements[i].checked = check;
+ }
+ return false;
+}
 
 // jQuery stuff to make the page a little easier to use
 $(document).ready(function(){
@@ -500,166 +356,6 @@ $(document).ready(function(){
 
     // check/uncheck all Forms of an encounter
     $(".encounter").click(function() { SelectForms($(this)); });
-
-    $(".generateCCR").click(
-        function() {
-                if(document.getElementById('show_date').checked == true){
-                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
-                                return false;
-                        }
-                }
-        var ccrAction = document.getElementsByName('ccrAction');
-        ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'no';
-        top.restoreSession();
-        ccr_form.setAttribute("target", "_blank");
-        $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-    });
-        $(".generateCCR_raw").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'yes';
-                top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
-                $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-        });
-        $(".generateCCR_download_h").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'hybrid';
-                top.restoreSession();
-                $("#ccr_form").submit();
-        });
-        $(".generateCCR_download_p").click(
-        function() {
-                if(document.getElementById('show_date').checked == true){
-                        if(document.getElementById('Start').value == '' || document.getElementById('End').value == ''){
-                                alert('<?php echo addslashes( xl('Please select a start date and end date')) ?>');
-                                return false;
-                        }
-                }
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'pure';
-                top.restoreSession();
-                $("#ccr_form").submit();
-        });
-    $(".viewCCD").click(
-    function() {
-        var ccrAction = document.getElementsByName('ccrAction');
-        ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'no';
-        top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
-        $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-    });
-        $(".viewCCD_raw").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'yes';
-                top.restoreSession();
-                ccr_form.setAttribute("target", "_blank");
-                $("#ccr_form").submit();
-                ccr_form.setAttribute("target", "");
-        });
-        $(".viewCCD_download").click(
-        function() {
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'pure';
-                $("#ccr_form").submit();
-        });
-<?php if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccr_enable']==true) { ?>
-        $(".viewCCR_send_dialog").click(
-        function() {
-                $("#ccr_send_dialog").toggle();
-        });
-        $(".viewCCR_transmit").click(
-        function() {
-                $(".viewCCR_transmit").attr('disabled','disabled');
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'generate';
-                var ccrRecipient = $("#ccr_send_to").val();
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'send '+ccrRecipient;
-                if(ccrRecipient=="") {
-                  $("#ccr_send_message").html("<?php
-                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
-                  $("#ccr_send_result").show();
-                } else {
-                  $(".viewCCR_transmit").attr('disabled','disabled');
-                  $("#ccr_send_message").html("<?php
-                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
-                  $("#ccr_send_result").show();
-                  var action=$("#ccr_form").attr('action');
-                  $.post(action, {ccrAction:'generate',raw:'send '+ccrRecipient,requested_by:'user'},
-                     function(data) {
-                       if(data=="SUCCESS") {
-                         $("#ccr_send_message").html("<?php
-                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                            ?> "+ccrRecipient);
-                         $("#ccr_send_to").val("");
-                       } else {
-                         $("#ccr_send_message").html(data);
-                       }
-                       $(".viewCCR_transmit").removeAttr('disabled');
-                  });
-                }
-        });
-<?php }
-if ($GLOBALS['phimail_enable']==true && $GLOBALS['phimail_ccd_enable']==true) { ?>
-        $(".viewCCD_send_dialog").click(
-        function() {
-                $("#ccd_send_dialog").toggle();
-        });
-        $(".viewCCD_transmit").click(
-        function() {
-                $(".viewCCD_transmit").attr('disabled','disabled');
-                var ccrAction = document.getElementsByName('ccrAction');
-                ccrAction[0].value = 'viewccd';
-                var ccdRecipient = $("#ccd_send_to").val();
-                var raw = document.getElementsByName('raw');
-                raw[0].value = 'send '+ccdRecipient;
-                if(ccdRecipient=="") {
-                  $("#ccd_send_message").html("<?php
-                    echo htmlspecialchars(xl('Please enter a valid Direct Address above.'), ENT_QUOTES);?>");
-                  $("#ccd_send_result").show();
-                } else {
-                  $(".viewCCD_transmit").attr('disabled','disabled');
-                  $("#ccd_send_message").html("<?php
-                    echo htmlspecialchars(xl('Working... this may take a minute.'), ENT_QUOTES);?>");
-                  $("#ccd_send_result").show();
-                  var action=$("#ccr_form").attr('action');
-                  $.post(action, {ccrAction:'viewccd',raw:'send '+ccdRecipient,requested_by:'user'},
-                     function(data) {
-                       if(data=="SUCCESS") {
-                         $("#ccd_send_message").html("<?php
-                            echo htmlspecialchars(xl('Your message was submitted for delivery to'), ENT_QUOTES);
-                            ?> "+ccdRecipient);
-                         $("#ccd_send_to").val("");
-                       } else {
-                         $("#ccd_send_message").html(data);
-                       }
-                       $(".viewCCD_transmit").removeAttr('disabled');
-                  });
-                }
-        });
-<?php } ?>
-
 });
 
 // select/deselect the Forms related to the selected Encounter
@@ -693,6 +389,13 @@ function issueClick(issue) {
 
     });
 }
+$("#ccr_report").load("patient_cc.php");
+$('#sel_rep').click(function() {
+    if ($(this).find('.btn-primary').size()>0) {
+    	$(this).find('.btn').toggleClass('btn-primary');
+    }
+    $(this).find('.btn').toggleClass('btn-default');
+});
 
 </script>
 
